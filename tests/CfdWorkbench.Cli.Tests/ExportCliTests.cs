@@ -28,6 +28,7 @@ internal static class ExportCliTests
             ("Cli_Export_GeometryNotAcceptedRefused", GeometryRefused),
             ("Cli_Export_ForcedExtensionNeverReplaces", ForcedExtension),
             ("Cli_Export_UnwritablePathExitsIo", UnwritablePath),
+            ("Cli_Export_EmitsOneTelemetryEventPerOutcome_NoPathNoName", Telemetry),
         })
         {
             long started = System.Diagnostics.Stopwatch.GetTimestamp();
@@ -75,8 +76,10 @@ internal static class ExportCliTests
         var run = await Run("export", "example", "--format", "dat", "--out", file);
         Exits(0, run);
         Require(File.ReadAllBytes(file).AsSpan().SequenceEqual(File.ReadAllBytes(Fixture)), "the .dat differs from the committed fixture");
+        // Ruling 204 (3): the sentence once, not "Revision: Revision r1, accepted."
+        Require(!run.Output.Contains("Revision: Revision", StringComparison.Ordinal), "the Revision row repeats its label:\n" + run.Output);
         // The dialog's rows, as plain text.
-        foreach (string line in new[] { "Revision: Revision r1, accepted.", "Fidelity: ", "Trailing edge: Least thickness ", "(" + Settings.TrailingEdgeFloorLabel + ")",
+        foreach (string line in new[] { "Revision r1, accepted.", "Fidelity: ", "Trailing edge: Least thickness ", "(" + Settings.TrailingEdgeFloorLabel + ")",
             "  " + CfdWorkbench.Analysis.Export.ExportCopy.ManufacturingNotAssessed, "Limit: ", "Safety: ", "Exported root.dat", "Path: " + file })
             Require(run.Output.Contains(line, StringComparison.Ordinal), "the output lacks: " + line + "\n" + run.Output);
         Require(Directory.GetFiles(folder).Length == 1, "a temp file was left behind");
@@ -235,10 +238,42 @@ internal static class ExportCliTests
         Require(File.Exists(Path.Combine(folder, "y.dat")), "the forced extension was not applied");
     });
 
+    // Instrumentation: the CLI records to the session it opened (its ring ends with the process; there is no other sink), one event per outcome.
+    private static async Task Telemetry() => await WithFolder(async folder =>
+    {
+        async Task<(int Exit, List<ExportTelemetry> Events)> Observe(params string[] args)
+        {
+            List<ExportTelemetry> seen = [];
+            int exit = await ExportVerb.RunAsync(args, new StringWriter(), CancellationToken.None, events => seen.AddRange(events.Where(e => e.Export is not null).Select(e => e.Export!)));
+            return (exit, seen);
+        }
+        string file = Path.Combine(folder, "private-wing.stl");
+        var written = await Observe("export", "example", "--format", "stl", "--scope", "half", "--tolerance", "draft", "--out", file);
+        Require(written.Exit == 0 && written.Events.Count == 1, $"a written export gives one event, got {written.Events.Count}");
+        var w = written.Events[0];
+        Require(w.Operation == "export.write" && w.Outcome == "written" && w.Format == "stl" && w.Scope == "half" && w.Preset == "draft"
+            && w.Bytes == new FileInfo(file).Length && w.Triangles > 0 && w.DeviationMm is not null && w.Milliseconds >= 0, "the written event lacks a field: " + w);
+        var failed = await Observe("export", "example", "--format", "dat", "--out", Path.Combine(folder, "missing", "x.dat"));
+        Require(failed.Exit == 5 && failed.Events.Count == 1 && failed.Events[0] is { Operation: "export.write", Outcome: "EXPORT-FOLDER-GONE", Scope: null, Preset: null }, "a failed write gives one coded event");
+        string real = Path.Combine(folder, "real.dat"), link = Path.Combine(folder, "link.dat");
+        await File.WriteAllTextAsync(real, "keep");
+        File.CreateSymbolicLink(link, real);
+        var refused = await Observe("export", "example", "--format", "dat", "--out", link);
+        Require(refused.Exit == 6 && refused.Events.Count == 1 && refused.Events[0] is { Operation: "export.validate", Outcome: "EXPORT-TARGET-LINK", Bytes: null }, "a refusal gives one validate event");
+        foreach (var e in written.Events.Concat(failed.Events).Concat(refused.Events))
+        {
+            string text = e.ToString();
+            Require(!text.Contains("private-wing", StringComparison.Ordinal) && !text.Contains(folder, StringComparison.Ordinal)
+                && !text.Contains(Environment.UserName, StringComparison.Ordinal) && !text.Contains(Environment.MachineName, StringComparison.Ordinal)
+                && !text.Contains("basic", StringComparison.OrdinalIgnoreCase), "an event carries an identifier: " + text);
+        }
+    });
+
     private static async Task UnwritablePath() => await WithFolder(async folder =>
     {
         var run = await Run("export", "example", "--format", "dat", "--out", Path.Combine(folder, "missing", "x.dat"));
         Exits(5, run);
         Require(run.Output.Contains("Can't write the file", StringComparison.Ordinal), run.Output);
+        Require(!run.Output.Contains("earlier file", StringComparison.Ordinal), "a missing folder has no earlier file:\n" + run.Output);
     });
 }

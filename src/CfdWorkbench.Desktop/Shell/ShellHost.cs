@@ -1442,7 +1442,7 @@ public sealed class ShellHost : Grid
             Report(new StatusReport(ExportCopy.NeedsFoil));
             return;
         }
-        var session = new ExportSession(source);
+        var session = new ExportSession(source, record: Controller.RecordExport);
         ExportOutcome? outcome;
         if (ShowExportDialog is not null) outcome = await ShowExportDialog(session);
         else if (TopLevel.GetTopLevel(this) is Window owner)

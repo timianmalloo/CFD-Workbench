@@ -87,9 +87,14 @@ public static class ExportCopy
     public static string Fidelity(double deviationMm) =>                                                                           // COPY-498 (EX25a)
         $"Largest deviation between the curve and the lines joining the points: {Fixed(deviationMm, 4)} mm at this chord, sampled at segment midpoints.";
 
-    public static string WriteFailed(string cause) =>                                                                              // COPY-507 (EX34)
-        cause.Length == 0 ? "Can't write the file. Nothing was changed. The earlier file is still there."
-            : $"Can't write the file. {cause} Nothing was changed. The earlier file is still there.";
+    /// <summary>COPY-507 (EX34, Ruling 204): the earlier-file sentence is kept only when a file existed at the target name when the write began.</summary>
+    public static string WriteFailed(string cause, bool earlierFile) =>
+        (cause.Length == 0 ? "Can't write the file. Nothing was changed." : $"Can't write the file. {cause} Nothing was changed.")
+        + (earlierFile ? " The earlier file is still there." : "");
+
+    public const string UnitFixedInName = "mm, unscaled (in the file name)";                                                          // COPY-520 (Ruling 204)
+
+    public const string UnitFixedInFile = "mm, unscaled (the unit is set in the file)";                                               // COPY-521 (Ruling 204)
 
     public static string TrailingEdge(double thicknessMm, string where, double floorMm, string label) =>                           // COPY-518 (EX45)
         $"Least thickness {Fixed(thicknessMm, 2)} mm at {where}. Floor {Fixed(floorMm, 2)} mm ({label}).";

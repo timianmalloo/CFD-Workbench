@@ -42,6 +42,7 @@ public static class ExportTests
         DesktopChecks.Check("Export_Dialog_Failure_StaysOpenWithTwoWaysOut", DialogFailure);
         DesktopChecks.Check("Export_Dialog_JumpSelectsStationAndOpensItsSection_H3", Jump);
         DesktopChecks.Check("Export_Dialog_Renders_ReadyState_Screenshot", Screenshot);
+        ExportTelemetryTests.Run();
     }
 
     internal static void Settle() { Dispatcher.UIThread.RunJobs(); }
@@ -129,7 +130,9 @@ public static class ExportTests
             (495, ExportCopy.BelowFloor(0, 0, "app default, no source").Replace("0.00 mm, below the floor of 0.00 mm", "<t> mm, below the floor of <f> mm")),
             (496, ExportCopy.ShowAt("<where>")),
             (498, ExportCopy.Fidelity(0).Replace("0.0000", "<dev>")),
-            (507, ExportCopy.WriteFailed("<cause>")),
+            (507, ExportCopy.WriteFailed("<cause>", earlierFile: true)),
+            (507, ExportCopy.WriteFailed("<cause>", earlierFile: false) + " —"),
+            (520, ExportCopy.UnitFixedInName), (521, ExportCopy.UnitFixedInFile),
             (518, ExportCopy.TrailingEdge(0, "<where>", 0, "app default, no source").Replace("0.00 mm at", "<t> mm at").Replace("Floor 0.00 mm", "Floor <f> mm")),
             // The wing 3MF slice (trk-tmf).
             (480, ExportCopy.FormatThreeMf),
@@ -335,12 +338,14 @@ public static class ExportTests
             // A folder that is gone.
             var gone = Wait(session.RunAsync((_, _) => Task.FromResult<string?>(Path.Combine(folder, "missing", "x.dat"))));
             Equal(ExportOutcomeKind.Failed, gone.Kind);
-            Equal("Can't write the file. The folder no longer exists. Nothing was changed. The earlier file is still there.", gone.Message);
+            // Ruling 204: no file was at that name, so the earlier-file sentence is not said.
+            Equal("Can't write the file. The folder no longer exists. Nothing was changed.", gone.Message);
             // The target is a directory: the rename fails, the temp file is removed, and nothing else changes.
             string asDirectory = Path.Combine(folder, "taken.dat");
             Directory.CreateDirectory(asDirectory);
             var blocked = Wait(session.RunAsync((_, _) => Task.FromResult<string?>(asDirectory)));
             Equal(ExportOutcomeKind.Failed, blocked.Kind);
+            Equal("Can't write the file. Nothing was changed.", blocked.Message);
             Equal(0, Directory.GetFiles(folder, ".cfd-*.tmp").Length);
             Equal("the earlier file", File.ReadAllText(existing));
             // Each cause has its own sentence; an unmapped failure still says what happened, with no invented cause.
@@ -584,7 +589,7 @@ public static class ExportTests
                 Settle();
                 Equal(true, dialog.IsVisible);
                 Equal(true, dialog.FindControl<Border>("FailureBand")!.IsVisible);
-                Equal("Can't write the file. The folder no longer exists. Nothing was changed. The earlier file is still there.", dialog.FindControl<TextBlock>("FailureText")!.Text);
+                Equal("Can't write the file. The folder no longer exists. Nothing was changed.", dialog.FindControl<TextBlock>("FailureText")!.Text);
                 Equal("Choose another place…", dialog.FindControl<Button>("AnotherPlaceButton")!.Content as string);
                 Equal("Try again", dialog.FindControl<Button>("TryAgainButton")!.Content as string);
                 // Try again after the folder exists writes the same path.
