@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T19:57:04Z",
+  "generated": "2026-10-10T20:03:19Z",
   "audit": [
     {
       "actor": null,
@@ -34503,6 +34503,31 @@ window.AUDIT_DATA = {
       "done_when": "self-tests red then green, check-docs exit 0",
       "started_at": "2026-10-10T19:52:30Z",
       "duration_seconds": 274.0
+    },
+    {
+      "id": "al-01M4KPKB8A38AKMK562RAHGDXB",
+      "shortname": "join-gfx",
+      "datetime": "2026-10-10T20:03:19Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/gfx-gate-fixes into main",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-10T20:02:02Z",
+      "duration_seconds": 77.0
     }
   ],
   "changes": [
@@ -37299,6 +37324,15 @@ window.AUDIT_DATA = {
       "to": "fable-owner",
       "kind": "decision-request",
       "ref": "req-01M4KBZG3M9EXT53FCWQ6WYW3S",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4KPG4C0R8WN426606F1DATV",
+      "ts": "2026-10-10T20:01:34Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4KPG4BVSESDZEQ08ZC773QC",
       "session": "3122f106"
     }
   ]
