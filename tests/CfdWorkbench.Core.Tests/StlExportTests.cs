@@ -63,7 +63,7 @@ internal static class StlExportTests
 
     private static string ExampleText() => File.ReadAllText(RepoFile("src", "CfdWorkbench.Desktop", "Assets", "example.foil"));
 
-    private static byte[] Example() => Encoding.UTF8.GetBytes(ExampleText());
+    internal static byte[] Example() => Encoding.UTF8.GetBytes(ExampleText());
 
     private static byte[] Untitled() => FoilSource.NewDefault();
 
@@ -73,7 +73,7 @@ internal static class StlExportTests
         .Replace("\"cv-6\", \"cv-7\"] }\n    }", "\"cv-6\", \"cv-7\"] }\n      closure open\n    }", StringComparison.Ordinal));
 
     // The four probe wings: Example foil open 0.26 mm, open 0.36 mm, closed (as shipped), and the Untitled NACA 0012 wing.
-    private static IEnumerable<(string Name, byte[] Source)> Wings()
+    internal static IEnumerable<(string Name, byte[] Source)> Wings()
     {
         yield return ("open 0.26", OpenTrailingEdge(0.001));
         yield return ("open 0.36", OpenTrailingEdge(0.0014));
