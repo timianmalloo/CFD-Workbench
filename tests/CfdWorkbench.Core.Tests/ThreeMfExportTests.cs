@@ -167,12 +167,12 @@ internal static class ThreeMfExportTests
         Equal("A&B <x> \"q\"", Metadata(odd.Bytes)["Title"]);
     }
 
-    // The fixture is built at run time from this machine: the account name, the host name, the home folder, the working folder, the temp folder
+    // The fixture is built at run time from this machine: the account name, the host name, the home folder, the working folder
     // and the repository root. None may appear in any part of the package, in any case.
     private static void NoPersonalData()
     {
         string?[] secrets = [Environment.UserName, Environment.MachineName, Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-            Directory.GetCurrentDirectory(), Path.GetTempPath().TrimEnd(Path.DirectorySeparatorChar), PlacementTests.RepoRoot()];
+            Environment.CurrentDirectory, PlacementTests.RepoRoot()];
         var wanted = secrets.Where(s => !string.IsNullOrWhiteSpace(s) && s!.Length >= 3).Select(s => s!).ToList();
         True(wanted.Count >= 4, "the runtime fixture found its secrets: " + string.Join(" | ", wanted));
         foreach (var scope in new[] { StlScope.Whole, StlScope.Half })

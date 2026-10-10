@@ -16856,6 +16856,66 @@ window.DOCS_INDEX = {
       "sourceSha256": "948c59070177fcb901abed82060357d9594d192cdef106406b661e1bc9fcdcc2"
     },
     {
+      "id": "proof-tmf-red-first",
+      "path": "docs/proof/tmf/red-first.md",
+      "title": "TMF red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-tmf",
+      "phase": "implementation",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "The red runs of the wing 3MF track: every Core and Desktop 3MF check failed on a skeleton, five one-line mutants of the writer each failed the check that names them, and the B1 slicer run carries two negative controls (a removed triangle, a unit declared as meter).",
+      "tags": [
+        "export",
+        "3mf",
+        "red-first",
+        "b1",
+        "area-7"
+      ],
+      "links": [
+        {
+          "to": "design-export",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-tmf-spec-excerpts",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "8a4d21c9c854ffb9f86bc0c33de4caf76ddb9c1943a6ab5d2d13ac3110905f0a"
+    },
+    {
+      "id": "proof-tmf-spec-excerpts",
+      "path": "docs/proof/tmf/3mf-core-spec-excerpts.md",
+      "title": "3MF Core specification excerpts for the wing 3MF assumptions",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-tmf",
+      "phase": "implementation",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Confirms the two assume: markers of docs/design/export.md 4.3 against the 3MF Core specification itself: the unit value millimeter, and counter-clockwise winding with the face normal outward. Also the metadata names and the package parts.",
+      "tags": [
+        "export",
+        "3mf",
+        "spec",
+        "unit",
+        "winding",
+        "metadata",
+        "area-7"
+      ],
+      "links": [
+        {
+          "to": "design-export",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "64a5f06b74d403ef421d0799f9fac676d7bc07972b68ab4d6612b6eaccc34602"
+    },
+    {
       "id": "proof-tmh-red-first",
       "path": "docs/proof/tmh/red-first.md",
       "title": "TMH red-first receipt for the text-mode-write gate",
@@ -20159,5 +20219,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "e03f19be94ab7ee8d914ffbabd7121a9395e291297ef27462056de0856a40d0d"
+  "graphSha256": "206511e159db43feef2c01c4d97d7dddca043c24a61edd93da93d819b05906ed"
 };

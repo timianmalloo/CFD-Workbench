@@ -8,7 +8,7 @@ phase: implementation
 tags: [export, 3mf, red-first, b1, area-7]
 links:
   - { to: design-export, rel: depends-on }
-  - { to: proof-tmf-spec-excerpts, rel: related }
+  - { to: proof-tmf-spec-excerpts, rel: depends-on }
 review-by: "2027-04-01"
 summary: >-
   The red runs of the wing 3MF track: every Core and Desktop 3MF check failed on a skeleton, five one-line mutants of the writer each

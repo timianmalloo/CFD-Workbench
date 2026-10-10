@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T17:08:49Z",
+  "generated": "2026-10-10T20:07:13Z",
   "audit": [
     {
       "actor": null,
@@ -34483,6 +34483,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-10T17:07:43Z",
       "duration_seconds": 66.0
+    },
+    {
+      "id": "al-01M4KPTFHA6H4G35VY7S33Y3QZ",
+      "shortname": "tmf-3mf-export",
+      "datetime": "2026-10-10T20:07:13Z",
+      "session": "trk-tmf",
+      "prompt": "Track TMF: build Export slice 3, wing 3MF",
+      "summary": "ThreeMfExport (unit millimeter, CCW outward confirmed against 3MF Core 3.4/4.1.4), Desktop ExportFormat.ThreeMf with STL's options, check-slicer-open.py covers 3MF with removed-triangle and unit-meter controls, all pass in PrusaSlicer 2.9.4 and OrcaSlicer 2.3.2; CLI untouched (main has no export verb)",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Wing 3MF export: Core writer, Desktop Wing (3MF) row, B1 slicer check in two slicers, COPY-480",
+      "done_when": "red-first receipt, run-tests green, Desktop readiness green, join checks green, B1 results committed, dialog screenshot",
+      "started_at": "2026-10-10T19:48:26Z",
+      "duration_seconds": 1127.0
     }
   ],
   "changes": [
