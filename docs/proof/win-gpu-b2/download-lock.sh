@@ -28,8 +28,10 @@ if ! cmp -s "${proof_root}/package-lock.args" "${proof_root}/package-lock.args.v
     printf 'exact lock changed the apt transaction\n' >&2
     exit 65
 fi
-apt-get --print-uris --yes --no-install-recommends install "${locked[@]}" \
-    > "${proof_root}/apt-package-uris.stdout.txt" 2> "${proof_root}/apt-package-uris.stderr.txt"
+if [[ ! -s "${proof_root}/apt-package-uris.stdout.txt" ]]; then
+    apt-get --print-uris --yes --no-install-recommends install "${locked[@]}" \
+        > "${proof_root}/apt-package-uris.stdout.txt" 2> "${proof_root}/apt-package-uris.stderr.txt"
+fi
 python3 "${proof_root}/bind-package-uris.py" \
     --lock "${proof_root}/package-lock.json" \
     --uris "${proof_root}/apt-package-uris.stdout.txt"

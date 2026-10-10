@@ -35,14 +35,18 @@ def field(path: Path, name: str) -> str:
     ).stdout.strip()
 
 
-def payload(path: Path) -> tuple[int, list[dict[str, object]]]:
+def payload(path: Path) -> tuple[int, list[dict[str, object]], list[dict[str, str]]]:
     process = subprocess.Popen(["dpkg-deb", "--fsys-tarfile", str(path)], stdout=subprocess.PIPE)
     if process.stdout is None:
         raise RuntimeError(f"cannot read package payload: {path}")
     total = 0
     notices = []
+    doc_links = []
     with tarfile.open(fileobj=process.stdout, mode="r|*") as archive:
         for member in archive:
+            normalized = member.name.removeprefix("./")
+            if member.issym() and normalized.startswith("usr/share/doc/"):
+                doc_links.append({"path": member.name, "target": member.linkname})
             if not member.isfile():
                 continue
             total += member.size
@@ -57,7 +61,7 @@ def payload(path: Path) -> tuple[int, list[dict[str, object]]]:
                 )
     if process.wait() != 0:
         raise RuntimeError(f"dpkg-deb payload stream failed: {path}")
-    return total, notices
+    return total, notices, doc_links
 
 
 def main() -> None:
@@ -90,9 +94,7 @@ def main() -> None:
         actual_size = deb.stat().st_size
         if actual_hash != item["sha256"] or actual_size != item["download_bytes"]:
             raise RuntimeError(f"package bytes mismatch: {package}={version}")
-        payload_bytes, notices = payload(deb)
-        if item["repository"] == "ubuntu" and not notices:
-            raise RuntimeError(f"Ubuntu package has no extracted license notice: {package}={version}")
+        payload_bytes, notices, doc_links = payload(deb)
         basis = (
             {"kind": "cuda-13.2.2-eula", "sha256": eula_hash}
             if item["repository"] == "nvidia-cuda"
@@ -108,13 +110,44 @@ def main() -> None:
             "payload_bytes": payload_bytes,
         }
         license_rows.append(
-            {"package": package, "version": version, "repository": item["repository"], "basis": basis, "notices": notices}
+            {
+                "package": package,
+                "version": version,
+                "repository": item["repository"],
+                "basis": basis,
+                "notices": notices,
+                "doc_links": doc_links,
+            }
         )
         total_download += actual_size
         total_payload += payload_bytes
     missing = sorted(set(expected) - set(found))
     if missing:
         raise RuntimeError(f"locked packages were not downloaded: {missing[:5]}")
+
+    license_by_package = {row["package"]: row for row in license_rows}
+    for row in license_rows:
+        if row["repository"] != "ubuntu" or row["notices"]:
+            continue
+        candidates = []
+        for link in row["doc_links"]:
+            if Path(link["path"]).name != row["package"]:
+                continue
+            target = Path(link["target"]).name
+            if target in license_by_package:
+                candidates.append(target)
+        if len(candidates) != 1:
+            raise RuntimeError(
+                f"Ubuntu package has no unique embedded/shared license notice: {row['package']}={row['version']}"
+            )
+        target = license_by_package[candidates[0]]
+        if not target["notices"]:
+            raise RuntimeError(f"shared license target has no notice: {candidates[0]}")
+        row["basis"] = {
+            "kind": "shared-package-notice",
+            "target_package": target["package"],
+            "target_version": target["version"],
+        }
 
     usage = shutil.disk_usage("/")
     required = total_download + total_payload + UNPACK_RESERVE_BYTES + BUILD_RESERVE_BYTES + HEADROOM_BYTES
