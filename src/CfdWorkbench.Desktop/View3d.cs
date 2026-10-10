@@ -432,7 +432,7 @@ public sealed partial class View3d : Panel
         if (controller?.Selection is not Selection.Station station || Surface is not { } surface) return;
         var section = surface.Sections.FirstOrDefault(item => item.Eta == station.Eta);
         if (section is null) return;
-        string name = station.Eta == 0 ? "Root" : station.Eta == 1 ? "Tip" : "Station " + (station.Index + 1).ToString(CultureInfo.InvariantCulture);
+        string name = StationNames.Of(station.Index, station.Eta);
         var text = Text(name, InkBrush, FontWeight.SemiBold);
         // Beside the starboard trailing edge, as the mockup places it, but below the section's drawing so it never
         // covers the 3 px station stroke it names (from the front the section runs right from its trailing edge).

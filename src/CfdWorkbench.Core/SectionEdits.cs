@@ -134,7 +134,7 @@ internal static class SectionEdits
     // simplify: the Desktop's station naming (ElevationView.StationName, PointsView.StationName) restated for a Core reason;
     // the Core's one copy, read here and by SectionReplace. Ceiling: three copies of one rule. Upgrade trigger: the next
     // station-name change moves the rule here and both Desktop copies call it.
-    internal static string StationName(int index, double eta) => eta == 0 ? "Root" : eta == 1 ? "Tip" : $"Station {index + 1}";
+    internal static string StationName(int index, double eta) => StationNames.Of(index, eta);
 
     private static (byte[] Bytes, SectionStepReport Report) Move(byte[] bytes, int assignment, SectionStep.Move move)
     {
