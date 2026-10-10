@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T17:03:49Z",
+  "generated": "2026-10-10T17:08:49Z",
   "audit": [
     {
       "actor": null,
@@ -34406,24 +34406,74 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4KCANAZSB4SQN1208V12Y59",
-      "shortname": "join-pr30-sync",
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/pr-30.md"
+      ],
+      "compiled": false,
       "datetime": "2026-10-10T17:03:49Z",
-      "session": "3122f106",
+      "done_when": "join gates green, readiness green, PUSH-OK",
+      "duration_seconds": 24.0,
+      "fan_out": 0,
+      "goal": "PR #30 fully on main",
+      "id": "al-01M4KCANAZSB4SQN1208V12Y59",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of origin/win/gpu-g1-r197 into main",
+      "session": "3122f106",
+      "shortname": "join-pr30-sync",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-10T17:03:25Z",
       "summary": "Sync join of PR #30's two post-review commits: G1 receipt states its tested head and done condition; manifest rebound recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-10T17:04:58Z",
+      "done_when": "Core B2/B3/B4 green, Desktop STL dialog green with readiness, PrusaSlicer and OrcaSlicer report manifold with matching size and volume, gates and ring green",
+      "duration_seconds": 2811.0,
+      "goal": "Build the wing STL: closed mesh Core with byte-level edge check, Desktop dialog and hard states, and the two-slicer open-and-measure check",
+      "id": "al-01M4KCCS676VG63F58F4GNRTYC",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-stx: wing STL export, slice 2 (Core, Desktop, slicer B1)",
+      "session": "trk-stx",
+      "shortname": "stx-stl-export",
+      "skill": "implement",
+      "started_at": "2026-10-10T16:18:07Z",
+      "summary": "All three phases landed: StlExport Core (weld by float32 bits, TE strip, tip and root caps, binary writer, bytes edge check), STL in the Export dialog with scope, presets, large-mesh and closure states, tools/check-slicer-open.py with both slicers clean and a negative control; class HASH-FOLD-A",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M4KCKT8598VCBBCNFY8J8YDD",
+      "shortname": "join-stx",
+      "datetime": "2026-10-10T17:08:49Z",
+      "session": "3122f106",
+      "prompt": "the join of feat/stx-stl-export into main",
+      "summary": "Joined STX: StlExport (welded, closed, binary mm STL; whole or half), dialog STL with presets and hard states, B1 slicer check (PrusaSlicer and OrcaSlicer: manifold, no repairs, size and volume match) recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
       "actor": null,
       "artifacts": [
-        "docs/reviews/pr-30.md"
+        "docs/proof/stx/red-first.md",
+        "docs/proof/stx/slicer-open.json"
       ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "PR #30 fully on main",
-      "done_when": "join gates green, readiness green, PUSH-OK",
+      "goal": "Export STL ships on main",
+      "done_when": "join gates and ring green, readiness green, PUSH-OK",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -34431,8 +34481,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-10T17:03:25Z",
-      "duration_seconds": 24.0
+      "started_at": "2026-10-10T17:07:43Z",
+      "duration_seconds": 66.0
     }
   ],
   "changes": [
