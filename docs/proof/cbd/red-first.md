@@ -68,3 +68,44 @@ Notes on fixtures: F3 to F5 are checked at layer 1 (the zigzag over a candidate 
 tau) and, for F3, also on the exact cubic. F4's two extrema read 0.3298 and 0.2601, as the design states. F6 and F10 run on the
 example foil's two rails. F7 is a layer-1 check: a 16-tooth sample of the narrow-spike profile reads 1 piece, the extrema list
 reads 3.
+
+Refinement after Phase 1 (same class, own record): `Planform_Teeth_NoJump_NoExtraTeeth_AtARepeatedKnot` was red with the filter off
+([`red-teeth-nojump.txt`](red-teeth-nojump.txt): expected 16 teeth, got 18) and green with it on
+([`green-teeth-nojump.txt`](green-teeth-nojump.txt)). It makes the one-sided pair appear only at a corner or a curvature jump.
+
+## Phase 2, Desktop (`tests/CfdWorkbench.Desktop.Tests/PlanCombTests.cs`, in the `--plan-canvas` harness)
+
+A Desktop check needs the surface it checks, so these were written with the build and not run against a stub. Red is shown two
+ways. Two checks that name the contract's hardest rules were run against a **mutant** of the build, then against the build:
+[`red-desktop-mutants.txt`](red-desktop-mutants.txt) and [`green-desktop-mutants.txt`](green-desktop-mutants.txt).
+
+| Check | Mutant (one line changed) | Red | Green |
+|---|---|---|---|
+| `PlanComb_StepperAtLimit_KeepsFocus` (red-first in the design) | the stepper is natively disabled at its limit (`button.IsEnabled = available`) | FAIL "Larger teeth takes no focus" | PASS |
+| `PlanComb_AutoHeldDuringDrag_RefitOnRelease` (Ruling 194) | the hold is removed (`RefreshComb` refits during a gesture) | FAIL "Auto refit while the drag was still going" | PASS |
+
+The other Desktop checks were first run against the finished surfaces. Failures met on the way, each a real defect or a wrong
+expectation, none fixed by weakening an assertion:
+
+- The example foil has straight rails, so every tooth was a dot; the fixtures now use a swept leading edge and a tapering trailing
+  edge (`CombFoil`). The first fixture failed the certificate ("Rail hulls do not certify strictly positive chord"); the rails were
+  re-drawn to keep the hulls apart.
+- `PlanComb_PlateDoesNotCoverRail_AtTipFit` failed on the example (the plate covered the leading edge). Cause: `DesiredSize`
+  included the margin the last placement had set, so the plate's own size grew each time. Repair 1: `CombPlate.PreferredSize`
+  measures the plate's content, and the place is worked out again after layout (`LayoutUpdated`); the margin is written only when
+  the place changes. Green.
+- `PlanComb_RefitFlash_OnceAndStaticUnderReducedMotion` first fed a synthetic planform to `RefreshComb`; the canvas answered the
+  announcement by refitting to the real planform, a second refit. Repair 1: the check opens real foils (a quarter of the bend, a
+  12 % refit, back) through the controller. Green.
+- `PlanComb_StepperAtLimit_KeepsFocus` expected "Largest teeth reached." as the stepper's help text; the help text is
+  "Largest teeth. Smaller teeth is available." (the mockup's form); the announcement is the "reached" sentence. Expectation corrected.
+- Existing checks changed because the surface changed, not because they were weakened: `PlanCanvas_HoverProbe_ParksPointerFirst`
+  (the probe is the Tracing strip, no longer a box drawn in the viewport), `ModelArea_ViewLabels_AreTopLeftPlates_NotStrips` (the Plan
+  slot ends in the strip row and the navbar clearance), `CommandTable_Parity_EveryRowInMenuPaletteKey` (the five comb verbs are
+  palette and menu rows with no key, SC 2.1.4). `CurvePointLayer_PlanAndLane_SameGlyphPixels` went red when the selected-point ring was
+  drawn above the glyph; the ring now sits under the glyphs, as the design's paint order says. The four Core checks of the old
+  `Planform.Comb` (dead after the move) were ported to `Planform.Teeth`; the two that named an anchor by its authored kind now name it
+  by the measured tangent angle and use a bent rail (design AM-RC-5).
+
+Measured (instrumentation, not asserted): `RailComb.Build` at 128 teeth per rail on the fixture, both rails, teeth and pieces:
+7.4 to 7.6 ms (three runs), inside the 100 ms edit budget.

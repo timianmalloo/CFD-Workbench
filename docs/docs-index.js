@@ -6234,6 +6234,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "f58734f8401336f0cbb4aa191937e398938b3d63b9303809816005521e867356"
     },
     {
+      "id": "proof-cbd-mockup-comparison",
+      "path": "docs/proof/cbd/mockup-comparison.md",
+      "title": "Rail comb build (track CBD): the built Plan view against the approved mockup, and the unproven accessibility traces",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "implementation",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "The built Plan view with the comb (the Desktop harness's capture) beside the mockup's main state, what matches and what differs, and C8 and C9 recorded as unproven traces, not passes.",
+      "tags": [
+        "proof",
+        "rail-comb",
+        "screenshot",
+        "accessibility"
+      ],
+      "links": [
+        {
+          "to": "design-rail-comb",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-rail-comb",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9cbd5249c5b488afd992a7be698836734454009964081fee06bb2a87304d9391"
+    },
+    {
       "id": "proof-cbd-red-first",
       "path": "docs/proof/cbd/red-first.md",
       "title": "Rail comb build (track CBD): red-first record",
@@ -6256,7 +6286,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "945e10a75dcc4afcbac9e00cb706008968513ceba2913ec4b3fb9d4534476ef7"
+      "sourceSha256": "93ba701be2d81ee775add7e54e9eb833b0173c3cee56821ab23e44d1cc990007"
     },
     {
       "id": "proof-cmb-adversary",
@@ -18929,6 +18959,48 @@ window.DOCS_INDEX = {
       "sourceSha256": "f86ae43d2dafa586c8a3f8bea110c9ee530e964da91f5944e1aed37eb4d6ebe3"
     },
     {
+      "id": "spec-amendments-1-7-6-rail-comb",
+      "path": "docs/specs/amendments/spec-1.7.6-rail-comb.md",
+      "title": "Spec 1.7.6 amendment batch — the rail comb on the planform rails (A4.9), as exact text",
+      "type": "spec",
+      "status": "accepted",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Five amendments to cfd-workbench-v1 A4.9, traced to Ruling 196 (AM-RC-1 to AM-RC-5 approved as written) and the design rail-comb.md (Rulings 193 and 194). Revision 1.7.6 of the spec carries the batch; the change record is Appendix H, section H.6. The copy rows are DESIGN.md COPY-458 to COPY-473.",
+      "tags": [
+        "spec",
+        "amendments",
+        "rulings",
+        "cad",
+        "comb",
+        "curvature",
+        "planform",
+        "ruling-196"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-amendments-1-7-5",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-rail-comb",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1afdf5caae6c73a1e908605c4b662c192f19dc4a1d08b8fbfd4247d825d5f567"
+    },
+    {
       "id": "spec-cfd-workbench",
       "path": "docs/specs/cfd-workbench.md",
       "title": "CFD-Workbench — product specification",
@@ -19245,7 +19317,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]\nA -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]\nL --> F\nB -->|Maximize| X[Pane fills the window; the rest inert]\nX -->|Escape or restore| B\nB -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]\nJ2 --> B\nB -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]\nB -->|Float| F[Float over the model area]\nC --> B\nF -->|Escape or dock back| B\nF -->|Alt and arrows or Position menu| F\nF -->|A control under the float takes focus| G{A corner of the model area clears it?}\nG -->|Yes| H[Float moves to the nearest clear corner and says so]\nG -->|No| I[Float docks back where it came from and says so]\nH --> F\nI --> B\nB -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]\nJ --> B\nB -->|Switch workspace| K[That workspace's remembered layout]\nK --> B\nB -->|Reset layout| A"
         }
       ],
-      "sourceSha256": "089d17363f4285a32add7c197d86fc21a671625ad2f8a2cb96f4b59a8bcbe157"
+      "sourceSha256": "c6d0d9ac979fdca8003ce0043a6e9971b933753a37770c7ccf1f2d4aea1dc59a"
     },
     {
       "id": "spec-foildsl",
@@ -19699,5 +19771,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "993b82ab5cb43e1d20948420eda45f2078003ec9a59a8a276772a972c56af0a7"
+  "graphSha256": "463fec5a22755ce717105d98eb09a413fb05a40461d73947b77259073986bacc"
 };

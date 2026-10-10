@@ -37,42 +37,6 @@ public static partial class Planform
             Project(definition, "leading", ceiling), Project(definition, "trailing", ceiling), parsed.Authored().Assignments);
     }
 
-    public static IReadOnlyList<CombTooth> Comb(CurveView curve)
-    {
-        ArgumentNullException.ThrowIfNull(curve);
-        double halfSpan = curve.Points.Count == 0 || curve.Points[0].Eta == 0 && curve.Points[0].SpanMeters == 0
-            ? curve.Points[^1].SpanMeters : curve.Points[^1].SpanMeters / curve.Points[^1].Eta;
-        var teeth = new List<CombTooth>();
-        var knots = curve.Knots;
-        int count = curve.Points.Count;
-        for (int span = 3; span < count; span++)
-        {
-            if (knots[span] >= knots[span + 1]) continue;
-            teeth.AddRange(ArcTeeth(curve, halfSpan, knots[span], knots[span + 1]));
-        }
-        var marked = new HashSet<double>();
-        var knotArray = knots as double[] ?? knots.ToArray();
-        for (int index = 3; index <= count - 4; index++)
-        {
-            if (!FoilSource.IsAnchor(knotArray, count, 3, index)) continue;
-            double knot = knots[index + 1];
-            bool corner = curve.Points[index].Kind == TangentKind.Corner;
-            teeth.Add(Tooth(curve, halfSpan, Math.Max(0, knot - 1e-9), false));
-            teeth.Add(Tooth(curve, halfSpan, Math.Min(1, knot + 1e-9), corner));
-            marked.Add(knot);
-        }
-        for (int index = 0; index < knots.Count;)
-        {
-            double knot = knots[index];
-            int end = index;
-            while (end + 1 < knots.Count && knots[end + 1] == knot) end++;
-            if (end - index + 1 == 2 && knot > 0 && knot < 1 && marked.Add(knot))
-                teeth.Add(Tooth(curve, halfSpan, knot, false));
-            index = end + 1;
-        }
-        return teeth;
-    }
-
     public static ProbeReading Probe(PlanformView view, double eta)
     {
         ArgumentNullException.ThrowIfNull(view);
@@ -178,54 +142,6 @@ public static partial class Planform
         if (index == 1 && mirror) return PointFreedom.SpanOnly;
         return PointFreedom.Free;
     }
-
-    private static IEnumerable<CombTooth> ArcTeeth(CurveView curve, double halfSpan, double start, double end)
-    {
-        const int dense = 32;
-        var parameter = new double[dense + 1];
-        var arc = new double[dense + 1];
-        var places = new (double Span, double Aft)[dense + 1];
-        for (int step = 0; step <= dense; step++)
-        {
-            parameter[step] = start + step / (double)dense * (end - start);
-            places[step] = Evaluate(curve, parameter[step], halfSpan);
-            if (step > 0)
-                arc[step] = arc[step - 1] + Math.Sqrt((places[step].Span - places[step - 1].Span) * (places[step].Span - places[step - 1].Span) + (places[step].Aft - places[step - 1].Aft) * (places[step].Aft - places[step - 1].Aft));
-        }
-        for (int tooth = 0; tooth < 8; tooth++)
-        {
-            double target = (tooth + 0.5) / 8.0 * arc[dense];
-            int step = 1;
-            while (step < dense && arc[step] < target) step++;
-            double span = arc[step] - arc[step - 1];
-            double fraction = span == 0 ? 0 : (target - arc[step - 1]) / span;
-            double t = parameter[step - 1] + fraction * (parameter[step] - parameter[step - 1]);
-            yield return Tooth(curve, halfSpan, t, false);
-        }
-    }
-
-    private static CombTooth Tooth(CurveView curve, double halfSpan, double t, bool breakBefore)
-    {
-        var jet = SplineBasis.Evaluate(Knots(curve), 3, t);
-        double span = 0, aft = 0, dSpan = 0, dAft = 0, ddSpan = 0, ddAft = 0;
-        for (int index = 0; index < curve.Points.Count; index++)
-        {
-            double eta = curve.Points[index].Eta, ordinate = curve.Points[index].Ordinate;
-            span += jet.N[index] * eta * halfSpan;
-            aft += jet.N[index] * ordinate;
-            dSpan += jet.D1[index] * eta * halfSpan;
-            dAft += jet.D1[index] * ordinate;
-            ddSpan += jet.D2[index] * eta * halfSpan;
-            ddAft += jet.D2[index] * ordinate;
-        }
-        double speed2 = dSpan * dSpan + dAft * dAft;
-        double speed = Math.Sqrt(speed2);
-        double curvature = speed2 == 0 ? 0 : (dSpan * ddAft - dAft * ddSpan) / (speed2 * speed);
-        return new(span, aft, speed == 0 ? 0 : -dAft / speed, speed == 0 ? 0 : dSpan / speed, curvature, breakBefore);
-    }
-
-    private static (double Span, double Aft) Evaluate(CurveView curve, double t, double halfSpan) =>
-        Evaluate(Knots(curve), curve.Points.Select(point => new[] { point.Eta, point.Ordinate }).ToArray(), 3, t, halfSpan);
 
     private static (double Span, double Aft) Evaluate(double[] knots, double[][] points, int degree, double t, double halfSpan)
     {

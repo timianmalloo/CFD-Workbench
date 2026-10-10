@@ -85,9 +85,13 @@ internal static class PointModelTests
             var parsed = FoilSource.Parse(source);
             var curve = parsed.Definition!.Curves["leading"];
             var place = At(curve, 0.4, view.HalfSpanMeters);
-            var marks = Planform.Comb(view.Leading).Where(tooth => Distance(tooth, place) < 1e-6).ToArray();
-            Equal(1, marks.Length);
-            Equal(false, marks[0].BreakBefore);
+            // C1 at a doubled knot: the tangent is continuous, so the station is never a corner; a curvature jump draws a one-sided pair.
+            var station = Planform.ReadAt(view.Leading, 0.4);
+            Near(0, station.TangentJumpDegrees, 1e-6);
+            Equal(true, station.Kind is StationKind.Smooth or StationKind.CurvatureJump);
+            var marks = Planform.Teeth(view.Leading, 32).Where(tooth => Distance(tooth, place) < 1e-6 && tooth.StartsPiece).ToArray();
+            Equal(station.Kind == StationKind.CurvatureJump ? 1 : 0, marks.Length);
+            Equal(true, marks.All(tooth => !tooth.Corner));
         });
         Check("PlanformView_Sampling_NeverUsesProofBudget", () =>
         {
@@ -158,37 +162,38 @@ internal static class PointModelTests
         });
         Check("Comb_Anchor_TwoOneSidedTeeth", () =>
         {
-            var view = Planform.View(File.ReadAllBytes(Fx("foil-41-tangents.foil")), "spline", 1);
+            // A smooth (G1) anchor whose curvature jumps: straight on the root side, bending on the tip side (design AM-RC-5).
+            string text = File.ReadAllText(Fx("foil-41-tangents.foil")).Replace("(0.7, 0), (0.9, 0), (1, 0)] ids [\"cv-0\"", "(0.7, 0), (0.9, 40), (1, 90)] ids [\"cv-0\"", StringComparison.Ordinal);
+            var view = Planform.View(Encoding.UTF8.GetBytes(text), "spline", 1);
             var anchor = view.Leading.Points[3];
-            var near = Planform.Comb(view.Leading).Where(tooth => Distance(tooth, (anchor.SpanMeters, anchor.Ordinate)) < 1e-6)
-                .OrderBy(tooth => tooth.SpanMeters).ToArray();
+            Equal(StationKind.CurvatureJump, Planform.ReadAt(view.Leading, 0.5).Kind);
+            var near = Planform.Teeth(view.Leading, 32).Where(tooth => Distance(tooth, (anchor.SpanMeters, anchor.Ordinate)) < 1e-6)
+                .OrderBy(tooth => tooth.T).ToArray();
             Equal(2, near.Length);
-            Equal(false, near[0].BreakBefore);
-            Equal(false, near[1].BreakBefore);
+            Equal(false, near[0].Corner);
+            Equal(false, near[1].Corner);
         });
         Check("Comb_CornerAnchor_BreakReported", () =>
         {
-            string text = File.ReadAllText(Fx("foil-41-tangents.foil")).Replace(" tangents { \"cv-3\" smooth }", "", StringComparison.Ordinal);
+            // A corner is the measured tangent jump above 0.1 degrees, not the authored tangent kind (design AM-RC-5).
+            string text = File.ReadAllText(Fx("foil-41-tangents.foil")).Replace(" tangents { \"cv-3\" smooth }", "", StringComparison.Ordinal)
+                .Replace("(0.5, 0), (0.7, 0), (0.9, 0), (1, 0)] ids [\"cv-0\"", "(0.5, 0), (0.7, 30), (0.9, 60), (1, 90)] ids [\"cv-0\"", StringComparison.Ordinal);
             var view = Planform.View(Encoding.UTF8.GetBytes(text), "spline", 1);
             Equal(TangentKind.Corner, view.Leading.Points[3].Kind);
+            Equal(StationKind.Corner, Planform.ReadAt(view.Leading, 0.5).Kind);
             var anchor = view.Leading.Points[3];
-            var near = Planform.Comb(view.Leading).Where(tooth => Distance(tooth, (anchor.SpanMeters, anchor.Ordinate)) < 1e-6)
-                .OrderBy(tooth => tooth.SpanMeters).ToArray();
+            var near = Planform.Teeth(view.Leading, 32).Where(tooth => Distance(tooth, (anchor.SpanMeters, anchor.Ordinate)) < 1e-6)
+                .OrderBy(tooth => tooth.T).ToArray();
             Equal(2, near.Length);
-            Equal(false, near[0].BreakBefore);
-            Equal(true, near[1].BreakBefore);
+            Equal(false, near[0].Corner);
+            Equal(true, near[1].Corner);
         });
         Check("Comb_SixteenPointRail_FairnessFixture", () =>
         {
             var view = Planform.View(File.ReadAllBytes(Fx("foil-41-sixteen-three-anchors.foil")), "spline", 1);
-            var comb = Planform.Comb(view.Leading);
+            var comb = Planform.Teeth(view.Leading, 32);
             Equal(true, comb.All(tooth => Math.Abs(tooth.Curvature) < 1e-6));
-            int nonempty = 0;
-            var knots = view.Leading.Knots;
-            int count = view.Leading.Points.Count;
-            for (int span = 3; span < count; span++)
-                if (knots[span] < knots[span + 1]) nonempty++;
-            Equal(true, nonempty > 0 && comb.Count >= 8 * nonempty);
+            Equal(true, comb.Count >= 32);
         });
     }
 
@@ -262,7 +267,7 @@ internal static class PointModelTests
         return value;
     }
 
-    private static double Distance(CombTooth tooth, (double Span, double Aft) place) =>
+    private static double Distance(RailTooth tooth, (double Span, double Aft) place) =>
         Math.Sqrt(Math.Pow(tooth.SpanMeters - place.Span, 2) + Math.Pow(tooth.Ordinate - place.Aft, 2));
 
     private static void Near(double expected, double actual, double absolute)

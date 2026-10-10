@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T23:54:35Z",
+  "generated": "2026-10-10T00:55:08Z",
   "audit": [
     {
       "actor": null,
@@ -33995,6 +33995,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T23:54:18Z",
       "duration_seconds": 17.0
+    },
+    {
+      "id": "al-01M4HMWYMNX15DHPVK07VWVRN8",
+      "shortname": "cbd-rail-comb",
+      "datetime": "2026-10-10T00:55:08Z",
+      "session": "trk-cbd",
+      "prompt": "trk-cbd: build the rail comb",
+      "summary": "Phase 1 (Core) and Phase 2 (Desktop) landed; C8 and C9 recorded unproven; spec 1.7.6 AM-RC-1..5 and COPY-458..473 added",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Build the rail comb per docs/design/rail-comb.md section 9: Core curvature (Phase 1) and Desktop plate, strip, verbs, focus order (Phase 2)",
+      "done_when": "Core fixtures F1-F10 and curvature-core tests red then green; Desktop C1-C7, C10, C11 checks green; ring green inside 60 s; docs gates exit 0",
+      "started_at": "2026-10-10T00:10:39Z",
+      "duration_seconds": 2669.0
     }
   ],
   "changes": [

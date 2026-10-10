@@ -1,0 +1,59 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="CfdWorkbench.Desktop.CombPlate"
+             AutomationProperties.Name="Comb">
+  <UserControl.Resources>
+    <!-- simplify: local width until the design system names it (ceiling: this plate; promote to Styles.axaml and DESIGN.md with a second viewport plate). -->
+    <x:Double x:Key="CombPlateWidth">360</x:Double>
+  </UserControl.Resources>
+  <UserControl.Styles>
+    <!-- A stepper at its limit stays in the tab order (the aria-disabled equivalent, C1): muted and italic, never IsEnabled=False. -->
+    <Style Selector="Button.limit, ToggleButton.limit">
+      <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
+      <Setter Property="FontStyle" Value="Italic" />
+    </Style>
+    <Style Selector="TextBlock.emphasis">
+      <Setter Property="Foreground" Value="{DynamicResource WarningBrush}" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+  </UserControl.Styles>
+  <StackPanel x:Name="Root" Spacing="4">
+    <Button x:Name="SummaryButton" Classes="modebar outline" IsVisible="False" HorizontalAlignment="Right"
+            MinHeight="{StaticResource CompactTargetSize}" />
+    <Border x:Name="Card" Width="{StaticResource CombPlateWidth}" Background="{DynamicResource SurfaceBrush}"
+            BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="{StaticResource NavbarRadius}"
+            Padding="{StaticResource Space2}">
+      <StackPanel Spacing="4">
+        <TextBlock x:Name="TitleText" Classes="heading" Text="Comb" AutomationProperties.HeadingLevel="3" />
+        <StackPanel x:Name="ScaleRow" Orientation="Horizontal" Spacing="4" AutomationProperties.Name="Comb scale">
+          <TextBlock Text="Scale" Width="56" VerticalAlignment="Center" />
+          <Button x:Name="SmallerButton" Classes="modebar outline" Content="Smaller teeth" AutomationProperties.Name="Smaller teeth" />
+          <Button x:Name="LargerButton" Classes="modebar outline" Content="Larger teeth" AutomationProperties.Name="Larger teeth" />
+          <ToggleButton x:Name="AutoButton" Classes="modebar outline" AutomationProperties.Name="Auto scale">
+            <StackPanel Orientation="Horizontal" Spacing="2">
+              <TextBlock x:Name="AutoCheck" Text="✓" IsVisible="False" AutomationProperties.AccessibilityView="Raw" />
+              <TextBlock Text="Auto scale" />
+            </StackPanel>
+          </ToggleButton>
+        </StackPanel>
+        <TextBlock x:Name="LegendText" Margin="60,0,0,0" TextWrapping="Wrap" />
+        <TextBlock x:Name="CentreText" Margin="60,0,0,0" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" />
+        <StackPanel x:Name="DensityRow" Orientation="Horizontal" Spacing="4" AutomationProperties.Name="Comb density">
+          <TextBlock Text="Density" Width="56" VerticalAlignment="Center" />
+          <Button x:Name="SparserButton" Classes="modebar outline" Content="Sparser" AutomationProperties.Name="Sparser" />
+          <Button x:Name="DenserButton" Classes="modebar outline" Content="Denser" AutomationProperties.Name="Denser" />
+          <TextBlock x:Name="DensityText" VerticalAlignment="Center" />
+        </StackPanel>
+        <StackPanel x:Name="PiecesPanel" Spacing="2">
+          <TextBlock x:Name="LeadingPiecesText" TextWrapping="Wrap" />
+          <TextBlock x:Name="TrailingPiecesText" TextWrapping="Wrap" />
+        </StackPanel>
+        <TextBlock x:Name="ThresholdText" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" />
+        <TextBlock x:Name="NoteText" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" IsVisible="False" />
+      </StackPanel>
+    </Border>
+    <!-- The one live region of the plate (COPY-470 and COPY-471): polite, written once per change, invisible to the eye, and outside
+         the card so it is still there when the narrow card is closed. -->
+    <TextBlock x:Name="LiveText" Height="1" Opacity="0" AutomationProperties.LiveSetting="Polite" />
+  </StackPanel>
+</UserControl>

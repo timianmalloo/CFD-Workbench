@@ -791,7 +791,9 @@ public static class ControllerViewTests
                     throw new Exception($"{view} label is a strip: {label.Bounds.Width} of the view's {slot.Bounds.Width}");
                 var drawn = drawing.TranslatePoint(new Point(0, 0), slot) ?? throw new Exception("No slot point");
                 Near(0, drawn.Y, 0, $"{view} drawing starts at the slot's top");
-                Near(slot.Bounds.Height, drawing.Bounds.Height, 0, $"{view} drawing fills the slot's height");
+                // The Plan's Tracing strip (CAD-08) is the slot's last row, so the Plan drawing fills the slot above it.
+                double strip = view == SingleView.Plan && area.TracingStrip.Parent is Control stripRow ? stripRow.Bounds.Height + stripRow.Margin.Bottom : 0;
+                Near(slot.Bounds.Height - strip, drawing.Bounds.Height, 0, $"{view} drawing fills the slot's height");
                 var origin = label.TranslatePoint(new Point(0, 0), fixture.Window) ?? throw new Exception("No window point");
                 var onPlate = fixture.Rgb((int)origin.X + 2, (int)(origin.Y + label.Bounds.Height / 2));
                 if (Distance(onPlate, plate) > 6) throw new Exception($"{view}: no viewport-soft plate under its label ({onPlate})");

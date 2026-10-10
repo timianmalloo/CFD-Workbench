@@ -115,6 +115,12 @@ public static class CommandTable
         new("view.pan-up", "Pan up", ViewCommands.PanMenu, "⇧↑ / ⌥↑", false, NoOp),
         new("view.pan-down", "Pan down", ViewCommands.PanMenu, "⇧↓ / ⌥↓", false, NoOp),
         new("view.comb", "Curvature comb", "View", "C", false, NoOp),
+        // Rail comb verbs (COPY-469, CAD-21): a second route to the plate's steppers. No new single-key shortcut (SC 2.1.4).
+        new("view.comb-larger", "Comb: larger teeth", "View", null, false, NoOp),
+        new("view.comb-smaller", "Comb: smaller teeth", "View", null, false, NoOp),
+        new("view.comb-auto", "Comb: auto scale", "View", null, false, NoOp),
+        new("view.comb-denser", "Comb: denser", "View", null, false, NoOp),
+        new("view.comb-sparser", "Comb: sparser", "View", null, false, NoOp),
         // M1.2c §5.2: Thickness ×2 draws y at twice its scale in the section editor; values are never scaled.
         new("view.thickness-x2", "Thickness ×2", "View", null, false, NoOp),
         new("view.zoom-in", "Zoom in", "View", "⌘=", false, NoOp),

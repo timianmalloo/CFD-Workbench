@@ -81,7 +81,7 @@ review-suggested:
 
 ## One definition. Every number with its basis. Nothing claimed that a fixture has not earned.
 
-Product specification · revision 1.7.5 · 6 October 2026 · *(1.7.5: Rulings 107 and 108, group move on a curve (CAD-04) and the wing-only drag (A5.6, ANA-03), Appendix H, section H.5 and [amendments/spec-1.7.5.md](amendments/spec-1.7.5.md); 1.7.4: Rulings 93 and 95, the minimum tip chord, Appendix H, section H.4; 1.7.3: Ruling 92 amendments to A5.4, the tip end and SPIKE-04, Appendix H, section H.3; 1.7.2: guided solver setup, the smoke-test scalar and the CAD ↔ Analysis shortcut, Appendix H, section H.2 and [amendments/spec-1.7.2.md](amendments/spec-1.7.2.md); 1.7.1: the solver-security right-size, Appendix H, section H.1 and [amendments/spec-1.7.1.md](amendments/spec-1.7.1.md); 1.7: the spec-owner amendment batch, Appendix H and [amendments/spec-1.7.md](amendments/spec-1.7.md); 1.6: the CAD-first editing contract A4.15, CAD-14–21, flows F11–F12, UX-28–33, UI-36–43, Appendix G; 1.5: A4.14, CAD-09–13, F10; 1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)* · **Build basis. Supersedes revision 1.0 (which
+Product specification · revision 1.7.6 · 10 October 2026 · *(1.7.6: Ruling 196, the rail comb on the planform rails (A4.9), Appendix H, section H.6 and [amendments/spec-1.7.6-rail-comb.md](amendments/spec-1.7.6-rail-comb.md); 1.7.5: Rulings 107 and 108, group move on a curve (CAD-04) and the wing-only drag (A5.6, ANA-03), Appendix H, section H.5 and [amendments/spec-1.7.5.md](amendments/spec-1.7.5.md); 1.7.4: Rulings 93 and 95, the minimum tip chord, Appendix H, section H.4; 1.7.3: Ruling 92 amendments to A5.4, the tip end and SPIKE-04, Appendix H, section H.3; 1.7.2: guided solver setup, the smoke-test scalar and the CAD ↔ Analysis shortcut, Appendix H, section H.2 and [amendments/spec-1.7.2.md](amendments/spec-1.7.2.md); 1.7.1: the solver-security right-size, Appendix H, section H.1 and [amendments/spec-1.7.1.md](amendments/spec-1.7.1.md); 1.7: the spec-owner amendment batch, Appendix H and [amendments/spec-1.7.md](amendments/spec-1.7.md); 1.6: the CAD-first editing contract A4.15, CAD-14–21, flows F11–F12, UX-28–33, UI-36–43, Appendix G; 1.5: A4.14, CAD-09–13, F10; 1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)* · **Build basis. Supersedes revision 1.0 (which
 superseded 0.2). Not an implemented or scientifically validated product; every numerical threshold below is a
 proposed acceptance target until the named fixture has been observed.** Revision 1.1 makes seven areas first-class
 and discrete — Setup, CAD, Analysis, Experiment setup, Run, Results, Export — and gives each an AI prompt entry;
@@ -580,12 +580,26 @@ the estimator's L/D *(1.6: the planform readouts are the Wing estimates of A4.15
 added — and live in the Wing block at the end of Properties, CAD-17, not in an options strip)*; a **Fair within tolerance** action (GEO-15) with Rhino Fair's contract (tolerance,
 PreserveEnds ∈ {position, tangency, curvature}, achieved deviation reported); **Rebuild** (vertex count, deviation reported) and **Fit points** (residual reported) as constructions (A4.2); numeric **guideline markers** that
 never constrain; degree, vertex count and knot form shown read-only in Properties; the comb is computed from the
-evaluator's analytic derivatives, never from finite differences; it **scales to its longest tooth and never clips**,
-its scale is a stepper, and the **monotone-piece count** beside it counts the pieces of the curvature plot on
-which κ is monotone (sign changes of dκ/dη with a dead band — Farin–Sapidis), never inflections. *Recorded
+evaluator's analytic derivatives, never from finite differences; it ~~**scales to its longest tooth and never clips**~~
+*(1.7.6, Ruling 196, AM-RC-1: its Auto scale fits the 90th-percentile tooth of both rails to 30 px; a tooth over 60 px is
+clipped and marked ×, and the plate counts the clipped teeth)*,
+its scale is a stepper *(1.7.6, AM-RC-1: on the planform rails the scale is Auto or a fixed step stated as "30 px = N per
+metre"; Auto is held during an edit gesture and refits once at its end; density is 16, 32, 64 or 128 teeth per rail at an
+even arc-length pitch; hovered κ is signed (+ convex, LE +κ and TE −κ) and the radius is the outline's curvature in the
+plan, read in the Tracing strip; the monotone count is on signed curvature, ends a piece when κ reverses by more than
+τ / L (τ = 0.02, L the rail's arc length, the resolved value printed), counts extrema not inflections, and is a reading,
+not a grade)*, and the **monotone-piece count** beside it counts the pieces of the curvature plot on
+which κ is monotone (sign changes of ~~dκ/dη~~ *(1.7.6, AM-RC-1: dκ/ds, with the threshold stated)* with a dead band —
+Farin–Sapidis), never inflections. *Recorded
 deviation (Marine CAD UX, 2026-09-21):* on a master curve the comb shows the curvature of the (η, value) graph
 in mixed units, labelled as such; the planform rails' physical curvature along the normal is a product option, not
-a 1.3 promise.
+a 1.3 promise. *(1.7.6, AM-RC-2, Ruling 196: the rail radius is physical, the curvature of the outline in the plan; the
+deviation for master curves stands.)* *(1.7.6, AM-RC-3: positive curvature means convex on both rails: κ_display = +κ_raw on
+the leading edge and −κ_raw on the trailing edge.)* *(1.7.6, AM-RC-4, an addition to DR-NAV-1: when the comb plate is
+shown, Tab in the plan goes to the plate, then to Properties, and Shift+Tab reverses; the keyboard reading of a rail is
+point walking with [ and ], not the arrow keys, which nudge.)* *(1.7.6, AM-RC-5: a smooth anchor, a tangent angle jump of
+0.1° or less, whose curvature jumps is reported as "G1 only" and "curvature jumps at this anchor"; a corner is a measured
+tangent jump above 0.1°, not the authored tangent kind.)*
 
 #### A4.10 Catalog, admission classes and DAT import
 
@@ -3063,3 +3077,22 @@ before and after are in [amendments/spec-1.7.5.md](amendments/spec-1.7.5.md).
 | A5.6 Total drag clause and ANA-03 | "Total drag is Unavailable when a component is missing and lists the omitted components per tier" | one row "Drag (Wing only)" (value "<min>–<max> N", the Ncrit 2–4 band; surrogate label and low-confidence flag kept; note "Wing only: induced (VLM + strip) plus profile (polar). Not a total."; reason line "Not included: junction, mast, wave, spray") replaces the separate "Wing-only drag" row; the craft Total drag and CL/CD stay Unavailable; tip-vortex cavitation stays under Not modelled; A5.6 and ANA-03 change together | Ruling 109 (amends Ruling 108 DXM-5, whose text was: the Total drag row shows the wing drag marked "Wing only") |
 
 **Not in this revision.** The copy rows are DESIGN.md §7 COPY-250 onward (track DOC); no code string changes here.
+
+### H.6 — Changes from revision 1.7.5 (revision 1.7.6, 2026-10-10)
+
+**Why.** Ruling 196 (operator, 2026-10-09) approved the rail comb batch: the final copy COPY-RC-1 to COPY-RC-16 (now COPY-458
+to COPY-473) and the amendments AM-RC-1 to AM-RC-5, from the design [rail-comb.md](../design/rail-comb.md) (Rulings 193 and
+194). The full before and after are in [amendments/spec-1.7.6-rail-comb.md](amendments/spec-1.7.6-rail-comb.md).
+
+**Changed** (inserted in place, marked *(1.7.6, …)*):
+
+| Where | Before | After | Ruling |
+|---|---|---|---|
+| A4.9, comb scale and clipping | "scales to its longest tooth and never clips" | Auto fits the 90th-percentile tooth to 30 px; a tooth over 60 px is clipped, marked × and counted | Ruling 196 (AM-RC-1) |
+| A4.9, scale stepper, density, κ, monotone count | "its scale is a stepper"; "sign changes of dκ/dη with a dead band" | the planform-rail contract: Auto or "30 px = N per metre", Auto held during a gesture, 16/32/64/128 teeth, signed κ and the radius in the Tracing strip, the count on signed curvature with τ / L, dκ/ds | Ruling 196 (AM-RC-1) |
+| A4.9, recorded deviation | master-curve deviation only | adds: the rail radius is physical (the outline in the plan) | Ruling 196 (AM-RC-2) |
+| A4.9, sign convention | (none) | positive means convex on both rails | Ruling 196 (AM-RC-3) |
+| A4.9, focus order (DR-NAV-1) | Tab from a selected point goes to Properties | with the plate shown: plan, plate, Properties; point walking with [ and ] | Ruling 196 (AM-RC-4) |
+| A4.9, anchors | (no statement) | "G1 only"; a corner is the measured tangent jump above 0.1° | Ruling 196 (AM-RC-5) |
+
+**Not in this revision.** The copy rows are DESIGN.md §7 COPY-458 to COPY-473 (track CBD).

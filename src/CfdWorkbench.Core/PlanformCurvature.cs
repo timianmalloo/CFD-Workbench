@@ -11,7 +11,7 @@ public sealed record CurvatureReading(double T, double SpanMeters, double Aft, d
 public sealed record StationReading(double T, StationKind Kind, CurvatureReading Root, CurvatureReading Tip,
     double TangentJumpDegrees, bool SignChanges);
 
-public sealed record MonotoneBoundary(double T, double Eta, double Curvature);
+public sealed record MonotoneBoundary(double T, double Eta, double Curvature, double SpanMeters, double Aft);
 public sealed record MonotoneCount(int Count, double ThresholdPerMeter, double ArcLengthMeters, IReadOnlyList<MonotoneBoundary> Boundaries);
 
 /// <summary>A comb tooth. The unit direction points away from the centre of curvature; StartsPiece marks the first tooth of a
@@ -132,7 +132,8 @@ public static partial class Planform
         var boundaries = reversals.Select(index =>
         {
             var (t, kappa) = candidates[index];
-            return new MonotoneBoundary(t, rail.Place(t, rail.SpanFor(t, CurveSide.Auto)).X / rail.HalfSpan, kappa);
+            var place = rail.Place(t, rail.SpanFor(t, CurveSide.Auto));
+            return new MonotoneBoundary(t, place.X / rail.HalfSpan, kappa, place.X, place.Y);
         }).ToArray();
         return new(reversals.Count + 1, threshold, rail.Length, boundaries);
     }
