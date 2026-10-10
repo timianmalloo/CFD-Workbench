@@ -1,0 +1,187 @@
+capture_utc=2026-10-10T00:13:38Z
+
+===== kernel =====
+Linux 6.18.33.2-microsoft-standard-WSL2 x86_64 GNU/Linux
+exit=0
+
+===== os-release =====
+PRETTY_NAME="Ubuntu 24.04.5 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.5 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=noble
+LOGO=ubuntu-logo
+exit=0
+
+===== gpu-identity =====
+NVIDIA GeForce RTX 3080 Ti Laptop GPU, 596.47, 16384 MiB, 8.6
+exit=0
+
+===== gpu-driver-libraries =====
+	libcudadebugger.so.1 (libc6,x86-64) => /usr/lib/wsl/lib/libcudadebugger.so.1
+	libcuda.so.1 (libc6,x86-64) => /usr/lib/wsl/lib/libcuda.so.1
+exit=0
+
+===== command-nvcc =====
+exit=1
+
+===== command-hipcc =====
+exit=1
+
+===== command-rocminfo =====
+exit=1
+
+===== command-rocm-smi =====
+exit=1
+
+===== command-cmake =====
+exit=1
+
+===== command-gcc =====
+exit=1
+
+===== command-g++ =====
+exit=1
+
+===== command-clang++ =====
+exit=1
+
+===== command-pkg-config =====
+exit=1
+
+===== cuda-root =====
+exit=1
+
+===== rocm-root =====
+exit=1
+
+===== selected-packages =====
+libamdhip64-5	5.7.1-3	install ok installed
+openfoam2512:amd64	2512.0-2	install ok installed
+openfoam2512-common	2512.0-2	install ok installed
+exit=0
+
+===== accelerator-packages =====
+libamdhip64-5	5.7.1-3
+whiptail	0.52.24-2ubuntu2
+exit=0
+
+===== openfoam-files =====
+/usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libfusedFiniteVolume.so
+/usr/lib/openfoam/openfoam2512/etc/config.csh/petsc
+/usr/lib/openfoam/openfoam2512/etc/config.sh/petsc
+/usr/lib/openfoam/openfoam2512/etc/config.sh/umpire
+exit=0
+
+===== openfoam-tree =====
+/usr/lib/openfoam/openfoam2512/etc/config.csh/petsc
+/usr/lib/openfoam/openfoam2512/etc/config.sh/petsc
+/usr/lib/openfoam/openfoam2512/etc/config.sh/umpire
+/usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libfusedFiniteVolume.so
+exit=0
+
+===== openfoam-activation =====
+WM_PROJECT_VERSION=v2512
+WM_OPTIONS=linux64GccDPInt32Opt
+FOAM_APPBIN=/usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/bin
+FOAM_LIBBIN=/usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib
+exit=0
+
+===== simplefoam-hash =====
+b7bb6321cac3586878a6c51c07f3139dba651ff1f3dbdb0dd406536b27846ba0  /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/bin/simpleFoam
+exit=0
+
+===== simplefoam-linkage =====
+	linux-vdso.so.1 (0x00007f2c24d0c000)
+	libfiniteVolume.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libfiniteVolume.so (0x00007f2c23a00000)
+	libfvOptions.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libfvOptions.so (0x00007f2c23600000)
+	libmeshTools.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libmeshTools.so (0x00007f2c23000000)
+	libsampling.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libsampling.so (0x00007f2c22c00000)
+	libdynamicMesh.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libdynamicMesh.so (0x00007f2c22800000)
+	libdynamicFvMesh.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libdynamicFvMesh.so (0x00007f2c23939000)
+	libturbulenceModels.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libturbulenceModels.so (0x00007f2c22671000)
+	libincompressibleTurbulenceModels.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libincompressibleTurbulenceModels.so (0x00007f2c22400000)
+	libincompressibleTransportModels.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libincompressibleTransportModels.so (0x00007f2c24bf1000)
+	libatmosphericModels.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libatmosphericModels.so (0x00007f2c2227a000)
+	libOpenFOAM.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so (0x00007f2c21800000)
+	libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007f2c21400000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f2c23850000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f2c22fd2000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f2c21000000)
+	libfileFormats.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libfileFormats.so (0x00007f2c22184000)
+	libsurfMesh.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libsurfMesh.so (0x00007f2c21227000)
+	libPstream.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/sys-openmpi/libPstream.so (0x00007f2c22faa000)
+	libfluidThermophysicalModels.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so (0x00007f2c20800000)
+	libsolidThermo.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libsolidThermo.so (0x00007f2c216d9000)
+	libcompressibleTurbulenceModels.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libcompressibleTurbulenceModels.so (0x00007f2c2061f000)
+	libreactionThermophysicalModels.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libreactionThermophysicalModels.so (0x00007f2c1fc00000)
+	liboverset.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/liboverset.so (0x00007f2c20e54000)
+	liblagrangian.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/liblagrangian.so (0x00007f2c22f6f000)
+	libextrudeModel.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libextrudeModel.so (0x00007f2c22f4b000)
+	libtwoPhaseMixture.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libtwoPhaseMixture.so (0x00007f2c2264b000)
+	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f2c23834000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007f2c24d0e000)
+	libmpi.so.40 => /lib/x86_64-linux-gnu/libmpi.so.40 (0x00007f2c204ed000)
+	libcompressibleTransportModels.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libcompressibleTransportModels.so (0x00007f2c24bdd000)
+	libspecie.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libspecie.so (0x00007f2c1f800000)
+	libthermophysicalProperties.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libthermophysicalProperties.so (0x00007f2c220fe000)
+	libsolidSpecie.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libsolidSpecie.so (0x00007f2c22620000)
+	libradiationModels.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libradiationModels.so (0x00007f2c1fad1000)
+	libblockMesh.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libblockMesh.so (0x00007f2c1f779000)
+	libdecompositionMethods.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libdecompositionMethods.so (0x00007f2c1f6f0000)
+	libopen-rte.so.40 => /lib/x86_64-linux-gnu/libopen-rte.so.40 (0x00007f2c1f634000)
+	libopen-pal.so.40 => /lib/x86_64-linux-gnu/libopen-pal.so.40 (0x00007f2c1f580000)
+	libhwloc.so.15 => /lib/x86_64-linux-gnu/libhwloc.so.15 (0x00007f2c2048c000)
+	libSLGThermo.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libSLGThermo.so (0x00007f2c235f7000)
+	libdistributed.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libdistributed.so (0x00007f2c1f4e2000)
+	libevent_core-2.1.so.7 => /lib/x86_64-linux-gnu/libevent_core-2.1.so.7 (0x00007f2c216a4000)
+	libevent_pthreads-2.1.so.7 => /lib/x86_64-linux-gnu/libevent_pthreads-2.1.so.7 (0x00007f2c22f46000)
+	libudev.so.1 => /lib/x86_64-linux-gnu/libudev.so.1 (0x00007f2c1f4af000)
+	libcap.so.2 => /lib/x86_64-linux-gnu/libcap.so.2 (0x00007f2c22613000)
+exit=0
+
+===== umpire-config =====
+#----------------------------------*-sh-*--------------------------------------
+# =========                 |
+# \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+#  \\    /   O peration     |
+#   \\  /    A nd           | www.openfoam.com
+#    \\/     M anipulation  |
+#------------------------------------------------------------------------------
+#     Copyright (C) 2025 OpenCFD Ltd.
+#------------------------------------------------------------------------------
+# License
+#     This file is part of OpenFOAM, distributed under GPL-3.0-or-later.
+#
+# File
+#     etc/config.sh/umpire
+#     [experimental]
+#
+# Description
+#     Setup for UMPIRE include/libraries (usually ThirdParty installation).
+#
+# Note
+#     No csh version. This file is only used by wmake.
+#
+#------------------------------------------------------------------------------
+# USER EDITABLE PART: Changes made here may be lost with the next upgrade
+
+umpire_version=umpire-2025.03.0
+export UMPIRE_ARCH_PATH="$WM_THIRD_PARTY_DIR/platforms/$WM_ARCH$WM_COMPILER/$umpire_version"
+
+# END OF (NORMAL) USER EDITABLE PART
+#------------------------------------------------------------------------------
+exit=0
+
+===== candidate-linker-cache =====
+	libcudadebugger.so.1 (libc6,x86-64) => /usr/lib/wsl/lib/libcudadebugger.so.1
+	libcuda.so.1 (libc6,x86-64) => /usr/lib/wsl/lib/libcuda.so.1
+	libamdhip64.so.5 (libc6,x86-64) => /lib/x86_64-linux-gnu/libamdhip64.so.5
+exit=0
