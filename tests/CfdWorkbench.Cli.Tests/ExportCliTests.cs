@@ -1,0 +1,204 @@
+using CfdWorkbench.Analysis;
+using CfdWorkbench.Cli;
+using CfdWorkbench.Core;
+using System.Text;
+
+/// <summary>
+/// The <c>export</c> verb (Export design 6.1, Ruling 194 (4)): the .dat equals the committed fixture, the STL passes the closure check,
+/// the half names its file, the hardened write refuses a link, 3mf is refused by name, and an invalid option prints usage.
+/// Ring: every join (tools/run-tests.sh); cost: under 2 s together (Cost lines per check).
+/// </summary>
+internal static class ExportCliTests
+{
+    private const string Fixture = "tests/CfdWorkbench.Core.Tests/Fixtures/export/basic-foil-root-r1.dat";
+
+    public static async Task<int> RunAsync()
+    {
+        int failures = 0;
+        foreach (var (name, check) in new (string, Func<Task>)[]
+        {
+            ("Cli_Export_DatEqualsFixtureAndPrintsSummary", DatEqualsFixture),
+            ("Cli_Export_StlPassesClosureCheck", StlPasses),
+            ("Cli_Export_HalfNamesFileHalf", HalfNamesFile),
+            ("Cli_Export_SymlinkTargetRefused", SymlinkRefused),
+            ("Cli_Export_3mfRefusedToday", ThreeMfRefused),
+            ("Cli_Export_InvalidOptionPrintsUsage", InvalidOptions),
+            ("Cli_Export_TrailingEdgeBelowFloorAdvisesAndWrites", BelowFloorWrites),
+            ("Cli_Export_GeometryNotAcceptedRefused", GeometryRefused),
+            ("Cli_Export_ForcedExtensionNeverReplaces", ForcedExtension),
+            ("Cli_Export_UnwritablePathExitsIo", UnwritablePath),
+        })
+        {
+            long started = System.Diagnostics.Stopwatch.GetTimestamp();
+            try
+            {
+                await check();
+                Console.WriteLine("PASS " + name);
+            }
+            catch (Exception error)
+            {
+                Console.WriteLine("FAIL " + name + " " + error.GetType().Name + ": " + error.Message);
+                failures++;
+            }
+            Console.WriteLine("COST " + name + " " + System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds
+                .ToString("F3", System.Globalization.CultureInfo.InvariantCulture));
+        }
+        return failures;
+    }
+
+    private static async Task<(int Exit, string Output)> Run(params string[] args)
+    {
+        var output = new StringWriter();
+        int exit = await Cli.RunAsync(args, output);
+        return (exit, output.ToString());
+    }
+
+    private static void Require(bool condition, string message)
+    {
+        if (!condition) throw new Exception(message);
+    }
+
+    private static void Exits(int expected, (int Exit, string Output) run) =>
+        Require(run.Exit == expected, $"exit {run.Exit}, expected {expected}: {run.Output}");
+
+    private static async Task WithFolder(Func<string, Task> body)
+    {
+        string folder = TestTemp.NewDirectory("export-cli-");
+        try { await body(folder); }
+        finally { Directory.Delete(folder, recursive: true); }
+    }
+
+    private static async Task DatEqualsFixture() => await WithFolder(async folder =>
+    {
+        string file = Path.Combine(folder, "root.dat");
+        var run = await Run("export", "example", "--format", "dat", "--out", file);
+        Exits(0, run);
+        Require(File.ReadAllBytes(file).AsSpan().SequenceEqual(File.ReadAllBytes(Fixture)), "the .dat differs from the committed fixture");
+        // The dialog's rows, as plain text.
+        foreach (string line in new[] { "Revision: Revision r1, accepted.", "Fidelity: ", "Trailing edge: Least thickness ", "(" + Settings.TrailingEdgeFloorLabel + ")",
+            "  " + CfdWorkbench.Desktop.ExportCopy.ManufacturingNotAssessed, "Limit: ", "Safety: ", "Exported root.dat", "Path: " + file })
+            Require(run.Output.Contains(line, StringComparison.Ordinal), "the output lacks: " + line + "\n" + run.Output);
+        Require(Directory.GetFiles(folder).Length == 1, "a temp file was left behind");
+    });
+
+    private static async Task StlPasses() => await WithFolder(async folder =>
+    {
+        string file = Path.Combine(folder, "wing.stl");
+        var run = await Run("export", "example", "--format", "stl", "--out", file);
+        Exits(0, run);
+        var check = StlExport.Check(File.ReadAllBytes(file));
+        Require(check.Closed && check.Triangles > 0 && check.UnpairedEdges == 0 && check.ZeroAreaTriangles == 0, "the written STL is not a closed mesh");
+        Require(run.Output.Contains("Mesh: ", StringComparison.Ordinal) && run.Output.Contains("Size of the part: ", StringComparison.Ordinal),
+            "the STL summary rows are missing:\n" + run.Output);
+    });
+
+    private static async Task HalfNamesFile() => await WithFolder(async folder =>
+    {
+        // An existing folder as --out takes the dialog's suggested name (design 6.4), which carries -half.
+        var run = await Run("export", "example", "--format", "stl", "--scope", "half", "--tolerance", "draft", "--out", folder);
+        Exits(0, run);
+        string[] files = Directory.GetFiles(folder).Select(Path.GetFileName).Cast<string>().ToArray();
+        Require(files.Length == 1 && files[0] == "basic-foil-r1-half-mm.stl", "the half file is named " + string.Join(",", files));
+        Require(StlExport.Check(File.ReadAllBytes(Path.Combine(folder, files[0]))).Closed, "the half is not closed");
+        var whole = await Run("export", "example", "--format", "stl", "--tolerance", "draft", "--out", folder);
+        Exits(0, whole);
+        Require(File.Exists(Path.Combine(folder, "basic-foil-r1-mm.stl")), "the whole wing file name is wrong");
+    });
+
+    private static async Task SymlinkRefused() => await WithFolder(async folder =>
+    {
+        string real = Path.Combine(folder, "real.dat"), link = Path.Combine(folder, "link.dat");
+        await File.WriteAllTextAsync(real, "keep");
+        File.CreateSymbolicLink(link, real);
+        var run = await Run("export", "example", "--format", "dat", "--out", link);
+        Exits(6, run);
+        Require(run.Output.Contains("EXPORT-TARGET-LINK", StringComparison.Ordinal), run.Output);
+        Require(File.ReadAllText(real) == "keep", "the link target was overwritten");
+        Require((File.GetAttributes(link) & FileAttributes.ReparsePoint) != 0, "the link was replaced");
+        Require(Directory.GetFiles(folder).Length == 2, "a temp file was left behind");
+    });
+
+    private static async Task ThreeMfRefused() => await WithFolder(async folder =>
+    {
+        string file = Path.Combine(folder, "wing.3mf");
+        var run = await Run("export", "example", "--format", "3mf", "--out", file);
+        Exits(3, run);
+        Require(run.Output.Contains("EXPORT-FORMAT-UNAVAILABLE", StringComparison.Ordinal) && run.Output.Contains("not available yet", StringComparison.Ordinal), run.Output);
+        Require(Directory.GetFiles(folder).Length == 0, "3mf wrote a file");
+    });
+
+    private static async Task InvalidOptions() => await WithFolder(async folder =>
+    {
+        string file = Path.Combine(folder, "x.dat");
+        var cases = new (string Why, string[] Args)[]
+        {
+            ("unknown option", ["export", "example", "--format", "dat", "--out", file, "--bogus", "1"]),
+            ("missing format", ["export", "example", "--out", file]),
+            ("missing out", ["export", "example", "--format", "dat"]),
+            ("missing input", ["export", "--format", "dat", "--out", file]),
+            ("unknown format", ["export", "example", "--format", "step", "--out", file]),
+            ("stl option on dat", ["export", "example", "--format", "dat", "--scope", "half", "--out", file]),
+            ("dat option on stl", ["export", "example", "--format", "stl", "--order", "selig", "--out", file]),
+            ("free numeric tolerance", ["export", "example", "--format", "stl", "--tolerance", "0.02", "--out", file]),
+            ("points", ["export", "example", "--format", "dat", "--points", "50", "--out", file]),
+            ("station out of range", ["export", "example", "--format", "dat", "--station", "99", "--out", file]),
+            ("option without value", ["export", "example", "--format", "dat", "--out"]),
+            ("repeated option", ["export", "example", "--format", "dat", "--format", "dat", "--out", file]),
+        };
+        foreach (var (why, args) in cases)
+        {
+            var run = await Run(args);
+            Require(run.Exit == 2, $"{why}: exit {run.Exit}: {run.Output}");
+            Require(run.Output.Contains("EXPORT-USAGE", StringComparison.Ordinal), $"{why}: no usage error: {run.Output}");
+            if (why != "station out of range")
+                Require(run.Output.Contains("Usage: cfd-workbench export", StringComparison.Ordinal), $"{why}: no usage text: {run.Output}");
+        }
+        Require(!File.Exists(file), "an invalid run wrote a file");
+        // The old verbs' usage still names every verb.
+        var other = await Run("nonsense");
+        Require(other.Exit == 2 && other.Output.Contains("export <", StringComparison.Ordinal), "the general usage does not name export: " + other.Output);
+    });
+
+    private static async Task BelowFloorWrites() => await WithFolder(async folder =>
+    {
+        string text = Encoding.UTF8.GetString(Cli.ExampleBytes())
+            .Replace("(0.9, 0.01), (1, 0)] ids", "(0.9, 0.01), (1, 0.001)] ids", StringComparison.Ordinal)
+            .Replace("(0.9, -0.01), (1, 0)] ids", "(0.9, -0.01), (1, -0.001)] ids", StringComparison.Ordinal)
+            .Replace("\"cv-6\", \"cv-7\"] }\n    }", "\"cv-6\", \"cv-7\"] }\n      closure open\n    }", StringComparison.Ordinal);
+        string foil = Path.Combine(folder, "thin.foil"), file = Path.Combine(folder, "thin.dat");
+        await File.WriteAllTextAsync(foil, text);
+        var run = await Run("export", foil, "--format", "dat", "--out", file);
+        Exits(0, run);
+        Require(run.Output.Contains("Advisory: Trailing edge 0.26 mm, below the floor of 0.30 mm (" + Settings.TrailingEdgeFloorLabel + ")", StringComparison.Ordinal),
+            "no below-the-floor advisory:\n" + run.Output);
+        Require(File.Exists(file), "the file was not written despite the advisory");
+    });
+
+    private static async Task GeometryRefused() => await WithFolder(async folder =>
+    {
+        string file = Path.Combine(folder, "bad.dat");
+        var run = await Run("export", "docs/examples/foildsl/invalid-geometry.foil", "--format", "dat", "--out", file);
+        Require(run.Exit == 4 && run.Output.StartsWith("Error DSL-NOT-ASSESSED", StringComparison.Ordinal), $"exit {run.Exit}: {run.Output}");
+        Require(!File.Exists(file), "a refused geometry wrote a file");
+    });
+
+    private static async Task ForcedExtension() => await WithFolder(async folder =>
+    {
+        string forced = Path.Combine(folder, "x.dat"), given = Path.Combine(folder, "x.txt");
+        await File.WriteAllTextAsync(forced, "keep");
+        var run = await Run("export", "example", "--format", "dat", "--out", given);
+        Exits(8, run);
+        Require(File.ReadAllText(forced) == "keep" && !File.Exists(given), "the forced-extension name was replaced");
+        // A name that does not exist is written under the forced extension.
+        var fresh = await Run("export", "example", "--format", "dat", "--out", Path.Combine(folder, "y.txt"));
+        Exits(0, fresh);
+        Require(File.Exists(Path.Combine(folder, "y.dat")), "the forced extension was not applied");
+    });
+
+    private static async Task UnwritablePath() => await WithFolder(async folder =>
+    {
+        var run = await Run("export", "example", "--format", "dat", "--out", Path.Combine(folder, "missing", "x.dat"));
+        Exits(5, run);
+        Require(run.Output.Contains("Can't write the file", StringComparison.Ordinal), run.Output);
+    });
+}

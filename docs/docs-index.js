@@ -2359,7 +2359,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e696a409baf1ced3600e971e5dab68c598d0a629e710d66c5dc4d305883638e2"
+      "sourceSha256": "38c1b4fd2fe4a4d49e318fd37495018cac2c190a965a8b7f2b9f28b4446ed79c"
     },
     {
       "id": "design-area3-analysis",
@@ -13071,6 +13071,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "7fee575971400a5c57282d2740357239b227452408469b1d9778003b299d4165"
     },
     {
+      "id": "proof-clx-red-first",
+      "path": "docs/proof/clx/red-first.md",
+      "title": "CLX red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-clx",
+      "phase": "implementation",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "The red and green runs of the export CLI verb: ten Cli checks that failed while the verb was not wired and pass now, and the two exit-code branches no CLI input reaches.",
+      "tags": [
+        "export",
+        "cli",
+        "red-first",
+        "area-7"
+      ],
+      "links": [
+        {
+          "to": "design-export",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "03ce5f25b5614d3b3ce157e9549944774f3b903a1c4cf2a3d0a6645bc1d8237d"
+    },
+    {
       "id": "proof-copy447-reachability",
       "path": "docs/proof/copy447-reachability/receipt.md",
       "title": "COPY-447 public ProjectStore reachability measurement",
@@ -20159,5 +20185,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "e03f19be94ab7ee8d914ffbabd7121a9395e291297ef27462056de0856a40d0d"
+  "graphSha256": "39db1b54ceb28e5d5c4133f65ebbf0da1105a883fdbc7b8c8500b9f48809ce66"
 };
