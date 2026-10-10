@@ -39,7 +39,7 @@ public static class PointsPaneTests
             Settle(window);
             // Modal commands have their own dialog checks; awaiting them here would wait for an operator choice.
             foreach (var id in ids.Where(id => id is not ("section.finish" or "section.cancel" or "section.import-dat"
-                or "section.replace-catalog" or "section.save-mine")))
+                or "section.replace-catalog" or "section.save-mine" or "section.export-dat" or "file.export")))
             {
                 string? reason = host.ShellCommandReason(id);
                 string before = host.StatusStrip.Text;
