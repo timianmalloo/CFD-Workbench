@@ -1,1 +1,2 @@
 {"agent": "trk-hyg", "at": 1791665426.770111, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-hyg", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-hyg-export-link"}
+{"agent": "trk-hyg", "at": 1791668017.549946, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-hyg", "wi": "WI-0", "worktree": "CFD-Workbench-fix-hyg-export-link"}
