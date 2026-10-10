@@ -21,10 +21,10 @@ pins the CUDA 13.2 config packages against repository drift, updates signed apt 
 simulation. It passed with CUDA root `13.2.2-1`, shared config packages pinned to `13.2.86-1`, 127 new packages,
 eight upgrades, and no package matching the Linux-driver or CUDA 13.3/13.4 exclusions. No CUDA package is installed.
 
-The install gate remains closed until the exact dependency lock, downloaded package hashes, applicable license map,
-measured payload size, free-space budget, Linux-driver exclusion, and CUDA 13.3/13.4 exclusion all pass and the Astra
-owner accepts them. The later toy must use `cudaMallocManaged`, identify the selected CUDA device, validate a numeric
-SAXPY oracle, run at `nice 10` with at most CPUs 0-1, and keep the Ruling 200 L3 observer and five-percent guard live.
+The exact dependency lock, downloaded package hashes, license map, payload measurement, capacity budget, and package
+exclusions passed. The Astra owner accepted the phase-B installation boundary at commit `5d884ecc`. Installation may
+now use only that accepted lock under the live Ruling 200 guard. The toy uses `cudaMallocManaged`, identifies the CUDA
+device, checks every SAXPY output element, runs at `nice 10` on CPUs 0-1, and records first and warm kernel timings.
 
 Phase B passed in session `pc-b2-r200-20261010-lock4`. The installable lock contains 135 exact package/version/
 architecture records: 127 new packages, eight upgrades, zero removals, and 3,405,443,104 authenticated download bytes.
@@ -32,7 +32,7 @@ Every cached archive matches its locked SHA-256 and size. Streaming the package 
 The license map covers all 135 packages through an embedded notice, a uniquely resolved Debian shared-document notice,
 or the versioned CUDA 13.2.2 EULA. The capacity gate requires 25,456,799,144 bytes and passed on both the WSL filesystem
 and its Windows backing volume. A current `dpkg-query -W` check found 528 installed base packages and zero CUDA toolkit,
-CUDA library, or Nsight package matches. Astra acceptance of this committed phase-B head remains the install boundary.
+CUDA library, or Nsight package matches. `accepted-inputs.sha256` freezes the reviewed phase-B bytes for execution.
 
 Rollback is `wsl.exe --unregister cfdw-cuda132-b2`, but only after the target's marker and exact distro identity are
 verified. F1 stays closed; B2 can only produce its decision-request evidence.
