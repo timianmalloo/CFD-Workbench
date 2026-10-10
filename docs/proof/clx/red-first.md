@@ -42,6 +42,25 @@ After `ExportVerb` was wired in: same command, exit 0, ten PASS lines (`docs/pro
 | `Cli_Export_ForcedExtensionNeverReplaces` | `--out x.txt` with `x.dat` present: exit 8, `x.dat` kept; with no `y.dat`, `y.txt` writes `y.dat` |
 | `Cli_Export_UnwritablePathExitsIo` | a missing folder: exit 5 with the dialog's "Can't write the file" sentence |
 
+## Round 2 (Rulings 203, TMF merged)
+
+Main (TMF, `3515c44f`) was merged first. `ExportSession.cs` and `ExportCopy.cs` in `src/CfdWorkbench.Analysis/Export/` were
+identical to main's old-path versions (`diff` printed nothing), so no TMF change was lost.
+
+Red (`round2-red.txt`, before the CLI change; exit 1): `Cli_Export_3mfPassesPackageCheckAndHalfNamesFile` failed (exit 3,
+`EXPORT-FORMAT-UNAVAILABLE`), `Cli_Export_StationTakesTheAppsNames` failed (`--station` needed a whole number), and
+`Cli_Export_InvalidOptionPrintsUsage` failed (the unknown station printed no usage text and no names).
+Green (`round2-green.txt`, exit 0): eleven Export checks PASS.
+
+| Check | What it proves |
+|---|---|
+| `Cli_Export_3mfPassesPackageCheckAndHalfNamesFile` | the written package passes `ThreeMfExport.Check`; `--scope half` names `...-half...3mf` |
+| `Cli_Export_StationTakesTheAppsNames` | every station of the example, by `StationNames.Choices`, writes the file the app's name gives; `TIP` works; the default is the root; `0`, `1`, `99`, `-1`, `middle` exit 2 and list `root` and `tip`; the numbered label resolves on a three-station set (`2` is the middle, `1` and `3` are not) |
+
+The station naming rule is `CfdWorkbench.Core.StationNames`. The Desktop sites (`ElevationView`, `PointsView`, `View3d`,
+`PropertiesView` heading) and `SectionEdits` now call it, and so does the CLI; the label text is unchanged.
+The Example has only a Root and a Tip, so the "Station n" label is checked on a three-station list, not through a CLI run.
+
 ## Limits
 
 - The `EXPORT-GEOMETRY-NOT-ACCEPTED` guard inside `ExportAsync` is not reached by any CLI input today: opening a foil refuses

@@ -57,7 +57,7 @@ public static class Cli
             await output.WriteLineAsync("Usage: cfd-workbench inspect <example|path.foil|path.cfdw.json> --json");
             await output.WriteLineAsync("       cfd-workbench inspect <path.cfdw.json> --runs");
             await output.WriteLineAsync("       cfd-workbench analyse <example|path.foil|path.cfdw.json> --op <json>");
-            await output.WriteLineAsync("       cfd-workbench export <example|path.foil|path.cfdw.json> --format dat|stl --out <path> [options]");
+            await output.WriteLineAsync("       cfd-workbench export <example|path.foil|path.cfdw.json> --format dat|stl|3mf --out <path> [options]");
             await output.WriteLineAsync("         (a wrong export command prints every option and exit code)");
             return 2;
         }

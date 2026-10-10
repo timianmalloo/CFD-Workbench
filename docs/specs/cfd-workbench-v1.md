@@ -1433,7 +1433,7 @@ in the global column; a chip that jumps is not a verb.
 | Experiment | New sweep · New optimize · Describe the experiment · Queue · New version | → Run |
 | Run | Check · ~~Prepare my environment~~ *(1.7.2: Set up a solver)* · Consent · Run · Cancel · Retry sample · Explain this failure · Preview case diff | → Results · → Experiment (Open repaired draft) |
 | Results | Select sample · Select layer · Play · Step · Scrub · Hold · Add layer · Compare samples · Select candidate · Accept as draft (opens CAD) · Ask about this result · Open in ParaView | → CAD · → Run |
-| Export | ~~Choose format · Write~~ *(1.7.6, approved — Ruling 196, A9: Choose format · Export…; Section ▸ Export .dat…; the `cfdw export` verb)* | — |
+| Export | ~~Choose format · Write~~ *(1.7.6, approved — Ruling 196, A9: Choose format · Export…; Section ▸ Export .dat…; the `cfd-workbench export` verb, named so by Ruling 203)* | — |
 | Global | New · Open · Save · Undo · Redo · Command palette · Checks · Settings | — |
 | Viewport (CAD · Analysis · Results 3D, one camera) | Top · Front · Starboard · Port · Bottom · Back · Iso · η-plot · Maximise · Orbit · Tilt · Pan · Zoom · Fit · Control frame · Curvature comb · Body Smooth/Box/Cage (views, display and camera moves, never geometry edits) | — |
 
@@ -3097,12 +3097,12 @@ before and after are in [amendments/spec-1.7.6.md](amendments/spec-1.7.6.md).
 | Format table, DAT | "shortest-round-trip digits" | A10 positional notation, never exponent form; A4 one section per file, at a station by default or the authored profile; name line rule | Ruling 196 |
 | EXP-03 | (unit declared, TE-floor finding repeated) | adds A6 (the 3MF metadata keys) | Ruling 196 |
 | A5.6 Export string | (export dialog) | A7: shown for every geometric format, including .dat | Ruling 196 |
-| Area table, Export | "Choose format · Write" | A9: "Choose format · Export…", Section ▸ Export .dat…, `cfdw export` | Ruling 196 |
+| Area table, Export | "Choose format · Write" | A9: "Choose format · Export…", Section ▸ Export .dat…, `cfd-workbench export` | Ruling 196; the verb's name, Ruling 203 |
 | Setting registry `manufacturing.te_floor`, GEO-12 | label "practitioner value, unverified" | A11: "app default, no source"; value, numerics and settings hash unchanged | Ruling 195, Ruling 196 |
 | F5 branches | TE-floor finding on the failure branch | A12: advisory on the success path; the failure branch keeps the explanation | Ruling 194 (5), Ruling 196 |
 | Copy table, TE below floor | "Trailing edge <t> mm below the floor <f> mm (practitioner value, unverified)" | A13: "Trailing edge <t> mm, below the floor of <f> mm (app default, no source)" | Ruling 195, Ruling 196 |
 
-**Not in this revision.** The code for STL, 3MF and the `cfdw export` verb; the copy rows for them are reserved in DESIGN.md §7 (COPY-479 and the ids
+**Not in this revision.** The code for STL, 3MF and the `cfd-workbench export` verb (named so by Ruling 203); the copy rows for them are reserved in DESIGN.md §7 (COPY-479 and the ids
 named in the comment line there). The .dat slice builds A1, A4, A5, A7, A8, A10, A11, A12, A13 and A14 for the .dat; A2, A3, A6 and A9's CLI verb
 belong to the later slices.
 

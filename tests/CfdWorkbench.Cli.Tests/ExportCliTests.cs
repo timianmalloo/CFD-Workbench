@@ -21,7 +21,8 @@ internal static class ExportCliTests
             ("Cli_Export_StlPassesClosureCheck", StlPasses),
             ("Cli_Export_HalfNamesFileHalf", HalfNamesFile),
             ("Cli_Export_SymlinkTargetRefused", SymlinkRefused),
-            ("Cli_Export_3mfRefusedToday", ThreeMfRefused),
+            ("Cli_Export_3mfPassesPackageCheckAndHalfNamesFile", ThreeMfWrites),
+            ("Cli_Export_StationTakesTheAppsNames", StationNamesAgree),
             ("Cli_Export_InvalidOptionPrintsUsage", InvalidOptions),
             ("Cli_Export_TrailingEdgeBelowFloorAdvisesAndWrites", BelowFloorWrites),
             ("Cli_Export_GeometryNotAcceptedRefused", GeometryRefused),
@@ -76,7 +77,7 @@ internal static class ExportCliTests
         Require(File.ReadAllBytes(file).AsSpan().SequenceEqual(File.ReadAllBytes(Fixture)), "the .dat differs from the committed fixture");
         // The dialog's rows, as plain text.
         foreach (string line in new[] { "Revision: Revision r1, accepted.", "Fidelity: ", "Trailing edge: Least thickness ", "(" + Settings.TrailingEdgeFloorLabel + ")",
-            "  " + CfdWorkbench.Desktop.ExportCopy.ManufacturingNotAssessed, "Limit: ", "Safety: ", "Exported root.dat", "Path: " + file })
+            "  " + CfdWorkbench.Analysis.Export.ExportCopy.ManufacturingNotAssessed, "Limit: ", "Safety: ", "Exported root.dat", "Path: " + file })
             Require(run.Output.Contains(line, StringComparison.Ordinal), "the output lacks: " + line + "\n" + run.Output);
         Require(Directory.GetFiles(folder).Length == 1, "a temp file was left behind");
     });
@@ -118,13 +119,53 @@ internal static class ExportCliTests
         Require(Directory.GetFiles(folder).Length == 2, "a temp file was left behind");
     });
 
-    private static async Task ThreeMfRefused() => await WithFolder(async folder =>
+    private static async Task ThreeMfWrites() => await WithFolder(async folder =>
     {
         string file = Path.Combine(folder, "wing.3mf");
         var run = await Run("export", "example", "--format", "3mf", "--out", file);
-        Exits(3, run);
-        Require(run.Output.Contains("EXPORT-FORMAT-UNAVAILABLE", StringComparison.Ordinal) && run.Output.Contains("not available yet", StringComparison.Ordinal), run.Output);
-        Require(Directory.GetFiles(folder).Length == 0, "3mf wrote a file");
+        Exits(0, run);
+        var check = ThreeMfExport.Check(File.ReadAllBytes(file));
+        Require(check.Closed && check.Triangles > 0 && check.UnpairedEdges == 0, "the written 3MF package does not pass the check");
+        Require(run.Output.Contains("Mesh: ", StringComparison.Ordinal), "the 3MF summary rows are missing:\n" + run.Output);
+        var half = await Run("export", "example", "--format", "3mf", "--scope", "half", "--tolerance", "draft", "--out", folder);
+        Exits(0, half);
+        Require(File.Exists(Path.Combine(folder, ThreeMfExport.FileName("Basic foil", 1, StlScope.Half))) &&
+                ThreeMfExport.FileName("Basic foil", 1, StlScope.Half).Contains("-half", StringComparison.Ordinal) &&
+                Directory.GetFiles(folder, "*-half*.3mf").Length == 1, "the half 3MF is not named -half.3mf");
+    });
+
+    // Ruling 203 (1): --station takes the app's own names, root, tip or the n of "Station n"; the default is the root.
+    private static async Task StationNamesAgree() => await WithFolder(async folder =>
+    {
+        using var authoring = new AuthoringSession();
+        authoring.Open(Cli.ExampleBytes(), Guid.NewGuid().ToString("D"), true);
+        var assignments = authoring.InspectAccepted().Authored.Assignments;
+        string[] choices = [.. StationNames.Choices([.. assignments.Select(a => a.Eta)])];
+        Require(choices.Length == assignments.Count && choices[0] == "root" && choices[^1] == "tip", "choices: " + string.Join(",", choices));
+        for (int index = 0; index < assignments.Count; index++)
+        {
+            var run = await Run("export", "example", "--format", "dat", "--station", choices[index], "--out", folder);
+            Exits(0, run);
+            string name = StationNames.Of(index, assignments[index].Eta);
+            Require(File.Exists(Path.Combine(folder, $"basic-foil-{DatImport.Slug(name)}-r1.dat")), $"station {choices[index]} did not write {name}");
+            Require(run.Output.Contains($"Chord at {name}:", StringComparison.Ordinal), $"the summary does not name {name}:\n" + run.Output);
+        }
+        // The example has only a root and a tip; the numbered label is checked on three stations.
+        double[] three = [0, 0.5, 1];
+        Require(StationNames.Resolve("2", three) == 1 && StationNames.Resolve("Station 2", three) == 1 && StationNames.Resolve("1", three) is null &&
+                StationNames.Resolve("3", three) is null && StationNames.Of(1, 0.5) == "Station 2" &&
+                string.Join(",", StationNames.Choices(three)) == "root,2,tip", "the numbered station label is not resolved");
+        var upper = await Run("export", "example", "--format", "dat", "--station", "TIP", "--out", folder);
+        Exits(0, upper);
+        var defaulted = await Run("export", "example", "--format", "dat", "--out", folder);
+        Require(defaulted.Output.Contains("Chord at Root:", StringComparison.Ordinal), "the default is not the root:\n" + defaulted.Output);
+        foreach (string bad in new[] { "0", "1", "99", "-1", "middle" })
+        {
+            var refused = await Run("export", "example", "--format", "dat", "--station", bad, "--out", folder);
+            Exits(2, refused);
+            Require(refused.Output.Contains("root", StringComparison.Ordinal) && refused.Output.Contains("tip", StringComparison.Ordinal) &&
+                    refused.Output.Contains("EXPORT-USAGE", StringComparison.Ordinal), $"--station {bad} does not list the names:\n" + refused.Output);
+        }
     });
 
     private static async Task InvalidOptions() => await WithFolder(async folder =>
@@ -141,7 +182,7 @@ internal static class ExportCliTests
             ("dat option on stl", ["export", "example", "--format", "stl", "--order", "selig", "--out", file]),
             ("free numeric tolerance", ["export", "example", "--format", "stl", "--tolerance", "0.02", "--out", file]),
             ("points", ["export", "example", "--format", "dat", "--points", "50", "--out", file]),
-            ("station out of range", ["export", "example", "--format", "dat", "--station", "99", "--out", file]),
+            ("unknown station", ["export", "example", "--format", "dat", "--station", "99", "--out", file]),
             ("option without value", ["export", "example", "--format", "dat", "--out"]),
             ("repeated option", ["export", "example", "--format", "dat", "--format", "dat", "--out", file]),
         };
@@ -150,8 +191,7 @@ internal static class ExportCliTests
             var run = await Run(args);
             Require(run.Exit == 2, $"{why}: exit {run.Exit}: {run.Output}");
             Require(run.Output.Contains("EXPORT-USAGE", StringComparison.Ordinal), $"{why}: no usage error: {run.Output}");
-            if (why != "station out of range")
-                Require(run.Output.Contains("Usage: cfd-workbench export", StringComparison.Ordinal), $"{why}: no usage text: {run.Output}");
+            Require(run.Output.Contains("Usage: cfd-workbench export", StringComparison.Ordinal), $"{why}: no usage text: {run.Output}");
         }
         Require(!File.Exists(file), "an invalid run wrote a file");
         // The old verbs' usage still names every verb.

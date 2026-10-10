@@ -1,12 +1,12 @@
 using CfdWorkbench.Analysis;
 using CfdWorkbench.Core;
-using CfdWorkbench.Desktop;
+using CfdWorkbench.Analysis.Export;
 using System.Text;
 
 namespace CfdWorkbench.Cli;
 
 /// <summary>
-/// <c>export &lt;example|path.foil|path.cfdw.json&gt; --format dat|stl --out &lt;path&gt; [options]</c> (Export design 6.1, Ruling 194 (4)).
+/// <c>export &lt;example|path.foil|path.cfdw.json&gt; --format dat|stl|3mf --out &lt;path&gt; [options]</c> (Export design 6.1, Ruling 194 (4)).
 /// It drives the dialog's own <see cref="ExportSession"/>, so the writers, the file name rules, the summary rows and the
 /// hardened write path (symlink refused, exclusive flushed temp file, publish by rename, a forced extension never replaces)
 /// are the dialog's, not copies. It prints plain text; the exit codes are listed in <see cref="Usage"/>.
@@ -14,22 +14,22 @@ namespace CfdWorkbench.Cli;
 internal static class ExportVerb
 {
     // Exit codes beyond the CLI's shared ones (2 usage or input, 3 unsupported, 4 not assessed, 5 I/O, 130 cancelled).
-    internal const int ExitUsage = 2, ExitFormatUnavailable = 3, ExitGeometryNotAccepted = 4, ExitIo = 5, ExitTargetLink = 6,
+    internal const int ExitUsage = 2, ExitGeometryNotAccepted = 4, ExitIo = 5, ExitTargetLink = 6,
         ExitMeshNotClosed = 7, ExitWouldReplace = 8;
 
     internal const string Usage =
-        "Usage: cfd-workbench export <example|path.foil|path.cfdw.json> --format dat|stl --out <path>\n" +
-        "         [--shape at|own] [--station N] [--order selig|lednicer] [--points 61|101|201]   (dat only)\n" +
-        "         [--scope whole|half] [--tolerance draft|print|fine]                             (stl only)\n" +
-        "  --station N is the 0-based index of an authored station (0 is the root); the default is 0.\n" +
+        "Usage: cfd-workbench export <example|path.foil|path.cfdw.json> --format dat|stl|3mf --out <path>\n" +
+        "         [--shape at|own] [--station root|tip|N] [--order selig|lednicer] [--points 61|101|201]   (dat only)\n" +
+        "         [--scope whole|half] [--tolerance draft|print|fine]                                      (stl and 3mf)\n" +
+        "  --station takes the app's own names: root, tip, or the number N of the label \"Station N\"; the default is root.\n" +
         "  Defaults: --shape at, --order selig, --points 101, --scope whole, --tolerance print.\n" +
-        "  The extension of --out is forced to .dat or .stl; an existing file of the exact --out name is replaced,\n" +
-        "  a forced name that already exists is never replaced.\n" +
+        "  The extension of --out is forced to .dat, .stl or .3mf; an existing file of the exact --out name is replaced,\n" +
+        "  a forced name that already exists is never replaced. An existing folder as --out takes the dialog's file name.\n" +
         "Exit codes: 0 written (a trailing edge below the floor is advised and still written); 2 usage, bad option or input;\n" +
-        "  3 format not available yet (3mf) or input unsupported; 4 geometry not accepted; 5 path not writable;\n" +
+        "  3 input unsupported; 4 geometry not accepted; 5 path not writable;\n" +
         "  6 target is a symlink; 7 mesh did not close, nothing written; 8 forced-extension name exists; 130 cancelled.";
 
-    private sealed record Options(string Input, ExportFormat Format, string Out, DatShape Shape, int? Station, DatOrder Order,
+    private sealed record Options(string Input, ExportFormat Format, string Out, DatShape Shape, string? Station, DatOrder Order,
         int Points, StlScope Scope, StlPreset Preset);
 
     private sealed class UsageError(string message) : Exception(message);
@@ -46,11 +46,6 @@ internal static class ExportVerb
             await output.WriteLineAsync("Error EXPORT-USAGE: " + error.Message);
             await output.WriteLineAsync(Usage);
             return ExitUsage;
-        }
-        catch (FormatUnavailable)
-        {
-            await output.WriteLineAsync("Error EXPORT-FORMAT-UNAVAILABLE: 3mf is not available yet. Use --format dat or stl.");
-            return ExitFormatUnavailable;
         }
         try
         {
@@ -82,18 +77,17 @@ internal static class ExportVerb
         }
         if (!values.TryGetValue("--format", out string? formatText)) throw new UsageError("--format is required.");
         if (!values.TryGetValue("--out", out string? path) || path.Length == 0) throw new UsageError("--out is required.");
-        // 3mf is a known format whose writer has not landed (track TMF); it is refused by name, not as an unknown value.
-        if (formatText == "3mf") throw new FormatUnavailable();
-        var format = formatText switch { "dat" => ExportFormat.Dat, "stl" => ExportFormat.Stl, _ => throw new UsageError($"--format {formatText} is not dat or stl.") };
+        var format = formatText switch
+        {
+            "dat" => ExportFormat.Dat, "stl" => ExportFormat.Stl, "3mf" => ExportFormat.ThreeMf,
+            _ => throw new UsageError($"--format {formatText} is not dat, stl or 3mf.")
+        };
         string[] datOnly = ["--shape", "--station", "--order", "--points"], stlOnly = ["--scope", "--tolerance"];
         foreach (string name in format == ExportFormat.Dat ? stlOnly : datOnly)
             if (values.ContainsKey(name)) throw new UsageError($"{name} does not apply to --format {formatText}.");
         return new Options(args[1], format, path,
             Choice(values, "--shape", DatShape.AtStation, ("at", DatShape.AtStation), ("own", DatShape.Own)),
-            values.TryGetValue("--station", out string? station)
-                ? int.TryParse(station, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out int stationIndex)
-                    ? stationIndex : throw new UsageError("--station is not a whole number.")
-                : null,
+            values.GetValueOrDefault("--station"),
             Choice(values, "--order", DatOrder.Selig, ("selig", DatOrder.Selig), ("lednicer", DatOrder.Lednicer)),
             values.TryGetValue("--points", out string? points)
                 ? int.TryParse(points, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out int count) &&
@@ -102,8 +96,6 @@ internal static class ExportVerb
             Choice(values, "--scope", StlScope.Whole, ("whole", StlScope.Whole), ("half", StlScope.Half)),
             Choice(values, "--tolerance", StlPreset.Print, ("draft", StlPreset.Draft), ("print", StlPreset.Print), ("fine", StlPreset.Fine)));
     }
-
-    private sealed class FormatUnavailable : Exception;
 
     private static T Choice<T>(Dictionary<string, string> values, string name, T fallback, params (string Word, T Value)[] words)
     {
@@ -145,7 +137,7 @@ internal static class ExportVerb
         {
             double eta = inspection.Authored.Assignments[index].Eta;
             var frame = Placement.Frame(view.Source, eta);
-            string name = eta == 0 ? "Root" : eta == 1 ? "Tip" : $"Station {index + 1}";
+            string name = StationNames.Of(index, eta);
             stations.Add(new(name, frame.ChordMeters * 1000, frame.ThicknessRatio * 100));
         }
         return new(view.Source, inspection.Authored.Name ?? "foil", session.RevisionOf(view.AcceptedId).Ordinal, inspection.Geometry.Status,
@@ -163,12 +155,19 @@ internal static class ExportVerb
             await output.WriteLineAsync("Error EXPORT-GEOMETRY-NOT-ACCEPTED: " + ExportCopy.Blocked);
             return ExitGeometryNotAccepted;
         }
-        int station = options.Station ?? 0;
-        if (station >= source.Stations.Count)
+        // Ruling 203 (1): the app's own station names; the default is the root (station 0).
+        var etas = authoring.InspectAccepted().Authored.Assignments.Select(assignment => assignment.Eta).ToArray();
+        int station = 0;
+        if (options.Station is { } typed)
         {
-            await output.WriteLineAsync($"Error EXPORT-USAGE: --station {station} is out of range; the stations are " +
-                string.Join(", ", source.Stations.Select((s, i) => $"{i} ({s.Name})")) + ".");
-            return ExitUsage;
+            if (StationNames.Resolve(typed, etas) is not { } found)
+            {
+                await output.WriteLineAsync($"Error EXPORT-USAGE: --station {typed} is not a station of this foil; the stations are " +
+                    string.Join(", ", StationNames.Choices(etas)) + ".");
+                await output.WriteLineAsync(Usage);
+                return ExitUsage;
+            }
+            station = found;
         }
         session.Set(options.Shape, options.Order, options.Points, station, options.Format, options.Scope, options.Preset);
         await session.PrepareAsync(cancellation);
@@ -179,7 +178,7 @@ internal static class ExportVerb
         }
         // An existing folder as --out takes the dialog's suggested name (design 6.4), e.g. basic-foil-r1-half-mm.stl.
         string chosen = Directory.Exists(options.Out) ? Path.Combine(options.Out, session.FileName) : options.Out;
-        string path = ExportSession.ForceExtension(chosen, session.Format == ExportFormat.Dat ? ".dat" : ".stl");
+        string path = ExportSession.ForceExtension(chosen, session.Format switch { ExportFormat.Dat => ".dat", ExportFormat.ThreeMf => ".3mf", _ => ".stl" });
         if (path != chosen && (File.Exists(path) || Directory.Exists(path)))
         {
             await output.WriteLineAsync($"Error EXPORT-WOULD-REPLACE: {path} exists and was not the name you gave, so it was not replaced. Nothing was written.");

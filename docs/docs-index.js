@@ -2359,7 +2359,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "38c1b4fd2fe4a4d49e318fd37495018cac2c190a965a8b7f2b9f28b4446ed79c"
+      "sourceSha256": "3d8a61e5e6731d97f36b7533124e35ebbfefb0d5ab27329270db9436829e74e5"
     },
     {
       "id": "design-area3-analysis",
@@ -2701,7 +2701,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7ebed691e2e7fa147e71ea9dee831d3aa3ce77705e787d6f15cd728297a30a3b"
+      "sourceSha256": "4556823eaf3e270a97ff89aded249db57e7c0a22634921c5a241ad1ccb96e39a"
     },
     {
       "id": "design-foildsl-authoring",
@@ -5424,7 +5424,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "db61ab90099acade6dfe228a1ad6787f008c2d1583fa45f5a31963f6a8cb1e15"
+      "sourceSha256": "c008aca2171a56d016a18ae6e720a92a49b27aa0c88f370001a1727a937f7980"
     },
     {
       "id": "domain-experts",
@@ -8685,7 +8685,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a32f077fe646e0f7724e06b4f88f1939f518167cd6b130058b8be4978894d058"
+      "sourceSha256": "de31206a7c4a96eb6ccd094856eb261eaddfde9b1ed86068b922d3f7e579a3e1"
     },
     {
       "id": "kb-hw-glossary",
@@ -13094,7 +13094,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "03ce5f25b5614d3b3ce157e9549944774f3b903a1c4cf2a3d0a6645bc1d8237d"
+      "sourceSha256": "87cda78ce3a37f639984c4e8759350dd3a44a736a106debb1ac3c684ae777901"
     },
     {
       "id": "proof-copy447-reachability",
@@ -13956,6 +13956,31 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "0dffc55bc2a5a901180c79b27dad57633df66a3631ba820f49013a775efd3769"
+    },
+    {
+      "id": "proof-gfx-red-first",
+      "path": "docs/proof/gfx/red-first.md",
+      "title": "GFX red-first - admission self-quote and PII UTF-16 blind spot",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-gfx",
+      "phase": "",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Admission check ignores a marker quoted as code; the PII guard decodes UTF-16 files; each shown failing first.",
+      "tags": [
+        "gfx",
+        "plat-a",
+        "pii-gate"
+      ],
+      "links": [
+        {
+          "to": "proof-asc-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c84b30ba24f3e8d7a8e953629f62f14633250e377f8aa0f0aea580b2b1fe6dad"
     },
     {
       "id": "proof-grp-desktop-red-first",
@@ -16882,6 +16907,66 @@ window.DOCS_INDEX = {
       "sourceSha256": "948c59070177fcb901abed82060357d9594d192cdef106406b661e1bc9fcdcc2"
     },
     {
+      "id": "proof-tmf-red-first",
+      "path": "docs/proof/tmf/red-first.md",
+      "title": "TMF red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-tmf",
+      "phase": "implementation",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "The red runs of the wing 3MF track: every Core and Desktop 3MF check failed on a skeleton, five one-line mutants of the writer each failed the check that names them, and the B1 slicer run carries two negative controls (a removed triangle, a unit declared as meter).",
+      "tags": [
+        "export",
+        "3mf",
+        "red-first",
+        "b1",
+        "area-7"
+      ],
+      "links": [
+        {
+          "to": "design-export",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-tmf-spec-excerpts",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "8a4d21c9c854ffb9f86bc0c33de4caf76ddb9c1943a6ab5d2d13ac3110905f0a"
+    },
+    {
+      "id": "proof-tmf-spec-excerpts",
+      "path": "docs/proof/tmf/3mf-core-spec-excerpts.md",
+      "title": "3MF Core specification excerpts for the wing 3MF assumptions",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-tmf",
+      "phase": "implementation",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Confirms the two assume: markers of docs/design/export.md 4.3 against the 3MF Core specification itself: the unit value millimeter, and counter-clockwise winding with the face normal outward. Also the metadata names and the package parts.",
+      "tags": [
+        "export",
+        "3mf",
+        "spec",
+        "unit",
+        "winding",
+        "metadata",
+        "area-7"
+      ],
+      "links": [
+        {
+          "to": "design-export",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "64a5f06b74d403ef421d0799f9fac676d7bc07972b68ab4d6612b6eaccc34602"
+    },
+    {
       "id": "proof-tmh-red-first",
       "path": "docs/proof/tmh/red-first.md",
       "title": "TMH red-first receipt for the text-mode-write gate",
@@ -19370,7 +19455,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ad1066ed2e1ac5227e88bde94d3d3c7d793412b565e1cc3d7b8b27fae60e0a76"
+      "sourceSha256": "e484b0991392266a1aeb7dfe163a8d78b174a10d2c3b87ccfb0a7304b840fbd0"
     },
     {
       "id": "spec-amendments-1-7-6-rail-comb",
@@ -19731,7 +19816,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]\nA -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]\nL --> F\nB -->|Maximize| X[Pane fills the window; the rest inert]\nX -->|Escape or restore| B\nB -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]\nJ2 --> B\nB -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]\nB -->|Float| F[Float over the model area]\nC --> B\nF -->|Escape or dock back| B\nF -->|Alt and arrows or Position menu| F\nF -->|A control under the float takes focus| G{A corner of the model area clears it?}\nG -->|Yes| H[Float moves to the nearest clear corner and says so]\nG -->|No| I[Float docks back where it came from and says so]\nH --> F\nI --> B\nB -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]\nJ --> B\nB -->|Switch workspace| K[That workspace's remembered layout]\nK --> B\nB -->|Reset layout| A"
         }
       ],
-      "sourceSha256": "5931766681e93182b2a1e5795de39364c068280c98e5738691583c0f8da2d47a"
+      "sourceSha256": "816ea3e6d375974b107d73d28836a4fab11a5b6d19266e3e1db44d3a27c5cae6"
     },
     {
       "id": "spec-foildsl",
@@ -20185,5 +20270,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "39db1b54ceb28e5d5c4133f65ebbf0da1105a883fdbc7b8c8500b9f48809ce66"
+  "graphSha256": "75c2622e07d0284aad7391c200bb527093c0d93469a0322278a6d132987cfeb2"
 };

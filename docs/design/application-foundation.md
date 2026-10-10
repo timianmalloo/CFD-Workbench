@@ -151,17 +151,19 @@ evaluator, assessment, diagnostics and derived geometry with units/error bounds.
 invalid input; 3 = unsupported; 4 = Not assessed; 5 = I/O/conflict; 130 = cancellation. No partial success
 with omitted fields. Numeric GUI controls use the same core conversion/evaluation, not formatted display text.
 
-CLI export: `cfd-workbench export <example|path.foil|path.cfdw.json> --format dat|stl --out <path>` with
-`[--shape at|own] [--station N] [--order selig|lednicer] [--points 61|101|201]` for `.dat` and
-`[--scope whole|half] [--tolerance draft|print|fine]` for STL (`docs/design/export.md` 6.1, Ruling 194). It drives the
-Export dialog's own session, so the writers, file names, summary lines (fidelity, the trailing-edge row, "Manufacturing:
-not assessed") and the hardened write path are the dialog's. `--station N` is the 0-based index of an authored station
-(0 is the root). `--out` may be an existing folder, which takes the dialog's suggested name (`basic-foil-r1-half-mm.stl`).
-It prints plain text. Exit 0 = written (a trailing edge below the floor is advised and still written); 2 = usage, bad
-option or input; 3 = `3mf` not available yet, or unsupported input; 4 = geometry not accepted; 5 = path not writable;
-6 = target is a symlink; 7 = mesh did not close, nothing written; 8 = the forced-extension name already exists;
-130 = cancellation. `3mf` joins `--format` with track TMF.
 An implementation must compare exact identity and numerical bounds across both adapters and target OSes.
+
+CLI export: `cfd-workbench export <example|path.foil|path.cfdw.json> --format dat|stl|3mf --out <path>` with
+`[--shape at|own] [--station root|tip|N] [--order selig|lednicer] [--points 61|101|201]` for `.dat` and
+`[--scope whole|half] [--tolerance draft|print|fine]` for STL and 3MF (`docs/design/export.md` 6.1, Rulings 194, 203). It
+drives the Export dialog's own session, so the writers, file names, summary lines (fidelity, the trailing-edge row,
+"Manufacturing: not assessed") and the hardened write path are the dialog's. `--station` takes the app's own station
+names: `root`, `tip`, or the number N of the label "Station N" (one shared rule, `StationNames`); the default is the root;
+an unknown name is a usage error that lists the valid names. `--out` may be an existing folder, which takes the dialog's
+suggested name (`basic-foil-r1-half-mm.stl`). It prints plain text. Exit 0 = written (a trailing edge below the floor is
+advised and still written); 2 = usage, bad option or input; 3 = unsupported input; 4 = geometry not accepted;
+5 = path not writable; 6 = target is a symlink; 7 = mesh did not close, nothing written; 8 = the forced-extension name
+already exists; 130 = cancellation.
 
 ## Geometry admission and resource limits
 
