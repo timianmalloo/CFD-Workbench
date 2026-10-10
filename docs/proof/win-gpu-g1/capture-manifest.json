@@ -44,8 +44,8 @@
     },
     {
       "path": "docs/proof/win-gpu-g1/make-manifest.py",
-      "bytes": 1038,
-      "sha256": "9e508278fd68e5f4a06991d169c3fa70ae0ad8df648cd4f5cca92f393ccd71de"
+      "bytes": 1783,
+      "sha256": "cd4f217b6b505d391f98fb4911a5c7615e6e39facd4769394732a049303ca455"
     },
     {
       "path": "docs/proof/win-gpu-g1/observer-window.json",
@@ -59,8 +59,8 @@
     },
     {
       "path": "docs/proof/win-gpu-g1/source-archive.headers.txt",
-      "bytes": 10812,
-      "sha256": "80899d459778876c76790a968069477d92af9eb46ca3fdc3e109e6ca2273c01e"
+      "bytes": 10715,
+      "sha256": "3a9acb19707b6928d2c8ab1ad613fe1c14aae16a42d62de6af1547f13081c08d"
     },
     {
       "path": "docs/proof/win-gpu-g1/source-build-info.stderr.txt",
@@ -94,8 +94,8 @@
     },
     {
       "path": "docs/proof/win-gpu-g1/source.json",
-      "bytes": 634,
-      "sha256": "19fb135113594dfa2cd643ed569d282709fd113d273c80b8da7f4d8eb99fd9f5"
+      "bytes": 622,
+      "sha256": "9c253f5ebb2d3f52eb8007115c3bedcbe60e369ac3a4bb6a2ba313761212e378"
     }
   ]
 }
