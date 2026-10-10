@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T00:25:40Z",
+  "generated": "2026-10-10T00:38:50Z",
   "audit": [
     {
       "actor": null,
@@ -34037,6 +34037,35 @@ window.AUDIT_DATA = {
         "branch": "win/gpu-qualification-plan",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M4HKZ3M7WRC4BC4D0JZZS2DC",
+      "shortname": "join-pr29",
+      "datetime": "2026-10-10T00:38:50Z",
+      "session": "3122f106",
+      "prompt": "the join of origin/win/gpu-qualification-plan into main",
+      "summary": "Joined PR #29: GPU inventory accepted (Ruling 197); L3 observer is the PC coordinator; G1 read-only may proceed recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/pr-29.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "PR #29 on main under Ruling 197",
+      "done_when": "join gates green, readiness green, PUSH-OK",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-10T00:38:32Z",
+      "duration_seconds": 18.0
     }
   ],
   "changes": [
@@ -36816,6 +36845,15 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4HGMKWMZGA5DDSESW6PG19C",
       "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4HKYFJYTJMR2QXF30GA6CPG",
+      "ts": "2026-10-10T00:38:29Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4HKYFJSQHHDE1SHKJ596DG0",
+      "session": "3122f106"
     }
   ]
 };
