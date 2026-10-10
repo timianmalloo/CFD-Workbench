@@ -1839,6 +1839,7 @@ Control (installed, Ruling 104, 2026-10-06): a PreToolUse hook on `Bash`, `tools
 fallback for `tools/hooks/`. Proposal: `docs/proof/round-oct05-lessons/heredoc-hook-proposal.md`. Open: whether
 repo-level hooks fire for sub-agent Bash calls is measured after the join, in a new session (hooks load at session
 start); until then the class stays open for sub-agents. Not covered: Grok, Copilot and agy payloads.
+*2026-10-10 (leader, the pipe shape).* The leader ran `rule_one.py r206.json | tail -1 && git add ... && git commit`. The spec file did not exist, so `rule_one.py` failed, but `tail` exited 0, and the chain committed "Ruling 206" with only session logs in it. The commit stat showed it at once (no rulings.md), and the commit was amended before any push. *Derive:* a step whose result a later `&&` depends on is never piped; redirect it to a file and test its exit. *Control:* pending: extend the Bash hook to refuse a pipeline followed by `&& git commit` in one command.
 
 **SECTION-EDITOR-LOAD-FLAKE · One failed check in the shared-fixture Section Editor suite leaves a gesture pressed and cascades.**
 `SectionEditor_DragMove_DrawsWithinOneFrame` failed at least 4 times on 2026-10-05 at load 40 to 200, and passed alone
