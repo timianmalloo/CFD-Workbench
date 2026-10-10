@@ -2208,7 +2208,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b5f2874d14d6c4f2b40c994203f7cc5a5bbaf4e08ffb4005e129b4bc9064fd14"
+      "sourceSha256": "22bf1f041a84314bd866095a373d88edd655dfab08df073a00a61ffd89362d4b"
     },
     {
       "id": "design-application-contracts",
@@ -3549,7 +3549,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e003645a37f55bdf47a163ddd3de4bcf9b3d981418dc33d787665df36ae4b4b7"
+      "sourceSha256": "836dd9e9c4b91903a50da245d91c23aba980eeea108ad8e6d9e81d199b9e94e3"
     },
     {
       "id": "design-section-editor",
@@ -3616,12 +3616,12 @@ window.DOCS_INDEX = {
       "path": "docs/design/view-preferences.md",
       "title": "View preferences: the rail comb's scale and density survive a restart",
       "type": "design",
-      "status": "proposed",
+      "status": "in-review",
       "owner": "@timianmalloo",
-      "phase": "design, revision 1 (track PRF) - Ruling 205; reviewed before the build",
+      "phase": "build, revision 2 (track PRF) - Rulings 205, 206, 207; built and proven (docs/proof/prf)",
       "reviewBy": "2027-04-01",
       "reviewSuggested": [],
-      "summary": "Ruling 205 asks for a small per-user preferences file for view settings, starting with the comb's scale and density. That file already exists: display/display.json (cfdw-display, version 1), written today for Text size and display units by PreferenceStore through ProjectStore. The design adds two optional members to it (combScale, combDensity) and reuses its location, atomic writer, claim, never-write rule, session-only rule and display.load / display.save telemetry. No new store, file, folder or user-facing text. The one rule that changes: an invalid member falls back alone, not the whole file. Nothing in the foil or project file changes.",
+      "summary": "Ruling 205 asks for a small per-user preferences file for view settings, starting with the comb's scale and density. That file already exists: display/display.json (cfdw-display, version 1), written today for Text size and display units by PreferenceStore through ProjectStore. The design adds three optional members to it (combScale, combDensity, and, by Ruling 207, combVisible: the plan Curvature toggle) and reuses its location, atomic writer, claim, never-write rule, session-only rule and display.load / display.save telemetry (trigger comb, text-size, units). No new store, file, folder or user-facing text. Two fault classes, both never-write: a structure fault defaults the whole file, a value fault defaults only its member (Ruling 206). Nothing in the foil or project file changes.",
       "tags": [
         "desktop",
         "persistence",
@@ -3651,7 +3651,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4dd1fa871dc94a371fb9a5f00e92afda8dc05c2bcc1f13b4ae0635107dad0222"
+      "sourceSha256": "99ce042545f0cf3d160a6e184b1b51287d4b0e66f78fd97d802edc5012792855"
     },
     {
       "id": "design-visible-presentation",
@@ -5466,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c008aca2171a56d016a18ae6e720a92a49b27aa0c88f370001a1727a937f7980"
+      "sourceSha256": "f394cb67a76f71b8e3ae9c419914bb0927e29f62e0db26b19c2bcaa25995743e"
     },
     {
       "id": "domain-experts",
@@ -8727,7 +8727,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c00ada4a8e32911fcefe05939d7f083189672216c97e99f6111455e54d25bfe2"
+      "sourceSha256": "0d1a14457ad9feee7d39452bbdad1862a5f755ca21df1728fd79941c64783e6a"
     },
     {
       "id": "kb-hw-glossary",
@@ -14160,6 +14160,62 @@ window.DOCS_INDEX = {
       "sourceSha256": "1257bc0ede1aaf57db308757267eff5a7ed6c1aa4a7ad7551a9da4d43e89aef2"
     },
     {
+      "id": "proof-hyg-core-cost",
+      "path": "docs/proof/hyg/core-cost.md",
+      "title": "HYG Core partition hints: measurements",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-hyg",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "Core part hints were stale (53 of 796 checks unlisted); re-measured from three whole-harness runs. Predicted skew by measured mean 2950 ms before, 34 ms after. No cap changed.",
+      "tags": [
+        "hyg",
+        "core",
+        "partition",
+        "timing"
+      ],
+      "links": [
+        {
+          "to": "proof-etc-c2-cost",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-hyg-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d8e9ae75ff43a52c679df441f0a4085dd096695247ab5e5be1fc47437de35e81"
+    },
+    {
+      "id": "proof-hyg-red-first",
+      "path": "docs/proof/hyg/red-first.md",
+      "title": "HYG red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-hyg",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "The link-target check fails on the old code (the dialog's outcome has no code and records export.write EXPORT-WRITE-FAILED) and passes on the new, with the observed lines.",
+      "tags": [
+        "hyg",
+        "export",
+        "symlink",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-hyg-core-cost",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d144ef0877c89a1b1331cb9fa619c7cd07e14534680e0a1e89903ad90f085a98"
+    },
+    {
       "id": "proof-legacy-gate-retarget",
       "path": "docs/proof/legacy-gate-retarget.md",
       "title": "Legacy gate retarget — the adapters gate's applied-contrast step moves from the pre-shell window to the shell matrix",
@@ -15277,6 +15333,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "e86a4c9b8b64650cf467324af8b9e0695383b7adfb662f3c4dbaec35f7535c38"
+    },
+    {
+      "id": "proof-prf-red-first",
+      "path": "docs/proof/prf/red-first.md",
+      "title": "PRF red-first proof: the comb view preferences",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Each behaviour of the comb view preferences ran red on the old code, then green. Core checks failed to compile before the API existed; Desktop checks failed against a build with the restore and save lines removed.",
+      "tags": [
+        "proof",
+        "trk-prf",
+        "view-preferences",
+        "rail-comb"
+      ],
+      "links": [
+        {
+          "to": "design-view-preferences",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "96b9e43311cfd77909db62ba5984d828c3d5c18ac03c91c806d245af4221a8b3"
     },
     {
       "id": "proof-r163-windows-ring",
@@ -20369,5 +20451,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "ed471b53c1fcdaa7c9cfe0119294929a5a7c6a37802d0c546aa912aef8e60740"
+  "graphSha256": "096c00f851a693741f7d6a5af16c9efa548e6e54c75b291f897ca480739499c4"
 };

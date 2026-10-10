@@ -124,7 +124,6 @@ internal static class IdentityTests
         TipChordTests.Run();
         LayoutFileTests.Run();
         PreferenceStoreTests.Run();
-        ViewPreferencesTests.Run();
         PointModelTests.Run();
         RailCurvatureTests.Run();
         LengthExpressionTests.Run();

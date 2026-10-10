@@ -2,9 +2,9 @@
 id: design-view-preferences
 title: "View preferences: the rail comb's scale and density survive a restart"
 type: design
-status: proposed
+status: in-review
 owner: "@timianmalloo"
-phase: design, revision 1 (track PRF) - Ruling 205; reviewed before the build
+phase: build, revision 2 (track PRF) - Rulings 205, 206, 207; built and proven (docs/proof/prf)
 tags: [desktop, persistence, preferences, view-settings, rail-comb, display, ruling-205, trk-prf]
 links:
   - { to: rulings, rel: implements }
@@ -15,15 +15,16 @@ review-by: 2027-04-01
 summary: >-
   Ruling 205 asks for a small per-user preferences file for view settings, starting with the comb's scale and density. That
   file already exists: display/display.json (cfdw-display, version 1), written today for Text size and display units by
-  PreferenceStore through ProjectStore. The design adds two optional members to it (combScale, combDensity) and reuses its
-  location, atomic writer, claim, never-write rule, session-only rule and display.load / display.save telemetry. No new
-  store, file, folder or user-facing text. The one rule that changes: an invalid member falls back alone, not the whole file.
+  PreferenceStore through ProjectStore. The design adds three optional members to it (combScale, combDensity, and, by Ruling 207,
+  combVisible: the plan Curvature toggle) and reuses its location, atomic writer, claim, never-write rule, session-only rule and
+  display.load / display.save telemetry (trigger comb, text-size, units). No new store, file, folder or user-facing text. Two
+  fault classes, both never-write: a structure fault defaults the whole file, a value fault defaults only its member (Ruling 206).
   Nothing in the foil or project file changes.
 ---
 
 # View preferences: the rail comb's scale and density
 
-Status: design only. No product code is written in this phase. Labels: **Verified** = opened in this session (file:line);
+Status: built in phase 2 (Rulings 206 and 207 applied; sections 5, 8 and 10 record what shipped). Phase 1 text follows. Labels: **Verified** = opened in this session (file:line);
 **Inferred** = reasoned, not observed; **Flagged** = needs a decision.
 
 ## 0. The finding that shapes the design
@@ -33,7 +34,7 @@ exist already.
 
 - The data folder: `LocalApplicationData` + `"CFD Workbench"` (`src/CfdWorkbench.Desktop/App.axaml.cs:29-31`, Verified).
 - The preferences file: `<root>/display/display.json`, format `cfdw-display`, version 1, members `format`, `version`,
-  `textSize`, optional `units` (`src/CfdWorkbench.Persistence/PreferenceStore.cs:20-88`, Verified; spec `app-shell.md` section 4.6).
+  `textSize`, optional `units` (`src/CfdWorkbench.Persistence/PreferenceStore.cs`, the `DisplayPreferences` class; spec `app-shell.md` section 4.6).
   `PreferenceStore` is built once at start-up over `new ProjectStore()` (`App.axaml.cs:31-32`, Verified).
 
 Text size and the display units are view settings, and they are held there now. The comb's scale and density are the third
@@ -79,10 +80,9 @@ user's view preferences (the home of the Curvature toggle)". In code the toggle 
 toggle so they last the session and carry across files" (Verified). So "the home" is the controller, in memory; no
 preferences file held it before this design.
 
-Ruling 205 names scale and density only. **Proposal, not added:** `combVisible` (boolean, default false). For: a user who
-works with the comb always on reopens to the state they left. Against: the comb is a diagnostic; a restart that opens with the
-plan covered in teeth, and with a plate in the corner, is a surprise for the user who forgot. The operator decides
-(O1). Section 9 shows the extra cost if yes: about 10 lines and one test.
+**Decided (Ruling 207, operator): `combVisible` persists.** Boolean, default false, absent means off, written only when true.
+If the plan comb was on at quit it is on at the next launch, with its plate. This is the plan comb only (key C, `WorkbenchController.CombVisible`),
+not the section editor's curvature flag. The three comb values are set and saved together and compared as one triple.
 
 **Other view settings today, listed, none added:**
 
@@ -141,16 +141,15 @@ JSON, UTF-8, no BOM, LF, 2-space indent as written today (`PreferenceStore.cs:73
 ```
 
 **Version rule.** `version` is bumped only when the meaning of an existing member changes or a member is removed. Adding an
-optional member does not bump it. Precedent: `units` was added to version 1 (Ruling 121; the class comment at `PreferenceStore.cs:17-19`, Verified).
+optional member does not bump it. Precedent: `units` was added to version 1 (Ruling 121; the class comment at `PreferenceStore.cs:20-25`, Verified).
 
 What each side does:
 
 - New build reads an old file: the new members are absent, so scale is Auto and density 32. Nothing is rewritten until the
   user changes something.
-- Old build reads a new file: `Parse` rejects an unknown member (`PreferenceStore.cs:50`, Verified), so the old build reads
-  100 %, metric, `DISPLAY-SCHEMA`, and **never writes** the file this session. The cost is real and bounded: the old build
-  shows the user's defaults and cannot save Text size. One user, one machine; rollback to an older build is rare. It never
-  destroys the newer data. (Inferred: no packaged older build is in use. Confirm with the operator, O3.)
+- Old build reads a new file: `Parse` rejects an unknown member, so the old build reads 100 %, metric, `DISPLAY-SCHEMA`, and **never
+  writes** the file this session. It never destroys the newer data. Ruling 207: no older build is in use, so no compatibility work and no
+  tolerant reader (Ruling 206).
 - A file whose `version` is above 1: see section 5.
 
 ## 4. Write policy
@@ -159,8 +158,8 @@ What each side does:
 expectedHash, operationId))` (`PreferenceStore.cs:405-424`, `:519-548`, Verified). That is: a claim file `.cfd-writer.claim`,
 an exclusive temp file `.cfd-<guid>.tmp` in the same directory, `fsync` of the file, rename over the target, `fsync` of the
 directory, and a compare of the on-disk SHA-256 against the hash the caller read (`DOC-CONFLICT` on mismatch)
-(`ProjectStore.cs:103-153`, Verified; a first-ever save publishes by no-replace link, an overwrite by rename). Directory 0700 and file 0600 on macOS
-(`EnsureDir`, `PreferenceStore.cs:610-615`, Verified).
+(`ProjectStore.cs:103-153`, Verified; a first-ever save publishes by no-replace link, an overwrite by rename). On macOS the file mode is 0600 from the
+`ProjectStore` `CreationMode 0x180`; `EnsureDir` sets only the directory to 0700 (Verified in the build; `PreferenceStore.cs` `EnsureDir`).
 
 **Which path policy applies, and why.** The ProjectStore `ParentPath` policy (no symlinked folder anywhere on the path, opened
 component by component; `ProjectStore.cs:333-360`, Verified), plus `PreferenceStore`'s own refusal of a linked root or
@@ -211,17 +210,15 @@ all, never overwrite) because `version` bumps only when an existing member's mea
 signal. Defaults are honest; never-write protects the newer data. If the leader wants known-field reading, it is a ten-line
 change in `Parse` plus one test, and the risk above is the price (Flagged L3).
 
-**Per-member fallback: what it changes in shipped behaviour.** Today any invalid member makes the whole file `Unreadable()`, so
-a bad `units` value resets Text size to 100 %. After: a bad member resets only itself. The existing tests
-`PrefStore_TextSize_OutOfSetOrGarbled_100_BytesUnchanged` and `Rollback_TextSizeV2_BytesUnchanged`
-(`PreferenceStoreTests.cs:33-34`) pin the old whole-file result for some inputs; the build re-states which inputs stay
-whole-file (structure errors) and which become per-member (value errors), and says so in the test names. The operator-visible
-effect is small and in the user's favour. Flagged L4 to confirm the change of an already shipped rule (DN-5, "one rule for
-the set").
+**Per-member fallback: what it changed in shipped behaviour (built, Ruling 206 L4).** Before: any invalid member made the whole file
+`Unreadable()`, so a bad `units` value reset Text size to 100 %. Now there are two classes, both never-write. A **structure** fault (not JSON,
+BOM, over 4 KiB, wrong format, version other than 1, repeated or unknown member, missing `textSize`) defaults the whole file. A **value** fault
+(a known member of the wrong type or outside its set) defaults only that member. "One rule for the set" is kept for `Serialize` only. The two
+pinned tests were renamed and split so each name says its class: `PrefStore_TextSize_ValueError_ThatMemberDefaults_BytesUnchanged`,
+`PrefStore_TextSize_StructureError_WholeFileDefaults_BytesUnchanged` and `Rollback_TextSizeV2_NewerVersionIsStructureClass_BytesUnchanged`.
 
-**Unreadable load result.** `TextSizeLoad` keeps its shape. The comb values ride the same read (as `units` does through
-`loadedUnits`, `PreferenceStore.cs:116`, `:499`, Verified) and are returned by a new `LoadCombViewAsync`, which calls the
-shared read and returns `(double? Scale, int Density, outcome, codes)`.
+**Load result.** `TextSizeLoad` keeps its shape. The comb values ride the same read (the parse the load keeps, as `units` did) and are
+returned by `LoadCombViewAsync` as `CombViewLoad(double? Scale, int Density, bool Visible, outcome, codes, ...)`.
 
 ## 6. Copy
 
@@ -238,7 +235,7 @@ shared read and returns `(double? Scale, int Density, outcome, codes)`.
 
 ## 7. Telemetry
 
-Reuse the shipped events. They answer the same question for the same file.
+Reuse the shipped events (built as designed, L5). They answer the same question for the same file.
 
 - `display.load` is recorded once per start by `LoadTextSizeAsync` (`ShellHost.cs:880-887`, Verified). It already covers the
   comb members because they ride the same read. Attributes: outcome, codes, duration_ms. **No path** is recorded.
@@ -246,9 +243,8 @@ Reuse the shipped events. They answer the same question for the same file.
   (`ShellHost.cs:389-396`, Verified). The comb save sets `trigger = "comb"` (a `ShellEvent` field that exists,
   `ShellEvents.cs:13`, Verified), so the question "how often does the comb setting fail to save" is answerable apart
   from Text size.
-- Flagged (L5): the brief proposed `prefs.load` / `prefs.save`. Shipped names are `display.*` (`app-shell.md` :701-702).
-  A second name for the same file would split one measurement in two. If the leader prefers the new names, rename the two
-  rows for all three settings in one change; do not rename for the comb only.
+- Ruling 206 L5: keep `display.*`. Every `display.save` row now carries `trigger`: `comb`, `text-size` or `units`, so each setting's
+  failure rate is answerable apart. `app-shell.md` section 4.6 and the event table are updated.
 - The brief cites the `ExportTelemetry` / `CatalogTelemetry` pattern in `AuthoringSession` (`AuthoringSession.cs:56-59`,
   Verified to exist). Those are session-bound records for export and catalog. Preferences are recorded through
   `ShellEvents`, not `AuthoringSession`, because they are Desktop-level and exist before any project (Verified; nothing in
@@ -256,6 +252,12 @@ Reuse the shipped events. They answer the same question for the same file.
 - Update `app-shell.md` :701-702: "did the Text size restore" becomes "did the display settings restore".
 
 ## 8. Test list for phase 2 (red first)
+
+**As built.** Core checks are in `tests/CfdWorkbench.Core.Tests/PreferenceStoreTests.cs` (names begin `PrefStore_Comb_` and
+`PrefStore_DisplayCodec_`; item 11 is `..._Serialize_OutOfSetComb_Throws`). Desktop checks are in
+`tests/CfdWorkbench.Desktop.Tests/PlanCombViewPrefsTests.cs` (names begin `Comb_Settings_`), in the `--plan-canvas` ring. They add
+`combVisible` (the plan toggle restored on and off, the plate shown, the teeth compared by pixels against the first session and against the
+default comb). Proof: `docs/proof/prf/red-first.md`.
 
 Each runs red against the current code, then green. Rings: all are in the fast ring (no UI timing). Core tests use a temp
 root as `PreferenceStoreTests` does; Desktop tests use the existing shell-restart pattern of `UnitsSwitchTests` (:84-94).
@@ -320,9 +322,14 @@ If the operator adds `combVisible` (O1): one more member, one more `set` flag, `
 10 lines and one test.
 
 A subscriber to the existing `CombChanged` is added in `ShellHost`; the existing event is already subscribed, so
-`check-event-subscribers.py` is unaffected (no new `event` is declared). A disposal path unsubscribes it with the host.
+`check-event-subscribers.py` is unaffected (no new `event` is declared). As built, the subscription is
+not removed on disposal, like `UnitsChanged` (the host and the controller live and end together).
 
 ## 10. Decisions and open questions
+
+**Resolved (phase 2).** L1 to L6 were ruled in Ruling 206 as recommended (L6: the ladders live in Persistence, `DisplayPreferences.CombScales`
+and `CombDensities`; `RailComb` derives from them). O1 is decided by Ruling 207 (the plan comb's on/off persists). O2 stands (Windows is
+session-only until the Windows native store lands). O3: no older build is in use. O4: silent fallback. P1 (other toggles, layer visibility) is not built.
 
 For the leader and Fable (not for the operator):
 
