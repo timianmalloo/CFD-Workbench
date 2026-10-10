@@ -1617,3 +1617,9 @@ Fable owner 2026-10-10 under Ruling 106. PR #31 is JOIN WITH CONDITIONS as block
 Operator 2026-10-10: approved as recommended. (1) `--station` takes the app's own station names: `root`, `tip`, or the number n of the label "Station n". The command and the app always name the same section, from one shared naming rule, not a copy. The default stays root. An unknown name is a usage error that lists the valid names. (2) The tool keeps its name. The spec rows :1436 and :3100, the 1.7.6 amendment row AM-1.7.6-9 and docs/design/export.md:220 say `cfd-workbench export` instead of `cfdw export`. That is a wording amendment under this ruling; no code is renamed.
 
 - request: req-01M4KPVXNDJ81GZPNMM1XZ6ZFA · ruled by: operator-timianmalloo · at: 2026-10-10T20:08:00Z
+
+### Ruling 204 — Export copy: COPY-507's last sentence only when an earlier file existed; the STL and 3MF Unit rows approved as COPY-520 and COPY-521
+
+Operator 2026-10-10: approved as recommended. (1) COPY-507 keeps 'The earlier file is still there.' only when a file existed at the target name when the write began. Otherwise the message ends at 'Nothing was changed.' For example: 'Can't write the file. The folder no longer exists. Nothing was changed.' (2) The Unit row 'mm, unscaled (in the file name)' (STL) is registered as COPY-520, and 'mm, unscaled (the unit is set in the file)' (3MF) as COPY-521, both approved as written.
+
+- request: req-01M4KR4G38MRGJY64MEF04VXY5 · ruled by: operator-timianmalloo · at: 2026-10-10T20:30:10Z
