@@ -16,6 +16,13 @@ $installParent = 'C:\Projects\CFD-Workbench-wsl'
 $installLocation = Join-Path $installParent $distro
 $rootfs = Join-Path $cache 'ubuntu-noble-wsl-amd64-wsl.rootfs.tar.gz'
 
+function Convert-WslName([string]$Value) {
+    return ($Value -replace "`0", '').Trim()
+}
+if ((Convert-WslName "cfdw-cuda132-b2`0") -ne $distro) {
+    throw 'WSL name normalization self-test failed'
+}
+
 & (Join-Path $proofRoot 'download-sources.ps1')
 
 $verifyOut = Join-Path $proofRoot 'source-verify.stdout.txt'
@@ -27,7 +34,7 @@ $verify = Start-Process -FilePath 'wsl.exe' -ArgumentList @(
 ) -RedirectStandardOutput $verifyOut -RedirectStandardError $verifyErr -PassThru -Wait -WindowStyle Hidden
 if ($verify.ExitCode -ne 0) { throw "source verification failed with exit $($verify.ExitCode)" }
 
-$names = @(& wsl.exe --list --quiet) | ForEach-Object { $_.Replace([char]0, '').Trim() } | Where-Object { $_ }
+$names = @(& wsl.exe --list --quiet) | ForEach-Object { Convert-WslName ([string]$_) } | Where-Object { $_ }
 if ($names -contains $distro) { throw "disposable distro $distro already exists" }
 if ($names -notcontains $protectedDistro) { throw "protected distro identity is unavailable" }
 if (Test-Path -LiteralPath $installLocation) { throw "install location already exists: $installLocation" }
@@ -42,7 +49,7 @@ $import = Start-Process -FilePath 'wsl.exe' -ArgumentList @(
 ) -RedirectStandardOutput $importOut -RedirectStandardError $importErr -PassThru -Wait -WindowStyle Hidden
 if ($import.ExitCode -ne 0) { throw "WSL import failed with exit $($import.ExitCode)" }
 
-$afterNames = @(& wsl.exe --list --quiet) | ForEach-Object { $_.Replace([char]0, '').Trim() } | Where-Object { $_ }
+$afterNames = @(& wsl.exe --list --quiet) | ForEach-Object { Convert-WslName ([string]$_) } | Where-Object { $_ }
 if ($afterNames -notcontains $distro -or $afterNames -notcontains $protectedDistro) {
     throw 'post-import distro identities are incomplete'
 }
