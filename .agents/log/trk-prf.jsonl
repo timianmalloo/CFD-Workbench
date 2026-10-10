@@ -1,2 +1,3 @@
 {"agent": "trk-prf", "at": 1791665486.216026, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-prf", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-feat-prf-view-prefs"}
 {"agent": "trk-prf", "at": 1791666749.3833978, "kind": "session-start", "path": "-", "seq": 2, "session": "trk-prf", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-feat-prf-view-prefs"}
+{"agent": "trk-prf", "at": 1791668017.286649, "kind": "session-end", "path": "-", "seq": 3, "session": "trk-prf", "wi": "WI-0", "worktree": "CFD-Workbench-feat-prf-view-prefs"}
