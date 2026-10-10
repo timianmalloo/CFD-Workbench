@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T21:30:33Z",
+  "generated": "2026-10-10T21:43:48Z",
   "audit": [
     {
       "actor": null,
@@ -34773,6 +34773,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-10T21:29:26Z",
       "duration_seconds": 67.0
+    },
+    {
+      "id": "al-01M4KWBAWPCQJ3Q8W84T309WAA",
+      "shortname": "phk-pipe-hook",
+      "datetime": "2026-10-10T21:43:48Z",
+      "session": "trk-phk",
+      "prompt": "PHK",
+      "summary": "no-heredoc.py also refuses a pipeline before git commit/push in one && chain unless pipefail; 15 self-test cases; defect line updated",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Refuse a pipe whose exit a commit depends on",
+      "done_when": "hook self-test green, tests green, check-docs 0",
+      "started_at": "2026-10-10T21:39:21Z",
+      "duration_seconds": 267.0
     }
   ],
   "changes": [

@@ -5466,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f394cb67a76f71b8e3ae9c419914bb0927e29f62e0db26b19c2bcaa25995743e"
+      "sourceSha256": "1d5fd22cc92fbb5d1ee59fcf51fc8082738b9aa56376199076899f52c012c1f1"
     },
     {
       "id": "domain-experts",
@@ -15097,6 +15097,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "3c945d28f0c56ec83a08baf90545abbba905ed05493ae69c83a8f5cb7fe9f466"
     },
     {
+      "id": "proof-phk-red-first",
+      "path": "docs/proof/phk/red-first.md",
+      "title": "PHK red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-phk",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "The pipe-before-commit hook rule: self-test red on the old code, green after, hook-mode check, and the transcript sweep.",
+      "tags": [
+        "phk",
+        "hook",
+        "ct27",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "976d173d6c518f18fadfb8d21b855ca314cc12906d258a4088f7f1e120f95061"
+    },
+    {
       "id": "proof-pii-red-first",
       "path": "docs/proof/pii/red-first.md",
       "title": "PROOF-PII red-first receipt",
@@ -20451,5 +20477,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "096c00f851a693741f7d6a5af16c9efa548e6e54c75b291f897ca480739499c4"
+  "graphSha256": "2fbfbfeeed02732f960f72bf62a339d2535a8ba1f0da74d9a6f05d0d81da940c"
 };
