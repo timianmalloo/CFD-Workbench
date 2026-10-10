@@ -2595,3 +2595,9 @@ under a still pointer. In the suite it read as a flake in `PlanCanvas_Escape_Dis
 - *Sweep:* the checks that execute rows, not only read them: `CommandTable_Parity_*` and `ShellWindowTests` read the table; only the gesture probe runs each command. The other modal rows (Replace from catalog, Save to My sections) are disabled outside a section, so the probe never ran them.
 - *Derive:* a row that opens a modal has a test hook that replaces the dialog (`ShowCatalogDialog`, `ShowExportDialog`); a probe that runs every row sets the hooks.
 - *Prevent:* the probe check sets `ShowExportDialog`. The probe is the control: the next modal row without a hook fails the same check red (it did here, before the hook). Ring: `--shell-window`, every code-changing join. Status: controlled.
+- *2026-10-10 (DAT join; status reopened):* the sweep was incomplete.
+  - `PointsPaneTests.SectionCommands_EveryRow_RunsOrNamesReason` also runs every shell row, behind its own hard-coded modal exclusion list. `section.export-dat` was not on it.
+  - That check runs in **readiness** mode only, which the join ring does not run. So DAT's ring was green while readiness hung for 20 minutes in the real modal Export dialog, twice. CBS's step timeout killed it at 1200 s.
+  - The leader added `section.export-dat` and `file.export` to the list, and readiness then went GREEN in 162 s.
+  - Root cause: two probes, two copies of the "modal rows" knowledge, and a track gate that skips readiness-mode suites.
+  - *Control (pending a track):* one modal flag on the command row. Every run-every-row probe filters by it, and a check fails when a row whose command shows a window is not flagged. Desktop tracks also run the Desktop `--readiness` suites before their Return.
