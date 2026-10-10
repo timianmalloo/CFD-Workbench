@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T16:29:54Z",
+  "generated": "2026-10-10T17:02:49Z",
   "audit": [
     {
       "actor": null,
@@ -34316,6 +34316,62 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "d691b06c5a73846cf5115b148222b1414361cf86",
         "short": "d691b06c5",
+        "branch": "win/gpu-g1-r197",
+        "pushed": true
+      }
+    },
+    {
+      "id": "al-01M4KC8MA6G95R0HZK11P4GDK0",
+      "shortname": "continue-pr30-handoff",
+      "datetime": "2026-10-10T17:02:42Z",
+      "session": "pc-pr30-follow-20261010",
+      "prompt": "Keep going: follow PR #30 through Mac/Fable review, resolve authorized findings, and keep the Windows GPU track within Ruling 197.",
+      "summary": "Continue the PR #30 handoff and close review-contract gaps.",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [
+        "windows",
+        "gpu",
+        "coordination"
+      ],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4KC8TF20B9YNR1T8JZ1TNPT",
+      "shortname": "continue-pr30-handoff",
+      "datetime": "2026-10-10T17:02:48Z",
+      "session": "pc-pr30-follow-20261010",
+      "prompt": "Keep going: follow PR #30 through Mac/Fable review, resolve authorized findings, and keep the Windows GPU track within Ruling 197.",
+      "summary": "Added the missing tested-SHA and Done-when contract to PR #30, rebound the manifest, obtained Astra acceptance, reran check-docs, and notified the Mac leader.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-g1/receipt.md",
+        "https://github.com/timianmalloo/CFD-Workbench/pull/30"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Follow PR #30 through Mac/Fable review and resolve any authorized join findings.",
+      "done_when": "The latest leader message is reconciled and PR #30 is merged, or a concrete leader-owned decision is recorded with no Windows action outstanding.",
+      "tier": "T1",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-10-10T16:57:24Z",
+      "duration_seconds": 324.0,
+      "git": {
+        "sha": "0d636ac20ef315c467418187951f54907b2bd505",
+        "short": "0d636ac20",
         "branch": "win/gpu-g1-r197",
         "pushed": true
       }
