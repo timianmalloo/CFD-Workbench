@@ -4,6 +4,6 @@
 *.py text eol=lf
 *.sh text eol=lf
 *.ps1 text eol=lf
-*.stdout.txt -text
-*.stderr.txt -text
+*.stdout.txt -text whitespace=-trailing-space,-blank-at-eof
+*.stderr.txt -text whitespace=-trailing-space,-blank-at-eof
 *.snapshot.jsonl -text

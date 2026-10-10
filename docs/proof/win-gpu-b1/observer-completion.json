@@ -1,58 +1,58 @@
 {
   "schema": "cfdw-live-observer-completion/1",
-  "observer_session": "pc-b1-r199-20261010b",
-  "waited_ms": 606073,
+  "observer_session": "pc-b1-r199-20261010c",
+  "waited_ms": 631691,
   "state": {
     "state": "stopped",
-    "pid": 42193,
+    "pid": 44250,
     "completed_samples": 3,
     "requested_samples": 3,
-    "session_id": "pc-b1-r199-20261010b",
-    "start_row": 11,
-    "last_sample_utc": "2026-10-10T19:49:29Z",
+    "session_id": "pc-b1-r199-20261010c",
+    "start_row": 14,
+    "last_sample_utc": "2026-10-10T22:17:08Z",
     "exit_code": 0
   },
-  "expected_final_row": 13,
+  "expected_final_row": 16,
   "final_event": {
     "anchor_rows": 8,
     "anchor_sha256": "f9c174dd595ee97d3e0ada37396971f898426660fbe9c30d9d180f683addeade",
     "baseline_rates": {
-      "monotonic": 0.7893947973220639,
-      "utc": 0.7181818181818181
+      "monotonic": 0.8027045481040226,
+      "utc": 0.7347560975609756
     },
     "baseline_row": {
-      "iteration": 111299.0,
-      "monotonic_s": 143210.01,
-      "row_number": 13,
-      "utc_age_s": 0.8179020881652832,
-      "utc_s": 1791661769.0
+      "iteration": 117937.0,
+      "monotonic_s": 151279.58,
+      "row_number": 16,
+      "utc_age_s": 0.6669540405273438,
+      "utc_s": 1791670628.0
     },
     "latest_interval": {
-      "delta_iterations": 474.0,
-      "delta_monotonic_s": 600.4300000000221,
-      "delta_utc_s": 658.0,
-      "from_row": 12,
-      "monotonic_change_percent": 0.004996419227842885,
-      "rate_monotonic_iterations_per_s": 0.7894342387955008,
-      "rate_utc_iterations_per_s": 0.7203647416413373,
-      "to_row": 13,
-      "utc_change_percent": 0.3039513677811634,
-      "utc_to_monotonic_ratio": 1.0958812850789863
+      "delta_iterations": 480.0,
+      "delta_monotonic_s": 600.4700000000012,
+      "delta_utc_s": 662.0,
+      "from_row": 15,
+      "monotonic_change_percent": -0.4149377593409276,
+      "rate_monotonic_iterations_per_s": 0.799373823837992,
+      "rate_utc_iterations_per_s": 0.7250755287009063,
+      "to_row": 16,
+      "utc_change_percent": -1.317521405021882,
+      "utc_to_monotonic_ratio": 1.1024697320432306
     },
-    "observed_row": 13,
+    "observed_row": 16,
     "reason": "threshold not fired",
     "schema": "cfdw-live-observer-guard/2",
-    "session_id": "pc-b1-r199-20261010b",
-    "start_row": 11,
+    "session_id": "pc-b1-r199-20261010c",
+    "start_row": 14,
     "verdict": "continue"
   },
   "prefix_binding": {
     "schema": "cfdw-observer-prefix-binding/1",
     "source": "C:/Projects/CFD-Workbench-win-gpu-g2-b1-r199/docs/proof/win-l3-observer/samples.jsonl",
     "snapshot": "samples-prefix.snapshot.jsonl",
-    "prefix_row_count": 13,
-    "prefix_byte_count": 4078,
-    "prefix_sha256": "8eee025939a9fcb1d3472c64d137ca8210855cfdf63c15aef0f60d655d744d6a",
+    "prefix_row_count": 16,
+    "prefix_byte_count": 5020,
+    "prefix_sha256": "b34dff967b289e383df34eca8526a34ba9923db46a68aba225c8df4a4be52ca7",
     "live_store_prefix_equal": true
   }
 }

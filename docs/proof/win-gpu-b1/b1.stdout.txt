@@ -1,0 +1,101 @@
+
+===== effective process =====
+pid=44542
+attempt_id=pc-b1-r199-20261010c
+  44542   44541   44542   44542  10   0 bash
+pid 44542's current affinity list: 0
+
+===== distribution =====
+PRETTY_NAME="Ubuntu 24.04.5 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.5 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=noble
+LOGO=ubuntu-logo
+x86_64
+
+===== driver CUDA ceiling =====
+Sat Oct 10 15:06:07 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 595.75                 Driver Version: 596.47         CUDA Version: 13.2     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GeForce RTX 3080 ...    On  |   00000000:01:00.0  On |                  N/A |
+| N/A   61C    P8             18W /   80W |     341MiB /  16384MiB |      1%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+NVIDIA GeForce RTX 3080 Ti Laptop GPU, 596.47, 8.6
+
+===== disk =====
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sdd       1007G  3.5G  953G   1% /
+Filesystem         1B-blocks       Used         Avail Use% Mounted on
+/dev/sdd       1081101176832 3665416192 1022443405312   1% /
+
+===== OpenFOAM development surface =====
+activation_exit=0
+WM_PROJECT_DIR=/usr/lib/openfoam/openfoam2512
+wmake=absent /usr/lib/openfoam/openfoam2512/src/OpenFOAM/lnInclude/IOstreams.H
+absent /usr/lib/openfoam/openfoam2512/src/finiteVolume/lnInclude/fvCFD.H
+absent /usr/lib/openfoam/openfoam2512/modules/external-solver/README.md
+openfoam2512:amd64	2512.0-2	amd64
+openfoam2512-common	2512.0-2	all
+openfoam2512-tutorials		
+
+===== configured apt metadata only =====
+openfoam2512:
+  Installed: 2512.0-2
+  Candidate: 2512.0-2
+  Version table:
+ *** 2512.0-2 500
+        500 https://dl.openfoam.com/repos/deb noble/main amd64 Packages
+        100 /var/lib/dpkg/status
+     2512.0-1 500
+        500 https://dl.openfoam.com/repos/deb noble/main amd64 Packages
+openfoam2512-dev:
+  Installed: (none)
+  Candidate: 2512.0-2
+  Version table:
+     2512.0-2 500
+        500 https://dl.openfoam.com/repos/deb noble/main amd64 Packages
+     2512.0-1 500
+        500 https://dl.openfoam.com/repos/deb noble/main amd64 Packages
+
+===== official upstream metadata =====
+096a0acc0482258d2090992d199e3aa8fcd875d2bd116e12af4bb794ec9dcfe7  /mnt/c/Projects/CFD-Workbench-win-gpu-g2-b1-r199/docs/proof/win-gpu-b1/.source-cache/cuda-ubuntu2404-InRelease
+acffd961cf8eff6ba4dbc022a6ee7af619ae615c3b43f88ba7b83f64d089a552  /mnt/c/Projects/CFD-Workbench-win-gpu-g2-b1-r199/docs/proof/win-gpu-b1/.source-cache/cuda-ubuntu2404-Packages.gz
+f5230023e6e22ee607802a13c82bc25f3d81e71654ad386a5b9bdff17fed93df  /mnt/c/Projects/CFD-Workbench-win-gpu-g2-b1-r199/docs/proof/win-gpu-b1/.source-cache/petsc-3.26.0.tar.gz
+65e7cdb55e68e6ccee5bda8a41dc191dacb80c1db98b6fc6587df432fbdb17c8  /mnt/c/Projects/CFD-Workbench-win-gpu-g2-b1-r199/docs/proof/win-gpu-b1/.source-cache/petsc-install.html
+dae4884999a096f1e61e976336344e95a3705eca1a87caf519c3f70b6d859a06  /mnt/c/Projects/CFD-Workbench-win-gpu-g2-b1-r199/docs/proof/win-gpu-b1/.source-cache/cuda-eula.html
+/mnt/c/Projects/CFD-Workbench-win-gpu-g2-b1-r199/docs/proof/win-gpu-b1/.source-cache/cuda-ubuntu2404-InRelease bytes=1578
+/mnt/c/Projects/CFD-Workbench-win-gpu-g2-b1-r199/docs/proof/win-gpu-b1/.source-cache/cuda-ubuntu2404-Packages.gz bytes=1911967
+/mnt/c/Projects/CFD-Workbench-win-gpu-g2-b1-r199/docs/proof/win-gpu-b1/.source-cache/petsc-3.26.0.tar.gz bytes=16933940
+/mnt/c/Projects/CFD-Workbench-win-gpu-g2-b1-r199/docs/proof/win-gpu-b1/.source-cache/petsc-install.html bytes=100173
+/mnt/c/Projects/CFD-Workbench-win-gpu-g2-b1-r199/docs/proof/win-gpu-b1/.source-cache/cuda-eula.html bytes=103131
+
+===== PETSc CUDA contract excerpt =====
+<p>If <code class="docutils notranslate"><span class="pre">--with-cuda</span></code> or <code class="docutils notranslate"><span class="pre">--with-hip</span></code> is also specified, MPICH will automatically be built to be GPU-aware.</p>
+<p>If <code class="docutils notranslate"><span class="pre">--with-cuda</span></code> is also specified, then Open MPI will automatically be built to be CUDA-aware. However to build ROCm-aware Open MPI, specify <code class="docutils notranslate"><span
+<p>In most cases you need only pass the configure option <code class="docutils notranslate"><span class="pre">--with-cuda</span></code>; see the repository’s
+default; pass <code class="docutils notranslate"><span class="pre">--with-cuda-nvml=1</span></code> (CUDA 12.2 or later) to enable it.</p>
+n class="pre">--download-kokkos-kernels</span></code>, plus one of <code class="docutils notranslate"><span class="pre">--with-cuda</span></code>, <code class="docutils notranslate"><span class="pre">--with-hip</span></code>, <code class="docutils notranslate"><span class="pre">--with-sycl</span></code>, or
+
+===== NVIDIA package closures =====

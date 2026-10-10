@@ -1,24 +1,32 @@
 {
-  "schema": "cfdw-gpu-b1-capture/2",
-  "authority": "Rulings 199-200 B1",
-  "observer_session": "pc-b1-r199-20261010b",
-  "started_utc": "2026-10-10T19:27:31.8336697+00:00",
-  "ended_utc": "2026-10-10T19:38:31.3800334+00:00",
-  "prelaunch_elapsed_ms": 659187,
+  "schema": "cfdw-gpu-b1-capture/3",
+  "authority": "Rulings 199-201 B1",
+  "observer_session": "pc-b1-r199-20261010c",
+  "started_utc": "2026-10-10T21:55:08.0534394+00:00",
+  "ended_utc": "2026-10-10T22:06:15.2426172+00:00",
+  "prelaunch_elapsed_ms": 659053,
   "prelaunch_budget_ms": 750000,
-  "workload_elapsed_ms": 354,
+  "workload_elapsed_ms": 8131,
   "workload_budget_ms": 600000,
   "termination_reserve_ms": 10000,
-  "wrapper_error": "probe exited before ownership acknowledgement, exit 0",
+  "wrapper_error": "Not applicable",
   "script_sha256_before_execution": {
     "bind-prefix.py": "6ab3834c4b4cca9c7e5581d737faed6a194319ca12031070b768afb34918cab7",
-    "capture.ps1": "8660841232641df57a80c0fb44b1a3c61cecaaed5bb4db7b005c4e1e85b1857c",
+    "capture.ps1": "9aef091986ac9e64d3a563539700eab7d616b32cffdfa3d7742918747ea913c0",
+    "launcher-precheck.ps1": "57684ee3b973d359462a18a8fd49420d49589b6364a232694de4cfc3abfd229b",
+    "launcher-precheck.sh": "acf5f28d953b1d20d54fdfe52d8e93d2e80377a07f00051ba4328a44206fb64a",
     "observe-live.sh": "e948d637126f1cb95add98dfec4272771af81f5c08f27bc212d2f979395b3d12",
     "observer_guard.py": "657b630ec544eac7b949cdfce0c540962c57d182134e5d5f48ace9c7c46a0400",
     "inspect-b1.sh": "97d4db60b8a4ee67dadb9de4a998dc4f19f191dca2a58cf798b8a05b6e0078ce",
+    "residual-owned.sh": "09653b707d53f4d526ed3cb015a125aca8fb437d2aaedb77188417b68817dff2",
     "resolve_packages.py": "f7c3f7d1c3e699de19f2476a391ba53cd7f9813112d96b73eb555a06b7e11a30",
-    "stop-owned.sh": "204e8a514301caca85460bdb81f498878dbf8b0aaaed9ba21ef49712ca262ade",
-    "wait-observer.ps1": "6b9d03b8017ca6bfbfeae90930e91c7be204da5dd43ca85714cac796ca4ad828"
+    "stop-owned.sh": "cfbf02870de6760fdddc5b8ccaa643d3d0b5121d7808c5ee46e39af8ffafe502",
+    "wait-observer.ps1": "37dac63bbf76c663342ee4116db53dcba87b8bfc5354789f953fc21f073bb908"
+  },
+  "launcher_precheck": {
+    "path": "launcher-precheck.json",
+    "sha256_before_execution": "f845ed99825150f15f9002a758fae9180d773d3f555022157e5769ac94203c1d",
+    "selected_method": "foreground"
   },
   "observer": {
     "argv": [
@@ -39,53 +47,53 @@
       "--count",
       "3",
       "--start-row",
-      "11",
+      "14",
       "--session-id",
-      "pc-b1-r199-20261010b"
+      "pc-b1-r199-20261010c"
     ],
-    "windows_pid": 15656,
-    "initial_rows": 10,
-    "start_row": 11,
+    "windows_pid": 39712,
+    "initial_rows": 13,
+    "start_row": 14,
     "requested_samples": 3,
     "baseline_event": {
       "anchor_rows": 8,
       "anchor_sha256": "f9c174dd595ee97d3e0ada37396971f898426660fbe9c30d9d180f683addeade",
       "baseline_interval": {
-        "delta_iterations": 474.0,
-        "delta_monotonic_s": 600.4599999999919,
-        "delta_utc_s": 660.0,
-        "from_row": 11,
-        "rate_monotonic_iterations_per_s": 0.7893947973220639,
-        "rate_utc_iterations_per_s": 0.7181818181818181,
-        "to_row": 12,
-        "utc_to_monotonic_ratio": 1.0991573127269243
+        "delta_iterations": 482.0,
+        "delta_monotonic_s": 600.4699999999721,
+        "delta_utc_s": 656.0,
+        "from_row": 14,
+        "rate_monotonic_iterations_per_s": 0.8027045481040226,
+        "rate_utc_iterations_per_s": 0.7347560975609756,
+        "to_row": 15,
+        "utc_to_monotonic_ratio": 1.0924775592453086
       },
       "baseline_rates": {
-        "monotonic": 0.7893947973220639,
-        "utc": 0.7181818181818181
+        "monotonic": 0.8027045481040226,
+        "utc": 0.7347560975609756
       },
       "baseline_row": {
-        "iteration": 110825.0,
-        "monotonic_s": 142609.58,
-        "row_number": 12,
-        "utc_age_s": 0.3902440071105957,
-        "utc_s": 1791661111.0
+        "iteration": 117457.0,
+        "monotonic_s": 150679.11,
+        "row_number": 15,
+        "utc_age_s": 0.6487219333648682,
+        "utc_s": 1791669966.0
       },
-      "observed_row": 12,
+      "observed_row": 15,
       "reason": "fresh baseline formed from the two session rows",
       "schema": "cfdw-live-observer-guard/2",
-      "session_id": "pc-b1-r199-20261010b",
-      "start_row": 11,
+      "session_id": "pc-b1-r199-20261010c",
+      "start_row": 14,
       "verdict": "baseline-ready"
     },
     "state_at_capture_end": {
       "state": "running",
-      "pid": 42193,
+      "pid": 44250,
       "completed_samples": 2,
       "requested_samples": 3,
-      "session_id": "pc-b1-r199-20261010b",
-      "start_row": 11,
-      "last_sample_utc": "2026-10-10T19:38:31Z",
+      "session_id": "pc-b1-r199-20261010c",
+      "start_row": 14,
+      "last_sample_utc": "2026-10-10T22:06:06Z",
       "exit_code": "Not recorded"
     },
     "continuation": "bounded separate process continues after B1 for post-workload evidence",
@@ -93,6 +101,7 @@
     "stderr": "observer.stderr.txt"
   },
   "probe": {
+    "launch_method": "foreground",
     "argv": [
       "wsl.exe",
       "--distribution",
@@ -106,14 +115,13 @@
       "/usr/bin/nice",
       "-n",
       "10",
-      "/usr/bin/setsid",
       "/bin/bash",
       "/mnt/c/Projects/CFD-Workbench-win-gpu-g2-b1-r199/docs/proof/win-gpu-b1/inspect-b1.sh",
       "--attempt-id",
-      "pc-b1-r199-20261010b"
+      "pc-b1-r199-20261010c"
     ],
-    "startup_acknowledged": false,
-    "startup_check_exit_code": "Not reached",
+    "startup_acknowledged": true,
+    "startup_check_exit_code": 0,
     "exit_code": 0,
     "timed_out": false,
     "guard_stopped_probe": false,
@@ -122,9 +130,38 @@
     "stdout": "b1.stdout.txt",
     "stderr": "b1.stderr.txt"
   },
+  "cmdline_residual_checks": [
+    {
+      "phase": "prelaunch",
+      "mode": "check",
+      "scope": "any",
+      "argv": [
+        "wsl.exe",
+        "--distribution",
+        "cfdw-openfoam2512",
+        "--user",
+        "root",
+        "--exec",
+        "/usr/bin/taskset",
+        "--cpu-list",
+        "0",
+        "/usr/bin/nice",
+        "-n",
+        "10",
+        "/bin/bash",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-g2-b1-r199/docs/proof/win-gpu-b1/residual-owned.sh",
+        "--any-attempt"
+      ],
+      "exit_code": 0,
+      "failure": "Not applicable",
+      "wait_budget_ms": 2000,
+      "stdout": "residual-prelaunch.stdout.txt",
+      "stderr": "residual-prelaunch.stderr.txt"
+    }
+  ],
   "windows_target_volume": {
     "name": "C",
-    "used_bytes": 203437875200,
-    "free_bytes": 1842582409216
+    "used_bytes": 203504500736,
+    "free_bytes": 1842515783680
   }
 }

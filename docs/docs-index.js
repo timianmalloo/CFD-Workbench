@@ -17762,12 +17762,12 @@ window.DOCS_INDEX = {
       "path": "docs/proof/win-gpu-b1/README.md",
       "title": "Windows GPU B1 inventory and live L3 guard",
       "type": "proof-pack",
-      "status": "active",
+      "status": "complete",
       "owner": "@pc-coordinator",
       "phase": "implementation",
       "reviewBy": "2026-11-10",
       "reviewSuggested": [],
-      "summary": "B1 continues under Ruling 201 and the operator's attempt-3-through-5 authorization; B2 and F1 remain closed.",
+      "summary": "Attempt 3 completed B1; B2 waits for an installable pinned CUDA 13.2 recipe and F1 remains closed.",
       "tags": [
         "proof",
         "windows",
@@ -17788,7 +17788,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "61159b6b00bbd9aef5f4ba49a81750ed250b5da5572fd4b8f82a08565f98e8f7"
+      "sourceSha256": "e8af73680f8f6f87c83e1364b378e15795bfe1a3c2eb5cf9a0c061cc7f77713d"
     },
     {
       "id": "proof-win-gpu-g1",
@@ -18529,14 +18529,14 @@ window.DOCS_INDEX = {
     {
       "id": "receipt-win-gpu-b1-r199",
       "path": "docs/proof/win-gpu-b1/receipt.md",
-      "title": "Windows GPU B1 blocked receipt",
+      "title": "Windows GPU B1 inventory receipt",
       "type": "proof-pack",
-      "status": "blocked",
+      "status": "complete",
       "owner": "@pc-coordinator",
       "phase": "implementation",
       "reviewBy": "2026-11-10",
       "reviewSuggested": [],
-      "summary": "Two B1 attempts stopped before verified probe ownership; the live observer completed without a five-percent slowdown.",
+      "summary": "Attempt 3 completed the bounded B1 inventory; B2 remains blocked on an installable CUDA 13.2 recipe.",
       "tags": [
         "proof",
         "windows",
@@ -18561,7 +18561,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b8f00572ee69da79d169004c5f9da72b1c293c7d1b6c0d3d6b28456bdfc7bef1"
+      "sourceSha256": "813014f5de0a3a44ef246bc02403cf2eb38913ace02133e756ba65b6bd45f9fc"
     },
     {
       "id": "review-app-shell-native",
@@ -20263,6 +20263,13 @@ window.DOCS_INDEX = {
       "artifactId": "audit-log"
     },
     {
+      "id": "surface-proof-win-gpu-b1-source-cache-cuda-eula",
+      "path": "docs/proof/win-gpu-b1/.source-cache/cuda-eula.html",
+      "title": "1. License Agreement for NVIDIA Software Development Kits — EULA",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact."
+    },
+    {
       "id": "surface-proof-win-naca-sources-tmr-sa-withoutpv",
       "path": "docs/proof/win-naca/sources/tmr-sa-withoutpv.html",
       "title": "2D NACA 0012 Airfoil Validation for Turbulence Model Numerical Analysis - SA Model Results without Point Vortex BC",
@@ -20453,6 +20460,13 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-workbench-v7"
     },
     {
+      "id": "surface-proof-win-gpu-b1-source-cache-petsc-install",
+      "path": "docs/proof/win-gpu-b1/.source-cache/petsc-install.html",
+      "title": "Configuring PETSc — PETSc 3.26.0 documentation",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact."
+    },
+    {
       "id": "surface-mockups-export",
       "path": "docs/mockups/export.html",
       "title": "Export Dialog",
@@ -20573,5 +20587,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "a926012040462f04811b2b8f9a9a8cba94eaf7e82eaa286ac75db06d44191174"
+  "graphSha256": "e2466624beb756f21dc5a6c0c34ad91027a4622857e0141e5cdb10947ca4c8fc"
 };

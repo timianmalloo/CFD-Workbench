@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T21:43:54Z",
+  "generated": "2026-10-10T22:19:48Z",
   "audit": [
     {
       "actor": null,
@@ -34830,6 +34830,44 @@ window.AUDIT_DATA = {
         "gpu-b1"
       ],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M4KYD82HVX070K942QT6EXTS",
+      "shortname": "win-gpu-b1-attempt3",
+      "datetime": "2026-10-10T22:19:48Z",
+      "session": "pc-b1-r199",
+      "prompt": "yes i authorize a third (and fouth and fith) attempt if needed",
+      "summary": "Attempt 3 completed the accepted B1 inventory under the live L3 guard; B2 remains blocked on an installable CUDA 13.2 recipe.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": "codex",
+      "artifacts": [
+        "docs/proof/win-gpu-b1/receipt.md",
+        "docs/proof/win-gpu-b1/capture.json",
+        "docs/proof/win-gpu-b1/observer-completion.json"
+      ],
+      "tags": [
+        "gpu-b1",
+        "ruling-201"
+      ],
+      "outcome": "success",
+      "goal": "Repair the B1 launcher boundary, prove no residual workload, and complete the bounded Windows inventory under the live L3 guard.",
+      "done_when": "Astra accepts an acknowledged inventory run, the observer threshold does not fire, the 16-row prefix is bound, and committed proof hashes match.",
+      "tier": "T1",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "git": {
+        "sha": "4cc1afd97e09c4dd01e3febe80eeb8d78a142a9a",
+        "short": "4cc1afd97",
+        "branch": "win/gpu-g2-b1-r199",
+        "pushed": true
+      }
     }
   ],
   "changes": [

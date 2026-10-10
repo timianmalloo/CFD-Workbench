@@ -2,7 +2,7 @@
 id: proof-win-gpu-b1-r199
 title: "Windows GPU B1 inventory and live L3 guard"
 type: proof-pack
-status: active
+status: complete
 owner: "@pc-coordinator"
 phase: implementation
 tags: [proof, windows, gpu, cuda, openfoam, ruling-199, ruling-200]
@@ -11,7 +11,7 @@ links:
   - { to: review-pr-30, rel: implements }
 review-by: "2026-11-10"
 summary: >-
-  B1 continues under Ruling 201 and the operator's attempt-3-through-5 authorization; B2 and F1 remain closed.
+  Attempt 3 completed B1; B2 waits for an installable pinned CUDA 13.2 recipe and F1 remains closed.
 ---
 
 # Windows GPU B1 inventory and live L3 guard
@@ -37,9 +37,11 @@ GPU driver, touch an L3 path/process/unit/file, build PETSc/OpenFOAM, or reopen 
 
 ## Result
 
-B1 continuation is active. Both completed live attempts formed valid fresh baselines but stopped before verified probe
-ownership. Ruling 201 authorizes a measured launcher precheck and another attempt; the operator subsequently authorized
-attempts 3, 4, and 5 if needed. The attempt-2 evidence is preserved under `attempt-2-setsid-fork/`. The Astra owner
-approved the revised precheck, residual check, bounded cleanup, and launch selection before execution. The cap-free
-precheck selected foreground: stopping its Windows launcher removed the tagged Linux child, while the `setsid --wait`
-child survived until exact cleanup. B2 and F1 remain closed until B1 passes.
+B1 is complete. Attempt 3 passed the all-attempt residual check, acknowledged foreground ownership, and completed the
+read-only inventory in an 8,131 ms wrapper workload window. The observer's final row changed −1.317521% on UTC and
+−0.414938% on `/proc/uptime`; the five-percent threshold did not fire. `receipt.md` records the hardware, capacity,
+OpenFOAM development gaps, metadata hashes, package inventories, failed-attempt archive, and 16-row prefix binding.
+
+B2 remains blocked until the CUDA 13.2 recipe verifies the repository signature, maps the license, pins external
+dependencies, and completes its installed-size budget. CUDA 13.4 exceeds the measured driver ceiling and is not an
+approved target. F1 remains closed.

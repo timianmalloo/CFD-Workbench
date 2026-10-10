@@ -1,0 +1,2 @@
+owned_pid_before=44542 pgid=44542 sid=44542 cmdline=/bin/bash /mnt/c/Projects/CFD-Workbench-win-gpu-g2-b1-r199/docs/proof/win-gpu-b1/inspect-b1.sh --attempt-id pc-b1-r199-20261010c 
+owned_process_group=acknowledged attempt=pc-b1-r199-20261010c launch_method=foreground pgid=44542 sid=44542

@@ -1,0 +1,975 @@
+{
+  "schema": "cfdw-cuda-package-inventory/1",
+  "installable_lock": false,
+  "blocking_reasons": [
+    "repository InRelease signature is retained but not verified",
+    "NVIDIA EULA is retained separately rather than declared per package",
+    "dependencies outside the NVIDIA repository are unresolved",
+    "at least one installed size is not recorded"
+  ],
+  "root": "cuda-toolkit-13-4",
+  "architecture": "amd64",
+  "requested_version": "latest in retained metadata",
+  "package_count": 65,
+  "total_download_bytes": 3491944780,
+  "total_installed_kib": "Not recorded",
+  "packages": [
+    {
+      "package": "cccl-13-4",
+      "version": "13.3.4.3.1-1",
+      "architecture": "amd64",
+      "filename": "./cccl-13-4_13.3.4.3.1-1_amd64.deb",
+      "download_bytes": 1465550,
+      "installed_kib": 19607,
+      "sha256": "caaaa7bb716d0ea9e7251a3f0e1f5d41c0a0d33057772aa2b5a94be9a77c1716",
+      "depends": "",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-command-line-tools-13-4",
+      "version": "13.4.2-1",
+      "architecture": "amd64",
+      "filename": "./cuda-command-line-tools-13-4_13.4.2-1_amd64.deb",
+      "download_bytes": 2528,
+      "installed_kib": 7,
+      "sha256": "37447e3d37e4e26bc2fef822c07370ace71cd88014f7057166619a29d248e35f",
+      "depends": "cuda-cupti-dev-13-4 (>= 13.4.92), cuda-gdb-13-4 (>= 13.4.92), cuda-nvdisasm-13-4 (>= 13.4.92), cuda-nvtx-13-4 (>= 13.4.92), cuda-sanitizer-13-4 (>= 13.4.92)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-compiler-13-4",
+      "version": "13.4.2-1",
+      "architecture": "amd64",
+      "filename": "./cuda-compiler-13-4_13.4.2-1_amd64.deb",
+      "download_bytes": 2540,
+      "installed_kib": 7,
+      "sha256": "9f6ef1e076a61fa320e60e1de56b52ff2c1dd12f91f47f22fd672cf123fd814a",
+      "depends": "cuda-cuobjdump-13-4 (>= 13.4.92), cuda-cuxxfilt-13-4 (>= 13.4.92), cuda-nvcc-13-4 (>= 13.4.92), cuda-crt-13-4 (>= 13.4.92), libnvptxcompiler-13-4 (>= 13.4.92), libnvvm-13-4 (>= 13.4.92), cuda-nvprune-13-4 (>= 13.4.92), cuda-tileiras-13-4 (>= 13.4.92), cuda-ctadvisor-13-4 (>= 13.4.92)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-crt-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-crt-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 104908,
+      "installed_kib": 1207,
+      "sha256": "ec05400c48dafc7d2186f34c3b000596513895aa8d3c2d84446385c6d51f6d49",
+      "depends": "cuda-cudart-dev-13-4, build-essential",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-ctadvisor-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-ctadvisor-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 787030,
+      "installed_kib": 2105,
+      "sha256": "5feb9d243f1100416644fdc122d6fef5f02a5f2ceb3a7d7dd0e6aa7ad4c72b36",
+      "depends": "",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-cudart-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-cudart-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 185562,
+      "installed_kib": 861,
+      "sha256": "47eea997932b76cb3c070ec5e1a87b221423e911795f0b53ce7530f89b3617f2",
+      "depends": "cuda-toolkit-config-common | cuda-cudart-11-2, cuda-toolkit-13-config-common | cuda-cudart-11-2, cuda-toolkit-13-4-config-common",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-cudart-dev-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-cudart-dev-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 1591468,
+      "installed_kib": 7083,
+      "sha256": "71bf3d001f2560a4710bdaba9297fcd3f775a50e3b320ec1c5fcc880d458b0df",
+      "depends": "cuda-cudart-13-4 (>= 13.4.92), cccl-13-4, cuda-culibos-dev-13-4, cuda-driver-dev-13-4 (>= 13.4.92)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-culibos-dev-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-culibos-dev-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 23894,
+      "installed_kib": 110,
+      "sha256": "49f3e244a955e015197911e2b62c79a9fcc0a455bf0b2815a507b9c65e33e7b3",
+      "depends": "",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-cuobjdump-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-cuobjdump-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 289378,
+      "installed_kib": 857,
+      "sha256": "79281737dfd12c8b7380a6170a50a249d1c66dec06f242189cffb7080ab994d9",
+      "depends": "",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-cupti-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-cupti-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 16118656,
+      "installed_kib": 153424,
+      "sha256": "55798ccb5776f298da470c627c7514fb3938fb89cab51098effdbe17cde46e07",
+      "depends": "",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-cupti-dev-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-cupti-dev-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 2682758,
+      "installed_kib": 35912,
+      "sha256": "3841bf4541c40bb9f82abea7d993469ccfa5fd803a9591f14ce8eae3e4dc0198",
+      "depends": "cuda-cupti-13-4 (>= 13.4.92)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-cuxxfilt-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-cuxxfilt-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 56222,
+      "installed_kib": 262,
+      "sha256": "01be98835087cd9b074400f55ec6260b72289490107c79000fd50a4630f0d627",
+      "depends": "",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-documentation-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-documentation-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 50946,
+      "installed_kib": 406,
+      "sha256": "0af4dc3a4f50e9ecdfe57cde2ccbf07ea49468ad59b754273ea4b1d73b687d0e",
+      "depends": "",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-driver-dev-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-driver-dev-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 31290,
+      "installed_kib": 157,
+      "sha256": "60a8dec9b540e5b9567cf6c0bb93ab056376fc3ea761b76c1ae7c4a37cfcbe1c",
+      "depends": "",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-gdb-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-gdb-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 36523954,
+      "installed_kib": 128618,
+      "sha256": "a7f495892292ce738ede93e1128fb8177feae9b05a6d81cb4e0bd9ffb0c9873f",
+      "depends": "cuda-nvdisasm-13-4, cuda-cuobjdump-13-4",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-libraries-13-4",
+      "version": "13.4.2-1",
+      "architecture": "amd64",
+      "filename": "./cuda-libraries-13-4_13.4.2-1_amd64.deb",
+      "download_bytes": 2620,
+      "installed_kib": 7,
+      "sha256": "d0c346c31b03177462f6559ec05e048da552b2ae6f104473d26f75dc9ce44531",
+      "depends": "cuda-cudart-13-4 (>= 13.4.92), cuda-nvrtc-13-4 (>= 13.4.92), cuda-opencl-13-4 (>= 13.4.92), libcublas-13-4 (>= 13.8.0.4), libcufft-13-4 (>= 12.4.0.43), libcufile-13-4 (>= 1.19.1.55), libcuobjclient-13-4 (>= 1.3.1.55), libcurand-13-4 (>= 10.4.4.72), libcusolver-13-4 (>= 12.3.4.7), libcusparse-13-4 (>= 12.8.6.72), libnpp-13-4 (>= 13.2.0.58), libnvjitlink-13-4 (>= 13.4.92), libnvfatbin-13-4 (>= 13.4.92), libnvjpeg-13-4 (>= 13.2.3.58)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-libraries-dev-13-4",
+      "version": "13.4.2-1",
+      "architecture": "amd64",
+      "filename": "./cuda-libraries-dev-13-4_13.4.2-1_amd64.deb",
+      "download_bytes": 2672,
+      "installed_kib": 7,
+      "sha256": "b38d1c5bee3e0b27e1de887ada00f3f8e37a65c37e1cfc872dec62a1601a852c",
+      "depends": "cuda-cudart-dev-13-4 (>= 13.4.92), cuda-culibos-dev-13-4 (>= 13.4.92), cccl-13-4 (>= 13.3.4.3.1), cuda-profiler-api-13-4 (>= 13.4.92), cuda-driver-dev-13-4 (>= 13.4.92), cuda-nvrtc-dev-13-4 (>= 13.4.92), cuda-opencl-dev-13-4 (>= 13.4.92), cuda-sandbox-dev-13-4 (>= 13.4.92), libcublas-dev-13-4 (>= 13.8.0.4), libcufft-dev-13-4 (>= 12.4.0.43), libcufile-dev-13-4 (>= 1.19.1.55), libcuobjclient-dev-13-4 (>= 1.3.1.55), libcurand-dev-13-4 (>= 10.4.4.72), libcusolver-dev-13-4 (>= 12.3.4.7), libcusparse-dev-13-4 (>= 12.8.6.72), libnpp-dev-13-4 (>= 13.2.0.58), libnvjitlink-dev-13-4 (>= 13.4.92), libnvfatbin-dev-13-4 (>= 13.4.92), libnvjpeg-dev-13-4 (>= 13.2.3.58)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-nsight-compute-13-4",
+      "version": "13.4.2-1",
+      "architecture": "amd64",
+      "filename": "./cuda-nsight-compute-13-4_13.4.2-1_amd64.deb",
+      "download_bytes": 4148,
+      "installed_kib": 19,
+      "sha256": "0d42907257e813d03a319e016ecc09ad85b109c85369aa00e1de84242eb47106",
+      "depends": "nsight-compute-2026.3.1 (>= 2026.3.1.2)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-nsight-systems-13-4",
+      "version": "13.4.2-1",
+      "architecture": "amd64",
+      "filename": "./cuda-nsight-systems-13-4_13.4.2-1_amd64.deb",
+      "download_bytes": 3344,
+      "installed_kib": 13,
+      "sha256": "187b8b3788f9c449879e7049e1d6e83b72778c7b61aeec241f58e80568479658",
+      "depends": "nsight-systems-2026.3.2 (>= 2026.3.2.476)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-nvcc-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-nvcc-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 33243404,
+      "installed_kib": 150198,
+      "sha256": "9790031bdc0a2262a0d9bfae841574e51e4392c1e947319928e031fb354bb432",
+      "depends": "cuda-cudart-dev-13-4, build-essential, libnvvm-13-4, cuda-crt-13-4, libnvptxcompiler-13-4",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-nvdisasm-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-nvdisasm-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 5080292,
+      "installed_kib": 5874,
+      "sha256": "9f86acc7a1ac3d82f3fc56ec0465684311931bce25ce6f4436de2795517ed175",
+      "depends": "",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-nvml-dev-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-nvml-dev-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 164114,
+      "installed_kib": 1678,
+      "sha256": "844489d9b7e21ca07bd6225e757b8bac0b9a6cc637e4008418e7ceb84fe6f1aa",
+      "depends": "",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-nvprune-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-nvprune-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 571646,
+      "installed_kib": 1845,
+      "sha256": "12db477aee0dc2f556322c29dd1a6ca3805013b023e3ce724c47f7f52f878bd6",
+      "depends": "",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-nvrtc-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-nvrtc-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 38551800,
+      "installed_kib": 130479,
+      "sha256": "255fe3a083c4eecc9a1855c54e97234be531dc417163000f0c584c3e67a7f783",
+      "depends": "",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-nvrtc-dev-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-nvrtc-dev-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 33668520,
+      "installed_kib": 147174,
+      "sha256": "6c1d4d9881d7e80ad6a394b0b39c50db14f70c5b9b8ccc09cc97a23cc6446247",
+      "depends": "cuda-nvrtc-13-4 (>= 13.4.92)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-nvtx-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-nvtx-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 101874,
+      "installed_kib": 688,
+      "sha256": "4b0580151fc78dd975c1f209c68ec0256a5d49f20f9eaf4425e3f8674fade7bf",
+      "depends": "",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-opencl-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-opencl-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 24874,
+      "installed_kib": 113,
+      "sha256": "380593df26ebd40a689cfd22d39f79130d05e51f69052202da889799d1de7cb1",
+      "depends": "cuda-toolkit-config-common, cuda-toolkit-13-config-common, cuda-toolkit-13-4-config-common",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-opencl-dev-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-opencl-dev-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 90602,
+      "installed_kib": 773,
+      "sha256": "d68a8d480f1b3930a44de9e7a572396cbb4ad4afe0b24f8d5a50ab56f5cb9437",
+      "depends": "cuda-opencl-13-4 (>= 13.4.92)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-profiler-api-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-profiler-api-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 19574,
+      "installed_kib": 92,
+      "sha256": "107a9d44ba6f826b16046132ffe7a4b940960e822ede9aeafef9351dc2c7da48",
+      "depends": "",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-sandbox-dev-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-sandbox-dev-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 32858,
+      "installed_kib": 170,
+      "sha256": "d4f00eba6020e89e6bdc661bffa3dcfdc232c0b02085d3b15b135f45170952e6",
+      "depends": "",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-sanitizer-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-sanitizer-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 11165838,
+      "installed_kib": 52567,
+      "sha256": "2c7026861edb4cd6bd7aaaed374ce688045582f1463e53477e38f4d16b5738c3",
+      "depends": "",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-tileiras-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./cuda-tileiras-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 28863972,
+      "installed_kib": 104174,
+      "sha256": "1d7df361186498c727ae560bfbd3f78a54b010f4e681c48b6128341ad6f10e0b",
+      "depends": "cuda-nvcc-13-4, libnvjitlink-13-4",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-toolkit-13-4",
+      "version": "13.4.2-1",
+      "architecture": "amd64",
+      "filename": "./cuda-toolkit-13-4_13.4.2-1_amd64.deb",
+      "download_bytes": 3264,
+      "installed_kib": 12,
+      "sha256": "7ed08b311809f0e507e9846546905dbf2ce70f2c773b2fc472992fcc7cb09b87",
+      "depends": "cuda-compiler-13-4 (>= 13.4.2), cuda-libraries-13-4 (>= 13.4.2), cuda-libraries-dev-13-4 (>= 13.4.2), cuda-tools-13-4 (>= 13.4.2), cuda-documentation-13-4 (>= 13.4.92), cuda-nvml-dev-13-4 (>= 13.4.92)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-toolkit-13-4-config-common",
+      "version": "13.4.92-1",
+      "architecture": "all",
+      "filename": "./cuda-toolkit-13-4-config-common_13.4.92-1_all.deb",
+      "download_bytes": 17418,
+      "installed_kib": 78,
+      "sha256": "5d551e6999d6a9765106b135103ac9149d180725679336ca668c320d7b7914bb",
+      "depends": "",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-toolkit-13-config-common",
+      "version": "13.4.92-1",
+      "architecture": "all",
+      "filename": "./cuda-toolkit-13-config-common_13.4.92-1_all.deb",
+      "download_bytes": 17450,
+      "installed_kib": 80,
+      "sha256": "7f3cdf5540c05375dc06978caaa4b266940a1dd09fa78209f54bd2479f985b5b",
+      "depends": "",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-toolkit-config-common",
+      "version": "13.4.92-1",
+      "architecture": "all",
+      "filename": "./cuda-toolkit-config-common_13.4.92-1_all.deb",
+      "download_bytes": 17434,
+      "installed_kib": 80,
+      "sha256": "d48a133606d0b286c41cde1fc5b07da7197ccdc8291ceb7ba51cadb85552f918",
+      "depends": "",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-tools-13-4",
+      "version": "13.4.2-1",
+      "architecture": "amd64",
+      "filename": "./cuda-tools-13-4_13.4.2-1_amd64.deb",
+      "download_bytes": 2464,
+      "installed_kib": 7,
+      "sha256": "10b0f9490bdf511ebb422bb60174b4c43107adbafa082d29199a854db61a3856",
+      "depends": "cuda-command-line-tools-13-4 (>= 13.4.2), cuda-visual-tools-13-4 (>= 13.4.2), gds-tools-13-4 (>= 1.19.1.55)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "cuda-visual-tools-13-4",
+      "version": "13.4.2-1",
+      "architecture": "amd64",
+      "filename": "./cuda-visual-tools-13-4_13.4.2-1_amd64.deb",
+      "download_bytes": 2920,
+      "installed_kib": 10,
+      "sha256": "0c7ebbc3142aec1f859247562fb55a17dde4609f4b902359951b56b14f878c87",
+      "depends": "cuda-nsight-compute-13-4 (>= 13.4.2), cuda-nsight-systems-13-4 (>= 13.4.2), cuda-libraries-dev-13-4 (>= 13.4.2), cuda-nvml-dev-13-4 (>= 13.4.92)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "gds-tools-13-4",
+      "version": "1.19.1.55-1",
+      "architecture": "amd64",
+      "filename": "./gds-tools-13-4_1.19.1.55-1_amd64.deb",
+      "download_bytes": 40768436,
+      "installed_kib": 74033,
+      "sha256": "17f04a0b5c222acfb3b553b7e506ad4a5ab289f09016b05212d490740e3d38f8",
+      "depends": "libstdc++6, libnuma1, openssl",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libcublas-13-4",
+      "version": "13.8.0.4-1",
+      "architecture": "amd64",
+      "filename": "./libcublas-13-4_13.8.0.4-1_amd64.deb",
+      "download_bytes": 407957770,
+      "installed_kib": 589792,
+      "sha256": "57a23e176a8c23e22a2331c0167b2aeaa9c16739aa95c4ac347bad49d9e30f79",
+      "depends": "cuda-toolkit-config-common | cuda-cudart-11-2, cuda-toolkit-13-config-common | cuda-cudart-11-2, cuda-toolkit-13-4-config-common",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libcublas-dev-13-4",
+      "version": "13.8.0.4-1",
+      "architecture": "amd64",
+      "filename": "./libcublas-dev-13-4_13.8.0.4-1_amd64.deb",
+      "download_bytes": 469506902,
+      "installed_kib": 954932,
+      "sha256": "10a45099d90410e7ab1a899535be9a1b54f9f4e48bad20c7cce93a2250a4fda3",
+      "depends": "cuda-culibos-dev-13-4, libcublas-13-4 (>= 13.8.0.4)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libcufft-13-4",
+      "version": "12.4.0.43-1",
+      "architecture": "amd64",
+      "filename": "./libcufft-13-4_12.4.0.43-1_amd64.deb",
+      "download_bytes": 125178426,
+      "installed_kib": 228870,
+      "sha256": "0af89dc8974118ec4824b3b1e04eede245d941459cc74594bc1716de201744b6",
+      "depends": "cuda-toolkit-config-common | cuda-cudart-11-2, cuda-toolkit-13-config-common | cuda-cudart-11-2, cuda-toolkit-13-4-config-common",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libcufft-dev-13-4",
+      "version": "12.4.0.43-1",
+      "architecture": "amd64",
+      "filename": "./libcufft-dev-13-4_12.4.0.43-1_amd64.deb",
+      "download_bytes": 123629690,
+      "installed_kib": 239055,
+      "sha256": "977f6c942df131cb99f808bd93eded254b15bbb44f4cd2a6e4bf490328ebc5a6",
+      "depends": "cuda-culibos-dev-13-4, libcufft-13-4 (>= 12.4.0.43)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libcufile-13-4",
+      "version": "1.19.1.55-1",
+      "architecture": "amd64",
+      "filename": "./libcufile-13-4_1.19.1.55-1_amd64.deb",
+      "download_bytes": 1087220,
+      "installed_kib": 4160,
+      "sha256": "3a7e350254a864864bbb7867daeec3bcd232e0784a0c05dbe75014a074558e94",
+      "depends": "libmount1, libstdc++6, libudev1, libgcc1, cuda-toolkit-config-common | cuda-cudart-11-2, cuda-toolkit-13-config-common | cuda-cudart-11-2, cuda-toolkit-13-4-config-common",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libcufile-dev-13-4",
+      "version": "1.19.1.55-1",
+      "architecture": "amd64",
+      "filename": "./libcufile-dev-13-4_1.19.1.55-1_amd64.deb",
+      "download_bytes": 3235848,
+      "installed_kib": 31992,
+      "sha256": "448498d9ceec637647176f30c7476dd530536e140bad756df4f97429239ecd57",
+      "depends": "libcufile-13-4 (>= 1.19.1.55)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libcuobjclient-13-4",
+      "version": "1.3.1.55-1",
+      "architecture": "amd64",
+      "filename": "./libcuobjclient-13-4_1.3.1.55-1_amd64.deb",
+      "download_bytes": 72070,
+      "installed_kib": 187,
+      "sha256": "82b1064bae2a37c7e24ed5a9e0e20d3d3f66480446a7bb2ba480b9a106bc9f37",
+      "depends": "libmount1, libstdc++6, libudev1, libgcc1, cuda-toolkit-config-common | cuda-cudart-11-2, cuda-toolkit-13-config-common | cuda-cudart-11-2, cuda-toolkit-13-4-config-common",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libcuobjclient-dev-13-4",
+      "version": "1.3.1.55-1",
+      "architecture": "amd64",
+      "filename": "./libcuobjclient-dev-13-4_1.3.1.55-1_amd64.deb",
+      "download_bytes": 23302,
+      "installed_kib": 109,
+      "sha256": "a25a24150470a49830ce6a27a19228825dedab8c1b34060b0860a5709d8f2788",
+      "depends": "libcuobjclient-13-4 (>= 1.3.1.55)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libcurand-13-4",
+      "version": "10.4.4.72-1",
+      "architecture": "amd64",
+      "filename": "./libcurand-13-4_10.4.4.72-1_amd64.deb",
+      "download_bytes": 43490400,
+      "installed_kib": 123586,
+      "sha256": "2ba8454a26710062efc865bc4735465af22898a156c860e72d9e2bc3968d0e3f",
+      "depends": "cuda-toolkit-config-common | cuda-cudart-11-2, cuda-toolkit-13-config-common | cuda-cudart-11-2, cuda-toolkit-13-4-config-common",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libcurand-dev-13-4",
+      "version": "10.4.4.72-1",
+      "architecture": "amd64",
+      "filename": "./libcurand-dev-13-4_10.4.4.72-1_amd64.deb",
+      "download_bytes": 43702738,
+      "installed_kib": 125896,
+      "sha256": "54efbc915340196364b27e446e4b0def03ec2cebdcf5922f3b38fbdb45bc09f5",
+      "depends": "cuda-culibos-dev-13-4, libcurand-13-4 (>= 10.4.4.72)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libcusolver-13-4",
+      "version": "12.3.4.7-1",
+      "architecture": "amd64",
+      "filename": "./libcusolver-13-4_12.3.4.7-1_amd64.deb",
+      "download_bytes": 241492494,
+      "installed_kib": 267152,
+      "sha256": "ca6c498862aca2a2d9c047667ff6ab62ba6e86c75d21d798d588f2db635dc6dd",
+      "depends": "cuda-toolkit-config-common | cuda-cudart-11-2, cuda-toolkit-13-config-common | cuda-cudart-11-2, cuda-toolkit-13-4-config-common",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libcusolver-dev-13-4",
+      "version": "12.3.4.7-1",
+      "architecture": "amd64",
+      "filename": "./libcusolver-dev-13-4_12.3.4.7-1_amd64.deb",
+      "download_bytes": 156301626,
+      "installed_kib": 203726,
+      "sha256": "51424f62caaf15df5030514b4a1316181680d8fcfb0c771351b2ed9a4d7b90d0",
+      "depends": "cuda-culibos-dev-13-4, libcusolver-13-4 (>= 12.3.4.7)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libcusparse-13-4",
+      "version": "12.8.6.72-1",
+      "architecture": "amd64",
+      "filename": "./libcusparse-13-4_12.8.6.72-1_amd64.deb",
+      "download_bytes": 159824670,
+      "installed_kib": 183522,
+      "sha256": "09083145e73d72b7d58bd8af4e57874ba1261a33bc9529633a9ab9f180d92707",
+      "depends": "cuda-toolkit-config-common | cuda-cudart-11-2, cuda-toolkit-13-config-common | cuda-cudart-11-2, cuda-toolkit-13-4-config-common",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libcusparse-dev-13-4",
+      "version": "12.8.6.72-1",
+      "architecture": "amd64",
+      "filename": "./libcusparse-dev-13-4_12.8.6.72-1_amd64.deb",
+      "download_bytes": 162768086,
+      "installed_kib": 224983,
+      "sha256": "8bac1883a69a56104159536225c8a3686f4e481eefa249afc4cd25de32cb92b3",
+      "depends": "cuda-culibos-dev-13-4, libcusparse-13-4 (>= 12.8.6.72)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libnpp-13-4",
+      "version": "13.2.0.58-1",
+      "architecture": "amd64",
+      "filename": "./libnpp-13-4_13.2.0.58-1_amd64.deb",
+      "download_bytes": 210793946,
+      "installed_kib": 528211,
+      "sha256": "ed9cda9bbf236b93c65b95ca7f3b9c62a2006ae98edf4d06902459140e8f38ce",
+      "depends": "cuda-toolkit-config-common | cuda-cudart-11-2, cuda-toolkit-13-config-common | cuda-cudart-11-2, cuda-toolkit-13-4-config-common",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libnpp-dev-13-4",
+      "version": "13.2.0.58-1",
+      "architecture": "amd64",
+      "filename": "./libnpp-dev-13-4_13.2.0.58-1_amd64.deb",
+      "download_bytes": 123705594,
+      "installed_kib": 204154,
+      "sha256": "0881987f0502e88c4da93c3f869de6c2db165955cb5b5efdee4195adbe41e83c",
+      "depends": "cuda-culibos-dev-13-4, libnpp-13-4 (>= 13.2.0.58)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libnvfatbin-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./libnvfatbin-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 427474,
+      "installed_kib": 1432,
+      "sha256": "9a01992e1d334a56746adc910deaeea4451f6608677b23e2583548a3cca544df",
+      "depends": "cuda-toolkit-config-common, cuda-toolkit-13-config-common, cuda-toolkit-13-4-config-common",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libnvfatbin-dev-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./libnvfatbin-dev-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 295850,
+      "installed_kib": 1051,
+      "sha256": "9e4e61c107dc00774efc391df9d21297de36e3614504a5ed1142b618ca202dab",
+      "depends": "libnvfatbin-13-4 (>= 13.4.92)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libnvjitlink-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./libnvjitlink-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 30678508,
+      "installed_kib": 101256,
+      "sha256": "1cea5800fe842d7e0ec1544e5667f1f6c2c06b889268192b176c7535773f58d8",
+      "depends": "cuda-toolkit-config-common, cuda-toolkit-13-config-common, cuda-toolkit-13-4-config-common",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libnvjitlink-dev-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./libnvjitlink-dev-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 27603120,
+      "installed_kib": 136307,
+      "sha256": "586fa98673f44d8870bbdffbfc23df9a4895aa037ad280ad71119d18d3d51245",
+      "depends": "libnvjitlink-13-4 (>= 13.4.92)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libnvjpeg-13-4",
+      "version": "13.2.3.58-1",
+      "architecture": "amd64",
+      "filename": "./libnvjpeg-13-4_13.2.3.58-1_amd64.deb",
+      "download_bytes": 3648372,
+      "installed_kib": 6299,
+      "sha256": "ce7792ab68f230ca67b1a869f7fdf84a532a7026d50bea0c060b6def8478074d",
+      "depends": "cuda-toolkit-config-common, cuda-toolkit-13-config-common, cuda-toolkit-13-4-config-common",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libnvjpeg-dev-13-4",
+      "version": "13.2.3.58-1",
+      "architecture": "amd64",
+      "filename": "./libnvjpeg-dev-13-4_13.2.3.58-1_amd64.deb",
+      "download_bytes": 3374324,
+      "installed_kib": 7034,
+      "sha256": "578871785df7c779ac09233447a02d785babd1a5f19c87b68d82c3eddc0a9cd6",
+      "depends": "libnvjpeg-13-4 (>= 13.2.3.58)",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libnvptxcompiler-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./libnvptxcompiler-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 10769080,
+      "installed_kib": 57222,
+      "sha256": "23236f0787ac87e18074027e90288a2355ed26499ccf60ff1c9d6ea9741cc949",
+      "depends": "",
+      "license": "Not recorded"
+    },
+    {
+      "package": "libnvvm-13-4",
+      "version": "13.4.92-1",
+      "architecture": "amd64",
+      "filename": "./libnvvm-13-4_13.4.92-1_amd64.deb",
+      "download_bytes": 51326088,
+      "installed_kib": 166984,
+      "sha256": "4fd508a5e08cbfc2b2db713bb45e206a4e2fd0d1d93b82ad815963775d7c92c8",
+      "depends": "cuda-toolkit-config-common | cuda-toolkit-13-config-common | cuda-cudart-11-2, cuda-toolkit-13-4-config-common",
+      "license": "Not recorded"
+    },
+    {
+      "package": "nsight-compute-2026.3.1",
+      "version": "2026.3.1.2-1",
+      "architecture": "amd64",
+      "filename": "./nsight-compute-2026.3.1_2026.3.1.2-1_amd64.deb",
+      "download_bytes": 390451544,
+      "installed_kib": 1522671,
+      "sha256": "0d8beea4a30c4410d59f5ad2b36457506034d99f9ff04cca481acef92bad7069",
+      "depends": "",
+      "license": "Not recorded"
+    },
+    {
+      "package": "nsight-systems-2026.3.2",
+      "version": "2026.3.2.476-263238834031v0",
+      "architecture": "amd64",
+      "filename": "./nsight-systems-2026.3.2_2026.3.2.476-1_amd64.deb",
+      "download_bytes": 448261416,
+      "installed_kib": "Not recorded",
+      "sha256": "e9bf0ff9c613ff5545095a4177676a9579cb666e78c8621c3792f3559e2c1690",
+      "depends": "libc6, libglib2.0-0, libtinfo6, libxcb-xinerama0, libxcb-icccm4, libxcb-image0, libxcb-keysyms1, libxcb-randr0, libxcb-render-util0, libxcb-xfixes0, libxcb-shape0, libxkbcommon-x11-0, libxcb-xinput0, libxcb-cursor0, libfontconfig1, libdbus-1-3, libnss3, libxcomposite1, libxdamage1, libxrandr2, libxtst6, libopengl0, libegl1, libgssapi-krb5-2, libatomic1, libxi6, libxcb-dri2-0",
+      "license": "Not recorded"
+    }
+  ],
+  "external_dependencies": [
+    {
+      "package": "build-essential",
+      "operator": null,
+      "version": null,
+      "required_by": "cuda-nvcc-13-4=13.4.92-1"
+    },
+    {
+      "package": "build-essential",
+      "operator": null,
+      "version": null,
+      "required_by": "cuda-crt-13-4=13.4.92-1"
+    },
+    {
+      "package": "libmount1",
+      "operator": null,
+      "version": null,
+      "required_by": "libcufile-13-4=1.19.1.55-1"
+    },
+    {
+      "package": "libstdc++6",
+      "operator": null,
+      "version": null,
+      "required_by": "libcufile-13-4=1.19.1.55-1"
+    },
+    {
+      "package": "libudev1",
+      "operator": null,
+      "version": null,
+      "required_by": "libcufile-13-4=1.19.1.55-1"
+    },
+    {
+      "package": "libgcc1",
+      "operator": null,
+      "version": null,
+      "required_by": "libcufile-13-4=1.19.1.55-1"
+    },
+    {
+      "package": "libmount1",
+      "operator": null,
+      "version": null,
+      "required_by": "libcuobjclient-13-4=1.3.1.55-1"
+    },
+    {
+      "package": "libstdc++6",
+      "operator": null,
+      "version": null,
+      "required_by": "libcuobjclient-13-4=1.3.1.55-1"
+    },
+    {
+      "package": "libudev1",
+      "operator": null,
+      "version": null,
+      "required_by": "libcuobjclient-13-4=1.3.1.55-1"
+    },
+    {
+      "package": "libgcc1",
+      "operator": null,
+      "version": null,
+      "required_by": "libcuobjclient-13-4=1.3.1.55-1"
+    },
+    {
+      "package": "libstdc++6",
+      "operator": null,
+      "version": null,
+      "required_by": "gds-tools-13-4=1.19.1.55-1"
+    },
+    {
+      "package": "libnuma1",
+      "operator": null,
+      "version": null,
+      "required_by": "gds-tools-13-4=1.19.1.55-1"
+    },
+    {
+      "package": "openssl",
+      "operator": null,
+      "version": null,
+      "required_by": "gds-tools-13-4=1.19.1.55-1"
+    },
+    {
+      "package": "libc6",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libglib2.0-0",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libtinfo6",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libxcb-xinerama0",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libxcb-icccm4",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libxcb-image0",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libxcb-keysyms1",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libxcb-randr0",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libxcb-render-util0",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libxcb-xfixes0",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libxcb-shape0",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libxkbcommon-x11-0",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libxcb-xinput0",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libxcb-cursor0",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libfontconfig1",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libdbus-1-3",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libnss3",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libxcomposite1",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libxdamage1",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libxrandr2",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libxtst6",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libopengl0",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libegl1",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libgssapi-krb5-2",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libatomic1",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libxi6",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    },
+    {
+      "package": "libxcb-dri2-0",
+      "operator": null,
+      "version": null,
+      "required_by": "nsight-systems-2026.3.2=2026.3.2.476-263238834031v0"
+    }
+  ]
+}
