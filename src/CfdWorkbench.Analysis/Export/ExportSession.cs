@@ -2,7 +2,7 @@ using System.Globalization;
 using CfdWorkbench.Analysis;
 using CfdWorkbench.Core;
 
-namespace CfdWorkbench.Desktop;
+namespace CfdWorkbench.Analysis.Export;
 
 /// <summary>One authored station an Export can write: its display name, chord in mm and station t/c in percent.</summary>
 public sealed record ExportStation(string Name, double ChordMm, double TcPercent);

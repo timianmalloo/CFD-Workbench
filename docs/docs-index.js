@@ -2359,7 +2359,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e696a409baf1ced3600e971e5dab68c598d0a629e710d66c5dc4d305883638e2"
+      "sourceSha256": "3d8a61e5e6731d97f36b7533124e35ebbfefb0d5ab27329270db9436829e74e5"
     },
     {
       "id": "design-area3-analysis",
@@ -2701,7 +2701,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7ebed691e2e7fa147e71ea9dee831d3aa3ce77705e787d6f15cd728297a30a3b"
+      "sourceSha256": "4556823eaf3e270a97ff89aded249db57e7c0a22634921c5a241ad1ccb96e39a"
     },
     {
       "id": "design-foildsl-authoring",
@@ -13071,6 +13071,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "7fee575971400a5c57282d2740357239b227452408469b1d9778003b299d4165"
     },
     {
+      "id": "proof-clx-red-first",
+      "path": "docs/proof/clx/red-first.md",
+      "title": "CLX red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-clx",
+      "phase": "implementation",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "The red and green runs of the export CLI verb: ten Cli checks that failed while the verb was not wired and pass now, and the two exit-code branches no CLI input reaches.",
+      "tags": [
+        "export",
+        "cli",
+        "red-first",
+        "area-7"
+      ],
+      "links": [
+        {
+          "to": "design-export",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "87cda78ce3a37f639984c4e8759350dd3a44a736a106debb1ac3c684ae777901"
+    },
+    {
       "id": "proof-copy447-reachability",
       "path": "docs/proof/copy447-reachability/receipt.md",
       "title": "COPY-447 public ProjectStore reachability measurement",
@@ -19429,7 +19455,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ad1066ed2e1ac5227e88bde94d3d3c7d793412b565e1cc3d7b8b27fae60e0a76"
+      "sourceSha256": "e484b0991392266a1aeb7dfe163a8d78b174a10d2c3b87ccfb0a7304b840fbd0"
     },
     {
       "id": "spec-amendments-1-7-6-rail-comb",
@@ -19790,7 +19816,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]\nA -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]\nL --> F\nB -->|Maximize| X[Pane fills the window; the rest inert]\nX -->|Escape or restore| B\nB -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]\nJ2 --> B\nB -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]\nB -->|Float| F[Float over the model area]\nC --> B\nF -->|Escape or dock back| B\nF -->|Alt and arrows or Position menu| F\nF -->|A control under the float takes focus| G{A corner of the model area clears it?}\nG -->|Yes| H[Float moves to the nearest clear corner and says so]\nG -->|No| I[Float docks back where it came from and says so]\nH --> F\nI --> B\nB -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]\nJ --> B\nB -->|Switch workspace| K[That workspace's remembered layout]\nK --> B\nB -->|Reset layout| A"
         }
       ],
-      "sourceSha256": "5931766681e93182b2a1e5795de39364c068280c98e5738691583c0f8da2d47a"
+      "sourceSha256": "816ea3e6d375974b107d73d28836a4fab11a5b6d19266e3e1db44d3a27c5cae6"
     },
     {
       "id": "spec-foildsl",
@@ -20244,5 +20270,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "b41d465ba07a6fdca9a2cc7b661ab843540d08dbafb6ac04833e4d3b3431c8a0"
+  "graphSha256": "75c2622e07d0284aad7391c200bb527093c0d93469a0322278a6d132987cfeb2"
 };

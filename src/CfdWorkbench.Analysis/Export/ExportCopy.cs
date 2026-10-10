@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace CfdWorkbench.Desktop;
+namespace CfdWorkbench.Analysis.Export;
 
 /// <summary>
 /// The Export copy the section .dat and the wing STL use, quoted from docs/design/export.md section 14 and registered in

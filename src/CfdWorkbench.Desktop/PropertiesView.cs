@@ -756,7 +756,7 @@ public static class PropertiesView
         // CAD-20 / COPY-172: the Station group ends with the link that opens the section editor.
         rows.Add(new PropertyRow { Key = "s:edit", Label = "", Kind = RowKind.Action, Value = EditSection, AutomationName = EditSection });
         groups.Add(new PropertyGroup("stn", "Station", assignment.ProfileName, true, rows, []));
-        string title = station.Eta == 0 ? "Root station" : station.Eta == 1 ? "Tip station" : $"Station {station.Index + 1}";
+        string title = StationNames.Heading(station.Index, station.Eta);
         return new SelectionIdentity(IdentityGlyph.Station, title, $"Station {station.Index + 1} of {projection.Assignments.Count}");
     }
 
