@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T23:54:35Z",
+  "generated": "2026-10-10T00:25:40Z",
   "audit": [
     {
       "actor": null,
@@ -33995,6 +33995,48 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T23:54:18Z",
       "duration_seconds": 17.0
+    },
+    {
+      "id": "al-01M4HK70CGKTQF3C84E0Y6X3CZ",
+      "shortname": "r191-gpu-inventory-plan",
+      "datetime": "2026-10-10T00:25:40Z",
+      "session": "pc-gpu-r191-20261009",
+      "prompt": "Execute the Ruling 191 read-only Windows and WSL GPU inventory, produce the reviewable OpenFOAM GPU qualification plan, and coordinate the result to the Mac leader.",
+      "summary": "Verified RTX 3080 Ti visibility on Windows and WSL, but found no demonstrated GPU route in the installed OpenFOAM v2512 runtime. Retained a manifest-bound bounded inventory, an Astra-approved gated plan, and explicit missing L3-impact evidence for Fable disposition. No install, build, GPU trial or L3 access occurred; capture repair cap is 2/2.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "codex coordinator + Astra owner + low-cost inventory worker",
+      "artifacts": [
+        "docs/proof/win-gpu-qualification/receipt.md",
+        "docs/plans/windows-openfoam-gpu-qualification.md"
+      ],
+      "tags": [
+        "windows",
+        "openfoam",
+        "gpu",
+        "ruling-191"
+      ],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Produce the Ruling 191 read-only GPU qualification inventory and plan.",
+      "done_when": "A win/* PR records observed Windows/WSL GPU, driver and compute-stack facts; assesses installed OpenFOAM and known supported GPU routes; defines an impact-safe measurement plan; passes docs gates; and receives Astra owner review before Mac/Fable review.",
+      "tier": "T1",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false,
+        "regression": false
+      },
+      "started_at": "2026-10-10T00:07:37Z",
+      "duration_seconds": 1083.0,
+      "git": {
+        "sha": "479b3662f013b2eebcab94bdf8e91c3168fb92ad",
+        "short": "479b3662f",
+        "branch": "win/gpu-qualification-plan",
+        "pushed": null
+      }
     }
   ],
   "changes": [
