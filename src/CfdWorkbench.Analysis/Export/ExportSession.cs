@@ -24,7 +24,7 @@ public enum ExportFormat { Dat, Stl, ThreeMf }
 public enum StlPreset { Draft, Print, Fine }
 
 /// <summary>The result of one Export attempt. <paramref name="Message"/> is the strip text (Written, Cancelled) or the dialog text (Failed).</summary>
-public sealed record ExportOutcome(ExportOutcomeKind Kind, string Message, string? Path = null);
+public sealed record ExportOutcome(ExportOutcomeKind Kind, string Message, string? Path = null, string? Code = null);
 
 /// <summary>The below-the-floor advisory (design D7): the band text and its jump label. Never blocks.</summary>
 public sealed record ExportFinding(string Text, string Jump);
@@ -346,6 +346,13 @@ public sealed class ExportSession
             Refused("EXPORT-WOULD-REPLACE");
             return new(ExportOutcomeKind.Failed, ExportCopy.WriteFailed("", earlierFile: File.Exists(path)), path);
         }
+        // Ruling 198: a link at the target name is refused, one code on every surface. It is a refusal before any write, so it is an
+        // export.validate event like EXPORT-WOULD-REPLACE; the dialog keeps COPY-507 (no approved link-specific copy exists).
+        if (IsLink(path))
+        {
+            Refused("EXPORT-TARGET-LINK");
+            return new(ExportOutcomeKind.Failed, ExportCopy.WriteFailed("", earlierFile: File.Exists(path)), path, "EXPORT-TARGET-LINK");
+        }
         // Ruling 204: the earlier-file sentence is true only when a file was at the target name before the write began.
         bool earlierFile = File.Exists(path);
         var clock = Stopwatch.StartNew();
@@ -415,6 +422,11 @@ public sealed class ExportSession
     private static bool IsDiskFull(IOException error) =>
         OperatingSystem.IsWindows() ? (error.HResult & 0xFFFF) is 0x70 or 0x27 : error.HResult == 28;
 
+    /// <summary>True when the name is a symbolic link (also a dangling one) or another reparse point; the writer never follows it.</summary>
+    public static bool IsLink(string path) =>
+        new FileInfo(path).LinkTarget is not null
+        || ((File.Exists(path) || Directory.Exists(path)) && (File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0);
+
     /// <summary>
     /// The directory is the one the save panel chose and is followed as chosen; the app builds no path component. A symlink at the target is
     /// refused. The temp file is created exclusive, with a random name, in that directory, flushed to disk, then published by rename. On any
@@ -424,8 +436,7 @@ public sealed class ExportSession
     {
         string folder = Path.GetDirectoryName(Path.GetFullPath(path)) ?? throw new DirectoryNotFoundException(path);
         if (!Directory.Exists(folder)) throw new DirectoryNotFoundException(folder);
-        if ((File.Exists(path) || Directory.Exists(path)) && (File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0)
-            throw new IOException("The target is a link.");
+        if (IsLink(path)) throw new IOException("The target is a link.");
         string temp = Path.Combine(folder, ".cfd-" + Guid.NewGuid().ToString("D") + ".tmp");
         try
         {

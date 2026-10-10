@@ -1,4 +1,5 @@
 using CfdWorkbench.Analysis;
+using CfdWorkbench.Analysis.Export;
 using CfdWorkbench.Cli;
 using CfdWorkbench.Core;
 using System.Text;
@@ -21,6 +22,7 @@ internal static class ExportCliTests
             ("Cli_Export_StlPassesClosureCheck", StlPasses),
             ("Cli_Export_HalfNamesFileHalf", HalfNamesFile),
             ("Cli_Export_SymlinkTargetRefused", SymlinkRefused),
+            ("Export_LinkTargetHasOneCodeOnBothSurfaces", LinkTargetOneCode),
             ("Cli_Export_3mfPassesPackageCheckAndHalfNamesFile", ThreeMfWrites),
             ("Cli_Export_StationTakesTheAppsNames", StationNamesAgree),
             ("Cli_Export_InvalidOptionPrintsUsage", InvalidOptions),
@@ -120,6 +122,35 @@ internal static class ExportCliTests
         Require(File.ReadAllText(real) == "keep", "the link target was overwritten");
         Require((File.GetAttributes(link) & FileAttributes.ReparsePoint) != 0, "the link was replaced");
         Require(Directory.GetFiles(folder).Length == 2, "a temp file was left behind");
+    });
+
+    // One refusal, one code on every surface: the dialog's session and the CLI see a link target (to a file, or dangling) and
+    // report the same stable code as the same event kind, and neither writes. Class SURF-A.
+    private static async Task LinkTargetOneCode() => await WithFolder(async folder =>
+    {
+        string real = Path.Combine(folder, "real.dat");
+        await File.WriteAllTextAsync(real, "keep");
+        foreach (var (name, destination) in new[] { ("file-link.dat", real), ("dangling-link.dat", Path.Combine(folder, "nowhere.dat")) })
+        {
+            string link = Path.Combine(folder, name);
+            File.CreateSymbolicLink(link, destination);
+            List<ExportTelemetry> cli = [], dialog = [];
+            int exit = await ExportVerb.RunAsync(["export", "example", "--format", "dat", "--out", link], new StringWriter(), CancellationToken.None,
+                events => cli.AddRange(events.Where(e => e.Export is not null).Select(e => e.Export!)));
+            using var authoring = new AuthoringSession();
+            authoring.Open(Cli.ExampleBytes(), Guid.NewGuid().ToString("D"), true);
+            var session = new ExportSession(ExportVerb.Snapshot(authoring), record: dialog.Add);
+            session.Set(format: ExportFormat.Dat);
+            await session.PrepareAsync(CancellationToken.None);
+            var outcome = await session.RunAsync((_, _) => Task.FromResult<string?>(link));
+            Require(exit == 6 && outcome.Kind == ExportOutcomeKind.Failed, $"{name}: cli exit {exit}, dialog {outcome.Kind}");
+            Require(outcome.Code == "EXPORT-TARGET-LINK", $"{name}: the dialog outcome code is {outcome.Code}");
+            foreach (var (surface, events) in new[] { ("cli", cli), ("dialog", dialog) })
+                Require(events.Count == 1 && events[0] is { Operation: "export.validate", Outcome: "EXPORT-TARGET-LINK", Bytes: null },
+                    $"{name}: {surface} events: " + string.Join(";", events.Select(e => e.Operation + "/" + e.Outcome)));
+            Require(File.ReadAllText(real) == "keep" && Directory.GetFileSystemEntries(folder).Length == 2, $"{name}: a file was written or left behind");
+            File.Delete(link);
+        }
     });
 
     private static async Task ThreeMfWrites() => await WithFolder(async folder =>

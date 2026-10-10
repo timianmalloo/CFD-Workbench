@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T20:45:42Z",
+  "generated": "2026-10-10T21:00:08Z",
   "audit": [
     {
       "actor": null,
@@ -34663,6 +34663,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-10T20:44:34Z",
       "duration_seconds": 68.0
+    },
+    {
+      "id": "al-01M4KSVBT1STC0DXGME4DXTQ04",
+      "shortname": "hyg-export-link",
+      "datetime": "2026-10-10T21:00:07Z",
+      "session": "trk-hyg",
+      "prompt": "trk-hyg",
+      "summary": "Shared ExportSession refuses a link target as export.validate EXPORT-TARGET-LINK for dialog and CLI; CLI pre-check deleted; core-costs.tsv re-measured (796 rows)",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "One export refusal code for a link target on both surfaces; fresh Core partition hints",
+      "done_when": "red-first check green; ring green; no Core PARTITION-SKEW",
+      "started_at": "2026-10-10T20:50:41Z",
+      "duration_seconds": 566.0
     }
   ],
   "changes": [
