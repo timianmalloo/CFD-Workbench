@@ -97,6 +97,17 @@ public sealed class ShellHost : Grid
     /// <summary>DLG shows the catalog. Null runs the command as a status count and draws no dialog.</summary>
     public Func<Task>? ShowCatalogDialog { get; set; }
 
+    /// <summary>
+    /// A check drives the Export dialog's session itself and returns the outcome (null: the dialog was closed). Null shows the real
+    /// dialog. <see cref="PickExportFile"/> replaces the native save panel the same way.
+    /// </summary>
+    public Func<ExportSession, Task<ExportOutcome?>>? ShowExportDialog { get; set; }
+
+    public Func<string, string?, Task<string?>>? PickExportFile { get; set; }
+
+    /// <summary>Show in Finder / Explorer (EX39). Null reveals the file through the operating system.</summary>
+    public Action<string>? RevealExportedFile { get; set; }
+
     /// <summary>DLG asks for the My-sections name. Null reports the empty-name sentence and writes nothing.</summary>
     public Func<Task<string?>>? AskSaveName { get; set; }
 
@@ -1197,7 +1208,7 @@ public sealed class ShellHost : Grid
 
     /// <summary>The rows the shell runs itself: the section rows, Thickness ×2, the Points pane and the workspaces.</summary>
     public static bool IsShellCommand(string id) =>
-        id.StartsWith("section.", StringComparison.Ordinal) || id is "view.thickness-x2" or "window.points" or "window.layers" ||
+        id.StartsWith("section.", StringComparison.Ordinal) || id is "file.export" or "view.thickness-x2" or "window.points" or "window.layers" ||
         id.StartsWith("window.workspace-", StringComparison.Ordinal);
 
     /// <summary>The copy a section row names when the mode is not open.</summary>
@@ -1231,6 +1242,8 @@ public sealed class ShellHost : Grid
     public string? ShellCommandReason(string id)
     {
         if (id.StartsWith("window.workspace-", StringComparison.Ordinal) || id is "window.points" or "window.layers") return null;
+        // Export reads the accepted revision, so an open section draft never blocks it (design H1); only a missing foil does (H9).
+        if (id is "file.export" or "section.export-dat") return Controller.Inspection is null ? ExportCopy.NeedsFoil : null;
         var mode = Controller.Section;
         if (id == "section.edit")
         {
@@ -1298,6 +1311,9 @@ public sealed class ShellHost : Grid
                 return;
             case "section.import-dat":
                 await ImportDatAsync();
+                return;
+            case "file.export" or "section.export-dat":
+                await ExportAsync();
                 return;
             case "section.replace-catalog":
                 await ReplaceFromCatalogAsync();
@@ -1382,6 +1398,63 @@ public sealed class ShellHost : Grid
             "section.thickness-source" => new SectionStep.Thickness(ThicknessIntent.UseSource),
             _ => null
         };
+    }
+
+    /// <summary>
+    /// File &gt; Export… and Section &gt; Export .dat… (Export design D1, D2): the dialog on the accepted revision, then the save
+    /// panel, then one status line (EX21, with Show in Finder) or the in-dialog failure. Nothing is written until the panel returns.
+    /// </summary>
+    private async Task ExportAsync()
+    {
+        if (Controller.ExportSnapshot() is not { } source)
+        {
+            Report(new StatusReport(ExportCopy.NeedsFoil));
+            return;
+        }
+        var session = new ExportSession(source);
+        ExportOutcome? outcome;
+        if (ShowExportDialog is not null) outcome = await ShowExportDialog(session);
+        else if (TopLevel.GetTopLevel(this) is Window owner)
+        {
+            var dialog = new ExportDialog(session, PickExportFile, () => _ = ShowExportStationAsync(session), ModelView.SectionEditor.SectionButton);
+            outcome = await dialog.ShowDialog<ExportOutcome?>(owner);
+        }
+        else return;
+        if (outcome is null) return;
+        if (outcome.Kind == ExportOutcomeKind.Written && outcome.Path is { } path)
+            Report(new StatusReport(outcome.Message), new StripAction(OperatingSystem.IsWindows() ? ExportCopy.ShowInExplorer : ExportCopy.ShowInFinder,
+                () => RevealFile(path)));
+        else if (outcome.Kind == ExportOutcomeKind.Cancelled) Report(new StatusReport(outcome.Message));
+    }
+
+    /// <summary>The finding's jump (H3): the station is selected and its section opens, where the trailing-edge gap readout is.</summary>
+    public async Task ShowExportStationAsync(ExportSession session)
+    {
+        if (Controller.Inspection is not { } inspection) return;
+        int index = session.StationIndex;
+        Controller.Select(new Selection.Station(index, inspection.Authored.Assignments[index].Eta));
+        if (Controller.Section is null) await EnterSectionAsync(EntryOrigin.Palette);
+    }
+
+    private void RevealFile(string path)
+    {
+        if (RevealExportedFile is not null)
+        {
+            RevealExportedFile(path);
+            return;
+        }
+        try
+        {
+            var start = OperatingSystem.IsWindows()
+                ? new System.Diagnostics.ProcessStartInfo("explorer.exe") { ArgumentList = { "/select," + path } }
+                : new System.Diagnostics.ProcessStartInfo(OperatingSystem.IsMacOS() ? "open" : "xdg-open") { ArgumentList = { "-R", path } };
+            if (!OperatingSystem.IsMacOS() && !OperatingSystem.IsWindows()) { start.ArgumentList.Clear(); start.ArgumentList.Add(Path.GetDirectoryName(path) ?? "."); }
+            using var process = System.Diagnostics.Process.Start(start);
+        }
+        catch (Exception error) when (error is System.ComponentModel.Win32Exception or InvalidOperationException or IOException)
+        {
+            Report(new StatusReport($"Couldn't open the folder. The file is at {path}.", ReportKind.Warning));
+        }
     }
 
     private async Task ImportDatAsync()

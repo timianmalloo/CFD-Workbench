@@ -1,0 +1,97 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="CfdWorkbench.Desktop.ExportDialog" Title="Export"
+        Width="760" SizeToContent="Height" CanResize="False"
+        Background="{DynamicResource SurfaceBrush}" Foreground="{DynamicResource InkBrush}">
+  <Window.Styles>
+    <!-- The dialog's one primary action: the accent fill the mockup draws, in the same tokens the mode bar's primary uses. -->
+    <Style Selector="Button.primary"><Setter Property="Background" Value="{DynamicResource PrimaryBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" /><Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" /><Setter Property="FontWeight" Value="SemiBold" /></Style>
+    <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="{DynamicResource PrimaryBrush}" /><Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" /></Style>
+    <Style Selector="Button.primary:disabled /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" /><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /></Style>
+  </Window.Styles>
+  <Border Padding="{StaticResource Space4}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource HairlineThickness}">
+    <StackPanel Spacing="12">
+      <TextBlock x:Name="TitleText" Classes="heading" Text="Export" />
+      <Grid ColumnDefinitions="200,*" ColumnSpacing="16">
+        <StackPanel Grid.Column="0" Spacing="8">
+          <ListBox x:Name="FormatList" AutomationProperties.Name="Format">
+            <ListBoxItem x:Name="DatFormatItem" IsSelected="True" />
+          </ListBox>
+          <Button x:Name="StepButton" Content="STEP" IsEnabled="False" HorizontalAlignment="Stretch" />
+          <TextBlock x:Name="StepWhy" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
+        </StackPanel>
+        <StackPanel x:Name="OptionsPanel" Grid.Column="1" Spacing="8">
+          <Grid ColumnDefinitions="*,*" ColumnSpacing="16" RowDefinitions="Auto,Auto" RowSpacing="8">
+            <StackPanel Grid.Column="0" Spacing="4">
+              <TextBlock x:Name="ShapeLegend" FontWeight="SemiBold" />
+              <StackPanel Orientation="Horizontal" Spacing="12">
+                <RadioButton x:Name="ShapeAtStation" GroupName="shape" IsChecked="True" />
+                <RadioButton x:Name="ShapeOwn" GroupName="shape" />
+              </StackPanel>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Spacing="4">
+              <TextBlock x:Name="StationLegend" FontWeight="SemiBold" />
+              <ComboBox x:Name="StationBox" HorizontalAlignment="Stretch" />
+            </StackPanel>
+            <TextBlock x:Name="ShapeHelp" Grid.Row="1" Grid.ColumnSpan="2" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
+          </Grid>
+          <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+            <StackPanel Grid.Column="0" Spacing="4">
+              <TextBlock x:Name="OrderLegend" FontWeight="SemiBold" />
+              <StackPanel Orientation="Horizontal" Spacing="12">
+                <RadioButton x:Name="OrderSelig" GroupName="order" IsChecked="True" />
+                <RadioButton x:Name="OrderLednicer" GroupName="order" />
+              </StackPanel>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Spacing="4">
+              <TextBlock x:Name="PointsLegend" FontWeight="SemiBold" />
+              <StackPanel Orientation="Horizontal" Spacing="12">
+                <RadioButton x:Name="Points61" GroupName="points" Content="61" />
+                <RadioButton x:Name="Points101" GroupName="points" Content="101" IsChecked="True" />
+                <RadioButton x:Name="Points201" GroupName="points" Content="201" />
+              </StackPanel>
+            </StackPanel>
+          </Grid>
+        </StackPanel>
+      </Grid>
+      <Border x:Name="SummaryBlock" Background="{DynamicResource CanvasBrush}" BorderBrush="{DynamicResource LineBrush}"
+              BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space3}">
+        <StackPanel Spacing="8">
+          <TextBlock x:Name="SummaryHeading" FontWeight="SemiBold" />
+          <Grid x:Name="SummaryGrid" ColumnDefinitions="180,*" ColumnSpacing="8" />
+          <TextBlock x:Name="LimitLine" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
+          <Border x:Name="PreviewBorder" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+                  BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
+            <TextBlock x:Name="PreviewText" FontFamily="monospace" FontSize="{StaticResource CaptionSize}"
+                       AutomationProperties.Name="First lines of the file" />
+          </Border>
+        </StackPanel>
+      </Border>
+      <Border x:Name="BlockedBand" IsVisible="False" Padding="{StaticResource Space2}" BorderBrush="{DynamicResource DangerBrush}"
+              BorderThickness="{StaticResource HairlineThickness}">
+        <TextBlock x:Name="BlockedText" TextWrapping="Wrap" Foreground="{DynamicResource DangerBrush}" AutomationProperties.LiveSetting="Assertive" />
+      </Border>
+      <Border x:Name="FindingBand" IsVisible="False" Padding="{StaticResource Space2}" BorderBrush="{DynamicResource WarningBrush}"
+              BorderThickness="3,1,1,1">
+        <DockPanel>
+          <Button x:Name="JumpButton" DockPanel.Dock="Right" />
+          <TextBlock x:Name="FindingText" TextWrapping="Wrap" VerticalAlignment="Center" />
+        </DockPanel>
+      </Border>
+      <Border x:Name="FailureBand" IsVisible="False" Padding="{StaticResource Space2}" BorderBrush="{DynamicResource DangerBrush}"
+              BorderThickness="{StaticResource HairlineThickness}">
+        <StackPanel Spacing="8">
+          <TextBlock x:Name="FailureText" TextWrapping="Wrap" Foreground="{DynamicResource DangerBrush}" AutomationProperties.LiveSetting="Assertive" />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button x:Name="AnotherPlaceButton" />
+            <Button x:Name="TryAgainButton" />
+          </StackPanel>
+        </StackPanel>
+      </Border>
+      <TextBlock x:Name="SafetyLine" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
+      <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+        <Button x:Name="CancelButton" />
+        <Button x:Name="ExportButton" Classes="primary" IsDefault="True" />
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</Window>
