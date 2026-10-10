@@ -5466,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7625f310f76b5c63b1f00a25a6e2f8e60150e2ca78b7940fafe76a93d58f0cbc"
+      "sourceSha256": "2a91e904507fff66e2d385bec8ad431c49292673dff1315eecffc65a7abf55ab"
     },
     {
       "id": "domain-experts",
@@ -15097,6 +15097,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "3c945d28f0c56ec83a08baf90545abbba905ed05493ae69c83a8f5cb7fe9f466"
     },
     {
+      "id": "proof-phk-red-first",
+      "path": "docs/proof/phk/red-first.md",
+      "title": "PHK red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-phk",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "The pipe-before-commit hook rule: self-test red on the old code, green after, hook-mode check, and the transcript sweep.",
+      "tags": [
+        "phk",
+        "hook",
+        "ct27",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "976d173d6c518f18fadfb8d21b855ca314cc12906d258a4088f7f1e120f95061"
+    },
+    {
       "id": "proof-pii-red-first",
       "path": "docs/proof/pii/red-first.md",
       "title": "PROOF-PII red-first receipt",
@@ -17816,7 +17842,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "bad27b64fb0784a44a9104464be9de92b6ea5376e44fb0c1ebf71cce994a1a1a"
+      "sourceSha256": "a12f15cb274e1ba448174716c5390eb457b8c49d31780074ee48a9fb5c50d94d"
     },
     {
       "id": "proof-win-gpu-g1",
@@ -20298,6 +20324,13 @@ window.DOCS_INDEX = {
       "description": "Open an interactive knowledge artifact."
     },
     {
+      "id": "surface-proof-win-gpu-b2-source-cache-cuda-13-2-2-eula",
+      "path": "docs/proof/win-gpu-b2/.source-cache/cuda-13.2.2-eula.html",
+      "title": "1. License Agreement for NVIDIA Software Development Kits — EULA",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact."
+    },
+    {
       "id": "surface-proof-win-gpu-b2-source-cache-cuda-eula",
       "path": "docs/proof/win-gpu-b2/.source-cache/cuda-eula.html",
       "title": "1. License Agreement for NVIDIA Software Development Kits — EULA",
@@ -20622,5 +20655,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "294fb13cb22e904a83ec9bab761447f271936db67fc6b50c88a324ca2c42378c"
+  "graphSha256": "57bdbd6aa81eb3601335be21d46844a21b59b7f1771d07131b6810c04cc1acfa"
 };
