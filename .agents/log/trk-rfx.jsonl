@@ -1,1 +1,2 @@
 {"agent": "trk-rfx", "at": 1791643687.210426, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-rfx", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-rfx-refit-flash"}
+{"agent": "trk-rfx", "at": 1791644803.891698, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-rfx", "wi": "WI-0", "worktree": "CFD-Workbench-fix-rfx-refit-flash"}
