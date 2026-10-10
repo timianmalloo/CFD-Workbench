@@ -53,6 +53,20 @@ function Read-JsonFile([string]$Path) {
     return Get-Content -LiteralPath $Path -Raw | ConvertFrom-Json
 }
 
+function Convert-ToUtcInstant($Value) {
+    if ($Value -is [DateTime]) {
+        return [DateTimeOffset]::new($Value.ToUniversalTime())
+    }
+    if ($Value -is [DateTimeOffset]) {
+        return $Value.ToUniversalTime()
+    }
+    return [DateTimeOffset]::Parse(
+        [string]$Value,
+        [Globalization.CultureInfo]::InvariantCulture,
+        [Globalization.DateTimeStyles]::AssumeUniversal
+    ).ToUniversalTime()
+}
+
 function Read-CompleteGuardEvents {
     if (-not (Test-Path -LiteralPath $eventsPath)) { return @() }
     $raw = [IO.File]::ReadAllText($eventsPath)
@@ -168,7 +182,7 @@ try {
         [int]$stateAtLaunch.start_row -ne $startRow) {
         throw 'observer state does not match the live B1 session'
     }
-    $sampleAge = [DateTimeOffset]::UtcNow - [DateTimeOffset]::Parse([string]$stateAtLaunch.last_sample_utc)
+    $sampleAge = [DateTimeOffset]::UtcNow - (Convert-ToUtcInstant $stateAtLaunch.last_sample_utc)
     if ($sampleAge.TotalSeconds -lt -120 -or $sampleAge.TotalSeconds -gt 720) {
         throw "fresh baseline sample age is invalid: $($sampleAge.TotalSeconds) seconds"
     }
@@ -227,7 +241,7 @@ try {
             $terminationExit = Invoke-OwnedStop
             break
         }
-        $sampleAge = [DateTimeOffset]::UtcNow - [DateTimeOffset]::Parse([string]$observerState.last_sample_utc)
+        $sampleAge = [DateTimeOffset]::UtcNow - (Convert-ToUtcInstant $observerState.last_sample_utc)
         if ($sampleAge.TotalSeconds -lt -120 -or $sampleAge.TotalSeconds -gt 720) {
             $guardStoppedProbe = $true
             $guardStopReason = "observer sample age became invalid: $($sampleAge.TotalSeconds) seconds"
