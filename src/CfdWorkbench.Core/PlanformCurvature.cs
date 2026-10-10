@@ -138,7 +138,7 @@ public static partial class Planform
     }
 
     /// <summary>Comb teeth: <paramref name="density"/> teeth at an even arc-length pitch over the whole rail, plus the two one-sided
-    /// teeth at every knot of multiplicity two or more (a possible curvature jump).</summary>
+    /// teeth at every knot of multiplicity two or more where the tangent turns by more than 0.1 degrees or the curvature jumps by more than tau / L.</summary>
     public static IReadOnlyList<RailTooth> Teeth(CurveView curve, int density)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(density, 1);
@@ -148,8 +148,10 @@ public static partial class Planform
             entries.Add((t, 1, rail.Tooth(t, span, false, false)));
         foreach (double knot in rail.RepeatedKnots())
         {
+            var kind = rail.Station(knot).Kind;
+            if (kind is not (StationKind.Corner or StationKind.CurvatureJump)) continue;
             int before = rail.SpanFor(knot, CurveSide.Before), after = rail.SpanFor(knot, CurveSide.After);
-            bool corner = rail.TangentJumpDegrees(knot) > CornerDegrees;
+            bool corner = kind == StationKind.Corner;
             entries.Add((knot, 0, rail.Tooth(knot, before, false, false)));
             entries.Add((knot, 2, rail.Tooth(knot, after, true, corner)));
         }

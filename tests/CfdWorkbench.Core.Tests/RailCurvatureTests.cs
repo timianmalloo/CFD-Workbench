@@ -200,6 +200,16 @@ internal static class RailCurvatureTests
                 Math.Sqrt(Math.Pow(teeth[i].SpanMeters - teeth[i - 1].SpanMeters, 2) + Math.Pow(teeth[i].Ordinate - teeth[i - 1].Ordinate, 2))).ToArray();
             Equal(true, (pitch.Max() - pitch.Min()) / pitch.Average() < 0.05);
         });
+        Check("Planform_Teeth_NoJump_NoExtraTeeth_AtARepeatedKnot", () =>
+        {
+            // The parabola cut at its vertex into two cubic Beziers: a triple-knot anchor whose tangent and curvature are continuous.
+            var halves = Rail("leading", TwoPieces, (-1, 1), (-2.0 / 3, 1.0 / 3), (-1.0 / 3, 0), (0, 0), (1.0 / 3, 0), (2.0 / 3, 1.0 / 3), (1, 1));
+            var station = Planform.ReadAt(halves, 0.5);
+            Equal(StationKind.Smooth, station.Kind);
+            var teeth = Planform.Teeth(halves, 16);
+            Equal(16, teeth.Count);
+            Equal(1, teeth.Count(t => t.StartsPiece));
+        });
         Check("Planform_Teeth_PointAwayFromCentre_AndSplitPiecesAtAJump", () =>
         {
             var vertex = Planform.Teeth(Rail("trailing", OnePiece, Parabola), 33)[16];
