@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T16:59:39Z",
+  "generated": "2026-10-10T17:03:49Z",
   "audit": [
     {
       "actor": null,
@@ -34235,98 +34235,183 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4K5ET8HSSQ7T00V5A5M1AJ5",
-      "shortname": "join-mod",
-      "datetime": "2026-10-10T15:03:45Z",
-      "session": "3122f106",
-      "prompt": "the join of the resolved merge into main",
-      "summary": "Joined MOD: CommandRow.Modal on five dialog rows; both run-every-row probes filter by it; Commands_ModalFlag_MatchesRowsThatShowADialog guard recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/proof/mod/red-first.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "ROW-MODAL-A controlled",
+      "datetime": "2026-10-10T15:03:45Z",
       "done_when": "join gates and ring green, readiness green, PUSH-OK",
-      "tier": "T1",
+      "duration_seconds": 66.0,
       "fan_out": 0,
+      "goal": "ROW-MODAL-A controlled",
+      "id": "al-01M4K5ET8HSSQ7T00V5A5M1AJ5",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "3122f106",
+      "shortname": "join-mod",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-10T15:02:39Z",
-      "duration_seconds": 66.0
+      "summary": "Joined MOD: CommandRow.Modal on five dialog rows; both run-every-row probes filter by it; Commands_ModalFlag_MatchesRowsThatShowADialog guard recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M4K9TWWYDCAN1RRSZY5KKQPY",
-      "shortname": "continue-windows-ruling-197-g1",
-      "datetime": "2026-10-10T16:20:15Z",
-      "session": "pc-gpu-g1-r197-20261010",
-      "prompt": "Continue the original Windows execution prompt under Mac leadership: execute the authorized W-0 through W-5 work on this GPU laptop within Ruling 197, coordinate through GitHub, use an Astra owner, remain task-, completion-, and drift-control-oriented, and hand back reviewable evidence.",
-      "summary": "Continue authorized Windows GPU G1 work and coordinate the proof with the Mac leader.",
-      "kind": "prompt",
-      "skill": null,
-      "tool": null,
       "actor": null,
       "artifacts": [],
+      "datetime": "2026-10-10T16:20:15Z",
+      "id": "al-01M4K9TWWYDCAN1RRSZY5KKQPY",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "Continue the original Windows execution prompt under Mac leadership: execute the authorized W-0 through W-5 work on this GPU laptop within Ruling 197, coordinate through GitHub, use an Astra owner, remain task-, completion-, and drift-control-oriented, and hand back reviewable evidence.",
+      "session": "pc-gpu-g1-r197-20261010",
+      "shortname": "continue-windows-ruling-197-g1",
+      "skill": null,
+      "summary": "Continue authorized Windows GPU G1 work and coordinate the proof with the Mac leader.",
       "tags": [
         "windows",
         "gpu",
         "ruling-197"
       ],
-      "outcome": "success"
+      "tool": null
     },
     {
-      "id": "al-01M4KACJ8G09XDBXGR4Y0TARA5",
-      "shortname": "windows-gpu-g1-r197",
-      "datetime": "2026-10-10T16:29:54Z",
-      "session": "pc-gpu-g1-r197-20261010",
-      "prompt": "Continue the original Windows execution prompt under Mac leadership: execute the authorized Windows GPU work within Ruling 197, use the observer and read-only G1 boundary, coordinate through GitHub, use an Astra owner, minimize drift, and hand back reviewable evidence.",
-      "summary": "Completed Ruling 197 observer and read-only G1 inspection; Astra accepted the proof, retained the native F1/G2 veto, and PR #30 was handed to the Mac leader.",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/proof/win-gpu-g1/receipt.md",
         "docs/proof/win-l3-observer/README.md",
         "https://github.com/timianmalloo/CFD-Workbench/pull/30"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Reconcile Mac rulings since PR #29 and execute the next authorized Windows GPU/L3 step.",
+      "datetime": "2026-10-10T16:29:54Z",
       "done_when": "The ruling is read, latest main is merged, authorized work is committed and pushed, proof is owner-reviewed, gates are green, and the GitHub handoff is posted.",
-      "tier": "T1",
-      "fan_out": 2,
-      "signals": {
-        "verification_path": true,
-        "verification_executed": true,
-        "acceptance_met": true,
-        "regression": false
-      },
-      "started_at": "2026-10-10T15:03:03Z",
       "duration_seconds": 5211.0,
+      "fan_out": 2,
       "git": {
-        "sha": "d691b06c5a73846cf5115b148222b1414361cf86",
-        "short": "d691b06c5",
         "branch": "win/gpu-g1-r197",
-        "pushed": true
-      }
+        "pushed": true,
+        "sha": "d691b06c5a73846cf5115b148222b1414361cf86",
+        "short": "d691b06c5"
+      },
+      "goal": "Reconcile Mac rulings since PR #29 and execute the next authorized Windows GPU/L3 step.",
+      "id": "al-01M4KACJ8G09XDBXGR4Y0TARA5",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Continue the original Windows execution prompt under Mac leadership: execute the authorized Windows GPU work within Ruling 197, use the observer and read-only G1 boundary, coordinate through GitHub, use an Astra owner, minimize drift, and hand back reviewable evidence.",
+      "session": "pc-gpu-g1-r197-20261010",
+      "shortname": "windows-gpu-g1-r197",
+      "signals": {
+        "acceptance_met": true,
+        "regression": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-10T15:03:03Z",
+      "summary": "Completed Ruling 197 observer and read-only G1 inspection; Astra accepted the proof, retained the native F1/G2 veto, and PR #30 was handed to the Mac leader.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M4KC31VCWWFH6DYJ2YFDB063",
-      "shortname": "join-pr30",
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/pr-30.md"
+      ],
+      "compiled": false,
       "datetime": "2026-10-10T16:59:39Z",
-      "session": "3122f106",
+      "done_when": "join gates green, readiness green, PUSH-OK",
+      "duration_seconds": 66.0,
+      "fan_out": 0,
+      "goal": "PR #30 on main and G2 authorised",
+      "id": "al-01M4KC31VCWWFH6DYJ2YFDB063",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of the resolved merge into main",
+      "session": "3122f106",
+      "shortname": "join-pr30",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-10T16:58:33Z",
       "summary": "Joined PR #30: G1 accepted (Ruling 199); native nvc++ route closed; G2 route B; operator consent to B2 (Ruling 200); clock correction recorded recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "datetime": "2026-10-10T17:02:42Z",
+      "id": "al-01M4KC8MA6G95R0HZK11P4GDK0",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "Keep going: follow PR #30 through Mac/Fable review, resolve authorized findings, and keep the Windows GPU track within Ruling 197.",
+      "session": "pc-pr30-follow-20261010",
+      "shortname": "continue-pr30-handoff",
+      "skill": null,
+      "summary": "Continue the PR #30 handoff and close review-contract gaps.",
+      "tags": [
+        "windows",
+        "gpu",
+        "coordination"
+      ],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-g1/receipt.md",
+        "https://github.com/timianmalloo/CFD-Workbench/pull/30"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-10T17:02:48Z",
+      "done_when": "The latest leader message is reconciled and PR #30 is merged, or a concrete leader-owned decision is recorded with no Windows action outstanding.",
+      "duration_seconds": 324.0,
+      "fan_out": 1,
+      "git": {
+        "branch": "win/gpu-g1-r197",
+        "pushed": true,
+        "sha": "0d636ac20ef315c467418187951f54907b2bd505",
+        "short": "0d636ac20"
+      },
+      "goal": "Follow PR #30 through Mac/Fable review and resolve any authorized join findings.",
+      "id": "al-01M4KC8TF20B9YNR1T8JZ1TNPT",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Keep going: follow PR #30 through Mac/Fable review, resolve authorized findings, and keep the Windows GPU track within Ruling 197.",
+      "session": "pc-pr30-follow-20261010",
+      "shortname": "continue-pr30-handoff",
+      "signals": {
+        "acceptance_met": true,
+        "regression": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-10T16:57:24Z",
+      "summary": "Added the missing tested-SHA and Done-when contract to PR #30, rebound the manifest, obtained Astra acceptance, reran check-docs, and notified the Mac leader.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M4KCANAZSB4SQN1208V12Y59",
+      "shortname": "join-pr30-sync",
+      "datetime": "2026-10-10T17:03:49Z",
+      "session": "3122f106",
+      "prompt": "the join of origin/win/gpu-g1-r197 into main",
+      "summary": "Sync join of PR #30's two post-review commits: G1 receipt states its tested head and done condition; manifest rebound recount_seconds=0 (docs_only=True).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -34337,7 +34422,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "PR #30 on main and G2 authorised",
+      "goal": "PR #30 fully on main",
       "done_when": "join gates green, readiness green, PUSH-OK",
       "tier": "T1",
       "fan_out": 0,
@@ -34346,8 +34431,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-10T16:58:33Z",
-      "duration_seconds": 66.0
+      "started_at": "2026-10-10T17:03:25Z",
+      "duration_seconds": 24.0
     }
   ],
   "changes": [
