@@ -29,6 +29,7 @@ public static class ExportTests
         DesktopChecks.Check("Export_Shell_SectionExportDat_OpensOnSelectedStation", SectionEntry);
         DesktopChecks.Check("Export_Cancel_AtThePanel_WritesNothingAndSaysSo_H8", PanelCancelled);
         DesktopChecks.Check("Export_WriteFailure_CauseCopy_EarlierFileUntouched_NoTemp_H6", WriteFailure);
+        DesktopChecks.Check("Export_Write_IntoOneDriveNamedFolder_NotRefused_Ruling194", OneDrive);
         DesktopChecks.Check("Export_Extension_ForcedToDat_NeverTheProjectFile", Extension);
         DesktopChecks.Check("Export_Draft_ReadsAcceptedRevisionAndSaysSo_H1", Draft);
         DesktopChecks.Check("Export_Analysis_AddsOneLine_ReadsTheSameRevision_H4", AnalysisLine);
@@ -348,6 +349,22 @@ public static class ExportTests
             Equal(ExportOutcomeKind.Written, good.Kind);
             True(File.ReadAllBytes(existing).AsSpan().SequenceEqual(session.Result!.Bytes), "replaced");
             Equal(0, Directory.GetFiles(folder, ".cfd-*.tmp").Length);
+        }
+        finally { Directory.Delete(folder, true); }
+    }
+
+    // Ruling 194 (5): Ruling 146's OneDrive refusal protects the project store and does not reach an export, which is a copy.
+    private static void OneDrive()
+    {
+        string folder = NewFolder();
+        try
+        {
+            string synced = Path.Combine(folder, "OneDrive - Example Company", "Documents");
+            Directory.CreateDirectory(synced);
+            using var controller = OpenExample();
+            var outcome = Wait(Session(controller).RunAsync((name, _) => Task.FromResult<string?>(Path.Combine(synced, name))));
+            Equal(ExportOutcomeKind.Written, outcome.Kind);
+            True(File.Exists(Path.Combine(synced, "basic-foil-root-r1.dat")), "written into a OneDrive-named folder");
         }
         finally { Directory.Delete(folder, true); }
     }

@@ -174,6 +174,8 @@ public static class WindowsShellTests
             using var controller = new WorkbenchController();
             Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
             var host = new ShellHost(controller);
+            // Export's real dialog is modal and would take every later key; this check counts routing, so the dialog is replaced.
+            host.ShowExportDialog = _ => Task.FromResult<ExportOutcome?>(null);
             var window = new Window { Content = host, Width = 1280, Height = 800 };
             try
             {

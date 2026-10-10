@@ -7,7 +7,7 @@ namespace CfdWorkbench.Core.Tests;
 
 /// <summary>
 /// Section .dat export (docs/design/export.md 4.1, build conditions B5, B6, B9). Ring: fast, every push. Cost: each check is
-/// a few ms to 0.3 s (the B9 peak searches parse the source about 100 times).
+/// a few ms to 0.3 s; about 1.7 s together, the slowest being B9f (0.9 s, a blended eta).
 /// </summary>
 internal static class DatExportTests
 {
@@ -35,7 +35,7 @@ internal static class DatExportTests
     }
 
     // B10: the floor is "app default, no source" (Ruling 195). A scan of src/ for the retired wording; the one place that names
-    // the floor's label is Settings.TrailingEdgeFloorLabel. Cost: about 2 ms (a few dozen small files).
+    // the floor's label is Settings.TrailingEdgeFloorLabel. Cost: about 7 ms (the .cs files of src/).
     private static void NoPractitionerValue()
     {
         var hits = Directory.EnumerateFiles(RepoFile("src"), "*.cs", SearchOption.AllDirectories)
@@ -180,28 +180,33 @@ internal static class DatExportTests
         Equal(true, worst < 1e-12);
     }
 
-    // Golden-section search for the largest value of a smooth, single-peaked function on [lo, hi].
+    // Golden-section search for the largest value of a smooth, single-peaked function on [lo, hi]: one new evaluation per step.
     private static double Peak(Func<double, double> value, double lo, double hi)
     {
         double ratio = (Math.Sqrt(5) - 1) / 2;
-        for (int step = 0; step < 80; step++)
+        double a = hi - ratio * (hi - lo), b = lo + ratio * (hi - lo), fa = value(a), fb = value(b);
+        for (int step = 0; step < 45; step++)
         {
-            double a = hi - ratio * (hi - lo), b = lo + ratio * (hi - lo);
-            if (value(a) < value(b)) lo = a; else hi = b;
+            if (fa < fb)
+            {
+                lo = a; a = b; fa = fb;
+                b = lo + ratio * (hi - lo); fb = value(b);
+            }
+            else
+            {
+                hi = b; b = a; fb = fa;
+                a = hi - ratio * (hi - lo); fa = value(a);
+            }
         }
-        return value((lo + hi) / 2);
+        return Math.Max(fa, fb);
     }
 
-    private static double ThicknessPeak(byte[] source, double eta, Func<double, double> thicknessAt)
+    // The grid maximum (one batch call over 401 stations) brackets the peak; the search then reads the continuous curve.
+    private static double ThicknessPeak(Func<double, double> thicknessAt, Func<IReadOnlyList<double>, double[]> batch)
     {
-        // The grid maximum brackets the peak; the search then reads the continuous curve.
         var xs = Placement.ChordGrid(401);
-        double best = 0; int at = 0;
-        for (int index = 0; index < xs.Count; index++)
-        {
-            double value = thicknessAt(xs[index]);
-            if (value > best) { best = value; at = index; }
-        }
+        double[] grid = batch(xs);
+        int at = Array.IndexOf(grid, grid.Max());
         return Peak(thicknessAt, xs[Math.Max(0, at - 1)], xs[Math.Min(xs.Count - 1, at + 1)]);
     }
 
@@ -211,13 +216,23 @@ internal static class DatExportTests
         return thickness[0];
     }
 
+    private static double StationPeak(byte[] source, double eta) =>
+        ThicknessPeak(x => StationThickness(source, eta, x), xs => Section(source, eta, xs).Thickness);
+
+    private static double OwnPeakValue(byte[] source, int assignment) =>
+        ThicknessPeak(x => OwnThickness(source, assignment, x), xs =>
+        {
+            var own = Placement.OwnProfile(source, assignment, xs);
+            return Enumerable.Range(0, xs.Count).Select(index => own.Upper[index] - own.Lower[index]).ToArray();
+        });
+
     private static void AtStationPeak()
     {
         var source = Example();
         foreach (int station in new[] { 0, 1 })
         {
             double eta = Placement.StationEta(source, station);
-            double peak = ThicknessPeak(source, eta, x => StationThickness(source, eta, x));
+            double peak = StationPeak(source, eta);
             double tc = Placement.Frame(source, eta).ThicknessRatio;
             Equal(true, Math.Abs(peak - tc) < 1e-12);
             // The written points: their thickest row is the station t/c to the grid's resolution, not the authored 0.1126.
@@ -240,7 +255,7 @@ internal static class DatExportTests
         var thin = WithThickness(text, "0.1");
         var parsed = FoilSource.Parse(plain).Definition!;
         double authored = Placement.ProfileDifferenceMaximum(parsed.Profiles[0].Upper, parsed.Profiles[0].Lower);
-        double peak = ThicknessPeak(plain, 0, x => OwnThickness(plain, 0, x));
+        double peak = OwnPeakValue(plain, 0);
         Equal(true, Math.Abs(peak - authored) < 1e-12);
         Equal(true, authored > 0.1126 && authored < 0.1127);   // the authored peak is not the station t/c (0.12)
         // The thickness channel does not touch Own; it does set the At-station peak.
@@ -252,7 +267,7 @@ internal static class DatExportTests
             Equal(BitConverter.DoubleToUInt64Bits(own.Lower[index].Y), BitConverter.DoubleToUInt64Bits(ownThin.Lower[index].Y));
         }
         var atThin = DatExport.Build(thin, "F", 0, "Root", DatShape.AtStation, DatOrder.Selig, 101, 1);
-        Equal(true, Math.Abs(ThicknessPeak(thin, 0, x => StationThickness(thin, 0, x)) - 0.1) < 1e-12);
+        Equal(true, Math.Abs(StationPeak(thin, 0) - 0.1) < 1e-12);
         Equal(0.1, atThin.StationThicknessRatio);
         Equal(true, Math.Abs(Enumerable.Range(0, 101).Max(index => atThin.Upper[index].Y - atThin.Lower[index].Y) - 0.1) < 5e-4);
     }
@@ -282,8 +297,8 @@ internal static class DatExportTests
         var source = TwoProfiles();
         double eta = 0.5;
         var result = DatExport.BuildAt(source, eta, 0, "Basic foil", "Blend", DatShape.AtStation, DatOrder.Selig, 101, 1);
-        double peak = ThicknessPeak(source, eta, x => StationThickness(source, eta, x));
-        Equal(true, Math.Abs(peak - Placement.Frame(source, eta).ThicknessRatio) < 1e-9);
+        double peak = StationPeak(source, eta);
+        Equal(true, Math.Abs(peak - Placement.Frame(source, eta).ThicknessRatio) < 1e-12);
         InvertedPlacementAgrees(source, result, eta);
     }
 
