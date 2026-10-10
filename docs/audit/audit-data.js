@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T14:01:53Z",
+  "generated": "2026-10-10T14:44:30Z",
   "audit": [
     {
       "actor": null,
@@ -34135,6 +34135,35 @@ window.AUDIT_DATA = {
       "tags": [],
       "tier": "T1",
       "tool": null
+    },
+    {
+      "id": "al-01M4K4BJAJQBA7T3XP9HTAQX24",
+      "shortname": "join-cbd",
+      "datetime": "2026-10-10T14:44:30Z",
+      "session": "3122f106",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "Joined CBD: rail curvature core and the Plan comb UI, COPY-458..473, AM-RC-1..5 recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/cbd/red-first.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "the rail comb ships on main",
+      "done_when": "join gates and ring green, readiness green, PUSH-OK",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-10T14:43:29Z",
+      "duration_seconds": 61.0
     }
   ],
   "changes": [
