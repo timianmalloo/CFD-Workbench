@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T15:02:11Z",
+  "generated": "2026-10-10T15:03:45Z",
   "audit": [
     {
       "actor": null,
@@ -34137,23 +34137,121 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4K4BJAJQBA7T3XP9HTAQX24",
-      "shortname": "join-cbd",
+      "actor": null,
+      "artifacts": [
+        "docs/proof/cbd/red-first.md"
+      ],
+      "compiled": false,
       "datetime": "2026-10-10T14:44:30Z",
+      "done_when": "join gates and ring green, readiness green, PUSH-OK",
+      "duration_seconds": 61.0,
+      "fan_out": 0,
+      "goal": "the rail comb ships on main",
+      "id": "al-01M4K4BJAJQBA7T3XP9HTAQX24",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "3122f106",
+      "shortname": "join-cbd",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-10T14:43:29Z",
+      "summary": "Joined CBD: rail curvature core and the Plan comb UI, COPY-458..473, AM-RC-1..5 recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-10T15:00:25Z",
+      "done_when": "held-seam red then green, 20-run loop, gates green",
+      "duration_seconds": 719.0,
+      "goal": "A stale refit-flash timer must not clear a newer emphasis",
+      "id": "al-01M4K58QDY50R6JQJGJ3PW5CC6",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-rfx",
+      "session": "trk-rfx",
+      "shortname": "rfx-refit-flash",
+      "skill": "implement",
+      "started_at": "2026-10-10T14:48:26Z",
+      "summary": "CombPlate cancels the pending flash when the emphasis ends; RunPendingFlashEnd seam; check PlanComb_StaleFlashTimer_DoesNotClearNewerEmphasis; class STALE-TIMER-A",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/rfx/red-first.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-10T15:02:11Z",
+      "done_when": "join gates and ring green",
+      "duration_seconds": 64.0,
+      "fan_out": 0,
+      "goal": "the refit-flash flake is fixed at its product cause",
+      "id": "al-01M4K5BYZJ58RSF8FDTJT01GTC",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of fix/rfx-refit-flash into main",
+      "session": "3122f106",
+      "shortname": "join-rfx",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-10T15:01:07Z",
+      "summary": "Joined RFX: CombPlate cancels a pending flash timer when the emphasis ends; held-seam red-first check; 20/20 under load recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-10T14:57:50Z",
+      "done_when": "Guard red then green; both probes filter by Modal; readiness green; check-docs 0",
+      "duration_seconds": 564.0,
+      "goal": "One Modal flag on command rows; probes filter by it; a guard fails on drift (ROW-MODAL-A)",
+      "id": "al-01M4K53ZR3DZRN1N763NESGCEA",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-mod: one modal flag for command rows",
+      "session": "trk-mod",
+      "shortname": "mod-modal-flag",
+      "skill": "implement",
+      "started_at": "2026-10-10T14:48:26Z",
+      "summary": "CommandRow.Modal on 5 rows; PointsPane and WindowsShell probes use it; Commands_ModalFlag_MatchesRowsThatShowADialog guard; ROW-MODAL-A controlled. PlanComb_RefitFlash fails on base too.",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M4K5ET8HSSQ7T00V5A5M1AJ5",
+      "shortname": "join-mod",
+      "datetime": "2026-10-10T15:03:45Z",
       "session": "3122f106",
       "prompt": "the join of the resolved merge into main",
-      "summary": "Joined CBD: rail curvature core and the Plan comb UI, COPY-458..473, AM-RC-1..5 recount_seconds=0 (docs_only=False).",
+      "summary": "Joined MOD: CommandRow.Modal on five dialog rows; both run-every-row probes filter by it; Commands_ModalFlag_MatchesRowsThatShowADialog guard recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
       "actor": null,
       "artifacts": [
-        "docs/proof/cbd/red-first.md"
+        "docs/proof/mod/red-first.md"
       ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "the rail comb ships on main",
+      "goal": "ROW-MODAL-A controlled",
       "done_when": "join gates and ring green, readiness green, PUSH-OK",
       "tier": "T1",
       "fan_out": 0,
@@ -34162,57 +34260,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-10T14:43:29Z",
-      "duration_seconds": 61.0
-    },
-    {
-      "id": "al-01M4K58QDY50R6JQJGJ3PW5CC6",
-      "shortname": "rfx-refit-flash",
-      "datetime": "2026-10-10T15:00:25Z",
-      "session": "trk-rfx",
-      "prompt": "trk-rfx",
-      "summary": "CombPlate cancels the pending flash when the emphasis ends; RunPendingFlashEnd seam; check PlanComb_StaleFlashTimer_DoesNotClearNewerEmphasis; class STALE-TIMER-A",
-      "kind": "skill",
-      "skill": "implement",
-      "tool": null,
-      "actor": null,
-      "artifacts": [],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "A stale refit-flash timer must not clear a newer emphasis",
-      "done_when": "held-seam red then green, 20-run loop, gates green",
-      "started_at": "2026-10-10T14:48:26Z",
-      "duration_seconds": 719.0
-    },
-    {
-      "id": "al-01M4K5BYZJ58RSF8FDTJT01GTC",
-      "shortname": "join-rfx",
-      "datetime": "2026-10-10T15:02:11Z",
-      "session": "3122f106",
-      "prompt": "the join of fix/rfx-refit-flash into main",
-      "summary": "Joined RFX: CombPlate cancels a pending flash timer when the emphasis ends; held-seam red-first check; 20/20 under load recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/proof/rfx/red-first.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "the refit-flash flake is fixed at its product cause",
-      "done_when": "join gates and ring green",
-      "tier": "T1",
-      "fan_out": 0,
-      "signals": {
-        "verification_path": true,
-        "verification_executed": true,
-        "acceptance_met": true
-      },
-      "started_at": "2026-10-10T15:01:07Z",
-      "duration_seconds": 64.0
+      "started_at": "2026-10-10T15:02:39Z",
+      "duration_seconds": 66.0
     }
   ],
   "changes": [
