@@ -45,7 +45,16 @@ public sealed record SessionEvent(long Sequence, string Operation, string Outcom
     public ReplaceEvent? Replace { get; init; }
     /// <summary>Named fields of <c>catalog.open</c>, <c>library.save</c> and <c>library.scan</c> (m12d §10); null otherwise.</summary>
     public CatalogTelemetry? Catalog { get; init; }
+    /// <summary>Named fields of <c>export.write</c> and <c>export.validate</c> (docs/design/export.md section 7, H7); null otherwise.</summary>
+    public ExportTelemetry? Export { get; init; }
 }
+/// <summary>
+/// One export telemetry row on the session ring. <c>Operation</c> is <c>export.write</c> (one per write attempt) or <c>export.validate</c>
+/// (one per refusal before writing). <c>Outcome</c> is <c>written</c>, <c>cancelled</c> or a stable code. It carries no path, file name, foil
+/// name, user or host: only format, scope, preset and measures. A field this event does not measure is null.
+/// </summary>
+public sealed record ExportTelemetry(string Operation, string Format, string? Scope, string? Preset, string Outcome,
+    double? Milliseconds, long? Bytes, int? Triangles, double? DeviationMm);
 /// <summary>One catalog or library telemetry row on the session ring (m12d §10). Counts are never stored in the point fields. A count this event does not measure is null.</summary>
 public sealed record CatalogTelemetry(string Operation, string Outcome, double? Milliseconds,
     int? Naca, int? Eppler, int? Speer, int? Mine, int? Disabled, int? Problems, int? Count);
@@ -169,6 +178,18 @@ public sealed class AuthoringSession : IDisposable
             if (events.Count == 256) events.Dequeue();
             events.Enqueue(new(eventSequence++, entry.Operation, entry.Outcome, entry.Milliseconds,
                 null, null, null, null, null, sources.Count, accepted.Count, entry.Operation) { Catalog = entry });
+        }
+    }
+
+    /// <summary>Appends one export event (<c>export.write</c> or <c>export.validate</c>) to the 256-event ring.</summary>
+    public void RecordExport(ExportTelemetry entry)
+    {
+        lock (sync)
+        {
+            if (closed) return;
+            if (events.Count == 256) events.Dequeue();
+            events.Enqueue(new(eventSequence++, entry.Operation, entry.Outcome, entry.Milliseconds,
+                null, null, null, null, null, sources.Count, accepted.Count, entry.Operation) { Export = entry });
         }
     }
 

@@ -841,7 +841,7 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-504 | The tolerance was not reached. The finest mesh has a largest measured deviation of <dev> mm, over the <tol> mm you chose. — approved — Ruling 196 (EX31: the band when even the finest mesh misses the preset) |
 | COPY-505 | Can't export yet — approved — Ruling 196 (EX32: the dialog title when the geometry check has not passed) |
 | COPY-506 | The shape is drawn, but its geometry check has not passed, so there is no accepted geometry to export. Open the Checks drawer, fix the finding, then export. — approved — Ruling 196 (EX33) |
-| COPY-507 | Can't write the file. <cause> Nothing was changed. The earlier file is still there. — approved — Ruling 196 (EX34: the in-dialog write failure; the cause is omitted when none of COPY-508 fits) |
+| COPY-507 | Can't write the file. <cause> Nothing was changed. The earlier file is still there. · Can't write the file. <cause> Nothing was changed. — approved — Ruling 196, amended by Ruling 204 (EX34: the in-dialog write failure; the first form only when a file existed at the target name when the write began, the second otherwise; the cause is omitted when none of COPY-508 fits) |
 | COPY-508 | The disk is full. · You don't have permission to write to that folder. · The folder no longer exists. — approved — Ruling 196 (EX35a, EX35b, EX35c: the three causes) |
 | COPY-509 | Choose another place… · Try again — approved — Ruling 196 (EX36a, EX36b: the write-failure buttons) |
 | COPY-510 | The mesh did not close, so nothing was written. — approved — Ruling 196 (EX37: the in-dialog refusal when the edge check fails on the bytes as written) |
@@ -854,6 +854,8 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-517 | Trailing edge — approved — Ruling 196 (EX44: the summary row label) |
 | COPY-518 | Least thickness <t> mm at <where>. Floor <f> mm (app default, no source). · <t> mm along the whole span. Floor <f> mm (app default, no source). — approved — Ruling 196 (EX45: the trailing-edge row, located value; EX45a: the whole-span value) |
 | COPY-519 | Manufacturing: not assessed (no process chosen) — approved — Ruling 196 (EX46: the second line of the trailing-edge row) |
+| COPY-520 | mm, unscaled (in the file name) — approved — Ruling 204 (the STL Unit row) |
+| COPY-521 | mm, unscaled (the unit is set in the file) — approved — Ruling 204 (the 3MF Unit row) |
 
 <!-- COPY-479 to COPY-519 are Ruling 196's COPY-EX ids; no Export id is reserved any more (COPY-480 EX07, the 3MF format row, landed with the 3MF slice). An id with a suffix (EX10a, EX13a, EX14a, EX23a, EX25a, EX45a) shares its numeric id's row. -->
 

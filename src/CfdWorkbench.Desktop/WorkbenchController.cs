@@ -2625,6 +2625,9 @@ public sealed class WorkbenchController : IDisposable
     public string? UncertainPath => uncertainPath;
     public string AcceptedSource => Inspection is null ? "" : Encoding.UTF8.GetString(session.Snapshot().Source);
 
+    /// <summary>Appends an export event to the open session's ring (the dialog's sink; the CLI records on its own session).</summary>
+    public void RecordExport(ExportTelemetry entry) => session.RecordExport(entry);
+
     /// <summary>
     /// What Export reads (Export design D3): the accepted revision's source, its geometry status and its stations, never an open
     /// draft; null with no foil open. The default station is the selected one, else Root.

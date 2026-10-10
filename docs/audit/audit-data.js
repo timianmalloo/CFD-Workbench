@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T20:18:42Z",
+  "generated": "2026-10-10T20:43:54Z",
   "audit": [
     {
       "actor": null,
@@ -34618,6 +34618,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-10T20:17:36Z",
       "duration_seconds": 66.0
+    },
+    {
+      "id": "al-01M4KRXN3SSQZMK9PAAQ8K1Y61",
+      "shortname": "etc-export-telemetry",
+      "datetime": "2026-10-10T20:43:54Z",
+      "session": "trk-etc",
+      "prompt": "track ETC: export telemetry, Ruling 204 copy, C-2 headroom",
+      "summary": "Export telemetry on the session ring (dialog and CLI); COPY-507 earlier-file sentence only when a file existed; COPY-520/521 registered and read from ExportCopy; CLI Revision row prints once; Analysis hints re-measured and one shared fixture (part 1 median 4385 to 4125 ms)",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "export.write/export.validate events; COPY-507/520/521 and CLI Revision row per Ruling 204; Analysis part 1 C-2 headroom",
+      "done_when": "red-first receipts; run-tests green; Desktop readiness green; join checks green; check-docs exit 0",
+      "started_at": "2026-10-10T20:30:24Z",
+      "duration_seconds": 810.0
     }
   ],
   "changes": [

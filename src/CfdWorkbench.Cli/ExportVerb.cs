@@ -1,7 +1,10 @@
 using CfdWorkbench.Analysis;
 using CfdWorkbench.Core;
 using CfdWorkbench.Analysis.Export;
+using System.Runtime.CompilerServices;
 using System.Text;
+
+[assembly: InternalsVisibleTo("CfdWorkbench.Cli.Tests")]
 
 namespace CfdWorkbench.Cli;
 
@@ -34,7 +37,9 @@ internal static class ExportVerb
 
     private sealed class UsageError(string message) : Exception(message);
 
-    public static async Task<int> RunAsync(string[] args, TextWriter output, CancellationToken cancellation)
+    /// <param name="observe">Receives the session's ring when the run ends. The CLI has no sink beyond that ring, which dies with the process; a check reads it here.</param>
+    public static async Task<int> RunAsync(string[] args, TextWriter output, CancellationToken cancellation,
+        Action<IReadOnlyList<SessionEvent>>? observe = null)
     {
         Options options;
         try
@@ -51,7 +56,8 @@ internal static class ExportVerb
         {
             cancellation.ThrowIfCancellationRequested();
             using var session = await OpenAsync(options.Input, cancellation);
-            return await ExportAsync(session, options, output, cancellation);
+            try { return await ExportAsync(session, options, output, cancellation); }
+            finally { observe?.Invoke(session.ReadLocalEvents()); }
         }
         catch (OperationCanceledException) { await output.WriteLineAsync("Error DOC-CANCELLED: Export cancelled. Nothing was written."); return 130; }
         catch (ContractError error)
@@ -147,7 +153,7 @@ internal static class ExportVerb
     private static async Task<int> ExportAsync(AuthoringSession authoring, Options options, TextWriter output, CancellationToken cancellation)
     {
         var source = Snapshot(authoring);
-        var session = new ExportSession(source);
+        var session = new ExportSession(source, record: authoring.RecordExport);
         // A foil whose geometry is not accepted is refused when it is opened (exit 3 or 4 by its code); this guards the session's own
         // rule (H2) should the opener ever admit one.
         if (session.BlockedReason is not null)
@@ -181,11 +187,13 @@ internal static class ExportVerb
         string path = ExportSession.ForceExtension(chosen, session.Format switch { ExportFormat.Dat => ".dat", ExportFormat.ThreeMf => ".3mf", _ => ".stl" });
         if (path != chosen && (File.Exists(path) || Directory.Exists(path)))
         {
+            session.Refused("EXPORT-WOULD-REPLACE");
             await output.WriteLineAsync($"Error EXPORT-WOULD-REPLACE: {path} exists and was not the name you gave, so it was not replaced. Nothing was written.");
             return ExitWouldReplace;
         }
         if ((File.Exists(chosen) || Directory.Exists(chosen)) && (File.GetAttributes(chosen) & FileAttributes.ReparsePoint) != 0)
         {
+            session.Refused("EXPORT-TARGET-LINK");
             await output.WriteLineAsync("Error EXPORT-TARGET-LINK: the target is a symbolic link. Nothing was written.");
             return ExitTargetLink;
         }
@@ -212,7 +220,11 @@ internal static class ExportVerb
     {
         var text = new StringBuilder();
         foreach (var (label, value) in session.SummaryRows)
-            text.Append(label).Append(": ").Append(value.Replace("\n", "\n  ", StringComparison.Ordinal)).Append('\n');
+        {
+            // COPY-490 reads "Revision r1, accepted." under the label "Revision": the line carries the sentence once, not "Revision: Revision r1, accepted.".
+            if (!value.StartsWith(label + " ", StringComparison.Ordinal)) text.Append(label).Append(": ");
+            text.Append(value.Replace("\n", "\n  ", StringComparison.Ordinal)).Append('\n');
+        }
         text.Append("Limit: ").Append(session.LimitText).Append('\n');
         if (session.ToleranceNotReachedBand is { } band) text.Append("Advisory: ").Append(band).Append('\n');
         if (session.Finding is { } finding) text.Append("Advisory: ").Append(finding.Text).Append('\n');

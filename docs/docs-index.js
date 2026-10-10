@@ -2701,7 +2701,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4556823eaf3e270a97ff89aded249db57e7c0a22634921c5a241ad1ccb96e39a"
+      "sourceSha256": "d1c41e222834ec57af99602b59455ac2c4b6bc79c113a4e2a70ed8b6d84f4c91"
     },
     {
       "id": "design-foildsl-authoring",
@@ -8685,7 +8685,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "de31206a7c4a96eb6ccd094856eb261eaddfde9b1ed86068b922d3f7e579a3e1"
+      "sourceSha256": "786eabbafccbaa99657dc4c5a059647b9e85b887dd4977d08f91c4f58455fdc7"
     },
     {
       "id": "kb-hw-glossary",
@@ -13723,6 +13723,63 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "39095d69266414d591848792e3340c0aae9cc1f937aff3a7f77217e6c1733b6c"
+    },
+    {
+      "id": "proof-etc-c2-cost",
+      "path": "docs/proof/etc/c2-cost.md",
+      "title": "ETC C-2 cost headroom for Analysis part 1: measurements",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-etc",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "Why Analysis part 1 of 2 failed C-2 under load, the per-group and per-check costs, the two-line fix (measured hints, one shared fixture), and before/after part walls. The 5000 ms cap and its load gate are unchanged.",
+      "tags": [
+        "etc",
+        "analysis",
+        "partition",
+        "c-2",
+        "timing"
+      ],
+      "links": [
+        {
+          "to": "proof-abl-measure",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-etc-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3b9898e7a6d33e4b2d19c293d053fc03d0d168d888e4605e8040701fd742a1d6"
+    },
+    {
+      "id": "proof-etc-red-first",
+      "path": "docs/proof/etc/red-first.md",
+      "title": "ETC red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-etc",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "Checks for export telemetry and Ruling 204 fail on the old behaviour and pass on the new, with the commands and the observed lines.",
+      "tags": [
+        "etc",
+        "export",
+        "telemetry",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-etc-c2-cost",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1d745fd7e7746bcbaff0d4840edfc241dd284702a9407838756a990c29083db6"
     },
     {
       "id": "proof-ezf-red-first",
@@ -20270,5 +20327,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "75c2622e07d0284aad7391c200bb527093c0d93469a0322278a6d132987cfeb2"
+  "graphSha256": "82d1f317aaff3b9fc5c7c383a0b86e658e82eee5db500e8ff18ee2af588e1446"
 };

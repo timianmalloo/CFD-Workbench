@@ -38,20 +38,8 @@ internal static class SectionForceTests
         Equal("M′ c/4 (lattice, 1 chordwise panel)", Labels.CoupleRowLabel(1), "the table row label drops the bias at one panel (Ruling 161)");
     }
 
-    /// <summary>The Example foil at one chordwise panel: the lattice vortex sits at c/4, so the c/4 couple is zero by construction.</summary>
-    private static (SectionForces Forces, ResultGroup Table) ExampleRun(int nChord)
-    {
-        using var session = new AuthoringSession();
-        byte[] source = FoilSource.NewDefault();
-        session.Open(source, Fixture.Id(), true);
-        RunSettings settings = Settings.Default with { NSpanPerHalf = 2, NChord = nChord,
-            SectionEtas = [0d, 0.5, 1d], SectionXs = Settings.ChordXs(nChord, "cosine") };
-        var service = new AnalysisService(session, new ProductWingMethod(settings));
-        AnalysisRun run = Fixture.Evaluate(service, Fixture.Op(3));
-        SectionTierResult tier = SectionTier.Evaluate(source, [0.25, 0.5, 0.75, 1.0], [], Fixture.Op(3), Fixture.Salt);
-        SectionView view = SectionDisplay.Build(run, tier, source, 0.5, "r1", null, null, default, Units.Metric);
-        return (view.Profile!.Forces!, view.Groups.Single(g => g.Title == Labels.StripTableHeading));
-    }
+    /// <summary>The Example foil at one chordwise panel: the lattice vortex sits at c/4, so the c/4 couple is zero by construction. The run is NotResolvedTests' (the same Example, settings and fixture), built once per panel count and shared when both classes run in one process (the Analysis harness runs them as one group).</summary>
+    private static (SectionForces Forces, ResultGroup Table) ExampleRun(int nChord) => NotResolvedTests.ExampleRun(nChord);
 
     private static void OnePanelCoupleIsZero()
     {

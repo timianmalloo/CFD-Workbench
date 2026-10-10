@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using CfdWorkbench.Analysis;
 using CfdWorkbench.Core;
@@ -44,18 +45,23 @@ public sealed class ExportSession
     private StlExportResult? stl;
     private bool closureFailed;
     private long generation;
+    private readonly Action<ExportTelemetry>? record;
 
     /// <param name="buildStl">The wing STL builder; a check replaces it to make the closure check refuse (H7).</param>
     /// <param name="build3mf">The wing 3MF builder; the same replacement for the 3MF.</param>
+    /// <param name="record">Where <c>export.write</c> and <c>export.validate</c> go: the authoring session's ring, for the dialog and the CLI alike. Null records nothing.</param>
     public ExportSession(ExportSource source,
         Func<byte[], string, int, StlScope, double, CancellationToken, StlExportResult>? buildStl = null,
-        Func<byte[], string, int, StlScope, double, CancellationToken, StlExportResult>? build3mf = null)
+        Func<byte[], string, int, StlScope, double, CancellationToken, StlExportResult>? build3mf = null,
+        Action<ExportTelemetry>? record = null)
     {
         Source = source;
+        this.record = record;
         this.buildStl = buildStl ?? ((bytes, name, revision, scope, tolerance, cancel) => StlExport.Build(bytes, name, revision, scope, tolerance, cancel));
         this.build3mf = build3mf ?? ((bytes, name, revision, scope, tolerance, cancel) => ThreeMfExport.Build(bytes, name, revision, scope, tolerance, cancel));
         StationIndex = Math.Clamp(source.DefaultStation, 0, Math.Max(0, source.Stations.Count - 1));
         Rebuild();
+        if (BlockedReason is not null) Refused("EXPORT-GEOMETRY-NOT-ACCEPTED");
     }
 
     public ExportSource Source { get; }
@@ -148,6 +154,7 @@ public sealed class ExportSession
         try { built = await Task.Run(() => build(source, name, revision, scope, tolerance, cancellation), cancellation); }
         catch (ContractError error) when (error.Code == "EXPORT-NOT-CLOSED") { refused = true; }
         if (mine != generation) return;
+        if (refused) Refused("EXPORT-NOT-CLOSED");
         stl = built;
         closureFailed = refused;
         Preparing = false;
@@ -198,7 +205,7 @@ public sealed class ExportSession
     }
 
     // Where the unit is stated: the STL has no unit field, so it is in the file name; the 3MF sets it in the file.
-    private string UnitRow => Format == ExportFormat.ThreeMf ? "mm, unscaled (the unit is set in the file)" : "mm, unscaled (in the file name)";
+    private string UnitRow => Format == ExportFormat.ThreeMf ? ExportCopy.UnitFixedInFile : ExportCopy.UnitFixedInName;
 
     private List<(string, string)> StlRows(List<(string, string)> rows)
     {
@@ -335,24 +342,58 @@ public sealed class ExportSession
         string path = ForceExtension(chosen, Extension);
         // The panel confirmed the replacement of the name it was given. A name the app changed was never confirmed: never replace it.
         if (path != chosen && (File.Exists(path) || Directory.Exists(path)))
-            return new(ExportOutcomeKind.Failed, ExportCopy.WriteFailed(""), path);
+        {
+            Refused("EXPORT-WOULD-REPLACE");
+            return new(ExportOutcomeKind.Failed, ExportCopy.WriteFailed("", earlierFile: File.Exists(path)), path);
+        }
+        // Ruling 204: the earlier-file sentence is true only when a file was at the target name before the write began.
+        bool earlierFile = File.Exists(path);
+        var clock = Stopwatch.StartNew();
         try
         {
             await (write ?? ((target, content) => WriteAtomicAsync(target, content, cancellation)))(path, bytes);
         }
         catch (OperationCanceledException)
         {
+            RecordWrite("cancelled", clock, bytes.Length);
             return new(ExportOutcomeKind.Cancelled, ExportCopy.Cancelled);
         }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException)
         {
-            return new(ExportOutcomeKind.Failed, ExportCopy.WriteFailed(CauseOf(error)), path);
+            RecordWrite(CodeOf(error), clock, bytes.Length);
+            return new(ExportOutcomeKind.Failed, ExportCopy.WriteFailed(CauseOf(error), earlierFile), path);
         }
+        RecordWrite("written", clock, bytes.Length);
         string file = Path.GetFileName(path);
         return new(ExportOutcomeKind.Written, Format == ExportFormat.Dat
             ? ExportCopy.Exported(file, result!.PointCount, result.ChordMeters * 1000, result.DeviationMm)
             : ExportCopy.ExportedMesh(file, Count(stl!.Triangles), FileMegabytes(stl), stl.DeviationMm), path);
     }
+
+    private string FormatName => Format switch { ExportFormat.Dat => "dat", ExportFormat.ThreeMf => "3mf", _ => "stl" };
+
+    private ExportTelemetry Row(string operation, string outcome, double? milliseconds = null, long? bytes = null) =>
+        new(operation, FormatName, IsMesh ? (Scope == StlScope.Half ? "half" : "whole") : null,
+            IsMesh ? Preset.ToString().ToLowerInvariant() : null, outcome, milliseconds, bytes,
+            IsMesh ? stl?.Triangles : null, IsMesh ? stl?.DeviationMm : null);
+
+    private void RecordWrite(string outcome, Stopwatch clock, long bytes)
+    {
+        clock.Stop();
+        record?.Invoke(Row("export.write", outcome, clock.Elapsed.TotalMilliseconds, bytes));
+    }
+
+    /// <summary>Records one <c>export.validate</c> for a refusal before any write, with its stable code. The dialog and the CLI both call it.</summary>
+    public void Refused(string code) => record?.Invoke(Row("export.validate", code));
+
+    // The stable code of a failed write, from the same cause the sentence names; no text of the error, which may carry a path.
+    private static string CodeOf(Exception error) => error switch
+    {
+        UnauthorizedAccessException => "EXPORT-NO-PERMISSION",
+        DirectoryNotFoundException => "EXPORT-FOLDER-GONE",
+        IOException io when IsDiskFull(io) => "EXPORT-DISK-FULL",
+        _ => "EXPORT-WRITE-FAILED"
+    };
 
     /// <summary>The path with its extension forced to .dat; <c>x.cfdw.json</c> becomes <c>x.cfdw.dat</c>, never the project file.</summary>
     public static string ForceExtension(string path) => ForceExtension(path, ".dat");
