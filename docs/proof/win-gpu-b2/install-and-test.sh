@@ -71,7 +71,8 @@ apt-get --simulate --no-install-recommends install "${locked[@]}" \
 python3 build-package-lock.py --simulation preinstall-simulate.stdout.txt \
     --json package-lock.preinstall.tmp --args package-lock.args.preinstall.tmp
 cmp package-lock.args package-lock.args.preinstall.tmp
-python3 verify-debs.py --lock package-lock.json --archives /var/cache/apt/archives \
+cp package-lock.json package-lock.runtime.tmp
+python3 verify-debs.py --lock package-lock.runtime.tmp --archives /var/cache/apt/archives \
     --eula .source-cache/cuda-13.2.2-eula.html --verification download-verification.preinstall.tmp \
     --licenses license-map.preinstall.tmp --capacity capacity-linux.preinstall.tmp
 cmp download-verification.json download-verification.preinstall.tmp

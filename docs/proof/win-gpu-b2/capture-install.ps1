@@ -93,9 +93,25 @@ function Invoke-Control(
     [string]$ErrorPath,
     [int]$TimeoutMilliseconds
 ) {
+    $remainingBeforeLaunch = if ($null -eq $workloadClock) {
+        $TimeoutMilliseconds
+    } else {
+        $workloadBudgetMilliseconds - [int][Math]::Ceiling($workloadClock.Elapsed.TotalMilliseconds)
+    }
+    if ($remainingBeforeLaunch -le 0) { return -2 }
     $control = Start-Process -FilePath 'wsl.exe' -ArgumentList $Arguments `
         -RedirectStandardOutput $OutputPath -RedirectStandardError $ErrorPath -PassThru -WindowStyle Hidden
-    if (-not $control.WaitForExit($TimeoutMilliseconds)) {
+    $remainingAfterLaunch = if ($null -eq $workloadClock) {
+        $TimeoutMilliseconds
+    } else {
+        $workloadBudgetMilliseconds - [int][Math]::Ceiling($workloadClock.Elapsed.TotalMilliseconds)
+    }
+    if ($remainingAfterLaunch -le 0) {
+        Stop-Process -Id $control.Id -Force -ErrorAction SilentlyContinue
+        return -2
+    }
+    $waitBudget = [Math]::Min($TimeoutMilliseconds, $remainingAfterLaunch)
+    if (-not $control.WaitForExit($waitBudget)) {
         Stop-Process -Id $control.Id -Force -ErrorAction SilentlyContinue
         return -1
     }
@@ -125,9 +141,20 @@ $wrapperFailure = $null
 $startupAcknowledged = $false
 $ownershipCheckExit = $null
 $terminationExit = $null
+$cleanupResidualExit = $null
 $prelaunchResidualExit = $null
 $postResidualExit = $null
 $observerWaitMilliseconds = 0
+$workloadLaunchAttempted = $false
+
+function Invoke-PrefixBinding([int]$Rows) {
+    if ($Rows -le $initialRows) { return }
+    $bind = Start-Process -FilePath 'py' -ArgumentList @(
+        '-3', (Join-Path $proofRoot 'bind-prefix.py'), '--samples', $samplesPath,
+        '--rows', "$Rows", '--snapshot', $snapshotPath, '--binding', $bindingPath
+    ) -RedirectStandardOutput $bindOut -RedirectStandardError $bindErr -PassThru -Wait -WindowStyle Hidden
+    if ($bind.ExitCode -ne 0) { throw "observer prefix binding failed with exit $($bind.ExitCode)" }
+}
 
 try {
     $names = @(& wsl.exe --list --quiet) | ForEach-Object { Convert-WslName ([string]$_) } | Where-Object { $_ }
@@ -180,6 +207,7 @@ try {
         '/usr/bin/taskset', '--cpu-list', '0-1', '/usr/bin/nice', '-n', '10',
         '/bin/bash', $workloadScript, '--attempt-id', $ObserverSession
     )
+    $workloadLaunchAttempted = $true
     $workload = Start-Process -FilePath 'wsl.exe' -ArgumentList $workloadArguments `
         -RedirectStandardOutput $workloadOut -RedirectStandardError $workloadErr -PassThru -WindowStyle Hidden
 
@@ -246,36 +274,51 @@ try {
     $observerWaitClock.Stop()
     $observerWaitMilliseconds = [int][Math]::Round($observerWaitClock.Elapsed.TotalMilliseconds)
     $finalState = Read-JsonFile $statePath
-    if ($observer.ExitCode -ne 0 -or $finalState.state -ne 'stopped' -or
+    if ($observer.ExitCode -notin @(0, 5) -or $finalState.state -ne 'stopped' -or
         [int]$finalState.completed_samples -ne $observerCount) {
         throw "observer completion failed with process exit $($observer.ExitCode)"
     }
     $expectedFinalRow = $startRow + $observerCount - 1
     $finalEvent = Get-SessionEvents | Where-Object { [int]$_.observed_row -eq $expectedFinalRow } | Select-Object -Last 1
+    Invoke-PrefixBinding $expectedFinalRow
     if ($null -eq $finalEvent -or $finalEvent.verdict -ne 'continue') {
         throw 'final live guard event is absent or did not continue'
     }
-
-    $bind = Start-Process -FilePath 'py' -ArgumentList @(
-        '-3', (Join-Path $proofRoot 'bind-prefix.py'), '--samples', $samplesPath,
-        '--rows', "$expectedFinalRow", '--snapshot', $snapshotPath, '--binding', $bindingPath
-    ) -RedirectStandardOutput $bindOut -RedirectStandardError $bindErr -PassThru -Wait -WindowStyle Hidden
-    if ($bind.ExitCode -ne 0) { throw "observer prefix binding failed with exit $($bind.ExitCode)" }
 }
 catch {
     $wrapperFailure = $_.Exception.Message
-    if ($null -ne $workload -and -not $workload.HasExited -and $null -eq $terminationExit) {
+    if ($workloadLaunchAttempted) {
         try {
             [IO.File]::WriteAllText($workloadCancelPath, $ObserverSession + "`n", [Text.UTF8Encoding]::new($false))
-            $terminationExit = Invoke-Control @(
+            $cleanupResidualExit = Invoke-Control @(
                 '--distribution', $distro, '--user', 'root', '--exec',
                 '/usr/bin/taskset', '--cpu-list', '0-1', '/usr/bin/nice', '-n', '10',
                 '/bin/bash', $residualScript, '--attempt-id', $ObserverSession, '--stop'
             ) $stopOut $stopErr 10000
+            if ($cleanupResidualExit -ne 0) {
+                $wrapperFailure += "; cmdline cleanup was not verified, exit $cleanupResidualExit"
+            }
         } catch { $wrapperFailure += "; cleanup failed: $($_.Exception.Message)" }
     }
     if ($null -ne $observer -and -not $observer.HasExited) {
-        New-Item -ItemType File -Path $stopRequest -Force | Out-Null
+        $failedObserverWait = [Diagnostics.Stopwatch]::StartNew()
+        while (-not $observer.HasExited -and $failedObserverWait.ElapsedMilliseconds -lt 750000) {
+            Start-Sleep -Milliseconds 500
+        }
+        $failedObserverWait.Stop()
+        $observerWaitMilliseconds = [int][Math]::Round($failedObserverWait.Elapsed.TotalMilliseconds)
+        if (-not $observer.HasExited) {
+            New-Item -ItemType File -Path $stopRequest -Force | Out-Null
+            $wrapperFailure += '; failed-run observer exceeded 750 seconds'
+            [void]$observer.WaitForExit(15000)
+        }
+    }
+    if ($null -ne $observer -and $observer.HasExited -and (Test-Path -LiteralPath $statePath)) {
+        try {
+            $stoppedState = Read-JsonFile $statePath
+            $availableRows = $initialRows + [int]$stoppedState.completed_samples
+            Invoke-PrefixBinding $availableRows
+        } catch { $wrapperFailure += "; failed-prefix binding failed: $($_.Exception.Message)" }
     }
 }
 finally {
@@ -314,6 +357,7 @@ finally {
             startup_acknowledged = $startupAcknowledged
             ownership_check_exit_code = if ($null -ne $ownershipCheckExit) { $ownershipCheckExit } else { 'Not reached' }
             termination_exit_code = if ($null -ne $terminationExit) { $terminationExit } else { 'Not needed' }
+            cleanup_residual_exit_code = if ($null -ne $cleanupResidualExit) { $cleanupResidualExit } else { 'Not needed' }
             prelaunch_residual_exit_code = if ($null -ne $prelaunchResidualExit) { $prelaunchResidualExit } else { 'Not reached' }
             post_residual_exit_code = if ($null -ne $postResidualExit) { $postResidualExit } else { 'Not reached' }
         }

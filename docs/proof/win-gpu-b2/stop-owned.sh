@@ -15,6 +15,21 @@ fi
 readonly expected_attempt=$2
 readonly launch_method=$4
 readonly mode=${5:-stop}
+group_present() {
+    local pgid=$1 snapshot status
+    set +e
+    snapshot=$(ps -eo pgid=)
+    status=$?
+    set -e
+    if ((status != 0)); then
+        printf 'owned_process_group=inspection-failed pgid=%s ps_exit=%s\n' "$pgid" "$status" >&2
+        return 2
+    fi
+    if awk -v pgid="$pgid" '$1 == pgid { found=1 } END { exit found ? 0 : 1 }' <<< "$snapshot"; then
+        return 0
+    fi
+    return 1
+}
 if [[ ! -f "$pid_file" ]] || [[ ! -f "$attempt_file" ]]; then
     printf 'owned_process=identity-not-published attempt=%s\n' "$expected_attempt" >&2
     exit 75
@@ -56,18 +71,24 @@ fi
 ps -o pid=,ppid=,pgid=,sid=,stat=,args= -g "$owned_pgid" || true
 kill -TERM -- "-${owned_pgid}"
 for _ in {1..20}; do
-    if ! ps -eo pgid= | awk -v pgid="$owned_pgid" '$1 == pgid { found=1 } END { exit found ? 0 : 1 }'; then
+    if group_present "$owned_pgid"; then
+        sleep 0.1
+    else
+        state=$?
+        ((state == 1)) || exit "$state"
         rm -f "$pid_file" "$attempt_file"
         printf 'owned_process_group=stopped-term pgid=%s\n' "$owned_pgid"
         exit 0
     fi
-    sleep 0.1
 done
 kill -KILL -- "-${owned_pgid}" 2>/dev/null || true
 sleep 0.1
-if ps -eo pgid= | awk -v pgid="$owned_pgid" '$1 == pgid { found=1 } END { exit found ? 0 : 1 }'; then
+if group_present "$owned_pgid"; then
     printf 'owned_process_group=still-running pgid=%s\n' "$owned_pgid" >&2
     exit 1
+else
+    state=$?
+    ((state == 1)) || exit "$state"
 fi
 rm -f "$pid_file" "$attempt_file"
 printf 'owned_process_group=stopped-kill pgid=%s\n' "$owned_pgid"
