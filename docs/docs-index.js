@@ -5424,7 +5424,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c008aca2171a56d016a18ae6e720a92a49b27aa0c88f370001a1727a937f7980"
+      "sourceSha256": "62f59387c4cb63c279f76376169879f855f4cb1e3d04ad07085344ca4d51b8b2"
     },
     {
       "id": "domain-experts",
@@ -14118,6 +14118,62 @@ window.DOCS_INDEX = {
       "sourceSha256": "1257bc0ede1aaf57db308757267eff5a7ed6c1aa4a7ad7551a9da4d43e89aef2"
     },
     {
+      "id": "proof-hyg-core-cost",
+      "path": "docs/proof/hyg/core-cost.md",
+      "title": "HYG Core partition hints: measurements",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-hyg",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "Core part hints were stale (53 of 796 checks unlisted); re-measured from three whole-harness runs. Predicted skew by measured mean 2950 ms before, 34 ms after. No cap changed.",
+      "tags": [
+        "hyg",
+        "core",
+        "partition",
+        "timing"
+      ],
+      "links": [
+        {
+          "to": "proof-etc-c2-cost",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-hyg-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d8e9ae75ff43a52c679df441f0a4085dd096695247ab5e5be1fc47437de35e81"
+    },
+    {
+      "id": "proof-hyg-red-first",
+      "path": "docs/proof/hyg/red-first.md",
+      "title": "HYG red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-hyg",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "The link-target check fails on the old code (the dialog's outcome has no code and records export.write EXPORT-WRITE-FAILED) and passes on the new, with the observed lines.",
+      "tags": [
+        "hyg",
+        "export",
+        "symlink",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-hyg-core-cost",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d144ef0877c89a1b1331cb9fa619c7cd07e14534680e0a1e89903ad90f085a98"
+    },
+    {
       "id": "proof-legacy-gate-retarget",
       "path": "docs/proof/legacy-gate-retarget.md",
       "title": "Legacy gate retarget — the adapters gate's applied-contrast step moves from the pre-shell window to the shell matrix",
@@ -20327,5 +20383,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "82d1f317aaff3b9fc5c7c383a0b86e658e82eee5db500e8ff18ee2af588e1446"
+  "graphSha256": "6329adc71efcec2004cba5d8ea5cb5193965686bfb1f85b0b632424941f95ca8"
 };
