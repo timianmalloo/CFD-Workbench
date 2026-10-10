@@ -13,7 +13,7 @@ $sources = [ordered]@{
     'cuda-keyring_1.1-1_all.deb' = 'https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb'
     'cuda-ubuntu2404-InRelease' = 'https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/InRelease'
     'cuda-ubuntu2404-Packages.gz' = 'https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/Packages.gz'
-    'cuda-eula.html' = 'https://docs.nvidia.com/cuda/eula/index.html'
+    'cuda-13.2.2-eula.html' = 'https://docs.nvidia.com/cuda/archive/13.2.2/eula/index.html'
 }
 
 $records = @()
