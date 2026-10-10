@@ -5424,7 +5424,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "82af9823c16700017c2ffd53215b7a55f16327929c8aeca3d09838e21b9b62e3"
+      "sourceSha256": "dd5976cbab1a8c76113ff44e332ce5ea768bde772092acee1b72a0c981a1726e"
     },
     {
       "id": "domain-experts",
@@ -16748,6 +16748,35 @@ window.DOCS_INDEX = {
       "sourceSha256": "289c24ada6a054684276296258c253e11c378cd8848dba9201819e38a1713af3"
     },
     {
+      "id": "proof-stx-red-first",
+      "path": "docs/proof/stx/red-first.md",
+      "title": "STX red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-stx",
+      "phase": "implementation",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "The red runs of the wing STL track: every Core check failed on a skeleton, the root-cap check failed without the cap, the bit-pattern check failed when -0.0 was left in, and the edge-check hash collision that made the first green run take minutes.",
+      "tags": [
+        "export",
+        "stl",
+        "red-first",
+        "b2",
+        "b3",
+        "b4",
+        "area-7"
+      ],
+      "links": [
+        {
+          "to": "design-export",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3fa76bcd3e321c614418a08fe70a14a4dd920ac5576efed2e49b1a9bd1d110fa"
+    },
+    {
       "id": "proof-tcv-governing",
       "path": "docs/proof/tcv/governing.md",
       "title": "TCV governing station on the example wing, before and after Ruling 142, and the wing-verdict surface list",
@@ -20030,5 +20059,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "48db5c1b830fbf7d1ad2228366cec62a8f304c9a9e72aa2f9454c695c8213c2d"
+  "graphSha256": "11277ee4cc5d5e455c1c93f343978ad2e1ed16a0e0b46ba75278eb6100c7d777"
 };

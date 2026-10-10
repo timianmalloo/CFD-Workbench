@@ -96,6 +96,7 @@ internal static class IdentityTests
         FairSessionTests.Run();
         DatImportTests.Run();
         DatExportTests.Run();
+        StlExportTests.Run();
         SectionReplaceTests.Run();
         ReopenConstructionTests.Run();
         ThicknessIntentTests.Run();
