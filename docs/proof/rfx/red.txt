@@ -1,0 +1,6 @@
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=plan-canvas RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x890 UseLayoutRounding=True
+FAIL PlanComb_StaleFlashTimer_DoesNotClearNewerEmphasis Exception: A stale flash timer cleared the newer emphasis
+STACK PlanComb_StaleFlashTimer_DoesNotClearNewerEmphasis System.Exception: A stale flash timer cleared the newer emphasis |    at CfdWorkbench.Desktop.Tests.PlanCanvasTests.Require(Boolean condition, String message) in /Users/mallalieut/projects/CFD-Workbench-fix-rfx-refit-flash/tests/CfdWorkbench.Desktop.Tests/PlanCombTests.cs:line 62 |    at CfdWorkbench.Desktop.Tests.PlanCanvasTests.<>c.<RunComb>b__19_20() in /Users/mallalieut/projects/CFD-Workbench-fix-rfx-refit-flash/tests/CfdWorkbench.Desktop.Tests/PlanCombTests.cs:line 451 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in /Users/mallalieut/projects/CFD-Workbench-fix-rfx-refit-flash/tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs:line 728
+COST PlanComb_StaleFlashTimer_DoesNotClearNewerEmphasis 1951.5

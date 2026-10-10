@@ -433,6 +433,24 @@ public static partial class PlanCanvasTests
             Require(PlateOf(fixture).LegendEmphasised, "Reduced motion has no static emphasis");
         });
 
+        DesktopChecks.Check("PlanComb_StaleFlashTimer_DoesNotClearNewerEmphasis", () =>
+        {
+            using var fixture = CombFixture();
+            var controller = fixture.Controller;
+            void Open(double scale)
+            {
+                Task.Run(() => controller.OpenFoilAsync(CombFoil(scale: scale), "refit " + scale)).GetAwaiter().GetResult();
+                fixture.Settle();
+            }
+            Open(0.25);   // the first flash: its end timer is now pending
+            controller.EndCombEmphasis();   // the emphasis ends by another route; the timer has not fired
+            controller.ReducedMotion = true;
+            Open(1);   // a newer, static emphasis
+            Require(PlateOf(fixture).LegendEmphasised, "Reduced motion has no static emphasis");
+            PlateOf(fixture).RunPendingFlashEnd();   // the first timer fires now, held exactly after the newer emphasis
+            Require(controller.CombRefitEmphasis && PlateOf(fixture).LegendEmphasised, "A stale flash timer cleared the newer emphasis");
+        });
+
         DesktopChecks.Check("PlanComb_PlateDoesNotCoverRail_AtTipFit", () =>
         {
             foreach (var (name, source) in new (string, byte[])[] { ("example", CombFoil()), ("straight", CombFoil(scale: 0)), ("wobble", CombFoil(wobble: true)) })
