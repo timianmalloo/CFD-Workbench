@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T16:29:54Z",
+  "generated": "2026-10-10T16:59:39Z",
   "audit": [
     {
       "actor": null,
@@ -34319,6 +34319,35 @@ window.AUDIT_DATA = {
         "branch": "win/gpu-g1-r197",
         "pushed": true
       }
+    },
+    {
+      "id": "al-01M4KC31VCWWFH6DYJ2YFDB063",
+      "shortname": "join-pr30",
+      "datetime": "2026-10-10T16:59:39Z",
+      "session": "3122f106",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "Joined PR #30: G1 accepted (Ruling 199); native nvc++ route closed; G2 route B; operator consent to B2 (Ruling 200); clock correction recorded recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/pr-30.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "PR #30 on main and G2 authorised",
+      "done_when": "join gates green, readiness green, PUSH-OK",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-10T16:58:33Z",
+      "duration_seconds": 66.0
     }
   ],
   "changes": [
@@ -37106,6 +37135,15 @@ window.AUDIT_DATA = {
       "to": "fable-owner",
       "kind": "decision-request",
       "ref": "req-01M4HKYFJSQHHDE1SHKJ596DG0",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4KBZG3SZ8RW0HZXHH1ANFXD",
+      "ts": "2026-10-10T16:57:43Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4KBZG3M9EXT53FCWQ6WYW3S",
       "session": "3122f106"
     }
   ]

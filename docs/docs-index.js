@@ -5424,7 +5424,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "82af9823c16700017c2ffd53215b7a55f16327929c8aeca3d09838e21b9b62e3"
+      "sourceSha256": "2851b3f704be679d0ad088ab4641b9d74b27961a92de9c1c763b0d0374ec658b"
     },
     {
       "id": "domain-experts",
@@ -17385,6 +17385,46 @@ window.DOCS_INDEX = {
       "sourceSha256": "d467406caf7dd1aeabd8541e2f61202bae464bd4e19c78cff19d6f30af207868"
     },
     {
+      "id": "proof-win-gpu-g1",
+      "path": "docs/proof/win-gpu-g1/receipt.md",
+      "title": "Windows GPU G1 exact-source and toolchain inspection",
+      "type": "proof-pack",
+      "status": "done",
+      "owner": "@win-gpu-qualification",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "Ruling 197 G1 finds a conditional partial v2512 offload path, but no complete discrete-RTX/WSL build contract; installed libraries are CPU-linked and F1 remains closed pending owner disposition of compiler, memory and dependency gaps.",
+      "tags": [
+        "proof",
+        "windows",
+        "wsl",
+        "openfoam",
+        "gpu",
+        "ruling-197"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-qualification",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-l3-observer",
+          "rel": "tested-by"
+        },
+        {
+          "to": "plan-win-openfoam-gpu-qualification",
+          "rel": "implements"
+        },
+        {
+          "to": "review-pr-29",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "445bff3a1607d785c22818192f8256a4dbcb005857a7258b7abd5136fb179cdf"
+    },
+    {
       "id": "proof-win-gpu-qualification",
       "path": "docs/proof/win-gpu-qualification/receipt.md",
       "title": "Windows OpenFOAM GPU qualification: read-only Ruling 191 inventory",
@@ -17419,6 +17459,38 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "6c5fa2d4f19add2559a3b5ba0ebb9482f5e501d612158c862d9fc97d2c85565a"
+    },
+    {
+      "id": "proof-win-l3-observer",
+      "path": "docs/proof/win-l3-observer/README.md",
+      "title": "Windows L3 append-only observer",
+      "type": "proof-pack",
+      "status": "done",
+      "owner": "@pc-coordinator",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "Ruling 197 read-only observer for the active Windows L3 run, sampled every 600 seconds into an append-only JSONL file.",
+      "tags": [
+        "proof",
+        "windows",
+        "openfoam",
+        "l3",
+        "observer",
+        "ruling-197"
+      ],
+      "links": [
+        {
+          "to": "proof-win-r151-l3",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-pr-29",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7ca6f46d4fb2263e1fcfe5c3d4a3b012ffa8dd96f894915fef8dd05627210da1"
     },
     {
       "id": "proof-win-naca",
@@ -20058,5 +20130,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "f7d1524d475e3c8904827b577f7a1f53282cde3ac1fed3bbef9725befd0a95f8"
+  "graphSha256": "85142a0e0ae4baa856528c7d38f3d07891be4fedab35a86156cb982a0121cf6e"
 };
