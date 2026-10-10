@@ -78,3 +78,10 @@ That matches the observation but was not measured against the installed binary.
 The smallest next repair is to add `setsid --wait` to the executable and recorded argv, request cancellation on every
 pre-acknowledgement failure even when the launcher has exited, and establish attempt-specific residual-process evidence
 before another launch. A third live attempt requires operator authorization beyond this receipt.
+
+## Authorized continuation
+
+Ruling 201 authorized a cap-free launcher teardown precheck and attempt 3. The operator then explicitly authorized
+attempts 3, 4, and 5 if needed. The attempt-2 artifacts are preserved under `attempt-2-setsid-fork/`. This blocked
+receipt remains the historical attempt-2 record until the continuation writes its measured result; B2 and F1 remain
+closed.

@@ -13,6 +13,9 @@ the managed block below.
 
 - Repair loops are capped at 2 cycles; at the cap, stop the track and report to the operator.
 - Progress is a src/ or tests/ diff; tools/check-spiral.py fails a branch that shows the spiral signature.
+- A Windows launcher exit is not Linux-workload state: WSL proof launchers select their foreground/session method with a committed teardown precheck, check the exact workload cmdline before launch and on every pre-acknowledgement exit, and record both checks.
+- Hash-bound text proof is written with its repository LF form before hashing; a proof manifest is checked against committed blobs, not a CRLF-transformed worktree.
+- A long-running gate and any repository or remote mutation run in separate shell calls; a harness yield is not process completion.
 - Test rings (docs/coordination/join.json, kept by check-docs TEST-RING): every join that changes code runs `tools/run-tests.sh` (60 s budget) and the fast gates, and a docs-only join (no src/, tests/, tools/, cases/, project or build-file path in the merge diff) skips the ring and prints RING-SKIPPED (Ruling 89, `tools/join-ring.sh`); a merge to main needs `python3 tools/run-readiness.py --check` green for that HEAD. A new test or gate states its ring and its cost.
 - A capture wrapper records its self-hash before its first child starts and reuses that recorded value in its receipt. A hash computed after a child returns is labeled post-probe and cannot establish pre-execution source identity.
 - A bounded WSL proof workload starts in its own session/process group. Its stop path signals and verifies the whole owned group, runs on every wrapper error, and never treats stopping only the `wsl.exe` launcher or shell PID as Linux-workload termination.

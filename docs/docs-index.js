@@ -2208,7 +2208,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b5f2874d14d6c4f2b40c994203f7cc5a5bbaf4e08ffb4005e129b4bc9064fd14"
+      "sourceSha256": "22bf1f041a84314bd866095a373d88edd655dfab08df073a00a61ffd89362d4b"
     },
     {
       "id": "design-application-contracts",
@@ -2359,7 +2359,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e696a409baf1ced3600e971e5dab68c598d0a629e710d66c5dc4d305883638e2"
+      "sourceSha256": "3d8a61e5e6731d97f36b7533124e35ebbfefb0d5ab27329270db9436829e74e5"
     },
     {
       "id": "design-area3-analysis",
@@ -2701,7 +2701,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7ebed691e2e7fa147e71ea9dee831d3aa3ce77705e787d6f15cd728297a30a3b"
+      "sourceSha256": "d1c41e222834ec57af99602b59455ac2c4b6bc79c113a4e2a70ed8b6d84f4c91"
     },
     {
       "id": "design-foildsl-authoring",
@@ -3549,7 +3549,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e003645a37f55bdf47a163ddd3de4bcf9b3d981418dc33d787665df36ae4b4b7"
+      "sourceSha256": "836dd9e9c4b91903a50da245d91c23aba980eeea108ad8e6d9e81d199b9e94e3"
     },
     {
       "id": "design-section-editor",
@@ -3610,6 +3610,48 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "1ead8948b387530146f2d8e8a522823c8d2213d4ed2228ccd1f361ef41a94c1e"
+    },
+    {
+      "id": "design-view-preferences",
+      "path": "docs/design/view-preferences.md",
+      "title": "View preferences: the rail comb's scale and density survive a restart",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "build, revision 2 (track PRF) - Rulings 205, 206, 207; built and proven (docs/proof/prf)",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Ruling 205 asks for a small per-user preferences file for view settings, starting with the comb's scale and density. That file already exists: display/display.json (cfdw-display, version 1), written today for Text size and display units by PreferenceStore through ProjectStore. The design adds three optional members to it (combScale, combDensity, and, by Ruling 207, combVisible: the plan Curvature toggle) and reuses its location, atomic writer, claim, never-write rule, session-only rule and display.load / display.save telemetry (trigger comb, text-size, units). No new store, file, folder or user-facing text. Two fault classes, both never-write: a structure fault defaults the whole file, a value fault defaults only its member (Ruling 206). Nothing in the foil or project file changes.",
+      "tags": [
+        "desktop",
+        "persistence",
+        "preferences",
+        "view-settings",
+        "rail-comb",
+        "display",
+        "ruling-205",
+        "trk-prf"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "design-rail-comb",
+          "rel": "refines"
+        },
+        {
+          "to": "design-app-shell",
+          "rel": "refines"
+        },
+        {
+          "to": "design-windows-native-store",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "99ce042545f0cf3d160a6e184b1b51287d4b0e66f78fd97d802edc5012792855"
     },
     {
       "id": "design-visible-presentation",
@@ -5424,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "db563ddab05eee19e78b0d94535590d66bae1313f90f84845e88513672242bb4"
+      "sourceSha256": "a6e8a0a9f58943882b1d19f5ab5af823e4e0978a0a64e6b5bae340f74c328b18"
     },
     {
       "id": "domain-experts",
@@ -8685,7 +8727,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a32f077fe646e0f7724e06b4f88f1939f518167cd6b130058b8be4978894d058"
+      "sourceSha256": "0d1a14457ad9feee7d39452bbdad1862a5f755ca21df1728fd79941c64783e6a"
     },
     {
       "id": "kb-hw-glossary",
@@ -13071,6 +13113,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "7fee575971400a5c57282d2740357239b227452408469b1d9778003b299d4165"
     },
     {
+      "id": "proof-clx-red-first",
+      "path": "docs/proof/clx/red-first.md",
+      "title": "CLX red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-clx",
+      "phase": "implementation",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "The red and green runs of the export CLI verb: ten Cli checks that failed while the verb was not wired and pass now, and the two exit-code branches no CLI input reaches.",
+      "tags": [
+        "export",
+        "cli",
+        "red-first",
+        "area-7"
+      ],
+      "links": [
+        {
+          "to": "design-export",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "87cda78ce3a37f639984c4e8759350dd3a44a736a106debb1ac3c684ae777901"
+    },
+    {
       "id": "proof-copy447-reachability",
       "path": "docs/proof/copy447-reachability/receipt.md",
       "title": "COPY-447 public ProjectStore reachability measurement",
@@ -13699,6 +13767,63 @@ window.DOCS_INDEX = {
       "sourceSha256": "39095d69266414d591848792e3340c0aae9cc1f937aff3a7f77217e6c1733b6c"
     },
     {
+      "id": "proof-etc-c2-cost",
+      "path": "docs/proof/etc/c2-cost.md",
+      "title": "ETC C-2 cost headroom for Analysis part 1: measurements",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-etc",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "Why Analysis part 1 of 2 failed C-2 under load, the per-group and per-check costs, the two-line fix (measured hints, one shared fixture), and before/after part walls. The 5000 ms cap and its load gate are unchanged.",
+      "tags": [
+        "etc",
+        "analysis",
+        "partition",
+        "c-2",
+        "timing"
+      ],
+      "links": [
+        {
+          "to": "proof-abl-measure",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-etc-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3b9898e7a6d33e4b2d19c293d053fc03d0d168d888e4605e8040701fd742a1d6"
+    },
+    {
+      "id": "proof-etc-red-first",
+      "path": "docs/proof/etc/red-first.md",
+      "title": "ETC red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-etc",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "Checks for export telemetry and Ruling 204 fail on the old behaviour and pass on the new, with the commands and the observed lines.",
+      "tags": [
+        "etc",
+        "export",
+        "telemetry",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-etc-c2-cost",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1d745fd7e7746bcbaff0d4840edfc241dd284702a9407838756a990c29083db6"
+    },
+    {
       "id": "proof-ezf-red-first",
       "path": "docs/proof/ezf/red-first.md",
       "title": "EZF red-first record - Fixture.Reset drain and the folded settled-surface assertion",
@@ -13932,6 +14057,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "0dffc55bc2a5a901180c79b27dad57633df66a3631ba820f49013a775efd3769"
     },
     {
+      "id": "proof-gfx-red-first",
+      "path": "docs/proof/gfx/red-first.md",
+      "title": "GFX red-first - admission self-quote and PII UTF-16 blind spot",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-gfx",
+      "phase": "",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Admission check ignores a marker quoted as code; the PII guard decodes UTF-16 files; each shown failing first.",
+      "tags": [
+        "gfx",
+        "plat-a",
+        "pii-gate"
+      ],
+      "links": [
+        {
+          "to": "proof-asc-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c84b30ba24f3e8d7a8e953629f62f14633250e377f8aa0f0aea580b2b1fe6dad"
+    },
+    {
       "id": "proof-grp-desktop-red-first",
       "path": "docs/proof/grp-desktop/red-first.md",
       "title": "Track GRP half 2 (Desktop): planted mutants, observed red then green",
@@ -14008,6 +14158,62 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "1257bc0ede1aaf57db308757267eff5a7ed6c1aa4a7ad7551a9da4d43e89aef2"
+    },
+    {
+      "id": "proof-hyg-core-cost",
+      "path": "docs/proof/hyg/core-cost.md",
+      "title": "HYG Core partition hints: measurements",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-hyg",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "Core part hints were stale (53 of 796 checks unlisted); re-measured from three whole-harness runs. Predicted skew by measured mean 2950 ms before, 34 ms after. No cap changed.",
+      "tags": [
+        "hyg",
+        "core",
+        "partition",
+        "timing"
+      ],
+      "links": [
+        {
+          "to": "proof-etc-c2-cost",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-hyg-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d8e9ae75ff43a52c679df441f0a4085dd096695247ab5e5be1fc47437de35e81"
+    },
+    {
+      "id": "proof-hyg-red-first",
+      "path": "docs/proof/hyg/red-first.md",
+      "title": "HYG red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-hyg",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "The link-target check fails on the old code (the dialog's outcome has no code and records export.write EXPORT-WRITE-FAILED) and passes on the new, with the observed lines.",
+      "tags": [
+        "hyg",
+        "export",
+        "symlink",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-hyg-core-cost",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d144ef0877c89a1b1331cb9fa619c7cd07e14534680e0a1e89903ad90f085a98"
     },
     {
       "id": "proof-legacy-gate-retarget",
@@ -15127,6 +15333,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "e86a4c9b8b64650cf467324af8b9e0695383b7adfb662f3c4dbaec35f7535c38"
+    },
+    {
+      "id": "proof-prf-red-first",
+      "path": "docs/proof/prf/red-first.md",
+      "title": "PRF red-first proof: the comb view preferences",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Each behaviour of the comb view preferences ran red on the old code, then green. Core checks failed to compile before the API existed; Desktop checks failed against a build with the restore and save lines removed.",
+      "tags": [
+        "proof",
+        "trk-prf",
+        "view-preferences",
+        "rail-comb"
+      ],
+      "links": [
+        {
+          "to": "design-view-preferences",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "96b9e43311cfd77909db62ba5984d828c3d5c18ac03c91c806d245af4221a8b3"
     },
     {
       "id": "proof-r163-windows-ring",
@@ -16776,6 +17008,35 @@ window.DOCS_INDEX = {
       "sourceSha256": "289c24ada6a054684276296258c253e11c378cd8848dba9201819e38a1713af3"
     },
     {
+      "id": "proof-stx-red-first",
+      "path": "docs/proof/stx/red-first.md",
+      "title": "STX red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-stx",
+      "phase": "implementation",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "The red runs of the wing STL track: every Core check failed on a skeleton, the root-cap check failed without the cap, the bit-pattern check failed when -0.0 was left in, and the edge-check hash collision that made the first green run take minutes.",
+      "tags": [
+        "export",
+        "stl",
+        "red-first",
+        "b2",
+        "b3",
+        "b4",
+        "area-7"
+      ],
+      "links": [
+        {
+          "to": "design-export",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e4a37b5d1c8b40c748289034dab9dfde3fb4b3a2715160a873d4756bdd4678de"
+    },
+    {
       "id": "proof-tcv-governing",
       "path": "docs/proof/tcv/governing.md",
       "title": "TCV governing station on the example wing, before and after Ruling 142, and the wing-verdict surface list",
@@ -16825,6 +17086,66 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "948c59070177fcb901abed82060357d9594d192cdef106406b661e1bc9fcdcc2"
+    },
+    {
+      "id": "proof-tmf-red-first",
+      "path": "docs/proof/tmf/red-first.md",
+      "title": "TMF red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-tmf",
+      "phase": "implementation",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "The red runs of the wing 3MF track: every Core and Desktop 3MF check failed on a skeleton, five one-line mutants of the writer each failed the check that names them, and the B1 slicer run carries two negative controls (a removed triangle, a unit declared as meter).",
+      "tags": [
+        "export",
+        "3mf",
+        "red-first",
+        "b1",
+        "area-7"
+      ],
+      "links": [
+        {
+          "to": "design-export",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-tmf-spec-excerpts",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "8a4d21c9c854ffb9f86bc0c33de4caf76ddb9c1943a6ab5d2d13ac3110905f0a"
+    },
+    {
+      "id": "proof-tmf-spec-excerpts",
+      "path": "docs/proof/tmf/3mf-core-spec-excerpts.md",
+      "title": "3MF Core specification excerpts for the wing 3MF assumptions",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-tmf",
+      "phase": "implementation",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Confirms the two assume: markers of docs/design/export.md 4.3 against the 3MF Core specification itself: the unit value millimeter, and counter-clockwise winding with the face normal outward. Also the metadata names and the package parts.",
+      "tags": [
+        "export",
+        "3mf",
+        "spec",
+        "unit",
+        "winding",
+        "metadata",
+        "area-7"
+      ],
+      "links": [
+        {
+          "to": "design-export",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "64a5f06b74d403ef421d0799f9fac676d7bc07972b68ab4d6612b6eaccc34602"
     },
     {
       "id": "proof-tmh-red-first",
@@ -17389,12 +17710,12 @@ window.DOCS_INDEX = {
       "path": "docs/proof/win-gpu-b1/README.md",
       "title": "Windows GPU B1 inventory and live L3 guard",
       "type": "proof-pack",
-      "status": "blocked",
+      "status": "active",
       "owner": "@pc-coordinator",
       "phase": "implementation",
       "reviewBy": "2026-11-10",
       "reviewSuggested": [],
-      "summary": "B1 stopped at the two-live-attempt cap before verified probe ownership; B2 and F1 remain closed.",
+      "summary": "B1 continues under Ruling 201 and the operator's attempt-3-through-5 authorization; B2 and F1 remain closed.",
       "tags": [
         "proof",
         "windows",
@@ -17415,7 +17736,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f6eee2051900242247115fec77e301d3654664b7a39afa75c7bcdb471de7891a"
+      "sourceSha256": "923a55e73ee1f898bc23a445aa4004580f54aed72f77b653cda2a7e35cfc477c"
     },
     {
       "id": "proof-win-gpu-g1",
@@ -17455,7 +17776,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "445bff3a1607d785c22818192f8256a4dbcb005857a7258b7abd5136fb179cdf"
+      "sourceSha256": "6a7899de0e147a125ae2bf68b2cb7e48cafa5fe35f6e52ad7ccaf37209fd5d5f"
     },
     {
       "id": "proof-win-gpu-qualification",
@@ -18188,7 +18509,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "08b7daa0e2ef86ebf238c2e4f67d1d7f29e44f6ad680cd8f60e537d45471d51d"
+      "sourceSha256": "7fed39e3363d8ff2ed75f93ef17e65c6b020dfafe48efb7bd9bfe62588c920e6"
     },
     {
       "id": "review-app-shell-native",
@@ -19385,7 +19706,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ad1066ed2e1ac5227e88bde94d3d3c7d793412b565e1cc3d7b8b27fae60e0a76"
+      "sourceSha256": "e484b0991392266a1aeb7dfe163a8d78b174a10d2c3b87ccfb0a7304b840fbd0"
     },
     {
       "id": "spec-amendments-1-7-6-rail-comb",
@@ -19746,7 +20067,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]\nA -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]\nL --> F\nB -->|Maximize| X[Pane fills the window; the rest inert]\nX -->|Escape or restore| B\nB -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]\nJ2 --> B\nB -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]\nB -->|Float| F[Float over the model area]\nC --> B\nF -->|Escape or dock back| B\nF -->|Alt and arrows or Position menu| F\nF -->|A control under the float takes focus| G{A corner of the model area clears it?}\nG -->|Yes| H[Float moves to the nearest clear corner and says so]\nG -->|No| I[Float docks back where it came from and says so]\nH --> F\nI --> B\nB -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]\nJ --> B\nB -->|Switch workspace| K[That workspace's remembered layout]\nK --> B\nB -->|Reset layout| A"
         }
       ],
-      "sourceSha256": "5931766681e93182b2a1e5795de39364c068280c98e5738691583c0f8da2d47a"
+      "sourceSha256": "816ea3e6d375974b107d73d28836a4fab11a5b6d19266e3e1db44d3a27c5cae6"
     },
     {
       "id": "spec-foildsl",
@@ -20200,5 +20521,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "2588cb161aea2fab936156ca9be07f2a56f7afedfd7d9289ad3be471784ea25a"
+  "graphSha256": "f1e632bb0a4ec3c825fca294f96ebea18a229f1b5391ad16e510de1646e3c409"
 };

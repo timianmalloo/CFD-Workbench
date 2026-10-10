@@ -29,6 +29,8 @@ $linuxRoot = '/mnt/c/Projects/CFD-Workbench-win-gpu-g2-b1-r199/docs/proof/win-gp
 $observerScript = "$linuxRoot/observe-live.sh"
 $probeScript = "$linuxRoot/inspect-b1.sh"
 $stopScript = "$linuxRoot/stop-owned.sh"
+$residualScript = "$linuxRoot/residual-owned.sh"
+$precheckPath = Join-Path $proofRoot 'launcher-precheck.json'
 $prelaunchBudgetMilliseconds = 750000
 $workloadBudgetMilliseconds = 600000
 $terminationReserveMilliseconds = 10000
@@ -41,8 +43,9 @@ Remove-Item -LiteralPath @(
 ) -Force -ErrorAction SilentlyContinue
 
 $scriptNames = @(
-    'bind-prefix.py', 'capture.ps1', 'observe-live.sh', 'observer_guard.py',
-    'inspect-b1.sh', 'resolve_packages.py', 'stop-owned.sh', 'wait-observer.ps1'
+    'bind-prefix.py', 'capture.ps1', 'launcher-precheck.ps1', 'launcher-precheck.sh',
+    'observe-live.sh', 'observer_guard.py', 'inspect-b1.sh', 'residual-owned.sh',
+    'resolve_packages.py', 'stop-owned.sh', 'wait-observer.ps1'
 )
 $scriptHashesBeforeExecution = [ordered]@{}
 foreach ($name in $scriptNames) {
@@ -101,6 +104,11 @@ $guardStopReason = $null
 $terminationExit = $null
 $startupAcknowledged = $false
 $startupCheckExit = $null
+$residualChecks = [Collections.ArrayList]::new()
+$launchMethod = $null
+$probeArguments = $null
+$probeLaunchStarted = $false
+$precheckShaBeforeExecution = $null
 
 function Remaining-WorkloadMilliseconds {
     if ($null -eq $workloadClock) { return $workloadBudgetMilliseconds }
@@ -113,17 +121,62 @@ function Request-ProbeCancel {
     [IO.File]::WriteAllText($probeCancelPath, $ObserverSession + "`n", [Text.UTF8Encoding]::new($false))
 }
 
-function Invoke-OwnedControl([string]$Mode) {
-    $remaining = Remaining-WorkloadMilliseconds
-    if ($remaining -le 0) { return $null }
-    $waitBudget = $remaining
-    if ($Mode -eq 'check') {
-        $waitBudget = [Math]::Min(5000, [Math]::Max(1, $remaining - $terminationReserveMilliseconds))
-    }
+function Invoke-CmdlineResidualCheck([string]$Phase, [string]$Mode = 'check', [string]$Scope = 'current') {
+    $safePhase = $Phase -replace '[^A-Za-z0-9._-]', '-'
+    $outputPath = Join-Path $proofRoot "residual-$safePhase.stdout.txt"
+    $errorPath = Join-Path $proofRoot "residual-$safePhase.stderr.txt"
     $arguments = @(
         '--distribution', $distro, '--user', 'root', '--exec',
         '/usr/bin/taskset', '--cpu-list', '0', '/usr/bin/nice', '-n', '10',
-        '/bin/bash', $stopScript, '--attempt-id', $ObserverSession
+        '/bin/bash', $residualScript
+    )
+    if ($Scope -eq 'any') { $arguments += '--any-attempt' } else { $arguments += @('--attempt-id', $ObserverSession) }
+    if ($Mode -eq 'stop') { $arguments += '--stop' }
+    $exitCode = 'Not started'
+    $failure = $null
+    $control = $null
+    $maximumWait = if ($Mode -eq 'stop') { 4000 } else { 2000 }
+    $waitBudget = 0
+    try {
+        if ((Remaining-WorkloadMilliseconds) -le 0) { throw 'workload deadline exhausted before residual check' }
+        $control = Start-Process -FilePath 'wsl.exe' -ArgumentList $arguments `
+            -RedirectStandardOutput $outputPath -RedirectStandardError $errorPath -PassThru -WindowStyle Hidden
+        $waitBudget = [Math]::Min($maximumWait, (Remaining-WorkloadMilliseconds))
+        if ($waitBudget -le 0) { throw 'workload deadline exhausted while starting residual check' }
+        if (-not $control.WaitForExit($waitBudget)) {
+            Stop-Process -Id $control.Id -Force -ErrorAction SilentlyContinue
+            $exitCode = 'Timed out'
+        } else {
+            $exitCode = $control.ExitCode
+        }
+    } catch {
+        if ($null -ne $control -and -not $control.HasExited) {
+            Stop-Process -Id $control.Id -Force -ErrorAction SilentlyContinue
+        }
+        $exitCode = 'Failed'
+        $failure = $_.Exception.Message
+    }
+    $record = [ordered]@{
+        phase = $Phase
+        mode = $Mode
+        scope = $Scope
+        argv = @('wsl.exe') + $arguments
+        exit_code = $exitCode
+        failure = if ($null -ne $failure) { $failure } else { 'Not applicable' }
+        wait_budget_ms = $waitBudget
+        stdout = Split-Path -Leaf $outputPath
+        stderr = Split-Path -Leaf $errorPath
+    }
+    [void]$residualChecks.Add($record)
+    return $exitCode
+}
+
+function Invoke-OwnedControl([string]$Mode) {
+    if ((Remaining-WorkloadMilliseconds) -le 0) { return $null }
+    $arguments = @(
+        '--distribution', $distro, '--user', 'root', '--exec',
+        '/usr/bin/taskset', '--cpu-list', '0', '/usr/bin/nice', '-n', '10',
+        '/bin/bash', $stopScript, '--attempt-id', $ObserverSession, '--launch-method', $launchMethod
     )
     $outputPath = $stopOut
     $errorPath = $stopErr
@@ -133,6 +186,11 @@ function Invoke-OwnedControl([string]$Mode) {
         $errorPath = $checkErr
     }
     $control = Start-Process -FilePath 'wsl.exe' -ArgumentList $arguments -RedirectStandardOutput $outputPath -RedirectStandardError $errorPath -PassThru -WindowStyle Hidden
+    $remaining = Remaining-WorkloadMilliseconds
+    $waitBudget = $remaining
+    if ($Mode -eq 'check') {
+        $waitBudget = [Math]::Min(5000, [Math]::Max(1, $remaining - $terminationReserveMilliseconds))
+    }
     if (-not $control.WaitForExit($waitBudget)) {
         Stop-Process -Id $control.Id -Force -ErrorAction SilentlyContinue
         return $null
@@ -142,22 +200,36 @@ function Invoke-OwnedControl([string]$Mode) {
 
 function Invoke-OwnedStop {
     Request-ProbeCancel
-    while ((-not (Test-Path -LiteralPath $probePidPath) -or -not (Test-Path -LiteralPath $probeAttemptPath)) -and
-        $null -ne $probe -and -not $probe.HasExited -and (Remaining-WorkloadMilliseconds) -gt 0) {
-        Start-Sleep -Milliseconds 100
-    }
     if ((Test-Path -LiteralPath $probePidPath) -and (Test-Path -LiteralPath $probeAttemptPath)) {
         $stopResult = Invoke-OwnedControl 'stop'
         return $stopResult
     }
-    if ($null -ne $probe -and $probe.HasExited) {
-        return 0
-    }
-    if ($null -ne $probe) { Stop-Process -Id $probe.Id -Force -ErrorAction SilentlyContinue }
     return 75
 }
 
 try {
+    if (-not (Test-Path -LiteralPath $precheckPath)) { throw 'Ruling 201 launcher precheck is missing' }
+    $precheck = Read-JsonFile $precheckPath
+    if ($precheck.schema -ne 'cfdw-b1-launcher-precheck/1' -or
+        $precheck.authority -ne 'Ruling 201' -or
+        $precheck.selected_method -notin @('foreground', 'setsid-wait') -or
+        -not $precheck.foreground.identity_observed -or
+        -not $precheck.setsid_without_wait.identity_observed -or
+        -not $precheck.foreground.tagged_sleep_before_windows_launcher_stop.found -or
+        -not $precheck.setsid_without_wait.tagged_sleep_before_windows_launcher_stop.found) {
+        throw 'Ruling 201 launcher precheck is incomplete or invalid'
+    }
+    $expectedMethod = if (-not $precheck.foreground.residual_after_windows_launcher_stop.found) { 'foreground' } else { 'setsid-wait' }
+    if ($precheck.selected_method -ne $expectedMethod) { throw 'Ruling 201 launcher precheck selected the wrong method' }
+    $precheckShaBeforeExecution = (Get-FileHash -Algorithm SHA256 -LiteralPath $precheckPath).Hash.ToLowerInvariant()
+    $launchMethod = [string]$precheck.selected_method
+    $probeArguments = @(
+        '--distribution', $distro, '--user', 'root', '--exec',
+        '/usr/bin/taskset', '--cpu-list', '0', '/usr/bin/nice', '-n', '10'
+    )
+    if ($launchMethod -eq 'setsid-wait') { $probeArguments += @('/usr/bin/setsid', '--wait') }
+    $probeArguments += @('/bin/bash', $probeScript, '--attempt-id', $ObserverSession)
+
     $observer = Start-Process -FilePath 'wsl.exe' -ArgumentList @(
         '--distribution', $distro, '--user', 'root', '--exec',
         '/usr/bin/taskset', '--cpu-list', '0', '/usr/bin/nice', '-n', '10', '/bin/bash', $observerScript,
@@ -189,30 +261,27 @@ try {
 
     $prelaunchClock.Stop()
     $workloadClock = [Diagnostics.Stopwatch]::StartNew()
-    $probe = Start-Process -FilePath 'wsl.exe' -ArgumentList @(
-        '--distribution', $distro, '--user', 'root', '--exec',
-        '/usr/bin/taskset', '--cpu-list', '0', '/usr/bin/nice', '-n', '10',
-        '/usr/bin/setsid', '/bin/bash', $probeScript, '--attempt-id', $ObserverSession
-    ) -RedirectStandardOutput $probeOut -RedirectStandardError $probeErr -PassThru -WindowStyle Hidden
+    $prelaunchResidualExit = Invoke-CmdlineResidualCheck 'prelaunch' 'check' 'any'
+    if ($prelaunchResidualExit -ne 0) {
+        throw "prelaunch cmdline residual check failed with exit $prelaunchResidualExit"
+    }
+    $probeLaunchStarted = $true
+    $probe = Start-Process -FilePath 'wsl.exe' -ArgumentList $probeArguments `
+        -RedirectStandardOutput $probeOut -RedirectStandardError $probeErr -PassThru -WindowStyle Hidden
 
     $startupClock = [Diagnostics.Stopwatch]::StartNew()
     while (-not (Test-Path -LiteralPath $probePidPath) -or -not (Test-Path -LiteralPath $probeAttemptPath)) {
         if ($probe.HasExited) { throw "probe exited before ownership acknowledgement, exit $($probe.ExitCode)" }
         if ($observer.HasExited) {
-            Request-ProbeCancel
-            $terminationExit = Invoke-OwnedStop
             throw "observer exited during probe startup, exit $($observer.ExitCode)"
         }
         if ($startupClock.ElapsedMilliseconds -ge 10000) {
-            Request-ProbeCancel
-            $terminationExit = Invoke-OwnedStop
             throw 'probe ownership acknowledgement exceeded 10 seconds'
         }
         Start-Sleep -Milliseconds 100
     }
     $startupCheckExit = Invoke-OwnedControl 'check'
     if ($startupCheckExit -ne 0) {
-        $terminationExit = Invoke-OwnedStop
         throw "probe ownership acknowledgement failed with exit $startupCheckExit"
     }
     $startupAcknowledged = $true
@@ -258,8 +327,27 @@ try {
 }
 catch {
     $wrapperError = $_.Exception.Message
-    if ($null -ne $probe -and -not $probe.HasExited -and $null -eq $terminationExit) {
-        $terminationExit = Invoke-OwnedStop
+    if ($probeLaunchStarted -and -not $startupAcknowledged) {
+        try { Request-ProbeCancel } catch { $wrapperError += "; cancellation request failed: $($_.Exception.Message)" }
+        $preAckResidualExit = Invoke-CmdlineResidualCheck 'pre-ack-exit'
+        if ($preAckResidualExit -eq 10) {
+            try {
+                if ((Test-Path -LiteralPath $probePidPath) -and (Test-Path -LiteralPath $probeAttemptPath)) {
+                    $terminationExit = Invoke-OwnedStop
+                } else {
+                    $terminationExit = Invoke-CmdlineResidualCheck 'pre-ack-stop' 'stop'
+                }
+            } catch {
+                $wrapperError += "; pre-ack termination failed: $($_.Exception.Message)"
+            }
+            if ($terminationExit -ne 0) {
+                $wrapperError += "; pre-ack termination was not verified, exit $terminationExit"
+            }
+        } elseif ($preAckResidualExit -ne 0) {
+            $wrapperError += "; residual check failed with exit $preAckResidualExit"
+        }
+    } elseif ($null -ne $probe -and -not $probe.HasExited -and $null -eq $terminationExit) {
+        try { $terminationExit = Invoke-OwnedStop } catch { $wrapperError += "; owned stop failed: $($_.Exception.Message)" }
     }
     if ($null -eq $probe -and $null -ne $observer -and -not $observer.HasExited) {
         New-Item -ItemType File -Path $stopRequest -Force | Out-Null
@@ -271,8 +359,8 @@ finally {
     $endedUtc = [DateTimeOffset]::UtcNow.ToString('o')
     $drive = Get-PSDrive -Name C
     $capture = [ordered]@{
-        schema = 'cfdw-gpu-b1-capture/2'
-        authority = 'Rulings 199-200 B1'
+        schema = 'cfdw-gpu-b1-capture/3'
+        authority = 'Rulings 199-201 B1'
         observer_session = $ObserverSession
         started_utc = $startedUtc
         ended_utc = $endedUtc
@@ -283,6 +371,13 @@ finally {
         termination_reserve_ms = $terminationReserveMilliseconds
         wrapper_error = if ($null -ne $wrapperError) { $wrapperError } else { 'Not applicable' }
         script_sha256_before_execution = $scriptHashesBeforeExecution
+        launcher_precheck = if ($null -ne $precheckShaBeforeExecution) {
+            [ordered]@{
+                path = 'launcher-precheck.json'
+                sha256_before_execution = $precheckShaBeforeExecution
+                selected_method = if ($null -ne $launchMethod) { $launchMethod } else { 'Not selected' }
+            }
+        } else { 'Not recorded' }
         observer = [ordered]@{
             argv = @('wsl.exe', '--distribution', $distro, '--user', 'root', '--exec', '/usr/bin/taskset', '--cpu-list', '0', '/usr/bin/nice', '-n', '10', '/bin/bash', $observerScript, '--count', "$observerCount", '--start-row', "$startRow", '--session-id', $ObserverSession)
             windows_pid = if ($null -ne $observer) { $observer.Id } else { 'Not started' }
@@ -296,7 +391,8 @@ finally {
             stderr = 'observer.stderr.txt'
         }
         probe = [ordered]@{
-            argv = @('wsl.exe', '--distribution', $distro, '--user', 'root', '--exec', '/usr/bin/taskset', '--cpu-list', '0', '/usr/bin/nice', '-n', '10', '/usr/bin/setsid', '/bin/bash', $probeScript, '--attempt-id', $ObserverSession)
+            launch_method = if ($null -ne $launchMethod) { $launchMethod } else { 'Not selected' }
+            argv = if ($null -ne $probeArguments) { @('wsl.exe') + $probeArguments } else { 'Not assembled' }
             startup_acknowledged = $startupAcknowledged
             startup_check_exit_code = if ($null -ne $startupCheckExit) { $startupCheckExit } else { 'Not reached' }
             exit_code = if ($null -ne $probe -and $probe.HasExited) { $probe.ExitCode } else { 'Not recorded' }
@@ -307,6 +403,7 @@ finally {
             stdout = 'b1.stdout.txt'
             stderr = 'b1.stderr.txt'
         }
+        cmdline_residual_checks = @($residualChecks)
         windows_target_volume = [ordered]@{
             name = $drive.Name
             used_bytes = $drive.Used

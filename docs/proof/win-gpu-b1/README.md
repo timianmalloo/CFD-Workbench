@@ -2,7 +2,7 @@
 id: proof-win-gpu-b1-r199
 title: "Windows GPU B1 inventory and live L3 guard"
 type: proof-pack
-status: blocked
+status: active
 owner: "@pc-coordinator"
 phase: implementation
 tags: [proof, windows, gpu, cuda, openfoam, ruling-199, ruling-200]
@@ -11,7 +11,7 @@ links:
   - { to: review-pr-30, rel: implements }
 review-by: "2026-11-10"
 summary: >-
-  B1 stopped at the two-live-attempt cap before verified probe ownership; B2 and F1 remain closed.
+  B1 continues under Ruling 201 and the operator's attempt-3-through-5 authorization; B2 and F1 remain closed.
 ---
 
 # Windows GPU B1 inventory and live L3 guard
@@ -37,7 +37,8 @@ GPU driver, touch an L3 path/process/unit/file, build PETSc/OpenFOAM, or reopen 
 
 ## Result
 
-B1 is incomplete and blocked. Both live attempts formed valid fresh baselines but stopped before verified probe
-ownership. No driver, disk, OpenFOAM development-surface, apt-policy, PETSc-contract, or package-inventory result was
-accepted. `receipt.md` records the attempts, the bounded observer result, the residual process uncertainty, and the
-smallest repair. B2 and F1 remain closed.
+B1 continuation is active. Both completed live attempts formed valid fresh baselines but stopped before verified probe
+ownership. Ruling 201 authorizes a measured launcher precheck and another attempt; the operator subsequently authorized
+attempts 3, 4, and 5 if needed. The attempt-2 evidence is preserved under `attempt-2-setsid-fork/`. The Astra owner
+approved the revised precheck, residual check, bounded cleanup, and launch selection before execution. B2 and F1 remain
+closed until B1 passes.
