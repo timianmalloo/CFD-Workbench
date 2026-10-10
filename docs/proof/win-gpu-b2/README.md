@@ -26,10 +26,21 @@ measured payload size, free-space budget, Linux-driver exclusion, and CUDA 13.3/
 owner accepts them. The later toy must use `cudaMallocManaged`, identify the selected CUDA device, validate a numeric
 SAXPY oracle, run at `nice 10` with at most CPUs 0-1, and keep the Ruling 200 L3 observer and five-percent guard live.
 
+Phase B passed in session `pc-b2-r200-20261010-lock4`. The installable lock contains 135 exact package/version/
+architecture records: 127 new packages, eight upgrades, zero removals, and 3,405,443,104 authenticated download bytes.
+Every cached archive matches its locked SHA-256 and size. Streaming the package payloads measured 8,092,712,328 bytes.
+The license map covers all 135 packages through an embedded notice, a uniquely resolved Debian shared-document notice,
+or the versioned CUDA 13.2.2 EULA. The capacity gate requires 25,456,799,144 bytes and passed on both the WSL filesystem
+and its Windows backing volume. A current `dpkg-query -W` check found 528 installed base packages and zero CUDA toolkit,
+CUDA library, or Nsight package matches. Astra acceptance of this committed phase-B head remains the install boundary.
+
 Rollback is `wsl.exe --unregister cfdw-cuda132-b2`, but only after the target's marker and exact distro identity are
 verified. F1 stays closed; B2 can only produce its decision-request evidence.
 
 The pre-import preparation attempts stopped before CUDA installation: an invalid PowerShell exit-code read, a checksum
 text-marker parser gap, and a NUL-removal overload all stopped before import; the first import was rolled back after the
 freshness guard overmatched `libcups`/`libcurl`. Each class and its normal-path control is recorded in the defect-class
-register. The accepted fresh import is session `pc-b2-r200-20261010e` in `plan-capture.json`.
+register. The accepted fresh import is session `pc-b2-r200-20261010e` in `plan-capture.json`. Phase-B preparation then
+stopped twice before installation: the first exact lock mistook `cuda-driver-dev-13-2` for a driver installer, and the
+second identified Debian shared-license symlinks before the capacity wrapper collided with PowerShell's `$Host` variable.
+The exact-family guard, shared-notice resolver, and reserved-variable scan now cover those failure classes.

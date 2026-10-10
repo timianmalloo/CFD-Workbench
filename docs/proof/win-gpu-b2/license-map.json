@@ -1,0 +1,2371 @@
+{
+  "schema": "cfdw-cuda-license-map/1",
+  "complete": true,
+  "cuda_eula": {
+    "file": "cuda-13.2.2-eula.html",
+    "bytes": 102279,
+    "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+  },
+  "packages": [
+    {
+      "package": "build-essential",
+      "version": "12.10ubuntu1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/build-essential/copyright",
+          "bytes": 954,
+          "sha256": "5ac244848c8571fcd7044b0c3778cde9e068ce169227b0354a1be519b695358f"
+        }
+      ],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/build-essential/essential-packages-list",
+          "target": "../../build-essential/essential-packages-list"
+        },
+        {
+          "path": "./usr/share/doc/build-essential/list",
+          "target": "../../build-essential/list"
+        }
+      ]
+    },
+    {
+      "package": "bzip2",
+      "version": "1.0.8-5.1ubuntu0.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/bzip2/copyright",
+          "bytes": 2228,
+          "sha256": "832ed535ff3c3d025a8d2348eb1b697b89addcf2eaadbc17650262040b9145e2"
+        }
+      ],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/bzip2/changelog.Debian.gz",
+          "target": "../libbz2-1.0/changelog.Debian.gz"
+        }
+      ]
+    },
+    {
+      "package": "ca-certificates-java",
+      "version": "20240118",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/ca-certificates-java/copyright",
+          "bytes": 473,
+          "sha256": "54bbeb45ea77054c58cbad020f6a50a87c2570057d495b8c86e9a8f72fb083fd"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cpp",
+      "version": "4:13.2.0-7ubuntu1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "cpp-x86-64-linux-gnu",
+        "target_version": "4:13.2.0-7ubuntu1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/cpp",
+          "target": "cpp-x86-64-linux-gnu"
+        }
+      ]
+    },
+    {
+      "package": "cpp-13",
+      "version": "13.3.0-6ubuntu2~24.04.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "gcc-13-base",
+        "target_version": "13.3.0-6ubuntu2~24.04.1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/cpp-13",
+          "target": "gcc-13-base"
+        }
+      ]
+    },
+    {
+      "package": "cpp-13-x86-64-linux-gnu",
+      "version": "13.3.0-6ubuntu2~24.04.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "gcc-13-base",
+        "target_version": "13.3.0-6ubuntu2~24.04.1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/cpp-13-x86-64-linux-gnu",
+          "target": "gcc-13-base"
+        }
+      ]
+    },
+    {
+      "package": "cpp-x86-64-linux-gnu",
+      "version": "4:13.2.0-7ubuntu1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cpp-x86-64-linux-gnu/copyright",
+          "bytes": 2196,
+          "sha256": "156004744edbf17a975f0004ac4a9295b160ab403d646c445235711255ca9ff8"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-cccl-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-cccl-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-command-line-tools-13-2",
+      "version": "13.2.2-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-compiler-13-2",
+      "version": "13.2.2-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-crt-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-crt-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-cudart-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-cudart-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-cudart-dev-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-cudart-dev-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-culibos-dev-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-culibos-dev-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-cuobjdump-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-cuobjdump-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-cupti-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-cupti-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-cupti-dev-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/local/cuda-13.2/extras/CUPTI/doc/html/_static/scripts/bootstrap.js.LICENSE.txt",
+          "bytes": 237,
+          "sha256": "01968560a6c92babbff91a176a5d4d930ca1ea2e3fde3ff20d191ddd939e654d"
+        },
+        {
+          "path": "./usr/local/cuda-13.2/extras/CUPTI/doc/html/_static/scripts/fontawesome.js.LICENSE.txt",
+          "bytes": 219,
+          "sha256": "f13b6c29ac990422b6e41880b0728db6658e9e2e131d699f4789714bbe74e34c"
+        },
+        {
+          "path": "./usr/local/cuda-13.2/extras/CUPTI/doc/html/notices-header/notices-header.html",
+          "bytes": 55838,
+          "sha256": "78a1517fe8942e140fe03619a113872026a6e330b50a73041b5dd31f22694c77"
+        },
+        {
+          "path": "./usr/share/doc/cuda-cupti-dev-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-cuxxfilt-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-cuxxfilt-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-documentation-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/local/cuda-13.2/EULA.txt",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        },
+        {
+          "path": "./usr/share/doc/cuda-documentation-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-driver-dev-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-driver-dev-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-gdb-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-gdb-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-libraries-13-2",
+      "version": "13.2.2-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-libraries-dev-13-2",
+      "version": "13.2.2-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-nsight-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-nsight-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-nsight-compute-13-2",
+      "version": "13.2.2-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-nsight-systems-13-2",
+      "version": "13.2.2-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-nvcc-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-nvcc-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-nvdisasm-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-nvdisasm-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-nvml-dev-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-nvml-dev-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-nvprune-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-nvprune-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-nvrtc-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-nvrtc-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-nvrtc-dev-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-nvrtc-dev-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-nvtx-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-nvtx-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-opencl-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-opencl-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-profiler-api-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-profiler-api-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-sandbox-dev-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-sandbox-dev-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-sanitizer-13-2",
+      "version": "13.2.87-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/local/cuda-13.2/compute-sanitizer/docs/_static/scripts/bootstrap.js.LICENSE.txt",
+          "bytes": 237,
+          "sha256": "01968560a6c92babbff91a176a5d4d930ca1ea2e3fde3ff20d191ddd939e654d"
+        },
+        {
+          "path": "./usr/local/cuda-13.2/compute-sanitizer/docs/_static/scripts/fontawesome.js.LICENSE.txt",
+          "bytes": 219,
+          "sha256": "f13b6c29ac990422b6e41880b0728db6658e9e2e131d699f4789714bbe74e34c"
+        },
+        {
+          "path": "./usr/local/cuda-13.2/compute-sanitizer/docs/content/notices.html",
+          "bytes": 20525,
+          "sha256": "3995f24538756f0a1f34394b3968d9a3b637dcc5d0b904791ccf2143f8449f5b"
+        },
+        {
+          "path": "./usr/share/doc/cuda-sanitizer-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-tileiras-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-tileiras-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-toolkit-13-2",
+      "version": "13.2.2-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-toolkit-13-2-config-common",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-toolkit-13-2-config-common/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-toolkit-13-config-common",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-toolkit-13-config-common/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-toolkit-config-common",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/cuda-toolkit-config-common/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-tools-13-2",
+      "version": "13.2.2-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [],
+      "doc_links": []
+    },
+    {
+      "package": "cuda-visual-tools-13-2",
+      "version": "13.2.2-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [],
+      "doc_links": []
+    },
+    {
+      "package": "default-jre",
+      "version": "2:1.21-75+exp1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "default-jre-headless",
+        "target_version": "2:1.21-75+exp1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/default-jre",
+          "target": "default-jre-headless"
+        }
+      ]
+    },
+    {
+      "package": "default-jre-headless",
+      "version": "2:1.21-75+exp1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/default-jre-headless/copyright",
+          "bytes": 1617,
+          "sha256": "db8b023bf3e6f03cc696e7d20a3b2c335d4c388fb7ee6a06643176ed1204a76e"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "dpkg",
+      "version": "1.22.6ubuntu6.6",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/dpkg/copyright",
+          "bytes": 5661,
+          "sha256": "6511e06b27f2297fde6ee8fb2e59807b7712dda61837ca00a0980da1e5df07ac"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "dpkg-dev",
+      "version": "1.22.6ubuntu6.6",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/dpkg-dev/copyright",
+          "bytes": 5661,
+          "sha256": "6511e06b27f2297fde6ee8fb2e59807b7712dda61837ca00a0980da1e5df07ac"
+        }
+      ],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/dpkg-dev/changelog.gz",
+          "target": "../libdpkg-perl/changelog.gz"
+        }
+      ]
+    },
+    {
+      "package": "g++",
+      "version": "4:13.2.0-7ubuntu1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "cpp-x86-64-linux-gnu",
+        "target_version": "4:13.2.0-7ubuntu1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/g++",
+          "target": "cpp-x86-64-linux-gnu"
+        }
+      ]
+    },
+    {
+      "package": "g++-13",
+      "version": "13.3.0-6ubuntu2~24.04.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "gcc-13-base",
+        "target_version": "13.3.0-6ubuntu2~24.04.1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/g++-13",
+          "target": "gcc-13-base"
+        }
+      ]
+    },
+    {
+      "package": "g++-13-x86-64-linux-gnu",
+      "version": "13.3.0-6ubuntu2~24.04.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "gcc-13-base",
+        "target_version": "13.3.0-6ubuntu2~24.04.1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/g++-13-x86-64-linux-gnu",
+          "target": "gcc-13-base"
+        }
+      ]
+    },
+    {
+      "package": "g++-x86-64-linux-gnu",
+      "version": "4:13.2.0-7ubuntu1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "cpp-x86-64-linux-gnu",
+        "target_version": "4:13.2.0-7ubuntu1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/g++-x86-64-linux-gnu",
+          "target": "cpp-x86-64-linux-gnu"
+        }
+      ]
+    },
+    {
+      "package": "gcc",
+      "version": "4:13.2.0-7ubuntu1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "cpp-x86-64-linux-gnu",
+        "target_version": "4:13.2.0-7ubuntu1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/cpp-x86-64-linux-gnu/README.Bugs",
+          "target": "../gcc-13/README.Bugs"
+        },
+        {
+          "path": "./usr/share/doc/gcc",
+          "target": "cpp-x86-64-linux-gnu"
+        }
+      ]
+    },
+    {
+      "package": "gcc-13",
+      "version": "13.3.0-6ubuntu2~24.04.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "gcc-13-base",
+        "target_version": "13.3.0-6ubuntu2~24.04.1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/gcc-13",
+          "target": "gcc-13-base"
+        }
+      ]
+    },
+    {
+      "package": "gcc-13-base",
+      "version": "13.3.0-6ubuntu2~24.04.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/gcc-13-base/copyright",
+          "bytes": 69100,
+          "sha256": "08c6f3dee4c19aa1e57eb7d4ad45829b2e99656313bd07fa0922e2553f500be5"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "gcc-13-x86-64-linux-gnu",
+      "version": "13.3.0-6ubuntu2~24.04.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "gcc-13-base",
+        "target_version": "13.3.0-6ubuntu2~24.04.1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/gcc-13-x86-64-linux-gnu",
+          "target": "gcc-13-base"
+        }
+      ]
+    },
+    {
+      "package": "gcc-14-base",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/gcc-14-base/copyright",
+          "bytes": 69004,
+          "sha256": "20390f8a6f3b1e4d7cb45dd8652dabb259bbef688cbad839bcdb0b9ba7252f79"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "gcc-x86-64-linux-gnu",
+      "version": "4:13.2.0-7ubuntu1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "cpp-x86-64-linux-gnu",
+        "target_version": "4:13.2.0-7ubuntu1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/gcc-x86-64-linux-gnu",
+          "target": "cpp-x86-64-linux-gnu"
+        }
+      ]
+    },
+    {
+      "package": "gds-tools-13-2",
+      "version": "1.17.1.22-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/gds-tools-13-2/copyright",
+          "bytes": 62551,
+          "sha256": "914cd25373688c84376dcb553e2054c22a9d57f2a7603ec93c46151dc1b4db9f"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "java-common",
+      "version": "0.75+exp1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/java-common/copyright",
+          "bytes": 1617,
+          "sha256": "db8b023bf3e6f03cc696e7d20a3b2c335d4c388fb7ee6a06643176ed1204a76e"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libasan8",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "gcc-14-base",
+        "target_version": "14.2.0-4ubuntu2~24.04.1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libasan8",
+          "target": "gcc-14-base"
+        }
+      ]
+    },
+    {
+      "package": "libasound2-data",
+      "version": "1.2.11-1ubuntu0.3",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libasound2-data/copyright",
+          "bytes": 1591,
+          "sha256": "9b356b4fae53b5d5e7668e048f085d68a5039de7b6afbf465f50e81513334062"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libasound2t64",
+      "version": "1.2.11-1ubuntu0.3",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libasound2t64/copyright",
+          "bytes": 1591,
+          "sha256": "9b356b4fae53b5d5e7668e048f085d68a5039de7b6afbf465f50e81513334062"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libatomic1",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "gcc-14-base",
+        "target_version": "14.2.0-4ubuntu2~24.04.1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libatomic1",
+          "target": "gcc-14-base"
+        }
+      ]
+    },
+    {
+      "package": "libbz2-1.0",
+      "version": "1.0.8-5.1ubuntu0.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libbz2-1.0/copyright",
+          "bytes": 2228,
+          "sha256": "832ed535ff3c3d025a8d2348eb1b697b89addcf2eaadbc17650262040b9145e2"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libc-bin",
+      "version": "2.39-0ubuntu8.9",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libc-bin/copyright",
+          "bytes": 26462,
+          "sha256": "d3c95b56fa33e28b57860580f0baf4e4f4de2a268a2b80f1d031a5191bade265"
+        }
+      ],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libc-bin/changelog.Debian.gz",
+          "target": "../libc6/changelog.Debian.gz"
+        }
+      ]
+    },
+    {
+      "package": "libc-dev-bin",
+      "version": "2.39-0ubuntu8.9",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libc-dev-bin/copyright",
+          "bytes": 26462,
+          "sha256": "d3c95b56fa33e28b57860580f0baf4e4f4de2a268a2b80f1d031a5191bade265"
+        }
+      ],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libc-dev-bin/changelog.Debian.gz",
+          "target": "../libc6/changelog.Debian.gz"
+        }
+      ]
+    },
+    {
+      "package": "libc6",
+      "version": "2.39-0ubuntu8.9",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libc6/copyright",
+          "bytes": 26462,
+          "sha256": "d3c95b56fa33e28b57860580f0baf4e4f4de2a268a2b80f1d031a5191bade265"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libc6-dev",
+      "version": "2.39-0ubuntu8.9",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libc6-dev/copyright",
+          "bytes": 26462,
+          "sha256": "d3c95b56fa33e28b57860580f0baf4e4f4de2a268a2b80f1d031a5191bade265"
+        }
+      ],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libc6-dev/changelog.Debian.gz",
+          "target": "../libc6/changelog.Debian.gz"
+        }
+      ]
+    },
+    {
+      "package": "libcc1-0",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "gcc-14-base",
+        "target_version": "14.2.0-4ubuntu2~24.04.1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libcc1-0",
+          "target": "gcc-14-base"
+        }
+      ]
+    },
+    {
+      "package": "libcrypt-dev",
+      "version": "1:4.4.36-4build1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libcrypt-dev/copyright",
+          "bytes": 6010,
+          "sha256": "5a5e7ca0e9f3f9679977e3a3e9ede45ad92885a3297ea78e766979f9866c5a16"
+        }
+      ],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libcrypt-dev/changelog.Debian.gz",
+          "target": "../libcrypt1/changelog.Debian.gz"
+        }
+      ]
+    },
+    {
+      "package": "libcublas-13-2",
+      "version": "13.4.1.3-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libcublas-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libcublas-dev-13-2",
+      "version": "13.4.1.3-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libcublas-dev-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libcufft-13-2",
+      "version": "12.2.0.57-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libcufft-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libcufft-dev-13-2",
+      "version": "12.2.0.57-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libcufft-dev-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libcufile-13-2",
+      "version": "1.17.1.22-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libcufile-13-2/copyright",
+          "bytes": 62551,
+          "sha256": "914cd25373688c84376dcb553e2054c22a9d57f2a7603ec93c46151dc1b4db9f"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libcufile-dev-13-2",
+      "version": "1.17.1.22-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libcufile-dev-13-2/copyright",
+          "bytes": 62551,
+          "sha256": "914cd25373688c84376dcb553e2054c22a9d57f2a7603ec93c46151dc1b4db9f"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libcuobjclient-13-2",
+      "version": "1.1.1.22-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libcuobjclient-13-2/copyright",
+          "bytes": 62551,
+          "sha256": "914cd25373688c84376dcb553e2054c22a9d57f2a7603ec93c46151dc1b4db9f"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libcuobjclient-dev-13-2",
+      "version": "1.1.1.22-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libcuobjclient-dev-13-2/copyright",
+          "bytes": 62551,
+          "sha256": "914cd25373688c84376dcb553e2054c22a9d57f2a7603ec93c46151dc1b4db9f"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libcurand-13-2",
+      "version": "10.4.2.66-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libcurand-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libcurand-dev-13-2",
+      "version": "10.4.2.66-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libcurand-dev-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libcusolver-13-2",
+      "version": "12.2.0.11-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libcusolver-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libcusolver-dev-13-2",
+      "version": "12.2.0.11-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libcusolver-dev-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libcusparse-13-2",
+      "version": "12.7.10.12-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libcusparse-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libcusparse-dev-13-2",
+      "version": "12.7.10.12-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libcusparse-dev-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libdpkg-perl",
+      "version": "1.22.6ubuntu6.6",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libdpkg-perl/copyright",
+          "bytes": 5661,
+          "sha256": "6511e06b27f2297fde6ee8fb2e59807b7712dda61837ca00a0980da1e5df07ac"
+        }
+      ],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libdpkg-perl/changelog.gz",
+          "target": "../dpkg/changelog.gz"
+        }
+      ]
+    },
+    {
+      "package": "libgcc-13-dev",
+      "version": "13.3.0-6ubuntu2~24.04.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "gcc-13-base",
+        "target_version": "13.3.0-6ubuntu2~24.04.1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libgcc-13-dev",
+          "target": "gcc-13-base"
+        }
+      ]
+    },
+    {
+      "package": "libgcc-s1",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "gcc-14-base",
+        "target_version": "14.2.0-4ubuntu2~24.04.1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libgcc-s1",
+          "target": "gcc-14-base"
+        }
+      ]
+    },
+    {
+      "package": "libgif7",
+      "version": "5.2.2-1ubuntu1.2",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libgif7/copyright",
+          "bytes": 2371,
+          "sha256": "479e834b17e61f0afe5f4a62e1794a4543208dea955820399e2d9589a1938fb0"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libgomp1",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "gcc-14-base",
+        "target_version": "14.2.0-4ubuntu2~24.04.1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libgomp1",
+          "target": "gcc-14-base"
+        }
+      ]
+    },
+    {
+      "package": "libhwasan0",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "gcc-14-base",
+        "target_version": "14.2.0-4ubuntu2~24.04.1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libhwasan0",
+          "target": "gcc-14-base"
+        }
+      ]
+    },
+    {
+      "package": "libisl23",
+      "version": "0.26-3build1.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libisl23/copyright",
+          "bytes": 7035,
+          "sha256": "fb1ea085945df53c756939eecf5d9bf4072316538bc3b314a5408350b679a637"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libitm1",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "gcc-14-base",
+        "target_version": "14.2.0-4ubuntu2~24.04.1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libitm1",
+          "target": "gcc-14-base"
+        }
+      ]
+    },
+    {
+      "package": "liblsan0",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "gcc-14-base",
+        "target_version": "14.2.0-4ubuntu2~24.04.1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/liblsan0",
+          "target": "gcc-14-base"
+        }
+      ]
+    },
+    {
+      "package": "libmpc3",
+      "version": "1.3.1-1build1.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libmpc3/copyright",
+          "bytes": 743,
+          "sha256": "80763e4cca3963670637b98abff467ee09b83d1737d683ad5ccfb1e919bea94b"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libnpp-13-2",
+      "version": "13.1.0.59-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libnpp-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libnpp-dev-13-2",
+      "version": "13.1.0.59-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libnpp-dev-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libnspr4",
+      "version": "2:4.35-1.1build1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libnspr4/copyright",
+          "bytes": 331,
+          "sha256": "3c4fcc131809b2b6993513bfe4cf6f1ede391ec84f1d5ceca78fb75537b22452"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libnss3",
+      "version": "2:3.98-1ubuntu0.2",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libnss3/copyright",
+          "bytes": 4058,
+          "sha256": "3f450f9453233852b3a469a36a897cc68fb87be3e8b3a5ba64f63a7904528408"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libnuma1",
+      "version": "2.0.18-1ubuntu0.24.04.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libnuma1/copyright",
+          "bytes": 1357,
+          "sha256": "179c34f5e56cd0b6b73dd7970a97357ee784e2236e8293826656c7ebb3bface7"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libnvfatbin-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libnvfatbin-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libnvfatbin-dev-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libnvfatbin-dev-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libnvjitlink-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libnvjitlink-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libnvjitlink-dev-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libnvjitlink-dev-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libnvjpeg-13-2",
+      "version": "13.1.0.59-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libnvjpeg-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libnvjpeg-dev-13-2",
+      "version": "13.1.0.59-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libnvjpeg-dev-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libnvptxcompiler-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libnvptxcompiler-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libnvvm-13-2",
+      "version": "13.2.86-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libnvvm-13-2/copyright",
+          "bytes": 68070,
+          "sha256": "088381bc2d891e719a2a9398645b00bb45f3b24231473a8283ac7e3e66b8a028"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libopengl0",
+      "version": "1.7.0-1build1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libopengl0/copyright",
+          "bytes": 4422,
+          "sha256": "37920f219f60efa2fde5d003c51be0608b2159cc74c5eb6d70d630907db2d9a3"
+        }
+      ],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libopengl0/changelog.Debian.gz",
+          "target": "../libglvnd0/changelog.Debian.gz"
+        }
+      ]
+    },
+    {
+      "package": "libpcsclite1",
+      "version": "2.0.3-1build1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libpcsclite1/copyright",
+          "bytes": 2850,
+          "sha256": "3245222c0cd2ce1e1597bb91491c26b8b882cc7541da2a69e8a8e870883454c2"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libquadmath0",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "gcc-14-base",
+        "target_version": "14.2.0-4ubuntu2~24.04.1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libquadmath0",
+          "target": "gcc-14-base"
+        }
+      ]
+    },
+    {
+      "package": "libstdc++-13-dev",
+      "version": "13.3.0-6ubuntu2~24.04.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "gcc-13-base",
+        "target_version": "13.3.0-6ubuntu2~24.04.1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libstdc++-13-dev",
+          "target": "gcc-13-base"
+        }
+      ]
+    },
+    {
+      "package": "libstdc++6",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "gcc-14-base",
+        "target_version": "14.2.0-4ubuntu2~24.04.1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libstdc++6",
+          "target": "gcc-14-base"
+        }
+      ]
+    },
+    {
+      "package": "libtsan2",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "gcc-14-base",
+        "target_version": "14.2.0-4ubuntu2~24.04.1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libtsan2",
+          "target": "gcc-14-base"
+        }
+      ]
+    },
+    {
+      "package": "libubsan1",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "gcc-14-base",
+        "target_version": "14.2.0-4ubuntu2~24.04.1"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libubsan1",
+          "target": "gcc-14-base"
+        }
+      ]
+    },
+    {
+      "package": "libxcb-cursor0",
+      "version": "0.1.4-1build1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libxcb-cursor0/copyright",
+          "bytes": 1851,
+          "sha256": "8ee3b982784137d7e651d37c8c0978983984b0fe93ce2760013b0abbf6652bed"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libxcb-icccm4",
+      "version": "0.4.1-1.1build3",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libxcb-icccm4/copyright",
+          "bytes": 2683,
+          "sha256": "b5b83faabe190515e7a5938aa00441204cd163e24191ef7bcf5e4ac690acd376"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libxcb-image0",
+      "version": "0.4.0-2build1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libxcb-image0/copyright",
+          "bytes": 2707,
+          "sha256": "daf2d51e978ec64fc21f59b12d850c2efc907c15eae5c4ba2f3237ce946476de"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libxcb-keysyms1",
+      "version": "0.4.0-1build4",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libxcb-keysyms1/copyright",
+          "bytes": 2757,
+          "sha256": "ec64999ff22c8cbba2aa1c88828cd51461efd74db3a6f4044ea81fbc0a6f6288"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libxcb-render-util0",
+      "version": "0.3.9-1build4",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libxcb-render-util0/copyright",
+          "bytes": 2722,
+          "sha256": "94e32edbc98a324a3c13cd7a1687406328a9a94c6fefe319d6ac43dd4cbf151c"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libxcb-shape0",
+      "version": "1.15-1ubuntu2",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libxcb-shape0/copyright",
+          "bytes": 1781,
+          "sha256": "4f7cb9db6bf6542f5417e3d674c780d3a5fd12291a54d63054fb576ee0cfae80"
+        }
+      ],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libxcb-shape0/changelog.Debian.gz",
+          "target": "../libxcb1/changelog.Debian.gz"
+        }
+      ]
+    },
+    {
+      "package": "libxcb-util1",
+      "version": "0.4.0-1build3",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libxcb-util1/copyright",
+          "bytes": 2741,
+          "sha256": "1142dc404c2f6845a5e9a39ee569e670fd629b3a974a03bcd64f84e57e5acd90"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "libxcb-xinerama0",
+      "version": "1.15-1ubuntu2",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libxcb-xinerama0/copyright",
+          "bytes": 1781,
+          "sha256": "4f7cb9db6bf6542f5417e3d674c780d3a5fd12291a54d63054fb576ee0cfae80"
+        }
+      ],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libxcb-xinerama0/changelog.Debian.gz",
+          "target": "../libxcb1/changelog.Debian.gz"
+        }
+      ]
+    },
+    {
+      "package": "libxcb-xinput0",
+      "version": "1.15-1ubuntu2",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libxcb-xinput0/copyright",
+          "bytes": 1781,
+          "sha256": "4f7cb9db6bf6542f5417e3d674c780d3a5fd12291a54d63054fb576ee0cfae80"
+        }
+      ],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libxcb-xinput0/changelog.Debian.gz",
+          "target": "../libxcb1/changelog.Debian.gz"
+        }
+      ]
+    },
+    {
+      "package": "libxcb-xkb1",
+      "version": "1.15-1ubuntu2",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libxcb-xkb1/copyright",
+          "bytes": 1781,
+          "sha256": "4f7cb9db6bf6542f5417e3d674c780d3a5fd12291a54d63054fb576ee0cfae80"
+        }
+      ],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libxcb-xkb1/changelog.Debian.gz",
+          "target": "../libxcb1/changelog.Debian.gz"
+        }
+      ]
+    },
+    {
+      "package": "libxkbcommon-x11-0",
+      "version": "1.6.0-1build1",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/libxkbcommon-x11-0/copyright",
+          "bytes": 3566,
+          "sha256": "5eeaeb1b6e029a0274e1573765bb0bae2926ef96a3679203faa4fd00fdaeaa88"
+        }
+      ],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/libxkbcommon-x11-0/changelog.Debian.gz",
+          "target": "../libxkbcommon0/changelog.Debian.gz"
+        }
+      ]
+    },
+    {
+      "package": "linux-libc-dev",
+      "version": "6.8.0-146.146",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/linux-libc-dev/copyright",
+          "bytes": 1292,
+          "sha256": "4ab34baa23c94237ffef144c80348b982d2d8e814c46b3a6a3538a706ef26114"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "locales",
+      "version": "2.39-0ubuntu8.9",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/locales/copyright",
+          "bytes": 26462,
+          "sha256": "d3c95b56fa33e28b57860580f0baf4e4f4de2a268a2b80f1d031a5191bade265"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "lto-disabled-list",
+      "version": "47",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/lto-disabled-list/copyright",
+          "bytes": 951,
+          "sha256": "2f1f4416ab2d9313383eba188d111858b8aa06a63ef084384b8e9e31fc183aae"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "make",
+      "version": "4.3-4.1build2",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/make/copyright",
+          "bytes": 2093,
+          "sha256": "16deb73e706ec72758ce5e079a80d1aab17f3834449da9b718c4a4b60eb1f6ec"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "nsight-compute-2026.1.1",
+      "version": "2026.1.1.2-1",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./opt/nvidia/nsight-compute/2026.1.1/docs/Notices/notices.html",
+          "bytes": 8115,
+          "sha256": "6427b41b72a832679569dcbbe87fcee9f8455c0d4070453dece31267383e3986"
+        },
+        {
+          "path": "./opt/nvidia/nsight-compute/2026.1.1/host/target-linux-x64/plugins/efa_metrics/Licenses.txt",
+          "bytes": 753,
+          "sha256": "6b2b5ae27d806b04589fa03a4284465f2524287e54ec79cfd6d76316b338f42d"
+        },
+        {
+          "path": "./opt/nvidia/nsight-compute/2026.1.1/host/target-linux-x64/python/lib/python3.12/site-packages/pip-24.0.dist-info/LICENSE.txt",
+          "bytes": 1093,
+          "sha256": "634300a669d49aeae65b12c6c48c924c51a4cdf3d1ff086dc3456dc8bcaa2104"
+        },
+        {
+          "path": "./opt/nvidia/nsight-compute/2026.1.1/host/target-linux-x64/python/packages/nsys_recipe/recipes/gfx_hotspot/nsys_cpu_stats/server/app/static/3rdpartylicenses.txt",
+          "bytes": 39482,
+          "sha256": "6429a1c39821e241aaf126067d265f739516aad2795e92a240c56fdf726fe49d"
+        },
+        {
+          "path": "./usr/share/doc/nsight-compute-2026.1.1/copyright",
+          "bytes": 19803,
+          "sha256": "797a30055b7a7bc217d33e6616838b30ecc8eecf5611d4f15e5560be9db9236a"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "nsight-systems-2025.6.3",
+      "version": "2025.6.3.541-256337736014v0",
+      "repository": "nvidia-cuda",
+      "basis": {
+        "kind": "cuda-13.2.2-eula",
+        "sha256": "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
+      },
+      "notices": [
+        {
+          "path": "./opt/nvidia/nsight-systems/2025.6.3/EULA.txt",
+          "bytes": 19836,
+          "sha256": "49c2c6bc4bafe00abb32926155835f1efcf88bae3e385ee15f7a74ffe37ebe6f"
+        },
+        {
+          "path": "./opt/nvidia/nsight-systems/2025.6.3/documentation/_static/scripts/bootstrap.js.LICENSE.txt",
+          "bytes": 237,
+          "sha256": "01968560a6c92babbff91a176a5d4d930ca1ea2e3fde3ff20d191ddd939e654d"
+        },
+        {
+          "path": "./opt/nvidia/nsight-systems/2025.6.3/documentation/_static/scripts/fontawesome.js.LICENSE.txt",
+          "bytes": 219,
+          "sha256": "f13b6c29ac990422b6e41880b0728db6658e9e2e131d699f4789714bbe74e34c"
+        },
+        {
+          "path": "./opt/nvidia/nsight-systems/2025.6.3/host-linux-x64/python/lib/python3.12/site-packages/pip-24.0.dist-info/LICENSE.txt",
+          "bytes": 1093,
+          "sha256": "634300a669d49aeae65b12c6c48c924c51a4cdf3d1ff086dc3456dc8bcaa2104"
+        },
+        {
+          "path": "./opt/nvidia/nsight-systems/2025.6.3/target-linux-x64/plugins/efa_metrics/Licenses.txt",
+          "bytes": 753,
+          "sha256": "6b2b5ae27d806b04589fa03a4284465f2524287e54ec79cfd6d76316b338f42d"
+        },
+        {
+          "path": "./opt/nvidia/nsight-systems/2025.6.3/target-linux-x64/python/lib/python3.12/site-packages/pip-24.0.dist-info/LICENSE.txt",
+          "bytes": 1093,
+          "sha256": "634300a669d49aeae65b12c6c48c924c51a4cdf3d1ff086dc3456dc8bcaa2104"
+        },
+        {
+          "path": "./opt/nvidia/nsight-systems/2025.6.3/target-linux-x64/python/packages/nsys_recipe/recipes/gfx_hotspot/nsys_cpu_stats/server/app/static/3rdpartylicenses.txt",
+          "bytes": 39482,
+          "sha256": "6429a1c39821e241aaf126067d265f739516aad2795e92a240c56fdf726fe49d"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "openjdk-21-jre",
+      "version": "21.0.12.1+1-1~24.04.4",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "shared-package-notice",
+        "target_package": "openjdk-21-jre-headless",
+        "target_version": "21.0.12.1+1-1~24.04.4"
+      },
+      "notices": [],
+      "doc_links": [
+        {
+          "path": "./usr/share/doc/openjdk-21-jre",
+          "target": "openjdk-21-jre-headless"
+        }
+      ]
+    },
+    {
+      "package": "openjdk-21-jre-headless",
+      "version": "21.0.12.1+1-1~24.04.4",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/openjdk-21-jre-headless/copyright",
+          "bytes": 245947,
+          "sha256": "7a1aff82dba5eecc7402e247411010d166486ce0950737b8d53ccbe53d655bab"
+        }
+      ],
+      "doc_links": []
+    },
+    {
+      "package": "rpcsvc-proto",
+      "version": "1.4.2-0ubuntu7",
+      "repository": "ubuntu",
+      "basis": {
+        "kind": "embedded-package-notice"
+      },
+      "notices": [
+        {
+          "path": "./usr/share/doc/rpcsvc-proto/copyright",
+          "bytes": 9336,
+          "sha256": "e4ad18547554bdcb4e5290c2bf562d4c891748524b38740509c14a2a3f7f5418"
+        }
+      ],
+      "doc_links": []
+    }
+  ]
+}

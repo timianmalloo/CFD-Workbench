@@ -1,0 +1,53 @@
+Reading package lists...
+Building dependency tree...
+Reading state information...
+Suggested packages:
+  bzip2-doc cpp-doc gcc-13-locales cpp-13-doc debsig-verify debian-keyring
+  g++-multilib g++-13-multilib gcc-13-doc gcc-multilib manpages-dev autoconf
+  automake libtool flex bison gdb gcc-doc gcc-13-multilib gdb-x86-64-linux-gnu
+  alsa-utils libasound2-plugins glibc-doc libnss-nis libnss-nisplus bzr pcscd
+  libstdc++-13-doc make-doc libnss-mdns fonts-dejavu-extra
+  fonts-ipafont-gothic fonts-ipafont-mincho fonts-wqy-microhei
+  | fonts-wqy-zenhei fonts-indic
+Recommended packages:
+  fakeroot libalgorithm-merge-perl alsa-ucm-conf alsa-topology-conf
+  manpages-dev libc-devtools libfile-fcntllock-perl libatk-wrapper-java-jni
+  fonts-dejavu-extra
+The following NEW packages will be installed:
+  build-essential bzip2 ca-certificates-java cpp cpp-13
+  cpp-13-x86-64-linux-gnu cpp-x86-64-linux-gnu cuda-cccl-13-2
+  cuda-command-line-tools-13-2 cuda-compiler-13-2 cuda-crt-13-2
+  cuda-cudart-13-2 cuda-cudart-dev-13-2 cuda-culibos-dev-13-2
+  cuda-cuobjdump-13-2 cuda-cupti-13-2 cuda-cupti-dev-13-2 cuda-cuxxfilt-13-2
+  cuda-documentation-13-2 cuda-driver-dev-13-2 cuda-gdb-13-2
+  cuda-libraries-13-2 cuda-libraries-dev-13-2 cuda-nsight-13-2
+  cuda-nsight-compute-13-2 cuda-nsight-systems-13-2 cuda-nvcc-13-2
+  cuda-nvdisasm-13-2 cuda-nvml-dev-13-2 cuda-nvprune-13-2 cuda-nvrtc-13-2
+  cuda-nvrtc-dev-13-2 cuda-nvtx-13-2 cuda-opencl-13-2 cuda-profiler-api-13-2
+  cuda-sandbox-dev-13-2 cuda-sanitizer-13-2 cuda-tileiras-13-2
+  cuda-toolkit-13-2 cuda-toolkit-13-2-config-common
+  cuda-toolkit-13-config-common cuda-toolkit-config-common cuda-tools-13-2
+  cuda-visual-tools-13-2 default-jre default-jre-headless dpkg-dev g++ g++-13
+  g++-13-x86-64-linux-gnu g++-x86-64-linux-gnu gcc gcc-13 gcc-13-base
+  gcc-13-x86-64-linux-gnu gcc-x86-64-linux-gnu gds-tools-13-2 java-common
+  libasan8 libasound2-data libasound2t64 libatomic1 libc-dev-bin libc6-dev
+  libcc1-0 libcrypt-dev libcublas-13-2 libcublas-dev-13-2 libcufft-13-2
+  libcufft-dev-13-2 libcufile-13-2 libcufile-dev-13-2 libcuobjclient-13-2
+  libcuobjclient-dev-13-2 libcurand-13-2 libcurand-dev-13-2 libcusolver-13-2
+  libcusolver-dev-13-2 libcusparse-13-2 libcusparse-dev-13-2 libdpkg-perl
+  libgcc-13-dev libgif7 libgomp1 libhwasan0 libisl23 libitm1 liblsan0 libmpc3
+  libnpp-13-2 libnpp-dev-13-2 libnspr4 libnss3 libnuma1 libnvfatbin-13-2
+  libnvfatbin-dev-13-2 libnvjitlink-13-2 libnvjitlink-dev-13-2 libnvjpeg-13-2
+  libnvjpeg-dev-13-2 libnvptxcompiler-13-2 libnvvm-13-2 libopengl0
+  libpcsclite1 libquadmath0 libstdc++-13-dev libtsan2 libubsan1 libxcb-cursor0
+  libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0
+  libxcb-shape0 libxcb-util1 libxcb-xinerama0 libxcb-xinput0 libxcb-xkb1
+  libxkbcommon-x11-0 linux-libc-dev lto-disabled-list make
+  nsight-compute-2026.1.1 nsight-systems-2025.6.3 openjdk-21-jre
+  openjdk-21-jre-headless rpcsvc-proto
+The following packages will be upgraded:
+  dpkg gcc-14-base libbz2-1.0 libc-bin libc6 libgcc-s1 libstdc++6 locales
+8 upgraded, 127 newly installed, 0 to remove and 270 not upgraded.
+Need to get 0 B/3405 MB of archives.
+After this operation, 6917 MB of additional disk space will be used.
+Download complete and in download only mode

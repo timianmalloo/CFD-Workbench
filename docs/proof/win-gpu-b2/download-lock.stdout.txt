@@ -1,0 +1,4 @@
+PACKAGE-LOCK-PASS packages=135 new=127 upgrades=8 bytes=3405443104
+PACKAGE-LOCK-PASS packages=135 new=127 upgrades=8 bytes=3405443104
+PACKAGE-URI-BINDING-PASS packages=135
+DEB-LOCK-PASS packages=135 download_bytes=3405443104 payload_bytes=8092712328 required_free_bytes=25456799144 free_bytes=1021118816256

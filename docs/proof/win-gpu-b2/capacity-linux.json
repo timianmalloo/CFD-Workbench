@@ -1,0 +1,13 @@
+{
+  "schema": "cfdw-cuda-capacity/1",
+  "filesystem_total_bytes": 1081101176832,
+  "filesystem_used_bytes": 4990005248,
+  "filesystem_free_bytes": 1021118816256,
+  "download_bytes": 3405443104,
+  "payload_bytes": 8092712328,
+  "unpack_reserve_bytes": 2147483648,
+  "build_output_reserve_bytes": 1073741824,
+  "post_install_headroom_bytes": 10737418240,
+  "required_free_bytes": 25456799144,
+  "filesystem_gate_passed": true
+}

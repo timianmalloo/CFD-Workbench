@@ -1,0 +1,10 @@
+{
+    "schema":  "cfdw-cuda-host-capacity/1",
+    "session_id":  "pc-b2-r200-20261010-lock4",
+    "install_location":  "C:\\Projects\\CFD-Workbench-wsl\\cfdw-cuda132-b2",
+    "vhd_bytes":  5179965440,
+    "windows_c_used_bytes":  209129308160,
+    "windows_c_free_bytes":  1836890976256,
+    "required_free_bytes":  25456799144,
+    "windows_gate_passed":  true
+}
