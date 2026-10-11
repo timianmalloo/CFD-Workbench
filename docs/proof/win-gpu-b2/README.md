@@ -59,6 +59,12 @@ during B2, stops the owned B2 group on any change or stale sample, and requires 
 read-only live preflight produced one `continue` event and stopped cleanly on request. CUDA remains uninstalled, the
 disposable distro remains available, and F1 remains closed.
 
+After Ruling 209 landed, prelaunch session `pc-b2-r209-20261010-run2` stopped in 43 ms before its first WSL command:
+Windows PowerShell 5.1 does not expose the two-argument `String.Contains(value, comparisonType)` overload. The capture
+records no terminal snapshot, observer, workload, ownership check, residual check, or package transaction, so this was
+not a live B2 attempt under Ruling 209. The ordinal ruling-token check now uses `IndexOf`, whose overload ran successfully
+earlier in the same script, and the tracked-PowerShell scanner rejects the incompatible `Contains` shape.
+
 The pre-import preparation attempts stopped before CUDA installation: an invalid PowerShell exit-code read, a checksum
 text-marker parser gap, and a NUL-removal overload all stopped before import; the first import was rolled back after the
 freshness guard overmatched `libcups`/`libcurl`. Each class and its normal-path control is recorded in the defect-class

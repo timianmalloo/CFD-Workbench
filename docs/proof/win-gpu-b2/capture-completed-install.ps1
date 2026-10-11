@@ -179,7 +179,7 @@ try {
     } else {
         $rulingsText.Substring($rulingStart, $nextRuling - $rulingStart)
     }
-    if (-not $rulingSection.Contains('B2-COMPLETED-GUARD-GO', [StringComparison]::Ordinal)) {
+    if ($rulingSection.IndexOf('B2-COMPLETED-GUARD-GO', [StringComparison]::Ordinal) -lt 0) {
         throw "$CompletedGuardRuling does not contain B2-COMPLETED-GUARD-GO"
     }
     $names = @(& wsl.exe --list --quiet) | ForEach-Object { Convert-WslName ([string]$_) } | Where-Object { $_ }
