@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T16:03:53Z",
+  "generated": "2026-10-11T16:52:58Z",
   "audit": [
     {
       "actor": null,
@@ -35088,6 +35088,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-11T16:02:47Z",
       "duration_seconds": 66.0
+    },
+    {
+      "id": "al-01M4NY3H38VXZRDWQ2ZA5MDSKF",
+      "shortname": "lsp-spacing",
+      "datetime": "2026-10-11T16:52:58Z",
+      "session": "trk-lsp",
+      "prompt": "Track LSP",
+      "summary": "Spacing.cs shared by Settings, VortexLattice, Loads; 3 new StationGolden checks; CRT gate lists VortexLattice (7) and Loads (0); no asserts moved",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "One CosPi definition of the cosine spacing for lattice, loads, settings",
+      "done_when": "Bit-equality checks red then green, CRT gate extended, ring green, no moved asserts",
+      "started_at": "2026-10-11T16:46:55Z",
+      "duration_seconds": 363.0
     }
   ],
   "changes": [
