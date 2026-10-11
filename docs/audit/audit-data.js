@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T03:55:25Z",
+  "generated": "2026-10-11T15:13:29Z",
   "audit": [
     {
       "actor": null,
@@ -34863,6 +34863,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-11T03:54:20Z",
       "duration_seconds": 65.0
+    },
+    {
+      "id": "al-01M4NRDB4S2QV7NRJT3W40HB31",
+      "shortname": "pho-own-host",
+      "datetime": "2026-10-11T15:13:28Z",
+      "session": "trk-pho",
+      "prompt": "PHO",
+      "summary": "check-proof-pii.py adds own-host names (hostname:own-host), self-test via seam, defect-class line",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "PII gate always knows its own host name",
+      "done_when": "self-test green, real gate exit 0, gates green",
+      "started_at": "2026-10-11T15:08:46Z",
+      "duration_seconds": 282.0
     }
   ],
   "changes": [
@@ -37686,6 +37706,15 @@ window.AUDIT_DATA = {
       "to": "fable-owner",
       "kind": "decision-request",
       "ref": "req-01M4KYVNRKXY64YDH9YYD9FAMX",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4NQM8PDZT4KDGJ4VXFSSKNV",
+      "ts": "2026-10-11T14:59:47Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4NQM8P69Y5TDXJTS0DYQS15",
       "session": "3122f106"
     }
   ]
