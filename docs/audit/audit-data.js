@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T18:31:16Z",
+  "generated": "2026-10-11T18:42:23Z",
   "audit": [
     {
       "actor": null,
@@ -35642,6 +35642,42 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-11T18:29:34Z",
       "duration_seconds": 102.0
+    },
+    {
+      "id": "al-01M4P4BVV1RMQAJ7XP8P4MQBWG",
+      "shortname": "f1-r211-author-repair",
+      "datetime": "2026-10-11T18:42:23Z",
+      "session": "pc-f1-author-repair-r211",
+      "prompt": "Repair Astra F1-ASTRA-1 with exact read-only dependency metadata or a precise execution blocker, and correct the B2 payload provenance.",
+      "summary": "Pinned five OpenFOAM package rows and combined known subtotals, corrected B2 archive-member payload provenance, and documented unresolved Ubuntu/BLAS/MPI/NVIDIA installed-size and capacity cells with a narrow preflight decision. Astra veto remains open.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "codex",
+      "artifacts": [
+        "docs/plans/windows-gpu-f1-r211.md",
+        "docs/proof/win-gpu-f1-design/dependency-worksheet.md"
+      ],
+      "tags": [],
+      "outcome": "blocked",
+      "compiled": false,
+      "goal": "Produce a source-cited combined F1 dependency and capacity repair without install, build, WSL or case execution.",
+      "done_when": "Commit exact closure or a source-cited irreducible blocker with the smallest next preflight decision; preserve accepted contracts.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-11T18:34:33Z",
+      "duration_seconds": 470.0,
+      "git": {
+        "sha": "55231d1c837650dc834ccb71d5398e97b8d306dc",
+        "short": "55231d1c8",
+        "branch": "win/gpu-f1-r211-author-repair",
+        "pushed": null
+      }
     }
   ],
   "changes": [
