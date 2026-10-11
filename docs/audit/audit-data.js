@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T18:20:33Z",
+  "generated": "2026-10-11T18:29:15Z",
   "audit": [
     {
       "actor": null,
@@ -35547,6 +35547,72 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-11T18:18:58Z",
       "duration_seconds": 95.0
+    },
+    {
+      "id": "al-01M4P3H2MR8K63PFRYWNWC1458",
+      "shortname": "f1-astra-owner-review",
+      "datetime": "2026-10-11T18:27:45Z",
+      "session": "pc-f1-astra-r211",
+      "prompt": "Independently review frozen F1 design at 322abf17 under Ruling 211. Commit only the assigned Astra review with a decisive checklist verdict. Assess exact dependency/ABI/source/integrity/licence/capacity/build closure, isolation/rollback, managed-memory attribution, numerical/performance contract, observer/ownership and authorization. Separate approval prerequisites from authorized runtime gates. No WSL, installation, build, case runs, build-input download, push or merge. Tier T1; fan-out zero; ten calls and fifteen minutes.",
+      "summary": "VETO: combined OpenFOAM/dev/toolchain lock and bounded F1 capacity are missing design outputs. B2 payload provenance also needs correction. Measurement, benchmark, containment and execution boundary accepted as design contracts; runtime evidence remains separately authorized.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "pc-f1-astra-r211",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-astra.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Independently adjudicate the frozen Ruling 211 design.",
+      "done_when": "Committed decisive review with citations and unchanged design.",
+      "tier": "T1",
+      "main_calls": 10,
+      "main_budget": 10,
+      "main_over_budget": false,
+      "fan_out": 0,
+      "started_at": "2026-10-11T18:22:55Z",
+      "duration_seconds": 290.0,
+      "git": {
+        "sha": "322abf17a019298db5ce111c896915e7107a4650",
+        "short": "322abf17a",
+        "branch": "win/gpu-f1-r211-astra-review",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M4P3KTA6FGA243945B0VQHYC",
+      "shortname": "f1-astra-relation-repair",
+      "datetime": "2026-10-11T18:29:15Z",
+      "session": "pc-f1-astra-r211",
+      "prompt": "Repair only the invalid review frontmatter relation from reviews to relates-to; regenerate index, run docs-graph validate and git diff --check, commit correction, preserve verdict/body/design.",
+      "summary": "Changed one frontmatter relation to registered relates-to and regenerated index. Docs-graph validate returned zero defects/index drift, with 131 non-failing review suggestions. git diff --check passed; design SHA256 remained ab6d0039f00c0828fdfff7318f256a769953e9d9b4b373baa73462967686c158. Existing V14 schema validation caught this metadata-class error; verdict/body unchanged.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "pc-f1-astra-r211",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-astra.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Correct the review relation schema.",
+      "done_when": "Correction committed with validation passing and design unchanged.",
+      "tier": "T1",
+      "main_calls": 3,
+      "main_budget": 3,
+      "main_over_budget": false,
+      "fan_out": 0,
+      "started_at": "2026-10-11T18:28:55Z",
+      "duration_seconds": 20.0,
+      "git": {
+        "sha": "dd9838604dac444eaab155cd4f248ae46282b794",
+        "short": "dd9838604",
+        "branch": "win/gpu-f1-r211-astra-review",
+        "pushed": null
+      }
     }
   ],
   "changes": [
