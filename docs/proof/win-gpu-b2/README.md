@@ -98,3 +98,17 @@ then verified both distro identities, the disposable marker, Ubuntu 24.04, the r
 B2 processes, and the unchanged protected snapshot. `wsl.exe --unregister cfdw-cuda132-b2` exited 0. The final check
 proved the target registration and install directory absent, `cfdw-openfoam2512` present, and the protected snapshot
 still at SHA-256 `42e1d0bed05aa071a70fba8445474a85fa43a1746a394adc4e46a433a090aab9`.
+
+## Windows ring after WLK
+
+The branch merged `origin/main` at `eea2c7f1`, including the WLK Windows test fixes, and reran the full Windows product
+ring. The ring still exited 1, but named product failures fell from 77 to 37: Core 11, Desktop 25, Analysis 1, and CLI
+0. The CLI suite passed all 17 checks. Three Desktop children reached the 120-second watchdog. The exact first
+uncompleted checks were `PlanCanvas_RetainedPointPeer_NameFollowsTheDrag_AndRaisesNameChanged`,
+`PlanCanvas_AdvisoryCrossingClear_CertificateStillDecides`, and `Tampered_RunView_UnavailableNoLayersRowKept`.
+Isolated reruns completed promptly: the first two passed, while the third produced the expected Windows persistence
+assertion failure. This supports aggregate contention or starvation as the timeout class; it does not prove an
+intrinsic hang in those checks. The Analysis mismatch remained
+`TeFloor_B10_SettingsHash_GoldenUnchanged`: expected `9713863597250cd245c4d70560abee8840c002f6ff33501127ba331ac8efad62`,
+actual `752ebf3bb52860261175c7f04c38c2df04488e09b437f84be4ef31a8479bd865`. The complete raw output, exact failure
+inventory, timeout localization, and isolated results are retained as `windows-ring-wlk-*` files in this proof pack.

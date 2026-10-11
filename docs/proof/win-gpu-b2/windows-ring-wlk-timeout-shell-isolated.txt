@@ -1,0 +1,5 @@
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=shell-window RenderScaling=1.5 PrimaryScaling=1.5 WorkingArea=2560x1528 UseLayoutRounding=True
+PASS PlanCanvas_RetainedPointPeer_NameFollowsTheDrag_AndRaisesNameChanged
+COST PlanCanvas_RetainedPointPeer_NameFollowsTheDrag_AndRaisesNameChanged 5773.2

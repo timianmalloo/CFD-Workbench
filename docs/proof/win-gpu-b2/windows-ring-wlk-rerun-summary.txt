@@ -1,0 +1,89 @@
+Windows product ring evidence for PR #31 after WLK
+observed_utc=2026-10-11T04:07:58.4889679Z
+origin_main_commit=eea2c7f19596fe28c203763ee3dbeddb7921eaeb
+branch_merge_commit=eeb0897685c05a709fae331b5c016b10a6527554
+command=Git Bash tools/run-tests.sh with DOTNET_ROOT=%USERPROFILE%\.dotnet
+exit_code=1
+raw_stdout=docs/proof/win-gpu-b2/windows-ring-wlk-rerun.stdout.txt
+raw_stderr=docs/proof/win-gpu-b2/windows-ring-wlk-rerun.stderr.txt
+named_product_failure_count=37
+previous_named_product_failure_count=77
+first_product_failure=WindowsNative_Replace_HeldReaderKeepsOldImage NativeFailure: NTSTATUS=0xc0000043; IO_STATUS=0x00000000; Win32=32
+
+[CfdWorkbench.Core.Tests]
+product_failure_count=11
+product_failure_names:
+- WindowsNative_Replace_HeldReaderKeepsOldImage
+- Library_DuplicateIgnoringCaseNfc_Refused
+- Library_StaleClaim_ReportedNotDeleted
+- Rollback_V2UnknownTopLevel_BytesUnchanged
+- LayoutSave_ClaimBusyHashSame_RetriesOnce
+- LayoutSave_StaleClaim_SessionOnlyNamesClaim
+- Recent_Conflict_ReappliesAdd
+- Recent_Remove_KeepsEveryOtherEntry
+- Rollback_TextSizeV2_NewerVersionIsStructureClass_BytesUnchanged
+- PrefStore_TextSize_PriorRoot_LayoutAndRecentUntouched
+- PrefStore_TextSize_LoadAndSaveSerialized_NoStaleHash
+
+[CfdWorkbench.Desktop.Tests]
+product_failure_count=25
+product_failure_names:
+- Save_ExistingFile_DefiniteCreateOnlyConflict
+- Recovery_SaveReopenResume_KeepsDraftSeparateFromAccepted
+- Controller_SaveMine_DraftDocumentUndoUnchanged
+- Controller_SaveMine_ListedAfterOpeningAnotherFoil
+- Commands_SectionMenu_ReplaceSaveImportRowsRun
+- Controller_QuotedNameAndBraceProvenance_SaveReload
+- Controller_CatalogTelemetry_OmitsInapplicableFields
+- Recent_OpenedOutcome_AppendsPath
+- Telemetry_MarkerInjection_AbsentEverywhere
+- OpenFailure_RemoveFromRecent_RemovesOnlyFailedPath
+- RailEditorPane_Removed_NoReferencesRemain
+- Controller_ResumeSectionRecovery_EntersSectionMode
+- Controller_SaveMine_SurvivesSectionCancelAndDocumentUndo
+- Controller_CatalogTelemetry_NamedSessionRing
+- Controller_SaveOffUiThread_HonorsCancellation
+- SaveDialog_EmptyOrDuplicate_ErrorFocusStays
+- SaveDialog_Save_LiveRegionFocusToSectionMenu
+- Export_WriteFailure_CauseCopy_EarlierFileUntouched_NoTemp_H6
+- Recent_StoredRows_StartAndFileMenu
+- Copy_RecentNotCleared_StatusAndTryAgain
+- Recovery_RailDraftResumed_PlanShowsDraftApplyCommits
+- Controller_SaveDuringDrag_CommitsThenSaves
+- PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs
+- PropertiesPane_Density_UnitOnValueBaseline
+- TextSize_PersistsPerUser
+harness_timeout_modes:
+- --shell-window --part=1/2
+- --plan-canvas --part=2/2
+- --analysis
+harness_partition_failures:
+- --shell-window
+- --plan-canvas
+
+[timeout localization]
+method=For each timed-out child, the raw log's last completed COST row was paired with the next selected registration in source order. The runner has no per-check START line, so these are the exact first uncompleted checks, not proven root causes.
+--shell-window --part=1/2 first_uncompleted_check=PlanCanvas_RetainedPointPeer_NameFollowsTheDrag_AndRaisesNameChanged
+--plan-canvas --part=2/2 first_uncompleted_check=PlanCanvas_AdvisoryCrossingClear_CertificateStillDecides
+--analysis first_uncompleted_check=Tampered_RunView_UnavailableNoLayersRowKept
+isolated_shell_exit=0
+isolated_shell_result=PASS in 5773.2 ms
+isolated_plan_exit=0
+isolated_plan_result=PASS in 4592.2 ms
+isolated_analysis_exit=1
+isolated_analysis_result=normal assertion failure in 1806.6 ms; expected OK, got DOC-UNSUPPORTED-PERSISTENCE
+interpretation=The isolated checks terminate promptly. The evidence supports aggregate Windows contention/starvation as the timeout class; it does not establish any of the three checks as an intrinsic hang.
+
+[CfdWorkbench.Analysis.Tests]
+product_failure_count=1
+product_failure_name=TeFloor_B10_SettingsHash_GoldenUnchanged
+expected_sha256=9713863597250cd245c4d70560abee8840c002f6ff33501127ba331ac8efad62
+actual_sha256=752ebf3bb52860261175c7f04c38c2df04488e09b437f84be4ef31a8479bd865
+
+[CfdWorkbench.Cli.Tests]
+product_failure_count=0
+pass_count=17
+
+ring_wall=147 s (147246 ms, net 137529 ms) (budget 60 s)
+cpu=5 s
+load=14.10 -> 11.35

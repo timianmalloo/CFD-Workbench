@@ -1,0 +1,180 @@
+RING-LOCK waited 0 s
+C:\Projects\CFD-Workbench-win-gpu-g2-b1-r199\src\CfdWorkbench.Desktop\CatalogDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/CatalogDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-gpu-g2-b1-r199\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+C:\Projects\CFD-Workbench-win-gpu-g2-b1-r199\src\CfdWorkbench.Desktop\ExportDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/ExportDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-gpu-g2-b1-r199\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+C:\Projects\CFD-Workbench-win-gpu-g2-b1-r199\src\CfdWorkbench.Desktop\SaveSectionDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/SaveSectionDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-gpu-g2-b1-r199\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+
+Build succeeded.
+
+C:\Projects\CFD-Workbench-win-gpu-g2-b1-r199\src\CfdWorkbench.Desktop\CatalogDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/CatalogDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-gpu-g2-b1-r199\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+C:\Projects\CFD-Workbench-win-gpu-g2-b1-r199\src\CfdWorkbench.Desktop\ExportDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/ExportDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-gpu-g2-b1-r199\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+C:\Projects\CFD-Workbench-win-gpu-g2-b1-r199\src\CfdWorkbench.Desktop\SaveSectionDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/SaveSectionDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-gpu-g2-b1-r199\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+    3 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:09.21
+build 10 s (Release)
+== CfdWorkbench.Core.Tests 1/3 87 s (86931 ms), 346 PASS
+RESULT failures=9
+EXPECTED-FAIL 9 (manifest)
+== CfdWorkbench.Core.Tests 2/3 88 s (87596 ms), 210 PASS
+RESULT failures=7
+EXPECTED-FAIL 7 (manifest)
+UNEXPECTED Rollback_TextSizeV2_NewerVersionIsStructureClass_BytesUnchanged: not in the manifest
+UNEXPECTED 1
+== CfdWorkbench.Core.Tests 3/3 92 s (91737 ms), 205 PASS
+FAIL WindowsNative_Replace_HeldReaderKeepsOldImage NativeFailure: NTSTATUS=0xc0000043; IO_STATUS=0x00000000; Win32=32: The process cannot access the file because it is being used by another process.
+FAIL Library_DuplicateIgnoringCaseNfc_Refused ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Library_StaleClaim_ReportedNotDeleted InvalidOperationException: Expected LIB-CLAIM-HELD; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Rollback_V2UnknownTopLevel_BytesUnchanged InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]
+FAIL LayoutSave_ClaimBusyHashSame_RetriesOnce InvalidOperationException: Expected True; actual False
+FAIL LayoutSave_StaleClaim_SessionOnlyNamesClaim InvalidOperationException: Expected claim-held; actual failed
+FAIL Recent_Conflict_ReappliesAdd InvalidOperationException: Expected True; actual False
+FAIL Recent_Remove_KeepsEveryOtherEntry InvalidOperationException: Expected saved; actual failed
+FAIL Rollback_TextSizeV2_NewerVersionIsStructureClass_BytesUnchanged InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]
+FAIL PrefStore_TextSize_PriorRoot_LayoutAndRecentUntouched InvalidOperationException: Expected saved; actual failed
+FAIL PrefStore_TextSize_LoadAndSaveSerialized_NoStaleHash InvalidOperationException: Expected saved; actual session-only
+PASS Sections_Facts_TrailingEdgeWedgeAndGap
+PASS Assess_ProfileVerticalRowOffByOneUlp_Invalid
+PASS Assess_ProfileVerticalRowHandlesSameSide_InvalidDslLock
+PASS SectionEdits_InsertAnchorKeepShape_ShapeExactCornerAnchor
+PASS SectionEdits_ControlToAnchorBetweenTwoAnchors_OutsideUnchanged
+PASS SectionEdits_DeleteBelowSevenPoints_Refused
+PASS SectionEdits_PairedToAnchorWithKind_PartnerRowWritten
+PASS SectionEdits_PairedToControl_PartnerRowRemoved
+PASS SectionEdits_UniqueProfile_YOnlyMoveAllowed
+PASS SectionDraft_StepAfterUndo_DropsRedoTail
+PASS SectionDraft_CursorEnds_UndoRedoNoChange
+PASS SectionDraft_RefusedStep_DraftBytesUnchanged
+PASS SectionDraft_MakeUniqueThenCancel_NoCopyLeft
+PASS SectionDraft_FinishThenUndo_SourceAndAssignmentsRestored
+PASS SectionDraft_MakeUnique_RootGetsCopyTipKeepsSource
+PASS SectionDraft_UseSourceThickness_ReportsTargetsAndAffectedEta
+PASS SectionDraft_UseSourceInfeasible_FinishBlocked
+PASS SectionDraft_ImportStep_ReportsResidualAndProvenance
+PARTITION 3/3 of 788 checks
+RESULT failures=11
+FAILED: CfdWorkbench.Core.Tests 3/3 (exit 1)
+UNEXPECTED Telemetry_MarkerInjection_AbsentEverywhere: not in the manifest
+UNEXPECTED --shell-window --part=2/2 exited 1: child exit without a block of only expected failures
+UNEXPECTED Export_WriteFailure_CauseCopy_EarlierFileUntouched_NoTemp_H6: not in the manifest
+UNEXPECTED --section-editor --part=2/2 exited 1: child exit without a block of only expected failures
+UNEXPECTED TIMEOUT: not in the manifest
+UNEXPECTED --shell-window --part=1/2 exited 124: child exit without a block of only expected failures
+UNEXPECTED TIMEOUT: not in the manifest
+UNEXPECTED --plan-canvas --part=2/2 exited 124: child exit without a block of only expected failures
+UNEXPECTED TIMEOUT: not in the manifest
+UNEXPECTED --analysis exited 124: child exit without a block of only expected failures
+UNEXPECTED PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs: not in the manifest
+UNEXPECTED --properties-cells --part=2/2 exited 1: child exit without a block of only expected failures
+UNEXPECTED PropertiesPane_Density_UnitOnValueBaseline: not in the manifest
+UNEXPECTED --properties-cells --part=1/2 exited 1: child exit without a block of only expected failures
+UNEXPECTED PARTITION: not in the manifest
+UNEXPECTED PARTITION: not in the manifest
+UNEXPECTED 16
+== CfdWorkbench.Desktop.Tests 132 s (132061 ms), 762 PASS
+FAIL Save_ExistingFile_DefiniteCreateOnlyConflict Exception: Expected definite create-only save conflict; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Recovery_SaveReopenResume_KeepsDraftSeparateFromAccepted ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Controller_SaveMine_DraftDocumentUndoUnchanged ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Controller_SaveMine_ListedAfterOpeningAnotherFoil ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Commands_SectionMenu_ReplaceSaveImportRowsRun InvalidOperationException: Save to My sections did not write the named section
+FAIL Controller_QuotedNameAndBraceProvenance_SaveReload ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Controller_CatalogTelemetry_OmitsInapplicableFields ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL --section-editor --part=1/2 exited 1
+FAIL Recent_OpenedOutcome_AppendsPath InvalidOperationException: D2 Opened did not add the file to P1 recent rows
+FAIL Telemetry_MarkerInjection_AbsentEverywhere InvalidOperationException: Marker probe did not open and record the file
+FAIL OpenFailure_RemoveFromRecent_RemovesOnlyFailedPath InvalidOperationException: Remove from Recent did not retain only the other path
+FAIL RailEditorPane_Removed_NoReferencesRemain ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL --shell-window --part=2/2 exited 1
+FAIL Controller_ResumeSectionRecovery_EntersSectionMode ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Controller_SaveMine_SurvivesSectionCancelAndDocumentUndo ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Controller_CatalogTelemetry_NamedSessionRing ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Controller_SaveOffUiThread_HonorsCancellation ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL SaveDialog_EmptyOrDuplicate_ErrorFocusStays ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL SaveDialog_Save_LiveRegionFocusToSectionMenu Exception: Save did not publish and announce the exact name
+FAIL Export_WriteFailure_CauseCopy_EarlierFileUntouched_NoTemp_H6 InvalidOperationException: expected Can't write the file. Nothing was changed.; actual Can't write the file. You don't have permission to write to that folder. Nothing was changed.
+FAIL --section-editor --part=2/2 exited 1
+FAIL Recent_StoredRows_StartAndFileMenu InvalidOperationException: Recent fixture was not stored: rejected/RECENT-SCHEMA/absent root=C:\Projects\CFD-Workbench-win-gpu-g2-b1-r199\.tmp-tests\cfdw-d3a-recent-617203e9cb55468c86d4d902a4c86a32
+FAIL Copy_RecentNotCleared_StatusAndTryAgain InvalidOperationException: COPY-147: expected 'The recent-files list wasn't cleared: it was saved by a newer version of CFD Workbench. The list is unchanged. · Try again', built 'The recent-files list wasn't cleared: it couldn't be saved. The list is unchanged. · Try again', unchanged=True
+FAIL Recovery_RailDraftResumed_PlanShowsDraftApplyCommits InvalidOperationException: opened project has no recovery: Open Example or a .foil / .cfdw.json file.
+FAIL TIMEOUT --shell-window --part=1/2 after 120 s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed
+FAIL --shell-window --part=1/2 exited 124
+FAIL TIMEOUT --plan-canvas --part=2/2 after 120 s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed
+FAIL --plan-canvas --part=2/2 exited 124
+FAIL Controller_SaveDuringDrag_CommitsThenSaves InvalidOperationException: Save did not commit drag first: code=DOC-UNSUPPORTED-PERSISTENCE, draft=False, undo=True.
+FAIL --controller-shell exited 1
+FAIL TIMEOUT --analysis after 120 s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed
+FAIL --analysis exited 124
+FAIL PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs InvalidOperationException: input ends 218.33, fact 217.33
+FAIL --properties-cells --part=2/2 exited 1
+FAIL PropertiesPane_Density_UnitOnValueBaseline InvalidOperationException: input 143.87 unit 144.54 label 144.54; fact 120.54/120.54
+FAIL TextSize_PersistsPerUser InvalidOperationException: set 1.5; after restart 1, PropFontSize at 1x
+FAIL --properties-cells --part=1/2 exited 1
+FAIL PARTITION --shell-window parts are incomplete or enumerated different checks: [--part=2/2 118 checks | --part=1/2 ]
+FAIL PARTITION --plan-canvas parts are incomplete or enumerated different checks: [--part=2/2  | --part=1/2 92 checks]
+PASS Clear_NearestClearCorner_Chosen
+COST Clear_NearestClearCorner_Chosen 7.8
+PASS Clear_TieBreak_FixedOrder
+COST Clear_TieBreak_FixedOrder 0.6
+PASS Clear_TwoFloats_NoOverlap
+COST Clear_TwoFloats_NoOverlap 1.0
+PASS Clear_NeverOverlapsTarget_Property
+COST Clear_NeverOverlapsTarget_Property 0.8
+PASS Clear_FloatLargerThanModelArea_DocksBack
+COST Clear_FloatLargerThanModelArea_DocksBack 0.7
+PASS FocusRing_HiddenRegionsAndFloats_Order
+COST FocusRing_HiddenRegionsAndFloats_Order 1.2
+PASS CommandTable_Parity_EveryRowInMenuPaletteKey
+COST CommandTable_Parity_EveryRowInMenuPaletteKey 4.4
+PASS CommandTable_ViewRows_ExecuteOrDisabled
+COST CommandTable_ViewRows_ExecuteOrDisabled 1503.8
+SUITE --shell-model exit 0
+SUITE-TIME --shell-model 3.3 s
+FAIL PARTITION --shell-window parts are incomplete or enumerated different checks: [--part=2/2 118 checks | --part=1/2 ]
+FAIL PARTITION --plan-canvas parts are incomplete or enumerated different checks: [--part=2/2  | --part=1/2 92 checks]
+FAILED: CfdWorkbench.Desktop.Tests (exit 1)
+== CfdWorkbench.Analysis.Tests 1/2 14 s (13099 ms), 102 PASS
+RESULT failures=0
+UNEXPECTED TeFloor_B10_SettingsHash_GoldenUnchanged: not in the manifest
+UNEXPECTED 1
+== CfdWorkbench.Analysis.Tests 2/2 16 s (15110 ms), 145 PASS
+FAIL TeFloor_B10_SettingsHash_GoldenUnchanged InvalidOperationException: expected 9713863597250cd245c4d70560abee8840c002f6ff33501127ba331ac8efad62; actual 752ebf3bb52860261175c7f04c38c2df04488e09b437f84be4ef31a8479bd865
+PASS Drag_CdNonPositive_Undefined_Copy230
+COST Drag_CdNonPositive_Undefined_Copy230 2.142
+PASS FindAlpha_Dialog_ResultAndBasisRows
+COST FindAlpha_Dialog_ResultAndBasisRows 3.593
+PASS FindAlpha_NoRoot_FiveReasons
+COST FindAlpha_NoRoot_FiveReasons 1.231
+PASS Labels_Dx_EveryRowResolvesOnce
+COST Labels_Dx_EveryRowResolvesOnce 2.819
+PASS Labels_ReasonCodes_AllApprovedTextNoRawCode
+COST Labels_ReasonCodes_AllApprovedTextNoRawCode 17.940
+GROUP DxSection 4690
+FAIL TeFloor_B10_SettingsHash_GoldenUnchanged InvalidOperationException: expected 9713863597250cd245c4d70560abee8840c002f6ff33501127ba331ac8efad62; actual 752ebf3bb52860261175c7f04c38c2df04488e09b437f84be4ef31a8479bd865
+COST TeFloor_B10_SettingsHash_GoldenUnchanged 1.738
+PASS TeFloor_B10_Numerics_DefaultRecordFieldsUnchanged
+COST TeFloor_B10_Numerics_DefaultRecordFieldsUnchanged 0.929
+PASS TeFloor_B10_Label_OneNamedConstant_AppDefaultNoSource
+COST TeFloor_B10_Label_OneNamedConstant_AppDefaultNoSource 0.148
+GROUP TeFloor 3
+PARTITION 2/2 of 22 groups
+RESULT failures=1
+FAILED: CfdWorkbench.Analysis.Tests 2/2 (exit 1)
+== CfdWorkbench.Cli.Tests 8 s (7809 ms), 17 PASS
+COST Cli_Export_EmitsOneTelemetryEventPerOutcome_NoPathNoName 251.978
+EXPECTED-FAIL 2 (manifest)
+COST-MISS C-2 Analysis.part1of2 took 13099 ms, over 5000 ms host extreme1
+COST-MISS C-2 Analysis.part2of2 took 15110 ms, over 5000 ms host extreme1
+COST-MISS C-3 run-tests net wall 137529 ms (wall - build), over 50000 ms host extreme1
+COST-MISS C-4 Desktop took 132061 ms, over 49369 ms: DR-ANA-10 applies (spread or split the Desktop job) host extreme1
+COST-MISS C-5 Freshness_SurfaceEdit_Historical took 722.649 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
+COST-MISS C-5 Section_WingRun_PanelValuesAtEveryStation took 833.997 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
+COST-MISS C-5 NotResolved_OneChordwisePanel_TableValuesReadRuling161_LabelsDropBias took 780.005 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
+COST-MISS C-5 NotResolved_FourChordwisePanels_TextsUnchanged took 826.148 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
+COST-MISS C-5 NotResolved_TwoChordwisePanels_StillResolved_StructuralRuleNotMagnitude took 960.812 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
+COST-MISS C-5 SectionProjection_EstimatorLabel_DepthAware took 562.558 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
+COST-MISS C-5 SectionView_Speeds_FollowUnitsSwitch took 1015.846 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
+COST-MISS C-5 Section_StationsTable_ListsSolvedGoverningAndShownOnly took 712.812 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
+PARTITION-SKEW Core parts=86931,87596,91737 skew_ms=4806 (hints stale?)
+PARTITION-SKEW Analysis parts=13099,15110 skew_ms=2011 (hints stale?)
+test costs: 0 failures, 12 COST-MISS (load 11.35)
+wall 147 s (147246 ms, net 137529 ms) (budget 60 s) cpu 5 s load 14.10 -> 11.35

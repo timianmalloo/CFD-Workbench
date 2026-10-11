@@ -5466,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9ddf578d85adf8b5d842e1fbb586292da37b0624ecf0e6c5f99bbde8a1926fef"
+      "sourceSha256": "885efd83a7baa31146d2b7e18a594b34b1505a6144cb67df6dffd67b844d9b41"
     },
     {
       "id": "domain-experts",
@@ -17843,7 +17843,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3bf773b187793d2991cbc03882f6840fb6201510fbcf946748d6c49b44b3d6a7"
+      "sourceSha256": "fdcaa145f308468efbe68a13db50e82d6639f16cbcfc30c9988ff0ccc82bdb56"
     },
     {
       "id": "proof-win-gpu-g1",
@@ -18374,6 +18374,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "fbd2221b43f9cc84427285d30106e6c0863c2b680354bd63e82266ca009f6797"
     },
     {
+      "id": "proof-wlk-red-first",
+      "path": "docs/proof/wlk/red-first.md",
+      "title": "WLK red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-wlk",
+      "phase": "implementation",
+      "reviewBy": "2026-11-11",
+      "reviewSuggested": [],
+      "summary": "Red-first and after receipt for Windows-safe link tests (TestLinks, the bare-link gate) and for view-setting restart checks that assert the session-only behaviour where the project store is unsupported (TEST-FOREIGN-OS-BRANCH).",
+      "tags": [
+        "windows",
+        "links",
+        "preferences",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "6ddae4b3bcf8dba1c3fa59f5bf93d1767a7e437dbaa10d1f4f12fd2700377b31"
+    },
+    {
       "id": "proof-wrb-red-first",
       "path": "docs/proof/wrb/red-first.md",
       "title": "WRB red-first receipt",
@@ -18649,7 +18675,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3e7f7dcdf2b56d829ddfc248902089a8dee220f181943aafcab370661098c527"
+      "sourceSha256": "50a72270de5085fc367d1be733dc02f9faf8f04abdd467820eef7adac6913910"
     },
     {
       "id": "review-app-shell-native",
@@ -20689,5 +20715,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "4feb3e21551412f8ad9ea491ad20a4c7dad9c3d11f486e436b1606f914430b9d"
+  "graphSha256": "afcc61061617a8423040445bdd19a4eb8e7cf461b2dc442930af95b87b149569"
 };

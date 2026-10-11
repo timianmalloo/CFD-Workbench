@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T04:03:41Z",
+  "generated": "2026-10-11T04:13:52Z",
   "audit": [
     {
       "actor": null,
@@ -34915,30 +34915,21 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4M23SR736BMZ78AZQQWVXXB",
-      "shortname": "yes i authorize a third (and fouth and fith) attempt if needed",
-      "datetime": "2026-10-10T23:24:32Z",
-      "session": "prompt-log",
-      "prompt": "yes i authorize a third (and fouth and fith) attempt if needed",
-      "summary": "prompt logged for reuse",
-      "kind": "prompt",
-      "skill": null,
-      "tool": null,
       "actor": null,
       "artifacts": [],
+      "datetime": "2026-10-10T23:24:32Z",
+      "id": "al-01M4M23SR736BMZ78AZQQWVXXB",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "yes i authorize a third (and fouth and fith) attempt if needed",
+      "session": "prompt-log",
+      "shortname": "yes i authorize a third (and fouth and fith) attempt if needed",
+      "skill": null,
+      "summary": "prompt logged for reuse",
       "tags": [],
-      "outcome": "success"
+      "tool": null
     },
     {
-      "id": "al-01M4MJ2XGPQ711J57R5A1MCW00",
-      "shortname": "win-gpu-b2-closeout",
-      "datetime": "2026-10-11T04:03:41Z",
-      "session": "pc-b2-r200-20261010",
-      "prompt": "keep going",
-      "summary": "Completed Windows GPU B2 under Rulings 200 and 209: exact CUDA 13.2 install, managed-memory SAXPY pass, immutable L3 guard, manifest-bound evidence, exact disposable-distro rollback, Rulings 208/210 reconciliation, Windows ring disclosure, Astra acceptance, and F1 decision request to the Mac leader.",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": "pc-coordinator",
       "artifacts": [
         "docs/proof/win-gpu-b2/receipt.md",
@@ -34946,30 +34937,108 @@ window.AUDIT_DATA = {
         "docs/proof/win-gpu-b2/rollback/rollback.json",
         "docs/proof/win-gpu-b2/windows-ring-summary.txt"
       ],
+      "compiled": false,
+      "datetime": "2026-10-11T04:03:41Z",
+      "done_when": "Successful run committed and pushed; disposable distro safely rolled back with proof; Rulings 208/210 applied; Windows ring failures documented; Astra review complete; PR handoff ready.",
+      "duration_seconds": 20362.0,
+      "fan_out": 4,
+      "git": {
+        "branch": "win/gpu-g2-b1-r199",
+        "pushed": true,
+        "sha": "80eb82a692c8511471743cc2f0d203f6235cd232",
+        "short": "80eb82a69"
+      },
+      "goal": "Complete the Windows B2 GPU track and hand Mac a join-ready evidence-backed result.",
+      "id": "al-01M4MJ2XGPQ711J57R5A1MCW00",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "keep going",
+      "session": "pc-b2-r200-20261010",
+      "shortname": "win-gpu-b2-closeout",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-10T22:24:19Z",
+      "summary": "Completed Windows GPU B2 under Rulings 200 and 209: exact CUDA 13.2 install, managed-memory SAXPY pass, immutable L3 guard, manifest-bound evidence, exact disposable-distro rollback, Rulings 208/210 reconciliation, Windows ring disclosure, Astra acceptance, and F1 decision request to the Mac leader.",
       "tags": [
         "windows",
         "gpu",
         "coordination"
       ],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-11T03:53:39Z",
+      "done_when": "gate red then green, run-tests green, readiness green, check-docs 0",
+      "duration_seconds": 795.0,
+      "goal": "Route every test link through TestLinks, gate bare CreateSymbolicLink, make view-setting restart checks assert session-only where the store is unsupported",
+      "id": "al-01M4MHGHHBQXVJT68K7TT589PN",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "WLK: Windows-safe link tests and platform-aware preference tests",
+      "session": "trk-wlk",
+      "shortname": "wlk-windows-links",
+      "skill": "implement",
+      "started_at": "2026-10-11T03:40:24Z",
+      "summary": "TestLinks per test project, SelfLaunch gate NoBareSymbolicLinkOutsideTestLinks, OrSessionOnly/PersistCheck wrappers plus 3 unsupported-store checks, register line, proof pack; Windows outcomes Inferred",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-11T03:55:25Z",
+      "duration_seconds": 65.0,
+      "fan_out": 0,
+      "id": "al-01M4MHKSNDSR15CTH18QPR05N8",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of fix/wlk-windows-links into main",
+      "session": "3122f106",
+      "shortname": "join-wlk",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-11T03:54:20Z",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M4MJNJFXQMCM8QZTFEMQ3WT4",
+      "shortname": "coordinate-pr31-wlk-rerun",
+      "datetime": "2026-10-11T04:13:52Z",
+      "session": "pc-pr31-wlk-rerun-20261011",
+      "prompt": "keep going",
+      "summary": "Merged WLK from main, reran the full Windows ring, localized three watchdog positions, captured isolated checks, recorded the exact Analysis golden mismatch, and sent the Mac leader a PR-ready xmsg.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-b2/windows-ring-wlk-rerun-summary.txt"
+      ],
+      "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "Complete the Windows B2 GPU track and hand Mac a join-ready evidence-backed result.",
-      "done_when": "Successful run committed and pushed; disposable distro safely rolled back with proof; Rulings 208/210 applied; Windows ring failures documented; Astra review complete; PR handoff ready.",
+      "goal": "Complete the Windows B2 GPU track and hand Mac a join-ready evidence-backed result after WLK.",
+      "done_when": "WLK rerun evidence is manifest-bound, exact timed child positions and golden mismatch are sent to Mac, gates pass, and the branch is pushed.",
       "tier": "T2",
       "fan_out": 4,
-      "signals": {
-        "verification_path": true,
-        "verification_executed": true,
-        "acceptance_met": true
-      },
-      "started_at": "2026-10-10T22:24:19Z",
-      "duration_seconds": 20362.0,
-      "git": {
-        "sha": "80eb82a692c8511471743cc2f0d203f6235cd232",
-        "short": "80eb82a69",
-        "branch": "win/gpu-g2-b1-r199",
-        "pushed": true
-      }
+      "started_at": "2026-10-11T04:08:57Z",
+      "duration_seconds": 295.0
     }
   ],
   "changes": [

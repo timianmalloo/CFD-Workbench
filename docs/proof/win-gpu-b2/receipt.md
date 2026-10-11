@@ -85,3 +85,13 @@ recorded install path, zero residual process, both distro identities, and unchan
 command `wsl.exe --unregister cfdw-cuda132-b2` exited 0. The closeout proves the target name, registry entry, and install
 directory absent; `cfdw-openfoam2512` remains present, with matching pre/post SHA-256
 `42e1d0bed05aa071a70fba8445474a85fa43a1746a394adc4e46a433a090aab9`.
+
+## Integrated Windows ring
+
+**Verified:** after merging WLK from `origin/main` at `eea2c7f1`, the full Windows ring exited 1 in 147.246 seconds.
+It reported 37 named product failures: Core 11, Desktop 25, Analysis 1, and CLI 0. Three Desktop child modes timed out
+at 120 seconds. Source-order localization names their first uncompleted checks, and isolated reruns show that all three
+terminate promptly outside the contended harness. The Analysis golden mismatch expected
+`9713863597250cd245c4d70560abee8840c002f6ff33501127ba331ac8efad62` and observed
+`752ebf3bb52860261175c7f04c38c2df04488e09b437f84be4ef31a8479bd865`. The exact inventory and limitations are in
+`windows-ring-wlk-rerun-summary.txt`; the raw and isolated outputs are manifest-bound beside it.

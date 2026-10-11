@@ -14,8 +14,8 @@
     },
     {
       "path": "docs/proof/win-gpu-b2/README.md",
-      "bytes": 7855,
-      "sha256": "3bf773b187793d2991cbc03882f6840fb6201510fbcf946748d6c49b44b3d6a7"
+      "bytes": 9082,
+      "sha256": "fdcaa145f308468efbe68a13db50e82d6639f16cbcfc30c9988ff0ccc82bdb56"
     },
     {
       "path": "docs/proof/win-gpu-b2/accepted-inputs.sha256",
@@ -549,8 +549,8 @@
     },
     {
       "path": "docs/proof/win-gpu-b2/receipt.md",
-      "bytes": 5775,
-      "sha256": "3e7f7dcdf2b56d829ddfc248902089a8dee220f181943aafcab370661098c527"
+      "bytes": 6536,
+      "sha256": "50a72270de5085fc367d1be733dc02f9faf8f04abdd467820eef7adac6913910"
     },
     {
       "path": "docs/proof/win-gpu-b2/residual-owned.sh",
@@ -636,6 +636,56 @@
       "path": "docs/proof/win-gpu-b2/windows-ring-summary.txt",
       "bytes": 5573,
       "sha256": "4c614bb14d2eb78c3bd1ca5cedb723148668ed79de756b9b1df273b9985a8a88"
+    },
+    {
+      "path": "docs/proof/win-gpu-b2/windows-ring-wlk-rerun-summary.txt",
+      "bytes": 4133,
+      "sha256": "8f160ff123b553b9403db72c2c04a1eb86ae3d801c1a32dc976fd0f098c404fe"
+    },
+    {
+      "path": "docs/proof/win-gpu-b2/windows-ring-wlk-rerun.exit.txt",
+      "bytes": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "path": "docs/proof/win-gpu-b2/windows-ring-wlk-rerun.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-gpu-b2/windows-ring-wlk-rerun.stdout.txt",
+      "bytes": 15375,
+      "sha256": "41d604d058f2120011fa5a9aacac87b74011bf6ebfd2a9d774bacb4bcd567bae"
+    },
+    {
+      "path": "docs/proof/win-gpu-b2/windows-ring-wlk-timeout-analysis-isolated.exit.txt",
+      "bytes": 1,
+      "sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "path": "docs/proof/win-gpu-b2/windows-ring-wlk-timeout-analysis-isolated.txt",
+      "bytes": 1070,
+      "sha256": "818e8c68ea25c403824cf64908bc79af2d361482a3bd933d475ef2c8a14d8f8a"
+    },
+    {
+      "path": "docs/proof/win-gpu-b2/windows-ring-wlk-timeout-plan-isolated.exit.txt",
+      "bytes": 1,
+      "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "path": "docs/proof/win-gpu-b2/windows-ring-wlk-timeout-plan-isolated.txt",
+      "bytes": 303,
+      "sha256": "31d2b9581173e3fca3317668102b4284d2f8df184c8953e4f6efe8fc3af7b62e"
+    },
+    {
+      "path": "docs/proof/win-gpu-b2/windows-ring-wlk-timeout-shell-isolated.exit.txt",
+      "bytes": 1,
+      "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "path": "docs/proof/win-gpu-b2/windows-ring-wlk-timeout-shell-isolated.txt",
+      "bytes": 328,
+      "sha256": "9a75faf27cba0ea1fbf867d1f169b3094e8d55846598673c75d318a104aef3ef"
     },
     {
       "path": "docs/proof/win-gpu-b2/windows-ring.exit.txt",
