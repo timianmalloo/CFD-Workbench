@@ -18117,7 +18117,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7dcc7e49b98da2bf79f8bd9c35a8c0bcaed746e6fd3d0399ef46ea6e786dcc98"
+      "sourceSha256": "d8d3881c7831e9f094748fd94121c87794f402e08affd0561b03e44bb8d8fe70"
     },
     {
       "id": "proof-win-gpu-g1",
@@ -19800,6 +19800,45 @@ window.DOCS_INDEX = {
       "sourceSha256": "69454b8cb20ee355a4c14ed10e193a2a87d49984d707f9b71c16f0ad78880e75"
     },
     {
+      "id": "review-windows-gpu-f1-astra-r2",
+      "path": "docs/reviews/windows-gpu-f1-astra-r2.md",
+      "title": "Astra second and final Ruling 211 design review",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@pc-f1-astra-r211-review2",
+      "phase": "design",
+      "reviewBy": "2026-11-11",
+      "reviewSuggested": [],
+      "summary": "Second VETO: F1-ASTRA-1 remains open. The repaired inventory corrects payload provenance but does not supply the combined transaction or finite F1 capacity. The track ends; only a narrow preflight decision goes to Mac.",
+      "tags": [
+        "windows",
+        "gpu",
+        "petsc",
+        "ruling-211",
+        "owner-review"
+      ],
+      "links": [
+        {
+          "to": "plan-windows-gpu-f1-r211",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-gpu-f1-dependency-worksheet",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-windows-gpu-f1-astra-r211",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-windows-gpu-f1-design",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "43cfccc5ac02084416e899e70bd8b8e8963983b1817a715e6f9e6530905055e2"
+    },
+    {
       "id": "review-windows-gpu-f1-astra-r211",
       "path": "docs/reviews/windows-gpu-f1-astra.md",
       "title": "Astra owner review of the Ruling 211 F1 design",
@@ -21057,5 +21096,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d7a2e67edd28da5b9d4a3554af4f2d6997508be103352e6656e6187682c01080"
+  "graphSha256": "40163ff666d8c3cf7248fb43bc7e202583116bb74a1842a2d71e08a71664b1a3"
 };
