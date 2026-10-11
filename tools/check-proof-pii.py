@@ -8,7 +8,9 @@ Fails any tracked text file that carries
   * a machine SID (S-1-5-21-<n>-<n>-<n>, optional RID) -- write S-1-5-21-<machine>-<RID> instead, or
   * a machine hostname (Ruling 181 (5)): a Windows default name (DESKTOP-/LAPTOP- plus 7, WIN- plus 11),
     COMPUTERNAME=<name>, "MachineName": "<name>", a systeminfo "Host Name:" line, a UNC host prefix, or a
-    literal from the run-time environment list CFD_PII_HOSTNAMES (comma-separated, never committed).
+    literal from the run-time environment list CFD_PII_HOSTNAMES (comma-separated, never committed), or
+    this machine's own name (socket.gethostname, its short form, platform.node, COMPUTERNAME on Windows),
+    always checked with no setting, case-insensitively (rule hostname:own-host; Ruling 213).
     Write <host>, <machine> or %COMPUTERNAME% instead. Hits print the name masked (first two characters).
 The macOS home (/Users/<name> with no drive prefix) is out of scope and never fires.
 
@@ -24,7 +26,9 @@ Usage: check-proof-pii.py [--self-test] [--root DIR] [--show-skipped]
 from __future__ import annotations
 
 import os
+import platform
 import re
+import socket
 import subprocess
 import sys
 import tempfile
@@ -76,6 +80,10 @@ SAFE_NAMES = {"public", "default", "all users", "default user"}
 # mac is the label the spike-03/04 scrub wrote into the OpenFOAM banner; server is a generic UNC word in a test string
 # (tools/spikes/WindowsRuntime/Program.cs). Leader ruling 2026-10-09; neither is a machine name.
 SAFE_HOSTS = {"localhost", ".", "?", "wsl.localhost", "mac", "server"}
+# Names of this machine that are not a machine name: never matched by the own-host rule (one constant, Ruling 213).
+GENERIC_HOSTS = frozenset({"localhost", "localhost.localdomain", "localdomain", "local", "host", "none", "unknown",
+                           "default", "computer", "mac", "macbook", "server", "pc"})
+MIN_OWN_HOST_LEN = 4
 
 # Shrink-only: path -> reason. Remove an entry when its file is scrubbed; never add one
 # without an operator-visible reason.
@@ -107,7 +115,24 @@ def env_hostnames() -> list[str]:
     return [h.strip() for h in os.environ.get("CFD_PII_HOSTNAMES", "").split(",") if h.strip()]
 
 
-def scan_text(text: str, literals: list[str] | None = None) -> list[str]:
+def clean_own_names(names: list[str]) -> list[str]:
+    """Own-host names to match: lower case, the short form added, short or generic names dropped, no duplicates."""
+    out: list[str] = []
+    for raw in names:
+        full = raw.strip().lower()
+        for n in (full, full.split(".")[0]):
+            if len(n) >= MIN_OWN_HOST_LEN and n not in GENERIC_HOSTS and n not in out:
+                out.append(n)
+    return out
+
+
+def own_hostnames() -> list[str]:
+    """This machine's own names; always on, no setting turns it off (Ruling 213)."""
+    names = [socket.gethostname(), platform.node(), os.environ.get("COMPUTERNAME", "")]
+    return clean_own_names(names)
+
+
+def scan_text(text: str, literals: list[str] | None = None, own_hosts: list[str] | None = None) -> list[str]:
     hits = []
     for rule, rx, needles, bad_prev in HOST_RULES:
         if not any(n in text for n in needles):
@@ -120,6 +145,9 @@ def scan_text(text: str, literals: list[str] | None = None) -> list[str]:
     for lit in env_hostnames() if literals is None else literals:
         if re.search(_TOK + re.escape(lit) + r"(?![A-Za-z0-9])", text, re.IGNORECASE):
             hits.append(f"hostname:env-literal:{mask(lit)}")
+    for lit in own_hostnames() if own_hosts is None else own_hosts:
+        if re.search(_TOK + re.escape(lit) + r"(?![A-Za-z0-9])", text, re.IGNORECASE):
+            hits.append(f"hostname:own-host:{mask(lit)}")
     for m in WIN_USER.finditer(text):
         if not is_placeholder(m.group(1)):
             hits.append(f"windows-user-path:{m.group(0)}")
@@ -150,9 +178,10 @@ def decode_text(data: bytes) -> str | None:
     return None
 
 
-def scan_tree(root: Path, skipped: list[str] | None = None) -> dict[str, list[str]]:
+def scan_tree(root: Path, skipped: list[str] | None = None, own_hosts: list[str] | None = None) -> dict[str, list[str]]:
     found: dict[str, list[str]] = {}
     literals = env_hostnames()
+    own = own_hostnames() if own_hosts is None else own_hosts
     for rel in worktree_files(root):
         p = root / rel
         try:
@@ -164,7 +193,7 @@ def scan_tree(root: Path, skipped: list[str] | None = None) -> dict[str, list[st
             if skipped is not None:
                 skipped.append(rel)
             continue
-        hits = scan_text(text, literals)
+        hits = scan_text(text, literals, own)
         if hits:
             found[rel] = hits
     return found
@@ -236,14 +265,41 @@ def self_test() -> int:
     offenders.update({f"host {k}": v for k, v in host_off.items()})
     clean.update({f"host {k}": v for k, v in host_clean.items()})
     bad = 0
+    # The own-host seam: a fake name stands in for the machine's; the self-test never reads the real one.
+    fake_own = "qx" + "fake" + "box9"
     for label, text in offenders.items():
-        if not scan_text(text, host_literals):
+        if not scan_text(text, host_literals, own_hosts=[]):
             print(f"SELF-TEST FAIL: offender not caught: {label}")
             bad += 1
     for label, text in clean.items():
-        if scan_text(text, host_literals):
-            print(f"SELF-TEST FAIL: clean text flagged: {label}: {scan_text(text, host_literals)}")
+        if scan_text(text, host_literals, own_hosts=[]):
+            print(f"SELF-TEST FAIL: clean text flagged: {label}: {scan_text(text, host_literals, own_hosts=[])}")
             bad += 1
+    own_cases = {
+        "own host utf-8": f"raw output from {fake_own} today",
+        "own host mixed case": f"HOST={fake_own.upper()[:4]}{fake_own[4:]}",
+    }
+    for label, text in own_cases.items():
+        hits = scan_text(text, [], own_hosts=[fake_own])
+        if not any(h.startswith("hostname:own-host:") for h in hits):
+            print(f"SELF-TEST FAIL: own-host not caught: {label}")
+            bad += 1
+        if any(fake_own.lower() in h.lower() for h in hits):
+            print(f"SELF-TEST FAIL: own-host hit prints the name: {label}")
+            bad += 1
+    if scan_text(f"{fake_own}", [], own_hosts=[]):
+        print("SELF-TEST FAIL: own-host fired with no own-host names")
+        bad += 1
+    ignored = ["abc", "localhost", "localhost.localdomain", "", "  "]
+    if clean_own_names(ignored + [fake_own.upper()]) != [fake_own.lower()]:
+        print("SELF-TEST FAIL: short or generic own-host name not ignored")
+        bad += 1
+    if scan_text("abc localhost", [], own_hosts=clean_own_names(ignored)):
+        print("SELF-TEST FAIL: short or generic own-host name fired")
+        bad += 1
+    if clean_own_names([f"{fake_own}.example.test"]) != [f"{fake_own}.example.test", fake_own]:
+        print("SELF-TEST FAIL: short form of a dotted own-host name missing")
+        bad += 1
     with tempfile.TemporaryDirectory() as tmp:  # GATE-BEFORE-ADD: a new file not yet `git add`ed
         repo = Path(tmp)
         subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
@@ -264,6 +320,16 @@ def self_test() -> int:
             if name not in hit:
                 print(f"SELF-TEST FAIL: UTF-16 offender not caught: {name}")
                 bad += 1
+        (repo / "own8.txt").write_bytes(f"out of {fake_own}\n".encode("utf-8"))
+        (repo / "own16.txt").write_bytes(f"Out of {fake_own.upper()}\n".encode("utf-16-le"))
+        own_hit = scan_tree(repo, [], own_hosts=[fake_own])
+        for name in ("own8.txt", "own16.txt"):
+            if not any(h.startswith("hostname:own-host:") for h in own_hit.get(name, [])):
+                print(f"SELF-TEST FAIL: own-host file not caught: {name}")
+                bad += 1
+        if any(fake_own.lower() in h.lower() for hs in own_hit.values() for h in hs):
+            print("SELF-TEST FAIL: tree hits print the own-host name")
+            bad += 1
         if "clean_le.txt" in hit or "clean_le.txt" in skipped:
             print("SELF-TEST FAIL: clean UTF-16 file flagged or skipped")
             bad += 1

@@ -2148,6 +2148,8 @@ guard sees a name only in a path or SID shape, and history is unchanged.
 
 Ruling 174/181 instance (2026-10-09): no entry for hostnames existed, so this line extends PROOF-PII. Ruling 174 scrubbed a raw PC hostname from a PR, but the guard matched only user paths and SIDs, so the class had no control (Ruling 181 (5)). `tools/check-proof-pii.py` now also fails a Windows default machine name, `COMPUTERNAME=<name>`, a `MachineName` JSON value, a `systeminfo` `Host Name:` line and a UNC host prefix, prints hits masked, and reads an optional uncommitted `CFD_PII_HOSTNAMES` list; self-test fixtures use invented names (`docs/proof/pii/red-first.md`, trk-phn). Residual: a hostname that is not a default name and appears outside those shapes is seen only through the local list.
 
+Ruling 213 instance (2026-10-11, PHO): *Signature:* a privacy gate that knows a secret only through a per-machine setting (`CFD_PII_HOSTNAMES`) that the producing machine never set; the PC committed its own hostname and its gate passed. *Second shape:* a reviewer's pattern grep cannot see a literal it does not know. *Control:* `check-proof-pii.py` now always matches the running machine's own names (rule `hostname:own-host`, no off switch; `docs/proof/pho/red-first.md`).
+
 Ruling 165 instance (2026-10-08): an unpushed local audit entry included a concrete Windows account path. The correction reset that entry before any push and re-appended it with `%USERPROFILE%` at write time. The new audit line contains no account path; prior shared history was not rewritten.
 
 *2026-10-09 (PHN join, UNION-REVIVES-SCRUB).* A scrub of a union-merged register comes undone at the merge.
