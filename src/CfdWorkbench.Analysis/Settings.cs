@@ -76,14 +76,14 @@ public static class Settings
 
     private static double Edge(int index, int n, string spacing) => spacing switch
     {
-        "cosine" => -Math.Cos(Math.PI * index / n),
+        "cosine" => -double.CosPi(index / (double)n),
         "uniform" => -1 + 2.0 * index / n,
         _ => throw new ArgumentOutOfRangeException(nameof(spacing), spacing, "VLM: spacing is cosine or uniform.")
     };
 
     private static double Fraction(int index, int n, string spacing) => spacing switch
     {
-        "cosine" => 0.5 * (1 - Math.Cos(Math.PI * index / n)),
+        "cosine" => 0.5 * (1 - double.CosPi(index / (double)n)),
         "uniform" => (double)index / n,
         _ => throw new ArgumentOutOfRangeException(nameof(spacing), spacing, "VLM: spacing is cosine or uniform.")
     };

@@ -5466,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d78cd66a0fed7f7999f69b8a68d02d2a746e98a1064f1097fb7b91294aac236d"
+      "sourceSha256": "52e4f71140e7b5822373a38074c6fbbc7e4a262af08165fd2f6d8bbe12770271"
     },
     {
       "id": "domain-experts",
@@ -6544,6 +6544,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "1c4b1817da762c6cfb58286bfb02c0d3b470550bc554954b97d1529b2252fc10"
+    },
+    {
+      "id": "proof-tfh2-red-first",
+      "path": "docs/proof/tfh2/red-first.md",
+      "title": "Track TFH2 - CosPi stations and panel grid, red and green runs",
+      "type": "doc",
+      "status": "draft",
+      "owner": "@trk-tfh2",
+      "phase": "build",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Settings stations and the panel grid move to double.CosPi; DefaultHash re-recorded, station bit golden added, CRT gate extended (macOS arm64, base 4a110476).",
+      "tags": [
+        "determinism",
+        "settings-hash",
+        "red-first",
+        "crt-golden"
+      ],
+      "links": [
+        {
+          "to": "proof-tfh-proposal",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "45209329802e321516ef5e1c9055d7a873c48471fb02f45bfcb5918eda6d5039"
     },
     {
       "id": "proof-wig-red-first",
@@ -8778,7 +8804,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "55b7e7c13c6f4616d5f3cfa70347a810d6c1ac3dd12927476bd8c107c553b640"
+      "sourceSha256": "b2b6efa658886a7b3a21c5c982e22e16e0e3135889fd8659bb59313639c5a89d"
     },
     {
       "id": "kb-hw-glossary",
@@ -20663,5 +20689,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "8b26d8188d29c726bf4a178d1bc5bbf572a5fba7b125ef76b98fec09d098fcea"
+  "graphSha256": "43a71dafc2e6be5019dc99e32a40eec420fb1e554695f69bef464971a3c8aa02"
 };
