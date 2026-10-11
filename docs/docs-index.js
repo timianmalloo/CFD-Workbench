@@ -5466,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "921bf71afa3ad0a7c174226ecb8802b9360255ba6280f2e33e2338d869c4421a"
+      "sourceSha256": "668468261c26a47091ff83d8403fc83a28fba777287423180fa5e5a067da49c3"
     },
     {
       "id": "domain-experts",
@@ -8727,7 +8727,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3424290dff24ba2c1eddc397b003de50e02403c65ba4a9034c1dd8071200b104"
+      "sourceSha256": "55b7e7c13c6f4616d5f3cfa70347a810d6c1ac3dd12927476bd8c107c553b640"
     },
     {
       "id": "kb-hw-glossary",
@@ -15123,6 +15123,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "976d173d6c518f18fadfb8d21b855ca314cc12906d258a4088f7f1e120f95061"
     },
     {
+      "id": "proof-pho-red-first",
+      "path": "docs/proof/pho/red-first.md",
+      "title": "PHO red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-pho",
+      "phase": "implementation",
+      "reviewBy": "2026-11-11",
+      "reviewSuggested": [],
+      "summary": "Red-first and self-test receipt for the PII gate matching the running machine's own hostname (Ruling 213).",
+      "tags": [
+        "pii",
+        "proof",
+        "ruling-213"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f2d7fe7439e8954fbd1cf406a13a2a36ab08b092354e117cb8db377634a3a8ce"
+    },
+    {
       "id": "proof-pii-red-first",
       "path": "docs/proof/pii/red-first.md",
       "title": "PROOF-PII red-first receipt",
@@ -20503,5 +20528,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "576c1003d7d4e6f22caab8ed3cae37a7091ae76f8f5cde2886ef59d624e6669b"
+  "graphSha256": "9df2678771589509b2ee9a2ae4c68297042dad3241a766fecf7ac134c5b5eaf8"
 };
