@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T21:45:34Z",
+  "generated": "2026-10-11T03:53:39Z",
   "audit": [
     {
       "actor": null,
@@ -34818,6 +34818,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-10T21:44:27Z",
       "duration_seconds": 67.0
+    },
+    {
+      "id": "al-01M4MHGHHBQXVJT68K7TT589PN",
+      "shortname": "wlk-windows-links",
+      "datetime": "2026-10-11T03:53:39Z",
+      "session": "trk-wlk",
+      "prompt": "WLK: Windows-safe link tests and platform-aware preference tests",
+      "summary": "TestLinks per test project, SelfLaunch gate NoBareSymbolicLinkOutsideTestLinks, OrSessionOnly/PersistCheck wrappers plus 3 unsupported-store checks, register line, proof pack; Windows outcomes Inferred",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Route every test link through TestLinks, gate bare CreateSymbolicLink, make view-setting restart checks assert session-only where the store is unsupported",
+      "done_when": "gate red then green, run-tests green, readiness green, check-docs 0",
+      "started_at": "2026-10-11T03:40:24Z",
+      "duration_seconds": 795.0
     }
   ],
   "changes": [
@@ -37632,6 +37652,15 @@ window.AUDIT_DATA = {
       "to": "fable-owner",
       "kind": "decision-request",
       "ref": "req-01M4KT4VYJDNGE5GCV1QGXQ8FZ",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4KYVNRR7TTKC6M1SM3N6V3Q",
+      "ts": "2026-10-10T22:27:40Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4KYVNRKXY64YDH9YYD9FAMX",
       "session": "3122f106"
     }
   ]
