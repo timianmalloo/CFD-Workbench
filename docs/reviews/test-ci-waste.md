@@ -506,3 +506,5 @@ Direct probes: `--part=500/500` on Core and `--part=99/99` on `--shell-model` ex
 - The part rule assumes each check is independent of the checks before it. That was true for all 949
   today (the multiset is identical). A future check that depends on an earlier one would go red in its
   part, which is loud, not silent.
+
+*2026-10-11 (PR #32 join, Ruling 216 condition 2).* `docs/coordination/join.json` gains `conductor-join.py --self-test` in the join's fast ring, on every join (code or docs). Cost: 0.87 s on the Mac (Fable owner, measured from the PR tree). It guards the Windows `.sh` resolution through a validated Git Bash; on posix it is a no-op cast.
