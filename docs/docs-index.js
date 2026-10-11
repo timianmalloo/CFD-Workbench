@@ -6495,6 +6495,57 @@ window.DOCS_INDEX = {
       "sourceSha256": "af6001f81fa629006e9f385fba932780807323610781806fe3e9cc28d41b0c01"
     },
     {
+      "id": "proof-tfh-proposal",
+      "path": "docs/proof/tfh/proposal.md",
+      "title": "Track TFH - why the run settings hash differs between Windows and macOS, and the options",
+      "type": "doc",
+      "status": "draft",
+      "owner": "@trk-tfh",
+      "phase": "design",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Diagnosis (Mac-side, Verified where observed), a PC diagnostic, three fix options with run-key consequences, and a recommendation (c: managed CosPi stations, one stale-once).",
+      "tags": [
+        "determinism",
+        "settings-hash",
+        "run-key",
+        "crt-golden"
+      ],
+      "links": [
+        {
+          "to": "proof-tfh-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0b61ca00e1d9a314fcb8f70bda2530899b1605b91b19a30e0e4d965a51e62d8e"
+    },
+    {
+      "id": "proof-tfh-red-first",
+      "path": "docs/proof/tfh/red-first.md",
+      "title": "Track TFH - red and green runs of the settings-hash diagnostic",
+      "type": "doc",
+      "status": "draft",
+      "owner": "@trk-tfh",
+      "phase": "build",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "The split golden checks pass on the Mac and print DIAG lines when a golden is forced to differ (macOS arm64, base c74a78fc).",
+      "tags": [
+        "determinism",
+        "settings-hash",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-tfh-proposal",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1c4b1817da762c6cfb58286bfb02c0d3b470550bc554954b97d1529b2252fc10"
+    },
+    {
       "id": "proof-wig-red-first",
       "path": "docs/proof/wig/red-first.md",
       "title": "WSL-INLINE-ARGV gate: red first, then green",
@@ -20584,5 +20635,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "152f0b41b8c8b6bb0b038f520d37003a45b967c1d7bf20ecf18c35ece2a91904"
+  "graphSha256": "cec036736fbffc6c785dfbe0b758013fb7fcec2f382105983be53fdc9cc73f7a"
 };
