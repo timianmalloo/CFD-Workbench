@@ -5466,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "885efd83a7baa31146d2b7e18a594b34b1505a6144cb67df6dffd67b844d9b41"
+      "sourceSha256": "094383c8fe81d1b92a146c1506156fcae79f745e07dcbb598318fd010e8dab6e"
     },
     {
       "id": "domain-experts",
@@ -6493,6 +6493,83 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "af6001f81fa629006e9f385fba932780807323610781806fe3e9cc28d41b0c01"
+    },
+    {
+      "id": "proof-tfh-proposal",
+      "path": "docs/proof/tfh/proposal.md",
+      "title": "Track TFH - why the run settings hash differs between Windows and macOS, and the options",
+      "type": "doc",
+      "status": "draft",
+      "owner": "@trk-tfh",
+      "phase": "design",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Diagnosis (Mac-side, Verified where observed), a PC diagnostic, three fix options with run-key consequences, and a recommendation (c: managed CosPi stations, one stale-once).",
+      "tags": [
+        "determinism",
+        "settings-hash",
+        "run-key",
+        "crt-golden"
+      ],
+      "links": [
+        {
+          "to": "proof-tfh-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0b61ca00e1d9a314fcb8f70bda2530899b1605b91b19a30e0e4d965a51e62d8e"
+    },
+    {
+      "id": "proof-tfh-red-first",
+      "path": "docs/proof/tfh/red-first.md",
+      "title": "Track TFH - red and green runs of the settings-hash diagnostic",
+      "type": "doc",
+      "status": "draft",
+      "owner": "@trk-tfh",
+      "phase": "build",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "The split golden checks pass on the Mac and print DIAG lines when a golden is forced to differ (macOS arm64, base c74a78fc).",
+      "tags": [
+        "determinism",
+        "settings-hash",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-tfh-proposal",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1c4b1817da762c6cfb58286bfb02c0d3b470550bc554954b97d1529b2252fc10"
+    },
+    {
+      "id": "proof-tfh2-red-first",
+      "path": "docs/proof/tfh2/red-first.md",
+      "title": "Track TFH2 - CosPi stations and panel grid, red and green runs",
+      "type": "doc",
+      "status": "draft",
+      "owner": "@trk-tfh2",
+      "phase": "build",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Settings stations and the panel grid move to double.CosPi; DefaultHash re-recorded, station bit golden added, CRT gate extended (macOS arm64, base 4a110476).",
+      "tags": [
+        "determinism",
+        "settings-hash",
+        "red-first",
+        "crt-golden"
+      ],
+      "links": [
+        {
+          "to": "proof-tfh-proposal",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "45209329802e321516ef5e1c9055d7a873c48471fb02f45bfcb5918eda6d5039"
     },
     {
       "id": "proof-wig-red-first",
@@ -8727,7 +8804,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3424290dff24ba2c1eddc397b003de50e02403c65ba4a9034c1dd8071200b104"
+      "sourceSha256": "b2b6efa658886a7b3a21c5c982e22e16e0e3135889fd8659bb59313639c5a89d"
     },
     {
       "id": "kb-hw-glossary",
@@ -15123,6 +15200,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "976d173d6c518f18fadfb8d21b855ca314cc12906d258a4088f7f1e120f95061"
     },
     {
+      "id": "proof-pho-red-first",
+      "path": "docs/proof/pho/red-first.md",
+      "title": "PHO red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-pho",
+      "phase": "implementation",
+      "reviewBy": "2026-11-11",
+      "reviewSuggested": [],
+      "summary": "Red-first and self-test receipt for the PII gate matching the running machine's own hostname (Ruling 213).",
+      "tags": [
+        "pii",
+        "proof",
+        "ruling-213"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f2d7fe7439e8954fbd1cf406a13a2a36ab08b092354e117cb8db377634a3a8ce"
+    },
+    {
       "id": "proof-pii-red-first",
       "path": "docs/proof/pii/red-first.md",
       "title": "PROOF-PII red-first receipt",
@@ -16095,6 +16197,34 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "bf9afdc21d13437683b7f5df2df2db12c098cef87e6cc411b67c62745f5e500b"
+    },
+    {
+      "id": "proof-rng-red-first",
+      "path": "docs/proof/rng/red-first.md",
+      "title": "RNG red-first: Analysis in three parts, fractional-scale expected-failure class",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-rng",
+      "phase": "implementation",
+      "reviewBy": "2026-11-11",
+      "reviewSuggested": [],
+      "summary": "C-2 tripped four times with Analysis in two parts. Analysis now runs as three parts (tools/run-tests.sh, tools/check-test-costs.py), the 5,000 ms cap unchanged; the Windows expected-failures manifest gets a fractional-scale class and two entries. Self-tests red then green, timings before and after.",
+      "tags": [
+        "rng",
+        "analysis",
+        "partition",
+        "c-2",
+        "expected-failures",
+        "windows"
+      ],
+      "links": [
+        {
+          "to": "proof-etc-c2-cost",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a201d85af96c1f712d9c02ccf7d6dbced3b62ce38d9c22e45e1260bde0827618"
     },
     {
       "id": "proof-round-oct05-heredoc-hook-proposal",
@@ -18557,6 +18687,62 @@ window.DOCS_INDEX = {
       "sourceSha256": "b3f7db76829feaefea78295f33487264771db77d6e528f0c1ccff29c40d6303b"
     },
     {
+      "id": "proof-wrx-classification",
+      "path": "docs/proof/wrx/classification.md",
+      "title": "WRX classification of the Windows ring after WLK",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-wrx",
+      "phase": "implementation",
+      "reviewBy": "2026-11-11",
+      "reviewSuggested": [],
+      "summary": "Every failing name and every unseen manifest entry in the PC's WLK rerun (main eea2c7f1 merged at 67056b75), with the first failure line, the cause, the introducing commit and the action. Windows claims are labelled Verified (seen in the raw log) or Inferred.",
+      "tags": [
+        "windows",
+        "ring",
+        "expected-failures",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9350c18085c1b688aec3fd889b3587ff264d29e7a5c90c40f44260898c74c9a2"
+    },
+    {
+      "id": "proof-wrx-red-first",
+      "path": "docs/proof/wrx/red-first.md",
+      "title": "WRX red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-wrx",
+      "phase": "implementation",
+      "reviewBy": "2026-11-11",
+      "reviewSuggested": [],
+      "summary": "Red and green receipts for WRX: the manifest-name control (red on the pre-WRX manifest), the replay of the PC's raw log through the checker, and what the Mac cannot show red.",
+      "tags": [
+        "windows",
+        "ring",
+        "expected-failures",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "proof-wrx-classification",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "376b1ef1167aa7b126734d5604275b93d776be6fbfbd2e7e6c0e545d532e2d1d"
+    },
+    {
       "id": "proof-wsf-red-first",
       "path": "docs/proof/wsf/red-first.md",
       "title": "READER-SHARE red-first receipt",
@@ -18675,7 +18861,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "50a72270de5085fc367d1be733dc02f9faf8f04abdd467820eef7adac6913910"
+      "sourceSha256": "828f175c8655b7b8003ecb0c502e20f4df3d9c95e46f762e3d23aa7c967d9aa5"
     },
     {
       "id": "review-app-shell-native",
@@ -20715,5 +20901,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "afcc61061617a8423040445bdd19a4eb8e7cf461b2dc442930af95b87b149569"
+  "graphSha256": "07a01f1d9ea0ff665c5542b3f5cf1ff4899627a6741ff192d21328fcc363d052"
 };

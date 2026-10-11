@@ -95,3 +95,11 @@ terminate promptly outside the contended harness. The Analysis golden mismatch e
 `9713863597250cd245c4d70560abee8840c002f6ff33501127ba331ac8efad62` and observed
 `752ebf3bb52860261175c7f04c38c2df04488e09b437f84be4ef31a8479bd865`. The exact inventory and limitations are in
 `windows-ring-wlk-rerun-summary.txt`; the raw and isolated outputs are manifest-bound beside it.
+
+## Ruling 213 redaction
+
+**Verified:** the two retained Windows ring stdout captures originally included the local hostname in repeated stack
+trace paths. Ruling 213 requires source redaction before join. Every case-insensitive occurrence in
+`windows-ring.stdout.txt` and `windows-ring-wlk-rerun.stdout.txt` is now the literal placeholder `<host>`. The B2
+manifest binds the redacted Git blobs, and the proof-PII gate was rerun with the local hostname supplied through the
+uncommitted `CFD_PII_HOSTNAMES` environment variable.

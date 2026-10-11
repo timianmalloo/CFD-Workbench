@@ -162,18 +162,18 @@ FAILED: CfdWorkbench.Analysis.Tests 2/2 (exit 1)
 == CfdWorkbench.Cli.Tests 8 s (7809 ms), 17 PASS
 COST Cli_Export_EmitsOneTelemetryEventPerOutcome_NoPathNoName 251.978
 EXPECTED-FAIL 2 (manifest)
-COST-MISS C-2 Analysis.part1of2 took 13099 ms, over 5000 ms host extreme1
-COST-MISS C-2 Analysis.part2of2 took 15110 ms, over 5000 ms host extreme1
-COST-MISS C-3 run-tests net wall 137529 ms (wall - build), over 50000 ms host extreme1
-COST-MISS C-4 Desktop took 132061 ms, over 49369 ms: DR-ANA-10 applies (spread or split the Desktop job) host extreme1
-COST-MISS C-5 Freshness_SurfaceEdit_Historical took 722.649 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 Section_WingRun_PanelValuesAtEveryStation took 833.997 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 NotResolved_OneChordwisePanel_TableValuesReadRuling161_LabelsDropBias took 780.005 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 NotResolved_FourChordwisePanels_TextsUnchanged took 826.148 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 NotResolved_TwoChordwisePanels_StillResolved_StructuralRuleNotMagnitude took 960.812 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 SectionProjection_EstimatorLabel_DepthAware took 562.558 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 SectionView_Speeds_FollowUnitsSwitch took 1015.846 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 Section_StationsTable_ListsSolvedGoverningAndShownOnly took 712.812 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
+COST-MISS C-2 Analysis.part1of2 took 13099 ms, over 5000 ms host <host>
+COST-MISS C-2 Analysis.part2of2 took 15110 ms, over 5000 ms host <host>
+COST-MISS C-3 run-tests net wall 137529 ms (wall - build), over 50000 ms host <host>
+COST-MISS C-4 Desktop took 132061 ms, over 49369 ms: DR-ANA-10 applies (spread or split the Desktop job) host <host>
+COST-MISS C-5 Freshness_SurfaceEdit_Historical took 722.649 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host <host>
+COST-MISS C-5 Section_WingRun_PanelValuesAtEveryStation took 833.997 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host <host>
+COST-MISS C-5 NotResolved_OneChordwisePanel_TableValuesReadRuling161_LabelsDropBias took 780.005 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host <host>
+COST-MISS C-5 NotResolved_FourChordwisePanels_TextsUnchanged took 826.148 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host <host>
+COST-MISS C-5 NotResolved_TwoChordwisePanels_StillResolved_StructuralRuleNotMagnitude took 960.812 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host <host>
+COST-MISS C-5 SectionProjection_EstimatorLabel_DepthAware took 562.558 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host <host>
+COST-MISS C-5 SectionView_Speeds_FollowUnitsSwitch took 1015.846 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host <host>
+COST-MISS C-5 Section_StationsTable_ListsSolvedGoverningAndShownOnly took 712.812 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host <host>
 PARTITION-SKEW Core parts=86931,87596,91737 skew_ms=4806 (hints stale?)
 PARTITION-SKEW Analysis parts=13099,15110 skew_ms=2011 (hints stale?)
 test costs: 0 failures, 12 COST-MISS (load 11.35)
