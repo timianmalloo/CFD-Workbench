@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T18:52:41Z",
+  "generated": "2026-10-11T18:54:07Z",
   "audit": [
     {
       "actor": null,
@@ -35770,6 +35770,37 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-11T18:51:05Z",
       "duration_seconds": 96.0
+    },
+    {
+      "id": "al-01M4P51B4MPSB9FY0XG71HMJBY",
+      "shortname": "windows-gpu-f1-coordination-close",
+      "datetime": "2026-10-11T18:54:06Z",
+      "session": "pc-f1-execute-20261011",
+      "prompt": "Close the Windows F1 coordination track after the final Astra verdict and hand the bounded decision to Mac.",
+      "summary": "Closed the serial AUTHOR-Astra track after the second VETO, recorded measured plan variance, and posted the Mac xmsg handoff. Exact Ubuntu transaction and finite F1 capacity remain open; execution remains closed.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/windows-gpu-f1-design.md",
+        "docs/coordination/windows-gpu-f1-design.html",
+        "docs/coordination/xmsg.jsonl"
+      ],
+      "tags": [],
+      "outcome": "blocked",
+      "compiled": false,
+      "goal": "Converge the Windows F1 design work into one gated GitHub handoff without crossing Ruling 211.",
+      "done_when": "The final verdict, planned-versus-actual record, and Mac handoff are committed and pushed with documentation checks green.",
+      "tier": "T1",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-11T18:53:51Z",
+      "duration_seconds": 15.0
     }
   ],
   "changes": [

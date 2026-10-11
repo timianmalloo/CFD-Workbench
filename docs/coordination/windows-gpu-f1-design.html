@@ -2,7 +2,7 @@
 id: coordination-windows-gpu-f1-design
 title: &quot;Coordination plan - Windows GPU F1 design&quot;
 type: plan
-status: proposed
+status: completed
 owner: &quot;@pc-f1-coordinator&quot;
 tags: [coordination, worktrees, windows, gpu, openfoam, petsc]
 links:
@@ -11,8 +11,8 @@ links:
   - { to: rulings, rel: depends-on }
 review-by: &quot;2026-10-18&quot;
 summary: &gt;-
-  One Sol author/integrator produces the coupled F1 design, the Astra owner reviews a frozen revision, and the
-  Mac/Fable leader reviews it before a second operator ruling; execution remains closed.
+  The serial Sol AUTHOR and Astra review track ended after the second Astra VETO: the exact Ubuntu transaction
+  and finite F1 capacity remain open, and execution stays closed pending a Mac/Fable/operator preflight ruling.
 ---
 
 # Windows GPU F1 design coordination plan
@@ -69,7 +69,7 @@ guard, capacity budget, and rollback. One author owns that coupled decision; ind
 | `docs/coordination/windows-gpu-f1-design.{md,html}` | authored | PC coordinator owns the pair. | Yes: single owner. |
 | `docs/plans/windows-gpu-f1-r211.md` | authored | AUTHOR owns it. | Yes: AUTHOR only. |
 | `docs/proof/win-gpu-f1-design/**` | authored evidence | AUTHOR owns source metadata and calculation evidence; no build inputs. | Yes: AUTHOR only. |
-| `docs/reviews/windows-gpu-f1-astra.md` | authored | ASTRA owns it and does not edit the design. | Yes: ASTRA only. |
+| `docs/reviews/windows-gpu-f1-astra*.md` | authored | ASTRA owns the first and final reviews and does not edit the design. | Yes: ASTRA only. |
 | `docs/reviews/windows-gpu-f1.md` | authored | Mac/Fable owns it. | Yes: REVIEW only. |
 | `docs/notes/rulings.md` | authored merge class; semantic ruling register | Mac/operator records decisions. | Yes: PC tracks never edit it. |
 | `docs/docs-index.js`, `docs/audit/audit-data.js` | derived | `coord regen` at joins. | No. |
@@ -129,6 +129,22 @@ large source-closure task; ASTRA earns independent adversarial review. No machin
 | Grok lane | No live version-bound model or edit-boundary qualification was observed. Unsupported capability is not used. |
 | Any installer, builder, or runner | Ruling 211 expressly prohibits it before the second operator ruling. |
 
+## Planned versus actual
+
+| track | planned | actual | disposition |
+|---|---|---|---|
+| AUTHOR initial design | 25 calls; 45 min | Audit duration 600 s; the agent reported about 29 calls. | Produced the design and accepted runtime contracts, but Astra found the dependency and capacity closure incomplete. |
+| Windows conductor repair | Unplanned blocker repair; 12 calls; 20 min working bound | The joined repair audit measured 95 s; the worker reported about 15 substantive calls and about 40 calls including waits. | Fixed Windows `.sh` dispatch without `shell=True`, rejected WindowsApps aliases, propagated child failure, and moved the always-run self-test into the join contract so the final diff remained docs-only. |
+| Astra review 1 | 10 calls; 15 min | 10/10 calls; 290 s, plus a bounded 3-call/20 s relation-metadata correction. | VETO on the combined dependency lock and finite capacity; accepted containment, measurement, benchmark, guard, and authorization boundaries. |
+| AUTHOR repair | 20 calls; 25 min | The worker reported about 42 calls; audit duration 470 s. | Pinned five OpenFOAM rows, corrected payload provenance, and documented the irreducible metadata gap. Exact Ubuntu closure and capacity remained open. The call overrun is a planning-cost defect; later work must split source discovery from authored closure or stop at the call bound. |
+| Astra review 2 | 8 calls; 10 min | 8/8 calls; 153 s. | Second and final VETO. The repair did not supply the exact Ubuntu transaction or finite F1 capacity. The track stopped at its declared cap. |
+| Coordination topology | Width 1 | Width 1 | Isolation prevented shared-index contention and preserved an independent veto. It provided no machine-time parallelism, as planned. |
+
+The unplanned Windows join defect was repaired before further joins. The durable control now exercises Windows Bash
+resolution and nonzero-child propagation on every coordination join. The AUTHOR repair exceeded its call estimate and
+did not close the hard veto; the second Astra review stayed within its bound and terminated the loop. No package or
+build-input download, installation, build, WSL mutation, or case execution occurred.
+
 ## Order of operations
 
 | # | action | cost | why now |
@@ -145,7 +161,7 @@ large source-closure task; ASTRA earns independent adversarial review. No machin
 
 | state | item |
 |---|---|
-| Completed | Ruling 211 read; isolated F1 worktree created; registry and merge drivers verified; derived artifacts regenerated; Astra disconfirmed split authorship and selected the serial graph. |
-| Remaining | Validate and commit this plan, run AUTHOR then ASTRA, hand the joined package to Mac/Fable, and await the second ruling. |
-| Best next action | Commit and push the plan pair, then dispatch AUTHOR from its isolated worktree. |
+| Completed | The coordination plan, initial AUTHOR design, Windows conductor repair, first Astra VETO, single AUTHOR repair, and second Astra VETO were committed, gated, joined, and pushed to draft PR #32. |
+| Remaining | Mac/Fable reviews the blocked package. The operator decides whether to authorize only the worksheet&#39;s narrow disposable-rootfs metadata preflight. Execution remains closed. |
+| Best next action | Mac records a review and requests the narrow metadata/preflight ruling. Do not acquire build inputs, install, build, mutate WSL, or run a case before that ruling. |
 </pre></main></body></html>

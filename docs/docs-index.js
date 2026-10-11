@@ -10755,12 +10755,12 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/windows-gpu-f1-design.md",
       "title": "Coordination plan - Windows GPU F1 design",
       "type": "plan",
-      "status": "proposed",
+      "status": "completed",
       "owner": "@pc-f1-coordinator",
       "phase": "",
       "reviewBy": "2026-10-18",
       "reviewSuggested": [],
-      "summary": "One Sol author/integrator produces the coupled F1 design, the Astra owner reviews a frozen revision, and the Mac/Fable leader reviews it before a second operator ruling; execution remains closed.",
+      "summary": "The serial Sol AUTHOR and Astra review track ended after the second Astra VETO: the exact Ubuntu transaction and finite F1 capacity remain open, and execution stays closed pending a Mac/Fable/operator preflight ruling.",
       "tags": [
         "coordination",
         "worktrees",
@@ -10784,7 +10784,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6d9783a694ec439fbd0cb3702b112ab3a263108ca40966e0032f1d9b486b8374"
+      "sourceSha256": "d7de32081cd30552056f43c302cb0c534d1193dbb34533b39df314a64e7c2013"
     },
     {
       "id": "coordination-windows-runtime-route",
@@ -21096,5 +21096,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "40163ff666d8c3cf7248fb43bc7e202583116bb74a1842a2d71e08a71664b1a3"
+  "graphSha256": "3250d827676c5a72276789aeb3fed35b1e40023de8b4afcff83b47e3faa1f65e"
 };
