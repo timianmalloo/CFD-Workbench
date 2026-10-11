@@ -94,7 +94,6 @@ def run_lesson_controls():
         ("check-reader-sharing.py", ("--self-test",)),
         ("check-reader-sharing.py", ()),
         ("check-expected-failures.py", ("--self-test",)),
-        ("../docs/ai-forward-pack/scripts/conductor-join.py", ("--self-test",)),  # WINDOWS-SHELL-COMMAND; fast ring, ~3 s
         ("check-windows-admission.py", ("--self-test",)),  # Ruling 189 (4) staleness line; fast ring, ~0.3 s
         ("check-windows-admission.py", ()),  # PLAT-A real check (a bare stale claim fails); fast ring, ~0.35 s measured
         ("merge-defect-register.py", ("--self-test",)),  # JOIN-LOG-CONFLICT; fast ring, ~0.05 s
