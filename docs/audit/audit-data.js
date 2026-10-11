@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T17:52:55Z",
+  "generated": "2026-10-11T18:20:33Z",
   "audit": [
     {
       "actor": null,
@@ -35517,6 +35517,36 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-11T17:51:26Z",
       "duration_seconds": 89.0
+    },
+    {
+      "id": "al-01M4P33WCP7C3BSBRX8PNNE2KW",
+      "shortname": "join-coord-windows-shell",
+      "datetime": "2026-10-11T18:20:33Z",
+      "session": "pc-f1-execute-20261011",
+      "prompt": "the join of win/coord-windows-shell-r211 into win/gpu-f1-design-r211",
+      "summary": "Resolved configured .sh join commands through a validated Bash executable on Windows and added an always-run regression control. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/ai-forward-pack/scripts/conductor-join.py",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Remove the WinError 193 coordination blocker without weakening exit-code gating.",
+      "done_when": "Windows shell commands execute through valid Bash, aliases fail closed, and the integrated docs-only ring and verify gates pass.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-11T18:18:58Z",
+      "duration_seconds": 95.0
     }
   ],
   "changes": [
