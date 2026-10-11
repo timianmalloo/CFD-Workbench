@@ -16122,6 +16122,34 @@ window.DOCS_INDEX = {
       "sourceSha256": "bf9afdc21d13437683b7f5df2df2db12c098cef87e6cc411b67c62745f5e500b"
     },
     {
+      "id": "proof-rng-red-first",
+      "path": "docs/proof/rng/red-first.md",
+      "title": "RNG red-first: Analysis in three parts, fractional-scale expected-failure class",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-rng",
+      "phase": "implementation",
+      "reviewBy": "2026-11-11",
+      "reviewSuggested": [],
+      "summary": "C-2 tripped four times with Analysis in two parts. Analysis now runs as three parts (tools/run-tests.sh, tools/check-test-costs.py), the 5,000 ms cap unchanged; the Windows expected-failures manifest gets a fractional-scale class and two entries. Self-tests red then green, timings before and after.",
+      "tags": [
+        "rng",
+        "analysis",
+        "partition",
+        "c-2",
+        "expected-failures",
+        "windows"
+      ],
+      "links": [
+        {
+          "to": "proof-etc-c2-cost",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a201d85af96c1f712d9c02ccf7d6dbced3b62ce38d9c22e45e1260bde0827618"
+    },
+    {
       "id": "proof-round-oct05-heredoc-hook-proposal",
       "path": "docs/proof/round-oct05-lessons/heredoc-hook-proposal.md",
       "title": "AGENT-HEREDOC hook proposal (operator decision)",
@@ -20584,5 +20612,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "152f0b41b8c8b6bb0b038f520d37003a45b967c1d7bf20ecf18c35ece2a91904"
+  "graphSha256": "957d568c51af273f18c46fb6fa67d31307f2c347f903c13d608a152acd888d49"
 };
