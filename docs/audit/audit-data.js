@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T15:40:26Z",
+  "generated": "2026-10-11T16:02:08Z",
   "audit": [
     {
       "actor": null,
@@ -35043,6 +35043,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-11T15:39:21Z",
       "duration_seconds": 65.0
+    },
+    {
+      "id": "al-01M4NV6EBVJBGF1BX8DKRNEJM9",
+      "shortname": "tfh2-cospi",
+      "datetime": "2026-10-11T16:02:08Z",
+      "session": "trk-tfh2",
+      "prompt": "Track TFH phase 2: CosPi stations and panel spacing (Rulings 214, 215)",
+      "summary": "Settings.cs and PanelMethod.cs moved to double.CosPi; DefaultHash re-recorded (Small, NoStations unchanged); station bit golden, StationGolden_* and stale-once checks; CRT gate lists both files (PanelMethod pins 5 marked solver sites); CRT-GOLDEN line",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Settings stations and panel grid use double.CosPi; controls added",
+      "done_when": "run-tests, gates, check-docs green; DefaultHash re-recorded; station golden and CRT gate in place",
+      "started_at": "2026-10-11T15:55:09Z",
+      "duration_seconds": 419.0
     }
   ],
   "changes": [

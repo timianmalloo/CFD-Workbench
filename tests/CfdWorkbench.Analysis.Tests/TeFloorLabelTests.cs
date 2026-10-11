@@ -13,8 +13,9 @@ namespace CfdWorkbench.Analysis.Tests;
 /// </summary>
 internal static class TeFloorLabelTests
 {
+    // DefaultHash re-recorded 2026-10-11 on macOS arm64 for double.CosPi stations (Ruling 214; old value 9713863597250cd2...efad62); SmallHash and NoStationsHash did not move.
     // Settings.Default, the small one the Desktop checks use, and Default without stations: captured on main affddb89 before B10.
-    private const string DefaultHash = "9713863597250cd245c4d70560abee8840c002f6ff33501127ba331ac8efad62";
+    private const string DefaultHash = "54bbba427a9fd039446415d85976f6abc4fe5a5f8bb4da22746464d44a9bd831";
     private const string SmallHash = "aa39f244f4235616ded920b58a1599a768765de16f74ba76e225cbe9c81543d7";
     private const string NoStationsHash = "9b402c74273eea9dcd0c3ca47cdcced2ec6764536434e462ba837150281fe58a";
 

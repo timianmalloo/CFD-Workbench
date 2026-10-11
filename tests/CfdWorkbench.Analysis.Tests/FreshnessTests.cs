@@ -19,6 +19,7 @@ internal static class FreshnessTests
         Check("Freshness_MethodVersionBump_Historical", MethodVersionBump);
         Check("Freshness_EachSettingsField_Historical", EachSettingsField);
         Check("Freshness_Pre117MethodVersion_HistoricalAndEvaluateComputesNew", Pre117MethodVersion);
+        Check("Freshness_OldStationRule_HistoricalOnce_VerifyPasses_CurrentAfterRerun", OldStationRuleHistoricalOnce);
         Check("Freshness_UndoToEqualKey_CurrentAgain", UndoToEqualKey);
         Check("Freshness_SaveReopen_Unchanged", SaveReopen);
         Check("Units_Lbf_KeyUnchanged", UnitsOutsideKey);
@@ -128,6 +129,30 @@ internal static class FreshnessTests
             Equal(RunState.Historical, Fixture.StateOf(session, run, current), field + " changed alone:");
             Equal("settings", string.Join(",", Freshness.WhatChanged(run, current)), field + " what changed");
         }
+    }
+
+    // Ruling 214/215: the station rule moved to double.CosPi, so a run saved under the old rule has stations one ulp apart. It reads
+    // Historical for the reason "settings" (never Unavailable), RunRecord.Verify still passes on it (the hash is over the stored
+    // settings, which are unchanged), the old run stays as history, and one re-run is Current. The old rule is modelled as the
+    // current stations with one chord station one ulp up, which is what a platform with a different libm cosine stored.
+    private static void OldStationRuleHistoricalOnce()
+    {
+        using var session = Fixture.Opened();
+        var op = Fixture.Op(2.0);
+        RunSettings now = Settings.Default;
+        var xs = now.SectionXs!.ToArray();
+        xs[2] = Math.BitIncrement(xs[2]);
+        var oldWing = new FakeWing { Settings = now with { SectionXs = xs } };
+        var newWing = new FakeWing { Settings = now };
+        var saved = Fixture.Evaluate(new AnalysisService(session, oldWing), op);
+        Equal(true, RunRecord.Verify(saved), "Verify on the old-rule run");
+        var current = Fixture.Current(session, op, wing: newWing);
+        Equal(RunState.Historical, Fixture.StateOf(session, saved, current), "old-rule run reads Historical");
+        Equal("settings", string.Join(",", Freshness.WhatChanged(saved, current)), "what changed");
+        var rerun = Fixture.Evaluate(new AnalysisService(session, newWing), op);
+        Equal(RunState.Current, Fixture.StateOf(session, rerun, current), "after the re-run");
+        Equal(RunState.Historical, Fixture.StateOf(session, saved, current), "old run stays history");
+        Equal(true, RunRecord.Verify(saved), "Verify on the old-rule run after the re-run");
     }
 
     // Edit, then Undo back to equal inputs: the same run is Current again (no stored flag; the accepted id is not keyed).
