@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T16:56:32Z",
+  "generated": "2026-10-11T17:08:01Z",
   "audit": [
     {
       "actor": null,
@@ -35266,24 +35266,129 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4NYA1HB9WR8N5KS74657CW0",
-      "shortname": "coordinate-pr31-r215-rerun",
+      "actor": null,
+      "agent_runs": [
+        {
+          "agent": "astra-owner",
+          "budget_calls": 10,
+          "calls": 10,
+          "duration_seconds": 240.0,
+          "ended_at": "2026-10-11T16:54:00Z",
+          "over_budget": false,
+          "started_at": "2026-10-11T16:50:00Z"
+        }
+      ],
+      "artifacts": [
+        "docs/proof/win-gpu-b2/windows-r215-summary.txt"
+      ],
+      "compiled": false,
       "datetime": "2026-10-11T16:56:32Z",
-      "session": "pc-pr31-continuation-20261011",
+      "done_when": "Rulings 213-215 evidence is manifest-bound, the exact Windows unexpected set is sent to Mac, gates pass, and the branch is pushed.",
+      "duration_seconds": 882.0,
+      "fan_out": 4,
+      "git": {
+        "branch": "win/gpu-g2-b1-r199",
+        "pushed": false,
+        "sha": "4a1cd0208ce8ad569edf875ab44c2609b08194d0",
+        "short": "4a1cd0208"
+      },
+      "goal": "Continue Windows GPU coordination through the latest Mac ruling or join event.",
+      "id": "al-01M4NYA1HB9WR8N5KS74657CW0",
+      "kind": "skill",
+      "outcome": "success",
+      "parallelism": {
+        "agent_seconds": 240.0,
+        "peak_concurrency": 1,
+        "span_seconds": 240.0,
+        "speedup": 1.0
+      },
+      "persona_yield": [
+        {
+          "accepted": 1,
+          "persona": "Astra owner",
+          "raised": 1
+        }
+      ],
       "prompt": "keep going",
+      "session": "pc-pr31-continuation-20261011",
+      "shortname": "coordinate-pr31-r215-rerun",
+      "signals": {
+        "acceptance_met": true,
+        "regression": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-11T16:41:50Z",
       "summary": "Reconciled origin/main, completed Ruling 213 redaction, ran Ruling 215 diagnostics and the full Windows ring, classified the exact harness-only unexpected set, captured WRX evidence, incorporated Astra's evidence-review wording correction, and sent the result to the Mac leader.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-11T16:52:58Z",
+      "done_when": "Bit-equality checks red then green, CRT gate extended, ring green, no moved asserts",
+      "duration_seconds": 363.0,
+      "goal": "One CosPi definition of the cosine spacing for lattice, loads, settings",
+      "id": "al-01M4NY3H38VXZRDWQ2ZA5MDSKF",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Track LSP",
+      "session": "trk-lsp",
+      "shortname": "lsp-spacing",
+      "skill": "implement",
+      "started_at": "2026-10-11T16:46:55Z",
+      "summary": "Spacing.cs shared by Settings, VortexLattice, Loads; 3 new StationGolden checks; CRT gate lists VortexLattice (7) and Loads (0); no asserts moved",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-11T16:54:41Z",
+      "duration_seconds": 65.0,
+      "fan_out": 0,
+      "id": "al-01M4NY6NCZS07DGW3H3QWTC45J",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of fix/lsp-spacing into main",
+      "session": "3122f106",
+      "shortname": "join-lsp",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-11T16:53:36Z",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M4NYZ2FEPRPCHQ0RSVJ732CY",
+      "shortname": "coordinate-pr31-final-main-sync",
+      "datetime": "2026-10-11T17:08:01Z",
+      "session": "pc-pr31-final-sync-20261011",
+      "prompt": "keep going",
+      "summary": "Merged origin/main e49fd7ae, preserved both LSP and B2 defect-class records, verified seven station goldens and six TE-floor checks, repaired the branch-only portable-console gate defect red-first, passed all ten applicable fast gates, ran the required Windows ring twice, and reported the bounded harness-only red set to the Mac leader at the two-cycle cap.",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
       "actor": null,
       "artifacts": [
-        "docs/proof/win-gpu-b2/windows-r215-summary.txt"
+        "docs/coordination/xmsg.jsonl"
       ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "Continue Windows GPU coordination through the latest Mac ruling or join event.",
-      "done_when": "Rulings 213-215 evidence is manifest-bound, the exact Windows unexpected set is sent to Mac, gates pass, and the branch is pushed.",
+      "goal": "Reconcile PR 31 with the Mac leader's latest main and deliver final Windows verification.",
+      "done_when": "Latest main is merged, affected diagnostics and configured fast gates pass, the bounded Windows ring result is reported, and the branch is ready to push for the Mac join.",
       "tier": "T1",
       "fan_out": 4,
       "signals": {
@@ -35292,35 +35397,11 @@ window.AUDIT_DATA = {
         "acceptance_met": true,
         "regression": false
       },
-      "started_at": "2026-10-11T16:41:50Z",
-      "duration_seconds": 882.0,
-      "agent_runs": [
-        {
-          "agent": "astra-owner",
-          "started_at": "2026-10-11T16:50:00Z",
-          "ended_at": "2026-10-11T16:54:00Z",
-          "duration_seconds": 240.0,
-          "calls": 10,
-          "budget_calls": 10,
-          "over_budget": false
-        }
-      ],
-      "parallelism": {
-        "agent_seconds": 240.0,
-        "span_seconds": 240.0,
-        "speedup": 1.0,
-        "peak_concurrency": 1
-      },
-      "persona_yield": [
-        {
-          "persona": "Astra owner",
-          "raised": 1,
-          "accepted": 1
-        }
-      ],
+      "started_at": "2026-10-11T16:59:52Z",
+      "duration_seconds": 489.0,
       "git": {
-        "sha": "4a1cd0208ce8ad569edf875ab44c2609b08194d0",
-        "short": "4a1cd0208",
+        "sha": "a22c1314ecb44937ccc49e665c28e19b5d5b8d42",
+        "short": "a22c1314e",
         "branch": "win/gpu-g2-b1-r199",
         "pushed": false
       }

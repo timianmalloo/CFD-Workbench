@@ -5466,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "094383c8fe81d1b92a146c1506156fcae79f745e07dcbb598318fd010e8dab6e"
+      "sourceSha256": "3deb883765ce7846a0ec74caf0a7d7a1d1d47dacb076440dfa0c75444958456c"
     },
     {
       "id": "domain-experts",
@@ -6413,6 +6413,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "272f1bdefd27f8d4607e116d01b51aad9d687263362c23df0eeec0b11004e101"
+    },
+    {
+      "id": "proof-lsp-red-first",
+      "path": "docs/proof/lsp/red-first.md",
+      "title": "Track LSP - one definition of the cosine spacing, red and green runs",
+      "type": "doc",
+      "status": "draft",
+      "owner": "@trk-lsp",
+      "phase": "build",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Lattice span and chord stations and the strip-width fallback now share Settings' double.CosPi spacing; bit-equality checks and the CRT gate extended (macOS arm64, base 4dc824ef).",
+      "tags": [
+        "determinism",
+        "crt-golden",
+        "red-first",
+        "lattice"
+      ],
+      "links": [
+        {
+          "to": "proof-tfh2-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a8082838a1e76275d2275cb33e0380820ec51a6f370468c1d73b112f607a4327"
     },
     {
       "id": "proof-phl-red-first",
@@ -20901,5 +20927,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "7d3272f67d878a422281dc7e5fe5432220209998de7cd0d7ebc59e7ef3bd452d"
+  "graphSha256": "b7bec122e46daafafa8274dc5f1ecec7fcbdf9f2278856a95f1739aabb606e1d"
 };
