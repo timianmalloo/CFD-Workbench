@@ -10967,6 +10967,51 @@ window.DOCS_INDEX = {
       "sourceSha256": "69ba40231afea2cdbb45e2c9c4fc369817660442d371e9582352d168656357ea"
     },
     {
+      "id": "plan-windows-gpu-f1-r211",
+      "path": "docs/plans/windows-gpu-f1-r211.md",
+      "title": "F1 design for PETSc CUDA and petsc4Foam on Windows WSL",
+      "type": "plan",
+      "status": "proposed",
+      "owner": "@pc-f1-author-r211",
+      "phase": "design",
+      "reviewBy": "2026-10-18",
+      "reviewSuggested": [],
+      "summary": "One gated PETSc-CUDA plus petsc4Foam candidate, with exact build sequence, WSL memory measurement, one-case CPU/GPU oracle, and owned observer/rollback. Flagged input and ABI gaps block execution.",
+      "tags": [
+        "windows",
+        "wsl",
+        "gpu",
+        "cuda",
+        "petsc",
+        "openfoam",
+        "ruling-211"
+      ],
+      "links": [
+        {
+          "to": "coordination-windows-gpu-f1-design",
+          "rel": "implements"
+        },
+        {
+          "to": "proof-win-gpu-b1-r199",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-b2",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-g1",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ab6d0039f00c0828fdfff7318f256a769953e9d9b4b373baa73462967686c158"
+    },
+    {
       "id": "privacy-review",
       "path": "docs/security/privacy-review.md",
       "title": "Offline application privacy review",
@@ -20943,5 +20988,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "b9797c6e1f6155d7e40e33d71cf96ff394b373e806f6d26fa5e23be8f96aef94"
+  "graphSha256": "427e40cf7611616884dd8584d088f73a969f7252ed09f2ffeef87d82e812fa4a"
 };
