@@ -11009,7 +11009,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ab6d0039f00c0828fdfff7318f256a769953e9d9b4b373baa73462967686c158"
+      "sourceSha256": "c727a8dbb6eb3393124ebcd3dc65153645f4546ea2df26a3d1c9a1bebebd52ec"
     },
     {
       "id": "privacy-review",
@@ -18083,6 +18083,43 @@ window.DOCS_INDEX = {
       "sourceSha256": "fdcaa145f308468efbe68a13db50e82d6639f16cbcfc30c9988ff0ccc82bdb56"
     },
     {
+      "id": "proof-win-gpu-f1-dependency-worksheet",
+      "path": "docs/proof/win-gpu-f1-design/dependency-worksheet.md",
+      "title": "F1 combined dependency and capacity closure worksheet",
+      "type": "proof-pack",
+      "status": "proposed",
+      "owner": "@pc-f1-author-repair-r211",
+      "phase": "design",
+      "reviewBy": "2026-10-18",
+      "reviewSuggested": [],
+      "summary": "Exact verified B2 and OpenFOAM package metadata, with the unclosed Ubuntu transaction and capacity operands flagged. No build-input acquisition or WSL action is authorized.",
+      "tags": [
+        "windows",
+        "wsl",
+        "gpu",
+        "cuda",
+        "petsc",
+        "openfoam",
+        "ruling-211"
+      ],
+      "links": [
+        {
+          "to": "plan-windows-gpu-f1-r211",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-gpu-b2",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7dcc7e49b98da2bf79f8bd9c35a8c0bcaed746e6fd3d0399ef46ea6e786dcc98"
+    },
+    {
       "id": "proof-win-gpu-g1",
       "path": "docs/proof/win-gpu-g1/receipt.md",
       "title": "Windows GPU G1 exact-source and toolchain inspection",
@@ -21020,5 +21057,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "a2652db4a1620b900a1ccf325f08f5f87eefaa2317ed8805144c9e8234dd13bb"
+  "graphSha256": "d7a2e67edd28da5b9d4a3554af4f2d6997508be103352e6656e6187682c01080"
 };
