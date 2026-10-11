@@ -19784,7 +19784,7 @@ window.DOCS_INDEX = {
       "links": [
         {
           "to": "plan-windows-gpu-f1-r211",
-          "rel": "reviews"
+          "rel": "relates-to"
         },
         {
           "to": "coordination-windows-gpu-f1-design",
@@ -19792,7 +19792,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e2621c5aea524502b5c4fb8c5d97376aace8afce4183dc5adb0f084eb5e27ec8"
+      "sourceSha256": "49ee76191ddeabe35780838d75fc97637846a0148743c305264d7975c9056f85"
     },
     {
       "id": "review-windows-runtime",
@@ -21020,5 +21020,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "bdeccc9353a2ae1d910365c49320ea073c6a26364131edd5c1df2f08e7db3c72"
+  "graphSha256": "a2652db4a1620b900a1ccf325f08f5f87eefaa2317ed8805144c9e8234dd13bb"
 };

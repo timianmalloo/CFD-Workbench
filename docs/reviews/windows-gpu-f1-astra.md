@@ -7,7 +7,7 @@ owner: "@pc-f1-astra-r211"
 phase: design
 tags: [windows, gpu, petsc, openfoam, ruling-211, owner-review]
 links:
-  - { to: plan-windows-gpu-f1-r211, rel: reviews }
+  - { to: plan-windows-gpu-f1-r211, rel: relates-to }
   - { to: coordination-windows-gpu-f1-design, rel: relates-to }
 review-by: "2026-11-11"
 summary: >-
