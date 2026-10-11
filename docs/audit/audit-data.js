@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T15:33:38Z",
+  "generated": "2026-10-11T15:36:19Z",
   "audit": [
     {
       "actor": null,
@@ -34973,6 +34973,31 @@ window.AUDIT_DATA = {
       "done_when": "proposal.md, split diagnostic checks, run-tests green, check-docs 0",
       "started_at": "2026-10-11T15:24:23Z",
       "duration_seconds": 555.0
+    },
+    {
+      "id": "al-01M4NSQ60EKVJCBJNEAQMG3Y1F",
+      "shortname": "join-tfh1",
+      "datetime": "2026-10-11T15:36:19Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/tfh-settings-hash into main",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-11T15:34:50Z",
+      "duration_seconds": 89.0
     }
   ],
   "changes": [
