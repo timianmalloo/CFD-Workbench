@@ -60,6 +60,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -101,6 +102,44 @@ def _interp(command: list) -> list[str]:
     return command
 
 
+def _windows_apps_alias(path: str) -> bool:
+    """Recognize the inert WindowsApps command aliases returned by shutil.which."""
+    return "windowsapps" in str(path).replace("\\", "/").casefold().split("/")
+
+
+def _windows_bash(path: str | None = None, which=shutil.which,
+                  program_files: list[str] | None = None) -> str:
+    """Find a real Bash executable, ignoring Windows' placeholder command aliases."""
+    search_path = os.environ.get("PATH", "") if path is None else path
+    usable_path = os.pathsep.join(entry for entry in search_path.split(os.pathsep)
+                                  if entry and not _windows_apps_alias(entry))
+    candidate = which("bash", path=usable_path)
+    if candidate and os.path.isfile(candidate) and not _windows_apps_alias(candidate):
+        return str(candidate)
+    roots = ((os.environ.get("ProgramFiles"), os.environ.get("ProgramFiles(x86)"))
+             if program_files is None else program_files)
+    if os.name == "nt":
+        for root in roots:
+            if root:
+                candidate = str(Path(root) / "Git" / "bin" / "bash.exe")
+                if os.path.isfile(candidate):
+                    return candidate
+    raise SystemExit(
+        "conductor-join: cannot run a .sh join command on Windows: no valid bash.exe found; "
+        "install Git for Windows or add its bin directory to PATH (WindowsApps aliases are invalid)"
+    )
+
+
+def _resolve_command(command: list, *, windows: bool | None = None, path: str | None = None,
+                     which=shutil.which, program_files: list[str] | None = None) -> list[str]:
+    """Resolve configured command tokens at the one subprocess boundary."""
+    resolved = [str(token) for token in command]
+    on_windows = os.name == "nt" if windows is None else windows
+    if on_windows and resolved and resolved[0].casefold().endswith(".sh"):
+        return [_windows_bash(path, which, program_files), *resolved]
+    return resolved
+
+
 def load_join(root: Path, path: str | None) -> dict:
     """The join contract for this repository, or the defaults. A malformed file is a usage
     error, never a silent fallback to defaults (a join that skipped the recount because its
@@ -126,6 +165,7 @@ class Join:
         self.log = log
 
     def run(self, step: int, what: str, command: list[str], allow=(0,)) -> subprocess.CompletedProcess:
+        command = _resolve_command(command)
         self.log("\n== step {0}: {1}\n   $ {2}".format(step, what, " ".join(command)))
         completed = subprocess.run(command, cwd=str(self.root), env=self.env, text=True,
                                    encoding="utf-8", errors="replace", capture_output=True)
@@ -303,6 +343,55 @@ def self_test() -> int:
         return done.stdout
 
     problems = []
+    # Regression: configured .sh commands must be translated for Windows, and the runner must
+    # continue to stop on the child status after translation.
+    with tempfile.TemporaryDirectory() as command_tmp:
+        fixture = Path(command_tmp)
+        bash = fixture / "Git" / "bin" / "bash.exe"
+        bash.parent.mkdir(parents=True)
+        bash.write_text("fixture", encoding="utf-8")
+        resolved = _resolve_command(["tools/join-ring.sh"], windows=True,
+                                    path=str(bash.parent),
+                                    which=lambda name, path=None: str(bash))
+        if resolved != [str(bash), "tools/join-ring.sh"]:
+            problems.append("a Windows .sh command was not prefixed with the resolved Bash executable")
+        try:
+            _resolve_command(["tools/join-ring.sh"], windows=True, path="",
+                             which=lambda name, path=None: None, program_files=[])
+        except SystemExit as exc:
+            if "no valid bash.exe" not in str(exc):
+                problems.append("missing Bash did not produce the specific fail-closed diagnostic")
+        else:
+            problems.append("a Windows .sh command ran without a valid Bash executable")
+        alias = fixture / "WindowsApps" / "bash.exe"
+        alias.parent.mkdir()
+        alias.write_text("fixture", encoding="utf-8")
+        try:
+            alias_result = _resolve_command(["tools/join-ring.sh"], windows=True, path=str(alias.parent),
+                                            which=lambda name, path=None: str(alias), program_files=[])
+            if alias_result[0] == str(alias):
+                problems.append("a WindowsApps Bash alias was accepted as a valid shell")
+        except SystemExit as exc:
+            if "WindowsApps" not in str(exc):
+                problems.append("a WindowsApps Bash alias was rejected without a specific diagnostic")
+        if os.name == "nt":
+            script = fixture / "probe.sh"
+            script.write_text("exit 7\n", encoding="utf-8", newline="\n")
+            try:
+                Join(Path.cwd(), dict(os.environ), log=lambda _: None).run(4, "shell exit probe", [str(script)])
+                problems.append("a Windows shell script's nonzero exit was allowed through the join runner")
+            except SystemExit as exc:
+                if exc.code != 4:
+                    problems.append("a Windows shell script did not stop at its assigned join step")
+
+    try:
+        Join(Path.cwd(), dict(os.environ), log=lambda _: None).run(
+            4, "intentional red command", [PY, "-c", "raise SystemExit(7)"])
+        problems.append("a nonzero command was allowed through the join runner")
+    except SystemExit as exc:
+        if exc.code != 4:
+            problems.append("a nonzero command did not stop at its assigned join step")
+
     with tempfile.TemporaryDirectory() as tmp:
         repo = Path(tmp) / "repo"
         repo.mkdir()
@@ -410,9 +499,9 @@ def self_test() -> int:
     if problems:
         print("conductor-join --self-test: FAILED - " + "; ".join(problems))
         return 1
-    print("conductor-join --self-test: OK - a clean join completes with a measured T1 entry; "
-          "a merge carrying a conflict marker stops at step 3 with no join commit; a plan "
-          "carrying a lower epoch than refs/coord/leader stops at the fence (exit 11) with no merge")
+    print("conductor-join --self-test: OK - Windows .sh command resolution rejects WindowsApps aliases; "
+          "nonzero child status stops its join step; a clean join completes with a measured T1 entry; "
+          "conflict markers and stale epochs stop before the join commit")
     return 0
 
 
