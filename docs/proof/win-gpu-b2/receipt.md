@@ -98,8 +98,23 @@ terminate promptly outside the contended harness. The Analysis golden mismatch e
 
 ## Ruling 213 redaction
 
-**Verified:** the two retained Windows ring stdout captures originally included the local hostname in repeated stack
-trace paths. Ruling 213 requires source redaction before join. Every case-insensitive occurrence in
+**Verified:** the two retained Windows ring stdout captures originally included the local hostname in host-identifying
+fields. Ruling 213 requires source redaction before join. Every case-insensitive occurrence in
 `windows-ring.stdout.txt` and `windows-ring-wlk-rerun.stdout.txt` is now the literal placeholder `<host>`. The B2
-manifest binds the redacted Git blobs, and the proof-PII gate was rerun with the local hostname supplied through the
-uncommitted `CFD_PII_HOSTNAMES` environment variable.
+manifest binds the redacted Git blobs; their bytes differ from the original captures only by those substitutions. The
+proof-PII gate was rerun with the local hostname supplied through the uncommitted `CFD_PII_HOSTNAMES` environment
+variable.
+
+## Rulings 214-215 and WRX verification
+
+**Verified:** after merging `origin/main` at `03288c08`, the exact Ruling 215 Windows diagnostics passed: all four
+`StationGolden_*` checks and all six `TeFloor_B10_*` checks exited 0, with no `FAIL` or `DIAG` rows. The updated full
+Windows ring then recorded zero unexpected product failures. Core's 27 and Desktop's 23 product failures were all
+classified by the expected-failure manifest; all 256 Analysis checks passed. CLI recorded 17 passes and two expected
+failures, with zero unexpected failures.
+
+**Flagged:** the ring still exited 1 with 16 unexpected harness events: five child timeouts and their exits, two bounded
+drain failures and their exits, and two consequent partition failures. Both View children reached their partition
+marker for their selected half of the 107-registration suite before their drain failures. Source-order localization
+identifies the first uncompleted check in each timed child but does not prove that check caused the timeout.
+`windows-r215-summary.txt` records the exact modes, names, WRX checks, timings, limits, and manifest-bound raw evidence.

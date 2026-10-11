@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T04:13:52Z",
+  "generated": "2026-10-11T16:56:32Z",
   "audit": [
     {
       "actor": null,
@@ -35017,28 +35017,313 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4MJNJFXQMCM8QZTFEMQ3WT4",
-      "shortname": "coordinate-pr31-wlk-rerun",
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-b2/windows-ring-wlk-rerun-summary.txt"
+      ],
+      "compiled": false,
       "datetime": "2026-10-11T04:13:52Z",
-      "session": "pc-pr31-wlk-rerun-20261011",
+      "done_when": "WLK rerun evidence is manifest-bound, exact timed child positions and golden mismatch are sent to Mac, gates pass, and the branch is pushed.",
+      "duration_seconds": 295.0,
+      "fan_out": 4,
+      "goal": "Complete the Windows B2 GPU track and hand Mac a join-ready evidence-backed result after WLK.",
+      "id": "al-01M4MJNJFXQMCM8QZTFEMQ3WT4",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "keep going",
+      "session": "pc-pr31-wlk-rerun-20261011",
+      "shortname": "coordinate-pr31-wlk-rerun",
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-11T04:08:57Z",
       "summary": "Merged WLK from main, reran the full Windows ring, localized three watchdog positions, captured isolated checks, recorded the exact Analysis golden mismatch, and sent the Mac leader a PR-ready xmsg.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-11T15:13:28Z",
+      "done_when": "self-test green, real gate exit 0, gates green",
+      "duration_seconds": 282.0,
+      "goal": "PII gate always knows its own host name",
+      "id": "al-01M4NRDB4S2QV7NRJT3W40HB31",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "PHO",
+      "session": "trk-pho",
+      "shortname": "pho-own-host",
+      "skill": "implement",
+      "started_at": "2026-10-11T15:08:46Z",
+      "summary": "check-proof-pii.py adds own-host names (hostname:own-host), self-test via seam, defect-class line",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-11T15:15:29Z",
+      "duration_seconds": 84.0,
+      "fan_out": 0,
+      "id": "al-01M4NRH175T0VWZE1PZG42E4DT",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of fix/pho-own-host into main",
+      "session": "3122f106",
+      "shortname": "join-pho",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-11T15:14:05Z",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-11T15:16:23Z",
+      "done_when": "classification.md and red-first.md written; run-tests.sh, Desktop readiness, join checks and check-docs green; commits",
+      "duration_seconds": 1276.0,
+      "goal": "Classify every failing and unseen manifest name in the PC WLK rerun; fix manifest renames and POSIX-model test assumptions; no src change",
+      "id": "al-01M4NRJP8PTXSN04TTY122MH96",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "Track WRX: classify the Windows ring residue after WLK and fix what the Mac can",
+      "session": "trk-wrx",
+      "shortname": "wrx-windows-ring",
+      "skill": "implement",
+      "started_at": "2026-10-11T14:55:07Z",
+      "summary": "Manifest rename and stale entry fixed, Telemetry entry listed with a precise fragment, Export directory-step expectation platform-aware, MANIFEST-NAME-DRIFT control added; PropertiesPane class, TeFloor hash and timeouts reported not changed",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-11T15:20:04Z",
+      "duration_seconds": 67.0,
+      "fan_out": 0,
+      "id": "al-01M4NRSDG1J0GWJ8Q2W540X9G2",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of fix/wrx-windows-ring into main",
+      "session": "3122f106",
+      "shortname": "join-wrx",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-11T15:18:57Z",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-11T15:33:38Z",
+      "done_when": "proposal.md, split diagnostic checks, run-tests green, check-docs 0",
+      "duration_seconds": 555.0,
+      "goal": "Diagnose why the run settings hash differs on Windows; add a test-only diagnostic; write a fix proposal",
+      "id": "al-01M4NSJ8BA15M6MXW89HHW8X2A",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "TFH phase 1",
+      "session": "trk-tfh",
+      "shortname": "tfh-settings-hash-p1",
+      "skill": "implement",
+      "started_at": "2026-10-11T15:24:23Z",
+      "summary": "Stations via Math.Cos are the only platform-math input; goldens split with DIAG output; proposal recommends CosPi (option c), stale-once on Mac",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-11T15:36:19Z",
+      "duration_seconds": 89.0,
+      "fan_out": 0,
+      "id": "al-01M4NSQ60EKVJCBJNEAQMG3Y1F",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of fix/tfh-settings-hash into main",
+      "session": "3122f106",
+      "shortname": "join-tfh1",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-11T15:34:50Z",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-11T15:37:12Z",
+      "done_when": "run-tests green with 3 Analysis parts, gates exit 0, check-docs exit 0",
+      "duration_seconds": 497.0,
+      "goal": "Analysis in three parts for C-2; fractional-scale expected-failure class",
+      "id": "al-01M4NSRSZPJPDJ8PDSNZGZJYW2",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "track RNG",
+      "session": "trk-rng",
+      "shortname": "rng-ring-parts",
+      "skill": "implement",
+      "started_at": "2026-10-11T15:28:55Z",
+      "summary": "Analysis runs as 3 parts (slowest 5020 to ~3.6-3.9 s in ring); fractional-scale class + 2 manifest entries; self-tests 87/87 and 20 cases",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-11T15:40:26Z",
+      "duration_seconds": 65.0,
+      "fan_out": 0,
+      "id": "al-01M4NSYQ603953VFPNZFQWH5HT",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of fix/rng-ring-parts into main",
+      "session": "3122f106",
+      "shortname": "join-rng",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-11T15:39:21Z",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-11T16:02:08Z",
+      "done_when": "run-tests, gates, check-docs green; DefaultHash re-recorded; station golden and CRT gate in place",
+      "duration_seconds": 419.0,
+      "goal": "Settings stations and panel grid use double.CosPi; controls added",
+      "id": "al-01M4NV6EBVJBGF1BX8DKRNEJM9",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Track TFH phase 2: CosPi stations and panel spacing (Rulings 214, 215)",
+      "session": "trk-tfh2",
+      "shortname": "tfh2-cospi",
+      "skill": "implement",
+      "started_at": "2026-10-11T15:55:09Z",
+      "summary": "Settings.cs and PanelMethod.cs moved to double.CosPi; DefaultHash re-recorded (Small, NoStations unchanged); station bit golden, StationGolden_* and stale-once checks; CRT gate lists both files (PanelMethod pins 5 marked solver sites); CRT-GOLDEN line",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-11T16:03:53Z",
+      "duration_seconds": 66.0,
+      "fan_out": 0,
+      "id": "al-01M4NV9NFAKT7XMHJBE9861NM9",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of fix/tfh2-cospi into main",
+      "session": "3122f106",
+      "shortname": "join-tfh2",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-11T16:02:47Z",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M4NYA1HB9WR8N5KS74657CW0",
+      "shortname": "coordinate-pr31-r215-rerun",
+      "datetime": "2026-10-11T16:56:32Z",
+      "session": "pc-pr31-continuation-20261011",
+      "prompt": "keep going",
+      "summary": "Reconciled origin/main, completed Ruling 213 redaction, ran Ruling 215 diagnostics and the full Windows ring, classified the exact harness-only unexpected set, captured WRX evidence, incorporated Astra's evidence-review wording correction, and sent the result to the Mac leader.",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
       "actor": null,
       "artifacts": [
-        "docs/proof/win-gpu-b2/windows-ring-wlk-rerun-summary.txt"
+        "docs/proof/win-gpu-b2/windows-r215-summary.txt"
       ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "Complete the Windows B2 GPU track and hand Mac a join-ready evidence-backed result after WLK.",
-      "done_when": "WLK rerun evidence is manifest-bound, exact timed child positions and golden mismatch are sent to Mac, gates pass, and the branch is pushed.",
-      "tier": "T2",
+      "goal": "Continue Windows GPU coordination through the latest Mac ruling or join event.",
+      "done_when": "Rulings 213-215 evidence is manifest-bound, the exact Windows unexpected set is sent to Mac, gates pass, and the branch is pushed.",
+      "tier": "T1",
       "fan_out": 4,
-      "started_at": "2026-10-11T04:08:57Z",
-      "duration_seconds": 295.0
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-10-11T16:41:50Z",
+      "duration_seconds": 882.0,
+      "agent_runs": [
+        {
+          "agent": "astra-owner",
+          "started_at": "2026-10-11T16:50:00Z",
+          "ended_at": "2026-10-11T16:54:00Z",
+          "duration_seconds": 240.0,
+          "calls": 10,
+          "budget_calls": 10,
+          "over_budget": false
+        }
+      ],
+      "parallelism": {
+        "agent_seconds": 240.0,
+        "span_seconds": 240.0,
+        "speedup": 1.0,
+        "peak_concurrency": 1
+      },
+      "persona_yield": [
+        {
+          "persona": "Astra owner",
+          "raised": 1,
+          "accepted": 1
+        }
+      ],
+      "git": {
+        "sha": "4a1cd0208ce8ad569edf875ab44c2609b08194d0",
+        "short": "4a1cd0208",
+        "branch": "win/gpu-g2-b1-r199",
+        "pushed": false
+      }
     }
   ],
   "changes": [
@@ -37862,6 +38147,15 @@ window.AUDIT_DATA = {
       "to": "fable-owner",
       "kind": "decision-request",
       "ref": "req-01M4KYVNRKXY64YDH9YYD9FAMX",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4NQM8PDZT4KDGJ4VXFSSKNV",
+      "ts": "2026-10-11T14:59:47Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4NQM8P69Y5TDXJTS0DYQS15",
       "session": "3122f106"
     }
   ]

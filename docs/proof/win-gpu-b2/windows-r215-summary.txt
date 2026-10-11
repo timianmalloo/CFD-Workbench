@@ -1,0 +1,82 @@
+Windows Rulings 213-215 and WRX rerun evidence
+observed_utc=2026-10-11T16:49:13.1250665Z
+origin_main_commit=03288c08
+branch_pretest_commit=4a1cd020
+dotnet_root=%USERPROFILE%\.dotnet
+
+[Ruling 213]
+windows-ring.stdout.txt local_host_occurrences_replaced=12
+windows-ring-wlk-rerun.stdout.txt local_host_occurrences_replaced=12
+replacement=<host>
+proof_pii_with_CFD_PII_HOSTNAMES=PASS
+committed_manifest_check_after_redaction=PASS; 17 manifests
+
+[Ruling 215 targeted diagnostics]
+StationGolden_exit=0
+StationGolden_pass_count=4
+StationGolden_fail_count=0
+StationGolden_diag_count=0
+StationGolden_passes:
+- StationGolden_CosPiBits_MatchFixture
+- StationGolden_SpanEtas_AreMinusCosPiBits
+- StationGolden_ChordXs_AreHalfOneMinusCosPiBits
+- StationGolden_PanelGrid_IsOneMinusCosPiOverTwoBits
+TeFloor_B10_exit=0
+TeFloor_B10_pass_count=6
+TeFloor_B10_fail_count=0
+TeFloor_B10_diag_count=0
+TeFloor_B10_passes:
+- TeFloor_B10_SettingsHash_Golden_Default
+- TeFloor_B10_SettingsHash_Golden_Small
+- TeFloor_B10_SettingsHash_Golden_NoStations
+- TeFloor_B10_SettingsHash_DiagnosticTextIsTheHashedText
+- TeFloor_B10_Numerics_DefaultRecordFieldsUnchanged
+- TeFloor_B10_Label_OneNamedConstant_AppDefaultNoSource
+attempt_0_note=The first two invocations selected system SDK 10.0.301 and stopped before tests because global.json requires 10.0.203. Their outputs are retained. The successful runs used the repository's known %USERPROFILE%\.dotnet SDK.
+
+[Full Windows ring]
+command=Git Bash tools/run-tests.sh with DOTNET_ROOT=%USERPROFILE%\.dotnet
+exit_code=1
+wall=170 s (170409 ms, net 152153 ms)
+unexpected_product_failures=0
+core=27 expected product failures; 0 unexpected
+desktop=23 expected product failures; 16 unexpected harness events
+analysis=256 PASS across 3 parts; 0 failures
+cli=17 PASS; 2 expected failures; 0 unexpected failures
+unexpected_harness_events:
+- TIMEOUT --shell-window --part=1/2; child exit 124
+- TIMEOUT --plan-canvas --part=2/2; child exit 124
+- TIMEOUT --plan-canvas --part=1/2; child exit 124
+- TIMEOUT --controller-shell; child exit 124
+- DRAIN --views --part=1/2; child exit 125
+- TIMEOUT --analysis; child exit 124
+- DRAIN --views --part=2/2; child exit 125
+- PARTITION --shell-window incomplete because part 1 timed out
+- PARTITION --plan-canvas incomplete because both parts timed out
+unexpected_count=16 because each of 5 timeouts, 2 drains, and their child exits is counted separately, followed by 2 partition failures
+
+[Watchdog localization]
+method=The detailed Desktop log's last completed COST row was paired with the next selected registration in source order. The runner emits no per-check START line, so each name is the exact first uncompleted check, not a proven root cause.
+--shell-window --part=1/2 first_uncompleted=Copy_M12bOutcomes_ExactStrings
+--plan-canvas --part=2/2 first_uncompleted=PlanCanvas_DoubleClickOnPoint_StillOpensValueField
+--plan-canvas --part=1/2 first_uncompleted=PlanCanvas_ReleaseEdgesCross_PointRenderedAtOriginal
+--controller-shell first_uncompleted=Gesture_ThousandMoves_CoalescedFramesBounded
+--analysis first_uncompleted=Tampered_RunView_UnavailableNoLayersRowKept
+views_part_1=reached PARTITION 1/2 of 107 after completing its selected subset, then hit the bounded drain failure
+views_part_2=reached PARTITION 2/2 of 107 after completing its selected subset, then hit the bounded drain failure
+
+[WRX requested checks]
+Export_WriteFailure_CauseCopy_EarlierFileUntouched_NoTemp_H6=PASS
+Telemetry_MarkerInjection_AbsentEverywhere=expected failure; Marker probe did not record the file in Recent
+Rollback_TextSizeV2_NewerVersionIsStructureClass_BytesUnchanged=expected failure; no UNEXPECTED entry
+--shell-window --part=2/2=expected child exit; no UNEXPECTED entry
+--section-editor --part=2/2=expected child exit; no UNEXPECTED entry
+Tampered_RunView_UnavailableNoLayersRowKept_isolated=exit 1 in 1638.3 ms; expected OK, got DOC-UNSUPPORTED-PERSISTENCE
+
+[Artifacts]
+full_ring_stdout=windows-ring-r215-rerun.stdout.txt
+full_ring_stderr=windows-ring-r215-rerun.stderr.txt
+full_ring_desktop_detail=windows-ring-r215-desktop.log
+full_ring_cli_detail=windows-ring-r215-cli.log
+targeted_stdout=windows-r215-station-golden.stdout.txt, windows-r215-tefloor.stdout.txt
+tampered_stdout=windows-wrx-tampered-isolated.stdout.txt
