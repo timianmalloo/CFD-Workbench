@@ -11,7 +11,7 @@ links:
   - { to: review-pr-30, rel: implements }
 review-by: "2026-11-10"
 summary: >-
-  Attempt 3 completed B1; B2 waits for an installable pinned CUDA 13.2 recipe and F1 remains closed.
+  Attempt 3 completed the B1 inventory; B2 phases A/B later closed its pinned-recipe requirement and F1 remains closed.
 ---
 
 # Windows GPU B1 inventory and live L3 guard
@@ -28,8 +28,9 @@ bounded end after a stop so the post-stop evidence remains available.
 
 The B1 capture records the driver-reported CUDA ceiling, Linux and Windows free space, the v2512 development surface,
 configured apt policy, retained official CUDA/PETSc metadata, and CUDA 13.2 and 13.4 repository inventories. These
-inventories are not installable locks: unresolved external dependencies, unverified metadata signatures, missing
-installed sizes, or package-level license gaps block B2. The final receipt binds an immutable N-row byte prefix of
+inventories were not installable locks: unresolved external dependencies, unverified metadata signatures, missing
+installed sizes, and package-level license gaps still existed at B1 capture time. B2 phases A/B later closed those
+gaps at `9b4ac7c1` and `5d884ecc`. The final receipt binds an immutable N-row byte prefix of
 `../win-l3-observer/samples.jsonl`.
 
 B2 remains limited to a fresh disposable Ubuntu 24.04 WSL distro. It cannot target `cfdw-openfoam2512`, install a Linux
@@ -42,6 +43,6 @@ read-only inventory in an 8,131 ms wrapper workload window. The observer's final
 −0.414938% on `/proc/uptime`; the five-percent threshold did not fire. `receipt.md` records the hardware, capacity,
 OpenFOAM development gaps, metadata hashes, package inventories, failed-attempt archive, and 16-row prefix binding.
 
-B2 remains blocked until the CUDA 13.2 recipe verifies the repository signature, maps the license, pins external
-dependencies, and completes its installed-size budget. CUDA 13.4 exceeds the measured driver ceiling and is not an
-approved target. F1 remains closed.
+B2 phases A/B later verified the CUDA 13.2 repository signature, mapped all 135 package licences, pinned external
+dependencies, and passed its installed-size budget. Ruling 209 records that this closes B1's recipe done-when. CUDA
+13.4 exceeds the measured driver ceiling and is not an approved target. F1 remains closed.

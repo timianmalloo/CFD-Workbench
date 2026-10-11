@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T23:24:32Z",
+  "generated": "2026-10-11T04:03:41Z",
   "audit": [
     {
       "actor": null,
@@ -34928,6 +34928,48 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M4MJ2XGPQ711J57R5A1MCW00",
+      "shortname": "win-gpu-b2-closeout",
+      "datetime": "2026-10-11T04:03:41Z",
+      "session": "pc-b2-r200-20261010",
+      "prompt": "keep going",
+      "summary": "Completed Windows GPU B2 under Rulings 200 and 209: exact CUDA 13.2 install, managed-memory SAXPY pass, immutable L3 guard, manifest-bound evidence, exact disposable-distro rollback, Rulings 208/210 reconciliation, Windows ring disclosure, Astra acceptance, and F1 decision request to the Mac leader.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "pc-coordinator",
+      "artifacts": [
+        "docs/proof/win-gpu-b2/receipt.md",
+        "docs/proof/win-gpu-b2/capture-manifest.json",
+        "docs/proof/win-gpu-b2/rollback/rollback.json",
+        "docs/proof/win-gpu-b2/windows-ring-summary.txt"
+      ],
+      "tags": [
+        "windows",
+        "gpu",
+        "coordination"
+      ],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Complete the Windows B2 GPU track and hand Mac a join-ready evidence-backed result.",
+      "done_when": "Successful run committed and pushed; disposable distro safely rolled back with proof; Rulings 208/210 applied; Windows ring failures documented; Astra review complete; PR handoff ready.",
+      "tier": "T2",
+      "fan_out": 4,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-10T22:24:19Z",
+      "duration_seconds": 20362.0,
+      "git": {
+        "sha": "80eb82a692c8511471743cc2f0d203f6235cd232",
+        "short": "80eb82a69",
+        "branch": "win/gpu-g2-b1-r199",
+        "pushed": true
+      }
     }
   ],
   "changes": [
@@ -37742,6 +37784,15 @@ window.AUDIT_DATA = {
       "to": "fable-owner",
       "kind": "decision-request",
       "ref": "req-01M4KT4VYJDNGE5GCV1QGXQ8FZ",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4KYVNRR7TTKC6M1SM3N6V3Q",
+      "ts": "2026-10-10T22:27:40Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4KYVNRKXY64YDH9YYD9FAMX",
       "session": "3122f106"
     }
   ]

@@ -5466,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2a91e904507fff66e2d385bec8ad431c49292673dff1315eecffc65a7abf55ab"
+      "sourceSha256": "9ddf578d85adf8b5d842e1fbb586292da37b0624ecf0e6c5f99bbde8a1926fef"
     },
     {
       "id": "domain-experts",
@@ -8727,7 +8727,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0d1a14457ad9feee7d39452bbdad1862a5f755ca21df1728fd79941c64783e6a"
+      "sourceSha256": "3424290dff24ba2c1eddc397b003de50e02403c65ba4a9034c1dd8071200b104"
     },
     {
       "id": "kb-hw-glossary",
@@ -17793,7 +17793,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2026-11-10",
       "reviewSuggested": [],
-      "summary": "Attempt 3 completed B1; B2 waits for an installable pinned CUDA 13.2 recipe and F1 remains closed.",
+      "summary": "Attempt 3 completed the B1 inventory; B2 phases A/B later closed its pinned-recipe requirement and F1 remains closed.",
       "tags": [
         "proof",
         "windows",
@@ -17814,26 +17814,27 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e8af73680f8f6f87c83e1364b378e15795bfe1a3c2eb5cf9a0c061cc7f77713d"
+      "sourceSha256": "d29cb0b09db174b809d0880bb5890e01cb5a97f920f1ff917c88fd85e5a249fd"
     },
     {
       "id": "proof-win-gpu-b2",
       "path": "docs/proof/win-gpu-b2/README.md",
       "title": "Windows GPU B2 disposable CUDA proof",
       "type": "proof-pack",
-      "status": "blocked",
+      "status": "complete",
       "owner": "@pc-coordinator",
       "phase": "implementation",
       "reviewBy": "2026-11-10",
       "reviewSuggested": [],
-      "summary": "Ruling 200 proof for an exact CUDA 13.2 install and managed-memory toy in a fresh disposable Ubuntu 24.04 WSL distro.",
+      "summary": "Rulings 200 and 209 proof for an exact CUDA 13.2 install and managed-memory toy in a disposable Ubuntu 24.04 WSL distro.",
       "tags": [
         "proof",
         "windows",
         "wsl",
         "cuda",
         "gpu",
-        "ruling-200"
+        "ruling-200",
+        "ruling-209"
       ],
       "links": [
         {
@@ -17842,7 +17843,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a12f15cb274e1ba448174716c5390eb457b8c49d31780074ee48a9fb5c50d94d"
+      "sourceSha256": "3bf773b187793d2991cbc03882f6840fb6201510fbcf946748d6c49b44b3d6a7"
     },
     {
       "id": "proof-win-gpu-g1",
@@ -18590,7 +18591,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2026-11-10",
       "reviewSuggested": [],
-      "summary": "Attempt 3 completed the bounded B1 inventory; B2 remains blocked on an installable CUDA 13.2 recipe.",
+      "summary": "Attempt 3 completed the bounded B1 inventory; B2 phases A/B later completed the pinned CUDA 13.2 recipe and closed B1's done-when.",
       "tags": [
         "proof",
         "windows",
@@ -18615,7 +18616,40 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "813014f5de0a3a44ef246bc02403cf2eb38913ace02133e756ba65b6bd45f9fc"
+      "sourceSha256": "69dc705f2b878dcbb9a1de4844e669e4ff6456f6d22deab4b81a34825a82f248"
+    },
+    {
+      "id": "receipt-win-gpu-b2-r209",
+      "path": "docs/proof/win-gpu-b2/receipt.md",
+      "title": "Windows GPU B2 CUDA 13.2 execution receipt",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@pc-coordinator",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "The first live Ruling 209 attempt installed the pinned CUDA 13.2 recipe and passed a manifest-bound managed-memory SAXPY proof, then the disposable distro was unregistered.",
+      "tags": [
+        "proof",
+        "windows",
+        "wsl",
+        "cuda",
+        "gpu",
+        "ruling-200",
+        "ruling-209"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-b2",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-l3-observer",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3e7f7dcdf2b56d829ddfc248902089a8dee220f181943aafcab370661098c527"
     },
     {
       "id": "review-app-shell-native",
@@ -20655,5 +20689,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "57bdbd6aa81eb3601335be21d46844a21b59b7f1771d07131b6810c04cc1acfa"
+  "graphSha256": "4feb3e21551412f8ad9ea491ad20a4c7dad9c3d11f486e436b1606f914430b9d"
 };

@@ -1,0 +1,15 @@
+{
+    "schema":  "cfdw-win-gpu-b2-unregister/1",
+    "executed_utc":  "2026-10-11T03:55:43.4936745Z",
+    "argv":  [
+                 "wsl.exe",
+                 "--unregister",
+                 "cfdw-cuda132-b2"
+             ],
+    "exit_code":  0,
+    "output":  [
+                   "The operation completed successfully.",
+                   "",
+                   ""
+               ]
+}

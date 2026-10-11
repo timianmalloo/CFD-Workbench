@@ -2,7 +2,7 @@
 id: receipt-win-gpu-b2-r209
 title: "Windows GPU B2 CUDA 13.2 execution receipt"
 type: proof-pack
-status: in-progress
+status: complete
 owner: "@pc-coordinator"
 phase: implementation
 tags: [proof, windows, wsl, cuda, gpu, ruling-200, ruling-209]
@@ -11,12 +11,12 @@ links:
   - { to: proof-win-l3-observer, rel: depends-on }
 review-by: "2026-11-10"
 summary: >-
-  The first live Ruling 209 attempt installed the pinned CUDA 13.2 recipe and passed a manifest-bound managed-memory SAXPY proof; rollback remains pending.
+  The first live Ruling 209 attempt installed the pinned CUDA 13.2 recipe and passed a manifest-bound managed-memory SAXPY proof, then the disposable distro was unregistered.
 ---
 
 # Windows GPU B2 CUDA 13.2 execution receipt
 
-**Verdict: Verified execution success; rollback pending.** Session `pc-b2-r209-20261010-run4` is the first live
+**Verdict: Verified execution success and rollback complete.** Session `pc-b2-r209-20261010-run4` is the first live
 B2 attempt under Ruling 209. It installed only the accepted 135-package CUDA 13.2 lock in disposable distro
 `cfdw-cuda132-b2`, ran the owned GPU workload, and exited with no residual owned process. The protected
 `cfdw-openfoam2512` terminal projection remained byte-for-byte unchanged through 29 five-second samples and the final
@@ -78,7 +78,10 @@ The run evidence is retained under `attempt-4-success/`. `capture.json` records 
 timings, guard result, ownership result, and SAXPY result. `saxpy.sha256.txt` binds the source, binary, result, and
 device marker. `capture-manifest.json` binds these files to their committed Git blobs.
 
-Rollback is authorized only after this proof is committed and pushed. The closeout must verify the exact disposable
-marker, Ubuntu 24.04 identity, recorded install location, no owned process, the protected snapshot, and both exact
-distro names before unregistering only `cfdw-cuda132-b2`. It must then prove the target absent and
-`cfdw-openfoam2512` present.
+The proof checkpoint was committed and pushed at `80eb82a6` before rollback. The first rollback wrapper invocation
+failed closed before unregister because the Linux-only snapshot collector was launched in host Python. The second
+invocation ran that collector inside `cfdw-openfoam2512` and passed every gate: exact disposable marker, Ubuntu 24.04,
+recorded install path, zero residual process, both distro identities, and unchanged protected snapshot. The exact
+command `wsl.exe --unregister cfdw-cuda132-b2` exited 0. The closeout proves the target name, registry entry, and install
+directory absent; `cfdw-openfoam2512` remains present, with matching pre/post SHA-256
+`42e1d0bed05aa071a70fba8445474a85fa43a1746a394adc4e46a433a090aab9`.

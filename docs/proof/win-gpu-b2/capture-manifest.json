@@ -14,8 +14,8 @@
     },
     {
       "path": "docs/proof/win-gpu-b2/README.md",
-      "bytes": 7160,
-      "sha256": "e31033c2039689e0e55be4555e167e5132d31891beaa294f44d0c68802e40862"
+      "bytes": 7855,
+      "sha256": "3bf773b187793d2991cbc03882f6840fb6201510fbcf946748d6c49b44b3d6a7"
     },
     {
       "path": "docs/proof/win-gpu-b2/accepted-inputs.sha256",
@@ -549,13 +549,43 @@
     },
     {
       "path": "docs/proof/win-gpu-b2/receipt.md",
-      "bytes": 5376,
-      "sha256": "57f7eed952d73ff5e454a6d225057a1902ae41c86cdb71f6cfa894b156d76027"
+      "bytes": 5775,
+      "sha256": "3e7f7dcdf2b56d829ddfc248902089a8dee220f181943aafcab370661098c527"
     },
     {
       "path": "docs/proof/win-gpu-b2/residual-owned.sh",
       "bytes": 3268,
       "sha256": "d7b0a7d5664f71ed10bb9d6c7b810604ba2e6b83680964d6d2674b06dc39af92"
+    },
+    {
+      "path": "docs/proof/win-gpu-b2/rollback.ps1",
+      "bytes": 7223,
+      "sha256": "5e7479dbea08468380895ae87ee7c07edd23e90155b2ba7d5744f86244c863c1"
+    },
+    {
+      "path": "docs/proof/win-gpu-b2/rollback/l3-after-unregister.json",
+      "bytes": 532,
+      "sha256": "42e1d0bed05aa071a70fba8445474a85fa43a1746a394adc4e46a433a090aab9"
+    },
+    {
+      "path": "docs/proof/win-gpu-b2/rollback/l3-before-unregister.json",
+      "bytes": 532,
+      "sha256": "42e1d0bed05aa071a70fba8445474a85fa43a1746a394adc4e46a433a090aab9"
+    },
+    {
+      "path": "docs/proof/win-gpu-b2/rollback/precheck.json",
+      "bytes": 926,
+      "sha256": "3d8433747738e939c6018735bea4b052933ba51e21b09489eef709989e4e5fa1"
+    },
+    {
+      "path": "docs/proof/win-gpu-b2/rollback/rollback.json",
+      "bytes": 653,
+      "sha256": "b0e635198c58da3189711d09ad26b276efc23832ad26442d094a3e574171c984"
+    },
+    {
+      "path": "docs/proof/win-gpu-b2/rollback/unregister.json",
+      "bytes": 391,
+      "sha256": "9f129e34cb965a0b5344b09ca6a49a0a55720e5ccbbae4f3e1bf3a49b25b1ec4"
     },
     {
       "path": "docs/proof/win-gpu-b2/saxpy.cu",
@@ -601,6 +631,26 @@
       "path": "docs/proof/win-gpu-b2/verify-sources.sh",
       "bytes": 1586,
       "sha256": "ecc4c8bdd3487b41489cf98ae156d7f76ec39d53a97944665daa3d8ee630a03a"
+    },
+    {
+      "path": "docs/proof/win-gpu-b2/windows-ring-summary.txt",
+      "bytes": 5573,
+      "sha256": "4c614bb14d2eb78c3bd1ca5cedb723148668ed79de756b9b1df273b9985a8a88"
+    },
+    {
+      "path": "docs/proof/win-gpu-b2/windows-ring.exit.txt",
+      "bytes": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "path": "docs/proof/win-gpu-b2/windows-ring.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-gpu-b2/windows-ring.stdout.txt",
+      "bytes": 27403,
+      "sha256": "54930e43ddfd246bdfa9cc52d49c1dcf39d9494e197f3cac14bf9556c1a66842"
     },
     {
       "path": "docs/proof/win-gpu-b2/wsl-import.stderr.txt",

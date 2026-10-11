@@ -2,7 +2,7 @@
 id: proof-win-gpu-b2
 title: "Windows GPU B2 disposable CUDA proof"
 type: proof-pack
-status: in-progress
+status: complete
 owner: "@pc-coordinator"
 phase: implementation
 tags: [proof, windows, wsl, cuda, gpu, ruling-200, ruling-209]
@@ -48,8 +48,8 @@ ownership checks, CUDA 13.2 compilation, and a six-iteration managed-memory SAXP
 The workload exited 0 after 143,744 ms; the final residual check found no matching process. All 29 completed-run guard
 samples continued, and the canonical L3 pre/post hashes both equal
 `42e1d0bed05aa071a70fba8445474a85fa43a1746a394adc4e46a433a090aab9`. The committed evidence is under
-`attempt-4-success/`; `receipt.md` states the measured result and limits. Rollback remains pending until this evidence
-is committed and pushed.
+`attempt-4-success/`; `receipt.md` states the measured result and limits. The proof was committed and pushed at
+`80eb82a6` before the authorized rollback.
 
 The committed execution source at `c7569700` passed Astra review. Its non-installing preflight then passed the frozen
 input hashes, current 528-package state, exact 135-package resimulation, archive verification, license map, and capacity
@@ -89,3 +89,12 @@ register. The accepted fresh import is session `pc-b2-r200-20261010e` in `plan-c
 stopped twice before installation: the first exact lock mistook `cuda-driver-dev-13-2` for a driver installer, and the
 second identified Debian shared-license symlinks before the capacity wrapper collided with PowerShell's `$Host` variable.
 The exact-family guard, shared-notice resolver, and reserved-variable scan now cover those failure classes.
+
+## Rollback
+
+The first rollback wrapper invocation failed closed before unregister because it ran the Linux-only completed-guard
+collector in host Python. The repaired wrapper invokes that collector in the exact protected WSL distro. Its precheck
+then verified both distro identities, the disposable marker, Ubuntu 24.04, the recorded install location, zero residual
+B2 processes, and the unchanged protected snapshot. `wsl.exe --unregister cfdw-cuda132-b2` exited 0. The final check
+proved the target registration and install directory absent, `cfdw-openfoam2512` present, and the protected snapshot
+still at SHA-256 `42e1d0bed05aa071a70fba8445474a85fa43a1746a394adc4e46a433a090aab9`.
