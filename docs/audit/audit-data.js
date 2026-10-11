@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T18:49:07Z",
+  "generated": "2026-10-11T18:52:41Z",
   "audit": [
     {
       "actor": null,
@@ -35741,6 +35741,35 @@ window.AUDIT_DATA = {
         "branch": "win/gpu-f1-r211-astra-review2",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M4P4YQSWZVJFK01DVFR5CVQQ",
+      "shortname": "join-f1-r211-astra-review2",
+      "datetime": "2026-10-11T18:52:41Z",
+      "session": "pc-f1-execute-20261011",
+      "prompt": "the join of win/gpu-f1-r211-astra-review2 into win/gpu-f1-design-r211",
+      "summary": "Joined Astra's second and final VETO: exact Ubuntu transaction closure and finite F1 capacity remain absent, so the track ends and execution stays closed. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-astra-r2.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Integrate the final independent Astra verdict after the single AUTHOR repair.",
+      "done_when": "The final VETO is joined with docs gates green and the handoff boundary to Mac/Fable/operator is explicit.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-11T18:51:05Z",
+      "duration_seconds": 96.0
     }
   ],
   "changes": [
