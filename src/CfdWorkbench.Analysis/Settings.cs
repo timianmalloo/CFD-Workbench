@@ -51,8 +51,8 @@ public static class Settings
         var values = new List<double> { 0 };
         for (int i = n / 2; i < n; i++)
         {
-            double outer = Edge(i + 1, n, spacing);
-            values.Add(0.5 * (Edge(i, n, spacing) + outer));
+            double outer = Spacing.Edge(i + 1, n, spacing);
+            values.Add(0.5 * (Spacing.Edge(i, n, spacing) + outer));
             values.Add(outer);
         }
         return Unique(values);
@@ -63,8 +63,8 @@ public static class Settings
         var values = new List<double>();
         for (int k = 0; k < nChord; k++)
         {
-            double inner = Fraction(k, nChord, spacing);
-            double outer = Fraction(k + 1, nChord, spacing);
+            double inner = Spacing.Fraction(k, nChord, spacing);
+            double outer = Spacing.Fraction(k + 1, nChord, spacing);
             double width = outer - inner;
             values.Add(inner);
             values.Add(inner + 0.25 * width);
@@ -73,20 +73,6 @@ public static class Settings
         values.Add(1);
         return Unique(values);
     }
-
-    private static double Edge(int index, int n, string spacing) => spacing switch
-    {
-        "cosine" => -double.CosPi(index / (double)n),
-        "uniform" => -1 + 2.0 * index / n,
-        _ => throw new ArgumentOutOfRangeException(nameof(spacing), spacing, "VLM: spacing is cosine or uniform.")
-    };
-
-    private static double Fraction(int index, int n, string spacing) => spacing switch
-    {
-        "cosine" => 0.5 * (1 - double.CosPi(index / (double)n)),
-        "uniform" => (double)index / n,
-        _ => throw new ArgumentOutOfRangeException(nameof(spacing), spacing, "VLM: spacing is cosine or uniform.")
-    };
 
     private static double[] Unique(List<double> values)
     {
