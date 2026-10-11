@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T16:02:08Z",
+  "generated": "2026-10-11T16:03:53Z",
   "audit": [
     {
       "actor": null,
@@ -35063,6 +35063,31 @@ window.AUDIT_DATA = {
       "done_when": "run-tests, gates, check-docs green; DefaultHash re-recorded; station golden and CRT gate in place",
       "started_at": "2026-10-11T15:55:09Z",
       "duration_seconds": 419.0
+    },
+    {
+      "id": "al-01M4NV9NFAKT7XMHJBE9861NM9",
+      "shortname": "join-tfh2",
+      "datetime": "2026-10-11T16:03:53Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/tfh2-cospi into main",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-11T16:02:47Z",
+      "duration_seconds": 66.0
     }
   ],
   "changes": [
