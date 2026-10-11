@@ -592,6 +592,7 @@ retained, **before** the self-test freeze and before any exact-hash review. The 
 reviewer refuses a hash review without them. The Mac states gate lists in order: gates, then freeze, then review.
 Status: prose rule in Ruling 183 and the route text; the mechanical form (the receipt check requiring both outputs,
 timestamped before the review) is pending.
+*2026-10-11 (PR #31 join, GATE-AFTER-FREEZE recurrence).* The PC added `tools/check-powershell-exit-code.py` and pushed it through review without `run-verify-gates.py`. The leader's join stopped at step 8: `verify-portable-text-io.py` found no stdio reconfigure guard. The leader added the guard on top of the merge. The PC's own gate list (check-docs, proof-PII, manifests) passed, so the order rule held but the gate set was short. *Derive:* a PC track that changes `tools/` runs `run-verify-gates.py` itself, not only check-docs. *Control:* still the pending mechanical form (a receipt check requiring the run-verify-gates output).
 *2026-10-09 (WIG join, GATE-BEFORE-ADD).* A third ordering shape: the gate ran before the freeze, but before `git add`.
 - Track WIG ran check-docs green, then committed a new `tools/check-wsl-inline.py`.
 - `check-proof-pii.py` reads tracked files only (`git ls-files`), so it never saw the new file. Its fixture, a WSL home path with a one-letter account,
