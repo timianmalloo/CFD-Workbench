@@ -1,4 +1,5 @@
 using System.Globalization;
+using CfdWorkbench.Core;
 using static CfdWorkbench.Analysis.Tests.AnalysisChecks;
 
 namespace CfdWorkbench.Analysis.Tests;
@@ -17,6 +18,9 @@ internal static class StationGoldenTests
         Check("StationGolden_SpanEtas_AreMinusCosPiBits", SpanEtas);
         Check("StationGolden_ChordXs_AreHalfOneMinusCosPiBits", ChordXs);
         Check("StationGolden_PanelGrid_IsOneMinusCosPiOverTwoBits", PanelGrid);
+        Check("StationGolden_LatticeSpanStations_EqualSettingsEtasBits", LatticeSpan);
+        Check("StationGolden_LatticeChordFractions_EqualSettingsChordXsBits", LatticeChord);
+        Check("StationGolden_LoadsStripWidthFallback_UsesCosPiEdges", LoadsWidth);
     }
 
     private static Dictionary<int, double[]> Golden()
@@ -65,6 +69,45 @@ internal static class StationGoldenTests
             var xs = Settings.ChordXs(nChord, "cosine");
             for (int k = 0; k <= nChord; k++)
                 Equal(true, xs.Any(x => Bits(x) == Bits(0.5 * (1 - golden[nChord][k]))), $"chord edge {k}/{nChord} is 0.5*(1-CosPi) bits");
+        }
+    }
+
+    // Track LSP (Ruling 214 item 3 follow-up): the lattice span stations are the Settings etas, bit for bit, for the same n and spacing.
+    // A unit span [-1, 1] makes mid = 0 and half = 1, so y[i] must be the Settings edge -CosPi(i/n) exactly.
+    private static void LatticeSpan()
+    {
+        foreach (int nPerHalf in new[] { 64, 50, 100, 4 })
+        {
+            int n = 2 * nPerHalf;
+            var etas = Settings.SpanEtas(nPerHalf, "cosine");
+            double[] y = VortexLattice.SpanStations(-1, 1, nPerHalf, "cosine");
+            for (int i = n / 2 + 1; i <= n; i++)
+                Equal(true, etas.Any(eta => Bits(eta) == Bits(y[i])), $"lattice span station {i}/{n} equals a Settings eta bit for bit");
+        }
+    }
+
+    // Fractions is private; the chord fractions are the edges Settings.ChordXs keeps.
+    private static void LatticeChord()
+    {
+        var fractions = typeof(VortexLattice).GetMethod("Fractions", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!;
+        foreach (int nChord in new[] { 4, 8 })
+        {
+            var xs = Settings.ChordXs(nChord, "cosine");
+            var f = (double[])fractions.Invoke(null, new object[] { nChord, "cosine" })!;
+            for (int k = 0; k <= nChord; k++)
+                Equal(true, xs.Any(x => Bits(x) == Bits(f[k])), $"lattice chord fraction {k}/{nChord} equals a Settings chord x bit for bit");
+        }
+    }
+
+    // Loads.StripWidth without stored edges (older lattices) uses the spacing law: (eta[j+1] - eta[j]) * b / 2 with eta = -CosPi(i/total).
+    private static void LoadsWidth()
+    {
+        AnalysisRun run = ProjectionTests.Data().Run;
+        int total = 2 * run.Settings.NSpanPerHalf;
+        for (int j = 0; j < total; j++)
+        {
+            double expected = (-double.CosPi((j + 1) / (double)total) - -double.CosPi(j / (double)total)) * run.Reference.BRef / 2;
+            Equal(Bits(expected), Bits(Loads.StripWidth(run, run.Strips[j])), $"strip width {j}/{total} bits");
         }
     }
 

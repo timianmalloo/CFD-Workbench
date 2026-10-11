@@ -174,7 +174,7 @@ public static class VortexLattice
         var matrix = new double[n * n];
         var rhs = new double[n];
         double alpha = ToRadians(op.AlphaDeg);
-        double vx = op.Speed * Math.Cos(alpha), vz = op.Speed * Math.Sin(alpha);
+        double vx = op.Speed * Math.Cos(alpha), vz = op.Speed * Math.Sin(alpha); // crt-allowed: Ruling 214 — flow-angle solver math, compared under a tolerance, never a key
         for (int i = 0; i < n; i++)
         {
             cancellation.ThrowIfCancellationRequested();
@@ -280,7 +280,7 @@ public static class VortexLattice
         var y = new double[n + 1];
         double mid = 0.5 * (yMin + yMax), half = 0.5 * (yMax - yMin);
         if (spacing == "cosine")
-            for (int i = 0; i <= n; i++) y[i] = mid - half * Math.Cos(Math.PI * i / n);
+            for (int i = 0; i <= n; i++) y[i] = mid + half * Spacing.Edge(i, n, "cosine");
         else if (spacing == "uniform")
             for (int i = 0; i <= n; i++) y[i] = yMin + (yMax - yMin) * i / n;
         else throw new ArgumentOutOfRangeException(nameof(spacing), spacing, "Span spacing is cosine or uniform.");
@@ -291,7 +291,7 @@ public static class VortexLattice
     {
         var f = new double[n + 1];
         if (spacing == "cosine")
-            for (int k = 0; k <= n; k++) f[k] = 0.5 * (1 - Math.Cos(Math.PI * k / n));
+            for (int k = 0; k <= n; k++) f[k] = Spacing.Fraction(k, n, "cosine");
         else if (spacing == "uniform")
             for (int k = 0; k <= n; k++) f[k] = (double)k / n;
         else throw new ArgumentOutOfRangeException(nameof(spacing), spacing, "Chord spacing is cosine or uniform.");
@@ -386,7 +386,7 @@ public static class VortexLattice
     {
         double slope = CamberSlopeAt(mid, controlFraction);
         double twist = ToRadians(mid.Frame.TwistDegrees);
-        Point3 tangent = new(Math.Cos(twist) + Math.Sin(twist) * slope, 0, -Math.Sin(twist) + Math.Cos(twist) * slope);
+        Point3 tangent = new(Math.Cos(twist) + Math.Sin(twist) * slope, 0, -Math.Sin(twist) + Math.Cos(twist) * slope); // crt-allowed: Ruling 214 — flow-angle solver math, compared under a tolerance, never a key
         return Cross(tangent, Sub(b, a));
     }
 
@@ -394,14 +394,14 @@ public static class VortexLattice
     {
         double quarterA = a.Frame.LeadingMeters + 0.25 * a.Frame.ChordMeters;
         double quarterB = b.Frame.LeadingMeters + 0.25 * b.Frame.ChordMeters;
-        return ToDegrees(Math.Atan2(quarterB - quarterA, yb - ya));
+        return ToDegrees(Math.Atan2(quarterB - quarterA, yb - ya)); // crt-allowed: Ruling 214 — flow-angle solver math, compared under a tolerance, never a key
     }
 
     private static double FrontBoundSweepOf(List<Horseshoe> horses, int strip)
     {
         foreach (Horseshoe horse in horses)
             if (horse.Strip == strip)
-                return ToDegrees(Math.Atan2(horse.B.X - horse.A.X, horse.B.Y - horse.A.Y));
+                return ToDegrees(Math.Atan2(horse.B.X - horse.A.X, horse.B.Y - horse.A.Y)); // crt-allowed: Ruling 214 — flow-angle solver math, compared under a tolerance, never a key
         return 0;
     }
 
@@ -424,9 +424,9 @@ public static class VortexLattice
             uz += gamma[k] * sz;
         }
         double alpha = ToRadians(op.AlphaDeg);
-        double qx = op.Speed * Math.Cos(alpha) + ux;
-        double qz = op.Speed * Math.Sin(alpha) + uz;
-        return op.AlphaDeg - ToDegrees(Math.Atan2(qz, qx));
+        double qx = op.Speed * Math.Cos(alpha) + ux; // crt-allowed: Ruling 214 — flow-angle solver math, compared under a tolerance, never a key
+        double qz = op.Speed * Math.Sin(alpha) + uz; // crt-allowed: Ruling 214 — flow-angle solver math, compared under a tolerance, never a key
+        return op.AlphaDeg - ToDegrees(Math.Atan2(qz, qx)); // crt-allowed: Ruling 214 — flow-angle solver math, compared under a tolerance, never a key
     }
 
     private static LatticeFailedException Fail(LatticePlant plant, string code, string reason)
