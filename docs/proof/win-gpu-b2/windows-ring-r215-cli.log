@@ -1,0 +1,46 @@
+CLI Example identity, assessment, bounded projection and extension refusal passed.
+PASS Cli_InspectJson_PointsRolesAndKinds
+PASS Cli_InspectJson_ChannelPointsRolesAndKinds
+PASS Cli_Inspect_ListsSectionPointTypesAndKinds
+FAIL Cli_AnalyseRunKey_EqualsServiceOnCustomOp Exception: inspect --runs returned 3: {
+  "code": "DOC-UNSUPPORTED-PERSISTENCE"
+}
+
+COST Cli_AnalyseRunKey_EqualsServiceOnCustomOp 235.376
+PASS Cli_AnalyseFailedRun_PrintsNoDiagnostics
+COST Cli_AnalyseFailedRun_PrintsNoDiagnostics 53.663
+FAIL Cli_InspectRuns_RevisionIsSessionLabel Exception: inspect --runs returned 3: {
+  "code": "DOC-UNSUPPORTED-PERSISTENCE"
+}
+
+COST Cli_InspectRuns_RevisionIsSessionLabel 224.805
+PASS Cli_Export_DatEqualsFixtureAndPrintsSummary
+COST Cli_Export_DatEqualsFixtureAndPrintsSummary 162.591
+PASS Cli_Export_StlPassesClosureCheck
+COST Cli_Export_StlPassesClosureCheck 286.099
+PASS Cli_Export_HalfNamesFileHalf
+COST Cli_Export_HalfNamesFileHalf 345.719
+NOT ASSESSED file-link (Windows: creating a file link needs a privilege; enable Developer Mode)
+PASS Cli_Export_SymlinkTargetRefused
+COST Cli_Export_SymlinkTargetRefused 9.447
+NOT ASSESSED file-link (Windows: creating a file link needs a privilege; enable Developer Mode)
+NOT ASSESSED file-link (Windows: creating a file link needs a privilege; enable Developer Mode)
+PASS Export_LinkTargetHasOneCodeOnBothSurfaces
+COST Export_LinkTargetHasOneCodeOnBothSurfaces 9.653
+PASS Cli_Export_3mfPassesPackageCheckAndHalfNamesFile
+COST Cli_Export_3mfPassesPackageCheckAndHalfNamesFile 630.260
+PASS Cli_Export_StationTakesTheAppsNames
+COST Cli_Export_StationTakesTheAppsNames 1003.538
+PASS Cli_Export_InvalidOptionPrintsUsage
+COST Cli_Export_InvalidOptionPrintsUsage 97.578
+PASS Cli_Export_TrailingEdgeBelowFloorAdvisesAndWrites
+COST Cli_Export_TrailingEdgeBelowFloorAdvisesAndWrites 137.277
+PASS Cli_Export_GeometryNotAcceptedRefused
+COST Cli_Export_GeometryNotAcceptedRefused 22.150
+PASS Cli_Export_ForcedExtensionNeverReplaces
+COST Cli_Export_ForcedExtensionNeverReplaces 230.167
+PASS Cli_Export_UnwritablePathExitsIo
+COST Cli_Export_UnwritablePathExitsIo 126.399
+NOT ASSESSED file-link (Windows: creating a file link needs a privilege; enable Developer Mode)
+PASS Cli_Export_EmitsOneTelemetryEventPerOutcome_NoPathNoName
+COST Cli_Export_EmitsOneTelemetryEventPerOutcome_NoPathNoName 265.978

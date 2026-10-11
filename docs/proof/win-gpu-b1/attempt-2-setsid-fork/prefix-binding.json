@@ -1,0 +1,9 @@
+{
+  "schema": "cfdw-observer-prefix-binding/1",
+  "source": "C:/Projects/CFD-Workbench-win-gpu-g2-b1-r199/docs/proof/win-l3-observer/samples.jsonl",
+  "snapshot": "samples-prefix.snapshot.jsonl",
+  "prefix_row_count": 13,
+  "prefix_byte_count": 4078,
+  "prefix_sha256": "8eee025939a9fcb1d3472c64d137ca8210855cfdf63c15aef0f60d655d744d6a",
+  "live_store_prefix_equal": true
+}

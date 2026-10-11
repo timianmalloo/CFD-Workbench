@@ -1,0 +1,24 @@
+{
+    "schema":  "cfdw-win-gpu-b2-rollback-precheck/1",
+    "checked_utc":  "2026-10-11T03:55:43.2923810Z",
+    "target_distro":  "cfdw-cuda132-b2",
+    "protected_distro":  "cfdw-openfoam2512",
+    "distro_names":  [
+                         "cfdw-openfoam2512",
+                         "cfdw-cuda132-b2"
+                     ],
+    "marker":  [
+                   "distro=cfdw-cuda132-b2",
+                   "os_id=ubuntu",
+                   "version_id=24.04",
+                   "created_utc=2026-10-10T22:43:39Z"
+               ],
+    "os_release_id":  "ubuntu",
+    "os_release_version_id":  "24.04",
+    "install_location":  "C:\\Projects\\CFD-Workbench-wsl\\cfdw-cuda132-b2",
+    "residual":  [
+                     "residual_process=absent attempt=* pgrep_candidates=0"
+                 ],
+    "protected_snapshot_sha256":  "42e1d0bed05aa071a70fba8445474a85fa43a1746a394adc4e46a433a090aab9",
+    "passed":  true
+}

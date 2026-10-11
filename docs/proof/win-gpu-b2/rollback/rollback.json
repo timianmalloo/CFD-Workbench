@@ -1,0 +1,15 @@
+{
+    "schema":  "cfdw-win-gpu-b2-rollback/1",
+    "completed_utc":  "2026-10-11T03:55:43.7924174Z",
+    "target_distro":  "cfdw-cuda132-b2",
+    "protected_distro":  "cfdw-openfoam2512",
+    "target_absent":  true,
+    "target_registration_absent":  true,
+    "target_install_location_absent":  true,
+    "protected_present":  true,
+    "distro_names":  "cfdw-openfoam2512",
+    "protected_snapshot_before_sha256":  "42e1d0bed05aa071a70fba8445474a85fa43a1746a394adc4e46a433a090aab9",
+    "protected_snapshot_after_sha256":  "42e1d0bed05aa071a70fba8445474a85fa43a1746a394adc4e46a433a090aab9",
+    "unregister_exit_code":  0,
+    "status":  "complete"
+}

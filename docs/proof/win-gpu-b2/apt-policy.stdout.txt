@@ -1,0 +1,74 @@
+cuda-toolkit-13-2:
+  Installed: (none)
+  Candidate: 13.2.2-1
+  Version table:
+     13.2.2-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     13.2.1-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     13.2.0-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+cuda-toolkit-config-common:
+  Installed: (none)
+  Candidate: 13.2.86-1
+  Version table:
+     13.4.92-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     13.4.49-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     13.3.29-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     13.2.86-1 1001
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     13.2.75-1 1001
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     13.2.51-1 1001
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     13.1.80-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     13.0.96-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     13.0.88-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     13.0.48-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     12.9.79-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     12.9.37-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     12.8.90-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     12.8.57-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     12.6.77-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     12.6.68-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     12.6.37-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     12.5.82-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+cuda-toolkit-13-config-common:
+  Installed: (none)
+  Candidate: 13.2.86-1
+  Version table:
+     13.4.92-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     13.4.49-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     13.3.29-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     13.2.86-1 1001
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     13.2.75-1 1001
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     13.2.51-1 1001
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     13.1.80-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     13.0.96-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     13.0.88-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages
+     13.0.48-1 600
+        600 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64  Packages

@@ -1,0 +1,35 @@
+GROUP Architecture 1
+GROUP RunStore 0
+GROUP Lattice 0
+GROUP Strip 0
+GROUP Service 0
+GROUP Freshness 0
+GROUP Projection 0
+GROUP Labels 1
+GROUP LoadsView 0
+GROUP PanelCp 0
+GROUP SectionEstimator 0
+GROUP Cavitation 0
+GROUP NeuralFoil 0
+GROUP PolarSeam 0
+GROUP SectionSeam 0
+GROUP ProvenanceSeam 0
+GROUP PolarNumerics 0
+GROUP OperatingSearch 0
+GROUP TipPolar 0
+GROUP DxSection 0
+GROUP NotResolved+SectionForce 0
+PASS TeFloor_B10_SettingsHash_Golden_Default
+COST TeFloor_B10_SettingsHash_Golden_Default 253.288
+PASS TeFloor_B10_SettingsHash_Golden_Small
+COST TeFloor_B10_SettingsHash_Golden_Small 0.748
+PASS TeFloor_B10_SettingsHash_Golden_NoStations
+COST TeFloor_B10_SettingsHash_Golden_NoStations 0.141
+PASS TeFloor_B10_SettingsHash_DiagnosticTextIsTheHashedText
+COST TeFloor_B10_SettingsHash_DiagnosticTextIsTheHashedText 0.998
+PASS TeFloor_B10_Numerics_DefaultRecordFieldsUnchanged
+COST TeFloor_B10_Numerics_DefaultRecordFieldsUnchanged 0.920
+PASS TeFloor_B10_Label_OneNamedConstant_AppDefaultNoSource
+COST TeFloor_B10_Label_OneNamedConstant_AppDefaultNoSource 0.218
+GROUP TeFloor 257
+RESULT failures=0

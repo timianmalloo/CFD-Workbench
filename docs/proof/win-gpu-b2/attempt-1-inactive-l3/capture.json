@@ -1,0 +1,83 @@
+{
+    "schema":  "cfdw-gpu-b2-capture/1",
+    "authority":  "Ruling 200; Astra phase-B ACCEPT at 5d884ecc",
+    "observer_session":  "pc-b2-r200-20261010-run1",
+    "target_distro":  "cfdw-cuda132-b2",
+    "protected_distro":  "cfdw-openfoam2512",
+    "started_utc":  "2026-10-10T23:09:03.9494720+00:00",
+    "ended_utc":  "2026-10-10T23:10:26.8573455+00:00",
+    "prelaunch_elapsed_ms":  82906,
+    "workload_elapsed_ms":  "Not started",
+    "workload_budget_ms":  600000,
+    "wrapper_error":  "guard stopped during fresh baseline: L3 unit is not active",
+    "script_sha256_before_execution":  {
+                                           "accepted-inputs.sha256":  "809af421969fafdd4d6b1d8002b062907fd5ccde4dc0ac39275bce07c5c188ec",
+                                           "bind-prefix.py":  "6ab3834c4b4cca9c7e5581d737faed6a194319ca12031070b768afb34918cab7",
+                                           "capture-install.ps1":  "261dca9f2941c09bd53ad9409d03c37efb4277bc0c56e67781278f80d46d3fde",
+                                           "install-and-test.sh":  "ded2027950331acc57d57d324a089900bf11f66deb5a9ed64b55bf2bcd8bb3d5",
+                                           "observe-live.sh":  "e948d637126f1cb95add98dfec4272771af81f5c08f27bc212d2f979395b3d12",
+                                           "observer_guard.py":  "657b630ec544eac7b949cdfce0c540962c57d182134e5d5f48ace9c7c46a0400",
+                                           "residual-owned.sh":  "d7b0a7d5664f71ed10bb9d6c7b810604ba2e6b83680964d6d2674b06dc39af92",
+                                           "saxpy.cu":  "18a341c9df4fa47bebeff1101618d5c12593ac41bed93900be4f2e5af2be0d3f",
+                                           "stop-owned.sh":  "8b46e21bb7505c7406a846b177bbdd84e29dbd2541b3b6347dc8b2cf1193a881",
+                                           "verify-install-state.py":  "9525cb36c9008a1bd2daa0d34c3b4e60eb4261c9b3b2dbc61376e961c62cbf5a"
+                                       },
+    "observer":  {
+                     "initial_rows":  16,
+                     "start_row":  17,
+                     "requested_samples":  3,
+                     "windows_pid":  22560,
+                     "process_exit_code":  null,
+                     "baseline_event":  "Not recorded",
+                     "final_event":  "Not recorded",
+                     "wait_after_workload_ms":  81514,
+                     "final_state":  {
+                                         "state":  "stopped",
+                                         "pid":  48266,
+                                         "completed_samples":  1,
+                                         "requested_samples":  3,
+                                         "session_id":  "pc-b2-r200-20261010-run1",
+                                         "start_row":  17,
+                                         "last_sample_utc":  "2026-10-10T23:09:05Z",
+                                         "exit_code":  0
+                                     },
+                     "prefix_binding":  {
+                                            "schema":  "cfdw-observer-prefix-binding/1",
+                                            "source":  "C:/Projects/CFD-Workbench-win-gpu-g2-b1-r199/docs/proof/win-l3-observer/samples.jsonl",
+                                            "snapshot":  "samples-prefix.snapshot.jsonl",
+                                            "prefix_row_count":  17,
+                                            "prefix_byte_count":  5336,
+                                            "prefix_sha256":  "d09e44f0d519ba16b5a642f4c9e58e28a1a9bc5482431d18a8467f7352d01f4d",
+                                            "live_store_prefix_equal":  true
+                                        }
+                 },
+    "workload":  {
+                     "argv":  [
+                                  "wsl.exe",
+                                  "--distribution",
+                                  "cfdw-cuda132-b2",
+                                  "--user",
+                                  "root",
+                                  "--exec",
+                                  "/usr/bin/taskset",
+                                  "--cpu-list",
+                                  "0-1",
+                                  "/usr/bin/nice",
+                                  "-n",
+                                  "10",
+                                  "/bin/bash",
+                                  "/mnt/c/Projects/CFD-Workbench-win-gpu-g2-b1-r199/docs/proof/win-gpu-b2/install-and-test.sh",
+                                  "--attempt-id",
+                                  "pc-b2-r200-20261010-run1"
+                              ],
+                     "windows_pid":  "Not started",
+                     "process_exit_code":  "Not recorded",
+                     "startup_acknowledged":  false,
+                     "ownership_check_exit_code":  "Not reached",
+                     "termination_exit_code":  "Not needed",
+                     "cleanup_residual_exit_code":  "Not needed",
+                     "prelaunch_residual_exit_code":  "Not reached",
+                     "post_residual_exit_code":  "Not reached"
+                 },
+    "saxpy":  "Not recorded"
+}

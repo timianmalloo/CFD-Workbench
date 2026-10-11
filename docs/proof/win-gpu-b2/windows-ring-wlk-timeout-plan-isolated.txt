@@ -1,0 +1,5 @@
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=plan-canvas RenderScaling=1.5 PrimaryScaling=1.5 WorkingArea=2560x1528 UseLayoutRounding=True
+PASS PlanCanvas_AdvisoryCrossingClear_CertificateStillDecides
+COST PlanCanvas_AdvisoryCrossingClear_CertificateStillDecides 4592.2

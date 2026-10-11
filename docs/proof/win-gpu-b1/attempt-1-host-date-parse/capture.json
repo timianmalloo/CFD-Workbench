@@ -1,0 +1,130 @@
+{
+  "schema": "cfdw-gpu-b1-capture/2",
+  "authority": "Rulings 199-200 B1",
+  "observer_session": "pc-b1-r199-20261010a",
+  "started_utc": "2026-10-10T19:13:43.9235131+00:00",
+  "ended_utc": "2026-10-10T19:24:42.5921113+00:00",
+  "prelaunch_elapsed_ms": 658661,
+  "prelaunch_budget_ms": 750000,
+  "workload_elapsed_ms": "Not started",
+  "workload_budget_ms": 600000,
+  "termination_reserve_ms": 10000,
+  "wrapper_error": "fresh baseline sample age is invalid: -25201.4506534 seconds",
+  "script_sha256_before_execution": {
+    "bind-prefix.py": "6ab3834c4b4cca9c7e5581d737faed6a194319ca12031070b768afb34918cab7",
+    "capture.ps1": "730f1deff42f1f221d9e2078104adb5bb79186ddfa722a3da462d11c9f175b1d",
+    "observe-live.sh": "e948d637126f1cb95add98dfec4272771af81f5c08f27bc212d2f979395b3d12",
+    "observer_guard.py": "657b630ec544eac7b949cdfce0c540962c57d182134e5d5f48ace9c7c46a0400",
+    "inspect-b1.sh": "97d4db60b8a4ee67dadb9de4a998dc4f19f191dca2a58cf798b8a05b6e0078ce",
+    "resolve_packages.py": "f7c3f7d1c3e699de19f2476a391ba53cd7f9813112d96b73eb555a06b7e11a30",
+    "stop-owned.sh": "204e8a514301caca85460bdb81f498878dbf8b0aaaed9ba21ef49712ca262ade",
+    "wait-observer.ps1": "6b9d03b8017ca6bfbfeae90930e91c7be204da5dd43ca85714cac796ca4ad828"
+  },
+  "observer": {
+    "argv": [
+      "wsl.exe",
+      "--distribution",
+      "cfdw-openfoam2512",
+      "--user",
+      "root",
+      "--exec",
+      "/usr/bin/taskset",
+      "--cpu-list",
+      "0",
+      "/usr/bin/nice",
+      "-n",
+      "10",
+      "/bin/bash",
+      "/mnt/c/Projects/CFD-Workbench-win-gpu-g2-b1-r199/docs/proof/win-gpu-b1/observe-live.sh",
+      "--count",
+      "3",
+      "--start-row",
+      "9",
+      "--session-id",
+      "pc-b1-r199-20261010a"
+    ],
+    "windows_pid": 39216,
+    "initial_rows": 8,
+    "start_row": 9,
+    "requested_samples": 3,
+    "baseline_event": {
+      "anchor_rows": 8,
+      "anchor_sha256": "f9c174dd595ee97d3e0ada37396971f898426660fbe9c30d9d180f683addeade",
+      "baseline_interval": {
+        "delta_iterations": 481.0,
+        "delta_monotonic_s": 600.4599999999919,
+        "delta_utc_s": 658.0,
+        "from_row": 9,
+        "rate_monotonic_iterations_per_s": 0.8010525263964403,
+        "rate_utc_iterations_per_s": 0.7310030395136778,
+        "to_row": 10,
+        "utc_to_monotonic_ratio": 1.095826532991388
+      },
+      "baseline_rates": {
+        "monotonic": 0.8010525263964403,
+        "utc": 0.7310030395136778
+      },
+      "baseline_row": {
+        "iteration": 110230.0,
+        "monotonic_s": 141853.36,
+        "row_number": 10,
+        "utc_age_s": 1.0987889766693115,
+        "utc_s": 1791660283.0
+      },
+      "observed_row": 10,
+      "reason": "fresh baseline formed from the two session rows",
+      "schema": "cfdw-live-observer-guard/2",
+      "session_id": "pc-b1-r199-20261010a",
+      "start_row": 9,
+      "verdict": "baseline-ready"
+    },
+    "state_at_capture_end": {
+      "state": "running",
+      "pid": 41871,
+      "completed_samples": 2,
+      "requested_samples": 3,
+      "session_id": "pc-b1-r199-20261010a",
+      "start_row": 9,
+      "last_sample_utc": "2026-10-10T19:24:44Z",
+      "exit_code": "Not recorded"
+    },
+    "continuation": "bounded separate process continues after B1 for post-workload evidence",
+    "stdout": "observer.stdout.txt",
+    "stderr": "observer.stderr.txt"
+  },
+  "probe": {
+    "argv": [
+      "wsl.exe",
+      "--distribution",
+      "cfdw-openfoam2512",
+      "--user",
+      "root",
+      "--exec",
+      "/usr/bin/taskset",
+      "--cpu-list",
+      "0",
+      "/usr/bin/nice",
+      "-n",
+      "10",
+      "/usr/bin/setsid",
+      "/bin/bash",
+      "/mnt/c/Projects/CFD-Workbench-win-gpu-g2-b1-r199/docs/proof/win-gpu-b1/inspect-b1.sh",
+      "--attempt-id",
+      "pc-b1-r199-20261010a"
+    ],
+    "startup_acknowledged": false,
+    "startup_check_exit_code": "Not reached",
+    "exit_code": "Not recorded",
+    "timed_out": false,
+    "guard_stopped_probe": false,
+    "guard_stop_reason": "Not applicable",
+    "termination_exit_code": "Not needed",
+    "stdout": "b1.stdout.txt",
+    "stderr": "b1.stderr.txt"
+  },
+  "windows_target_volume": {
+    "name": "C",
+    "used_bytes": 203394404352,
+    "free_bytes": 1842625880064
+  }
+}

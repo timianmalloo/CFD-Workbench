@@ -1,0 +1,98 @@
+{
+  "schema": "cfdw-b1-launcher-precheck/1",
+  "authority": "Ruling 201",
+  "precheck_id": "pc-b1-r201-precheck-20261010d",
+  "captured_utc": "2026-10-10T21:52:30.7618052+00:00",
+  "selected_method": "foreground",
+  "selection_rule": "foreground when stopping wsl.exe removes its tagged Linux child; otherwise setsid --wait",
+  "foreground": {
+    "argv": [
+      "wsl.exe",
+      "--distribution",
+      "cfdw-openfoam2512",
+      "--user",
+      "root",
+      "--exec",
+      "/usr/bin/taskset",
+      "--cpu-list",
+      "0",
+      "/usr/bin/nice",
+      "-n",
+      "10",
+      "/bin/bash",
+      "/mnt/c/Projects/CFD-Workbench-win-gpu-g2-b1-r199/docs/proof/win-gpu-b1/launcher-precheck.sh",
+      "--attempt-id",
+      "pc-b1-r201-precheck-20261010d-foreground"
+    ],
+    "marker": "cfdw-b1-launcher-precheck-pc-b1-r201-precheck-20261010d-foreground",
+    "identity_observed": true,
+    "tagged_sleep_before_windows_launcher_stop": {
+      "exit_code": 0,
+      "found": true,
+      "stdout": "launcher-precheck-foreground-before-stop-pgrep.stdout.txt",
+      "stderr": "launcher-precheck-foreground-before-stop-pgrep.stderr.txt"
+    },
+    "launcher_exited_before_kill": false,
+    "launcher_exit_before_kill": "Still running",
+    "residual_after_windows_launcher_stop": {
+      "exit_code": 1,
+      "found": false,
+      "stdout": "launcher-precheck-foreground-pgrep.stdout.txt",
+      "stderr": "launcher-precheck-foreground-pgrep.stderr.txt"
+    },
+    "cleanup": "Not needed",
+    "stdout": "launcher-precheck-foreground.stdout.txt",
+    "stderr": "launcher-precheck-foreground.stderr.txt"
+  },
+  "setsid_wait": {
+    "argv": [
+      "wsl.exe",
+      "--distribution",
+      "cfdw-openfoam2512",
+      "--user",
+      "root",
+      "--exec",
+      "/usr/bin/taskset",
+      "--cpu-list",
+      "0",
+      "/usr/bin/nice",
+      "-n",
+      "10",
+      "/usr/bin/setsid",
+      "--wait",
+      "/bin/bash",
+      "/mnt/c/Projects/CFD-Workbench-win-gpu-g2-b1-r199/docs/proof/win-gpu-b1/launcher-precheck.sh",
+      "--attempt-id",
+      "pc-b1-r201-precheck-20261010d-setsid-wait"
+    ],
+    "marker": "cfdw-b1-launcher-precheck-pc-b1-r201-precheck-20261010d-setsid-wait",
+    "identity_observed": true,
+    "tagged_sleep_before_windows_launcher_stop": {
+      "exit_code": 0,
+      "found": true,
+      "stdout": "launcher-precheck-setsid-wait-before-stop-pgrep.stdout.txt",
+      "stderr": "launcher-precheck-setsid-wait-before-stop-pgrep.stderr.txt"
+    },
+    "launcher_exited_before_kill": false,
+    "launcher_exit_before_kill": "Still running",
+    "residual_after_windows_launcher_stop": {
+      "exit_code": 0,
+      "found": true,
+      "stdout": "launcher-precheck-setsid-wait-pgrep.stdout.txt",
+      "stderr": "launcher-precheck-setsid-wait-pgrep.stderr.txt"
+    },
+    "cleanup": {
+      "exit_code": 0,
+      "stdout": "launcher-precheck-setsid-wait-cleanup.stdout.txt",
+      "stderr": "launcher-precheck-setsid-wait-cleanup.stderr.txt",
+      "after": {
+        "exit_code": 1,
+        "found": false,
+        "stdout": "launcher-precheck-setsid-wait-after-cleanup-pgrep.stdout.txt",
+        "stderr": "launcher-precheck-setsid-wait-after-cleanup-pgrep.stderr.txt"
+      }
+    },
+    "stdout": "launcher-precheck-setsid-wait.stdout.txt",
+    "stderr": "launcher-precheck-setsid-wait.stderr.txt"
+  }
+}

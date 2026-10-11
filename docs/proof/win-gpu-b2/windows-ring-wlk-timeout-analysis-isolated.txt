@@ -1,0 +1,6 @@
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=analysis RenderScaling=1.5 PrimaryScaling=1.5 WorkingArea=2560x1528 UseLayoutRounding=True
+FAIL Tampered_RunView_UnavailableNoLayersRowKept Exception: the fixture saved: expected OK, got DOC-UNSUPPORTED-PERSISTENCE
+STACK Tampered_RunView_UnavailableNoLayersRowKept System.Exception: the fixture saved: expected OK, got DOC-UNSUPPORTED-PERSISTENCE |    at CfdWorkbench.Desktop.Tests.AnalysisPanelTests.Equal[T](T expected, T actual, String what) in C:\Projects\CFD-Workbench-win-gpu-g2-b1-r199\tests\CfdWorkbench.Desktop.Tests\AnalysisPanelTests.cs:line 688 |    at CfdWorkbench.Desktop.Tests.AnalysisPanelTests.<>c.<Run>b__0_13() in C:\Projects\CFD-Workbench-win-gpu-g2-b1-r199\tests\CfdWorkbench.Desktop.Tests\AnalysisPanelTests.cs:line 461 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-g2-b1-r199\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 730
+COST Tampered_RunView_UnavailableNoLayersRowKept 1806.6

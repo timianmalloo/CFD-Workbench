@@ -1,0 +1,126 @@
+Windows product ring evidence for PR #31
+observed_utc=2026-10-11T04:00:59.211031Z
+origin_main_commit=26c117ec737cd775c7a4db6d70a603085e2fd7b4
+branch_head_commit=80eb82a692c8511471743cc2f0d203f6235cd232
+command=Git Bash tools/run-tests.sh with DOTNET_ROOT=%USERPROFILE%\.dotnet
+exit_code=1
+raw_stdout=docs/proof/win-gpu-b2/windows-ring.stdout.txt
+raw_stderr=docs/proof/win-gpu-b2/windows-ring.stderr.txt
+first_product_failure=Library_EntryBytes_ParseAsStandaloneSection ContractError: DOC-UNSUPPORTED-PERSISTENCE
+
+[CfdWorkbench.Core.Tests]
+product_failure_count=38
+first_failure_line=FAIL Library_EntryBytes_ParseAsStandaloneSection ContractError: DOC-UNSUPPORTED-PERSISTENCE
+product_failure_names:
+- Library_EntryBytes_ParseAsStandaloneSection
+- Library_ScanNameCollision_BothReported
+- Library_SecondInstanceSameRoot_EntryListed
+- LayoutLoad_Absent_ReturnsPresets
+- Rollback_V2UnknownWorkspaceMember_BytesUnchanged
+- Rollback_V2Oversized_BytesUnchanged
+- LayoutSave_Conflict_MergesChangedWorkspaceOnly
+- Recent_ClearFails_ReportedNotCleared
+- Recent_RemoveWriteFails_ListUnchanged
+- PrefStore_TextSize_ValueError_ThatMemberDefaults_BytesUnchanged
+- PrefStore_Comb_ValueError_ThatMemberDefaults_OthersKept_BytesUnchanged
+- PrefStore_Comb_OldFileNewBuild_NoRewriteOnLoad
+- PrefStore_Comb_UnsupportedOrLinked_SessionOnly_NoThrow
+- Library_Save_PublishesHashNamedFile
+- Library_WriteFails_NothingPublished
+- PrefsSave_LayoutAndRecentConcurrent_BothKept
+- LayoutSave_TwoQueuedSaves_UnionOfChangedWorkspaces
+- Recent_Clear_NoFileContainsMarkerPath
+- StoreContract_CancelBeforePublish_DocCancelled
+- PrefStore_TextSize_RoundTrip
+- PrefStore_TextSize_StructureError_WholeFileDefaults_BytesUnchanged
+- PrefStore_Comb_RoundTrip_EveryStep_DefaultsNotWritten
+- PrefStore_Comb_StructureError_WholeFileDefaults_BytesUnchanged
+- PrefStore_Comb_Atomic_FaultBeforePublish_PreviousBytesKept_NoTemp
+- WindowsNative_Replace_HeldReaderKeepsOldImage
+- Library_DuplicateIgnoringCaseNfc_Refused
+- Library_StaleClaim_ReportedNotDeleted
+- Rollback_V2UnknownTopLevel_BytesUnchanged
+- LayoutSave_ClaimBusyHashSame_RetriesOnce
+- LayoutSave_StaleClaim_SessionOnlyNamesClaim
+- Recent_Conflict_ReappliesAdd
+- Recent_Remove_KeepsEveryOtherEntry
+- Rollback_TextSizeV2_NewerVersionIsStructureClass_BytesUnchanged
+- PrefStore_TextSize_PriorRoot_LayoutAndRecentUntouched
+- PrefStore_TextSize_LoadAndSaveSerialized_NoStaleHash
+- PrefStore_Comb_SaveDoesNotResetTextSizeOrUnits_AndTheReverse
+- PrefStore_Comb_NewerVersion_WholeFileDefaults_NeverOverwritten
+- PrefStore_Comb_TwoInstances_LaterWinsPerMember_Retried
+harness_failure_events:
+- none
+
+[CfdWorkbench.Desktop.Tests]
+product_failure_count=33
+first_failure_line=FAIL Save_ExistingFile_DefiniteCreateOnlyConflict Exception: Expected definite create-only save conflict; actual DOC-UNSUPPORTED-PERSISTENCE
+product_failure_names:
+- Save_ExistingFile_DefiniteCreateOnlyConflict
+- Recovery_SaveReopenResume_KeepsDraftSeparateFromAccepted
+- Controller_SaveMine_DraftDocumentUndoUnchanged
+- Controller_SaveMine_ListedAfterOpeningAnotherFoil
+- Commands_SectionMenu_ReplaceSaveImportRowsRun
+- Controller_QuotedNameAndBraceProvenance_SaveReload
+- Controller_CatalogTelemetry_OmitsInapplicableFields
+- Recent_OpenedOutcome_AppendsPath
+- Telemetry_MarkerInjection_AbsentEverywhere
+- OpenFailure_RemoveFromRecent_RemovesOnlyFailedPath
+- RailEditorPane_Removed_NoReferencesRemain
+- Controller_ResumeSectionRecovery_EntersSectionMode
+- Controller_SaveMine_SurvivesSectionCancelAndDocumentUndo
+- Controller_CatalogTelemetry_NamedSessionRing
+- Controller_SaveOffUiThread_HonorsCancellation
+- SaveDialog_EmptyOrDuplicate_ErrorFocusStays
+- SaveDialog_Save_LiveRegionFocusToSectionMenu
+- Export_WriteFailure_CauseCopy_EarlierFileUntouched_NoTemp_H6
+- Export_Write_SymlinkTarget_Refused_LinkAndTargetUnchanged
+- Recent_StoredRows_StartAndFileMenu
+- Copy_RecentNotCleared_StatusAndTryAgain
+- Recovery_RailDraftResumed_PlanShowsDraftApplyCommits
+- Comb_Settings_Persist_ChoiceSurvivesShellRestart_PlateAndTeethRendered
+- Comb_Settings_SaveKeepsTextSizeAndUnits
+- Comb_Settings_Auto_RestoredAsAuto_Visible
+- Comb_Settings_ChoiceBeforeLoadWins
+- Comb_Settings_FoilAndProjectBytesUnchanged_Telemetry_NoPath
+- Comb_Settings_ValueFault_KeepsOtherMembers_NeverRewrites
+- Controller_SaveDuringDrag_CommitsThenSaves
+- Tampered_RunView_UnavailableNoLayersRowKept
+- PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs
+- PropertiesPane_Density_UnitOnValueBaseline
+- TextSize_PersistsPerUser
+harness_failure_events:
+- --section-editor
+- TIMEOUT
+- --shell-window
+- --plan-canvas
+- --controller-shell
+- DRAIN
+- --analysis
+- --views
+- --properties-cells
+- --shell-model
+- PARTITION
+
+[CfdWorkbench.Analysis.Tests]
+product_failure_count=1
+first_failure_line=FAIL TeFloor_B10_SettingsHash_GoldenUnchanged InvalidOperationException: expected 9713863597250cd245c4d70560abee8840c002f6ff33501127ba331ac8efad62; actual 752ebf3bb52860261175c7f04c38c2df04488e09b437f84be4ef31a8479bd865
+product_failure_names:
+- TeFloor_B10_SettingsHash_GoldenUnchanged
+harness_failure_events:
+- none
+
+[CfdWorkbench.Cli.Tests]
+product_failure_count=5
+first_failure_line=FAIL Cli_AnalyseRunKey_EqualsServiceOnCustomOp Exception: inspect --runs returned 3: {
+product_failure_names:
+- Cli_AnalyseRunKey_EqualsServiceOnCustomOp
+- Cli_InspectRuns_RevisionIsSessionLabel
+- Cli_Export_SymlinkTargetRefused
+- Export_LinkTargetHasOneCodeOnBothSurfaces
+- Cli_Export_EmitsOneTelemetryEventPerOutcome_NoPathNoName
+harness_failure_events:
+- none
+
+ring_wall 149 s (149505 ms, net 135283 ms) (budget 60 s) cpu 4 s load 9.63 -> 9.30
