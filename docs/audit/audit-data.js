@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T03:55:25Z",
+  "generated": "2026-10-11T15:16:24Z",
   "audit": [
     {
       "actor": null,
@@ -34863,6 +34863,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-11T03:54:20Z",
       "duration_seconds": 65.0
+    },
+    {
+      "id": "al-01M4NRJP8PTXSN04TTY122MH96",
+      "shortname": "wrx-windows-ring",
+      "datetime": "2026-10-11T15:16:23Z",
+      "session": "trk-wrx",
+      "prompt": "Track WRX: classify the Windows ring residue after WLK and fix what the Mac can",
+      "summary": "Manifest rename and stale entry fixed, Telemetry entry listed with a precise fragment, Export directory-step expectation platform-aware, MANIFEST-NAME-DRIFT control added; PropertiesPane class, TeFloor hash and timeouts reported not changed",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Classify every failing and unseen manifest name in the PC WLK rerun; fix manifest renames and POSIX-model test assumptions; no src change",
+      "done_when": "classification.md and red-first.md written; run-tests.sh, Desktop readiness, join checks and check-docs green; commits",
+      "started_at": "2026-10-11T14:55:07Z",
+      "duration_seconds": 1276.0
     }
   ],
   "changes": [

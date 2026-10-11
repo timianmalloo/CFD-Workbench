@@ -5466,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "921bf71afa3ad0a7c174226ecb8802b9360255ba6280f2e33e2338d869c4421a"
+      "sourceSha256": "8716c7462aebe66f846591fad2b4586aabc9a6a7274575e946ea81fd70d530d9"
     },
     {
       "id": "domain-experts",
@@ -8727,7 +8727,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3424290dff24ba2c1eddc397b003de50e02403c65ba4a9034c1dd8071200b104"
+      "sourceSha256": "96d1cc75bae81fce756539ae697f84324855c0c29a4e7ee2e3969cb93ba44329"
     },
     {
       "id": "kb-hw-glossary",
@@ -18443,6 +18443,62 @@ window.DOCS_INDEX = {
       "sourceSha256": "b3f7db76829feaefea78295f33487264771db77d6e528f0c1ccff29c40d6303b"
     },
     {
+      "id": "proof-wrx-classification",
+      "path": "docs/proof/wrx/classification.md",
+      "title": "WRX classification of the Windows ring after WLK",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-wrx",
+      "phase": "implementation",
+      "reviewBy": "2026-11-11",
+      "reviewSuggested": [],
+      "summary": "Every failing name and every unseen manifest entry in the PC's WLK rerun (main eea2c7f1 merged at 67056b75), with the first failure line, the cause, the introducing commit and the action. Windows claims are labelled Verified (seen in the raw log) or Inferred.",
+      "tags": [
+        "windows",
+        "ring",
+        "expected-failures",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9350c18085c1b688aec3fd889b3587ff264d29e7a5c90c40f44260898c74c9a2"
+    },
+    {
+      "id": "proof-wrx-red-first",
+      "path": "docs/proof/wrx/red-first.md",
+      "title": "WRX red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-wrx",
+      "phase": "implementation",
+      "reviewBy": "2026-11-11",
+      "reviewSuggested": [],
+      "summary": "Red and green receipts for WRX: the manifest-name control (red on the pre-WRX manifest), the replay of the PC's raw log through the checker, and what the Mac cannot show red.",
+      "tags": [
+        "windows",
+        "ring",
+        "expected-failures",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "proof-wrx-classification",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "376b1ef1167aa7b126734d5604275b93d776be6fbfbd2e7e6c0e545d532e2d1d"
+    },
+    {
       "id": "proof-wsf-red-first",
       "path": "docs/proof/wsf/red-first.md",
       "title": "READER-SHARE red-first receipt",
@@ -20503,5 +20559,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "576c1003d7d4e6f22caab8ed3cae37a7091ae76f8f5cde2886ef59d624e6669b"
+  "graphSha256": "86438e98ea9764c14274b8d47e756e16ed7401316930329b672cd556cd132add"
 };
