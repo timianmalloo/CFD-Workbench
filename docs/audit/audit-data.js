@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T15:20:04Z",
+  "generated": "2026-10-11T15:37:13Z",
   "audit": [
     {
       "actor": null,
@@ -34953,6 +34953,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-11T15:18:57Z",
       "duration_seconds": 67.0
+    },
+    {
+      "id": "al-01M4NSRSZPJPDJ8PDSNZGZJYW2",
+      "shortname": "rng-ring-parts",
+      "datetime": "2026-10-11T15:37:12Z",
+      "session": "trk-rng",
+      "prompt": "track RNG",
+      "summary": "Analysis runs as 3 parts (slowest 5020 to ~3.6-3.9 s in ring); fractional-scale class + 2 manifest entries; self-tests 87/87 and 20 cases",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Analysis in three parts for C-2; fractional-scale expected-failure class",
+      "done_when": "run-tests green with 3 Analysis parts, gates exit 0, check-docs exit 0",
+      "started_at": "2026-10-11T15:28:55Z",
+      "duration_seconds": 497.0
     }
   ],
   "changes": [
