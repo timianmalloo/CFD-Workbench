@@ -65,6 +65,13 @@ records no terminal snapshot, observer, workload, ownership check, residual chec
 not a live B2 attempt under Ruling 209. The ordinal ruling-token check now uses `IndexOf`, whose overload ran successfully
 earlier in the same script, and the tracked-PowerShell scanner rejects the incompatible `Contains` shape.
 
+Prelaunch session `pc-b2-r209-20261010-run3` then captured identical protected pre/post snapshots (SHA-256
+`42e1d0bed05aa071a70fba8445474a85fa43a1746a394adc4e46a433a090aab9`) but stopped before observer or target-distro
+launch because Windows PowerShell 5.1 returned a blank redirected `Start-Process` exit code. A host reproduction proved
+that accessing the process handle before the timed wait makes exit code 0 observable. The wrapper now does that for its
+control, observer, workload, and binding processes and runs the same redirected-exit probe before WSL. Since no target
+command, ownership acknowledgement, residual check, or package transaction occurred, this also was not a live B2 attempt.
+
 The pre-import preparation attempts stopped before CUDA installation: an invalid PowerShell exit-code read, a checksum
 text-marker parser gap, and a NUL-removal overload all stopped before import; the first import was rolled back after the
 freshness guard overmatched `libcups`/`libcurl`. Each class and its normal-path control is recorded in the defect-class

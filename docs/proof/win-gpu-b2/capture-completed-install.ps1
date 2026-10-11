@@ -109,6 +109,7 @@ function Invoke-Control(
     if ($remainingBeforeLaunch -le 0) { return -2 }
     $control = Start-Process -FilePath 'wsl.exe' -ArgumentList $Arguments `
         -RedirectStandardOutput $OutputPath -RedirectStandardError $ErrorPath -PassThru -WindowStyle Hidden
+    $controlHandle = [IntPtr]$control.Handle
     $remainingAfterLaunch = if ($null -eq $workloadClock) {
         $TimeoutMilliseconds
     } else {
@@ -158,17 +159,48 @@ $terminalSnapshotExit = $null
 $workloadProcessElapsedMilliseconds = $null
 $observerTerminationConfirmed = $false
 
+function Assert-RedirectedExitCode {
+    $probeName = [Guid]::NewGuid().ToString('N')
+    $probeOut = Join-Path ([IO.Path]::GetTempPath()) "$probeName.out"
+    $probeErr = Join-Path ([IO.Path]::GetTempPath()) "$probeName.err"
+    try {
+        $probe = Start-Process -FilePath $env:ComSpec -ArgumentList @('/d', '/c', 'exit', '0') `
+            -RedirectStandardOutput $probeOut -RedirectStandardError $probeErr -PassThru -WindowStyle Hidden
+        $probeHandle = [IntPtr]$probe.Handle
+        if (-not $probe.WaitForExit(5000)) {
+            Stop-Process -Id $probe.Id -Force -ErrorAction SilentlyContinue
+            throw 'redirected exit-code probe timed out'
+        }
+        if ($null -eq $probe.ExitCode -or [int]$probe.ExitCode -ne 0) {
+            throw 'redirected exit-code probe did not expose exit code 0'
+        }
+    } finally {
+        Remove-Item -LiteralPath $probeOut, $probeErr -Force -ErrorAction SilentlyContinue
+    }
+}
+
 function Invoke-GuardBinding {
     if (-not (Test-Path -LiteralPath $eventsPath)) { return }
     $bind = Start-Process -FilePath 'py' -ArgumentList @(
         '-3', (Join-Path $proofRoot 'completed_guard.py'), 'bind',
         '--events', $eventsPath, '--snapshot', $guardSnapshotPath,
         '--binding', $guardBindingPath, '--session-id', $ObserverSession
-    ) -RedirectStandardOutput $bindOut -RedirectStandardError $bindErr -PassThru -Wait -WindowStyle Hidden
+    ) -RedirectStandardOutput $bindOut -RedirectStandardError $bindErr -PassThru -WindowStyle Hidden
+    $bindHandle = [IntPtr]$bind.Handle
+    $bindingRemaining = if ($null -eq $workloadClock) {
+        10000
+    } else {
+        $workloadBudgetMilliseconds - [int][Math]::Ceiling($workloadClock.Elapsed.TotalMilliseconds)
+    }
+    if ($bindingRemaining -le 0 -or -not $bind.WaitForExit([Math]::Min(10000, $bindingRemaining))) {
+        Stop-Process -Id $bind.Id -Force -ErrorAction SilentlyContinue
+        throw 'completed guard binding exceeded the shared deadline'
+    }
     if ($bind.ExitCode -ne 0) { throw "completed guard binding failed with exit $($bind.ExitCode)" }
 }
 
 try {
+    Assert-RedirectedExitCode
     $rulingsText = [IO.File]::ReadAllText($rulingsPath)
     $rulingHeading = "### $CompletedGuardRuling "
     $rulingStart = $rulingsText.IndexOf($rulingHeading, [StringComparison]::Ordinal)
@@ -212,6 +244,7 @@ try {
         '--session-id', $ObserverSession, '--interval-seconds', '5',
         '--max-samples', "$observerMaximumSamples"
     ) -RedirectStandardOutput $observerOut -RedirectStandardError $observerErr -PassThru -WindowStyle Hidden
+    $observerHandle = [IntPtr]$observer.Handle
 
     while ($null -eq $baselineEvent) {
         if ($observer.HasExited) { throw "completed guard exited before baseline, exit $($observer.ExitCode)" }
@@ -252,6 +285,7 @@ try {
     $workloadLaunchAttempted = $true
     $workload = Start-Process -FilePath 'wsl.exe' -ArgumentList $workloadArguments `
         -RedirectStandardOutput $workloadOut -RedirectStandardError $workloadErr -PassThru -WindowStyle Hidden
+    $workloadHandle = [IntPtr]$workload.Handle
 
     $startupClock = [Diagnostics.Stopwatch]::StartNew()
     while (-not (Test-Path -LiteralPath $workloadPidPath) -or -not (Test-Path -LiteralPath $workloadAttemptPath)) {
