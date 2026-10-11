@@ -9,7 +9,7 @@ file list (FILES below) for a banned call outside comments and string literals. 
 Adding a file to FILES is the review act: list a file when its output reaches a committed golden or the New-project default
 (the bytes of every new project), never by directory. Display and validation sites stay off the list.
 
-Ring: fast (runs inside tools/check-docs.py, every join). Cost: under 0.1 s (reads six source files).
+Ring: fast (runs inside tools/check-docs.py, every join). Cost: under 0.1 s (reads eight source files).
 `--self-test` plants a banned call, an allowed line, a comment and a string, and checks each verdict.
 """
 
@@ -30,6 +30,8 @@ ROOT = Path(__file__).resolve().parents[1]
 # Explicit list. Catalog.cs: the generator behind the shipped NACA bytes. Placement.cs: the display spacing and the twist angle behind placement-surface-bits.
 # FoilSource.cs and SectionReplace.cs: the New-project default (NewDefault_ControlPointDoubles_BitGolden) and the Replace sampling (Ruling 157).
 # Settings.cs and PanelMethod.cs (Ruling 214): the section stations in the run-settings hash and the panel chord grid in the polar profile hash.
+# VortexLattice.cs and Loads.cs (track LSP): the lattice span and chord spacing and the strip-width fallback must equal the Settings stations bit for bit.
+# VortexLattice.cs keeps seven flow-angle solver lines under a marker (tolerance, never a key).
 FILES = (
     "src/CfdWorkbench.Core/Catalog.cs",
     "src/CfdWorkbench.Core/Placement.cs",
@@ -37,6 +39,8 @@ FILES = (
     "src/CfdWorkbench.Core/SectionReplace.cs",
     "src/CfdWorkbench.Analysis/Settings.cs",
     "src/CfdWorkbench.Analysis/PanelMethod.cs",
+    "src/CfdWorkbench.Analysis/VortexLattice.cs",
+    "src/CfdWorkbench.Analysis/Loads.cs",
 )
 
 # Allowed markers per file. A new escape is a change to this gate, which is reviewed as one.
@@ -47,6 +51,8 @@ ALLOWED_COUNT = {
     "src/CfdWorkbench.Core/SectionReplace.cs": 0,
     "src/CfdWorkbench.Analysis/Settings.cs": 0,
     "src/CfdWorkbench.Analysis/PanelMethod.cs": 5,
+    "src/CfdWorkbench.Analysis/VortexLattice.cs": 7,
+    "src/CfdWorkbench.Analysis/Loads.cs": 0,
 }
 
 NAMES = (

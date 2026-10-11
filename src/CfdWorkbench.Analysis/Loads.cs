@@ -106,7 +106,7 @@ public static class Loads
         int j = strip.J;
         int n = run.Settings.NSpanPerHalf, total = 2 * n;
         if (j < 0 || j >= total) return 0;
-        double Edge(int i) => run.Settings.SpanSpacing == "cosine" ? -Math.Cos(Math.PI * i / total) : -1 + 2.0 * i / total;
+        double Edge(int i) => Spacing.Edge(i, total, run.Settings.SpanSpacing);
         return (Edge(j + 1) - Edge(j)) * run.Reference.BRef / 2;
     }
 
