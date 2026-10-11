@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T18:42:23Z",
+  "generated": "2026-10-11T18:45:36Z",
   "audit": [
     {
       "actor": null,
@@ -35678,6 +35678,36 @@ window.AUDIT_DATA = {
         "branch": "win/gpu-f1-r211-author-repair",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M4P4HRZ50YQ32PPFDEG9CN1Z",
+      "shortname": "join-f1-r211-author-repair",
+      "datetime": "2026-10-11T18:45:36Z",
+      "session": "pc-f1-execute-20261011",
+      "prompt": "the join of win/gpu-f1-r211-author-repair into win/gpu-f1-design-r211",
+      "summary": "Joined the single AUTHOR repair: exact OpenFOAM rows and corrected payload provenance, with the unresolved Ubuntu transaction and finite capacity kept VETO/open. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/plans/windows-gpu-f1-r211.md",
+        "docs/proof/win-gpu-f1-design/dependency-worksheet.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Integrate the single repair cycle for Astra’s F1-ASTRA-1 finding.",
+      "done_when": "The repair evidence is joined with docs gates green and no prohibited execution occurred.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-11T18:43:57Z",
+      "duration_seconds": 99.0
     }
   ],
   "changes": [
