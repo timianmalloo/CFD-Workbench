@@ -19763,6 +19763,38 @@ window.DOCS_INDEX = {
       "sourceSha256": "69454b8cb20ee355a4c14ed10e193a2a87d49984d707f9b71c16f0ad78880e75"
     },
     {
+      "id": "review-windows-gpu-f1-astra-r211",
+      "path": "docs/reviews/windows-gpu-f1-astra.md",
+      "title": "Astra owner review of the Ruling 211 F1 design",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@pc-f1-astra-r211",
+      "phase": "design",
+      "reviewBy": "2026-11-11",
+      "reviewSuggested": [],
+      "summary": "VETO on design completion: the combined dependency lock and capacity closure required by Ruling 211 remain absent. Execution stays closed; the measurement, benchmark and containment proposals are acceptable design contracts.",
+      "tags": [
+        "windows",
+        "gpu",
+        "petsc",
+        "openfoam",
+        "ruling-211",
+        "owner-review"
+      ],
+      "links": [
+        {
+          "to": "plan-windows-gpu-f1-r211",
+          "rel": "reviews"
+        },
+        {
+          "to": "coordination-windows-gpu-f1-design",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e2621c5aea524502b5c4fb8c5d97376aace8afce4183dc5adb0f084eb5e27ec8"
+    },
+    {
       "id": "review-windows-runtime",
       "path": "docs/reviews/windows-runtime.md",
       "title": "Independent Windows qualification review",
@@ -20988,5 +21020,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "9230a5f78f11bbd4ecdd3e22350c5bc783714d3853c9e5481f5ab5ee71db13c8"
+  "graphSha256": "bdeccc9353a2ae1d910365c49320ea073c6a26364131edd5c1df2f08e7db3c72"
 };

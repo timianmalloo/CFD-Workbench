@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T18:20:33Z",
+  "generated": "2026-10-11T18:27:45Z",
   "audit": [
     {
       "actor": null,
@@ -35547,6 +35547,39 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-11T18:18:58Z",
       "duration_seconds": 95.0
+    },
+    {
+      "id": "al-01M4P3H2MR8K63PFRYWNWC1458",
+      "shortname": "f1-astra-owner-review",
+      "datetime": "2026-10-11T18:27:45Z",
+      "session": "pc-f1-astra-r211",
+      "prompt": "Independently review frozen F1 design at 322abf17 under Ruling 211. Commit only the assigned Astra review with a decisive checklist verdict. Assess exact dependency/ABI/source/integrity/licence/capacity/build closure, isolation/rollback, managed-memory attribution, numerical/performance contract, observer/ownership and authorization. Separate approval prerequisites from authorized runtime gates. No WSL, installation, build, case runs, build-input download, push or merge. Tier T1; fan-out zero; ten calls and fifteen minutes.",
+      "summary": "VETO: combined OpenFOAM/dev/toolchain lock and bounded F1 capacity are missing design outputs. B2 payload provenance also needs correction. Measurement, benchmark, containment and execution boundary accepted as design contracts; runtime evidence remains separately authorized.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "pc-f1-astra-r211",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-astra.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Independently adjudicate the frozen Ruling 211 design.",
+      "done_when": "Committed decisive review with citations and unchanged design.",
+      "tier": "T1",
+      "main_calls": 10,
+      "main_budget": 10,
+      "main_over_budget": false,
+      "fan_out": 0,
+      "started_at": "2026-10-11T18:22:55Z",
+      "duration_seconds": 290.0,
+      "git": {
+        "sha": "322abf17a019298db5ce111c896915e7107a4650",
+        "short": "322abf17a",
+        "branch": "win/gpu-f1-r211-astra-review",
+        "pushed": null
+      }
     }
   ],
   "changes": [
