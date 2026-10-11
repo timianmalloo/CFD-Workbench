@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T18:54:07Z",
+  "generated": "2026-10-11T20:05:01Z",
   "audit": [
     {
       "actor": null,
@@ -35801,6 +35801,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-11T18:53:51Z",
       "duration_seconds": 15.0
+    },
+    {
+      "id": "al-01M4P9367P2JFJ6096917WV47G",
+      "shortname": "join-pr32",
+      "datetime": "2026-10-11T20:05:01Z",
+      "session": "3122f106",
+      "prompt": "the join of origin/win/gpu-f1-design-r211 into main",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-11T20:04:44Z",
+      "duration_seconds": 17.0
     }
   ],
   "changes": [
