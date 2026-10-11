@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T15:20:04Z",
+  "generated": "2026-10-11T15:33:38Z",
   "audit": [
     {
       "actor": null,
@@ -34953,6 +34953,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-11T15:18:57Z",
       "duration_seconds": 67.0
+    },
+    {
+      "id": "al-01M4NSJ8BA15M6MXW89HHW8X2A",
+      "shortname": "tfh-settings-hash-p1",
+      "datetime": "2026-10-11T15:33:38Z",
+      "session": "trk-tfh",
+      "prompt": "TFH phase 1",
+      "summary": "Stations via Math.Cos are the only platform-math input; goldens split with DIAG output; proposal recommends CosPi (option c), stale-once on Mac",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Diagnose why the run settings hash differs on Windows; add a test-only diagnostic; write a fix proposal",
+      "done_when": "proposal.md, split diagnostic checks, run-tests green, check-docs 0",
+      "started_at": "2026-10-11T15:24:23Z",
+      "duration_seconds": 555.0
     }
   ],
   "changes": [

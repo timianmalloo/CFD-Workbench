@@ -1,3 +1,6 @@
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.Json;
 using CfdWorkbench.Core;
 using static CfdWorkbench.Analysis.Tests.AnalysisChecks;
 
@@ -17,11 +20,17 @@ internal static class TeFloorLabelTests
 
     internal static void Run()
     {
-        Check("TeFloor_B10_SettingsHash_GoldenUnchanged", () =>
+        // Split by TFH (the finding: the Windows ring fails the first golden and never reaches the others). Each reports alone;
+        // a mismatch prints DIAG lines (canonical JCS text, station bits) that the other platform's output is diffed against.
+        Check("TeFloor_B10_SettingsHash_Golden_Default", () => GoldenOrDiagnose("default", DefaultHash, Settings.Default));
+        Check("TeFloor_B10_SettingsHash_Golden_Small", () => GoldenOrDiagnose("small", SmallHash,
+            Settings.Default with { NSpanPerHalf = 4, NChord = 1, SectionEtas = null, SectionXs = null }));
+        Check("TeFloor_B10_SettingsHash_Golden_NoStations", () => GoldenOrDiagnose("nostations", NoStationsHash,
+            Settings.Default with { SectionEtas = null, SectionXs = null }));
+        Check("TeFloor_B10_SettingsHash_DiagnosticTextIsTheHashedText", () =>
         {
-            Equal(DefaultHash, RunRecord.SettingsHash(Settings.Default));
-            Equal(SmallHash, RunRecord.SettingsHash(Settings.Default with { NSpanPerHalf = 4, NChord = 1, SectionEtas = null, SectionXs = null }));
-            Equal(NoStationsHash, RunRecord.SettingsHash(Settings.Default with { SectionEtas = null, SectionXs = null }));
+            // The diagnostic must print exactly what the hash reads, or a diff of it proves nothing.
+            Equal(RunRecord.SettingsHash(Settings.Default), Identity.Blake3(Encoding.UTF8.GetBytes(CanonicalText(Settings.Default))));
         });
         Check("TeFloor_B10_Numerics_DefaultRecordFieldsUnchanged", () =>
         {
@@ -35,5 +44,43 @@ internal static class TeFloorLabelTests
             Equal("app default, no source", Settings.TrailingEdgeFloorLabel);
             Equal(false, Settings.TrailingEdgeFloorLabel.Contains("practitioner", StringComparison.OrdinalIgnoreCase));
         });
+    }
+
+    private static readonly JsonSerializerOptions Options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
+    // The text RunRecord.SettingsHash hashes: JCS of the camelCase JSON of the settings. Mirrors RunRecord.Canonical (private).
+    private static string CanonicalText(RunSettings settings) => Jcs.Write(Tree(JsonSerializer.SerializeToElement(settings, Options)));
+
+    private static object? Tree(JsonElement element) => element.ValueKind switch
+    {
+        JsonValueKind.Object => element.EnumerateObject().ToDictionary(member => member.Name, member => Tree(member.Value), StringComparer.Ordinal) as IDictionary<string, object?>,
+        JsonValueKind.Array => element.EnumerateArray().Select(Tree).ToList(),
+        JsonValueKind.String => element.GetString(),
+        JsonValueKind.Number => element.GetDouble(),
+        JsonValueKind.True => true,
+        JsonValueKind.False => false,
+        _ => null
+    };
+
+    private static void GoldenOrDiagnose(string label, string golden, RunSettings settings)
+    {
+        string actual = RunRecord.SettingsHash(settings);
+        if (actual != golden)
+        {
+            // No path, host or identity in these lines: settings numbers only. Station bits show a last-bit difference exactly.
+            Console.WriteLine($"DIAG {label} runtime={RuntimeInformation.RuntimeIdentifier} arch={RuntimeInformation.ProcessArchitecture} hash={actual}");
+            Console.WriteLine($"DIAG {label} jcs-without-stations=" + Jcs.Write(Tree(JsonSerializer.SerializeToElement(settings with { SectionEtas = null, SectionXs = null }, Options))));
+            WriteBits(label, "etas", settings.SectionEtas);
+            WriteBits(label, "xs", settings.SectionXs);
+            Console.WriteLine($"DIAG {label} jcs-sha256=" + Identity.Sha256(Encoding.UTF8.GetBytes(CanonicalText(settings))));
+        }
+        Equal(golden, actual, label);
+    }
+
+    private static void WriteBits(string label, string name, IReadOnlyList<double>? values)
+    {
+        if (values is null) { Console.WriteLine($"DIAG {label} {name} none"); return; }
+        for (int i = 0; i < values.Count; i++)
+            Console.WriteLine($"DIAG {label} {name}[{i}] {BitConverter.DoubleToInt64Bits(values[i]):x16} {Jcs.Number(values[i])}");
     }
 }
