@@ -115,7 +115,7 @@ internal static class ExportCliTests
     {
         string real = Path.Combine(folder, "real.dat"), link = Path.Combine(folder, "link.dat");
         await File.WriteAllTextAsync(real, "keep");
-        File.CreateSymbolicLink(link, real);
+        if (!TestLinks.TryFileLink(link, real)) return;
         var run = await Run("export", "example", "--format", "dat", "--out", link);
         Exits(6, run);
         Require(run.Output.Contains("EXPORT-TARGET-LINK", StringComparison.Ordinal), run.Output);
@@ -133,7 +133,7 @@ internal static class ExportCliTests
         foreach (var (name, destination) in new[] { ("file-link.dat", real), ("dangling-link.dat", Path.Combine(folder, "nowhere.dat")) })
         {
             string link = Path.Combine(folder, name);
-            File.CreateSymbolicLink(link, destination);
+            if (!TestLinks.TryFileLink(link, destination)) continue;
             List<ExportTelemetry> cli = [], dialog = [];
             int exit = await ExportVerb.RunAsync(["export", "example", "--format", "dat", "--out", link], new StringWriter(), CancellationToken.None,
                 events => cli.AddRange(events.Where(e => e.Export is not null).Select(e => e.Export!)));
@@ -288,10 +288,14 @@ internal static class ExportCliTests
         Require(failed.Exit == 5 && failed.Events.Count == 1 && failed.Events[0] is { Operation: "export.write", Outcome: "EXPORT-FOLDER-GONE", Scope: null, Preset: null }, "a failed write gives one coded event");
         string real = Path.Combine(folder, "real.dat"), link = Path.Combine(folder, "link.dat");
         await File.WriteAllTextAsync(real, "keep");
-        File.CreateSymbolicLink(link, real);
-        var refused = await Observe("export", "example", "--format", "dat", "--out", link);
-        Require(refused.Exit == 6 && refused.Events.Count == 1 && refused.Events[0] is { Operation: "export.validate", Outcome: "EXPORT-TARGET-LINK", Bytes: null }, "a refusal gives one validate event");
-        foreach (var e in written.Events.Concat(failed.Events).Concat(refused.Events))
+        List<ExportTelemetry> refusedEvents = [];
+        if (TestLinks.TryFileLink(link, real))
+        {
+            var refused = await Observe("export", "example", "--format", "dat", "--out", link);
+            Require(refused.Exit == 6 && refused.Events.Count == 1 && refused.Events[0] is { Operation: "export.validate", Outcome: "EXPORT-TARGET-LINK", Bytes: null }, "a refusal gives one validate event");
+            refusedEvents = refused.Events;
+        }
+        foreach (var e in written.Events.Concat(failed.Events).Concat(refusedEvents))
         {
             string text = e.ToString();
             Require(!text.Contains("private-wing", StringComparison.Ordinal) && !text.Contains(folder, StringComparison.Ordinal)

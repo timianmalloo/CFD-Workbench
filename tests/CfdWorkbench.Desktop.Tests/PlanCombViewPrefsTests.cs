@@ -19,11 +19,11 @@ public static partial class PlanCanvasTests
         return OperatingSystem.IsMacOS() && path.StartsWith("/var/", StringComparison.Ordinal) ? "/private" + path : path;
     }
 
-    private static PreferenceStore PrefsAt(string root) => new(root, () => new ProjectStore());
+    private static PreferenceStore PrefsAt(string root, Func<IProjectStore>? store = null) => new(root, store ?? (() => StoreSupport.Real()));
 
-    private static PlanFixture PrefFixture(string root, bool wait = true)
+    private static PlanFixture PrefFixture(string root, bool wait = true, Func<IProjectStore>? store = null)
     {
-        var fixture = new PlanFixture(source: CombFoil(), width: 1280, preferences: PrefsAt(root));
+        var fixture = new PlanFixture(source: CombFoil(), width: 1280, preferences: PrefsAt(root, store));
         if (wait) WaitLoaded(fixture);
         return fixture;
     }
@@ -61,9 +61,52 @@ public static partial class PlanCanvasTests
         Part<ToggleButton>(fixture, "AutoButton").IsChecked == true,
         at.SelectMany(point => Neighbourhood(fixture, point)).ToArray());
 
+    // A check that expects the comb to survive a restart runs as written where the store works. Where it is unsupported (Windows
+    // today, Ruling 206 O2) it asserts the designed session-only behaviour instead (StoreSupport).
+    private static void PersistCheck(string name, Action persists) =>
+        DesktopChecks.Check(name, () => StoreSupport.OrSessionOnly(persists, () => CombSessionOnly(StoreSupport.Real)));
+
+    /// <summary>The designed behaviour without a store: the choice holds for the session, no file is written, a restart reads the
+    /// defaults, a file that cannot be read is left as it is, and nothing throws.</summary>
+    private static void CombSessionOnly(Func<IProjectStore> store)
+    {
+        string root = PrefRoot();
+        using (var first = PrefFixture(root, store: store))
+        {
+            Require(!first.Controller.CombVisible, "A fresh root did not start with the comb off");
+            first.Host.RunCommand("view.comb").GetAwaiter().GetResult();
+            first.Settle();
+            Click(Part<Button>(first, "LargerButton"));
+            Click(Part<Button>(first, "LargerButton"));
+            Click(Part<Button>(first, "DenserButton"));
+            first.Settle();
+            WaitSaved(first);
+            Require(first.Controller.CombVisible && first.Controller.CombGain is not null && first.Controller.CombDensity == 64, "The session did not keep its own choice");
+            Require(PlateOf(first).IsVisible, "The plate is hidden in the session that turned the comb on");
+        }
+        Require(Directory.GetFiles(root, "*", SearchOption.AllDirectories).Length == 0, "A file was written without a store: " + string.Join(", ", Directory.GetFiles(root, "*", SearchOption.AllDirectories)));
+        using (var second = PrefFixture(root, store: store))
+            Require(!second.Controller.CombVisible && second.Controller.CombGain is null && second.Controller.CombDensity == 32, "A restart kept a setting that could not be saved");
+        string other = PrefRoot();
+        Directory.CreateDirectory(Path.Combine(other, "display"));
+        string path = Path.Combine(other, "display", "display.json");
+        const string seeded = "{\"format\":\"cfdw-display\",\"version\":1,\"textSize\":100,\"combScale\":5,\"combDensity\":64,\"combVisible\":true}";
+        File.WriteAllText(path, seeded);
+        using (var third = PrefFixture(other, store: store))
+        {
+            Require(!third.Controller.CombVisible && third.Controller.CombGain is null && third.Controller.CombDensity == 32, "A file the store cannot read was applied");
+            Click(Part<Button>(third, "DenserButton"));
+            WaitSaved(third);
+            Require(third.Controller.CombDensity == 64, "The session choice was refused");
+        }
+        Require(File.ReadAllText(path) == seeded, "The unreadable file was rewritten");
+    }
+
     private static void RunCombView()
     {
-        DesktopChecks.Check("Comb_Settings_Persist_ChoiceSurvivesShellRestart_PlateAndTeethRendered", () =>
+        DesktopChecks.Check("Comb_Settings_UnsupportedStore_SessionOnly_NoFile_NoError", () => CombSessionOnly(StoreSupport.Unsupported));
+
+        PersistCheck("Comb_Settings_Persist_ChoiceSurvivesShellRestart_PlateAndTeethRendered", () =>
         {
             string root = PrefRoot();
             CombShown before;
@@ -114,7 +157,7 @@ public static partial class PlanCanvasTests
             Require(File.ReadAllText(Path.Combine(root, "display", "display.json")).Contains("combScale"), "The file holds no scale");
         });
 
-        DesktopChecks.Check("Comb_Settings_Auto_RestoredAsAuto_Visible", () =>
+        PersistCheck("Comb_Settings_Auto_RestoredAsAuto_Visible", () =>
         {
             string root = PrefRoot();
             using (var first = PrefFixture(root))
@@ -132,7 +175,7 @@ public static partial class PlanCanvasTests
             Require(Part<ToggleButton>(second, "AutoButton").IsChecked == true, "The plate does not show Auto");
         });
 
-        DesktopChecks.Check("Comb_Settings_SaveKeepsTextSizeAndUnits", () =>
+        PersistCheck("Comb_Settings_SaveKeepsTextSizeAndUnits", () =>
         {
             string root = PrefRoot();
             using (var first = PrefFixture(root))
@@ -151,7 +194,7 @@ public static partial class PlanCanvasTests
             Require(second.Controller.CombVisible && second.Controller.CombDensity == 64, "The comb did not come back");
         });
 
-        DesktopChecks.Check("Comb_Settings_ChoiceBeforeLoadWins", () =>
+        PersistCheck("Comb_Settings_ChoiceBeforeLoadWins", () =>
         {
             string root = PrefRoot();
             Directory.CreateDirectory(Path.Combine(root, "display"));
@@ -184,7 +227,7 @@ public static partial class PlanCanvasTests
             Require(!ShellEvents.Read().Any(item => item.Name == "display.save"), "A press at the limit recorded a save");
         });
 
-        DesktopChecks.Check("Comb_Settings_FoilAndProjectBytesUnchanged_Telemetry_NoPath", () =>
+        PersistCheck("Comb_Settings_FoilAndProjectBytesUnchanged_Telemetry_NoPath", () =>
         {
             string root = PrefRoot();
             using var fixture = PrefFixture(root);
@@ -218,7 +261,7 @@ public static partial class PlanCanvasTests
             Require(saves.Contains("text-size") && saves.Contains("units"), "Saves lack triggers: " + string.Join(",", saves));
         });
 
-        DesktopChecks.Check("Comb_Settings_ValueFault_KeepsOtherMembers_NeverRewrites", () =>
+        PersistCheck("Comb_Settings_ValueFault_KeepsOtherMembers_NeverRewrites", () =>
         {
             string root = PrefRoot();
             Directory.CreateDirectory(Path.Combine(root, "display"));

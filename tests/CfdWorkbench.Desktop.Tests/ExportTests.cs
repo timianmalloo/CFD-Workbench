@@ -398,7 +398,7 @@ public static class ExportTests
             using var controller = OpenExample();
             string real = Path.Combine(folder, "real.dat"), link = Path.Combine(folder, "link.dat");
             File.WriteAllText(real, "the file the link points to");
-            File.CreateSymbolicLink(link, real);
+            if (!TestLinks.TryFileLink(link, real)) return;
             var outcome = Wait(Session(controller).RunAsync((_, _) => Task.FromResult<string?>(link)));
             Equal(ExportOutcomeKind.Failed, outcome.Kind);
             Equal("Can't write the file. Nothing was changed. The earlier file is still there.", outcome.Message);

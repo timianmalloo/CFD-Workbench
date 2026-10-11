@@ -78,10 +78,55 @@ public static class UnitsSwitchTests
         }
     }
 
+    // A check that expects the units (or Text size) to survive a restart runs as written where the store works. Where it is
+    // unsupported (Windows today, Ruling 206 O2) it asserts the designed session-only behaviour instead (StoreSupport).
+    private static void PersistCheck(string name, Action persists) =>
+        DesktopChecks.Check(name, () => StoreSupport.OrSessionOnly(persists, () => UnitsSessionOnly(StoreSupport.Real)));
+
+    /// <summary>The designed behaviour without a store: the choices hold for the session, no file is written, a restart reads Metric and
+    /// the default Text size, a file that cannot be read is left as it is, and nothing throws.</summary>
+    private static void UnitsSessionOnly(Func<CfdWorkbench.Persistence.IProjectStore> store)
+    {
+        string root = Root();
+        Restart(root, (host, controller) =>
+        {
+            Pump(host.UnitsLoaded);
+            Pump(host.TextSizeLoaded);
+            host.SetTextScale(1.5);
+            Pump(host.TextSizeSaved);
+            Pump(host.RunCommand(Imperial));
+            Pump(host.UnitsSaved);
+            if (controller.AnalysisUnits != Units.Imperial || Math.Abs(host.TextScale - 1.5) > 1e-9)
+                throw new Exception($"the session did not keep its own choice: {controller.AnalysisUnits}, text {host.TextScale}");
+        }, store);
+        if (Directory.GetFiles(root, "*", SearchOption.AllDirectories).Length != 0) throw new Exception("a file was written without a store");
+        Restart(root, (host, controller) =>
+        {
+            Pump(host.UnitsLoaded);
+            Pump(host.TextSizeLoaded);
+            if (controller.AnalysisUnits != Units.Metric || Math.Abs(host.TextScale - 1.0) > 1e-9)
+                throw new Exception($"a restart kept a setting that could not be saved: {controller.AnalysisUnits}, text {host.TextScale}");
+        }, store);
+        string other = Root();
+        const string seeded = "{\"format\":\"cfdw-display\",\"version\":1,\"textSize\":150,\"units\":\"imperial\"}";
+        WriteDisplay(other, seeded);
+        Restart(other, (host, controller) =>
+        {
+            Pump(host.UnitsLoaded);
+            Pump(host.TextSizeLoaded);
+            if (controller.AnalysisUnits != Units.Metric || Math.Abs(host.TextScale - 1.0) > 1e-9)
+                throw new Exception("a file the store cannot read was applied");
+            Pump(host.RunCommand(Metric));
+            Pump(host.UnitsSaved);
+        }, store);
+        if (File.ReadAllText(Path.Combine(other, "display", "display.json")) != seeded) throw new Exception("the unreadable file was rewritten");
+    }
+
     public static void RunReadiness()
     {
         RegisterControllerCheck();
-        DesktopChecks.Check("Units_Persist_ChoiceSurvivesShellRestart_TextSizeKept", () =>
+        DesktopChecks.Check("Units_UnsupportedStore_SessionOnly_NoFile_NoError", () => UnitsSessionOnly(StoreSupport.Unsupported));
+        PersistCheck("Units_Persist_ChoiceSurvivesShellRestart_TextSizeKept", () =>
         {
             string root = Root();
             Restart(root, (host, controller) =>
@@ -110,7 +155,7 @@ public static class UnitsSwitchTests
             });
         });
 
-        DesktopChecks.Check("Units_OldPreferenceFileWithoutKey_LoadsMetric", () =>
+        PersistCheck("Units_OldPreferenceFileWithoutKey_LoadsMetric", () =>
         {
             string root = Root();
             WriteDisplay(root, "{\"format\":\"cfdw-display\",\"version\":1,\"textSize\":125}");
@@ -123,7 +168,7 @@ public static class UnitsSwitchTests
             });
         });
 
-        DesktopChecks.Check("Units_UnknownValue_FallsBackToMetric_FileNeverRewritten", () =>
+        PersistCheck("Units_UnknownValue_FallsBackToMetric_FileNeverRewritten", () =>
         {
             string root = Root();
             const string bad = "{\"format\":\"cfdw-display\",\"version\":1,\"textSize\":150,\"units\":\"furlongs\"}";
@@ -233,10 +278,10 @@ public static class UnitsSwitchTests
     }
 
     /// <summary>One shell run on a fresh controller and a fresh store over <paramref name="root"/>: a restart.</summary>
-    private static void Restart(string root, Action<ShellHost, WorkbenchController> body)
+    private static void Restart(string root, Action<ShellHost, WorkbenchController> body, Func<CfdWorkbench.Persistence.IProjectStore>? store = null)
     {
         using var controller = new WorkbenchController();
-        var host = new ShellHost(controller, new CfdWorkbench.Persistence.PreferenceStore(root, () => new CfdWorkbench.Persistence.ProjectStore()));
+        var host = new ShellHost(controller, new CfdWorkbench.Persistence.PreferenceStore(root, store ?? (() => StoreSupport.Real())));
         var window = new Window { Content = host, Width = 1280, Height = 800 };
         try
         {
