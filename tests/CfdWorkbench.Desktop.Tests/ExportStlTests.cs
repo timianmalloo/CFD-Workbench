@@ -234,11 +234,10 @@ public static class ExportStlTests
             var kept = Wait(session.RunAsync((_, _) => Task.FromResult<string?>(Path.Combine(folder, "typed.txt"))));
             Equal(ExportOutcomeKind.Failed, kept.Kind);
             // A symlink at the target is refused, and neither link nor target changes.
-            if (!OperatingSystem.IsWindows())
+            string target = Path.Combine(folder, "real.stl"), link = Path.Combine(folder, "link.stl");
+            File.WriteAllText(target, "the earlier file");
+            if (TestLinks.TryFileLink(link, target))
             {
-                string target = Path.Combine(folder, "real.stl"), link = Path.Combine(folder, "link.stl");
-                File.WriteAllText(target, "the earlier file");
-                File.CreateSymbolicLink(link, target);
                 var refused = Wait(session.RunAsync((_, _) => Task.FromResult<string?>(link)));
                 Equal(ExportOutcomeKind.Failed, refused.Kind);
                 Equal("the earlier file", File.ReadAllText(target));

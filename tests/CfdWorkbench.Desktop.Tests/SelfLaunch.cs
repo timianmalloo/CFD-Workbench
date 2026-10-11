@@ -38,8 +38,9 @@ public static class SelfLaunchTests
         Check(failures, "no cwd-relative tests/ or src/ fixture path", () => NoCwdRelativeFixturePath());
         Check(failures, "no Desktop, Core or Cli test builds a scratch path from the raw temp directory", () => NoRawTempPath());
         Check(failures, "no test passes a literal windows: true|false to a platform branch without a host guard", () => NoForeignOsBranchWithoutHostGuard());
+        Check(failures, "no test creates a symbolic link except through TestLinks", () => NoBareSymbolicLinkOutsideTestLinks());
         if (failures.Count > 0) throw new Exception("SelfLaunchTests failed:\n  " + string.Join("\n  ", failures));
-        Console.WriteLine("SelfLaunchTests: all 9 cases passed.");
+        Console.WriteLine("SelfLaunchTests: all 10 cases passed.");
     }
 
     // WFX2 item 1: the Windows ring died with "APP-CRASH System.Exception" and no frame. The harness handler adds the message and stack;
@@ -178,6 +179,29 @@ public static class SelfLaunchTests
             }
         }
         if (offenders.Count > 0) throw new Exception("guard the call with OperatingSystem.IsWindows() / !IsWindows() in " + string.Join(", ", offenders));
+    }
+
+    // Defect class TEST-FOREIGN-OS-BRANCH, link shape (docs/lessons/defect-classes.md): File.CreateSymbolicLink and
+    // Directory.CreateSymbolicLink need a privilege on Windows (IOException "A required privilege is not held"). Every test that
+    // needs a link goes through `TestLinks` (one per test project, like `TestTemp`): a junction for a directory, NOT ASSESSED for a
+    // file link the host may not make. The file that defines `static class TestLinks` is the one place that may call it.
+    // ProjectStoreTests.cs is exempt: its Run() hands off to WindowsProjectStoreTests on Windows before any check registers
+    // (ProjectStoreTests.cs:12), so its link checks run on macOS only. Ring: fast (every join), ~15 ms.
+    private static void NoBareSymbolicLinkOutsideTestLinks([CallerFilePath] string self = "")
+    {
+        var tests = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(self)!, ".."));
+        var offenders = Directory.EnumerateFiles(tests, "*.cs", SearchOption.AllDirectories)
+            .Where(file => !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal) &&
+                           !file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal) &&
+                           Path.GetFileName(file) is not ("SelfLaunch.cs" or "ProjectStoreTests.cs"))
+            .Where(file =>
+            {
+                string text = File.ReadAllText(file);
+                return !text.Contains("static class TestLinks", StringComparison.Ordinal) &&
+                       text.Contains("CreateSymbolicLink(", StringComparison.Ordinal);
+            })
+            .Select(file => Path.GetRelativePath(tests, file)).ToList();
+        if (offenders.Count > 0) throw new Exception("create links through TestLinks.TryFileLink / TestLinks.TryDirectoryLink in " + string.Join(", ", offenders));
     }
 
     // Track TEST-REPO-LAYOUT (docs/lessons/defect-classes.md): a test that walks AppContext.BaseDirectory

@@ -5466,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1d5fd22cc92fbb5d1ee59fcf51fc8082738b9aa56376199076899f52c012c1f1"
+      "sourceSha256": "921bf71afa3ad0a7c174226ecb8802b9360255ba6280f2e33e2338d869c4421a"
     },
     {
       "id": "domain-experts",
@@ -8727,7 +8727,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0d1a14457ad9feee7d39452bbdad1862a5f755ca21df1728fd79941c64783e6a"
+      "sourceSha256": "3424290dff24ba2c1eddc397b003de50e02403c65ba4a9034c1dd8071200b104"
     },
     {
       "id": "kb-hw-glossary",
@@ -18260,6 +18260,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "fbd2221b43f9cc84427285d30106e6c0863c2b680354bd63e82266ca009f6797"
     },
     {
+      "id": "proof-wlk-red-first",
+      "path": "docs/proof/wlk/red-first.md",
+      "title": "WLK red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-wlk",
+      "phase": "implementation",
+      "reviewBy": "2026-11-11",
+      "reviewSuggested": [],
+      "summary": "Red-first and after receipt for Windows-safe link tests (TestLinks, the bare-link gate) and for view-setting restart checks that assert the session-only behaviour where the project store is unsupported (TEST-FOREIGN-OS-BRANCH).",
+      "tags": [
+        "windows",
+        "links",
+        "preferences",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "6ddae4b3bcf8dba1c3fa59f5bf93d1767a7e437dbaa10d1f4f12fd2700377b31"
+    },
+    {
       "id": "proof-wrb-red-first",
       "path": "docs/proof/wrb/red-first.md",
       "title": "WRB red-first receipt",
@@ -20477,5 +20503,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "2fbfbfeeed02732f960f72bf62a339d2535a8ba1f0da74d9a6f05d0d81da940c"
+  "graphSha256": "576c1003d7d4e6f22caab8ed3cae37a7091ae76f8f5cde2886ef59d624e6669b"
 };
