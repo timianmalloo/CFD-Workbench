@@ -30,8 +30,8 @@ internal static class PreferenceStoreTests
         Check("StoreContract_CancelBeforePublish_DocCancelled", CancelContract);
         Check("PrefStore_TextSize_Absent_Is100", TextSizeAbsent);
         Check("PrefStore_TextSize_RoundTrip", TextSizeRoundTrip);
-        Check("PrefStore_TextSize_ValueError_ThatMemberDefaults_BytesUnchanged", () => TextSizeUnreadable(ValueErrors));
-        Check("PrefStore_TextSize_StructureError_WholeFileDefaults_BytesUnchanged", () => TextSizeUnreadable(StructureErrors));
+        Check("PrefStore_TextSize_ValueError_ThatMemberDefaults_BytesUnchanged", () => OrSessionOnly(() => TextSizeUnreadable(ValueErrors)));
+        Check("PrefStore_TextSize_StructureError_WholeFileDefaults_BytesUnchanged", () => OrSessionOnly(() => TextSizeUnreadable(StructureErrors)));
         Check("Rollback_TextSizeV2_NewerVersionIsStructureClass_BytesUnchanged", TextSizeFuture);
         Check("PrefStore_TextSize_PriorRoot_LayoutAndRecentUntouched", TextSizePriorRoot);
         Check("PrefStore_TextSize_SessionOnlyOrUnreadable_NeverWrites", TextSizeSessionOnly);
@@ -805,17 +805,82 @@ internal static class PreferenceStoreTests
     internal static void RunView()
     {
         Check("PrefStore_Comb_Absent_AutoAnd32_Hidden", ViewAbsent);
-        Check("PrefStore_Comb_RoundTrip_EveryStep_DefaultsNotWritten", ViewRoundTrip);
-        Check("PrefStore_Comb_SaveDoesNotResetTextSizeOrUnits_AndTheReverse", ViewMerge);
-        Check("PrefStore_Comb_ValueError_ThatMemberDefaults_OthersKept_BytesUnchanged", ViewValueError);
-        Check("PrefStore_Comb_StructureError_WholeFileDefaults_BytesUnchanged", ViewStructureError);
-        Check("PrefStore_Comb_NewerVersion_WholeFileDefaults_NeverOverwritten", ViewNewerVersion);
-        Check("PrefStore_Comb_OldFileNewBuild_NoRewriteOnLoad", ViewOldFile);
-        Check("PrefStore_Comb_Atomic_FaultBeforePublish_PreviousBytesKept_NoTemp", ViewAtomic);
-        Check("PrefStore_Comb_TwoInstances_LaterWinsPerMember_Retried", ViewTwoInstances);
+        Check("PrefStore_Comb_RoundTrip_EveryStep_DefaultsNotWritten", () => OrSessionOnly(ViewRoundTrip));
+        Check("PrefStore_Comb_SaveDoesNotResetTextSizeOrUnits_AndTheReverse", () => OrSessionOnly(ViewMerge));
+        Check("PrefStore_Comb_ValueError_ThatMemberDefaults_OthersKept_BytesUnchanged", () => OrSessionOnly(ViewValueError));
+        Check("PrefStore_Comb_StructureError_WholeFileDefaults_BytesUnchanged", () => OrSessionOnly(ViewStructureError));
+        Check("PrefStore_Comb_NewerVersion_WholeFileDefaults_NeverOverwritten", () => OrSessionOnly(ViewNewerVersion));
+        Check("PrefStore_Comb_OldFileNewBuild_NoRewriteOnLoad", () => OrSessionOnly(ViewOldFile));
+        Check("PrefStore_Comb_Atomic_FaultBeforePublish_PreviousBytesKept_NoTemp", () => OrSessionOnly(ViewAtomic));
+        Check("PrefStore_Comb_TwoInstances_LaterWinsPerMember_Retried", () => OrSessionOnly(ViewTwoInstances));
         Check("PrefStore_Comb_UnsupportedOrLinked_SessionOnly_NoThrow", ViewSessionOnly);
         Check("PrefStore_DisplayCodec_Serialize_OutOfSetComb_Throws", ViewSerializeOutOfSet);
         Check("PrefStore_DisplayCodec_ValueError_TextSizeUnitsBadOthersKept", ViewParseValueClass);
+        Check("PrefStore_Comb_UnsupportedStore_SessionOnly_NoFile_NoError", () =>
+        {
+            var unsupported = new CodeStore("DOC-UNSUPPORTED-PERSISTENCE");
+            ViewUnsupportedSessionOnly(() => unsupported);
+            Equal(1, unsupported.Saves);   // the first save learns the store is unsupported; the rest never reach it
+        });
+    }
+
+    // Ruling 206 O2 / 207: where ProjectStore.Supported() is false (Windows until the native store lands, ProjectStore.cs:266) the view
+    // settings last the session only. A check that expects a restart to restore them asserts that designed behaviour instead.
+    // The host decides by asking the real store, never by an OS flag (TEST-FOREIGN-OS-BRANCH); a macOS arm64 host that reports
+    // unsupported is a broken probe, so it throws rather than quietly taking the Windows branch.
+    private static readonly Lazy<bool> storeSupported = new(() =>
+    {
+        using var store = new ProjectStore();
+        string code = store.SaveAsync(Path.Combine(LayoutFileTests.Root(), "support-probe"),
+            new SaveRequest([1], null, Guid.NewGuid().ToString("D"))).GetAwaiter().GetResult().Code;
+        if (code == "OK") return true;
+        if (code != "DOC-UNSUPPORTED-PERSISTENCE") throw new InvalidOperationException("store support probe: " + code);
+        if (OperatingSystem.IsMacOS() && System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture == System.Runtime.InteropServices.Architecture.Arm64)
+            throw new InvalidOperationException("the store reported unsupported on macOS arm64; the probe is wrong, not the host");
+        Console.WriteLine("NOT ASSESSED view-settings persistence: this host has no project store (Ruling 206 O2); the session-only behaviour is asserted instead");
+        return false;
+    });
+
+    private static void OrSessionOnly(Action persists)
+    {
+        if (storeSupported.Value) persists();
+        else ViewUnsupportedSessionOnly(() => new ProjectStore());
+    }
+
+    /// <summary>The designed behaviour without a store: values held for the session, no file written, a restart reads the defaults, an
+    /// existing file cannot be read and is left as it is, and nothing throws.</summary>
+    private static void ViewUnsupportedSessionOnly(Func<IProjectStore> factory)
+    {
+        string root = LayoutFileTests.Root();
+        var store = new PreferenceStore(root, factory);
+        var load = Wait(store.LoadCombViewAsync(CancellationToken.None));
+        Equal("absent", load.Outcome);
+        Equal(true, load.Scale is null);
+        Equal(32, load.Density);
+        Equal(false, load.Visible);
+        Equal("session-only", Wait(store.SaveCombViewAsync(5, 64, true, CancellationToken.None)).Outcome);
+        Equal("session-only", Wait(store.SaveTextSizeAsync(150, CancellationToken.None)).Outcome);
+        Equal("session-only", Wait(store.SaveUnitsAsync(DisplayPreferences.Imperial, CancellationToken.None)).Outcome);
+        Equal(0, Directory.GetFiles(root, "*", SearchOption.AllDirectories).Length);
+        // A restart finds nothing: the defaults.
+        var restart = Wait(new PreferenceStore(root, factory).LoadCombViewAsync(CancellationToken.None));
+        Equal("absent", restart.Outcome);
+        Equal(true, restart.Scale is null);
+        Equal(32, restart.Density);
+        Equal(false, restart.Visible);
+        // A file that exists but cannot be read through the store: the defaults for the session, and the file is left as it is.
+        string other = LayoutFileTests.Root();
+        var original = Encoding.UTF8.GetBytes("""{"format":"cfdw-display","version":1,"textSize":150,"combScale":5,"combDensity":64,"combVisible":true}""");
+        string path = DisplayFile(other, original);
+        var unreadable = new PreferenceStore(other, factory);
+        var seen = Wait(unreadable.LoadCombViewAsync(CancellationToken.None));
+        Equal("session-only", seen.Outcome);
+        Equal(true, seen.SessionOnly);
+        Equal(true, seen.Scale is null);
+        Equal(32, seen.Density);
+        Equal(false, seen.Visible);
+        Equal("session-only", Wait(unreadable.SaveCombViewAsync(10, 16, false, CancellationToken.None)).Outcome);
+        Equal(true, File.ReadAllBytes(path).AsSpan().SequenceEqual(original));
     }
 
     private static string ViewText(string root) => File.ReadAllText(Path.Combine(root, "display", "display.json"));
