@@ -1,0 +1,2 @@
+owned_pid_before=410 pgid=410 sid=410 cmdline=/bin/bash /mnt/c/Projects/CFD-Workbench-win-gpu-g2-b1-r199/docs/proof/win-gpu-b2/install-and-test.sh --attempt-id pc-b2-r209-20261010-run4 
+owned_process_group=acknowledged attempt=pc-b2-r209-20261010-run4 launch_method=foreground pgid=410 sid=410

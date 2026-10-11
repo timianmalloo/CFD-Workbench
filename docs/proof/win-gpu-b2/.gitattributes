@@ -5,6 +5,9 @@
 *.sh text eol=lf
 *.ps1 text eol=lf
 *.cu text eol=lf
+*.bin -text
+*.marker -text
+*.request -text
 *.sha256 text eol=lf
 *.tsv text eol=lf
 *.stdout.txt -text whitespace=-trailing-space,-blank-at-eof

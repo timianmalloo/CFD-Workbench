@@ -1,0 +1,1 @@
+SAXPY-PASS device=NVIDIA GeForce RTX 3080 Ti Laptop GPU elements=16777216 first_ms=84.8886 warm_mean_ms=82.663 max_abs_error=1.90735e-06
