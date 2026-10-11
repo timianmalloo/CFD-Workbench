@@ -5466,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "668468261c26a47091ff83d8403fc83a28fba777287423180fa5e5a067da49c3"
+      "sourceSha256": "d78cd66a0fed7f7999f69b8a68d02d2a746e98a1064f1097fb7b91294aac236d"
     },
     {
       "id": "domain-experts",
@@ -18468,6 +18468,62 @@ window.DOCS_INDEX = {
       "sourceSha256": "b3f7db76829feaefea78295f33487264771db77d6e528f0c1ccff29c40d6303b"
     },
     {
+      "id": "proof-wrx-classification",
+      "path": "docs/proof/wrx/classification.md",
+      "title": "WRX classification of the Windows ring after WLK",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-wrx",
+      "phase": "implementation",
+      "reviewBy": "2026-11-11",
+      "reviewSuggested": [],
+      "summary": "Every failing name and every unseen manifest entry in the PC's WLK rerun (main eea2c7f1 merged at 67056b75), with the first failure line, the cause, the introducing commit and the action. Windows claims are labelled Verified (seen in the raw log) or Inferred.",
+      "tags": [
+        "windows",
+        "ring",
+        "expected-failures",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9350c18085c1b688aec3fd889b3587ff264d29e7a5c90c40f44260898c74c9a2"
+    },
+    {
+      "id": "proof-wrx-red-first",
+      "path": "docs/proof/wrx/red-first.md",
+      "title": "WRX red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-wrx",
+      "phase": "implementation",
+      "reviewBy": "2026-11-11",
+      "reviewSuggested": [],
+      "summary": "Red and green receipts for WRX: the manifest-name control (red on the pre-WRX manifest), the replay of the PC's raw log through the checker, and what the Mac cannot show red.",
+      "tags": [
+        "windows",
+        "ring",
+        "expected-failures",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "proof-wrx-classification",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "376b1ef1167aa7b126734d5604275b93d776be6fbfbd2e7e6c0e545d532e2d1d"
+    },
+    {
       "id": "proof-wsf-red-first",
       "path": "docs/proof/wsf/red-first.md",
       "title": "READER-SHARE red-first receipt",
@@ -20528,5 +20584,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "9df2678771589509b2ee9a2ae4c68297042dad3241a766fecf7ac134c5b5eaf8"
+  "graphSha256": "152f0b41b8c8b6bb0b038f520d37003a45b967c1d7bf20ecf18c35ece2a91904"
 };
