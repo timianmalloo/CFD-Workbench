@@ -1,1 +1,2 @@
 {"agent": "trk-tfh", "at": 1791732245.4076319, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-tfh", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-tfh-settings-hash"}
+{"agent": "trk-tfh", "at": 1791733409.268532, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-tfh", "wi": "WI-0", "worktree": "CFD-Workbench-fix-tfh-settings-hash"}
