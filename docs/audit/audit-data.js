@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T17:31:32Z",
+  "generated": "2026-10-11T17:46:28Z",
   "audit": [
     {
       "actor": null,
@@ -35464,6 +35464,30 @@ window.AUDIT_DATA = {
         "branch": "win/gpu-f1-design-r211",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M4P15FC0Q4GKVG419SQ57KC4",
+      "shortname": "windows-gpu-f1-r211-author",
+      "datetime": "2026-10-11T17:46:28Z",
+      "session": "pc-f1-author-r211",
+      "prompt": "Produce the one coupled, source-cited F1 design authorized by Ruling 211 for PETSc --with-cuda plus petsc4Foam against installed OpenFOAM 2512 in a new disposable WSL distro; no download/install/build/case run",
+      "summary": "Pinned one PETSc/petsc4Foam candidate; predeclared managed-memory and one-case benchmark/guard; unresolved lock, ABI and trace support block execution",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/plans/windows-gpu-f1-r211.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Produce one source-cited F1 design under Ruling 211 without execution",
+      "done_when": "Design committed with a pinned candidate, measurement and benchmark contracts, guard, and explicit blockers",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-10-11T17:36:28Z",
+      "duration_seconds": 600.0
     }
   ],
   "changes": [
