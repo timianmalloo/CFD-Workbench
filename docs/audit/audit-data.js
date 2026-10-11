@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T16:52:58Z",
+  "generated": "2026-10-11T16:54:41Z",
   "audit": [
     {
       "actor": null,
@@ -35108,6 +35108,31 @@ window.AUDIT_DATA = {
       "done_when": "Bit-equality checks red then green, CRT gate extended, ring green, no moved asserts",
       "started_at": "2026-10-11T16:46:55Z",
       "duration_seconds": 363.0
+    },
+    {
+      "id": "al-01M4NY6NCZS07DGW3H3QWTC45J",
+      "shortname": "join-lsp",
+      "datetime": "2026-10-11T16:54:41Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/lsp-spacing into main",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-11T16:53:36Z",
+      "duration_seconds": 65.0
     }
   ],
   "changes": [
