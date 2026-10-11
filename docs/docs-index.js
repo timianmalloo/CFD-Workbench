@@ -5466,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "975366925067a17bb22cafa2457ef841e41b8a356a232d301c3ec7c1231be4dd"
+      "sourceSha256": "3deb883765ce7846a0ec74caf0a7d7a1d1d47dacb076440dfa0c75444958456c"
     },
     {
       "id": "domain-experts",
@@ -17888,6 +17888,120 @@ window.DOCS_INDEX = {
       "sourceSha256": "d467406caf7dd1aeabd8541e2f61202bae464bd4e19c78cff19d6f30af207868"
     },
     {
+      "id": "proof-win-gpu-b1-launcher-precheck",
+      "path": "docs/proof/win-gpu-b1/launcher-precheck-receipt.md",
+      "title": "B1 launcher precheck result",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@pc-coordinator",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "Foreground was selected because launcher teardown removed its child; setsid --wait preserved its child.",
+      "tags": [
+        "proof",
+        "windows",
+        "wsl",
+        "ruling-201"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-b1-r199",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "04afdc47b9863945be6fdb7ef127b5ec5189171632788aec2c7e329495920d84"
+    },
+    {
+      "id": "proof-win-gpu-b1-precheck1",
+      "path": "docs/proof/win-gpu-b1/precheck-1-setsid-no-wait/result.md",
+      "title": "B1 launcher precheck 1: bare setsid",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@pc-coordinator",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "Foreground teardown passed; bare setsid reproduced the early-launcher-exit blocker before attempt 3.",
+      "tags": [
+        "proof",
+        "windows",
+        "wsl",
+        "ruling-201"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-b1-r199",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7e7627ae701c4e317d37bc5aa38b623327cd35fe02f4b6adc2d6ffdfb4614bed"
+    },
+    {
+      "id": "proof-win-gpu-b1-r199",
+      "path": "docs/proof/win-gpu-b1/README.md",
+      "title": "Windows GPU B1 inventory and live L3 guard",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@pc-coordinator",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "Attempt 3 completed the B1 inventory; B2 phases A/B later closed its pinned-recipe requirement and F1 remains closed.",
+      "tags": [
+        "proof",
+        "windows",
+        "gpu",
+        "cuda",
+        "openfoam",
+        "ruling-199",
+        "ruling-200"
+      ],
+      "links": [
+        {
+          "to": "proof-win-l3-observer",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-pr-30",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d29cb0b09db174b809d0880bb5890e01cb5a97f920f1ff917c88fd85e5a249fd"
+    },
+    {
+      "id": "proof-win-gpu-b2",
+      "path": "docs/proof/win-gpu-b2/README.md",
+      "title": "Windows GPU B2 disposable CUDA proof",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@pc-coordinator",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "Rulings 200 and 209 proof for an exact CUDA 13.2 install and managed-memory toy in a disposable Ubuntu 24.04 WSL distro.",
+      "tags": [
+        "proof",
+        "windows",
+        "wsl",
+        "cuda",
+        "gpu",
+        "ruling-200",
+        "ruling-209"
+      ],
+      "links": [
+        {
+          "to": "proof-win-l3-observer",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "fdcaa145f308468efbe68a13db50e82d6639f16cbcfc30c9988ff0ccc82bdb56"
+    },
+    {
       "id": "proof-win-gpu-g1",
       "path": "docs/proof/win-gpu-g1/receipt.md",
       "title": "Windows GPU G1 exact-source and toolchain inspection",
@@ -18704,6 +18818,76 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "96e7d2910a3b2cf031c1e3f96c735673a5789412a7cca716ce4dd339a426068f"
+    },
+    {
+      "id": "receipt-win-gpu-b1-r199",
+      "path": "docs/proof/win-gpu-b1/receipt.md",
+      "title": "Windows GPU B1 inventory receipt",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@pc-coordinator",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "Attempt 3 completed the bounded B1 inventory; B2 phases A/B later completed the pinned CUDA 13.2 recipe and closed B1's done-when.",
+      "tags": [
+        "proof",
+        "windows",
+        "gpu",
+        "cuda",
+        "blocker",
+        "ruling-199",
+        "ruling-200"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-b1-r199",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-l3-observer",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-pr-30",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "69dc705f2b878dcbb9a1de4844e669e4ff6456f6d22deab4b81a34825a82f248"
+    },
+    {
+      "id": "receipt-win-gpu-b2-r209",
+      "path": "docs/proof/win-gpu-b2/receipt.md",
+      "title": "Windows GPU B2 CUDA 13.2 execution receipt",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@pc-coordinator",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "The first live Ruling 209 attempt installed the pinned CUDA 13.2 recipe and passed a manifest-bound managed-memory SAXPY proof, then the disposable distro was unregistered.",
+      "tags": [
+        "proof",
+        "windows",
+        "wsl",
+        "cuda",
+        "gpu",
+        "ruling-200",
+        "ruling-209"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-b2",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-l3-observer",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d89b51a1806b60ad1e6ec0a137651a62a497493db177cf0d613176cd9be1a69e"
     },
     {
       "id": "review-app-shell-native",
@@ -20715,5 +20899,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "cccdec92cfb4f041401e3c725c1b9b39ba74bc9eb7689f05e726ec921d0fd225"
+  "graphSha256": "b7bec122e46daafafa8274dc5f1ecec7fcbdf9f2278856a95f1739aabb606e1d"
 };
