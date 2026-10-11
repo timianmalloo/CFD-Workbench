@@ -67,7 +67,7 @@
       "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
     },
     {
-      "name": "Rollback_TextSizeV2_BytesUnchanged",
+      "name": "Rollback_TextSizeV2_NewerVersionIsStructureClass_BytesUnchanged",
       "ruling": "154",
       "class": "fail-closed-store",
       "until": "W-2 B2 lands",
@@ -82,13 +82,6 @@
     },
     {
       "name": "Rollback_V2UnknownWorkspaceMember_BytesUnchanged",
-      "ruling": "154",
-      "class": "fail-closed-store",
-      "until": "W-2 B2 lands",
-      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
-    },
-    {
-      "name": "PrefStore_TextSize_OutOfSetOrGarbled_100_BytesUnchanged",
       "ruling": "154",
       "class": "fail-closed-store",
       "until": "W-2 B2 lands",
@@ -377,11 +370,33 @@
       "fragment": "opened project has no recovery"
     },
     {
+      "name": "Telemetry_MarkerInjection_AbsentEverywhere",
+      "ruling": "173",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "Marker probe did not record the file in Recent",
+      "evidence": "Inferred until the next PC ring: the earlier text 'did not open and record' fit either half; the test now checks the marker first and names this half"
+    },
+    {
       "name": "TextSize_PersistsPerUser",
       "ruling": "173",
       "class": "fail-closed-store",
       "until": "W-2 B2 lands",
       "fragment": "after restart 1, PropFontSize at 1x"
+    },
+    {
+      "name": "PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs",
+      "ruling": "186",
+      "class": "fractional-scale",
+      "until": "the Ruling 186 fractional-scale proof resumes",
+      "fragment": "input ends 218.33, fact 217.33"
+    },
+    {
+      "name": "PropertiesPane_Density_UnitOnValueBaseline",
+      "ruling": "186",
+      "class": "fractional-scale",
+      "until": "the Ruling 186 fractional-scale proof resumes",
+      "fragment": "input 143.87 unit 144.54 label 144.54; fact 120.54/120.54"
     }
   ]
 }

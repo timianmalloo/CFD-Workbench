@@ -28,6 +28,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+import tempfile
 from pathlib import Path
 
 for _stream in (sys.stdout, sys.stderr):
@@ -40,7 +41,7 @@ for _stream in (sys.stdout, sys.stderr):
 ROOT = Path(__file__).resolve().parent.parent
 MANIFEST = ROOT / "tests" / "expected-failures.windows.json"
 TOKENS = ("PASS ", "FAIL ", "COST ", "STACK ", "RESULT ", "PARTITION ", "STAGE ", "SUITE")
-CLASSES = ("historical-probe", "fail-closed-store")
+CLASSES = ("historical-probe", "fail-closed-store", "fractional-scale")
 ABORTS = ("APP-UNHANDLED", "Unhandled exception")
 CHILD_EXIT = re.compile(r"--[a-z0-9-]+(?: --part=\d+/\d+)? exited \d+")
 
@@ -156,6 +157,8 @@ def self_test() -> int:
                     "fragment": "DOC-UNSUPPORTED-PERSISTENCE"},
         "Cli_C": {"name": "Cli_C", "ruling": "154", "class": "fail-closed-store", "until": "W-2 B2 lands",
                   "fragment": "DOC-UNSUPPORTED-PERSISTENCE", "aborts_harness": True},
+        "Scale_D": {"name": "Scale_D", "ruling": "186", "class": "fractional-scale",
+                    "until": "the Ruling 186 fractional-scale proof resumes", "fragment": "input ends 218.33, fact 217.33"},
     }
     probe = "FAIL Probe_A NativeFailure: NTSTATUS=0xc0000043; Win32=32: in use"
     store = "FAIL Store_B ContractError: DOC-UNSUPPORTED-PERSISTENCE"
@@ -185,6 +188,10 @@ def self_test() -> int:
          f"{store}\nSUITE --a exit 0\nSUITE-TIME --a 1.0 s\nSUITE --b exit 1\nSUITE-TIME --b 1.0 s\nFAIL --b exited 1\n", True, 1, 1, 1, 1, 0),
         ("not Windows: a child exit stays a failure",
          f"{store}\nSUITE --x exit 1\nSUITE-TIME --x 1.0 s\nFAIL --x exited 1\n", False, 1, 2, 0, 2, 0),
+        ("fractional-scale: name and fragment match is expected", "FAIL Scale_D InvalidOperationException: input ends 218.33, fact 217.33\n", True, 0, 0, 1, 0, 0),
+        ("fractional-scale: same name, a different number is unexpected", "FAIL Scale_D InvalidOperationException: input ends 219.00, fact 217.33\n", True, 1, 1, 0, 1, 0),
+        ("fractional-scale: a pass is a stale entry", "PASS Scale_D\n", True, 1, 1, 0, 0, 1),
+        ("fractional-scale: not Windows, the failure stays a failure", "FAIL Scale_D InvalidOperationException: input ends 218.33, fact 217.33\n", False, 1, 1, 0, 1, 0),
     ]
     bad = 0
     for label, text, windows, want_exit, _count, want_ok, want_unexpected, want_pass in cases:
@@ -202,6 +209,19 @@ def self_test() -> int:
     except (OSError, ValueError, KeyError) as error:
         print(f"SELF-TEST FAIL: manifest does not load: {error}")
         return 1
+    with tempfile.TemporaryDirectory() as scratch:
+        probe_manifest = Path(scratch) / "m.json"
+        for cls, accepted in (("fractional-scale", True), ("no-such-class", False)):
+            entry = {"name": "N", "ruling": "186", "class": cls, "until": "u", "fragment": "f"}
+            probe_manifest.write_text(json.dumps({"entries": [entry]}), encoding="utf-8", newline="\n")
+            try:
+                load_manifest(probe_manifest)
+                loaded = True
+            except ValueError:
+                loaded = False
+            if loaded != accepted:
+                print(f"SELF-TEST FAIL: class {cls} loaded={loaded}, want {accepted}")
+                bad += 1
     print(f"EXPECTED-FAILURES self-test {'FAIL' if bad else 'ok'}: {len(cases)} cases, manifest {len(real)} entries")
     return 1 if bad else 0
 

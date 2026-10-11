@@ -50,9 +50,9 @@ named=" Core Desktop Analysis "   # suites that print PASS <name>; an exit 0 wit
 # ran 47 s against part 1's 33 s, and under a concurrent build it outlasted Desktop), so it is not the critical path
 # (docs/reviews/test-ci-waste.md §12). Longest first. A part's log is <project>.part<k>of<n>.log.
 # Analysis (A3a, design area3-analysis.md §18.2 PRE): its own job, concurrent with the others, never the critical path. B4:
-# it runs as two parts too (`--part=k/n`, whole test classes, longest first onto the lighter part), so its wall does not grow
+# it runs as three parts too (C-2 tripped four times at two parts, 2026-10-10/11) (`--part=k/n`, whole test classes, longest first onto the lighter part), so its wall does not grow
 # with every track (ANALYSIS-HARNESS-GROWTH); C-2 limits each part to 5 s.
-jobs=("Core 1/3" "Core 2/3" "Core 3/3" "Desktop" "Analysis 1/2" "Analysis 2/2" "Cli")
+jobs=("Core 1/3" "Core 2/3" "Core 3/3" "Desktop" "Analysis 1/3" "Analysis 2/3" "Analysis 3/3" "Cli")
 # A log left by an earlier layout (e.g. Core.log before the split) would feed old PASS lines to
 # tools/check-named-tests.py, which reads every .tmp-tests/*.log.
 rm -f "$scratch"/*.log "$scratch"/*.seconds "$scratch"/*.ms

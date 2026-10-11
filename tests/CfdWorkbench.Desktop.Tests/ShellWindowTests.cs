@@ -1079,14 +1079,18 @@ public static class ShellWindowTests
                     }
                     while (recent.Entries.Count == 0 && !timeout.IsCancellationRequested);
                 }
-                if (controller.Inspection is null || recent.Entries.Count == 0)
-                    throw new InvalidOperationException("Marker probe did not open and record the file");
+                if (controller.Inspection is null)
+                    throw new InvalidOperationException("Marker probe did not open the file");
                 string emitted = JsonSerializer.Serialize(controller.LocalEvents) +
                     JsonSerializer.Serialize(ShellEvents.Read()) +
                     JsonSerializer.Serialize(new { recent.Outcome, recent.Codes, recent.NeverWrite, recent.SessionOnly }) +
                     capturedError;
+                // WRX: the marker is judged before the Recent precondition, so a host whose store cannot persist (the Windows ring,
+                // fail-closed until W-2 B2) still checks that no path reaches telemetry.
                 if (emitted.Contains(marker, StringComparison.Ordinal))
                     throw new InvalidOperationException("Marker appeared in telemetry or stderr");
+                if (recent.Entries.Count == 0)
+                    throw new InvalidOperationException("Marker probe did not record the file in Recent");
             }
             finally
             {

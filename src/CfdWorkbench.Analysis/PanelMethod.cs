@@ -41,7 +41,7 @@ public static class PanelMethod
         int half = panelCount / 2;
         var xs = new double[half + 1];
         for (int i = 0; i <= half; i++)
-            xs[i] = (1 - Math.Cos(Math.PI * i / half)) / 2;
+            xs[i] = (1 - double.CosPi(i / (double)half)) / 2;
         return Placement.Sections(source, etas, xs, cancellation);
     }
 
@@ -84,7 +84,7 @@ public static class PanelMethod
             SectionPoint p = contour[j], q = contour[j + 1];
             if (!double.IsFinite(p.X) || !double.IsFinite(p.Z) || !double.IsFinite(q.X) || !double.IsFinite(q.Z))
                 throw new ContractError("ANA-PANEL-GEOMETRY", "A contour coordinate is not finite.");
-            double length = Math.Sqrt(Math.Pow(q.X - p.X, 2) + Math.Pow(q.Z - p.Z, 2));
+            double length = Math.Sqrt(Math.Pow(q.X - p.X, 2) + Math.Pow(q.Z - p.Z, 2)); // crt-allowed: Ruling 214 — solver arithmetic reaches Cp and forces compared with a tolerance, never a recorded key
             if (!(length > 1e-12)) throw new ContractError("ANA-PANEL-GEOMETRY", "A panel has zero length.");
             segments[j] = new(p, q, length, (q.X - p.X) / length, (q.Z - p.Z) / length);
         }
@@ -137,7 +137,7 @@ public static class PanelMethod
                 throw new ContractError("ANA-PANEL-GEOMETRY", "A finite angle is required.");
             int panels = segments.Length, unknowns = panels + 1;
             double angle = VortexLattice.ToRadians(alphaDeg);
-            double vx = Math.Cos(angle), vz = Math.Sin(angle);
+            double vx = Math.Cos(angle), vz = Math.Sin(angle); // crt-allowed: Ruling 214 — solver arithmetic reaches Cp and forces compared with a tolerance, never a recorded key
             var rhs = new double[unknowns];
             for (int i = 0; i < panels; i++)
                 rhs[i] = -(vx * -segments[i].Tz + vz * segments[i].Tx);
@@ -163,7 +163,7 @@ public static class PanelMethod
                 // Pressure force = Cp times the inward (left) normal for a counter-clockwise contour.
                 double fx = -cp * segment.Tz * segment.Length;
                 double fz = cp * segment.Tx * segment.Length;
-                cl += -fx * Math.Sin(angle) + fz * Math.Cos(angle);
+                cl += -fx * Math.Sin(angle) + fz * Math.Cos(angle); // crt-allowed: Ruling 214 — solver arithmetic reaches Cp and forces compared with a tolerance, never a recorded key
                 cm -= (x - 0.25) * fz - z * fx;
             }
             return new(upper, lower, cpMin, panels, cl, cm);
@@ -180,9 +180,9 @@ public static class PanelMethod
         double l = panel.Length;
         double start2 = a * a + b * b;
         double end2 = (a - l) * (a - l) + b * b;
-        double angle = Math.Atan2(b * l, a * (a - l) + b * b);
+        double angle = Math.Atan2(b * l, a * (a - l) + b * b); // crt-allowed: Ruling 214 — solver arithmetic reaches Cp and forces compared with a tolerance, never a recorded key
         double integral = Math.Abs(b) > 1e-14 ? angle / b : l / (a * (a - l));
-        double log = 0.5 * Math.Log(start2 / end2);
+        double log = 0.5 * Math.Log(start2 / end2); // crt-allowed: Ruling 214 — solver arithmetic reaches Cp and forces compared with a tolerance, never a recorded key
         double weighted = a * integral - log;
         double moment = a * log - l + b * b * integral;
         double u0 = -b * (integral - weighted / l) / TwoPi;

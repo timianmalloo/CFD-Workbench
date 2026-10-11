@@ -1,0 +1,2 @@
+{"agent": "trk-rng", "at": 1791732522.362255, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-rng", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-rng-ring-parts"}
+{"agent": "trk-rng", "at": 1791733409.5378308, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-rng", "wi": "WI-0", "worktree": "CFD-Workbench-fix-rng-ring-parts"}
