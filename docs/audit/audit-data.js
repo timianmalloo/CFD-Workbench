@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T18:29:15Z",
+  "generated": "2026-10-11T18:31:16Z",
   "audit": [
     {
       "actor": null,
@@ -35613,6 +35613,35 @@ window.AUDIT_DATA = {
         "branch": "win/gpu-f1-r211-astra-review",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M4P3QGH37BXN3989R93QJ85B",
+      "shortname": "join-f1-r211-astra",
+      "datetime": "2026-10-11T18:31:16Z",
+      "session": "pc-f1-execute-20261011",
+      "prompt": "the join of win/gpu-f1-r211-astra-review into win/gpu-f1-design-r211",
+      "summary": "Joined Astra's independent VETO: the combined dependency lock and bounded F1 capacity are missing; execution remains closed. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-astra.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Integrate the Astra owner verdict on the frozen Ruling 211 design.",
+      "done_when": "The review is joined with docs gates green, the design remains unchanged, and the VETO is ready for the single AUTHOR repair cycle.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-11T18:29:34Z",
+      "duration_seconds": 102.0
     }
   ],
   "changes": [
