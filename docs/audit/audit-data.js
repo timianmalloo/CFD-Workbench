@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T17:03:25Z",
+  "generated": "2026-10-11T17:31:32Z",
   "audit": [
     {
       "actor": null,
@@ -35419,6 +35419,51 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-11T17:02:17Z",
       "duration_seconds": 68.0
+    },
+    {
+      "id": "al-01M4P0A425XFV3JF3QNXTMSCH6",
+      "shortname": "keep going",
+      "datetime": "2026-10-11T17:31:31Z",
+      "session": "prompt-log",
+      "prompt": "keep going",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4P0A48MYR96VMNHSAWNHEBK",
+      "shortname": "coordination-windows-gpu-f1-design",
+      "datetime": "2026-10-11T17:31:31Z",
+      "session": "pc-f1-prepare-20261011",
+      "prompt": "keep going",
+      "summary": "Selected a width-1 serial graph: Sol authors the coupled Ruling 211 F1 design, Astra independently reviews the frozen revision, and Mac/Fable owns operator convergence; split BOM, memory, benchmark/guard, native, Grok, and execution tracks were struck.",
+      "kind": "skill",
+      "skill": "prepare-for-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/windows-gpu-f1-design.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Prepare and commit the minimum-width coordination plan for Ruling 211 F1 design-only work.",
+      "done_when": "Plan md/html are committed, coordination state is verified, roles and exit evidence are fixed, and no F1 execution occurs.",
+      "tier": "T1",
+      "fan_out": 1,
+      "started_at": "2026-10-11T17:12:28Z",
+      "duration_seconds": 1143.0,
+      "git": {
+        "sha": "9d4645d449dc00a18d3aadc5b03b88180fe9b43d",
+        "short": "9d4645d44",
+        "branch": "win/gpu-f1-design-r211",
+        "pushed": null
+      }
     }
   ],
   "changes": [

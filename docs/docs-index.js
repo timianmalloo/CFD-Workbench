@@ -5466,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3deb883765ce7846a0ec74caf0a7d7a1d1d47dacb076440dfa0c75444958456c"
+      "sourceSha256": "9ab23682a98ffd271e94487a9b0b164c94e2f94a55bc8337fa327f55be5a7afe"
     },
     {
       "id": "domain-experts",
@@ -10749,6 +10749,42 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "17f64e07ff79ade4bbe0a1ae2156fb4885b435fd6c202762b07cba7e672d4efa"
+    },
+    {
+      "id": "coordination-windows-gpu-f1-design",
+      "path": "docs/coordination/windows-gpu-f1-design.md",
+      "title": "Coordination plan - Windows GPU F1 design",
+      "type": "plan",
+      "status": "proposed",
+      "owner": "@pc-f1-coordinator",
+      "phase": "",
+      "reviewBy": "2026-10-18",
+      "reviewSuggested": [],
+      "summary": "One Sol author/integrator produces the coupled F1 design, the Astra owner reviews a frozen revision, and the Mac/Fable leader reviews it before a second operator ruling; execution remains closed.",
+      "tags": [
+        "coordination",
+        "worktrees",
+        "windows",
+        "gpu",
+        "openfoam",
+        "petsc"
+      ],
+      "links": [
+        {
+          "to": "plan-win-openfoam-gpu-qualification",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-0012-openfoam-backend-macos",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "6d9783a694ec439fbd0cb3702b112ab3a263108ca40966e0032f1d9b486b8374"
     },
     {
       "id": "coordination-windows-runtime-route",
@@ -20891,6 +20927,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-w2-save-picker"
     },
     {
+      "id": "surface-coordination-windows-gpu-f1-design",
+      "path": "docs/coordination/windows-gpu-f1-design.html",
+      "title": "Windows GPU F1 design coordination plan",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "coordination-windows-gpu-f1-design"
+    },
+    {
       "id": "surface-coordination-windows-w0-w5-execution",
       "path": "docs/coordination/windows-w0-w5-execution.html",
       "title": "Windows W-0 through W-5 execution plan",
@@ -20899,5 +20943,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "b7bec122e46daafafa8274dc5f1ecec7fcbdf9f2278856a95f1739aabb606e1d"
+  "graphSha256": "b9797c6e1f6155d7e40e33d71cf96ff394b373e806f6d26fa5e23be8f96aef94"
 };
