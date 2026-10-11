@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T17:46:28Z",
+  "generated": "2026-10-11T17:52:55Z",
   "audit": [
     {
       "actor": null,
@@ -35488,6 +35488,35 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-10-11T17:36:28Z",
       "duration_seconds": 600.0
+    },
+    {
+      "id": "al-01M4P1H997WK64BMETHQGFT1AS",
+      "shortname": "join-f1-r211-author",
+      "datetime": "2026-10-11T17:52:55Z",
+      "session": "pc-f1-execute-20261011",
+      "prompt": "the join of the resolved merge into win/gpu-f1-design-r211",
+      "summary": "Joined the source-cited Ruling 211 PETSc-CUDA design and its explicit execution blockers. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/plans/windows-gpu-f1-r211.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Integrate the AUTHOR design for independent Astra review.",
+      "done_when": "The authored design is joined with docs gates green and no prohibited execution occurred.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-11T17:51:26Z",
+      "duration_seconds": 89.0
     }
   ],
   "changes": [
