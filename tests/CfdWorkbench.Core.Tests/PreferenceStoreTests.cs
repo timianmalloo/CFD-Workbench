@@ -42,30 +42,6 @@ internal static class PreferenceStoreTests
         RunView();
     }
 
-    // WFX2 item 3: Directory.CreateSymbolicLink needs a privilege on Windows (IOException "A required privilege is not held").
-    // A directory junction is a reparse point too and needs none. The Windows branch is selectable so macOS can check its command.
-    internal static bool TryDirectoryLink(string link, string target, bool windows, Func<System.Diagnostics.ProcessStartInfo, int> run)
-    {
-        if (!windows) { Directory.CreateSymbolicLink(link, target); return true; }
-        var info = new System.Diagnostics.ProcessStartInfo("cmd.exe") { UseShellExecute = false, CreateNoWindow = true };
-        foreach (string argument in new[] { "/c", "mklink", "/J", link, target }) info.ArgumentList.Add(argument);
-        return run(info) == 0 && Directory.Exists(link);
-    }
-
-    private static bool TryDirectoryLink(string link, string target)
-    {
-        if (TryDirectoryLink(link, target, OperatingSystem.IsWindows(), info =>
-        {
-            info.RedirectStandardOutput = true;
-            using var child = System.Diagnostics.Process.Start(info)!;
-            child.StandardOutput.ReadToEnd();
-            child.WaitForExit();
-            return child.ExitCode;
-        })) return true;
-        Console.WriteLine("NOT ASSESSED directory-link: mklink /J could not create a junction; the symlinked-directory case did not run");
-        return false;
-    }
-
     private static void DirectoryLinkWindowsBranch()
     {
         // Each half runs only on the host whose branch it exercises (TEST-FOREIGN-OS-BRANCH); the other half is not assessed here.
@@ -73,7 +49,7 @@ internal static class PreferenceStoreTests
         {
             System.Diagnostics.ProcessStartInfo? seen = null;
             string link = Path.Combine(LayoutFileTests.Root(), "prefs");
-            Equal(false, TryDirectoryLink(link, "/real", windows: true, info => { seen = info; return 1; }));
+            Equal(false, TestLinks.TryDirectoryLink(link, "/real", windows: true, info => { seen = info; return 1; }));
             Equal(false, seen is null);
             Equal("cmd.exe", seen!.FileName);
             Equal("/c|mklink|/J|" + link + "|/real", string.Join('|', seen.ArgumentList));
@@ -83,7 +59,7 @@ internal static class PreferenceStoreTests
         if (!OperatingSystem.IsWindows())
         {
             string real = LayoutFileTests.Root(), made = Path.Combine(LayoutFileTests.Root(), "alias");
-            Equal(true, TryDirectoryLink(made, real, windows: false, _ => throw new InvalidOperationException("macOS must not shell out")));
+            Equal(true, TestLinks.TryDirectoryLink(made, real, windows: false, _ => throw new InvalidOperationException("macOS must not shell out")));
             Equal(true, new DirectoryInfo(made).LinkTarget is not null);
         }
         else Console.WriteLine("NOT ASSESSED directory-link: the symbolic-link branch is checked on a non-Windows host only");
@@ -187,7 +163,7 @@ internal static class PreferenceStoreTests
     {
         string real = LayoutFileTests.Root();
         string link = Path.Combine(LayoutFileTests.Root(), "prefs");
-        if (!TryDirectoryLink(link, real)) return;
+        if (!TestLinks.TryDirectoryLink(link, real)) return;
         var store = new PreferenceStore(link, () => new ProjectStore());
         var load = Wait(store.LoadLayoutAsync(LayoutFileTests.Panes(), CancellationToken.None));
         Equal(true, load.SessionOnly);
@@ -617,7 +593,7 @@ internal static class PreferenceStoreTests
     {
         string real = LayoutFileTests.Root();
         string link = Path.Combine(LayoutFileTests.Root(), "prefs");
-        if (!TryDirectoryLink(link, real)) return;
+        if (!TestLinks.TryDirectoryLink(link, real)) return;
         var store = Prefs(link);
         var load = Wait(store.LoadTextSizeAsync(CancellationToken.None));
         Equal(100, load.Percent);
@@ -1088,7 +1064,7 @@ internal static class PreferenceStoreTests
     {
         string real = LayoutFileTests.Root();
         string link = Path.Combine(LayoutFileTests.Root(), "prefs");
-        Directory.CreateSymbolicLink(link, real);
+        if (!TestLinks.TryDirectoryLink(link, real)) return;
         var store = Prefs(link);
         var load = Wait(store.LoadCombViewAsync(CancellationToken.None));
         Equal(true, load.SessionOnly);
