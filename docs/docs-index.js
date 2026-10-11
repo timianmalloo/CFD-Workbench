@@ -5466,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3deb883765ce7846a0ec74caf0a7d7a1d1d47dacb076440dfa0c75444958456c"
+      "sourceSha256": "871e8925f161b9729a952f9e76e41eac8d7efacf6c3f516fdc3e7f9ed9afa197"
     },
     {
       "id": "domain-experts",
@@ -10751,6 +10751,42 @@ window.DOCS_INDEX = {
       "sourceSha256": "17f64e07ff79ade4bbe0a1ae2156fb4885b435fd6c202762b07cba7e672d4efa"
     },
     {
+      "id": "coordination-windows-gpu-f1-design",
+      "path": "docs/coordination/windows-gpu-f1-design.md",
+      "title": "Coordination plan - Windows GPU F1 design",
+      "type": "plan",
+      "status": "completed",
+      "owner": "@pc-f1-coordinator",
+      "phase": "",
+      "reviewBy": "2026-10-18",
+      "reviewSuggested": [],
+      "summary": "The serial Sol AUTHOR and Astra review track ended after the second Astra VETO: the exact Ubuntu transaction and finite F1 capacity remain open, and execution stays closed pending a Mac/Fable/operator preflight ruling.",
+      "tags": [
+        "coordination",
+        "worktrees",
+        "windows",
+        "gpu",
+        "openfoam",
+        "petsc"
+      ],
+      "links": [
+        {
+          "to": "plan-win-openfoam-gpu-qualification",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-0012-openfoam-backend-macos",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d7de32081cd30552056f43c302cb0c534d1193dbb34533b39df314a64e7c2013"
+    },
+    {
       "id": "coordination-windows-runtime-route",
       "path": "docs/coordination/windows-runtime-route.md",
       "title": "Windows x64 M1 runtime route and ownership packet",
@@ -10929,6 +10965,51 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "69ba40231afea2cdbb45e2c9c4fc369817660442d371e9582352d168656357ea"
+    },
+    {
+      "id": "plan-windows-gpu-f1-r211",
+      "path": "docs/plans/windows-gpu-f1-r211.md",
+      "title": "F1 design for PETSc CUDA and petsc4Foam on Windows WSL",
+      "type": "plan",
+      "status": "proposed",
+      "owner": "@pc-f1-author-r211",
+      "phase": "design",
+      "reviewBy": "2026-10-18",
+      "reviewSuggested": [],
+      "summary": "One gated PETSc-CUDA plus petsc4Foam candidate, with exact build sequence, WSL memory measurement, one-case CPU/GPU oracle, and owned observer/rollback. Flagged input and ABI gaps block execution.",
+      "tags": [
+        "windows",
+        "wsl",
+        "gpu",
+        "cuda",
+        "petsc",
+        "openfoam",
+        "ruling-211"
+      ],
+      "links": [
+        {
+          "to": "coordination-windows-gpu-f1-design",
+          "rel": "implements"
+        },
+        {
+          "to": "proof-win-gpu-b1-r199",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-b2",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-g1",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c727a8dbb6eb3393124ebcd3dc65153645f4546ea2df26a3d1c9a1bebebd52ec"
     },
     {
       "id": "privacy-review",
@@ -18002,6 +18083,43 @@ window.DOCS_INDEX = {
       "sourceSha256": "fdcaa145f308468efbe68a13db50e82d6639f16cbcfc30c9988ff0ccc82bdb56"
     },
     {
+      "id": "proof-win-gpu-f1-dependency-worksheet",
+      "path": "docs/proof/win-gpu-f1-design/dependency-worksheet.md",
+      "title": "F1 combined dependency and capacity closure worksheet",
+      "type": "proof-pack",
+      "status": "proposed",
+      "owner": "@pc-f1-author-repair-r211",
+      "phase": "design",
+      "reviewBy": "2026-10-18",
+      "reviewSuggested": [],
+      "summary": "Exact verified B2 and OpenFOAM package metadata, with the unclosed Ubuntu transaction and capacity operands flagged. No build-input acquisition or WSL action is authorized.",
+      "tags": [
+        "windows",
+        "wsl",
+        "gpu",
+        "cuda",
+        "petsc",
+        "openfoam",
+        "ruling-211"
+      ],
+      "links": [
+        {
+          "to": "plan-windows-gpu-f1-r211",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-gpu-b2",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d8d3881c7831e9f094748fd94121c87794f402e08affd0561b03e44bb8d8fe70"
+    },
+    {
       "id": "proof-win-gpu-g1",
       "path": "docs/proof/win-gpu-g1/receipt.md",
       "title": "Windows GPU G1 exact-source and toolchain inspection",
@@ -19682,6 +19800,77 @@ window.DOCS_INDEX = {
       "sourceSha256": "69454b8cb20ee355a4c14ed10e193a2a87d49984d707f9b71c16f0ad78880e75"
     },
     {
+      "id": "review-windows-gpu-f1-astra-r2",
+      "path": "docs/reviews/windows-gpu-f1-astra-r2.md",
+      "title": "Astra second and final Ruling 211 design review",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@pc-f1-astra-r211-review2",
+      "phase": "design",
+      "reviewBy": "2026-11-11",
+      "reviewSuggested": [],
+      "summary": "Second VETO: F1-ASTRA-1 remains open. The repaired inventory corrects payload provenance but does not supply the combined transaction or finite F1 capacity. The track ends; only a narrow preflight decision goes to Mac.",
+      "tags": [
+        "windows",
+        "gpu",
+        "petsc",
+        "ruling-211",
+        "owner-review"
+      ],
+      "links": [
+        {
+          "to": "plan-windows-gpu-f1-r211",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-gpu-f1-dependency-worksheet",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-windows-gpu-f1-astra-r211",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-windows-gpu-f1-design",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "43cfccc5ac02084416e899e70bd8b8e8963983b1817a715e6f9e6530905055e2"
+    },
+    {
+      "id": "review-windows-gpu-f1-astra-r211",
+      "path": "docs/reviews/windows-gpu-f1-astra.md",
+      "title": "Astra owner review of the Ruling 211 F1 design",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@pc-f1-astra-r211",
+      "phase": "design",
+      "reviewBy": "2026-11-11",
+      "reviewSuggested": [],
+      "summary": "VETO on design completion: the combined dependency lock and capacity closure required by Ruling 211 remain absent. Execution stays closed; the measurement, benchmark and containment proposals are acceptable design contracts.",
+      "tags": [
+        "windows",
+        "gpu",
+        "petsc",
+        "openfoam",
+        "ruling-211",
+        "owner-review"
+      ],
+      "links": [
+        {
+          "to": "plan-windows-gpu-f1-r211",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-windows-gpu-f1-design",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "49ee76191ddeabe35780838d75fc97637846a0148743c305264d7975c9056f85"
+    },
+    {
       "id": "review-windows-runtime",
       "path": "docs/reviews/windows-runtime.md",
       "title": "Independent Windows qualification review",
@@ -20891,6 +21080,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-w2-save-picker"
     },
     {
+      "id": "surface-coordination-windows-gpu-f1-design",
+      "path": "docs/coordination/windows-gpu-f1-design.html",
+      "title": "Windows GPU F1 design coordination plan",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "coordination-windows-gpu-f1-design"
+    },
+    {
       "id": "surface-coordination-windows-w0-w5-execution",
       "path": "docs/coordination/windows-w0-w5-execution.html",
       "title": "Windows W-0 through W-5 execution plan",
@@ -20899,5 +21096,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "b7bec122e46daafafa8274dc5f1ecec7fcbdf9f2278856a95f1739aabb606e1d"
+  "graphSha256": "3250d827676c5a72276789aeb3fed35b1e40023de8b4afcff83b47e3faa1f65e"
 };

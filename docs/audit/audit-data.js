@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T17:03:25Z",
+  "generated": "2026-10-11T18:54:07Z",
   "audit": [
     {
       "actor": null,
@@ -35419,6 +35419,388 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-11T17:02:17Z",
       "duration_seconds": 68.0
+    },
+    {
+      "id": "al-01M4P0A425XFV3JF3QNXTMSCH6",
+      "shortname": "keep going",
+      "datetime": "2026-10-11T17:31:31Z",
+      "session": "prompt-log",
+      "prompt": "keep going",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4P0A48MYR96VMNHSAWNHEBK",
+      "shortname": "coordination-windows-gpu-f1-design",
+      "datetime": "2026-10-11T17:31:31Z",
+      "session": "pc-f1-prepare-20261011",
+      "prompt": "keep going",
+      "summary": "Selected a width-1 serial graph: Sol authors the coupled Ruling 211 F1 design, Astra independently reviews the frozen revision, and Mac/Fable owns operator convergence; split BOM, memory, benchmark/guard, native, Grok, and execution tracks were struck.",
+      "kind": "skill",
+      "skill": "prepare-for-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/windows-gpu-f1-design.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Prepare and commit the minimum-width coordination plan for Ruling 211 F1 design-only work.",
+      "done_when": "Plan md/html are committed, coordination state is verified, roles and exit evidence are fixed, and no F1 execution occurs.",
+      "tier": "T1",
+      "fan_out": 1,
+      "started_at": "2026-10-11T17:12:28Z",
+      "duration_seconds": 1143.0,
+      "git": {
+        "sha": "9d4645d449dc00a18d3aadc5b03b88180fe9b43d",
+        "short": "9d4645d44",
+        "branch": "win/gpu-f1-design-r211",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M4P15FC0Q4GKVG419SQ57KC4",
+      "shortname": "windows-gpu-f1-r211-author",
+      "datetime": "2026-10-11T17:46:28Z",
+      "session": "pc-f1-author-r211",
+      "prompt": "Produce the one coupled, source-cited F1 design authorized by Ruling 211 for PETSc --with-cuda plus petsc4Foam against installed OpenFOAM 2512 in a new disposable WSL distro; no download/install/build/case run",
+      "summary": "Pinned one PETSc/petsc4Foam candidate; predeclared managed-memory and one-case benchmark/guard; unresolved lock, ABI and trace support block execution",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/plans/windows-gpu-f1-r211.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Produce one source-cited F1 design under Ruling 211 without execution",
+      "done_when": "Design committed with a pinned candidate, measurement and benchmark contracts, guard, and explicit blockers",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-10-11T17:36:28Z",
+      "duration_seconds": 600.0
+    },
+    {
+      "id": "al-01M4P1H997WK64BMETHQGFT1AS",
+      "shortname": "join-f1-r211-author",
+      "datetime": "2026-10-11T17:52:55Z",
+      "session": "pc-f1-execute-20261011",
+      "prompt": "the join of the resolved merge into win/gpu-f1-design-r211",
+      "summary": "Joined the source-cited Ruling 211 PETSc-CUDA design and its explicit execution blockers. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/plans/windows-gpu-f1-r211.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Integrate the AUTHOR design for independent Astra review.",
+      "done_when": "The authored design is joined with docs gates green and no prohibited execution occurred.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-11T17:51:26Z",
+      "duration_seconds": 89.0
+    },
+    {
+      "id": "al-01M4P33WCP7C3BSBRX8PNNE2KW",
+      "shortname": "join-coord-windows-shell",
+      "datetime": "2026-10-11T18:20:33Z",
+      "session": "pc-f1-execute-20261011",
+      "prompt": "the join of win/coord-windows-shell-r211 into win/gpu-f1-design-r211",
+      "summary": "Resolved configured .sh join commands through a validated Bash executable on Windows and added an always-run regression control. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/ai-forward-pack/scripts/conductor-join.py",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Remove the WinError 193 coordination blocker without weakening exit-code gating.",
+      "done_when": "Windows shell commands execute through valid Bash, aliases fail closed, and the integrated docs-only ring and verify gates pass.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-11T18:18:58Z",
+      "duration_seconds": 95.0
+    },
+    {
+      "id": "al-01M4P3H2MR8K63PFRYWNWC1458",
+      "shortname": "f1-astra-owner-review",
+      "datetime": "2026-10-11T18:27:45Z",
+      "session": "pc-f1-astra-r211",
+      "prompt": "Independently review frozen F1 design at 322abf17 under Ruling 211. Commit only the assigned Astra review with a decisive checklist verdict. Assess exact dependency/ABI/source/integrity/licence/capacity/build closure, isolation/rollback, managed-memory attribution, numerical/performance contract, observer/ownership and authorization. Separate approval prerequisites from authorized runtime gates. No WSL, installation, build, case runs, build-input download, push or merge. Tier T1; fan-out zero; ten calls and fifteen minutes.",
+      "summary": "VETO: combined OpenFOAM/dev/toolchain lock and bounded F1 capacity are missing design outputs. B2 payload provenance also needs correction. Measurement, benchmark, containment and execution boundary accepted as design contracts; runtime evidence remains separately authorized.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "pc-f1-astra-r211",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-astra.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Independently adjudicate the frozen Ruling 211 design.",
+      "done_when": "Committed decisive review with citations and unchanged design.",
+      "tier": "T1",
+      "main_calls": 10,
+      "main_budget": 10,
+      "main_over_budget": false,
+      "fan_out": 0,
+      "started_at": "2026-10-11T18:22:55Z",
+      "duration_seconds": 290.0,
+      "git": {
+        "sha": "322abf17a019298db5ce111c896915e7107a4650",
+        "short": "322abf17a",
+        "branch": "win/gpu-f1-r211-astra-review",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M4P3KTA6FGA243945B0VQHYC",
+      "shortname": "f1-astra-relation-repair",
+      "datetime": "2026-10-11T18:29:15Z",
+      "session": "pc-f1-astra-r211",
+      "prompt": "Repair only the invalid review frontmatter relation from reviews to relates-to; regenerate index, run docs-graph validate and git diff --check, commit correction, preserve verdict/body/design.",
+      "summary": "Changed one frontmatter relation to registered relates-to and regenerated index. Docs-graph validate returned zero defects/index drift, with 131 non-failing review suggestions. git diff --check passed; design SHA256 remained ab6d0039f00c0828fdfff7318f256a769953e9d9b4b373baa73462967686c158. Existing V14 schema validation caught this metadata-class error; verdict/body unchanged.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "pc-f1-astra-r211",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-astra.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Correct the review relation schema.",
+      "done_when": "Correction committed with validation passing and design unchanged.",
+      "tier": "T1",
+      "main_calls": 3,
+      "main_budget": 3,
+      "main_over_budget": false,
+      "fan_out": 0,
+      "started_at": "2026-10-11T18:28:55Z",
+      "duration_seconds": 20.0,
+      "git": {
+        "sha": "dd9838604dac444eaab155cd4f248ae46282b794",
+        "short": "dd9838604",
+        "branch": "win/gpu-f1-r211-astra-review",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M4P3QGH37BXN3989R93QJ85B",
+      "shortname": "join-f1-r211-astra",
+      "datetime": "2026-10-11T18:31:16Z",
+      "session": "pc-f1-execute-20261011",
+      "prompt": "the join of win/gpu-f1-r211-astra-review into win/gpu-f1-design-r211",
+      "summary": "Joined Astra's independent VETO: the combined dependency lock and bounded F1 capacity are missing; execution remains closed. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-astra.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Integrate the Astra owner verdict on the frozen Ruling 211 design.",
+      "done_when": "The review is joined with docs gates green, the design remains unchanged, and the VETO is ready for the single AUTHOR repair cycle.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-11T18:29:34Z",
+      "duration_seconds": 102.0
+    },
+    {
+      "id": "al-01M4P4BVV1RMQAJ7XP8P4MQBWG",
+      "shortname": "f1-r211-author-repair",
+      "datetime": "2026-10-11T18:42:23Z",
+      "session": "pc-f1-author-repair-r211",
+      "prompt": "Repair Astra F1-ASTRA-1 with exact read-only dependency metadata or a precise execution blocker, and correct the B2 payload provenance.",
+      "summary": "Pinned five OpenFOAM package rows and combined known subtotals, corrected B2 archive-member payload provenance, and documented unresolved Ubuntu/BLAS/MPI/NVIDIA installed-size and capacity cells with a narrow preflight decision. Astra veto remains open.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "codex",
+      "artifacts": [
+        "docs/plans/windows-gpu-f1-r211.md",
+        "docs/proof/win-gpu-f1-design/dependency-worksheet.md"
+      ],
+      "tags": [],
+      "outcome": "blocked",
+      "compiled": false,
+      "goal": "Produce a source-cited combined F1 dependency and capacity repair without install, build, WSL or case execution.",
+      "done_when": "Commit exact closure or a source-cited irreducible blocker with the smallest next preflight decision; preserve accepted contracts.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-11T18:34:33Z",
+      "duration_seconds": 470.0,
+      "git": {
+        "sha": "55231d1c837650dc834ccb71d5398e97b8d306dc",
+        "short": "55231d1c8",
+        "branch": "win/gpu-f1-r211-author-repair",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M4P4HRZ50YQ32PPFDEG9CN1Z",
+      "shortname": "join-f1-r211-author-repair",
+      "datetime": "2026-10-11T18:45:36Z",
+      "session": "pc-f1-execute-20261011",
+      "prompt": "the join of win/gpu-f1-r211-author-repair into win/gpu-f1-design-r211",
+      "summary": "Joined the single AUTHOR repair: exact OpenFOAM rows and corrected payload provenance, with the unresolved Ubuntu transaction and finite capacity kept VETO/open. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/plans/windows-gpu-f1-r211.md",
+        "docs/proof/win-gpu-f1-design/dependency-worksheet.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Integrate the single repair cycle for Astra’s F1-ASTRA-1 finding.",
+      "done_when": "The repair evidence is joined with docs gates green and no prohibited execution occurred.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-11T18:43:57Z",
+      "duration_seconds": 99.0
+    },
+    {
+      "id": "al-01M4P4R6YF41VRD53MK81KMKZC",
+      "shortname": "f1-astra-final-veto",
+      "datetime": "2026-10-11T18:49:07Z",
+      "session": "pc-f1-astra-r211-review2",
+      "prompt": "Second and final independent review at repaired base 9069cd0e: determine whether F1-ASTRA-1 is cleared; write only a new review plus index/audit; if veto remains end track and hand off narrow preflight decision to Mac. No downloads, installs, builds, WSL mutation or case execution. Eight calls, ten minutes, fan-out zero.",
+      "summary": "Second VETO: missing exact combined Ubuntu transaction and finite F1 capacity remain observed. Payload provenance corrected. Track ends; narrow preflight decision only goes to Mac/Fable/operator. Arithmetic checks agree; docs-graph validate zero defects, 131 non-failing suggestions; diff check passed; design, worksheet and prior review unchanged. check-docs remains running in session 71630; no final pass claimed.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "pc-f1-astra-r211-review2",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-astra-r2.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Adjudicate final repaired F1 dependency and capacity closure.",
+      "done_when": "Commit decisive second review with checks, immutable inputs and bounded handoff.",
+      "tier": "T1",
+      "main_calls": 8,
+      "main_budget": 8,
+      "main_over_budget": false,
+      "fan_out": 0,
+      "started_at": "2026-10-11T18:46:34Z",
+      "duration_seconds": 153.0,
+      "git": {
+        "sha": "9069cd0ee5316ebf8c25c7d2a84a23decb89c217",
+        "short": "9069cd0ee",
+        "branch": "win/gpu-f1-r211-astra-review2",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M4P4YQSWZVJFK01DVFR5CVQQ",
+      "shortname": "join-f1-r211-astra-review2",
+      "datetime": "2026-10-11T18:52:41Z",
+      "session": "pc-f1-execute-20261011",
+      "prompt": "the join of win/gpu-f1-r211-astra-review2 into win/gpu-f1-design-r211",
+      "summary": "Joined Astra's second and final VETO: exact Ubuntu transaction closure and finite F1 capacity remain absent, so the track ends and execution stays closed. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-astra-r2.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Integrate the final independent Astra verdict after the single AUTHOR repair.",
+      "done_when": "The final VETO is joined with docs gates green and the handoff boundary to Mac/Fable/operator is explicit.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-11T18:51:05Z",
+      "duration_seconds": 96.0
+    },
+    {
+      "id": "al-01M4P51B4MPSB9FY0XG71HMJBY",
+      "shortname": "windows-gpu-f1-coordination-close",
+      "datetime": "2026-10-11T18:54:06Z",
+      "session": "pc-f1-execute-20261011",
+      "prompt": "Close the Windows F1 coordination track after the final Astra verdict and hand the bounded decision to Mac.",
+      "summary": "Closed the serial AUTHOR-Astra track after the second VETO, recorded measured plan variance, and posted the Mac xmsg handoff. Exact Ubuntu transaction and finite F1 capacity remain open; execution remains closed.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/windows-gpu-f1-design.md",
+        "docs/coordination/windows-gpu-f1-design.html",
+        "docs/coordination/xmsg.jsonl"
+      ],
+      "tags": [],
+      "outcome": "blocked",
+      "compiled": false,
+      "goal": "Converge the Windows F1 design work into one gated GitHub handoff without crossing Ruling 211.",
+      "done_when": "The final verdict, planned-versus-actual record, and Mac handoff are committed and pushed with documentation checks green.",
+      "tier": "T1",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-11T18:53:51Z",
+      "duration_seconds": 15.0
     }
   ],
   "changes": [
