@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T15:38:26Z",
+  "generated": "2026-10-12T15:41:02Z",
   "audit": [
     {
       "actor": null,
@@ -36576,6 +36576,35 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M4RCCHGQH64VW2ZCQJ90PY80",
+      "shortname": "join-r217-cleanup-recovery-veto",
+      "datetime": "2026-10-12T15:41:02Z",
+      "session": "pc-f1-r217-cleanup-recovery-author",
+      "prompt": "the join of win/gpu-f1-r217-cleanup-recovery-review into win/gpu-f1-r217-cleanup-recovery",
+      "summary": "Joined Astra VETO for cleanup recovery after reproducing deadline prelaunch, target GUID absence, and error precedence defects. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-cleanup-recovery.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Record the independent cleanup-recovery VETO before a bounded repair.",
+      "done_when": "VETO is merged, docs-only ring and configured gates pass, and the recovery branch is pushed clean.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T15:39:20Z",
+      "duration_seconds": 102.0
     }
   ],
   "changes": [
