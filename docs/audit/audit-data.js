@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T14:22:31Z",
+  "generated": "2026-10-12T14:24:19Z",
   "audit": [
     {
       "actor": null,
@@ -35846,6 +35846,31 @@ window.AUDIT_DATA = {
       "done_when": "EXPORT-TARGET-DIRECTORY refused before write; tests red then green; run-tests green; check-docs 0",
       "started_at": "2026-10-12T14:14:10Z",
       "duration_seconds": 501.0
+    },
+    {
+      "id": "al-01M4R80223K8XB8K4BYVBPNVYN",
+      "shortname": "join-dtg",
+      "datetime": "2026-10-12T14:24:19Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/dtg-dir-target into main",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T14:23:10Z",
+      "duration_seconds": 69.0
     }
   ],
   "changes": [
