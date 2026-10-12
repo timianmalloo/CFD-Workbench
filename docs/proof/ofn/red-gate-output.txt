@@ -1,0 +1,12 @@
+text I/O that is not portable across Windows and macOS (9):
+  tools/qualify-windows-runtime.py:262: os.killpg is POSIX-only (AttributeError on Windows): use getattr(os, "killpg", 0) or branch on os.name; keep an explicit lstat/islink check where it was a symlink guard
+  tools/qualify-windows-runtime.py:259: os.killpg is POSIX-only (AttributeError on Windows): use getattr(os, "killpg", 0) or branch on os.name; keep an explicit lstat/islink check where it was a symlink guard
+  tools/run-windows-store-gate.py:106: os.killpg is POSIX-only (AttributeError on Windows): use getattr(os, "killpg", 0) or branch on os.name; keep an explicit lstat/islink check where it was a symlink guard
+  tools/run-windows-store-gate.py:115: os.killpg is POSIX-only (AttributeError on Windows): use getattr(os, "killpg", 0) or branch on os.name; keep an explicit lstat/islink check where it was a symlink guard
+  tools/run-windows-store-gate.py:122: os.killpg is POSIX-only (AttributeError on Windows): use getattr(os, "killpg", 0) or branch on os.name; keep an explicit lstat/islink check where it was a symlink guard
+  tools/spikes/application-contract-vectors.py:138: os.O_NOFOLLOW is POSIX-only (AttributeError on Windows): use getattr(os, "O_NOFOLLOW", 0) or branch on os.name; keep an explicit lstat/islink check where it was a symlink guard
+  docs/ai-forward-pack/scripts/conductor-join.py:352: write_text(...) without newline="\n"
+  docs/ai-forward-pack/scripts/conductor-join.py:368: write_text(...) without newline="\n"
+  docs/ai-forward-pack/scripts/coord_transport.py:83: os.killpg is POSIX-only (AttributeError on Windows): use getattr(os, "killpg", 0) or branch on os.name; keep an explicit lstat/islink check where it was a symlink guard
+fix: newline="\n" on every text write (audit-log.py:465 is the example); the stdio guard from
+     pack-doctor.py at the top of every printing script; drop text=True from mkstemp

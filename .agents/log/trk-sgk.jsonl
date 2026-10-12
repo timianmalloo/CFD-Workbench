@@ -1,0 +1,2 @@
+{"agent": "trk-sgk", "at": 1791822813.4678059, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-sgk", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-sgk-signals"}
+{"agent": "trk-sgk", "at": 1791823458.374206, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-sgk", "wi": "WI-0", "worktree": "CFD-Workbench-fix-sgk-signals"}

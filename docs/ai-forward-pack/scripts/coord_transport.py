@@ -78,6 +78,8 @@ def _signal_group(process, sig):
     # macOS can return EPERM for an unreaped zombie. Reap before signalling,
     # and retry once if exit raced the first poll. Still signal live descendants.
     process.poll()
+    if os.name == "nt":  # no process groups; _Wire is the POSIX wire, so this is defence in depth
+        return terminate_owned_process(process)
     for attempt in range(2):
         try:
             os.killpg(process.pid, sig)
@@ -208,7 +210,8 @@ class _Wire:
             self.process.wait(timeout=max(0, min(.2, cleanup_end - time.monotonic())))
         except subprocess.TimeoutExpired:
             pass
-        error = _signal_group(self.process, signal.SIGKILL) or error
+        # _Wire is the POSIX wire (SIGKILL exists); on Windows _signal_group ignores the signal and kills the process.
+        error = _signal_group(self.process, getattr(signal, "SIGKILL", signal.SIGTERM)) or error
         try:
             self.process.wait(timeout=max(0, cleanup_end - time.monotonic()))
         except subprocess.TimeoutExpired:

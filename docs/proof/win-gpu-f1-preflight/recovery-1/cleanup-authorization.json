@@ -1,0 +1,23 @@
+{
+  "schema": "cfdw-f1-cleanup-authorization/1",
+  "status": "accepted",
+  "leader": "mac",
+  "ruling": 223,
+  "source_commit": "5b1a9bb460df4ae2955a3bb922b0e68138492cc0",
+  "session": "pc-f1-r217-cleanup-live1",
+  "leader_epoch": 6,
+  "freeze_sha256": "76ab6e220a21c10c694a7eecd9d00679d1a0a42b3444598dae2682ac627f0bea",
+  "target": "cfdw-petsc-cuda132-f1",
+  "target_path": "C:\\Projects\\CFD-Workbench-wsl\\cfdw-petsc-cuda132-f1",
+  "target_key": "{e958c4d5-ae78-4b50-a634-7102f334d3aa}",
+  "protected": "cfdw-openfoam2512",
+  "protected_path": "%USERPROFILE%\\AppData\\Local\\CFDWorkbench\\qualification\\wsl\\cfdw-openfoam2512",
+  "protected_key": "{b7566a82-9cee-47ce-a246-f83632353cea}",
+  "original_run_id": "r217-run1-epoch6-20261012",
+  "allowed_actions": [
+    "delete-debs",
+    "terminate-target",
+    "unregister-target"
+  ],
+  "deadline_seconds": 600
+}

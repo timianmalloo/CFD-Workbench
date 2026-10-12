@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """Recount the architecture spike from source in disposable, task-local caches."""
 
+import contextlib
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
+import time
 
 for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
@@ -39,15 +42,36 @@ def run(command: list[str], *, env: dict[str, str], cwd: Path = ROOT, timeout: i
     return result.stdout
 
 
+@contextlib.contextmanager
+def scratch_directory():
+    """Temp folder removed with a bounded retry; a file still locked afterwards (Windows holds a loaded DLL) is reported, never left silently."""
+    directory = Path(tempfile.mkdtemp(prefix="cfd-architecture-recount-"))
+    try:
+        yield directory
+    finally:
+        for attempt in range(5):
+            try:
+                shutil.rmtree(directory)
+                break
+            except FileNotFoundError:
+                break
+            except OSError as error:
+                if attempt == 4:
+                    raise OSError(f"scratch folder not removed after 5 attempts: {error}") from error
+                time.sleep(1)
+
+
 def main() -> int:
-    with tempfile.TemporaryDirectory(prefix="cfd-architecture-recount-") as directory:
-        scratch = Path(directory)
+    with scratch_directory() as scratch:
         venv = scratch / "venv"
         env = os.environ.copy()
         env["DOTNET_GENERATE_ASPNET_CERTIFICATE"] = "false"
         env["DOTNET_CLI_HOME"] = str(scratch / "dotnet-home")
         env["NUGET_PACKAGES"] = str(scratch / "nuget-packages")
         env["PIP_CACHE_DIR"] = str(scratch / "pip-cache")
+        # Avalonia's build-services collector otherwise outlives the build and holds its DLL in the NuGet cache (Windows: WinError 5 on cleanup).
+        env["AVALONIA_TELEMETRY_OPTOUT"] = "1"
+        env["DOTNET_CLI_TELEMETRY_OPTOUT"] = "1"
         run([sys.executable, "-m", "venv", str(venv)], env=env)
         scripts = venv / ("Scripts" if os.name == "nt" else "bin")
         python = scripts / ("python.exe" if os.name == "nt" else "python")
@@ -55,7 +79,7 @@ def main() -> int:
         output = scratch / "bin"
         obj = scratch / "obj"
         build = run(
-            ["dotnet", "build", str(PROJECT), f"-p:BaseIntermediateOutputPath={obj}{os.sep}", f"-p:OutputPath={output}{os.sep}"],
+            ["dotnet", "build", str(PROJECT), "--disable-build-servers", "-p:UseSharedCompilation=false", f"-p:BaseIntermediateOutputPath={obj}{os.sep}", f"-p:OutputPath={output}{os.sep}"],
             env=env,
         )
         if "Build succeeded." not in build:

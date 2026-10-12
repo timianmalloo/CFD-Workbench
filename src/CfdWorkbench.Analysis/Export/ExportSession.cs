@@ -353,6 +353,13 @@ public sealed class ExportSession
             Refused("EXPORT-TARGET-LINK");
             return new(ExportOutcomeKind.Failed, ExportCopy.WriteFailed("", earlierFile: File.Exists(path)), path, "EXPORT-TARGET-LINK");
         }
+        // DTG: a folder can never be replaced by a file. The rename fails as an IOException on macOS and as an access-denied error on Windows,
+        // which the writer words as a permission cause that is false. Refused here before any write: one code, COPY-507 with no cause, both platforms.
+        if (Directory.Exists(path))
+        {
+            Refused("EXPORT-TARGET-DIRECTORY");
+            return new(ExportOutcomeKind.Failed, ExportCopy.WriteFailed("", earlierFile: false), path, "EXPORT-TARGET-DIRECTORY");
+        }
         // Ruling 204: the earlier-file sentence is true only when a file was at the target name before the write began.
         bool earlierFile = File.Exists(path);
         var clock = Stopwatch.StartNew();

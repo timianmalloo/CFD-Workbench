@@ -1,0 +1,1 @@
+self-test OK: an LF-less text write, a write_text without newline, mkstemp(text=True), an unguarded __main__, a bare os.O_NOFOLLOW and a bare signal.SIGKILL are findings; binary, read-only, guarded, getattr and os.name-branch shapes are not
