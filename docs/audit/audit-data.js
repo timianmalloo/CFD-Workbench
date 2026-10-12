@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T16:38:44Z",
+  "generated": "2026-10-12T16:41:15Z",
   "audit": [
     {
       "actor": null,
@@ -37015,6 +37015,35 @@ window.AUDIT_DATA = {
         "branch": "win/gpu-f1-r217-recovery-integration-review",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M4RFTSA78ZNCGGKAKK1HXHME",
+      "shortname": "join-r217-recovery-integration-review",
+      "datetime": "2026-10-12T16:41:15Z",
+      "session": "pc-f1-r217-recovery-integration-author",
+      "prompt": "the join of win/gpu-f1-r217-recovery-integration-review into win/gpu-f1-r217-recovery-integration",
+      "summary": "Join Astra acceptance of the exact offline R217 recovery integration candidate; cleanup and retry authority remain absent. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-recovery-integration.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Preserve independent acceptance evidence on the integrated recovery packet.",
+      "done_when": "The Astra review is joined, required gates pass, and the branch is pushed without granting live authority.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T16:39:27Z",
+      "duration_seconds": 108.0
     }
   ],
   "changes": [
