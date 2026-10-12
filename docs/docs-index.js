@@ -18236,7 +18236,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6eb52c4a4c132b8c8a00609e22b2a36e9be443490ee2b0abb12d0295d5e8fc87"
+      "sourceSha256": "32f523f74617fad9138963ca281ad5fec1110d049c735d241fc42724328b69da"
     },
     {
       "id": "proof-win-gpu-g1",
@@ -19990,6 +19990,45 @@ window.DOCS_INDEX = {
       "sourceSha256": "49ee76191ddeabe35780838d75fc97637846a0148743c305264d7975c9056f85"
     },
     {
+      "id": "review-windows-gpu-f1-preflight-packet",
+      "path": "docs/reviews/windows-gpu-f1-preflight-packet.md",
+      "title": "Astra packet review - Ruling 217 dependency preflight",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@pc-f1-r217-astra-packet",
+      "phase": "preflight",
+      "reviewBy": "2026-11-12",
+      "reviewSuggested": [],
+      "summary": "VETO on live execution: guard failure can bypass cleanup, owned-process and deadline controls are incomplete, UTC freshness conversion fails, and trust/input/size reconciliation needs repair. Offline self-tests pass but do not cover these failures.",
+      "tags": [
+        "windows",
+        "wsl",
+        "gpu",
+        "ruling-217",
+        "owner-review"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "relates-to"
+        },
+        {
+          "to": "plan-windows-gpu-f1-preflight-r217",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-windows-gpu-f1-preflight-r217",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "73c68ff3296832b9d74a3e3268edaf4f617ccfc6c857cca8bbaaa6c16de064de"
+    },
+    {
       "id": "review-windows-runtime",
       "path": "docs/reviews/windows-runtime.md",
       "title": "Independent Windows qualification review",
@@ -21223,5 +21262,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "5a09140f3625a0a9c3caadc2da065a774e876f3e2ed6e676c083d3938b75c7f0"
+  "graphSha256": "86055bf245288997d341a70872e00ea665ad81bb1ce06d208c84ba7b15e20e1b"
 };
