@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T14:28:43Z",
+  "generated": "2026-10-12T16:13:28Z",
   "audit": [
     {
       "actor": null,
@@ -35916,6 +35916,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-12T14:27:34Z",
       "duration_seconds": 69.0
+    },
+    {
+      "id": "al-01M4RE7X5GG8524BXSMQSY20E8",
+      "shortname": "ghp-github-text",
+      "datetime": "2026-10-12T16:13:28Z",
+      "session": "trk-ghp",
+      "prompt": "GHP",
+      "summary": "post-github-comment.py, scan-github-text.py, fast-ring self-tests, runbook rule, PII-OUTSIDE-THE-TREE class; live scan 152 texts, 0 hits",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "PII guard covers text posted to GitHub",
+      "done_when": "post wrapper and scan tool self-tests green, wired, class registered",
+      "started_at": "2026-10-12T16:08:26Z",
+      "duration_seconds": 302.0
     }
   ],
   "changes": [
