@@ -42,7 +42,7 @@ automatic retry.
 | `wsl.exe --list --quiet` contained only `cfdw-openfoam2512`. | Verified on 2026-10-11 | Any pre-existing target distro is a stop. |
 | WSL 2.7.14 exposes `wsl --install --from-file ... --vhd-size <size>` for a new local-file distribution. | Verified from local `wsl.exe --help`; Microsoft documents `--from-file` custom distribution installation and `defaultVhdSize` as a maximum | The packet uses target-only `--from-file ... --vhd-size 8GB`; it does not use `--manage --resize` or global `wsl --shutdown`. Verify guest capacity before network work and unregister immediately if the ceiling is not 8 GiB. |
 | The B2 rootfs archive remains available at the committed B2 hash and size. | Verified by local inventory; bytes must be re-hashed by the packet | Reuse is allowed only after signed-rootfs verification. |
-| Mac leadership was reclaimed at epoch 3 for this run. | Verified by `coord leader reclaim mac --host claude --ttl 900` | Carry epoch 3 at dispatch and renew it before every join; a changed epoch stops the plan. |
+| Mac leadership is designated at epoch 4 for this run after the same leader's epoch-3 lease expired. | Verified by `coord leader reclaim mac --host claude --ttl 900` and `coord leader who` | The epoch change stopped execution as planned. Carry epoch 4 for the repair and re-review, renew it before every join, and recheck it immediately before live dispatch; another changed epoch stops the plan again. |
 
 The governing source is `.claude/knowledge/execution-graph-optimization.md`; this repository does not expose that
 pack knowledge file as a docs-graph node, so it is cited by path rather than recorded as a dangling typed edge. Prior

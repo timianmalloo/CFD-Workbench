@@ -25,7 +25,7 @@ summary: >-
 | Artifact registry | 8 classified patterns; drivers registered | Derived and register artifacts use their configured mechanisms. |
 | Worktrees | 45 observed; this coordinator has an isolated tree at `origin/main` `3d428734` | Each writing track receives another isolated worktree; no shared index. |
 | Sessions | 7 old sessions observed plus this coordinator | Old F1 sessions have no claims and must be ended; they are not reused as write locations. |
-| Leadership | Mac reclaimed at epoch 3 for this run | Carry epoch 3 in every track contract, renew before each join, and pass `conductor-join.py --epoch 3`; a changed epoch stops the plan. |
+| Leadership | Mac remains leader at epoch 4 after its epoch-3 lease expired and was reclaimed to the same identity | Carry epoch 4 in every remaining track contract, renew before each join, and pass `conductor-join.py --epoch 4`; another changed epoch stops the plan. |
 | Doorbells | Not recorded | GitHub PR comments plus the committed xmsg register are the cross-host path. |
 | Host preflight | 1,844,653,740,032 C: bytes free; only protected distro present | Recheck inside the reviewed live packet; current observation is not a future guarantee. |
 
@@ -100,7 +100,7 @@ width remains one; no machine-time speed-up is claimed.
 
 | # | action | cost | why now |
 |---:|---|---|---|
-| 1 | Repair the Astra plan VETO; reclaim Mac leadership at epoch 3; commit/push the accepted graph/coordination pair. | One docs-only change | Immutable authority and a live fence precede dispatch. |
+| 1 | Repair the Astra plan VETO; reclaim Mac leadership at epoch 3; commit/push the accepted graph/coordination pair. Later, stop on the expired lease and reconcile the same Mac leader at epoch 4 before the packet repair. | One docs-only change plus one authority-seam reconciliation | Immutable authority and a live fence precede each dispatch. |
 | 2 | Create PACKET worktree; Sol authors and self-tests the packet without WSL mutation. | 30 calls / 30 min | Removes live-script uncertainty before authority review. |
 | 3 | Join packet; create Astra review tree; accept or return one repair. | 10 calls / 15 min | Independent hard gate. |
 | 4 | Join accepted packet; create EXECUTE tree; recheck epoch, host space, distro set and script hashes. | Deterministic | Last safe stop before effects. |
@@ -112,6 +112,6 @@ width remains one; no machine-time speed-up is claimed.
 
 | state | item |
 |---|---|
-| Completed | Ruling 217 read; new coordinator worktree created from `origin/main`; coordination layer and host state measured; Astra cleared one plan VETO after repair; Mac leadership reclaimed at epoch 3. |
-| Remaining | Commit/push the accepted plan, packet author/review, one live preflight, result review, gated PR handoff. |
-| Best next action | Commit and push the accepted plan pair, then dispatch PACKET at epoch 3 without WSL mutation. |
+| Completed | Ruling 217 read; coordinator and packet worktrees created; accepted plan and initial packet committed; Astra VETOed the exact packet on six repair classes; Mac remains leader under reconciled epoch 4. No live packet ran. |
+| Remaining | One packet repair and Astra re-review; if accepted, one live preflight, result review, and gated PR handoff. |
+| Best next action | Dispatch the sole packet repair from the joined VETO at epoch 4 without WSL mutation. |

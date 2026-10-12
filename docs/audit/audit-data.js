@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T01:41:10Z",
+  "generated": "2026-10-12T01:42:08Z",
   "audit": [
     {
       "actor": null,
@@ -36029,6 +36029,45 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-12T01:39:32Z",
       "duration_seconds": 98.0
+    },
+    {
+      "id": "al-01M4PWCE612PE8N10NGKVM6NES",
+      "shortname": "f1-r217-epoch4-reconcile",
+      "datetime": "2026-10-12T01:42:07Z",
+      "session": "pc-f1-preflight-r217",
+      "prompt": "Reconcile the same Mac leader after the epoch-3 lease expired during packet review.",
+      "summary": "Stopped the live track, recorded Astra's packet VETO, and updated the plan/coordination surfaces to carry the same Mac leader at epoch 4 before the sole packet repair.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/plans/windows-gpu-f1-preflight-r217.md",
+        "docs/coordination/windows-gpu-f1-preflight-r217.md",
+        "docs/coordination/windows-gpu-f1-preflight-r217.html",
+        "docs/reviews/windows-gpu-f1-preflight-packet.md"
+      ],
+      "tags": [
+        "ruling-217",
+        "epoch-4"
+      ],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Keep Mac leadership authoritative while repairing the Ruling 217 packet.",
+      "done_when": "All remaining contracts carry epoch 4 and live execution stays closed pending Astra acceptance.",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "git": {
+        "sha": "456fb542f276207e2264622430edc40b21c9741f",
+        "short": "456fb542f",
+        "branch": "win/gpu-f1-preflight-r217",
+        "pushed": true
+      }
     }
   ],
   "changes": [
