@@ -324,6 +324,15 @@ function Wait-TargetSettled([int]$CapSeconds) {
 }
 function Assert-FinalAbsence {
     $names = Get-DistroNames
+    if ($freshAttempt) {
+        if (-not $script:CreatedTargetKey) { throw 'MAC-DECISION-REQUIRED: created GUID unbound; final absence unknown' }
+        $rows = @(Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss' | ForEach-Object { Get-ItemProperty -LiteralPath $_.PSPath })
+        Assert-FreshRegistrations $rows $names (Test-Path -LiteralPath $TargetPath)
+        if (@($rows | Where-Object { $_.PSChildName -ieq $script:CreatedTargetKey }).Count -ne 0) {
+            throw 'created target GUID survives under a name/path alias'
+        }
+        return
+    }
     if (@($names | Where-Object { $_ -ceq $Target }).Count -ne 0 -or
         @(Get-TargetRegistration).Count -ne 0 -or (Test-Path -LiteralPath $TargetPath)) {
         throw 'target distro, registration or path remains after cleanup'
