@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T15:58:33Z",
+  "generated": "2026-10-12T16:13:26Z",
   "audit": [
     {
       "actor": null,
@@ -36640,6 +36640,68 @@ window.AUDIT_DATA = {
         "branch": "win/gpu-f1-r217-cleanup-recovery",
         "pushed": true
       }
+    },
+    {
+      "id": "al-01M4RE465S2RJHRBFQ6EY4E5B9",
+      "shortname": "Fresh independent review cycle 1. Exact candidate be56d099e6190017d245b0…",
+      "datetime": "2026-10-12T16:11:26Z",
+      "session": "prompt-log",
+      "prompt": "Fresh independent review cycle 1. Exact candidate be56d099e6190017d245b0ede4afbdee2b121ffc. Worktree C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-cleanup-recovery-review-cycle1, branch win/gpu-f1-r217-cleanup-recovery-review-cycle1, session pc-f1-r217-cleanup-recovery-astra-cycle1. No WSL/live/evidence mutation. Reproduce prior VETO reds against f5fa973a/02ec baseline, then adversarially verify fixes in exact candidate: no child/Popen after deadline including guard/final binding; admitted target GUID/name/path cannot survive renamed/moved and repeated stable observations close registry/cache races; initiating deletion error plus all final ownership/absence/publication errors retained deterministically and redacted in public evidence; atomic host/Linux intent+ack precede every launch; deadline-incomplete binding fails closed; delete-debs uses pinned no-follow handles, stable ancestry/mount/file identity, relative unlink; only delete-debs case and scope selftest changed in preflight.sh, with bytes outside case identical to 02ec; no broader stage authority; original 75/93 capture trees and historical VETO unchanged; integration seam with accepted packet branch 65456e1c explicit. Re-run 35 tests, packet/PS/Bash/authority/transaction/manifest/guard, docs/graph/privacy/safe gates. Write a new follow-up review artifact preserving the historical VETO, ACCEPT/VETO exact candidate, audit, derive, commit/push, report SHA. Do not authorize or perform recovery/retry.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4RE46CXA2KDVV0K8EET923C",
+      "shortname": "f1-cleanup-recovery-cycle1-astra",
+      "datetime": "2026-10-12T16:11:26Z",
+      "session": "pc-f1-r217-cleanup-recovery-astra-cycle1",
+      "prompt": "Fresh independent review cycle 1 of exact candidate be56d099e6190017d245b0ede4afbdee2b121ffc; reproduce historical VETO cases, review all named safety boundaries, rerun offline checks, preserve history and publish a new independent verdict. Verbatim delegation is in the adjacent prompt entry.",
+      "summary": "ACCEPT exact candidate as scoped offline cleanup-source repair; no live/integration acceptance or authority. CR-1/2/3 reproduced red on both 02ec2cc3 and f5fa973a, green on be56d099. 35 tests pass (0.978s), packet (0.470s), Windows PowerShell (0.260s), PowerShell7 (0.204s), Git Bash syntax, authority/transaction/manifest/guard pass. Independent full cache function probe verifies no-follow directory opens, relative unlink and changed-mount refusal using mocked syscalls. Original 75/93 bytes and historical VETO unchanged; both manifests bind exact candidate. Non-deletion prefix/suffix equal 02ec. 10 safe gates and proof-PII pass; graph 537 artifacts zero defects/drift with 131 prior suggestions. Repeated observations do not close concurrent registry/file-entry races; pinned directory contains ancestor redirection but not compare-and-unlink. Host PID ack follows launch and is synchronous, not atomic replacement. Linux intent/entry ordered; live teardown, mutation, runtime and deadline-incomplete cleanup remain unverified. Accepted packet 65456e1c integration needs separate exact-byte review. No source/test change, repair loop, WSL/live effect or extra agent. Six planned/actual review nodes; final documentation gate follows.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-cleanup-recovery-cycle1.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Independently review cycle-1 exact cleanup-recovery source and preserve the historical VETO.",
+      "done_when": "Publish a decisive follow-up with reproduced baseline reds, current candidate evidence, limits and all offline checks.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-10-12T16:03:07Z",
+      "duration_seconds": 499.0,
+      "git": {
+        "sha": "be56d099e6190017d245b0ede4afbdee2b121ffc",
+        "short": "be56d099e",
+        "branch": "win/gpu-f1-r217-cleanup-recovery-review-cycle1",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M4RE7VWNTSGESVYTGQ22Q132",
+      "shortname": "f1-cleanup-cycle1-review-checks",
+      "datetime": "2026-10-12T16:13:26Z",
+      "session": "pc-f1-r217-cleanup-recovery-astra-cycle1",
+      "prompt": "Complete the required final documentation check for the independent cycle-1 review.",
+      "summary": "Final tools/check-docs.py passed, including 1023 readable audit entries and 35 change entries. Graph validation: 537 artifacts, zero defects/index drift, 131 existing advisory suggestions. Diff formatting clean. Review ACCEPT remains limited to exact offline source be56d099; no live or integration authority.",
+      "kind": "command",
+      "skill": null,
+      "tool": "tools/check-docs.py",
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-cleanup-recovery-cycle1.md"
+      ],
+      "tags": [],
+      "outcome": "success"
     }
   ],
   "changes": [
