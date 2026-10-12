@@ -21,8 +21,9 @@ summary: >-
 
 # OpenFOAM GPU work status through Ruling 224
 
-**Snapshot:** 2026-10-12, Windows coordinator branch `win/gpu-f1-preflight-r217`. Mac remains repository leader at
-epoch 6. Windows owns the reviewed dependency-only preflight and its evidence.
+**Snapshot:** 2026-10-12, Windows coordinator branch `win/gpu-f1-preflight-r217`. Mac remains the designated repository
+leader, but epoch 6 has expired and must be reclaimed at a new epoch before any live action. Windows owns the reviewed
+dependency-only preflight and its evidence.
 
 ## Current result
 
@@ -137,8 +138,8 @@ flowchart LR
 - R223 was consumed exactly once. Its actions removed the failed target; it conveys no retry authority and must not run again.
 - R224 was consumed exactly once. Its read-only receipt is pushed at `0356651c`; it conveys no cleanup, retry, or build authority.
 - The exact `TORN-PAIR-READ` repair is accepted at `5c1b727f`; its review is joined at `924a5b97`.
-- The immediate blocker is the next hash-bound Mac ruling, which must bind the accepted repair and the operator's retry
-  authorization before the live preflight can run again.
+- The immediate blockers are Mac reclaiming the expired leader designation and the next hash-bound ruling. The ruling
+  must bind the new live epoch, accepted repair, and operator retry authorization before the preflight can run again.
 - Exact Windows readiness failures requested by Mac are posted on PR #33.
 - The full repository readiness receipt remains RED on Windows due to a POSIX-only architecture-spike path, a
   temporary-file access failure, one desktop theme test, and the 240-second budget. These are recorded separately from
@@ -147,8 +148,8 @@ flowchart LR
 ## Confidence and limits
 
 **Verified:** repository receipts, hashes, signatures, gates, reviews, and retained live evidence establish every
-completed-stage and incident claim above. **Blocked:** no future F1 live step may run until Mac commits the next exact
-ruling. **Residual risk:** separately published guard files retain a bounded visibility window, and the repaired reader
+completed-stage and incident claim above. **Blocked:** no future F1 live step may run until Mac reclaims leadership and
+commits the next exact ruling at that live epoch. **Residual risk:** separately published guard files retain a bounded visibility window, and the repaired reader
 has not yet been exercised live. **Not recorded:** complete F1 package
 closure, PETSc/petsc4Foam build success, OpenFOAM GPU solver use, numerical equivalence, and speed-up.
 

@@ -844,6 +844,10 @@ showing the expected holder, live state and epoch before every conductor
 mutation; preserve that readback. After the quiet period, the
 supported `leader reclaim` established epoch 11 before shared work resumed.
 An expired designation is never silently renewed or treated as a clean join.
+Recurrence during the R224 Windows handoff: epoch 6 expired while the accepted
+guard repair awaited the Mac's next ruling. Renewal refused, no live action ran,
+and the status dashboard and GitHub handoff were corrected to require Mac to
+reclaim leadership and bind the new live epoch before a preflight retry.
 Recurrence during the Part1/M1 decision join: epoch 14 expired while the
 Coordinator waited for shared documentation leases. Renewal refused; the
 supported quiet-period reclaim established epoch 15. No join or mutation ran

@@ -54,7 +54,7 @@
     <div class="metric"><span class="label">R220 packet</span><b class="ok">Astra ACCEPT</b><span>15 exact files · P1/P3 cleared</span></div>
     <div class="metric"><span class="label">Run contract</span><b class="ok">Astra ACCEPT</b><span>Joined 6445bb6e · verify passed</span></div>
     <div class="metric"><span class="label">R224 rollback</span><b class="ok">Proved</b><span>Protected hash exact · target absent</span></div>
-    <div class="metric"><span class="label">Current gate</span><b class="stop">Mac authority</b><span>Hash-bound preflight retry</span></div>
+    <div class="metric"><span class="label">Current gate</span><b class="stop">Leader reclaim</b><span>Then hash-bound retry ruling</span></div>
   </section>
 
   <h2>Delivery path</h2>
@@ -108,10 +108,10 @@
   <p>The packet repair was accepted at <code>65456e1c</code>. The cleanup recovery was independently accepted and integrated at <code>5b1a9bb4</code>, with its review joined at <code>db2826a6</code>. R223 then ran once: cache deletion, owned stop, exact-target termination, and unregister completed, but the formal receipt failed closed when the guard reader observed event N+1 with state N during publication. R224 authorized one read-only verification. It passed at <code>0356651c</code>: the protected L3 hash matched exactly, and the failed target registration and path remained absent. Neither cleanup nor preflight was rerun.</p>
 
   <h2>Coordination</h2>
-  <p>Mac remains repository leader at epoch 6. R223 and R224 are consumed and must not run again. The <code>TORN-PAIR-READ</code> repair is accepted at <code>5c1b727f</code>; Astra's review <code>f3094512</code> is joined and pushed at <code>924a5b97</code>. Mac must now bind that exact repair and the operator's retry authorization in the next numbered ruling. No install, build, or CFD run is yet authorized.</p>
+  <p>Mac remains the designated repository leader, but epoch 6 has expired and cannot be renewed. Mac must reclaim leadership at a new epoch. R223 and R224 are consumed and must not run again. The <code>TORN-PAIR-READ</code> repair is accepted at <code>5c1b727f</code>; Astra's review <code>f3094512</code> is joined and pushed at <code>924a5b97</code>. Mac must bind the new live epoch, that exact repair, and the operator's retry authorization in the next numbered ruling. No install, build, or CFD run is yet authorized.</p>
 
   <footer>
-    <strong>Confidence:</strong> completed-stage, incident, cleanup, rollback, and guard-repair claims are Verified from committed receipts, retained evidence, hashes, gates, and independent reviews. The next F1 live step is Blocked on a new Mac ruling. The repaired reader has not yet been exercised live. Complete dependency closure, build, solver offload, accuracy, and speed are Not recorded.<br>
+    <strong>Confidence:</strong> completed-stage, incident, cleanup, rollback, and guard-repair claims are Verified from committed receipts, retained evidence, hashes, gates, and independent reviews. The next F1 live step is Blocked on Mac reclaiming leadership and issuing a new ruling at that epoch. The repaired reader has not yet been exercised live. Complete dependency closure, build, solver offload, accuracy, and speed are Not recorded.<br>
     Canonical source: <a href="openfoam-gpu-status-r220.md">openfoam-gpu-status-r220.md</a>
   </footer>
 </main>

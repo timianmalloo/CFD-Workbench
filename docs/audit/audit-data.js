@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T17:43:22Z",
+  "generated": "2026-10-12T17:56:01Z",
   "audit": [
     {
       "actor": null,
@@ -37449,6 +37449,39 @@ window.AUDIT_DATA = {
       "tags": [],
       "tier": "T1",
       "tool": null
+    },
+    {
+      "id": "al-01M4RM3P2JYNYCG3DRS655WB10",
+      "shortname": "f1-leader-expiry",
+      "datetime": "2026-10-12T17:56:01Z",
+      "session": "pc-f1-r217-coordinator",
+      "prompt": "Verify the live leader before handing off the next OpenFOAM GPU preflight retry.",
+      "summary": "Detected expired Mac epoch 6; renewal refused. Corrected dashboard and GitHub handoff to require a new Mac reclaim and new-epoch ruling before live retry. No live action ran.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": "codex",
+      "artifacts": [
+        "docs/coordination/openfoam-gpu-status-r220.md",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Prevent the next preflight ruling from binding a stale coordination epoch.",
+      "done_when": "Dashboard, defect register, PR body, PR correction comment, and coordination mail all require a newly reclaimed live Mac epoch.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "git": {
+        "sha": "74bddcd9eba96826844303514293d9044a4c8e20",
+        "short": "74bddcd9e",
+        "branch": "win/gpu-f1-preflight-r217",
+        "pushed": true
+      }
     }
   ],
   "changes": [
