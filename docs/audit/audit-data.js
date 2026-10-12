@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T16:36:03Z",
+  "generated": "2026-10-12T16:38:26Z",
   "audit": [
     {
       "actor": null,
@@ -36026,6 +36026,31 @@ window.AUDIT_DATA = {
       "done_when": "env-gated diagnostic, byte-identical off, Mac 1.5 reference committed",
       "started_at": "2026-10-12T16:31:48Z",
       "duration_seconds": 255.0
+    },
+    {
+      "id": "al-01M4RFNMPPC30EF3RFT9PY404Y",
+      "shortname": "join-dgs",
+      "datetime": "2026-10-12T16:38:26Z",
+      "session": "3122f106",
+      "prompt": "the join of diag/dgs-scroll into main",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T16:37:14Z",
+      "duration_seconds": 72.0
     }
   ],
   "changes": [
