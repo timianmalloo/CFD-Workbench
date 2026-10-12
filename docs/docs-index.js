@@ -5466,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4a44b1226eff3646c471ee22724a8f41ad4c32623638dfe1dcddf0a7ea5951e5"
+      "sourceSha256": "310719456a37421d01133299a3c3356256f99dc6aad164df864944c75cadbdac"
     },
     {
       "id": "domain-experts",
@@ -14291,6 +14291,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "c84b30ba24f3e8d7a8e953629f62f14633250e377f8aa0f0aea580b2b1fe6dad"
     },
     {
+      "id": "proof-ghp-red-first",
+      "path": "docs/proof/ghp/red-first.md",
+      "title": "GHP red-first - the PII guard covers text posted to GitHub",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-ghp",
+      "phase": "",
+      "reviewBy": "2026-11-12",
+      "reviewSuggested": [],
+      "summary": "A comment body with a Windows user path, a SID or an own-host name is refused by the posting wrapper and flagged by the GitHub-text scan; both self-tests are red with the scanner disabled and green with it.",
+      "tags": [
+        "ghp",
+        "pii",
+        "github",
+        "proof-pii-outside-the-tree"
+      ],
+      "links": [
+        {
+          "to": "proof-application-core",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d3afd61c2edf17824c37ec14b7bc63eb6ab6bf1fef24302e06468cddcb9900ce"
+    },
+    {
       "id": "proof-grp-desktop-red-first",
       "path": "docs/proof/grp-desktop/red-first.md",
       "title": "Track GRP half 2 (Desktop): planted mutants, observed red then green",
@@ -21147,5 +21173,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "5ae7afd982d0283be80dc68cd3ce9f07fd1fb1263b9fc1f08cb2bef9ab68cb6e"
+  "graphSha256": "204ddaa751944350ad873f3d761be1036fba4b4ae5360e49767ea1aae59eaf1a"
 };
