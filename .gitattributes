@@ -34,3 +34,7 @@ docs/proof/wri-r184-result/source-snapshots/1477951f/*.ps1 -text
 docs/proof/wri-r184-result/source-snapshots/1477951f/*.py -text
 docs/proof/wri-r184-result/source-snapshots/36ccfa49/*.ps1 -text
 docs/proof/wri-r184-result/source-snapshots/cfd947c3/* -text
+# Retained failed-run and recovery evidence must stay byte-identical to producer output.
+docs/proof/win-gpu-f1-preflight/run-1/checkpoint/** -text whitespace=-trailing-space,-blank-at-eof
+docs/proof/win-gpu-f1-preflight/run-1/failed-live/** -text whitespace=-trailing-space,-blank-at-eof
+docs/proof/win-gpu-f1-preflight/recovery-1/final/** -text whitespace=-trailing-space,-blank-at-eof

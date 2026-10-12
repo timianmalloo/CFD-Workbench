@@ -1,0 +1,212 @@
+{
+  "schema": "cfdw-f1-offline-integration-proof/1",
+  "parents": [
+    "02485495951fbd04ea07a2e8bc276b0df4ab93cd",
+    "65456e1cc858ff62b87c7a8d7030a6e83715b354"
+  ],
+  "merge_base": "6445bb6e1c6b9f27969724c711cc2ff322f01867",
+  "packet": [
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/packet/Control.ps1",
+      "bytes": 3916,
+      "sha256": "7c754a3c2f7434e2db98307ff65544de03bfabcc3d86d3da905482d7e0bd4eb9",
+      "expected_from": "65456e1cc858ff62b87c7a8d7030a6e83715b354"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/packet/Invoke-Preflight.ps1",
+      "bytes": 32570,
+      "sha256": "9250b151e40359dd96aefa2a737aae68b0ae7158a8d06aaf47b8a2c5c1f81dc1",
+      "expected_from": "65456e1cc858ff62b87c7a8d7030a6e83715b354"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/packet/README.md",
+      "bytes": 23829,
+      "sha256": "40b8547429b0a6921da44d7d8453db02ac89fb917c22d0150bf2555609ed44ad",
+      "expected_from": "65456e1cc858ff62b87c7a8d7030a6e83715b354"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/packet/SelfTest.ps1",
+      "bytes": 10539,
+      "sha256": "e8fc9eac8788e3a16826503b954cf8c7efbb16920f48af086739aa117c8d19e9",
+      "expected_from": "65456e1cc858ff62b87c7a8d7030a6e83715b354"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/packet/authority_scan.py",
+      "bytes": 3723,
+      "sha256": "d21f97d90022bc36e3234bf3915c4b0616dfed439fa3cb2fac5977ae57ae206b",
+      "expected_from": "65456e1cc858ff62b87c7a8d7030a6e83715b354"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/packet/completed_guard.py",
+      "bytes": 16076,
+      "sha256": "94008d3028591bbca2b7573967023732bd94de074d9b9076d0125ae7506b863a",
+      "expected_from": "65456e1cc858ff62b87c7a8d7030a6e83715b354"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/packet/contract.py",
+      "bytes": 10320,
+      "sha256": "d46c78d9f1ebe8fa73b3ee9522a50cfc9acbfd3c3e8eae9744fc61390a9476df",
+      "expected_from": "65456e1cc858ff62b87c7a8d7030a6e83715b354"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/packet/identity.sh",
+      "bytes": 967,
+      "sha256": "ce1a08a5483e321cf6f34ad32e4db0bf7e37bc28dbddee152234cac033e824a2",
+      "expected_from": "65456e1cc858ff62b87c7a8d7030a6e83715b354"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/packet/manifest.py",
+      "bytes": 5764,
+      "sha256": "1c6e8a3f0adb60d28e8767bef8b027bb63bfeb30014834b5dda75adfd9ff094c",
+      "expected_from": "65456e1cc858ff62b87c7a8d7030a6e83715b354"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/packet/owned-control.sh",
+      "bytes": 532,
+      "sha256": "1ac0e7a603dc6ac185ad1c4238c2fa7fa5ade0e45455432d680b328b87246fc3",
+      "expected_from": "65456e1cc858ff62b87c7a8d7030a6e83715b354"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/packet/owned_control.py",
+      "bytes": 9641,
+      "sha256": "e5b22233173f1af89f32c775077e3a565120fcb889ccfb87e7c4eec4e3e0c770",
+      "expected_from": "65456e1cc858ff62b87c7a8d7030a6e83715b354"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/packet/packet_selftest.py",
+      "bytes": 17175,
+      "sha256": "bfc033790943108867ab295142c4aec7d463ebcfd6c48a13387609ed5d0465b8",
+      "expected_from": "exact three-way union of both accepted self-tests"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/packet/preflight.sh",
+      "bytes": 10147,
+      "sha256": "fdd53835dd8f4b7eb1d721214c8ccad90b53f481d2d4eb731208a33c903f078c",
+      "expected_from": "02485495951fbd04ea07a2e8bc276b0df4ab93cd"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/packet/transaction.py",
+      "bytes": 20673,
+      "sha256": "9ba22a65b3f5896331b8e59711ae024738a39fc65ac2d0972deebe097c594ea3",
+      "expected_from": "65456e1cc858ff62b87c7a8d7030a6e83715b354"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/packet/verify-rootfs.sh",
+      "bytes": 1061,
+      "sha256": "6dfcc17a6388aefee5938473579541cbe36b2a03169afa9264f8c14bdbd467cd",
+      "expected_from": "65456e1cc858ff62b87c7a8d7030a6e83715b354"
+    }
+  ],
+  "cleanup": [
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/recovery/check_cache.py",
+      "bytes": 5159,
+      "sha256": "067e693b24bca63c06f975c05a5a054526cd228b4e03cb2e0fbf7db9f6d5c8fb"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/recovery/index_retained.py",
+      "bytes": 1313,
+      "sha256": "42302144d2c89622633220f71cc3caec3c98aabd2f8316bba6aa080954148a55"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/recovery/recover.py",
+      "bytes": 39219,
+      "sha256": "378e27e9d7ca5d945fed64ff5ae52f7677c8c58ee1b4da4fec96b82ae5b77b8a"
+    },
+    {
+      "path": "tests/test_f1_cleanup_recovery.py",
+      "bytes": 24943,
+      "sha256": "484042c5fa1cd7375054f6d01781fecad7e56bef2601ac7fcc8b543265bcfe16"
+    }
+  ],
+  "retained": [
+    {
+      "folder": "docs/proof/win-gpu-f1-preflight/run-1/checkpoint/",
+      "payloads": 75,
+      "total_files": 76,
+      "tree": "0e1054281495e3677b1948b1a9bc5ab15a0e9bb0",
+      "manifest_sha256": "76ab6e220a21c10c694a7eecd9d00679d1a0a42b3444598dae2682ac627f0bea"
+    },
+    {
+      "folder": "docs/proof/win-gpu-f1-preflight/run-1/failed-live/",
+      "payloads": 93,
+      "total_files": 94,
+      "tree": "b08d17f2eeced7e2291bf2fb262d8b44cddf441b",
+      "manifest_sha256": "56470fa05eaeca14327ce1e63a4f76f3127b2dcbbe3a94d093684037197f8e93"
+    }
+  ],
+  "historical": [
+    {
+      "path": "docs/reviews/windows-gpu-f1-cleanup-recovery.md",
+      "bytes": 12372,
+      "sha256": "2be0ba9c514056cac232126c8cb4f13fa57f618623414f81ef8ec94efea0214b",
+      "expected_from": "02485495951fbd04ea07a2e8bc276b0df4ab93cd"
+    },
+    {
+      "path": "docs/reviews/windows-gpu-f1-cleanup-recovery-cycle1.md",
+      "bytes": 13090,
+      "sha256": "3d8837ef6dbea2e1dc400a14ee8f7bc4e2ad84cec0dbf830de9a198d0514d995",
+      "expected_from": "02485495951fbd04ea07a2e8bc276b0df4ab93cd"
+    },
+    {
+      "path": "docs/reviews/windows-gpu-f1-cleanup-recovery-cycle1-author.md",
+      "bytes": 11059,
+      "sha256": "435cb824a0c8a747211580c02fa5414f63f1a424116255028ede141aec1e2696",
+      "expected_from": "02485495951fbd04ea07a2e8bc276b0df4ab93cd"
+    },
+    {
+      "path": "docs/reviews/windows-gpu-f1-live-defect-repair.md",
+      "bytes": 10937,
+      "sha256": "82245efc6c18677070ebd4a3be26539613074adc0339a7428dda61086b8f43c7",
+      "expected_from": "65456e1cc858ff62b87c7a8d7030a6e83715b354"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/run-1/invocation-contract.json",
+      "bytes": 4420,
+      "sha256": "f109d4f253f436d8b178e40ea5af497316faf36b0c4398c8a598abc52748336c",
+      "expected_from": "02485495951fbd04ea07a2e8bc276b0df4ab93cd"
+    },
+    {
+      "path": "docs/notes/rulings.md",
+      "bytes": 441438,
+      "sha256": "caee19d5a174762e2709db9fc66e07b1581394baff493cf2f7a278681fd6ccfa",
+      "expected_from": "02485495951fbd04ea07a2e8bc276b0df4ab93cd"
+    },
+    {
+      "path": "docs/reviews/windows-gpu-f1-astra-r2.md",
+      "bytes": 6266,
+      "sha256": "43cfccc5ac02084416e899e70bd8b8e8963983b1817a715e6f9e6530905055e2",
+      "expected_from": "65456e1cc858ff62b87c7a8d7030a6e83715b354"
+    },
+    {
+      "path": "docs/reviews/windows-gpu-f1-astra.md",
+      "bytes": 9952,
+      "sha256": "49ee76191ddeabe35780838d75fc97637846a0148743c305264d7975c9056f85",
+      "expected_from": "65456e1cc858ff62b87c7a8d7030a6e83715b354"
+    },
+    {
+      "path": "docs/reviews/windows-gpu-f1-environment-contract-r220.md",
+      "bytes": 8805,
+      "sha256": "b9ef786a9f9c5db11c5ccae372070ca49ffe084c5130c4b60f65067a1c14ce14",
+      "expected_from": "65456e1cc858ff62b87c7a8d7030a6e83715b354"
+    },
+    {
+      "path": "docs/reviews/windows-gpu-f1-preflight-packet.md",
+      "bytes": 33226,
+      "sha256": "570bc22be2d54255f51836f85b2307163e1a6fd198dd1c9e92225e6475af28b1",
+      "expected_from": "65456e1cc858ff62b87c7a8d7030a6e83715b354"
+    }
+  ],
+  "audit_parent_entries_preserved": true,
+  "defect_register_helper_union": true,
+  "unique_parent_register_entries": 212,
+  "candidate_merge_helper_blob": "caa877ce432571df602f3a84a2ddcd6dd9983d1b",
+  "authorization_files": [],
+  "refused_authorization": [
+    "missing",
+    "stale_ruling",
+    "broadened_actions"
+  ],
+  "recovery_execution": false,
+  "wsl_invocation": false
+}

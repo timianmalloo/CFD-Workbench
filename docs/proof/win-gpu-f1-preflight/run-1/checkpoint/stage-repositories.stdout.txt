@@ -1,0 +1,9 @@
+KEYRING-PASS kind=ubuntu_archive keys=3
+KEYRING-PASS kind=openfoam keys=1
+KEYRING-PASS kind=nvidia keys=1
+SIGNER-PASS kind=ubuntu_archive
+SIGNER-PASS kind=ubuntu_archive
+SIGNER-PASS kind=nvidia
+SIGNER-PASS kind=openfoam
+SIGNER-PASS kind=ubuntu_archive
+STAGE-PASS stage=repositories

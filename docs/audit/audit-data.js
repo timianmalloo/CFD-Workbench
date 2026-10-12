@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T16:46:00Z",
+  "generated": "2026-10-12T17:20:53Z",
   "audit": [
     {
       "actor": null,
@@ -35830,6 +35830,1224 @@ window.AUDIT_DATA = {
     {
       "actor": null,
       "artifacts": [],
+      "datetime": "2026-10-12T00:58:40Z",
+      "id": "al-01M4PSWVKCW4GPDZW6ECKJBNY2",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "keep going",
+      "session": "prompt-log",
+      "shortname": "keep going",
+      "skill": null,
+      "summary": "prompt logged for reuse",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/plans/windows-gpu-f1-preflight-r217.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T00:59:19Z",
+      "done_when": "Astra accepts the graph and every live effect, verification floor, loop bound, cleanup condition and Mac handoff is dispatchable.",
+      "duration_seconds": 505.0,
+      "fan_out": 1,
+      "goal": "Produce the smallest rigorous execution graph for the Ruling 217 dependency preflight.",
+      "id": "al-01M4PSY2AR9816VBYF32DT9ZJD",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Execute the newly authorized Ruling 217 Windows F1 dependency preflight and continue coordination with Mac.",
+      "session": "pc-f1-preflight-r217",
+      "shortname": "optimize-graph-windows-gpu-f1-preflight-r217",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "optimize-graph",
+      "started_at": "2026-10-12T00:50:54Z",
+      "summary": "Reduced a naive 12-node serial flow to 8 bounded nodes at width 1; retained packet and result independent vetoes, signed-source, zero-removal, CPU/nice, continuous L3 guard, VHD/host capacity, pre-cleanup commit, unregister, manifest, gate and audit floors; bounded packet repair at two reviews and live execution at one attempt/60 minutes.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/windows-gpu-f1-preflight-r217.md",
+        "docs/coordination/windows-gpu-f1-preflight-r217.html"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T00:59:21Z",
+      "done_when": "The md/html plan pair is accepted, derived, audited and ready to commit before packet dispatch.",
+      "duration_seconds": 43.0,
+      "fan_out": 1,
+      "goal": "Prepare the immutable ownership and join contract for the Ruling 217 preflight.",
+      "id": "al-01M4PSY3P5MD5S0JQYSMJVS0KF",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Execute Ruling 217 through prepare-for-coordination and execute-with-coordination, with Astra as independent owner and Mac as leader.",
+      "session": "pc-f1-preflight-r217",
+      "shortname": "coordination-windows-gpu-f1-preflight-r217",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "prepare-for-coordination",
+      "started_at": "2026-10-12T00:58:38Z",
+      "summary": "Selected a serial Sol packet author, reviewed deterministic executor and two independent Astra gates; struck split transaction/licence/capacity and build tracks; Astra accepted the repaired plan after one VETO; Mac leadership reclaimed at epoch 3.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": "codex-sol",
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/packet/README.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T01:26:36Z",
+      "done_when": "Committed packet implements exact target isolation, 3600-second deadline, guarded lifecycle, signed-index simulation and download-only inspection, pre-cleanup commit, rollback and self-tests",
+      "duration_seconds": 1438.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "win/gpu-f1-r217-packet",
+        "pushed": null,
+        "sha": "f0202cf82479e9588dbc13f051d0c15dba222ca8",
+        "short": "f0202cf82"
+      },
+      "goal": "Produce one reviewable, fail-closed Ruling 217 execution packet in the PACKET worktree",
+      "id": "al-01M4PVG0HQPXQDQEAG8916J530",
+      "kind": "skill",
+      "main_budget": 30,
+      "main_calls": 29,
+      "main_over_budget": false,
+      "outcome": "success",
+      "prompt": "Author one self-testing Ruling 217 dependency preflight packet without live WSL or package actions",
+      "session": "pc-f1-r217-packet",
+      "shortname": "f1-r217-packet",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T01:02:38Z",
+      "summary": "Authored host wrapper, Linux stage and ownership helpers, completed-L3 guard, signed-rootfs and repository checks, transaction/archive inspector, manifest-bound pre-cleanup and final commits, authority planted-negative scan, and README. Focused self-tests, syntax checks, docs graph, check-docs and diff checks passed. No live WSL mutation, apt, download, install, build or case run.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/packet"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T01:29:24Z",
+      "done_when": "Packet commit is joined, docs gates pass, and no live WSL mutation has occurred.",
+      "duration_seconds": 100.0,
+      "fan_out": 0,
+      "goal": "Provide exact reviewable execution bytes for independent Astra acceptance.",
+      "id": "al-01M4PVN586T8BXCJ6VP78TXB9J",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of win/gpu-f1-r217-packet into win/gpu-f1-preflight-r217",
+      "session": "pc-f1-preflight-r217",
+      "shortname": "f1-r217-packet-join",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T01:27:44Z",
+      "summary": "Join the frozen, unexecuted Ruling 217 F1 dependency-preflight packet after coordinator boundary review. recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": "pc-f1-r217-astra-packet",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-preflight-packet.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T01:39:00Z",
+      "done_when": "Commit ACCEPT or VETO with exact evidence, test results and unchanged packet bytes; release claim.",
+      "duration_seconds": 606.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "win/gpu-f1-r217-astra-packet",
+        "pushed": null,
+        "sha": "5451931fbf5568f62781b22847b57bee86d38256",
+        "short": "5451931fb"
+      },
+      "goal": "Adversarially determine whether the frozen R217 packet may execute.",
+      "id": "al-01M4PW6Q80VCF3HHGPJ3MVRE96",
+      "kind": "skill",
+      "main_budget": 30,
+      "main_calls": 18,
+      "main_over_budget": false,
+      "outcome": "success",
+      "prompt": "Independently review exact Ruling 217 packet at 5451931fbf5568f62781b22847b57bee86d38256 against accepted plans: target/protected identities, rootfs/signing trust, host and VHD bounds, continuous guard, CPU/nice/process ownership, whole-step deadline and reserve, signed dependency transaction and archive reconciliation, checkpoint-before-cleanup, manifests and command exclusions. Only offline tests/gates; no packet edits, WSL, apt, downloads, installs, builds or cases. Own only the packet review plus required index/audit. One repair cycle, 30 calls/30 minutes, Mac epoch 4.",
+      "session": "pc-f1-r217-astra-packet",
+      "shortname": "r217-packet-astra-veto",
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T01:28:54Z",
+      "summary": "VETO in six grouped findings: guard/checkpoint failure skips cleanup, shared deadlines lose cleanup reserve, incomplete residual/partial-creation control, UTC-Z JSON coercion reproduces -25199s freshness, accepted input/signing/epoch contract unresolved, and Installed-Size 1 vs 99 mock passes. Supplied authority/transaction/manifest/guard self-tests, PowerShell parse, WSL-inline, docs-graph zero-defect validation, full check-docs and git diff --check passed. Packet diff from exact base is empty. One initial Python launcher flag-order error was corrected before the mock test ran. No live or prohibited actions.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-preflight-packet.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T01:41:10Z",
+      "done_when": "VETO review is joined, docs gates pass, and the packet remains unexecuted.",
+      "duration_seconds": 98.0,
+      "fan_out": 0,
+      "goal": "Bind the independent review to the repair base and keep live execution closed.",
+      "id": "al-01M4PWAPHJHSHET34XZK4NA7V1",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of win/gpu-f1-r217-astra-packet into win/gpu-f1-preflight-r217",
+      "session": "pc-f1-preflight-r217",
+      "shortname": "f1-r217-packet-veto-join",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T01:39:32Z",
+      "summary": "Join Astra's exact-byte VETO and preserve its six repair classes before the sole repair cycle. recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/plans/windows-gpu-f1-preflight-r217.md",
+        "docs/coordination/windows-gpu-f1-preflight-r217.md",
+        "docs/coordination/windows-gpu-f1-preflight-r217.html",
+        "docs/reviews/windows-gpu-f1-preflight-packet.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T01:42:07Z",
+      "done_when": "All remaining contracts carry epoch 4 and live execution stays closed pending Astra acceptance.",
+      "fan_out": 1,
+      "git": {
+        "branch": "win/gpu-f1-preflight-r217",
+        "pushed": true,
+        "sha": "456fb542f276207e2264622430edc40b21c9741f",
+        "short": "456fb542f"
+      },
+      "goal": "Keep Mac leadership authoritative while repairing the Ruling 217 packet.",
+      "id": "al-01M4PWCE612PE8N10NGKVM6NES",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Reconcile the same Mac leader after the epoch-3 lease expired during packet review.",
+      "session": "pc-f1-preflight-r217",
+      "shortname": "f1-r217-epoch4-reconcile",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "summary": "Stopped the live track, recorded Astra's packet VETO, and updated the plan/coordination surfaces to carry the same Mac leader at epoch 4 before the sole packet repair.",
+      "tags": [
+        "ruling-217",
+        "epoch-4"
+      ],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/plans/windows-gpu-f1-preflight-r217.md",
+        "docs/coordination/windows-gpu-f1-preflight-r217.md",
+        "docs/coordination/windows-gpu-f1-preflight-r217.html"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T02:12:13Z",
+      "done_when": "Packet source is epoch-agnostic, while every join and reviewed invocation contract requires the current live Mac epoch.",
+      "fan_out": 1,
+      "git": {
+        "branch": "win/gpu-f1-preflight-r217",
+        "pushed": true,
+        "sha": "a50d6244379852381b5109666861d38a31c985b2",
+        "short": "a50d62443"
+      },
+      "goal": "Preserve a fail-closed Mac leader fence across bounded work lasting longer than one lease.",
+      "id": "al-01M4PY3HQ6ZV77GSQJ470PP61Y",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Keep the same Mac leader authoritative across short lease expiry without hardcoding the epoch into packet source.",
+      "session": "pc-f1-preflight-r217",
+      "shortname": "f1-r217-live-epoch-contract",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "summary": "Stopped on epoch-4 expiry, reclaimed the same Mac leader at epoch 5, and changed coordinator contracts so each join/live dispatch binds the separately reviewed environment contract to the then-live epoch.",
+      "tags": [
+        "ruling-217",
+        "leader-fence"
+      ],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/packet/README.md",
+        "docs/lessons/defect-classes.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T02:08:41Z",
+      "done_when": "Packet, defect-class controls, safe offline tests and documentation gates are green and committed for independent review.",
+      "duration_seconds": 1429.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "win/gpu-f1-r217-packet-repair",
+        "pushed": null,
+        "sha": "a50d6244379852381b5109666861d38a31c985b2",
+        "short": "a50d62443"
+      },
+      "goal": "Clear Astra P1-P6 VETO in the sole R217 PACKET repair cycle without live WSL, apt, downloads, builds, or cases.",
+      "id": "al-01M4PXX2EP19G9WZ8XAW0W3TYA",
+      "kind": "skill",
+      "main_budget": 45,
+      "main_calls": 39,
+      "main_over_budget": false,
+      "outcome": "success",
+      "prompt": "SOLE PACKET REPAIR after Astra VETO: repair P1-P6 in R217 packet with red-first offline tests, class controls, contract, ownership, deadlines, signer verification, Installed-Size/capacity; no live WSL or apt; validate, audit, commit.",
+      "session": "pc-f1-r217-packet-repair",
+      "shortname": "r217-packet-repair",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T01:44:52Z",
+      "summary": "Repaired R217 packet P1-P6 with bounded independent finalization, exact ownership, committed invocation contract and signer checks, capacity reconciliation, and planted offline failures; no live execution.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/packet/contract.py"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T02:11:02Z",
+      "done_when": "Contract, wrapper evidence, README and planted tests agree, offline checks pass, and a follow-up commit is made.",
+      "duration_seconds": 53.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "win/gpu-f1-r217-packet-repair",
+        "pushed": null,
+        "sha": "244887c7cfbb21dd3410edf9e19c76edefdcd333",
+        "short": "244887c7c"
+      },
+      "goal": "Keep the R217 packet valid across coordinator lease epochs while failing closed on an unreviewed or mismatched live epoch.",
+      "id": "al-01M4PY1C0NR32QGAANTC18HBYM",
+      "kind": "skill",
+      "main_budget": 8,
+      "main_calls": 7,
+      "main_over_budget": false,
+      "outcome": "success",
+      "prompt": "Correct R217 packet pre-review authority seam: remove executable epoch-4 hardcoding, require positive reviewed contract epoch and exact live Mac epoch match; remain offline.",
+      "session": "pc-f1-r217-packet-repair",
+      "shortname": "r217-epoch-binding",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T02:10:09Z",
+      "summary": "Replaced fixed epoch-4 checks with a separately reviewed positive contract epoch and exact live comparison; evidence records the contract value; red-first epoch regressions and focused offline gates passed.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-preflight-packet.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T02:24:26Z",
+      "done_when": "Commit a final evidence-cited ACCEPT or terminal second VETO, with P1-P6 mapping and offline validation.",
+      "duration_seconds": 642.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "win/gpu-f1-r217-astra-packet-r2",
+        "pushed": null,
+        "sha": "2f643039d2df77a361a90d4578d64ccfc3fef6c9",
+        "short": "2f643039d"
+      },
+      "goal": "Independently adjudicate the repaired Ruling 217 packet at the exact joined base.",
+      "id": "al-01M4PYSXBVG8ZZCG0HY22K5TA8",
+      "kind": "skill",
+      "main_budget": 25,
+      "main_calls": 25,
+      "main_over_budget": false,
+      "outcome": "success",
+      "prompt": "FINAL PACKET RE-REVIEW (second verdict; second VETO stops the live track). Work only in C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-astra-packet-r2 on branch win/gpu-f1-r217-astra-packet-r2, session pc-f1-r217-astra-packet-r2, exact joined base 2f643039d2df77a361a90d4578d64ccfc3fef6c9. First action: py -3 docs/ai-forward-pack/scripts/audit-log.py start --session pc-f1-r217-astra-packet-r2 --skill execute-with-coordination. Claim/write only docs/reviews/windows-gpu-f1-preflight-packet.md plus derived audit/index files. Do not edit packet, plans, or defect register. Do not run WSL, wrapper, apt, downloads, install, build, or cases. Adversarially re-review exact repaired packet against your committed P1-P6 VETO, Ruling 217, and current epoch-agnostic coordinator contract. Reproduce safe regressions and inspect integration, not only test claims. Specifically prove: unconditional bounded owned-work and observer stop/reap/bind on guard/snapshot/checkpoint failures; normal commit-before-deb-delete/unregister and explicit Mac handoff when checkpoint unproved; absolute startup-inclusive 2700/3000/3600 deadlines on every wait including distro list/create settle; exact atomic attempt ownership/residual checks fail closed on ps/missing/leader-gone/partial creation; UTC Z fixed; mandatory separately committed contract verified before first WSL effect binds accepted source blobs/hashes, input hashes, approved keyrings/signers, exact clean branch/session and live Mac epoch read from reviewed contract; gpgv signer equality; Installed-Size reconciliation and measured guest/host capacity; no prohibited live verbs. Check that epoch-agnostic source still fails closed if the reviewed epoch changes. Run packet_selftest.py, SelfTest.ps1, authority/transaction/manifest/guard tests, PS parse, Bash syntax, safe repo gates. Update the existing review with a clear final ACCEPT or second VETO, remediation table P1-P6, exact commit evidence, confidence, and the remaining separately reviewed environment-contract seam. If ACCEPT: audit, derive, commit with AGENT_SESSION, release claim, report hash. If VETO: same, and explicitly state terminal stop. Budget 25 calls / 25k / 25 minutes. Mac remains leader; epoch 5 is current but may be renewed/reclaimed before the later environment contract, whose exact epoch must match live state.",
+      "session": "pc-f1-r217-astra-packet-r2",
+      "shortname": "f1-r217-astra-packet-r2",
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T02:13:44Z",
+      "summary": "Second VETO: reproduced deletion-stage failure bypassing fresh owned-work stop with stale owned_stopped=true, and cross-attempt prefix matching in residual discovery. P2/P4/P6 cleared; P5 code repaired with separate environment-contract review still required. Live track stopped under cap. Packet self-tests, authority/transaction/manifest/guard tests, PS parse, Git Bash syntax, WSL-inline, docs-graph validation (zero defects; 131 advisory flags), check-docs and diff checks passed. Packet/plans/defect register unchanged. No prohibited execution; fan-out zero.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-preflight-packet.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T02:26:39Z",
+      "done_when": "Second VETO is joined, docs gates pass, and no live WSL effect occurred.",
+      "duration_seconds": 99.0,
+      "fan_out": 0,
+      "goal": "Publish the terminal packet disposition for the Mac leader without running the packet.",
+      "id": "al-01M4PYXZERJZY44K2CMBSBGKTG",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of win/gpu-f1-r217-astra-packet-r2 into win/gpu-f1-preflight-r217",
+      "session": "pc-f1-preflight-r217",
+      "shortname": "f1-r217-terminal-veto-join",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T02:25:00Z",
+      "summary": "Join Astra's second VETO; stop the live track under the two-cycle cap and preserve P1/P3 evidence. recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "datetime": "2026-10-12T14:14:46Z",
+      "id": "al-01M4R7EJ3YKFV2ZSD9E4V61VZF",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "the mac led track should be underway; keep going on what you can; also give me an html update on where we are with the openfoam gpu work and open in chrome for me",
+      "session": "prompt-log",
+      "shortname": "the mac led track should be underway; keep going on what you can; also g…",
+      "skill": null,
+      "summary": "prompt logged for reuse",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "datetime": "2026-10-12T14:25:30Z",
+      "id": "al-01M4R826YXAHNAT7FR26QYTZ5G",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "accept - address all blockers and next steps to get the GPU work done",
+      "session": "prompt-log",
+      "shortname": "accept - address all blockers and next steps to get the GPU work done",
+      "skill": null,
+      "summary": "prompt logged for reuse",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/packet/README.md",
+        "docs/proof/win-gpu-f1-preflight/packet/Control.ps1",
+        "docs/proof/win-gpu-f1-preflight/packet/owned_control.py"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T14:28:30Z",
+      "done_when": "Both regressions are observed red before fixes and green afterward; complete offline packet tests and required safe repo gates pass; source/evidence/audit are committed and the repair branch is pushed for independent review.",
+      "duration_seconds": 689.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "win/gpu-f1-r220-repair",
+        "pushed": null,
+        "sha": "15a50522bd4253e41842b01287b4887ebef2cc3b",
+        "short": "15a50522b"
+      },
+      "goal": "Repair exactly Ruling 220 P1 final cleanup reap and P3 exact process discovery in the assigned offline packet branch.",
+      "id": "al-01M4R87Q0V1ZE0MDET6WGH69EZ",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "You are the sole Ruling 220 packet repair author. Work only in the already-created worktree C:\\Projects\\CFD-Workbench-win-gpu-f1-r220-repair on branch win/gpu-f1-r220-repair, base 15a50522bd42. Do not create or enter another worktree. Session id pc-f1-r220-author. First run: py -3 docs/ai-forward-pack/scripts/audit-log.py start --session pc-f1-r220-author --skill execute-with-coordination. Read AGENTS.md, docs/ai-forward-pack/codex.md, docs/notes/rulings.md Ruling 220, docs/reviews/windows-gpu-f1-preflight-packet.md, and the packet sources/tests under docs/proof/win-gpu-f1-preflight/packet. Goal: implement exactly the one additional Ruling 220 repair cycle for P1 and P3. P1: create a red-first regression proving cleanup cannot launch any owned work after the final stop-and-reap check; arrange a finally path with a fresh bounded stop/reap after every cleanup-stage launch, with nothing launching after it. P3: create a red-first regression proving requested runA never selects runAB; match exact pid/pgid plus exact argv token, never substring membership. Preserve all cleared P2/P4/P5/P6 behavior and Ruling 217 bounds. No WSL commands, wrapper execution, apt, network/download, install, build, source acquisition, or CFD case run. Run the packet's complete offline self-tests plus required repo gates. Update only packet code/tests/README or directly necessary review evidence and derived audit/index files; do not change Ruling 220. Record red evidence before the fix and green evidence after. Append the required audit entry, regenerate derived views, commit with AGENT_SESSION=pc-f1-r220-author, push branch, and report exact commit, tests, changed files, duration, and any residual. One repair attempt only; stop and report if a hard uncertainty appears.",
+      "session": "pc-f1-r220-author",
+      "shortname": "f1-r220-p1-p3-repair",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T14:17:01Z",
+      "summary": "Ruling 220 sole additional repair pass: observed P1 final reap and P3 runA/runAB regressions red before edits, then green. Invoke-Cleanup finally reaps every delete-debs exit; Invoke-Finalization final finally resets and recomputes owned_stopped after all callbacks. /proc NUL argv replaces ps text matching; exact interpreter/script/run/guard-event tokens and recorded leader pid/pgid/sid required, with exact pre-exec identity wrapper and saved leader-gone children preserved. Full offline packet suite, PowerShell 5.1/7.6, all PS AST and four Git Bash syntax checks, WSL-inline, check-docs, graph zero defects, whitespace, and 10 offline-safe verify gates pass. Three application/build/store gates explicitly skipped outside authority. Measured fixture costs 0.293 s (PS5.1), 0.214 s (PS7.6), 0.464 s (Python). No WSL, live wrapper, network, apt, install, source, build or case executed. Independent review and live environment contract remain open. One planned/actual pass; no green failure or repair retry; token usage not recorded.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/packet/README.md",
+        "docs/proof/win-gpu-f1-preflight/packet/owned_control.py",
+        "docs/proof/win-gpu-f1-preflight/packet/packet_selftest.py"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T14:33:14Z",
+      "done_when": "Vanished PID can be omitted only on independent absence; present/denied PID remains unknown; packet self-tests and authority/doc/graph gates pass; branch is committed and pushed.",
+      "duration_seconds": 87.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "win/gpu-f1-r220-repair",
+        "pushed": null,
+        "sha": "15a50522bd4253e41842b01287b4887ebef2cc3b",
+        "short": "15a50522b"
+      },
+      "goal": "Complete the single Ruling 220 repair cycle with an offline-proved correction to the newly introduced process-inspection race.",
+      "id": "al-01M4R8GCFZYZP658VP7N5XZF2D",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "You are the sole Ruling 220 packet repair author. Work only in the already-created worktree C:\\Projects\\CFD-Workbench-win-gpu-f1-r220-repair on branch win/gpu-f1-r220-repair, base 15a50522bd42. Do not create or enter another worktree. Session id pc-f1-r220-author. First run: py -3 docs/ai-forward-pack/scripts/audit-log.py start --session pc-f1-r220-author --skill execute-with-coordination. Read AGENTS.md, docs/ai-forward-pack/codex.md, docs/notes/rulings.md Ruling 220, docs/reviews/windows-gpu-f1-preflight-packet.md, and the packet sources/tests under docs/proof/win-gpu-f1-preflight/packet. Goal: implement exactly the one additional Ruling 220 repair cycle for P1 and P3. P1: create a red-first regression proving cleanup cannot launch any owned work after the final stop-and-reap check; arrange a finally path with a fresh bounded stop/reap after every cleanup-stage launch, with nothing launching after it. P3: create a red-first regression proving requested runA never selects runAB; match exact pid/pgid plus exact argv token, never substring membership. Preserve all cleared P2/P4/P5/P6 behavior and Ruling 217 bounds. No WSL commands, wrapper execution, apt, network/download, install, build, source acquisition, or CFD case run. Run the packet's complete offline self-tests plus required repo gates. Update only packet code/tests/README or directly necessary review evidence and derived audit/index files; do not change Ruling 220. Record red evidence before the fix and green evidence after. Append the required audit entry, regenerate derived views, commit with AGENT_SESSION=pc-f1-r220-author, push branch, and report exact commit, tests, changed files, duration, and any residual. One repair attempt only; stop and report if a hard uncertainty appears.",
+      "session": "pc-f1-r220-author",
+      "shortname": "f1-r220-precommit-inspection-race",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T14:31:47Z",
+      "summary": "Precommit continuation of the same authorized Ruling 220 repair cycle, correcting a scanner defect created in the implementation. Source inspection found ps can list an already exited PID; red offline fixture produced RuntimeError argv inspection failed for pid 101: argv disappeared. New scanner independently stats /proc/<pid> and omits only FileNotFoundError; present PID, denied stat, malformed argv and inspection errors remain fail-closed. Missing-argv/confirmed-absence fixture and present/denied negatives now pass in the complete Python packet self-test (0.466 s measured). Authority scanner passes; documentation gate passed again with audit and graph derivations. P1/P3 repairs and unchanged R217 bounds remain; no live WSL, wrapper, apt, network acquisition, install, build or case. This entry supplements al-01M4R87Q0V1ZE0MDET6WGH69EZ; one precommit correction, no second reviewed repair cycle. Class/sweep/control captured in packet README because defect register is outside delegated paths; coordinator consolidation remains open.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/packet/README.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T14:38:04Z",
+      "done_when": "Repair commit is joined, packet evidence is retained, and join gates pass.",
+      "duration_seconds": 131.0,
+      "fan_out": 0,
+      "goal": "Join the exact R220 packet repair without widening scope.",
+      "id": "al-01M4R8S7BDK5T1B2H8W80M274W",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of win/gpu-f1-r220-repair into win/gpu-f1-preflight-r217",
+      "session": "pc-gpu-status-r217-cont",
+      "shortname": "f1-r220-repair-join",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T14:35:53Z",
+      "summary": "Join the one authorized P1/P3 red-first repair for fresh Astra review; no live WSL effects. recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-preflight-packet.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T14:47:21Z",
+      "done_when": "Commit and push a decisive evidence-cited ACCEPT or VETO with environment-contract limits, measured audit and derived index.",
+      "duration_seconds": 509.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "win/gpu-f1-r220-astra-review",
+        "pushed": null,
+        "sha": "eac9d5f48dc41e19a429d10b8f5ce30ee9bfd5f6",
+        "short": "eac9d5f48"
+      },
+      "goal": "Independently adjudicate the exact committed Ruling 220 P1/P3 packet repairs while preserving prior cleared gates.",
+      "id": "al-01M4R9A7V03PWVY8PBB3VV0Z2T",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Operator has explicitly accepted continuation and instructed us to address all GPU blockers and next steps. Perform the fresh independent Ruling 220 packet review now. Work only in already-created C:\\Projects\\CFD-Workbench-win-gpu-f1-r220-astra-review on branch win/gpu-f1-r220-astra-review, exact joined base eac9d5f48dc4; do not create/enter another worktree. Session pc-f1-r220-astra-review. First mark audit start for execute-with-coordination. Read AGENTS.md, codex guide, Rulings 217 and 220, final prior review, exact commit d5bb68fe and joined bytes. Claim/write only docs/reviews/windows-gpu-f1-preflight-packet.md plus required audit/derived files; do not modify packet, rulings, plan, or defect register. Adversarially re-run and inspect P1 and P3 fixes, preserving cleared P2/P4/P5/P6. Prove the final callback after every cleanup-stage launch is a fresh bounded stop/reap and no launch can occur afterward, including exceptions. Prove exact recorded PID/PGID/SID plus NUL argv token matching; runA must not select runAB; pre-exec identity wrapper, leader-gone child, vanished ps row, unreadable /proc, missing argv and ps failure must have correct fail-closed behavior. Inspect actual source and AST/control flow, not only test names. Run complete offline packet suites and safe syntax/repo gates. Do not run WSL, wrapper top level, apt, downloads, install, source acquisition, builds, or cases. Update review with a clear R220 ACCEPT or VETO and exact residual/environment-contract limits. If ACCEPT, state what exact later environment contract remains before live preflight. Append audit, derive, commit with AGENT_SESSION, push branch, release claims, and report hash/duration. If VETO, this track stops under R220. One independent review only.",
+      "session": "pc-f1-r220-astra-review",
+      "shortname": "f1-r220-astra-review",
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T14:38:52Z",
+      "summary": "ACCEPT exact packet d5bb68fe at joined eac9d5f4. Independently repeated historical P1/P3 red counterexamples and repaired green fixtures; actual cleanup AST and final callback inspected. Exact NUL argv, identity wrapper, leader-gone, vanished PID, denied/missing argv and ps errors checked. Complete packet suites pass (Python 0.530s, PS5.1 0.226s, PS7 0.221s); all syntax, authority, transaction, manifest, guard, WSL-inline, check-docs and ten offline-safe verify gates pass; three application build/store gates explicitly skipped. 131 advisory graph suggestions remain. All 15 packet files byte-identical to accepted commit. Review/index/audit only; no prohibited execution. Mac epoch5 expired, requiring renewed live authority and separately reviewed committed invocation contract before live preflight. Planned serial review/check/verdict/gate/publication graph completed without repair or fan-out; one optional absent config lookup replaced with direct gate discovery.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-preflight-packet.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T14:49:47Z",
+      "done_when": "ACCEPT review is joined, gates pass, and live execution remains fenced.",
+      "duration_seconds": 99.0,
+      "fan_out": 0,
+      "goal": "Publish the independent R220 packet verdict without executing the packet.",
+      "id": "al-01M4R9EPBKQXTDBQ1Y2DC6QR5Q",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of win/gpu-f1-r220-astra-review into win/gpu-f1-preflight-r217",
+      "session": "pc-gpu-status-r217-cont",
+      "shortname": "f1-r220-astra-accept-join",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T14:48:08Z",
+      "summary": "Join Astra packet ACCEPT; environment contract and fresh live Mac epoch remain before R217 execution. recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-environment-contract-r220.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T15:07:47Z",
+      "done_when": "Publish a decisive contract review with recomputed hashes, exact key sets, signature verification, identity and live-epoch evidence.",
+      "duration_seconds": 515.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "win/gpu-f1-r217-contract-review-r220",
+        "pushed": null,
+        "sha": "754b23e0f9b43fd158ccd15f3cba1734a39c9d48",
+        "short": "754b23e0f"
+      },
+      "goal": "Independently validate the exact committed R217 epoch6 environment contract without WSL or live effects.",
+      "id": "al-01M4RAFN5Q3RA7RF7WMX87ZFFP",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Begin the independent R217 environment-contract review now. Exact immutable target: commit 754b23e0f9b4 on branch win/gpu-f1-r217-execute-r220. Your isolated worktree is C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-contract-review-r220, branch win/gpu-f1-r217-contract-review-r220, registered session pc-f1-r217-contract-astra-r220. Review only; do not run WSL or Invoke-Preflight. Recompute contract SHA and every named input hash; compare every packet file byte/hash with accepted commit d5bb68fe7db5e511ac46708e14564bb6a738db37; enumerate exact keyring fingerprints; repeat Ubuntu detached-signature verification and rootfs signed-hash match; validate branch/session/target/protected paths and live mac leader epoch 6. Check that the contract meets packet README requirements and fail closed on any extra/missing signer or mismatch. Write a standalone review artifact at docs/reviews/windows-gpu-f1-environment-contract-r220.md with ACCEPT/REJECT and observed evidence, derive the docs index, run appropriate docs checks, commit and push your branch, then report commit/hash. User explicitly accepts the prior packet verdict and authorizes this continuation.",
+      "session": "pc-f1-r217-contract-astra-r220",
+      "shortname": "f1-r217-contract-astra-r220",
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T14:59:12Z",
+      "summary": "ACCEPT contract at 754b23e0: SHA f109d4f253f436d8b178e40ea5af497316faf36b0c4398c8a598abc52748336c. All 7 inputs and 15 packet files match; Ubuntu keyring members equal pinned rootfs bytes; all 4 exact signer sets have no extra/missing/duplicate fingerprint. Host gpgv detached verification passed with D2EB44626FDDC30B513D5BB71A5D6C4C7DB87C81 and exact rootfs signed hash. Actual host contract verifier passed in clean execution tree; closing leader mac epoch6 live with 760s remaining. Docs index, check-docs and diff checks pass, with 131 advisory graph suggestions. Initial Git GPG Windows-path invocation failed before verification; corrected MSYS path form passed. No WSL, wrapper, apt, downloads, install, source/build/case action; no input or packet modifications. Serial review graph completed, fan-out0, no repair of reviewed material.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-environment-contract-r220.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T15:09:56Z",
+      "done_when": "The review is merged, docs-only ring is skipped under Ruling 89, configured gates pass, and the execution branch is pushed clean.",
+      "duration_seconds": 100.0,
+      "fan_out": 0,
+      "goal": "Join the independently accepted environment contract before any WSL effect.",
+      "id": "al-01M4RAKKC47B1NNK0PYYR81JDY",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of win/gpu-f1-r217-contract-review-r220 into win/gpu-f1-r217-execute-r220",
+      "session": "pc-f1-r217-execute-r220",
+      "shortname": "join-r217-contract-review-r220",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T15:08:16Z",
+      "summary": "Joined Astra ACCEPT for the exact R217 run-1 environment contract after independent hashes, signer, signature, packet, identity, and live epoch checks. recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/notes/windows-gpu-f1-cleanup-recovery.md",
+        "tests/test_f1_cleanup_recovery.py"
+      ],
+      "datetime": "2026-10-12T15:27:37Z",
+      "done_when": "Offline controls and docs gates pass; original bytes are committed and verified; author branch is pushed for independent review.",
+      "duration_seconds": 520.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "win/gpu-f1-r217-cleanup-recovery",
+        "pushed": null,
+        "sha": "6445bb6e1c6b9f27969724c711cc2ff322f01867",
+        "short": "6445bb6e1"
+      },
+      "goal": "Produce an independently reviewable cleanup-only recovery script and ruling proposal without executing recovery.",
+      "id": "al-01M4RBKYXBJ1SK8QD0PKF19NH4",
+      "kind": "manual",
+      "outcome": "success",
+      "prompt": "Author a cleanup-only recovery procedure and offline refusal tests for independent Mac review; preserve and bind the original 75-file freeze, retain failed-run truth, freshly verify exact identities/owned absence/completed-L3 guard, delete only target cache .debs, terminate/unregister only exact target, separately bind recovery evidence; do not invoke WSL or execute recovery.",
+      "session": "pc-f1-r217-cleanup-recovery-author",
+      "shortname": "f1-cleanup-recovery-proposal",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "implement",
+      "started_at": "2026-10-12T15:18:57Z",
+      "summary": "Authored cleanup-only recover.py and cache admission, proposed hash-bound Mac ruling, 16 offline tests; retained original 75-file checkpoint and all 93 live captures byte-for-byte. Red first on absent implementation; all 16 controls pass. Packet ownership, PowerShell, authority, manifest and completed-guard suites pass; check-docs passed, graph defects zero with 131 preexisting suggestions, all 10 offline-safe gates passed. Protected paths and public telemetry are redacted. No WSL/recovery/download/install/build/CFD ran. Live behavior, registry/cache races and deadline-incomplete cleanup remain explicitly unverified for the independent review. Serial graph complete; no reviewer repair cycle used.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-cleanup-recovery.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T15:36:13Z",
+      "done_when": "A decisive review with independent byte binding and offline refusal evidence is committed and pushed.",
+      "duration_seconds": 322.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "win/gpu-f1-r217-cleanup-recovery-review",
+        "pushed": null,
+        "sha": "02ec2cc3aaccc2da2b8ce63fe5f4790ce26839d3",
+        "short": "02ec2cc3a"
+      },
+      "goal": "Independently accept or veto the exact cleanup-recovery candidate without live actions.",
+      "id": "al-01M4RC3Q73SZXP2MHQD597ZH2A",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "You are independent ASTRA owner/reviewer for a proposed cleanup-only recovery. Review exact candidate 02ec2cc3aaccc2da2b8ce63fe5f4790ce26839d3 in assigned worktree and session. Read AGENTS, standards, Rulings 217/220, packet helpers, proposal, recovery code/tests and retained failed-run evidence read-only. Verify manifests, authority, exact identity, ownership, completed-L3 guard, race containment, final absence/invariance, deadline, separate receipt, scope and privacy. Re-run 16 offline tests, packet/authority/ownership/manifest/guard tests, docs, graph, proof-PII and safe gates. Write docs/reviews/windows-gpu-f1-cleanup-recovery.md with ACCEPT/VETO and exact findings; audit, derive, commit/push and report SHA. No WSL, live recovery, evidence mutation, deletion/unregister or new authority.",
+      "session": "pc-f1-r217-cleanup-recovery-astra",
+      "shortname": "f1-cleanup-recovery-astra-veto",
+      "skill": "optimize-graph",
+      "started_at": "2026-10-12T15:30:51Z",
+      "summary": "VETO exact candidate: independent offline probes reproduced Popen before exhausted-deadline refusal, target GUID survival accepted under renamed/moved registration, and initiating deletion error lost when final check also fails. Original 75 freeze and 93 live captures byte-identical; both manifests verified against candidate blobs. Supplied 16 tests pass (0.417s), packet selftest passes (0.526s), PowerShell passes (0.307s), authority/transaction/manifest/guard pass. All 10 safe gates pass. Candidate docs and proof-PII pass; graph 535 artifacts, zero defects, 131 existing suggestions after review. Corrected one review metadata relation and mistaken graph subcommand after CLI/validator rejection; no reviewed implementation changed. Cache and registry races, pre-ack ownership, live state and raw future-error privacy remain unaccepted risks. Six planned/actual review nodes, no agent fan-out or source repair, no WSL or recovery execution. Marker began after initial grounding.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "datetime": "2026-10-12T15:38:26Z",
+      "id": "al-01M4RC7RCZZM1XWKJ52XAG7YT4",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "You are independent ASTRA owner/reviewer for a proposed cleanup-only recovery. Worktree C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-cleanup-recovery-review, branch win/gpu-f1-r217-cleanup-recovery-review, session pc-f1-r217-cleanup-recovery-astra. Exact candidate commit 02ec2cc3aaccc2da2b8ce63fe5f4790ce26839d3. Read AGENTS.md, grounding/standards, Rulings 217/220, packet helpers, proposed docs/notes/windows-gpu-f1-cleanup-recovery.md, recovery code/tests, and retained failed-run evidence read-only at C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-execute-r220\\docs\\proof\\win-gpu-f1-preflight\\run-1\\live plus ...\\Save-Checkpoint. Do not invoke WSL, mutate execution evidence, execute recovery, delete/unregister, or grant authority. Adversarially review exact bytes: verify both committed manifests bind byte-identical original 75-file freeze and 93 live captures; authority contract is hash-bound and absent by default; no cleanup before committed manifest verification; exact target GUID/name/path and protected identity/path checks; owned work absence; fresh completed-L3 guard through delete-debs-only/terminate/unregister; cache path/registration race containment; exact-target final absence and protected before/after invariance; deadline behavior; separate recovery receipt/commit; no simulation/download/install/source/build/CFD; privacy/redaction. Re-run 16 offline tests, packet/authority/ownership/manifest/guard tests, docs, graph, proof-PII and safe gates. Write docs/reviews/windows-gpu-f1-cleanup-recovery.md with ACCEPT/VETO and any exact findings, audit, derive, commit/push, report SHA. State exact residual risk. No live action.",
+      "session": "prompt-log",
+      "shortname": "You are independent ASTRA owner/reviewer for a proposed cleanup-only rec…",
+      "skill": null,
+      "summary": "prompt logged for reuse",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-cleanup-recovery.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T15:41:02Z",
+      "done_when": "VETO is merged, docs-only ring and configured gates pass, and the recovery branch is pushed clean.",
+      "duration_seconds": 102.0,
+      "fan_out": 0,
+      "goal": "Record the independent cleanup-recovery VETO before a bounded repair.",
+      "id": "al-01M4RCCHGQH64VW2ZCQJ90PY80",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of win/gpu-f1-r217-cleanup-recovery-review into win/gpu-f1-r217-cleanup-recovery",
+      "session": "pc-f1-r217-cleanup-recovery-author",
+      "shortname": "join-r217-cleanup-recovery-veto",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T15:39:20Z",
+      "summary": "Joined Astra VETO for cleanup recovery after reproducing deadline prelaunch, target GUID absence, and error precedence defects. recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-cleanup-recovery-cycle1-author.md",
+        "tests/test_f1_cleanup_recovery.py"
+      ],
+      "datetime": "2026-10-12T15:58:33Z",
+      "done_when": "Red/green source proof and required offline gates pass; immutable candidate is committed and pushed for independent review.",
+      "duration_seconds": 979.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "win/gpu-f1-r217-cleanup-recovery",
+        "pushed": true,
+        "sha": "f5fa973a5fa0d96761ebb216194485a098d30223",
+        "short": "f5fa973a5"
+      },
+      "goal": "Repair only reproduced cleanup boundary defects and the explicitly named hardening gaps without live execution.",
+      "id": "al-01M4RDCKFGYQRV30FVTG2TPT1D",
+      "kind": "manual",
+      "outcome": "partial",
+      "prompt": "Bounded cleanup recovery repair cycle 1 on joined f5fa973a, offline/mock only. Reproduce and repair expired-budget child launch, surviving exact target GUID and overwritten initiating error; close prelaunch intent/ack, stable cache/registration admission, raw runtime error privacy and incomplete-binding gaps. Change only delete-debs packet branch through a pinned cache helper; preserve historical VETO and all original captures; flag accepted 65456e1c integration seam. Run regression/packet/docs/graph/privacy/safe gates; commit and push exact candidate for fresh independent review. No WSL or recovery execution.",
+      "session": "pc-f1-r217-cleanup-recovery-author",
+      "shortname": "f1-cleanup-recovery-cycle1",
+      "signals": {
+        "acceptance_met": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "implement",
+      "started_at": "2026-10-12T15:42:14Z",
+      "summary": "Observed exact CR-1/2/3 reds: launch_count1 after expiry, renamed GUID accepted, deletion error omitted. Additional red hardening fixtures and publication-overwrite counterexample added. Final 35 tests green at 0.291s; packet suite 0.475s; both PowerShell suites, authority, transaction, manifest, completed guard and Bash syntax passed. Docs passed; graph zero defects with 131 existing suggestions; hostname-aware privacy passed; all ten offline-safe gates passed. Source adds pre-Popen deadline admission, captured GUID/path absence, ordered/classified errors, host/Linux atomic intent and fresh ack, stable admission, pinned relative unlink, explicit incomplete binding. Only delete-debs case changed; scope mutant rejected. Historical VETO and 75/93 original captures untouched; no WSL/recovery/acquisition/install/build/CFD ran. Author commit/push and independent review remain at audit time; no authority supplied. Serial bounded cycle1 complete; accepted65456e1c seam requires later review.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "datetime": "2026-10-12T16:11:26Z",
+      "id": "al-01M4RE465S2RJHRBFQ6EY4E5B9",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "Fresh independent review cycle 1. Exact candidate be56d099e6190017d245b0ede4afbdee2b121ffc. Worktree C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-cleanup-recovery-review-cycle1, branch win/gpu-f1-r217-cleanup-recovery-review-cycle1, session pc-f1-r217-cleanup-recovery-astra-cycle1. No WSL/live/evidence mutation. Reproduce prior VETO reds against f5fa973a/02ec baseline, then adversarially verify fixes in exact candidate: no child/Popen after deadline including guard/final binding; admitted target GUID/name/path cannot survive renamed/moved and repeated stable observations close registry/cache races; initiating deletion error plus all final ownership/absence/publication errors retained deterministically and redacted in public evidence; atomic host/Linux intent+ack precede every launch; deadline-incomplete binding fails closed; delete-debs uses pinned no-follow handles, stable ancestry/mount/file identity, relative unlink; only delete-debs case and scope selftest changed in preflight.sh, with bytes outside case identical to 02ec; no broader stage authority; original 75/93 capture trees and historical VETO unchanged; integration seam with accepted packet branch 65456e1c explicit. Re-run 35 tests, packet/PS/Bash/authority/transaction/manifest/guard, docs/graph/privacy/safe gates. Write a new follow-up review artifact preserving the historical VETO, ACCEPT/VETO exact candidate, audit, derive, commit/push, report SHA. Do not authorize or perform recovery/retry.",
+      "session": "prompt-log",
+      "shortname": "Fresh independent review cycle 1. Exact candidate be56d099e6190017d245b0…",
+      "skill": null,
+      "summary": "prompt logged for reuse",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-cleanup-recovery-cycle1.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T16:11:26Z",
+      "done_when": "Publish a decisive follow-up with reproduced baseline reds, current candidate evidence, limits and all offline checks.",
+      "duration_seconds": 499.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "win/gpu-f1-r217-cleanup-recovery-review-cycle1",
+        "pushed": null,
+        "sha": "be56d099e6190017d245b0ede4afbdee2b121ffc",
+        "short": "be56d099e"
+      },
+      "goal": "Independently review cycle-1 exact cleanup-recovery source and preserve the historical VETO.",
+      "id": "al-01M4RE46CXA2KDVV0K8EET923C",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Fresh independent review cycle 1 of exact candidate be56d099e6190017d245b0ede4afbdee2b121ffc; reproduce historical VETO cases, review all named safety boundaries, rerun offline checks, preserve history and publish a new independent verdict. Verbatim delegation is in the adjacent prompt entry.",
+      "session": "pc-f1-r217-cleanup-recovery-astra-cycle1",
+      "shortname": "f1-cleanup-recovery-cycle1-astra",
+      "skill": "optimize-graph",
+      "started_at": "2026-10-12T16:03:07Z",
+      "summary": "ACCEPT exact candidate as scoped offline cleanup-source repair; no live/integration acceptance or authority. CR-1/2/3 reproduced red on both 02ec2cc3 and f5fa973a, green on be56d099. 35 tests pass (0.978s), packet (0.470s), Windows PowerShell (0.260s), PowerShell7 (0.204s), Git Bash syntax, authority/transaction/manifest/guard pass. Independent full cache function probe verifies no-follow directory opens, relative unlink and changed-mount refusal using mocked syscalls. Original 75/93 bytes and historical VETO unchanged; both manifests bind exact candidate. Non-deletion prefix/suffix equal 02ec. 10 safe gates and proof-PII pass; graph 537 artifacts zero defects/drift with 131 prior suggestions. Repeated observations do not close concurrent registry/file-entry races; pinned directory contains ancestor redirection but not compare-and-unlink. Host PID ack follows launch and is synchronous, not atomic replacement. Linux intent/entry ordered; live teardown, mutation, runtime and deadline-incomplete cleanup remain unverified. Accepted packet 65456e1c integration needs separate exact-byte review. No source/test change, repair loop, WSL/live effect or extra agent. Six planned/actual review nodes; final documentation gate follows.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-cleanup-recovery-cycle1.md"
+      ],
+      "datetime": "2026-10-12T16:13:26Z",
+      "id": "al-01M4RE7VWNTSGESVYTGQ22Q132",
+      "kind": "command",
+      "outcome": "success",
+      "prompt": "Complete the required final documentation check for the independent cycle-1 review.",
+      "session": "pc-f1-r217-cleanup-recovery-astra-cycle1",
+      "shortname": "f1-cleanup-cycle1-review-checks",
+      "skill": null,
+      "summary": "Final tools/check-docs.py passed, including 1023 readable audit entries and 35 change entries. Graph validation: 537 artifacts, zero defects/index drift, 131 existing advisory suggestions. Diff formatting clean. Review ACCEPT remains limited to exact offline source be56d099; no live or integration authority.",
+      "tags": [],
+      "tool": "tools/check-docs.py"
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-cleanup-recovery-cycle1.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T16:15:49Z",
+      "done_when": "Review is merged, docs-only ring and configured gates pass, and the recovery branch is pushed clean.",
+      "duration_seconds": 107.0,
+      "fan_out": 0,
+      "goal": "Join independent acceptance of the cleanup-only recovery source without granting live authority.",
+      "id": "al-01M4REC7D2VMX1R9M235R4VQXS",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of win/gpu-f1-r217-cleanup-recovery-review-cycle1 into win/gpu-f1-r217-cleanup-recovery",
+      "session": "pc-f1-r217-cleanup-recovery-author",
+      "shortname": "join-r217-cleanup-recovery-cycle1",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T16:14:02Z",
+      "summary": "Joined Astra ACCEPT for scoped offline cleanup-recovery source after reproducing and clearing CR-1/2/3 and all offline gates. recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "datetime": "2026-10-12T15:21:52Z",
+      "id": "al-01M4RB9E4NC7GSZ27TG9FW34SW",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "You are AUTHOR for an offline-only repair in CFD-Workbench. Worktree: C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-live-defect-repair. Branch: win/gpu-f1-r217-live-defect-repair. Session: pc-f1-r217-live-defect-author. Read AGENTS.md, docs/ai-forward-pack/codex.md, relevant no-guessing/testing/continuous-improvement standards, docs/proof/win-gpu-f1-preflight/packet README/tests, Rulings 217/220, and the current run evidence in the separate execution tree C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-execute-r220\\docs\\proof\\win-gpu-f1-preflight\\run-1\\live (read-only). No WSL commands or live cleanup. Goal: repair exactly two verified live defects red-first, sweep their classes, update durable controls/docs, run the complete offline packet suite and relevant gates, commit and push. Defect A: transaction.py match_uri compares Path(urlsplit(url).path).name without percent-decoding; apt URI has `%7e` while signed metadata filename has `~`, yielding `cpp-13.../1042 found 0`. Add a failing test using real apt-style encoded basename and implement the smallest correct percent-decoding while preserving exact size and uniqueness; sweep `%2b`, `%3a`, `%7e`, unsafe/malformed cases as appropriate. Defect B: Invoke-Finalization has parameter `[scriptblock]$Checkpoint`; PowerShell dynamic scoping shadows the script-level `$Checkpoint` directory inside the Save-Checkpoint callback, causing freeze into repo-root Save-Checkpoint and Substring failure. Add a failing PowerShell regression that proves the callback observes the intended canonical checkpoint path, then eliminate the collision robustly (rename path and/or callback parameter so no dynamic shadow remains), sweep similar callback/path names. Do not change runtime authority, cleanup policy, limits, accepted signer/input semantics, or initiate recovery. Repair loops capped at 2. Capture defect classes as class→sweep→derive→prevent in the existing appropriate durable artifact/control, not memoir prose only. Return commit SHA, pushed branch, exact red/green evidence and tests, changed files, residual risks.",
+      "session": "pc-f1-r217-live-defect-author",
+      "shortname": "f1-r217-live-defect-repair",
+      "skill": null,
+      "summary": "prompt logged for reuse",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/packet/README.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T15:22:23Z",
+      "done_when": "A bounded evidence graph preserves red-first, complete offline checks, durable classes, candidate publication, and independent review handoff.",
+      "duration_seconds": 406.0,
+      "fan_out": 1,
+      "git": {
+        "branch": "win/gpu-f1-r217-live-defect-repair",
+        "pushed": null,
+        "sha": "6445bb6e1c6b9f27969724c711cc2ff322f01867",
+        "short": "6445bb6e1"
+      },
+      "goal": "Plan exactly two offline live-defect repairs without live action or scope growth.",
+      "id": "al-01M4RBAC6NT6YPD8A2B38RXZHM",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "You are AUTHOR for an offline-only repair in CFD-Workbench. Worktree: C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-live-defect-repair. Branch: win/gpu-f1-r217-live-defect-repair. Session: pc-f1-r217-live-defect-author. Read AGENTS.md, docs/ai-forward-pack/codex.md, relevant no-guessing/testing/continuous-improvement standards, docs/proof/win-gpu-f1-preflight/packet README/tests, Rulings 217/220, and the current run evidence in the separate execution tree C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-execute-r220\\docs\\proof\\win-gpu-f1-preflight\\run-1\\live (read-only). No WSL commands or live cleanup. Goal: repair exactly two verified live defects red-first, sweep their classes, update durable controls/docs, run the complete offline packet suite and relevant gates, commit and push. Defect A: transaction.py match_uri compares Path(urlsplit(url).path).name without percent-decoding; apt URI has `%7e` while signed metadata filename has `~`, yielding `cpp-13.../1042 found 0`. Add a failing test using real apt-style encoded basename and implement the smallest correct percent-decoding while preserving exact size and uniqueness; sweep `%2b`, `%3a`, `%7e`, unsafe/malformed cases as appropriate. Defect B: Invoke-Finalization has parameter `[scriptblock]$Checkpoint`; PowerShell dynamic scoping shadows the script-level `$Checkpoint` directory inside the Save-Checkpoint callback, causing freeze into repo-root Save-Checkpoint and Substring failure. Add a failing PowerShell regression that proves the callback observes the intended canonical checkpoint path, then eliminate the collision robustly (rename path and/or callback parameter so no dynamic shadow remains), sweep similar callback/path names. Do not change runtime authority, cleanup policy, limits, accepted signer/input semantics, or initiate recovery. Repair loops capped at 2. Capture defect classes as class→sweep→derive→prevent in the existing appropriate durable artifact/control, not memoir prose only. Return commit SHA, pushed branch, exact red/green evidence and tests, changed files, residual risks.",
+      "session": "pc-f1-r217-live-defect-author",
+      "shortname": "optimize-graph-f1-r217-live-defects",
+      "skill": "optimize-graph",
+      "started_at": "2026-10-12T15:15:37Z",
+      "summary": "Eight-node bounded offline author graph: grounding, fixtures, red evidence, repair, offline verification, audit/index, candidate publication, independent review. One author cycle, zero spawned agents; raw live evidence read-only. Actual red-to-green completed with complete packet checks and repository gates. Independent immutable-byte review follows candidate commit as coordinator directed; author does not clear hard veto. Elapsed marker measured; tokens not recorded.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/packet/README.md",
+        "docs/lessons/defect-classes.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T15:22:24Z",
+      "done_when": "Both red-first regressions and complete offline proof pass, and the repair candidate is committed and pushed for immutable independent review.",
+      "duration_seconds": 407.0,
+      "fan_out": 1,
+      "git": {
+        "branch": "win/gpu-f1-r217-live-defect-repair",
+        "pushed": null,
+        "sha": "6445bb6e1c6b9f27969724c711cc2ff322f01867",
+        "short": "6445bb6e1"
+      },
+      "goal": "Repair exactly the two verified live representation/scope defects offline, with durable controls.",
+      "id": "al-01M4RBADJFGV9VTY8204F621NF",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "You are AUTHOR for an offline-only repair in CFD-Workbench. Worktree: C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-live-defect-repair. Branch: win/gpu-f1-r217-live-defect-repair. Session: pc-f1-r217-live-defect-author. Read AGENTS.md, docs/ai-forward-pack/codex.md, relevant no-guessing/testing/continuous-improvement standards, docs/proof/win-gpu-f1-preflight/packet README/tests, Rulings 217/220, and the current run evidence in the separate execution tree C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-execute-r220\\docs\\proof\\win-gpu-f1-preflight\\run-1\\live (read-only). No WSL commands or live cleanup. Goal: repair exactly two verified live defects red-first, sweep their classes, update durable controls/docs, run the complete offline packet suite and relevant gates, commit and push. Defect A: transaction.py match_uri compares Path(urlsplit(url).path).name without percent-decoding; apt URI has `%7e` while signed metadata filename has `~`, yielding `cpp-13.../1042 found 0`. Add a failing test using real apt-style encoded basename and implement the smallest correct percent-decoding while preserving exact size and uniqueness; sweep `%2b`, `%3a`, `%7e`, unsafe/malformed cases as appropriate. Defect B: Invoke-Finalization has parameter `[scriptblock]$Checkpoint`; PowerShell dynamic scoping shadows the script-level `$Checkpoint` directory inside the Save-Checkpoint callback, causing freeze into repo-root Save-Checkpoint and Substring failure. Add a failing PowerShell regression that proves the callback observes the intended canonical checkpoint path, then eliminate the collision robustly (rename path and/or callback parameter so no dynamic shadow remains), sweep similar callback/path names. Do not change runtime authority, cleanup policy, limits, accepted signer/input semantics, or initiate recovery. Repair loops capped at 2. Capture defect classes as class→sweep→derive→prevent in the existing appropriate durable artifact/control, not memoir prose only. Return commit SHA, pushed branch, exact red/green evidence and tests, changed files, residual risks.",
+      "session": "pc-f1-r217-live-defect-author",
+      "shortname": "implement-f1-r217-live-defects",
+      "signals": {
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "implement",
+      "started_at": "2026-10-12T15:15:37Z",
+      "summary": "Source-repaired exact apt encoded-basename mismatch and PowerShell dynamic checkpoint shadowing. Observed Python red cpp-13/1042 found0 and PS5.1 red shadowed path before edits. Greens: Python 0.527s; strengthened actual checkpoint/Git-body regression PS5.1 0.353s and PS7 0.254s; authority, transaction, manifest, guard, AST/shell syntax, WSL-inline, check-docs, graph and ten offline-safe verify gates pass. Added two class/sweep/derive/prevent controls and graph review flags. No WSL/recovery/live cleanup or authority/signer/input/limit changes. Candidate publication authorized; immutable independent acceptance and repaired live proof remain open.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": "codex",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-live-defect-repair.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T15:35:02Z",
+      "done_when": "Both old failures reproduced, repaired integration and safe gates checked, ACCEPT or VETO review committed and pushed, claim released.",
+      "duration_seconds": 596.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "win/gpu-f1-r217-live-defect-review",
+        "pushed": null,
+        "sha": "20e77e34259ce68637f5374f3a08acd948fab3af",
+        "short": "20e77e342"
+      },
+      "goal": "Independently adjudicate the immutable two-defect repair without live effects.",
+      "id": "al-01M4RC1HR94DWP16KAVP94P8PD",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Independently review immutable packet repair commit 20e77e34259ce68637f5374f3a08acd948fab3af. Review worktree: C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-live-defect-review, branch win/gpu-f1-r217-live-defect-review, session pc-f1-r217-live-defect-astra. No WSL/live/evidence mutation. Reproduce the two old failures against pre-repair source or equivalent extracted fixtures; verify the repaired bytes fix exactly: (A) single-pass URL-basename percent decoding, literal plus preservation, %7e/%2b/%3a/uppercase/malformed/ambiguity/size boundaries, raw URL and cache identity unchanged; (B) no PowerShell dynamic-scope collision, explicit canonical checkpoint path, actual Invoke-Finalization to Save-Checkpoint to Invoke-GitCommit Substring/path integration, failure behavior and compatibility. Review class sweep/controls, README claims, contract/review metadata flags, and full offline tests/gates. Write docs/reviews/windows-gpu-f1-live-defect-repair.md with ACCEPT/VETO, derive/check docs, audit, commit/push, report SHA. Also state whether repairs are sufficient for a future retry; do not authorize or perform recovery/retry.",
+      "session": "pc-f1-r217-live-defect-astra",
+      "shortname": "f1-live-defect-astra-accept",
+      "signals": {
+        "acceptance_met": true,
+        "regression": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T15:25:06Z",
+      "summary": "ACCEPT source repair 20e77e34. Old URI found-0 and actual PowerShell Substring failures independently reproduced. Complete Python/PS5.1/PS7 suites, independent URI boundaries and ten actual checkpoint child-failure cases passed. Ten offline-safe verification gates and check-docs passed; graph zero defects with 134 advisory flags. All 15 packet files and prior contract unchanged. Recovery/retry remain separate decisions requiring authority and a new reviewed binding; no WSL/live/build/case action. Temporary fixture root corrected to reproduce exact downstream failure; rejected audit-help subcommand caused no content write.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-live-defect-repair.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T15:37:46Z",
+      "done_when": "Review is merged, docs-only ring and configured gates pass, and the repair branch is pushed clean.",
+      "duration_seconds": 118.0,
+      "fan_out": 0,
+      "goal": "Join independent acceptance of the two live-discovered packet repairs without authorizing recovery or retry.",
+      "id": "al-01M4RC6HDG78DE2R2GTR9A9668",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of win/gpu-f1-r217-live-defect-review into win/gpu-f1-r217-live-defect-repair",
+      "session": "pc-f1-r217-live-defect-author",
+      "shortname": "join-r217-live-defect-review",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T15:35:48Z",
+      "summary": "Joined Astra ACCEPT for the exact URI decoding and checkpoint dynamic-scope repair after independent failure reproduction and offline gates. recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "datetime": "2026-10-12T16:24:45Z",
+      "id": "al-01M4REWJGC3DSEXSETG6YTBCKW",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "You are AUTHOR for an offline exact-byte integration candidate. Worktree C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-recovery-integration, branch win/gpu-f1-r217-recovery-integration, session pc-f1-r217-recovery-integration-author. Base is accepted cleanup recovery branch 02485495951f. Merge accepted packet-repair branch win/gpu-f1-r217-live-defect-repair at exact 65456e1c. No WSL/live/evidence mutation and no recovery execution. Resolve conflicts by preserving BOTH accepted behaviors and all historical/review artifacts: packet URI one-pass decoding and checkpoint dynamic-scope fix from 65456e1c; cleanup recovery exact authority/manifests/tests and only delete-debs shared-control change from 02485495. Never weaken either review's controls. Treat audit/index/register conflicts via repo merge helpers and regenerate derived views. Explicitly prove all packet files except the already reviewed changes are as expected, original 75/93 retained evidence blobs and historical VETO remain unchanged, prior invocation contract bytes unchanged, and cleanup authorization remains absent/fail-closed. Run combined 35 recovery tests, full packet Python/PowerShell/Bash/authority/transaction/manifest/guard suites, docs/graph/privacy, ten safe gates, and any relevant integration tests. Add a concise integration proof artifact listing parent SHAs, resolved seams, file hashes, tests, authority limits, and residual races. Audit, commit, push, return exact SHA. This does not authorize cleanup or retry; Mac ruling and fresh Astra exact-byte review remain required.",
+      "session": "pc-f1-r217-recovery-integration-author",
+      "shortname": "f1-recovery-integration-request",
+      "skill": null,
+      "summary": "prompt logged for reuse",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/plans/windows-gpu-f1-recovery-integration.md",
+        "docs/proof/win-gpu-f1-preflight/integration/proof.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T16:24:45Z",
+      "done_when": "Bounded graph and recorded cost/delivery ledger exist with every requested verification floor retained.",
+      "duration_seconds": 450.0,
+      "fan_out": 0,
+      "goal": "Plan the exact offline source integration and its full proof.",
+      "id": "al-01M4REWJSG900SV4J28XR81JHM",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "You are AUTHOR for an offline exact-byte integration candidate. Worktree C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-recovery-integration, branch win/gpu-f1-r217-recovery-integration, session pc-f1-r217-recovery-integration-author. Base is accepted cleanup recovery branch 02485495951f. Merge accepted packet-repair branch win/gpu-f1-r217-live-defect-repair at exact 65456e1c. No WSL/live/evidence mutation and no recovery execution. Resolve conflicts by preserving BOTH accepted behaviors and all historical/review artifacts: packet URI one-pass decoding and checkpoint dynamic-scope fix from 65456e1c; cleanup recovery exact authority/manifests/tests and only delete-debs shared-control change from 02485495. Never weaken either review's controls. Treat audit/index/register conflicts via repo merge helpers and regenerate derived views. Explicitly prove all packet files except the already reviewed changes are as expected, original 75/93 retained evidence blobs and historical VETO remain unchanged, prior invocation contract bytes unchanged, and cleanup authorization remains absent/fail-closed. Run combined 35 recovery tests, full packet Python/PowerShell/Bash/authority/transaction/manifest/guard suites, docs/graph/privacy, ten safe gates, and any relevant integration tests. Add a concise integration proof artifact listing parent SHAs, resolved seams, file hashes, tests, authority limits, and residual races. Audit, commit, push, return exact SHA. This does not authorize cleanup or retry; Mac ruling and fresh Astra exact-byte review remain required.",
+      "session": "pc-f1-r217-recovery-integration-author",
+      "shortname": "optimize-f1-recovery-integration",
+      "skill": "optimize-graph",
+      "started_at": "2026-10-12T16:17:15Z",
+      "summary": "Seven-node graph, width one, immovable conservation/combined-offline-proof/independent-review floors. Sources and retained evidence match accepted parents; local accepted register helper replaces externally configured helper output. No packet/recovery repair cycles, WSL or execution authority. Independent exact-byte review remains pending. Cost duration measured by per-run marker; token cost not exposed.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/integration/proof.md",
+        "docs/proof/win-gpu-f1-preflight/integration/source-hashes.json",
+        "docs/proof/win-gpu-f1-preflight/integration/verify_integration.py"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T16:26:04Z",
+      "done_when": "Combined conservation and offline proof are committed and pushed for independent exact-byte review, with no new execution authority.",
+      "duration_seconds": 529.0,
+      "fan_out": 0,
+      "goal": "Produce one offline immutable candidate preserving both accepted repairs and the historical failed attempt.",
+      "id": "al-01M4REZ0197YMX4YKC4ZRJG29C",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "You are AUTHOR for an offline exact-byte integration candidate. Worktree C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-recovery-integration, branch win/gpu-f1-r217-recovery-integration, session pc-f1-r217-recovery-integration-author. Base is accepted cleanup recovery branch 02485495951f. Merge accepted packet-repair branch win/gpu-f1-r217-live-defect-repair at exact 65456e1c. No WSL/live/evidence mutation and no recovery execution. Resolve conflicts by preserving BOTH accepted behaviors and all historical/review artifacts: packet URI one-pass decoding and checkpoint dynamic-scope fix from 65456e1c; cleanup recovery exact authority/manifests/tests and only delete-debs shared-control change from 02485495. Never weaken either review's controls. Treat audit/index/register conflicts via repo merge helpers and regenerate derived views. Explicitly prove all packet files except the already reviewed changes are as expected, original 75/93 retained evidence blobs and historical VETO remain unchanged, prior invocation contract bytes unchanged, and cleanup authorization remains absent/fail-closed. Run combined 35 recovery tests, full packet Python/PowerShell/Bash/authority/transaction/manifest/guard suites, docs/graph/privacy, ten safe gates, and any relevant integration tests. Add a concise integration proof artifact listing parent SHAs, resolved seams, file hashes, tests, authority limits, and residual races. Audit, commit, push, return exact SHA. This does not authorize cleanup or retry; Mac ruling and fresh Astra exact-byte review remain required.",
+      "session": "pc-f1-r217-recovery-integration-author",
+      "shortname": "f1-recovery-packet-integration-proof",
+      "signals": {
+        "acceptance_met": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "recovery-integration",
+      "started_at": "2026-10-12T16:17:15Z",
+      "summary": "Offline exact-source candidate joins 02485495951fbd04ea07a2e8bc276b0df4ab93cd and 65456e1cc858ff62b87c7a8d7030a6e83715b354. All 15 packet files have expected parent/union bytes, recovery helpers and 35 tests unchanged, original 75/93 payloads and historical VETO/contract retained. Recovery 35/35 0.392 s; Python 0.544 s, PS5 0.389 s, PS7 0.266 s; four individual Git Bash syntax checks, authority/transaction/manifest/guard and real 76/94 blob bindings pass. Ten safe gates pass, full check-docs passed with 17 manifest bindings and 1032 readable audit/35 change entries; graph 540 artifacts zero defects/drift and 134 existing advisory flags; proof privacy zero raw user paths/SIDs, one allowlist, 365 binaries excluded. Conservation verifier final report 8.480 s, 212 unique parent register entries once, exact local caa877ce helper union; primary driver was differing 94fa1228 and its output was rejected/recomputed, neither helper changed. Initial older-parent corpus assumption and lesson separator probe were corrected without source/evidence weakening. No packet/recovery repair cycles. Cleanup authorization absent; malformed/stale/broadened authorization refuses. Proposed source only; new Mac ruling and fresh Astra exact-byte review still required. No live, cleanup or retry work.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "datetime": "2026-10-12T16:36:23Z",
+      "id": "al-01M4RFHVVTMW0QFK40Y7P0QE88",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "Independently review exact integrated candidate 5b1a9bb460df4ae2955a3bb922b0e68138492cc0. Worktree C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-recovery-integration-review, branch win/gpu-f1-r217-recovery-integration-review, session pc-f1-r217-recovery-integration-astra. No WSL/live/evidence mutation. Verify exact two parents 02485495 and 65456e1c; both prior Astra ACCEPT behaviors survive byte/semantic integration; all 15 packet files and changed portions match intended accepted sources except reviewed delete-debs delta; URI/checkpoint fixes remain; recovery CR-1/2/3 and hardening remain; invocation contract, original 75/93 payloads, historical VETO and accepted review artifacts unchanged; cleanup authority absent/fail-closed. Independently inspect register reconciliation and rerun integration verifier proving 212 unique parent entries/audits conserved once using repository-contained helper, not shared primary config. Re-run combined 35 recovery tests, packet Python/PS/Bash/authority/transaction/manifest/guard, final-commit 76/94 binders, docs/graph/privacy and ten safe gates. Probe merge-only seams and authority. Write docs/reviews/windows-gpu-f1-recovery-integration.md ACCEPT/VETO, audit, derive, commit/push, report SHA. State residual TOCTOU/live risks and that no cleanup/retry authority is granted.",
+      "session": "pc-f1-r217-recovery-integration-astra",
+      "shortname": "f1-recovery-integration-independent-review",
+      "skill": null,
+      "summary": "prompt logged for reuse",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-recovery-integration.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T16:36:44Z",
+      "done_when": "Commit and push an independently supported ACCEPT/VETO with audit and derived index.",
+      "duration_seconds": 504.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "win/gpu-f1-r217-recovery-integration-review",
+        "pushed": null,
+        "sha": "5b1a9bb460df4ae2955a3bb922b0e68138492cc0",
+        "short": "5b1a9bb46"
+      },
+      "goal": "Independently decide exact integrated source, evidence and authority boundaries.",
+      "id": "al-01M4RFJH163GHFMS11EXP72X8K",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Independently review exact integrated candidate 5b1a9bb460df4ae2955a3bb922b0e68138492cc0; conserve both accepted parents and retained evidence, prove local register/audit reconciliation and authority refusal, rerun combined offline checks, then commit and push a scoped verdict. Full assignment is recorded in al-01M4RFHVVTMW0QFK40Y7P0QE88.",
+      "session": "pc-f1-r217-recovery-integration-astra",
+      "shortname": "f1-recovery-integration-review",
+      "skill": "optimize-graph",
+      "started_at": "2026-10-12T16:28:20Z",
+      "summary": "ACCEPT exact 5b1a9bb4 offline integration. Independently checked 15 packet origins, recovery bytes, both parent AST fixture sequences, 212 register entries and 1030 parent audit records conserved once. Local pinned reconciliation helper only. Original 75/93 payloads and ten historical artifacts unchanged; 76/94 exact-commit binders pass. Combined 35 recovery tests, packet Python, PS5/7, Bash4, authority/transaction/manifest/guard, ten safe gates and proof privacy pass. Old contract rejects seven changed files; actual precheck refuses missing new Mac ruling. Residual registration/unlink TOCTOU and live uncertainties retained; no cleanup or retry authority. No WSL or live action. Audit CLI refused the first append with missing prompt before writing; corrected required field on this call.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-recovery-integration.md"
+      ],
+      "datetime": "2026-10-12T16:38:43Z",
+      "git": {
+        "branch": "win/gpu-f1-r217-recovery-integration-review",
+        "pushed": null,
+        "sha": "5b1a9bb460df4ae2955a3bb922b0e68138492cc0",
+        "short": "5b1a9bb46"
+      },
+      "id": "al-01M4RFP5EC70T69TDEFYQFXF4T",
+      "kind": "command",
+      "outcome": "success",
+      "prompt": "Validate and publish the independent exact-candidate integration review after all offline source and behavior checks.",
+      "session": "pc-f1-r217-recovery-integration-astra",
+      "shortname": "f1-recovery-integration-final-checks",
+      "skill": null,
+      "summary": "Final check-docs passed: 1035 audit and 35 change entries readable, documentation checks passed. Final derived graph has zero defects and 134 existing advisory review suggestions. Final proof-PII and git diff --check passed. Publication is review/audit/index only; candidate source, tests, retained evidence, historical reviews and authority unchanged.",
+      "tags": [],
+      "tool": "tools/check-docs.py"
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-recovery-integration.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T16:41:15Z",
+      "done_when": "The Astra review is joined, required gates pass, and the branch is pushed without granting live authority.",
+      "duration_seconds": 108.0,
+      "fan_out": 0,
+      "goal": "Preserve independent acceptance evidence on the integrated recovery packet.",
+      "id": "al-01M4RFTSA78ZNCGGKAKK1HXHME",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of win/gpu-f1-r217-recovery-integration-review into win/gpu-f1-r217-recovery-integration",
+      "session": "pc-f1-r217-recovery-integration-author",
+      "shortname": "join-r217-recovery-integration-review",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T16:39:27Z",
+      "summary": "Join Astra acceptance of the exact offline R217 recovery integration candidate; cleanup and retry authority remain absent. recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
       "compiled": false,
       "datetime": "2026-10-12T14:22:31Z",
       "done_when": "EXPORT-TARGET-DIRECTORY refused before write; tests red then green; run-tests green; check-docs 0",
@@ -36073,29 +37291,76 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4RG3FJVDBY7SHPMKZA2BN5T",
-      "shortname": "join-sgk",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-12T16:46:00Z",
-      "session": "3122f106",
-      "prompt": "the join of the resolved merge into main",
-      "summary": "join recount_seconds=0 (docs_only=False).",
+      "duration_seconds": 66.0,
+      "fan_out": 0,
+      "id": "al-01M4RG3FJVDBY7SHPMKZA2BN5T",
       "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "3122f106",
+      "shortname": "join-sgk",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
       "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T16:44:54Z",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M4RJ0Q17T150C4M516KXHDQZ",
+      "shortname": "yes tell Astra i accept",
+      "datetime": "2026-10-12T17:19:26Z",
+      "session": "prompt-log",
+      "prompt": "yes tell Astra i accept",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
       "tool": null,
       "actor": null,
       "artifacts": [],
       "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4RJ3B88A4JP7BGK0236S3P0",
+      "shortname": "r224-read-only",
+      "datetime": "2026-10-12T17:20:53Z",
+      "session": "pc-f1-r217-cleanup-live1",
+      "prompt": "Execute the single R224 read-only cleanup verification and bind its proof.",
+      "summary": "R224 read-only verification passed: protected L3 SHA-256 exactly matched history and the failed target registration/path remained absent; no forbidden action ran.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": "codex",
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/recovery-1/read-only-r224/receipt.json"
+      ],
+      "tags": [],
       "outcome": "success",
-      "compiled": false,
-      "tier": "T1",
-      "fan_out": 0,
+      "goal": "Bind R224 rollback verification without another cleanup or preflight action.",
+      "done_when": "The historical protected snapshot hash matches exactly, target absence is reproved, and a committed receipt cites R224 and source 5b1a9bb4.",
+      "tier": "T2",
+      "fan_out": 2,
       "signals": {
         "verification_path": true,
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-12T16:44:54Z",
-      "duration_seconds": 66.0
+      "git": {
+        "sha": "a52793e75be07d7c081874d5ded49f628f55bb38",
+        "short": "a52793e75",
+        "branch": "win/gpu-f1-r217-cleanup-live1",
+        "pushed": false
+      }
     }
   ],
   "changes": [

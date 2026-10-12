@@ -1,0 +1,6 @@
+pid=1323
+pgid=1323
+sid=1323
+nice=10
+Cpus_allowed_list=0-1
+cmdline=/bin/bash /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-execute-r220/docs/proof/win-gpu-f1-preflight/packet/identity.sh /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-execute-r220/docs/proof/win-gpu-f1-preflight/run-1/live/repositories.residual-check.entry.txt -- /bin/bash /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-execute-r220/docs/proof/win-gpu-f1-preflight/packet/owned-control.sh --mode check --run-root /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-execute-r220/docs/proof/win-gpu-f1-preflight/run-1/live r217-run1-epoch6-20261012 

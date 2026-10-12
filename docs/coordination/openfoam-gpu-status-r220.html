@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OpenFOAM GPU status — Ruling 220</title>
+  <style>
+    :root { color-scheme: dark; --ink:#e9f0ef; --muted:#9fb1ae; --panel:#13201f; --line:#29403e; --bg:#091110; --ok:#66d19e; --work:#f3c96b; --stop:#ff887d; --cyan:#73c8d3; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:radial-gradient(circle at 80% -10%,#183b38 0,transparent 36rem),var(--bg); color:var(--ink); font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { max-width:1180px; margin:auto; padding:42px 28px 64px; }
+    header { display:grid; grid-template-columns:1fr auto; gap:28px; align-items:end; padding-bottom:28px; border-bottom:1px solid var(--line); }
+    h1 { margin:0; font-size:clamp(34px,5vw,64px); line-height:1; letter-spacing:-.045em; max-width:780px; }
+    h2 { margin:36px 0 14px; font-size:22px; }
+    p { max-width:82ch; }
+    .eyebrow { color:var(--cyan); text-transform:uppercase; letter-spacing:.14em; font-weight:750; font-size:12px; margin-bottom:12px; }
+    .stamp { text-align:right; color:var(--muted); white-space:nowrap; }
+    .headline { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:28px 0; }
+    .metric,.card { background:linear-gradient(145deg,#152523,#101b1a); border:1px solid var(--line); border-radius:14px; padding:18px; }
+    .metric b { display:block; font-size:23px; margin-top:4px; }
+    .label { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.1em; }
+    .ok { color:var(--ok); } .work { color:var(--work); } .stop { color:var(--stop); }
+    .track { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; margin:18px 0 30px; }
+    .step { min-height:132px; border-top:4px solid var(--line); padding:14px 12px; background:#101a19; }
+    .step.done { border-color:var(--ok); } .step.active { border-color:var(--work); } .step.closed { border-color:var(--stop); }
+    .step strong { display:block; margin:5px 0 7px; }
+    .step small { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    ul,ol { padding-left:22px; }
+    li { margin:.45em 0; }
+    code { color:#b8e3dc; }
+    table { width:100%; border-collapse:collapse; background:#0f1918; }
+    th,td { text-align:left; vertical-align:top; border-bottom:1px solid var(--line); padding:12px; }
+    th { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+    a { color:#9ee5ec; }
+    .route { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:15px 0; }
+    .route span { padding:9px 12px; border:1px solid var(--line); border-radius:999px; background:#10201e; }
+    .route i { color:var(--muted); font-style:normal; }
+    footer { margin-top:42px; color:var(--muted); border-top:1px solid var(--line); padding-top:20px; }
+    @media (max-width:900px) { .headline,.track { grid-template-columns:repeat(2,1fr); } .grid,header { grid-template-columns:1fr; } .stamp { text-align:left; } }
+    @media (max-width:560px) { main { padding:28px 16px; } .headline,.track { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div><div class="eyebrow">CFD-Workbench · Windows GPU lane</div><h1>OpenFOAM GPU work is at the final packet-repair gate.</h1></div>
+    <div class="stamp">Snapshot<br><strong>12 Oct 2026 · Ruling 220</strong></div>
+  </header>
+
+  <section class="headline" aria-label="Key status">
+    <div class="metric"><span class="label">CUDA capability</span><b class="ok">Proved</b><span>13.2 · RTX 3080 Ti</span></div>
+    <div class="metric"><span class="label">F1 design</span><b class="ok">Specified</b><span>PETSc + petsc4Foam</span></div>
+    <div class="metric"><span class="label">Current gate</span><b class="work">Repair active</b><span>P1 cleanup · P3 identity</span></div>
+    <div class="metric"><span class="label">Live F1 effects</span><b class="stop">Closed</b><span>No install, build, or case run</span></div>
+  </section>
+
+  <h2>Delivery path</h2>
+  <div class="track">
+    <div class="step done"><span class="label">Complete</span><strong>Route inspection</strong><small>Installed v2512 does not prove whole-solver GPU use.</small></div>
+    <div class="step done"><span class="label">Complete</span><strong>CUDA B2</strong><small>135-package lock, SAXPY pass, rollback complete.</small></div>
+    <div class="step done"><span class="label">Complete</span><strong>F1 design</strong><small>Build route and three-arm benchmark frozen.</small></div>
+    <div class="step active"><span class="label">Now</span><strong>R220 repair</strong><small>One red-first P1/P3 cycle, then fresh Astra review.</small></div>
+    <div class="step closed"><span class="label">Closed</span><strong>Dependency preflight</strong><small>Unlocks only after packet ACCEPT and contract review.</small></div>
+    <div class="step closed"><span class="label">Later ruling</span><strong>Build + benchmark</strong><small>Native GAMG vs PETSc CPU vs PETSc GPU.</small></div>
+  </div>
+
+  <div class="grid">
+    <article class="card">
+      <h2>What is proved</h2>
+      <ul>
+        <li>WSL can execute CUDA on the laptop GPU.</li>
+        <li>CUDA 13.2 installed from the exact accepted lock in a disposable distro.</li>
+        <li>Managed-memory SAXPY completed with zero mismatches.</li>
+        <li>The disposable distro was unregistered and <code>cfdw-openfoam2512</code> stayed unchanged.</li>
+        <li>PETSc 3.26.0 plus a pinned petsc4Foam commit is the selected F1 route.</li>
+      </ul>
+    </article>
+    <article class="card">
+      <h2>What remains unknown</h2>
+      <ul>
+        <li>The full signed F1 dependency transaction and per-package licence/size closure.</li>
+        <li>Whether PETSc-CUDA and petsc4Foam build successfully against OpenFOAM 2512.</li>
+        <li>Whether the selected case performs real solver work on the GPU.</li>
+        <li>Numerical equivalence and whether GPU is at least 1.20× faster than native GAMG.</li>
+        <li>How WSL managed-memory migration affects this real CFD workload.</li>
+      </ul>
+    </article>
+  </div>
+
+  <h2>Ruling 220: the active repair</h2>
+  <table>
+    <thead><tr><th>Finding</th><th>Required control</th><th>Exit evidence</th></tr></thead>
+    <tbody>
+      <tr><td><strong>P1 · final cleanup reap</strong></td><td>A fresh bounded stop/reap runs in <code>finally</code> after every cleanup launch; nothing launches afterward.</td><td>Red-first deletion failure, then complete offline packet suite green.</td></tr>
+      <tr><td><strong>P3 · exact ownership</strong></td><td>Recorded PID/PGID plus exact argv token matching; never substring membership.</td><td>A planted <code>runA</code>/<code>runAB</code> collision selects and signals no foreign group.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>What ACCEPT would unlock</h2>
+  <div class="route" aria-label="Future route">
+    <span>Fresh Astra ACCEPT</span><i>→</i><span>Reviewed environment contract</span><i>→</i><span>R217 dependency-only preflight</span><i>→</i><span>Evidence + cleanup</span><i>→</i><span>Later operator build ruling</span><i>→</i><span>Three-arm benchmark</span>
+  </div>
+  <p>The R217 run may simulate the package transaction and download resolved <code>.deb</code> files only for hash, licence, and size inspection. It cannot install packages, fetch PETSc/petsc4Foam sources, compile, or run CFD.</p>
+
+  <h2>Coordination</h2>
+  <p>Mac Ruling 220 is merged into the Windows coordinator branch. The requested Windows readiness failure lines are posted to <a href="https://github.com/timianmalloo/CFD-Workbench/pull/33">GitHub PR #33</a>. Mac remains the repository leader; Windows owns this bounded repair and any later authorized machine execution.</p>
+
+  <footer>
+    <strong>Confidence:</strong> completed-stage claims are Verified from committed receipts and rulings. F1 dependency closure, build, solver offload, accuracy, and speed are Not recorded.<br>
+    Canonical source: <a href="openfoam-gpu-status-r220.md">openfoam-gpu-status-r220.md</a>
+  </footer>
+</main>
+</body>
+</html>

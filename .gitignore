@@ -31,3 +31,8 @@ obj/
 
 # CFD run artifacts (operator rule, Ruling 60): runs/<timestamp>/ is never committed and never overwritten
 /runs/
+
+# Recovery writes fresh evidence here; only its manifest-bound final copy is committed.
+/docs/proof/win-gpu-f1-preflight/recovery-1/live/
+/docs/proof/win-gpu-f1-preflight/recovery-1/private/
+/docs/proof/win-gpu-f1-preflight/recovery-1/public/
