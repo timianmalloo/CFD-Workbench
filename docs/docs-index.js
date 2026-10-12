@@ -2359,7 +2359,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3d8a61e5e6731d97f36b7533124e35ebbfefb0d5ab27329270db9436829e74e5"
+      "sourceSha256": "59c5acc2f57489994a5574fae8dbddc2c2ff696b106151fda09470babb3330f4"
     },
     {
       "id": "design-area3-analysis",
@@ -2701,7 +2701,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d1c41e222834ec57af99602b59455ac2c4b6bc79c113a4e2a70ed8b6d84f4c91"
+      "sourceSha256": "dc6992c1489a1e3a339a639d5fe251f16538d99de6961df297018f748b4a6363"
     },
     {
       "id": "design-foildsl-authoring",
@@ -8830,7 +8830,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b2b6efa658886a7b3a21c5c982e22e16e0e3135889fd8659bb59313639c5a89d"
+      "sourceSha256": "caee19d5a174762e2709db9fc66e07b1581394baff493cf2f7a278681fd6ccfa"
     },
     {
       "id": "kb-hw-glossary",
@@ -13809,6 +13809,31 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "f8994d501f7569260514df1ac2b25fa96101fce7e46c5728be3a8a559a09f523"
+    },
+    {
+      "id": "proof-dtg-red-first",
+      "path": "docs/proof/dtg/red-first.md",
+      "title": "DTG red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-dtg",
+      "phase": "implementation",
+      "reviewBy": "2026-11-12",
+      "reviewSuggested": [],
+      "summary": "A folder at the export target name is refused before the write with one code and COPY-507 on both platforms; the new checks failed on the old code and pass on the fix.",
+      "tags": [
+        "dtg",
+        "export",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-export",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "99839dd3b945147ecf98b75d25af53e23193b2213874e26dce8efc28d7008019"
     },
     {
       "id": "proof-dx-red-first",
@@ -19463,7 +19488,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0166a2f2090401df8de20032ca2b18dd75ff2023410f1f3c7e6df8f6fb652261"
+      "sourceSha256": "d46c4dfea9d4a7b4967489f086a24a232f43d0f5e3a68177a1ce54b8e3cd0732"
     },
     {
       "id": "review-ui-application-native",
@@ -21096,5 +21121,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "3250d827676c5a72276789aeb3fed35b1e40023de8b4afcff83b47e3faa1f65e"
+  "graphSha256": "7fcabda404d5ad1040d84b9fcac8953cb6fd6718d57e6c88c468af3f04921356"
 };

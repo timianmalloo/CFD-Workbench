@@ -1,3 +1,19 @@
+---
+id: proof-dtg-red-first
+title: "DTG red-first receipt"
+type: proof-pack
+status: active
+owner: "@trk-dtg"
+phase: implementation
+tags: [dtg, export, red-first]
+links:
+  - { to: design-export, rel: depends-on }
+review-by: "2026-11-12"
+summary: >-
+  A folder at the export target name is refused before the write with one code and COPY-507 on both platforms; the new
+  checks failed on the old code and pass on the fix.
+---
+
 # DTG red-first: a folder at the export target name
 
 Defect (track WRX): a folder at the target name failed at the rename. macOS gave an IOException (generic text); Windows gave

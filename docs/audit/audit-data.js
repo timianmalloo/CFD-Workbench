@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T20:05:01Z",
+  "generated": "2026-10-12T14:22:31Z",
   "audit": [
     {
       "actor": null,
@@ -35826,6 +35826,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-11T20:04:44Z",
       "duration_seconds": 17.0
+    },
+    {
+      "id": "al-01M4R7WR4V6V596DT72F06PKTH",
+      "shortname": "dtg-dir-target",
+      "datetime": "2026-10-12T14:22:31Z",
+      "session": "trk-dtg",
+      "prompt": "DTG",
+      "summary": "ExportSession refuses a directory target (COPY-507, export.validate); CLI exit 5; tests unified",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "An export target that is a folder gets one message and one code on both platforms",
+      "done_when": "EXPORT-TARGET-DIRECTORY refused before write; tests red then green; run-tests green; check-docs 0",
+      "started_at": "2026-10-12T14:14:10Z",
+      "duration_seconds": 501.0
     }
   ],
   "changes": [
