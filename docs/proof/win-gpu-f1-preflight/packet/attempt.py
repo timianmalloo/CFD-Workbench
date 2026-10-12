@@ -3,7 +3,6 @@
 from __future__ import annotations
 import hashlib
 import json
-import os
 from pathlib import Path
 import re
 import subprocess
@@ -35,7 +34,7 @@ STAGES = ['probe', 'repositories', 'simulate', 'download', 'inspect', 'delete-de
 ACTIONS = ['fresh-target-create', 'rootfs-signature', 'completed-l3-before-watch-after',
            'owned-stop-check', 'terminate-target', 'unregister-target', 'absence-proof',
            'manifest-freeze-verify', 'evidence-commit']
-FORBIDDEN = ['dpkg -i', 'apt-get install', 'PETSc-source-fetch', 'petsc4Foam-source-fetch',
+FORBIDDEN = ['dpkg-install', 'apt-install', 'petsc-source-fetch', 'petsc4foam-source-fetch',
              'build', 'case-run', 'benchmark', 'protected-lifecycle', 'protected-file-change']
 
 
@@ -126,18 +125,3 @@ def verify_authorization(repo, path, document, contract_sha, run_id, exclusive, 
         raise ValueError('authorization bytes differ from committed live blob')
     main = contract.git(repo, 'show', 'origin/main:docs/notes/rulings.md')
     check_ruling(main, value, hashlib.sha256(raw).hexdigest())
-
-
-def check_target_absence(rows, names, path_present):
-    if path_present or 'cfdw-petsc-cuda132-f1' in names:
-        raise ValueError('fresh target name/path absence not proved')
-    expected_path = r'C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1'.casefold()
-    for row in rows:
-        if (row['name'] == 'cfdw-petsc-cuda132-f1' or row['key'].casefold() == OLD_TARGET_KEY.casefold() or
-                row['path'].removeprefix('\\\\?\\').rstrip('\\').casefold() == expected_path):
-            raise ValueError('fresh target registration absence not proved')
-    found = [row for row in rows if row['name'] == 'cfdw-openfoam2512']
-    if len(found) != 1 or found[0]['key'].casefold() != PROTECTED_KEY.casefold() or found[0]['version'] != 2:
-        raise ValueError('protected registration identity changed')
-    if found[0]['path'].removeprefix('\\\\?\\').rstrip('\\').casefold() != os.path.expandvars(PROTECTED_PATH).casefold():
-        raise ValueError('protected registration path changed')

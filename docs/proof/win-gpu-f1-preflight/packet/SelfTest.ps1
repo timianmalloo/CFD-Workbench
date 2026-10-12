@@ -1,4 +1,6 @@
 $ErrorActionPreference = 'Stop'
+$freshAttempt = $false # Legacy cleanup fixture; fresh-attempt controls have their own sentinel suite.
+$script:CreatedTargetKey = ''
 Set-StrictMode -Version Latest
 $testClock = [Diagnostics.Stopwatch]::StartNew()
 . (Join-Path $PSScriptRoot 'Control.ps1')

@@ -114,4 +114,3 @@ function Assert-FreshRegistrations([object[]]$Rows, [string[]]$Names, [bool]$Pat
         throw 'protected GUID/name/path/version differs'
     }
 }
-
