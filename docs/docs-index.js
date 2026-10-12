@@ -8873,7 +8873,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cb4276e887bdfce88fc8a01207696a04e95d4a3a7bd6affbf0263fc70f937cf5"
+      "sourceSha256": "caee19d5a174762e2709db9fc66e07b1581394baff493cf2f7a278681fd6ccfa"
     },
     {
       "id": "kb-hw-glossary",
@@ -18236,7 +18236,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a82e63cdf4cb9e3c89d1921d22adc32bb7ebdaccfe9c60cba1dc1b27835e6936"
+      "sourceSha256": "b88c983e69ece9f5276156cb5fbf01b49839ca4479be7ba4279105a51b637388"
     },
     {
       "id": "proof-win-gpu-g1",
@@ -21262,5 +21262,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d3a45a54bc90a29a29cbbb54dc61f38321230aa88fb5d2a25910dd5f69699057"
+  "graphSha256": "2b9d4004ca3eae7d0d35f4ddd08ad65192fdf0b03d9ccf9f79f4ac6e130d9335"
 };

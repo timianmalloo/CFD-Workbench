@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T14:14:46Z",
+  "generated": "2026-10-12T14:33:49Z",
   "audit": [
     {
       "actor": null,
@@ -36260,6 +36260,80 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M4R87Q0V1ZE0MDET6WGH69EZ",
+      "shortname": "f1-r220-p1-p3-repair",
+      "datetime": "2026-10-12T14:28:30Z",
+      "session": "pc-f1-r220-author",
+      "prompt": "You are the sole Ruling 220 packet repair author. Work only in the already-created worktree C:\\Projects\\CFD-Workbench-win-gpu-f1-r220-repair on branch win/gpu-f1-r220-repair, base 15a50522bd42. Do not create or enter another worktree. Session id pc-f1-r220-author. First run: py -3 docs/ai-forward-pack/scripts/audit-log.py start --session pc-f1-r220-author --skill execute-with-coordination. Read AGENTS.md, docs/ai-forward-pack/codex.md, docs/notes/rulings.md Ruling 220, docs/reviews/windows-gpu-f1-preflight-packet.md, and the packet sources/tests under docs/proof/win-gpu-f1-preflight/packet. Goal: implement exactly the one additional Ruling 220 repair cycle for P1 and P3. P1: create a red-first regression proving cleanup cannot launch any owned work after the final stop-and-reap check; arrange a finally path with a fresh bounded stop/reap after every cleanup-stage launch, with nothing launching after it. P3: create a red-first regression proving requested runA never selects runAB; match exact pid/pgid plus exact argv token, never substring membership. Preserve all cleared P2/P4/P5/P6 behavior and Ruling 217 bounds. No WSL commands, wrapper execution, apt, network/download, install, build, source acquisition, or CFD case run. Run the packet's complete offline self-tests plus required repo gates. Update only packet code/tests/README or directly necessary review evidence and derived audit/index files; do not change Ruling 220. Record red evidence before the fix and green evidence after. Append the required audit entry, regenerate derived views, commit with AGENT_SESSION=pc-f1-r220-author, push branch, and report exact commit, tests, changed files, duration, and any residual. One repair attempt only; stop and report if a hard uncertainty appears.",
+      "summary": "Ruling 220 sole additional repair pass: observed P1 final reap and P3 runA/runAB regressions red before edits, then green. Invoke-Cleanup finally reaps every delete-debs exit; Invoke-Finalization final finally resets and recomputes owned_stopped after all callbacks. /proc NUL argv replaces ps text matching; exact interpreter/script/run/guard-event tokens and recorded leader pid/pgid/sid required, with exact pre-exec identity wrapper and saved leader-gone children preserved. Full offline packet suite, PowerShell 5.1/7.6, all PS AST and four Git Bash syntax checks, WSL-inline, check-docs, graph zero defects, whitespace, and 10 offline-safe verify gates pass. Three application/build/store gates explicitly skipped outside authority. Measured fixture costs 0.293 s (PS5.1), 0.214 s (PS7.6), 0.464 s (Python). No WSL, live wrapper, network, apt, install, source, build or case executed. Independent review and live environment contract remain open. One planned/actual pass; no green failure or repair retry; token usage not recorded.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/packet/README.md",
+        "docs/proof/win-gpu-f1-preflight/packet/Control.ps1",
+        "docs/proof/win-gpu-f1-preflight/packet/owned_control.py"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Repair exactly Ruling 220 P1 final cleanup reap and P3 exact process discovery in the assigned offline packet branch.",
+      "done_when": "Both regressions are observed red before fixes and green afterward; complete offline packet tests and required safe repo gates pass; source/evidence/audit are committed and the repair branch is pushed for independent review.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T14:17:01Z",
+      "duration_seconds": 689.0,
+      "git": {
+        "sha": "15a50522bd4253e41842b01287b4887ebef2cc3b",
+        "short": "15a50522b",
+        "branch": "win/gpu-f1-r220-repair",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M4R8GCFZYZP658VP7N5XZF2D",
+      "shortname": "f1-r220-precommit-inspection-race",
+      "datetime": "2026-10-12T14:33:14Z",
+      "session": "pc-f1-r220-author",
+      "prompt": "You are the sole Ruling 220 packet repair author. Work only in the already-created worktree C:\\Projects\\CFD-Workbench-win-gpu-f1-r220-repair on branch win/gpu-f1-r220-repair, base 15a50522bd42. Do not create or enter another worktree. Session id pc-f1-r220-author. First run: py -3 docs/ai-forward-pack/scripts/audit-log.py start --session pc-f1-r220-author --skill execute-with-coordination. Read AGENTS.md, docs/ai-forward-pack/codex.md, docs/notes/rulings.md Ruling 220, docs/reviews/windows-gpu-f1-preflight-packet.md, and the packet sources/tests under docs/proof/win-gpu-f1-preflight/packet. Goal: implement exactly the one additional Ruling 220 repair cycle for P1 and P3. P1: create a red-first regression proving cleanup cannot launch any owned work after the final stop-and-reap check; arrange a finally path with a fresh bounded stop/reap after every cleanup-stage launch, with nothing launching after it. P3: create a red-first regression proving requested runA never selects runAB; match exact pid/pgid plus exact argv token, never substring membership. Preserve all cleared P2/P4/P5/P6 behavior and Ruling 217 bounds. No WSL commands, wrapper execution, apt, network/download, install, build, source acquisition, or CFD case run. Run the packet's complete offline self-tests plus required repo gates. Update only packet code/tests/README or directly necessary review evidence and derived audit/index files; do not change Ruling 220. Record red evidence before the fix and green evidence after. Append the required audit entry, regenerate derived views, commit with AGENT_SESSION=pc-f1-r220-author, push branch, and report exact commit, tests, changed files, duration, and any residual. One repair attempt only; stop and report if a hard uncertainty appears.",
+      "summary": "Precommit continuation of the same authorized Ruling 220 repair cycle, correcting a scanner defect created in the implementation. Source inspection found ps can list an already exited PID; red offline fixture produced RuntimeError argv inspection failed for pid 101: argv disappeared. New scanner independently stats /proc/<pid> and omits only FileNotFoundError; present PID, denied stat, malformed argv and inspection errors remain fail-closed. Missing-argv/confirmed-absence fixture and present/denied negatives now pass in the complete Python packet self-test (0.466 s measured). Authority scanner passes; documentation gate passed again with audit and graph derivations. P1/P3 repairs and unchanged R217 bounds remain; no live WSL, wrapper, apt, network acquisition, install, build or case. This entry supplements al-01M4R87Q0V1ZE0MDET6WGH69EZ; one precommit correction, no second reviewed repair cycle. Class/sweep/control captured in packet README because defect register is outside delegated paths; coordinator consolidation remains open.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/packet/README.md",
+        "docs/proof/win-gpu-f1-preflight/packet/owned_control.py",
+        "docs/proof/win-gpu-f1-preflight/packet/packet_selftest.py"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Complete the single Ruling 220 repair cycle with an offline-proved correction to the newly introduced process-inspection race.",
+      "done_when": "Vanished PID can be omitted only on independent absence; present/denied PID remains unknown; packet self-tests and authority/doc/graph gates pass; branch is committed and pushed.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T14:31:47Z",
+      "duration_seconds": 87.0,
+      "git": {
+        "sha": "15a50522bd4253e41842b01287b4887ebef2cc3b",
+        "short": "15a50522b",
+        "branch": "win/gpu-f1-r220-repair",
+        "pushed": null
+      }
     }
   ],
   "changes": [

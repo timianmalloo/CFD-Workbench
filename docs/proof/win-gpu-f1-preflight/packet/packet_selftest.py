@@ -5,6 +5,9 @@ from types import SimpleNamespace
 import hashlib
 import json
 import tempfile
+import time
+from pathlib import PurePosixPath
+from subprocess import CompletedProcess
 
 import contract
 import owned_control
@@ -61,15 +64,89 @@ def verify_size_case(index_value, control_value, should_pass):
 
 
 def main():
+    started = time.perf_counter()
+    # Ruling 220 P3: exact attempt tokens; fast offline ring with a mocked signal sink.
+    for kind, command in (
+        ("stage", "/bin/bash /mnt/packet/preflight.sh --stage download --run-root /mnt/c/runAB --run-id runAB"),
+        ("guard", "/usr/bin/python3 /mnt/packet/completed_guard.py watch --session-id runAB --events /mnt/c/runAB/completed-guard-events.jsonl"),
+    ):
+        foreign = [owned_control.ProcessRow(123, 123, 123, tuple(command.split()))]
+        assert owned_control.find_groups(foreign, "/mnt/c/runA", "runA", {}, kind) == set(), \
+            f"P3 {kind}: runA selected runAB"
+        exact = command.replace("runAB", "runA")
+        exact_rows = [owned_control.ProcessRow(123, 123, 123, tuple(exact.split()))]
+        assert owned_control.find_groups(exact_rows, "/mnt/c/runA", "runA", {}, kind) == {123}
+        owner_name = "download.entry.txt" if kind == "stage" else "guard.owner.txt"
+        entry = ("/bin/bash", "/mnt/packet/identity.sh", f"/mnt/c/runA/{owner_name}", "--", *tuple(exact.split()))
+        records = {"download" if kind == "stage" else "guard": 123}
+        assert owned_control.find_groups([owned_control.ProcessRow(123, 123, 123, entry)],
+                                         "/mnt/c/runA", "runA", records, kind) == {123}
+        wrong_entry = (*entry[:2], f"/mnt/c/runAB/{owner_name}", *entry[3:])
+        expect_failure(lambda: owned_control.find_groups([owned_control.ProcessRow(123, 123, 123, wrong_entry)],
+                                                         "/mnt/c/runA", "runA", records, kind),
+                       "pre-exec owner path collision")
+        for changed in (exact.replace("run-id runA", "run-id runAB").replace("session-id runA", "session-id runAB"),
+                        exact.replace("/mnt/c/runA", "/mnt/c/runAB"),
+                        exact.replace("/mnt/packet/", "/mnt/packet/foreign-")):
+            assert owned_control.find_groups([owned_control.ProcessRow(123, 123, 123, tuple(changed.split()))],
+                                             "/mnt/c/runA", "runA", {}, kind) == set()
+        expect_failure(lambda: owned_control.find_groups(foreign, "/mnt/c/runA", "runA",
+                                                         {"download" if kind == "stage" else "guard": 123}, kind),
+                       "recorded foreign argv")
+        with tempfile.TemporaryDirectory() as folder:
+            here = Path(folder) / "runA"
+            here.mkdir()
+            foreign_command = command.replace("/mnt/c/runAB", str(here) + "B")
+            foreign_command = foreign_command.replace("/mnt/packet", str(PurePosixPath(str(here)).parent.parent / "packet"))
+            original_read, original_signal = owned_control.read_processes, owned_control.send_group_signal
+            signals = []
+            owned_control.read_processes = lambda: [owned_control.ProcessRow(123, 123, 123, tuple(foreign_command.split()))]
+            owned_control.send_group_signal = lambda group, sig: signals.append((group, sig))
+            try:
+                owned_control.control("stop", here, "runA", kind)
+                assert not signals, f"P3 {kind}: foreign group received a signal"
+            finally:
+                owned_control.read_processes, owned_control.send_group_signal = original_read, original_signal
     root = "/mnt/c/review/run-1/live"
     run_id = "r217-one"
     cmd = f"/bin/bash /mnt/c/review/packet/preflight.sh --stage download --run-root {root} --packet-root /mnt/c/review/packet --run-id {run_id}"
-    rows = [owned_control.ProcessRow(101, 101, 101, cmd),
-            owned_control.ProcessRow(102, 101, 101, "apt-get download fixture")]
+    rows = [owned_control.ProcessRow(101, 101, 101, tuple(cmd.split())),
+            owned_control.ProcessRow(102, 101, 101, ("apt-get", "download", "fixture"))]
     assert owned_control.find_groups(rows, root, run_id, {}) == {101}
     assert owned_control.find_groups(rows[1:], root, run_id, {"download": 101}) == {101}
     expect_failure(lambda: owned_control.find_groups(rows, root, run_id, {"download": "partial"}), "partial owner")
     expect_failure(lambda: owned_control.read_processes(lambda: (_ for _ in ()).throw(OSError("ps failed"))), "ps failure")
+    inspected = owned_control.read_processes(lambda: CompletedProcess([], 0, "101 101 101\n"),
+                                             lambda _pid: b"/bin/echo\0one token with spaces\0runAB\0")
+    assert inspected[0].argv == ("/bin/echo", "one token with spaces", "runAB")
+    # ps includes short-lived processes (including itself); recheck a missing PID.
+    original_path = owned_control.Path
+    owned_control.Path = lambda _path: SimpleNamespace(
+        stat=lambda: (_ for _ in ()).throw(FileNotFoundError("PID independently absent")))
+    try:
+        assert owned_control.read_processes(lambda: CompletedProcess([], 0, "101 101 101\n"),
+            lambda _pid: (_ for _ in ()).throw(FileNotFoundError("argv disappeared"))) == []
+    finally:
+        owned_control.Path = original_path
+    for stat in (lambda: SimpleNamespace(),
+                 lambda: (_ for _ in ()).throw(PermissionError("PID inspection denied"))):
+        owned_control.Path = lambda _path: SimpleNamespace(stat=stat)
+        try:
+            expect_failure(lambda: owned_control.read_processes(lambda: CompletedProcess([], 0, "101 101 101\n"),
+                lambda _pid: (_ for _ in ()).throw(FileNotFoundError("argv disappeared"))),
+                "unproved PID disappearance")
+        finally:
+            owned_control.Path = original_path
+    expect_failure(lambda: owned_control.read_processes(lambda: CompletedProcess([], 0, "101 101 101\n"),
+                                                       lambda _pid: b"unterminated"), "partial proc argv")
+    expect_failure(lambda: owned_control.read_processes(lambda: CompletedProcess([], 0, "101 101 101\n"),
+                                                       lambda _pid: (_ for _ in ()).throw(OSError("proc denied"))),
+                   "proc inspection failure")
+    for wrong in (owned_control.ProcessRow(101, 999, 101, tuple(cmd.split())),
+                  owned_control.ProcessRow(101, 101, 999, tuple(cmd.split())),
+                  owned_control.ProcessRow(101, 101, 101, ("/bin/echo", cmd))):
+        expect_failure(lambda wrong=wrong: owned_control.find_groups([wrong], root, run_id, {"download": 101}),
+                       "recorded pid/pgid/argv mismatch")
     with tempfile.TemporaryDirectory() as folder:
         here = Path(folder)
         (here / "current-owner.pid").write_text("", encoding="ascii")
@@ -139,7 +216,7 @@ def main():
     verify_size_case("Not recorded", "99", True)
     verify_size_case(1, "99", False)
     verify_size_case(1, "", False)
-    print("packet planted-failure self-test: PASS")
+    print(f"packet planted-failure self-test: PASS ring=offline-fast elapsed_seconds={time.perf_counter() - started:.3f}")
 
 
 if __name__ == "__main__":
