@@ -286,7 +286,7 @@ Both the dialog (`ShellHost`, through `WorkbenchController.RecordExport`) and th
 | Event | When | Fields |
 |---|---|---|
 | `export.write` | One per write attempt, after the save panel returns a name. Not for a cancelled panel. | `Format` (`dat`, `stl`, `3mf`); `Scope` (`whole`, `half`; mesh only); `Preset` (`draft`, `print`, `fine`; mesh only); `Outcome` (`written`, `cancelled`, `EXPORT-NO-PERMISSION`, `EXPORT-FOLDER-GONE`, `EXPORT-DISK-FULL`, `EXPORT-WRITE-FAILED`); `Milliseconds` (the write only, not the panel); `Bytes` (what was to be written); `Triangles` and `DeviationMm` (mesh only) |
-| `export.validate` | One per refusal before any write: `EXPORT-GEOMETRY-NOT-ACCEPTED` (once when the session opens on geometry that is not accepted), `EXPORT-NOT-CLOSED` (H7), `EXPORT-WOULD-REPLACE`, `EXPORT-TARGET-LINK` (CLI pre-check; in the dialog a link fails the write as `EXPORT-WRITE-FAILED`) | `Format`, `Scope`, `Preset` as above; `Outcome` is the code; the measures are null |
+| `export.validate` | One per refusal before any write: `EXPORT-GEOMETRY-NOT-ACCEPTED` (once when the session opens on geometry that is not accepted), `EXPORT-NOT-CLOSED` (H7), `EXPORT-WOULD-REPLACE`, `EXPORT-TARGET-LINK` (CLI pre-check; in the dialog a link fails the write as `EXPORT-WRITE-FAILED`), `EXPORT-TARGET-DIRECTORY` (a folder at the target name; both surfaces) | `Format`, `Scope`, `Preset` as above; `Outcome` is the code; the measures are null |
 
 Questions it answers: how often each format and scope is written; how long a write takes; how big it is; how often, and why, an export is refused or fails.
 

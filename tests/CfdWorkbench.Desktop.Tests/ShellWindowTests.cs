@@ -344,6 +344,7 @@ public static class ShellWindowTests
                 try
                 {
                     window.Show();
+                    ForceScaleForDiagnostic(window);
                     Settle(window);
                     var host = window.Content as ShellHost ?? throw new InvalidOperationException("Shell host did not load");
                     var span = host.Properties.FindControl<TextBox>("SpanInput") ?? throw new InvalidOperationException("Span field did not load");
@@ -448,6 +449,7 @@ public static class ShellWindowTests
                     // Browser's fold; scroll it into view before measuring what paints behind its text.
                     rowItems[1].BringIntoView();
                     Settle(window);
+                    PrintScrollDiagnostic(theme, window, rowItems[1]);
                     Probe(theme, "browser.selected", () => TextRow(theme, "browser.selected", rowItems[0]));
                     Probe(theme, "browser.unselected", () => TextRow(theme, "browser.unselected", rowItems[1]));
                     foreach (var (item, state) in new[] { (rowItems[0], "selected"), (rowItems[1], "unselected") })
@@ -3576,10 +3578,41 @@ public static class ShellWindowTests
                 throw new InvalidOperationException($"Text transform to {layer.GetType().Name} is outside the pressed-scale range");
             var area = visibleBounds.TransformToAABB(matrix);
             if (area.X < -.01 || area.Y < -.01 || area.Right > layer.Bounds.Width + .01 || area.Bottom > layer.Bounds.Height + .01)
-                throw new InvalidOperationException($"Painted background does not enclose text on {layer.GetType().Name}");
+                throw new InvalidOperationException($"Painted background does not enclose text on {layer.GetType().Name}" + BackingDiagnostic(area, layer, text));
             backing = solid.Color;
         }
         return backing ?? throw new InvalidOperationException("No proven opaque backing for rendered text");
+    }
+
+    // Ruling 221 diagnostic, off unless CFD_DIAG_SCROLL=1 (prints) or CFD_DIAG_FORCE_SCALE=<factor> (Mac emulation of a
+    // Windows display scale). With both unset the matrix behaves and prints exactly as before. No paths or host names.
+    private static bool DiagScroll => Environment.GetEnvironmentVariable("CFD_DIAG_SCROLL") == "1";
+
+    private static void ForceScaleForDiagnostic(Window window)
+    {
+        if (!double.TryParse(Environment.GetEnvironmentVariable("CFD_DIAG_FORCE_SCALE"),
+                System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var scale))
+            return;
+        var handle = typeof(TopLevel).GetMethod("HandleScalingChanged", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public)
+            ?? throw new InvalidOperationException("HandleScalingChanged absent");
+        handle.Invoke(window, [scale]);
+        Console.WriteLine(FormattableString.Invariant($"DIAG-SCALE forced={scale} RenderScaling={window.RenderScaling}"));
+    }
+
+    private static void PrintScrollDiagnostic(string theme, Window window, Control row)
+    {
+        if (!DiagScroll) return;
+        foreach (var viewer in row.GetVisualAncestors().OfType<ScrollViewer>())
+            Console.WriteLine(FormattableString.Invariant(
+                $"DIAG-SCROLL theme={theme} scale={window.RenderScaling} offset={viewer.Offset} extent={viewer.Extent} viewport={viewer.Viewport} rowTop={row.TranslatePoint(default, viewer)?.Y} rowHeight={row.Bounds.Height} viewerBounds={viewer.Bounds}"));
+    }
+
+    private static string BackingDiagnostic(Rect area, Visual layer, Visual text)
+    {
+        if (!DiagScroll) return "";
+        var frames = new System.Diagnostics.StackTrace(true).GetFrames().Skip(1).Take(4)
+            .Select(frame => frame.GetMethod()?.Name + ":" + frame.GetFileLineNumber());
+        return FormattableString.Invariant($" [DIAG area={area} layerSize={layer.Bounds.Size} text={text.GetType().Name} str={(text as TextBlock)?.Text} scale={TopLevel.GetTopLevel(text)?.RenderScaling}] {string.Join(">", frames)}");
     }
 
     private static double Contrast(Color first, Color second)

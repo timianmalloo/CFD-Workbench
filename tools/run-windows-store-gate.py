@@ -103,13 +103,15 @@ def self_test() -> int:
     # for an already-expired deadline (timeout 0) and when the kill itself fails; the measured cleanup time is printed.
     holder = ("import signal, subprocess, sys, time; signal.signal(signal.SIGTERM, signal.SIG_IGN); "
               "subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(8)'], start_new_session=True); time.sleep(30)")
-    real_killpg = os.killpg
+    # Windows has no os.killpg (run_gate kills the child itself there), so the group-kill cases have no meaning and are skipped.
+    real_killpg = None if os.name == "nt" else os.killpg
 
     def failing_killpg(*_):
         raise PermissionError("injected kill failure")
 
-    for label, deadline, kill in (("expired deadline", 0, real_killpg), ("held pipe", 1, real_killpg),
-                                   ("failed kill", 1, failing_killpg)):
+    for label, deadline, kill in (() if os.name == "nt" else
+                                  (("expired deadline", 0, real_killpg), ("held pipe", 1, real_killpg),
+                                   ("failed kill", 1, failing_killpg))):
         buffer = io.StringIO()
         began = time.monotonic()
         os.killpg = kill

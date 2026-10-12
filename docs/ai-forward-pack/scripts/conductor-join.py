@@ -349,7 +349,7 @@ def self_test() -> int:
         fixture = Path(command_tmp)
         bash = fixture / "Git" / "bin" / "bash.exe"
         bash.parent.mkdir(parents=True)
-        bash.write_text("fixture", encoding="utf-8")
+        bash.write_bytes(b"fixture")
         resolved = _resolve_command(["tools/join-ring.sh"], windows=True,
                                     path=str(bash.parent),
                                     which=lambda name, path=None: str(bash))
@@ -365,7 +365,7 @@ def self_test() -> int:
             problems.append("a Windows .sh command ran without a valid Bash executable")
         alias = fixture / "WindowsApps" / "bash.exe"
         alias.parent.mkdir()
-        alias.write_text("fixture", encoding="utf-8")
+        alias.write_bytes(b"fixture")
         try:
             alias_result = _resolve_command(["tools/join-ring.sh"], windows=True, path=str(alias.parent),
                                             which=lambda name, path=None: str(alias), program_files=[])

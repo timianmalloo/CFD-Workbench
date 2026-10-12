@@ -23,6 +23,7 @@ internal static class ExportCliTests
             ("Cli_Export_HalfNamesFileHalf", HalfNamesFile),
             ("Cli_Export_SymlinkTargetRefused", SymlinkRefused),
             ("Export_LinkTargetHasOneCodeOnBothSurfaces", LinkTargetOneCode),
+            ("Export_DirectoryTargetHasOneCodeOnBothSurfaces", DirectoryTargetOneCode),
             ("Cli_Export_3mfPassesPackageCheckAndHalfNamesFile", ThreeMfWrites),
             ("Cli_Export_StationTakesTheAppsNames", StationNamesAgree),
             ("Cli_Export_InvalidOptionPrintsUsage", InvalidOptions),
@@ -122,6 +123,34 @@ internal static class ExportCliTests
         Require(File.ReadAllText(real) == "keep", "the link target was overwritten");
         Require((File.GetAttributes(link) & FileAttributes.ReparsePoint) != 0, "the link was replaced");
         Require(Directory.GetFiles(folder).Length == 2, "a temp file was left behind");
+    });
+
+    // DTG: a folder at the target name is refused before any write, one code and one message on every platform and both surfaces.
+    private static async Task DirectoryTargetOneCode() => await WithFolder(async folder =>
+    {
+        // --out takes an existing folder plus the dialog's suggested name, so the folder at that name is the target.
+        string taken = Path.Combine(folder, "basic-foil-r1-mm.stl");
+        Directory.CreateDirectory(taken);
+        List<ExportTelemetry> cli = [], dialog = [];
+        var output = new StringWriter();
+        int exit = await ExportVerb.RunAsync(["export", "example", "--format", "stl", "--tolerance", "draft", "--out", folder], output, CancellationToken.None,
+            events => cli.AddRange(events.Where(e => e.Export is not null).Select(e => e.Export!)));
+        using var authoring = new AuthoringSession();
+        authoring.Open(Cli.ExampleBytes(), Guid.NewGuid().ToString("D"), true);
+        var session = new ExportSession(ExportVerb.Snapshot(authoring), record: dialog.Add);
+        session.Set(format: ExportFormat.Dat);
+        await session.PrepareAsync(CancellationToken.None);
+        string datTaken = Path.Combine(folder, "taken.dat");
+        Directory.CreateDirectory(datTaken);
+        var outcome = await session.RunAsync((_, _) => Task.FromResult<string?>(datTaken));
+        Require(exit == 5 && outcome.Kind == ExportOutcomeKind.Failed, $"cli exit {exit}, dialog {outcome.Kind}");
+        Require(outcome.Code == "EXPORT-TARGET-DIRECTORY", $"the dialog outcome code is {outcome.Code}");
+        Require(outcome.Message == "Can't write the file. Nothing was changed.", outcome.Message);
+        Require(output.ToString().Contains("Can't write the file. Nothing was changed.", StringComparison.Ordinal), output.ToString());
+        foreach (var (surface, events) in new[] { ("cli", cli), ("dialog", dialog) })
+            Require(events.Count == 1 && events[0] is { Operation: "export.validate", Outcome: "EXPORT-TARGET-DIRECTORY", Bytes: null },
+                $"{surface} events: " + string.Join(";", events.Select(e => e.Operation + "/" + e.Outcome)));
+        Require(Directory.GetFileSystemEntries(folder).Length == 2 && Directory.Exists(taken) && Directory.Exists(datTaken), "a file was written or left behind");
     });
 
     // One refusal, one code on every surface: the dialog's session and the CLI see a link target (to a file, or dangling) and

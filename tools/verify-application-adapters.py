@@ -331,6 +331,8 @@ def observe(group: int, owned: dict[int, str]) -> dict[int, dict[str, object]]:
 
 
 def terminate_owned(group: int, owned: dict[int, str]) -> None:
+    if os.name == "nt":  # main() returns 4 (Not assessed) first; SIGKILL does not exist in Python on Windows
+        raise RuntimeError("Windows process ownership adapter: Not assessed")
     for requested_signal in (signal.SIGTERM, signal.SIGKILL):
         for pid in observe(group, owned):
             current = process_table().get(pid)

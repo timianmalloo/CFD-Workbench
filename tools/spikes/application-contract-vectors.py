@@ -135,7 +135,9 @@ def atomic_spike(path, data, expected, phase=None):
         if current != expected:
             raise ValueError("DOC-CONFLICT")
         if phase=='before-write': raise OSError('injected')
-        fd=os.open(temp,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o600)
+        # O_NOFOLLOW does not exist on Windows. The is_symlink() walk above refuses a link at path or any ancestor on
+        # every OS, and O_CREAT|O_EXCL never follows a link at temp (an existing name, link or not, is FileExistsError).
+        fd=os.open(temp,os.O_CREAT|os.O_EXCL|os.O_WRONLY|getattr(os,'O_NOFOLLOW',0)|getattr(os,'O_BINARY',0),0o600)
         temp_created=True
         with os.fdopen(fd,'wb') as output:
             output.write(data[:len(data)//2])
@@ -146,9 +148,10 @@ def atomic_spike(path, data, expected, phase=None):
             raise ValueError("DOC-CONFLICT")
         if phase=='before-replace': raise OSError('injected')
         os.replace(temp,path)
-        directory=os.open(path.parent,os.O_RDONLY)
-        try: os.fsync(directory)
-        finally: os.close(directory)
+        if os.name!='nt': # Windows cannot os.open a directory (PermissionError); os.replace is its only durability step here
+            directory=os.open(path.parent,os.O_RDONLY)
+            try: os.fsync(directory)
+            finally: os.close(directory)
         if phase=='after-replace': raise OSError('injected')
     finally:
         if temp_created: temp.unlink(missing_ok=True)

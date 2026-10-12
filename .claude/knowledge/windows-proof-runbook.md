@@ -32,6 +32,8 @@ proof action.
   a native executable that actually set it.
 - A capture wrapper records its self-hash before its first child starts and reuses that recorded value in its receipt.
   A hash computed after a child returns is labeled post-probe and cannot establish pre-execution source identity.
+- Post PR and issue comments only through `tools/post-github-comment.py`. Never paste a raw log; redact to
+  `%USERPROFILE%` and `<host>` first.
 - A bounded WSL proof workload starts in its own session/process group. Its stop path signals and verifies the whole
   owned group, runs on every wrapper error, and never treats stopping only the `wsl.exe` launcher or shell PID as
   Linux-workload termination.
