@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T18:45:09Z",
+  "generated": "2026-10-12T19:51:33Z",
   "audit": [
     {
       "actor": null,
@@ -37608,6 +37608,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-12T18:44:01Z",
       "duration_seconds": 68.0
+    },
+    {
+      "id": "al-01M4RTQ7TW10PM71SF0J9D7BKH",
+      "shortname": "frz-frozen-paths",
+      "datetime": "2026-10-12T19:51:33Z",
+      "session": "trk-frz",
+      "prompt": "Track FRZ: frozen-paths registry with join check; F1 Python recovery suite in the ring",
+      "summary": "Added frozen-paths.json (Ruling 40 six files), tools/check-frozen-paths.py wired into join.json and check-docs, FROZEN-PATH-UNNAMED-IN-BRIEF class, macOS symlink fix in test_f1_cleanup_recovery, Python step in run-tests.sh",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "A join refuses an edit to a frozen path with no newer ruling; the Python unittest suites run in the fast ring",
+      "done_when": "self-tests green, run-tests green with Python counted, gates exit 0, check-docs exit 0",
+      "started_at": "2026-10-12T19:44:04Z",
+      "duration_seconds": 449.0
     }
   ],
   "changes": [

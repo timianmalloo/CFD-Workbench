@@ -641,7 +641,9 @@ class RecoveryTests(unittest.TestCase):
         cache = importlib.util.module_from_spec(cache_spec)
         cache_spec.loader.exec_module(cache)
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            # The validator refuses a linked ancestor by design; on macOS /var is a symlink to /private/var, so the
+            # fixture root must be the resolved path or the "ancestry is linked" refusal fires on the fixture itself.
+            root = Path(temporary).resolve()
             store = root / 'cache'
             store.mkdir()
             mounts = root / 'mountinfo'

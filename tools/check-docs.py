@@ -104,6 +104,8 @@ def run_lesson_controls():
         ("check-wsl-inline.py", ()),
         ("check-powershell-exit-code.py", ("--self-test",)),  # POWERSHELL-LASTEXITCODE-A; fast ring, 0.15 s + 0.22 s
         ("check-powershell-exit-code.py", ()),
+        ("check-frozen-paths.py", ("--self-test",)),  # FROZEN-PATH-UNNAMED-IN-BRIEF (Ruling 222); fast ring, ~0.8 s measured (nine cases, seven throw-away git repos)
+        ("check-frozen-paths.py", ("--validate",)),  # the registry itself; ~0.05 s
         ("../cases/tools/validate-cases.py", ("--self-test",)),
         ("../cases/tools/validate-cases.py", ()),
     ):
