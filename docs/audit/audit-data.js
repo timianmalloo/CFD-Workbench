@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T20:05:01Z",
+  "generated": "2026-10-12T14:22:48Z",
   "audit": [
     {
       "actor": null,
@@ -35826,6 +35826,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-11T20:04:44Z",
       "duration_seconds": 17.0
+    },
+    {
+      "id": "al-01M4R7X9B74CCXW8ZHXFJPBVT6",
+      "shortname": "ofn-posix-flags",
+      "datetime": "2026-10-12T14:22:48Z",
+      "session": "trk-ofn",
+      "prompt": "OFN",
+      "summary": "Guarded O_NOFOLLOW/killpg uses, directory fsync on nt, rule 4 in verify-portable-text-io, recount Avalonia opt-out and bounded cleanup",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Remove bare POSIX-only os attributes that break Windows; gate the class; fix recount cleanup",
+      "done_when": "gate red on main and green after; run-tests, readiness, check-docs green",
+      "started_at": "2026-10-12T14:09:54Z",
+      "duration_seconds": 774.0
     }
   ],
   "changes": [

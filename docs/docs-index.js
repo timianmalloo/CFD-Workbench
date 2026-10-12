@@ -15224,7 +15224,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "fbdcc6a9ba8369bbcd5863447789921bfad6f83ce7646ff9fac5139d99586079"
+      "sourceSha256": "64d167b33703bc56842dad9da93bef5b19210d3a41b0e95cfb3ab62b978578c4"
     },
     {
       "id": "proof-openfix-red-runs",
@@ -21122,5 +21122,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "133765efb5b5651a9b4c1cc40d9d5ca3d7da50d4ae2db50de6bcfead890d75fa"
+  "graphSha256": "7542738cfa73aead91b2eedbb5af7be41cb1d842469f185010a15480ea5c2358"
 };
