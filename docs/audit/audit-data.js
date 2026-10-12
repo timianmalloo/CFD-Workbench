@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T00:59:21Z",
+  "generated": "2026-10-12T01:26:36Z",
   "audit": [
     {
       "actor": null,
@@ -35900,6 +35900,44 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-12T00:58:38Z",
       "duration_seconds": 43.0
+    },
+    {
+      "id": "al-01M4PVG0HQPXQDQEAG8916J530",
+      "shortname": "f1-r217-packet",
+      "datetime": "2026-10-12T01:26:36Z",
+      "session": "pc-f1-r217-packet",
+      "prompt": "Author one self-testing Ruling 217 dependency preflight packet without live WSL or package actions",
+      "summary": "Authored host wrapper, Linux stage and ownership helpers, completed-L3 guard, signed-rootfs and repository checks, transaction/archive inspector, manifest-bound pre-cleanup and final commits, authority planted-negative scan, and README. Focused self-tests, syntax checks, docs graph, check-docs and diff checks passed. No live WSL mutation, apt, download, install, build or case run.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "codex-sol",
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/packet/README.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Produce one reviewable, fail-closed Ruling 217 execution packet in the PACKET worktree",
+      "done_when": "Committed packet implements exact target isolation, 3600-second deadline, guarded lifecycle, signed-index simulation and download-only inspection, pre-cleanup commit, rollback and self-tests",
+      "tier": "T1",
+      "main_calls": 29,
+      "main_budget": 30,
+      "main_over_budget": false,
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T01:02:38Z",
+      "duration_seconds": 1438.0,
+      "git": {
+        "sha": "f0202cf82479e9588dbc13f051d0c15dba222ca8",
+        "short": "f0202cf82",
+        "branch": "win/gpu-f1-r217-packet",
+        "pushed": null
+      }
     }
   ],
   "changes": [

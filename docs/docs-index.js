@@ -18199,6 +18199,46 @@ window.DOCS_INDEX = {
       "sourceSha256": "d8d3881c7831e9f094748fd94121c87794f402e08affd0561b03e44bb8d8fe70"
     },
     {
+      "id": "proof-win-gpu-f1-r217-packet",
+      "path": "docs/proof/win-gpu-f1-preflight/packet/README.md",
+      "title": "Ruling 217 F1 dependency preflight execution packet",
+      "type": "proof-pack",
+      "status": "proposed",
+      "owner": "@pc-f1-r217-packet",
+      "phase": "preflight",
+      "reviewBy": "2026-10-19",
+      "reviewSuggested": [],
+      "summary": "Reviewed-only, self-testing host and Linux packet for one bounded disposable Ruling 217 metadata/download preflight, with a committed checkpoint before cleanup.",
+      "tags": [
+        "windows",
+        "wsl",
+        "gpu",
+        "openfoam",
+        "petsc",
+        "ruling-217"
+      ],
+      "links": [
+        {
+          "to": "plan-windows-gpu-f1-preflight-r217",
+          "rel": "implements"
+        },
+        {
+          "to": "coordination-windows-gpu-f1-preflight-r217",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-gpu-b2",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "6eb52c4a4c132b8c8a00609e22b2a36e9be443490ee2b0abb12d0295d5e8fc87"
+    },
+    {
       "id": "proof-win-gpu-g1",
       "path": "docs/proof/win-gpu-g1/receipt.md",
       "title": "Windows GPU G1 exact-source and toolchain inspection",
@@ -21183,5 +21223,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "656fd2d72563585f829ba5fbad96e9f5b9f96adc77f89129f4e7030fda908efe"
+  "graphSha256": "5a09140f3625a0a9c3caadc2da065a774e876f3e2ed6e676c083d3938b75c7f0"
 };
