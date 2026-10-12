@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T17:35:49Z",
+  "generated": "2026-10-12T17:38:59Z",
   "audit": [
     {
       "actor": null,
@@ -37437,6 +37437,35 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-12T17:15:09Z",
       "duration_seconds": 1240.0
+    },
+    {
+      "id": "al-01M4RK4G0YRJBTJJQWXVFDXSXG",
+      "shortname": "join-f1-r224-guard",
+      "datetime": "2026-10-12T17:38:59Z",
+      "session": "pc-f1-r217-guard-consistency",
+      "prompt": "the join of origin/win/gpu-f1-r217-guard-consistency-review into win/gpu-f1-r217-guard-consistency-repair",
+      "summary": "Joined Astra ACCEPT f3094512 for exact guard-reader candidate 5c1b727f; no live action. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-guard-consistency.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Bind independent R224 guard-reader acceptance to the repair branch.",
+      "done_when": "Review commit is joined, docs-only gates pass, and the joined branch is pushed.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T17:37:10Z",
+      "duration_seconds": 109.0
     }
   ],
   "changes": [
