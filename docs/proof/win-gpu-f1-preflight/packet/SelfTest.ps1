@@ -1,10 +1,66 @@
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
+$testClock = [Diagnostics.Stopwatch]::StartNew()
 . (Join-Path $PSScriptRoot 'Control.ps1')
 
 function Require([bool]$Condition, [string]$Message) {
     if (-not $Condition) { throw $Message }
 }
+# Ruling 220 P1: a post-launch cleanup failure must invalidate the old stop receipt.
+# Offline fast ring; no process launch. Cost is measured with the complete suite.
+foreach ($failurePoint in @('startup', 'acknowledgement', 'timeout', 'none')) {
+    $events = [Collections.Generic.List[string]]::new()
+    $state = @{ active=$false; stops=0 }
+    $closing = Invoke-Finalization `
+        -StopOwned { $events.Add('stop-owned'); $state.active=$false; $state.stops++ } `
+        -Checkpoint { $events.Add('checkpoint') } `
+        -Cleanup {
+            $events.Add('delete-stage-launch'); $state.active=$true
+            if ($failurePoint -ne 'none') { throw "delete stage $failurePoint failure" }
+        } `
+        -Snapshot { $events.Add('snapshot') } `
+        -StopGuard { $events.Add('stop-guard') } `
+        -BindGuard { $events.Add('bind-guard') }
+    Require ($state.stops -eq 2 -and -not $state.active) "P1 $failurePoint cleanup launch escaped final reap"
+    Require ($events[$events.Count - 1] -eq 'stop-owned') 'P1 owned work can launch after final stop'
+    Require $closing.owned_stopped 'P1 final stop result not recorded'
+    Require ($closing.cleanup_proved -eq ($failurePoint -eq 'none')) 'P1 cleanup failure lost'
+}
+# Exercise the actual cleanup function body, without wrapper top-level execution.
+$tokens = $null
+$parseErrors = $null
+$wrapperAst = [Management.Automation.Language.Parser]::ParseFile(
+    (Join-Path $PSScriptRoot 'Invoke-Preflight.ps1'), [ref]$tokens, [ref]$parseErrors)
+Require ($parseErrors.Count -eq 0) 'wrapper parse failed'
+foreach ($file in @('Control.ps1', 'SelfTest.ps1')) {
+    $null = [Management.Automation.Language.Parser]::ParseFile(
+        (Join-Path $PSScriptRoot $file), [ref]$tokens, [ref]$parseErrors)
+    Require ($parseErrors.Count -eq 0) "$file parse failed"
+}
+$cleanupAst = $wrapperAst.Find({ param($node)
+    $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Invoke-Cleanup'
+}, $true)
+$cleanupBody = $cleanupAst.Body.GetScriptBlock()
+$CreationArmed = $true
+$CheckpointSha = 'offline-fixture'
+$TargetPath = 'C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1'
+$stageEvents = [Collections.Generic.List[string]]::new()
+function Wait-TargetSettled { return $null }
+function Get-TargetRegistration { return [pscustomobject]@{ BasePath=$TargetPath } }
+function Assert-TargetPath { return $TargetPath }
+function Invoke-Stage { $stageEvents.Add('delete-stage-launch'); throw 'planted post-launch timeout' }
+function Stop-OwnedOrContain { $stageEvents.Add('fresh-stop-reap') }
+function Invoke-Child { throw 'unexpected cleanup child launch' }
+try { & $cleanupBody; throw 'planted cleanup timeout passed' }
+catch { Require ($_.Exception.Message -eq 'planted post-launch timeout') 'cleanup error was replaced' }
+Require (($stageEvents -join ',') -eq 'delete-stage-launch,fresh-stop-reap') 'actual cleanup stage bypassed finally reap'
+$events = [Collections.Generic.List[string]]::new()
+$state = @{ stops=0 }
+$closing = Invoke-Finalization `
+    -StopOwned { $state.stops++; if ($state.stops -eq 2) { throw 'planted final reap failure' } } `
+    -Checkpoint {} -Cleanup {} -Snapshot {} -StopGuard {} -BindGuard {}
+Require (-not $closing.owned_stopped) 'stale first-stop result survived a failed final reap'
+Require ($closing.errors -contains 'final-owned-stop: planted final reap failure') 'final reap failure was discarded'
 $now = [DateTimeOffset]::Parse('2026-10-12T01:00:05Z')
 $decoded = '{"last_sample_utc":"2026-10-12T01:00:00Z"}' | ConvertFrom-Json
 Require ((Get-GuardAgeSeconds $decoded.last_sample_utc $now) -eq 5) 'UTC Z DateTime coercion changed guard age'
@@ -54,4 +110,4 @@ $failure = Invoke-Finalization `
     -StopGuard { throw 'guard stop failure' } `
     -BindGuard { $events.Add('bind-guard') }
 Require ($events.Contains('bind-guard') -and $failure.errors.Count -gt 0) 'guard stop failure suppressed binding/error'
-Write-Output 'PowerShell packet self-test: PASS'
+Write-Output ('PowerShell packet self-test: PASS ring=offline-fast elapsed_seconds={0:F3}' -f $testClock.Elapsed.TotalSeconds)

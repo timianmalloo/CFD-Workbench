@@ -18,6 +18,64 @@ summary: >-
 
 # Ruling 217 preflight packet — frozen source, no live run here
 
+## Ruling 220 repair evidence (offline; acceptance remains open)
+
+Goal: repair only P1 final cleanup reap and P3 exact attempt discovery. The surface list is
+`/proc` argv inspection → recorded pid/pgid/sid and group selection → TERM/KILL controls →
+cleanup-stage finally → finalization receipt → offline regression tests and this README.
+UX/UI and domain persistence changes are not applicable. No live packet execution is authorized here.
+
+Execution graph (one author, one repair attempt): grounding → red fixtures → repair → complete
+offline suite and repo gates → audit/derived views → commit/push. Each edge consumes the previous
+node's evidence; independent read-only checks may overlap. There is no repair retry loop. The
+independent reviewer, not this author, clears hard vetoes after the packet handoff. Duration is
+measured by the closing audit run; token cost is not recorded. The preexisting implementation and
+stdlib suffice; no dependency or new execution stage is added.
+
+**Verified red before the fix, 2026-10-12:** Windows PowerShell `SelfTest.ps1` exited 1 with
+`P1 startup cleanup launch escaped final reap`; Python `packet_selftest.py` exited 1 with
+`AssertionError: P3 stage: runA selected runAB`. These are host-only planted callbacks/process rows,
+not observations of a running Linux workload. No WSL, apt, network, install, build or case ran.
+
+Class → sweep → derive → prevent: P1 is stale termination evidence after a cleanup launch;
+P3 is prefix membership mistaken for attempt identity. The sweep covers every packet-owned stage
+and guard discovery, saved-owner selection, cleanup stage launch, and finalization callback. Controls
+are final bounded stop/reap after launch and after all callbacks, plus exact NUL-delimited argv and
+recorded leader identity checks. The offline fast ring must reject startup/ack/timeout cleanup failures,
+runA/runAB stage and guard collisions, and recorded identity mismatch while preserving leader-gone
+child cleanup. These specialize the existing R217 cleanup/ownership defect classes.
+
+**Verified green after the fix:** `packet_selftest.py`; `SelfTest.ps1` on Windows PowerShell
+5.1 and PowerShell 7.6; authority scanner including planted negatives; transaction, manifest
+and completed-guard self-tests; AST parsing of all three `.ps1` files; Git Bash `-n` on all
+four `.sh` files; `tools/check-wsl-inline.py`; `tools/check-docs.py`; graph validation (zero
+defects); and all ten offline-safe verify gates. The application-core, application-adapters,
+and Windows-store gates were explicitly skipped because their build/store checks are outside
+this packet-author task. No product-code path changed; the join's docs-only ring decision
+belongs to the coordinator. Existing graph review suggestions remain open.
+
+Measured offline-fast fixture costs: PowerShell 5.1 **0.293 s**, PowerShell 7.6 **0.214 s**,
+and Python **0.464 s** before the precommit inspection-race control below. Both fixture suites emit
+elapsed time on their normal path. One authorized repair cycle includes the precommit correction below. The exact recorded
+`identity.sh` launch wrapper is recognized before exec, with the exact owner-file token and
+intended stage/guard argv; after exec, the exact interpreter/script/run tokens are required.
+Unavailable, malformed, or undecodable `/proc` argv remains unknown and fails closed. A missing
+cmdline is omitted only after independent `/proc/<pid>` stat proves that PID absent. Runtime
+process teardown, target absence, protected-state equality, and the separately reviewed
+invocation contract remain **unobserved**. This author claims source repair and offline proof,
+not independent acceptance or authority to run the packet.
+
+**Precommit correction, Verified red first:** source inspection found that the new scanner would
+reject a process that exited between `ps` and `/proc`, including `ps` itself. The added offline
+fixture failed with `RuntimeError: argv inspection failed for pid 101: argv disappeared` before
+the correction. Class → sweep → derive → prevent: asynchronous inspection can confuse a proved
+exit with an unreadable live process; the sweep covers every new argv read. A second independent
+PID stat now permits omission only on `FileNotFoundError`. Present-PID and denied-stat fixtures
+must fail closed, while independently absent-PID fixtures must pass. This is a precommit defect
+created and caught in this repair, not live-runtime evidence; it is recorded here because the
+author's authorized paths exclude the defect register. The coordinator can consolidate the class
+into the register at the join.
+
 This packet is for **one** reviewed live attempt in an isolated EXECUTE worktree. The PACKET author did not run it.
 It permits a disposable dependency simulation and resolved `.deb` acquisition for licence/size inspection only.
 `cfdw-openfoam2512` is read only for the completed-L3 guard and signed Ubuntu rootfs verification. The target is
@@ -89,7 +147,9 @@ Target Linux stages are `probe`, `repositories`, `simulate`, `download`, `inspec
 Every Linux entry uses `taskset --cpu-list 0-1` (protected guard uses CPU 0), `nice -n 10`, and foreground
 `setsid --wait`; it records effective `Cpus_allowed_list`, nice, PID, PGID, SID and cmdline. Stage leaders must have
 PID=PGID=SID. Host WSL lifecycle and Git commands have affinity **N/A**. Stage owner files publish atomically before
-work; an exact run/target cmdline scan also covers missing owner files. `ps` failure is unknown, never absence.
+work; exact NUL-delimited `/proc` argv tokens also cover missing owner files. The fixed packet script,
+run ID/root (or guard session/event path), and recorded leader PID/PGID/SID must agree; substring
+membership is never an ownership test. `ps` or `/proc` inspection failure is unknown, never absence.
 Every completed stage proves residual absence, and a leader-gone owned group is signalled and rechecked. Uncertain
 identity blocks unregister. Timed-out creation is bounded by repeated registration/list/path observations and remains
 an uncertain failed attempt even if a stable absence is later seen.
@@ -114,10 +174,13 @@ or unregistering, `manifest.py` freezes a complete event prefix and raw/derived 
 the wrapper makes a real Git commit and verifies every manifest entry against that commit's blob. It first stops
 the exact owned workload, regardless of guard health. **If checkpoint binding fails, it still stops the owned
 workload and observer, performs no archive deletion or unregister, and emits an explicit Mac decision handoff.**
-With a proved checkpoint and stop, it removes only resolved `.deb` files inside the target, checks residual absence,
+With a proved checkpoint and stop, it removes only resolved `.deb` files inside the target. Every deletion-stage
+exit runs a fresh bounded stop/reap in `finally`, including startup/acknowledgement/timeout errors. It checks residual absence,
 terminates and unregisters the exact target, independently checks registration/path absence, takes a post-unregister
 guard sample and protected snapshot, stops/reaps the guard through an independent finally path even if snapshot
-fails, binds the available complete event prefix, then commits a separate `run-1/final/` manifest and cleanup
+fails, binds the available complete event prefix, and performs a final unconditional bounded owned-work stop/reap
+after the last finalization callback. No owned workload launches after that final check; its result replaces the
+earlier `owned_stopped` state. It then commits a separate `run-1/final/` manifest and cleanup
 receipt. Partial creation treats registration and path independently; recursive path removal is allowed only
 after checking the fixed absolute location and rejecting a reparse point. The initiating error is retained alongside
 cleanup errors.

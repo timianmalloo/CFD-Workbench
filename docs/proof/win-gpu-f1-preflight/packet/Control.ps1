@@ -39,18 +39,26 @@ function Invoke-Finalization(
     $snapshotProved = $false
     $guardStopped = $false
     $guardBound = $false
-    try { & $StopOwned; $ownedStopped = $true } catch { $errors.Add("owned-stop: $($_.Exception.Message)") }
-    try { & $Checkpoint; $checkpointProved = $true } catch { $errors.Add("checkpoint: $($_.Exception.Message)") }
-    if ($ownedStopped -and $checkpointProved) {
-        try { & $Cleanup; $cleanupProved = $true } catch { $errors.Add("cleanup: $($_.Exception.Message)") }
-    } elseif (-not $checkpointProved) {
-        $errors.Add('MAC-DECISION-REQUIRED: checkpoint unproved; archive deletion/unregister withheld')
-    } else {
-        $errors.Add('MAC-DECISION-REQUIRED: owned process not proved stopped; archive deletion/unregister withheld')
+    try {
+        try { & $StopOwned; $ownedStopped = $true } catch { $errors.Add("owned-stop: $($_.Exception.Message)") }
+        try { & $Checkpoint; $checkpointProved = $true } catch { $errors.Add("checkpoint: $($_.Exception.Message)") }
+        if ($ownedStopped -and $checkpointProved) {
+            try { & $Cleanup; $cleanupProved = $true } catch { $errors.Add("cleanup: $($_.Exception.Message)") }
+        } elseif (-not $checkpointProved) {
+            $errors.Add('MAC-DECISION-REQUIRED: checkpoint unproved; archive deletion/unregister withheld')
+        } else {
+            $errors.Add('MAC-DECISION-REQUIRED: owned process not proved stopped; archive deletion/unregister withheld')
+        }
+        try { & $Snapshot; $snapshotProved = $true } catch { $errors.Add("snapshot: $($_.Exception.Message)") }
+        try { & $StopGuard; $guardStopped = $true } catch { $errors.Add("guard-stop: $($_.Exception.Message)") }
+        try { & $BindGuard; $guardBound = $true } catch { $errors.Add("guard-bind: $($_.Exception.Message)") }
+    } finally {
+        # A cleanup callback may have launched new work after the first stop.
+        # This is the last callback: no workload launch follows the fresh reap.
+        $ownedStopped = $false
+        try { & $StopOwned; $ownedStopped = $true }
+        catch { $errors.Add("final-owned-stop: $($_.Exception.Message)") }
     }
-    try { & $Snapshot; $snapshotProved = $true } catch { $errors.Add("snapshot: $($_.Exception.Message)") }
-    try { & $StopGuard; $guardStopped = $true } catch { $errors.Add("guard-stop: $($_.Exception.Message)") }
-    try { & $BindGuard; $guardBound = $true } catch { $errors.Add("guard-bind: $($_.Exception.Message)") }
     return [pscustomobject]@{ errors=@($errors.ToArray()); owned_stopped=$ownedStopped
         checkpoint_proved=$checkpointProved; cleanup_proved=$cleanupProved
         snapshot_proved=$snapshotProved; guard_stopped=$guardStopped; guard_bound=$guardBound }

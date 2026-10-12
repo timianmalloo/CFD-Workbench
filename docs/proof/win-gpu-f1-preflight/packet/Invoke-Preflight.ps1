@@ -337,8 +337,8 @@ function Invoke-Cleanup {
         if (-not $basePath.Equals((Assert-TargetPath), [StringComparison]::OrdinalIgnoreCase)) {
             throw "target registration path mismatch: $basePath"
         }
-        Invoke-Stage 'delete-debs' 120 $false $false
-        Stop-Owned
+        try { Invoke-Stage 'delete-debs' 120 $false $false }
+        finally { Stop-OwnedOrContain }
         $null = Invoke-Child 'wsl.exe' @('--terminate', $Target) 'target-terminate' 30 $false $false
         $null = Invoke-Child 'wsl.exe' @('--unregister', $Target) 'target-unregister' 120 $false $false
     }
