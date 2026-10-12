@@ -5466,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "871e8925f161b9729a952f9e76e41eac8d7efacf6c3f516fdc3e7f9ed9afa197"
+      "sourceSha256": "4a44b1226eff3646c471ee22724a8f41ad4c32623638dfe1dcddf0a7ea5951e5"
     },
     {
       "id": "domain-experts",
@@ -15226,6 +15226,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "da5f92bf56395839723fedd00dc35d85a765251c3fd13e749843a621b0f8f435"
     },
     {
+      "id": "proof-ofn-red-first",
+      "path": "docs/proof/ofn/red-first.md",
+      "title": "OFN red-first - POSIX-only os attributes on Windows",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-ofn",
+      "phase": "",
+      "reviewBy": "2026-11-12",
+      "reviewSuggested": [],
+      "summary": "A bare POSIX-only os attribute fails the portable-text-io gate on main and the spike under a Windows-shaped os; both pass after the fix.",
+      "tags": [
+        "ofn",
+        "windows",
+        "portability",
+        "plat-a"
+      ],
+      "links": [
+        {
+          "to": "proof-application-core",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "64d167b33703bc56842dad9da93bef5b19210d3a41b0e95cfb3ab62b978578c4"
+    },
+    {
       "id": "proof-openfix-red-runs",
       "path": "docs/proof/openfix-red-runs.md",
       "title": "OPENFIX red runs and verification — M1.2a Open outcomes and Span input",
@@ -21121,5 +21147,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "7fcabda404d5ad1040d84b9fcac8953cb6fd6718d57e6c88c468af3f04921356"
+  "graphSha256": "5ae7afd982d0283be80dc68cd3ce9f07fd1fb1263b9fc1f08cb2bef9ab68cb6e"
 };
