@@ -14,7 +14,8 @@ links:
 review-by: "2026-10-19"
 summary: >-
   CUDA capability and rollback are proved, the PETSc-CUDA plus petsc4Foam design and three-arm benchmark are specified,
-  the R220 P1/P3 packet is Astra-accepted, and the exact run-1 environment contract is under independent review.
+  the R220 packet and run-1 contract are Astra-accepted, and the first live preflight stopped fail-closed pending a
+  Mac recovery ruling after exposing two new packet defects.
 ---
 
 # OpenFOAM GPU work status at Ruling 220
@@ -42,8 +43,8 @@ planned PETSc-CUDA plus petsc4Foam route. `amgx4Foam` and RapidCFD are rejected 
 | F1 design | Accepted as blocked evidence | PETSc 3.26.0, petsc4Foam commit, ABI/build outline, managed-memory measures, guard, rollback, and benchmark contract are recorded. | Close dependency transaction through R217 preflight. |
 | F1 benchmark contract | Accepted with amendments | Three serial arms: native GAMG, PETSc CPU, PETSc GPU. GPU must be at least 1.20x faster than native GAMG with separation, spread, convergence, field, force, determinism, power, and y+ checks. | A later operator ruling after dependency preflight and build review. |
 | R217 dependency preflight packet | **Accepted under R220** | The repair commit `d5bb68fe` cleared P1 final cleanup/reap and P3 exact process identity. Astra independently reproduced the old failures and accepted all 15 repaired packet files at review commit `00933e65`. | Complete. |
-| Run-1 environment contract | **Independent Astra review active** | Contract commit `754b23e0` binds all 15 accepted packet hashes, seven exact inputs, signer allowlists, execution identity, target paths, and live Mac epoch 6. Local regeneration, hashes, rootfs signature, key fingerprints, docs graph, and docs gate passed. | Astra must independently ACCEPT the exact commit before any WSL effect. |
-| Live dependency preflight | Closed pending contract ACCEPT | No F1 distro import, apt transaction, package download, install, source acquisition, build, or case run has occurred. | Join Astra contract ACCEPT, then pass `contract.py verify` on a clean execution branch. |
+| Run-1 environment contract | **Accepted** | Contract commit `754b23e0` binds all 15 accepted packet hashes, seven exact inputs, signer allowlists, execution identity, target paths, and live Mac epoch 6. Astra independently accepted it at `456d9ebf`; the joined branch returned `INVOCATION-CONTRACT-PASS`. | Complete. |
+| Live dependency preflight | **Stopped fail-closed at simulate** | Target creation, capacity, repository authentication, signed-index freeze, and transaction simulation ran. No package install or `.deb` download began. URI matching rejected `%7e` versus `~`; checkpoint freeze passed but a PowerShell scope collision prevented its commit. | Mac recovery ruling: bind retained evidence, clean up only the disposable target, repair and re-review before retry. |
 | PETSc/petsc4Foam build and CFD benchmark | Closed | No execution evidence exists. | Separate operator ruling after preflight evidence. |
 
 ## Ruling 220 packet result
@@ -59,12 +60,23 @@ The author added red-first fixtures, repaired both defects, and passed the compl
 reviewed the exact packet independently and returned **ACCEPT**. The accepted source is
 `d5bb68fe7db5e511ac46708e14564bb6a738db37`; the joined review is on the coordinator branch at `88ae5819`.
 
-## Active gate: run-1 environment contract
+## Live preflight incident
 
-Packet ACCEPT allowed the Windows coordinator to construct the real environment contract. Commit `754b23e0` binds
-the accepted packet commit, seven input hashes, exact signer sets, execution branch/session, target paths, and live
-Mac leader epoch 6. Astra is independently reviewing that immutable commit. After ACCEPT is joined and a clean-tree
-`contract.py verify` passes, the R217 preflight may:
+The accepted contract joined at `6445bb6e`, and clean-tree verification passed. Run
+`r217-run1-epoch6-20261012` then reached transaction simulation and stopped on two newly measured defects:
+
+1. `transaction.py` compared an apt URI basename containing `%7e` with signed metadata containing `~` without
+   percent-decoding. It rejected `cpp-13` before any download.
+2. PowerShell dynamic scope let the finalization callback parameter named `Checkpoint` shadow the canonical checkpoint
+   path. The 75-file freeze passed but landed in repo-root `Save-Checkpoint/`; the following relative-path calculation
+   failed, so the checkpoint was not committed.
+
+The wrapper stopped owned work, bound 16 completed-L3 guard rows, proved the protected terminal snapshot unchanged,
+and withheld deletion/unregister. The disposable distro remains at the exact expected path. Mac received a decision
+request to authorize evidence binding and exact-target recovery. An offline red-first repair track is active; no retry
+is authorized yet.
+
+The preflight was limited to:
 
 - import disposable distro `cfdw-petsc-cuda132-f1` at its dedicated path;
 - freeze signed Ubuntu, OpenFOAM, and NVIDIA indices;
@@ -82,10 +94,10 @@ flowchart LR
   A[CUDA capability proved] --> B[F1 design and benchmark frozen]
   B --> C[R220 P1/P3 repair complete]
   C --> D[Fresh Astra packet ACCEPT]
-  D --> E{Independent contract review}
-  E -->|REJECT| X[Stop before WSL; repair contract]
-  E -->|ACCEPT| F[R217 dependency-only preflight]
-  F --> G[Dependency and capacity evidence]
+  D --> E[Independent contract ACCEPT]
+  E --> F[R217 dependency-only preflight]
+  F -->|Stopped at simulate| X[Preserve evidence; Mac recovery ruling]
+  X --> G[Repair, re-review, exact-target cleanup]
   G --> H{Later operator build ruling}
   H --> I[PETSc-CUDA plus petsc4Foam build]
   I --> J[Native GAMG / PETSc CPU / PETSc GPU benchmark]
@@ -97,7 +109,9 @@ flowchart LR
 - GitHub draft handoff: PR #33, `win/gpu-f1-preflight-r217`.
 - Mac Ruling 220 is on `main` at `63eb3e0f` and is merged into the Windows coordinator branch.
 - Mac remains the designated leader at live coordination epoch 6.
-- The accepted packet review is joined and pushed at `88ae5819`; the contract under review is pushed at `754b23e0`.
+- The accepted packet review is joined and pushed at `88ae5819`; the accepted contract source is `754b23e0`.
+- The contract review joined on the execution branch at `6445bb6e`; the failed run evidence remains uncommitted and
+  preserved pending Mac's recovery ruling.
 - Exact Windows readiness failures requested by Mac are posted on PR #33.
 - The full repository readiness receipt remains RED on Windows due to a POSIX-only architecture-spike path, a
   temporary-file access failure, one desktop theme test, and the 240-second budget. These are recorded separately from
@@ -105,8 +119,8 @@ flowchart LR
 
 ## Confidence and limits
 
-**Verified:** repository receipts, hashes, signatures, gates, and reviews establish every completed-stage claim above.
-**Pending independent review:** the run-1 contract. **Not recorded:** F1 package closure, PETSc/petsc4Foam build
-success, OpenFOAM GPU solver use, numerical equivalence, and speed-up. Those values stay unknown until their authorized
-measurement stages execute.
+**Verified:** repository receipts, hashes, signatures, gates, reviews, and the retained live evidence establish every
+completed-stage and incident claim above. **Blocked:** checkpoint binding and disposable-target cleanup await Mac's
+recovery ruling. **Not recorded:** complete F1 package closure, PETSc/petsc4Foam build success, OpenFOAM GPU solver use,
+numerical equivalence, and speed-up.
 

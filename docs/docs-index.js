@@ -5412,7 +5412,7 @@ window.DOCS_INDEX = {
       "phase": "",
       "reviewBy": "2026-10-19",
       "reviewSuggested": [],
-      "summary": "CUDA capability and rollback are proved, the PETSc-CUDA plus petsc4Foam design and three-arm benchmark are specified, the R220 P1/P3 packet is Astra-accepted, and the exact run-1 environment contract is under independent review.",
+      "summary": "CUDA capability and rollback are proved, the PETSc-CUDA plus petsc4Foam design and three-arm benchmark are specified, the R220 packet and run-1 contract are Astra-accepted, and the first live preflight stopped fail-closed pending a Mac recovery ruling after exposing two new packet defects.",
       "tags": [
         "coordination",
         "windows",
@@ -5449,10 +5449,10 @@ window.DOCS_INDEX = {
         {
           "kind": "flowchart",
           "title": "End-to-end route",
-          "mermaid": "flowchart LR\n  A[CUDA capability proved] --> B[F1 design and benchmark frozen]\n  B --> C[R220 P1/P3 repair complete]\n  C --> D[Fresh Astra packet ACCEPT]\n  D --> E{Independent contract review}\n  E -->|REJECT| X[Stop before WSL; repair contract]\n  E -->|ACCEPT| F[R217 dependency-only preflight]\n  F --> G[Dependency and capacity evidence]\n  G --> H{Later operator build ruling}\n  H --> I[PETSc-CUDA plus petsc4Foam build]\n  I --> J[Native GAMG / PETSc CPU / PETSc GPU benchmark]\n  J --> K[Case-specific worth-it verdict]"
+          "mermaid": "flowchart LR\n  A[CUDA capability proved] --> B[F1 design and benchmark frozen]\n  B --> C[R220 P1/P3 repair complete]\n  C --> D[Fresh Astra packet ACCEPT]\n  D --> E[Independent contract ACCEPT]\n  E --> F[R217 dependency-only preflight]\n  F -->|Stopped at simulate| X[Preserve evidence; Mac recovery ruling]\n  X --> G[Repair, re-review, exact-target cleanup]\n  G --> H{Later operator build ruling}\n  H --> I[PETSc-CUDA plus petsc4Foam build]\n  I --> J[Native GAMG / PETSc CPU / PETSc GPU benchmark]\n  J --> K[Case-specific worth-it verdict]"
         }
       ],
-      "sourceSha256": "e0304516cce44e6446a23fd11fb45483eb12fbdf89db1701882353b183c1ccde"
+      "sourceSha256": "d4a676bcfe3e9486490bed2c87d852eae363d29b0ec253299815de0827212c9b"
     },
     {
       "id": "defect-classes",
@@ -21323,5 +21323,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "3338aaacc55ddeeb2af049838b6cda3bcf7e7c9da24689bd48799ecfba90f758"
+  "graphSha256": "66eb64963d6130081d3affe3c9ff12ecfb8fdd3dd329012dd8bd3a224fe65f25"
 };

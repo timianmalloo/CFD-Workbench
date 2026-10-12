@@ -44,7 +44,7 @@
 <body>
 <main>
   <header>
-    <div><div class="eyebrow">CFD-Workbench · Windows GPU lane</div><h1>The GPU preflight packet is accepted. The run contract is under review.</h1></div>
+    <div><div class="eyebrow">CFD-Workbench · Windows GPU lane</div><h1>The live preflight stopped safely and exposed two repairable packet defects.</h1></div>
     <div class="stamp">Snapshot<br><strong>12 Oct 2026 · Ruling 220</strong></div>
   </header>
 
@@ -52,7 +52,8 @@
     <div class="metric"><span class="label">CUDA capability</span><b class="ok">Proved</b><span>13.2 · RTX 3080 Ti</span></div>
     <div class="metric"><span class="label">F1 design</span><b class="ok">Specified</b><span>PETSc + petsc4Foam</span></div>
     <div class="metric"><span class="label">R220 packet</span><b class="ok">Astra ACCEPT</b><span>15 exact files · P1/P3 cleared</span></div>
-    <div class="metric"><span class="label">Current gate</span><b class="work">Contract review</b><span>Commit 754b23e0 · epoch 6</span></div>
+    <div class="metric"><span class="label">Run contract</span><b class="ok">Astra ACCEPT</b><span>Joined 6445bb6e · verify passed</span></div>
+    <div class="metric"><span class="label">Current gate</span><b class="stop">Recovery ruling</b><span>Evidence preserved · target retained</span></div>
   </section>
 
   <h2>Delivery path</h2>
@@ -61,8 +62,8 @@
     <div class="step done"><span class="label">Complete</span><strong>CUDA B2</strong><small>135-package lock, SAXPY pass, rollback complete.</small></div>
     <div class="step done"><span class="label">Complete</span><strong>F1 design</strong><small>Build route and three-arm benchmark frozen.</small></div>
     <div class="step done"><span class="label">Accepted</span><strong>R220 packet</strong><small>Red-first P1/P3 repair; Astra accepted all 15 packet files.</small></div>
-    <div class="step active"><span class="label">Now</span><strong>Contract review</strong><small>Seven inputs, exact signers, identity, paths, and Mac epoch 6.</small></div>
-    <div class="step closed"><span class="label">Later ruling</span><strong>Build + benchmark</strong><small>Native GAMG vs PETSc CPU vs PETSc GPU.</small></div>
+    <div class="step done"><span class="label">Accepted</span><strong>Run contract</strong><small>Seven inputs, exact signers, identity, paths, and Mac epoch 6.</small></div>
+    <div class="step active"><span class="label">Now</span><strong>Preflight recovery</strong><small>Bind 75-file freeze, repair two defects, exact-target cleanup, re-review.</small></div>
   </div>
 
   <div class="grid">
@@ -97,17 +98,17 @@
     </tbody>
   </table>
 
-  <h2>Active gate and what it unlocks</h2>
+  <h2>Live preflight incident</h2>
   <div class="route" aria-label="Future route">
-    <span class="ok">Packet ACCEPT</span><i>→</i><span>Independent contract review</span><i>→</i><span>Clean-tree contract verify</span><i>→</i><span>R217 dependency-only preflight</span><i>→</i><span>Evidence + cleanup</span><i>→</i><span>Later operator build ruling</span>
+    <span class="ok">Packet ACCEPT</span><i>→</i><span class="ok">Contract ACCEPT</span><i>→</i><span class="ok">Contract verify</span><i>→</i><span>Stopped at simulation</span><i>→</i><span>Mac recovery ruling</span><i>→</i><span>Repair + re-review</span>
   </div>
-  <p>Contract commit <code>754b23e0</code> binds the accepted packet, seven exact inputs, all allowed signer fingerprints, the execution identity, target paths, and live Mac leader epoch 6. Astra is reviewing that immutable commit. The R217 run may then simulate the package transaction and download resolved <code>.deb</code> files only for hash, licence, and size inspection. It cannot install packages, fetch PETSc/petsc4Foam sources, compile, or run CFD.</p>
+  <p>Run <code>r217-run1-epoch6-20261012</code> authenticated and froze the repositories, then rejected the first percent-encoded apt URI because <code>%7e</code> was compared directly with <code>~</code>. Its 75-file checkpoint freeze passed, but a PowerShell dynamic-scope name collision sent the frozen copy to repo-root <code>Save-Checkpoint/</code> and blocked its commit. The wrapper stopped owned work, bound 16 guard rows, proved the protected snapshot unchanged, and withheld unregister. No package install, <code>.deb</code> download, source fetch, compile, or CFD run occurred.</p>
 
   <h2>Coordination</h2>
-  <p>Mac Ruling 220 is merged into the Windows coordinator branch. The accepted packet review is joined at <code>88ae5819</code>; the run contract is pushed at <code>754b23e0</code>. The requested Windows readiness failure lines are posted to <a href="https://github.com/timianmalloo/CFD-Workbench/pull/33">GitHub PR #33</a>. Mac remains repository leader at epoch 6; Windows owns the reviewed dependency-only preflight.</p>
+  <p>Mac remains repository leader at epoch 6. A recovery decision request with exact evidence is posted to <a href="https://github.com/timianmalloo/CFD-Workbench/pull/33">GitHub PR #33</a> and coordination mail. The disposable target remains registered at its exact approved path pending that ruling. An isolated offline red-first repair track is active; it cannot retry or clean up the retained run.</p>
 
   <footer>
-    <strong>Confidence:</strong> completed-stage claims are Verified from committed receipts, hashes, signatures, gates, and reviews. The run contract is Pending independent review. F1 dependency closure, build, solver offload, accuracy, and speed are Not recorded.<br>
+    <strong>Confidence:</strong> completed-stage and incident claims are Verified from committed receipts plus retained live logs, hashes, signatures, gates, and reviews. Checkpoint binding and exact-target cleanup are Blocked on the Mac recovery ruling. Complete dependency closure, build, solver offload, accuracy, and speed are Not recorded.<br>
     Canonical source: <a href="openfoam-gpu-status-r220.md">openfoam-gpu-status-r220.md</a>
   </footer>
 </main>
