@@ -1,0 +1,1 @@
+FAIL under the Windows-shaped os: AttributeError: module 'os' has no attribute 'O_NOFOLLOW' (as on Windows)
