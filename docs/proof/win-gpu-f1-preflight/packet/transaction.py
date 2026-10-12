@@ -185,6 +185,43 @@ def control_field(path: Path, name: str) -> str:
                           capture_output=True, text=True, encoding="utf-8", timeout=30).stdout.strip()
 
 
+def reconcile_installed_size(index_value: object, control_value: str) -> tuple[int, str]:
+    if not control_value.isdecimal() or int(control_value) <= 0:
+        raise ValueError("archive control Installed-Size missing/invalid")
+    actual = int(control_value)
+    if index_value == "Not recorded":
+        return actual, "control-only-index-absent"
+    if not isinstance(index_value, int) or index_value <= 0:
+        raise ValueError("signed-index Installed-Size invalid")
+    if index_value != actual:
+        raise ValueError(f"Installed-Size disagreement: signed-index={index_value} control={actual}")
+    return actual, "signed-index-and-control"
+
+
+def capacity_observations(guest_path: Path, host_path: Path) -> dict[str, object]:
+    guest = dict(line.split("=", 1) for line in guest_path.read_text(encoding="utf-8").splitlines()
+                 if "=" in line)
+    needed = ("block_bytes", "filesystem_bytes", "free_bytes", "maximum_bytes")
+    if any(not guest.get(name, "").isdecimal() for name in needed):
+        raise ValueError("guest capacity measurement missing")
+    host = [json.loads(line) for line in host_path.read_text(encoding="utf-8").splitlines() if line]
+    if not host or any(not isinstance(row.get("host_free_bytes"), int) or
+                       not isinstance(row.get("host_floor_bytes"), int) for row in host):
+        raise ValueError("host capacity measurement missing")
+    physical = [row["target_vhd_physical_bytes"] for row in host
+                if isinstance(row.get("target_vhd_physical_bytes"), int)]
+    if not physical:
+        raise ValueError("target physical VHD measurement missing")
+    return {"guest_block_bytes": int(guest["block_bytes"]),
+            "guest_filesystem_bytes": int(guest["filesystem_bytes"]),
+            "guest_free_bytes_at_probe": int(guest["free_bytes"]),
+            "guest_maximum_bytes": int(guest["maximum_bytes"]),
+            "host_min_free_bytes": min(row["host_free_bytes"] for row in host),
+            "host_max_required_floor_bytes": max(row["host_floor_bytes"] for row in host),
+            "target_vhd_max_physical_bytes": max(physical),
+            "host_samples": len(host)}
+
+
 def inspect_payload(path: Path) -> tuple[int, list[dict[str, object]], list[dict[str, str]]]:
     process = subprocess.Popen(["dpkg-deb", "--fsys-tarfile", str(path)], stdout=subprocess.PIPE)
     if process.stdout is None:
@@ -222,6 +259,7 @@ def verify(args: argparse.Namespace) -> None:
     expected = {(x["package"].split(":", 1)[0], x["version"]): x for x in packages}
     found = {}
     licences = []
+    size_disagreements = []
     for path in sorted(args.archives.glob("*.deb")):
         name, version, arch = (control_field(path, field) for field in ("Package", "Version", "Architecture"))
         key = (name, version)
@@ -233,10 +271,17 @@ def verify(args: argparse.Namespace) -> None:
                 actual_size != item["download_bytes_signed_index"] or arch != item["architecture"]):
             raise ValueError(f"archive differs from signed-index row: {name}={version}")
         installed_field = control_field(path, "Installed-Size")
-        installed_kib = int(installed_field) if installed_field else "Not recorded"
+        try:
+            installed_kib, size_basis = reconcile_installed_size(item["installed_kib_metadata"], installed_field)
+        except ValueError as error:
+            installed_kib = int(installed_field) if installed_field.isdecimal() else "Not recorded"
+            size_basis = "disagrees-or-missing"
+            size_disagreements.append({"package": name, "signed_index": item["installed_kib_metadata"],
+                                       "archive_control": installed_field or "Not recorded", "error": str(error)})
         payload_bytes, notices, links = inspect_payload(path)
         item.update({"sha256_downloaded": actual_hash, "download_bytes_actual": actual_size,
-                     "installed_kib_control": installed_kib, "payload_bytes": payload_bytes,
+                     "installed_kib_control": installed_kib, "installed_size_basis": size_basis,
+                     "payload_bytes": payload_bytes,
                      "archive_filename": path.name})
         licences.append({"package": name, "version": version, "notices": notices,
                          "doc_links": links, "basis": "embedded-or-shared-package-notice" if notices or links else "Not recorded"})
@@ -265,19 +310,22 @@ def verify(args: argparse.Namespace) -> None:
         "installed_kib_missing": [x["package"] for x in packages
                                   if not isinstance(x["installed_kib_control"], int)],
         "license_notices_missing": [x["package"] for x in licences if x["basis"] == "Not recorded"],
+        "installed_size_disagreements": size_disagreements,
     }
-    lock_data["verified_against_signed_index"] = True
+    lock_data["verified_against_signed_index"] = not size_disagreements
     lock_data["totals"] = totals
     write_json(args.lock, lock_data)
     write_json(args.licences, {"schema": "cfdw-f1-r217-license-map/1", "rows": licences,
                                "complete": not totals["license_notices_missing"]})
-    write_json(args.capacity, {"schema": "cfdw-f1-r217-capacity/1", **totals,
+    measured = capacity_observations(args.guest_capacity, args.host_capacity)
+    write_json(args.capacity, {"schema": "cfdw-f1-r217-capacity/1", **totals, **measured,
                                "source_archive_bytes": "Not recorded", "unpack_reserve_bytes": "Not recorded",
                                "build_output_reserve_bytes": "Not recorded", "case_bytes": "Not recorded",
-                               "guest_headroom_bytes": 10 * 1024**3,
-                               "full_f1_threshold_bytes": "Not recorded"})
-    if totals["installed_kib_missing"] or totals["license_notices_missing"]:
-        raise ValueError("installed-size or licence closure is incomplete; evidence retained")
+                               "current_preflight_vhd_cap_bytes": 8 * 1024**3,
+                               "future_f1_proposed_headroom_bytes": 10 * 1024**3,
+                               "full_f1_threshold_bytes": "Flagged: future source/build/case capacity not measured"})
+    if totals["installed_kib_missing"] or totals["license_notices_missing"] or size_disagreements:
+        raise ValueError("installed-size/index reconciliation or licence closure incomplete; evidence retained")
     print(f"ARCHIVES-PASS packages={len(packages)} bytes={totals['download_bytes']}")
 
 
@@ -325,6 +373,8 @@ def main() -> None:
     verify_parser.add_argument("--licences", type=Path, required=True)
     verify_parser.add_argument("--capacity", type=Path, required=True)
     verify_parser.add_argument("--b2-licences", type=Path, required=True)
+    verify_parser.add_argument("--guest-capacity", type=Path, required=True)
+    verify_parser.add_argument("--host-capacity", type=Path, required=True)
     compare_parser = commands.add_parser("compare")
     compare_parser.add_argument("--first", type=Path, required=True)
     compare_parser.add_argument("--second", type=Path, required=True)
