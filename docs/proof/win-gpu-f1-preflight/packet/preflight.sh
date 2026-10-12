@@ -2,10 +2,11 @@
 # Each stage is a separate foreground, owned Linux session. No package installation.
 set -euo pipefail
 export LC_ALL=C DEBIAN_FRONTEND=noninteractive
-if (($# != 16)) || [[ "$1" != "--stage" || "$3" != "--run-root" || "$5" != "--packet-root" ||
+if (($# != 20)) || [[ "$1" != "--stage" || "$3" != "--run-root" || "$5" != "--packet-root" ||
                      "$7" != "--b2-lock" || "$9" != "--openfoam-key" ||
                      "${11}" != "--nvidia-key" || "${13}" != "--openfoam-fingerprint" ||
-                     "${15}" != "--run-id" ]]; then
+                     "${15}" != "--run-id" || "${17}" != "--contract" ||
+                     "${19}" != "--contract-sha256" ]]; then
     printf 'preflight: exact stage argument contract required\n' >&2
     exit 64
 fi
@@ -17,10 +18,13 @@ openfoam_key=${10}
 nvidia_key=${12}
 openfoam_fingerprint=${14}
 run_id=${16}
+contract=${18}
+contract_sha256=${20}
 [[ "$run_id" =~ ^[A-Za-z0-9._-]+$ && "$openfoam_fingerprint" =~ ^[A-F0-9]{40}$ ]] || exit 65
+[[ "$stage" == probe || "$stage" == repositories || "$stage" == simulate ||
+   "$stage" == download || "$stage" == inspect || "$stage" == delete-debs ]] || exit 64
 [[ "$run_root" == /mnt/c/* && "$packet_root" == /mnt/c/* ]] || exit 65
 mkdir -p "$run_root"
-printf '%s\n' "$$" > "${run_root}/current-owner.pid"
 pid=$$
 pgid=$(ps -o pgid= -p "$pid" | tr -d ' ')
 sid=$(ps -o sid= -p "$pid" | tr -d ' ')
@@ -31,9 +35,11 @@ cpus=$(awk '/^Cpus_allowed_list:/ {print $2}' "/proc/${pid}/status")
     printf 'stage owner mismatch pid=%s pgid=%s sid=%s nice=%s cpus=%s\n' "$pid" "$pgid" "$sid" "$nice" "$cpus" >&2
     exit 65
 }
+owner_tmp=$(mktemp "${run_root}/.${stage}.owner.XXXXXX")
 printf 'stage=%s\npid=%s\npgid=%s\nsid=%s\nnice=%s\nCpus_allowed_list=%s\ncmdline=%s\n' \
     "$stage" "$pid" "$pgid" "$sid" "$nice" "$cpus" "$(tr '\0' ' ' < "/proc/${pid}/cmdline")" \
-    > "${run_root}/${stage}.owner.txt"
+    > "$owner_tmp"
+mv -- "$owner_tmp" "${run_root}/${stage}.owner.txt"
 cache="/var/cache/cfdw-f1-r217/${run_id}"
 sources=/etc/apt/cfdw-f1-r217.list
 config=/etc/apt/cfdw-f1-r217.conf
@@ -62,6 +68,12 @@ case "$stage" in
         mkdir -p /etc/apt/keyrings
         cp -- "$openfoam_key" /etc/apt/keyrings/cfdw-openfoam.gpg
         cp -- "$nvidia_key" /etc/apt/keyrings/cfdw-nvidia.gpg
+        python3 "${packet_root}/contract.py" keyring --contract "$contract" --expected-sha256 "$contract_sha256" \
+            --keyring /usr/share/keyrings/ubuntu-archive-keyring.gpg --kind ubuntu_archive
+        python3 "${packet_root}/contract.py" keyring --contract "$contract" --expected-sha256 "$contract_sha256" \
+            --keyring /etc/apt/keyrings/cfdw-openfoam.gpg --kind openfoam
+        python3 "${packet_root}/contract.py" keyring --contract "$contract" --expected-sha256 "$contract_sha256" \
+            --keyring /etc/apt/keyrings/cfdw-nvidia.gpg --kind nvidia
         openfoam_actual=$(gpg --batch --show-keys --with-colons --fingerprint /etc/apt/keyrings/cfdw-openfoam.gpg |
             awk -F: '$1 == "fpr" {print $10; exit}')
         nvidia_actual=$(gpg --batch --show-keys --with-colons --fingerprint /etc/apt/keyrings/cfdw-nvidia.gpg |
@@ -81,8 +93,11 @@ case "$stage" in
             'Dir::Etc::sourcelist "/etc/apt/cfdw-f1-r217.list";' \
             'Dir::Etc::sourceparts "-";' \
             'Dir::State::lists "/var/lib/apt/lists-cfdw-f1-r217";' \
+            'Dir::Cache::pkgcache "";' \
+            'Dir::Cache::srcpkgcache "";' \
             'APT::Get::Install-Recommends "false";' > "$config"
         cp -- "$sources" "${run_root}/apt-sources.list"
+        mkdir -p "$lists/partial"
         apt-get -o APT::Update::Error-Mode=any update \
             > "${run_root}/apt-update.stdout.txt" 2> "${run_root}/apt-update.stderr.txt"
         mkdir -p "${run_root}/signed-indices"
@@ -98,6 +113,13 @@ case "$stage" in
             esac
             gpgv --status-fd 1 --keyring "$key" "$index" > "${run_root}/signed-indices/${name}.gpgv.txt" 2>&1
             grep -q '^\[GNUPG:\] VALIDSIG ' "${run_root}/signed-indices/${name}.gpgv.txt"
+            case "$name" in
+                *dl.openfoam.com*) kind=openfoam ;;
+                *developer.download.nvidia.com*) kind=nvidia ;;
+                *) kind=ubuntu_archive ;;
+            esac
+            python3 "${packet_root}/contract.py" signer --contract "$contract" --expected-sha256 "$contract_sha256" \
+                --status "${run_root}/signed-indices/${name}.gpgv.txt" --kind "$kind"
             cp -- "$index" "${run_root}/signed-indices/${name}"
             ((index_count+=1))
         done
@@ -138,6 +160,7 @@ case "$stage" in
         python3 "${packet_root}/transaction.py" verify \
             --lock "${run_root}/transaction-lock.json" --archives "$cache" \
             --licences "${run_root}/license-map.json" --capacity "${run_root}/capacity.json" \
+            --guest-capacity "${run_root}/guest-capacity.txt" --host-capacity "${run_root}/host-capacity.jsonl" \
             --b2-licences "$(dirname "$b2_lock")/license-map.json"
         ;;
     delete-debs)

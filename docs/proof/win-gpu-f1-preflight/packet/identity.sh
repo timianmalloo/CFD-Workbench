@@ -17,6 +17,8 @@ if [[ "$pid" != "$pgid" || "$pid" != "$sid" || "$nice" -lt 10 ||
     printf 'identity mismatch pid=%s pgid=%s sid=%s nice=%s cpus=%s\n' "$pid" "$pgid" "$sid" "$nice" "$cpus" >&2
     exit 65
 fi
+owner_tmp=$(mktemp "${output}.XXXXXX")
 printf 'pid=%s\npgid=%s\nsid=%s\nnice=%s\nCpus_allowed_list=%s\ncmdline=%s\n' \
-    "$pid" "$pgid" "$sid" "$nice" "$cpus" "$(tr '\0' ' ' < "/proc/${pid}/cmdline")" > "$output"
+    "$pid" "$pgid" "$sid" "$nice" "$cpus" "$(tr '\0' ' ' < "/proc/${pid}/cmdline")" > "$owner_tmp"
+mv -- "$owner_tmp" "$output"
 exec "$@"

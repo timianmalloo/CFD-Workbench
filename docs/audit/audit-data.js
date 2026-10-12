@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T01:42:08Z",
+  "generated": "2026-10-12T02:08:41Z",
   "audit": [
     {
       "actor": null,
@@ -36067,6 +36067,45 @@ window.AUDIT_DATA = {
         "short": "456fb542f",
         "branch": "win/gpu-f1-preflight-r217",
         "pushed": true
+      }
+    },
+    {
+      "id": "al-01M4PXX2EP19G9WZ8XAW0W3TYA",
+      "shortname": "r217-packet-repair",
+      "datetime": "2026-10-12T02:08:41Z",
+      "session": "pc-f1-r217-packet-repair",
+      "prompt": "SOLE PACKET REPAIR after Astra VETO: repair P1-P6 in R217 packet with red-first offline tests, class controls, contract, ownership, deadlines, signer verification, Installed-Size/capacity; no live WSL or apt; validate, audit, commit.",
+      "summary": "Repaired R217 packet P1-P6 with bounded independent finalization, exact ownership, committed invocation contract and signer checks, capacity reconciliation, and planted offline failures; no live execution.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/packet/README.md",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Clear Astra P1-P6 VETO in the sole R217 PACKET repair cycle without live WSL, apt, downloads, builds, or cases.",
+      "done_when": "Packet, defect-class controls, safe offline tests and documentation gates are green and committed for independent review.",
+      "tier": "T1",
+      "main_calls": 39,
+      "main_budget": 45,
+      "main_over_budget": false,
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T01:44:52Z",
+      "duration_seconds": 1429.0,
+      "git": {
+        "sha": "a50d6244379852381b5109666861d38a31c985b2",
+        "short": "a50d62443",
+        "branch": "win/gpu-f1-r217-packet-repair",
+        "pushed": null
       }
     }
   ],
