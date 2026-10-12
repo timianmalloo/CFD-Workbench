@@ -256,13 +256,20 @@ def run_local(argv, out, timeout, env):
             code = child.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
             timed_out = True
-            os.killpg(child.pid, signal.SIGKILL)
+            # Windows (ARM lands here; x64 uses run_windows): no process groups, so only the direct child is killed.
+            if os.name == "nt":
+                child.kill()
+            else:
+                os.killpg(child.pid, signal.SIGKILL)
             code = child.wait(timeout=10)
-        try:
-            os.killpg(child.pid, 0)
-            quiescent = False
-        except ProcessLookupError:
-            quiescent = True
+        if os.name == "nt":
+            quiescent = child.poll() is not None  # direct child only; no group probe exists on Windows
+        else:
+            try:
+                os.killpg(child.pid, 0)
+                quiescent = False
+            except ProcessLookupError:
+                quiescent = True
     return dict(argv=argv, pid=child.pid, exit=code, timeout=timed_out, quiescent=quiescent,
                 elapsed_seconds=time.monotonic() - started, native_qualification="Not assessed")
 

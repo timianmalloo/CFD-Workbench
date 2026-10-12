@@ -21,7 +21,12 @@ With the `ast` module: (1) `open(..., mode)` where the mode contains w, a or + a
 keyword, and `Path.write_text(...)` with no `newline` keyword, in TEXT mode (a `b` in the mode
 exempts the call); (2) a module containing `if __name__ == "__main__"` and a `print(` must
 contain `.reconfigure(` on a stream (the guard) - modules that never print are exempt;
-(3) `mkstemp(... text=True)`.
+(3) `mkstemp(... text=True)`; (4) a POSIX-only `os` attribute (POSIX_ONLY_OS below: O_NOFOLLOW, O_NONBLOCK,
+killpg, getuid ...) used outside a function that tests `os.name`, `sys.platform`, `platform.system()` or
+`hasattr/getattr(os, ...)`. `getattr(os, "O_NOFOLLOW", 0)` names the attribute as a string and is never a
+finding. Those attributes do not exist in Python on Windows, so the bare use raises AttributeError there
+(class PLAT-A, the POSIX-flag half; PC readiness, PR #33, 2026-10-12). Where the flag was a symlink guard,
+keep an explicit `lstat`/`islink` check on Windows (coord-core.py:547-552 is the example).
 
 USAGE
   python3 verify-portable-text-io.py               scan this repository
@@ -49,7 +54,54 @@ for _stream in (sys.stdout, sys.stderr):
         except (ValueError, OSError):
             pass
 
-ROOTS = ("pack/scripts", "pack/adapters/hooks", "tools")
+ROOTS = ("pack/scripts", "pack/adapters/hooks", "tools", "docs/ai-forward-pack/scripts", "docs/ai-forward-pack/hooks")
+
+# Absent from the `os` module on Windows. `signal.SIGKILL` is the same class; left for a follow-up sweep.
+POSIX_ONLY_OS = frozenset((
+    "O_NOFOLLOW", "O_NONBLOCK", "O_CLOEXEC", "O_DIRECTORY", "fchmod", "fchown", "lchown", "getuid", "geteuid",
+    "getgid", "getegid", "killpg", "getpgid", "getpgrp", "setsid", "setpgid", "fork", "forkpty", "mkfifo"))
+_FUNCTIONS = (ast.FunctionDef, ast.AsyncFunctionDef)
+
+
+def _is_platform_test(node):
+    """`os.name`, `sys.platform`, `platform.system(...)`, `hasattr(os, ...)` or `getattr(os, ...)`."""
+    if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name):
+        return (node.value.id, node.attr) in (("os", "name"), ("sys", "platform"))
+    if isinstance(node, ast.Call):
+        func = node.func
+        if isinstance(func, ast.Attribute) and isinstance(func.value, ast.Name):
+            return (func.value.id, func.attr) == ("platform", "system")
+        if isinstance(func, ast.Name) and func.id in ("hasattr", "getattr") and node.args:
+            return isinstance(node.args[0], ast.Name) and node.args[0].id == "os"
+    return False
+
+
+def _posix_only_findings(tree):
+    """Each `os.<posix-only>` outside every function that tests the platform (module level: a module-level test)."""
+    parents = {child: parent for parent in ast.walk(tree) for child in ast.iter_child_nodes(parent)}
+    tested = {}
+
+    def has_test(scope):
+        if scope not in tested:
+            tested[scope] = any(_is_platform_test(n) for n in ast.walk(scope))
+        return tested[scope]
+
+    found = []
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.Attribute) and node.attr in POSIX_ONLY_OS
+                and isinstance(node.value, ast.Name) and node.value.id == "os"):
+            continue
+        scopes, scope = [], parents.get(node)
+        while scope is not None:
+            if isinstance(scope, _FUNCTIONS):
+                scopes.append(scope)
+            scope = parents.get(scope)
+        covered = any(has_test(s) for s in scopes) if scopes else has_test(tree)
+        if not covered:
+            found.append((node.lineno, 'os.{0} is POSIX-only (AttributeError on Windows): use getattr(os, "{0}", 0) '
+                          "or branch on os.name; keep an explicit lstat/islink check where it was a symlink guard"
+                          .format(node.attr)))
+    return found
 
 
 def _const_str(node):
@@ -108,6 +160,7 @@ def scan_source(source):
             findings.append((node.lineno, 'write_text(...) without newline="\\n"'))
         elif name == "mkstemp" and "text" in keywords and isinstance(keywords["text"], ast.Constant) and keywords["text"].value is True:
             findings.append((node.lineno, "mkstemp(... text=True) - the flag says CRLF on Windows"))
+    findings.extend(_posix_only_findings(tree))
     if has_main and prints and not has_guard:
         findings.append((1, "prints from a __main__ entry with no stdio reconfigure guard (cp1252 console)"))
     return findings
@@ -170,8 +223,23 @@ def self_test():
         if scan(tmp):
             print("self-test FAILED: clean fixture reported findings: {0}".format(scan(tmp)))
             return 1
-    print("self-test OK: an LF-less text write, a write_text without newline, mkstemp(text=True) and an "
-          "unguarded __main__ are findings; binary, read-only and guarded shapes are not")
+    posix = (
+        "import os\n"
+        "def bad(p):\n"
+        "    return os.open(p, os.O_RDONLY | os.O_NOFOLLOW)\n"                         # 3 finding
+        "def flag_ok(p):\n"
+        "    return os.open(p, os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0))\n"          # 5 ok (getattr form)
+        "def branch_ok(child):\n"
+        "    if os.name == 'nt':\n"
+        "        return child.kill()\n"
+        "    os.killpg(child.pid, 9)\n")                                               # 9 ok (os.name guard)
+    got = [line for line, _ in scan_source(posix)]
+    if got != [3]:
+        print("self-test FAILED: expected one POSIX-only finding at line 3, got {0}".format(scan_source(posix)))
+        return 1
+    print("self-test OK: an LF-less text write, a write_text without newline, mkstemp(text=True), an "
+          "unguarded __main__ and a bare os.O_NOFOLLOW are findings; binary, read-only, guarded, getattr "
+          "and os.name-branch shapes are not")
     return 0
 
 

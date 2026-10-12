@@ -1,0 +1,1 @@
+OK: atomic_spike create and replace work under the Windows-shaped os

@@ -78,6 +78,8 @@ def _signal_group(process, sig):
     # macOS can return EPERM for an unreaped zombie. Reap before signalling,
     # and retry once if exit raced the first poll. Still signal live descendants.
     process.poll()
+    if os.name == "nt":  # no process groups; _Wire is the POSIX wire, so this is defence in depth
+        return terminate_owned_process(process)
     for attempt in range(2):
         try:
             os.killpg(process.pid, sig)

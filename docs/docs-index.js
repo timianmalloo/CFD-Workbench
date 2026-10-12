@@ -5466,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "871e8925f161b9729a952f9e76e41eac8d7efacf6c3f516fdc3e7f9ed9afa197"
+      "sourceSha256": "4a44b1226eff3646c471ee22724a8f41ad4c32623638dfe1dcddf0a7ea5951e5"
     },
     {
       "id": "domain-experts",
@@ -8830,7 +8830,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b2b6efa658886a7b3a21c5c982e22e16e0e3135889fd8659bb59313639c5a89d"
+      "sourceSha256": "caee19d5a174762e2709db9fc66e07b1581394baff493cf2f7a278681fd6ccfa"
     },
     {
       "id": "kb-hw-glossary",
@@ -15201,6 +15201,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "da5f92bf56395839723fedd00dc35d85a765251c3fd13e749843a621b0f8f435"
     },
     {
+      "id": "proof-ofn-red-first",
+      "path": "docs/proof/ofn/red-first.md",
+      "title": "OFN red-first - POSIX-only os attributes on Windows",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-ofn",
+      "phase": "",
+      "reviewBy": "2026-11-12",
+      "reviewSuggested": [],
+      "summary": "A bare POSIX-only os attribute fails the portable-text-io gate on main and the spike under a Windows-shaped os; both pass after the fix.",
+      "tags": [
+        "ofn",
+        "windows",
+        "portability",
+        "plat-a"
+      ],
+      "links": [
+        {
+          "to": "proof-application-core",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "fbdcc6a9ba8369bbcd5863447789921bfad6f83ce7646ff9fac5139d99586079"
+    },
+    {
       "id": "proof-openfix-red-runs",
       "path": "docs/proof/openfix-red-runs.md",
       "title": "OPENFIX red runs and verification — M1.2a Open outcomes and Span input",
@@ -19463,7 +19489,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0166a2f2090401df8de20032ca2b18dd75ff2023410f1f3c7e6df8f6fb652261"
+      "sourceSha256": "d46c4dfea9d4a7b4967489f086a24a232f43d0f5e3a68177a1ce54b8e3cd0732"
     },
     {
       "id": "review-ui-application-native",
@@ -21096,5 +21122,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "3250d827676c5a72276789aeb3fed35b1e40023de8b4afcff83b47e3faa1f65e"
+  "graphSha256": "133765efb5b5651a9b4c1cc40d9d5ca3d7da50d4ae2db50de6bcfead890d75fa"
 };
