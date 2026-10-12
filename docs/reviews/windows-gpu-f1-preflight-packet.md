@@ -1,9 +1,9 @@
 ---
 id: review-windows-gpu-f1-preflight-packet
-title: "Astra packet review - Ruling 217 dependency preflight"
+title: "Astra final packet review - Ruling 217 dependency preflight"
 type: proof-pack
 status: complete
-owner: "@pc-f1-r217-astra-packet"
+owner: "@pc-f1-r217-astra-packet-r2"
 phase: preflight
 tags: [windows, wsl, gpu, ruling-217, owner-review]
 links:
@@ -13,10 +13,153 @@ links:
   - { to: rulings, rel: depends-on }
 review-by: "2026-11-12"
 summary: >-
-  VETO on live execution: guard failure can bypass cleanup, owned-process and deadline controls are incomplete, UTC freshness conversion fails, and trust/input/size reconciliation needs repair. Offline self-tests pass but do not cover these failures.
+  Second VETO stops the live track: deletion-stage failure bypasses a fresh owned-work stop, and residual discovery selects another attempt by prefix. Deadline, UTC, trust-contract and size repairs are otherwise verified offline.
 ---
 
-# Independent packet verdict
+# Final independent verdict at repaired base
+
+**Second VETO — the live track is stopped. Do not execute the packet.** Reviewed
+joined base `2f643039d2df77a361a90d4578d64ccfc3fef6c9`, branch
+`win/gpu-f1-r217-astra-packet-r2`, session `pc-f1-r217-astra-packet-r2`.
+The coordination plan at `docs/coordination/windows-gpu-f1-preflight-r217.md:51`
+permits one repair and terminates before a live run on the second VETO. Mac/Fable
+and the operator own any later decision; this verdict authorizes no further repair
+or attempt. Ruling 217 (`docs/notes/rulings.md:1701`) remains the scope authority.
+
+**Confidence: high.** The two remaining findings below are Verified source and
+host-only counterexample observations. Their live consequences are Inferred, not
+observed incidents. No WSL, apt, download, install, source acquisition, build,
+solver or case command ran. Packet, plan and defect-register bytes were not edited.
+The earlier report is retained below as historical evidence of the first verdict,
+committed in `c8f4da4aa13c1969643b042ca3f1931db52707d9`; its old line references
+and epoch statement do not describe the repaired packet.
+
+## Final P1-P6 remediation table
+
+All source paths in this table are beneath `docs/proof/win-gpu-f1-preflight/packet/`.
+
+| Finding | Final disposition | Repaired source evidence |
+|---|---|---|
+| P1: failure-path cleanup | **VETO remains.** Checkpoint/snapshot failures now independently reach observer stop/bind. A failed deletion stage still bypasses a fresh owned-work stop. | `Control.ps1:41-52`; `Invoke-Preflight.ps1:327-343,539-545`; counterexample below. |
+| P2: deadlines/reserve | **Original defect cleared.** Child budgets include startup and absolute work/checkpoint/cleanup ends of 2700/3000/3600 seconds. Distro list and registration settling are bounded. Checkpoint SHA is published only after timely blob verification. | `Control.ps1:17-22`; `Invoke-Preflight.ps1:63-67,142-186,250-264,294-316,433-452`. Delayed-startup and phase-boundary fixtures pass. This does not clear P1's omitted stop. |
+| P3: exact ownership | **VETO remains.** Atomic records, intent, fail-closed ps inspection, leader-gone group termination and uncertain-creation reporting are present. Residual cmdline identity is still a substring. | `identity.sh:23-28`; `preflight.sh:37-42`; `owned_control.py:20-44,76-92,101-132`; `Invoke-Preflight.ps1:206-236,265-316`. Prefix counterexample below. |
+| P4: UTC Z | **Cleared.** Typed dates normalize directly to UTC; actual strings require an offset; unspecified dates fail. | `Control.ps1:2-15`; `SelfTest.ps1:8-12`. Real ConvertFrom-Json Z-format fixture passes on this host. |
+| P5: invocation/trust | **Code repair verified; environment-contract review still required.** Mandatory committed clean branch/session contract binds accepted source blobs and input hashes. Actual signers/keyrings match reviewed sets; live epoch must equal the contract. | `contract.py:26-75,78-177`; `Invoke-Preflight.ps1:420-453`; `verify-rootfs.sh:13-18`; `preflight.sh:72-77,111-129`. Planted signer/hash/epoch mismatches fail. Real input provenance is unobserved here. |
+| P6: size/capacity | **Original defect cleared.** Advertised/control Installed-Size mismatch or missing control size fails with retained evidence. Absent index size is labelled control-only. Capacity incorporates measured guest and host values, separately from proposed future headroom. | `transaction.py:197-238,289-299,342-362`; full mocked verify fixtures in `packet_selftest.py`. Matching/control-only cases pass; 1-versus-99 and missing-control cases fail. Full F1 source/build/case capacity remains Flagged. |
+
+## Remaining P1: deletion-stage failure bypasses fresh owned-work cleanup
+
+**Verified:** the real `Control.ps1:41` stops owned work before checkpointing, then
+calls cleanup at line 44. If cleanup throws it proceeds to snapshot, observer stop
+and binding at lines 50-52 without another owned-work stop. The actual
+`Invoke-Cleanup` starts the Linux `delete-debs` stage at `Invoke-Preflight.ps1:340`;
+its `Stop-Owned` at line 341 is skipped if that stage fails. The child catch at
+lines 174-184 requests cancellation and stops the Windows launcher but does not
+itself prove the Linux group terminated.
+
+**Verified host-only integration counterexample:** the reviewer parsed the wrapper
+AST and loaded only its `Invoke-Cleanup` function with the real `Control.ps1`
+finalizer. Registration/path checks were inert fixtures. A mock `Invoke-Stage`
+recorded entry into deletion then threw a post-launch timeout. No wrapper top-level
+code or process launch executed. The observed sequence was:
+
+```text
+stop-owned -> checkpoint -> delete-stage-started -> snapshot -> stop-guard -> bind-guard
+```
+
+The result reported `owned_stopped=true`, `checkpoint_proved=true`,
+`cleanup_proved=false`, and the planted cleanup error. The stop flag therefore
+describes only the pre-checkpoint work. **Inferred consequence:** deletion startup,
+acknowledgement or timeout failure can leave a Linux group unproved after the
+wrapper returns; independent observer shutdown does not terminate that group.
+
+**Smallest repair if a new track is authorized:** cover every cleanup-stage Linux
+launch with bounded unconditional group stop/verification and exact-target
+containment when ownership is uncertain. Recompute `owned_stopped` after the last
+possible workload launch. Preserve independent observer shutdown/binding. Add this
+deletion-stage integration failure fixture; the current tests plant checkpoint,
+snapshot and guard-stop failures but omit this path.
+
+## Remaining P3: residual discovery accepts another attempt's prefix
+
+**Verified:** `owned_control.py:81-87` uses textual substring membership for
+run-root, run ID, and guard session/event identity. Selected groups subsequently
+receive TERM/KILL at lines 118-119 and 127-128.
+
+**Verified host-only counterexample:** the real `find_groups` received requested
+root `/mnt/c/runA`, run ID `runA`, no saved owners, and this synthetic row:
+
+```text
+ProcessRow(123, 123, 123,
+  '/bin/bash /packet/preflight.sh --stage download --run-root /mnt/c/runAB --run-id runAB')
+```
+
+It returned **`{123}`**. No signal was sent. Both values belong to another attempt,
+but both contain the requested prefix. The guard branch uses the same unsafe
+session-prefix and run-root-substring shape. **Inferred consequence:** cleanup can
+signal a foreign attempt; for a guard this crosses the process boundary inside
+the protected distro. A one-attempt policy is not exact identity proof.
+
+**Smallest repair if a new track is authorized:** compare complete argument tokens
+and exact script, run ID and run-root/event path using an unambiguous argv source.
+Preserve fail-closed inspection and saved-group handling when leaders exit. Add
+stage and guard prefix-collision negatives with a mocked signal sink proving no
+foreign group receives a signal.
+
+## Environment contract and remaining acceptance surfaces
+
+**Verified code, unobserved environment:** `contract.py:114-118` rejects a live
+epoch different from the contract. The fixture proves epoch 4 cannot satisfy a
+reviewed epoch 5. The coordinator may renew/reclaim Mac leadership without changing
+packet source; the later independently reviewed contract must bind the then-current
+live epoch, exact branch/session, accepted source commit/hash set, local input
+paths/hashes, B2 lock/licence bytes and authenticated Ubuntu/OpenFOAM/NVIDIA signer
+sets. `docs/plans/windows-gpu-f1-preflight-r217.md:45` and the coordination plan at
+line 28 now state that boundary. Caller assertion alone is insufficient. This seam
+does not waive P1/P3 or authorize continuation after the second VETO.
+
+**Verified source:** exact target/protected names, dedicated path, initial host
+floor 19,684,091,961 bytes and 8-GiB maximum remain explicit
+(`Invoke-Preflight.ps1:16-24,95-118`). Creation is target-only with `--from-file`,
+`--vhd-size 8GB`, and `--no-launch` (523-528). Guest block/filesystem measurements
+precede repository networking (`preflight.sh:50-64`). Helpers record effective
+CPU/nice and PID/PGID/SID/cmdline. The five-second completed-L3 guard starts before
+creation; missing/stale/changed state fails and stop/bind are independent
+(`Invoke-Preflight.ps1:124-141,354-418,489-524`). P1/P3 still limit containment.
+
+**Verified source:** normal freeze/commit/blob verification precedes deletion and
+unregister (`Invoke-Preflight.ps1:250-264,327-343`). An unproved checkpoint explicitly
+hands off to Mac and withholds destructive cleanup while still attempting owned
+work and observer shutdown. `manifest.py:27-91` freezes complete event rows and
+checks exact file sets and committed bytes. These observations are not a live
+target-absence or protected-state-equality proof.
+
+**Verified source:** exact B2 roots, five OpenFOAM roots and compiler/MPI/BLAS/LAPACK
+prerequisites feed signed-index-backed zero-removal simulation, exact re-simulation
+and resolved-only downloads (`transaction.py:18-23,56-74`; `preflight.sh:99-177`).
+Archive identity/set/architecture/size/SHA-256, licence coverage and Installed-Size
+checks remain explicit. Actual transaction closure and runtime capacity are
+unobserved. No source acquisition, package installation, compilation, case run,
+global WSL shutdown or resize stage was found by source review and the prohibited
+command scanner. Apt install forms are simulation/URI-only. No speedup,
+whole-solver offload or future F1 build authority is claimed.
+
+## Final offline checks and handoff
+
+Passed: `packet_selftest.py`; `SelfTest.ps1`; authority scanner and planted negatives;
+transaction, manifest and completed-guard self-tests; PowerShell AST parsing of all
+three `.ps1` files; syntax checks of all four `.sh` files using installed Git Bash
+(no WSL); and `tools/check-wsl-inline.py`. The additional counterexamples above
+explain why those passing checks are insufficient. Repository documentation,
+graph and whitespace outcomes and measured duration are recorded in the closing
+audit/handoff. No packet tests or code were modified.
+
+**Terminal disposition:** P1 and P3 remain hard vetoes. The sole repair is exhausted;
+the live track is stopped. Hand off only these findings and any new authority
+decision to Mac/Fable/operator. F1 installation/build/source/case execution remains
+closed.
+
+# Historical first packet verdict (superseded by the final verdict above)
 
 **VETO — do not run this packet.** Reviewed exact joined base
 `5451931fbf5568f62781b22847b57bee86d38256`, with packet bytes unchanged.
