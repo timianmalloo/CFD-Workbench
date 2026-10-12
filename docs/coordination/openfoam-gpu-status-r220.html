@@ -20,7 +20,7 @@
     .metric b { display:block; font-size:23px; margin-top:4px; }
     .label { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.1em; }
     .ok { color:var(--ok); } .work { color:var(--work); } .stop { color:var(--stop); }
-    .track { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; margin:18px 0 30px; }
+    .track { display:grid; grid-template-columns:repeat(7,1fr); gap:8px; margin:18px 0 30px; }
     .step { min-height:132px; border-top:4px solid var(--line); padding:14px 12px; background:#101a19; }
     .step.done { border-color:var(--ok); } .step.active { border-color:var(--work); } .step.closed { border-color:var(--stop); }
     .step strong { display:block; margin:5px 0 7px; }
@@ -44,7 +44,7 @@
 <body>
 <main>
   <header>
-    <div><div class="eyebrow">CFD-Workbench · Windows GPU lane</div><h1>The live preflight stopped safely and exposed two repairable packet defects.</h1></div>
+    <div><div class="eyebrow">CFD-Workbench · Windows GPU lane</div><h1>The recovery code is accepted offline. One Mac ruling gates exact-target cleanup.</h1></div>
     <div class="stamp">Snapshot<br><strong>12 Oct 2026 · Ruling 220</strong></div>
   </header>
 
@@ -53,7 +53,8 @@
     <div class="metric"><span class="label">F1 design</span><b class="ok">Specified</b><span>PETSc + petsc4Foam</span></div>
     <div class="metric"><span class="label">R220 packet</span><b class="ok">Astra ACCEPT</b><span>15 exact files · P1/P3 cleared</span></div>
     <div class="metric"><span class="label">Run contract</span><b class="ok">Astra ACCEPT</b><span>Joined 6445bb6e · verify passed</span></div>
-    <div class="metric"><span class="label">Current gate</span><b class="stop">Recovery ruling</b><span>Evidence preserved · target retained</span></div>
+    <div class="metric"><span class="label">Defect repairs</span><b class="ok">Astra ACCEPT</b><span>Packet + cleanup integration</span></div>
+    <div class="metric"><span class="label">Current gate</span><b class="stop">Mac authority</b><span>Cleanup-only hash binding</span></div>
   </section>
 
   <h2>Delivery path</h2>
@@ -63,7 +64,8 @@
     <div class="step done"><span class="label">Complete</span><strong>F1 design</strong><small>Build route and three-arm benchmark frozen.</small></div>
     <div class="step done"><span class="label">Accepted</span><strong>R220 packet</strong><small>Red-first P1/P3 repair; Astra accepted all 15 packet files.</small></div>
     <div class="step done"><span class="label">Accepted</span><strong>Run contract</strong><small>Seven inputs, exact signers, identity, paths, and Mac epoch 6.</small></div>
-    <div class="step active"><span class="label">Now</span><strong>Preflight recovery</strong><small>Bind 75-file freeze, repair two defects, exact-target cleanup, re-review.</small></div>
+    <div class="step done"><span class="label">Accepted offline</span><strong>Recovery integration</strong><small>35 tests, packet suites, 76/94 binders, privacy and safe gates passed.</small></div>
+    <div class="step active"><span class="label">Now</span><strong>Cleanup authority</strong><small>Mac must bind the exact source, JSON hash, target identity, epoch and deadline.</small></div>
   </div>
 
   <div class="grid">
@@ -100,15 +102,16 @@
 
   <h2>Live preflight incident</h2>
   <div class="route" aria-label="Future route">
-    <span class="ok">Packet ACCEPT</span><i>→</i><span class="ok">Contract ACCEPT</span><i>→</i><span class="ok">Contract verify</span><i>→</i><span>Stopped at simulation</span><i>→</i><span>Mac recovery ruling</span><i>→</i><span>Repair + re-review</span>
+    <span class="ok">Packet ACCEPT</span><i>→</i><span class="ok">Contract ACCEPT</span><i>→</i><span>Stopped at simulation</span><i>→</i><span class="ok">Repairs ACCEPT</span><i>→</i><span>Mac cleanup ruling</span><i>→</i><span>One bounded cleanup</span>
   </div>
   <p>Run <code>r217-run1-epoch6-20261012</code> authenticated and froze the repositories, then rejected the first percent-encoded apt URI because <code>%7e</code> was compared directly with <code>~</code>. Its 75-file checkpoint freeze passed, but a PowerShell dynamic-scope name collision sent the frozen copy to repo-root <code>Save-Checkpoint/</code> and blocked its commit. The wrapper stopped owned work, bound 16 guard rows, proved the protected snapshot unchanged, and withheld unregister. No package install, <code>.deb</code> download, source fetch, compile, or CFD run occurred.</p>
+  <p>The packet repair was accepted at <code>65456e1c</code>. The first cleanup recovery candidate was vetoed; cycle 1 fixed deadline admission, renamed-target detection, initiating-error retention, stable identity, and pinned cache deletion, then passed Astra review at <code>02485495</code>. Exact integration <code>5b1a9bb4</code> passed 35 recovery tests and all offline binders and gates. Its independent review joined and pushed at <code>db2826a6</code>. No live recovery action ran.</p>
 
   <h2>Coordination</h2>
-  <p>Mac remains repository leader at epoch 6. A recovery decision request with exact evidence is posted to <a href="https://github.com/timianmalloo/CFD-Workbench/pull/33">GitHub PR #33</a> and coordination mail. The disposable target remains registered at its exact approved path pending that ruling. An isolated offline red-first repair track is active; it cannot retry or clean up the retained run.</p>
+  <p>Mac remains repository leader at epoch 6. The remaining request is a new numbered <code>F1-CLEANUP-ONLY</code> ruling that binds the independently accepted source commit, committed authorization JSON hash, exact disposable and protected identities, retained manifest, recovery session, current epoch, three allowed actions, and the 600-second deadline. The disposable target remains registered. This authority permits one cleanup attempt; it does not permit a preflight retry, installation, build, or CFD run.</p>
 
   <footer>
-    <strong>Confidence:</strong> completed-stage and incident claims are Verified from committed receipts plus retained live logs, hashes, signatures, gates, and reviews. Checkpoint binding and exact-target cleanup are Blocked on the Mac recovery ruling. Complete dependency closure, build, solver offload, accuracy, and speed are Not recorded.<br>
+    <strong>Confidence:</strong> completed-stage, incident, repair, and offline-review claims are Verified from committed receipts, retained evidence, hashes, gates, and independent reviews. Exact-target cleanup is Blocked on the new Mac ruling. Registry/lifecycle and stat/unlink races remain, and live WSL recovery behavior is unmeasured. Complete dependency closure, build, solver offload, accuracy, and speed are Not recorded.<br>
     Canonical source: <a href="openfoam-gpu-status-r220.md">openfoam-gpu-status-r220.md</a>
   </footer>
 </main>

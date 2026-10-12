@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T14:49:47Z",
+  "generated": "2026-10-12T16:45:03Z",
   "audit": [
     {
       "actor": null,
@@ -36437,6 +36437,36 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-12T14:48:08Z",
       "duration_seconds": 99.0
+    },
+    {
+      "id": "al-01M4RG1REMF0VW2V1NM1TW94CN",
+      "shortname": "openfoam-gpu-recovery-status",
+      "datetime": "2026-10-12T16:45:03Z",
+      "session": "pc-gpu-status-r217-cont",
+      "prompt": "Continue the OpenFOAM GPU work, address all blockers, update the HTML status, and coordinate the Mac-led track.",
+      "summary": "Joined Astra's offline recovery integration acceptance at db2826a6, published the exact R222 cleanup-only authority candidate to Mac coordination and PR 33, and updated the GPU status dashboard. No live recovery or retry ran.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/openfoam-gpu-status-r220.md",
+        "docs/coordination/openfoam-gpu-status-r220.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Finish the reviewed offline recovery integration and make the Mac cleanup authority request concrete.",
+      "done_when": "The review is joined, the status dashboard reflects exact accepted commits, and Mac receives a hash-bound cleanup-only request.",
+      "tier": "T2",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T16:44:48Z",
+      "duration_seconds": 15.0
     }
   ],
   "changes": [

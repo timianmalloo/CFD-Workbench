@@ -14,8 +14,8 @@ links:
 review-by: "2026-10-19"
 summary: >-
   CUDA capability and rollback are proved, the PETSc-CUDA plus petsc4Foam design and three-arm benchmark are specified,
-  the R220 packet and run-1 contract are Astra-accepted, and the first live preflight stopped fail-closed pending a
-  Mac recovery ruling after exposing two new packet defects.
+  and the first live preflight stopped fail-closed. Both measured packet defects and the cleanup-only recovery are now
+  independently accepted offline; exact-target cleanup awaits a new hash-bound Mac ruling.
 ---
 
 # OpenFOAM GPU work status at Ruling 220
@@ -44,7 +44,9 @@ planned PETSc-CUDA plus petsc4Foam route. `amgx4Foam` and RapidCFD are rejected 
 | F1 benchmark contract | Accepted with amendments | Three serial arms: native GAMG, PETSc CPU, PETSc GPU. GPU must be at least 1.20x faster than native GAMG with separation, spread, convergence, field, force, determinism, power, and y+ checks. | A later operator ruling after dependency preflight and build review. |
 | R217 dependency preflight packet | **Accepted under R220** | The repair commit `d5bb68fe` cleared P1 final cleanup/reap and P3 exact process identity. Astra independently reproduced the old failures and accepted all 15 repaired packet files at review commit `00933e65`. | Complete. |
 | Run-1 environment contract | **Accepted** | Contract commit `754b23e0` binds all 15 accepted packet hashes, seven exact inputs, signer allowlists, execution identity, target paths, and live Mac epoch 6. Astra independently accepted it at `456d9ebf`; the joined branch returned `INVOCATION-CONTRACT-PASS`. | Complete. |
-| Live dependency preflight | **Stopped fail-closed at simulate** | Target creation, capacity, repository authentication, signed-index freeze, and transaction simulation ran. No package install or `.deb` download began. URI matching rejected `%7e` versus `~`; checkpoint freeze passed but a PowerShell scope collision prevented its commit. | Mac recovery ruling: bind retained evidence, clean up only the disposable target, repair and re-review before retry. |
+| Live dependency preflight | **Stopped fail-closed at simulate** | Target creation, capacity, repository authentication, signed-index freeze, and transaction simulation ran. No package install or `.deb` download began. URI matching rejected `%7e` versus `~`; checkpoint freeze passed but a PowerShell scope collision prevented its commit. | Mac cleanup-only ruling: bind the accepted recovery and exact authorization, then make one bounded exact-target cleanup attempt. |
+| Packet defect repair | **Astra ACCEPT; joined** | URL basenames are decoded exactly once without changing raw URL/cache identity. Finalization now keeps the canonical checkpoint path distinct from callbacks. Accepted branch head: `65456e1c`. | Complete offline. |
+| Cleanup-only recovery | **Astra ACCEPT; integrated** | The first candidate was vetoed. Cycle 1 added pre-launch deadline admission, stable GUID/name/path absence checks, initiating-error retention, intent/ack, pinned relative cache deletion, and public error classification. The two accepted tracks were integrated and independently accepted at `5b1a9bb4`; review joined and pushed at `db2826a6`. | New Mac ruling must bind the accepted source, exact authorization JSON, current leader epoch, retained evidence, target identity, and 600-second cleanup-only scope. |
 | PETSc/petsc4Foam build and CFD benchmark | Closed | No execution evidence exists. | Separate operator ruling after preflight evidence. |
 
 ## Ruling 220 packet result
@@ -72,9 +74,14 @@ The accepted contract joined at `6445bb6e`, and clean-tree verification passed. 
    failed, so the checkpoint was not committed.
 
 The wrapper stopped owned work, bound 16 completed-L3 guard rows, proved the protected terminal snapshot unchanged,
-and withheld deletion/unregister. The disposable distro remains at the exact expected path. Mac received a decision
-request to authorize evidence binding and exact-target recovery. An offline red-first repair track is active; no retry
-is authorized yet.
+and withheld deletion/unregister. The disposable distro remains at the exact expected path. The original 75-file
+checkpoint and 93-file failed-live inventories remain byte-bound and unchanged.
+
+Both defects now have red-first repairs. Astra accepted the packet repair at `65456e1c`. The cleanup recovery's first
+candidate was vetoed on deadline, renamed-target, and error-retention defects; cycle 1 repaired those classes and was
+accepted at `02485495`. Their exact two-parent integration `5b1a9bb4` then passed 35 recovery tests, packet suites,
+76/94 evidence binders, documentation, privacy, and ten safe gates in an independent Astra review. That review joined
+and pushed at `db2826a6`. No WSL command or live recovery ran during this work.
 
 The preflight was limited to:
 
@@ -97,8 +104,10 @@ flowchart LR
   D --> E[Independent contract ACCEPT]
   E --> F[R217 dependency-only preflight]
   F -->|Stopped at simulate| X[Preserve evidence; Mac recovery ruling]
-  X --> G[Repair, re-review, exact-target cleanup]
-  G --> H{Later operator build ruling}
+  X --> G[Repair and re-review accepted]
+  G --> L[New hash-bound Mac cleanup ruling]
+  L --> M[One exact-target cleanup attempt]
+  M --> H{Later operator preflight-retry ruling}
   H --> I[PETSc-CUDA plus petsc4Foam build]
   I --> J[Native GAMG / PETSc CPU / PETSc GPU benchmark]
   J --> K[Case-specific worth-it verdict]
@@ -112,6 +121,10 @@ flowchart LR
 - The accepted packet review is joined and pushed at `88ae5819`; the accepted contract source is `754b23e0`.
 - The contract review joined on the execution branch at `6445bb6e`; the failed run evidence remains uncommitted and
   preserved pending Mac's recovery ruling.
+- The packet repair is accepted at `65456e1c`; cleanup recovery cycle 1 is accepted at `02485495`.
+- Exact integration `5b1a9bb4` is independently accepted; its review is joined and pushed at `db2826a6`.
+- The remaining request is cleanup-only. It permits only `delete-debs`, `terminate-target`, and `unregister-target`
+  for the exact retained target, under a 600-second deadline. It conveys no preflight retry or build authority.
 - Exact Windows readiness failures requested by Mac are posted on PR #33.
 - The full repository readiness receipt remains RED on Windows due to a POSIX-only architecture-spike path, a
   temporary-file access failure, one desktop theme test, and the 240-second budget. These are recorded separately from
@@ -120,7 +133,8 @@ flowchart LR
 ## Confidence and limits
 
 **Verified:** repository receipts, hashes, signatures, gates, reviews, and the retained live evidence establish every
-completed-stage and incident claim above. **Blocked:** checkpoint binding and disposable-target cleanup await Mac's
-recovery ruling. **Not recorded:** complete F1 package closure, PETSc/petsc4Foam build success, OpenFOAM GPU solver use,
-numerical equivalence, and speed-up.
+completed-stage and incident claim above. **Blocked:** the accepted cleanup recovery cannot run until Mac commits a
+new numbered `F1-CLEANUP-ONLY` ruling and its exact authorization hash. **Residual risk:** registry/lifecycle and
+stat/unlink races remain, and live WSL recovery behavior is unmeasured. **Not recorded:** complete F1 package closure,
+PETSc/petsc4Foam build success, OpenFOAM GPU solver use, numerical equivalence, and speed-up.
 

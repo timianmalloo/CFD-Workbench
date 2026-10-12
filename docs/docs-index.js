@@ -5412,7 +5412,7 @@ window.DOCS_INDEX = {
       "phase": "",
       "reviewBy": "2026-10-19",
       "reviewSuggested": [],
-      "summary": "CUDA capability and rollback are proved, the PETSc-CUDA plus petsc4Foam design and three-arm benchmark are specified, the R220 packet and run-1 contract are Astra-accepted, and the first live preflight stopped fail-closed pending a Mac recovery ruling after exposing two new packet defects.",
+      "summary": "CUDA capability and rollback are proved, the PETSc-CUDA plus petsc4Foam design and three-arm benchmark are specified, and the first live preflight stopped fail-closed. Both measured packet defects and the cleanup-only recovery are now independently accepted offline; exact-target cleanup awaits a new hash-bound Mac ruling.",
       "tags": [
         "coordination",
         "windows",
@@ -5449,10 +5449,10 @@ window.DOCS_INDEX = {
         {
           "kind": "flowchart",
           "title": "End-to-end route",
-          "mermaid": "flowchart LR\n  A[CUDA capability proved] --> B[F1 design and benchmark frozen]\n  B --> C[R220 P1/P3 repair complete]\n  C --> D[Fresh Astra packet ACCEPT]\n  D --> E[Independent contract ACCEPT]\n  E --> F[R217 dependency-only preflight]\n  F -->|Stopped at simulate| X[Preserve evidence; Mac recovery ruling]\n  X --> G[Repair, re-review, exact-target cleanup]\n  G --> H{Later operator build ruling}\n  H --> I[PETSc-CUDA plus petsc4Foam build]\n  I --> J[Native GAMG / PETSc CPU / PETSc GPU benchmark]\n  J --> K[Case-specific worth-it verdict]"
+          "mermaid": "flowchart LR\n  A[CUDA capability proved] --> B[F1 design and benchmark frozen]\n  B --> C[R220 P1/P3 repair complete]\n  C --> D[Fresh Astra packet ACCEPT]\n  D --> E[Independent contract ACCEPT]\n  E --> F[R217 dependency-only preflight]\n  F -->|Stopped at simulate| X[Preserve evidence; Mac recovery ruling]\n  X --> G[Repair and re-review accepted]\n  G --> L[New hash-bound Mac cleanup ruling]\n  L --> M[One exact-target cleanup attempt]\n  M --> H{Later operator preflight-retry ruling}\n  H --> I[PETSc-CUDA plus petsc4Foam build]\n  I --> J[Native GAMG / PETSc CPU / PETSc GPU benchmark]\n  J --> K[Case-specific worth-it verdict]"
         }
       ],
-      "sourceSha256": "d4a676bcfe3e9486490bed2c87d852eae363d29b0ec253299815de0827212c9b"
+      "sourceSha256": "7ab1796a38a8ba83004cce02223d2efdfe2f467e625ad0f60616da14390178e5"
     },
     {
       "id": "defect-classes",
@@ -21323,5 +21323,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "66eb64963d6130081d3affe3c9ff12ecfb8fdd3dd329012dd8bd3a224fe65f25"
+  "graphSha256": "2fc97ac223bfa1793f54679ab177d5d08f2a583d856f96a0c5037b6abe51e587"
 };
