@@ -1066,10 +1066,7 @@ public static class ShellWindowTests
                 foreach (string path in CopyMarkerFiles(root, marker, ExamplePath(), backslashIsSeparator: OperatingSystem.IsWindows()))
                 {
                     var open = host.OpenFileAsync(path);
-                    using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
-                    while (!open.IsCompleted && !timeout.IsCancellationRequested)
-                        Avalonia.Threading.Dispatcher.UIThread.RunJobs();
-                    open.GetAwaiter().GetResult();
+                    DesktopChecks.PumpToCompletion(open, "host.OpenFileAsync", TimeSpan.FromSeconds(8));
                 }
                 RecentLoad recent;
                 using (var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8)))
@@ -1460,10 +1457,7 @@ public static class ShellWindowTests
                 if (!host.ModelView.FindControl<StartView>("StartCardView")!.FindControl<Button>("StartNewButton")!.IsEnabled)
                     throw new InvalidOperationException("New foil card is disabled");
                 var task = host.OpenNewFoilAsync();
-                using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
-                while (!task.IsCompleted && !timeout.IsCancellationRequested)
-                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
-                task.GetAwaiter().GetResult();
+                DesktopChecks.PumpToCompletion(task, "host.OpenNewFoilAsync", TimeSpan.FromSeconds(8));
                 Settle(window);
                 if (controller.Inspection is null || controller.OpenedPath is not null ||
                     !host.ModelView.FindControl<PlanCanvas>("PlanCanvas")!.IsFocused)
@@ -1491,10 +1485,7 @@ public static class ShellWindowTests
                 window.Show();
                 Settle(window);
                 var open = host.OpenFileAsync("docs/examples/foildsl/foil-comment.foil");
-                using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
-                while (!open.IsCompleted && !timeout.IsCancellationRequested)
-                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
-                open.GetAwaiter().GetResult();
+                DesktopChecks.PumpToCompletion(open, "host.OpenFileAsync", TimeSpan.FromSeconds(8));
                 Settle(window);
                 var start = host.ModelView.FindControl<StartView>("StartCardView")!;
                 var accept = StartControl<Button>(start, "AlertAcceptIdsButton");
@@ -1525,10 +1516,7 @@ public static class ShellWindowTests
                 window.Show();
                 Settle(window);
                 var open = host.OpenFileAsync(path);
-                using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
-                while (!open.IsCompleted && !timeout.IsCancellationRequested)
-                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
-                open.GetAwaiter().GetResult();
+                DesktopChecks.PumpToCompletion(open, "host.OpenFileAsync", TimeSpan.FromSeconds(8));
                 Settle(window);
                 var start = host.ModelView.FindControl<StartView>("StartCardView")!;
                 string expected = CopyRow(DesignCopyRows(), "COPY-141")
@@ -1544,9 +1532,7 @@ public static class ShellWindowTests
                 host.RefreshPanes();
                 string accepted = controller.AcceptedSource;
                 open = host.OpenFileAsync(path);
-                while (!open.IsCompleted && !timeout.IsCancellationRequested)
-                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
-                open.GetAwaiter().GetResult();
+                DesktopChecks.PumpToCompletion(open, "host.OpenFileAsync", TimeSpan.FromSeconds(8));
                 Settle(window);
                 if (start.IsVisible || !host.ModelView.FindControl<Border>("AlertBand")!.IsVisible ||
                     BandLine(host.ModelView) != expected ||
@@ -1568,10 +1554,7 @@ public static class ShellWindowTests
                 window.Show();
                 Settle(window);
                 var open = host.OpenFileAsync("docs/examples/foildsl/foil-comment.foil");
-                using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
-                while (!open.IsCompleted && !timeout.IsCancellationRequested)
-                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
-                open.GetAwaiter().GetResult();
+                DesktopChecks.PumpToCompletion(open, "host.OpenFileAsync", TimeSpan.FromSeconds(8));
                 Settle(window);
                 var start = host.ModelView.FindControl<StartView>("StartCardView")!;
                 string expected = CopyRow(DesignCopyRows(), "COPY-140")
@@ -1586,9 +1569,7 @@ public static class ShellWindowTests
                 host.RefreshPanes();
                 string accepted = controller.AcceptedSource;
                 open = host.OpenFileAsync("docs/examples/foildsl/foil-comment.foil");
-                while (!open.IsCompleted && !timeout.IsCancellationRequested)
-                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
-                open.GetAwaiter().GetResult();
+                DesktopChecks.PumpToCompletion(open, "host.OpenFileAsync", TimeSpan.FromSeconds(8));
                 Settle(window);
                 if (start.IsVisible || !host.ModelView.FindControl<Border>("AlertBand")!.IsVisible ||
                     BandLine(host.ModelView) != expected ||
@@ -2320,9 +2301,7 @@ public static class ShellWindowTests
                 Settle(window);
                 var open = host.OpenFileAsync(failed, fromRecent: true);
                 using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
-                while (!open.IsCompleted && !timeout.IsCancellationRequested)
-                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
-                open.GetAwaiter().GetResult();
+                DesktopChecks.PumpToCompletion(open, "host.OpenFileAsync", TimeSpan.FromSeconds(8));
                 var remove = host.ModelView.FindControl<StartView>("StartCardView")!
                     .FindControl<Button>("AlertRemoveRecentButton")!;
                 if (!remove.IsVisible) throw new InvalidOperationException("Recent failure hid Remove from Recent");
@@ -3503,13 +3482,8 @@ public static class ShellWindowTests
         return string.Join(" · ", new[] { text.Text }.Concat(actions));
     }
 
-    private static void Pump(Task task)
-    {
-        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
-        while (!task.IsCompleted && !timeout.IsCancellationRequested)
-            Avalonia.Threading.Dispatcher.UIThread.RunJobs();
-        task.GetAwaiter().GetResult();
-    }
+    private static void Pump(Task task, [System.Runtime.CompilerServices.CallerArgumentExpression(nameof(task))] string what = "")
+        => DesktopChecks.PumpToCompletion(task, what, TimeSpan.FromSeconds(8));
 
     /// <summary>Reads through the real store; every save fails with <c>DOC-IO</c> and publishes nothing.</summary>
     private sealed class FailingSaveStore : IProjectStore
