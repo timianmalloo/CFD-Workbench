@@ -20464,6 +20464,53 @@ window.DOCS_INDEX = {
       "sourceSha256": "570bc22be2d54255f51836f85b2307163e1a6fd198dd1c9e92225e6475af28b1"
     },
     {
+      "id": "review-windows-gpu-f1-recovery-integration",
+      "path": "docs/reviews/windows-gpu-f1-recovery-integration.md",
+      "title": "Astra independent F1 recovery integration review",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@pc-f1-r217-recovery-integration-astra",
+      "phase": "preflight",
+      "reviewBy": "2026-10-19",
+      "reviewSuggested": [],
+      "summary": "ACCEPT exact integrated candidate 5b1a9bb4 for offline source integration. Both accepted repairs, retained evidence and parent records are conserved. Combined offline checks pass. No cleanup or retry authority is granted.",
+      "tags": [
+        "windows",
+        "wsl",
+        "recovery",
+        "integration",
+        "independent-review"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-recovery-integration",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-windows-gpu-f1-cleanup-recovery-cycle1",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-windows-gpu-f1-live-defect-repair",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-windows-gpu-f1-cleanup-recovery",
+          "rel": "relates-to"
+        },
+        {
+          "to": "note-windows-gpu-f1-cleanup-recovery",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c6707d4ceaf6c9cb9760a86d86ada59552561ea6f86582d42a15ec3b6d721114"
+    },
+    {
       "id": "review-windows-runtime",
       "path": "docs/reviews/windows-runtime.md",
       "title": "Independent Windows qualification review",
@@ -21705,5 +21752,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "de2704d1ecfb234d3b57f896b9764d61816bd33dc0d889245566ddd24db1f7e0"
+  "graphSha256": "e95ffb0a3cd631d49a9f6fb54cb3ba51d58f51d9878988bd2769241b202d4a5f"
 };
