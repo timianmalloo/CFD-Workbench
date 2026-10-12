@@ -1713,3 +1713,9 @@ Fable owner 2026-10-11 under Ruling 106, on the CFD numerical-verification lens:
 Operator 2026-10-12: add a native-GAMG arm. The F1 benchmark gets a third arm: the case's frozen native OpenFOAM GAMG solver on 2 CPU cores, run interleaved with the PETSc-CPU and PETSc-GPU arms under the same trial order, power state and convergence admission (Ruling 218). The GPU counts as worth it only if its median wall time is at least 1.2x faster than the native-GAMG arm, with the Ruling 218 separation and spread rules applied against that arm, and if it passes the Ruling 218 accuracy checks against the native arm's window means. The PETSc-CPU arm stays, to separate the solver change from the device change. A 14k-cell case does not generalise to product meshes; the result is labelled for this case only.
 
 - request: req-01M4R6KH8SACWWRDB5RCXG3NS6 · ruled by: operator-timianmalloo · at: 2026-10-12T14:00:00Z
+
+### Ruling 220 — F1 preflight packet: one more repair cycle, limited to the two reviewed defects (P1 cleanup reap, P3 exact process match)
+
+Operator 2026-10-12: one more repair cycle, limited to the two reviewed defects. P1: the cleanup's final step always runs a fresh stop-and-reap check of the owned process group, in a finally path that no exception can bypass, and nothing (including delete-debs) launches after it. P3: residual-process discovery matches by exact process identity (pid and pgid recorded at launch) and an exact argv token match, never a substring; a test shows runA does not select runAB. Each fix gets a red-first test. Then the PC reviewer reviews the packet afresh. If it is vetoed again, F1 stops and the operator decides. P2, P4, P5 and P6, already cleared, are not reopened. Ruling 217's bounds are unchanged, and the live preflight still runs only after the packet passes review.
+
+- request: req-01M4R6Z6AZHQPHX3T0937MEY89 · ruled by: operator-timianmalloo · at: 2026-10-12T14:06:22Z
