@@ -7,7 +7,7 @@ function Require($condition, $message) { if (-not $condition) { throw $message }
 function Refuses([scriptblock]$action) { $refused = $false; try { & $action | Out-Null } catch { $refused = $true }; Require $refused 'invalid identity accepted' }
 $path = 'C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1'
 $target = [pscustomobject]@{ DistributionName='cfdw-petsc-cuda132-f1'; PSChildName='{11111111-2222-3333-4444-555555555555}'; Version=2; BasePath=$path }
-$protected = [pscustomobject]@{ DistributionName='cfdw-openfoam2512'; PSChildName='{b7566a82-9cee-47ce-a246-f83632353cea}'; Version=2; BasePath=[Environment]::ExpandEnvironmentVariables('%USERPROFILE%\AppData\Local\CFDWorkbench\qualification\wsl\cfdw-openfoam2512') }
+$protected = [pscustomobject]@{ DistributionName='cfdw-openfoam2512'; PSChildName='{b7566a82-9cee-47ce-a246-f83632353cea}'; Version=2; BasePath=[Environment]::ExpandEnvironmentVariables('%USERPROFILE%\AppData\Local\CFDWorkbench\qualification\wsl\cfdw-openfoam2512') } # machine-path-ok: synthetic fixture expansion; no expanded value is captured.
 Require ((Get-BoundTargetKey @($target) $path $target.PSChildName) -ceq $target.PSChildName) 'new GUID rejected'
 foreach ($field in @('DistributionName','PSChildName','BasePath','Version')) {
     $bad = $target.psobject.Copy()
