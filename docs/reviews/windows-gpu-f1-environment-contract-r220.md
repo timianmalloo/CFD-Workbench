@@ -16,6 +16,8 @@ summary: >-
   ACCEPT the exact committed epoch-6 environment contract: all seven input hashes,
   fifteen packet files, exact signer sets and detached Ubuntu signature independently
   match. Live execution still requires unchanged bytes, a clean tree and live epoch 6.
+review-suggested:
+  - { by: proof-win-gpu-f1-r217-packet, on: 2026-10-12, reason: "Offline live-defect repair changes packet bytes; prior acceptance and invocation contract do not accept these new bytes." }
 ---
 
 # Independent verdict

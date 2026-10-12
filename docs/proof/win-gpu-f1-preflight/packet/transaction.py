@@ -10,7 +10,7 @@ import subprocess
 import sys
 import tarfile
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import unquote, urlsplit
 
 INST = re.compile(r"^Inst\s+(\S+)(?:\s+\[([^]]+)\])?\s+\((\S+)\s+")
 URI = re.compile(r"^'([^']+)'\s+(\S+)\s+(\d+)\s+(\S+)$")
@@ -128,9 +128,20 @@ def uri_rows(path: Path) -> dict[str, tuple[str, int]]:
     return result
 
 
+def uri_basename(url: str) -> str:
+    # Decode the URL's last segment once; never reinterpret decoded separators.
+    encoded = urlsplit(url).path.rsplit("/", 1)[-1]
+    if re.search(r"%(?![0-9A-Fa-f]{2})", encoded):
+        raise ValueError(f"malformed package URI escape: {url}")
+    basename = unquote(encoded, errors="strict")
+    if not basename or basename in (".", "..") or re.search(r"[/\\\x00-\x1f\x7f]", basename):
+        raise ValueError(f"unsafe package URI basename: {url}")
+    return basename
+
+
 def match_uri(filename: str, size: int, uris: dict[str, tuple[str, int]]) -> tuple[str, str]:
     matches = [(cache_name, url) for cache_name, (url, uri_size) in uris.items()
-               if Path(urlsplit(url).path).name == filename and uri_size == size]
+               if uri_basename(url) == filename and uri_size == size]
     if len(matches) != 1:
         raise ValueError(f"expected one signed-index URI for {filename}/{size}, found {len(matches)}")
     return matches[0]

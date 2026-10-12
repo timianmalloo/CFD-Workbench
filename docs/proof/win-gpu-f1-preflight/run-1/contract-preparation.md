@@ -15,6 +15,8 @@ review-by: "2026-10-19"
 summary: >-
   Proposed run-1 invocation contract binds the Astra-accepted packet, retained signed inputs, exact signer sets,
   execution branch/session, and live Mac epoch 6; independent review still precedes any WSL effect.
+review-suggested:
+  - { by: proof-win-gpu-f1-r217-packet, on: 2026-10-12, reason: "Offline live-defect repair changes packet bytes; prior acceptance and invocation contract do not accept these new bytes." }
 ---
 
 # Ruling 217 run 1 environment contract preparation

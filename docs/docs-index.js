@@ -5554,7 +5554,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6851ccdd184d403aca1cec2d01bbe27827192ea67b0d1201b5502dc2c89f93c2"
+      "sourceSha256": "5920782ac6d16f1998dab5d7bcb3b762777bde970f95b2c2ad27c61e96749878"
     },
     {
       "id": "domain-experts",
@@ -6296,6 +6296,46 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "5be493178924de4f4e42c8b92fb382af241883f4e22bcbcacef5d3b589231d2f"
+    },
+    {
+      "id": "plan-windows-gpu-f1-recovery-integration",
+      "path": "docs/plans/windows-gpu-f1-recovery-integration.md",
+      "title": "F1 recovery and packet repair: offline integration graph",
+      "type": "doc",
+      "status": "proposed",
+      "owner": "@pc-f1-r217-recovery-integration-author",
+      "phase": "",
+      "reviewBy": "2026-10-19",
+      "reviewSuggested": [],
+      "summary": "Integrate two accepted offline sources without changing evidence or execution authority. Deterministic conservation checks precede the combined offline suites.",
+      "tags": [
+        "windows",
+        "recovery",
+        "offline",
+        "integration"
+      ],
+      "links": [
+        {
+          "to": "review-windows-gpu-f1-cleanup-recovery-cycle1",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-windows-gpu-f1-live-defect-repair",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-recovery-integration",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Execution graph",
+          "mermaid": "flowchart LR\n  G --> M --> C --> T --> P --> H --> R"
+        }
+      ],
+      "sourceSha256": "d858253cb0a11cf664879f1bad6fcdcf254a28b5e7d92533609a356c40f92798"
     },
     {
       "id": "plan-wri-r179",
@@ -18333,7 +18373,13 @@ window.DOCS_INDEX = {
       "owner": "@pc-f1-r217-execute-r220",
       "phase": "preflight",
       "reviewBy": "2026-10-19",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "proof-win-gpu-f1-r217-packet",
+          "on": "2026-10-12",
+          "reason": "Offline live-defect repair changes packet bytes; prior acceptance and invocation contract do not accept these new bytes."
+        }
+      ],
       "summary": "Proposed run-1 invocation contract binds the Astra-accepted packet, retained signed inputs, exact signer sets, execution branch/session, and live Mac epoch 6; independent review still precedes any WSL effect.",
       "tags": [
         "windows",
@@ -18363,7 +18409,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6aaf7f2b3b9d04174ea9afcafe8a7672dd2bf6cfeec0c3f410b86a33e8f945ac"
+      "sourceSha256": "a16fc089092e548c9fea621c95e49ad92eae94ff9085f48706aecaf9fadfc0bd"
     },
     {
       "id": "proof-win-gpu-f1-r217-packet",
@@ -18403,7 +18449,53 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b88c983e69ece9f5276156cb5fbf01b49839ca4479be7ba4279105a51b637388"
+      "sourceSha256": "40b8547429b0a6921da44d7d8453db02ac89fb917c22d0150bf2555609ed44ad"
+    },
+    {
+      "id": "proof-win-gpu-f1-recovery-integration",
+      "path": "docs/proof/win-gpu-f1-preflight/integration/proof.md",
+      "title": "F1 packet repair and cleanup recovery: offline integration proof",
+      "type": "proof-pack",
+      "status": "proposed",
+      "owner": "@pc-f1-r217-recovery-integration-author",
+      "phase": "preflight",
+      "reviewBy": "2026-10-19",
+      "reviewSuggested": [],
+      "summary": "Offline candidate combines both accepted sources and retains the failed attempt. Combined suites and conservation controls pass. Fresh independent exact-byte review and a new Mac cleanup ruling remain required; no execution is authorized.",
+      "tags": [
+        "windows",
+        "recovery",
+        "offline",
+        "integration"
+      ],
+      "links": [
+        {
+          "to": "plan-windows-gpu-f1-recovery-integration",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-windows-gpu-f1-cleanup-recovery-cycle1",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-windows-gpu-f1-live-defect-repair",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-windows-gpu-f1-cleanup-recovery",
+          "rel": "relates-to"
+        },
+        {
+          "to": "note-windows-gpu-f1-cleanup-recovery",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "bee466cf574254cab84b37534e83d0b0e2829428a00e78123fc6aa1235519193"
     },
     {
       "id": "proof-win-gpu-g1",
@@ -20243,7 +20335,13 @@ window.DOCS_INDEX = {
       "owner": "@pc-f1-r217-contract-astra-r220",
       "phase": "preflight",
       "reviewBy": "2026-10-19",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "proof-win-gpu-f1-r217-packet",
+          "on": "2026-10-12",
+          "reason": "Offline live-defect repair changes packet bytes; prior acceptance and invocation contract do not accept these new bytes."
+        }
+      ],
       "summary": "ACCEPT the exact committed epoch-6 environment contract: all seven input hashes, fifteen packet files, exact signer sets and detached Ubuntu signature independently match. Live execution still requires unchanged bytes, a clean tree and live epoch 6.",
       "tags": [
         "windows",
@@ -20273,7 +20371,51 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d384673cc76c8fecfe6b9ef1370ea02ee2c7ff0211ac613718cff37eca8a313c"
+      "sourceSha256": "b9ef786a9f9c5db11c5ccae372070ca49ffe084c5130c4b60f65067a1c14ce14"
+    },
+    {
+      "id": "review-windows-gpu-f1-live-defect-repair",
+      "path": "docs/reviews/windows-gpu-f1-live-defect-repair.md",
+      "title": "Astra review of F1 live-defect packet repair",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@pc-f1-r217-live-defect-astra",
+      "phase": "preflight",
+      "reviewBy": "2026-11-12",
+      "reviewSuggested": [],
+      "summary": "ACCEPT immutable repair 20e77e34 for the two reproduced URI/scoping failures. Independent offline checks prove the repaired matching and checkpoint integration. Recovery and a future retry remain separate decisions; the old contract cannot bind these bytes.",
+      "tags": [
+        "windows",
+        "wsl",
+        "gpu",
+        "ruling-217",
+        "ruling-220",
+        "owner-review"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-windows-gpu-f1-preflight-packet",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-windows-gpu-f1-environment-contract-r220",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-windows-gpu-f1-preflight-r217",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "82245efc6c18677070ebd4a3be26539613074adc0339a7428dda61086b8f43c7"
     },
     {
       "id": "review-windows-gpu-f1-preflight-packet",
@@ -20284,7 +20426,13 @@ window.DOCS_INDEX = {
       "owner": "@pc-f1-r220-astra-review",
       "phase": "preflight",
       "reviewBy": "2026-11-12",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "proof-win-gpu-f1-r217-packet",
+          "on": "2026-10-12",
+          "reason": "Offline live-defect repair changes packet bytes; prior acceptance and invocation contract do not accept these new bytes."
+        }
+      ],
       "summary": "Ruling 220 ACCEPT for the exact repaired packet source: fresh final cleanup reap and exact process/argv ownership pass independent offline review. A separately reviewed, committed environment contract remains mandatory before live preflight.",
       "tags": [
         "windows",
@@ -20313,7 +20461,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "174f09dad4aae5ff4b42db7ce7265f1d186b55780f1d764b162cc9896f3203fc"
+      "sourceSha256": "570bc22be2d54255f51836f85b2307163e1a6fd198dd1c9e92225e6475af28b1"
     },
     {
       "id": "review-windows-runtime",
@@ -21557,5 +21705,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "f87037ef2772bff163a948fa169056d94d9176eb7900b9c1be7b8ad005c2452a"
+  "graphSha256": "de2704d1ecfb234d3b57f896b9764d61816bd33dc0d889245566ddd24db1f7e0"
 };

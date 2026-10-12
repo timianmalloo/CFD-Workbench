@@ -27,7 +27,7 @@ $PacketRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RepoRoot = (Resolve-Path (Join-Path $PacketRoot '..\..\..\..')).Path
 $RunRoot = Join-Path $RepoRoot 'docs\proof\win-gpu-f1-preflight\run-1'
 $Live = Join-Path $RunRoot 'live'
-$Checkpoint = Join-Path $RunRoot 'checkpoint'
+$CheckpointPath = Join-Path $RunRoot 'checkpoint'
 $Final = Join-Path $RunRoot 'final'
 $CreationUncertain = $false
 $script:LifecyclePhase = 'work'
@@ -256,8 +256,8 @@ function Save-Checkpoint {
         elapsed_seconds=$Clock.Elapsed.TotalSeconds; affinity='Linux CPU0-1 nice10; host Git N/A'
     })
     $null = Invoke-Child 'py' @('-3', (Join-Path $PacketRoot 'manifest.py'), 'freeze',
-        '--live', $Live, '--frozen', $Checkpoint) 'checkpoint-freeze' 90 $false $false
-    $candidate = Invoke-GitCommit $Checkpoint 'proof: checkpoint F1 R217 before cleanup' 'checkpoint' $false
+        '--live', $Live, '--frozen', $CheckpointPath) 'checkpoint-freeze' 90 $false $false
+    $candidate = Invoke-GitCommit $CheckpointPath 'proof: checkpoint F1 R217 before cleanup' 'checkpoint' $false
     if ($Clock.Elapsed.TotalSeconds -ge 3000) { throw 'checkpoint commit exceeded 50-minute deadline' }
     $script:CheckpointSha = $candidate
     Write-Lf (Join-Path $Live 'checkpoint-sha.txt') ($CheckpointSha + "`n")
@@ -426,7 +426,7 @@ $null = Assert-TargetPath
 if ($RunRoot -match '\s' -or -not [IO.Path]::GetFullPath($Contract).Equals(
         [IO.Path]::GetFullPath((Join-Path $RunRoot 'invocation-contract.json')),
         [StringComparison]::OrdinalIgnoreCase)) { throw 'contract path is not fixed run-1 invocation path' }
-if ((Test-Path -LiteralPath $Live) -or (Test-Path -LiteralPath $Checkpoint) -or
+if ((Test-Path -LiteralPath $Live) -or (Test-Path -LiteralPath $CheckpointPath) -or
     (Test-Path -LiteralPath $Final)) { throw 'run-1 execution output already exists' }
 $authority = & py -3 (Join-Path $PacketRoot 'authority_scan.py')
 if ($LASTEXITCODE -ne 0) { throw 'packet authority scan failed before live work' }
