@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T19:51:33Z",
+  "generated": "2026-10-12T19:53:24Z",
   "audit": [
     {
       "actor": null,
@@ -37628,6 +37628,31 @@ window.AUDIT_DATA = {
       "done_when": "self-tests green, run-tests green with Python counted, gates exit 0, check-docs exit 0",
       "started_at": "2026-10-12T19:44:04Z",
       "duration_seconds": 449.0
+    },
+    {
+      "id": "al-01M4RTTMD9FZE46XAK1CN9A27N",
+      "shortname": "join-frz",
+      "datetime": "2026-10-12T19:53:24Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/frz-frozen-paths into main",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T19:52:17Z",
+      "duration_seconds": 67.0
     }
   ],
   "changes": [
