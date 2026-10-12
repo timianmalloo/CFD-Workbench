@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T01:26:36Z",
+  "generated": "2026-10-12T01:29:25Z",
   "audit": [
     {
       "actor": null,
@@ -35938,6 +35938,35 @@ window.AUDIT_DATA = {
         "branch": "win/gpu-f1-r217-packet",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M4PVN586T8BXCJ6VP78TXB9J",
+      "shortname": "f1-r217-packet-join",
+      "datetime": "2026-10-12T01:29:24Z",
+      "session": "pc-f1-preflight-r217",
+      "prompt": "the join of win/gpu-f1-r217-packet into win/gpu-f1-preflight-r217",
+      "summary": "Join the frozen, unexecuted Ruling 217 F1 dependency-preflight packet after coordinator boundary review. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/packet"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Provide exact reviewable execution bytes for independent Astra acceptance.",
+      "done_when": "Packet commit is joined, docs gates pass, and no live WSL mutation has occurred.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T01:27:44Z",
+      "duration_seconds": 100.0
     }
   ],
   "changes": [
