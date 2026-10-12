@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T15:27:37Z",
+  "generated": "2026-10-12T15:38:26Z",
   "audit": [
     {
       "actor": null,
@@ -36531,6 +36531,51 @@ window.AUDIT_DATA = {
         "branch": "win/gpu-f1-r217-cleanup-recovery",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M4RC3Q73SZXP2MHQD597ZH2A",
+      "shortname": "f1-cleanup-recovery-astra-veto",
+      "datetime": "2026-10-12T15:36:13Z",
+      "session": "pc-f1-r217-cleanup-recovery-astra",
+      "prompt": "You are independent ASTRA owner/reviewer for a proposed cleanup-only recovery. Review exact candidate 02ec2cc3aaccc2da2b8ce63fe5f4790ce26839d3 in assigned worktree and session. Read AGENTS, standards, Rulings 217/220, packet helpers, proposal, recovery code/tests and retained failed-run evidence read-only. Verify manifests, authority, exact identity, ownership, completed-L3 guard, race containment, final absence/invariance, deadline, separate receipt, scope and privacy. Re-run 16 offline tests, packet/authority/ownership/manifest/guard tests, docs, graph, proof-PII and safe gates. Write docs/reviews/windows-gpu-f1-cleanup-recovery.md with ACCEPT/VETO and exact findings; audit, derive, commit/push and report SHA. No WSL, live recovery, evidence mutation, deletion/unregister or new authority.",
+      "summary": "VETO exact candidate: independent offline probes reproduced Popen before exhausted-deadline refusal, target GUID survival accepted under renamed/moved registration, and initiating deletion error lost when final check also fails. Original 75 freeze and 93 live captures byte-identical; both manifests verified against candidate blobs. Supplied 16 tests pass (0.417s), packet selftest passes (0.526s), PowerShell passes (0.307s), authority/transaction/manifest/guard pass. All 10 safe gates pass. Candidate docs and proof-PII pass; graph 535 artifacts, zero defects, 131 existing suggestions after review. Corrected one review metadata relation and mistaken graph subcommand after CLI/validator rejection; no reviewed implementation changed. Cache and registry races, pre-ack ownership, live state and raw future-error privacy remain unaccepted risks. Six planned/actual review nodes, no agent fan-out or source repair, no WSL or recovery execution. Marker began after initial grounding.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-cleanup-recovery.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Independently accept or veto the exact cleanup-recovery candidate without live actions.",
+      "done_when": "A decisive review with independent byte binding and offline refusal evidence is committed and pushed.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-10-12T15:30:51Z",
+      "duration_seconds": 322.0,
+      "git": {
+        "sha": "02ec2cc3aaccc2da2b8ce63fe5f4790ce26839d3",
+        "short": "02ec2cc3a",
+        "branch": "win/gpu-f1-r217-cleanup-recovery-review",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M4RC7RCZZM1XWKJ52XAG7YT4",
+      "shortname": "You are independent ASTRA owner/reviewer for a proposed cleanup-only rec…",
+      "datetime": "2026-10-12T15:38:26Z",
+      "session": "prompt-log",
+      "prompt": "You are independent ASTRA owner/reviewer for a proposed cleanup-only recovery. Worktree C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-cleanup-recovery-review, branch win/gpu-f1-r217-cleanup-recovery-review, session pc-f1-r217-cleanup-recovery-astra. Exact candidate commit 02ec2cc3aaccc2da2b8ce63fe5f4790ce26839d3. Read AGENTS.md, grounding/standards, Rulings 217/220, packet helpers, proposed docs/notes/windows-gpu-f1-cleanup-recovery.md, recovery code/tests, and retained failed-run evidence read-only at C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-execute-r220\\docs\\proof\\win-gpu-f1-preflight\\run-1\\live plus ...\\Save-Checkpoint. Do not invoke WSL, mutate execution evidence, execute recovery, delete/unregister, or grant authority. Adversarially review exact bytes: verify both committed manifests bind byte-identical original 75-file freeze and 93 live captures; authority contract is hash-bound and absent by default; no cleanup before committed manifest verification; exact target GUID/name/path and protected identity/path checks; owned work absence; fresh completed-L3 guard through delete-debs-only/terminate/unregister; cache path/registration race containment; exact-target final absence and protected before/after invariance; deadline behavior; separate recovery receipt/commit; no simulation/download/install/source/build/CFD; privacy/redaction. Re-run 16 offline tests, packet/authority/ownership/manifest/guard tests, docs, graph, proof-PII and safe gates. Write docs/reviews/windows-gpu-f1-cleanup-recovery.md with ACCEPT/VETO and any exact findings, audit, derive, commit/push, report SHA. State exact residual risk. No live action.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
     }
   ],
   "changes": [
