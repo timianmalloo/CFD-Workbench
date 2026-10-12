@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T14:49:47Z",
+  "generated": "2026-10-12T15:07:47Z",
   "audit": [
     {
       "actor": null,
@@ -36437,6 +36437,36 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-12T14:48:08Z",
       "duration_seconds": 99.0
+    },
+    {
+      "id": "al-01M4RAFN5Q3RA7RF7WMX87ZFFP",
+      "shortname": "f1-r217-contract-astra-r220",
+      "datetime": "2026-10-12T15:07:47Z",
+      "session": "pc-f1-r217-contract-astra-r220",
+      "prompt": "Begin the independent R217 environment-contract review now. Exact immutable target: commit 754b23e0f9b4 on branch win/gpu-f1-r217-execute-r220. Your isolated worktree is C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-contract-review-r220, branch win/gpu-f1-r217-contract-review-r220, registered session pc-f1-r217-contract-astra-r220. Review only; do not run WSL or Invoke-Preflight. Recompute contract SHA and every named input hash; compare every packet file byte/hash with accepted commit d5bb68fe7db5e511ac46708e14564bb6a738db37; enumerate exact keyring fingerprints; repeat Ubuntu detached-signature verification and rootfs signed-hash match; validate branch/session/target/protected paths and live mac leader epoch 6. Check that the contract meets packet README requirements and fail closed on any extra/missing signer or mismatch. Write a standalone review artifact at docs/reviews/windows-gpu-f1-environment-contract-r220.md with ACCEPT/REJECT and observed evidence, derive the docs index, run appropriate docs checks, commit and push your branch, then report commit/hash. User explicitly accepts the prior packet verdict and authorizes this continuation.",
+      "summary": "ACCEPT contract at 754b23e0: SHA f109d4f253f436d8b178e40ea5af497316faf36b0c4398c8a598abc52748336c. All 7 inputs and 15 packet files match; Ubuntu keyring members equal pinned rootfs bytes; all 4 exact signer sets have no extra/missing/duplicate fingerprint. Host gpgv detached verification passed with D2EB44626FDDC30B513D5BB71A5D6C4C7DB87C81 and exact rootfs signed hash. Actual host contract verifier passed in clean execution tree; closing leader mac epoch6 live with 760s remaining. Docs index, check-docs and diff checks pass, with 131 advisory graph suggestions. Initial Git GPG Windows-path invocation failed before verification; corrected MSYS path form passed. No WSL, wrapper, apt, downloads, install, source/build/case action; no input or packet modifications. Serial review graph completed, fan-out0, no repair of reviewed material.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-environment-contract-r220.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Independently validate the exact committed R217 epoch6 environment contract without WSL or live effects.",
+      "done_when": "Publish a decisive contract review with recomputed hashes, exact key sets, signature verification, identity and live-epoch evidence.",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-10-12T14:59:12Z",
+      "duration_seconds": 515.0,
+      "git": {
+        "sha": "754b23e0f9b43fd158ccd15f3cba1734a39c9d48",
+        "short": "754b23e0f",
+        "branch": "win/gpu-f1-r217-contract-review-r220",
+        "pushed": null
+      }
     }
   ],
   "changes": [
