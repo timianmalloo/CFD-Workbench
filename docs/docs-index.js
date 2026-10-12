@@ -5554,7 +5554,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9178363e9853110c4431deeb4bee38699e36e336757617ff9a481bae9b4a3433"
+      "sourceSha256": "ab30ffe1a0b20118e6e8ad2d1f498f912ae7eaca9cc37223035856bc14cc836e"
     },
     {
       "id": "domain-experts",
@@ -6253,6 +6253,50 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "e6c2c81df9511f763e9d981824aa824b56d0f84cb3fc6cbeb5b0f6ff9e613f29"
+    },
+    {
+      "id": "plan-windows-gpu-f1-guard-consistency-repair",
+      "path": "docs/plans/windows-gpu-f1-guard-consistency-repair.md",
+      "title": "R223 guard publication race: offline repair and proof",
+      "type": "doc",
+      "status": "complete",
+      "owner": "@pc-f1-r217-guard-consistency-author",
+      "phase": "preflight",
+      "reviewBy": "2026-10-19",
+      "reviewSuggested": [],
+      "summary": "R224's production regression returns stable state N when continuing event N+1 has later UTC. Invalid gaps refuse; moving-state rereads retain bounded and inherited deadlines. Every recovery ack/intent reader is swept.",
+      "tags": [
+        "windows",
+        "recovery",
+        "concurrency",
+        "offline-proof"
+      ],
+      "links": [
+        {
+          "to": "note-windows-gpu-f1-cleanup-recovery",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-windows-gpu-f1-cleanup-recovery-cycle1",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "depends-on"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Execution graph and bounded work",
+          "mermaid": "flowchart LR\n  G --> R --> F\n  F --> V\n  V --> C\n  C --> A"
+        }
+      ],
+      "sourceSha256": "d8bcd591871aa3f7100a48ae3c83dbb7200984228d9adf8b2e290ef1c2996cd9"
     },
     {
       "id": "plan-windows-gpu-f1-preflight-r217",
@@ -8976,6 +9020,40 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "bda163aa9a70b7e01905e5acaeef3cb7794aedc28249ce879e32c88607a99360"
+    },
+    {
+      "id": "review-windows-gpu-f1-guard-consistency",
+      "path": "docs/reviews/windows-gpu-f1-guard-consistency.md",
+      "title": "Independent R224 guard-reader review",
+      "type": "doc",
+      "status": "accepted",
+      "owner": "@pc-f1-r217-guard-consistency-review",
+      "phase": "preflight",
+      "reviewBy": "2026-10-19",
+      "reviewSuggested": [],
+      "summary": "Independent ACCEPT of 5c1b727f for the R224 offline guard-reader contract. The actual regression is red on the old reader and all 50 recovery tests pass. Historical failure evidence and authority limits remain intact.",
+      "tags": [
+        "windows",
+        "recovery",
+        "concurrency",
+        "independent-review"
+      ],
+      "links": [
+        {
+          "to": "plan-windows-gpu-f1-guard-consistency-repair",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "891740340057f89a6e07cb3a51602ab64c652e42f9255ce9e9b561eb8f6df3a2"
     },
     {
       "id": "rulings",
@@ -21907,5 +21985,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "174407aa2c39c59e059aa95b1fe04847fb5069dd930031f3afb173efcebfe00d"
+  "graphSha256": "1b6cb1daad0d8bee766c146dcf7df058198ef1cf9be1383a75f786f1cd6feaf2"
 };
