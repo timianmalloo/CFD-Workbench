@@ -118,6 +118,28 @@ public static class PropertiesViewTests
         // Track PNL: the section mode's rows on the realized window (PointsPaneTests holds them beside the Points pane).
         PointsPaneTests.RunProperties();
 
+        // PVH (WAIT-UNBOUNDED-A): a pump on a task that never completes must throw a named TimeoutException at its deadline,
+        // not block the UI thread until the 120 s watchdog; completed and faulted tasks behave as before.
+        // Ring: fast (this windowed suite; needs the Avalonia dispatcher). Cost: about 0.3 s (the 0.25 s deadline).
+        DesktopChecks.Check("Pump_NeverCompletingTask_ThrowsNamedTimeoutAtDeadline", () =>
+        {
+            var never = new TaskCompletionSource();
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            TimeoutException? timeout = null;
+            try { DesktopChecks.PumpToCompletion(never.Task, "the never-ending open", TimeSpan.FromMilliseconds(250)); }
+            catch (TimeoutException error) { timeout = error; }
+            if (timeout is null || !timeout.Message.Contains("the never-ending open", StringComparison.Ordinal) ||
+                !timeout.Message.Contains("0.25 s", StringComparison.Ordinal) || watch.Elapsed > TimeSpan.FromSeconds(5))
+                throw new InvalidOperationException($"no named timeout within the deadline: {timeout?.Message ?? "(none)"} after {watch.Elapsed.TotalSeconds:F1} s");
+            DesktopChecks.PumpToCompletion(Task.CompletedTask, "done", TimeSpan.FromMilliseconds(250));
+            try
+            {
+                DesktopChecks.PumpToCompletion(Task.FromException(new InvalidOperationException("boom")), "faulted", TimeSpan.FromMilliseconds(250));
+                throw new Exception("a faulted task did not rethrow");
+            }
+            catch (InvalidOperationException error) when (error.Message == "boom") { }
+        });
+
         // ---------------- the model (PropertiesView.cs) ----------------
 
         DesktopChecks.Check("PropertiesView_EveryQuantityRow_HasUnitOrIsDimensionless", () =>
@@ -1406,13 +1428,8 @@ public static class PropertiesViewTests
         Settle(window);
     }
 
-    internal static void Pump(Task task)
-    {
-        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
-        while (!task.IsCompleted && !timeout.IsCancellationRequested)
-            Avalonia.Threading.Dispatcher.UIThread.RunJobs();
-        task.GetAwaiter().GetResult();
-    }
+    internal static void Pump(Task task, [System.Runtime.CompilerServices.CallerArgumentExpression(nameof(task))] string what = "")
+        => DesktopChecks.PumpToCompletion(task, what, TimeSpan.FromSeconds(8));
 
     private sealed class Near : IEqualityComparer<double>
     {

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T16:46:00Z",
+  "generated": "2026-10-12T17:35:29Z",
   "audit": [
     {
       "actor": null,
@@ -36096,6 +36096,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-12T16:44:54Z",
       "duration_seconds": 66.0
+    },
+    {
+      "id": "al-01M4RJY2W050S6YSCXTSW5107V",
+      "shortname": "pvh-bounded-waits",
+      "datetime": "2026-10-12T17:35:29Z",
+      "session": "trk-pvh",
+      "prompt": "PVH round 2",
+      "summary": "PumpToCompletion throws a named TimeoutException; child TIMEOUT line ends with the in-flight check; WAIT-UNBOUNDED-A registered; hang itself not reproduced (0/104)",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Bound the Desktop test pumps and name the in-flight check on a child TIMEOUT",
+      "done_when": "red-first proven; run-tests, readiness, docs gates green",
+      "started_at": "2026-10-12T16:50:10Z",
+      "duration_seconds": 2719.0
     }
   ],
   "changes": [

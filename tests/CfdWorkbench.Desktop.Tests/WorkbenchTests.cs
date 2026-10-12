@@ -157,6 +157,13 @@ if (args.Contains("--analysis", StringComparer.Ordinal))
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
 
+// A child that sleeps inside one named check, so a test can prove the parent's TIMEOUT line names it (PVH); never spawned by Spawn.
+if (args.Contains("--inflight-probe", StringComparer.Ordinal))
+{
+    CfdWorkbench.Desktop.Tests.DesktopChecks.Check("InFlightProbe_SleepsPastTheTimeout", () => Thread.Sleep(TimeSpan.FromSeconds(60)));
+    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+}
+
 // Readiness tier (docs/design/m12b-points.md §12.3): never spawned by run-tests.sh or DesktopChecks.Spawn.
 // PRE adds the switch; U1a and U1b fill the RunReadiness members it calls.
 if (args.Contains("--readiness", StringComparer.Ordinal))
@@ -185,6 +192,7 @@ if (args.Contains("--readiness", StringComparer.Ordinal))
     CfdWorkbench.Desktop.Tests.ControllerSectionTests.RunReadiness();
     CfdWorkbench.Desktop.Tests.PropertiesViewTests.RunReadiness();
     CfdWorkbench.Desktop.Tests.StatusStripTests.RunReadiness();
+    CfdWorkbench.Desktop.Tests.StageTimingTests.RunReadiness();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
 
@@ -551,6 +559,22 @@ namespace CfdWorkbench.Desktop.Tests
         public static int FailureCount => failures;
 
         /// <summary>
+        /// Pumps the UI thread until <paramref name="task"/> completes, then returns its result (a faulted task rethrows). A task
+        /// still incomplete after <paramref name="deadline"/> throws a named <see cref="TimeoutException"/>: a bare
+        /// <c>GetResult()</c> on an incomplete task blocks the UI thread, which the task may need, until the 120 s child watchdog
+        /// (PVH, 2026-10-12; defect class WAIT-UNBOUNDED-A).
+        /// </summary>
+        public static void PumpToCompletion(Task task, string what, TimeSpan deadline)
+        {
+            long began = System.Diagnostics.Stopwatch.GetTimestamp();
+            while (!task.IsCompleted && System.Diagnostics.Stopwatch.GetElapsedTime(began) < deadline)
+                Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+            if (!task.IsCompleted)
+                throw new TimeoutException($"{what} did not complete within {deadline.TotalSeconds.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)} s");
+            task.GetAwaiter().GetResult();
+        }
+
+        /// <summary>
         /// Ruling 81 (DR-RDY-1): a frame-time readiness budget fails only when the machine is quiet. Above the gate, or where the
         /// load is not recorded, the check prints <c>READINESS-MISS</c> with the load and neither passes nor fails: a loaded run
         /// is not evidence about the frame. The gate is Ruling 84/87's value (24) and it is kept on measured data: the quiet ring
@@ -701,6 +725,7 @@ namespace CfdWorkbench.Desktop.Tests
             {
                 string[] unmatched = only is null ? [] : only.Length == 0 ? ["(empty selector)"] : only.Where(prefix => !matched.Contains(prefix)).ToArray();
                 foreach (string prefix in unmatched) Console.WriteLine("FAIL SELECTOR " + prefix + " matched no check");
+                ClearInFlight();   // a clean exit leaves no note, so only a killed child's note is ever read
                 bool emptyPart = part is not null && only is null && ran == 0;
                 if (part is { } p)
                 {
@@ -723,6 +748,7 @@ namespace CfdWorkbench.Desktop.Tests
             // After the selector, so a prefix counts as matched in every part and a subset run splits like a full one.
             if (part is { } p && registered++ % p.Count != p.Index - 1) return;
             ran++;
+            RecordInFlight(name);
             // Test-runner boundary: report unexpected exceptions as failures and continue. The STACK line keeps a one-off
             // flake debuggable from the log alone: a job queued by an earlier check surfaces inside this check's
             // RunJobs, and only the stack shows whose job it was (UI-LIFETIME, 2026-10-02).
@@ -822,10 +848,46 @@ namespace CfdWorkbench.Desktop.Tests
             return exitCode;
         }
 
-        private static (List<(bool Error, string Text)> Lines, int ExitCode, double Seconds) RunBuffered(string mode)
+        private static (List<(bool Error, string Text)> Lines, int ExitCode, double Seconds) RunBuffered(string mode) =>
+            RunBufferedWithin(mode, int.TryParse(Environment.GetEnvironmentVariable("CFD_TEST_CHILD_TIMEOUT_SECONDS"), out int seconds) && seconds > 0 ? seconds : 120);
+
+        /// <summary>The environment variable that carries a child's in-flight sidecar path (PVH, WAIT-UNBOUNDED-A).</summary>
+        private const string InFlightVariable = "CFD_TEST_INFLIGHT_FILE";
+        private static readonly string? inFlightPath = Environment.GetEnvironmentVariable(InFlightVariable);
+
+        // Child side: the name of the check about to run, where the parent can read it if this process is killed. One small
+        // overwrite per check (measured under 0.1 ms, against checks of 1-1000 ms); no output line, so the log does not grow.
+        private static void RecordInFlight(string name)
+        {
+            if (inFlightPath is null) return;
+            try { File.WriteAllText(inFlightPath, name); }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException) { }   // a lost note reads (unknown), never fails a check
+        }
+
+        private static void ClearInFlight()
+        {
+            if (inFlightPath is null) return;
+            try { File.Delete(inFlightPath); }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException) { }
+        }
+
+        /// <summary>The TIMEOUT line for a killed child, ending with the check its sidecar names, or <c>(unknown)</c> without one.</summary>
+        public static string TimeoutLine(string mode, int limit, string sidecar)
+        {
+            string name = "";
+            try { name = File.ReadAllText(sidecar).Trim(); }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException) { }
+            return $"FAIL TIMEOUT {mode} after {limit} s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed; in-flight check: {(name.Length == 0 ? "(unknown)" : name)}";
+        }
+
+        /// <summary>Runs one mode as a child, killing its process tree after <paramref name="limit"/> seconds.</summary>
+        public static (List<(bool Error, string Text)> Lines, int ExitCode, double Seconds) RunBufferedWithin(string mode, int limit)
         {
             string[] spec = mode.Split(' ');
             var info = SelfLaunch.StartInfo(spec[0]);
+            string sidecar = TestTemp.Combine("cfdwb-inflight-" + Guid.NewGuid().ToString("N") + ".txt");
+            info.Environment[InFlightVariable] = sidecar;
+            if (spec[0] == "--inflight-probe") info.Environment.Remove("CFD_TEST_ONLY");   // the probe check must run under a one-check inner-loop selector
             foreach (string argument in spec[1..]) info.ArgumentList.Add(argument);
             info.RedirectStandardOutput = true;
             info.RedirectStandardError = true;
@@ -839,7 +901,6 @@ namespace CfdWorkbench.Desktop.Tests
             child.BeginErrorReadLine();
             // A hung native-window check must not hang the join (test-cost F-2): past the limit the child's whole process
             // tree is killed and the log names the mode. 120 s is about 2.4x the slowest child under load 24 (49.5 s).
-            int limit = int.TryParse(Environment.GetEnvironmentVariable("CFD_TEST_CHILD_TIMEOUT_SECONDS"), out int seconds) && seconds > 0 ? seconds : 120;
             bool timedOut = !child.WaitForExit(TimeSpan.FromSeconds(limit));
             if (timedOut)
             {
@@ -852,7 +913,9 @@ namespace CfdWorkbench.Desktop.Tests
             var drain = new Thread(() => { try { child.WaitForExit(); } catch (Exception) { } }) { IsBackground = true };
             drain.Start();
             bool drained = drain.Join(TimeSpan.FromSeconds(10));
-            if (timedOut) lines.Add((false, $"FAIL TIMEOUT {mode} after {limit} s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed"));
+            if (timedOut) lines.Add((false, TimeoutLine(mode, limit, sidecar)));
+            try { File.Delete(sidecar); }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException) { }
             if (!drained) lines.Add((false, $"FAIL DRAIN {mode}: its output did not reach end of file within 10 s of the child ending (a process outside the tree holds the pipe)"));
             return (lines, timedOut ? 124 : !drained ? 125 : child.ExitCode, System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalSeconds);
         }

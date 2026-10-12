@@ -58,5 +58,35 @@ public static class StageTimingTests
             if (failExit == 0 || !failed.ToString().StartsWith("FAIL SCALE_DIAGNOSTIC no display", StringComparison.Ordinal))
                 throw new Exception($"setup failure exit {failExit}: {failed}");
         });
+        // PVH (WAIT-UNBOUNDED-A): the TIMEOUT line ends with the in-flight check, or (unknown) when the child left no note.
+        // Ring: fast (in-process, pure over a temp file). Cost: under 5 ms.
+        DesktopChecks.Check("TimeoutLine_NamesInFlightCheck_OrUnknownWithoutNote", () =>
+        {
+            string note = TestTemp.Combine("cfdwb-inflight-test-" + Guid.NewGuid().ToString("N") + ".txt");
+            try
+            {
+                File.WriteAllText(note, "Some_Check_Name");
+                string named = DesktopChecks.TimeoutLine("--views --part=1/2", 7, note);
+                string unknown = DesktopChecks.TimeoutLine("--views --part=1/2", 7, note + ".missing");
+                if (!named.StartsWith("FAIL TIMEOUT --views --part=1/2 after 7 s", StringComparison.Ordinal) ||
+                    !named.EndsWith("; in-flight check: Some_Check_Name", StringComparison.Ordinal) ||
+                    !unknown.EndsWith("; in-flight check: (unknown)", StringComparison.Ordinal))
+                    throw new Exception($"named: {named} | unknown: {unknown}");
+            }
+            finally { File.Delete(note); }
+        });
+    }
+
+    // PVH: a real child that sleeps past a 3 s limit; the parent's TIMEOUT line must name the check it was running.
+    // Ring: readiness (a child process start and the 3 s limit). Cost: about 4 s. The sidecar write itself costs under 0.1 ms a check.
+    public static void RunReadiness()
+    {
+        DesktopChecks.Check("Timeout_SleepingChild_NamesItsInFlightCheck", () =>
+        {
+            var (lines, exit, _) = DesktopChecks.RunBufferedWithin("--inflight-probe", 3);
+            string timeout = lines.Select(l => l.Text).FirstOrDefault(t => t.StartsWith("FAIL TIMEOUT --inflight-probe", StringComparison.Ordinal)) ?? "(no TIMEOUT line)";
+            if (exit != 124 || !timeout.EndsWith("; in-flight check: InFlightProbe_SleepsPastTheTimeout", StringComparison.Ordinal))
+                throw new Exception($"exit {exit}: {timeout}");
+        });
     }
 }
