@@ -152,6 +152,19 @@ for index in "${!jobs[@]}"; do
     if [ "$expected_n" -gt 0 ]; then echo "EXPECTED-FAIL $expected_n (manifest)"; fi
   fi
 done
+# The Python unittest suites under tests/ (today tests/test_f1_cleanup_recovery.py, 50 tests, 0.23 s measured; Fable owner CI6
+# note: it ran in no ring). Serial after the harnesses, outside the cost jobs (its wall is part of C-3's wall, ~0.5 s with the
+# interpreter start). A suite that ran zero tests fails: an exit 0 is not a result.
+py_out="$scratch/python-unittest.out"
+py_status=0
+py -m unittest discover -s tests -p 'test_*.py' > "$py_out" 2>&1 || py_status=$?
+py_ran=$(sed -n 's/^Ran \([0-9]*\) tests\{0,1\} in .*/\1/p' "$py_out" | tail -1)
+echo "== Python unittest tests/test_*.py, ${py_ran:-0} PASS"
+if [ "$py_status" -ne 0 ] || [ "${py_ran:-0}" -eq 0 ]; then
+  tail -30 "$py_out"
+  echo "FAILED: Python unittest (exit $py_status, ${py_ran:-0} tests ran)"
+  failed=1
+fi
 # The parts run each check once only if the jobs hold parts 1..n of one n and every part enumerated the same registrations
 # (Core: checks; Analysis: test classes): one PARTITION line per part, one count. Otherwise a check could drop out silently.
 check_parts() {

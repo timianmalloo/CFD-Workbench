@@ -5554,7 +5554,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ab30ffe1a0b20118e6e8ad2d1f498f912ae7eaca9cc37223035856bc14cc836e"
+      "sourceSha256": "4b34fb42427bd7c1f16b56616c52845b54ce67d67dfee0d0fab36b3bbecba0c1"
     },
     {
       "id": "domain-experts",
@@ -9079,7 +9079,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5f642a471b9b20c196da0dde8df1f8768fcdc515ba8703fcf8761882175e9ad5"
+      "sourceSha256": "f399e0c48c780acd976964a08b41547e79ffd26f41b4928b652cb0de79eef897"
     },
     {
       "id": "kb-hw-glossary",
@@ -14448,6 +14448,31 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "e69dd7c13a60ed21e352a98b34f038ce4ffbc3b49950b6d7fd97a0ee0c244583"
+    },
+    {
+      "id": "proof-frz-red-first",
+      "path": "docs/proof/frz/red-first.md",
+      "title": "FRZ red-first - frozen-paths registry and the Python recovery suite in the ring",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-frz",
+      "phase": "",
+      "reviewBy": "2026-11-12",
+      "reviewSuggested": [],
+      "summary": "The frozen-path check refuses the OFN commit and allows it once Ruling 222 is in range; the macOS temp-symlink test is fixed and the Python suite runs in the test ring.",
+      "tags": [
+        "frz",
+        "frozen-paths",
+        "ring"
+      ],
+      "links": [
+        {
+          "to": "proof-application-core",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3bf6f29621f329bd6c96f88cba58f8d64d9355aca2a2248e6a8564b6e912d9fd"
     },
     {
       "id": "proof-fss-red-first",
@@ -21985,5 +22010,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "1b6cb1daad0d8bee766c146dcf7df058198ef1cf9be1383a75f786f1cd6feaf2"
+  "graphSha256": "b37e2e12763dc96138e149f044910139361fcc1e4e88478a251fc0ee3c12a3d5"
 };
