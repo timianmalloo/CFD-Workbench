@@ -2395,7 +2395,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3d8a61e5e6731d97f36b7533124e35ebbfefb0d5ab27329270db9436829e74e5"
+      "sourceSha256": "59c5acc2f57489994a5574fae8dbddc2c2ff696b106151fda09470babb3330f4"
     },
     {
       "id": "design-area3-analysis",
@@ -2737,7 +2737,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d1c41e222834ec57af99602b59455ac2c4b6bc79c113a4e2a70ed8b6d84f4c91"
+      "sourceSha256": "dc6992c1489a1e3a339a639d5fe251f16538d99de6961df297018f748b4a6363"
     },
     {
       "id": "design-foildsl-authoring",
@@ -5554,7 +5554,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5920782ac6d16f1998dab5d7bcb3b762777bde970f95b2c2ad27c61e96749878"
+      "sourceSha256": "d9ddaf83ed8ac9787f01356a8db0fe873511f9c7a830174f684060eb81d79b41"
     },
     {
       "id": "domain-experts",
@@ -9001,7 +9001,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "caee19d5a174762e2709db9fc66e07b1581394baff493cf2f7a278681fd6ccfa"
+      "sourceSha256": "5f642a471b9b20c196da0dde8df1f8768fcdc515ba8703fcf8761882175e9ad5"
     },
     {
       "id": "kb-hw-glossary",
@@ -14018,6 +14018,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "f8994d501f7569260514df1ac2b25fa96101fce7e46c5728be3a8a559a09f523"
     },
     {
+      "id": "proof-dtg-red-first",
+      "path": "docs/proof/dtg/red-first.md",
+      "title": "DTG red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-dtg",
+      "phase": "implementation",
+      "reviewBy": "2026-11-12",
+      "reviewSuggested": [],
+      "summary": "A folder at the export target name is refused before the write with one code and COPY-507 on both platforms; the new checks failed on the old code and pass on the fix.",
+      "tags": [
+        "dtg",
+        "export",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-export",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "99839dd3b945147ecf98b75d25af53e23193b2213874e26dce8efc28d7008019"
+    },
+    {
       "id": "proof-dx-red-first",
       "path": "docs/proof/dx/red-first.md",
       "title": "DX step 2: red-first record, exit evidence and gaps",
@@ -14471,6 +14496,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "c84b30ba24f3e8d7a8e953629f62f14633250e377f8aa0f0aea580b2b1fe6dad"
+    },
+    {
+      "id": "proof-ghp-red-first",
+      "path": "docs/proof/ghp/red-first.md",
+      "title": "GHP red-first - the PII guard covers text posted to GitHub",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-ghp",
+      "phase": "",
+      "reviewBy": "2026-11-12",
+      "reviewSuggested": [],
+      "summary": "A comment body with a Windows user path, a SID or an own-host name is refused by the posting wrapper and flagged by the GitHub-text scan; both self-tests are red with the scanner disabled and green with it.",
+      "tags": [
+        "ghp",
+        "pii",
+        "github",
+        "proof-pii-outside-the-tree"
+      ],
+      "links": [
+        {
+          "to": "proof-application-core",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d3afd61c2edf17824c37ec14b7bc63eb6ab6bf1fef24302e06468cddcb9900ce"
     },
     {
       "id": "proof-grp-desktop-red-first",
@@ -15406,6 +15457,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "da5f92bf56395839723fedd00dc35d85a765251c3fd13e749843a621b0f8f435"
+    },
+    {
+      "id": "proof-ofn-red-first",
+      "path": "docs/proof/ofn/red-first.md",
+      "title": "OFN red-first - POSIX-only os attributes on Windows",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-ofn",
+      "phase": "",
+      "reviewBy": "2026-11-12",
+      "reviewSuggested": [],
+      "summary": "A bare POSIX-only os attribute fails the portable-text-io gate on main and the spike under a Windows-shaped os; both pass after the fix.",
+      "tags": [
+        "ofn",
+        "windows",
+        "portability",
+        "plat-a"
+      ],
+      "links": [
+        {
+          "to": "proof-application-core",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "64d167b33703bc56842dad9da93bef5b19210d3a41b0e95cfb3ab62b978578c4"
     },
     {
       "id": "proof-openfix-red-runs",
@@ -16753,6 +16830,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "9aa45a48582cab305792006314cb6fc768f3aa5105b7fc8af1ededf55a1a2536"
     },
     {
+      "id": "proof-sgk-red-first",
+      "path": "docs/proof/sgk/red-first.md",
+      "title": "SGK red-first - POSIX-only signal names on Windows",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-sgk",
+      "phase": "",
+      "reviewBy": "2026-11-12",
+      "reviewSuggested": [],
+      "summary": "A bare POSIX-only signal name fails the portable-text-io gate on the unfixed tree; it passes after the two fixes.",
+      "tags": [
+        "sgk",
+        "windows",
+        "portability",
+        "plat-a"
+      ],
+      "links": [
+        {
+          "to": "proof-ofn-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "14683bdb2af051e80cc130e7eb7b73d7249df14ce2c0479d1dc795a1521c197e"
+    },
+    {
       "id": "proof-shellfix-red-runs",
       "path": "docs/proof/shellfix-red-runs.md",
       "title": "Shell visual defect red runs",
@@ -17667,6 +17770,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "aacdc60502f70d90223248f1fc0f19005ce3bb20930bb257ff9a6e4ee59b2156"
+    },
+    {
+      "id": "proof-tmx-diagnosis",
+      "path": "docs/proof/tmx/diagnosis.md",
+      "title": "TMX diagnosis of ThemeMatrix_ShellControls_AppliedContrast on Windows at 150 percent",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-tmx",
+      "phase": "implementation",
+      "reviewBy": "2026-11-12",
+      "reviewSuggested": [],
+      "summary": "Why the Browser-row enclosure check in the theme matrix throws \"does not enclose text on MainWindow\" at 150 percent. Reproduced on the Mac by forcing the window scale to 1.5 (emulation). Class: fixture and oracle, not a product overflow. Proposal and the one print the PC must send.",
+      "tags": [
+        "windows",
+        "theme-matrix",
+        "fractional-scale",
+        "diagnosis"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "654b0ae6a1cda2a02e6784a63c52ca67afee90ed31c4d9059229eabb8f8c231c"
     },
     {
       "id": "proof-u1fix-red-runs",
@@ -21752,5 +21881,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "e95ffb0a3cd631d49a9f6fb54cb3ba51d58f51d9878988bd2769241b202d4a5f"
+  "graphSha256": "24e8b164cc4c0a8b45a9be902cf13c057012890ec64f0d341d6f29c86a5dcfea"
 };
