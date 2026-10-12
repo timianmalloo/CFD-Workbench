@@ -9056,6 +9056,44 @@ window.DOCS_INDEX = {
       "sourceSha256": "891740340057f89a6e07cb3a51602ab64c652e42f9255ce9e9b561eb8f6df3a2"
     },
     {
+      "id": "review-windows-gpu-f1-r225-attempt1-admission",
+      "path": "docs/reviews/windows-gpu-f1-r225-attempt1-admission.md",
+      "title": "Independent R225 attempt-1 admission review",
+      "type": "doc",
+      "status": "accepted",
+      "owner": "@pc-f1-r225-attempt1-review",
+      "phase": "preflight",
+      "reviewBy": "2026-10-19",
+      "reviewSuggested": [],
+      "summary": "Independent ACCEPT of the exact R225 attempt-1 source and proposed payload. Production GUID-survival refusal and pre-WSL authority bindings are proved offline. R227 and independent activation review remain mandatory.",
+      "tags": [
+        "windows",
+        "preflight",
+        "authorization",
+        "independent-review"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r225-attempt1-admission",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-windows-gpu-f1-guard-consistency",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d874325efa880b47c4861aec8b252e97b8790062ef702bc5a3d1cb7a14773ffa"
+    },
+    {
       "id": "rulings",
       "path": "docs/notes/rulings.md",
       "title": "Rulings — the Owner seat's numbered decisions (the only definition site)",
@@ -22045,5 +22083,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "b3129607fae5d31b0f4472f40465650f8f2bbd4fe6afcef9688027e84b685512"
+  "graphSha256": "70ce76e282139e275bd7e533b33b30660898b724b50024bd083d83221b847426"
 };

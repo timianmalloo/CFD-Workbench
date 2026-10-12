@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T23:26:14Z",
+  "generated": "2026-10-12T23:32:08Z",
   "audit": [
     {
       "actor": null,
@@ -37693,6 +37693,57 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-10-12T22:54:16Z",
       "duration_seconds": 1918.0
+    },
+    {
+      "id": "al-01M4S77H9XNTWGEFEBF9PR5XGZ",
+      "shortname": "r225-attempt1-independent-review",
+      "datetime": "2026-10-12T23:30:10Z",
+      "session": "pc-f1-r225-attempt1-review",
+      "prompt": "You are Owner for R225 attempt-1 admission. Work in C:\\Projects\\CFD-Workbench-win-gpu-f1-r225-attempt1-review on branch win/gpu-f1-r225-attempt1-review. Read exact R225/R226 at origin/main 17d7427b and independently define the minimum authorization + invocation-contract invariants needed for R227. No WSL/live effects. Review the author candidate once pushed: source/run/session/branch/new epoch 7, fresh throwaway target identity/path, exact current packet hashes, seven input hashes and signer allowlists, external cache helper, R217 caps, allowed simulate/download/inspect/cleanup lifecycle, forbidden install/source/build/CFD/benchmark, one-attempt stop, and fail-closed rollback. Reproduce stale/altered binding refusals and run relevant packet/docs/privacy/safe gates. Return ACCEPT or VETO with a committed/pushed artifact and exact SHA. Do not grant live authority; Mac/Fable R227 must do that.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4S7B4XK90ASVH52AVM3M673",
+      "shortname": "r225-attempt1-independent-accept",
+      "datetime": "2026-10-12T23:32:08Z",
+      "session": "pc-f1-r225-attempt1-review",
+      "prompt": "Independently review R225 attempt-1 authorization and invocation admission; reproduce stale and altered bindings; preserve historical evidence; run offline packet/docs/privacy/safe gates; commit and push ACCEPT or VETO. No WSL/live authority. Coordinator invoked operator-authorized attempt3 solely for two documented fixture annotations after the cap report.",
+      "summary": "ACCEPT offline readiness: artifact deeb6a65fc29e5a122d87a4b4a4dc72166c00ca5, source f1114270e38e04bf8cca47030a2a4125eafb750d. Independent production GUID-survival probe RED at50a then GREEN at1fc. Final admission11/11, recovery50/50, PS5.1/7, packet/helpers/scanner PASS. Source/helper/all7inputs rehashed; exact contract63b38a67, proposed8fb79e40, accepted projectiond7d371ba. Safe gate9/10 exposed missing fixture annotations at cap; coordinator reported cap and invoked prior operator attempt3 authority; exact2 comment-only lines then safe10/10 and privacy PASS. Docs PASS17manifests; graph0defects/134retained; historical bytes unchanged. R227 and separate activation rehash remain mandatory. No WSL/live effects.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-r225-attempt1-admission.md",
+        "docs/reviews/r225-attempt1-absence-probe.ps1",
+        "docs/reviews/r225-attempt1-payload-probe.py"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Accept or veto exact attempt-1 offline admission readiness",
+      "done_when": "Independent verdict and evidence committed and pushed, without granting live authority",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T22:53:52Z",
+      "duration_seconds": 2296.0,
+      "git": {
+        "sha": "deeb6a65fc29e5a122d87a4b4a4dc72166c00ca5",
+        "short": "deeb6a65f",
+        "branch": "win/gpu-f1-r225-attempt1-review",
+        "pushed": null
+      }
     }
   ],
   "changes": [
