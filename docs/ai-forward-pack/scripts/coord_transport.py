@@ -210,7 +210,8 @@ class _Wire:
             self.process.wait(timeout=max(0, min(.2, cleanup_end - time.monotonic())))
         except subprocess.TimeoutExpired:
             pass
-        error = _signal_group(self.process, signal.SIGKILL) or error
+        # _Wire is the POSIX wire (SIGKILL exists); on Windows _signal_group ignores the signal and kills the process.
+        error = _signal_group(self.process, getattr(signal, "SIGKILL", signal.SIGTERM)) or error
         try:
             self.process.wait(timeout=max(0, cleanup_end - time.monotonic()))
         except subprocess.TimeoutExpired:
