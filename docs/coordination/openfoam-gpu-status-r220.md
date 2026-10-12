@@ -14,13 +14,13 @@ links:
 review-by: "2026-10-19"
 summary: >-
   CUDA capability and rollback are proved, the PETSc-CUDA plus petsc4Foam design and three-arm benchmark are specified,
-  and Ruling 220 has opened one final P1/P3 repair before the dependency-only F1 preflight may run.
+  the R220 P1/P3 packet is Astra-accepted, and the exact run-1 environment contract is under independent review.
 ---
 
 # OpenFOAM GPU work status at Ruling 220
 
-**Snapshot:** 2026-10-12, Windows coordinator branch `win/gpu-f1-preflight-r217`, after merging `origin/main` at
-Ruling 220. Mac remains repository leader. Windows owns the bounded packet repair and any later authorized machine run.
+**Snapshot:** 2026-10-12, Windows coordinator branch `win/gpu-f1-preflight-r217`. Mac remains repository leader at
+epoch 6. Windows owns the reviewed dependency-only preflight and its evidence.
 
 ## Current result
 
@@ -41,28 +41,30 @@ planned PETSc-CUDA plus petsc4Foam route. `amgx4Foam` and RapidCFD are rejected 
 | B2 CUDA capability | Complete and rolled back | Exact 135-package CUDA 13.2 lock installed in a disposable distro; managed-memory SAXPY passed; distro unregistered; protected OpenFOAM state unchanged. | None. |
 | F1 design | Accepted as blocked evidence | PETSc 3.26.0, petsc4Foam commit, ABI/build outline, managed-memory measures, guard, rollback, and benchmark contract are recorded. | Close dependency transaction through R217 preflight. |
 | F1 benchmark contract | Accepted with amendments | Three serial arms: native GAMG, PETSc CPU, PETSc GPU. GPU must be at least 1.20x faster than native GAMG with separation, spread, convergence, field, force, determinism, power, and y+ checks. | A later operator ruling after dependency preflight and build review. |
-| R217 dependency preflight packet | Repair active under R220 | P2 deadlines, P4 UTC, P5 trust-contract code, and P6 capacity reconciliation cleared. P1 final cleanup reap and P3 exact process identity failed the second review. | One red-first P1/P3 repair, then fresh Astra review. |
-| Live dependency preflight | Closed | No F1 distro import, apt transaction, package download, install, source acquisition, build, or case run has occurred. | Packet ACCEPT plus a separately reviewed environment contract. |
+| R217 dependency preflight packet | **Accepted under R220** | The repair commit `d5bb68fe` cleared P1 final cleanup/reap and P3 exact process identity. Astra independently reproduced the old failures and accepted all 15 repaired packet files at review commit `00933e65`. | Complete. |
+| Run-1 environment contract | **Independent Astra review active** | Contract commit `754b23e0` binds all 15 accepted packet hashes, seven exact inputs, signer allowlists, execution identity, target paths, and live Mac epoch 6. Local regeneration, hashes, rootfs signature, key fingerprints, docs graph, and docs gate passed. | Astra must independently ACCEPT the exact commit before any WSL effect. |
+| Live dependency preflight | Closed pending contract ACCEPT | No F1 distro import, apt transaction, package download, install, source acquisition, build, or case run has occurred. | Join Astra contract ACCEPT, then pass `contract.py verify` on a clean execution branch. |
 | PETSc/petsc4Foam build and CFD benchmark | Closed | No execution evidence exists. | Separate operator ruling after preflight evidence. |
 
-## Active Ruling 220 repair
+## Ruling 220 packet result
 
-Ruling 220 authorizes one additional cycle and only two changes:
+Ruling 220 authorized one additional cycle and only two changes:
 
 1. **P1 cleanup:** a fresh bounded stop-and-reap check must run in a `finally` path after every cleanup-stage launch;
    nothing may launch after that check.
 2. **P3 exact identity:** residual discovery must bind recorded PID/PGID and exact argv tokens; `runA` must never select
    `runAB`.
 
-The author is running red-first fixtures, one implementation pass, and the complete offline packet tests. No WSL or
-build command is allowed. A separate Astra owner must review the finished commit afresh. Another VETO stops F1 and
-returns the decision to the operator.
+The author added red-first fixtures, repaired both defects, and passed the complete offline packet suite. Astra then
+reviewed the exact packet independently and returned **ACCEPT**. The accepted source is
+`d5bb68fe7db5e511ac46708e14564bb6a738db37`; the joined review is on the coordinator branch at `88ae5819`.
 
-## What a packet ACCEPT unlocks
+## Active gate: run-1 environment contract
 
-An ACCEPT does not authorize an install or build. It allows the Windows coordinator to construct and obtain review of
-the real environment contract. That contract binds the accepted packet commit, input hashes, signer sets, branch,
-session, and live Mac leader epoch. Only then may the R217 preflight:
+Packet ACCEPT allowed the Windows coordinator to construct the real environment contract. Commit `754b23e0` binds
+the accepted packet commit, seven input hashes, exact signer sets, execution branch/session, target paths, and live
+Mac leader epoch 6. Astra is independently reviewing that immutable commit. After ACCEPT is joined and a clean-tree
+`contract.py verify` passes, the R217 preflight may:
 
 - import disposable distro `cfdw-petsc-cuda132-f1` at its dedicated path;
 - freeze signed Ubuntu, OpenFOAM, and NVIDIA indices;
@@ -78,11 +80,11 @@ It may not run `dpkg -i`, install packages, fetch PETSc or petsc4Foam source, co
 ```mermaid
 flowchart LR
   A[CUDA capability proved] --> B[F1 design and benchmark frozen]
-  B --> C[R220 P1/P3 repair]
-  C --> D{Fresh Astra review}
-  D -->|VETO| X[Stop F1; operator decides]
-  D -->|ACCEPT| E[Review real environment contract]
-  E --> F[R217 dependency-only preflight]
+  B --> C[R220 P1/P3 repair complete]
+  C --> D[Fresh Astra packet ACCEPT]
+  D --> E{Independent contract review}
+  E -->|REJECT| X[Stop before WSL; repair contract]
+  E -->|ACCEPT| F[R217 dependency-only preflight]
   F --> G[Dependency and capacity evidence]
   G --> H{Later operator build ruling}
   H --> I[PETSc-CUDA plus petsc4Foam build]
@@ -94,6 +96,8 @@ flowchart LR
 
 - GitHub draft handoff: PR #33, `win/gpu-f1-preflight-r217`.
 - Mac Ruling 220 is on `main` at `63eb3e0f` and is merged into the Windows coordinator branch.
+- Mac remains the designated leader at live coordination epoch 6.
+- The accepted packet review is joined and pushed at `88ae5819`; the contract under review is pushed at `754b23e0`.
 - Exact Windows readiness failures requested by Mac are posted on PR #33.
 - The full repository readiness receipt remains RED on Windows due to a POSIX-only architecture-spike path, a
   temporary-file access failure, one desktop theme test, and the 240-second budget. These are recorded separately from
@@ -101,7 +105,8 @@ flowchart LR
 
 ## Confidence and limits
 
-**Verified:** repository receipts and rulings establish every completed-stage claim above. **Not recorded:** F1 package
-closure, PETSc/petsc4Foam build success, OpenFOAM GPU solver use, numerical equivalence, and speed-up. Those values stay
-unknown until their authorized measurement stages execute.
+**Verified:** repository receipts, hashes, signatures, gates, and reviews establish every completed-stage claim above.
+**Pending independent review:** the run-1 contract. **Not recorded:** F1 package closure, PETSc/petsc4Foam build
+success, OpenFOAM GPU solver use, numerical equivalence, and speed-up. Those values stay unknown until their authorized
+measurement stages execute.
 
