@@ -5554,7 +5554,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4b34fb42427bd7c1f16b56616c52845b54ce67d67dfee0d0fab36b3bbecba0c1"
+      "sourceSha256": "19da6a80c0ce10747b8c566c5b3566af712726599531c8b32ff827902a93d1d0"
     },
     {
       "id": "domain-experts",
@@ -9079,7 +9079,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f399e0c48c780acd976964a08b41547e79ffd26f41b4928b652cb0de79eef897"
+      "sourceSha256": "673e5ece82d22d8ad4e1a63674e08c9dbb1b29e4e3daf578ec6a2380f592ef73"
     },
     {
       "id": "kb-hw-glossary",
@@ -18710,6 +18710,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "40b8547429b0a6921da44d7d8453db02ac89fb917c22d0150bf2555609ed44ad"
     },
     {
+      "id": "proof-win-gpu-f1-r225-attempt1-admission",
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/README.md",
+      "title": "R225 attempt 1: offline admission candidate",
+      "type": "proof-pack",
+      "status": "proposed",
+      "owner": "@pc-f1-r225-attempt1",
+      "phase": "preflight",
+      "reviewBy": "2026-10-19",
+      "reviewSuggested": [],
+      "summary": "Fresh attempt/run/session/branch at epoch 7, exact packet and external helper bytes, seven rehashed inputs, proposed live-path authorization and precomputed accepted projection. Normal admission refuses until a hash-bound main ruling.",
+      "tags": [
+        "windows",
+        "wsl",
+        "preflight",
+        "admission",
+        "offline-proof"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-windows-gpu-f1-guard-consistency-repair",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "63bd60c8cbb8b1c7c13899b7ad5f46bd097359c96df26295e50558c2d18d859b"
+    },
+    {
       "id": "proof-win-gpu-f1-recovery-integration",
       "path": "docs/proof/win-gpu-f1-preflight/integration/proof.md",
       "title": "F1 packet repair and cleanup recovery: offline integration proof",
@@ -22010,5 +22045,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "b37e2e12763dc96138e149f044910139361fcc1e4e88478a251fc0ee3c12a3d5"
+  "graphSha256": "b3129607fae5d31b0f4472f40465650f8f2bbd4fe6afcef9688027e84b685512"
 };

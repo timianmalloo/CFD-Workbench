@@ -24,7 +24,11 @@ and refusal controls pass and the candidate is pushed. Not in scope: WSL, live
 effects, installation, build or CFD. Tier T1; no author delegation. Repair cap 2.
 Astra holds independent review; the author does not grant or clear authority.
 
-**Verified source anchor:** `50a059886163a53aebb882be3474da1a079f8dd9`.
+**Verified final source anchor:** `f1114270e38e04bf8cca47030a2a4125eafb750d`.
+Earlier source candidates `a3086d4c` and `50a05988`, and payload candidate
+`705e8ea0`, are **superseded**, retained as history, and must not be activated.
+Production fix `1fc9519f` is retained but superseded for final binding by the
+annotation-only source anchor above; its production logic is identical.
 Source controls were committed before payloads to avoid self-hash circularity.
 All 16 packet files and external `recovery/check_cache.py` are bound to those
 Git blobs. The invocation keeps schema `cfdw-f1-r217-invocation/1` and adds exact
@@ -36,9 +40,9 @@ attempt/run/root values. Legacy run-1/epoch-6 admission is not reused.
 | Session / branch | `pc-f1-r225-attempt1` / `win/gpu-f1-r225-attempt1` |
 | Leader | `mac`, PC-local epoch `7`; live renewal required for execution |
 | Evidence root | `docs/proof/win-gpu-f1-preflight/attempt-1` |
-| Contract SHA-256 | `0c2ce75b72f725141a4b89828c7fb5a1ffdc092e9213c69631219b358d521da4` |
-| Proposed authorization SHA-256 | `53c9f7750a52b58a191bd9007e941e480e2e367f0c505293519fe6729d598559` |
-| Accepted projection SHA-256 | `9a3e713f6dc0a9fa208828d474f5461cdbe02a1e07b4e8b5e70f96926001806e` |
+| Contract SHA-256 | `63b38a67d661dc2164295a5af192bf107378b0d935c01b4529d3293c4468bf72` |
+| Proposed authorization SHA-256 | `8fb79e406575febc807f69dd5a33a5131505ef38f489c4672b69013ad3694760` |
+| Accepted projection SHA-256 | `d7d371ba768da659cf561fdd9dda9360c91ecf41d249cf40fbeb6dea8b01ed71` |
 
 The live-path `attempt-authorization.json` remains **proposed**. The separate
 `authorization.accepted-projection.json` is a review candidate, never an invocation
@@ -108,9 +112,23 @@ Pure production identity controls test renamed old GUIDs, changed names/paths,
 protected aliases and changed post-create GUIDs. Recursive run-1 byte conservation
 against base `17d7427b` passed; recovery-1 and R224 bytes are also unchanged.
 
-Ring: offline-admission, focused Python suite measured 6.314 s for eight controls
+The initial sentinel used the production policy function at an inert child seam;
+it alone did not establish `contract.verify` wiring. Final-cycle tests now call
+the real `contract.verify` → `verify_authorization`, with only Git/process seams
+inert, and assert exact authorization path, contract hash, RunId and exclusivity
+forwarding. Missing/proposed/altered authority refuses with zero WSL calls;
+changed working-tree and source bytes in the external-helper map both refuse.
+
+The production `Assert-FinalAbsence` AST regression was red at `50a05988`: a
+created GUID surviving renamed and moved was accepted. The final source reuses
+all-row fresh identity checks and rejects the observed created GUID under any
+alias, plus exact protected GUID/name/path/version and unique name. Both PS
+runtimes pass survival and protected-identity mutation negatives. The missed
+sibling and executable prevention extend `R217-RECOVERY-AUTHORITY-A`.
+
+Ring: offline-admission, focused Python suite measured 6.222 s for eleven controls
 including recursive Git-blob conservation; PS sentinel is separate. Existing
-packet Python suite measured 0.613 s; legacy PS5.1/PS7 suites 0.390/0.280 s.
+packet Python suite measured 0.613 s; final legacy PS5.1/PS7 suites 0.341/0.270 s.
 Final full results and audit/graph/privacy checks are recorded in the closing audit.
 
 Execution graph: ground → production red → narrow controls/test negatives → source
@@ -121,6 +139,20 @@ Failed acceptance clauses decrease to zero; cap 2 is a stop/report breaker, not
 the success criterion. Cycle 1 fixed declarative command labels, legacy fixture
 state and EOF whitespace; gates stayed intact. No timing model or token spend is
 invented. Default instrumentation comes from existing suite/audit measurements.
+Cycle 2 closed final-absence aliasing and real admission wiring. At the original
+cap, the machine-path gate refused two synthetic fixture expansions. The
+coordinator reported the cap and invoked the operator's explicit attempt-3
+permission, limited to standard `machine-path-ok` reasons on those two test lines.
+Source `f1114270` changes only those comments; no production/logic change or gate
+exception was added. Machine-path and full safe gates then passed (10/10).
+No further production change followed `1fc9519f`.
+
+Final closing checks: attempt suite 11/11 (7.447 s), recovery suite 50/50
+(2.201 s), packet fixture suite (0.564 s), legacy and attempt PowerShell suites
+on both runtimes, authority scanner and manifest/transaction/completed-guard
+controls passed. Docs checks passed with 134 retained freshness suggestions.
+Historical run-1/recovery-1/R224 diff against base `17d7427b` is empty. Final
+privacy, graph and audit closing results are retained in the audit entry.
 
 **Flagged:** no WSL or lifecycle behavior is measured by this preparation. Live
 leader continuity and PC exclusivity require the coordinator's renewal procedure

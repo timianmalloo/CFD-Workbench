@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T19:53:24Z",
+  "generated": "2026-10-12T23:26:14Z",
   "audit": [
     {
       "actor": null,
@@ -37653,6 +37653,46 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-12T19:52:17Z",
       "duration_seconds": 67.0
+    },
+    {
+      "id": "al-01M4S709MA02S9JA71FPW2233Z",
+      "shortname": "New task under Rulings 225-226. Work only in C:\\Projects\\CFD-Workbench-w…",
+      "datetime": "2026-10-12T23:26:13Z",
+      "session": "prompt-log",
+      "prompt": "New task under Rulings 225-226. Work only in C:\\Projects\\CFD-Workbench-win-gpu-f1-r225-attempt1 on branch win/gpu-f1-r225-attempt1, base 17d7427b88a4c00e17350bc197061c86b6c53249. Prepare attempt-1 offline admission artifacts; no WSL or live effects. Reuse the accepted contract schema and packet controls. Create a fresh run identity/session/branch binding, invocation contract with exact current accepted packet blobs and verified local input hashes/paths, plus a hash-bound attempt authorization JSON for proposed Ruling 227 naming leader mac epoch 7, source commit, run identity, target/protected identities, limits, exact allowed stages/actions, forbidden install/build/run actions, contract path/hash, and one-attempt failure-stop semantics. Use the existing target name/path only if R225's fresh throwaway requirement permits it after proven absence; otherwise select a fresh exact name/path and document why. Add the smallest offline verifier/tests needed to fail on stale epoch/source/run/contract/hash/scope. Run contract verification and all packet/docs/privacy/safe gates. Commit and push an exact candidate, then report SHA and authorization SHA-256. Repair cap 2. Astra is Owner/reviewer; no live authority until R227 is on main.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4S70AXWKMY49TY0HSMQ3E4B",
+      "shortname": "r225-attempt1-admission",
+      "datetime": "2026-10-12T23:26:14Z",
+      "session": "pc-f1-r225-attempt1",
+      "prompt": "New task under Rulings 225-226. Work only in C:\\Projects\\CFD-Workbench-win-gpu-f1-r225-attempt1 on branch win/gpu-f1-r225-attempt1, base 17d7427b88a4c00e17350bc197061c86b6c53249. Prepare attempt-1 offline admission artifacts; no WSL or live effects. Reuse the accepted contract schema and packet controls. Create a fresh run identity/session/branch binding, invocation contract with exact current accepted packet blobs and verified local input hashes/paths, plus a hash-bound attempt authorization JSON for proposed Ruling 227 naming leader mac epoch 7, source commit, run identity, target/protected identities, limits, exact allowed stages/actions, forbidden install/build/run actions, contract path/hash, and one-attempt failure-stop semantics. Use the existing target name/path only if R225's fresh throwaway requirement permits it after proven absence; otherwise select a fresh exact name/path and document why. Add the smallest offline verifier/tests needed to fail on stale epoch/source/run/contract/hash/scope. Run contract verification and all packet/docs/privacy/safe gates. Commit and push an exact candidate, then report SHA and authorization SHA-256. Repair cap 2. Astra is Owner/reviewer; no live authority until R227 is on main.",
+      "summary": "Final source f1114270e38e04bf8cca47030a2a4125eafb750d; packet16 blobs + external check_cache pinned; seven actual inputs rehashed, exact signer lists, RunId/session/branch/epoch7 and fresh root. Contract63b38a67d661dc2164295a5af192bf107378b0d935c01b4529d3293c4468bf72; proposed auth8fb79e406575febc807f69dd5a33a5131505ef38f489c4672b69013ad3694760; accepted projectiond7d371ba768da659cf561fdd9dda9360c91ecf41d249cf40fbeb6dea8b01ed71, only status/ruling differ, outside live path. Actual prepare PASS live_authority=False. Initial fresh branch fixture red; final absence alias production fixture red50a/green1fc; real contract.verify wiring and external source/worktree negatives green. Attempt11/11 7.447s; recovery50/50 2.201s; packet0.564s; both PS runtimes/authority/helpers PASS. Safe gates10/10 PASS, docs PASS, graph0 defects/134 retained suggestions, privacy/whitespace PASS. Historical run1/recovery1/R224 byte diff empty. Existing R217-RECOVERY-AUTHORITY-A extended. a308/50a/source payload705 superseded history. Original repair cap2 reported; operator-authorized attempt3 changed exactly two synthetic machine-path fixture comments, no production/logic changes. No gate weakened, no R227 authored, live path stays proposed/refusing; no WSL or live effect. Astra review and later activation rehash remain separate.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/attempt-1/README.md",
+        "tests/test_f1_attempt_admission.py"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Prepare exact hash-bound fresh attempt1 admission and refusal proof offline",
+      "done_when": "Source and proposed payload/projection independently reviewable; actual preparation verification and all offline gates green; exact candidate pushed",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-10-12T22:54:16Z",
+      "duration_seconds": 1918.0
     }
   ],
   "changes": [
