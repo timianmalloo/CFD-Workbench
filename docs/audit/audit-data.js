@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T17:30:13Z",
+  "generated": "2026-10-12T17:35:49Z",
   "audit": [
     {
       "actor": null,
@@ -37394,6 +37394,49 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-10-12T17:21:33Z",
       "duration_seconds": 520.0
+    },
+    {
+      "id": "al-01M4RJYAXJADDR80BXS5NVG622",
+      "shortname": "f1-guard-independent-review",
+      "datetime": "2026-10-12T17:35:37Z",
+      "session": "pc-f1-r217-guard-consistency-review",
+      "prompt": "Review exact author candidate b63c1f04249c2258433e0210b7405ba033a3058d from origin/win/gpu-f1-r217-guard-consistency-repair. In your separate worktree C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-guard-consistency-review, fetch and integrate the exact candidate for review without modifying its source/tests/evidence. Apply your stated vetoes and independently rerun the production-boundary race tests, persistent/invalid/deadline negatives, full recovery/packet offline suites, evidence conservation, docs/graph/privacy and safe gates. Verify exact class TORN-PAIR-READ and sibling disposition. Preserve 11f56c79 historical failure and R223/R224 authority limits. No WSL/live action. Write an independent ACCEPT/VETO review artifact, audit/derive, commit and push the review branch. Return exact verdict commit and evidence. Amendment: Author confirms pushed exact cycle-1 candidate 5c1b727fe4448020701b044247d417a3d61c647f. Operator accepts proceeding. Review that exact commit under R224, record ACCEPT or VETO in your independent artifact, commit/push the review branch, and report the exact review SHA. No live action.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4RJYPSZYMCTFHPN3V9TAAYP",
+      "shortname": "f1-guard-independent-accept",
+      "datetime": "2026-10-12T17:35:49Z",
+      "session": "pc-f1-r217-guard-consistency-review",
+      "prompt": "Review amended exact candidate 5c1b727fe4448020701b044247d417a3d61c647f under R224, independently rerun offline controls and gates, preserve historical evidence and authority, commit and push an ACCEPT or VETO artifact. No live action.",
+      "summary": "ACCEPT exact 5c1b727f for offline integration. Independent return-N fixture RED on 5b1a9bb4, 0.034 s; amended recovery 50/50 PASS 2.476 s. Packet Python/PS5/PS7, helper controls, safe 10/10, full docs, graph and privacy PASS. Historical 76/94/255 blob bindings conserved; R224 matches ed40faef. Initial contract blockers corrected in author cycle 1. No source, test, captured evidence or authorization edited by reviewer; no WSL/live action. Build ring and readiness remain outside this offline review.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-guard-consistency.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Independently accept or veto the exact guard-reader amendment under R224.",
+      "done_when": "Production boundary, negative controls, sibling disposition and immutable evidence verified; independent review committed and pushed.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T17:15:09Z",
+      "duration_seconds": 1240.0
     }
   ],
   "changes": [

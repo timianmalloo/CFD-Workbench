@@ -9022,6 +9022,40 @@ window.DOCS_INDEX = {
       "sourceSha256": "bda163aa9a70b7e01905e5acaeef3cb7794aedc28249ce879e32c88607a99360"
     },
     {
+      "id": "review-windows-gpu-f1-guard-consistency",
+      "path": "docs/reviews/windows-gpu-f1-guard-consistency.md",
+      "title": "Independent R224 guard-reader review",
+      "type": "doc",
+      "status": "accepted",
+      "owner": "@pc-f1-r217-guard-consistency-review",
+      "phase": "preflight",
+      "reviewBy": "2026-10-19",
+      "reviewSuggested": [],
+      "summary": "Independent ACCEPT of 5c1b727f for the R224 offline guard-reader contract. The actual regression is red on the old reader and all 50 recovery tests pass. Historical failure evidence and authority limits remain intact.",
+      "tags": [
+        "windows",
+        "recovery",
+        "concurrency",
+        "independent-review"
+      ],
+      "links": [
+        {
+          "to": "plan-windows-gpu-f1-guard-consistency-repair",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "891740340057f89a6e07cb3a51602ab64c652e42f9255ce9e9b561eb8f6df3a2"
+    },
+    {
       "id": "rulings",
       "path": "docs/notes/rulings.md",
       "title": "Rulings — the Owner seat's numbered decisions (the only definition site)",
@@ -21925,5 +21959,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "1a64c4cd668938640f78de0837f4b301809f7d3bad45487323a427de32362ce5"
+  "graphSha256": "bf4fc34dbf5d6a106fdb0e9ddcb144aa2ed3e573cbfd39d8f88e06b0527798bc"
 };
