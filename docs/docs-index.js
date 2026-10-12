@@ -5554,7 +5554,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d9ddaf83ed8ac9787f01356a8db0fe873511f9c7a830174f684060eb81d79b41"
+      "sourceSha256": "9178363e9853110c4431deeb4bee38699e36e336757617ff9a481bae9b4a3433"
     },
     {
       "id": "domain-experts",
@@ -15880,6 +15880,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "96b9e43311cfd77909db62ba5984d828c3d5c18ac03c91c806d245af4221a8b3"
     },
     {
+      "id": "proof-pvh-red-first",
+      "path": "docs/proof/pvh/red-first.md",
+      "title": "PVH red-first - bounded test pumps and a named in-flight check on a child TIMEOUT",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-pvh",
+      "phase": "",
+      "reviewBy": "2026-11-12",
+      "reviewSuggested": [],
+      "summary": "The properties-view part 2/2 hang did not reproduce in 104 runs; a pump on a never-completing task now throws a named TimeoutException at its deadline, and a child TIMEOUT line names the check it was running.",
+      "tags": [
+        "pvh",
+        "desktop-tests",
+        "timeout",
+        "wait-unbounded-a"
+      ],
+      "links": [
+        {
+          "to": "proof-application-core",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d8d2ed2ac4033356c343e863a5cd5947e9a895345a350c21b571cffb7734efdf"
+    },
+    {
       "id": "proof-r163-windows-ring",
       "path": "docs/proof/r163-windows-ring/receipt.md",
       "title": "Ruling 163 P5 Windows ring (incomplete at 60 seconds)",
@@ -21881,5 +21907,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "24e8b164cc4c0a8b45a9be902cf13c057012890ec64f0d341d6f29c86a5dcfea"
+  "graphSha256": "174407aa2c39c59e059aa95b1fe04847fb5069dd930031f3afb173efcebfe00d"
 };

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T17:28:38Z",
+  "generated": "2026-10-12T17:37:16Z",
   "audit": [
     {
       "actor": null,
@@ -37316,58 +37316,103 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4RJ0Q17T150C4M516KXHDQZ",
-      "shortname": "yes tell Astra i accept",
-      "datetime": "2026-10-12T17:19:26Z",
-      "session": "prompt-log",
-      "prompt": "yes tell Astra i accept",
-      "summary": "prompt logged for reuse",
-      "kind": "prompt",
-      "skill": null,
-      "tool": null,
       "actor": null,
       "artifacts": [],
+      "datetime": "2026-10-12T17:19:26Z",
+      "id": "al-01M4RJ0Q17T150C4M516KXHDQZ",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "yes tell Astra i accept",
+      "session": "prompt-log",
+      "shortname": "yes tell Astra i accept",
+      "skill": null,
+      "summary": "prompt logged for reuse",
       "tags": [],
-      "outcome": "success"
+      "tool": null
     },
     {
-      "id": "al-01M4RJ3B88A4JP7BGK0236S3P0",
-      "shortname": "r224-read-only",
-      "datetime": "2026-10-12T17:20:53Z",
-      "session": "pc-f1-r217-cleanup-live1",
-      "prompt": "Execute the single R224 read-only cleanup verification and bind its proof.",
-      "summary": "R224 read-only verification passed: protected L3 SHA-256 exactly matched history and the failed target registration/path remained absent; no forbidden action ran.",
-      "kind": "manual",
-      "skill": null,
-      "tool": null,
       "actor": "codex",
       "artifacts": [
         "docs/proof/win-gpu-f1-preflight/recovery-1/read-only-r224/receipt.json"
       ],
-      "tags": [],
-      "outcome": "success",
-      "goal": "Bind R224 rollback verification without another cleanup or preflight action.",
+      "datetime": "2026-10-12T17:20:53Z",
       "done_when": "The historical protected snapshot hash matches exactly, target absence is reproved, and a committed receipt cites R224 and source 5b1a9bb4.",
-      "tier": "T2",
       "fan_out": 2,
-      "signals": {
-        "verification_path": true,
-        "verification_executed": true,
-        "acceptance_met": true
-      },
       "git": {
-        "sha": "a52793e75be07d7c081874d5ded49f628f55bb38",
-        "short": "a52793e75",
         "branch": "win/gpu-f1-r217-cleanup-live1",
-        "pushed": false
-      }
+        "pushed": false,
+        "sha": "a52793e75be07d7c081874d5ded49f628f55bb38",
+        "short": "a52793e75"
+      },
+      "goal": "Bind R224 rollback verification without another cleanup or preflight action.",
+      "id": "al-01M4RJ3B88A4JP7BGK0236S3P0",
+      "kind": "manual",
+      "outcome": "success",
+      "prompt": "Execute the single R224 read-only cleanup verification and bind its proof.",
+      "session": "pc-f1-r217-cleanup-live1",
+      "shortname": "r224-read-only",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": null,
+      "summary": "R224 read-only verification passed: protected L3 SHA-256 exactly matched history and the failed target registration/path remained absent; no forbidden action ran.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
     },
     {
-      "id": "al-01M4RJHHHXY1YC5G24H2HFVKVR",
-      "shortname": "join-f1-cleanup",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-12T17:28:38Z",
-      "session": "3122f106",
+      "duration_seconds": 70.0,
+      "fan_out": 0,
+      "id": "al-01M4RJHHHXY1YC5G24H2HFVKVR",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of the resolved merge into main",
+      "session": "3122f106",
+      "shortname": "join-f1-cleanup",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T17:27:28Z",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-12T17:35:29Z",
+      "done_when": "red-first proven; run-tests, readiness, docs gates green",
+      "duration_seconds": 2719.0,
+      "goal": "Bound the Desktop test pumps and name the in-flight check on a child TIMEOUT",
+      "id": "al-01M4RJY2W050S6YSCXTSW5107V",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "PVH round 2",
+      "session": "trk-pvh",
+      "shortname": "pvh-bounded-waits",
+      "skill": "implement",
+      "started_at": "2026-10-12T16:50:10Z",
+      "summary": "PumpToCompletion throws a named TimeoutException; child TIMEOUT line ends with the in-flight check; WAIT-UNBOUNDED-A registered; hang itself not reproduced (0/104)",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M4RK1BDMRB5BD53NKEXGQC6K",
+      "shortname": "join-pvh",
+      "datetime": "2026-10-12T17:37:16Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/pvh-hang into main",
       "summary": "join recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
@@ -37384,7 +37429,7 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-12T17:27:28Z",
+      "started_at": "2026-10-12T17:36:06Z",
       "duration_seconds": 70.0
     }
   ],
