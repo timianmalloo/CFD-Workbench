@@ -1,1 +1,2 @@
 {"agent": "trk-frz", "at": 1791834230.063145, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-frz", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-frz-frozen-paths"}
+{"agent": "trk-frz", "at": 1791834983.3573709, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-frz", "wi": "WI-0", "worktree": "CFD-Workbench-fix-frz-frozen-paths"}
