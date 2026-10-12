@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T16:23:11Z",
+  "generated": "2026-10-12T16:36:03Z",
   "audit": [
     {
       "actor": null,
@@ -36006,6 +36006,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-12T16:22:51Z",
       "duration_seconds": 20.0
+    },
+    {
+      "id": "al-01M4RFH8RZYJC82K5FVG7M12XT",
+      "shortname": "dgs-scroll-diag",
+      "datetime": "2026-10-12T16:36:03Z",
+      "session": "trk-dgs",
+      "prompt": "DGS",
+      "summary": "CFD_DIAG_SCROLL and CFD_DIAG_FORCE_SCALE in ShellWindowTests; mac-emulated-1.5.txt reproduces the Backing failure",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Commit opt-in scroll diagnostic for the one PC run (Ruling 221)",
+      "done_when": "env-gated diagnostic, byte-identical off, Mac 1.5 reference committed",
+      "started_at": "2026-10-12T16:31:48Z",
+      "duration_seconds": 255.0
     }
   ],
   "changes": [

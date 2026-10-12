@@ -8830,7 +8830,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "caee19d5a174762e2709db9fc66e07b1581394baff493cf2f7a278681fd6ccfa"
+      "sourceSha256": "6863a8a8be8f954a470b4d2d80fd3883ad239e375fcbdadfbe1f09c6f7d5c10f"
     },
     {
       "id": "kb-hw-glossary",
@@ -21199,5 +21199,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "15bf72461f0d14f383bb3c060cc54a9bc2707e4fbb3736db27f209eb6729a17b"
+  "graphSha256": "44e3ec6e2072d0dacdc53fc7a70e3ac6f65279b53fb16f583d4d42783c3c2e54"
 };
