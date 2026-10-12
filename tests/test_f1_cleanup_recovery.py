@@ -18,6 +18,238 @@ spec.loader.exec_module(recovery)
 
 
 class RecoveryTests(unittest.TestCase):
+    def guard_fixture(self, root):
+        instance = object.__new__(recovery.Recovery)
+        instance.live, instance.session, instance.before = root, 'guard-fixture', 'a' * 64
+        instance.start, instance.log = 0, []
+        instance.guard = Mock()
+        instance.guard.poll.return_value = None
+        writer = recovery.load_helper(ROOT / recovery.REL / 'packet', 'completed_guard')
+        stamp = recovery.dt.datetime.now(recovery.dt.timezone.utc).isoformat()
+        state = dict(session_id=instance.session, expected_sha256=instance.before,
+                     state='running', completed_samples=1, last_sample_utc=stamp)
+        event = dict(session_id=instance.session, expected_sha256=instance.before,
+                     verdict='continue', sample_number=1, utc=stamp)
+        writer.append_event(root / 'completed-guard-events.jsonl', event)
+        writer.write_atomic_json(root / 'completed-guard.state.json', state)
+        return instance, writer, state, event
+
+    def test_Guard_EventPublishedBeforeState_RechecksActualBoundary(self):
+        # Offline-fast: real append/atomic replacement; no sleeps or processes (~0.01 s).
+        with tempfile.TemporaryDirectory() as temporary:
+            instance, writer, state, event = self.guard_fixture(Path(temporary))
+            stamp = (recovery.dt.datetime.now(recovery.dt.timezone.utc) + recovery.dt.timedelta(milliseconds=1)).isoformat()
+            event.update(sample_number=2, utc=stamp)
+            state.update(completed_samples=2, last_sample_utc=stamp)
+            writer.append_event(instance.live / 'completed-guard-events.jsonl', event)
+            def finish_publication(_seconds):
+                writer.write_atomic_json(instance.live / 'completed-guard.state.json', state)
+            with patch.object(recovery.time, 'monotonic', return_value=1), patch.object(recovery.time, 'sleep', side_effect=finish_publication) as pause:
+                self.assertEqual(instance.guard_ok(), 1)
+            pause.assert_not_called()
+            self.assertEqual(instance.log[0]['completed_samples'], 1)
+            self.assertEqual(instance.log[0]['event_sample'], 2)
+
+    def test_Guard_AdjacentGapSameOrEarlierUtc_Refuses(self):
+        for delta in (0, -1):
+            with self.subTest(milliseconds=delta), tempfile.TemporaryDirectory() as temporary:
+                instance, writer, state, event = self.guard_fixture(Path(temporary))
+                event['sample_number'] = 2
+                event['utc'] = (recovery.dt.datetime.fromisoformat(state['last_sample_utc']) + recovery.dt.timedelta(milliseconds=delta)).isoformat()
+                writer.append_event(instance.live / 'completed-guard-events.jsonl', event)
+                def complete_invalid_publication(_seconds):
+                    writer.write_atomic_json(instance.live / 'completed-guard.state.json',
+                        dict(state, completed_samples=2, last_sample_utc=event['utc']))
+                with patch.object(recovery.time, 'monotonic', return_value=1), patch.object(recovery.time, 'sleep', side_effect=complete_invalid_publication) as pause:
+                    with self.assertRaisesRegex(ValueError, 'guard event/state disagree'):
+                        instance.guard_ok()
+                pause.assert_not_called()
+
+    def moving_guard_state(self, instance, writer, state, event):
+        read, confirm = Path.read_bytes, [False]
+        def read_with_publication(path):
+            if path.name == 'completed-guard.state.json':
+                if confirm[0]:
+                    state['completed_samples'] += 1
+                    state['last_sample_utc'] = (recovery.dt.datetime.fromisoformat(state['last_sample_utc']) + recovery.dt.timedelta(milliseconds=1)).isoformat()
+                    event.update(sample_number=state['completed_samples'], utc=state['last_sample_utc'])
+                    writer.append_event(instance.live / 'completed-guard-events.jsonl', event)
+                    writer.write_atomic_json(path, state)
+                confirm[0] = not confirm[0]
+            return read(path)
+        return read_with_publication
+
+    def test_Guard_ContinuouslyMovingState_RefusesAfterTenReads(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            instance, writer, state, event = self.guard_fixture(Path(temporary))
+            publication = self.moving_guard_state(instance, writer, state, event)
+            with patch.object(Path, 'read_bytes', publication), patch.object(recovery.time, 'monotonic', return_value=1), patch.object(recovery.time, 'sleep') as pause:
+                with self.assertRaisesRegex(ValueError, 'guard state did not stabilize'):
+                    instance.guard_ok()
+            self.assertEqual(pause.call_count, 9)
+            self.assertEqual(instance.log[0]['attempts'], 10)
+
+    def test_Guard_StateAdvancesDuringConfirmation_ThenStabilizes(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            instance, writer, state, event = self.guard_fixture(Path(temporary))
+            publication = self.moving_guard_state(instance, writer, state, event)
+            read, state_reads = Path.read_bytes, [0]
+            def publish_once(path):
+                if path.name == 'completed-guard.state.json':
+                    state_reads[0] += 1
+                    if state_reads[0] <= 2:
+                        return publication(path)
+                return read(path)
+            with patch.object(Path, 'read_bytes', publish_once), patch.object(recovery.time, 'monotonic', return_value=1), patch.object(recovery.time, 'sleep') as pause:
+                self.assertEqual(instance.guard_ok(), 2)
+            self.assertEqual(pause.call_count, 1)
+            self.assertEqual(instance.log[0]['attempts'], 2)
+
+    def test_Guard_PersistentInvalidGap_RefusesWithoutRetry(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            instance, writer, state, event = self.guard_fixture(Path(temporary))
+            writer.append_event(instance.live / 'completed-guard-events.jsonl', dict(event, sample_number=2))
+            with patch.object(recovery.time, 'monotonic', return_value=1), patch.object(recovery.time, 'sleep') as pause:
+                with self.assertRaisesRegex(ValueError, 'guard event/state disagree'):
+                    instance.guard_ok()
+            pause.assert_not_called()
+
+    def test_Guard_InvalidPair_RefusesWithoutRetry(self):
+        stale = (recovery.dt.datetime.now(recovery.dt.timezone.utc) - recovery.dt.timedelta(seconds=30)).isoformat()
+        future = (recovery.dt.datetime.now(recovery.dt.timezone.utc) + recovery.dt.timedelta(seconds=30)).isoformat()
+        for side, field, value in (
+            ('event', 'sample_number', 3), ('event', 'sample_number', 0),
+            ('event', 'utc', future), ('state', 'last_sample_utc', stale),
+            ('event', 'utc', stale), ('state', 'state', 'stopped'),
+            ('event', 'verdict', 'stop'), ('event', 'session_id', 'changed'),
+            ('state', 'session_id', 'changed'), ('event', 'expected_sha256', 'changed'),
+            ('state', 'expected_sha256', 'changed')):
+            with self.subTest(side=side, field=field), tempfile.TemporaryDirectory() as temporary:
+                instance, writer, state, event = self.guard_fixture(Path(temporary))
+                (event if side == 'event' else state)[field] = value
+                writer.write_atomic_json(instance.live / 'completed-guard.state.json', state)
+                (instance.live / 'completed-guard-events.jsonl').write_bytes(writer.canonical_bytes(event))
+                with patch.object(recovery.time, 'monotonic', return_value=1), patch.object(recovery.time, 'sleep') as pause:
+                    with self.assertRaises(ValueError):
+                        instance.guard_ok()
+                pause.assert_not_called()
+
+    def test_Guard_SameSampleDifferentUtc_RefusesWithoutRetry(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            instance, writer, state, event = self.guard_fixture(Path(temporary))
+            event['utc'] = (recovery.dt.datetime.now(recovery.dt.timezone.utc) + recovery.dt.timedelta(milliseconds=1)).isoformat()
+            (instance.live / 'completed-guard-events.jsonl').write_bytes(writer.canonical_bytes(event))
+            with patch.object(recovery.time, 'monotonic', return_value=1), patch.object(recovery.time, 'sleep') as pause:
+                with self.assertRaisesRegex(ValueError, 'guard event/state disagree'):
+                    instance.guard_ok()
+            pause.assert_not_called()
+
+    def test_Guard_MalformedCompleteEvent_RefusesWithoutRetry(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            instance, writer, state, event = self.guard_fixture(Path(temporary))
+            with (instance.live / 'completed-guard-events.jsonl').open('ab') as output:
+                output.write(b'{malformed}\n')
+            with patch.object(recovery.time, 'monotonic', return_value=1), patch.object(recovery.time, 'sleep') as pause:
+                with self.assertRaises(json.JSONDecodeError):
+                    instance.guard_ok()
+            pause.assert_not_called()
+
+    def test_Guard_BindingStopStalenessOrRegressionDuringRetry_Refuses(self):
+        for change in ('binding', 'stop', 'stale', 'regression', 'exit'):
+            with self.subTest(change=change), tempfile.TemporaryDirectory() as temporary:
+                instance, writer, state, event = self.guard_fixture(Path(temporary))
+                publication = self.moving_guard_state(instance, writer, state, event)
+                def publish_invalid(_seconds):
+                    state['completed_samples'] = 2
+                    if change == 'binding':
+                        state['expected_sha256'] = 'changed'
+                    elif change == 'stop':
+                        state['state'] = 'stopped'
+                    elif change == 'stale':
+                        state['last_sample_utc'] = (recovery.dt.datetime.now(recovery.dt.timezone.utc) - recovery.dt.timedelta(seconds=30)).isoformat()
+                    elif change == 'regression':
+                        state['completed_samples'] = event['sample_number'] = 0
+                        (instance.live / 'completed-guard-events.jsonl').write_bytes(writer.canonical_bytes(event))
+                    else:
+                        instance.guard.poll.return_value = 0
+                    writer.write_atomic_json(instance.live / 'completed-guard.state.json', state)
+                with patch.object(Path, 'read_bytes', publication), patch.object(recovery.time, 'monotonic', return_value=1), patch.object(recovery.time, 'sleep', side_effect=publish_invalid) as pause:
+                    with self.assertRaises(ValueError):
+                        instance.guard_ok()
+                self.assertEqual(pause.call_count, 1)
+
+    def test_Guard_ConsistencyAbsoluteAndCallerDeadline_RefuseWithinBudget(self):
+        for now, caller_end, expected_end in ((1, None, 1.5), (599.9, None, 600), (1, 1.075, 1.075)):
+            with self.subTest(now=now, caller_end=caller_end), tempfile.TemporaryDirectory() as temporary:
+                instance, writer, state, event = self.guard_fixture(Path(temporary))
+                publication = self.moving_guard_state(instance, writer, state, event)
+                clock = [now]
+                def advance(seconds):
+                    clock[0] += seconds
+                with patch.object(Path, 'read_bytes', publication), patch.object(recovery.time, 'monotonic', side_effect=lambda: clock[0]), patch.object(recovery.time, 'sleep', side_effect=advance):
+                    with self.assertRaises(ValueError):
+                        instance.guard_ok(deadline=caller_end)
+                self.assertLessEqual(clock[0], expected_end)
+                self.assertLessEqual(instance.log[0]['attempts'], 10)
+
+    def test_Ack_IntentVisibleBeforeAtomicOwnerPublication_RefusesThenAccepts(self):
+        for label in ('delete-debs', 'guard'):
+            with self.subTest(label=label), tempfile.TemporaryDirectory() as temporary:
+                instance = object.__new__(recovery.Recovery)
+                instance.live, instance.session = Path(temporary), 'ack-fixture'
+                instance.publish_intent(label, recovery.TARGET, ['offline'])
+                owner = instance.live / ('guard.owner.txt' if label == 'guard' else label + '.entry.txt')
+                with self.assertRaisesRegex(ValueError, 'lacks ownership acknowledgement'):
+                    instance.assert_ack(label)
+                pending = owner.with_suffix('.pending')
+                pending.write_text('pid=12\npgid=12\nsid=12\nnice=10\nCpus_allowed_list=0-1\n')
+                recovery.os.replace(pending, owner)
+                instance.assert_ack(label)
+                self.assertEqual((instance.live / ('owner-records/000-' + label + '.txt')).read_bytes(), owner.read_bytes())
+
+    def test_HostAck_NonnumericOrMissingPid_RefusesAndKeepsPendingIntent(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            instance = object.__new__(recovery.Recovery)
+            instance.live = Path(temporary)
+            instance.host_intent(['offline'], 'fixture', 1)
+            for pid in (None, '12', 0, True):
+                with self.subTest(pid=pid), self.assertRaisesRegex(ValueError, 'numeric ownership acknowledgement'):
+                    instance.host_ack(SimpleNamespace(pid=pid), 'fixture', 1)
+            intent = json.loads((instance.live / 'launch-records/001-fixture.intent.json').read_bytes())
+            self.assertEqual(intent['host_ack'], 'pending')
+            self.assertFalse((instance.live / 'launch-records/001-fixture.ack.json').exists())
+
+    def test_Guard_DeadlineExpiresDuringMatchingRead_Refuses(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            instance, writer, state, event = self.guard_fixture(Path(temporary))
+            read = Path.read_bytes
+            clock = [599.9]
+            def delayed_read(path):
+                data = read(path)
+                if path.name == 'completed-guard-events.jsonl':
+                    clock[0] = 600
+                return data
+            with patch.object(recovery.time, 'monotonic', side_effect=lambda: clock[0]), patch.object(Path, 'read_bytes', delayed_read):
+                with self.assertRaisesRegex(ValueError, '600-second recovery deadline exhausted'):
+                    instance.guard_ok()
+
+    def test_Guard_ExitBeforeMatchingReturn_Refuses(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            instance, writer, state, event = self.guard_fixture(Path(temporary))
+            instance.guard.poll.side_effect = [None, 0]
+            with patch.object(recovery.time, 'monotonic', return_value=1):
+                with self.assertRaisesRegex(ValueError, 'guard exited/missing'):
+                    instance.guard_ok()
+
+    def test_ProtectedInvariance_PropagatesLocalDeadlineToGuardRead(self):
+        instance = object.__new__(recovery.Recovery)
+        instance.start, instance.before = 0, 'hash'
+        instance.guard_ok = Mock(side_effect=[1, 2, 2])
+        instance.snapshot = Mock(return_value='hash')
+        with patch.object(recovery.time, 'monotonic', return_value=1):
+            instance.action('protected-invariance')
+        self.assertEqual(instance.guard_ok.call_args_list[1].kwargs, {'deadline': 13})
+
     def test_Command_ExpiredBudget_NeverLaunches(self):
         with tempfile.TemporaryDirectory() as temporary:
             instance = object.__new__(recovery.Recovery)
