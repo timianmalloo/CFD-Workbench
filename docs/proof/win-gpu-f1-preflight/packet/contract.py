@@ -45,8 +45,9 @@ def check_file_hash(expected: str, path: Path) -> None:
 def check_contract_fields(data: dict) -> None:
     if data.get("schema") != "cfdw-f1-r217-invocation/1":
         raise ValueError("invocation contract schema mismatch")
-    if data.get("leader") != "mac" or data.get("leader_epoch") != 4:
-        raise ValueError("leader/epoch mismatch; Mac must review a new contract")
+    epoch = data.get("leader_epoch")
+    if data.get("leader") != "mac" or type(epoch) is not int or epoch <= 0:
+        raise ValueError("reviewed Mac leader epoch must be a positive integer")
     if (data.get("target") != "cfdw-petsc-cuda132-f1" or
             data.get("protected") != "cfdw-openfoam2512" or
             data.get("target_path") != r"C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1"):
@@ -110,6 +111,12 @@ def verify_keyring(args: argparse.Namespace) -> None:
     print(f"KEYRING-PASS kind={args.kind} keys={len(found)}")
 
 
+def check_live_leader(observed: dict[str, str], reviewed_epoch: int) -> None:
+    if (observed.get("leader") != "mac" or observed.get("state") != "live" or
+            observed.get("epoch") != str(reviewed_epoch)):
+        raise ValueError("live Mac epoch differs from separately reviewed contract")
+
+
 def verify(args: argparse.Namespace) -> None:
     repo = args.repo.resolve(strict=True)
     path = args.contract.resolve(strict=True)
@@ -157,8 +164,7 @@ def verify(args: argparse.Namespace) -> None:
                              "leader", "who"], cwd=repo, check=True, capture_output=True,
                             text=True, encoding="utf-8", timeout=15).stdout
     observed = dict(line.split(None, 1) for line in leader.splitlines() if len(line.split(None, 1)) == 2)
-    if observed.get("leader") != "mac" or observed.get("epoch") != "4" or observed.get("state") != "live":
-        raise ValueError("Mac epoch 4 is not live")
+    check_live_leader(observed, document["leader_epoch"])
     print("INVOCATION-CONTRACT-PASS")
 
 

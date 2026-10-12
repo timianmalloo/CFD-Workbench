@@ -478,7 +478,7 @@ try {
         host_required_bytes=$HostStartFloor; rootfs_sha256=$RootfsSha256
         invocation_contract_sha256=$script:ContractSha
         accepted_packet_commit=$contractData.accepted_packet_commit
-        leader='mac'; leader_epoch=4; execution_branch=$executionBranch; execution_session=$AgentSession
+        leader='mac'; leader_epoch=$contractData.leader_epoch; execution_branch=$executionBranch; execution_session=$AgentSession
         b2_lock_sha256=$contractData.inputs.b2_lock.sha256
         b2_licenses_sha256=$contractData.inputs.b2_licenses.sha256
         openfoam_key_sha256=(Get-FileHash -Algorithm SHA256 -LiteralPath $OpenFoamKeyring).Hash.ToLowerInvariant()

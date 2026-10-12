@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T02:08:41Z",
+  "generated": "2026-10-12T02:11:02Z",
   "audit": [
     {
       "actor": null,
@@ -36104,6 +36104,44 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "a50d6244379852381b5109666861d38a31c985b2",
         "short": "a50d62443",
+        "branch": "win/gpu-f1-r217-packet-repair",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M4PY1C0NR32QGAANTC18HBYM",
+      "shortname": "r217-epoch-binding",
+      "datetime": "2026-10-12T02:11:02Z",
+      "session": "pc-f1-r217-packet-repair",
+      "prompt": "Correct R217 packet pre-review authority seam: remove executable epoch-4 hardcoding, require positive reviewed contract epoch and exact live Mac epoch match; remain offline.",
+      "summary": "Replaced fixed epoch-4 checks with a separately reviewed positive contract epoch and exact live comparison; evidence records the contract value; red-first epoch regressions and focused offline gates passed.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/packet/contract.py"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Keep the R217 packet valid across coordinator lease epochs while failing closed on an unreviewed or mismatched live epoch.",
+      "done_when": "Contract, wrapper evidence, README and planted tests agree, offline checks pass, and a follow-up commit is made.",
+      "tier": "T1",
+      "main_calls": 7,
+      "main_budget": 8,
+      "main_over_budget": false,
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T02:10:09Z",
+      "duration_seconds": 53.0,
+      "git": {
+        "sha": "244887c7cfbb21dd3410edf9e19c76edefdcd333",
+        "short": "244887c7c",
         "branch": "win/gpu-f1-r217-packet-repair",
         "pushed": null
       }

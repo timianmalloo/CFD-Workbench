@@ -23,8 +23,9 @@ It permits a disposable dependency simulation and resolved `.deb` acquisition fo
 `cfdw-openfoam2512` is read only for the completed-L3 guard and signed Ubuntu rootfs verification. The target is
 exactly `cfdw-petsc-cuda132-f1` at `C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1`.
 [Ruling 217](../../../notes/rulings.md) and the [execution plan](../../../plans/windows-gpu-f1-preflight-r217.md)
-govern. Mac is the decision owner at epoch **4**. Independent Astra acceptance of these exact packet bytes and a
-coordinator reconciliation of the older epoch-3 plan text precede any EXECUTE invocation.
+govern. Mac is the decision owner. The coordinator lease had reached epoch **5** when this repair was authored;
+the packet remains epoch-agnostic. Independent Astra acceptance of these exact packet bytes and coordinator
+reconciliation of the earlier plan text precede any EXECUTE invocation.
 
 ## Inputs and invocation
 
@@ -32,7 +33,8 @@ Run from PowerShell in the **EXECUTE** worktree after packet acceptance, using r
 without whitespace. Required inputs are the already existing B2 Ubuntu Noble WSL rootfs tarball, its matching Ubuntu
 `SHA256SUMS` and `.gpg`, reviewed binary OpenFOAM and NVIDIA keyrings, a unique run id, the executor's coordination
 session, and a **separately reviewed and committed** `run-1/invocation-contract.json`. No input is silently fetched.
-The wrapper verifies that contract, its Git blob, Mac's live epoch 4, exact execution branch/session, all packet
+The wrapper verifies that contract, its Git blob, Mac's live epoch against the separately reviewed contract value,
+the exact execution branch/session, all packet
 source blobs, and all local input hashes **before the first WSL effect**. The contract is created only after Astra
 accepts the packet, so its packet hash map has no circular dependency.
 
@@ -57,7 +59,8 @@ fixed at `DC93C096174122E256DA24063386DD74948D208F`, also captured in the
 must be in the reviewed contract's allowlists; all keyring fingerprints must also be allowlisted. Ubuntu cloud-image
 and archive signer sets remain **Flagged until independently reviewed** in the committed invocation contract.
 
-The contract has schema `cfdw-f1-r217-invocation/1`, `leader: "mac"`, `leader_epoch: 4`, exact `target`, `protected`,
+The contract has schema `cfdw-f1-r217-invocation/1`, `leader: "mac"`, a positive integer `leader_epoch` set to the
+current coordinator-reviewed value at invocation, exact `target`, `protected`,
 `target_path`, `session`, and `execution_branch`. It names `accepted_packet_commit` (the separately accepted source
 commit) and `packet_sha256` mapping **every** `packet/**` relative path to its SHA-256. Its `inputs` map has exact
 absolute `path` and SHA-256 for `rootfs`, `ubuntu_sums`, `ubuntu_signature`, `openfoam_keyring`, `nvidia_keyring`,

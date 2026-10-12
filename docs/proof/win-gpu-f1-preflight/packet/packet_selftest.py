@@ -114,7 +114,22 @@ def main():
                                       {"DC93C096174122E256DA24063386DD74948D208F"})
     expect_failure(lambda: contract.signer_is_allowed(["[GNUPG:] VALIDSIG FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF 2026"],
                                                      {"DC93C096174122E256DA24063386DD74948D208F"}), "signer mismatch")
-    expect_failure(lambda: contract.check_contract_fields({"leader_epoch": 3}), "epoch mismatch")
+    valid = {"schema": "cfdw-f1-r217-invocation/1", "leader": "mac", "leader_epoch": 5,
+             "target": "cfdw-petsc-cuda132-f1", "protected": "cfdw-openfoam2512",
+             "target_path": r"C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1",
+             "accepted_packet_commit": "a" * 40,
+             "inputs": {name: {"path": "C:\\reviewed", "sha256": "a" * 64} for name in contract.INPUT_KEYS},
+             "allowed_signers": {"ubuntu_rootfs": ["A" * 40], "ubuntu_archive": ["B" * 40],
+                                 "openfoam": [contract.OPENFOAM], "nvidia": [contract.NVIDIA]},
+             "session": "r217", "execution_branch": "win/gpu-f1-r217-execute"}
+    valid["inputs"]["rootfs"]["sha256"] = contract.ROOTFS
+    contract.check_contract_fields(valid)
+    for invalid in (None, 0, -1, "5", True):
+        expect_failure(lambda invalid=invalid: contract.check_contract_fields(
+            {**valid, "leader_epoch": invalid}), "invalid leader epoch")
+    contract.check_live_leader({"leader": "mac", "epoch": "5", "state": "live"}, 5)
+    expect_failure(lambda: contract.check_live_leader(
+        {"leader": "mac", "epoch": "4", "state": "live"}, 5), "live epoch mismatch")
     expect_failure(lambda: contract.check_hash("00" * 32, b"packet"), "contract byte mismatch")
     assert transaction.reconcile_installed_size(3, "3") == (3, "signed-index-and-control")
     assert transaction.reconcile_installed_size("Not recorded", "3") == (3, "control-only-index-absent")
