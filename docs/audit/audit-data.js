@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T16:13:28Z",
+  "generated": "2026-10-12T16:15:22Z",
   "audit": [
     {
       "actor": null,
@@ -35936,6 +35936,31 @@ window.AUDIT_DATA = {
       "done_when": "post wrapper and scan tool self-tests green, wired, class registered",
       "started_at": "2026-10-12T16:08:26Z",
       "duration_seconds": 302.0
+    },
+    {
+      "id": "al-01M4REBCPGYW783YH51DJKD5FF",
+      "shortname": "join-ghp",
+      "datetime": "2026-10-12T16:15:22Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/ghp-github-text into main",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T16:14:07Z",
+      "duration_seconds": 75.0
     }
   ],
   "changes": [
