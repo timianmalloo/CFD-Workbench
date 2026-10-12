@@ -83,6 +83,19 @@ class AttemptAdmissionTests(unittest.TestCase):
             with self.subTest(text=text[:40]), self.assertRaises(ValueError):
                 attempt.check_ruling(text, value, sha)
 
+    def test_ActualProjection_OnlyAuthorityFieldsDifferAndCannotUseLivePath(self):
+        root = ROOT / attempt.PREFIX / 'attempt-1'
+        data = json.loads((root / 'invocation-contract.json').read_bytes())
+        sha = hashlib.sha256((root / 'invocation-contract.json').read_bytes()).hexdigest()
+        proposed = json.loads((root / 'attempt-authorization.json').read_bytes())
+        projection_path = root / 'authorization.accepted-projection.json'
+        projection = json.loads(projection_path.read_bytes())
+        self.assertEqual({key for key in proposed if proposed[key] != projection[key]}, {'status', 'ruling'})
+        attempt.check_authorization(proposed, data, sha, proposed=True)
+        attempt.check_authorization(projection, data, sha)
+        with self.assertRaisesRegex(ValueError, 'outside exact live path'):
+            attempt.verify_authorization(ROOT, projection_path, data, sha, data['run_id'], data['run_id'])
+
     def test_HistoricalRun1_RecursiveBytesEqualBase(self):
         import subprocess
         prefix = attempt.PREFIX + '/run-1'

@@ -1,0 +1,146 @@
+{
+  "schema": "cfdw-f1-preflight-authorization/1",
+  "status": "accepted",
+  "requested_ruling": 227,
+  "ruling": 227,
+  "attempt": 1,
+  "leader": "mac",
+  "leader_epoch": 7,
+  "source_commit": "50a059886163a53aebb882be3474da1a079f8dd9",
+  "run_id": "r225-attempt1-epoch7-20261012",
+  "session": "pc-f1-r225-attempt1",
+  "execution_branch": "win/gpu-f1-r225-attempt1",
+  "run_root": "docs/proof/win-gpu-f1-preflight/attempt-1",
+  "contract_path": "docs/proof/win-gpu-f1-preflight/attempt-1/invocation-contract.json",
+  "contract_sha256": "0c2ce75b72f725141a4b89828c7fb5a1ffdc092e9213c69631219b358d521da4",
+  "target": "cfdw-petsc-cuda132-f1",
+  "target_path": "C:\\Projects\\CFD-Workbench-wsl\\cfdw-petsc-cuda132-f1",
+  "target_previous_key": "{e958c4d5-ae78-4b50-a634-7102f334d3aa}",
+  "target_key": "observed-after-fresh-creation",
+  "protected": "cfdw-openfoam2512",
+  "protected_key": "{b7566a82-9cee-47ce-a246-f83632353cea}",
+  "protected_path": "%USERPROFILE%\\AppData\\Local\\CFDWorkbench\\qualification\\wsl\\cfdw-openfoam2512",
+  "packet_sha256": {
+    "docs/proof/win-gpu-f1-preflight/packet/Control.ps1": "480fab01dfd4c8f01a9df89d2bb2629254fa1bf400552a13853bb9655371d774",
+    "docs/proof/win-gpu-f1-preflight/packet/Invoke-Preflight.ps1": "9ab00d347ddb1b09a4f00c961b08005a35415febebcf3f2e29f86fce06fd05a9",
+    "docs/proof/win-gpu-f1-preflight/packet/README.md": "40b8547429b0a6921da44d7d8453db02ac89fb917c22d0150bf2555609ed44ad",
+    "docs/proof/win-gpu-f1-preflight/packet/SelfTest.ps1": "a38c2e17c2ee58243fa77eb19986822bb299a343dab6dd2ca0e5e3cfb36f21a4",
+    "docs/proof/win-gpu-f1-preflight/packet/attempt.py": "3c1777e98bc059202655a1173ddc67645d44ee384af47a549afd8656278591dd",
+    "docs/proof/win-gpu-f1-preflight/packet/authority_scan.py": "d21f97d90022bc36e3234bf3915c4b0616dfed439fa3cb2fac5977ae57ae206b",
+    "docs/proof/win-gpu-f1-preflight/packet/completed_guard.py": "94008d3028591bbca2b7573967023732bd94de074d9b9076d0125ae7506b863a",
+    "docs/proof/win-gpu-f1-preflight/packet/contract.py": "f68ebd5b8687e353669ea33de43a37d2e1353a58d40e5626fe355dfa08580d7f",
+    "docs/proof/win-gpu-f1-preflight/packet/identity.sh": "ce1a08a5483e321cf6f34ad32e4db0bf7e37bc28dbddee152234cac033e824a2",
+    "docs/proof/win-gpu-f1-preflight/packet/manifest.py": "1c6e8a3f0adb60d28e8767bef8b027bb63bfeb30014834b5dda75adfd9ff094c",
+    "docs/proof/win-gpu-f1-preflight/packet/owned-control.sh": "1ac0e7a603dc6ac185ad1c4238c2fa7fa5ade0e45455432d680b328b87246fc3",
+    "docs/proof/win-gpu-f1-preflight/packet/owned_control.py": "e5b22233173f1af89f32c775077e3a565120fcb889ccfb87e7c4eec4e3e0c770",
+    "docs/proof/win-gpu-f1-preflight/packet/packet_selftest.py": "bfc033790943108867ab295142c4aec7d463ebcfd6c48a13387609ed5d0465b8",
+    "docs/proof/win-gpu-f1-preflight/packet/preflight.sh": "fdd53835dd8f4b7eb1d721214c8ccad90b53f481d2d4eb731208a33c903f078c",
+    "docs/proof/win-gpu-f1-preflight/packet/transaction.py": "9ba22a65b3f5896331b8e59711ae024738a39fc65ac2d0972deebe097c594ea3",
+    "docs/proof/win-gpu-f1-preflight/packet/verify-rootfs.sh": "6dfcc17a6388aefee5938473579541cbe36b2a03169afa9264f8c14bdbd467cd"
+  },
+  "external_sha256": {
+    "docs/proof/win-gpu-f1-preflight/recovery/check_cache.py": "067e693b24bca63c06f975c05a5a054526cd228b4e03cb2e0fbf7db9f6d5c8fb"
+  },
+  "inputs": {
+    "rootfs": {
+      "path": "C:\\Projects\\CFD-Workbench-wsl\\f1-r217-inputs-r220-epoch6\\ubuntu-noble-wsl-amd64-wsl.rootfs.tar.gz",
+      "sha256": "8251e27ffff381a4af5f41dcb94d867de3e0d9774a9241908ab34555d99315ea"
+    },
+    "ubuntu_sums": {
+      "path": "C:\\Projects\\CFD-Workbench-wsl\\f1-r217-inputs-r220-epoch6\\ubuntu-noble-SHA256SUMS",
+      "sha256": "337176fdeda3dbbf7bd36146894c03670d5ed8cffc2bd804f39d4c4ace0d424f"
+    },
+    "ubuntu_signature": {
+      "path": "C:\\Projects\\CFD-Workbench-wsl\\f1-r217-inputs-r220-epoch6\\ubuntu-noble-SHA256SUMS.gpg",
+      "sha256": "c0deb277ccda24b8fcc2d36bf9d9530c0aed7138f30375dc45b6539a6aa6799b"
+    },
+    "openfoam_keyring": {
+      "path": "C:\\Projects\\CFD-Workbench-wsl\\f1-r217-inputs-r220-epoch6\\openfoam-archive-keyring.gpg",
+      "sha256": "6d17d37b82fc840b8a5c767545703df7264cfa3e30f9cf74556ebb124bda1a93"
+    },
+    "nvidia_keyring": {
+      "path": "C:\\Projects\\CFD-Workbench-wsl\\f1-r217-inputs-r220-epoch6\\nvidia-cuda-archive-keyring.gpg",
+      "sha256": "25100d6f2eccaee7d6719a70e3c0c6145064aa9edc2c32148f693ac4c524a376"
+    },
+    "b2_lock": {
+      "path": "C:\\Projects\\CFD-Workbench-win-gpu-f1-r225-attempt1\\docs\\proof\\win-gpu-b2\\package-lock.json",
+      "sha256": "2306d58e2fb0d728195ee2691cb7faab7c651e04bb70746f242310834d61e76c"
+    },
+    "b2_licenses": {
+      "path": "C:\\Projects\\CFD-Workbench-win-gpu-f1-r225-attempt1\\docs\\proof\\win-gpu-b2\\license-map.json",
+      "sha256": "470de11258ff4e78a05a38cb3d1c75090387c79b2cc3b06fc3534e9eee5da4d6"
+    }
+  },
+  "allowed_signers": {
+    "ubuntu_rootfs": [
+      "D2EB44626FDDC30B513D5BB71A5D6C4C7DB87C81",
+      "4A3CE3CD565D7EB5C810E2B97FF3F408476CF100"
+    ],
+    "ubuntu_archive": [
+      "790BC7277767219C42C86F933B4FE6ACC0B21F32",
+      "843938DF228D22F7B3742BC0D94AA3F0EFE21092",
+      "F6ECB3762474EDA9D21B7022871920D1991BC93C"
+    ],
+    "openfoam": [
+      "DC93C096174122E256DA24063386DD74948D208F"
+    ],
+    "nvidia": [
+      "EB693B3035CD5710E231E123A4B469963BF863CC"
+    ]
+  },
+  "limits": {
+    "deadline_seconds": 3600,
+    "work_ceiling_seconds": 2700,
+    "checkpoint_ceiling_seconds": 3000,
+    "vhd_max_bytes": 8589934592,
+    "host_initial_free_bytes": 19684091961,
+    "host_reserve_bytes": 10737418240,
+    "target_cpus": [
+      0,
+      1
+    ],
+    "protected_cpus": [
+      0
+    ],
+    "nice": 10
+  },
+  "allowed_stages": [
+    "probe",
+    "repositories",
+    "simulate",
+    "download",
+    "inspect",
+    "delete-debs"
+  ],
+  "allowed_actions": [
+    "fresh-target-create",
+    "rootfs-signature",
+    "completed-l3-before-watch-after",
+    "owned-stop-check",
+    "terminate-target",
+    "unregister-target",
+    "absence-proof",
+    "manifest-freeze-verify",
+    "evidence-commit"
+  ],
+  "forbidden_actions": [
+    "dpkg-install",
+    "apt-install",
+    "petsc-source-fetch",
+    "petsc4foam-source-fetch",
+    "build",
+    "case-run",
+    "benchmark",
+    "protected-lifecycle",
+    "protected-file-change"
+  ],
+  "attempt_count": 1,
+  "failure_policy": "stop; immutable failure receipt; no next attempt without its own ruling",
+  "prerequisites": [
+    "live-mac-epoch7",
+    "exclusive-PC",
+    "continuous-PC-side-leader-renewal",
+    "target-name-registration-path-absent-before-creation",
+    "bind-new-GUID-for-rollback"
+  ]
+}
