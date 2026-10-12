@@ -22,8 +22,8 @@ keyword, and `Path.write_text(...)` with no `newline` keyword, in TEXT mode (a `
 exempts the call); (2) a module containing `if __name__ == "__main__"` and a `print(` must
 contain `.reconfigure(` on a stream (the guard) - modules that never print are exempt;
 (3) `mkstemp(... text=True)`; (4) a POSIX-only `os` attribute (POSIX_ONLY_OS below: O_NOFOLLOW, O_NONBLOCK,
-killpg, getuid ...) used outside a function that tests `os.name`, `sys.platform`, `platform.system()` or
-`hasattr/getattr(os, ...)`. `getattr(os, "O_NOFOLLOW", 0)` names the attribute as a string and is never a
+killpg, getuid ...) or `signal` name (POSIX_ONLY_SIGNAL: SIGKILL, SIGHUP, SIGALRM, alarm ...) used outside a function that tests `os.name`, `sys.platform`, `platform.system()` or
+`hasattr/getattr(os, ...)` or `hasattr/getattr(signal, ...)`. `getattr(os, "O_NOFOLLOW", 0)` names the attribute as a string and is never a
 finding. Those attributes do not exist in Python on Windows, so the bare use raises AttributeError there
 (class PLAT-A, the POSIX-flag half; PC readiness, PR #33, 2026-10-12). Where the flag was a symlink guard,
 keep an explicit `lstat`/`islink` check on Windows (coord-core.py:547-552 is the example).
@@ -56,10 +56,15 @@ for _stream in (sys.stdout, sys.stderr):
 
 ROOTS = ("pack/scripts", "pack/adapters/hooks", "tools", "docs/ai-forward-pack/scripts", "docs/ai-forward-pack/hooks")
 
-# Absent from the `os` module on Windows. `signal.SIGKILL` is the same class; left for a follow-up sweep.
+# Absent from the `os` module on Windows.
 POSIX_ONLY_OS = frozenset((
     "O_NOFOLLOW", "O_NONBLOCK", "O_CLOEXEC", "O_DIRECTORY", "fchmod", "fchown", "lchown", "getuid", "geteuid",
     "getgid", "getegid", "killpg", "getpgid", "getpgrp", "setsid", "setpgid", "fork", "forkpty", "mkfifo"))
+# Absent from the `signal` module on Windows (only SIGABRT, SIGFPE, SIGILL, SIGINT, SIGSEGV, SIGTERM, SIGBREAK,
+# CTRL_C_EVENT and CTRL_BREAK_EVENT exist there).
+POSIX_ONLY_SIGNAL = frozenset((
+    "SIGKILL", "SIGHUP", "SIGQUIT", "SIGUSR1", "SIGUSR2", "SIGALRM", "SIGCHLD", "SIGPIPE", "SIGSTOP", "SIGCONT",
+    "alarm", "pause", "setitimer"))
 _FUNCTIONS = (ast.FunctionDef, ast.AsyncFunctionDef)
 
 
@@ -72,7 +77,7 @@ def _is_platform_test(node):
         if isinstance(func, ast.Attribute) and isinstance(func.value, ast.Name):
             return (func.value.id, func.attr) == ("platform", "system")
         if isinstance(func, ast.Name) and func.id in ("hasattr", "getattr") and node.args:
-            return isinstance(node.args[0], ast.Name) and node.args[0].id == "os"
+            return isinstance(node.args[0], ast.Name) and node.args[0].id in ("os", "signal")
     return False
 
 
@@ -88,9 +93,11 @@ def _posix_only_findings(tree):
 
     found = []
     for node in ast.walk(tree):
-        if not (isinstance(node, ast.Attribute) and node.attr in POSIX_ONLY_OS
-                and isinstance(node.value, ast.Name) and node.value.id == "os"):
+        if not (isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name)
+                and ((node.value.id == "os" and node.attr in POSIX_ONLY_OS)
+                     or (node.value.id == "signal" and node.attr in POSIX_ONLY_SIGNAL))):
             continue
+        module = node.value.id
         scopes, scope = [], parents.get(node)
         while scope is not None:
             if isinstance(scope, _FUNCTIONS):
@@ -98,9 +105,9 @@ def _posix_only_findings(tree):
             scope = parents.get(scope)
         covered = any(has_test(s) for s in scopes) if scopes else has_test(tree)
         if not covered:
-            found.append((node.lineno, 'os.{0} is POSIX-only (AttributeError on Windows): use getattr(os, "{0}", 0) '
-                          "or branch on os.name; keep an explicit lstat/islink check where it was a symlink guard"
-                          .format(node.attr)))
+            found.append((node.lineno, '{1}.{0} is POSIX-only (AttributeError on Windows): use getattr({1}, "{0}", ...) '
+                          "or branch on os.name; keep an explicit lstat/islink check where it was a symlink guard; "
+                          "never weaken a kill (use Popen.kill() on Windows)".format(node.attr, module)))
     return found
 
 
@@ -232,13 +239,18 @@ def self_test():
         "def branch_ok(child):\n"
         "    if os.name == 'nt':\n"
         "        return child.kill()\n"
-        "    os.killpg(child.pid, 9)\n")                                               # 9 ok (os.name guard)
-    got = [line for line, _ in scan_source(posix)]
-    if got != [3]:
-        print("self-test FAILED: expected one POSIX-only finding at line 3, got {0}".format(scan_source(posix)))
+        "    os.killpg(child.pid, 9)\n"                                              # 9 ok (os.name guard)
+        "import signal\n"
+        "def sig_bad(child):\n"
+        "    os.kill(child.pid, signal.SIGKILL)\n"                                     # 12 finding
+        "def sig_ok(child):\n"
+        "    os.kill(child.pid, getattr(signal, 'SIGKILL', signal.SIGTERM))\n")        # 14 ok (getattr form)
+    got = sorted(line for line, _ in scan_source(posix))
+    if got != [3, 12]:
+        print("self-test FAILED: expected POSIX-only findings at lines [3, 12], got {0}".format(scan_source(posix)))
         return 1
     print("self-test OK: an LF-less text write, a write_text without newline, mkstemp(text=True), an "
-          "unguarded __main__ and a bare os.O_NOFOLLOW are findings; binary, read-only, guarded, getattr "
+          "unguarded __main__, a bare os.O_NOFOLLOW and a bare signal.SIGKILL are findings; binary, read-only, guarded, getattr "
           "and os.name-branch shapes are not")
     return 0
 

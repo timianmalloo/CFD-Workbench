@@ -5466,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "310719456a37421d01133299a3c3356256f99dc6aad164df864944c75cadbdac"
+      "sourceSha256": "bb51d8e99d4fd1998d7e2f08981ab5f3293e1fc55487fd9c4ad88531564d8aa7"
     },
     {
       "id": "domain-experts",
@@ -8830,7 +8830,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "caee19d5a174762e2709db9fc66e07b1581394baff493cf2f7a278681fd6ccfa"
+      "sourceSha256": "6863a8a8be8f954a470b4d2d80fd3883ad239e375fcbdadfbe1f09c6f7d5c10f"
     },
     {
       "id": "kb-hw-glossary",
@@ -16623,6 +16623,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "9aa45a48582cab305792006314cb6fc768f3aa5105b7fc8af1ededf55a1a2536"
     },
     {
+      "id": "proof-sgk-red-first",
+      "path": "docs/proof/sgk/red-first.md",
+      "title": "SGK red-first - POSIX-only signal names on Windows",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-sgk",
+      "phase": "",
+      "reviewBy": "2026-11-12",
+      "reviewSuggested": [],
+      "summary": "A bare POSIX-only signal name fails the portable-text-io gate on the unfixed tree; it passes after the two fixes.",
+      "tags": [
+        "sgk",
+        "windows",
+        "portability",
+        "plat-a"
+      ],
+      "links": [
+        {
+          "to": "proof-ofn-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "14683bdb2af051e80cc130e7eb7b73d7249df14ce2c0479d1dc795a1521c197e"
+    },
+    {
       "id": "proof-shellfix-red-runs",
       "path": "docs/proof/shellfix-red-runs.md",
       "title": "Shell visual defect red runs",
@@ -21199,5 +21225,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "15bf72461f0d14f383bb3c060cc54a9bc2707e4fbb3736db27f209eb6729a17b"
+  "graphSha256": "f23a03e067d4b5cded898b77060b68a32b74fd9ca6298779fa724768063625b1"
 };

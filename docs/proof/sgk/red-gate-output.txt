@@ -1,0 +1,5 @@
+text I/O that is not portable across Windows and macOS (2):
+  tools/verify-application-adapters.py:334: signal.SIGKILL is POSIX-only (AttributeError on Windows): use getattr(signal, "SIGKILL", ...) or branch on os.name; keep an explicit lstat/islink check where it was a symlink guard; never weaken a kill (use Popen.kill() on Windows)
+  docs/ai-forward-pack/scripts/coord_transport.py:213: signal.SIGKILL is POSIX-only (AttributeError on Windows): use getattr(signal, "SIGKILL", ...) or branch on os.name; keep an explicit lstat/islink check where it was a symlink guard; never weaken a kill (use Popen.kill() on Windows)
+fix: newline="\n" on every text write (audit-log.py:465 is the example); the stdio guard from
+     pack-doctor.py at the top of every printing script; drop text=True from mkstemp

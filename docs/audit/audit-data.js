@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T16:23:11Z",
+  "generated": "2026-10-12T16:38:01Z",
   "audit": [
     {
       "actor": null,
@@ -36006,6 +36006,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-12T16:22:51Z",
       "duration_seconds": 20.0
+    },
+    {
+      "id": "al-01M4RFMTR0PGGTCV8RZ97B18K1",
+      "shortname": "sgk-signals",
+      "datetime": "2026-10-12T16:38:00Z",
+      "session": "trk-sgk",
+      "prompt": "SGK POSIX-only signal names",
+      "summary": "Rule (4) covers signal names; coord_transport getattr fallback; adapters nt guard; PLAT-A register line; proof pack",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Extend OFN rule (4) to POSIX-only signal names and fix unguarded uses",
+      "done_when": "Gate red on unfixed tree, green after; run-tests, check-docs green",
+      "started_at": "2026-10-12T16:34:04Z",
+      "duration_seconds": 236.0
     }
   ],
   "changes": [
