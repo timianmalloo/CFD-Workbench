@@ -5554,7 +5554,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "dbee598c2d6c27a026f4edccf923881d8d15d2a0474447f335d24e27dc299f64"
+      "sourceSha256": "e577816b04a802f35f3767efeef6b7809f5da55bb7e7481be45c4528b87887da"
     },
     {
       "id": "domain-experts",
@@ -6264,7 +6264,7 @@ window.DOCS_INDEX = {
       "phase": "preflight",
       "reviewBy": "2026-10-19",
       "reviewSuggested": [],
-      "summary": "The production recovery reader reproduces event-before-state publication. Bounded rereads repair only an adjacent publication gap; offline negative controls preserve invalid-guard and deadline refusal.",
+      "summary": "R224's production regression returns stable state N when continuing event N+1 has later UTC. Invalid gaps refuse; moving-state rereads retain bounded and inherited deadlines. Every recovery ack/intent reader is swept.",
       "tags": [
         "windows",
         "recovery",
@@ -6296,7 +6296,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  G --> R --> F\n  F --> V\n  V --> C\n  C --> A"
         }
       ],
-      "sourceSha256": "a15806b41c516844516c31c7db1361f57cbeee5dc9120397b457c3155b1019d0"
+      "sourceSha256": "d8bcd591871aa3f7100a48ae3c83dbb7200984228d9adf8b2e290ef1c2996cd9"
     },
     {
       "id": "plan-windows-gpu-f1-preflight-r217",
@@ -9045,7 +9045,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7d2e3b8f136f3a3abe7e9dbc32512dc4b6c42063aa991db2aa7cc5f89904db61"
+      "sourceSha256": "5f642a471b9b20c196da0dde8df1f8768fcdc515ba8703fcf8761882175e9ad5"
     },
     {
       "id": "kb-hw-glossary",
@@ -21925,5 +21925,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "7c8d8d650d0ef81c278cc12eebc05dcab1ed6d462531a1998bfd79af1000939c"
+  "graphSha256": "1a64c4cd668938640f78de0837f4b301809f7d3bad45487323a427de32362ce5"
 };

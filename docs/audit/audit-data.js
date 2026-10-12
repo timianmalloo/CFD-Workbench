@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T17:12:55Z",
+  "generated": "2026-10-12T17:30:13Z",
   "audit": [
     {
       "actor": null,
@@ -37354,6 +37354,46 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-10-12T17:03:25Z",
       "duration_seconds": 570.0
+    },
+    {
+      "id": "al-01M4RJMCAZXG2JVCJ4665JJJS3",
+      "shortname": "Repair cycle 1 of max 2. Amend b63c1f04249c2258433e0210b7405ba033a3058d …",
+      "datetime": "2026-10-12T17:30:11Z",
+      "session": "prompt-log",
+      "prompt": "Repair cycle 1 of max 2. Amend b63c1f04249c2258433e0210b7405ba033a3058d to conform exactly to Ruling 224. For observed adjacent publication skew event N+1/state N, accept only when the event UTC is strictly later and return the stable N observation rather than waiting for and returning N+1. Add red/green tests that reject same or earlier UTC, preserve inherited deadlines and all other fail-closed rules, and document a complete sweep of every ack/intent pair reader in recover.py. Run the full relevant suite and gates, commit and push a new exact SHA, then report it. No live WSL action.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4RJMEW7K7PJ47NT64EVPT1K",
+      "shortname": "f1-guard-consistency-cycle1",
+      "datetime": "2026-10-12T17:30:13Z",
+      "session": "pc-f1-r217-guard-consistency-author",
+      "prompt": "Repair cycle 1 of max 2. Amend b63c1f04249c2258433e0210b7405ba033a3058d to conform exactly to Ruling 224. For observed adjacent publication skew event N+1/state N, accept only when the event UTC is strictly later and return the stable N observation rather than waiting for and returning N+1. Add red/green tests that reject same or earlier UTC, preserve inherited deadlines and all other fail-closed rules, and document a complete sweep of every ack/intent pair reader in recover.py. Run the full relevant suite and gates, commit and push a new exact SHA, then report it. No live WSL action.",
+      "summary": "Repair cycle1 of max2: production return-N red at exact5b1a9bb4 (guard event/state disagree, exit1/0.040s) and b63c1f04 (2!=1/0.055s); same/earlierUTC controls red on b63, green after repair. Stable stateN plus later continuing eventN+1 returnsN with no wait; healthy state motion alone retries <=10/0.5s; inherited and absolute deadlines retained. Complete ack-intent readers and callers inspected; actual missing-owner atomic-publication and invalid-hostPID controls added. Final recovery50/50 2.020s; packet0.469s; PS5.1 0.317s/PS7 0.252s; helper controls PASS; safe bundle10/10 PASS; check-docs/graph/privacy PASS, graph0 defects/134 retained suggestions. Citation gate first refused missing localR224; coordinator authorized exact accepted ruling import from ed40faefef2771cfd33a723100f15b6b3f0047ea (blob f5d4d2c61818a5dae3d179b18d1bc6a5a8b4ba49, six lines). Authority terms and historical evidence unchanged; no live permission exercised. No WSL, recovery, lifecycle, cleanup, retry, install, build or CFD action ran. Independent commit-bound review remains separate.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/plans/windows-gpu-f1-guard-consistency-repair.md",
+        "tests/test_f1_cleanup_recovery.py"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Conform offline guard admission and ack-intent sweep to accepted R224",
+      "done_when": "Exact return-N and strict-UTC controls red before repair, full offline gates green, new author commit pushed for independent review",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-10-12T17:21:33Z",
+      "duration_seconds": 520.0
     }
   ],
   "changes": [
