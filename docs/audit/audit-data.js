@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T14:14:46Z",
+  "generated": "2026-10-12T14:25:30Z",
   "audit": [
     {
       "actor": null,
@@ -36252,6 +36252,21 @@ window.AUDIT_DATA = {
       "datetime": "2026-10-12T14:14:46Z",
       "session": "prompt-log",
       "prompt": "the mac led track should be underway; keep going on what you can; also give me an html update on where we are with the openfoam gpu work and open in chrome for me",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4R826YXAHNAT7FR26QYTZ5G",
+      "shortname": "accept - address all blockers and next steps to get the GPU work done",
+      "datetime": "2026-10-12T14:25:30Z",
+      "session": "prompt-log",
+      "prompt": "accept - address all blockers and next steps to get the GPU work done",
       "summary": "prompt logged for reuse",
       "kind": "prompt",
       "skill": null,
