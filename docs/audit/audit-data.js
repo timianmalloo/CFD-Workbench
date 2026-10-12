@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T14:47:21Z",
+  "generated": "2026-10-12T14:49:47Z",
   "audit": [
     {
       "actor": null,
@@ -36408,6 +36408,35 @@ window.AUDIT_DATA = {
         "branch": "win/gpu-f1-r220-astra-review",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M4R9EPBKQXTDBQ1Y2DC6QR5Q",
+      "shortname": "f1-r220-astra-accept-join",
+      "datetime": "2026-10-12T14:49:47Z",
+      "session": "pc-gpu-status-r217-cont",
+      "prompt": "the join of win/gpu-f1-r220-astra-review into win/gpu-f1-preflight-r217",
+      "summary": "Join Astra packet ACCEPT; environment contract and fresh live Mac epoch remain before R217 execution. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-preflight-packet.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Publish the independent R220 packet verdict without executing the packet.",
+      "done_when": "ACCEPT review is joined, gates pass, and live execution remains fenced.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T14:48:08Z",
+      "duration_seconds": 99.0
     }
   ],
   "changes": [
