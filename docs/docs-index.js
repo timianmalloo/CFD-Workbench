@@ -20136,6 +20136,50 @@ window.DOCS_INDEX = {
       "sourceSha256": "b9ef786a9f9c5db11c5ccae372070ca49ffe084c5130c4b60f65067a1c14ce14"
     },
     {
+      "id": "review-windows-gpu-f1-live-defect-repair",
+      "path": "docs/reviews/windows-gpu-f1-live-defect-repair.md",
+      "title": "Astra review of F1 live-defect packet repair",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@pc-f1-r217-live-defect-astra",
+      "phase": "preflight",
+      "reviewBy": "2026-11-12",
+      "reviewSuggested": [],
+      "summary": "ACCEPT immutable repair 20e77e34 for the two reproduced URI/scoping failures. Independent offline checks prove the repaired matching and checkpoint integration. Recovery and a future retry remain separate decisions; the old contract cannot bind these bytes.",
+      "tags": [
+        "windows",
+        "wsl",
+        "gpu",
+        "ruling-217",
+        "ruling-220",
+        "owner-review"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-windows-gpu-f1-preflight-packet",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-windows-gpu-f1-environment-contract-r220",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-windows-gpu-f1-preflight-r217",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "82245efc6c18677070ebd4a3be26539613074adc0339a7428dda61086b8f43c7"
+    },
+    {
       "id": "review-windows-gpu-f1-preflight-packet",
       "path": "docs/reviews/windows-gpu-f1-preflight-packet.md",
       "title": "Astra Ruling 220 packet review - dependency preflight",
@@ -21423,5 +21467,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "e82eea6d4da8c49f0a5e47dde86cae8ae2baadb185e0396753f96a82984bf5e8"
+  "graphSha256": "8cc4c845cf975bd3e45fb30608c8db07b5bc3b587f20e53246a5a27590a8036a"
 };

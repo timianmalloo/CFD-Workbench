@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T15:22:24Z",
+  "generated": "2026-10-12T15:35:02Z",
   "audit": [
     {
       "actor": null,
@@ -36574,6 +36574,42 @@ window.AUDIT_DATA = {
         "sha": "6445bb6e1c6b9f27969724c711cc2ff322f01867",
         "short": "6445bb6e1",
         "branch": "win/gpu-f1-r217-live-defect-repair",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M4RC1HR94DWP16KAVP94P8PD",
+      "shortname": "f1-live-defect-astra-accept",
+      "datetime": "2026-10-12T15:35:02Z",
+      "session": "pc-f1-r217-live-defect-astra",
+      "prompt": "Independently review immutable packet repair commit 20e77e34259ce68637f5374f3a08acd948fab3af. Review worktree: C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-live-defect-review, branch win/gpu-f1-r217-live-defect-review, session pc-f1-r217-live-defect-astra. No WSL/live/evidence mutation. Reproduce the two old failures against pre-repair source or equivalent extracted fixtures; verify the repaired bytes fix exactly: (A) single-pass URL-basename percent decoding, literal plus preservation, %7e/%2b/%3a/uppercase/malformed/ambiguity/size boundaries, raw URL and cache identity unchanged; (B) no PowerShell dynamic-scope collision, explicit canonical checkpoint path, actual Invoke-Finalization to Save-Checkpoint to Invoke-GitCommit Substring/path integration, failure behavior and compatibility. Review class sweep/controls, README claims, contract/review metadata flags, and full offline tests/gates. Write docs/reviews/windows-gpu-f1-live-defect-repair.md with ACCEPT/VETO, derive/check docs, audit, commit/push, report SHA. Also state whether repairs are sufficient for a future retry; do not authorize or perform recovery/retry.",
+      "summary": "ACCEPT source repair 20e77e34. Old URI found-0 and actual PowerShell Substring failures independently reproduced. Complete Python/PS5.1/PS7 suites, independent URI boundaries and ten actual checkpoint child-failure cases passed. Ten offline-safe verification gates and check-docs passed; graph zero defects with 134 advisory flags. All 15 packet files and prior contract unchanged. Recovery/retry remain separate decisions requiring authority and a new reviewed binding; no WSL/live/build/case action. Temporary fixture root corrected to reproduce exact downstream failure; rejected audit-help subcommand caused no content write.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "codex",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-live-defect-repair.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Independently adjudicate the immutable two-defect repair without live effects.",
+      "done_when": "Both old failures reproduced, repaired integration and safe gates checked, ACCEPT or VETO review committed and pushed, claim released.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-10-12T15:25:06Z",
+      "duration_seconds": 596.0,
+      "git": {
+        "sha": "20e77e34259ce68637f5374f3a08acd948fab3af",
+        "short": "20e77e342",
+        "branch": "win/gpu-f1-r217-live-defect-review",
         "pushed": null
       }
     }
