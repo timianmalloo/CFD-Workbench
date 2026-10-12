@@ -5554,7 +5554,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "03634c38fd71fc35b245ca2958177917e65b19b4e5a9509dfd8cdca934f25d63"
+      "sourceSha256": "6851ccdd184d403aca1cec2d01bbe27827192ea67b0d1201b5502dc2c89f93c2"
     },
     {
       "id": "domain-experts",
@@ -18250,6 +18250,44 @@ window.DOCS_INDEX = {
       "sourceSha256": "fdcaa145f308468efbe68a13db50e82d6639f16cbcfc30c9988ff0ccc82bdb56"
     },
     {
+      "id": "proof-win-gpu-f1-cleanup-recovery-cycle1-author",
+      "path": "docs/reviews/windows-gpu-f1-cleanup-recovery-cycle1-author.md",
+      "title": "F1 cleanup recovery cycle 1: author repair evidence",
+      "type": "proof-pack",
+      "status": "proposed",
+      "owner": "@pc-f1-r217-cleanup-recovery-author",
+      "phase": "preflight",
+      "reviewBy": "2026-10-19",
+      "reviewSuggested": [],
+      "summary": "One authorized offline repair of CR-1/2/3 and the named ownership, TOCTOU, privacy and incomplete-binding gaps. Historical VETO stays intact; independent candidate review and a new Mac cleanup ruling remain required.",
+      "tags": [
+        "windows",
+        "recovery",
+        "offline",
+        "repair-cycle-1"
+      ],
+      "links": [
+        {
+          "to": "review-windows-gpu-f1-cleanup-recovery",
+          "rel": "relates-to"
+        },
+        {
+          "to": "note-windows-gpu-f1-cleanup-recovery",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "435cb824a0c8a747211580c02fa5414f63f1a424116255028ede141aec1e2696"
+    },
+    {
       "id": "proof-win-gpu-f1-dependency-worksheet",
       "path": "docs/proof/win-gpu-f1-design/dependency-worksheet.md",
       "title": "F1 combined dependency and capacity closure worksheet",
@@ -21476,5 +21514,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "6b1fc5227778dd8733de567569af32b0b8acdc1233f6ce83df46e9815b89e349"
+  "graphSha256": "3a885023c2c8bacb14fad8bc77f1b1cf0f1960cca0a365fb6ef10e6092e431b4"
 };

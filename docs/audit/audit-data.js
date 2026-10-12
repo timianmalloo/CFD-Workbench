@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T15:41:02Z",
+  "generated": "2026-10-12T15:58:33Z",
   "audit": [
     {
       "actor": null,
@@ -36605,6 +36605,41 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-12T15:39:20Z",
       "duration_seconds": 102.0
+    },
+    {
+      "id": "al-01M4RDCKFGYQRV30FVTG2TPT1D",
+      "shortname": "f1-cleanup-recovery-cycle1",
+      "datetime": "2026-10-12T15:58:33Z",
+      "session": "pc-f1-r217-cleanup-recovery-author",
+      "prompt": "Bounded cleanup recovery repair cycle 1 on joined f5fa973a, offline/mock only. Reproduce and repair expired-budget child launch, surviving exact target GUID and overwritten initiating error; close prelaunch intent/ack, stable cache/registration admission, raw runtime error privacy and incomplete-binding gaps. Change only delete-debs packet branch through a pinned cache helper; preserve historical VETO and all original captures; flag accepted 65456e1c integration seam. Run regression/packet/docs/graph/privacy/safe gates; commit and push exact candidate for fresh independent review. No WSL or recovery execution.",
+      "summary": "Observed exact CR-1/2/3 reds: launch_count1 after expiry, renamed GUID accepted, deletion error omitted. Additional red hardening fixtures and publication-overwrite counterexample added. Final 35 tests green at 0.291s; packet suite 0.475s; both PowerShell suites, authority, transaction, manifest, completed guard and Bash syntax passed. Docs passed; graph zero defects with 131 existing suggestions; hostname-aware privacy passed; all ten offline-safe gates passed. Source adds pre-Popen deadline admission, captured GUID/path absence, ordered/classified errors, host/Linux atomic intent and fresh ack, stable admission, pinned relative unlink, explicit incomplete binding. Only delete-debs case changed; scope mutant rejected. Historical VETO and 75/93 original captures untouched; no WSL/recovery/acquisition/install/build/CFD ran. Author commit/push and independent review remain at audit time; no authority supplied. Serial bounded cycle1 complete; accepted65456e1c seam requires later review.",
+      "kind": "manual",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-cleanup-recovery-cycle1-author.md",
+        "tests/test_f1_cleanup_recovery.py"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "goal": "Repair only reproduced cleanup boundary defects and the explicitly named hardening gaps without live execution.",
+      "done_when": "Red/green source proof and required offline gates pass; immutable candidate is committed and pushed for independent review.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-10-12T15:42:14Z",
+      "duration_seconds": 979.0,
+      "git": {
+        "sha": "f5fa973a5fa0d96761ebb216194485a098d30223",
+        "short": "f5fa973a5",
+        "branch": "win/gpu-f1-r217-cleanup-recovery",
+        "pushed": true
+      }
     }
   ],
   "changes": [

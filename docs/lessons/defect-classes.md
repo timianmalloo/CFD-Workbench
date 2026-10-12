@@ -25,6 +25,20 @@ review-suggested:
 
 **R217-RECOVERY-AUTHORITY-A · 2026-10-12 · A failed attempt's cleanup inherits broad execution authority or overwrites its failure evidence.**
 
+**Cycle 1 control, 2026-10-12:** Astra independently reproduced post-launch deadline admission,
+name-only absence despite a surviving exact GUID, and finally-error overwrite. Sweep: both
+`Popen` sites, all registration rows, deletion/final-owned/absence paths and receipt/binding.
+Prevent: `tests/test_f1_cleanup_recovery.py` now runs 35 offline-fast tests (measured 0.304 s),
+including zero-launch expiry, renamed/moved GUID/path survival and ordered multi-error receipts.
+Atomic host/Linux intent and fresh ack, repeated stable admission, directory-relative pinned
+unlink and classified private/public errors cover the review's hardening surface. The packet
+scope gate plants another-stage mutation and rejects it. Historical VETO remains intact;
+independent acceptance and any live recovery remain open.
+The same error-overwrite sweep found a capture-publication exception that suppressed
+earlier guard failures. Its fixture was observed red, then passed when publication
+and stream-close errors became separately retained outcomes. No public runtime raw
+error text is required to preserve the ordered failure evidence.
+
 Class → sweep → derive → prevent: signature: recovery can reach preflight acquisition/install/build stages,
 or perform destructive cleanup without a committed historical checkpoint, fresh identity/guard proof,
 and a separate new ruling. Sweep: the cleanup proposal's dispatch, exact target lifecycle argv,

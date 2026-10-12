@@ -9,6 +9,7 @@ import importlib.util
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -96,6 +97,9 @@ def public_value(value):
         profile = os.environ.get('USERPROFILE')
         if profile:
             value = re.sub(re.escape(profile), lambda match: '%USERPROFILE%', value, flags=re.IGNORECASE)
+        host = os.environ.get('COMPUTERNAME')
+        if host:
+            value = re.sub(re.escape(host), lambda match: '<host>', value, flags=re.IGNORECASE)
         return re.sub(r'S-1-5-21-\d+-\d+-\d+-\d+', 'S-1-5-21-<machine>-<RID>', value)
     if isinstance(value, list):
         return [public_value(item) for item in value]
@@ -105,6 +109,9 @@ def public_value(value):
 
 
 def validate_identity(rows, names):
+    keys = [row['key'].casefold() for row in rows]
+    if len(keys) != len(set(keys)):
+        raise ValueError('duplicate registry GUID')
     result = []
     for name, path in ((TARGET, TARGET_PATH), (PROTECTED, PROTECTED_PATH)):
         found = [row for row in rows if row['name'] == name]
@@ -112,17 +119,43 @@ def validate_identity(rows, names):
             raise ValueError('ambiguous/missing exact WSL identity: ' + name)
         if normalize(found[0]['path']) != normalize(path):
             raise ValueError('WSL registration path mismatch: ' + name)
+        if sum(normalize(row.get('path', '')) == normalize(path) for row in rows) != 1:
+            raise ValueError('ambiguous registration path: ' + name)
         result.append(found[0])
     if result[0]['key'] == result[1]['key']:
         raise ValueError('shared registry identity')
     return tuple(result)
 
 
-def validate_absence(rows, names, path_present, protected):
-    if any(row['name'] == TARGET for row in rows) or TARGET in names or path_present:
+def validate_absence(rows, names, path_present, protected, target_key=TARGET_KEY):
+    if any(row['name'] == TARGET or row.get('key', '').casefold() == target_key.casefold() or
+           normalize(row.get('path', '')) == normalize(TARGET_PATH) for row in rows) or TARGET in names or path_present:
         raise ValueError('target registration/list/path absence not proved; no manual path deletion')
     if [row for row in rows if row['name'] == PROTECTED] != [protected] or names.count(PROTECTED) != 1:
         raise ValueError('protected registry identity changed')
+
+
+class RecoveryFailure(ValueError):
+    """Ordered failures: initiating action first, then independent final checks."""
+    def __init__(self, failures):
+        self.failures = failures
+        super().__init__('; '.join(phase + ': ' + str(error) for phase, error in failures))
+
+
+def classified_failure(phase, error):
+    return dict(phase=phase, exception_type=type(error).__name__,
+                detail='Raw runtime text is not public; SHA256 identifies the failure',
+                raw_error_sha256=hashlib.sha256(str(error).encode('utf-8')).hexdigest())
+
+
+def flatten_failures(phase, error, nested=False):
+    if not isinstance(error, RecoveryFailure):
+        return [(phase, error)]
+    result = []
+    for name, failure in error.failures:
+        context = phase + '/' + name if nested and name != phase else name
+        result.extend(flatten_failures(context, failure, True))
+    return result
 
 
 def cleanup_sequence(action):
@@ -130,16 +163,30 @@ def cleanup_sequence(action):
     action('fresh-identity')
     action('old-owned-check')
     action('guard-ready')
+    failures = []
     try:
         action('delete-debs')
+    except Exception as error:
+        failures.append(('delete-debs', error))
     finally:
-        action('final-owned-check')
-    action('fresh-identity')
-    action('terminate')
-    action('fresh-identity')
-    action('unregister')
-    action('absence')
-    action('protected-invariance')
+        try:
+            action('final-owned-check')
+        except Exception as error:
+            failures.append(('final-owned-check', error))
+    if not failures:
+        for name in ('fresh-identity', 'terminate', 'fresh-identity', 'unregister', 'absence', 'protected-invariance'):
+            try:
+                action(name)
+            except Exception as error:
+                failures.append((name, error))
+                break
+    if failures:
+        if not any(phase == 'absence' for phase, _ in failures):
+            try:
+                action('absence')
+            except Exception as error:
+                failures.append(('absence', error))
+        raise RecoveryFailure(failures)
 
 
 class Recovery:
@@ -157,6 +204,7 @@ class Recovery:
         self.before = None
         self.errors = []
         self.identity = None
+        self.admitted_target_key = None
         self.manifest = load_helper(self.packet, 'manifest')
         self.completed = load_helper(self.packet, 'completed_guard')
         self.contract = load_helper(self.packet, 'contract')
@@ -171,29 +219,89 @@ class Recovery:
         # Every WSL command runs under taskset/nice/setsid or is an exact lifecycle/list command.
         if guarded:
             self.guard_ok()
+        self.remaining(cap)  # Before opening captures or launching any child.
         self.index += 1
         prefix = self.live / f'{self.index:03d}-{label}'
+        private = self.live.parent / 'private'
+        private.mkdir(exist_ok=True)
+        raw_prefix = private / prefix.name
         started = time.monotonic()
-        with prefix.with_suffix('.stdout.txt').open('wb') as out, prefix.with_suffix('.stderr.txt').open('wb') as err:
-            child = subprocess.Popen(argv, cwd=self.repo, stdout=out, stderr=err,
-                                     creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+        failures = []
+        child = None
+        with raw_prefix.with_suffix('.stdout.txt').open('wb') as out, raw_prefix.with_suffix('.stderr.txt').open('wb') as err:
+            end = min(self.start + 600, started + cap)
+            self.host_intent(argv, label, self.index)
+            self.remaining(cap)  # Recheck after capture setup, immediately before Popen.
             try:
-                end = started + self.remaining(cap)
+                child = subprocess.Popen(argv, cwd=self.repo, stdout=out, stderr=err,
+                                         creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+                self.host_ack(child, label, self.index)
                 while child.poll() is None:
                     if time.monotonic() >= end:
                         raise ValueError(label + ' timed out; Linux state remains unknown')
                     if guarded:
                         self.guard_ok()
                     time.sleep(0.1)
+                self.remaining(cap)
                 if child.returncode != 0:
                     raise ValueError(f'{label} exited {child.returncode}')
+            except Exception as error:
+                failures.append((label, error))
             finally:
-                if child.poll() is None:
-                    child.kill()
-                    child.wait(timeout=5)
-                self.log.append(dict(label=label, argv=argv, exit=child.returncode,
+                if child is not None and child.poll() is None:
+                    try:
+                        child.kill()
+                        child.wait(timeout=self.remaining(5))
+                    except Exception as error:
+                        failures.append((label + '-launcher-reap', error))
+                self.log.append(dict(label=label, argv=argv, exit=child.returncode if child else 'Not recorded',
                                      elapsed_seconds=time.monotonic() - started))
-        return prefix.with_suffix('.stdout.txt').read_bytes()
+        for suffix in ('.stdout.txt', '.stderr.txt'):
+            try:
+                self.publish_capture(raw_prefix.with_suffix(suffix), prefix.with_suffix(suffix))
+            except Exception as error:
+                failures.append((label + '-capture' + suffix, error))
+        if failures:
+            raise RecoveryFailure(failures)
+        return raw_prefix.with_suffix('.stdout.txt').read_bytes()
+
+    def host_intent(self, argv, label, ordinal):
+        records = self.live / 'launch-records'
+        records.mkdir(exist_ok=True)
+        output = records / f'{ordinal:03d}-{label}.intent.json'
+        if output.exists():
+            raise ValueError('host launch intent already exists')
+        temporary = output.with_suffix('.json.tmp')
+        temporary.write_text(json.dumps(dict(argv=public_value(argv), label=label,
+                             host_ack='pending', linux_state='Not recorded'), sort_keys=True) + '\n',
+                             encoding='utf-8', newline='\n')
+        os.replace(temporary, output)
+
+    def host_ack(self, child, label, ordinal):
+        if type(child.pid) is not int or child.pid <= 0:
+            raise ValueError('host launcher lacks a numeric ownership acknowledgement')
+        self.write(f'launch-records/{ordinal:03d}-{label}.ack.json',
+                   dict(host_pid=child.pid, linux_state='Unknown until guest acknowledgement or terminal verification'))
+
+    def publish_capture(self, raw, output):
+        data = raw.read_bytes()
+        output.write_text(json.dumps(dict(schema='cfdw-classified-subprocess-capture/1',
+                          bytes=len(data), sha256=hashlib.sha256(data).hexdigest(),
+                          raw='Retained privately; raw runtime text is not public'), sort_keys=True) + '\n',
+                          encoding='utf-8', newline='\n')
+
+    def retain_failure(self, phase, error):
+        flattened = flatten_failures(phase, error)
+        self.errors.extend(classified_failure(name, failure) for name, failure in flattened)
+        private = self.live.parent / 'private'
+        try:
+            private.mkdir(exist_ok=True)
+            with (private / 'errors.jsonl').open('a', encoding='utf-8', newline='\n') as output:
+                for name, failure in flattened:
+                    output.write(json.dumps(dict(phase=name, exception_type=type(failure).__name__,
+                                                raw_error=str(failure)), sort_keys=True) + '\n')
+        except Exception as error:
+            self.errors.append(classified_failure('private-error-retention', error))
 
     def linux_path(self, path):
         text = str(path.resolve())
@@ -209,7 +317,49 @@ class Recovery:
                 self.linux_path(self.live / (label + '.entry.txt')), '--'] + command
 
     def linux(self, distro, label, command, cap=30, guarded=False):
-        return self.command(self.linux_argv(distro, label, command), label, cap, guarded)
+        self.publish_intent(label, distro, command)
+        result = self.command(self.linux_argv(distro, label, command), label, cap, guarded)
+        self.assert_ack(label)
+        return result
+
+    def publish_intent(self, label, distro, command):
+        output = self.live / (label + '.intent.json')
+        temporary = output.with_suffix('.json.tmp')
+        ack = self.live / ('guard.owner.txt' if label == 'guard' else label + '.entry.txt')
+        temporary.write_text(json.dumps(dict(session=self.session, run_id=RUN_ID, target=distro,
+                             stage=label, command=public_value(command), ownership='ack required'),
+                             sort_keys=True) + '\n', encoding='utf-8', newline='\n')
+        value = json.loads(temporary.read_bytes())
+        value['previous_ack_sha256'] = digest(ack) if ack.exists() else None
+        temporary.write_text(json.dumps(value, sort_keys=True) + '\n', encoding='utf-8', newline='\n')
+        os.replace(temporary, output)
+        records = self.live / 'intent-records'
+        records.mkdir(exist_ok=True)
+        ordinal = getattr(self, 'index', 0) + 1
+        history = records / f'{ordinal:03d}-{label}.json'
+        if history.exists():
+            raise ValueError('prelaunch intent history already exists')
+        shutil.copyfile(output, history)
+
+    def assert_ack(self, label):
+        path = self.live / ('guard.owner.txt' if label == 'guard' else label + '.entry.txt')
+        if not path.is_file():
+            raise ValueError('prelaunch intent lacks ownership acknowledgement: ' + label)
+        intent = json.loads((self.live / (label + '.intent.json')).read_bytes())
+        if intent.get('previous_ack_sha256') == digest(path):
+            raise ValueError('prelaunch intent has stale ownership acknowledgement: ' + label)
+        fields = dict(line.split('=', 1) for line in path.read_text(encoding='utf-8').splitlines() if '=' in line)
+        identities = [fields.get(key, '') for key in ('pid', 'pgid', 'sid')]
+        if not all(value.isdecimal() and int(value) > 0 for value in identities) or len(set(identities)) != 1:
+            raise ValueError('ownership acknowledgement identity incomplete: ' + label)
+        if fields.get('nice') != '10' or fields.get('Cpus_allowed_list') not in ('0', '0-1', '0,1'):
+            raise ValueError('ownership acknowledgement affinity/nice invalid: ' + label)
+        records = self.live / 'owner-records'
+        records.mkdir(exist_ok=True)
+        ordinal = getattr(self, 'index', 0)
+        history = records / f'{ordinal:03d}-{label}.txt'
+        if not history.exists():
+            shutil.copyfile(path, history)
 
     def registrations(self):
         import winreg
@@ -235,11 +385,36 @@ class Recovery:
         if self.identity is not None and observed != self.identity:
             raise ValueError('registration changed during recovery')
         self.identity = observed
+        if self.admitted_target_key is None:
+            self.admitted_target_key = observed[0]['key']
+        elif observed[0]['key'] != self.admitted_target_key:
+            raise ValueError('admitted target GUID changed')
         for path in (Path(TARGET_PATH), Path(os.path.expandvars(PROTECTED_PATH))):
             if not path.is_dir() or any(parent.is_symlink() or parent.is_junction()
                                         for parent in (path, *path.parents)):
                 raise ValueError('missing or linked distro path')
         self.write('registration-before.json', dict(registrations=public_registrations(rows), names=names))
+
+    def stable_identity(self):
+        """Two complete identical observations immediately before each destructive action."""
+        self.remaining(15)
+        self.fresh_identity()
+        before = self.identity
+        before_paths = self.path_identities()
+        self.fresh_identity()
+        if before != self.identity or before_paths != self.path_identities():
+            raise ValueError('registration/path identity changed across stable admission')
+        self.remaining(15)
+
+    def path_identities(self):
+        result = []
+        for path in (Path(TARGET_PATH), Path(os.path.expandvars(PROTECTED_PATH))):
+            for part in (path, *path.parents):
+                value = part.lstat()
+                if part.is_symlink() or part.is_junction():
+                    raise ValueError('linked distro path during stable admission')
+                result.append((str(part), value.st_dev, value.st_ino))
+        return result
 
     def write(self, name, value):
         (self.live / name).write_text(json.dumps(public_value(value), indent=2, sort_keys=True) + '\n', encoding='utf-8', newline='\n')
@@ -275,6 +450,7 @@ class Recovery:
         return digest(self.live / (name + '.json'))
 
     def start_guard(self):
+        self.remaining(20)
         self.before = self.snapshot('l3-before')
         if self.before != digest(self.freeze / 'l3-terminal-before.json'):
             raise ValueError('historical protected terminal identity changed')
@@ -287,15 +463,32 @@ class Recovery:
         argv = self.linux_argv(PROTECTED, 'guard', command)
         # Packet guard ownership uses this exact canonical filename.
         argv[argv.index('--') - 1] = self.linux_path(self.live / 'guard.owner.txt')
-        self.guard_out = (self.live / 'guard.stdout.txt').open('wb')
-        self.guard_err = (self.live / 'guard.stderr.txt').open('wb')
-        self.guard = subprocess.Popen(argv, stdout=self.guard_out, stderr=self.guard_err,
-                                      creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
-        end = time.monotonic() + self.remaining(20)
+        self.publish_intent('guard', PROTECTED, command)
+        self.index += 1
+        self.host_intent(argv, 'guard', self.index)
+        private = self.live.parent / 'private'
+        private.mkdir(exist_ok=True)
+        self.guard_out = (private / 'guard.stdout.txt').open('wb')
+        self.guard_err = (private / 'guard.stderr.txt').open('wb')
+        end = min(self.start + 600, time.monotonic() + 20)
+        try:
+            self.remaining(20)
+            self.guard = subprocess.Popen(argv, stdout=self.guard_out, stderr=self.guard_err,
+                                          creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+            self.host_ack(self.guard, 'guard', self.index)
+        except Exception as error:
+            failures = [('guard-launch', error)]
+            for name in ('guard_out', 'guard_err'):
+                try:
+                    getattr(self, name).close()
+                except Exception as error:
+                    failures.append((name + '-close', error))
+            raise RecoveryFailure(failures)
         while not (self.live / 'completed-guard.state.json').exists():
             if self.guard.poll() is not None or time.monotonic() >= end:
                 raise ValueError('fresh guard startup failed')
             time.sleep(0.1)
+        self.assert_ack('guard')
         self.guard_ok()
 
     def delete_debs(self):
@@ -310,6 +503,7 @@ class Recovery:
                 '--openfoam-fingerprint', 'DC93C096174122E256DA24063386DD74948D208F', '--run-id', RUN_ID,
                 '--contract', self.linux_path(self.repo / REL / 'run-1/invocation-contract.json'),
                 '--contract-sha256', digest(self.repo / REL / 'run-1/invocation-contract.json')]
+        self.stable_identity()
         self.linux(TARGET, 'delete-debs', args, 120, True)
 
     def action(self, name):
@@ -344,10 +538,11 @@ class Recovery:
             self.owned(self.live, RUN_ID)
             self.owned(self.old_live, RUN_ID)
         elif name in ('terminate', 'unregister'):
+            self.stable_identity()
             self.command(['wsl.exe', '--' + name, TARGET], name, 30 if name == 'terminate' else 120, True)
         elif name == 'absence':
             rows, names = self.registrations(), self.names()
-            validate_absence(rows, names, os.path.lexists(TARGET_PATH), self.identity[1])
+            validate_absence(rows, names, os.path.lexists(TARGET_PATH), self.identity[1], self.admitted_target_key)
             self.write('registration-after.json', dict(registrations=public_registrations(rows), names=names, target_absent=True))
         elif name == 'protected-invariance':
             count = self.guard_ok()
@@ -368,22 +563,112 @@ class Recovery:
 
     def stop_guard(self):
         if self.guard is None:
+            for name in ('guard_out', 'guard_err'):
+                stream = getattr(self, name, None)
+                if stream is not None:
+                    stream.close()
             return
+        failures = []
         try:
             (self.live / 'completed-guard-stop.request').write_text(self.session + '\n', encoding='ascii')
             self.guard.wait(timeout=self.remaining(20))
+        except Exception as error:
+            failures.append(('guard-stop-request/wait', error))
         finally:
             if self.guard.poll() is None:
-                self.guard.kill()
-                self.guard.wait(timeout=5)
+                try:
+                    self.guard.kill()
+                    self.guard.wait(timeout=self.remaining(5))
+                except Exception as error:
+                    failures.append(('guard-launcher-reap', error))
+            for mode in ('stop', 'check'):
+                try:
+                    self.owned(self.live, self.session, mode, 'guard')
+                except Exception as error:
+                    failures.append(('guard-owned-' + mode, error))
             try:
-                self.owned(self.live, self.session, 'stop', 'guard')
-                self.owned(self.live, self.session, kind='guard')
-            finally:
-                self.guard_out.close()
-                self.guard_err.close()
+                self.assert_ack('guard')
+            except Exception as error:
+                failures.append(('guard-acknowledgement', error))
+            for name in ('guard_out', 'guard_err'):
+                try:
+                    getattr(self, name).close()
+                except Exception as error:
+                    failures.append((name + '-close', error))
+            private = self.live.parent / 'private'
+            for suffix in ('.stdout.txt', '.stderr.txt'):
+                try:
+                    self.publish_capture(private / ('guard' + suffix), self.live / ('guard' + suffix))
+                except Exception as error:
+                    failures.append(('guard-capture' + suffix, error))
         if self.guard.returncode != 0:
-            raise ValueError('guard nonzero exit retained')
+            failures.append(('guard-exit', ValueError('guard nonzero or unreaped exit retained')))
+        if failures:
+            raise RecoveryFailure(failures)
+
+    def publish_guard_prefix(self):
+        raw = (self.live / 'completed-guard-events.jsonl').read_bytes()
+        private = self.live.parent / 'private'
+        private.mkdir(exist_ok=True)
+        (private / 'completed-guard-events.raw.jsonl').write_bytes(raw)
+        complete = raw[:raw.rfind(b'\n') + 1]
+        rows = []
+        for line in complete.splitlines():
+            row = json.loads(line)
+            if row.get('verdict') == 'stop':
+                reason = str(row.get('reason', 'Not recorded'))
+                row['reason'] = 'Runtime reason classified; SHA256=' + hashlib.sha256(reason.encode('utf-8')).hexdigest()
+            rows.append(json.dumps(public_value(row), sort_keys=True))
+        (self.live / 'completed-guard.public-events.jsonl').write_text('\n'.join(rows) + '\n', encoding='utf-8', newline='\n')
+
+    def prepare_public(self):
+        public = self.live.parent / 'public'
+        public.mkdir(exist_ok=False)
+        for source in sorted(self.live.rglob('*')):
+            self.remaining(90)
+            if source.is_file():
+                if source.is_symlink() or source.is_junction():
+                    raise ValueError('linked recovery evidence')
+                target = public / source.relative_to(self.live)
+                target.parent.mkdir(parents=True, exist_ok=True)
+                if source.name == 'completed-guard-events.jsonl':
+                    shutil.copyfile(self.live / 'completed-guard.public-events.jsonl', target)
+                else:
+                    shutil.copyfile(source, target)
+        return public
+
+    def receipt(self, cleanup_proved, binding_status):
+        return dict(schema='cfdw-f1-cleanup-recovery/2', original_run_id=RUN_ID,
+                    historical_status='FAILED: stage-simulate exited 5; checkpoint unproved; cleanup withheld',
+                    original_manifest_sha256=FREEZE_SHA, cleanup_proved=cleanup_proved and not self.errors,
+                    recovery_success=False, evidence_binding=binding_status,
+                    initiating_error=self.errors[0] if self.errors else 'Not recorded',
+                    errors=self.errors, elapsed_seconds=time.monotonic() - self.start,
+                    source_commit=getattr(self, 'authorization_value', {}).get('source_commit', 'Not recorded'),
+                    authorization_sha256=digest(self.authorization), checkpoint_commit=getattr(self, 'head', 'Not recorded'),
+                    commands=self.log, affinity='Linux CPU0-1 nice10; protected guard CPU0 nice10; host lifecycle/Git N/A')
+
+    def bind_evidence(self, success):
+        self.write('recovery-receipt.json', self.receipt(success, 'pending; requires verified commit'))
+        final = self.repo / REL / 'recovery-1/final'
+        try:
+            public = self.prepare_public()
+            self.command([sys.executable, str(self.packet / 'manifest.py'), 'freeze',
+                          '--live', str(public), '--frozen', str(final)], 'final-freeze', 90)
+            relative = final.relative_to(self.repo).as_posix()
+            self.command(['git', 'add', '-f', '--', relative], 'final-add')
+            self.command(['git', 'commit', '-m', 'proof: separate F1 cleanup recovery outcome'], 'final-commit', 120)
+            commit = self.command(['git', 'rev-parse', 'HEAD'], 'final-head').decode().strip()
+            self.verify_commit(final, commit)
+            self.write('recovery-receipt.json', self.receipt(success, 'verified commit=' + commit))
+            self.remaining(1)
+        except Exception as error:
+            self.retain_failure('evidence-binding', error)
+            self.write('recovery-receipt.json', self.receipt(False, 'incomplete; unverified; Mac decision required'))
+            raise ValueError('recovery evidence binding incomplete; live/private evidence retained; no success') from error
+        if self.errors or not success:
+            raise ValueError('recovery failed; classified receipt committed; Mac decision required')
+        print('RECOVERY-BINDING-PASS commit=' + commit)
 
     def precheck(self):
         self.head = self.command(['git', 'rev-parse', 'HEAD'], 'head').decode().strip()
@@ -425,38 +710,21 @@ class Recovery:
             cleanup_sequence(self.action)
             success = True
         except Exception as error:
-            self.errors.append(str(error))
+            self.retain_failure('cleanup', error)
         finally:
             try:
                 self.stop_guard()
             except Exception as error:
-                self.errors.append('guard-stop: ' + str(error))
+                self.retain_failure('guard-stop', error)
             if (self.live / 'completed-guard-events.jsonl').exists():
                 try:
-                    self.completed.bind_events(argparse.Namespace(events=self.live / 'completed-guard-events.jsonl',
+                    self.publish_guard_prefix()
+                    self.completed.bind_events(argparse.Namespace(events=self.live / 'completed-guard.public-events.jsonl',
                         snapshot=self.live / 'completed-guard.snapshot.jsonl', binding=self.live / 'completed-guard-binding.json',
                         session_id=self.session))
                 except Exception as error:
-                    self.errors.append('guard-binding: ' + str(error))
-        receipt = dict(schema='cfdw-f1-cleanup-recovery/1', original_run_id=RUN_ID,
-                       historical_status='FAILED: stage-simulate exited 5; checkpoint unproved; cleanup withheld',
-                       original_manifest_sha256=FREEZE_SHA, recovery_success=success and not self.errors,
-                       errors=self.errors, elapsed_seconds=time.monotonic() - self.start,
-                       source_commit=getattr(self, 'authorization_value', {}).get('source_commit', 'Not recorded'),
-                       authorization_sha256=digest(self.authorization), checkpoint_commit=getattr(self, 'head', 'Not recorded'),
-                       commands=self.log, affinity='Linux CPU0-1 nice10; protected guard CPU0 nice10; host lifecycle/Git N/A')
-        self.write('recovery-receipt.json', receipt)
-        final = self.repo / REL / 'recovery-1/final'
-        self.command([sys.executable, str(self.packet / 'manifest.py'), 'freeze',
-                      '--live', str(self.live), '--frozen', str(final)], 'final-freeze', 90)
-        relative = final.relative_to(self.repo).as_posix()
-        self.command(['git', 'add', '-f', '--', relative], 'final-add')
-        self.command(['git', 'commit', '-m', 'proof: separate F1 cleanup recovery outcome'], 'final-commit', 120)
-        commit = self.command(['git', 'rev-parse', 'HEAD'], 'final-head').decode().strip()
-        self.verify_commit(final, commit)
-        if self.errors or not success:
-            raise ValueError('recovery failed; receipt committed; Mac decision required: ' + '; '.join(self.errors))
-        print('RECOVERY-BINDING-PASS commit=' + commit)
+                    self.retain_failure('guard-binding', error)
+        self.bind_evidence(success)
 
 
 def main():
@@ -476,5 +744,6 @@ if __name__ == '__main__':
     try:
         main()
     except (OSError, ValueError, subprocess.SubprocessError) as error:
-        print('RECOVERY-REFUSED: ' + str(error), file=sys.stderr)
+        print('RECOVERY-REFUSED: error classified; type=' + type(error).__name__ +
+              ' SHA256=' + hashlib.sha256(str(error).encode('utf-8')).hexdigest(), file=sys.stderr)
         raise SystemExit(5)

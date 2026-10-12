@@ -164,11 +164,7 @@ case "$stage" in
             --b2-licences "$(dirname "$b2_lock")/license-map.json"
         ;;
     delete-debs)
-        if [[ -d "$cache" ]]; then
-            find "$cache" -maxdepth 1 -type f -name '*.deb' -delete
-            if find "$cache" -maxdepth 1 -type f -name '*.deb' | grep -q .; then exit 65; fi
-            rmdir "$cache"
-        fi
+        /usr/bin/python3 "${packet_root}/../recovery/check_cache.py" --mode delete --cache "$cache"
         printf 'downloaded_debs=absent\n' > "${run_root}/download-cleanup.txt"
         ;;
     *) printf 'unknown stage: %s\n' "$stage" >&2; exit 64 ;;

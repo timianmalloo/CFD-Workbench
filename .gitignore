@@ -34,3 +34,5 @@ obj/
 
 # Recovery writes fresh evidence here; only its manifest-bound final copy is committed.
 /docs/proof/win-gpu-f1-preflight/recovery-1/live/
+/docs/proof/win-gpu-f1-preflight/recovery-1/private/
+/docs/proof/win-gpu-f1-preflight/recovery-1/public/
