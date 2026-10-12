@@ -20192,6 +20192,49 @@ window.DOCS_INDEX = {
       "sourceSha256": "2be0ba9c514056cac232126c8cb4f13fa57f618623414f81ef8ec94efea0214b"
     },
     {
+      "id": "review-windows-gpu-f1-cleanup-recovery-cycle1",
+      "path": "docs/reviews/windows-gpu-f1-cleanup-recovery-cycle1.md",
+      "title": "Astra independent cleanup-recovery review: cycle 1",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@pc-f1-r217-cleanup-recovery-astra-cycle1",
+      "phase": "preflight",
+      "reviewBy": "2026-10-19",
+      "reviewSuggested": [],
+      "summary": "ACCEPT exact candidate be56d099 as an offline cleanup-source repair. All three historical counterexamples are red on both baselines and green on the candidate. No live recovery, race-free execution, integration or new authority is certified.",
+      "tags": [
+        "windows",
+        "wsl",
+        "recovery",
+        "independent-review",
+        "repair-cycle-1"
+      ],
+      "links": [
+        {
+          "to": "review-windows-gpu-f1-cleanup-recovery",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-gpu-f1-cleanup-recovery-cycle1-author",
+          "rel": "relates-to"
+        },
+        {
+          "to": "note-windows-gpu-f1-cleanup-recovery",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3d8837ef6dbea2e1dc400a14ee8f7bc4e2ad84cec0dbf830de9a198d0514d995"
+    },
+    {
       "id": "review-windows-gpu-f1-environment-contract-r220",
       "path": "docs/reviews/windows-gpu-f1-environment-contract-r220.md",
       "title": "Astra environment-contract review - Ruling 217 after Ruling 220",
@@ -21514,5 +21557,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "3a885023c2c8bacb14fad8bc77f1b1cf0f1960cca0a365fb6ef10e6092e431b4"
+  "graphSha256": "f87037ef2772bff163a948fa169056d94d9176eb7900b9c1be7b8ad005c2452a"
 };
