@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T14:38:04Z",
+  "generated": "2026-10-12T14:47:21Z",
   "audit": [
     {
       "actor": null,
@@ -36378,6 +36378,36 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-12T14:35:53Z",
       "duration_seconds": 131.0
+    },
+    {
+      "id": "al-01M4R9A7V03PWVY8PBB3VV0Z2T",
+      "shortname": "f1-r220-astra-review",
+      "datetime": "2026-10-12T14:47:21Z",
+      "session": "pc-f1-r220-astra-review",
+      "prompt": "Operator has explicitly accepted continuation and instructed us to address all GPU blockers and next steps. Perform the fresh independent Ruling 220 packet review now. Work only in already-created C:\\Projects\\CFD-Workbench-win-gpu-f1-r220-astra-review on branch win/gpu-f1-r220-astra-review, exact joined base eac9d5f48dc4; do not create/enter another worktree. Session pc-f1-r220-astra-review. First mark audit start for execute-with-coordination. Read AGENTS.md, codex guide, Rulings 217 and 220, final prior review, exact commit d5bb68fe and joined bytes. Claim/write only docs/reviews/windows-gpu-f1-preflight-packet.md plus required audit/derived files; do not modify packet, rulings, plan, or defect register. Adversarially re-run and inspect P1 and P3 fixes, preserving cleared P2/P4/P5/P6. Prove the final callback after every cleanup-stage launch is a fresh bounded stop/reap and no launch can occur afterward, including exceptions. Prove exact recorded PID/PGID/SID plus NUL argv token matching; runA must not select runAB; pre-exec identity wrapper, leader-gone child, vanished ps row, unreadable /proc, missing argv and ps failure must have correct fail-closed behavior. Inspect actual source and AST/control flow, not only test names. Run complete offline packet suites and safe syntax/repo gates. Do not run WSL, wrapper top level, apt, downloads, install, source acquisition, builds, or cases. Update review with a clear R220 ACCEPT or VETO and exact residual/environment-contract limits. If ACCEPT, state what exact later environment contract remains before live preflight. Append audit, derive, commit with AGENT_SESSION, push branch, release claims, and report hash/duration. If VETO, this track stops under R220. One independent review only.",
+      "summary": "ACCEPT exact packet d5bb68fe at joined eac9d5f4. Independently repeated historical P1/P3 red counterexamples and repaired green fixtures; actual cleanup AST and final callback inspected. Exact NUL argv, identity wrapper, leader-gone, vanished PID, denied/missing argv and ps errors checked. Complete packet suites pass (Python 0.530s, PS5.1 0.226s, PS7 0.221s); all syntax, authority, transaction, manifest, guard, WSL-inline, check-docs and ten offline-safe verify gates pass; three application build/store gates explicitly skipped. 131 advisory graph suggestions remain. All 15 packet files byte-identical to accepted commit. Review/index/audit only; no prohibited execution. Mac epoch5 expired, requiring renewed live authority and separately reviewed committed invocation contract before live preflight. Planned serial review/check/verdict/gate/publication graph completed without repair or fan-out; one optional absent config lookup replaced with direct gate discovery.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-preflight-packet.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Independently adjudicate the exact committed Ruling 220 P1/P3 packet repairs while preserving prior cleared gates.",
+      "done_when": "Commit and push a decisive evidence-cited ACCEPT or VETO with environment-contract limits, measured audit and derived index.",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-10-12T14:38:52Z",
+      "duration_seconds": 509.0,
+      "git": {
+        "sha": "eac9d5f48dc41e19a429d10b8f5ce30ee9bfd5f6",
+        "short": "eac9d5f48",
+        "branch": "win/gpu-f1-r220-astra-review",
+        "pushed": null
+      }
     }
   ],
   "changes": [

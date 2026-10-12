@@ -20044,19 +20044,20 @@ window.DOCS_INDEX = {
     {
       "id": "review-windows-gpu-f1-preflight-packet",
       "path": "docs/reviews/windows-gpu-f1-preflight-packet.md",
-      "title": "Astra final packet review - Ruling 217 dependency preflight",
+      "title": "Astra Ruling 220 packet review - dependency preflight",
       "type": "proof-pack",
       "status": "complete",
-      "owner": "@pc-f1-r217-astra-packet-r2",
+      "owner": "@pc-f1-r220-astra-review",
       "phase": "preflight",
       "reviewBy": "2026-11-12",
       "reviewSuggested": [],
-      "summary": "Second VETO stops the live track: deletion-stage failure bypasses a fresh owned-work stop, and residual discovery selects another attempt by prefix. Deadline, UTC, trust-contract and size repairs are otherwise verified offline.",
+      "summary": "Ruling 220 ACCEPT for the exact repaired packet source: fresh final cleanup reap and exact process/argv ownership pass independent offline review. A separately reviewed, committed environment contract remains mandatory before live preflight.",
       "tags": [
         "windows",
         "wsl",
         "gpu",
         "ruling-217",
+        "ruling-220",
         "owner-review"
       ],
       "links": [
@@ -20078,7 +20079,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9685173fa92c82bfdc0bead650b19dc689c047bc03a5e87d1ee05c9dffc745de"
+      "sourceSha256": "174f09dad4aae5ff4b42db7ce7265f1d186b55780f1d764b162cc9896f3203fc"
     },
     {
       "id": "review-windows-runtime",
@@ -21322,5 +21323,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "1bbcc7d657f543a9e951fdd3c1437738060f2065de4e7e8eb3b6f9b81ab888dd"
+  "graphSha256": "cc2200fcc12653720e9b129ca5867fca9672b59b8813d00b17391ca88d587fb8"
 };
