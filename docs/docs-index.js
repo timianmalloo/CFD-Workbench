@@ -6171,12 +6171,12 @@ window.DOCS_INDEX = {
       "path": "docs/plans/windows-gpu-f1-preflight-r217.md",
       "title": "Optimized execution graph - Windows GPU F1 dependency preflight",
       "type": "doc",
-      "status": "proposed",
+      "status": "blocked",
       "owner": "@pc-f1-preflight-coordinator",
       "phase": "",
       "reviewBy": "2026-10-19",
       "reviewSuggested": [],
-      "summary": "A serial, independently reviewed run-packet and one bounded disposable-WSL preflight close the Ruling 217 dependency evidence while preserving the protected distro and prohibiting installation, builds and case runs.",
+      "summary": "The serial Ruling 217 packet track stopped before live execution after Astra's second VETO reproduced two remaining cleanup/ownership defects; the protected distro remained the only WSL distro and all installation/build/case work stayed closed.",
       "tags": [
         "windows",
         "wsl",
@@ -6207,7 +6207,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  N1[Packet author] --> N2[Astra packet review]\n  N2 --> N3[Join and live fence]\n  N3 --> N4[One preflight plus cleanup]\n  N4 --> N5[Derive evidence]\n  N5 --> N6[Astra result review]\n  N6 --> N7[Join and gates]\n  N7 --> N8[Mac handoff]"
         }
       ],
-      "sourceSha256": "1d8bc87da6be92496a037f1fc5d2e0493d15b4e15156667761c7544e6a2841a8"
+      "sourceSha256": "5be493178924de4f4e42c8b92fb382af241883f4e22bcbcacef5d3b589231d2f"
     },
     {
       "id": "plan-wri-r179",
@@ -10834,12 +10834,12 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/windows-gpu-f1-preflight-r217.md",
       "title": "Coordination plan - Windows GPU F1 dependency preflight",
       "type": "plan",
-      "status": "proposed",
+      "status": "blocked",
       "owner": "@pc-f1-preflight-coordinator",
       "phase": "",
       "reviewBy": "2026-10-19",
       "reviewSuggested": [],
-      "summary": "One Sol packet author, one deterministic live executor and an Astra owner at both hard gates run the Ruling 217 preflight serially; the Mac remains leader and all install, build and case execution stays closed.",
+      "summary": "Astra's second packet VETO stopped the serial Ruling 217 track before live execution; P1 cleanup and P3 exact process identity remain for any newly authorized track.",
       "tags": [
         "coordination",
         "worktrees",
@@ -10863,7 +10863,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e5204e1e2995f348024ee9336f786aedd5067056ae2301ffa2a0f55dec1aa703"
+      "sourceSha256": "f2992f2fcc2143d766f22a8ca391e67e7c8b02b15ed6d735783da5c1d4471df8"
     },
     {
       "id": "coordination-windows-runtime-route",
@@ -21262,5 +21262,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d8d51548c79eded5ae6f579b7408fe7ec518d18d8f6a610592d533211ad055f0"
+  "graphSha256": "d3a45a54bc90a29a29cbbb54dc61f38321230aa88fb5d2a25910dd5f69699057"
 };
