@@ -6,7 +6,9 @@ param(
     [Parameter(Mandatory = $true)][string]$NvidiaKeyring,
     [Parameter(Mandatory = $true)][string]$Contract,
     [Parameter(Mandatory = $true)][ValidatePattern('^[A-Za-z0-9._-]+$')][string]$RunId,
-    [Parameter(Mandatory = $true)][ValidatePattern('^[A-Za-z0-9._-]+$')][string]$AgentSession
+    [Parameter(Mandatory = $true)][ValidatePattern('^[A-Za-z0-9._-]+$')][string]$AgentSession,
+    [string]$Authorization = '',
+    [string]$ExclusiveRunId = ''
 )
 
 # Ruling 217: one disposable metadata/download preflight. This file is never run by packet authors.
@@ -35,6 +37,7 @@ $Clock = $null
 $Guard = $null
 $CreationArmed = $false
 $CheckpointSha = $null
+$script:CreatedTargetKey = ''
 $InitiatingError = $null
 $CleanupErrors = @()
 $LastStage = 'not-started'
@@ -280,11 +283,16 @@ function Stop-Owned {
     $null = Invoke-WslLinux $Target '0-1' 'owned-check' $checkOwner $check 10 $false $false
 }
 function Stop-OwnedOrContain {
+    if ($freshAttempt -and @(Get-TargetRegistration).Count -ne 0) {
+        if (-not $script:CreatedTargetKey) { throw 'MAC-DECISION-REQUIRED: created target GUID unbound; containment withheld' }
+        $null = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath $script:CreatedTargetKey
+    }
     try { Stop-Owned } catch {
         $original = $_.Exception.Message
         if (@(Get-TargetRegistration).Count -eq 1) {
             try {
                 $script:LifecyclePhase = 'cleanup'
+                if ($freshAttempt) { $null = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath $script:CreatedTargetKey }
                 $null = Invoke-Child 'wsl.exe' @('--terminate', $Target) 'target-containment-terminate' 30 $false $false
             } catch { throw "owner stop failed: $original; exact-target containment failed: $($_.Exception.Message)" }
         }
@@ -333,16 +341,23 @@ function Invoke-Cleanup {
     $null = Wait-TargetSettled 35
     $registration = @(Get-TargetRegistration)
     if ($registration.Count -eq 1) {
+        if ($freshAttempt) {
+            if (-not $script:CreatedTargetKey) { throw 'MAC-DECISION-REQUIRED: target GUID unbound; cleanup withheld' }
+            $null = Get-BoundTargetKey $registration $TargetPath $script:CreatedTargetKey
+        }
         $basePath = [IO.Path]::GetFullPath([string]$registration[0].BasePath).TrimEnd('\')
         if (-not $basePath.Equals((Assert-TargetPath), [StringComparison]::OrdinalIgnoreCase)) {
             throw "target registration path mismatch: $basePath"
         }
         try { Invoke-Stage 'delete-debs' 120 $false $false }
         finally { Stop-OwnedOrContain }
+        if ($freshAttempt) { $null = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath $script:CreatedTargetKey }
         $null = Invoke-Child 'wsl.exe' @('--terminate', $Target) 'target-terminate' 30 $false $false
+        if ($freshAttempt) { $null = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath $script:CreatedTargetKey }
         $null = Invoke-Child 'wsl.exe' @('--unregister', $Target) 'target-unregister' 120 $false $false
     }
     if (Test-Path -LiteralPath $TargetPath) {
+        if ($freshAttempt) { throw 'MAC-DECISION-REQUIRED: residual target path; no unbound host deletion' }
         $checked = Assert-TargetPath
         $item = Get-Item -LiteralPath $checked -Force
         if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'target path is a reparse point' }
@@ -422,12 +437,21 @@ foreach ($inputPath in @($Rootfs, $UbuntuSums, $UbuntuSignature, $OpenFoamKeyrin
     if (-not (Test-Path -LiteralPath $inputPath -PathType Leaf)) { throw "missing reviewed input: $inputPath" }
     $null = Convert-LinuxPath $inputPath
 }
+$contractData = [IO.File]::ReadAllText($Contract) | ConvertFrom-Json
+$RunRoot = Get-InvocationRunRoot $contractData $RepoRoot $RunId $AgentSession
+$Live = Join-Path $RunRoot 'live'
+$CheckpointPath = Join-Path $RunRoot 'checkpoint'
+$Final = Join-Path $RunRoot 'final'
+$freshAttempt = $null -ne $contractData.psobject.Properties['attempt']
+if ($freshAttempt -and (-not $Authorization -or -not (Test-Path -LiteralPath $Authorization -PathType Leaf))) {
+    throw 'attempt authorization missing before WSL'
+}
 $null = Assert-TargetPath
 if ($RunRoot -match '\s' -or -not [IO.Path]::GetFullPath($Contract).Equals(
         [IO.Path]::GetFullPath((Join-Path $RunRoot 'invocation-contract.json')),
-        [StringComparison]::OrdinalIgnoreCase)) { throw 'contract path is not fixed run-1 invocation path' }
+        [StringComparison]::OrdinalIgnoreCase)) { throw 'contract path differs from validated invocation root' }
 if ((Test-Path -LiteralPath $Live) -or (Test-Path -LiteralPath $CheckpointPath) -or
-    (Test-Path -LiteralPath $Final)) { throw 'run-1 execution output already exists' }
+    (Test-Path -LiteralPath $Final)) { throw 'execution output already exists; one attempt only' }
 $authority = & py -3 (Join-Path $PacketRoot 'authority_scan.py')
 if ($LASTEXITCODE -ne 0) { throw 'packet authority scan failed before live work' }
 $Clock = [Diagnostics.Stopwatch]::StartNew()
@@ -440,7 +464,8 @@ $contractArguments = @('-3', (Join-Path $PacketRoot 'contract.py'), 'verify',
     '--contract', $Contract, '--repo', $RepoRoot, '--rootfs', $Rootfs,
     '--ubuntu-sums', $UbuntuSums, '--ubuntu-signature', $UbuntuSignature,
     '--openfoam-keyring', $OpenFoamKeyring, '--nvidia-keyring', $NvidiaKeyring,
-    '--branch', $executionBranch, '--session', $AgentSession)
+    '--branch', $executionBranch, '--session', $AgentSession, '--run-id', $RunId)
+if ($freshAttempt) { $contractArguments += @('--authorization', $Authorization, '--exclusive-run-id', $ExclusiveRunId) }
 $precheck = Start-Process -FilePath 'py' -ArgumentList $contractArguments `
     -RedirectStandardOutput $precheckOut -RedirectStandardError $precheckErr -PassThru -WindowStyle Hidden
 $null = $precheck.Handle
@@ -460,6 +485,10 @@ $linuxSignature = Convert-LinuxPath $UbuntuSignature
 try {
     $initialHostFree = Assert-Host $true
     $names = Get-DistroNames
+    if ($freshAttempt) {
+        $rows = @(Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss' | ForEach-Object { Get-ItemProperty -LiteralPath $_.PSPath })
+        Assert-FreshRegistrations $rows $names (Test-Path -LiteralPath $TargetPath)
+    }
     if (@($names | Where-Object { $_ -ceq $Protected }).Count -ne 1 -or
         @($names | Where-Object { $_ -ceq $Target }).Count -ne 0 -or
         @(Get-TargetRegistration).Count -ne 0 -or (Test-Path -LiteralPath $TargetPath)) {
@@ -521,9 +550,17 @@ try {
     }
     $null = Assert-Guard
     $script:CreationArmed = $true  # Before the first target-creation effect.
+    if ($freshAttempt) {
+        $freshNames = Get-DistroNames
+        $freshRows = @(Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss' | ForEach-Object { Get-ItemProperty -LiteralPath $_.PSPath })
+        Assert-FreshRegistrations $freshRows $freshNames (Test-Path -LiteralPath $TargetPath)
+    }
     $null = Invoke-Child 'wsl.exe' @('--install', '--from-file', $Rootfs, '--name', $Target,
         '--location', $TargetPath, '--vhd-size', '8GB', '--no-launch') 'target-create' 300 $true $true
     if (@(Get-TargetRegistration).Count -ne 1) { throw 'target creation did not register exactly once' }
+    $script:CreatedTargetKey = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath
+    Write-Json (Join-Path $Live 'created-target-identity.json') ([ordered]@{
+        target=$Target; target_path=$TargetPath; target_key=$script:CreatedTargetKey; run_id=$RunId })
     $null = Assert-Host $false $true
     Invoke-Stage 'probe' 60 $true
     # No network stage is entered until both guest and host VHD checks have passed.
