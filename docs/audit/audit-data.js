@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T15:35:02Z",
+  "generated": "2026-10-12T15:37:46Z",
   "audit": [
     {
       "actor": null,
@@ -36612,6 +36612,35 @@ window.AUDIT_DATA = {
         "branch": "win/gpu-f1-r217-live-defect-review",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M4RC6HDG78DE2R2GTR9A9668",
+      "shortname": "join-r217-live-defect-review",
+      "datetime": "2026-10-12T15:37:46Z",
+      "session": "pc-f1-r217-live-defect-author",
+      "prompt": "the join of win/gpu-f1-r217-live-defect-review into win/gpu-f1-r217-live-defect-repair",
+      "summary": "Joined Astra ACCEPT for the exact URI decoding and checkpoint dynamic-scope repair after independent failure reproduction and offline gates. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-live-defect-repair.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Join independent acceptance of the two live-discovered packet repairs without authorizing recovery or retry.",
+      "done_when": "Review is merged, docs-only ring and configured gates pass, and the repair branch is pushed clean.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T15:35:48Z",
+      "duration_seconds": 118.0
     }
   ],
   "changes": [
