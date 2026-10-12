@@ -1,11 +1,11 @@
 ---
 id: review-windows-gpu-f1-preflight-packet
-title: "Astra final packet review - Ruling 217 dependency preflight"
+title: "Astra Ruling 220 packet review - dependency preflight"
 type: proof-pack
 status: complete
-owner: "@pc-f1-r217-astra-packet-r2"
+owner: "@pc-f1-r220-astra-review"
 phase: preflight
-tags: [windows, wsl, gpu, ruling-217, owner-review]
+tags: [windows, wsl, gpu, ruling-217, ruling-220, owner-review]
 links:
   - { to: proof-win-gpu-f1-r217-packet, rel: relates-to }
   - { to: plan-windows-gpu-f1-preflight-r217, rel: relates-to }
@@ -13,10 +13,115 @@ links:
   - { to: rulings, rel: depends-on }
 review-by: "2026-11-12"
 summary: >-
-  Second VETO stops the live track: deletion-stage failure bypasses a fresh owned-work stop, and residual discovery selects another attempt by prefix. Deadline, UTC, trust-contract and size repairs are otherwise verified offline.
+  Ruling 220 ACCEPT for the exact repaired packet source: fresh final cleanup reap
+  and exact process/argv ownership pass independent offline review. A separately
+  reviewed, committed environment contract remains mandatory before live preflight.
 ---
 
-# Final independent verdict at repaired base
+# Ruling 220 independent verdict
+
+**ACCEPT the exact repaired packet source.** No P1 or P3 hard veto remains at
+author commit `d5bb68fe7db5e511ac46708e14564bb6a738db37`, joined unchanged at
+`eac9d5f48dc41e19a429d10b8f5ce30ee9bfd5f6`. This is packet acceptance, not a
+completed live preflight or an acceptance of unreviewed environment inputs.
+
+Ruling 220 (`docs/notes/rulings.md:1717-1721`) explicitly reopened one repair and
+fresh independent review after the prior terminal VETO. Ruling 217's scope and
+bounds remain unchanged. The prior verdicts below are historical; this section
+supersedes their P1/P3 disposition for these exact bytes. A later packet change
+does not inherit this acceptance.
+
+Goal: independently determine whether the two authorized repairs satisfy Ruling
+220. Done when: an evidence-cited verdict is committed and pushed with audit and
+derived index. Tier T1, fan-out zero. The review graph was serial source/authority
+grounding → independent counterexamples and packet suites → verdict → repository
+gates → audit/commit/push. Independent host-only checks overlapped; no agent was
+spawned. The surface list was Linux process inspection → ownership selection and
+signalling → deletion-stage finally → finalization callback → receipt status,
+plus the unchanged authority/contract boundaries. Product/UI changes were out of
+scope. Actual duration and check results are recorded in the closing audit.
+
+**Confidence: high for source/control-flow and offline behavior.** The reviewer
+ran no WSL, wrapper top-level, apt, network/package download, source acquisition,
+installation, build or case. Git push publishes only this review and derived
+documentation/audit changes. Runtime teardown, protected-state equality, real
+transaction closure and live capacity remain unobserved.
+
+## Ruling 220 checklist
+
+Packet filenames below are relative to `docs/proof/win-gpu-f1-preflight/packet/`.
+
+| Requirement | Independent disposition and evidence |
+|---|---|
+| P1: deletion launch cannot bypass a fresh stop | **Verified, cleared.** `Invoke-Preflight.ps1:340-341` wraps the actual `delete-debs` launch in `try/finally` calling `Stop-OwnedOrContain`. The AST-extracted real cleanup body, with inert boundary mocks and a post-launch timeout, records `delete-stage-launch,fresh-stop-reap`. The original exception is retained. |
+| P1: final callback is a fresh stop, including failures | **Verified, cleared.** `Control.ps1:42-61` surrounds every finalization callback with an outer `finally`; it resets `owned_stopped=false` before the final stop and only sets it true after success. An error becomes `final-owned-stop`, never stale success. Independent fixtures covered checkpoint, cleanup, snapshot, guard-stop and bind failures as well as success. |
+| P1: bounded stop/reap and no later workload launch | **Verified source.** The final callback is wired to `Stop-OwnedOrContain` at `Invoke-Preflight.ps1:539-545`. Its target settling, stop, residual check and uncertain-owner containment use bounded calls (`265-291`) under the shared absolute deadline (`142-184`, `Control.ps1:17-22`). After finalization returns, lines 546-571 write the receipt and run only host manifest/Git work; no target stage, guard or other owned Linux workload is launched. Host evidence children and the stop/check controls are not new preflight workloads. Exhausted budgets or failed inspection remain blocked errors, not termination proof. |
+| P3: exact PID/PGID/SID and argv identity | **Verified, cleared.** Atomic records require positive PID=PGID=SID (`owned_control.py:67-93`). `ps` supplies numeric identity; `/proc/<pid>/cmdline` supplies strictly decoded NUL-delimited argv (`28-64`). The exact interpreter/script, stage and unique run-root/run-ID or session/event arguments must match (`96-151`). A present recorded leader with changed group/session/argv fails before signalling. |
+| P3: runA never selects runAB | **Verified.** Stage and guard prefix-collision fixtures return no selected group; mocked stop sinks receive no signal. Exact positive identities are selected. Independent historical-source comparison reproduced the old `{123}` selection and the repaired empty set. |
+| P3: pre-exec identity wrapper | **Verified.** `owned_control.py:104-116` recognizes only the exact identity script and exact owner-file token before checking the intended command. Both stage and guard fixtures pass; a foreign entry-file token fails. This preserves ownership during the atomic publication/exec boundary. |
+| P3: leader gone, children remain | **Verified offline.** Saved group identity retains the child group when its leader has exited (`139-145`). The fixture drives the real stop function through a mocked signal sink and subsequent empty observation, proving group 101 is signalled and absence rechecked. It does not mistake a missing leader for a stopped group. |
+| P3: vanished ps row versus unreadable process | **Verified.** Missing cmdline is omitted only after an independent `/proc/<pid>` stat also proves absence (`51-60`). Present PID or denied stat fails. Denied/unreadable, malformed or undecodable argv and failed/nonzero ps fail closed. NUL decoding preserves arguments containing spaces. An empty argv cannot authenticate a recorded leader; an additional reviewer fixture confirms rejection. Empty argv on an unrelated process is not itself ownership evidence. |
+| P2/P4/P5/P6 remain cleared | **Preserved, not reopened.** Source comparison confines the repair to P1/P3 code, tests and README. Deadline and UTC fixtures, contract hash/signer/epoch negatives, Installed-Size reconciliation and capacity fixtures all pass. The environment-specific P5 review remains outstanding as before. |
+
+## Red-first evidence and independent checks
+
+The author records the initial red fixtures in `packet/README.md:35-43`.
+Independently, this reviewer loaded only the historical pure `Control.ps1`
+functions from committed base `2f643039d2df77a361a90d4578d64ccfc3fef6c9`: a
+post-launch cleanup failure produced one stop. The repaired function produced
+two stops, with the fresh stop last, for each failure point and the normal path.
+The reviewer also loaded the historical Python module into memory with no CLI
+execution, reproduced foreign `runAB` group selection for `runA`, then observed
+the repaired empty set. No real group was signalled.
+
+The complete current `packet_selftest.py` passed in **0.530 s**; `SelfTest.ps1`
+passed in Windows PowerShell 5.1 (**0.226 s**) and PowerShell 7 (**0.221 s**).
+The PowerShell suite parses the real wrapper AST and executes only its cleanup
+function under mocks. Source inspection also traced the actual callback binding
+and code following finalization; acceptance is not inferred from test names.
+
+Passed: authority scanner and planted prohibited-command negatives; transaction,
+manifest and completed-guard self-tests; AST parsing of all three PowerShell
+files; installed Git Bash syntax checks for all four shell files; and
+`tools/check-wsl-inline.py`. Documentation/graph and safe repository-gate outcomes
+are recorded in the final audit/handoff. No application build/store gate is
+claimed. Source and plan bytes remain unchanged by this review.
+
+## Exact remaining environment-contract gate
+
+Before any live preflight, independently review and commit
+`docs/proof/win-gpu-f1-preflight/run-1/invocation-contract.json` in the isolated
+EXECUTE worktree. It must bind:
+
+1. These accepted packet bytes: an accepted ancestor commit, the complete packet
+   file set and SHA-256 values matching both that commit's blobs and working bytes.
+2. The exact clean execution branch and coordination session; the then-current
+   live Mac leader epoch. A changed/expired epoch blocks the pending invocation;
+   a stale hardcoded epoch is not approval.
+3. Exact absolute local input paths and hashes for the existing B2 rootfs,
+   Ubuntu sums/signature, OpenFOAM and NVIDIA keyrings, and B2 package lock/licence
+   map. `contract.py:14-19,120-176` contains the fixed rootfs and input contract.
+4. Independently authenticated allowed Ubuntu rootfs/archive, OpenFOAM and
+   NVIDIA signer/keyring identities. Actual keyring fingerprints and every
+   `VALIDSIG` must satisfy those reviewed sets (`contract.py:78-118`).
+5. Exact target `cfdw-petsc-cuda132-f1`, protected `cfdw-openfoam2512`, and dedicated
+   target path `C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1`, with the
+   unchanged host-free, 8-GiB VHD, CPU/nice, completed-L3 guard, checkpoint and
+   cleanup boundaries. Runtime prechecks must capture their actual state.
+
+The wrapper must pass its existing mandatory contract verification before the
+first WSL effect. The coordinator must also reconcile the carried plan's stopped
+track wording with Ruling 220 and this acceptance before dispatch; this reviewer
+does not own the plan or live decision. These are the remaining environment and
+coordination gates, not unresolved P1/P3 source defects.
+
+After those gates, Ruling 217 permits only its single bounded metadata/resolved-deb
+preflight with manifest-bound checkpoint and cleanup receipt. Installation,
+PETSc/petsc4Foam source acquisition, compilation, solver/case execution and
+benchmarking remain outside this packet's authority. No speedup or whole-solver
+offload claim is accepted.
+
+# Historical Ruling 217 final verdict (superseded under Ruling 220 above)
 
 **Second VETO — the live track is stopped. Do not execute the packet.** Reviewed
 joined base `2f643039d2df77a361a90d4578d64ccfc3fef6c9`, branch
