@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T15:09:57Z",
+  "generated": "2026-10-12T15:22:24Z",
   "audit": [
     {
       "actor": null,
@@ -36496,6 +36496,86 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-12T15:08:16Z",
       "duration_seconds": 100.0
+    },
+    {
+      "id": "al-01M4RB9E4NC7GSZ27TG9FW34SW",
+      "shortname": "f1-r217-live-defect-repair",
+      "datetime": "2026-10-12T15:21:52Z",
+      "session": "pc-f1-r217-live-defect-author",
+      "prompt": "You are AUTHOR for an offline-only repair in CFD-Workbench. Worktree: C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-live-defect-repair. Branch: win/gpu-f1-r217-live-defect-repair. Session: pc-f1-r217-live-defect-author. Read AGENTS.md, docs/ai-forward-pack/codex.md, relevant no-guessing/testing/continuous-improvement standards, docs/proof/win-gpu-f1-preflight/packet README/tests, Rulings 217/220, and the current run evidence in the separate execution tree C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-execute-r220\\docs\\proof\\win-gpu-f1-preflight\\run-1\\live (read-only). No WSL commands or live cleanup. Goal: repair exactly two verified live defects red-first, sweep their classes, update durable controls/docs, run the complete offline packet suite and relevant gates, commit and push. Defect A: transaction.py match_uri compares Path(urlsplit(url).path).name without percent-decoding; apt URI has `%7e` while signed metadata filename has `~`, yielding `cpp-13.../1042 found 0`. Add a failing test using real apt-style encoded basename and implement the smallest correct percent-decoding while preserving exact size and uniqueness; sweep `%2b`, `%3a`, `%7e`, unsafe/malformed cases as appropriate. Defect B: Invoke-Finalization has parameter `[scriptblock]$Checkpoint`; PowerShell dynamic scoping shadows the script-level `$Checkpoint` directory inside the Save-Checkpoint callback, causing freeze into repo-root Save-Checkpoint and Substring failure. Add a failing PowerShell regression that proves the callback observes the intended canonical checkpoint path, then eliminate the collision robustly (rename path and/or callback parameter so no dynamic shadow remains), sweep similar callback/path names. Do not change runtime authority, cleanup policy, limits, accepted signer/input semantics, or initiate recovery. Repair loops capped at 2. Capture defect classes as class→sweep→derive→prevent in the existing appropriate durable artifact/control, not memoir prose only. Return commit SHA, pushed branch, exact red/green evidence and tests, changed files, residual risks.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4RBAC6NT6YPD8A2B38RXZHM",
+      "shortname": "optimize-graph-f1-r217-live-defects",
+      "datetime": "2026-10-12T15:22:23Z",
+      "session": "pc-f1-r217-live-defect-author",
+      "prompt": "You are AUTHOR for an offline-only repair in CFD-Workbench. Worktree: C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-live-defect-repair. Branch: win/gpu-f1-r217-live-defect-repair. Session: pc-f1-r217-live-defect-author. Read AGENTS.md, docs/ai-forward-pack/codex.md, relevant no-guessing/testing/continuous-improvement standards, docs/proof/win-gpu-f1-preflight/packet README/tests, Rulings 217/220, and the current run evidence in the separate execution tree C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-execute-r220\\docs\\proof\\win-gpu-f1-preflight\\run-1\\live (read-only). No WSL commands or live cleanup. Goal: repair exactly two verified live defects red-first, sweep their classes, update durable controls/docs, run the complete offline packet suite and relevant gates, commit and push. Defect A: transaction.py match_uri compares Path(urlsplit(url).path).name without percent-decoding; apt URI has `%7e` while signed metadata filename has `~`, yielding `cpp-13.../1042 found 0`. Add a failing test using real apt-style encoded basename and implement the smallest correct percent-decoding while preserving exact size and uniqueness; sweep `%2b`, `%3a`, `%7e`, unsafe/malformed cases as appropriate. Defect B: Invoke-Finalization has parameter `[scriptblock]$Checkpoint`; PowerShell dynamic scoping shadows the script-level `$Checkpoint` directory inside the Save-Checkpoint callback, causing freeze into repo-root Save-Checkpoint and Substring failure. Add a failing PowerShell regression that proves the callback observes the intended canonical checkpoint path, then eliminate the collision robustly (rename path and/or callback parameter so no dynamic shadow remains), sweep similar callback/path names. Do not change runtime authority, cleanup policy, limits, accepted signer/input semantics, or initiate recovery. Repair loops capped at 2. Capture defect classes as class→sweep→derive→prevent in the existing appropriate durable artifact/control, not memoir prose only. Return commit SHA, pushed branch, exact red/green evidence and tests, changed files, residual risks.",
+      "summary": "Eight-node bounded offline author graph: grounding, fixtures, red evidence, repair, offline verification, audit/index, candidate publication, independent review. One author cycle, zero spawned agents; raw live evidence read-only. Actual red-to-green completed with complete packet checks and repository gates. Independent immutable-byte review follows candidate commit as coordinator directed; author does not clear hard veto. Elapsed marker measured; tokens not recorded.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/packet/README.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Plan exactly two offline live-defect repairs without live action or scope growth.",
+      "done_when": "A bounded evidence graph preserves red-first, complete offline checks, durable classes, candidate publication, and independent review handoff.",
+      "tier": "T1",
+      "fan_out": 1,
+      "started_at": "2026-10-12T15:15:37Z",
+      "duration_seconds": 406.0,
+      "git": {
+        "sha": "6445bb6e1c6b9f27969724c711cc2ff322f01867",
+        "short": "6445bb6e1",
+        "branch": "win/gpu-f1-r217-live-defect-repair",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M4RBADJFGV9VTY8204F621NF",
+      "shortname": "implement-f1-r217-live-defects",
+      "datetime": "2026-10-12T15:22:24Z",
+      "session": "pc-f1-r217-live-defect-author",
+      "prompt": "You are AUTHOR for an offline-only repair in CFD-Workbench. Worktree: C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-live-defect-repair. Branch: win/gpu-f1-r217-live-defect-repair. Session: pc-f1-r217-live-defect-author. Read AGENTS.md, docs/ai-forward-pack/codex.md, relevant no-guessing/testing/continuous-improvement standards, docs/proof/win-gpu-f1-preflight/packet README/tests, Rulings 217/220, and the current run evidence in the separate execution tree C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-execute-r220\\docs\\proof\\win-gpu-f1-preflight\\run-1\\live (read-only). No WSL commands or live cleanup. Goal: repair exactly two verified live defects red-first, sweep their classes, update durable controls/docs, run the complete offline packet suite and relevant gates, commit and push. Defect A: transaction.py match_uri compares Path(urlsplit(url).path).name without percent-decoding; apt URI has `%7e` while signed metadata filename has `~`, yielding `cpp-13.../1042 found 0`. Add a failing test using real apt-style encoded basename and implement the smallest correct percent-decoding while preserving exact size and uniqueness; sweep `%2b`, `%3a`, `%7e`, unsafe/malformed cases as appropriate. Defect B: Invoke-Finalization has parameter `[scriptblock]$Checkpoint`; PowerShell dynamic scoping shadows the script-level `$Checkpoint` directory inside the Save-Checkpoint callback, causing freeze into repo-root Save-Checkpoint and Substring failure. Add a failing PowerShell regression that proves the callback observes the intended canonical checkpoint path, then eliminate the collision robustly (rename path and/or callback parameter so no dynamic shadow remains), sweep similar callback/path names. Do not change runtime authority, cleanup policy, limits, accepted signer/input semantics, or initiate recovery. Repair loops capped at 2. Capture defect classes as class→sweep→derive→prevent in the existing appropriate durable artifact/control, not memoir prose only. Return commit SHA, pushed branch, exact red/green evidence and tests, changed files, residual risks.",
+      "summary": "Source-repaired exact apt encoded-basename mismatch and PowerShell dynamic checkpoint shadowing. Observed Python red cpp-13/1042 found0 and PS5.1 red shadowed path before edits. Greens: Python 0.527s; strengthened actual checkpoint/Git-body regression PS5.1 0.353s and PS7 0.254s; authority, transaction, manifest, guard, AST/shell syntax, WSL-inline, check-docs, graph and ten offline-safe verify gates pass. Added two class/sweep/derive/prevent controls and graph review flags. No WSL/recovery/live cleanup or authority/signer/input/limit changes. Candidate publication authorized; immutable independent acceptance and repaired live proof remain open.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/packet/README.md",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Repair exactly the two verified live representation/scope defects offline, with durable controls.",
+      "done_when": "Both red-first regressions and complete offline proof pass, and the repair candidate is committed and pushed for immutable independent review.",
+      "tier": "T1",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true
+      },
+      "started_at": "2026-10-12T15:15:37Z",
+      "duration_seconds": 407.0,
+      "git": {
+        "sha": "6445bb6e1c6b9f27969724c711cc2ff322f01867",
+        "short": "6445bb6e1",
+        "branch": "win/gpu-f1-r217-live-defect-repair",
+        "pushed": null
+      }
     }
   ],
   "changes": [

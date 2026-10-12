@@ -5518,7 +5518,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a33e045e0501dd007cb689ac764f6b9afb581d0ce2cd145f4215fe1c04d4b9e2"
+      "sourceSha256": "08458fc4ad7c994ea5d0ec4e529c35f00aa678ad8eefc623cf8e0121c4af439b"
     },
     {
       "id": "domain-experts",
@@ -18259,7 +18259,13 @@ window.DOCS_INDEX = {
       "owner": "@pc-f1-r217-execute-r220",
       "phase": "preflight",
       "reviewBy": "2026-10-19",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "proof-win-gpu-f1-r217-packet",
+          "on": "2026-10-12",
+          "reason": "Offline live-defect repair changes packet bytes; prior acceptance and invocation contract do not accept these new bytes."
+        }
+      ],
       "summary": "Proposed run-1 invocation contract binds the Astra-accepted packet, retained signed inputs, exact signer sets, execution branch/session, and live Mac epoch 6; independent review still precedes any WSL effect.",
       "tags": [
         "windows",
@@ -18289,7 +18295,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6aaf7f2b3b9d04174ea9afcafe8a7672dd2bf6cfeec0c3f410b86a33e8f945ac"
+      "sourceSha256": "a16fc089092e548c9fea621c95e49ad92eae94ff9085f48706aecaf9fadfc0bd"
     },
     {
       "id": "proof-win-gpu-f1-r217-packet",
@@ -18329,7 +18335,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b88c983e69ece9f5276156cb5fbf01b49839ca4479be7ba4279105a51b637388"
+      "sourceSha256": "40b8547429b0a6921da44d7d8453db02ac89fb917c22d0150bf2555609ed44ad"
     },
     {
       "id": "proof-win-gpu-g1",
@@ -20091,7 +20097,13 @@ window.DOCS_INDEX = {
       "owner": "@pc-f1-r217-contract-astra-r220",
       "phase": "preflight",
       "reviewBy": "2026-10-19",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "proof-win-gpu-f1-r217-packet",
+          "on": "2026-10-12",
+          "reason": "Offline live-defect repair changes packet bytes; prior acceptance and invocation contract do not accept these new bytes."
+        }
+      ],
       "summary": "ACCEPT the exact committed epoch-6 environment contract: all seven input hashes, fifteen packet files, exact signer sets and detached Ubuntu signature independently match. Live execution still requires unchanged bytes, a clean tree and live epoch 6.",
       "tags": [
         "windows",
@@ -20121,7 +20133,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d384673cc76c8fecfe6b9ef1370ea02ee2c7ff0211ac613718cff37eca8a313c"
+      "sourceSha256": "b9ef786a9f9c5db11c5ccae372070ca49ffe084c5130c4b60f65067a1c14ce14"
     },
     {
       "id": "review-windows-gpu-f1-preflight-packet",
@@ -20132,7 +20144,13 @@ window.DOCS_INDEX = {
       "owner": "@pc-f1-r220-astra-review",
       "phase": "preflight",
       "reviewBy": "2026-11-12",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "proof-win-gpu-f1-r217-packet",
+          "on": "2026-10-12",
+          "reason": "Offline live-defect repair changes packet bytes; prior acceptance and invocation contract do not accept these new bytes."
+        }
+      ],
       "summary": "Ruling 220 ACCEPT for the exact repaired packet source: fresh final cleanup reap and exact process/argv ownership pass independent offline review. A separately reviewed, committed environment contract remains mandatory before live preflight.",
       "tags": [
         "windows",
@@ -20161,7 +20179,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "174f09dad4aae5ff4b42db7ce7265f1d186b55780f1d764b162cc9896f3203fc"
+      "sourceSha256": "570bc22be2d54255f51836f85b2307163e1a6fd198dd1c9e92225e6475af28b1"
     },
     {
       "id": "review-windows-runtime",
@@ -21405,5 +21423,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "4a948d7359f56c102ef9978542e56a8203283eabd2ce8161db46c249d53877d8"
+  "graphSha256": "e82eea6d4da8c49f0a5e47dde86cae8ae2baadb185e0396753f96a82984bf5e8"
 };
