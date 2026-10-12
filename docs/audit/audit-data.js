@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T01:42:08Z",
+  "generated": "2026-10-12T02:12:13Z",
   "audit": [
     {
       "actor": null,
@@ -36065,6 +36065,44 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "456fb542f276207e2264622430edc40b21c9741f",
         "short": "456fb542f",
+        "branch": "win/gpu-f1-preflight-r217",
+        "pushed": true
+      }
+    },
+    {
+      "id": "al-01M4PY3HQ6ZV77GSQJ470PP61Y",
+      "shortname": "f1-r217-live-epoch-contract",
+      "datetime": "2026-10-12T02:12:13Z",
+      "session": "pc-f1-preflight-r217",
+      "prompt": "Keep the same Mac leader authoritative across short lease expiry without hardcoding the epoch into packet source.",
+      "summary": "Stopped on epoch-4 expiry, reclaimed the same Mac leader at epoch 5, and changed coordinator contracts so each join/live dispatch binds the separately reviewed environment contract to the then-live epoch.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/plans/windows-gpu-f1-preflight-r217.md",
+        "docs/coordination/windows-gpu-f1-preflight-r217.md",
+        "docs/coordination/windows-gpu-f1-preflight-r217.html"
+      ],
+      "tags": [
+        "ruling-217",
+        "leader-fence"
+      ],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Preserve a fail-closed Mac leader fence across bounded work lasting longer than one lease.",
+      "done_when": "Packet source is epoch-agnostic, while every join and reviewed invocation contract requires the current live Mac epoch.",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "git": {
+        "sha": "a50d6244379852381b5109666861d38a31c985b2",
+        "short": "a50d62443",
         "branch": "win/gpu-f1-preflight-r217",
         "pushed": true
       }

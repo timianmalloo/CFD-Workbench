@@ -25,7 +25,7 @@ summary: &gt;-
 | Artifact registry | 8 classified patterns; drivers registered | Derived and register artifacts use their configured mechanisms. |
 | Worktrees | 45 observed; this coordinator has an isolated tree at `origin/main` `3d428734` | Each writing track receives another isolated worktree; no shared index. |
 | Sessions | 7 old sessions observed plus this coordinator | Old F1 sessions have no claims and must be ended; they are not reused as write locations. |
-| Leadership | Mac remains leader at epoch 4 after its epoch-3 lease expired and was reclaimed to the same identity | Carry epoch 4 in every remaining track contract, renew before each join, and pass `conductor-join.py --epoch 4`; another changed epoch stops the plan. |
+| Leadership | Mac remains leader; epoch 5 is current after epochs 3 and 4 expired during bounded packet work | Read the live epoch at every remaining join/dispatch, pass that value to `conductor-join.py`, and bind the separately reviewed invocation contract to the live value; any change stops the pending action. |
 | Doorbells | Not recorded | GitHub PR comments plus the committed xmsg register are the cross-host path. |
 | Host preflight | 1,844,653,740,032 C: bytes free; only protected distro present | Recheck inside the reviewed live packet; current observation is not a future guarantee. |
 
@@ -112,7 +112,7 @@ width remains one; no machine-time speed-up is claimed.
 
 | state | item |
 |---|---|
-| Completed | Ruling 217 read; coordinator and packet worktrees created; accepted plan and initial packet committed; Astra VETOed the exact packet on six repair classes; Mac remains leader under reconciled epoch 4. No live packet ran. |
+| Completed | Ruling 217 read; coordinator and packet worktrees created; accepted plan and initial packet committed; Astra VETOed the exact packet on six repair classes; the sole repair is committed; Mac remains leader and is currently epoch 5. No live packet ran. |
 | Remaining | One packet repair and Astra re-review; if accepted, one live preflight, result review, and gated PR handoff. |
-| Best next action | Dispatch the sole packet repair from the joined VETO at epoch 4 without WSL mutation. |
+| Best next action | Join the sole packet repair with the live epoch, then dispatch Astra's exact-byte re-review without WSL mutation. |
 </pre></main></body></html>

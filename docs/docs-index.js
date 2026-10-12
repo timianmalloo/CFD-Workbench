@@ -6207,7 +6207,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  N1[Packet author] --> N2[Astra packet review]\n  N2 --> N3[Join and live fence]\n  N3 --> N4[One preflight plus cleanup]\n  N4 --> N5[Derive evidence]\n  N5 --> N6[Astra result review]\n  N6 --> N7[Join and gates]\n  N7 --> N8[Mac handoff]"
         }
       ],
-      "sourceSha256": "ff3ef43357199a792b90515e4d667563392f8b2904c3e4560aac0436efa85940"
+      "sourceSha256": "1d8bc87da6be92496a037f1fc5d2e0493d15b4e15156667761c7544e6a2841a8"
     },
     {
       "id": "plan-wri-r179",
@@ -10863,7 +10863,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b8628aca105a3f56b269e54dc07e8c111babfd93fe34778561234ef00710c7a0"
+      "sourceSha256": "e5204e1e2995f348024ee9336f786aedd5067056ae2301ffa2a0f55dec1aa703"
     },
     {
       "id": "coordination-windows-runtime-route",
@@ -21262,5 +21262,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "66515c9208bfe959fa64f0498abd088e7d7a99201cc80e72cdb65cf3e9ffe5aa"
+  "graphSha256": "a363fee42b244d7fab02361ee98572c1cf5aed4c5dfa80ee124d7939555d7696"
 };
