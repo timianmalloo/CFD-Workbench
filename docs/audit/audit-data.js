@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T02:12:13Z",
+  "generated": "2026-10-12T02:13:06Z",
   "audit": [
     {
       "actor": null,
@@ -36002,44 +36002,35 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4PWAPHJHSHET34XZK4NA7V1",
-      "shortname": "f1-r217-packet-veto-join",
-      "datetime": "2026-10-12T01:41:10Z",
-      "session": "pc-f1-preflight-r217",
-      "prompt": "the join of win/gpu-f1-r217-astra-packet into win/gpu-f1-preflight-r217",
-      "summary": "Join Astra's exact-byte VETO and preserve its six repair classes before the sole repair cycle. recount_seconds=0 (docs_only=True).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/reviews/windows-gpu-f1-preflight-packet.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Bind the independent review to the repair base and keep live execution closed.",
+      "datetime": "2026-10-12T01:41:10Z",
       "done_when": "VETO review is joined, docs gates pass, and the packet remains unexecuted.",
-      "tier": "T1",
+      "duration_seconds": 98.0,
       "fan_out": 0,
+      "goal": "Bind the independent review to the repair base and keep live execution closed.",
+      "id": "al-01M4PWAPHJHSHET34XZK4NA7V1",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of win/gpu-f1-r217-astra-packet into win/gpu-f1-preflight-r217",
+      "session": "pc-f1-preflight-r217",
+      "shortname": "f1-r217-packet-veto-join",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-12T01:39:32Z",
-      "duration_seconds": 98.0
+      "summary": "Join Astra's exact-byte VETO and preserve its six repair classes before the sole repair cycle. recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M4PWCE612PE8N10NGKVM6NES",
-      "shortname": "f1-r217-epoch4-reconcile",
-      "datetime": "2026-10-12T01:42:07Z",
-      "session": "pc-f1-preflight-r217",
-      "prompt": "Reconcile the same Mac leader after the epoch-3 lease expired during packet review.",
-      "summary": "Stopped the live track, recorded Astra's packet VETO, and updated the plan/coordination surfaces to carry the same Mac leader at epoch 4 before the sole packet repair.",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/plans/windows-gpu-f1-preflight-r217.md",
@@ -36047,65 +36038,151 @@ window.AUDIT_DATA = {
         "docs/coordination/windows-gpu-f1-preflight-r217.html",
         "docs/reviews/windows-gpu-f1-preflight-packet.md"
       ],
+      "compiled": false,
+      "datetime": "2026-10-12T01:42:07Z",
+      "done_when": "All remaining contracts carry epoch 4 and live execution stays closed pending Astra acceptance.",
+      "fan_out": 1,
+      "git": {
+        "branch": "win/gpu-f1-preflight-r217",
+        "pushed": true,
+        "sha": "456fb542f276207e2264622430edc40b21c9741f",
+        "short": "456fb542f"
+      },
+      "goal": "Keep Mac leadership authoritative while repairing the Ruling 217 packet.",
+      "id": "al-01M4PWCE612PE8N10NGKVM6NES",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Reconcile the same Mac leader after the epoch-3 lease expired during packet review.",
+      "session": "pc-f1-preflight-r217",
+      "shortname": "f1-r217-epoch4-reconcile",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "summary": "Stopped the live track, recorded Astra's packet VETO, and updated the plan/coordination surfaces to carry the same Mac leader at epoch 4 before the sole packet repair.",
       "tags": [
         "ruling-217",
         "epoch-4"
       ],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "Keep Mac leadership authoritative while repairing the Ruling 217 packet.",
-      "done_when": "All remaining contracts carry epoch 4 and live execution stays closed pending Astra acceptance.",
       "tier": "T2",
-      "fan_out": 1,
-      "signals": {
-        "verification_path": true,
-        "verification_executed": true,
-        "acceptance_met": true
-      },
-      "git": {
-        "sha": "456fb542f276207e2264622430edc40b21c9741f",
-        "short": "456fb542f",
-        "branch": "win/gpu-f1-preflight-r217",
-        "pushed": true
-      }
+      "tool": null
     },
     {
-      "id": "al-01M4PY3HQ6ZV77GSQJ470PP61Y",
-      "shortname": "f1-r217-live-epoch-contract",
-      "datetime": "2026-10-12T02:12:13Z",
-      "session": "pc-f1-preflight-r217",
-      "prompt": "Keep the same Mac leader authoritative across short lease expiry without hardcoding the epoch into packet source.",
-      "summary": "Stopped on epoch-4 expiry, reclaimed the same Mac leader at epoch 5, and changed coordinator contracts so each join/live dispatch binds the separately reviewed environment contract to the then-live epoch.",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/plans/windows-gpu-f1-preflight-r217.md",
         "docs/coordination/windows-gpu-f1-preflight-r217.md",
         "docs/coordination/windows-gpu-f1-preflight-r217.html"
       ],
+      "compiled": false,
+      "datetime": "2026-10-12T02:12:13Z",
+      "done_when": "Packet source is epoch-agnostic, while every join and reviewed invocation contract requires the current live Mac epoch.",
+      "fan_out": 1,
+      "git": {
+        "branch": "win/gpu-f1-preflight-r217",
+        "pushed": true,
+        "sha": "a50d6244379852381b5109666861d38a31c985b2",
+        "short": "a50d62443"
+      },
+      "goal": "Preserve a fail-closed Mac leader fence across bounded work lasting longer than one lease.",
+      "id": "al-01M4PY3HQ6ZV77GSQJ470PP61Y",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Keep the same Mac leader authoritative across short lease expiry without hardcoding the epoch into packet source.",
+      "session": "pc-f1-preflight-r217",
+      "shortname": "f1-r217-live-epoch-contract",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "summary": "Stopped on epoch-4 expiry, reclaimed the same Mac leader at epoch 5, and changed coordinator contracts so each join/live dispatch binds the separately reviewed environment contract to the then-live epoch.",
       "tags": [
         "ruling-217",
         "leader-fence"
       ],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "Preserve a fail-closed Mac leader fence across bounded work lasting longer than one lease.",
-      "done_when": "Packet source is epoch-agnostic, while every join and reviewed invocation contract requires the current live Mac epoch.",
       "tier": "T2",
-      "fan_out": 1,
-      "signals": {
-        "verification_path": true,
-        "verification_executed": true,
-        "acceptance_met": true
-      },
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/packet/README.md",
+        "docs/lessons/defect-classes.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T02:08:41Z",
+      "done_when": "Packet, defect-class controls, safe offline tests and documentation gates are green and committed for independent review.",
+      "duration_seconds": 1429.0,
+      "fan_out": 0,
       "git": {
+        "branch": "win/gpu-f1-r217-packet-repair",
+        "pushed": null,
         "sha": "a50d6244379852381b5109666861d38a31c985b2",
-        "short": "a50d62443",
-        "branch": "win/gpu-f1-preflight-r217",
-        "pushed": true
-      }
+        "short": "a50d62443"
+      },
+      "goal": "Clear Astra P1-P6 VETO in the sole R217 PACKET repair cycle without live WSL, apt, downloads, builds, or cases.",
+      "id": "al-01M4PXX2EP19G9WZ8XAW0W3TYA",
+      "kind": "skill",
+      "main_budget": 45,
+      "main_calls": 39,
+      "main_over_budget": false,
+      "outcome": "success",
+      "prompt": "SOLE PACKET REPAIR after Astra VETO: repair P1-P6 in R217 packet with red-first offline tests, class controls, contract, ownership, deadlines, signer verification, Installed-Size/capacity; no live WSL or apt; validate, audit, commit.",
+      "session": "pc-f1-r217-packet-repair",
+      "shortname": "r217-packet-repair",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T01:44:52Z",
+      "summary": "Repaired R217 packet P1-P6 with bounded independent finalization, exact ownership, committed invocation contract and signer checks, capacity reconciliation, and planted offline failures; no live execution.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/packet/contract.py"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-12T02:11:02Z",
+      "done_when": "Contract, wrapper evidence, README and planted tests agree, offline checks pass, and a follow-up commit is made.",
+      "duration_seconds": 53.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "win/gpu-f1-r217-packet-repair",
+        "pushed": null,
+        "sha": "244887c7cfbb21dd3410edf9e19c76edefdcd333",
+        "short": "244887c7c"
+      },
+      "goal": "Keep the R217 packet valid across coordinator lease epochs while failing closed on an unreviewed or mismatched live epoch.",
+      "id": "al-01M4PY1C0NR32QGAANTC18HBYM",
+      "kind": "skill",
+      "main_budget": 8,
+      "main_calls": 7,
+      "main_over_budget": false,
+      "outcome": "success",
+      "prompt": "Correct R217 packet pre-review authority seam: remove executable epoch-4 hardcoding, require positive reviewed contract epoch and exact live Mac epoch match; remain offline.",
+      "session": "pc-f1-r217-packet-repair",
+      "shortname": "r217-epoch-binding",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-12T02:10:09Z",
+      "summary": "Replaced fixed epoch-4 checks with a separately reviewed positive contract epoch and exact live comparison; evidence records the contract value; red-first epoch regressions and focused offline gates passed.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     }
   ],
   "changes": [
