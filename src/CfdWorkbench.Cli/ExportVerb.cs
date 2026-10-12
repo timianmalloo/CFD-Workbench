@@ -29,7 +29,7 @@ internal static class ExportVerb
         "  The extension of --out is forced to .dat, .stl or .3mf; an existing file of the exact --out name is replaced,\n" +
         "  a forced name that already exists is never replaced. An existing folder as --out takes the dialog's file name.\n" +
         "Exit codes: 0 written (a trailing edge below the floor is advised and still written); 2 usage, bad option or input;\n" +
-        "  3 input unsupported; 4 geometry not accepted; 5 path not writable;\n" +
+        "  3 input unsupported; 4 geometry not accepted; 5 path not writable (a folder at the target name too);\n" +
         "  6 target is a symlink; 7 mesh did not close, nothing written; 8 forced-extension name exists; 130 cancelled.";
 
     private sealed record Options(string Input, ExportFormat Format, string Out, DatShape Shape, string? Station, DatOrder Order,

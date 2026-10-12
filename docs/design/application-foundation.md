@@ -162,7 +162,7 @@ names: `root`, `tip`, or the number N of the label "Station N" (one shared rule,
 an unknown name is a usage error that lists the valid names. `--out` may be an existing folder, which takes the dialog's
 suggested name (`basic-foil-r1-half-mm.stl`). It prints plain text. Exit 0 = written (a trailing edge below the floor is
 advised and still written); 2 = usage, bad option or input; 3 = unsupported input; 4 = geometry not accepted;
-5 = path not writable; 6 = target is a symlink; 7 = mesh did not close, nothing written; 8 = the forced-extension name
+5 = path not writable (a folder at the target name too); 6 = target is a symlink; 7 = mesh did not close, nothing written; 8 = the forced-extension name
 already exists; 130 = cancellation.
 
 ## Geometry admission and resource limits
