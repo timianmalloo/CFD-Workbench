@@ -17513,6 +17513,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "aacdc60502f70d90223248f1fc0f19005ce3bb20930bb257ff9a6e4ee59b2156"
     },
     {
+      "id": "proof-tmx-diagnosis",
+      "path": "docs/proof/tmx/diagnosis.md",
+      "title": "TMX diagnosis of ThemeMatrix_ShellControls_AppliedContrast on Windows at 150 percent",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-tmx",
+      "phase": "implementation",
+      "reviewBy": "2026-11-12",
+      "reviewSuggested": [],
+      "summary": "Why the Browser-row enclosure check in the theme matrix throws \"does not enclose text on MainWindow\" at 150 percent. Reproduced on the Mac by forcing the window scale to 1.5 (emulation). Class: fixture and oracle, not a product overflow. Proposal and the one print the PC must send.",
+      "tags": [
+        "windows",
+        "theme-matrix",
+        "fractional-scale",
+        "diagnosis"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "654b0ae6a1cda2a02e6784a63c52ca67afee90ed31c4d9059229eabb8f8c231c"
+    },
+    {
       "id": "proof-u1fix-red-runs",
       "path": "docs/proof/u1fix-red-runs.md",
       "title": "U1FIX app-shell repair proof",
@@ -21147,5 +21173,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "5ae7afd982d0283be80dc68cd3ce9f07fd1fb1263b9fc1f08cb2bef9ab68cb6e"
+  "graphSha256": "be9f8774326bef045c86c313bb1041799a08ff2f79d6885db9d96defdab2d93e"
 };

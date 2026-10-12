@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T14:28:43Z",
+  "generated": "2026-10-12T16:22:01Z",
   "audit": [
     {
       "actor": null,
@@ -35916,6 +35916,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-12T14:27:34Z",
       "duration_seconds": 69.0
+    },
+    {
+      "id": "al-01M4REQHW9J6BVM7X0DRZYMR2M",
+      "shortname": "tmx-theme-diagnosis",
+      "datetime": "2026-10-12T16:22:00Z",
+      "session": "trk-tmx",
+      "prompt": "TMX diagnose ThemeMatrix_ShellControls_AppliedContrast on Windows",
+      "summary": "Reproduced at forced 1.5 on the Mac: Browser row 1 below the fold, BringIntoView does not land; fixture class (b) refined; proposal only",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Classify the Windows 150 percent theme-matrix failure and propose a fix",
+      "done_when": "docs/proof/tmx/diagnosis.md committed, check-docs exit 0",
+      "started_at": "2026-10-12T16:11:45Z",
+      "duration_seconds": 615.0
     }
   ],
   "changes": [
