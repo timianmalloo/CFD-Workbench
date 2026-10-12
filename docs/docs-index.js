@@ -6167,6 +6167,49 @@ window.DOCS_INDEX = {
       "sourceSha256": "e6c2c81df9511f763e9d981824aa824b56d0f84cb3fc6cbeb5b0f6ff9e613f29"
     },
     {
+      "id": "plan-windows-gpu-f1-preflight-r217",
+      "path": "docs/plans/windows-gpu-f1-preflight-r217.md",
+      "title": "Optimized execution graph - Windows GPU F1 dependency preflight",
+      "type": "doc",
+      "status": "proposed",
+      "owner": "@pc-f1-preflight-coordinator",
+      "phase": "",
+      "reviewBy": "2026-10-19",
+      "reviewSuggested": [],
+      "summary": "A serial, independently reviewed run-packet and one bounded disposable-WSL preflight close the Ruling 217 dependency evidence while preserving the protected distro and prohibiting installation, builds and case runs.",
+      "tags": [
+        "windows",
+        "wsl",
+        "gpu",
+        "openfoam",
+        "petsc",
+        "coordination",
+        "ruling-217"
+      ],
+      "links": [
+        {
+          "to": "plan-windows-gpu-f1-r211",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-gpu-f1-dependency-worksheet",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Optimized graph",
+          "mermaid": "flowchart LR\n  N1[Packet author] --> N2[Astra packet review]\n  N2 --> N3[Join and live fence]\n  N3 --> N4[One preflight plus cleanup]\n  N4 --> N5[Derive evidence]\n  N5 --> N6[Astra result review]\n  N6 --> N7[Join and gates]\n  N7 --> N8[Mac handoff]"
+        }
+      ],
+      "sourceSha256": "536e84a27e3bdf5c0e11bce91084515fd28841ea1bc0b1a202f758d751323ea8"
+    },
+    {
       "id": "plan-wri-r179",
       "path": "docs/plans/wri-r179.md",
       "title": "Ruling 179 bounded Windows execution graph and blocked delivery ledger",
@@ -8830,7 +8873,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b2b6efa658886a7b3a21c5c982e22e16e0e3135889fd8659bb59313639c5a89d"
+      "sourceSha256": "cb4276e887bdfce88fc8a01207696a04e95d4a3a7bd6affbf0263fc70f937cf5"
     },
     {
       "id": "kb-hw-glossary",
@@ -10785,6 +10828,42 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "d7de32081cd30552056f43c302cb0c534d1193dbb34533b39df314a64e7c2013"
+    },
+    {
+      "id": "coordination-windows-gpu-f1-preflight-r217",
+      "path": "docs/coordination/windows-gpu-f1-preflight-r217.md",
+      "title": "Coordination plan - Windows GPU F1 dependency preflight",
+      "type": "plan",
+      "status": "proposed",
+      "owner": "@pc-f1-preflight-coordinator",
+      "phase": "",
+      "reviewBy": "2026-10-19",
+      "reviewSuggested": [],
+      "summary": "One Sol packet author, one deterministic live executor and an Astra owner at both hard gates run the Ruling 217 preflight serially; the Mac remains leader and all install, build and case execution stays closed.",
+      "tags": [
+        "coordination",
+        "worktrees",
+        "windows",
+        "wsl",
+        "gpu",
+        "ruling-217"
+      ],
+      "links": [
+        {
+          "to": "plan-windows-gpu-f1-preflight-r217",
+          "rel": "implements"
+        },
+        {
+          "to": "plan-windows-gpu-f1-r211",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4bd56b8d8172aeaa06a21f3f89120a5ebb9060b1858418613b708a9741b49fd4"
     },
     {
       "id": "coordination-windows-runtime-route",
@@ -19463,7 +19542,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0166a2f2090401df8de20032ca2b18dd75ff2023410f1f3c7e6df8f6fb652261"
+      "sourceSha256": "d46c4dfea9d4a7b4967489f086a24a232f43d0f5e3a68177a1ce54b8e3cd0732"
     },
     {
       "id": "review-ui-application-native",
@@ -21080,6 +21159,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-w2-save-picker"
     },
     {
+      "id": "surface-coordination-windows-gpu-f1-preflight-r217",
+      "path": "docs/coordination/windows-gpu-f1-preflight-r217.html",
+      "title": "Windows GPU F1 dependency preflight coordination plan",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "coordination-windows-gpu-f1-preflight-r217"
+    },
+    {
       "id": "surface-coordination-windows-gpu-f1-design",
       "path": "docs/coordination/windows-gpu-f1-design.html",
       "title": "Windows GPU F1 design coordination plan",
@@ -21096,5 +21183,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "3250d827676c5a72276789aeb3fed35b1e40023de8b4afcff83b47e3faa1f65e"
+  "graphSha256": "656fd2d72563585f829ba5fbad96e9f5b9f96adc77f89129f4e7030fda908efe"
 };

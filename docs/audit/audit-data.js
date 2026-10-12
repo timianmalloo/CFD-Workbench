@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-11T20:05:01Z",
+  "generated": "2026-10-12T00:59:21Z",
   "audit": [
     {
       "actor": null,
@@ -35826,6 +35826,80 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-11T20:04:44Z",
       "duration_seconds": 17.0
+    },
+    {
+      "id": "al-01M4PSWVKCW4GPDZW6ECKJBNY2",
+      "shortname": "keep going",
+      "datetime": "2026-10-12T00:58:40Z",
+      "session": "prompt-log",
+      "prompt": "keep going",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4PSY2AR9816VBYF32DT9ZJD",
+      "shortname": "optimize-graph-windows-gpu-f1-preflight-r217",
+      "datetime": "2026-10-12T00:59:19Z",
+      "session": "pc-f1-preflight-r217",
+      "prompt": "Execute the newly authorized Ruling 217 Windows F1 dependency preflight and continue coordination with Mac.",
+      "summary": "Reduced a naive 12-node serial flow to 8 bounded nodes at width 1; retained packet and result independent vetoes, signed-source, zero-removal, CPU/nice, continuous L3 guard, VHD/host capacity, pre-cleanup commit, unregister, manifest, gate and audit floors; bounded packet repair at two reviews and live execution at one attempt/60 minutes.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/plans/windows-gpu-f1-preflight-r217.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Produce the smallest rigorous execution graph for the Ruling 217 dependency preflight.",
+      "done_when": "Astra accepts the graph and every live effect, verification floor, loop bound, cleanup condition and Mac handoff is dispatchable.",
+      "tier": "T1",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T00:50:54Z",
+      "duration_seconds": 505.0
+    },
+    {
+      "id": "al-01M4PSY3P5MD5S0JQYSMJVS0KF",
+      "shortname": "coordination-windows-gpu-f1-preflight-r217",
+      "datetime": "2026-10-12T00:59:21Z",
+      "session": "pc-f1-preflight-r217",
+      "prompt": "Execute Ruling 217 through prepare-for-coordination and execute-with-coordination, with Astra as independent owner and Mac as leader.",
+      "summary": "Selected a serial Sol packet author, reviewed deterministic executor and two independent Astra gates; struck split transaction/licence/capacity and build tracks; Astra accepted the repaired plan after one VETO; Mac leadership reclaimed at epoch 3.",
+      "kind": "skill",
+      "skill": "prepare-for-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/windows-gpu-f1-preflight-r217.md",
+        "docs/coordination/windows-gpu-f1-preflight-r217.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Prepare the immutable ownership and join contract for the Ruling 217 preflight.",
+      "done_when": "The md/html plan pair is accepted, derived, audited and ready to commit before packet dispatch.",
+      "tier": "T1",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T00:58:38Z",
+      "duration_seconds": 43.0
     }
   ],
   "changes": [
