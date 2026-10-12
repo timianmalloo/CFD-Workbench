@@ -1,0 +1,14 @@
+{
+  "names": [
+    "cfdw-openfoam2512"
+  ],
+  "registrations": [
+    {
+      "key": "{b7566a82-9cee-47ce-a246-f83632353cea}",
+      "name": "cfdw-openfoam2512",
+      "path": "%USERPROFILE%\\AppData\\Local\\CFDWorkbench\\qualification\\wsl\\cfdw-openfoam2512",
+      "version": 2
+    }
+  ],
+  "target_absent": true
+}

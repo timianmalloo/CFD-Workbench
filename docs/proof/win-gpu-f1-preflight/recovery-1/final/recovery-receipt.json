@@ -1,0 +1,800 @@
+{
+  "affinity": "Linux CPU0-1 nice10; protected guard CPU0 nice10; host lifecycle/Git N/A",
+  "authorization_sha256": "c58e30658a5977fce028e2e63d292c548a9befc51e11a8ce1f9b044cf5112f35",
+  "checkpoint_commit": "486ecd3ed495da3792c868fff1273767aecb937c",
+  "cleanup_proved": false,
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "elapsed_seconds": 0.10845960001461208,
+      "exit": 0,
+      "label": "head"
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "elapsed_seconds": 0.10792310000397265,
+      "exit": 0,
+      "label": "clean"
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "5b1a9bb460df4ae2955a3bb922b0e68138492cc0",
+        "486ecd3ed495da3792c868fff1273767aecb937c"
+      ],
+      "elapsed_seconds": 0.10596860002260655,
+      "exit": 0,
+      "label": "source-ancestor"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "486ecd3ed495da3792c868fff1273767aecb937c:docs/proof/win-gpu-f1-preflight/recovery-1/cleanup-authorization.json"
+      ],
+      "elapsed_seconds": 0.10738780000247061,
+      "exit": 0,
+      "label": "authorization-blob"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "486ecd3ed495da3792c868fff1273767aecb937c:docs/notes/rulings.md"
+      ],
+      "elapsed_seconds": 0.11534070002380759,
+      "exit": 0,
+      "label": "ruling-blob"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "5b1a9bb460df4ae2955a3bb922b0e68138492cc0:docs/proof/win-gpu-f1-preflight/packet/authority_scan.py"
+      ],
+      "elapsed_seconds": 0.10636560001876205,
+      "exit": 0,
+      "label": "source-blob"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "5b1a9bb460df4ae2955a3bb922b0e68138492cc0:docs/proof/win-gpu-f1-preflight/packet/completed_guard.py"
+      ],
+      "elapsed_seconds": 0.10600939998403192,
+      "exit": 0,
+      "label": "source-blob"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "5b1a9bb460df4ae2955a3bb922b0e68138492cc0:docs/proof/win-gpu-f1-preflight/packet/contract.py"
+      ],
+      "elapsed_seconds": 0.10615929996129125,
+      "exit": 0,
+      "label": "source-blob"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "5b1a9bb460df4ae2955a3bb922b0e68138492cc0:docs/proof/win-gpu-f1-preflight/packet/Control.ps1"
+      ],
+      "elapsed_seconds": 0.10946919990237802,
+      "exit": 0,
+      "label": "source-blob"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "5b1a9bb460df4ae2955a3bb922b0e68138492cc0:docs/proof/win-gpu-f1-preflight/packet/identity.sh"
+      ],
+      "elapsed_seconds": 0.10635239991825074,
+      "exit": 0,
+      "label": "source-blob"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "5b1a9bb460df4ae2955a3bb922b0e68138492cc0:docs/proof/win-gpu-f1-preflight/packet/Invoke-Preflight.ps1"
+      ],
+      "elapsed_seconds": 0.1141598999965936,
+      "exit": 0,
+      "label": "source-blob"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "5b1a9bb460df4ae2955a3bb922b0e68138492cc0:docs/proof/win-gpu-f1-preflight/packet/manifest.py"
+      ],
+      "elapsed_seconds": 0.10880420007742941,
+      "exit": 0,
+      "label": "source-blob"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "5b1a9bb460df4ae2955a3bb922b0e68138492cc0:docs/proof/win-gpu-f1-preflight/packet/owned-control.sh"
+      ],
+      "elapsed_seconds": 0.11307029996532947,
+      "exit": 0,
+      "label": "source-blob"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "5b1a9bb460df4ae2955a3bb922b0e68138492cc0:docs/proof/win-gpu-f1-preflight/packet/owned_control.py"
+      ],
+      "elapsed_seconds": 0.10527709999587387,
+      "exit": 0,
+      "label": "source-blob"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "5b1a9bb460df4ae2955a3bb922b0e68138492cc0:docs/proof/win-gpu-f1-preflight/packet/packet_selftest.py"
+      ],
+      "elapsed_seconds": 0.10619770002085716,
+      "exit": 0,
+      "label": "source-blob"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "5b1a9bb460df4ae2955a3bb922b0e68138492cc0:docs/proof/win-gpu-f1-preflight/packet/preflight.sh"
+      ],
+      "elapsed_seconds": 0.10837330005597323,
+      "exit": 0,
+      "label": "source-blob"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "5b1a9bb460df4ae2955a3bb922b0e68138492cc0:docs/proof/win-gpu-f1-preflight/packet/README.md"
+      ],
+      "elapsed_seconds": 0.114859199966304,
+      "exit": 0,
+      "label": "source-blob"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "5b1a9bb460df4ae2955a3bb922b0e68138492cc0:docs/proof/win-gpu-f1-preflight/packet/SelfTest.ps1"
+      ],
+      "elapsed_seconds": 0.10604850004892796,
+      "exit": 0,
+      "label": "source-blob"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "5b1a9bb460df4ae2955a3bb922b0e68138492cc0:docs/proof/win-gpu-f1-preflight/packet/transaction.py"
+      ],
+      "elapsed_seconds": 0.10660200007259846,
+      "exit": 0,
+      "label": "source-blob"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "5b1a9bb460df4ae2955a3bb922b0e68138492cc0:docs/proof/win-gpu-f1-preflight/packet/verify-rootfs.sh"
+      ],
+      "elapsed_seconds": 0.10975219996180385,
+      "exit": 0,
+      "label": "source-blob"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "5b1a9bb460df4ae2955a3bb922b0e68138492cc0:docs/proof/win-gpu-f1-preflight/recovery/check_cache.py"
+      ],
+      "elapsed_seconds": 0.10959529993124306,
+      "exit": 0,
+      "label": "source-blob"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "5b1a9bb460df4ae2955a3bb922b0e68138492cc0:docs/proof/win-gpu-f1-preflight/recovery/index_retained.py"
+      ],
+      "elapsed_seconds": 0.1064895000308752,
+      "exit": 0,
+      "label": "source-blob"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "5b1a9bb460df4ae2955a3bb922b0e68138492cc0:docs/proof/win-gpu-f1-preflight/recovery/recover.py"
+      ],
+      "elapsed_seconds": 0.10975790000520647,
+      "exit": 0,
+      "label": "source-blob"
+    },
+    {
+      "argv": [
+        "%USERPROFILE%\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "docs/ai-forward-pack/scripts/coord-core.py",
+        "leader",
+        "who"
+      ],
+      "elapsed_seconds": 0.31274690001737326,
+      "exit": 0,
+      "label": "leader"
+    },
+    {
+      "argv": [
+        "%USERPROFILE%\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-cleanup-live1\\docs\\proof\\win-gpu-f1-preflight\\packet\\manifest.py",
+        "verify",
+        "--repo",
+        "C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-cleanup-live1",
+        "--frozen",
+        "C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-cleanup-live1\\docs\\proof\\win-gpu-f1-preflight\\run-1\\checkpoint",
+        "--commit",
+        "486ecd3ed495da3792c868fff1273767aecb937c"
+      ],
+      "elapsed_seconds": 2.8270227999892086,
+      "exit": 0,
+      "label": "manifest-verify"
+    },
+    {
+      "argv": [
+        "%USERPROFILE%\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-cleanup-live1\\docs\\proof\\win-gpu-f1-preflight\\packet\\manifest.py",
+        "verify",
+        "--repo",
+        "C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-cleanup-live1",
+        "--frozen",
+        "C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-cleanup-live1\\docs\\proof\\win-gpu-f1-preflight\\run-1\\failed-live",
+        "--commit",
+        "486ecd3ed495da3792c868fff1273767aecb937c"
+      ],
+      "elapsed_seconds": 3.2247234999667853,
+      "exit": 0,
+      "label": "manifest-verify"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--list",
+        "--quiet"
+      ],
+      "elapsed_seconds": 0.11553840001579374,
+      "exit": 0,
+      "label": "distro-list"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--distribution",
+        "cfdw-petsc-cuda132-f1",
+        "--user",
+        "root",
+        "--exec",
+        "/usr/bin/taskset",
+        "--cpu-list",
+        "0-1",
+        "/usr/bin/nice",
+        "-n",
+        "10",
+        "/usr/bin/setsid",
+        "--wait",
+        "/bin/bash",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/packet/identity.sh",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/recovery-1/live/owned-stage-check.entry.txt",
+        "--",
+        "/bin/bash",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/packet/owned-control.sh",
+        "--mode",
+        "check",
+        "--run-root",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-execute-r220/docs/proof/win-gpu-f1-preflight/run-1/live",
+        "r217-run1-epoch6-20261012"
+      ],
+      "elapsed_seconds": 3.822577100014314,
+      "exit": 0,
+      "label": "owned-stage-check"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--distribution",
+        "cfdw-openfoam2512",
+        "--user",
+        "root",
+        "--exec",
+        "/usr/bin/taskset",
+        "--cpu-list",
+        "0",
+        "/usr/bin/nice",
+        "-n",
+        "10",
+        "/usr/bin/setsid",
+        "--wait",
+        "/bin/bash",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/packet/identity.sh",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/recovery-1/live/owned-guard-check.entry.txt",
+        "--",
+        "/bin/bash",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/packet/owned-control.sh",
+        "--mode",
+        "check",
+        "--run-root",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-execute-r220/docs/proof/win-gpu-f1-preflight/run-1/live",
+        "r217-run1-epoch6-20261012",
+        "--kind",
+        "guard"
+      ],
+      "elapsed_seconds": 0.5115906000137329,
+      "exit": 0,
+      "label": "owned-guard-check"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--distribution",
+        "cfdw-openfoam2512",
+        "--user",
+        "root",
+        "--exec",
+        "/usr/bin/taskset",
+        "--cpu-list",
+        "0",
+        "/usr/bin/nice",
+        "-n",
+        "10",
+        "/usr/bin/setsid",
+        "--wait",
+        "/bin/bash",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/packet/identity.sh",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/recovery-1/live/l3-before.entry.txt",
+        "--",
+        "/usr/bin/python3",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/packet/completed_guard.py",
+        "snapshot",
+        "--output",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/recovery-1/live/l3-before.json",
+        "--include-log-sha256"
+      ],
+      "elapsed_seconds": 0.6132632999215275,
+      "exit": 0,
+      "label": "l3-before"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--distribution",
+        "cfdw-petsc-cuda132-f1",
+        "--user",
+        "root",
+        "--exec",
+        "/usr/bin/taskset",
+        "--cpu-list",
+        "0-1",
+        "/usr/bin/nice",
+        "-n",
+        "10",
+        "/usr/bin/setsid",
+        "--wait",
+        "/bin/bash",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/packet/identity.sh",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/recovery-1/live/cache-admission.entry.txt",
+        "--",
+        "/usr/bin/python3",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/recovery/check_cache.py"
+      ],
+      "elapsed_seconds": 0.31050819996744394,
+      "exit": 0,
+      "label": "cache-admission"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--list",
+        "--quiet"
+      ],
+      "elapsed_seconds": 0.10425039997790009,
+      "exit": 0,
+      "label": "distro-list"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--list",
+        "--quiet"
+      ],
+      "elapsed_seconds": 0.10473279992584139,
+      "exit": 0,
+      "label": "distro-list"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--distribution",
+        "cfdw-petsc-cuda132-f1",
+        "--user",
+        "root",
+        "--exec",
+        "/usr/bin/taskset",
+        "--cpu-list",
+        "0-1",
+        "/usr/bin/nice",
+        "-n",
+        "10",
+        "/usr/bin/setsid",
+        "--wait",
+        "/bin/bash",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/packet/identity.sh",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/recovery-1/live/delete-debs.entry.txt",
+        "--",
+        "/bin/bash",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/packet/preflight.sh",
+        "--stage",
+        "delete-debs",
+        "--run-root",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/recovery-1/live",
+        "--packet-root",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/packet",
+        "--b2-lock",
+        "C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-execute-r220\\docs\\proof\\win-gpu-b2\\package-lock.json",
+        "--openfoam-key",
+        "C:\\Projects\\CFD-Workbench-wsl\\f1-r217-inputs-r220-epoch6\\openfoam-archive-keyring.gpg",
+        "--nvidia-key",
+        "C:\\Projects\\CFD-Workbench-wsl\\f1-r217-inputs-r220-epoch6\\nvidia-cuda-archive-keyring.gpg",
+        "--openfoam-fingerprint",
+        "DC93C096174122E256DA24063386DD74948D208F",
+        "--run-id",
+        "r217-run1-epoch6-20261012",
+        "--contract",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/run-1/invocation-contract.json",
+        "--contract-sha256",
+        "f109d4f253f436d8b178e40ea5af497316faf36b0c4398c8a598abc52748336c"
+      ],
+      "elapsed_seconds": 0.3118724999949336,
+      "exit": 0,
+      "label": "delete-debs"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--list",
+        "--quiet"
+      ],
+      "elapsed_seconds": 0.1047584000043571,
+      "exit": 0,
+      "label": "distro-list"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--distribution",
+        "cfdw-petsc-cuda132-f1",
+        "--user",
+        "root",
+        "--exec",
+        "/usr/bin/taskset",
+        "--cpu-list",
+        "0-1",
+        "/usr/bin/nice",
+        "-n",
+        "10",
+        "/usr/bin/setsid",
+        "--wait",
+        "/bin/bash",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/packet/identity.sh",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/recovery-1/live/owned-stage-stop.entry.txt",
+        "--",
+        "/bin/bash",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/packet/owned-control.sh",
+        "--mode",
+        "stop",
+        "--run-root",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/recovery-1/live",
+        "r217-run1-epoch6-20261012"
+      ],
+      "elapsed_seconds": 0.6139482000144199,
+      "exit": 0,
+      "label": "owned-stage-stop"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--distribution",
+        "cfdw-petsc-cuda132-f1",
+        "--user",
+        "root",
+        "--exec",
+        "/usr/bin/taskset",
+        "--cpu-list",
+        "0-1",
+        "/usr/bin/nice",
+        "-n",
+        "10",
+        "/usr/bin/setsid",
+        "--wait",
+        "/bin/bash",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/packet/identity.sh",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/recovery-1/live/owned-stage-check.entry.txt",
+        "--",
+        "/bin/bash",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/packet/owned-control.sh",
+        "--mode",
+        "check",
+        "--run-root",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/recovery-1/live",
+        "r217-run1-epoch6-20261012"
+      ],
+      "elapsed_seconds": 0.5107323999982327,
+      "exit": 0,
+      "label": "owned-stage-check"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--distribution",
+        "cfdw-petsc-cuda132-f1",
+        "--user",
+        "root",
+        "--exec",
+        "/usr/bin/taskset",
+        "--cpu-list",
+        "0-1",
+        "/usr/bin/nice",
+        "-n",
+        "10",
+        "/usr/bin/setsid",
+        "--wait",
+        "/bin/bash",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/packet/identity.sh",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/recovery-1/live/owned-stage-check.entry.txt",
+        "--",
+        "/bin/bash",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/packet/owned-control.sh",
+        "--mode",
+        "check",
+        "--run-root",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-execute-r220/docs/proof/win-gpu-f1-preflight/run-1/live",
+        "r217-run1-epoch6-20261012"
+      ],
+      "elapsed_seconds": 0.5065994000760838,
+      "exit": 0,
+      "label": "owned-stage-check"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--list",
+        "--quiet"
+      ],
+      "elapsed_seconds": 0.1039761999854818,
+      "exit": 0,
+      "label": "distro-list"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--list",
+        "--quiet"
+      ],
+      "elapsed_seconds": 0.10474590002559125,
+      "exit": 0,
+      "label": "distro-list"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--list",
+        "--quiet"
+      ],
+      "elapsed_seconds": 0.1122704999288544,
+      "exit": 0,
+      "label": "distro-list"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--terminate",
+        "cfdw-petsc-cuda132-f1"
+      ],
+      "elapsed_seconds": 0.10983299999497831,
+      "exit": 0,
+      "label": "terminate"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--list",
+        "--quiet"
+      ],
+      "elapsed_seconds": 0.10546310001518577,
+      "exit": 0,
+      "label": "distro-list"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--list",
+        "--quiet"
+      ],
+      "elapsed_seconds": 0.1053025999572128,
+      "exit": 0,
+      "label": "distro-list"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--list",
+        "--quiet"
+      ],
+      "elapsed_seconds": 0.11212019994854927,
+      "exit": 0,
+      "label": "distro-list"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--unregister",
+        "cfdw-petsc-cuda132-f1"
+      ],
+      "elapsed_seconds": 0.1099474000511691,
+      "exit": 0,
+      "label": "unregister"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--list",
+        "--quiet"
+      ],
+      "elapsed_seconds": 0.10388449998572469,
+      "exit": 0,
+      "label": "distro-list"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--list",
+        "--quiet"
+      ],
+      "elapsed_seconds": 0.10423309996258467,
+      "exit": 0,
+      "label": "distro-list"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--distribution",
+        "cfdw-openfoam2512",
+        "--user",
+        "root",
+        "--exec",
+        "/usr/bin/taskset",
+        "--cpu-list",
+        "0",
+        "/usr/bin/nice",
+        "-n",
+        "10",
+        "/usr/bin/setsid",
+        "--wait",
+        "/bin/bash",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/packet/identity.sh",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/recovery-1/live/owned-guard-stop.entry.txt",
+        "--",
+        "/bin/bash",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/packet/owned-control.sh",
+        "--mode",
+        "stop",
+        "--run-root",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/recovery-1/live",
+        "pc-f1-r217-cleanup-live1",
+        "--kind",
+        "guard"
+      ],
+      "elapsed_seconds": 0.5116916000843048,
+      "exit": 0,
+      "label": "owned-guard-stop"
+    },
+    {
+      "argv": [
+        "wsl.exe",
+        "--distribution",
+        "cfdw-openfoam2512",
+        "--user",
+        "root",
+        "--exec",
+        "/usr/bin/taskset",
+        "--cpu-list",
+        "0",
+        "/usr/bin/nice",
+        "-n",
+        "10",
+        "/usr/bin/setsid",
+        "--wait",
+        "/bin/bash",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/packet/identity.sh",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/recovery-1/live/owned-guard-check.entry.txt",
+        "--",
+        "/bin/bash",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/packet/owned-control.sh",
+        "--mode",
+        "check",
+        "--run-root",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/recovery-1/live",
+        "pc-f1-r217-cleanup-live1",
+        "--kind",
+        "guard"
+      ],
+      "elapsed_seconds": 0.3119021999882534,
+      "exit": 0,
+      "label": "owned-guard-check"
+    }
+  ],
+  "elapsed_seconds": 22.285299199982546,
+  "errors": [
+    {
+      "detail": "Raw runtime text is not public; SHA256 identifies the failure",
+      "exception_type": "ValueError",
+      "phase": "protected-invariance",
+      "raw_error_sha256": "5707392903dcd18955cf61a4dc93ba40f2b935f5384b7936952fe8180cb42386"
+    }
+  ],
+  "evidence_binding": "pending; requires verified commit",
+  "historical_status": "FAILED: stage-simulate exited 5; checkpoint unproved; cleanup withheld",
+  "initiating_error": {
+    "detail": "Raw runtime text is not public; SHA256 identifies the failure",
+    "exception_type": "ValueError",
+    "phase": "protected-invariance",
+    "raw_error_sha256": "5707392903dcd18955cf61a4dc93ba40f2b935f5384b7936952fe8180cb42386"
+  },
+  "original_manifest_sha256": "76ab6e220a21c10c694a7eecd9d00679d1a0a42b3444598dae2682ac627f0bea",
+  "original_run_id": "r217-run1-epoch6-20261012",
+  "recovery_success": false,
+  "schema": "cfdw-f1-cleanup-recovery/2",
+  "source_commit": "5b1a9bb460df4ae2955a3bb922b0e68138492cc0"
+}

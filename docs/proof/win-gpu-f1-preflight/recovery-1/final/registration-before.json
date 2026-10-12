@@ -1,0 +1,20 @@
+{
+  "names": [
+    "cfdw-openfoam2512",
+    "cfdw-petsc-cuda132-f1"
+  ],
+  "registrations": [
+    {
+      "key": "{b7566a82-9cee-47ce-a246-f83632353cea}",
+      "name": "cfdw-openfoam2512",
+      "path": "%USERPROFILE%\\AppData\\Local\\CFDWorkbench\\qualification\\wsl\\cfdw-openfoam2512",
+      "version": 2
+    },
+    {
+      "key": "{e958c4d5-ae78-4b50-a634-7102f334d3aa}",
+      "name": "cfdw-petsc-cuda132-f1",
+      "path": "C:\\Projects\\CFD-Workbench-wsl\\cfdw-petsc-cuda132-f1",
+      "version": 2
+    }
+  ]
+}
