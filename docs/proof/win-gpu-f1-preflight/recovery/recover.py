@@ -424,24 +424,60 @@ class Recovery:
                    ['/bin/bash', self.linux_path(self.packet / 'owned-control.sh'), '--mode', mode,
                     '--run-root', self.linux_path(root), run_id] + (['--kind', 'guard'] if kind == 'guard' else []), 15)
 
-    def guard_ok(self):
-        if self.guard is None or self.guard.poll() is not None:
-            raise ValueError('fresh completed guard exited/missing')
-        state = json.loads((self.live / 'completed-guard.state.json').read_bytes())
-        raw = (self.live / 'completed-guard-events.jsonl').read_bytes()
-        complete = raw[:raw.rfind(b'\n') + 1]
-        if not complete:
-            raise ValueError('fresh guard has no complete event')
-        event = json.loads(complete.splitlines()[-1])
-        for value in (state, event):
-            if value['session_id'] != self.session or value['expected_sha256'] != self.before:
-                raise ValueError('guard binding changed')
-        if event['sample_number'] != state['completed_samples'] or event['utc'] != state['last_sample_utc']:
-            raise ValueError('guard event/state disagree')
-        age = (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(state['last_sample_utc'].replace('Z', '+00:00'))).total_seconds()
-        if state['state'] != 'running' or event['verdict'] != 'continue' or not -5 <= age <= 12:
-            raise ValueError('guard stopped/stale')
-        return state['completed_samples']
+    def guard_ok(self, deadline=None):
+        started = time.monotonic()
+        end = min(started + self.remaining(0.5), deadline if deadline is not None else self.start + 600)
+        attempts = 0
+        previous = None
+        try:
+            for attempts in range(1, 11):
+                self.remaining(0.5)
+                if time.monotonic() >= end:
+                    raise ValueError('guard consistency deadline exhausted')
+                if self.guard is None or self.guard.poll() is not None:
+                    raise ValueError('fresh completed guard exited/missing')
+                state = json.loads((self.live / 'completed-guard.state.json').read_bytes())
+                raw = (self.live / 'completed-guard-events.jsonl').read_bytes()
+                complete = raw[:raw.rfind(b'\n') + 1]
+                if not complete:
+                    raise ValueError('fresh guard has no complete event')
+                event = json.loads(complete.splitlines()[-1])
+                for value in (state, event):
+                    if value['session_id'] != self.session or value['expected_sha256'] != self.before:
+                        raise ValueError('guard binding changed')
+                samples = (state['completed_samples'], event['sample_number'])
+                if previous is not None and any(current < old for current, old in zip(samples, previous)):
+                    raise ValueError('guard samples regressed')
+                previous = samples
+                now = dt.datetime.now(dt.timezone.utc)
+                for stamp in (state['last_sample_utc'], event['utc']):
+                    age = (now - dt.datetime.fromisoformat(stamp.replace('Z', '+00:00'))).total_seconds()
+                    if not -5 <= age <= 12:
+                        raise ValueError('guard stopped/stale')
+                if state['state'] != 'running' or event['verdict'] != 'continue':
+                    raise ValueError('guard stopped/stale')
+                if event['sample_number'] == state['completed_samples'] and event['utc'] == state['last_sample_utc']:
+                    self.remaining(0.5)
+                    if time.monotonic() >= end:
+                        raise ValueError('guard consistency deadline exhausted')
+                    if self.guard.poll() is not None:
+                        raise ValueError('fresh completed guard exited/missing')
+                    self.remaining(0.5)
+                    if time.monotonic() >= end:
+                        raise ValueError('guard consistency deadline exhausted')
+                    age = (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(state['last_sample_utc'].replace('Z', '+00:00'))).total_seconds()
+                    if not -5 <= age <= 12:
+                        raise ValueError('guard stopped/stale')
+                    return state['completed_samples']
+                # watch appends sample N+1 before atomically replacing state N.
+                # Retry only that publication gap, never accept a mismatched pair.
+                if event['sample_number'] != state['completed_samples'] + 1 or attempts == 10:
+                    raise ValueError('guard event/state disagree')
+                time.sleep(min(0.05, max(0.0, end - time.monotonic())))
+        finally:
+            if attempts > 1:
+                self.log.append(dict(label='guard-consistency', attempts=attempts,
+                                     elapsed_seconds=time.monotonic() - started))
 
     def snapshot(self, name):
         self.linux(PROTECTED, name, ['/usr/bin/python3', self.linux_path(self.packet / 'completed_guard.py'),
@@ -547,7 +583,7 @@ class Recovery:
         elif name == 'protected-invariance':
             count = self.guard_ok()
             end = time.monotonic() + self.remaining(12)
-            while self.guard_ok() <= count:
+            while self.guard_ok(deadline=end) <= count:
                 if time.monotonic() >= end:
                     raise ValueError('no fresh post-unregister guard sample')
                 time.sleep(0.1)
