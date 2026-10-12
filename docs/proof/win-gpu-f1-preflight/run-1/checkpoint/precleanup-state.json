@@ -1,0 +1,8 @@
+{
+  "schema": "cfdw-f1-r217-precleanup/1",
+  "run_id": "r217-run1-epoch6-20261012",
+  "stage": "simulate",
+  "initiating_error": "stage-simulate exited 5",
+  "elapsed_seconds": 85.4547953,
+  "affinity": "Linux CPU0-1 nice10; host Git N/A"
+}

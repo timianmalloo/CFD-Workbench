@@ -1980,6 +1980,42 @@ window.DOCS_INDEX = {
       "sourceSha256": "93ac732f86f2792b257f31e00ef12869535e32a64fa0c3659ebe99de30c29b19"
     },
     {
+      "id": "note-windows-gpu-f1-cleanup-recovery",
+      "path": "docs/notes/windows-gpu-f1-cleanup-recovery.md",
+      "title": "Proposed cleanup-only recovery of the failed R217 attempt",
+      "type": "decision-note",
+      "status": "proposed",
+      "owner": "@pc-coordinator",
+      "phase": "preflight",
+      "reviewBy": "2026-10-19",
+      "reviewSuggested": [],
+      "summary": "Cleanup-only source and offline refusal evidence for a new Mac ruling. The failed attempt stays failed; no recovery execution is authorized by this proposal.",
+      "tags": [
+        "windows",
+        "wsl",
+        "recovery",
+        "evidence",
+        "ruling-217",
+        "ruling-220"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-windows-gpu-f1-preflight-r217",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "01e2b004faa986192877d894064116edcfacce57c9e4214af40f3c5182c6058f"
+    },
+    {
       "id": "property-grid-rulings",
       "path": "docs/notes/property-grid-rulings.md",
       "title": "Property grid — operator rulings on precision, field nudge, scrubbing, build order and labels",
@@ -5518,7 +5554,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a33e045e0501dd007cb689ac764f6b9afb581d0ce2cd145f4215fe1c04d4b9e2"
+      "sourceSha256": "e16727028f44dece6624bfec7fd63fa788ad157b00f5aeb3849ea778cc9f8634"
     },
     {
       "id": "domain-experts",
@@ -21405,5 +21441,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "4a948d7359f56c102ef9978542e56a8203283eabd2ce8161db46c249d53877d8"
+  "graphSha256": "b899d02b9c85a8a08caeebf0ef4cb8d473b45e09b54001314b841c6612ea5488"
 };

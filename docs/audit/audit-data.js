@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T15:09:57Z",
+  "generated": "2026-10-12T15:27:37Z",
   "audit": [
     {
       "actor": null,
@@ -36496,6 +36496,41 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-12T15:08:16Z",
       "duration_seconds": 100.0
+    },
+    {
+      "id": "al-01M4RBKYXBJ1SK8QD0PKF19NH4",
+      "shortname": "f1-cleanup-recovery-proposal",
+      "datetime": "2026-10-12T15:27:37Z",
+      "session": "pc-f1-r217-cleanup-recovery-author",
+      "prompt": "Author a cleanup-only recovery procedure and offline refusal tests for independent Mac review; preserve and bind the original 75-file freeze, retain failed-run truth, freshly verify exact identities/owned absence/completed-L3 guard, delete only target cache .debs, terminate/unregister only exact target, separately bind recovery evidence; do not invoke WSL or execute recovery.",
+      "summary": "Authored cleanup-only recover.py and cache admission, proposed hash-bound Mac ruling, 16 offline tests; retained original 75-file checkpoint and all 93 live captures byte-for-byte. Red first on absent implementation; all 16 controls pass. Packet ownership, PowerShell, authority, manifest and completed-guard suites pass; check-docs passed, graph defects zero with 131 preexisting suggestions, all 10 offline-safe gates passed. Protected paths and public telemetry are redacted. No WSL/recovery/download/install/build/CFD ran. Live behavior, registry/cache races and deadline-incomplete cleanup remain explicitly unverified for the independent review. Serial graph complete; no reviewer repair cycle used.",
+      "kind": "manual",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/windows-gpu-f1-cleanup-recovery.md",
+        "tests/test_f1_cleanup_recovery.py"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Produce an independently reviewable cleanup-only recovery script and ruling proposal without executing recovery.",
+      "done_when": "Offline controls and docs gates pass; original bytes are committed and verified; author branch is pushed for independent review.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T15:18:57Z",
+      "duration_seconds": 520.0,
+      "git": {
+        "sha": "6445bb6e1c6b9f27969724c711cc2ff322f01867",
+        "short": "6445bb6e1",
+        "branch": "win/gpu-f1-r217-cleanup-recovery",
+        "pushed": null
+      }
     }
   ],
   "changes": [

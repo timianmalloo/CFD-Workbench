@@ -23,6 +23,20 @@ review-suggested:
 
 # Defect classes
 
+**R217-RECOVERY-AUTHORITY-A · 2026-10-12 · A failed attempt's cleanup inherits broad execution authority or overwrites its failure evidence.**
+
+Class → sweep → derive → prevent: signature: recovery can reach preflight acquisition/install/build stages,
+or perform destructive cleanup without a committed historical checkpoint, fresh identity/guard proof,
+and a separate new ruling. Sweep: the cleanup proposal's dispatch, exact target lifecycle argv,
+checkpoint/live inventories, final owned-group finally and recovery receipt. Derive: failed-run truth,
+fresh safety admission and cleanup authority are separate immutable records. Control:
+`tests/test_f1_cleanup_recovery.py` (offline-fast; measured 16 tests in 0.057 s) refuses missing/changed
+authority, unbound checkpoints, ambiguous identity, residual ownership/guard failure, failed deletion
+and failed final reap; it tests actual exact target argv and deletion-only stage construction.
+The proposal retains 75 historical freeze files and 93 live captures byte-for-byte, emits a separate
+recovery receipt and redacts public local paths/telemetry. Independent review and any live recovery
+remain open; this control is source/offline proof, not execution permission.
+
 This register is an always-loaded grounding control under AGENTS.md. Each row makes a future author check the class before changing its surface. Acceptance oracles below are specified controls, not claims of executed application tests.
 
 | Class | Class → sweep → derive → prevent | Control and status |
