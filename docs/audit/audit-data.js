@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T01:26:36Z",
+  "generated": "2026-10-12T01:39:00Z",
   "audit": [
     {
       "actor": null,
@@ -35936,6 +35936,39 @@ window.AUDIT_DATA = {
         "sha": "f0202cf82479e9588dbc13f051d0c15dba222ca8",
         "short": "f0202cf82",
         "branch": "win/gpu-f1-r217-packet",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M4PW6Q80VCF3HHGPJ3MVRE96",
+      "shortname": "r217-packet-astra-veto",
+      "datetime": "2026-10-12T01:39:00Z",
+      "session": "pc-f1-r217-astra-packet",
+      "prompt": "Independently review exact Ruling 217 packet at 5451931fbf5568f62781b22847b57bee86d38256 against accepted plans: target/protected identities, rootfs/signing trust, host and VHD bounds, continuous guard, CPU/nice/process ownership, whole-step deadline and reserve, signed dependency transaction and archive reconciliation, checkpoint-before-cleanup, manifests and command exclusions. Only offline tests/gates; no packet edits, WSL, apt, downloads, installs, builds or cases. Own only the packet review plus required index/audit. One repair cycle, 30 calls/30 minutes, Mac epoch 4.",
+      "summary": "VETO in six grouped findings: guard/checkpoint failure skips cleanup, shared deadlines lose cleanup reserve, incomplete residual/partial-creation control, UTC-Z JSON coercion reproduces -25199s freshness, accepted input/signing/epoch contract unresolved, and Installed-Size 1 vs 99 mock passes. Supplied authority/transaction/manifest/guard self-tests, PowerShell parse, WSL-inline, docs-graph zero-defect validation, full check-docs and git diff --check passed. Packet diff from exact base is empty. One initial Python launcher flag-order error was corrected before the mock test ran. No live or prohibited actions.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "pc-f1-r217-astra-packet",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-preflight-packet.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Adversarially determine whether the frozen R217 packet may execute.",
+      "done_when": "Commit ACCEPT or VETO with exact evidence, test results and unchanged packet bytes; release claim.",
+      "tier": "T1",
+      "main_calls": 18,
+      "main_budget": 30,
+      "main_over_budget": false,
+      "fan_out": 0,
+      "started_at": "2026-10-12T01:28:54Z",
+      "duration_seconds": 606.0,
+      "git": {
+        "sha": "5451931fbf5568f62781b22847b57bee86d38256",
+        "short": "5451931fb",
+        "branch": "win/gpu-f1-r217-astra-packet",
         "pushed": null
       }
     }
