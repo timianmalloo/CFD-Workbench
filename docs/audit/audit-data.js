@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T15:07:47Z",
+  "generated": "2026-10-12T15:09:57Z",
   "audit": [
     {
       "actor": null,
@@ -36467,6 +36467,35 @@ window.AUDIT_DATA = {
         "branch": "win/gpu-f1-r217-contract-review-r220",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M4RAKKC47B1NNK0PYYR81JDY",
+      "shortname": "join-r217-contract-review-r220",
+      "datetime": "2026-10-12T15:09:56Z",
+      "session": "pc-f1-r217-execute-r220",
+      "prompt": "the join of win/gpu-f1-r217-contract-review-r220 into win/gpu-f1-r217-execute-r220",
+      "summary": "Joined Astra ACCEPT for the exact R217 run-1 environment contract after independent hashes, signer, signature, packet, identity, and live epoch checks. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-environment-contract-r220.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Join the independently accepted environment contract before any WSL effect.",
+      "done_when": "The review is merged, docs-only ring is skipped under Ruling 89, configured gates pass, and the execution branch is pushed clean.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T15:08:16Z",
+      "duration_seconds": 100.0
     }
   ],
   "changes": [
