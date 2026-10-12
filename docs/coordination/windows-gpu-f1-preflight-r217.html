@@ -2,7 +2,7 @@
 id: coordination-windows-gpu-f1-preflight-r217
 title: &quot;Coordination plan - Windows GPU F1 dependency preflight&quot;
 type: plan
-status: proposed
+status: blocked
 owner: &quot;@pc-f1-preflight-coordinator&quot;
 tags: [coordination, worktrees, windows, wsl, gpu, ruling-217]
 links:
@@ -11,8 +11,7 @@ links:
   - { to: rulings, rel: depends-on }
 review-by: &quot;2026-10-19&quot;
 summary: &gt;-
-  One Sol packet author, one deterministic live executor and an Astra owner at both hard gates run the Ruling 217
-  preflight serially; the Mac remains leader and all install, build and case execution stays closed.
+  Astra's second packet VETO stopped the serial Ruling 217 track before live execution; P1 cleanup and P3 exact process identity remain for any newly authorized track.
 ---
 
 # Coordination plan — Windows GPU F1 dependency preflight
@@ -112,7 +111,7 @@ width remains one; no machine-time speed-up is claimed.
 
 | state | item |
 |---|---|
-| Completed | Ruling 217 read; coordinator and packet worktrees created; accepted plan and initial packet committed; Astra VETOed the exact packet on six repair classes; the sole repair is committed; Mac remains leader and is currently epoch 5. No live packet ran. |
-| Remaining | One packet repair and Astra re-review; if accepted, one live preflight, result review, and gated PR handoff. |
-| Best next action | Join the sole packet repair with the live epoch, then dispatch Astra's exact-byte re-review without WSL mutation. |
+| Completed | Plan, initial packet, first VETO, sole repair, and terminal Astra review are committed. P2/P4/P6 are cleared; P5 code is cleared subject to a later real input contract. No live packet ran and the protected distro remained the only WSL distro. |
+| Remaining | P1 must stop/verify owned work after every cleanup-stage launch; P3 must compare exact argv tokens so `runA` cannot select `runAB`. The environment contract, live preflight and result review remain closed unless Mac/operator authorizes a new track. |
+| Best next action | Publish the terminal review and branch/PR to Mac, then wait for a new authority decision. |
 </pre></main></body></html>

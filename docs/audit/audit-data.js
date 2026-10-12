@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T02:24:26Z",
+  "generated": "2026-10-12T02:26:39Z",
   "audit": [
     {
       "actor": null,
@@ -36216,6 +36216,35 @@ window.AUDIT_DATA = {
         "branch": "win/gpu-f1-r217-astra-packet-r2",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M4PYXZERJZY44K2CMBSBGKTG",
+      "shortname": "f1-r217-terminal-veto-join",
+      "datetime": "2026-10-12T02:26:39Z",
+      "session": "pc-f1-preflight-r217",
+      "prompt": "the join of win/gpu-f1-r217-astra-packet-r2 into win/gpu-f1-preflight-r217",
+      "summary": "Join Astra's second VETO; stop the live track under the two-cycle cap and preserve P1/P3 evidence. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-preflight-packet.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Publish the terminal packet disposition for the Mac leader without running the packet.",
+      "done_when": "Second VETO is joined, docs gates pass, and no live WSL effect occurred.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T02:25:00Z",
+      "duration_seconds": 99.0
     }
   ],
   "changes": [

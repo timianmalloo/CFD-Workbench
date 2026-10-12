@@ -2,7 +2,7 @@
 id: plan-windows-gpu-f1-preflight-r217
 title: "Optimized execution graph - Windows GPU F1 dependency preflight"
 type: doc
-status: proposed
+status: blocked
 owner: "@pc-f1-preflight-coordinator"
 tags: [windows, wsl, gpu, openfoam, petsc, coordination, ruling-217]
 links:
@@ -11,8 +11,8 @@ links:
   - { to: rulings, rel: depends-on }
 review-by: "2026-10-19"
 summary: >-
-  A serial, independently reviewed run-packet and one bounded disposable-WSL preflight close the Ruling 217
-  dependency evidence while preserving the protected distro and prohibiting installation, builds and case runs.
+  The serial Ruling 217 packet track stopped before live execution after Astra's second VETO reproduced two remaining
+  cleanup/ownership defects; the protected distro remained the only WSL distro and all installation/build/case work stayed closed.
 ---
 
 # Windows GPU F1 dependency preflight — optimized graph
@@ -143,5 +143,17 @@ threshold breach, any hash mismatch, cleanup failure, and N6 verdict.
 
 ## Planned versus actual
 
-Pending execution. Record calls, wall time, live elapsed, package count, downloaded bytes, maximum VHD bytes, host
-minimum free bytes, repair passes, result verdict and whether every floor remained present.
+| node | planned | actual | disposition |
+|---|---:|---:|---|
+| Initial PACKET author | 30 calls / 30 min | 29 calls / 1,438 s | Packet committed; Astra VETOed six classes. |
+| First Astra packet review | 10 calls / 15 min in this plan; dispatch cap 30 / 30 min | 18 calls / 606 s | VETO P1-P6; one repair authorized. |
+| Sole packet repair | One bounded repair | 39 calls / 1,429 s, plus 7 calls / 53 s for lease-epoch decoupling | P2/P4/P6 cleared; P5 code cleared subject to real input contract. |
+| Final Astra packet review | 10 calls / 15 min in this plan; dispatch cap 25 / 25 min | 25 calls / 642 s | **Second VETO.** P1 deletion-stage stop and P3 exact-identity defects remain. |
+| Live transaction | One attempt / 3,600 s | **Not run** | Stopped at N2 under the two-cycle cap. |
+| Live measures | package count, download bytes, maximum VHD bytes, minimum host free bytes | **Not recorded** | No target distro, apt transaction, archive download or case/build action occurred. |
+
+Actual peak width was one. The WSL inventory remained the single protected `cfdw-openfoam2512` distro. Offline
+authority, deadline, UTC, trust-contract, Installed-Size and documentation gates passed, but the cleanup floor was not
+jointly satisfied: a failing `delete-debs` launch lacks a fresh unconditional owned-group stop, and residual discovery
+matches `runA` to `runAB` by prefix. The final review is
+[`docs/reviews/windows-gpu-f1-preflight-packet.md`](../reviews/windows-gpu-f1-preflight-packet.md).
