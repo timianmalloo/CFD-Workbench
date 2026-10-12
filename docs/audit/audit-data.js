@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T16:26:04Z",
+  "generated": "2026-10-12T16:38:44Z",
   "audit": [
     {
       "actor": null,
@@ -36947,6 +36947,74 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-12T16:17:15Z",
       "duration_seconds": 529.0
+    },
+    {
+      "id": "al-01M4RFHVVTMW0QFK40Y7P0QE88",
+      "shortname": "f1-recovery-integration-independent-review",
+      "datetime": "2026-10-12T16:36:23Z",
+      "session": "pc-f1-r217-recovery-integration-astra",
+      "prompt": "Independently review exact integrated candidate 5b1a9bb460df4ae2955a3bb922b0e68138492cc0. Worktree C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-recovery-integration-review, branch win/gpu-f1-r217-recovery-integration-review, session pc-f1-r217-recovery-integration-astra. No WSL/live/evidence mutation. Verify exact two parents 02485495 and 65456e1c; both prior Astra ACCEPT behaviors survive byte/semantic integration; all 15 packet files and changed portions match intended accepted sources except reviewed delete-debs delta; URI/checkpoint fixes remain; recovery CR-1/2/3 and hardening remain; invocation contract, original 75/93 payloads, historical VETO and accepted review artifacts unchanged; cleanup authority absent/fail-closed. Independently inspect register reconciliation and rerun integration verifier proving 212 unique parent entries/audits conserved once using repository-contained helper, not shared primary config. Re-run combined 35 recovery tests, packet Python/PS/Bash/authority/transaction/manifest/guard, final-commit 76/94 binders, docs/graph/privacy and ten safe gates. Probe merge-only seams and authority. Write docs/reviews/windows-gpu-f1-recovery-integration.md ACCEPT/VETO, audit, derive, commit/push, report SHA. State residual TOCTOU/live risks and that no cleanup/retry authority is granted.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4RFJH163GHFMS11EXP72X8K",
+      "shortname": "f1-recovery-integration-review",
+      "datetime": "2026-10-12T16:36:44Z",
+      "session": "pc-f1-r217-recovery-integration-astra",
+      "prompt": "Independently review exact integrated candidate 5b1a9bb460df4ae2955a3bb922b0e68138492cc0; conserve both accepted parents and retained evidence, prove local register/audit reconciliation and authority refusal, rerun combined offline checks, then commit and push a scoped verdict. Full assignment is recorded in al-01M4RFHVVTMW0QFK40Y7P0QE88.",
+      "summary": "ACCEPT exact 5b1a9bb4 offline integration. Independently checked 15 packet origins, recovery bytes, both parent AST fixture sequences, 212 register entries and 1030 parent audit records conserved once. Local pinned reconciliation helper only. Original 75/93 payloads and ten historical artifacts unchanged; 76/94 exact-commit binders pass. Combined 35 recovery tests, packet Python, PS5/7, Bash4, authority/transaction/manifest/guard, ten safe gates and proof privacy pass. Old contract rejects seven changed files; actual precheck refuses missing new Mac ruling. Residual registration/unlink TOCTOU and live uncertainties retained; no cleanup or retry authority. No WSL or live action. Audit CLI refused the first append with missing prompt before writing; corrected required field on this call.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-recovery-integration.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Independently decide exact integrated source, evidence and authority boundaries.",
+      "done_when": "Commit and push an independently supported ACCEPT/VETO with audit and derived index.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-10-12T16:28:20Z",
+      "duration_seconds": 504.0,
+      "git": {
+        "sha": "5b1a9bb460df4ae2955a3bb922b0e68138492cc0",
+        "short": "5b1a9bb46",
+        "branch": "win/gpu-f1-r217-recovery-integration-review",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M4RFP5EC70T69TDEFYQFXF4T",
+      "shortname": "f1-recovery-integration-final-checks",
+      "datetime": "2026-10-12T16:38:43Z",
+      "session": "pc-f1-r217-recovery-integration-astra",
+      "prompt": "Validate and publish the independent exact-candidate integration review after all offline source and behavior checks.",
+      "summary": "Final check-docs passed: 1035 audit and 35 change entries readable, documentation checks passed. Final derived graph has zero defects and 134 existing advisory review suggestions. Final proof-PII and git diff --check passed. Publication is review/audit/index only; candidate source, tests, retained evidence, historical reviews and authority unchanged.",
+      "kind": "command",
+      "skill": null,
+      "tool": "tools/check-docs.py",
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-recovery-integration.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "git": {
+        "sha": "5b1a9bb460df4ae2955a3bb922b0e68138492cc0",
+        "short": "5b1a9bb46",
+        "branch": "win/gpu-f1-r217-recovery-integration-review",
+        "pushed": null
+      }
     }
   ],
   "changes": [
