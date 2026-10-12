@@ -20083,6 +20083,47 @@ window.DOCS_INDEX = {
       "sourceSha256": "49ee76191ddeabe35780838d75fc97637846a0148743c305264d7975c9056f85"
     },
     {
+      "id": "review-windows-gpu-f1-environment-contract-r220",
+      "path": "docs/reviews/windows-gpu-f1-environment-contract-r220.md",
+      "title": "Astra environment-contract review - Ruling 217 after Ruling 220",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@pc-f1-r217-contract-astra-r220",
+      "phase": "preflight",
+      "reviewBy": "2026-10-19",
+      "reviewSuggested": [],
+      "summary": "ACCEPT the exact committed epoch-6 environment contract: all seven input hashes, fifteen packet files, exact signer sets and detached Ubuntu signature independently match. Live execution still requires unchanged bytes, a clean tree and live epoch 6.",
+      "tags": [
+        "windows",
+        "wsl",
+        "gpu",
+        "ruling-217",
+        "ruling-220",
+        "trust",
+        "owner-review"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r217-contract-preparation",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-windows-gpu-f1-preflight-packet",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d384673cc76c8fecfe6b9ef1370ea02ee2c7ff0211ac613718cff37eca8a313c"
+    },
+    {
       "id": "review-windows-gpu-f1-preflight-packet",
       "path": "docs/reviews/windows-gpu-f1-preflight-packet.md",
       "title": "Astra Ruling 220 packet review - dependency preflight",
@@ -21364,5 +21405,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "33eea6d78062636af4df9e135b2fd0f06df18ea5c1eea4880209b2077cab8267"
+  "graphSha256": "4a948d7359f56c102ef9978542e56a8203283eabd2ce8161db46c249d53877d8"
 };
