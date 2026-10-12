@@ -5554,7 +5554,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e16727028f44dece6624bfec7fd63fa788ad157b00f5aeb3849ea778cc9f8634"
+      "sourceSha256": "03634c38fd71fc35b245ca2958177917e65b19b4e5a9509dfd8cdca934f25d63"
     },
     {
       "id": "domain-experts",
@@ -20119,6 +20119,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "49ee76191ddeabe35780838d75fc97637846a0148743c305264d7975c9056f85"
     },
     {
+      "id": "review-windows-gpu-f1-cleanup-recovery",
+      "path": "docs/reviews/windows-gpu-f1-cleanup-recovery.md",
+      "title": "Astra independent review of F1 cleanup-only recovery",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@pc-f1-r217-cleanup-recovery-astra",
+      "phase": "preflight",
+      "reviewBy": "2026-10-19",
+      "reviewSuggested": [],
+      "summary": "VETO candidate 02ec2cc3: an expired deadline still launches a child, exact target GUID survival can pass the absence check, and a final-check error loses the initiating deletion error. Historical evidence is byte-identical and bound.",
+      "tags": [
+        "windows",
+        "wsl",
+        "recovery",
+        "independent-review",
+        "veto"
+      ],
+      "links": [
+        {
+          "to": "note-windows-gpu-f1-cleanup-recovery",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "2be0ba9c514056cac232126c8cb4f13fa57f618623414f81ef8ec94efea0214b"
+    },
+    {
       "id": "review-windows-gpu-f1-environment-contract-r220",
       "path": "docs/reviews/windows-gpu-f1-environment-contract-r220.md",
       "title": "Astra environment-contract review - Ruling 217 after Ruling 220",
@@ -21441,5 +21476,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "b899d02b9c85a8a08caeebf0ef4cb8d473b45e09b54001314b841c6612ea5488"
+  "graphSha256": "6b1fc5227778dd8733de567569af32b0b8acdc1233f6ce83df46e9815b89e349"
 };
