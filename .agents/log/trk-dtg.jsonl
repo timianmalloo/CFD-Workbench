@@ -1,1 +1,2 @@
 {"agent": "trk-dtg", "at": 1791814436.660418, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-dtg", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-dtg-dir-target"}
+{"agent": "trk-dtg", "at": 1791815234.5554612, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-dtg", "wi": "WI-0", "worktree": "CFD-Workbench-fix-dtg-dir-target"}
