@@ -1,0 +1,16 @@
+{"utc":"2026-10-12T15:10:42.0776282+00:00","elapsed_seconds":1.2953823,"host_free_bytes":1840517890048,"host_floor_bytes":19684091961,"target_vhd_physical_bytes":"Not recorded"}
+{"utc":"2026-10-12T15:10:47.1813552+00:00","elapsed_seconds":6.3971771,"host_free_bytes":1840480104448,"host_floor_bytes":10737418240,"target_vhd_physical_bytes":37748736}
+{"utc":"2026-10-12T15:10:52.3647685+00:00","elapsed_seconds":11.5805808,"host_free_bytes":1839272140800,"host_floor_bytes":10737418240,"target_vhd_physical_bytes":1245708288}
+{"utc":"2026-10-12T15:10:57.4179491+00:00","elapsed_seconds":16.6337788,"host_free_bytes":1839595921408,"host_floor_bytes":10737418240,"target_vhd_physical_bytes":1279262720}
+{"utc":"2026-10-12T15:11:02.5996845+00:00","elapsed_seconds":21.8154959,"host_free_bytes":1839562334208,"host_floor_bytes":10737418240,"target_vhd_physical_bytes":1312817152}
+{"utc":"2026-10-12T15:11:07.6083648+00:00","elapsed_seconds":26.8241753,"host_free_bytes":1839527673856,"host_floor_bytes":10737418240,"target_vhd_physical_bytes":1346371584}
+{"utc":"2026-10-12T15:11:12.6421999+00:00","elapsed_seconds":31.8580076,"host_free_bytes":1839525138432,"host_floor_bytes":10737418240,"target_vhd_physical_bytes":1346371584}
+{"utc":"2026-10-12T15:11:17.6734969+00:00","elapsed_seconds":36.8893146,"host_free_bytes":1839524614144,"host_floor_bytes":10737418240,"target_vhd_physical_bytes":1346371584}
+{"utc":"2026-10-12T15:11:22.8711631+00:00","elapsed_seconds":42.0869711,"host_free_bytes":1839511597056,"host_floor_bytes":10737418240,"target_vhd_physical_bytes":1346371584}
+{"utc":"2026-10-12T15:11:28.0451266+00:00","elapsed_seconds":47.2609343,"host_free_bytes":1839509004288,"host_floor_bytes":10737418240,"target_vhd_physical_bytes":1346371584}
+{"utc":"2026-10-12T15:11:33.0504396+00:00","elapsed_seconds":52.2662465,"host_free_bytes":1839506362368,"host_floor_bytes":10737418240,"target_vhd_physical_bytes":1346371584}
+{"utc":"2026-10-12T15:11:38.0594307+00:00","elapsed_seconds":57.2752384,"host_free_bytes":1839436656640,"host_floor_bytes":10737418240,"target_vhd_physical_bytes":1413480448}
+{"utc":"2026-10-12T15:11:43.0727838+00:00","elapsed_seconds":62.2885901,"host_free_bytes":1839366877184,"host_floor_bytes":10737418240,"target_vhd_physical_bytes":1480589312}
+{"utc":"2026-10-12T15:11:48.2385032+00:00","elapsed_seconds":67.4543178,"host_free_bytes":1839364173824,"host_floor_bytes":10737418240,"target_vhd_physical_bytes":1480589312}
+{"utc":"2026-10-12T15:11:53.3771428+00:00","elapsed_seconds":72.5929508,"host_free_bytes":1839363260416,"host_floor_bytes":10737418240,"target_vhd_physical_bytes":1480589312}
+{"utc":"2026-10-12T15:11:58.5889289+00:00","elapsed_seconds":77.8047376,"host_free_bytes":1839363235840,"host_floor_bytes":10737418240,"target_vhd_physical_bytes":1480589312}

@@ -37,6 +37,64 @@ foreach ($file in @('Control.ps1', 'SelfTest.ps1')) {
         (Join-Path $PSScriptRoot $file), [ref]$tokens, [ref]$parseErrors)
     Require ($parseErrors.Count -eq 0) "$file parse failed"
 }
+# Live checkpoint failure: exercise the actual Save-Checkpoint body through the
+# finalizer's dynamic scope. Offline fast ring; child/Git/writers are inert mocks.
+$RepoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\..\..'))
+$RunRoot = Join-Path $RepoRoot 'docs\proof\win-gpu-f1-preflight\run-1'
+$expectedCheckpointPath = Join-Path $RunRoot 'checkpoint'
+$checkpointPathAssignment = $wrapperAst.Find({ param($node)
+    $node -is [Management.Automation.Language.AssignmentStatementAst] -and
+        $node.Left.Extent.Text -cin @('$Checkpoint', '$CheckpointPath')
+}, $true)
+Require ($null -ne $checkpointPathAssignment) 'checkpoint path assignment missing'
+Invoke-Expression $checkpointPathAssignment.Extent.Text
+Require ((Get-Variable -Name $checkpointPathAssignment.Left.VariablePath.UserPath).Value -ceq $expectedCheckpointPath) 'wrapper checkpoint path is not canonical'
+$Live = Join-Path $RunRoot 'live'
+$PacketRoot = $PSScriptRoot
+$Clock = [Diagnostics.Stopwatch]::StartNew()
+$RunId = 'offline-checkpoint-fixture'
+$LastStage = 'simulate'
+$InitiatingError = 'planted simulation failure'
+$checkpointState = @{ freeze=$null; commit=$null; binding=$null }
+$shaFixture = [IO.Path]::GetTempFileName()
+[IO.File]::WriteAllText($shaFixture, ('a' * 40))
+function Write-Json {}
+function Write-Lf {}
+function Invoke-Child([string]$Executable, [object[]]$Arguments) {
+    if ($Executable -eq 'py') {
+        $frozenIndex = [Array]::IndexOf($Arguments, '--frozen')
+        $directory = $Arguments[$frozenIndex + 1]
+        Require ($directory -is [string] -and $directory -ceq $expectedCheckpointPath) 'checkpoint freeze/bind received a shadowed path'
+        if ($Arguments -contains 'freeze') { $checkpointState.freeze = $directory }
+        elseif ($Arguments -contains 'verify') { $checkpointState.binding = $directory }
+        else { throw 'unexpected checkpoint Python command' }
+    } elseif ($Executable -eq 'git') {
+        Require ($Arguments[1] -ceq $RepoRoot) 'checkpoint Git command left the repository'
+        switch ($Arguments[2]) {
+            'add' {
+                Require ($Arguments[5] -ceq 'docs/proof/win-gpu-f1-preflight/run-1/checkpoint') 'checkpoint Git path conversion differs'
+                $checkpointState.commit = $Arguments[5]
+            }
+            'commit' { Require ($null -ne $checkpointState.commit) 'checkpoint commit preceded scoped add' }
+            'rev-parse' { return $shaFixture }
+            default { throw 'unexpected checkpoint Git command' }
+        }
+    } else { throw 'unexpected checkpoint child command' }
+}
+try {
+    foreach ($functionName in @('Save-Checkpoint', 'Invoke-GitCommit')) {
+        $checkpointAst = $wrapperAst.Find({ param($node)
+            $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq $functionName
+        }, $true)
+        Require ($null -ne $checkpointAst) "$functionName body missing"
+        Invoke-Expression $checkpointAst.Extent.Text
+    }
+    $closing = Invoke-Finalization -StopOwned {} -Checkpoint { Save-Checkpoint } `
+        -Cleanup {} -Snapshot {} -StopGuard {} -BindGuard {}
+    Require $closing.checkpoint_proved ('canonical checkpoint callback failed: ' + ($closing.errors -join '; '))
+    Require ($checkpointState.freeze -ceq $expectedCheckpointPath -and $checkpointState.binding -ceq $expectedCheckpointPath) 'canonical checkpoint path did not reach manifest freeze and binding'
+    Require ($CheckpointSha -ceq ('a' * 40)) 'checkpoint SHA was not retained'
+} finally { Remove-Item -LiteralPath $shaFixture -Force }
 $cleanupAst = $wrapperAst.Find({ param($node)
     $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Invoke-Cleanup'
 }, $true)

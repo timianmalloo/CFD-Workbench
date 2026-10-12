@@ -14,6 +14,15 @@ import owned_control
 import transaction
 
 
+def assert_cleanup_stage_scope(data):
+    """Offline-fast: only delete-debs may differ from the immutable 02ec2cc3 source."""
+    prefix, tail = data.split(b'    delete-debs)\n', 1)
+    suffix = tail.split(b'    *)', 1)[1]
+    assert hashlib.sha256(prefix).hexdigest() == 'd4aa0f307d4f1d7cf792386a0982a4be0d50d2ecf331d6a5b6ef7938cb7eb185', 'non-cleanup packet stage changed'
+    assert hashlib.sha256(suffix).hexdigest() == '5f944b439dcdb44a87e81a051cfd0c670348f7e6e49a1bdf0623d25295beaefa', 'packet dispatch suffix changed'
+    assert b'"${packet_root}/../recovery/check_cache.py" --mode delete --cache "$cache"' in tail, 'pinned cache helper missing'
+
+
 def expect_failure(fn, label):
     try:
         fn()
@@ -64,7 +73,39 @@ def verify_size_case(index_value, control_value, should_pass):
 
 
 def main():
+    data = (Path(__file__).parent / 'preflight.sh').read_bytes()
+    assert_cleanup_stage_scope(data)
+    expect_failure_scope = data.replace(b'    simulate)', b'    altered)', 1)
+    try:
+        assert_cleanup_stage_scope(expect_failure_scope)
+    except AssertionError:
+        pass
+    else:
+        raise AssertionError('planted non-cleanup packet mutation passed')
     started = time.perf_counter()
+    # Live URI failure: apt encodes Debian version punctuation. Offline fast ring;
+    # no apt invocation. Cost is measured with the complete suite below.
+    with tempfile.TemporaryDirectory() as folder:
+        path = Path(folder) / "apt-uris.txt"
+        filename = "cpp-13_13.3.0-6ubuntu2~24.04.1_amd64.deb"
+        url = "http://archive.ubuntu.com/ubuntu/pool/main/g/gcc-13/" + filename.replace("~", "%7e")
+        path.write_text(f"'{url}' {filename} 1042 MD5Sum:3197b91f8a37ff9bbae2ff279bab6e19\n", encoding="utf-8")
+        assert transaction.match_uri(filename, 1042, transaction.uri_rows(path)) == (filename, url)
+    for encoded, decoded in (("%7e", "~"), ("%7E", "~"), ("%2b", "+"), ("%2B", "+"), ("%3a", ":"), ("%3A", ":")):
+        filename = f"pkg_1{decoded}2_amd64.deb"
+        url = f"https://example.invalid/pool/pkg_1{encoded}2_amd64.deb"
+        assert transaction.match_uri(filename, 7, {"apt-cache.deb": (url, 7)}) == ("apt-cache.deb", url)
+        expect_failure(lambda: transaction.match_uri(filename, 8, {"apt-cache.deb": (url, 7)}), "URI size mismatch")
+        expect_failure(lambda: transaction.match_uri(filename, 7, {"a.deb": (url, 7), "b.deb": (url, 7)}), "URI duplicate decoded basename")
+    # Decode once, preserve literal plus, and never turn an encoded separator into a basename.
+    for basename in ("pkg_1+2_amd64.deb", "pkg_1%2b2_amd64.deb"):
+        url = "https://example.invalid/pool/" + basename.replace("%", "%25")
+        assert transaction.match_uri(basename, 7, {"cache.deb": (url, 7)}) == ("cache.deb", url)
+    for encoded, decoded in (("dir%2fpkg.deb", "pkg.deb"), ("dir%5cpkg.deb", "pkg.deb"),
+                             ("pkg%00.deb", "pkg\x00.deb"), ("pkg%GG.deb", "pkg%GG.deb"),
+                             ("pkg%.deb", "pkg%.deb"), ("pkg%ff.deb", "pkg\ufffd.deb")):
+        url = "https://example.invalid/pool/" + encoded
+        expect_failure(lambda: transaction.match_uri(decoded, 7, {"cache.deb": (url, 7)}), "unsafe or malformed URI basename")
     # Ruling 220 P3: exact attempt tokens; fast offline ring with a mocked signal sink.
     for kind, command in (
         ("stage", "/bin/bash /mnt/packet/preflight.sh --stage download --run-root /mnt/c/runAB --run-id runAB"),

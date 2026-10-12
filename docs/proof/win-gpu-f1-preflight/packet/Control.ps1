@@ -29,8 +29,12 @@ function Update-TargetSettle([string]$Observed, [string]$Previous, [double]$Elap
 }
 
 function Invoke-Finalization(
-    [scriptblock]$StopOwned, [scriptblock]$Checkpoint, [scriptblock]$Cleanup,
-    [scriptblock]$Snapshot, [scriptblock]$StopGuard, [scriptblock]$BindGuard
+    [Alias('StopOwned')][scriptblock]$StopOwnedAction,
+    [Alias('Checkpoint')][scriptblock]$CheckpointAction,
+    [Alias('Cleanup')][scriptblock]$CleanupAction,
+    [Alias('Snapshot')][scriptblock]$SnapshotAction,
+    [Alias('StopGuard')][scriptblock]$StopGuardAction,
+    [Alias('BindGuard')][scriptblock]$BindGuardAction
 ) {
     $errors = [Collections.Generic.List[string]]::new()
     $ownedStopped = $false
@@ -40,23 +44,23 @@ function Invoke-Finalization(
     $guardStopped = $false
     $guardBound = $false
     try {
-        try { & $StopOwned; $ownedStopped = $true } catch { $errors.Add("owned-stop: $($_.Exception.Message)") }
-        try { & $Checkpoint; $checkpointProved = $true } catch { $errors.Add("checkpoint: $($_.Exception.Message)") }
+        try { & $StopOwnedAction; $ownedStopped = $true } catch { $errors.Add("owned-stop: $($_.Exception.Message)") }
+        try { & $CheckpointAction; $checkpointProved = $true } catch { $errors.Add("checkpoint: $($_.Exception.Message)") }
         if ($ownedStopped -and $checkpointProved) {
-            try { & $Cleanup; $cleanupProved = $true } catch { $errors.Add("cleanup: $($_.Exception.Message)") }
+            try { & $CleanupAction; $cleanupProved = $true } catch { $errors.Add("cleanup: $($_.Exception.Message)") }
         } elseif (-not $checkpointProved) {
             $errors.Add('MAC-DECISION-REQUIRED: checkpoint unproved; archive deletion/unregister withheld')
         } else {
             $errors.Add('MAC-DECISION-REQUIRED: owned process not proved stopped; archive deletion/unregister withheld')
         }
-        try { & $Snapshot; $snapshotProved = $true } catch { $errors.Add("snapshot: $($_.Exception.Message)") }
-        try { & $StopGuard; $guardStopped = $true } catch { $errors.Add("guard-stop: $($_.Exception.Message)") }
-        try { & $BindGuard; $guardBound = $true } catch { $errors.Add("guard-bind: $($_.Exception.Message)") }
+        try { & $SnapshotAction; $snapshotProved = $true } catch { $errors.Add("snapshot: $($_.Exception.Message)") }
+        try { & $StopGuardAction; $guardStopped = $true } catch { $errors.Add("guard-stop: $($_.Exception.Message)") }
+        try { & $BindGuardAction; $guardBound = $true } catch { $errors.Add("guard-bind: $($_.Exception.Message)") }
     } finally {
         # A cleanup callback may have launched new work after the first stop.
         # This is the last callback: no workload launch follows the fresh reap.
         $ownedStopped = $false
-        try { & $StopOwned; $ownedStopped = $true }
+        try { & $StopOwnedAction; $ownedStopped = $true }
         catch { $errors.Add("final-owned-stop: $($_.Exception.Message)") }
     }
     return [pscustomobject]@{ errors=@($errors.ToArray()); owned_stopped=$ownedStopped

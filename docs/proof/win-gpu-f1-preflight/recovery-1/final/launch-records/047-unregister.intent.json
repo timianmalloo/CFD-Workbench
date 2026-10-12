@@ -1,0 +1,1 @@
+{"argv": ["wsl.exe", "--unregister", "cfdw-petsc-cuda132-f1"], "host_ack": "pending", "label": "unregister", "linux_state": "Not recorded"}

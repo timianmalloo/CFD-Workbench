@@ -1,0 +1,27 @@
+{
+  "deadline_seconds": 120,
+  "elapsed_seconds": 0.7920693999622017,
+  "expected_l3_sha256": "42e1d0bed05aa071a70fba8445474a85fa43a1746a394adc4e46a433a090aab9",
+  "forbidden_actions_executed": false,
+  "l3_after_sha256": "42e1d0bed05aa071a70fba8445474a85fa43a1746a394adc4e46a433a090aab9",
+  "leader_epoch": 6,
+  "names": [
+    "cfdw-openfoam2512"
+  ],
+  "recorded_utc": "2026-10-12T17:17:53.056400Z",
+  "registrations": [
+    {
+      "key": "{b7566a82-9cee-47ce-a246-f83632353cea}",
+      "name": "cfdw-openfoam2512",
+      "path": "%USERPROFILE%\\AppData\\Local\\CFDWorkbench\\qualification\\wsl\\cfdw-openfoam2512",
+      "version": 2
+    }
+  ],
+  "ruling": 224,
+  "schema": "cfdw-f1-r224-read-only-verification/1",
+  "session": "pc-f1-r217-cleanup-live1",
+  "source_commit": "5b1a9bb460df4ae2955a3bb922b0e68138492cc0",
+  "target_absent": true,
+  "target_path_absent": true,
+  "verification_passed": true
+}

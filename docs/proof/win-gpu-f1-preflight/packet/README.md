@@ -18,6 +18,89 @@ summary: >-
 
 # Ruling 217 preflight packet — frozen source, no live run here
 
+## Live-defect repair proof (offline only, 2026-10-12)
+
+**Goal:** repair exactly the encoded apt URI mismatch and dynamically shadowed checkpoint
+path found in the separate `win/gpu-f1-r217-execute-r220` execution tree. **Done when:**
+both regressions are observed red, the complete offline packet suite and relevant gates
+pass, and the candidate repair is committed and pushed for immutable independent review. **Not in scope:** WSL, recovery,
+live cleanup, authority, resource limits, signer/input contracts, or any other runtime
+change. **Tier:** T1. **Fan-out cap:** one author; independent acceptance belongs to the
+reviewer. This section supplements the prior Ruling 220 repair proof below.
+
+The change surfaces are apt URI capture → signed-index basename/size matching → transaction
+lock, and wrapper checkpoint path → finalizer callback scope → manifest `--frozen` → Git
+checkpoint directory. The lock schema, signed filename/hash/size authority, original URI
+and apt cache filename remain unchanged. Product UI, storage migrations, and domain data
+modelling are not applicable to this representation/scoping repair.
+
+Execution graph: grounding → regression fixtures → observed reds → source repair → complete
+offline suite and gates → audit/derived views → commit/push → independent review. Edges are
+data/evidence dependencies. Independent read-only checks share no write surface and may run
+together; code edits and Git mutations remain serial. Every verification node has the
+oracle below. Planned and actual author graph: eight nodes, one repair cycle, all proof
+floors retained. There are no retry nodes; if validation requires repair, the variant is
+the count of unresolved findings, floor zero, exit all controls passing, cap two cycles.
+The cap firing stops this track and reports to the coordinator. Modeled work and span are
+**Inferred**, equal for the serial author chain; no elapsed estimate or token cost is
+invented. Actual suite latency is emitted below and total author latency comes from the
+closing audit marker. Scope or authority drift stops the repair without dropping a gate.
+
+**Verified source observation, read-only:** the execution tree's
+`run-1/live/stage-simulate.stderr.txt` reports
+`cpp-13_13.3.0-6ubuntu2~24.04.1_amd64.deb/1042, found 0`; `apt-uris.stdout.txt` contains
+the otherwise identical URL basename with `%7e`. Its `cleanup-receipt.json` records
+checkpoint `Substring` failure, no checkpoint SHA, and cleanup withheld. These observations
+are failure provenance, not a successful live proof or permission to recover the target.
+
+**Verified red before production edits:** `py -3 -B packet_selftest.py` exited 1 with
+`ValueError: expected one signed-index URI for cpp-13_13.3.0-6ubuntu2~24.04.1_amd64.deb/1042, found 0`.
+Windows PowerShell 5.1 `SelfTest.ps1` exited 1 with
+`canonical checkpoint callback failed: checkpoint: checkpoint freeze received a shadowed path`.
+The PowerShell regression parses the actual wrapper, evaluates its checkpoint path assignment,
+loads its actual `Save-Checkpoint` and `Invoke-GitCommit` functions, and invokes them through
+`Invoke-Finalization`. Only the child launcher and file writers are inert mocks. A temporary
+fake SHA output exercises the actual commit-path conversion and SHA read without Git effects.
+Manifest freezing and binding must observe the canonical `run-1/checkpoint` directory;
+Git's scoped add must receive exactly `docs/proof/win-gpu-f1-preflight/run-1/checkpoint`.
+
+Class → sweep → derive → prevent:
+
+- **URI representation mismatch:** sweep all tracked Python URL-basename readers under
+  `docs/proof`, `tools`, and `tests`. The B2 binder already decodes; the F1 matcher is the
+  undecoded reader. Use stdlib `unquote` once on the final URL segment, preserving literal
+  plus, original URL/cache identity, exact size, and exactly one match. Reject malformed
+  escapes, invalid UTF-8, decoded separators, and control bytes instead of repairing them
+  into a match. Fixtures cover `%7e/%7E`, `%2b/%2B`, `%3a/%3A`, literal plus, one-pass
+  decoding, size mismatch, duplicate decoded identity, and unsafe/malformed basenames.
+- **PowerShell dynamic callback shadowing:** sweep tracked PowerShell callback parameters
+  and path/state variables under the same roots. The F1 `$Checkpoint` callback/directory
+  collision is the observed instance; the other five finalizer callbacks have no matching
+  wrapper path variables. Rename the directory `$CheckpointPath`, name all finalizer
+  scriptblocks `*Action`, and retain named-argument aliases. The actual-body regression
+  binds both directory consumers, rather than merely recording that a callback ran.
+
+Both classes and their executable controls are also recorded in
+`docs/lessons/defect-classes.md`. New fixtures run in the **offline-fast ring**, with no WSL,
+apt, network, process cleanup, or live wrapper invocation. **Verified initial green costs:**
+Python packet suite **0.527 s**, Windows PowerShell 5.1 **0.353 s**, PowerShell 7 **0.254 s**,
+emitted on each suite's normal path. The authority scanner and its planted negatives,
+transaction, manifest and completed-guard self-tests, all three PowerShell AST parses,
+Git Bash syntax checks on all four shell scripts, and `check-wsl-inline.py` also passed.
+`tools/check-docs.py` passed. Graph validation found zero defects, orphans, and index drift;
+131 preexisting advisory review suggestions remained. All ten offline-safe verify gates passed;
+application-core, application-adapters, and Windows-store gates were explicitly skipped because
+their build/store checks are outside this packet repair. The real Git-body strengthening stayed
+green and did not require a second production repair cycle. The coordinator directed publication
+of the candidate for immutable independent review; no author self-acceptance is claimed.
+The canonical graph tool flags the prior packet/environment reviews and contract-preparation
+note for review, without changing historical verdicts or the invocation contract's bytes.
+
+Residual risk: the repaired packet has no live lifecycle or cleanup proof. The accepted
+invocation contract remains bound to the earlier packet bytes; any future runtime use
+requires the existing independent acceptance and contract process. Recovery remains a
+separate decision. Neither successful offline mocks nor unchanged authority scans authorize it.
+
 ## Ruling 220 repair evidence (offline; acceptance remains open)
 
 Goal: repair only P1 final cleanup reap and P3 exact attempt discovery. The surface list is

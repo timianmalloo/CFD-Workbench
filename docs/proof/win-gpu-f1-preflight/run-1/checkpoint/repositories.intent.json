@@ -1,0 +1,8 @@
+{
+  "run_id": "r217-run1-epoch6-20261012",
+  "target": "cfdw-petsc-cuda132-f1",
+  "stage": "repositories",
+  "utc": "2026-10-12T15:10:57.5758317+00:00",
+  "command": "preflight.sh",
+  "ownership": "stage owner is atomically published before side effects"
+}

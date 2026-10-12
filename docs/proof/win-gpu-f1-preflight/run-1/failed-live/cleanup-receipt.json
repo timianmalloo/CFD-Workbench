@@ -1,0 +1,28 @@
+{
+  "schema": "cfdw-f1-r217-cleanup/1",
+  "run_id": "r217-run1-epoch6-20261012",
+  "target": "cfdw-petsc-cuda132-f1",
+  "protected": "cfdw-openfoam2512",
+  "initiating_error": "stage-simulate exited 5",
+  "cleanup_errors": [
+    "checkpoint: Exception calling \"Substring\" with \"1\" argument(s): \"startIndex cannot be larger than length of string. (Parameter 'startIndex')\"",
+    "MAC-DECISION-REQUIRED: checkpoint unproved; archive deletion/unregister withheld"
+  ],
+  "checkpoint_sha": "Not recorded",
+  "elapsed_seconds": 94.134287,
+  "target_absent": "Unknown or blocked",
+  "creation_uncertain": false,
+  "finalization": {
+    "errors": [
+      "checkpoint: Exception calling \"Substring\" with \"1\" argument(s): \"startIndex cannot be larger than length of string. (Parameter 'startIndex')\"",
+      "MAC-DECISION-REQUIRED: checkpoint unproved; archive deletion/unregister withheld"
+    ],
+    "owned_stopped": true,
+    "checkpoint_proved": false,
+    "cleanup_proved": false,
+    "snapshot_proved": true,
+    "guard_stopped": true,
+    "guard_bound": true
+  },
+  "affinity": "Linux CPU0-1 or guard CPU0, nice10; host lifecycle/Git N/A"
+}

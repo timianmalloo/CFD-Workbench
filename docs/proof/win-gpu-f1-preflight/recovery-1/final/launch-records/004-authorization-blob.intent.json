@@ -1,0 +1,1 @@
+{"argv": ["git", "cat-file", "blob", "486ecd3ed495da3792c868fff1273767aecb937c:docs/proof/win-gpu-f1-preflight/recovery-1/cleanup-authorization.json"], "host_ack": "pending", "label": "authorization-blob", "linux_state": "Not recorded"}
