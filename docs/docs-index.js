@@ -5403,6 +5403,58 @@ window.DOCS_INDEX = {
       "sourceSha256": "1c1aaf45768e0e5c215188fe18896d01b08fce3c69e6d755e164c79632953db1"
     },
     {
+      "id": "coordination-openfoam-gpu-status-r220",
+      "path": "docs/coordination/openfoam-gpu-status-r220.md",
+      "title": "OpenFOAM GPU work status at Ruling 220",
+      "type": "doc",
+      "status": "in-progress",
+      "owner": "@pc-gpu-status-r217-cont",
+      "phase": "",
+      "reviewBy": "2026-10-19",
+      "reviewSuggested": [],
+      "summary": "CUDA capability and rollback are proved, the PETSc-CUDA plus petsc4Foam design and three-arm benchmark are specified, and Ruling 220 has opened one final P1/P3 repair before the dependency-only F1 preflight may run.",
+      "tags": [
+        "coordination",
+        "windows",
+        "wsl",
+        "openfoam",
+        "gpu",
+        "cuda",
+        "petsc",
+        "ruling-220"
+      ],
+      "links": [
+        {
+          "to": "plan-win-openfoam-gpu-qualification",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-gpu-b2",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-windows-gpu-f1-r211",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-windows-gpu-f1-preflight-packet",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "End-to-end route",
+          "mermaid": "flowchart LR\n  A[CUDA capability proved] --> B[F1 design and benchmark frozen]\n  B --> C[R220 P1/P3 repair]\n  C --> D{Fresh Astra review}\n  D -->|VETO| X[Stop F1; operator decides]\n  D -->|ACCEPT| E[Review real environment contract]\n  E --> F[R217 dependency-only preflight]\n  F --> G[Dependency and capacity evidence]\n  G --> H{Later operator build ruling}\n  H --> I[PETSc-CUDA plus petsc4Foam build]\n  I --> J[Native GAMG / PETSc CPU / PETSc GPU benchmark]\n  J --> K[Case-specific worth-it verdict]"
+        }
+      ],
+      "sourceSha256": "d1e91233b86190ea91d0f3a34713563be04b371aa5fae12b66db0dfba6c376df"
+    },
+    {
       "id": "defect-classes",
       "path": "docs/lessons/defect-classes.md",
       "title": "CFD-Workbench defect-class register",
@@ -8873,7 +8925,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cb4276e887bdfce88fc8a01207696a04e95d4a3a7bd6affbf0263fc70f937cf5"
+      "sourceSha256": "caee19d5a174762e2709db9fc66e07b1581394baff493cf2f7a278681fd6ccfa"
     },
     {
       "id": "kb-hw-glossary",
@@ -21174,6 +21226,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-m12d-catalog"
     },
     {
+      "id": "surface-coordination-openfoam-gpu-status-r220",
+      "path": "docs/coordination/openfoam-gpu-status-r220.html",
+      "title": "OpenFOAM GPU status — Ruling 220",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "coordination-openfoam-gpu-status-r220"
+    },
+    {
       "id": "surface-mockups-planform-point-verbs",
       "path": "docs/mockups/planform-point-verbs.html",
       "title": "Planform point verbs",
@@ -21262,5 +21322,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d3a45a54bc90a29a29cbbb54dc61f38321230aa88fb5d2a25910dd5f69699057"
+  "graphSha256": "ba65c56a8f5fe2d063df927dea73f6842ae853f50fcc429134e74049a9a2d247"
 };
