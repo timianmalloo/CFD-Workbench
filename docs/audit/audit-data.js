@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T02:13:06Z",
+  "generated": "2026-10-12T02:24:26Z",
   "audit": [
     {
       "actor": null,
@@ -36183,6 +36183,39 @@ window.AUDIT_DATA = {
       "tags": [],
       "tier": "T1",
       "tool": null
+    },
+    {
+      "id": "al-01M4PYSXBVG8ZZCG0HY22K5TA8",
+      "shortname": "f1-r217-astra-packet-r2",
+      "datetime": "2026-10-12T02:24:26Z",
+      "session": "pc-f1-r217-astra-packet-r2",
+      "prompt": "FINAL PACKET RE-REVIEW (second verdict; second VETO stops the live track). Work only in C:\\Projects\\CFD-Workbench-win-gpu-f1-r217-astra-packet-r2 on branch win/gpu-f1-r217-astra-packet-r2, session pc-f1-r217-astra-packet-r2, exact joined base 2f643039d2df77a361a90d4578d64ccfc3fef6c9. First action: py -3 docs/ai-forward-pack/scripts/audit-log.py start --session pc-f1-r217-astra-packet-r2 --skill execute-with-coordination. Claim/write only docs/reviews/windows-gpu-f1-preflight-packet.md plus derived audit/index files. Do not edit packet, plans, or defect register. Do not run WSL, wrapper, apt, downloads, install, build, or cases. Adversarially re-review exact repaired packet against your committed P1-P6 VETO, Ruling 217, and current epoch-agnostic coordinator contract. Reproduce safe regressions and inspect integration, not only test claims. Specifically prove: unconditional bounded owned-work and observer stop/reap/bind on guard/snapshot/checkpoint failures; normal commit-before-deb-delete/unregister and explicit Mac handoff when checkpoint unproved; absolute startup-inclusive 2700/3000/3600 deadlines on every wait including distro list/create settle; exact atomic attempt ownership/residual checks fail closed on ps/missing/leader-gone/partial creation; UTC Z fixed; mandatory separately committed contract verified before first WSL effect binds accepted source blobs/hashes, input hashes, approved keyrings/signers, exact clean branch/session and live Mac epoch read from reviewed contract; gpgv signer equality; Installed-Size reconciliation and measured guest/host capacity; no prohibited live verbs. Check that epoch-agnostic source still fails closed if the reviewed epoch changes. Run packet_selftest.py, SelfTest.ps1, authority/transaction/manifest/guard tests, PS parse, Bash syntax, safe repo gates. Update the existing review with a clear final ACCEPT or second VETO, remediation table P1-P6, exact commit evidence, confidence, and the remaining separately reviewed environment-contract seam. If ACCEPT: audit, derive, commit with AGENT_SESSION, release claim, report hash. If VETO: same, and explicitly state terminal stop. Budget 25 calls / 25k / 25 minutes. Mac remains leader; epoch 5 is current but may be renewed/reclaimed before the later environment contract, whose exact epoch must match live state.",
+      "summary": "Second VETO: reproduced deletion-stage failure bypassing fresh owned-work stop with stale owned_stopped=true, and cross-attempt prefix matching in residual discovery. P2/P4/P6 cleared; P5 code repaired with separate environment-contract review still required. Live track stopped under cap. Packet self-tests, authority/transaction/manifest/guard tests, PS parse, Git Bash syntax, WSL-inline, docs-graph validation (zero defects; 131 advisory flags), check-docs and diff checks passed. Packet/plans/defect register unchanged. No prohibited execution; fan-out zero.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-preflight-packet.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Independently adjudicate the repaired Ruling 217 packet at the exact joined base.",
+      "done_when": "Commit a final evidence-cited ACCEPT or terminal second VETO, with P1-P6 mapping and offline validation.",
+      "tier": "T1",
+      "main_calls": 25,
+      "main_budget": 25,
+      "main_over_budget": false,
+      "fan_out": 0,
+      "started_at": "2026-10-12T02:13:44Z",
+      "duration_seconds": 642.0,
+      "git": {
+        "sha": "2f643039d2df77a361a90d4578d64ccfc3fef6c9",
+        "short": "2f643039d",
+        "branch": "win/gpu-f1-r217-astra-packet-r2",
+        "pushed": null
+      }
     }
   ],
   "changes": [

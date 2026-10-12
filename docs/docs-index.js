@@ -19992,14 +19992,14 @@ window.DOCS_INDEX = {
     {
       "id": "review-windows-gpu-f1-preflight-packet",
       "path": "docs/reviews/windows-gpu-f1-preflight-packet.md",
-      "title": "Astra packet review - Ruling 217 dependency preflight",
+      "title": "Astra final packet review - Ruling 217 dependency preflight",
       "type": "proof-pack",
       "status": "complete",
-      "owner": "@pc-f1-r217-astra-packet",
+      "owner": "@pc-f1-r217-astra-packet-r2",
       "phase": "preflight",
       "reviewBy": "2026-11-12",
       "reviewSuggested": [],
-      "summary": "VETO on live execution: guard failure can bypass cleanup, owned-process and deadline controls are incomplete, UTC freshness conversion fails, and trust/input/size reconciliation needs repair. Offline self-tests pass but do not cover these failures.",
+      "summary": "Second VETO stops the live track: deletion-stage failure bypasses a fresh owned-work stop, and residual discovery selects another attempt by prefix. Deadline, UTC, trust-contract and size repairs are otherwise verified offline.",
       "tags": [
         "windows",
         "wsl",
@@ -20026,7 +20026,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "73c68ff3296832b9d74a3e3268edaf4f617ccfc6c857cca8bbaaa6c16de064de"
+      "sourceSha256": "9685173fa92c82bfdc0bead650b19dc689c047bc03a5e87d1ee05c9dffc745de"
     },
     {
       "id": "review-windows-runtime",
@@ -21262,5 +21262,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "da35d8efff19a7dae5367164b527af0f2f15e12d6d29e59f555163324324e891"
+  "graphSha256": "d8d51548c79eded5ae6f579b7408fe7ec518d18d8f6a610592d533211ad055f0"
 };
