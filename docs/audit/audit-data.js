@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T16:13:26Z",
+  "generated": "2026-10-12T16:15:49Z",
   "audit": [
     {
       "actor": null,
@@ -36702,6 +36702,35 @@ window.AUDIT_DATA = {
       ],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M4REC7D2VMX1R9M235R4VQXS",
+      "shortname": "join-r217-cleanup-recovery-cycle1",
+      "datetime": "2026-10-12T16:15:49Z",
+      "session": "pc-f1-r217-cleanup-recovery-author",
+      "prompt": "the join of win/gpu-f1-r217-cleanup-recovery-review-cycle1 into win/gpu-f1-r217-cleanup-recovery",
+      "summary": "Joined Astra ACCEPT for scoped offline cleanup-recovery source after reproducing and clearing CR-1/2/3 and all offline gates. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-cleanup-recovery-cycle1.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Join independent acceptance of the cleanup-only recovery source without granting live authority.",
+      "done_when": "Review is merged, docs-only ring and configured gates pass, and the recovery branch is pushed clean.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-12T16:14:02Z",
+      "duration_seconds": 107.0
     }
   ],
   "changes": [
