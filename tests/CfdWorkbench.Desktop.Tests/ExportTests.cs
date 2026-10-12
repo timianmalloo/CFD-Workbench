@@ -345,10 +345,9 @@ public static class ExportTests
             Directory.CreateDirectory(asDirectory);
             var blocked = Wait(session.RunAsync((_, _) => Task.FromResult<string?>(asDirectory)));
             Equal(ExportOutcomeKind.Failed, blocked.Kind);
-            // WRX: replacing a directory with a file is an IOException on POSIX and an access-denied UnauthorizedAccessException on Windows,
-            // which the writer words as the permission cause (Windows ring r199: "...You don't have permission to write to that folder...").
-            Equal(OperatingSystem.IsWindows() ? "Can't write the file. You don't have permission to write to that folder. Nothing was changed."
-                : "Can't write the file. Nothing was changed.", blocked.Message);
+            // DTG: a folder at the target name is refused before the write, on every platform, with COPY-507 and no cause.
+            Equal("EXPORT-TARGET-DIRECTORY", blocked.Code);
+            Equal("Can't write the file. Nothing was changed.", blocked.Message);
             Equal(0, Directory.GetFiles(folder, ".cfd-*.tmp").Length);
             Equal("the earlier file", File.ReadAllText(existing));
             // Each cause has its own sentence; an unmapped failure still says what happened, with no invented cause.
