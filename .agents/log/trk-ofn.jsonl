@@ -1,1 +1,2 @@
 {"agent": "trk-ofn", "at": 1791814180.2280838, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-ofn", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-ofn-posix-flags"}
+{"agent": "trk-ofn", "at": 1791815498.5547469, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-ofn", "wi": "WI-0", "worktree": "CFD-Workbench-fix-ofn-posix-flags"}
