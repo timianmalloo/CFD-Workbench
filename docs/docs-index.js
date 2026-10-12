@@ -18251,6 +18251,47 @@ window.DOCS_INDEX = {
       "sourceSha256": "d8d3881c7831e9f094748fd94121c87794f402e08affd0561b03e44bb8d8fe70"
     },
     {
+      "id": "proof-win-gpu-f1-r217-contract-preparation",
+      "path": "docs/proof/win-gpu-f1-preflight/run-1/contract-preparation.md",
+      "title": "Ruling 217 run 1 environment contract preparation",
+      "type": "proof-pack",
+      "status": "proposed",
+      "owner": "@pc-f1-r217-execute-r220",
+      "phase": "preflight",
+      "reviewBy": "2026-10-19",
+      "reviewSuggested": [],
+      "summary": "Proposed run-1 invocation contract binds the Astra-accepted packet, retained signed inputs, exact signer sets, execution branch/session, and live Mac epoch 6; independent review still precedes any WSL effect.",
+      "tags": [
+        "windows",
+        "wsl",
+        "gpu",
+        "ruling-217",
+        "ruling-220",
+        "contract",
+        "trust"
+      ],
+      "links": [
+        {
+          "to": "review-windows-gpu-f1-preflight-packet",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-gpu-b2",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "6aaf7f2b3b9d04174ea9afcafe8a7672dd2bf6cfeec0c3f410b86a33e8f945ac"
+    },
+    {
       "id": "proof-win-gpu-f1-r217-packet",
       "path": "docs/proof/win-gpu-f1-preflight/packet/README.md",
       "title": "Ruling 217 F1 dependency preflight execution packet",
@@ -21323,5 +21364,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "cc2200fcc12653720e9b129ca5867fca9672b59b8813d00b17391ca88d587fb8"
+  "graphSha256": "33eea6d78062636af4df9e135b2fd0f06df18ea5c1eea4880209b2077cab8267"
 };
