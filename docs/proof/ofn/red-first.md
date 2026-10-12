@@ -45,9 +45,15 @@ Not covered: `signal.SIGKILL` (same class, absent on Windows) at tools/verify-ap
 - Green: `green-shim-output.txt` exit 0; `green-gate-output.txt` exit 0; `verify-portable-text-io.py --self-test` exit 0; `run-windows-store-gate.py --self-test` exit 0; `qualify-windows-runtime.py --self-test` exit 0.
 - `spike-windows-shim.py` runs `atomic_spike` under a Windows-shaped `os` (name `nt`, no O_NOFOLLOW, directory `os.open` raises PermissionError). This is a stand-in; it does not prove Windows.
 
+## Recount cleanup failure (PC line: WinError 5 deleting `Avalonia.BuildServices.Collector.dll` in the recount's temp NuGet cache)
+
+Fix in `tools/recount-architecture-spike.py`: child env gets `AVALONIA_TELEMETRY_OPTOUT=1` and `DOTNET_CLI_TELEMETRY_OPTOUT=1` (same opt-out as `tools/verify-application-core.py:213`); the build runs with `--disable-build-servers -p:UseSharedCompilation=false`; the temp folder is removed with 5 bounded retries (1 s apart) that raise a named error if a file stays locked, never leaving it silently.
+Mac: `recount-mac-output.txt`, exit 0, 30 oracle checks pass (real blake3/rfc8785, symlink checks included), temp folder gone. POSIX `rmtree` does not fail on a loaded file, so the lock is not reproducible on the Mac.
+Windows effect is **Inferred**: the collector holds the DLL and the opt-out should stop it launching. Not proven.
+
 ## Inferred, for the PC
 
-- The recount's "temporary-file access failure" is most likely the directory `os.open` (fixed) but could also be the `link.symlink_to(...)` setup at spike lines ~236-241, which needs the symlink privilege on Windows. Not changed (the oracle asserts exactly 30 checks).
+- The directory `os.open` fix (spike) is source-visible but was not the PC's reported temp failure. The oracle's `link.symlink_to(...)` setup (spike lines ~236-241) needs the symlink privilege on Windows; not changed (the oracle asserts exactly 30 checks).
 
 ## Pack files changed (shared with other repositories)
 

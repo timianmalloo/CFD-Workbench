@@ -1,0 +1,1 @@
+{"native_mismatch_refusals": 9, "oracle_checks": 30, "oracle_seconds": 0.1345197920454666, "scope": "architecture spike only"}
