@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T03:52:03Z",
+  "generated": "2026-10-13T04:04:55Z",
   "audit": [
     {
       "actor": null,
@@ -38222,6 +38222,42 @@ window.AUDIT_DATA = {
         "short": "cecafe4e9",
         "branch": "win/gpu-f1-r231-helper-repair",
         "pushed": null
+      }
+    },
+    {
+      "id": "al-01M4SPYKZ8TMVR87HR190C3FKT",
+      "shortname": "f1-helper-final-cycle2-prepared",
+      "datetime": "2026-10-13T04:04:55Z",
+      "session": "pc-f1-r231-helper-repair-prep",
+      "prompt": "Repair cycle 2 is authorized offline only in C:\\Projects\\CFD-Workbench-win-gpu-f1-r231-helper-repair. Astra independently found that nonexistent evidence root (both stage/guard) and a file substituted for the evidence directory return OWNED-ABSENT with synthetic empty ps, violating unknown-state refusal and potentially erasing recorded ownership knowledge. Wait only as needed for Astra's exact REJECT artifact, then add red-first coverage and the smallest fail-closed repair. Preserve all candidate guarantees, immutable R230 evidence, sanitized diagnostics, and no WSL/live actions. Run focused union/check-docs; do not rerun the unrelated broad Desktop ring unless changed scope justifies it. This is the second and final repair cycle for this candidate; commit/push exact result and mark PREPARED-UNAUTHORIZED.",
+      "summary": "PREPARED-UNAUTHORIZED final repair cycle 2, grounded in Astra REJECT 5be072631cec930bacc26c91f33d451f0c509631. Six root cases (missing/file/unreadable x stage/guard) red on 6089217f: 13 tests/six failures/0.063 s. One admission line enumerates evidence directory before owner/process reads inside existing unknown-state sanitizer. Green focused 13/13/0.075 s; Python union 94/94/8.203 s; staged safe bundle 10/10/6.611 s with three explicit skips; final check-docs exit 0. R230 GIT-BINDING-PASS 69 files, frozen authority/evidence/rulings diff empty. No WSL/live action, wrapper change, or broad Desktop rerun; prior ring RED remains undisposed. OPTIONAL-LEAF-WITHOUT-REQUIRED-ROOT registered with actual controls and packet sibling assigned to pc coordinator. Five-node serial graph retained, one authorized rework pass; final-cycle cap means another code finding stops track. Independent acceptance remains pending.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/helper-repair.md",
+        "tests/test_f1_cleanup_owned_check.py"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Close the evidence-root unknown-state defect with the smallest offline repair in final cycle 2.",
+      "done_when": "Six root controls are red then green, focused union and docs pass, exact source/proof/control committed and pushed PREPARED-UNAUTHORIZED.",
+      "tier": "T0",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-10-13T03:56:14Z",
+      "duration_seconds": 521.0,
+      "git": {
+        "sha": "6089217fe55ae7b10624bd892b44e7ca0ad717b5",
+        "short": "6089217fe",
+        "branch": "win/gpu-f1-r231-helper-repair",
+        "pushed": true
       }
     }
   ],

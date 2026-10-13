@@ -25,6 +25,8 @@ def check(evidence_root: Path, expected_run_root: str, run_id: str,
     except Exception as error:
         raise RuntimeError("F1-OWNED-IMPORT-FAILED") from error
     try:
+        # Missing optional records are meaningful only within inspectable evidence.
+        list(evidence_root.iterdir())
         recorded = module.read_owner_records(evidence_root, kind)
         rows = module.read_processes()
         groups = module.find_groups(rows, expected_run_root, run_id, recorded, kind)

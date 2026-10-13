@@ -146,7 +146,7 @@ Conservation: the exact R230 manifest still verifies against evidence commit
 --exit-code cecafe4e` for the canonical authorization, activation, payload, R230
 run-1, R228 final, historical run-1/recovery-1, and rulings exits 0 with no diff.
 
-SHA-256 of the final authored LF source bytes:
+SHA-256 of the cycle-1 authored LF source bytes (candidate `6089217f`):
 
 | File | SHA-256 |
 |---|---|
@@ -165,3 +165,62 @@ cap two repair cycles, with cap firing reported as a defect signal. Planned and
 actual graph both have five nodes, serial width one. Span and token cost are not
 modeled; duration is measured by the audit start/append pair. No repair rework
 pass has occurred after the first green production result.
+
+# Final repair cycle 2: required evidence directory
+
+Astra rejected cycle-1 candidate `6089217fe55ae7b10624bd892b44e7ca0ad717b5`
+at review commit `5be072631cec930bacc26c91f33d451f0c509631`. Exact review
+artifact: `docs/reviews/windows-gpu-f1-r231-helper-review.md` on
+`win/gpu-f1-r231-helper-review`, SHA-256
+`430ccc12c21d2c031888cdba625b9a62258f8df10239edb6f3dc16d7f9a614ca`.
+The written artifact was read first; its committed blob was then independently
+hashed to the same value. The coordinator separately authorized cycle 2 offline.
+
+**Verified defect:** a missing or file-shaped evidence root yielded an empty
+owner mapping and `OWNED-ABSENT` with synthetic empty ps. This defect predates
+module registration. It violated the helper's claimed unknown-state refusal.
+The exact review also requires unreadable-root refusal. The first missing/file
+red probe exposed four mode/case combinations; the final red suite covers six:
+missing, file, and permission-denied root, each in stage and guard mode.
+`test_f1_cleanup_owned_check.py` ran 13 tests, six failures, 0.063 seconds, exit 1
+before production repair. The per-mode assertions remain inside each subtest so
+an earlier failure cannot abort the second mode; this corrected the initial test
+context before the final six-case red observation.
+
+The production repair is one admission line, `list(evidence_root.iterdir())`,
+inside the existing sanitized unknown-state boundary and before owner/process
+reads. The inspected Python 3.13.14 implementation opens and enumerates
+`os.scandir`; missing, non-directory, and permission-denied inputs refuse rather
+than become absent optional records. Real temporary missing/file inputs pair
+the injected permission-error fixture because ACL/chmod outcomes depend on host
+privilege. Each invalid-root control requires stable `F1-OWNED-STATE-UNKNOWN`,
+empty stdout, and zero process calls. Valid empty-directory, residual, reused
+owner, import and receipt diagnostics remain covered by the existing controls.
+
+Class sweep: all `read_owner_records` call sites under F1 proof Python and tests.
+The cleanup helper and packet `owned_control.control` are the two production
+callers. The packet's direct control has the same optional-child reader without
+an explicit required-root admission; it is a recorded sibling risk owned by
+`@pc-coordinator`, not runtime-verified or changed here. Packet self-tests call
+the low-level reader with real temporary directories. This correction stays at
+the reviewed cleanup boundary; it does not modify packet or historical bytes.
+
+**Verified green:** focused helper 13/13 in 0.075 seconds; complete Python union
+94/94 in 8.203 seconds. The R230 manifest again verifies GIT-BINDING-PASS, 69
+files, and the frozen authority/evidence/rulings diff from cecafe4e remains empty.
+The wrapper `cleanup.py` is unchanged from cycle 1. Final documentation and fast
+gate results are recorded in this cycle's measured audit entry.
+
+| Cycle-2 file | SHA-256 |
+|---|---|
+| cleanup_owned_check.py | e9265d5f8dbec3115d71434ae870d43284780e166f885b5182e041067828efef |
+| tests/test_f1_cleanup_owned_check.py | e0d746a43af41d42b716a34cd685d8e171e2c184e0184dff76c44207269fa9c7 |
+
+**PREPARED-UNAUTHORIZED.** This is the second and final repair cycle. The broad
+Desktop ring is not rerun: no C# or build scope changed, and its earlier red
+result remains undisposed. No cause or environment classification is inferred
+from those unchanged sources. Independent acceptance, ring disposition, and any
+new live ruling remain required. No live action occurred. A further code repair
+finding stops this candidate track and returns to the operator; it cannot start
+cycle 3. The five-node serial graph is retained, with one authorized rework pass
+from independent rejection to the new red/green proof.

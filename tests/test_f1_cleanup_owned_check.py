@@ -96,6 +96,35 @@ class OwnedCheckTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             self.assertEqual(self.invoke_check(Path(temporary), argv=("/foreign/process",)), "OWNED-ABSENT\n")
 
+    def assert_unknown_root(self, root):
+        for kind in ("stage", "guard"):
+            output = io.StringIO()
+            empty_ps = subprocess.CompletedProcess(["ps"], 0, "", "")
+            with self.subTest(kind=kind):
+                with contextlib.redirect_stdout(output), \
+                        patch.object(subprocess, "run", return_value=empty_ps) as launch, \
+                        self.assertRaisesRegex(RuntimeError, "^F1-OWNED-STATE-UNKNOWN$"):
+                    helper.check(root, RUN_ROOT, RUN_ID, OWNED, kind)
+                self.assertEqual(output.getvalue(), "")
+                launch.assert_not_called()
+
+    def test_Check_MissingEvidenceRoot_RefusesBeforeProcessInspection(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            self.assert_unknown_root(Path(temporary) / "missing-evidence")
+
+    def test_Check_FileInsteadOfEvidenceDirectory_RefusesBeforeProcessInspection(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "evidence"
+            root.write_text("synthetic substituted file", encoding="utf-8")
+            self.assert_unknown_root(root)
+
+    def test_Check_UnreadableEvidenceDirectory_RefusesBeforeProcessInspection(self):
+        # Windows ACLs and privileged POSIX callers make chmod nondeterministic.
+        # Real missing/file roots pair this injected filesystem failure boundary.
+        with tempfile.TemporaryDirectory() as temporary, \
+                patch.object(Path, "iterdir", side_effect=PermissionError("synthetic private evidence detail")):
+            self.assert_unknown_root(Path(temporary))
+
     def test_Check_OwnedStageAndGuard_RefusesWithResidualCode(self):
         stage = ("/bin/bash", "/synthetic/preflight/packet/preflight.sh", "--stage", "probe",
                  "--run-root", RUN_ROOT, "--run-id", RUN_ID)
