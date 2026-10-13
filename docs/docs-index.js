@@ -19123,6 +19123,37 @@ window.DOCS_INDEX = {
       "sourceSha256": "a8348c56f0e1b76fe571025a9e4f47b5547c6b8d02e51294449bc19485c8a7b7"
     },
     {
+      "id": "proof-win-gpu-f1-r231-desktop-ring-investigation",
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/desktop-ring-r231-investigation.md",
+      "title": "R231 Windows Desktop ring timeout investigation",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@pc-f1-r231-ring-investigator",
+      "phase": "preflight",
+      "reviewBy": "2026-11-12",
+      "reviewSuggested": [],
+      "summary": "Serial Windows reruns of the six Desktop children named in the R231 broad-ring failure completed below the child deadline; all observed test failures match the Windows expected-failures manifest.",
+      "tags": [
+        "windows",
+        "desktop",
+        "ring",
+        "timeout",
+        "r231"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-cleanup-helper-repair",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-gpu-f1-r229-cleanup-candidate",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "02a93c2e5a63637db137db8b1ba3a733db7de16c4c59c7e6847ea87045468e2f"
+    },
+    {
       "id": "proof-win-gpu-f1-recovery-integration",
       "path": "docs/proof/win-gpu-f1-preflight/integration/proof.md",
       "title": "F1 packet repair and cleanup recovery: offline integration proof",
@@ -22423,5 +22454,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "0f9fad791dc3f160498aa4dab4d3acdcba19f80f5c6214b08bfab525d6fc9b17"
+  "graphSha256": "134de19acc450f8b477370d35251916b125ec47434ecc15e5674080c5793e903"
 };

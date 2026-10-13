@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T04:04:55Z",
+  "generated": "2026-10-13T04:23:22Z",
   "audit": [
     {
       "actor": null,
@@ -38259,6 +38259,21 @@ window.AUDIT_DATA = {
         "branch": "win/gpu-f1-r231-helper-repair",
         "pushed": true
       }
+    },
+    {
+      "id": "al-01M4SR0D93WBYVD4CJKSKW1R1J",
+      "shortname": "Investigate the R231 broad Desktop ring failures in the assigned Windows…",
+      "datetime": "2026-10-13T04:23:22Z",
+      "session": "prompt-log",
+      "prompt": "Investigate the R231 broad Desktop ring failures in the assigned Windows worktree; reproduce the six reported child modes serially with the local .NET 10.0.203 SDK, classify failures against the Windows manifest, and recommend rerun/waive/block without changing product or helper code.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
     }
   ],
   "changes": [
