@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T23:32:08Z",
+  "generated": "2026-10-13T01:24:11Z",
   "audit": [
     {
       "actor": null,
@@ -37743,6 +37743,56 @@ window.AUDIT_DATA = {
         "short": "deeb6a65f",
         "branch": "win/gpu-f1-r225-attempt1-review",
         "pushed": null
+      }
+    },
+    {
+      "id": "al-01M4SDKWMRR7EHAARNQJ24Z11Q",
+      "shortname": "epoch8-independent-review",
+      "datetime": "2026-10-13T01:21:46Z",
+      "session": "pc-f1-r225-attempt1-review",
+      "prompt": "Owner review continuation for the epoch-expiry repair. R227 was committed but local mac epoch 7 expired unused; no WSL action occurred. Ruling 226 authorized local reclaim, now observed live mac epoch 8 with continuous 90-second renewal. Review candidate df21decf on origin/win/gpu-f1-r225-attempt1, source anchor b7821e27d75a0a5ffed5ee3f9d36c3bf08e535a8. Exact new hashes: contract 1141ee15dde086991290c508104addf9fe5c32c789dccbdbfdbfbaeb9e49f696; proposed auth a274d4d89eb789ffae57009b4197c08ea0dd632c95bfa576f7c446a30749e5b6; accepted projection 39217fae100c358c1c98aba5e1827e23cb0e0824d2be9329f98c339a8275dff3. Scope should be only epoch 7 to 8, run identity epoch7 to epoch8, requested ruling 227 to 228, exact production admission checks/tests/docs and packet hash rebinding. Independently fetch/merge candidate in your existing review worktree, rehash source/contract/projection, verify proposed remains non-live, verify no WSL/live action, rerun focused admission tests and examine diff from f111/old candidate. Commit and push an ACCEPT/VETO review artifact on your review branch. Do not invoke WSL. Return exact commit and findings.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4SDRAANK68CJN0XB4H6V6KF",
+      "shortname": "epoch8-independent-accept",
+      "datetime": "2026-10-13T01:24:11Z",
+      "session": "pc-f1-r225-attempt1-review",
+      "prompt": "Review exact df21decf epoch-expiry candidate and source b7821e27, verify narrow epoch8/RunId/R228 bindings and exact hashes, proposed refusal and no WSL review effects, focused tests, then commit and push ACCEPT or VETO.",
+      "summary": "ACCEPT offline readiness: df21decf4ed90fcedaecceec449c6edcd87e2179 binds b7821e27d75a0a5ffed5ee3f9d36c3bf08e535a8. Independent packet16/helper1/input7 hashes match contract1141ee15, proposeda274d4d8, projection39217fae. Production diff confined to epoch7to8/run identity/ruling227to228 in Control.ps1 and attempt.py; matching test fixtures. Focused11/11 PASS6.616s; PS5.1/7 admission and absence PASS0WSL. Additional production probe rejects old epoch/run/liveleader7, expiredleader8, proposed authority, projection-live-path and pinned oldR227. Observed mac8 live887s; renewal continuity coordinator-owned. No attempt outputs; historical evidence emptydiff; no WSL or registry access by reviewer. Safe10/10, docs17manifests PASS, graph0defects/134retained, privacy0prohibited, whitespace clean. R228 and independent activation rehash still required.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-r225-attempt1-epoch8.md",
+        "docs/reviews/r225-attempt1-epoch8-probe.py"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Accept or veto exact epoch8 attempt1 offline readiness",
+      "done_when": "Exact candidate and refusals independently verified; review committed and pushed without live authority",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-13T01:19:09Z",
+      "duration_seconds": 302.0,
+      "git": {
+        "sha": "df21decf4ed90fcedaecceec449c6edcd87e2179",
+        "short": "df21decf4",
+        "branch": "win/gpu-f1-r225-attempt1-review",
+        "pushed": false
       }
     }
   ],

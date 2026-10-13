@@ -9094,6 +9094,40 @@ window.DOCS_INDEX = {
       "sourceSha256": "d874325efa880b47c4861aec8b252e97b8790062ef702bc5a3d1cb7a14773ffa"
     },
     {
+      "id": "review-windows-gpu-f1-r225-attempt1-epoch8",
+      "path": "docs/reviews/windows-gpu-f1-r225-attempt1-epoch8.md",
+      "title": "Independent epoch-8 attempt-1 readiness review",
+      "type": "doc",
+      "status": "accepted",
+      "owner": "@pc-f1-r225-attempt1-review",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "ACCEPT of the narrowly rebound epoch-8 source and proposed payload. Exact hashes, old-epoch refusal and proposed-state refusal are verified offline. R228 and independent activation review remain necessary before live use.",
+      "tags": [
+        "windows",
+        "preflight",
+        "authorization",
+        "independent-review"
+      ],
+      "links": [
+        {
+          "to": "review-windows-gpu-f1-r225-attempt1-admission",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r225-attempt1-admission",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "21d2913586a12d6bb397add15a597f5c4b8fc023a6652a4d01a00b31b760cf3f"
+    },
+    {
       "id": "rulings",
       "path": "docs/notes/rulings.md",
       "title": "Rulings — the Owner seat's numbered decisions (the only definition site)",
@@ -9117,7 +9151,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "673e5ece82d22d8ad4e1a63674e08c9dbb1b29e4e3daf578ec6a2380f592ef73"
+      "sourceSha256": "28487b8a2ed3a68f5511a2bf2e099141ae510cbcfb62e8f05f7aa320cee647fd"
     },
     {
       "id": "kb-hw-glossary",
@@ -18757,7 +18791,7 @@ window.DOCS_INDEX = {
       "phase": "preflight",
       "reviewBy": "2026-10-19",
       "reviewSuggested": [],
-      "summary": "Fresh attempt/run/session/branch at epoch 7, exact packet and external helper bytes, seven rehashed inputs, proposed live-path authorization and precomputed accepted projection. Normal admission refuses until a hash-bound main ruling.",
+      "summary": "Fresh attempt/run/session/branch at epoch 8, exact packet and external helper bytes, seven rehashed inputs, proposed live-path authorization and precomputed accepted projection. Normal admission refuses until a hash-bound main ruling.",
       "tags": [
         "windows",
         "wsl",
@@ -18780,7 +18814,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "63bd60c8cbb8b1c7c13899b7ad5f46bd097359c96df26295e50558c2d18d859b"
+      "sourceSha256": "5c1f879bcb3ca65e5cf23ada799a499b0d252d39310be20b49488ab8c631f437"
     },
     {
       "id": "proof-win-gpu-f1-recovery-integration",
@@ -22083,5 +22117,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "70ce76e282139e275bd7e533b33b30660898b724b50024bd083d83221b847426"
+  "graphSha256": "6bcf25e11a9f399a565280f738a00c03e1f90a4e9ce7c978b1df795ce087555b"
 };
