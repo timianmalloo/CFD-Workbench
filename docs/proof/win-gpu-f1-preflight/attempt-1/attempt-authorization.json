@@ -1,8 +1,8 @@
 {
   "schema": "cfdw-f1-preflight-authorization/1",
-  "status": "proposed",
+  "status": "accepted",
   "requested_ruling": 228,
-  "ruling": null,
+  "ruling": 228,
   "attempt": 1,
   "leader": "mac",
   "leader_epoch": 8,
