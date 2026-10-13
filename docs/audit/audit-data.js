@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T18:44:16Z",
+  "generated": "2026-10-13T19:24:59Z",
   "audit": [
     {
       "actor": null,
@@ -38457,6 +38457,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-13T18:43:05Z",
       "duration_seconds": 71.0
+    },
+    {
+      "id": "al-01M4VBKA01NR9EYCYK54RSJTM8",
+      "shortname": "dtj-desktop-slots",
+      "datetime": "2026-10-13T19:24:59Z",
+      "session": "trk-dtj",
+      "prompt": "track DTJ",
+      "summary": "ResolveSlots in the Desktop harness, --resolve-slots in check-test-costs, run-tests exports the baseline, tools/measure-desktop-slots.sh, test-cost 9.11; Mac default unchanged",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "per-host Desktop child slot count and a PC measurement script",
+      "done_when": "env/baseline/default slots with tests, measure script smoke-run, docs, ring green",
+      "started_at": "2026-10-13T19:11:04Z",
+      "duration_seconds": 835.0
     }
   ],
   "changes": [
