@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "71fd5c23370b7f2a4a6d2879aef92a93ac637efab3a87ac8579e6fcd6c460457"
+      "sourceSha256": "492d37863fb5f4f8adf0445019537cfe66520519513eb0759102971135c092d3"
     },
     {
       "id": "domain-experts",
@@ -6437,6 +6437,36 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "0e7cac768482cefb6a4df59a761d873274934e68cfe58c8bfc29c3da90f3e7d7"
+    },
+    {
+      "id": "plan-windows-gpu-f1-r230-failure-review",
+      "path": "docs/plans/windows-gpu-f1-r230-failure-review.md",
+      "title": "Independent R230 failure receipt review plan",
+      "type": "doc",
+      "status": "complete",
+      "owner": "@pc-f1-r230-failure-review",
+      "phase": "",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Bounded receipt verification and offline diagnosis with explicit confidence limits.",
+      "tags": [
+        "review",
+        "failure",
+        "cleanup",
+        "offline"
+      ],
+      "links": [
+        {
+          "to": "review-windows-gpu-f1-r230-failure",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b7881ad69914733b615fcda5ca6cda7a3261b46882826864acb33bccd5e86f4a"
     },
     {
       "id": "plan-windows-gpu-f1-recovery-integration",
@@ -9289,6 +9319,40 @@ window.DOCS_INDEX = {
       "sourceSha256": "9c97341e926da4a63a3fbe4a14a6e8ca0a82310c24c4ace42b2bbe02e63eda7c"
     },
     {
+      "id": "review-windows-gpu-f1-r230-failure",
+      "path": "docs/reviews/windows-gpu-f1-r230-failure.md",
+      "title": "Independent review of the R230 failed-stop receipt",
+      "type": "doc",
+      "status": "blocked",
+      "owner": "@pc-f1-r230-failure-review",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "R230 failed-stop receipt and binding verify; no terminate/unregister occurred in the recorded sequence. An offline helper import defect is verified, but missing raw child diagnostics leave its live causation inferred and owned process state unknown. Another live action requires a new ruling.",
+      "tags": [
+        "windows",
+        "cleanup",
+        "failure",
+        "independent-review"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r229-cleanup-candidate",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r228-attempt1-failure",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "fb9913f4f8115cc8cb534293d55893458dd9f0ad58581660b43a84f20b622019"
+    },
+    {
       "id": "rulings",
       "path": "docs/notes/rulings.md",
       "title": "Rulings — the Owner seat's numbered decisions (the only definition site)",
@@ -9312,7 +9376,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2845c682ea00b39d9ed9e6730de89862c707d86396e703a0af23876d4c6bd460"
+      "sourceSha256": "a21cacc742cbcd98137064ffc0405cca1d3f00c22481a5f75bf8fe2928d55fee"
     },
     {
       "id": "kb-hw-glossary",
@@ -22392,5 +22456,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "c739b09e47ff1104ec737447912419b76ebc78a610701beb27e395155ba054cf"
+  "graphSha256": "2f53357466f49c28db7ba040487a2bc4ff359bfff96a7f2c672a4f53676500e4"
 };

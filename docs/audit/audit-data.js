@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T03:01:56Z",
+  "generated": "2026-10-13T03:32:59Z",
   "audit": [
     {
       "actor": null,
@@ -38186,6 +38186,58 @@ window.AUDIT_DATA = {
         "short": "2a7c269f0",
         "branch": "win/gpu-f1-r228-cleanup",
         "pushed": false
+      }
+    },
+    {
+      "id": "al-01M4SN42JHK8AQJ4VGMB3Q46QB",
+      "shortname": "Independent failure-receipt review on win/gpu-f1-r230-failure-review: bi…",
+      "datetime": "2026-10-13T03:32:57Z",
+      "session": "pc-f1-r230-failure-review",
+      "prompt": "Independent failure-receipt review on win/gpu-f1-r230-failure-review: binding cecafe4e93367de66cbf161381404f2e707f0cfb, evidence901bc8d79767a3e4b69564749ec3319c8d750f52. Verify manifest, receipt, second sample, identity-before, sequence, no terminate/unregister, state claim limits and binding. Diagnose owned-stage-check exit1 from committed evidence/source without live WSL/registry/lifecycle. Inspect source untracked live read-only if present, copy no sensitive raw content. Commit/push VERIFIED/INFERRED/FLAGGED review with exact next-ruling requirements. No repair, GitHub/mail, live action or cleanup rerun.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4SN44D5ZN1KDRZC7CY5HQJP",
+      "shortname": "r230-failure-receipt-review",
+      "datetime": "2026-10-13T03:32:58Z",
+      "session": "pc-f1-r230-failure-review",
+      "prompt": "Finish and push exact failure review with verification commands/results; no WSL or cleanup retry.",
+      "summary": "Failure receipt accepted as bound failed-stop only. Manifest69 passes; binding/evidence ancestry exact;32 commands end owned-stage exit1 after two lists, no terminate/unregister. Samples836.385735/848.680946 live epoch8; identity-before validates. Loader defect VERIFIED offline: unregistered module dataclass import AttributeError before process calls; in-memory registration control parses1 owner and0 unresolved intents. Live cause INFERRED: only1888-byte stderr hash, live84 JSON files no raw stream; owned process and post-state FLAGGED. Prior review import-boundary gap captured with class/sweep/control. No source/live repair or retry. Three plan nodes complete.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-r230-failure.md",
+        "docs/reviews/r230-failure-review-probe.py",
+        "docs/plans/windows-gpu-f1-r230-failure-review.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Verify failure receipt and diagnose only as evidence permits",
+      "done_when": "Confidence-labeled review and next-ruling requirements committed and pushed",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-13T03:26:23Z",
+      "duration_seconds": 395.0,
+      "git": {
+        "sha": "cecafe4e93367de66cbf161381404f2e707f0cfb",
+        "short": "cecafe4e9",
+        "branch": "win/gpu-f1-r230-failure-review",
+        "pushed": null
       }
     }
   ],
