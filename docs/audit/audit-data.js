@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T03:01:56Z",
+  "generated": "2026-10-13T03:52:03Z",
   "audit": [
     {
       "actor": null,
@@ -38186,6 +38186,42 @@ window.AUDIT_DATA = {
         "short": "2a7c269f0",
         "branch": "win/gpu-f1-r228-cleanup",
         "pushed": false
+      }
+    },
+    {
+      "id": "al-01M4SP727278W9K2MEPGGAMV1R",
+      "shortname": "f1-helper-offline-repair-prepared",
+      "datetime": "2026-10-13T03:52:03Z",
+      "session": "pc-f1-r231-helper-repair-prep",
+      "prompt": "You are the repair author in C:\\Projects\\CFD-Workbench-win-gpu-f1-r231-helper-repair on branch win/gpu-f1-r231-helper-repair. Read AGENTS.md, docs/ai-forward-pack/codex.md, the relevant no-guessing/testing/coordination standards, the committed R230 evidence at cecafe4e, and once available the Astra failure review branch win/gpu-f1-r230-failure-review. Goal: prepare the smallest correct code/test repair for the verified offline defect in docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/cleanup_owned_check.py: load_owned_control uses importlib.util.module_from_spec + exec_module without registering the module in sys.modules, causing dataclass processing in owned_control.py to raise AttributeError before any process call. Use red-first proof and sweep siblings. Do NOT invoke wsl.exe, inspect live WSL state, run cleanup, terminate, unregister, or consume any live attempt. Treat live causation as INFERRED unless evidence promotes it. Follow the repair cap and coordination artifacts. Commit and push a reviewable candidate with exact validation results, then report hashes. Keep scope to helper repair/tests/control needed for recurrence prevention; no authorization/ruling fabrication.",
+      "summary": "PREPARED-UNAUTHORIZED repair cycle 1: parent-approved five-node serial graph retained; real loader registration and sanitized helper/wrapper receipt codes. Red 10 tests/16 errors/0.060 s; final focused green 10/10/0.259 s; union and ring Python 91/91. Packet self-test PASS/0.663 s. Final check-docs passed after deriving new index; staged safe bundle 10/10/5.591 s with three explicit readiness skips. Pinned-SDK broad ring RED exit 1, wall 191 s, 16 unexpected Desktop timeout/child-exit/partition findings, 16 COST-MISS and zero cost-check failures. R230 binding GIT-BINDING-PASS 69 files; frozen authority/evidence/rulings diff empty. No WSL/live action or ruling fabrication. Class DYNAMIC-IMPORT-MODULE-REGISTRATION controlled offline; live cause Inferred, current process state Flagged. Independent acceptance and broad ring remediation remain separate.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/helper-repair.md",
+        "tests/test_f1_cleanup_owned_check.py"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Prepare and push the smallest offline helper repair and recurrence controls with exact validation results.",
+      "done_when": "Source/tests/proof/control are committed and pushed for independent review; ring limits disclosed; no live action.",
+      "tier": "T0",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-10-13T03:37:16Z",
+      "duration_seconds": 887.0,
+      "git": {
+        "sha": "cecafe4e93367de66cbf161381404f2e707f0cfb",
+        "short": "cecafe4e9",
+        "branch": "win/gpu-f1-r231-helper-repair",
+        "pushed": null
       }
     }
   ],

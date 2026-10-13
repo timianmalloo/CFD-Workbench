@@ -245,6 +245,12 @@ class Cleanup:
         self.log.append({"label": label, "argv": public_value(argv), "exit": result.returncode,
                          "elapsed_seconds": time.monotonic() - started})
         if result.returncode != 0:
+            if label in ("owned-stage-check", "owned-guard-check"):
+                # Publish only the helper's exact public protocol, never raw diagnostics.
+                allowed = (b"F1-OWNED-IMPORT-FAILED", b"F1-OWNED-RESIDUAL", b"F1-OWNED-STATE-UNKNOWN")
+                diagnostic = result.stderr.strip()
+                self.log[-1]["diagnostic_code"] = (diagnostic.decode("ascii") if diagnostic in allowed
+                                                   else "F1-OWNED-CHECK-FAILED")
             raise ValueError(f"{label} exited {result.returncode}")
         return result.stdout
 
@@ -483,6 +489,8 @@ class Cleanup:
         except Exception as error:
             self.failure = {"type": type(error).__name__,
                             "raw_error_sha256": hashlib.sha256(str(error).encode()).hexdigest()}
+            if getattr(self, "log", []) and "diagnostic_code" in self.log[-1]:
+                self.failure["diagnostic_code"] = self.log[-1]["diagnostic_code"]
         binding_commit = self.bind(outcome)
         if outcome != "cleanup-proved":
             raise ValueError("cleanup failed; committed receipt; no retry")

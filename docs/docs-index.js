@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "71fd5c23370b7f2a4a6d2879aef92a93ac637efab3a87ac8579e6fcd6c460457"
+      "sourceSha256": "645a68100fc2c3a7cd12b83624cdc8bed86af01d34fe61b36f842d8104c9573c"
     },
     {
       "id": "domain-experts",
@@ -6987,6 +6987,37 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "a7b5b1e66e83eac66cdd83c310637eb36adb52c322c168d5fada4f6cb02811dc"
+    },
+    {
+      "id": "proof-win-gpu-f1-cleanup-helper-repair",
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/helper-repair.md",
+      "title": "Prepared offline cleanup helper import repair",
+      "type": "doc",
+      "status": "draft",
+      "owner": "@pc-coordinator",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Prepared unauthorized source repair for the verified offline helper import defect, with real-loader ownership controls and sanitized future diagnostics. Frozen R230 evidence and authority are unchanged; no live action occurred.",
+      "tags": [
+        "windows",
+        "cleanup",
+        "offline",
+        "red-first",
+        "helper"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r229-cleanup-candidate",
+          "rel": "depends-on"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0fe884809a5189a9dbd681fe803e07394fa0b20b045f0b23fad3b0c700eb21e3"
     },
     {
       "id": "proof-windows-store-implementation",
@@ -9312,7 +9343,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2845c682ea00b39d9ed9e6730de89862c707d86396e703a0af23876d4c6bd460"
+      "sourceSha256": "a21cacc742cbcd98137064ffc0405cca1d3f00c22481a5f75bf8fe2928d55fee"
     },
     {
       "id": "kb-hw-glossary",
@@ -22392,5 +22423,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "c739b09e47ff1104ec737447912419b76ebc78a610701beb27e395155ba054cf"
+  "graphSha256": "7ca8fdb03beaeb4b45f3621d025753850f00de1e3d89f8ef6f91a1e9824f4252"
 };
