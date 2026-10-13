@@ -5584,7 +5584,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "db145205afb99973b665cb65233aa3967f824e723b95a713bf364aed5e491d2f"
+      "sourceSha256": "22b727ef39de7f321dd15f15930fb0c3eee973e54fa6418a4264fbd994728bb5"
     },
     {
       "id": "domain-experts",
@@ -9257,6 +9257,40 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "9c97341e926da4a63a3fbe4a14a6e8ca0a82310c24c4ace42b2bbe02e63eda7c"
+    },
+    {
+      "id": "review-windows-gpu-f1-r229-cleanup-veto",
+      "path": "docs/reviews/windows-gpu-f1-r229-cleanup-veto.md",
+      "title": "Independent VETO of R229 cleanup candidate 115f3b05",
+      "type": "doc",
+      "status": "blocked",
+      "owner": "@pc-f1-r225-attempt1-review",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "VETO of exact cleanup source eb1e0e64 and candidate 115f3b05. Production identity/absence checks accept additional registrations sharing reviewed storage paths. Three offline probes reproduce the missing uniqueness guard.",
+      "tags": [
+        "windows",
+        "cleanup",
+        "independent-review",
+        "veto"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r229-cleanup-candidate",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r228-attempt1-failure",
+          "rel": "depends-on"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3f352c7ba80fb52a819457bb748898f778b2efc681961255a27c8debbced465b"
     },
     {
       "id": "rulings",
@@ -22333,5 +22367,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "f2f951b6c3ad068eedd36afc50f90fbedeb4642f4fda570e10b0a6a6b7250ea1"
+  "graphSha256": "086c9c7ee46b8b79d2ba051dc5f71c017477ed0c6c7757565c78c50e04080310"
 };

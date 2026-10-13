@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T02:00:48Z",
+  "generated": "2026-10-13T02:09:06Z",
   "audit": [
     {
       "actor": null,
@@ -37944,6 +37944,56 @@ window.AUDIT_DATA = {
         "short": "eb1e0e64c",
         "branch": "win/gpu-f1-r228-cleanup",
         "pushed": null
+      }
+    },
+    {
+      "id": "al-01M4SG6EBYZHBSJGZ1QXEQHA81",
+      "shortname": "r229-cleanup-independent-veto",
+      "datetime": "2026-10-13T02:06:51Z",
+      "session": "pc-f1-r225-attempt1-review",
+      "prompt": "Review completed R228 cleanup-only candidate115f3b05f5b4b4f8d13c22e9a7b40e1fbc62c519, sourceeb1e0e64c5fcbc9a77ea10d8593e99e2912a0c1f. Verify target/protected exact identity, complete failure manifest and ancestry, source/test/payload/proposed/projection hashes, canonical authorization absent, operation limits, no retry, stable absence/protected invariance, no host-path deletion, offline tests and historical immutability. No WSL/GitHub. Coordinator accepted three alias findings and directed exact VETO publication without repair.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4SGAHNCP9363B8XYXKEWX24",
+      "shortname": "r229-cleanup-independent-veto",
+      "datetime": "2026-10-13T02:09:06Z",
+      "session": "pc-f1-r225-attempt1-review",
+      "prompt": "Review exact R228 cleanup candidate 115f3b05 and source eb1e0e64; record and push the hard VETO with three production-function probes, without repair or WSL.",
+      "summary": "VETO: target and protected path aliases pass production identity checks; protected path alias also passes absence. Eleven candidate tests pass; ten payload bindings and 85-file failure manifest verify; history remains unchanged. Independent red probe and review committed for exact candidate.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-r229-cleanup-veto.md",
+        "docs/reviews/r229-cleanup-review-probe.py"
+      ],
+      "tags": [],
+      "outcome": "blocked",
+      "goal": "Accept or veto exact cleanup-only candidate",
+      "done_when": "Exact findings and verdict committed and pushed without live action",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-10-13T02:02:03Z",
+      "duration_seconds": 423.0,
+      "git": {
+        "sha": "115f3b05f5b4b4f8d13c22e9a7b40e1fbc62c519",
+        "short": "115f3b05f",
+        "branch": "win/gpu-f1-r225-attempt1-review",
+        "pushed": false
       }
     }
   ],
