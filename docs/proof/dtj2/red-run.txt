@@ -1,0 +1,2 @@
+tools/measure-desktop-slots.sh: line 33: classify_log: command not found
+tools/measure-desktop-slots.sh: line 29: VERDICT: unbound variable
