@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T19:18:19Z",
+  "generated": "2026-10-13T19:20:51Z",
   "audit": [
     {
       "actor": null,
@@ -38541,6 +38541,31 @@ window.AUDIT_DATA = {
         "branch": "win/f1-register-closure-correction",
         "pushed": true
       }
+    },
+    {
+      "id": "al-01M4VBBR3TKTZD0TY94S6YE991",
+      "shortname": "join-pr37",
+      "datetime": "2026-10-13T19:20:51Z",
+      "session": "3122f106",
+      "prompt": "the join of origin/win/f1-register-closure-correction into main",
+      "summary": "join recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-13T19:20:29Z",
+      "duration_seconds": 22.0
     }
   ],
   "changes": [
