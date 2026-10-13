@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "07e52ba1644186c2e851e02f102c81b3cf6513212188dcfe00a6da9da23a00b2"
+      "sourceSha256": "c02dc2bc30d1c4bd54bfbebd7deafc09eb073d5b6fe7f371f8152d1fd0a33349"
     },
     {
       "id": "domain-experts",
@@ -5845,6 +5845,37 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "fea1a95fa83dafa9631a491ba7e99a607d3ab747ac241c939a509691158569f9"
+    },
+    {
+      "id": "plan-f1-attempt2-offline-request",
+      "path": "docs/plans/f1-attempt2-offline-request.md",
+      "title": "F1 attempt 2 offline request execution graph",
+      "type": "doc",
+      "status": "proposed",
+      "owner": "@pc-coordinator",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Bounded evidence-to-request graph; unknown Mac/live values stop activation.",
+      "tags": [
+        "f1",
+        "offline",
+        "planning"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-attempt2-offline-request",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Goal and graph",
+          "mermaid": "flowchart LR\n  A[Ground and bound] --> B[Hash committed evidence]\n  B --> C[Write request]\n  C --> D[Validate and publish]\n  D --> E[Independent parent review]"
+        }
+      ],
+      "sourceSha256": "fe5b35c69b566418ca72b7831aef03e620288338c686097fa79b4ae014a45858"
     },
     {
       "id": "plan-fluids-round2",
@@ -18872,6 +18903,40 @@ window.DOCS_INDEX = {
       "sourceSha256": "fdcaa145f308468efbe68a13db50e82d6639f16cbcfc30c9988ff0ccc82bdb56"
     },
     {
+      "id": "proof-win-gpu-f1-attempt2-offline-request",
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-2/README.md",
+      "title": "F1 attempt 2 offline decision request",
+      "type": "proof-pack",
+      "status": "proposed",
+      "owner": "@pc-coordinator",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Request-only attempt 2 preparation binds current committed source and historical evidence, while leaving Mac authority and live identities explicitly unresolved.",
+      "tags": [
+        "windows",
+        "offline",
+        "f1",
+        "decision-request"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-gpu-f1-offline-followups",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "fb7441ef50f3174739836402dbc9e481019098612902868da5f8a61a47098edb"
+    },
+    {
       "id": "proof-win-gpu-f1-cleanup-recovery-cycle1-author",
       "path": "docs/reviews/windows-gpu-f1-cleanup-recovery-cycle1-author.md",
       "title": "F1 cleanup recovery cycle 1: author repair evidence",
@@ -22519,5 +22584,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "570fa5454878e88add2dbcf8d368457b52f4c8a16397a6db9ed911007a841aa6"
+  "graphSha256": "5b4eb4058fd9cc8e66211539f4555a5cc172a92482c34ca7f12466277626953a"
 };

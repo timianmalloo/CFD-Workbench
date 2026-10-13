@@ -1,0 +1,51 @@
+{
+  "status": "REQUEST-ONLY-NOT-EXECUTABLE",
+  "base": "ad1424b12b386c17d33178b8fa1e619289b70457",
+  "request_sha256": "d4c6b7bd8abe34630e0b24a20f8160d40644bf009aa1c12c5142f3ca00c7e035",
+  "source_blob_count": 27,
+  "historical_contract_packet_drift_count": 2,
+  "focused_tests": {
+    "command": "py -3 -B -m unittest discover -s tests -p test_f1*.py",
+    "tests": 95,
+    "failures": 0,
+    "errors": 0,
+    "elapsed_seconds": 9.856,
+    "exit_code": 0,
+    "ring": "existing offline-fast",
+    "executed_at_source_base": "f73b6cba552ecfab8f55d352eb92017b507a4c74",
+    "source_and_tests_unchanged_by_sync": true
+  },
+  "importlib_self_test": {"flow_cases": 24, "pin_cases": 6, "elapsed_seconds": 0.003, "exit_code": 0},
+  "importlib_scan": {"files": 251, "failures": 0, "elapsed_seconds": 4.094, "exit_code": 0},
+  "docs": {
+    "command": "py -3 tools/check-docs.py",
+    "status": "PASS",
+    "result": "Documentation checks passed.",
+    "exit_code": 0,
+    "existing_freshness_findings": 134,
+    "synchronized_base": "ad1424b12b386c17d33178b8fa1e619289b70457",
+    "elapsed_seconds": null,
+    "elapsed_source": "aggregate not recorded; individual gate measurements emitted"
+  },
+  "snapshot_verification": "REQUEST-SNAPSHOT-PASS blobs=27 unresolved=explicit existing-proof-source=unchanged live-files=absent",
+  "scope": {
+    "source_or_test_edits": 0,
+    "wsl_registry_lifecycle_actions": 0,
+    "lease_mutations": 0,
+    "full_ring_runs": 0,
+    "live_authorization": false,
+    "independent_review": "ACCEPT request-only package; parent independent review before commit"
+  },
+  "parent_independent_review": {
+    "decision": "ACCEPT request-only package",
+    "base": "ad1424b12b386c17d33178b8fa1e619289b70457",
+    "request_sha256": "d4c6b7bd8abe34630e0b24a20f8160d40644bf009aa1c12c5142f3ca00c7e035",
+    "verified_blob_hashes": 27,
+    "verified_scope": "No live authority; null final bindings; Mac-selected reuse/reclaim; fresh >=200s samples; both retired GUIDs in requested rejection scope; no src/tests/tools/existing-proof edits.",
+    "delivery": "parent collaboration message after final docs validation",
+    "live_acceptance": false
+  },
+  "correction_cycles": 2,
+  "corrections": ["Snapshot producer refused a nonexistent checker path before writing; corrected from repository discovery. All 27 blobs then resolved.", "Independent review corrected the claim that attempt 2 requires a distinct new epoch. Mac selects reuse versus reclaim; fresh samples remain mandatory."],
+  "upstream_sync": "Fast-forwarded to ad1424b1 after PR37; request hashes regenerated. No production or test source changed upstream."
+}

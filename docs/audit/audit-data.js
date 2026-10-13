@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T19:20:51Z",
+  "generated": "2026-10-13T19:29:44Z",
   "audit": [
     {
       "actor": null,
@@ -38566,6 +38566,57 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-13T19:20:29Z",
       "duration_seconds": 22.0
+    },
+    {
+      "id": "al-01M4VBQKV715ED9M5EQ0G74F23",
+      "shortname": "f1-attempt2-offline-request",
+      "datetime": "2026-10-13T19:27:20Z",
+      "session": "pc-f1-attempt2-offline",
+      "prompt": "You are the Astra owner for offline preparation of the next F1 dependency-preflight attempt in C:\\Projects\\CFD-Workbench. Read AGENTS.md, docs/ai-forward-pack/codex.md, current origin/main, Rulings 217 and 225-233, PR35/36 proof, and the active packet/tests. User authorized continued progress and multiple further attempts; Mac remains leader. Create your own worktree/branch from current origin/main with a descriptive branch name that does not contain a ruling number. Do not touch WSL, registry, distro lifecycle, or run a full ring. Determine the smallest correct offline package for attempt 2: fresh run/session/target identity, current source and invocation contract hashes, closed R231 prerequisites, new PC-local Mac leader epoch requirement, and a GitHub-ready hash-bound decision request. If repo evidence makes preparation unambiguous, implement/test/commit/push the offline candidate and return exact SHA plus remaining Mac ruling. If any identity/value must be assigned by Mac or measured live, fail closed and prepare only the reviewable request/artifact with that field explicitly unresolved. Use focused tests/docs checks; respect the 2-cycle cap. Report verified facts and hard vetoes promptly.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4VBW0RK99EE0Z3A7D1QVZ9D",
+      "shortname": "f1-attempt2-offline-request",
+      "datetime": "2026-10-13T19:29:44Z",
+      "session": "pc-f1-attempt2-offline",
+      "prompt": "You are the Astra owner for offline preparation of the next F1 dependency-preflight attempt in C:\\Projects\\CFD-Workbench. Read AGENTS.md, docs/ai-forward-pack/codex.md, current origin/main, Rulings 217 and 225-233, PR35/36 proof, and the active packet/tests. User authorized continued progress and multiple further attempts; Mac remains leader. Create your own worktree/branch from current origin/main with a descriptive branch name that does not contain a ruling number. Do not touch WSL, registry, distro lifecycle, or run a full ring. Determine the smallest correct offline package for attempt 2: fresh run/session/target identity, current source and invocation contract hashes, closed R231 prerequisites, new PC-local Mac leader epoch requirement, and a GitHub-ready hash-bound decision request. If repo evidence makes preparation unambiguous, implement/test/commit/push the offline candidate and return exact SHA plus remaining Mac ruling. If any identity/value must be assigned by Mac or measured live, fail closed and prepare only the reviewable request/artifact with that field explicitly unresolved. Use focused tests/docs checks; respect the 2-cycle cap. Report verified facts and hard vetoes promptly.",
+      "summary": "Request-only package at ad1424b1 after PR37 sync; 27 committed blob hashes, two historical-contract packet differences, explicit null Mac ruling/epoch/final source-contract-projection/GUID fields. Existing 95 offline F1 tests PASS in 9.856s; importlib 24+6 self-tests and 251-file scan PASS; full docs check PASS twice, final synchronized run has 134 existing freshness advisories. Source/tests unchanged across upstream sync, no repeat needed. Two corrections: refused snapshot path fixed by discovery; independent epoch-scope overclaim corrected to Mac reuse-versus-reclaim choice. No WSL, registry, lifecycle, lease change, full ring, activation or source edit. Parent review remains separate; no live acceptance claimed.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/attempt-2/README.md",
+        "docs/proof/win-gpu-f1-preflight/attempt-2/offline-decision-request.json",
+        "docs/plans/f1-attempt2-offline-request.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Prepare a hash-bound reviewable attempt-2 decision request with unresolved Mac/live authority explicit.",
+      "done_when": "Request artifacts, current committed hashes and focused validation are committed and pushed for parent review.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true
+      },
+      "started_at": "2026-10-13T19:20:04Z",
+      "duration_seconds": 580.0,
+      "git": {
+        "sha": "ad1424b12b386c17d33178b8fa1e619289b70457",
+        "short": "ad1424b12",
+        "branch": "win/gpu-f1-attempt2-offline",
+        "pushed": true
+      }
     }
   ],
   "changes": [
