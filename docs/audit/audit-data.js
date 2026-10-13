@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T02:48:30Z",
+  "generated": "2026-10-13T02:55:41Z",
   "audit": [
     {
       "actor": null,
@@ -38152,6 +38152,58 @@ window.AUDIT_DATA = {
         "short": "c8df1291b",
         "branch": "win/gpu-f1-r228-cleanup",
         "pushed": false
+      }
+    },
+    {
+      "id": "al-01M4SJZSSV1ZFYRSTWQKBTBCTN",
+      "shortname": "Independent repair-cycle-1 re-review in win/gpu-f1-r230-cleanup-review1.…",
+      "datetime": "2026-10-13T02:55:39Z",
+      "session": "pc-f1-r230-cleanup-review1",
+      "prompt": "Independent repair-cycle-1 re-review in win/gpu-f1-r230-cleanup-review1. Candidate e669ad1c68698680f97ac30d6c6c1dc8a26d9550; source c8df1291bb96f164cafb94b5f6eb106472bcfd7d; payload 4a8337ddd0548f7f7cbd8fa306d188db9f8a28ef0a41b4c77882b735f3564e55; auth b3143f40ffa541accca45797eb6e620ebcc7272b505434a66c63582e1a960890; request 3ae84f590c980f8ef6ae8abf758e61db644ef8170bcf1fbbe3504bd7d34fcca6. Repeat TTL199 failed receipt binding with zero lifecycle and NaN/+Inf/-Inf refusals; full R229/R223 contract, aliases, authority, hashes, manifest/history and safe bundle. Review only: no repair, WSL, registry, lifecycle, GitHub, mail or activation. Commit/push ACCEPT or VETO and clean status.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4SJZV241WV407HJJW5K8VX2",
+      "shortname": "r230-cleanup-cycle1-accept",
+      "datetime": "2026-10-13T02:55:41Z",
+      "session": "pc-f1-r230-cleanup-review1",
+      "prompt": "Independently re-review exact e669ad1c/c8df1291 and close after required controls; no added scope or live action.",
+      "summary": "ACCEPT offline candidate. TTL199 now binds failed-stop-no-retry once with zero lifecycle; real receipt checked. NaN/+Inf/-Inf refuse. Twenty synthetic production precheck cases pass;19 tests0.038s; probe2.316s; safe10/10; both source/checkpoint85-file manifests; ten file/source hashes, exact payload/auth/request, aliases and history pass. Four plan nodes complete; one reviewer fixture omitted payload_sha and was corrected, recorded with real receipt control. No candidate repair or live action; activation remains separate.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-r230-cleanup-cycle1.md",
+        "docs/reviews/r230-cleanup-cycle1-probe.py",
+        "docs/plans/windows-gpu-f1-r230-cleanup-review1.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Accept or veto repaired R230 cleanup candidate",
+      "done_when": "Exact verdict committed and pushed with clean status and no live action",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-13T02:51:20Z",
+      "duration_seconds": 261.0,
+      "git": {
+        "sha": "e669ad1c68698680f97ac30d6c6c1dc8a26d9550",
+        "short": "e669ad1c6",
+        "branch": "win/gpu-f1-r230-cleanup-review1",
+        "pushed": null
       }
     }
   ],

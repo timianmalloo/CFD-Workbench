@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2d14436f6b9835d103c402ba9d46f2a9bb8b52ed1adf72d50d2224bf515cfca1"
+      "sourceSha256": "95b983c54de7d9dea830ea5218631c9bad81e28a18e98da3b631afc05a217315"
     },
     {
       "id": "domain-experts",
@@ -6437,6 +6437,41 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "3e2961817a8a605323d83340b30e47fdef74c2a8c4896da06a8762cef1b8daad"
+    },
+    {
+      "id": "plan-windows-gpu-f1-r230-cleanup-review1",
+      "path": "docs/plans/windows-gpu-f1-r230-cleanup-review1.md",
+      "title": "R230 cleanup repair cycle 1 independent review plan",
+      "type": "doc",
+      "status": "complete",
+      "owner": "@pc-f1-r230-cleanup-review1",
+      "phase": "",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Repeat exact veto controls and authority contract before offline acceptance.",
+      "tags": [
+        "review",
+        "cleanup",
+        "offline"
+      ],
+      "links": [
+        {
+          "to": "review-windows-gpu-f1-r230-cleanup-cycle1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "note-windows-gpu-f1-r230-cleanup-request",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Diagram 1",
+          "mermaid": "flowchart LR\n  A --> B --> D\n  A --> C --> D"
+        }
+      ],
+      "sourceSha256": "c5729d0f19577c63ec0e08c4299f034234f99d861255a40f1876eddc812a3908"
     },
     {
       "id": "plan-windows-gpu-f1-recovery-integration",
@@ -9287,6 +9322,43 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "9c97341e926da4a63a3fbe4a14a6e8ca0a82310c24c4ace42b2bbe02e63eda7c"
+    },
+    {
+      "id": "review-windows-gpu-f1-r230-cleanup-cycle1",
+      "path": "docs/reviews/windows-gpu-f1-r230-cleanup-cycle1.md",
+      "title": "Independent ACCEPT of R230 cleanup repair cycle 1",
+      "type": "doc",
+      "status": "accepted",
+      "owner": "@pc-f1-r230-cleanup-review1",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Exact candidate e669ad1c/source c8df1291 clears both production vetoes. Failed second-sample refusal binds once and non-finite TTL refuses. Twenty synthetic production precheck cases and ten safe gates pass.",
+      "tags": [
+        "windows",
+        "cleanup",
+        "independent-review"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r229-cleanup-candidate",
+          "rel": "depends-on"
+        },
+        {
+          "to": "note-windows-gpu-f1-r230-cleanup-request",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r228-attempt1-failure",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "22d921d638527dd8a488aaa1e5200f3b4163fe90993ac9bad1abf6ffa832d318"
     },
     {
       "id": "rulings",
@@ -22392,5 +22464,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "e5baff95ef9f41163bbaa2ee133efaa7e882b40f7d6c165b1a71764421df5c11"
+  "graphSha256": "f4550172820fa8a7b44528d0f263ea136f174646ed07320cf63652ca881a9ce4"
 };
