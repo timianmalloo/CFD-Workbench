@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T18:08:07Z",
+  "generated": "2026-10-13T18:29:55Z",
   "audit": [
     {
       "actor": null,
@@ -38345,6 +38345,42 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-13T18:07:48Z",
       "duration_seconds": 19.0
+    },
+    {
+      "id": "al-01M4V8EFXH4VH2HBMTPZJYSZYK",
+      "shortname": "f1-offline-followups",
+      "datetime": "2026-10-13T18:29:55Z",
+      "session": "pc-f1-offline-followups",
+      "prompt": "Author the two Mac-listed offline F1 prerequisites in the existing dedicated worktree C:\\Projects\\CFD-Workbench-win-gpu-f1-offline-followups on branch win/gpu-f1-offline-followups, exact base b27c4f4a. Scope: (1) replace the source-text assertion with a behavioral test that executes docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/cleanup_owned_check.py as a subprocess using its production argv and asserts OWNED-ABSENT; (2) add a deterministic gate/lint that fails any Python module_from_spec flow without sys.modules registration, wire it into the appropriate fast/docs gate, and repair the two named instances recover.py:38 and index_retained.py:12. Follow repo TDD, no live WSL/registry/lifecycle action, no ruling-number branch/request names, repair loop cap 2. Run focused tests and required docs/safe gates; preserve exact evidence. Commit and push a clean candidate, then report exact SHA and residuals. Do not run the expensive full ring; root will decide join-ring/review after your focused proof.\n\nParent scope amendments: broad tracked-Python scan; repair every active tools/tests/F1 sibling and active managed runtime loader with minimal sys.modules registration only, no pack metadata/version/managed-block changes. Hash-pin only immutable historical proof snapshots with exact hashes/lines; new unpinned, changed/stale findings fail. Pins outside docs/proof or active F1/runtime paths fail; new historical manifest entries remain a visible reviewed policy change with immutable-historical reason. Run gate self-test and real scan through check-docs. Remove root inventory scratch file. Bring branch onto exact receipt-only base d860ec33 before final push. No WSL or full ring. Independent reviewer findings require definition-header scanning, namespace rebinding refusal, uncertain conditional aliases, and portable PureWindowsPath production argv. Candidate remains PREPARED-UNAUTHORIZED for fresh independent review.",
+      "summary": "PREPARED-UNAUTHORIZED offline candidate: production-argv stage/guard subprocess proof; 24 immediate registrations in 20 active files; tracked-Python AST gate 24 flow/6 pin controls, 251 files green; 10 exact historical pins. Focused Python 95/95 in 9.743s; docs green; safe union 10/10 after portable-console correction; 3796 proof blobs and receipt conserved. Exact base d860ec33; no WSL/live/full ring. Fresh review and join remain parent-owned.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "proof-win-gpu-f1-offline-followups"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Complete the two Mac-listed offline F1 subprocess/importlib recurrence controls.",
+      "done_when": "Behavioral red/green proof, active sibling fixes, conservative pinned gate, focused/docs/safe checks and evidence conservation are recorded; clean candidate committed and pushed.",
+      "tier": "T1",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-10-13T18:00:12Z",
+      "duration_seconds": 1783.0,
+      "git": {
+        "sha": "d860ec33bcbaa9bf6e18fba024c3654641d642b0",
+        "short": "d860ec33b",
+        "branch": "win/gpu-f1-offline-followups",
+        "pushed": null
+      }
     }
   ],
   "changes": [

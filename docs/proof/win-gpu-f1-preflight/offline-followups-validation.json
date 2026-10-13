@@ -1,0 +1,72 @@
+{
+  "status": "PREPARED-UNAUTHORIZED",
+  "session": "pc-f1-offline-followups",
+  "exact_base": "d860ec33bcbaa9bf6e18fba024c3654641d642b0",
+  "focused_python": {
+    "command": "py -3 -m unittest discover -s tests -p test_f1*.py -v",
+    "tests": 95,
+    "failures": 0,
+    "errors": 0,
+    "elapsed_seconds": 9.743,
+    "exit_code": 0
+  },
+  "subprocess_red": {
+    "fault": "temporary production helper copy, only sys.modules registration removed",
+    "test_count": 1,
+    "failed_subtests": 2,
+    "kinds": ["stage", "guard"],
+    "child_exit_codes": [5, 5],
+    "elapsed_seconds": 0.160,
+    "tracked_helper_unchanged": true
+  },
+  "importlib_gate": {
+    "flow_self_tests": 24,
+    "pin_self_tests": 6,
+    "self_test_elapsed_seconds": 0.004,
+    "tracked_python_files": 251,
+    "scan_failures": 0,
+    "scan_elapsed_seconds_in_docs_gate": 1.809,
+    "scan_elapsed_seconds_after_console_correction": 1.936,
+    "ring": "fast/docs",
+    "active_files_repaired": 20,
+    "active_registrations_added": 24,
+    "immutable_historical_pins": 10,
+    "exit_code": 0
+  },
+  "docs": {
+    "command": "py -3 tools/check-docs.py",
+    "result": "Documentation checks passed.",
+    "exit_code": 0,
+    "elapsed_seconds": null,
+    "elapsed_source": "not recorded for aggregate; sub-gate cost emitted",
+    "existing_freshness_findings": 134
+  },
+  "safe_gates": {
+    "command": "py -3 docs/ai-forward-pack/scripts/run-verify-gates.py --skip verify-application-core.py verify-application-adapters.py verify-windows-store.py",
+    "initial_passed": 9,
+    "initial_failed": ["verify-portable-text-io.py"],
+    "correction": "new scanner receives standard UTF-8 stdout/stderr reconfigure guard; the existing gate prevents recurrence",
+    "failed_gate_rerun_command": "py -3 docs/ai-forward-pack/scripts/verify-portable-text-io.py",
+    "failed_gate_rerun_exit_code": 0,
+    "final_verified_gate_union": 10,
+    "final_failed_gate_union": 0,
+    "source_change_after_union": "none; metadata/audit only"
+  },
+  "conservation": {
+    "protected_existing_proof_blobs": 3796,
+    "historical_pins_byte_identical_to_base": 10,
+    "non_test_active_loader_files": 17,
+    "non_test_registration_insertions": 18,
+    "production_helper_and_r230_evidence_unchanged": true,
+    "joined_unregister_receipt_unchanged": true,
+    "authority_and_pack_metadata_unchanged": true,
+    "elapsed_seconds": 2.538
+  },
+  "boundaries": {
+    "wsl_live_registry_lifecycle_actions": 0,
+    "full_functional_ring": "NOT RUN by parent instruction; parent owns join-ring decision",
+    "mac_execution": "NOT ASSESSED",
+    "new_historical_pin": "visible reviewed policy change; manifest digest not frozen",
+    "independent_acceptance": "PENDING"
+  }
+}

@@ -44,6 +44,7 @@ def phn_module():
     os.environ["CFD_PII_HOSTNAMES"] = socket.gethostname()
     spec = importlib.util.spec_from_file_location("phn", ROOT / "tools/check-proof-pii.py")
     module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module
 

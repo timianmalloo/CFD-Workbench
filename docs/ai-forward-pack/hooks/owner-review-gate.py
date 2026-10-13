@@ -64,6 +64,7 @@ def _load_core() -> Optional[Any]:
             if spec is None or spec.loader is None:
                 return None
             module = importlib.util.module_from_spec(spec)
+            sys.modules[spec.name] = module
             spec.loader.exec_module(module)
             return module
     return None

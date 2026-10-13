@@ -92,6 +92,7 @@ def default_templates_dir() -> str:
 def _load_by_path(name: str, filename: str):
     spec = importlib.util.spec_from_file_location(name, _sibling(filename))
     module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module
 

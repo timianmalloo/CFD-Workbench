@@ -95,6 +95,8 @@ def run_lesson_controls():
         ("check-capture-manifests.py", ()),
         ("check-reader-sharing.py", ("--self-test",)),
         ("check-reader-sharing.py", ()),  # also proof/tools PowerShell, hash-pinned grandfathering of 7 frozen B1/B2 PowerShell hits (Ruling 229); ~0.3 s
+        ("check-importlib-registration.py", ("--self-test",)),
+        ("check-importlib-registration.py", ()),  # tracked Python; immutable proof pins only; fast/docs, cost emitted per run
         ("check-capture-text-attr.py", ("--self-test",)),  # CAPTURE-TEXT-ATTR (Ruling 229); fast ring, ~0.3 s
         ("check-capture-text-attr.py", ()),  # ~0.3 s
         ("check-expected-failures.py", ("--self-test",)),

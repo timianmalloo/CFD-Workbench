@@ -19,6 +19,7 @@ for _stream in (sys.stdout, sys.stderr):
 CORE = Path(__file__).resolve().parent.parent / "docs/ai-forward-pack/scripts/coord-core.py"
 spec = importlib.util.spec_from_file_location("coord_core_regen_test", CORE)
 core = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = core
 spec.loader.exec_module(core)
 
 

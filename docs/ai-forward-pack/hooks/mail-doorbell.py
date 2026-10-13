@@ -53,6 +53,7 @@ def _load_mail():
         if candidate.is_file():
             spec = importlib.util.spec_from_file_location("coord_mail_for_doorbell", candidate)
             module = importlib.util.module_from_spec(spec)
+            sys.modules[spec.name] = module
             assert spec.loader is not None
             spec.loader.exec_module(module)
             return module
