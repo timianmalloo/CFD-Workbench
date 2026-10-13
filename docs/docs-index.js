@@ -5441,14 +5441,14 @@ window.DOCS_INDEX = {
     {
       "id": "coordination-openfoam-gpu-status-r220",
       "path": "docs/coordination/openfoam-gpu-status-r220.md",
-      "title": "OpenFOAM GPU work status after Ruling 228",
+      "title": "OpenFOAM GPU work status after Ruling 229",
       "type": "doc",
       "status": "blocked",
       "owner": "@pc-gpu-status-r228",
       "phase": "",
       "reviewBy": "2026-10-20",
       "reviewSuggested": [],
-      "summary": "B2 CUDA capability remains proved and F1 design remains selected. R228 attempt 1 stopped during dependency preflight after probe and repository checks; checkpoint binding failed, exact target cleanup awaits a cleanup-only R229 ruling, and no install, source fetch, build, case run, or GPU OpenFOAM benchmark occurred.",
+      "summary": "B2 CUDA remains proved and F1 remains the selected route. R228 attempt 1 failed closed after probe and repositories; Ruling 229 verified the stopped state and allows one cleanup-only action after an identity-rebinding repair. Source f75ae322 remains under offline validation; no R230 authorization or live cleanup exists, and the target remains registered.",
       "tags": [
         "coordination",
         "windows",
@@ -5457,7 +5457,7 @@ window.DOCS_INDEX = {
         "gpu",
         "cuda",
         "petsc",
-        "ruling-228"
+        "ruling-229"
       ],
       "links": [
         {
@@ -5489,10 +5489,10 @@ window.DOCS_INDEX = {
         {
           "kind": "flowchart",
           "title": "End-to-end route",
-          "mermaid": "flowchart LR\n  A[B2 CUDA capability proved] --> B[F1 design selected]\n  B --> C[R228 attempt 1: probe + repositories]\n  C --> D[Locked guard-event read; attempt stopped]\n  D --> E[Checkpoint bind failed; target remains registered]\n  E --> F[Cleanup-only R229 preparation and ruling]\n  F --> G[Exact target cleanup and absence proof]\n  G --> H[New ruling for each remaining preflight attempt]\n  H --> I[Dependency evidence and cleanup]\n  I --> J[Separate build ruling]\n  J --> K[PETSc-CUDA + petsc4Foam build]\n  K --> L[Native GAMG / PETSc CPU / PETSc GPU benchmark]\n  L --> M[Case-specific worth-it verdict]"
+          "mermaid": "flowchart LR\n  A[B2 CUDA capability proved] --> B[F1 design selected]\n  B --> C[R228 attempt 1: probe + repositories]\n  C --> D[R229 verifies failed-closed state]\n  D --> E[Reader-sharing and capture-byte controls]\n  E --> F[f75ae322 cleanup identity repair under offline validation]\n  F --> G{R230 hash-bound authorization committed?}\n  G -->|No| H[Target remains registered; stop]\n  G -->|Yes| I[One cleanup-only action + exact absence proof]\n  I --> J[Repair both defects and re-hash packet]\n  J --> K[New ruling for each remaining preflight attempt]\n  K --> L[Dependency evidence]\n  L --> M[Separate build ruling]\n  M --> N[PETSc-CUDA + petsc4Foam build]\n  N --> O[Native GAMG / PETSc CPU / PETSc GPU benchmark]\n  O --> P[Case-specific worth-it verdict]"
         }
       ],
-      "sourceSha256": "4142cabc6afd51178ac25a8524bef9131ee6a20a93668460495c83977bc08944"
+      "sourceSha256": "e0a4657e03af45c2291ecae19fd41568334a1e74861d8afc582f32e287319002"
     },
     {
       "id": "defect-classes",
@@ -5558,7 +5558,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "db145205afb99973b665cb65233aa3967f824e723b95a713bf364aed5e491d2f"
+      "sourceSha256": "1b147087dc71a6aec90db334d49eca39b31e9f0755918cd86ae2f31c275173a8"
     },
     {
       "id": "domain-experts",
@@ -9219,7 +9219,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cc7c0c0350328bc6e6295eacae5dc2757246ae699fa44fc59168520ec0603980"
+      "sourceSha256": "2845c682ea00b39d9ed9e6730de89862c707d86396e703a0af23876d4c6bd460"
     },
     {
       "id": "kb-hw-glossary",
@@ -16966,6 +16966,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "3933950736c8c77e8408096a2178260cd2b6d68282dd945bc298564c6be2646a"
     },
     {
+      "id": "proof-rsx-red-first",
+      "path": "docs/proof/rsx/red-first.md",
+      "title": "RSX red-first - proof PowerShell reader sharing and text-unset capture folders",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-rsx",
+      "phase": "",
+      "reviewBy": "2026-11-12",
+      "reviewSuggested": [],
+      "summary": "The reader-sharing scan now covers proof PowerShell (9 existing hits hash-pinned, new hits fail) and a fast-ring check keeps every capture folder text-unset.",
+      "tags": [
+        "rsx",
+        "reader-share",
+        "capture-manifest"
+      ],
+      "links": [
+        {
+          "to": "proof-application-core",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5c2105ed15a9dde7f397ff6b90476dffa15091be4ae36de093a7d381908cf2d4"
+    },
+    {
       "id": "proof-sdg",
       "path": "docs/proof/sdg/receipt.md",
       "title": "SDG scale-diagnostic mode receipt",
@@ -22121,7 +22146,7 @@ window.DOCS_INDEX = {
     {
       "id": "surface-coordination-openfoam-gpu-status-r220",
       "path": "docs/coordination/openfoam-gpu-status-r220.html",
-      "title": "OpenFOAM GPU status — Ruling 228",
+      "title": "OpenFOAM GPU status — Ruling 229",
       "kind": "knowledge-tool",
       "description": "Open an interactive knowledge artifact.",
       "artifactId": "coordination-openfoam-gpu-status-r220"
@@ -22215,5 +22240,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "2536fabeb613924c9be26652f5f5f042432268f86fed6fff250de379dcf6082e"
+  "graphSha256": "537fd4d59e8157e54da34718a102206b53497f33e40bc10f32990188f5b4a119"
 };

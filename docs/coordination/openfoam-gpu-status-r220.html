@@ -4,16 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <title>OpenFOAM GPU status — Ruling 228</title>
+  <title>OpenFOAM GPU status — Ruling 229</title>
   <style>
-    :root { color-scheme:dark; --ink:#e9f0ef; --muted:#9fb1ae; --panel:#13201f; --line:#29403e; --bg:#091110; --ok:#66d19e; --work:#f3c96b; --stop:#ff887d; --cyan:#73c8d3; }
+    :root { color-scheme:dark; --ink:#e9f0ef; --muted:#9fb1ae; --line:#29403e; --bg:#091110; --ok:#66d19e; --work:#f3c96b; --stop:#ff887d; --cyan:#73c8d3; }
     * { box-sizing:border-box; }
     body { margin:0; background:radial-gradient(circle at 80% -10%,#183b38 0,transparent 36rem),var(--bg); color:var(--ink); font:15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif; }
     main { max-width:1180px; margin:auto; padding:42px 28px 64px; }
     header { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:28px; align-items:end; padding-bottom:28px; border-bottom:1px solid var(--line); }
     h1 { margin:0; font-size:clamp(34px,5vw,64px); line-height:1.02; letter-spacing:-.045em; max-width:820px; }
     h2 { margin:36px 0 14px; font-size:22px; }
-    h3 { margin:0 0 8px; font-size:18px; }
     p { max-width:86ch; }
     a { color:#9ee5ec; text-underline-offset:3px; }
     a:focus-visible { outline:3px solid var(--cyan); outline-offset:3px; border-radius:3px; }
@@ -26,7 +25,7 @@
     .ok { color:var(--ok); } .work { color:var(--work); } .stop { color:var(--stop); }
     .notice { border-left:5px solid var(--stop); margin:20px 0; }
     .track { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; margin:18px 0 30px; }
-    .step { min-height:145px; border-top:4px solid var(--line); padding:14px 12px; background:#101a19; }
+    .step { min-height:150px; border-top:4px solid var(--line); padding:14px 12px; background:#101a19; }
     .step.done { border-color:var(--ok); } .step.active { border-color:var(--work); } .step.closed { border-color:var(--stop); }
     .step strong { display:block; margin:5px 0 7px; }
     .step small { color:var(--muted); }
@@ -35,7 +34,8 @@
     li { margin:.45em 0; }
     code { color:#b8e3dc; overflow-wrap:anywhere; }
     .table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:10px; }
-    table { width:100%; border-collapse:collapse; background:#0f1918; min-width:760px; }
+    table { width:100%; border-collapse:collapse; background:#0f1918; min-width:780px; }
+    caption { text-align:left; padding:12px; color:var(--muted); }
     th,td { text-align:left; vertical-align:top; border-bottom:1px solid var(--line); padding:12px; }
     th { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
     .route { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:15px 0; }
@@ -50,81 +50,81 @@
 <body>
 <main>
   <header>
-    <div><div class="eyebrow">CFD-Workbench · Windows GPU lane</div><h1>OpenFOAM GPU qualification is blocked after R228 attempt 1.</h1></div>
-    <div class="stamp">Snapshot<br><strong>13 Oct 2026 UTC · Ruling 228</strong><br><span>Commit d6edbc63</span></div>
+    <div><div class="eyebrow">CFD-Workbench · Windows GPU lane</div><h1>GPU qualification is blocked after the R228 preflight failure.</h1></div>
+    <div class="stamp">Snapshot<br><strong>13 Oct 2026 UTC · Ruling 229</strong><br><span>Status branch merged main at c1f4b5c9</span></div>
   </header>
 
   <section class="headline" aria-label="Key status">
     <div class="metric"><span class="label">CUDA capability</span><b class="ok">Proved</b><span>13.2 · RTX 3080 Ti</span></div>
     <div class="metric"><span class="label">F1 design</span><b class="ok">Selected</b><span>PETSc-CUDA + petsc4Foam</span></div>
-    <div class="metric"><span class="label">R228 attempt 1</span><b class="stop">Stopped</b><span>39.334 s · 2 stages complete</span></div>
-    <div class="metric"><span class="label">GPU OpenFOAM benchmark</span><b class="work">Not run</b><span>No install, build, or case run</span></div>
+    <div class="metric"><span class="label">Attempt 1</span><b class="stop">Consumed</b><span>Failed closed · 2 stages</span></div>
+    <div class="metric"><span class="label">R230 authority</span><b class="work">Not issued</b><span>No live cleanup</span></div>
   </section>
 
-  <aside class="notice" aria-label="Current blocker"><strong>Current blocker:</strong> the completed-guard event log was locked, then checkpoint binding failed because normalized text bytes differed. Cleanup was withheld. Target <code>cfdw-petsc-cuda132-f1</code>, GUID <code>{e874e10f-c7b9-4a2b-a03b-87ad52fb9c41}</code>, remains registered pending cleanup-only R229 preparation and authorization.</aside>
+  <aside class="notice" aria-label="Current blocker"><strong>Current blocker:</strong> cleanup identity-rebinding source <code>f75ae322</code> is under offline validation. No R230 ruling or hash-bound authorization has been supplied. The exact target <code>cfdw-petsc-cuda132-f1</code>, GUID <code>{e874e10f-c7b9-4a2b-a03b-87ad52fb9c41}</code>, remains registered.</aside>
 
   <h2>Qualification path</h2>
   <div class="track" aria-label="Qualification stages">
-    <div class="step done"><span class="label">Complete</span><strong>Route inspection</strong><small>Installed v2512 does not establish whole-solver GPU offload.</small></div>
     <div class="step done"><span class="label">Complete</span><strong>CUDA B2</strong><small>CUDA 13.2 SAXPY pass; disposable distro rolled back.</small></div>
     <div class="step done"><span class="label">Selected</span><strong>F1 design</strong><small>PETSc-CUDA + petsc4Foam; three-arm benchmark defined.</small></div>
-    <div class="step closed"><span class="label">Stopped</span><strong>R228 attempt 1</strong><small>Probe and repositories completed; guard-event read failed.</small></div>
-    <div class="step active"><span class="label">Next gate</span><strong>Cleanup-only R229</strong><small>Prepare exact identity cleanup and prove absence.</small></div>
-    <div class="step closed"><span class="label">Later ruling</span><strong>Build + benchmark</strong><small>Native GAMG vs PETSc CPU vs PETSc GPU.</small></div>
+    <div class="step closed"><span class="label">Stopped</span><strong>R228 attempt 1</strong><small>Probe + repositories only; no simulation or download.</small></div>
+    <div class="step done"><span class="label">Ruled</span><strong>R229 disposition</strong><small>Protected distro unchanged; target registration verified.</small></div>
+    <div class="step active"><span class="label">Offline</span><strong>R230 candidate</strong><small>Source f75ae322 awaits offline validation.</small></div>
+    <div class="step closed"><span class="label">Not authorized</span><strong>Cleanup + benchmark</strong><small>No R230 authority; no cleanup or GPU benchmark.</small></div>
   </div>
 
   <div class="grid">
     <article class="card">
-      <h2>What is proved</h2>
+      <h2>Verified state</h2>
       <ul>
-        <li>WSL executes CUDA on the RTX 3080 Ti Laptop GPU.</li>
-        <li>Pinned CUDA 13.2 and managed-memory SAXPY passed with zero mismatches in B2.</li>
-        <li>B2's disposable distro was rolled back; the protected OpenFOAM distro remained unchanged.</li>
-        <li>F1 remains the selected PETSc-CUDA plus petsc4Foam route.</li>
-        <li>R228 attempt 1 completed probe and repository checks, then stopped; owned work and guard were stopped and an after-snapshot was captured.</li>
-        <li>The corrected <code>.gitattributes</code>/manifest control at <code>d6edbc63</code> is green across 17 manifests.</li>
+        <li>Only probe and repositories ran; apt metadata was fetched. No simulate, download, package, install, or build artifacts exist.</li>
+        <li>Owned work and the guard were stopped; the protected <code>cfdw-openfoam2512</code> distro was unchanged. L3 before and after matched.</li>
+        <li>Protected distro GUID is <code>{b7566a82-9cee-47ce-a246-f83632353cea}</code>; its registered path is unchanged.</li>
+        <li>R228 epoch-8 lease samples were 874 s at activation and 852 s before WSL; renewal supervisor exited 0 with empty stderr.</li>
+        <li>The capture-text attribute control is on main; it does not change the failed checkpoint binding retroactively.</li>
       </ul>
     </article>
     <article class="card">
-      <h2>What remains unknown</h2>
+      <h2>Open work</h2>
       <ul>
-        <li>Whether the retained target is safely cleaned up; unregister was withheld.</li>
-        <li>F1 dependency closure and attempts 2 or 3; each needs a new ruling.</li>
-        <li>Whether PETSc-CUDA and petsc4Foam build successfully against OpenFOAM 2512.</li>
-        <li>Whether the selected case performs real solver work on the GPU.</li>
-        <li>Numerical equivalence, managed-memory effects, and speed-up against native GAMG.</li>
+        <li>The preflight reader-sharing defect still needs a fix and review.</li>
+        <li>Cleanup executor source <code>f75ae322</code> is a candidate under offline validation.</li>
+        <li>R230 ruling, payload hash, cleanup-authorization hash, and live authority have not been supplied.</li>
+        <li>Target cleanup has not run; the target remains registered.</li>
+        <li>Dependency attempts 2 and 3 each require both defect fixes, new packet hashes, and their own ruling.</li>
+        <li>No PETSc build, OpenFOAM GPU solver run, numerical check, or performance benchmark exists.</li>
       </ul>
     </article>
   </div>
 
-  <h2>R228 attempt 1 record</h2>
+  <h2>Repair and attempt ledger</h2>
   <div class="table-wrap">
     <table>
-      <caption class="label" style="text-align:left;padding:12px">Attempt outcome and next gate</caption>
-      <thead><tr><th scope="col">Item</th><th scope="col">Recorded result</th><th scope="col">Consequence</th></tr></thead>
+      <caption>Ruling 229 state and pending authorization</caption>
+      <thead><tr><th scope="col">Item</th><th scope="col">Current state</th><th scope="col">Next gate</th></tr></thead>
       <tbody>
-        <tr><th scope="row">Completed stages</th><td><code>probe</code>, <code>repositories</code></td><td>Attempt stopped after 39.334 seconds.</td></tr>
-        <tr><th scope="row">Initiating failure</th><td>Another process held <code>completed-guard-events.jsonl</code> without compatible sharing.</td><td>Attempt failed and stopped; no retry.</td></tr>
-        <tr><th scope="row">Checkpoint bind</th><td>Committed <code>invocation-contract.stdout.txt</code> differed from evidence after text normalization.</td><td>Checkpoint unproved; archive deletion and unregister withheld.</td></tr>
-        <tr><th scope="row">Target</th><td><code>cfdw-petsc-cuda132-f1</code><br><code>{e874e10f-c7b9-4a2b-a03b-87ad52fb9c41}</code></td><td>Still registered; exact cleanup-only R229 preparation and ruling are next.</td></tr>
-        <tr><th scope="row">Protected distro</th><td><code>cfdw-openfoam2512</code>, GUID <code>{b7566a82-9cee-47ce-a246-f83632353cea}</code></td><td>Exact reviewed identity and path were retained in the failure receipt.</td></tr>
-        <tr><th scope="row">R228 lease and renewal</th><td>874.305 s at activation; 851.647 s before WSL. Supervisor exit 0, empty stderr, renewal log retained.</td><td>Lease floor and renewal evidence are present.</td></tr>
-        <tr><th scope="row">Byte/manifest control</th><td>Corrected <code>.gitattributes</code> and manifest control passed across 17 manifests at <code>d6edbc63</code>.</td><td>Captured forms are protected; the failed checkpoint bind remains failed.</td></tr>
+        <tr><th scope="row">Ruling 229</th><td>Committed at <code>7ceed8b6</code>; it verifies the failed-closed state and accepts one cleanup-only action after identity rebinding.</td><td>Meet the identity-repair precondition and obtain R230 authorization.</td></tr>
+        <tr><th scope="row">Windows merge</th><td>Cleanup lane merged main at <code>e52a9d2d</code>; this status branch merged current <code>origin/main</code> at <code>c1f4b5c9</code>.</td><td>Status is current to that merge.</td></tr>
+        <tr><th scope="row">Reader-sharing defect</th><td>Guard event reader conflicts with the live append handle. Reader-sharing scan now covers proof PowerShell files.</td><td>Repair the preflight reader and review it offline.</td></tr>
+        <tr><th scope="row">Capture-byte defect</th><td>CRLF normalization changed the captured stdout bytes. Main now carries the capture-text attribute control.</td><td>Retain byte-exact proof on future capture; the old checkpoint remains failed.</td></tr>
+        <tr><th scope="row">R230 source candidate</th><td><code>f75ae322</code> adapts the cleanup executor for R230 activation and is under offline validation.</td><td>Payload and authorization hashes are not recorded until supplied with the later ruling.</td></tr>
+        <tr><th scope="row">One-shot cleanup</th><td>No R230 ruling or live authority; target <code>{e874e10f-c7b9-4a2b-a03b-87ad52fb9c41}</code> remains registered.</td><td>After authorization, terminate and unregister only this target and prove exact name/GUID/path absence.</td></tr>
+        <tr><th scope="row">Preflight repair cap</th><td>Ruling 225 allows up to 3 attempts; attempt 1 is consumed.</td><td>Attempts 2 and 3 each need both defect fixes, fresh packet hashes, and a separate ruling.</td></tr>
       </tbody>
     </table>
   </div>
 
   <h2>End-to-end route</h2>
   <div class="route" aria-label="Remaining qualification route">
-    <span>B2 proved</span><i aria-hidden="true">→</i><span>F1 selected</span><i aria-hidden="true">→</i><span>R228 attempt stopped</span><i aria-hidden="true">→</i><span>Cleanup-only R229 preparation + ruling</span><i aria-hidden="true">→</i><span>Exact cleanup + absence proof</span><i aria-hidden="true">→</i><span>New ruling per remaining attempt</span><i aria-hidden="true">→</i><span>Dependency evidence</span><i aria-hidden="true">→</i><span>Build ruling</span><i aria-hidden="true">→</i><span>Three-arm benchmark</span>
+    <span>B2 proved</span><i aria-hidden="true">→</i><span>F1 selected</span><i aria-hidden="true">→</i><span>R228 failed closed</span><i aria-hidden="true">→</i><span>R229 verifies state</span><i aria-hidden="true">→</i><span>Offline source validation</span><i aria-hidden="true">→</i><span>R230 authorization</span><i aria-hidden="true">→</i><span>One cleanup-only action</span><i aria-hidden="true">→</i><span>Repair packet</span><i aria-hidden="true">→</i><span>Separately ruled preflight</span><i aria-hidden="true">→</i><span>Build ruling</span><i aria-hidden="true">→</i><span>Three-arm benchmark</span>
   </div>
-  <p>The preflight may simulate dependencies and download resolved <code>.deb</code> files for licence, hash, and size inspection. It does not authorize package installation, source acquisition, builds, CFD cases, benchmarks, or changes to the protected distro.</p>
+  <p>The cleanup-only action cannot run a preflight stage. The dependency preflight does not authorize package installation, source acquisition, builds, CFD cases, benchmarks, or changes to the protected distro.</p>
 
   <h2>Coordination</h2>
-  <p>PR #34 is the coordination handoff for R228 attempt 1 authorization and review. Ruling 228 at epoch 8 superseded unused Ruling 227 at epoch 7. The next machine action is exact-target cleanup under a cleanup-only R229 ruling; attempts 2 and 3 each need their own authorization. The receipt is <a href="../proof/win-gpu-f1-preflight/attempt-1/final/attempt-failure.md">attempt-failure.md</a>.</p>
+  <p>Ruling 229 is at <code>7ceed8b6</code>. The Windows cleanup lane merged main at <code>e52a9d2d</code>. Source <code>f75ae322</code> is under offline validation. No R230 ruling or live authorization has been supplied. See the <a href="../proof/win-gpu-f1-preflight/attempt-1/final/attempt-failure.md">R228 failure receipt</a>.</p>
 
   <footer>
-    <strong>Confidence:</strong> Verified: B2 capability and rollback, F1 route selection, R228 failure and completed stages, checkpoint-bind error, target registration, protected identity, lease/renewal evidence, and the 17-manifest control. Inferred: no incomplete dependency stage is treated as run. Flagged / not recorded: cleanup, remaining attempts, dependency closure, build, GPU solver use, accuracy, and speed-up. No GPU OpenFOAM benchmark has run.<br>
+    <strong>Confidence:</strong> Verified: R228 stopped after two stages; R229's failure disposition; unchanged protected distro; registered target and exact GUID; epoch-8 renewal evidence; merge and candidate source commit. Inferred: no incomplete preflight stage ran; offline source does not imply live authority. Flagged / not recorded: R230 ruling and hashes, cleanup, target absence, remaining attempts, dependency closure, build, GPU solver use, accuracy, and speed-up. No GPU OpenFOAM benchmark has run.<br>
     Canonical source: <a href="openfoam-gpu-status-r220.md">openfoam-gpu-status-r220.md</a>
   </footer>
 </main>
