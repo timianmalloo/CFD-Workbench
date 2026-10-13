@@ -574,6 +574,9 @@ in the ring: after each run the script makes the call `tools/run-tests.sh` makes
 host test), so a Windows harness whose only failures are listed in `tests/expected-failures.windows.json` reads `pass` although its raw exit is 1
 (DTJ2; before, every Windows sample read as a failure and no N could be chosen). On the Mac the verdict follows the raw exit. The first sample is
 also a sanity check: a failure that is not a TIMEOUT or a DRAIN stops the run and names it, so a broken tree never costs the other runs.
+A child exit of 126 or more (killed or not launched) reads `interrupted` and stops the run, and so does an interrupt of the script itself (DTJ3).
+When the best N is the largest N tested, the picker prints `AT-EDGE <N>` and exits 3, not `BEST`. The wall was still falling, so measure larger N,
+up to the Desktop mode count, before committing a count (DTJ3; PR #40 tested 2–8 on a 20-processor PC whose default is 12).
 `tools/measure-desktop-slots.sh --self-test` checks the classification without a build. It changes no cap, budget or timeout. Then commit
 `limit.desktop_slots=<that N>` in the host's `baseline.csv` together with the three quiet baseline rows, under the existing Ruling 173/176 rule
 (three quiet runs, derive every other limit from them, replay through `check-test-costs.py` before the file is committed). If every N timed out,

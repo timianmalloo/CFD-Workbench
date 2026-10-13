@@ -13,7 +13,8 @@
 # applies), header slots,rep,wall_ms,timeouts,drains,load1,exit,verdict.
 # `tools/measure-desktop-slots.sh --self-test` checks the classification and the best-N pick without a build. Run it on a quiet machine: other work distorts the walls,
 # and the load column shows whether it was. The harness takes a ring-lock slot (tools/run-suite.sh) like any single-suite run.
-# Exit 0 when a best N was found, 1 when every N timed out or failed, 2 on a bad argument.
+# Exit 0 when a best N was found, 1 when every N timed out or failed, 2 on a bad argument, 3 (AT-EDGE) when the best is the
+# largest N tested: the wall was still falling, so measure larger N before committing a count.
 set -uo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd -P)"
 # shellcheck source=tools/py-resolve.sh
@@ -24,7 +25,7 @@ cd "$root" || exit 2
 ring_windows=0
 case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) ring_windows=1 ;; esac
 
-# classify_log LOG STATUS sets VERDICT (pass | fail | unexpected-pass) and UNEXPECTED_NAMES (the unlisted FAIL names, without
+# classify_log LOG STATUS sets VERDICT (pass | fail | unexpected-pass | interrupted) and UNEXPECTED_NAMES (the unlisted FAIL names, without
 # TIMEOUT, DRAIN and child-exit lines). On Windows it makes the very call tools/run-tests.sh makes (check-expected-failures.py
 # --log --status --host windows): a harness whose only failures are listed is a pass. Elsewhere the verdict is the raw exit;
 # the checker is still read with --host other, only to name the failures.
@@ -33,7 +34,11 @@ classify_log() {
   if [ "$ring_windows" -eq 1 ]; then host=windows; fi
   out=$(py "$root/tools/check-expected-failures.py" --log "$log" --status "$status" --host "$host") || rc=$?
   UNEXPECTED_NAMES=$(printf '%s\n' "$out" | sed -n 's/^UNEXPECTED \([^: ]*\):.*/\1/p' | grep -v -e '^TIMEOUT$' -e '^DRAIN$' -e '^--' | tr '\n' ' ' | sed 's/ $//' || true)
-  if [ "$ring_windows" -eq 0 ]; then
+  # The harness exits 0 or 1. A status of 126 or more is a killed or unlaunchable child, never a test result: on the PC an
+  # interrupted child exited 127 and its partial log classified as `pass` (PR #40).
+  if [ "$status" -ge 126 ]; then
+    VERDICT=interrupted
+  elif [ "$ring_windows" -eq 0 ]; then
     if [ "$status" -eq 0 ]; then VERDICT=pass; else VERDICT=fail; fi
   elif [ "$rc" -eq 0 ]; then
     VERDICT=pass
@@ -66,11 +71,18 @@ if [ "${1:-}" = "--self-test" ]; then
   ring_windows=0
   classify_log "$st/listed.log" 1; expect "Mac: the verdict follows the raw exit (fail)" fail "Library_Save_PublishesHashNamedFile"
   classify_log "$st/stale.log" 0; expect "Mac: the verdict follows the raw exit (pass)" pass ""
+  ring_windows=1
+  classify_log "$st/listed.log" 127; expect "a killed child (exit 127) with a passing partial log" interrupted ""
+  ring_windows=0
   printf 'slots,rep,wall_ms,timeouts,drains,load1,exit,verdict\n2,1,100000,0,0,1.0,1,pass\n4,1,90000,0,0,1.0,1,fail\n6,1,50000,1,0,1.0,1,pass\n' > "$st/best.csv"
   best=$(py "$root/tools/measure-desktop-slots-best.py" "$st/best.csv") || true
   case "$best" in *"BEST 2 "*) ;; *) echo "SELF-TEST FAIL: best N from the verdict column, got: $best"; bad=1 ;; esac
+  # The PC's first calibration (PR #40) tested 2-8, was still falling at 8, and proposed 8 below its untested default of 12.
+  printf 'slots,rep,wall_ms,timeouts,drains,load1,exit,verdict\n2,1,300000,0,0,1.0,1,pass\n4,1,200000,0,0,1.0,1,pass\n' > "$st/edge.csv"
+  edge_rc=0; edge=$(py "$root/tools/measure-desktop-slots-best.py" "$st/edge.csv") || edge_rc=$?
+  case "$edge_rc:$edge" in 3:*"AT-EDGE 4 "*) ;; *) echo "SELF-TEST FAIL: a best N at the largest tested N must exit 3 with AT-EDGE, got $edge_rc: $edge"; bad=1 ;; esac
   if [ "$bad" -ne 0 ]; then exit 1; fi
-  echo "measure-desktop-slots self-test ok: 6 classifications, 1 best-N pick"
+  echo "measure-desktop-slots self-test ok: 7 classifications, 2 best-N picks"
   exit 0
 fi
 
@@ -94,6 +106,8 @@ out="${CFD_MEASURE_OUT:-$root/docs/proof/ring-$host/desktop-slots.csv}"
 mkdir -p "$(dirname "$out")"
 scratch=$(mktemp -d "${TMPDIR:-/tmp}/desktop-slots.XXXXXX")
 trap 'rm -rf "$scratch"' EXIT
+# An interrupt ends the calibration, not just the current child: without a trap bash runs on to the next N (PR #40).
+trap 'echo "interrupted; stopping (rows so far in $out)" >&2; exit 130' INT TERM
 project="tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj"
 unset CFD_TEST_ONLY CFD_DESKTOP_SLOTS_BASELINE
 
@@ -118,6 +132,10 @@ for n in "${slot_list[@]}"; do
     classify_log "$log" "$status"
     echo "$n,$rep,$wall_ms,$timeouts,$drains,$load_at,$status,$VERDICT" >> "$out"
     echo "slots $n rep $rep: $wall_ms ms, $timeouts TIMEOUT, $drains DRAIN, load $load_at, exit $status, verdict $VERDICT"
+    if [ "$VERDICT" = "interrupted" ]; then
+      echo "the harness child was killed or failed to launch (exit $status); stopping (rows so far in $out)" >&2
+      exit 130
+    fi
     # The first sample doubles as a sanity check: a failure that is not a TIMEOUT or a DRAIN means a broken tree, so stop before
     # it costs the other runs.
     if [ "$first_sample" -eq 1 ] && [ "$VERDICT" != "pass" ] && { [ "$VERDICT" = "unexpected-pass" ] || [ -n "$UNEXPECTED_NAMES" ]; }; then
