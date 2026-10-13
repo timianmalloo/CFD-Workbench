@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 import re
 import subprocess
@@ -120,6 +121,15 @@ def check_live_leader(observed: dict[str, str], reviewed_epoch: int) -> None:
         raise ValueError("live Mac epoch differs from separately reviewed contract")
 
 
+def check_live_leader_json(observed: dict, reviewed_epoch: int) -> None:
+    ttl = observed.get('expires_in')
+    if (observed.get('leader') != 'mac' or observed.get('state') != 'live' or
+            type(observed.get('epoch')) is not int or observed['epoch'] != reviewed_epoch or
+            type(ttl) not in (int, float) or not math.isfinite(ttl) or ttl < 200 or
+            not re.fullmatch(r'[a-f0-9]{40}', observed.get('oid', ''))):
+        raise ValueError('F1-LEADER-REFUSED: exact live epoch and finite TTL >=200 required')
+
+
 def verify(args: argparse.Namespace) -> None:
     repo = args.repo.resolve(strict=True)
     path = args.contract.resolve(strict=True)
@@ -130,7 +140,15 @@ def verify(args: argparse.Namespace) -> None:
     if relative != expected_relative:
         raise ValueError("contract is not at the fixed reviewed path")
     proposed = getattr(args, 'command', 'verify') == 'prepare'
-    if not proposed and git(repo, "status", "--porcelain", "--untracked-files=all"):
+    status_args = ['status', '--porcelain', '--untracked-files=all']
+    runtime = getattr(args, 'runtime_output', None)
+    if runtime is not None:
+        # Only the supervisor's already-created evidence is exempt. All source,
+        # authority and input checks below remain the same mutation admission.
+        if document.get('attempt') != 2 or runtime.resolve(strict=True) != repo / document['run_root'] / 'live':
+            raise ValueError('invalid supervisor runtime evidence path')
+        status_args += ['--', '.', ':(exclude)' + document['run_root'] + '/live']
+    if not proposed and git(repo, *status_args):
         raise ValueError("EXECUTE worktree is not clean before WSL")
     if git(repo, "branch", "--show-current") != args.branch:
         raise ValueError("execution branch mismatch")
@@ -140,6 +158,8 @@ def verify(args: argparse.Namespace) -> None:
         if committed != path.read_bytes():
             raise ValueError("contract working bytes differ from committed blob")
     check_contract_fields(document)
+    if document.get('attempt') == 2 and str(repo).casefold() != document['execution_worktree'].casefold():
+        raise ValueError('attempt-2 execution worktree differs from invocation')
     if document["execution_branch"] != args.branch or document["session"] != args.session:
         raise ValueError("contract branch/session mismatch")
     if fresh:
@@ -181,11 +201,16 @@ def verify(args: argparse.Namespace) -> None:
     if proposed:
         print('PREPARATION-CONTRACT-PASS inputs=7 live_authority=False')
         return
-    leader = subprocess.run([sys.executable, str(repo / "docs/ai-forward-pack/scripts/coord-core.py"),
-                             "leader", "who"], cwd=repo, check=True, capture_output=True,
+    leader_args = [sys.executable, str(repo / "docs/ai-forward-pack/scripts/coord-core.py"), "leader", "who"]
+    if document.get('attempt') == 2:
+        leader_args.append('--json')
+    leader = subprocess.run(leader_args, cwd=repo, check=True, capture_output=True,
                             text=True, encoding="utf-8", timeout=15).stdout
-    observed = dict(line.split(None, 1) for line in leader.splitlines() if len(line.split(None, 1)) == 2)
-    check_live_leader(observed, document["leader_epoch"])
+    if document.get('attempt') == 2:
+        check_live_leader_json(json.loads(leader), document['leader_epoch'])
+    else:
+        observed = dict(line.split(None, 1) for line in leader.splitlines() if len(line.split(None, 1)) == 2)
+        check_live_leader(observed, document["leader_epoch"])
     print("INVOCATION-CONTRACT-PASS")
 
 

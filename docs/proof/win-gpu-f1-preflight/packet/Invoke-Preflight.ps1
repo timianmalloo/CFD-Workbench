@@ -42,6 +42,12 @@ $InitiatingError = $null
 $CleanupErrors = @()
 $LastStage = 'not-started'
 $LastCapacitySampleSeconds = -100.0
+$attemptNumber = 1
+$script:FirstWslStarted = $false
+$script:Renewal = $null
+$script:OwnedLaunchers = @()
+$script:RenewalIdentity = $null
+$script:LastIdentitySampleSeconds = -100.0
 
 function Write-Lf([string]$Path, [string]$Value) {
     [IO.File]::WriteAllText($Path, ($Value -replace "`r`n", "`n"), [Text.UTF8Encoding]::new($false))
@@ -131,10 +137,246 @@ function Read-LiveText([string]$Path) {
         finally { $reader.Dispose() }
     } finally { $stream.Dispose() }
 }
+function Capture-AttemptLeader([ValidateSet('activation','immediately-pre-live')][string]$Phase) {
+    $stdout = Invoke-Child 'py' @('-3', (Join-Path $PacketRoot 'leader_supervisor.py'), 'sample',
+        '--repo', $RepoRoot, '--epoch', [string]$contractData.leader_epoch, '--run-id', $RunId, '--phase', $Phase) `
+        "leader-$Phase" 15 $false $false
+    $sample = (Read-LiveText $stdout) | ConvertFrom-Json
+    Assert-AttemptLeader $sample $contractData.leader_epoch
+    if ($sample.phase -cne $Phase -or $sample.run_id -cne $RunId) { throw 'F1-LEADER-SAMPLE-IDENTITY' }
+    Write-Json (Join-Path $Live "leader-$Phase.json") $sample
+    Assert-AttemptIdentity $true $Phase
+}
+function Assert-AttemptIdentity([bool]$Force = $true, [string]$CapturePhase = '') {
+    if (-not $Force -and $Clock.Elapsed.TotalSeconds - $script:LastIdentitySampleSeconds -lt 5) { return }
+    $key = '{b7566a82-9cee-47ce-a246-f83632353cea}'
+    $registration = Get-ItemProperty -LiteralPath ("HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss\" + $key)
+    if ($registration.DistributionName -cne $Protected -or $registration.PSChildName -cne $key) {
+        throw 'F1-PROTECTED-REGISTRATION-CHANGED'
+    }
+    $processes = @(Get-CimInstance Win32_Process)
+    Assert-AttemptExclusivity $processes $script:OwnedLaunchers $key
+    $script:LastIdentitySampleSeconds = $Clock.Elapsed.TotalSeconds
+    if ($CapturePhase) {
+        if ($CapturePhase -cnotin @('activation','immediately-pre-live','finalization')) { throw 'F1-KEEPALIVE-PHASE' }
+        $public = @($processes | Where-Object {$_.ProcessId -in @(19296,3524)} | ForEach-Object {
+            [ordered]@{pid=$_.ProcessId;parent_pid=$_.ParentProcessId;name=$_.Name;
+                created_utc=(Get-ProcessCreationUtc $_.CreationDate);command=$_.CommandLine}
+        })
+        Write-Json (Join-Path $Live "keepalive-$CapturePhase.json") ([ordered]@{
+            schema='cfdw-f1-keepalive-sample/1';event_id=[Guid]::NewGuid().ToString('N');
+            utc=[DateTimeOffset]::UtcNow.ToString('o');run_id=$RunId;phase=$CapturePhase;protected_key=$key;processes=$public})
+    }
+}
+function Assert-AttemptRuntime([bool]$ForceIdentity = $true) {
+    if ($null -eq $script:Renewal -or $script:Renewal.HasExited) { throw 'F1-RENEW-SUPERVISOR-NOT-LIVE' }
+    $events = Read-LiveText (Join-Path $Live 'leader-renew-events.jsonl')
+    $last = $events.LastIndexOf("`n", [StringComparison]::Ordinal)
+    if ($last -lt 0) { throw 'F1-RENEW-NO-COMPLETE-EVENT' }
+    $event = $events.Substring(0,$last).Split("`n")[-1] | ConvertFrom-Json
+    Assert-AttemptLeader $event $contractData.leader_epoch
+    $age = Get-GuardAgeSeconds $event.utc ([DateTimeOffset]::UtcNow)
+    if ($event.run_id -cne $RunId -or $event.event -cne 'renew' -or $age -lt 0 -or $age -gt 90 -or
+        [double]$event.expires_in - $age -lt 200 -or
+        $null -eq $script:RenewalIdentity -or $event.instance_id -cne $script:RenewalIdentity.instance_id -or
+        $event.pid -ne $script:Renewal.Id) { throw 'F1-RENEW-EVENT-STALE-OR-REPLACED' }
+    Assert-AttemptIdentity $ForceIdentity
+}
+function Register-AttemptLauncher([object]$Process) {
+    if ($Process.HasExited) { return }
+    $rows = @(Get-CimInstance Win32_Process)
+    $parent = @($rows | Where-Object {$_.ProcessId -eq $Process.Id})
+    if ($parent.Count -ne 1 -or (Get-ProcessCreationUtc $parent[0].CreationDate) -cne
+        (Get-ProcessCreationUtc $Process.StartTime)) { throw 'F1-OWN-LAUNCHER-IDENTITY' }
+    foreach ($row in @($parent[0]) + @($rows | Where-Object {$_.ParentProcessId -eq $Process.Id})) {
+        if (-not $row.CommandLine) { throw 'F1-OWN-LAUNCHER-COMMAND-MISSING' }
+        $script:OwnedLaunchers += [pscustomobject]@{pid=$row.ProcessId;
+            created_utc=(Get-ProcessCreationUtc $row.CreationDate); command=$row.CommandLine}
+    }
+    Write-Json (Join-Path $Live 'owned-windows-launchers.json') $script:OwnedLaunchers
+}
+function Start-AttemptRenewal {
+    foreach ($name in @('leader-renew-stop.request','leader-renew-start.json','leader-renew-events.jsonl',
+        'leader-renew-exit.json','leader-renew.stdout.txt','leader-renew.stderr.txt',
+        'leader-activation.json','leader-immediately-pre-live.json',
+        'keepalive-activation.json','keepalive-immediately-pre-live.json','keepalive-finalization.json')) {
+        if (Test-Path -LiteralPath (Join-Path $Live $name)) { throw 'F1-RENEW-PREEXISTING-ARTIFACT' }
+    }
+    $interpreter = (& py -3 -c 'import sys; print(sys.executable)').Trim()
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $interpreter -PathType Leaf)) { throw 'F1-RENEW-INTERPRETER' }
+    $owner = Get-Process -Id $PID
+    $args = @((Join-Path $PacketRoot 'leader_supervisor.py'), 'supervise', '--repo', $RepoRoot,
+        '--epoch', [string]$contractData.leader_epoch, '--run-id', $RunId, '--contract', $Contract,
+        '--authorization', $Authorization, '--exclusive-run-id', $ExclusiveRunId, '--output', $Live,
+        '--branch', $executionBranch, '--session', $AgentSession, '--owner-pid', [string]$PID,
+        '--owner-created-ticks', [string]$owner.StartTime.ToUniversalTime().ToFileTimeUtc())
+    $startedUtc = [DateTimeOffset]::UtcNow
+    $script:Renewal = Start-Process -FilePath $interpreter -ArgumentList $args -WindowStyle Hidden -PassThru `
+        -RedirectStandardOutput (Join-Path $Live 'leader-renew.stdout.txt') `
+        -RedirectStandardError (Join-Path $Live 'leader-renew.stderr.txt')
+    $null = $script:Renewal.Handle
+    $start = $Clock.Elapsed.TotalSeconds
+    while ($true) {
+        if ($script:Renewal.HasExited -or $Clock.Elapsed.TotalSeconds - $start -ge 45) { throw 'F1-RENEW-START-FAILED' }
+        $eventPath = Join-Path $Live 'leader-renew-events.jsonl'
+        if (Test-Path -LiteralPath $eventPath) {
+            $raw = Read-LiveText $eventPath
+            if ($raw.Contains("`n")) {
+                $first = $raw.Split("`n")[0] | ConvertFrom-Json
+                $marker = (Read-LiveText (Join-Path $Live 'leader-renew-start.json')) | ConvertFrom-Json
+                Assert-AttemptLeader $first $contractData.leader_epoch
+                if ($marker.schema -cne 'cfdw-f1-renewal-start/1' -or $marker.run_id -cne $RunId -or
+                    $marker.epoch -ne $contractData.leader_epoch -or $marker.pid -ne $script:Renewal.Id -or
+                    $marker.owner.pid -ne $PID -or $marker.owner.created_ticks -ne $owner.StartTime.ToUniversalTime().ToFileTimeUtc() -or
+                    (ConvertTo-EvidenceUtc $marker.utc) -lt $startedUtc -or
+                    (ConvertTo-EvidenceUtc $first.utc) -lt (ConvertTo-EvidenceUtc $marker.utc) -or
+                    $first.instance_id -cne $marker.instance_id -or $first.pid -ne $marker.pid -or
+                    $first.run_id -cne $RunId -or $first.event -cne 'renew') { throw 'F1-RENEW-START-IDENTITY' }
+                $script:RenewalIdentity = $marker
+                break
+            }
+        }
+        Start-Sleep -Milliseconds 100
+    }
+}
+function Get-AttemptLeaderEvidence {
+    $names = @('leader-activation.json','leader-immediately-pre-live.json','leader-renew-start.json',
+        'leader-renew-events.jsonl','leader-renew.stderr.txt','leader-renew-exit.json',
+        'keepalive-activation.json','keepalive-immediately-pre-live.json','keepalive-finalization.json')
+    $files = @()
+    foreach ($name in $names) {
+        $path = Join-Path $Live $name
+        if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw 'F1-LEADER-EVIDENCE-MISSING' }
+        $files += [ordered]@{path=$name;sha256=(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()}
+    }
+    $activation = (Read-LiveText (Join-Path $Live $names[0])) | ConvertFrom-Json
+    $prelive = (Read-LiveText (Join-Path $Live $names[1])) | ConvertFrom-Json
+    $start = (Read-LiveText (Join-Path $Live $names[2])) | ConvertFrom-Json
+    $raw = Read-LiveText (Join-Path $Live $names[3])
+    if (-not $raw.EndsWith("`n") -or -not $raw.Trim()) { throw 'F1-LEADER-EVIDENCE-INCOMPLETE' }
+    $events = @($raw.TrimEnd("`n").Split("`n") | ForEach-Object {$_ | ConvertFrom-Json})
+    $exit = (Read-LiveText (Join-Path $Live $names[5])) | ConvertFrom-Json
+    if ($null -eq $script:RenewalIdentity -or $start.instance_id -cne $script:RenewalIdentity.instance_id -or
+        $start.pid -ne $script:RenewalIdentity.pid -or
+        (ConvertTo-EvidenceUtc $start.utc) -ne (ConvertTo-EvidenceUtc $script:RenewalIdentity.utc) -or
+        $start.owner.pid -ne $script:RenewalIdentity.owner.pid -or
+        $start.owner.created_ticks -ne $script:RenewalIdentity.owner.created_ticks) { throw 'F1-LEADER-EVIDENCE-START-CHANGED' }
+    foreach ($sample in @($activation,$prelive) + $events) {
+        Assert-AttemptLeader $sample $contractData.leader_epoch
+        if ($sample.schema -cne 'cfdw-f1-leader-sample/1' -or $sample.run_id -cne $RunId -or
+            -not $sample.event_id -or (ConvertTo-EvidenceUtc $sample.utc) -lt (ConvertTo-EvidenceUtc $start.utc)) {
+            throw 'F1-LEADER-EVIDENCE-IDENTITY'
+        }
+    }
+    if ($activation.phase -cne 'activation' -or $prelive.phase -cne 'immediately-pre-live' -or
+        $activation.event_id -ceq $prelive.event_id -or
+        (ConvertTo-EvidenceUtc $prelive.utc) -lt (ConvertTo-EvidenceUtc $activation.utc) -or
+        $start.schema -cne 'cfdw-f1-renewal-start/1' -or $start.run_id -cne $RunId -or
+        $start.epoch -ne $contractData.leader_epoch -or -not $start.instance_id -or $start.pid -le 0 -or
+        $exit.schema -cne 'cfdw-f1-renewal-exit/1' -or $exit.run_id -cne $RunId -or
+        $exit.epoch -ne $contractData.leader_epoch -or $exit.instance_id -cne $start.instance_id -or
+        $exit.pid -ne $start.pid -or ($exit.exit_code -isnot [int] -and $exit.exit_code -isnot [long]) -or
+        $exit.exit_code -ne 0 -or (Read-LiveText (Join-Path $Live $names[4])).Trim()) { throw 'F1-LEADER-EVIDENCE-REFUSED' }
+    foreach ($event in $events) {
+        if ($event.phase -cne 'renewal' -or $event.event -cne 'renew' -or
+            $event.instance_id -cne $start.instance_id -or $event.pid -ne $start.pid) { throw 'F1-LEADER-EVIDENCE-RENEWAL' }
+    }
+    $seenIds = @()
+    $previousUtc = ConvertTo-EvidenceUtc $start.utc
+    foreach ($phase in @('activation','immediately-pre-live','finalization')) {
+        $sample = (Read-LiveText (Join-Path $Live "keepalive-$phase.json")) | ConvertFrom-Json
+        $utc = ConvertTo-EvidenceUtc $sample.utc
+        if ($sample.schema -cne 'cfdw-f1-keepalive-sample/1' -or $sample.run_id -cne $RunId -or
+            $sample.phase -cne $phase -or -not $sample.event_id -or $sample.event_id -cin $seenIds -or
+            $utc -lt $previousUtc -or @($sample.processes).Count -ne 2) { throw 'F1-KEEPALIVE-EVIDENCE-IDENTITY' }
+        $rows = @($sample.processes | ForEach-Object {
+            if (($_.pid -isnot [int] -and $_.pid -isnot [long]) -or
+                ($_.parent_pid -isnot [int] -and $_.parent_pid -isnot [long])) { throw 'F1-KEEPALIVE-EVIDENCE-PID' }
+            [pscustomobject]@{ProcessId=$_.pid;ParentProcessId=$_.parent_pid;Name=$_.name;
+                CreationDate=(ConvertTo-EvidenceUtc $_.created_utc);CommandLine=$_.command}
+        })
+        Assert-AttemptExclusivity $rows @() $sample.protected_key
+        $seenIds += $sample.event_id
+        $previousUtc = $utc
+    }
+    return [ordered]@{status='verified';files=$files}
+}
+function Stop-AttemptRenewal {
+    if ($null -eq $script:Renewal) { return }
+    Write-Lf (Join-Path $Live 'leader-renew-stop.request') ($RunId + "`n")
+    if (-not $script:Renewal.WaitForExit(20000)) {
+        Stop-Process -Id $script:Renewal.Id -Force -ErrorAction Stop
+        $null = $script:Renewal.WaitForExit(5000)
+        Write-Json (Join-Path $Live 'leader-renew-exit.json') ([ordered]@{
+            run_id=$RunId;epoch=$contractData.leader_epoch;exit_code='unknown';result='supervisor-timeout'})
+        throw 'F1-RENEW-STOP-FAILED'
+    }
+    $exitPath = Join-Path $Live 'leader-renew-exit.json'
+    if (-not (Test-Path -LiteralPath $exitPath)) {
+        Write-Json $exitPath ([ordered]@{run_id=$RunId;epoch=$contractData.leader_epoch;
+            exit_code=$script:Renewal.ExitCode;result='supervisor-exit-without-receipt'})
+        throw 'F1-RENEW-EXIT-RECEIPT-MISSING'
+    }
+    $receipt = (Read-LiveText $exitPath) | ConvertFrom-Json
+    if ($script:Renewal.ExitCode -ne 0 -or $receipt.exit_code -ne 0 -or $receipt.run_id -cne $RunId -or
+        $receipt.epoch -ne $contractData.leader_epoch) { throw 'F1-RENEW-EXIT-FAILED' }
+}
 function Read-GuardState {
     $path = Join-Path $Live 'completed-guard.state.json'
     if (-not (Test-Path -LiteralPath $path)) { throw 'completed guard state missing' }
     return (Read-LiveText -Path $path) | ConvertFrom-Json
+}
+function Assert-AttemptRollback([string[]]$Arguments, [string]$Label) {
+    if ($script:LifecyclePhase -cne 'cleanup') { throw 'F1-ROLLBACK-PHASE' }
+    foreach ($binding in @(@($Contract,$script:ContractSha),@($Authorization,$script:AuthorizationSha))) {
+        if ((Get-FileHash -LiteralPath $binding[0] -Algorithm SHA256).Hash.ToLowerInvariant() -cne $binding[1]) {
+            throw 'F1-ROLLBACK-AUTHORITY-CHANGED'
+        }
+    }
+    foreach ($map in @($contractData.packet_sha256,$contractData.external_sha256)) {
+        foreach ($item in $map.psobject.Properties) {
+            if ((Get-FileHash -LiteralPath (Join-Path $RepoRoot $item.Name) -Algorithm SHA256).Hash.ToLowerInvariant() -cne $item.Value) {
+                throw 'F1-ROLLBACK-SOURCE-CHANGED'
+            }
+        }
+    }
+    $expected = @()
+    if ($Label -ceq 'distro-list') { $expected = @('--list','--quiet') }
+    elseif ($Label -cin @('target-containment-terminate','target-terminate','target-unregister')) {
+        if (-not $script:CreatedTargetKey -or $null -eq $CheckpointSha) { throw 'MAC-DECISION-REQUIRED: checkpoint/GUID unbound; rollback lifecycle withheld' }
+        $null = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath $script:CreatedTargetKey 2
+        $verb = if ($Label -ceq 'target-unregister') {'--unregister'} else {'--terminate'}
+        $expected = @($verb,$Target)
+    }
+    elseif ($Label -cin @('owned-stop','owned-check','guard-owned-stop','guard-owned-check','l3-after')) {
+        $guardOwner = $Label.StartsWith('guard-',[StringComparison]::Ordinal)
+        $protectedRead = $Label -ceq 'l3-after'
+        $distro = if ($guardOwner -or $protectedRead) {$Protected} else {$Target}
+        $cpus = if ($guardOwner -or $protectedRead) {'0'} else {'0-1'}
+        if ($distro -ceq $Target) {
+            if (-not $script:CreatedTargetKey) { throw 'F1-ROLLBACK-GUID-UNBOUND' }
+            $null = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath $script:CreatedTargetKey 2
+        }
+        $ownerName = if ($protectedRead) {'l3-after.owner.txt'} else {"$Label.entry.txt"}
+        $expected = @('--distribution',$distro,'--user','root','--exec','/usr/bin/taskset','--cpu-list',$cpus,
+            '/usr/bin/nice','-n','10','/usr/bin/setsid','--wait','/bin/bash',
+            (Convert-LinuxPath (Join-Path $PacketRoot 'identity.sh')),
+            (Convert-LinuxPath (Join-Path $Live $ownerName)),'--')
+        if ($protectedRead) {
+            $expected += @('/usr/bin/python3',(Convert-LinuxPath (Join-Path $PacketRoot 'completed_guard.py')),
+                'snapshot','--output',(Convert-LinuxPath (Join-Path $Live 'l3-terminal-after.json')),'--include-log-sha256')
+        } else {
+            $mode = if ($Label.EndsWith('-stop',[StringComparison]::Ordinal)) {'stop'} else {'check'}
+            $expected += @('/bin/bash',(Convert-LinuxPath (Join-Path $PacketRoot 'owned-control.sh')),
+                '--mode',$mode,'--run-root',(Convert-LinuxPath $Live),$RunId)
+            if ($guardOwner) { $expected += @('--kind','guard') }
+        }
+    } else { throw 'F1-ROLLBACK-ACTION-REFUSED' }
+    if ($Arguments.Count -ne $expected.Count) { throw 'F1-ROLLBACK-ARGUMENTS-REFUSED' }
+    for ($i=0;$i -lt $expected.Count;$i++) {
+        if ($Arguments[$i] -cne $expected[$i]) { throw 'F1-ROLLBACK-ARGUMENTS-REFUSED' }
+    }
+    Assert-AttemptIdentity $true
 }
 function Assert-Guard {
     if ($null -eq $Guard -or $Guard.HasExited) { throw 'completed guard exited or was not started' }
@@ -169,14 +411,25 @@ function Invoke-Child(
     $process = $null
     $ack = [string]::IsNullOrEmpty($OwnerFile)
     try {
+        if ($attemptNumber -eq 2 -and $File -ieq 'wsl.exe') {
+            if ($phase -ceq 'cleanup' -and $Label -cnotlike 'stage-delete-debs*') { Assert-AttemptRollback $Arguments $Label }
+            else { Assert-AttemptRuntime }
+            if (-not $script:FirstWslStarted) { Capture-AttemptLeader 'immediately-pre-live' }
+            $script:FirstWslStarted = $true
+        }
         $process = Start-Process -FilePath $File -ArgumentList $Arguments `
             -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru -WindowStyle Hidden
         $null = $process.Handle
+        if ($attemptNumber -eq 2 -and $File -ieq 'wsl.exe') { Register-AttemptLauncher $process }
         while ($true) {
             $remaining = Get-ChildWaitSeconds $Clock.Elapsed.TotalSeconds $stageStart $CapSeconds $phase
             if ($remaining -le 0) { throw "$Label exceeded min(stage cap, absolute $phase deadline)" }
             if ($process.WaitForExit([int][Math]::Max(1, [Math]::Min(200, $remaining * 1000)))) { break }
             if ($GuardRequired) { $null = Assert-Guard }
+            if ($attemptNumber -eq 2 -and $File -ieq 'wsl.exe') {
+                if ($phase -ceq 'cleanup' -and $Label -cnotlike 'stage-delete-debs*') { Assert-AttemptIdentity $false }
+                else { Assert-AttemptRuntime $false }
+            }
             if ($phase -eq 'work') { $null = Assert-Host $false }
             if (-not $ack -and (Test-Path -LiteralPath $OwnerFile)) { $ack = $true }
         }
@@ -204,6 +457,10 @@ function Invoke-WslLinux(
     [string[]]$Command, [int]$CapSeconds, [bool]$GuardRequired = $true,
     [bool]$NewWork = $false
 ) {
+    if ($attemptNumber -eq 2 -and $Distro -ceq $Target) {
+        if (-not $script:CreatedTargetKey) { throw 'F1-TARGET-GUID-UNBOUND' }
+        $null = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath $script:CreatedTargetKey 2
+    }
     $linuxOwner = Convert-LinuxPath $OwnerPath
     $identity = Convert-LinuxPath (Join-Path $PacketRoot 'identity.sh')
     $arguments = @('--distribution', $Distro, '--user', 'root', '--exec',
@@ -297,14 +554,14 @@ function Stop-Owned {
 function Stop-OwnedOrContain {
     if ($freshAttempt -and @(Get-TargetRegistration).Count -ne 0) {
         if (-not $script:CreatedTargetKey) { throw 'MAC-DECISION-REQUIRED: created target GUID unbound; containment withheld' }
-        $null = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath $script:CreatedTargetKey
+        $null = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath $script:CreatedTargetKey $attemptNumber
     }
     try { Stop-Owned } catch {
         $original = $_.Exception.Message
         if (@(Get-TargetRegistration).Count -eq 1) {
             try {
                 $script:LifecyclePhase = 'cleanup'
-                if ($freshAttempt) { $null = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath $script:CreatedTargetKey }
+                if ($freshAttempt) { $null = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath $script:CreatedTargetKey $attemptNumber }
                 $null = Invoke-Child 'wsl.exe' @('--terminate', $Target) 'target-containment-terminate' 30 $false $false
             } catch { throw "owner stop failed: $original; exact-target containment failed: $($_.Exception.Message)" }
         }
@@ -339,7 +596,7 @@ function Assert-FinalAbsence {
     if ($freshAttempt) {
         if (-not $script:CreatedTargetKey) { throw 'MAC-DECISION-REQUIRED: created GUID unbound; final absence unknown' }
         $rows = @(Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss' | ForEach-Object { Get-ItemProperty -LiteralPath $_.PSPath })
-        Assert-FreshRegistrations $rows $names (Test-Path -LiteralPath $TargetPath)
+        Assert-FreshRegistrations $rows $names (Test-Path -LiteralPath $TargetPath) $attemptNumber
         if (@($rows | Where-Object { $_.PSChildName -ieq $script:CreatedTargetKey }).Count -ne 0) {
             throw 'created target GUID survives under a name/path alias'
         }
@@ -364,17 +621,26 @@ function Invoke-Cleanup {
     if ($registration.Count -eq 1) {
         if ($freshAttempt) {
             if (-not $script:CreatedTargetKey) { throw 'MAC-DECISION-REQUIRED: target GUID unbound; cleanup withheld' }
-            $null = Get-BoundTargetKey $registration $TargetPath $script:CreatedTargetKey
+            $null = Get-BoundTargetKey $registration $TargetPath $script:CreatedTargetKey $attemptNumber
         }
         $basePath = [IO.Path]::GetFullPath([string]$registration[0].BasePath).TrimEnd('\')
         if (-not $basePath.Equals((Assert-TargetPath), [StringComparison]::OrdinalIgnoreCase)) {
             throw "target registration path mismatch: $basePath"
         }
-        try { Invoke-Stage 'delete-debs' 120 $false $false }
+        $deleteAdmitted = $true
+        if ($attemptNumber -eq 2) {
+            try { Assert-AttemptRuntime }
+            catch {
+                $deleteAdmitted = $false
+                Write-Json (Join-Path $Live 'archive-deletion-skipped.json') ([ordered]@{
+                    run_id=$RunId;result='skipped-after-admission-loss';reason=$_.Exception.Message})
+            }
+        }
+        try { if ($deleteAdmitted) { Invoke-Stage 'delete-debs' 120 $false $false } }
         finally { Stop-OwnedOrContain }
-        if ($freshAttempt) { $null = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath $script:CreatedTargetKey }
+        if ($freshAttempt) { $null = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath $script:CreatedTargetKey $attemptNumber }
         $null = Invoke-Child 'wsl.exe' @('--terminate', $Target) 'target-terminate' 30 $false $false
-        if ($freshAttempt) { $null = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath $script:CreatedTargetKey }
+        if ($freshAttempt) { $null = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath $script:CreatedTargetKey $attemptNumber }
         $null = Invoke-Child 'wsl.exe' @('--unregister', $Target) 'target-unregister' 120 $false $false
     }
     if (Test-Path -LiteralPath $TargetPath) {
@@ -464,6 +730,7 @@ $Live = Join-Path $RunRoot 'live'
 $CheckpointPath = Join-Path $RunRoot 'checkpoint'
 $Final = Join-Path $RunRoot 'final'
 $freshAttempt = $null -ne $contractData.psobject.Properties['attempt']
+if ($freshAttempt) { $attemptNumber = [int]$contractData.attempt }
 if ($freshAttempt -and (-not $Authorization -or -not (Test-Path -LiteralPath $Authorization -PathType Leaf))) {
     throw 'attempt authorization missing before WSL'
 }
@@ -497,6 +764,7 @@ if ($precheckWait -le 0 -or -not $precheck.WaitForExit([int]($precheckWait * 100
 }
 if ($precheck.ExitCode -ne 0) { throw "invocation contract rejected: $([IO.File]::ReadAllText($precheckErr))" }
 $script:ContractSha = (Get-FileHash -Algorithm SHA256 -LiteralPath $Contract).Hash.ToLowerInvariant()
+if ($attemptNumber -eq 2) { $script:AuthorizationSha = (Get-FileHash -Algorithm SHA256 -LiteralPath $Authorization).Hash.ToLowerInvariant() }
 New-Item -ItemType Directory -Path $Live -Force | Out-Null
 Copy-Item -LiteralPath $precheckOut -Destination (Join-Path $Live 'invocation-contract.stdout.txt')
 $linuxGuard = Convert-LinuxPath (Join-Path $PacketRoot 'completed_guard.py')
@@ -504,11 +772,15 @@ $linuxRoot = Convert-LinuxPath $Rootfs
 $linuxSums = Convert-LinuxPath $UbuntuSums
 $linuxSignature = Convert-LinuxPath $UbuntuSignature
 try {
+    if ($attemptNumber -eq 2) {
+        Start-AttemptRenewal
+        Capture-AttemptLeader 'activation'
+    }
     $initialHostFree = Assert-Host $true
     $names = Get-DistroNames
     if ($freshAttempt) {
         $rows = @(Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss' | ForEach-Object { Get-ItemProperty -LiteralPath $_.PSPath })
-        Assert-FreshRegistrations $rows $names (Test-Path -LiteralPath $TargetPath)
+        Assert-FreshRegistrations $rows $names (Test-Path -LiteralPath $TargetPath) $attemptNumber
     }
     if (@($names | Where-Object { $_ -ceq $Protected }).Count -ne 1 -or
         @($names | Where-Object { $_ -ceq $Target }).Count -ne 0 -or
@@ -558,10 +830,12 @@ try {
         '--state', (Convert-LinuxPath $state), '--stop-request', (Convert-LinuxPath $stopRequest),
         '--session-id', $RunId, '--interval-seconds', '5', '--max-samples', '732')
     $guardStart = $Clock.Elapsed.TotalSeconds
+    if ($attemptNumber -eq 2) { Assert-AttemptRuntime }
     $Guard = Start-Process -FilePath 'wsl.exe' -ArgumentList $guardArguments `
         -RedirectStandardOutput (Join-Path $Live 'guard.stdout.txt') `
         -RedirectStandardError (Join-Path $Live 'guard.stderr.txt') -PassThru -WindowStyle Hidden
     $null = $Guard.Handle
+    if ($attemptNumber -eq 2) { Register-AttemptLauncher $Guard }
     while (-not (Test-Path -LiteralPath $state)) {
         Assert-Deadline
         if ($Guard.HasExited -or (Get-ChildWaitSeconds $Clock.Elapsed.TotalSeconds $guardStart 20 work) -le 0) {
@@ -574,12 +848,12 @@ try {
     if ($freshAttempt) {
         $freshNames = Get-DistroNames
         $freshRows = @(Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss' | ForEach-Object { Get-ItemProperty -LiteralPath $_.PSPath })
-        Assert-FreshRegistrations $freshRows $freshNames (Test-Path -LiteralPath $TargetPath)
+        Assert-FreshRegistrations $freshRows $freshNames (Test-Path -LiteralPath $TargetPath) $attemptNumber
     }
     $null = Invoke-Child 'wsl.exe' @('--install', '--from-file', $Rootfs, '--name', $Target,
         '--location', $TargetPath, '--vhd-size', '8GB', '--no-launch') 'target-create' 300 $true $true
     if (@(Get-TargetRegistration).Count -ne 1) { throw 'target creation did not register exactly once' }
-    $script:CreatedTargetKey = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath
+    $script:CreatedTargetKey = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath '' $attemptNumber
     Write-Json (Join-Path $Live 'created-target-identity.json') ([ordered]@{
         target=$Target; target_path=$TargetPath; target_key=$script:CreatedTargetKey; run_id=$RunId })
     $null = Assert-Host $false $true
@@ -602,7 +876,13 @@ try {
         -StopGuard { Stop-Observer } `
         -BindGuard { Bind-Observer }
     $CleanupErrors += $closing.errors
-    Write-Json (Join-Path $Live 'cleanup-receipt.json') ([ordered]@{
+    if ($attemptNumber -eq 2) {
+        try { Assert-AttemptIdentity $true 'finalization' } catch { $CleanupErrors += "final identity: $($_.Exception.Message)" }
+        try { Stop-AttemptRenewal } catch { $CleanupErrors += $_.Exception.Message }
+        try { $leaderEvidence = Get-AttemptLeaderEvidence }
+        catch { $leaderEvidence = 'Not recorded'; $CleanupErrors += "leader evidence: $($_.Exception.Message)" }
+    }
+    $cleanupReceipt = [ordered]@{
         schema='cfdw-f1-r217-cleanup/1'; run_id=$RunId; target=$Target; protected=$Protected
         initiating_error=if ($null -eq $InitiatingError) { 'Not recorded' } else { $InitiatingError }
         cleanup_errors=$CleanupErrors; checkpoint_sha=if ($null -eq $CheckpointSha) { 'Not recorded' } else { $CheckpointSha }
@@ -611,7 +891,9 @@ try {
                       elseif ($CreationArmed) { 'Unknown or blocked' } else { 'Not applicable' }
         creation_uncertain=$CreationUncertain; finalization=$closing
         affinity='Linux CPU0-1 or guard CPU0, nice10; host lifecycle/Git N/A'
-    })
+    }
+    if ($attemptNumber -eq 2) { $cleanupReceipt.leader_evidence = $leaderEvidence }
+    Write-Json (Join-Path $Live 'cleanup-receipt.json') $cleanupReceipt
     if ($null -ne $CheckpointSha) {
         try {
             $script:LifecyclePhase = 'cleanup'

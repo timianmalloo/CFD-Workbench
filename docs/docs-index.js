@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "20565d338701d5e22ff30563c6044f1602acbd9444a480bd5919c7d2543b491c"
+      "sourceSha256": "02f306d65582a52a1773a014b7a2b3db3f2ead8d483d44b320bbacab544ee86c"
     },
     {
       "id": "domain-experts",
@@ -18955,6 +18955,44 @@ window.DOCS_INDEX = {
       "sourceSha256": "fdcaa145f308468efbe68a13db50e82d6639f16cbcfc30c9988ff0ccc82bdb56"
     },
     {
+      "id": "proof-win-gpu-f1-attempt2-admission",
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-2/admission-proof.md",
+      "title": "F1 attempt 2 offline admission source proof",
+      "type": "proof-pack",
+      "status": "accepted",
+      "owner": "@pc-coordinator",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Offline attempt-2 admission, exact process identities, epoch-bound renewal, bounded rollback, and committed evidence validation. No live authority.",
+      "tags": [
+        "windows",
+        "offline",
+        "f1",
+        "admission"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-attempt2-offline-request",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-gpu-f1-offline-followups",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "fc0a76060c7ccb62994317948ed65b51aea1fc1cb2e8c781aa1f4d7c1c094dbe"
+    },
+    {
       "id": "proof-win-gpu-f1-attempt2-offline-request",
       "path": "docs/proof/win-gpu-f1-preflight/attempt-2/README.md",
       "title": "F1 attempt 2 offline decision request",
@@ -22636,5 +22674,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "bd0581aeb1b38191b4737c3cd35caddeb3cde2a8d3c514cc3e4f22c65ac6b3d2"
+  "graphSha256": "20bc4de4409374492704a1f62494fbc5addd246125ec6b1a7fa7357cd2378989"
 };
