@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T19:26:56Z",
+  "generated": "2026-10-13T19:34:15Z",
   "audit": [
     {
       "actor": null,
@@ -38588,12 +38588,88 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4VBPWFAVZM9KHABS1PYMB4J",
-      "shortname": "join-dtj",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-13T19:26:56Z",
-      "session": "3122f106",
+      "duration_seconds": 74.0,
+      "fan_out": 0,
+      "id": "al-01M4VBPWFAVZM9KHABS1PYMB4J",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of fix/dtj-desktop-slots into main",
+      "session": "3122f106",
+      "shortname": "join-dtj",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-13T19:25:42Z",
       "summary": "join recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "datetime": "2026-10-13T19:27:20Z",
+      "id": "al-01M4VBQKV715ED9M5EQ0G74F23",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "You are the Astra owner for offline preparation of the next F1 dependency-preflight attempt in C:\\Projects\\CFD-Workbench. Read AGENTS.md, docs/ai-forward-pack/codex.md, current origin/main, Rulings 217 and 225-233, PR35/36 proof, and the active packet/tests. User authorized continued progress and multiple further attempts; Mac remains leader. Create your own worktree/branch from current origin/main with a descriptive branch name that does not contain a ruling number. Do not touch WSL, registry, distro lifecycle, or run a full ring. Determine the smallest correct offline package for attempt 2: fresh run/session/target identity, current source and invocation contract hashes, closed R231 prerequisites, new PC-local Mac leader epoch requirement, and a GitHub-ready hash-bound decision request. If repo evidence makes preparation unambiguous, implement/test/commit/push the offline candidate and return exact SHA plus remaining Mac ruling. If any identity/value must be assigned by Mac or measured live, fail closed and prepare only the reviewable request/artifact with that field explicitly unresolved. Use focused tests/docs checks; respect the 2-cycle cap. Report verified facts and hard vetoes promptly.",
+      "session": "pc-f1-attempt2-offline",
+      "shortname": "f1-attempt2-offline-request",
+      "skill": null,
+      "summary": "prompt logged for reuse",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/attempt-2/README.md",
+        "docs/proof/win-gpu-f1-preflight/attempt-2/offline-decision-request.json",
+        "docs/plans/f1-attempt2-offline-request.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-13T19:29:44Z",
+      "done_when": "Request artifacts, current committed hashes and focused validation are committed and pushed for parent review.",
+      "duration_seconds": 580.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "win/gpu-f1-attempt2-offline",
+        "pushed": true,
+        "sha": "ad1424b12b386c17d33178b8fa1e619289b70457",
+        "short": "ad1424b12"
+      },
+      "goal": "Prepare a hash-bound reviewable attempt-2 decision request with unresolved Mac/live authority explicit.",
+      "id": "al-01M4VBW0RK99EE0Z3A7D1QVZ9D",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "You are the Astra owner for offline preparation of the next F1 dependency-preflight attempt in C:\\Projects\\CFD-Workbench. Read AGENTS.md, docs/ai-forward-pack/codex.md, current origin/main, Rulings 217 and 225-233, PR35/36 proof, and the active packet/tests. User authorized continued progress and multiple further attempts; Mac remains leader. Create your own worktree/branch from current origin/main with a descriptive branch name that does not contain a ruling number. Do not touch WSL, registry, distro lifecycle, or run a full ring. Determine the smallest correct offline package for attempt 2: fresh run/session/target identity, current source and invocation contract hashes, closed R231 prerequisites, new PC-local Mac leader epoch requirement, and a GitHub-ready hash-bound decision request. If repo evidence makes preparation unambiguous, implement/test/commit/push the offline candidate and return exact SHA plus remaining Mac ruling. If any identity/value must be assigned by Mac or measured live, fail closed and prepare only the reviewable request/artifact with that field explicitly unresolved. Use focused tests/docs checks; respect the 2-cycle cap. Report verified facts and hard vetoes promptly.",
+      "session": "pc-f1-attempt2-offline",
+      "shortname": "f1-attempt2-offline-request",
+      "signals": {
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "optimize-graph",
+      "started_at": "2026-10-13T19:20:04Z",
+      "summary": "Request-only package at ad1424b1 after PR37 sync; 27 committed blob hashes, two historical-contract packet differences, explicit null Mac ruling/epoch/final source-contract-projection/GUID fields. Existing 95 offline F1 tests PASS in 9.856s; importlib 24+6 self-tests and 251-file scan PASS; full docs check PASS twice, final synchronized run has 134 existing freshness advisories. Source/tests unchanged across upstream sync, no repeat needed. Two corrections: refused snapshot path fixed by discovery; independent epoch-scope overclaim corrected to Mac reuse-versus-reclaim choice. No WSL, registry, lifecycle, lease change, full ring, activation or source edit. Parent review remains separate; no live acceptance claimed.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M4VC49HFY66QFDSYFDTVFZ43",
+      "shortname": "join-pr38",
+      "datetime": "2026-10-13T19:34:15Z",
+      "session": "3122f106",
+      "prompt": "the join of origin/win/gpu-f1-attempt2-offline into main",
+      "summary": "join recount_seconds=0 (docs_only=True).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -38609,8 +38685,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-13T19:25:42Z",
-      "duration_seconds": 74.0
+      "started_at": "2026-10-13T19:33:54Z",
+      "duration_seconds": 21.0
     }
   ],
   "changes": [
