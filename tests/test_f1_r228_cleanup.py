@@ -147,6 +147,12 @@ class CleanupOnlyTests(unittest.TestCase):
                      ROOT / "docs/proof/win-gpu-f1-preflight/run-1"):
             self.assertFalse(path.is_relative_to(ROOT / cleanup.REL))
 
+    def test_precheck_verifies_complete_r228_failure_manifest(self):
+        source = SCRIPT.read_text(encoding="utf-8")
+        self.assertIn('"verify", "--repo", str(self.repo)', source)
+        self.assertIn('"--frozen", str(self.repo / FAILURE_REL)', source)
+        self.assertIn('"--commit", value["source_commit"]', source)
+
 
 if __name__ == "__main__":
     unittest.main()

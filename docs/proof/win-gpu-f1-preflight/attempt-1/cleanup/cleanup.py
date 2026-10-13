@@ -247,6 +247,10 @@ class Cleanup:
             blob = self.run_command(["git", "cat-file", "blob", value["source_commit"] + ":" + relative], "source-blob")
             if hashlib.sha256(blob).hexdigest() != expected:
                 raise ValueError("reviewed source blob differs: " + relative)
+        manifest = self.repo / PACKET_REL / "manifest.py"
+        self.run_command([sys.executable, str(manifest), "verify", "--repo", str(self.repo),
+                          "--frozen", str(self.repo / FAILURE_REL),
+                          "--commit", value["source_commit"]], "verify-r228-failure", 120)
         auth_sha = digest(self.authorization)
         origin_ruling = self.run_command(["git", "show", "origin/main:docs/notes/rulings.md"], "origin-main-ruling").decode("utf-8")
         verify_ruling(ruling_section(origin_ruling), auth_sha, payload_sha, value["source_commit"])
