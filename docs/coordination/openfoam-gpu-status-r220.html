@@ -3,65 +3,73 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>OpenFOAM GPU status — Ruling 220</title>
+  <meta name="color-scheme" content="dark">
+  <title>OpenFOAM GPU status — Ruling 228</title>
   <style>
-    :root { color-scheme: dark; --ink:#e9f0ef; --muted:#9fb1ae; --panel:#13201f; --line:#29403e; --bg:#091110; --ok:#66d19e; --work:#f3c96b; --stop:#ff887d; --cyan:#73c8d3; }
+    :root { color-scheme:dark; --ink:#e9f0ef; --muted:#9fb1ae; --panel:#13201f; --line:#29403e; --bg:#091110; --ok:#66d19e; --work:#f3c96b; --stop:#ff887d; --cyan:#73c8d3; }
     * { box-sizing:border-box; }
-    body { margin:0; background:radial-gradient(circle at 80% -10%,#183b38 0,transparent 36rem),var(--bg); color:var(--ink); font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    body { margin:0; background:radial-gradient(circle at 80% -10%,#183b38 0,transparent 36rem),var(--bg); color:var(--ink); font:15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif; }
     main { max-width:1180px; margin:auto; padding:42px 28px 64px; }
-    header { display:grid; grid-template-columns:1fr auto; gap:28px; align-items:end; padding-bottom:28px; border-bottom:1px solid var(--line); }
-    h1 { margin:0; font-size:clamp(34px,5vw,64px); line-height:1; letter-spacing:-.045em; max-width:780px; }
+    header { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:28px; align-items:end; padding-bottom:28px; border-bottom:1px solid var(--line); }
+    h1 { margin:0; font-size:clamp(34px,5vw,64px); line-height:1.02; letter-spacing:-.045em; max-width:820px; }
     h2 { margin:36px 0 14px; font-size:22px; }
-    p { max-width:82ch; }
+    h3 { margin:0 0 8px; font-size:18px; }
+    p { max-width:86ch; }
+    a { color:#9ee5ec; text-underline-offset:3px; }
+    a:focus-visible { outline:3px solid var(--cyan); outline-offset:3px; border-radius:3px; }
     .eyebrow { color:var(--cyan); text-transform:uppercase; letter-spacing:.14em; font-weight:750; font-size:12px; margin-bottom:12px; }
     .stamp { text-align:right; color:var(--muted); white-space:nowrap; }
-    .headline { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:28px 0; }
-    .metric,.card { background:linear-gradient(145deg,#152523,#101b1a); border:1px solid var(--line); border-radius:14px; padding:18px; }
+    .headline { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:28px 0; }
+    .metric,.card,.notice { background:linear-gradient(145deg,#152523,#101b1a); border:1px solid var(--line); border-radius:14px; padding:18px; }
     .metric b { display:block; font-size:23px; margin-top:4px; }
     .label { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.1em; }
     .ok { color:var(--ok); } .work { color:var(--work); } .stop { color:var(--stop); }
-    .track { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; margin:18px 0 30px; }
-    .step { min-height:132px; border-top:4px solid var(--line); padding:14px 12px; background:#101a19; }
+    .notice { border-left:5px solid var(--stop); margin:20px 0; }
+    .track { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; margin:18px 0 30px; }
+    .step { min-height:145px; border-top:4px solid var(--line); padding:14px 12px; background:#101a19; }
     .step.done { border-color:var(--ok); } .step.active { border-color:var(--work); } .step.closed { border-color:var(--stop); }
     .step strong { display:block; margin:5px 0 7px; }
     .step small { color:var(--muted); }
-    .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-    ul,ol { padding-left:22px; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+    ul { padding-left:22px; }
     li { margin:.45em 0; }
-    code { color:#b8e3dc; }
-    table { width:100%; border-collapse:collapse; background:#0f1918; }
+    code { color:#b8e3dc; overflow-wrap:anywhere; }
+    .table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:10px; }
+    table { width:100%; border-collapse:collapse; background:#0f1918; min-width:760px; }
     th,td { text-align:left; vertical-align:top; border-bottom:1px solid var(--line); padding:12px; }
     th { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
-    a { color:#9ee5ec; }
     .route { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:15px 0; }
     .route span { padding:9px 12px; border:1px solid var(--line); border-radius:999px; background:#10201e; }
     .route i { color:var(--muted); font-style:normal; }
     footer { margin-top:42px; color:var(--muted); border-top:1px solid var(--line); padding-top:20px; }
-    @media (max-width:900px) { .headline,.track { grid-template-columns:repeat(2,1fr); } .grid,header { grid-template-columns:1fr; } .stamp { text-align:left; } }
-    @media (max-width:560px) { main { padding:28px 16px; } .headline,.track { grid-template-columns:1fr; } }
+    @media (max-width:900px) { .headline,.track { grid-template-columns:repeat(2,minmax(0,1fr)); } .grid,header { grid-template-columns:1fr; } .stamp { text-align:left; } }
+    @media (max-width:560px) { main { padding:28px 16px 48px; } .headline,.track { grid-template-columns:1fr; } .step { min-height:0; } }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; animation-duration:.01ms !important; transition-duration:.01ms !important; } }
   </style>
 </head>
 <body>
 <main>
   <header>
-    <div><div class="eyebrow">CFD-Workbench · Windows GPU lane</div><h1>OpenFOAM GPU work is at the final packet-repair gate.</h1></div>
-    <div class="stamp">Snapshot<br><strong>12 Oct 2026 · Ruling 220</strong></div>
+    <div><div class="eyebrow">CFD-Workbench · Windows GPU lane</div><h1>OpenFOAM GPU qualification is blocked after R228 attempt 1.</h1></div>
+    <div class="stamp">Snapshot<br><strong>13 Oct 2026 UTC · Ruling 228</strong><br><span>Commit d6edbc63</span></div>
   </header>
 
   <section class="headline" aria-label="Key status">
     <div class="metric"><span class="label">CUDA capability</span><b class="ok">Proved</b><span>13.2 · RTX 3080 Ti</span></div>
-    <div class="metric"><span class="label">F1 design</span><b class="ok">Specified</b><span>PETSc + petsc4Foam</span></div>
-    <div class="metric"><span class="label">Current gate</span><b class="work">Repair active</b><span>P1 cleanup · P3 identity</span></div>
-    <div class="metric"><span class="label">Live F1 effects</span><b class="stop">Closed</b><span>No install, build, or case run</span></div>
+    <div class="metric"><span class="label">F1 design</span><b class="ok">Selected</b><span>PETSc-CUDA + petsc4Foam</span></div>
+    <div class="metric"><span class="label">R228 attempt 1</span><b class="stop">Stopped</b><span>39.334 s · 2 stages complete</span></div>
+    <div class="metric"><span class="label">GPU OpenFOAM benchmark</span><b class="work">Not run</b><span>No install, build, or case run</span></div>
   </section>
 
-  <h2>Delivery path</h2>
-  <div class="track">
-    <div class="step done"><span class="label">Complete</span><strong>Route inspection</strong><small>Installed v2512 does not prove whole-solver GPU use.</small></div>
-    <div class="step done"><span class="label">Complete</span><strong>CUDA B2</strong><small>135-package lock, SAXPY pass, rollback complete.</small></div>
-    <div class="step done"><span class="label">Complete</span><strong>F1 design</strong><small>Build route and three-arm benchmark frozen.</small></div>
-    <div class="step active"><span class="label">Now</span><strong>R220 repair</strong><small>One red-first P1/P3 cycle, then fresh Astra review.</small></div>
-    <div class="step closed"><span class="label">Closed</span><strong>Dependency preflight</strong><small>Unlocks only after packet ACCEPT and contract review.</small></div>
+  <aside class="notice" aria-label="Current blocker"><strong>Current blocker:</strong> the completed-guard event log was locked, then checkpoint binding failed because normalized text bytes differed. Cleanup was withheld. Target <code>cfdw-petsc-cuda132-f1</code>, GUID <code>{e874e10f-c7b9-4a2b-a03b-87ad52fb9c41}</code>, remains registered pending cleanup-only R229 preparation and authorization.</aside>
+
+  <h2>Qualification path</h2>
+  <div class="track" aria-label="Qualification stages">
+    <div class="step done"><span class="label">Complete</span><strong>Route inspection</strong><small>Installed v2512 does not establish whole-solver GPU offload.</small></div>
+    <div class="step done"><span class="label">Complete</span><strong>CUDA B2</strong><small>CUDA 13.2 SAXPY pass; disposable distro rolled back.</small></div>
+    <div class="step done"><span class="label">Selected</span><strong>F1 design</strong><small>PETSc-CUDA + petsc4Foam; three-arm benchmark defined.</small></div>
+    <div class="step closed"><span class="label">Stopped</span><strong>R228 attempt 1</strong><small>Probe and repositories completed; guard-event read failed.</small></div>
+    <div class="step active"><span class="label">Next gate</span><strong>Cleanup-only R229</strong><small>Prepare exact identity cleanup and prove absence.</small></div>
     <div class="step closed"><span class="label">Later ruling</span><strong>Build + benchmark</strong><small>Native GAMG vs PETSc CPU vs PETSc GPU.</small></div>
   </div>
 
@@ -69,45 +77,54 @@
     <article class="card">
       <h2>What is proved</h2>
       <ul>
-        <li>WSL can execute CUDA on the laptop GPU.</li>
-        <li>CUDA 13.2 installed from the exact accepted lock in a disposable distro.</li>
-        <li>Managed-memory SAXPY completed with zero mismatches.</li>
-        <li>The disposable distro was unregistered and <code>cfdw-openfoam2512</code> stayed unchanged.</li>
-        <li>PETSc 3.26.0 plus a pinned petsc4Foam commit is the selected F1 route.</li>
+        <li>WSL executes CUDA on the RTX 3080 Ti Laptop GPU.</li>
+        <li>Pinned CUDA 13.2 and managed-memory SAXPY passed with zero mismatches in B2.</li>
+        <li>B2's disposable distro was rolled back; the protected OpenFOAM distro remained unchanged.</li>
+        <li>F1 remains the selected PETSc-CUDA plus petsc4Foam route.</li>
+        <li>R228 attempt 1 completed probe and repository checks, then stopped; owned work and guard were stopped and an after-snapshot was captured.</li>
+        <li>The corrected <code>.gitattributes</code>/manifest control at <code>d6edbc63</code> is green across 17 manifests.</li>
       </ul>
     </article>
     <article class="card">
       <h2>What remains unknown</h2>
       <ul>
-        <li>The full signed F1 dependency transaction and per-package licence/size closure.</li>
+        <li>Whether the retained target is safely cleaned up; unregister was withheld.</li>
+        <li>F1 dependency closure and attempts 2 or 3; each needs a new ruling.</li>
         <li>Whether PETSc-CUDA and petsc4Foam build successfully against OpenFOAM 2512.</li>
         <li>Whether the selected case performs real solver work on the GPU.</li>
-        <li>Numerical equivalence and whether GPU is at least 1.20× faster than native GAMG.</li>
-        <li>How WSL managed-memory migration affects this real CFD workload.</li>
+        <li>Numerical equivalence, managed-memory effects, and speed-up against native GAMG.</li>
       </ul>
     </article>
   </div>
 
-  <h2>Ruling 220: the active repair</h2>
-  <table>
-    <thead><tr><th>Finding</th><th>Required control</th><th>Exit evidence</th></tr></thead>
-    <tbody>
-      <tr><td><strong>P1 · final cleanup reap</strong></td><td>A fresh bounded stop/reap runs in <code>finally</code> after every cleanup launch; nothing launches afterward.</td><td>Red-first deletion failure, then complete offline packet suite green.</td></tr>
-      <tr><td><strong>P3 · exact ownership</strong></td><td>Recorded PID/PGID plus exact argv token matching; never substring membership.</td><td>A planted <code>runA</code>/<code>runAB</code> collision selects and signals no foreign group.</td></tr>
-    </tbody>
-  </table>
-
-  <h2>What ACCEPT would unlock</h2>
-  <div class="route" aria-label="Future route">
-    <span>Fresh Astra ACCEPT</span><i>→</i><span>Reviewed environment contract</span><i>→</i><span>R217 dependency-only preflight</span><i>→</i><span>Evidence + cleanup</span><i>→</i><span>Later operator build ruling</span><i>→</i><span>Three-arm benchmark</span>
+  <h2>R228 attempt 1 record</h2>
+  <div class="table-wrap">
+    <table>
+      <caption class="label" style="text-align:left;padding:12px">Attempt outcome and next gate</caption>
+      <thead><tr><th scope="col">Item</th><th scope="col">Recorded result</th><th scope="col">Consequence</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Completed stages</th><td><code>probe</code>, <code>repositories</code></td><td>Attempt stopped after 39.334 seconds.</td></tr>
+        <tr><th scope="row">Initiating failure</th><td>Another process held <code>completed-guard-events.jsonl</code> without compatible sharing.</td><td>Attempt failed and stopped; no retry.</td></tr>
+        <tr><th scope="row">Checkpoint bind</th><td>Committed <code>invocation-contract.stdout.txt</code> differed from evidence after text normalization.</td><td>Checkpoint unproved; archive deletion and unregister withheld.</td></tr>
+        <tr><th scope="row">Target</th><td><code>cfdw-petsc-cuda132-f1</code><br><code>{e874e10f-c7b9-4a2b-a03b-87ad52fb9c41}</code></td><td>Still registered; exact cleanup-only R229 preparation and ruling are next.</td></tr>
+        <tr><th scope="row">Protected distro</th><td><code>cfdw-openfoam2512</code>, GUID <code>{b7566a82-9cee-47ce-a246-f83632353cea}</code></td><td>Exact reviewed identity and path were retained in the failure receipt.</td></tr>
+        <tr><th scope="row">R228 lease and renewal</th><td>874.305 s at activation; 851.647 s before WSL. Supervisor exit 0, empty stderr, renewal log retained.</td><td>Lease floor and renewal evidence are present.</td></tr>
+        <tr><th scope="row">Byte/manifest control</th><td>Corrected <code>.gitattributes</code> and manifest control passed across 17 manifests at <code>d6edbc63</code>.</td><td>Captured forms are protected; the failed checkpoint bind remains failed.</td></tr>
+      </tbody>
+    </table>
   </div>
-  <p>The R217 run may simulate the package transaction and download resolved <code>.deb</code> files only for hash, licence, and size inspection. It cannot install packages, fetch PETSc/petsc4Foam sources, compile, or run CFD.</p>
+
+  <h2>End-to-end route</h2>
+  <div class="route" aria-label="Remaining qualification route">
+    <span>B2 proved</span><i aria-hidden="true">→</i><span>F1 selected</span><i aria-hidden="true">→</i><span>R228 attempt stopped</span><i aria-hidden="true">→</i><span>Cleanup-only R229 preparation + ruling</span><i aria-hidden="true">→</i><span>Exact cleanup + absence proof</span><i aria-hidden="true">→</i><span>New ruling per remaining attempt</span><i aria-hidden="true">→</i><span>Dependency evidence</span><i aria-hidden="true">→</i><span>Build ruling</span><i aria-hidden="true">→</i><span>Three-arm benchmark</span>
+  </div>
+  <p>The preflight may simulate dependencies and download resolved <code>.deb</code> files for licence, hash, and size inspection. It does not authorize package installation, source acquisition, builds, CFD cases, benchmarks, or changes to the protected distro.</p>
 
   <h2>Coordination</h2>
-  <p>Mac Ruling 220 is merged into the Windows coordinator branch. The requested Windows readiness failure lines are posted to <a href="https://github.com/timianmalloo/CFD-Workbench/pull/33">GitHub PR #33</a>. Mac remains the repository leader; Windows owns this bounded repair and any later authorized machine execution.</p>
+  <p>PR #34 is the coordination handoff for R228 attempt 1 authorization and review. Ruling 228 at epoch 8 superseded unused Ruling 227 at epoch 7. The next machine action is exact-target cleanup under a cleanup-only R229 ruling; attempts 2 and 3 each need their own authorization. The receipt is <a href="../proof/win-gpu-f1-preflight/attempt-1/final/attempt-failure.md">attempt-failure.md</a>.</p>
 
   <footer>
-    <strong>Confidence:</strong> completed-stage claims are Verified from committed receipts and rulings. F1 dependency closure, build, solver offload, accuracy, and speed are Not recorded.<br>
+    <strong>Confidence:</strong> Verified: B2 capability and rollback, F1 route selection, R228 failure and completed stages, checkpoint-bind error, target registration, protected identity, lease/renewal evidence, and the 17-manifest control. Inferred: no incomplete dependency stage is treated as run. Flagged / not recorded: cleanup, remaining attempts, dependency closure, build, GPU solver use, accuracy, and speed-up. No GPU OpenFOAM benchmark has run.<br>
     Canonical source: <a href="openfoam-gpu-status-r220.md">openfoam-gpu-status-r220.md</a>
   </footer>
 </main>

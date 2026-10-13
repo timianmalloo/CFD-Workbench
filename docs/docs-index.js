@@ -5441,14 +5441,14 @@ window.DOCS_INDEX = {
     {
       "id": "coordination-openfoam-gpu-status-r220",
       "path": "docs/coordination/openfoam-gpu-status-r220.md",
-      "title": "OpenFOAM GPU work status at Ruling 220",
+      "title": "OpenFOAM GPU work status after Ruling 228",
       "type": "doc",
-      "status": "in-progress",
-      "owner": "@pc-gpu-status-r217-cont",
+      "status": "blocked",
+      "owner": "@pc-gpu-status-r228",
       "phase": "",
-      "reviewBy": "2026-10-19",
+      "reviewBy": "2026-10-20",
       "reviewSuggested": [],
-      "summary": "CUDA capability and rollback are proved, the PETSc-CUDA plus petsc4Foam design and three-arm benchmark are specified, and Ruling 220 has opened one final P1/P3 repair before the dependency-only F1 preflight may run.",
+      "summary": "B2 CUDA capability remains proved and F1 design remains selected. R228 attempt 1 stopped during dependency preflight after probe and repository checks; checkpoint binding failed, exact target cleanup awaits a cleanup-only R229 ruling, and no install, source fetch, build, case run, or GPU OpenFOAM benchmark occurred.",
       "tags": [
         "coordination",
         "windows",
@@ -5457,7 +5457,7 @@ window.DOCS_INDEX = {
         "gpu",
         "cuda",
         "petsc",
-        "ruling-220"
+        "ruling-228"
       ],
       "links": [
         {
@@ -5477,6 +5477,10 @@ window.DOCS_INDEX = {
           "rel": "relates-to"
         },
         {
+          "to": "proof-win-gpu-f1-r228-attempt1-failure",
+          "rel": "depends-on"
+        },
+        {
           "to": "rulings",
           "rel": "depends-on"
         }
@@ -5485,10 +5489,10 @@ window.DOCS_INDEX = {
         {
           "kind": "flowchart",
           "title": "End-to-end route",
-          "mermaid": "flowchart LR\n  A[CUDA capability proved] --> B[F1 design and benchmark frozen]\n  B --> C[R220 P1/P3 repair]\n  C --> D{Fresh Astra review}\n  D -->|VETO| X[Stop F1; operator decides]\n  D -->|ACCEPT| E[Review real environment contract]\n  E --> F[R217 dependency-only preflight]\n  F --> G[Dependency and capacity evidence]\n  G --> H{Later operator build ruling}\n  H --> I[PETSc-CUDA plus petsc4Foam build]\n  I --> J[Native GAMG / PETSc CPU / PETSc GPU benchmark]\n  J --> K[Case-specific worth-it verdict]"
+          "mermaid": "flowchart LR\n  A[B2 CUDA capability proved] --> B[F1 design selected]\n  B --> C[R228 attempt 1: probe + repositories]\n  C --> D[Locked guard-event read; attempt stopped]\n  D --> E[Checkpoint bind failed; target remains registered]\n  E --> F[Cleanup-only R229 preparation and ruling]\n  F --> G[Exact target cleanup and absence proof]\n  G --> H[New ruling for each remaining preflight attempt]\n  H --> I[Dependency evidence and cleanup]\n  I --> J[Separate build ruling]\n  J --> K[PETSc-CUDA + petsc4Foam build]\n  K --> L[Native GAMG / PETSc CPU / PETSc GPU benchmark]\n  L --> M[Case-specific worth-it verdict]"
         }
       ],
-      "sourceSha256": "d1e91233b86190ea91d0f3a34713563be04b371aa5fae12b66db0dfba6c376df"
+      "sourceSha256": "4142cabc6afd51178ac25a8524bef9131ee6a20a93668460495c83977bc08944"
     },
     {
       "id": "defect-classes",
@@ -5554,7 +5558,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "bc2f9d8ed2906ad86ce236e00a5af36176f6f0c87636211769e041a392cf1435"
+      "sourceSha256": "db145205afb99973b665cb65233aa3967f824e723b95a713bf364aed5e491d2f"
     },
     {
       "id": "domain-experts",
@@ -22117,7 +22121,7 @@ window.DOCS_INDEX = {
     {
       "id": "surface-coordination-openfoam-gpu-status-r220",
       "path": "docs/coordination/openfoam-gpu-status-r220.html",
-      "title": "OpenFOAM GPU status — Ruling 220",
+      "title": "OpenFOAM GPU status — Ruling 228",
       "kind": "knowledge-tool",
       "description": "Open an interactive knowledge artifact.",
       "artifactId": "coordination-openfoam-gpu-status-r220"
@@ -22211,5 +22215,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "79b250636ceafdbd832a42a42410dfce1798e0caef85bf92bbdb5ca57971e17f"
+  "graphSha256": "2536fabeb613924c9be26652f5f5f042432268f86fed6fff250de379dcf6082e"
 };
