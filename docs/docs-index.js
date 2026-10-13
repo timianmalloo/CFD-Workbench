@@ -6409,6 +6409,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "8132d2550f28bbc7e8600d1a4216d50bc5c3da6d77a747afdc5f45259de9f5fa"
     },
     {
+      "id": "plan-windows-gpu-f1-r229-cleanup-review2",
+      "path": "docs/plans/windows-gpu-f1-r229-cleanup-review2.md",
+      "title": "Final independent R229 cleanup review plan",
+      "type": "doc",
+      "status": "complete",
+      "owner": "@pc-f1-r229-cleanup-review2",
+      "phase": "",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Repeat exact cycle-1 controls and required gates after the final citation repair.",
+      "tags": [
+        "review",
+        "cleanup",
+        "offline"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r229-cleanup-candidate",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-windows-gpu-f1-r229-cleanup-cycle2",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Diagram 1",
+          "mermaid": "flowchart LR\n  A --> B --> D\n  A --> C --> D"
+        }
+      ],
+      "sourceSha256": "01f48ffe05f0e413930a60bee3ae95a30080906edf94762ca01cc8973ac0ea0b"
+    },
+    {
       "id": "plan-windows-gpu-f1-recovery-integration",
       "path": "docs/plans/windows-gpu-f1-recovery-integration.md",
       "title": "F1 recovery and packet repair: offline integration graph",
@@ -9257,6 +9292,43 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "9c97341e926da4a63a3fbe4a14a6e8ca0a82310c24c4ace42b2bbe02e63eda7c"
+    },
+    {
+      "id": "review-windows-gpu-f1-r229-cleanup-cycle2",
+      "path": "docs/reviews/windows-gpu-f1-r229-cleanup-cycle2.md",
+      "title": "Independent ACCEPT of final R229 cleanup candidate",
+      "type": "doc",
+      "status": "accepted",
+      "owner": "@pc-f1-r229-cleanup-review2",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Independent offline acceptance of exact candidate e624ebce and source 0f478493 after both prior vetoes are cleared. No live authority follows.",
+      "tags": [
+        "windows",
+        "cleanup",
+        "independent-review"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r229-cleanup-candidate",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r228-attempt1-failure",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-windows-gpu-f1-r229-cleanup-review2",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "488e662bed408f4d1adb8de320e495711e2de3beeb4efaf87136850fae75de23"
     },
     {
       "id": "rulings",
@@ -22333,5 +22405,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "b7ddb53ccb7d6db2c54060757009f82173e3e5ad855348c33b0b8f60f9a240ba"
+  "graphSha256": "8c3e35ee8723e8e8bd3a4b2c7a8433fa3fb49262f32eb4545ec2d0e4d5587e71"
 };
