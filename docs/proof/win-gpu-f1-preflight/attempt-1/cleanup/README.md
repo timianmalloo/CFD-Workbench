@@ -44,3 +44,15 @@ py -3 docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/cleanup.py --authorizati
 ```
 
 Do not run that command from this proposed state.
+
+## Exact offline candidate
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Source commit | `eb1e0e64c5fcbc9a77ea10d8593e99e2912a0c1f` |
+| Payload | `05779548b652f380222357df515766629d3bd096d7526be95af4a8c2c259a5fa` |
+| Proposed authorization | `8cf8d84ab7049e681ae45670db78cd3662ffcb632a00a23a8c24387eff401de4` |
+| Accepted projection | `fd0b7f668844a730a2623eff7a798d8b7a5c217533a48fd3039fd9e1859193cd` |
+
+The exact owner request is
+`docs/notes/windows-gpu-f1-r229-cleanup-request.md`.

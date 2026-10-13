@@ -1,0 +1,27 @@
+{
+  "files": {
+    "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/cleanup.py": "9803961cd86bf4aff8f87da0ad4a0173df530e3717de02352e1acefcbe8c0a07",
+    "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/cleanup_owned_check.py": "6b1a9757dadd4fffb8525e8acad85cb10322cc801758840830eee50fe36fde6b",
+    "docs/proof/win-gpu-f1-preflight/attempt-1/final/attempt-failure.json": "f4ec8d08464805705fad06149be7abbec87d8f8878bb34a4895fd8f710407f12",
+    "docs/proof/win-gpu-f1-preflight/attempt-1/final/attempt-failure.md": "1efa5bb0c3cd536000e2476fab680f2e6142f89ea468e8793431d79521966c94",
+    "docs/proof/win-gpu-f1-preflight/attempt-1/final/capture-manifest.json": "7d89c6d6a4577deac44d507390a680b38f687f6eed6e784f7a577210086e72c6",
+    "docs/proof/win-gpu-f1-preflight/attempt-1/final/coordinator/host-registrations-after-failure.json": "124695ed32447072ccea37e609c96c79d975d058dfa77c958357db4b05f5530e",
+    "docs/proof/win-gpu-f1-preflight/attempt-1/final/created-target-identity.json": "3d42041e4786e204d7aa005c611ab5d075d345b349eab460a0a6ff3b0163502b",
+    "docs/proof/win-gpu-f1-preflight/packet/manifest.py": "1c6e8a3f0adb60d28e8767bef8b027bb63bfeb30014834b5dda75adfd9ff094c",
+    "docs/proof/win-gpu-f1-preflight/packet/owned_control.py": "e5b22233173f1af89f32c775077e3a565120fcb889ccfb87e7c4eec4e3e0c770",
+    "tests/test_f1_r228_cleanup.py": "5f590743025b379680aad5fbc206acc75bc46c223cc54f8d3341f77ae1cd8ed2"
+  },
+  "protected_identity": {
+    "key": "{b7566a82-9cee-47ce-a246-f83632353cea}",
+    "name": "cfdw-openfoam2512",
+    "path": "%USERPROFILE%\\AppData\\Local\\CFDWorkbench\\qualification\\wsl\\cfdw-openfoam2512",
+    "version": 2
+  },
+  "schema": "cfdw-f1-r229-cleanup-payload/1",
+  "source_commit": "eb1e0e64c5fcbc9a77ea10d8593e99e2912a0c1f",
+  "target_identity": {
+    "key": "{e874e10f-c7b9-4a2b-a03b-87ad52fb9c41}",
+    "name": "cfdw-petsc-cuda132-f1",
+    "path": "C:\\Projects\\CFD-Workbench-wsl\\cfdw-petsc-cuda132-f1"
+  }
+}

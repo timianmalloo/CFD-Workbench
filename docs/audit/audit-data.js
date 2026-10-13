@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T01:51:52Z",
+  "generated": "2026-10-13T02:00:48Z",
   "audit": [
     {
       "actor": null,
@@ -37909,6 +37909,42 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M4SFVBP9Q5QTF6NK5P4X6SYE",
+      "shortname": "optimize-graph-windows-gpu-f1-r229-cleanup",
+      "datetime": "2026-10-13T02:00:48Z",
+      "session": "pc-f1-r228-cleanup-author",
+      "prompt": "Prepare and commit/push an offline-only, hash-bound cleanup candidate for the exact R228 residual target; include exact identity, owned-process refusal, lifecycle, absence, protected-invariance, evidence, authorization, tests, audit/index and R229 request controls; perform no live WSL action.",
+      "summary": "7-node serial graph executed; 5 author nodes complete, width 1, all floors present, all loops bounded; one pre-review rework pass added complete failure-manifest verification; 61 offline tests and documentation/privacy/graph gates passed.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/plans/windows-gpu-f1-r229-cleanup.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Build and push the R228 cleanup-only recovery candidate.",
+      "done_when": "The isolated branch contains a committed and pushed, offline-tested, hash-bound candidate plus the R229 request.",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-10-13T01:51:51Z",
+      "duration_seconds": 537.0,
+      "git": {
+        "sha": "eb1e0e64c5fcbc9a77ea10d8593e99e2912a0c1f",
+        "short": "eb1e0e64c",
+        "branch": "win/gpu-f1-r228-cleanup",
+        "pushed": null
+      }
     }
   ],
   "changes": [

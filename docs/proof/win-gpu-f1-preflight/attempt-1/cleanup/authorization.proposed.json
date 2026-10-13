@@ -1,0 +1,38 @@
+{
+  "allowed_actions": [
+    "precheck",
+    "owned-process-refusal",
+    "terminate-target",
+    "unregister-target",
+    "prove-absence",
+    "freeze-and-commit-evidence"
+  ],
+  "branch": "win/gpu-f1-r228-cleanup",
+  "deadline_seconds": 600,
+  "forbidden_actions": [
+    "resume-preflight",
+    "download",
+    "install",
+    "source-fetch",
+    "build",
+    "run-case",
+    "benchmark",
+    "manual-host-path-delete"
+  ],
+  "leader": "mac",
+  "leader_epoch": 8,
+  "original_run_id": "r225-attempt1-epoch8-20261012",
+  "payload_sha256": "05779548b652f380222357df515766629d3bd096d7526be95af4a8c2c259a5fa",
+  "protected": "cfdw-openfoam2512",
+  "protected_key": "{b7566a82-9cee-47ce-a246-f83632353cea}",
+  "protected_path": "%USERPROFILE%\\AppData\\Local\\CFDWorkbench\\qualification\\wsl\\cfdw-openfoam2512",
+  "protected_version": 2,
+  "ruling": null,
+  "schema": "cfdw-f1-r229-cleanup-authorization/1",
+  "session": "pc-f1-r229-cleanup1",
+  "source_commit": "eb1e0e64c5fcbc9a77ea10d8593e99e2912a0c1f",
+  "status": "proposed",
+  "target": "cfdw-petsc-cuda132-f1",
+  "target_key": "{e874e10f-c7b9-4a2b-a03b-87ad52fb9c41}",
+  "target_path": "C:\\Projects\\CFD-Workbench-wsl\\cfdw-petsc-cuda132-f1"
+}

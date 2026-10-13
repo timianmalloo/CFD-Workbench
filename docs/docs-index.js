@@ -2016,6 +2016,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "01e2b004faa986192877d894064116edcfacce57c9e4214af40f3c5182c6058f"
     },
     {
+      "id": "note-windows-gpu-f1-r229-cleanup-request",
+      "path": "docs/notes/windows-gpu-f1-r229-cleanup-request.md",
+      "title": "Request for R229 cleanup-only authority",
+      "type": "decision-note",
+      "status": "proposed",
+      "owner": "@pc-f1-r228-cleanup-author",
+      "phase": "preflight",
+      "reviewBy": "2026-10-13",
+      "reviewSuggested": [],
+      "summary": "Exact R229 request for one cleanup-only action against the target left by the failed R228 attempt. This request and its projection grant no live authority.",
+      "tags": [
+        "windows",
+        "wsl",
+        "cleanup",
+        "ruling-request"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r229-cleanup-candidate",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r228-attempt1-failure",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1269bd66d2036282976339651ef1e1ae83eb473b11bf7e6f7a2f499d6210c865"
+    },
+    {
       "id": "property-grid-rulings",
       "path": "docs/notes/property-grid-rulings.md",
       "title": "Property grid — operator rulings on precision, field nudge, scrubbing, build order and labels",
@@ -6376,7 +6406,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  G1 --> G2 --> G3 --> G4 --> G5 --> G6 --> G7"
         }
       ],
-      "sourceSha256": "29ea82effe398332d4355ba0db860abd7a8e758148ac03fc21d9e149f2b40fd7"
+      "sourceSha256": "b24d6a8dbf8621d48a47be6c57dc41fce0a3a15cbb4d5c6c27a8eff1ba71ae54"
     },
     {
       "id": "plan-windows-gpu-f1-recovery-integration",
@@ -18975,7 +19005,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c9dcf3d981b612bcafd2e2e6c84a5a98b22fee24c5112cb2c1406a7ec3c8efed"
+      "sourceSha256": "335cd76cfd26f30ba68b9ad0fe7ec6a71c4839332c470b48c751d27262df9e39"
     },
     {
       "id": "proof-win-gpu-f1-r229-cleanup-red-first",
@@ -22303,5 +22333,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "502cb7b7099dd10d923b48b3bf81cd617de89bd99d8b5bab852a587821a20975"
+  "graphSha256": "f2f951b6c3ad068eedd36afc50f90fbedeb4642f4fda570e10b0a6a6b7250ea1"
 };

@@ -67,6 +67,9 @@ review vetoes a binding, or Mac/Fable changes the permitted cleanup scope.
 
 # Planned versus actual
 
-Actual node count, duration, rework passes and gate results are recorded after
-the candidate is complete. Token usage is not exposed by the runner. No
-concurrency was used and no WSL process was launched during authoring.
+All five author nodes ran serially as planned. The source pass found one missing
+full-corpus manifest check before payload freeze; it was repaired before review,
+for one rework pass and no repair-cap event. The final focused union contains 61
+tests. Token usage is not exposed by the runner. No concurrency was used and no
+WSL process was launched during authoring. Final gate durations and outcomes are
+recorded in the closing audit entry and author handoff.
