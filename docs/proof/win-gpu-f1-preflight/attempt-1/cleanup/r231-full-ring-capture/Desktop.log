@@ -1,0 +1,1865 @@
+STAGE SelfLaunchTests elapsed_ms=1687
+SelfLaunchTests: all 11 cases passed.
+STAGE native-review-options elapsed_ms=2283
+FAIL Save_ExistingFile_DefiniteCreateOnlyConflict Exception: Expected definite create-only save conflict; actual DOC-UNSUPPORTED-PERSISTENCE
+STACK Save_ExistingFile_DefiniteCreateOnlyConflict System.Exception: Expected definite create-only save conflict; actual DOC-UNSUPPORTED-PERSISTENCE |    at Program.<>c__DisplayClass0_0.<<Main>$>b__9() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 321 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Save_ExistingFile_DefiniteCreateOnlyConflict 11.4
+FAIL Recovery_SaveReopenResume_KeepsDraftSeparateFromAccepted ContractError: DOC-UNSUPPORTED-PERSISTENCE
+STACK Recovery_SaveReopenResume_KeepsDraftSeparateFromAccepted CfdWorkbench.Core.ContractError: DOC-UNSUPPORTED-PERSISTENCE |    at CfdWorkbench.Desktop.WorkbenchController.OpenPathAsync(String path, CancellationToken cancellation) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Desktop\WorkbenchController.cs:line 2887 |    at Program.<<Main>$>g__RecoverySaveReopenResumeAsync|0_11() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 371 |    at Program.<>c.<<Main>$>b__0_10() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 361 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Recovery_SaveReopenResume_KeepsDraftSeparateFromAccepted 17.8
+Desktop Example, bounded preview, cancel, apply, undo and redo passed.
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+THEME-RESOURCE Light/CanvasBrush=#FFF0F2F1
+THEME-RESOURCE Dark/CanvasBrush=#FF172326
+THEME-RESOURCE HighContrast/CanvasBrush=#FF000000
+THEME-RESOURCE Light/SurfaceBrush=#FFFBFCFB
+THEME-RESOURCE Dark/SurfaceBrush=#FF1E2D31
+THEME-RESOURCE HighContrast/SurfaceBrush=#FF000000
+THEME-RESOURCE Light/SurfaceSoftBrush=#FFE8EDEB
+THEME-RESOURCE Dark/SurfaceSoftBrush=#FF2A3D40
+THEME-RESOURCE HighContrast/SurfaceSoftBrush=#FF000000
+THEME-RESOURCE Light/InkBrush=#FF1B2929
+THEME-RESOURCE Dark/InkBrush=#FFEBF3F0
+THEME-RESOURCE HighContrast/InkBrush=#FFFFFFFF
+THEME-RESOURCE Light/MutedBrush=#FF526362
+THEME-RESOURCE Dark/MutedBrush=#FFB2C4BF
+THEME-RESOURCE HighContrast/MutedBrush=#FFFFFFFF
+THEME-RESOURCE Light/LineBrush=#FFC9D3CF
+THEME-RESOURCE Dark/LineBrush=#FF49605B
+THEME-RESOURCE HighContrast/LineBrush=#FFFFFFFF
+THEME-RESOURCE Light/PrimaryBrush=#FF006C67
+THEME-RESOURCE Dark/PrimaryBrush=#FF88D8C6
+THEME-RESOURCE HighContrast/PrimaryBrush=#FFFFEE58
+THEME-RESOURCE Light/OnPrimaryBrush=#FFFFFFFF
+THEME-RESOURCE Dark/OnPrimaryBrush=#FF172326
+THEME-RESOURCE HighContrast/OnPrimaryBrush=#FF000000
+THEME-RESOURCE Light/DangerBrush=#FFA92E37
+THEME-RESOURCE Dark/DangerBrush=#FFFFAEB5
+THEME-RESOURCE HighContrast/DangerBrush=#FFFFEE58
+THEME-RESOURCE Light/ViewportBrush=#FF17272C
+THEME-RESOURCE Dark/ViewportBrush=#FF17272C
+THEME-RESOURCE HighContrast/ViewportBrush=#FF000000
+THEME-RESOURCE Light/ViewportGridBrush=#FF344B50
+THEME-RESOURCE Dark/ViewportGridBrush=#FF344B50
+THEME-RESOURCE HighContrast/ViewportGridBrush=#FFFFFFFF
+THEME-RESOURCE Light/ViewportInkBrush=#FFEDF4F2
+THEME-RESOURCE Dark/ViewportInkBrush=#FFEDF4F2
+THEME-RESOURCE HighContrast/ViewportInkBrush=#FFFFFFFF
+THEME-RESOURCE Light/FoilBrush=#FF85C9C4
+THEME-RESOURCE Dark/FoilBrush=#FF85C9C4
+THEME-RESOURCE HighContrast/FoilBrush=#FFFFEE58
+THEME-RESOURCE Light/StationBrush=#FF66DDC8
+THEME-RESOURCE Dark/StationBrush=#FF66DDC8
+THEME-RESOURCE HighContrast/StationBrush=#FF00FFFF
+THEME-FOCUS-RESOURCE Light/SystemControlFocusVisualPrimaryBrush=#FF006C67
+THEME-FOCUS-RESOURCE Dark/SystemControlFocusVisualPrimaryBrush=#FF88D8C6
+THEME-FOCUS-RESOURCE HighContrast/SystemControlFocusVisualPrimaryBrush=#FFFFEE58
+THEME-FOCUS-RESOURCE Light/SystemControlFocusVisualSecondaryBrush=#FF1B2929
+THEME-FOCUS-RESOURCE Dark/SystemControlFocusVisualSecondaryBrush=#FFEBF3F0
+THEME-FOCUS-RESOURCE HighContrast/SystemControlFocusVisualSecondaryBrush=#FFFFFFFF
+THEME-SHADOW-MUTATION refused Dark/SurfaceBrush
+THEME-RESOURCE-CHECK loaded-XAML Light/Dark/HighContrast 42
+PASS StageLine_CarriesElapsedMs_KeepsPrefixAndName
+COST StageLine_CarriesElapsedMs_KeepsPrefixAndName 0.4
+PASS Spawn_PrintsOneSpawnStartPerMode_InStartOrder
+COST Spawn_PrintsOneSpawnStartPerMode_InStartOrder 5.9
+PASS Spawn_WindowModeWithoutScaleContext_Fails
+COST Spawn_WindowModeWithoutScaleContext_Fails 5.4
+PASS ScaleDiagnostic_PrintsOneScaleLine_NoCheckLines_ExitsZero
+COST ScaleDiagnostic_PrintsOneScaleLine_NoCheckLines_ExitsZero 1.1
+PASS TimeoutLine_NamesInFlightCheck_OrUnknownWithoutNote
+COST TimeoutLine_NamesInFlightCheck_OrUnknownWithoutNote 10.5
+STAGE SectionCanvasTests elapsed_ms=7918
+SectionCanvas: all 7 test cases passed.
+STAGE spawn elapsed_ms=8002
+SPAWN-START --section-editor --part=1/2 elapsed_ms=8002
+SPAWN-START --properties-view --part=1/2 elapsed_ms=8003
+SPAWN-START --shell-window --part=2/2 elapsed_ms=8003
+SPAWN-START --section-editor --part=2/2 elapsed_ms=8003
+SPAWN-START --properties-view --part=2/2 elapsed_ms=8003
+SPAWN-START --shell-window --part=1/2 elapsed_ms=67723
+SPAWN-START --plan-canvas --part=2/2 elapsed_ms=69599
+SPAWN-START --plan-canvas --part=1/2 elapsed_ms=81700
+SPAWN-START --controller-shell elapsed_ms=83523
+SPAWN-START --views --part=1/2 elapsed_ms=85341
+SPAWN-START --analysis elapsed_ms=121392
+SPAWN-START --views --part=2/2 elapsed_ms=122937
+SPAWN-START --properties-cells --part=2/2 elapsed_ms=130253
+SPAWN-START --properties-cells --part=1/2 elapsed_ms=158045
+SPAWN-START --status-strip --part=1/3 elapsed_ms=159707
+SPAWN-START --status-strip --part=2/3 elapsed_ms=159985
+SPAWN-START --status-strip --part=3/3 elapsed_ms=161596
+SPAWN-START --shell-model elapsed_ms=171362
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=section-editor RenderScaling=1.5 PrimaryScaling=1.5 WorkingArea=2560x1528 UseLayoutRounding=True
+PASS SaveRetry_StatusLines_Ruling158
+COST SaveRetry_StatusLines_Ruling158 2699.6
+PASS SectionMode_Crossing_FinishDisabledWithReason
+COST SectionMode_Crossing_FinishDisabledWithReason 1067.8
+PASS SectionMode_NotAssessed_FinishDisabledWithReason
+COST SectionMode_NotAssessed_FinishDisabledWithReason 882.3
+PASS SectionMode_StaleAssessment_Dropped
+COST SectionMode_StaleAssessment_Dropped 1326.2
+PASS LegacyProfileRecovery_ResumesSectionImmediately
+COST LegacyProfileRecovery_ResumesSectionImmediately 272.1
+PASS SectionMode_GestureEnd_AppendsStepNotAcceptedRow
+COST SectionMode_GestureEnd_AppendsStepNotAcceptedRow 895.1
+PASS SectionMode_UndoAtEntry_DocumentUndoDepthUnchanged
+COST SectionMode_UndoAtEntry_DocumentUndoDepthUnchanged 439.8
+PASS SectionMode_Cancel_ViewsBackStationSelected
+COST SectionMode_Cancel_ViewsBackStationSelected 838.4
+PASS SectionTelemetry_EnterEvent_CarriesOrigin
+COST SectionTelemetry_EnterEvent_CarriesOrigin 439.3
+PASS SectionMode_SaveWhileDrafting_AsksFinishOrCancelFirst
+COST SectionMode_SaveWhileDrafting_AsksFinishOrCancelFirst 487.0
+PASS SectionTelemetry_CancelledAssessment_SupersededNoDuration
+COST SectionTelemetry_CancelledAssessment_SupersededNoDuration 24.0
+PASS SectionMode_StepsWhileApplying_QueueInOrder
+COST SectionMode_StepsWhileApplying_QueueInOrder 1376.0
+MEASURE catalog.preview naca-4412 143 ms off-ui (design 140-240 under load, readiness target 50)
+PASS Controller_PreviewLatestWins_OlderDropped
+COST Controller_PreviewLatestWins_OlderDropped 869.0
+FAIL Controller_SaveMine_DraftDocumentUndoUnchanged ContractError: DOC-UNSUPPORTED-PERSISTENCE
+STACK Controller_SaveMine_DraftDocumentUndoUnchanged CfdWorkbench.Core.ContractError: DOC-UNSUPPORTED-PERSISTENCE |    at CfdWorkbench.Persistence.SectionLibrary.Save(String name, Byte[] profileBlockBytes, Provenance provenance) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Persistence\SectionLibrary.cs:line 96 |    at CfdWorkbench.Desktop.WorkbenchController.<>c__DisplayClass421_0.<SaveToMySectionsAsync>b__0() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Desktop\WorkbenchController.cs:line 1547 |    at System.Threading.Tasks.Task`1.InnerInvoke() |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) | --- End of stack trace from previous location --- |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) |    at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread) | --- End of stack trace from previous location --- |    at CfdWorkbench.Desktop.Tests.ControllerSectionTests.<>c.<Run>b__13_24() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ControllerSectionTests.cs:line 668 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Controller_SaveMine_DraftDocumentUndoUnchanged 600.6
+FAIL Controller_SaveMine_ListedAfterOpeningAnotherFoil ContractError: DOC-UNSUPPORTED-PERSISTENCE
+STACK Controller_SaveMine_ListedAfterOpeningAnotherFoil CfdWorkbench.Core.ContractError: DOC-UNSUPPORTED-PERSISTENCE |    at CfdWorkbench.Persistence.SectionLibrary.Save(String name, Byte[] profileBlockBytes, Provenance provenance) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Persistence\SectionLibrary.cs:line 96 |    at CfdWorkbench.Desktop.WorkbenchController.<>c__DisplayClass421_0.<SaveToMySectionsAsync>b__0() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Desktop\WorkbenchController.cs:line 1547 |    at System.Threading.Tasks.Task`1.InnerInvoke() |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) | --- End of stack trace from previous location --- |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) |    at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread) | --- End of stack trace from previous location --- |    at CfdWorkbench.Desktop.Tests.ControllerSectionTests.<>c.<Run>b__13_26() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ControllerSectionTests.cs:line 728 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Controller_SaveMine_ListedAfterOpeningAnotherFoil 542.6
+FAIL Commands_SectionMenu_ReplaceSaveImportRowsRun InvalidOperationException: Save to My sections did not write the named section
+STACK Commands_SectionMenu_ReplaceSaveImportRowsRun System.InvalidOperationException: Save to My sections did not write the named section |    at CfdWorkbench.Desktop.Tests.ControllerSectionTests.<>c.<Run>b__13_28() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ControllerSectionTests.cs:line 806 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Commands_SectionMenu_ReplaceSaveImportRowsRun 1561.5
+PASS Controller_SpacingRefusal_ClearsPreview
+COST Controller_SpacingRefusal_ClearsPreview 2039.1
+PASS Controller_StaleApply_RefusesDslStale
+COST Controller_StaleApply_RefusesDslStale 1494.1
+PASS Controller_PreviewChanged_OnUiThread
+COST Controller_PreviewChanged_OnUiThread 478.8
+PASS Controller_PreviewChangedThrow_ReleasesBusy
+COST Controller_PreviewChangedThrow_ReleasesBusy 452.2
+FAIL Controller_QuotedNameAndBraceProvenance_SaveReload ContractError: DOC-UNSUPPORTED-PERSISTENCE
+STACK Controller_QuotedNameAndBraceProvenance_SaveReload CfdWorkbench.Core.ContractError: DOC-UNSUPPORTED-PERSISTENCE |    at CfdWorkbench.Persistence.SectionLibrary.Save(String name, Byte[] profileBlockBytes, Provenance provenance) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Persistence\SectionLibrary.cs:line 96 |    at CfdWorkbench.Desktop.WorkbenchController.<>c__DisplayClass421_0.<SaveToMySectionsAsync>b__0() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Desktop\WorkbenchController.cs:line 1547 |    at System.Threading.Tasks.Task`1.InnerInvoke() |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) | --- End of stack trace from previous location --- |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) |    at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread) | --- End of stack trace from previous location --- |    at CfdWorkbench.Desktop.Tests.ControllerSectionTests.<>c.<Run>b__13_38() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ControllerSectionTests.cs:line 1027 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Controller_QuotedNameAndBraceProvenance_SaveReload 535.6
+PASS Controller_LastReplaceName_KeyedByProfile
+COST Controller_LastReplaceName_KeyedByProfile 1756.8
+PASS Controller_ProfileBlock_PublicWithoutDesktopGrant
+COST Controller_ProfileBlock_PublicWithoutDesktopGrant 1.2
+FAIL Controller_CatalogTelemetry_OmitsInapplicableFields ContractError: DOC-UNSUPPORTED-PERSISTENCE
+STACK Controller_CatalogTelemetry_OmitsInapplicableFields CfdWorkbench.Core.ContractError: DOC-UNSUPPORTED-PERSISTENCE |    at CfdWorkbench.Persistence.SectionLibrary.Save(String name, Byte[] profileBlockBytes, Provenance provenance) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Persistence\SectionLibrary.cs:line 96 |    at CfdWorkbench.Desktop.WorkbenchController.<>c__DisplayClass421_0.<SaveToMySectionsAsync>b__0() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Desktop\WorkbenchController.cs:line 1547 |    at System.Threading.Tasks.Task`1.InnerInvoke() |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) | --- End of stack trace from previous location --- |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) |    at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread) | --- End of stack trace from previous location --- |    at CfdWorkbench.Desktop.Tests.ControllerSectionTests.<>c.<Run>b__13_44() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ControllerSectionTests.cs:line 1183 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Controller_CatalogTelemetry_OmitsInapplicableFields 536.3
+PASS Controller_OpenSecondDocument_ClearsSharedReplaceName
+COST Controller_OpenSecondDocument_ClearsSharedReplaceName 1566.1
+PASS SectionEditor_ReturnOnSelectedStation_ModeShown
+COST SectionEditor_ReturnOnSelectedStation_ModeShown 1697.9
+PASS SectionEditor_StripThumbnails_OnePerStationCurrentMarked
+COST SectionEditor_StripThumbnails_OnePerStationCurrentMarked 340.4
+PASS SectionEditor_FocusedPoint_AccessibleNameSurfaceIndexTypeXY
+COST SectionEditor_FocusedPoint_AccessibleNameSurfaceIndexTypeXY 304.0
+PASS SectionEditor_NudgeRun_NoShellRefreshPerKey
+COST SectionEditor_NudgeRun_NoShellRefreshPerKey 867.1
+PASS SectionEditor_ThicknessX2_DrawingOnlyValuesUnchanged
+COST SectionEditor_ThicknessX2_DrawingOnlyValuesUnchanged 331.3
+PASS SectionEditor_Comb_TeethPointOutward
+COST SectionEditor_Comb_TeethPointOutward 441.7
+PASS SectionCanvas_DragUpperPoint_StepAppliedInController
+COST SectionCanvas_DragUpperPoint_StepAppliedInController 896.0
+PASS SectionEditor_DragMove_DrawsWithinOneFrame
+COST SectionEditor_DragMove_DrawsWithinOneFrame 999.2
+PASS SectionEditor_SlowAssessment_DrawFollowsPointer
+COST SectionEditor_SlowAssessment_DrawFollowsPointer 2122.8
+PASS ShellHost_SectionStep_RefreshesOnlyChangedPanes
+COST ShellHost_SectionStep_RefreshesOnlyChangedPanes 3394.6
+PASS SectionEditor_EscapeWithEdits_FocusCancelNothingDiscarded
+COST SectionEditor_EscapeWithEdits_FocusCancelNothingDiscarded 760.4
+PASS SectionEditor_Rendered_AnchorSquareControlCircleNamedDiamond
+COST SectionEditor_Rendered_AnchorSquareControlCircleNamedDiamond 976.7
+PASS SectionEditor_FitSelectionOnAnchor_HandlesAtLeast24PxApart
+COST SectionEditor_FitSelectionOnAnchor_HandlesAtLeast24PxApart 851.2
+PASS SectionEditor_FinishWhileBlocked_FocusesReason
+COST SectionEditor_FinishWhileBlocked_FocusesReason 751.4
+PASS SectionEditor_ReturnToX_TabToType
+COST SectionEditor_ReturnToX_TabToType 806.0
+PASS SectionEditor_Crossing_MarkerAndReasonRendered
+COST SectionEditor_Crossing_MarkerAndReasonRendered 1525.4
+PASS SectionEditor_SideDoubleClickOnTip_OpensTip
+COST SectionEditor_SideDoubleClickOnTip_OpensTip 841.9
+PASS SectionEditor_FinishThenReenter_ViewsAndCanvasRedrawn
+COST SectionEditor_FinishThenReenter_ViewsAndCanvasRedrawn 1287.8
+PASS CatalogDialog_FamiliesGrouped_ListboxShape
+COST CatalogDialog_FamiliesGrouped_ListboxShape 730.0
+PASS CatalogDialog_TypingPause_AnnouncesCountOnce
+COST CatalogDialog_TypingPause_AnnouncesCountOnce 733.1
+PASS CatalogDialog_PendingRowEnter_NothingChanges
+COST CatalogDialog_PendingRowEnter_NothingChanges 572.8
+PASS CatalogDialog_Replace_FocusToSectionMenu
+COST CatalogDialog_Replace_FocusToSectionMenu 1238.5
+PASS CatalogDialog_SpacingRefusal_ReasonAndChainOffered
+COST CatalogDialog_SpacingRefusal_ReasonAndChainOffered 1238.5
+PASS CatalogDialog_CatalogUnavailable_ShowsCauseAndCancel
+COST CatalogDialog_CatalogUnavailable_ShowsCauseAndCancel 577.1
+PASS CatalogDialog_DoubleClickRow_Replaces
+COST CatalogDialog_DoubleClickRow_Replaces 1249.2
+PASS SaveDialog_Open_FocusInName
+COST SaveDialog_Open_FocusInName 581.1
+PASS SaveDialog_Escape_NothingSavedFocusToSectionMenu
+COST SaveDialog_Escape_NothingSavedFocusToSectionMenu 586.2
+PASS SectionCanvas_Preview_DashedAccentPixelsOverCurrent
+COST SectionCanvas_Preview_DashedAccentPixelsOverCurrent 1215.2
+PASS SourceChip_StationTcDiffers_SaysScaled
+COST SourceChip_StationTcDiffers_SaysScaled 1216.2
+PASS CatalogDialog_DamagedLibraryRow_DisabledWithReason
+COST CatalogDialog_DamagedLibraryRow_DisabledWithReason 644.8
+PASS Properties_StationSource_UsesProfileProvenance
+COST Properties_StationSource_UsesProfileProvenance 1048.5
+PASS Export_Copy_MatchesRegistry_Ids474To519
+COST Export_Copy_MatchesRegistry_Ids474To519 23.1
+PASS Export_Session_DefaultsSummaryAndFileName
+COST Export_Session_DefaultsSummaryAndFileName 554.3
+PASS Export_Blocked_GeometryNotAccepted_RefusesBeforeThePanel_H2
+COST Export_Blocked_GeometryNotAccepted_RefusesBeforeThePanel_H2 524.2
+PASS Export_Shell_FileExport_WritesFileAndStatusWithReveal
+COST Export_Shell_FileExport_WritesFileAndStatusWithReveal 623.7
+PASS Export_Cancel_AtThePanel_WritesNothingAndSaysSo_H8
+COST Export_Cancel_AtThePanel_WritesNothingAndSaysSo_H8 574.0
+PASS Export_Write_IntoOneDriveNamedFolder_NotRefused_Ruling194
+COST Export_Write_IntoOneDriveNamedFolder_NotRefused_Ruling194 518.1
+PASS Export_FileName_FromHostileNames_HasNoSeparatorOrDotDot
+COST Export_FileName_FromHostileNames_HasNoSeparatorOrDotDot 585.3
+PASS Export_Extension_ForcedToDat_NeverTheProjectFile
+COST Export_Extension_ForcedToDat_NeverTheProjectFile 542.4
+PASS Export_Analysis_AddsOneLine_ReadsTheSameRevision_H4
+COST Export_Analysis_AddsOneLine_ReadsTheSameRevision_H4 557.9
+PASS Export_Dialog_Keyboard_EnterExports_EscapeCancels_FocusOnExport
+COST Export_Dialog_Keyboard_EnterExports_EscapeCancels_FocusOnExport 1254.9
+PASS Export_Dialog_JumpSelectsStationAndOpensItsSection_H3
+COST Export_Dialog_JumpSelectsStationAndOpensItsSection_H3 945.5
+PASS ExportTelemetry_Dialog_WrittenDat_OneWriteEventOnTheSessionRing
+COST ExportTelemetry_Dialog_WrittenDat_OneWriteEventOnTheSessionRing 577.0
+PASS ExportTelemetry_Refused_GeometryAndClosure_OneValidateEventEach_NoWrite
+COST ExportTelemetry_Refused_GeometryAndClosure_OneValidateEventEach_NoWrite 462.6
+PASS ExportTelemetry_PickerCancel_NoEvent_WriteCancel_Cancelled
+COST ExportTelemetry_PickerCancel_NoEvent_WriteCancel_Cancelled 487.6
+PASS ExportStl_Session_PreparingThenReady_Rows_FileName_Fidelity
+COST ExportStl_Session_PreparingThenReady_Rows_FileName_Fidelity 685.1
+PASS ExportStl_Scope_Half_NameRowAndCount
+COST ExportStl_Scope_Half_NameRowAndCount 730.9
+PASS ExportStl_B7_LargeMeshLine_At500000And500001_UntitledFineWholeVsHalf
+COST ExportStl_B7_LargeMeshLine_At500000And500001_UntitledFineWholeVsHalf 2369.0
+PASS ExportStl_H7_ClosureRefused_NothingWritten_PanelNeverOpens
+COST ExportStl_H7_ClosureRefused_NothingWritten_PanelNeverOpens 458.3
+NOT ASSESSED file-link (Windows: creating a file link needs a privilege; enable Developer Mode)
+PASS ExportStl_Write_ForcedStl_NeverProjectFile_SymlinkRefused_NoTemp
+COST ExportStl_Write_ForcedStl_NeverProjectFile_SymlinkRefused_NoTemp 582.7
+PASS ExportStl_Shell_FileExport_WritesBytesAndStatusLine
+COST ExportStl_Shell_FileExport_WritesBytesAndStatusLine 578.9
+PASS ExportStl_Dialog_Options_Preparing_Ready_LargeBand_Closure
+COST ExportStl_Dialog_Options_Preparing_Ready_LargeBand_Closure 2400.1
+PASS ExportThreeMf_Session_PreparingThenReady_Rows_FileName_MatchTheStl
+COST ExportThreeMf_Session_PreparingThenReady_Rows_FileName_MatchTheStl 786.8
+PASS ExportThreeMf_Write_ForcedExtension_ClosedPackage_StatusLine_CancelledLeavesNoTemp
+COST ExportThreeMf_Write_ForcedExtension_ClosedPackage_StatusLine_CancelledLeavesNoTemp 563.6
+PASS ExportThreeMf_Dialog_FormatRow_SharedOptions_Ready_PickerName
+COST ExportThreeMf_Dialog_FormatRow_SharedOptions_Ready_PickerName 963.3
+PARTITION 1/2 of 160 checks
+SUITE --section-editor --part=1/2 exit 1
+SUITE-TIME --section-editor --part=1/2 75.5 s
+FAIL --section-editor --part=1/2 exited 1
+SCALE_CONTEXT mode=properties-view RenderScaling=1.5 PrimaryScaling=1.5 WorkingArea=2560x1528 UseLayoutRounding=True
+PASS Properties_LeftSidebarHiddenAndShown_PaneOnScreen_Toggle
+COST Properties_LeftSidebarHiddenAndShown_PaneOnScreen_Toggle 3448.8
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+PASS Points_RightSidebarHiddenAndShown_PaneOnScreen
+COST Points_RightSidebarHiddenAndShown_PaneOnScreen 2795.5
+PASS Properties_SectionPoint_TypeXYRowsInPercentChord
+COST Properties_SectionPoint_TypeXYRowsInPercentChord 2398.9
+PASS Properties_SectionGroup_OwnTcAndPerStationTcConsequence
+COST Properties_SectionGroup_OwnTcAndPerStationTcConsequence 3093.4
+PASS PropertiesView_EveryQuantityRow_HasUnitOrIsDimensionless
+COST PropertiesView_EveryQuantityRow_HasUnitOrIsDimensionless 963.6
+PASS PropertiesView_AngleField_AcceptsDegreeExpression
+COST PropertiesView_AngleField_AcceptsDegreeExpression 6.5
+PASS PropertiesView_HandleSelection_OwnIdentity_ParentTangentRow
+COST PropertiesView_HandleSelection_OwnIdentity_ParentTangentRow 764.3
+PASS PropertiesView_OneNonFiniteEstimate_OthersStillShown
+COST PropertiesView_OneNonFiniteEstimate_OthersStillShown 570.0
+PASS Fact_And_Estimate_NameHasUnit
+COST Fact_And_Estimate_NameHasUnit 884.8
+PASS PropertiesPane_EstimatesUnavailable_ShowReasonNeverDash
+COST PropertiesPane_EstimatesUnavailable_ShowReasonNeverDash 1143.2
+PASS PropertiesPane_Rows_ShareOneLabelColumn
+COST PropertiesPane_Rows_ShareOneLabelColumn 1658.8
+PASS PropertiesPane_Wing_AlwaysFullyVisibleAt1280x800_300
+COST PropertiesPane_Wing_AlwaysFullyVisibleAt1280x800_300 2025.9
+PASS PropertiesPane_Tangent_SelectedKindExposed
+COST PropertiesPane_Tangent_SelectedKindExposed 1617.5
+PASS PropertiesPane_KindBox_ArrowWhileClosed_IsPending_OneUndoRowPerIntent
+COST PropertiesPane_KindBox_ArrowWhileClosed_IsPending_OneUndoRowPerIntent 2682.2
+PASS Shell_ReturnInProperties_ReachesTheFocusedControl
+COST Shell_ReturnInProperties_ReachesTheFocusedControl 2674.1
+PASS PropertiesPane_StatusLine_SelectedAndKindReport
+COST PropertiesPane_StatusLine_SelectedAndKindReport 2762.0
+PASS TypeCombo_ArrowWhileClosed_DoesNotCommit
+COST TypeCombo_ArrowWhileClosed_DoesNotCommit 2353.3
+PASS PropertiesPane_FactRow_NotFocusable_NamedContainer_CopyCommand
+COST PropertiesPane_FactRow_NotFocusable_NamedContainer_CopyCommand 1298.4
+PASS Expander_FocusedHeader_ExposesNameAndExpandedState
+COST Expander_FocusedHeader_ExposesNameAndExpandedState 1620.5
+PASS PropertiesPane_KeyboardWalk_NoTrap_KindBoxOneStop
+COST PropertiesPane_KeyboardWalk_NoTrap_KindBoxOneStop 2342.0
+PASS PropertiesPane_FieldNudge_IgnoredWhileTextDirty
+COST PropertiesPane_FieldNudge_IgnoredWhileTextDirty 1909.2
+PASS FieldNudge_KeyUp_AnnouncesValueOnceInStatus
+COST FieldNudge_KeyUp_AnnouncesValueOnceInStatus 1922.7
+PASS FieldNudge_OffOnWindows_UntilNarratorPass
+COST FieldNudge_OffOnWindows_UntilNarratorPass 1235.0
+PASS StatusStrip_KindChange_ReportInStrip_NotInRow
+COST StatusStrip_KindChange_ReportInStrip_NotInRow 2273.4
+PASS StatusStrip_FieldError_StaysAtField_StripUnchanged
+COST StatusStrip_FieldError_StaysAtField_StripUnchanged 1549.7
+PASS Properties_ChannelPoints_SpanAndValueRowsPerUnitTable
+COST Properties_ChannelPoints_SpanAndValueRowsPerUnitTable 524.8
+PASS Properties_TypedTwistExpression_DegreesEchoed
+COST Properties_TypedTwistExpression_DegreesEchoed 1932.6
+PASS PropertiesView_TypedTwistBeyondDomain_ClampedEchoWarns
+COST PropertiesView_TypedTwistBeyondDomain_ClampedEchoWarns 1949.0
+PASS WingBlock_DuringThicknessDrag_MaxTcChangesBeforeRelease
+COST WingBlock_DuringThicknessDrag_MaxTcChangesBeforeRelease 1876.0
+PASS Copy_M12b2Outcomes_ExactStrings
+COST Copy_M12b2Outcomes_ExactStrings 3.2
+PASS Menu_ViewsLayouts_RadioCheckedMatchesLayout
+COST Menu_ViewsLayouts_RadioCheckedMatchesLayout 1750.3
+PASS Menu_CameraPresets_ApplyTo3dView
+COST Menu_CameraPresets_ApplyTo3dView 1595.7
+PASS Menu_FitSelection_FitsSelectedStation
+COST Menu_FitSelection_FitsSelectedStation 1746.5
+PASS ContextMenu_TwistPointMakeAnchor_SameEffectAsProperties
+COST ContextMenu_TwistPointMakeAnchor_SameEffectAsProperties 2886.0
+PARTITION 1/2 of 68 checks
+SUITE --properties-view --part=1/2 exit 0
+SUITE-TIME --properties-view --part=1/2 61.6 s
+SCALE_CONTEXT mode=shell-window RenderScaling=1.5 PrimaryScaling=1.5 WorkingArea=2560x1528 UseLayoutRounding=True
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+PASS Shell_F1_NoSidebarHeaderBand
+COST Shell_F1_NoSidebarHeaderBand 1215.1
+PASS Shell_F3_Properties_OneTopTabLabel
+COST Shell_F3_Properties_OneTopTabLabel 290.6
+NATIVE-STARTUP window-opened
+PASS Shell_F5_Start_FirstCardFocusedWithRing
+COST Shell_F5_Start_FirstCardFocusedWithRing 368.2
+PASS App_ReviewMode_UsesDockShellAndExactTitle
+COST App_ReviewMode_UsesDockShellAndExactTitle 36.4
+PASS NativeMenu_Application_AboutOnly
+COST NativeMenu_Application_AboutOnly 0.8
+FAIL Recent_OpenedOutcome_AppendsPath InvalidOperationException: D2 Opened did not add the file to P1 recent rows
+STACK Recent_OpenedOutcome_AppendsPath System.InvalidOperationException: D2 Opened did not add the file to P1 recent rows |    at CfdWorkbench.Desktop.Tests.ShellWindowTests.<>c.<Run>b__2_11() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ShellWindowTests.cs:line 911 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Recent_OpenedOutcome_AppendsPath 8648.9
+PASS NativeMenu_MainWindow_BuiltFromTable
+COST NativeMenu_MainWindow_BuiltFromTable 9.6
+PASS KeyBindings_MenuGesture_BoundOnceWhenBuiltTheWindowsWay
+COST KeyBindings_MenuGesture_BoundOnceWhenBuiltTheWindowsWay 37.8
+PASS Unhandled_Exception_StderrHasNoMarkerPath
+COST Unhandled_Exception_StderrHasNoMarkerPath 112.6
+FAIL Telemetry_MarkerInjection_AbsentEverywhere InvalidOperationException: Marker probe did not record the file in Recent
+STACK Telemetry_MarkerInjection_AbsentEverywhere System.InvalidOperationException: Marker probe did not record the file in Recent |    at CfdWorkbench.Desktop.Tests.ShellWindowTests.<>c.<Run>b__2_19() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ShellWindowTests.cs:line 1092 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Telemetry_MarkerInjection_AbsentEverywhere 9318.7
+PASS Palette_Keyboard_FiltersAndRuns
+COST Palette_Keyboard_FiltersAndRuns 188.0
+PASS Review_Persona_FocusesShellRegion
+COST Review_Persona_FocusesShellRegion 1292.6
+PASS ModelArea_SamplesTabRetired_NoReferencesRemain
+COST ModelArea_SamplesTabRetired_NoReferencesRemain 65.9
+PASS Browser_AcceptedIdentity_KeepsOrReplacesRows
+COST Browser_AcceptedIdentity_KeepsOrReplacesRows 1.1
+PASS F6_RegionEntry_FocusesSelectedTabOrRow
+COST F6_RegionEntry_FocusesSelectedTabOrRow 1137.8
+PASS EditVerb_UndoInSpanField_EditsText
+COST EditVerb_UndoInSpanField_EditsText 1016.1
+PASS Start_NewFoil_FocusModelArea
+COST Start_NewFoil_FocusModelArea 922.5
+PASS Open_IdCandidate_AcceptThroughShell_Opens
+COST Open_IdCandidate_AcceptThroughShell_Opens 1124.6
+PASS Open_NeedsIds_ReturnsToOriginWithAlert
+COST Open_NeedsIds_ReturnsToOriginWithAlert 1237.8
+PASS Focus_WindowPanesShow_PaneTab
+COST Focus_WindowPanesShow_PaneTab 1244.3
+PASS Focus_CloseLastPane_DockToggle
+COST Focus_CloseLastPane_DockToggle 1156.0
+PASS Focus_MenuTab_ClosesMenuReturns
+COST Focus_MenuTab_ClosesMenuReturns 1368.8
+PASS Focus_MoveTo_StaysOnMovedTab
+COST Focus_MoveTo_StaysOnMovedTab 1286.7
+PASS Focus_SpanInvalid_StaysInFieldWithAlert
+COST Focus_SpanInvalid_StaysInFieldWithAlert 1245.4
+PASS Focus_BrowserEnter_StaysOnRowSelectsStation
+COST Focus_BrowserEnter_StaysOnRowSelectsStation 1112.8
+PASS SectionCanvas_FocusVertex_RaisesFocusedTargetChanged
+COST SectionCanvas_FocusVertex_RaisesFocusedTargetChanged 8.7
+PASS Start_OpeningCancel_FocusReturnsToCard
+COST Start_OpeningCancel_FocusReturnsToCard 41.2
+PASS Start_CancelFromRecent_FocusesOriginRow
+COST Start_CancelFromRecent_FocusesOriginRow 42.8
+PASS Span_Invalid_AnnouncedAndTabCanLeave
+COST Span_Invalid_AnnouncedAndTabCanLeave 657.8
+PASS Copy_OpenFailures_MatchesDesignRows
+COST Copy_OpenFailures_MatchesDesignRows 6.6
+PASS Copy_CancelOpening_ShowsStatus
+COST Copy_CancelOpening_ShowsStatus 30.1
+PASS Copy_BrowserEmpty_SingleRendering
+COST Copy_BrowserEmpty_SingleRendering 1.7
+PASS Copy_SpanErrors_MatchDesignRows
+COST Copy_SpanErrors_MatchDesignRows 517.9
+PASS Copy_SpanNotAssessed_MatchesDesignRow
+COST Copy_SpanNotAssessed_MatchesDesignRow 3.0
+PASS Copy_ExampleMissing_MatchesDesignRow
+COST Copy_ExampleMissing_MatchesDesignRow 1.7
+PASS Copy_AlertBand_IdCandidateRefusedAcceptFailed_MatchDesignRows
+COST Copy_AlertBand_IdCandidateRefusedAcceptFailed_MatchDesignRows 533.6
+FAIL OpenFailure_RemoveFromRecent_RemovesOnlyFailedPath InvalidOperationException: Remove from Recent did not retain only the other path
+STACK OpenFailure_RemoveFromRecent_RemovesOnlyFailedPath System.InvalidOperationException: Remove from Recent did not retain only the other path |    at CfdWorkbench.Desktop.Tests.ShellWindowTests.<>c.<Run>b__2_73() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ShellWindowTests.cs:line 2318 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST OpenFailure_RemoveFromRecent_RemovesOnlyFailedPath 9126.1
+PASS Start_OpenNewer_AlertOpenAnother
+COST Start_OpenNewer_AlertOpenAnother 1.0
+PASS OpenFailure_AlertLocateButton_OpensFile
+COST OpenFailure_AlertLocateButton_OpensFile 810.6
+PASS OpenFailure_AlertTryAgainButton_OpensFile
+COST OpenFailure_AlertTryAgainButton_OpensFile 779.5
+PASS Properties_NamedPoint_TypeReadOnlyWithConstraint
+COST Properties_NamedPoint_TypeReadOnlyWithConstraint 1556.7
+PASS Properties_TangentSymmetric_OneUndoStep
+COST Properties_TangentSymmetric_OneUndoStep 2998.3
+PASS Properties_TypedSpanAftExpression_CommitsAsOneGestureEchoed
+COST Properties_TypedSpanAftExpression_CommitsAsOneGestureEchoed 2534.2
+PASS Properties_MultiplePoints_MixedReadOnly
+COST Properties_MultiplePoints_MixedReadOnly 1334.2
+PASS WingBlock_AllCad17Rows_InOrderWithApprox
+COST WingBlock_AllCad17Rows_InOrderWithApprox 1123.0
+PASS WingBlock_AfterTangentChange_DerivedRowsNotDashed
+COST WingBlock_AfterTangentChange_DerivedRowsNotDashed 3633.1
+PASS WingRootChord_FitAboveLimit_WarningShownAndCommitted
+COST WingRootChord_FitAboveLimit_WarningShownAndCommitted 1854.6
+PASS Focus_RootChordCommitTab_NextField
+COST Focus_RootChordCommitTab_NextField 1557.3
+PASS Focus_ReturnOnPoint_SpanFieldEscapeBack
+COST Focus_ReturnOnPoint_SpanFieldEscapeBack 1390.9
+PASS StatusLine_CommitReport_PoliteLiveRegion
+COST StatusLine_CommitReport_PoliteLiveRegion 1337.1
+PASS Browser_RailGroups_SelectPointOnCanvas
+COST Browser_RailGroups_SelectPointOnCanvas 1262.2
+PASS UI_DEAD_CONTROL_PointAndWingControlsHaveActions
+COST UI_DEAD_CONTROL_PointAndWingControlsHaveActions 2435.2
+FAIL RailEditorPane_Removed_NoReferencesRemain ContractError: DOC-UNSUPPORTED-PERSISTENCE
+STACK RailEditorPane_Removed_NoReferencesRemain CfdWorkbench.Core.ContractError: DOC-UNSUPPORTED-PERSISTENCE |    at CfdWorkbench.Desktop.WorkbenchController.OpenPathAsync(String path, CancellationToken cancellation) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Desktop\WorkbenchController.cs:line 2887 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.PumpToCompletion(Task task, String what, TimeSpan deadline) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 574 |    at CfdWorkbench.Desktop.Tests.ShellWindowTests.Pump(Task task, String what) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ShellWindowTests.cs:line 3486 |    at CfdWorkbench.Desktop.Tests.ShellWindowTests.<>c.<U2Checks>b__3_25() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ShellWindowTests.cs:line 3252 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST RailEditorPane_Removed_NoReferencesRemain 599.7
+NATIVE-STARTUP window-opened
+NATIVE-STARTUP window-opened
+PASS WindowsShell_MenuBar_InWindowOffMac_AbsentOnMac
+COST WindowsShell_MenuBar_InWindowOffMac_AbsentOnMac 386.7
+PASS WindowsShell_F10_FocusesMenu_EscapeReturnsFocusToOrigin
+COST WindowsShell_F10_FocusesMenu_EscapeReturnsFocusToOrigin 78.2
+NATIVE-STARTUP window-opened
+PASS WindowsShell_Undo_StripKeepsTheUndoText_AfterSampling
+COST WindowsShell_Undo_StripKeepsTheUndoText_AfterSampling 2708.3
+NATIVE-STARTUP window-opened
+PASS WindowsShell_MenuReachableFromKeyboard_AltAndF10
+COST WindowsShell_MenuReachableFromKeyboard_AltAndF10 191.0
+PASS WindowsShell_SaveFailureText_IsRuling134Wording
+COST WindowsShell_SaveFailureText_IsRuling134Wording 1.0
+PASS ElevationView_PointName_ReadsTheLivePointNotTheSnapshot
+COST ElevationView_PointName_ReadsTheLivePointNotTheSnapshot 1936.0
+PARTITION 2/2 of 118 checks
+SUITE --shell-window --part=2/2 exit 1
+SUITE-TIME --shell-window --part=2/2 77.3 s
+FAIL --shell-window --part=2/2 exited 1
+SCALE_CONTEXT mode=section-editor RenderScaling=1.5 PrimaryScaling=1.5 WorkingArea=2560x1528 UseLayoutRounding=True
+PASS SectionStep_LandedOrExit_ClearsPriorCertificate
+COST SectionStep_LandedOrExit_ClearsPriorCertificate 1780.9
+PASS SectionAssess_DisplayCrossingVsCertificate_FinishFollowsCertificate
+COST SectionAssess_DisplayCrossingVsCertificate_FinishFollowsCertificate 2107.6
+PASS SectionMode_WingFieldsReadOnly_Copy122
+COST SectionMode_WingFieldsReadOnly_Copy122 452.4
+PASS SectionMode_AssessCompletion_NewerStripMessageSurvives
+COST SectionMode_AssessCompletion_NewerStripMessageSurvives 921.9
+FAIL Controller_ResumeSectionRecovery_EntersSectionMode ContractError: DOC-UNSUPPORTED-PERSISTENCE
+STACK Controller_ResumeSectionRecovery_EntersSectionMode CfdWorkbench.Core.ContractError: DOC-UNSUPPORTED-PERSISTENCE |    at CfdWorkbench.Desktop.WorkbenchController.OpenPathAsync(String path, CancellationToken cancellation) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Desktop\WorkbenchController.cs:line 2887 |    at CfdWorkbench.Desktop.Tests.ControllerSectionTests.Wait(Task task) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ControllerSectionTests.cs:line 50 |    at CfdWorkbench.Desktop.Tests.ControllerSectionTests.<>c.<Run>b__13_7() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ControllerSectionTests.cs:line 353 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Controller_ResumeSectionRecovery_EntersSectionMode 284.3
+PASS SectionMode_UndoRoutedToInnerStep_DocumentUndoUntouched
+COST SectionMode_UndoRoutedToInnerStep_DocumentUndoUntouched 1296.3
+PASS SectionMode_Finish_OneUndoStepStationSelected
+COST SectionMode_Finish_OneUndoStepStationSelected 939.1
+PASS Selection_SectionPointReconcile_DroppedAfterLeavingMode
+COST Selection_SectionPointReconcile_DroppedAfterLeavingMode 437.5
+PASS SectionMode_StripSwitchNoEdits_DraftRebindsToNewStation
+COST SectionMode_StripSwitchNoEdits_DraftRebindsToNewStation 450.4
+PASS SectionDraft_ResumeRecovery_CurrentViewReadable
+COST SectionDraft_ResumeRecovery_CurrentViewReadable 325.3
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+PASS SectionMode_StepLandingAfterCancel_Discarded
+COST SectionMode_StepLandingAfterCancel_Discarded 942.2
+PASS SectionMode_Enter_DraftBoundFirstPointSelected
+COST SectionMode_Enter_DraftBoundFirstPointSelected 463.1
+PASS Controller_ApplyReplace_OneStepChipResidualStatus
+COST Controller_ApplyReplace_OneStepChipResidualStatus 2302.1
+FAIL Controller_SaveMine_SurvivesSectionCancelAndDocumentUndo ContractError: DOC-UNSUPPORTED-PERSISTENCE
+STACK Controller_SaveMine_SurvivesSectionCancelAndDocumentUndo CfdWorkbench.Core.ContractError: DOC-UNSUPPORTED-PERSISTENCE |    at CfdWorkbench.Persistence.SectionLibrary.Save(String name, Byte[] profileBlockBytes, Provenance provenance) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Persistence\SectionLibrary.cs:line 96 |    at CfdWorkbench.Desktop.WorkbenchController.<>c__DisplayClass421_0.<SaveToMySectionsAsync>b__0() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Desktop\WorkbenchController.cs:line 1547 |    at System.Threading.Tasks.Task`1.InnerInvoke() |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) | --- End of stack trace from previous location --- |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) |    at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread) | --- End of stack trace from previous location --- |    at CfdWorkbench.Desktop.Tests.ControllerSectionTests.<>c.<Run>b__13_25() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ControllerSectionTests.cs:line 698 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Controller_SaveMine_SurvivesSectionCancelAndDocumentUndo 567.7
+PASS Commands_ModalFlag_MatchesRowsThatShowADialog
+COST Commands_ModalFlag_MatchesRowsThatShowADialog 4085.6
+PASS Controller_RefusedPreview_ClearsAndShowsCopy
+COST Controller_RefusedPreview_ClearsAndShowsCopy 1058.0
+PASS Controller_PreviewCleared_OnExitAndApply
+COST Controller_PreviewCleared_OnExitAndApply 1146.7
+PASS Controller_ReplaceChain_ReplacesEveryStation
+COST Controller_ReplaceChain_ReplacesEveryStation 1740.6
+PASS Controller_PreviewFault_RecordsNonContractError
+COST Controller_PreviewFault_RecordsNonContractError 551.8
+PASS Controller_AsyncRefusals_DoNotThrowSynchronously
+COST Controller_AsyncRefusals_DoNotThrowSynchronously 0.7
+FAIL Controller_CatalogTelemetry_NamedSessionRing ContractError: DOC-UNSUPPORTED-PERSISTENCE
+STACK Controller_CatalogTelemetry_NamedSessionRing CfdWorkbench.Core.ContractError: DOC-UNSUPPORTED-PERSISTENCE |    at CfdWorkbench.Persistence.SectionLibrary.Save(String name, Byte[] profileBlockBytes, Provenance provenance) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Persistence\SectionLibrary.cs:line 96 |    at CfdWorkbench.Desktop.WorkbenchController.<>c__DisplayClass421_0.<SaveToMySectionsAsync>b__0() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Desktop\WorkbenchController.cs:line 1547 |    at System.Threading.Tasks.Task`1.InnerInvoke() |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) | --- End of stack trace from previous location --- |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) |    at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread) | --- End of stack trace from previous location --- |    at CfdWorkbench.Desktop.Tests.ControllerSectionTests.<>c.<Run>b__13_39() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ControllerSectionTests.cs:line 1069 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Controller_CatalogTelemetry_NamedSessionRing 515.7
+FAIL Controller_SaveOffUiThread_HonorsCancellation ContractError: DOC-UNSUPPORTED-PERSISTENCE
+STACK Controller_SaveOffUiThread_HonorsCancellation CfdWorkbench.Core.ContractError: DOC-UNSUPPORTED-PERSISTENCE |    at CfdWorkbench.Persistence.SectionLibrary.Save(String name, Byte[] profileBlockBytes, Provenance provenance) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Persistence\SectionLibrary.cs:line 96 |    at CfdWorkbench.Desktop.WorkbenchController.<>c__DisplayClass421_0.<SaveToMySectionsAsync>b__0() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Desktop\WorkbenchController.cs:line 1547 |    at System.Threading.Tasks.Task`1.InnerInvoke() |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) | --- End of stack trace from previous location --- |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) |    at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread) | --- End of stack trace from previous location --- |    at CfdWorkbench.Desktop.Tests.ControllerSectionTests.<>c.<Run>b__13_41() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ControllerSectionTests.cs:line 1122 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Controller_SaveOffUiThread_HonorsCancellation 555.4
+PASS Controller_SectionStep_ClearsLandedPreview
+COST Controller_SectionStep_ClearsLandedPreview 1005.1
+PASS Controller_SaveCancelDuringWrite_IsCanceledNotFaulted
+COST Controller_SaveCancelDuringWrite_IsCanceledNotFaulted 530.1
+PASS SectionEditor_RefusedPairedRefit_MarkerAtMaximum
+COST SectionEditor_RefusedPairedRefit_MarkerAtMaximum 148.1
+PASS SectionEditor_ModeBar_NamesStationAndScopeChip
+COST SectionEditor_ModeBar_NamesStationAndScopeChip 263.7
+PASS SectionEditor_PlateAndProbe_SayDisplay
+COST SectionEditor_PlateAndProbe_SayDisplay 322.7
+PASS SectionEditor_ArrowRun_OneStepOnKeyUp
+COST SectionEditor_ArrowRun_OneStepOnKeyUp 913.9
+PASS SectionEditor_BracketKeys_WalkInOrder
+COST SectionEditor_BracketKeys_WalkInOrder 380.5
+PASS SectionEditor_CombAutoScale_ClippedTeethMarked
+COST SectionEditor_CombAutoScale_ClippedTeethMarked 401.3
+PASS SectionEditor_ProbeFollowsPointer_PlacedMmAtStation
+COST SectionEditor_ProbeFollowsPointer_PlacedMmAtStation 315.4
+PASS SectionEditor_DragUnderPointer_WithinTwoPixels
+COST SectionEditor_DragUnderPointer_WithinTwoPixels 438.7
+PASS SectionEditor_DragMove_HeldSurfaceDrainedBeforeThePress
+COST SectionEditor_DragMove_HeldSurfaceDrainedBeforeThePress 1710.1
+PASS SectionEditor_Release_StepAppliesOffUiThread
+COST SectionEditor_Release_StepAppliesOffUiThread 1632.3
+PASS SectionEditor_StripSwitchWithEdits_RefusedByClick
+COST SectionEditor_StripSwitchWithEdits_RefusedByClick 899.7
+PASS SectionEditor_EscapeCascade_DragPointSelectionThenLeave
+COST SectionEditor_EscapeCascade_DragPointSelectionThenLeave 1578.8
+PASS SectionEditor_SelectedVsUnselected_ShapeNotColourOnly
+COST SectionEditor_SelectedVsUnselected_ShapeNotColourOnly 1180.3
+PASS SectionEditor_DoubleClickInserts_BackspaceDeletesNotNamed
+COST SectionEditor_DoubleClickInserts_BackspaceDeletesNotNamed 1491.0
+PASS SectionEditor_CheckFinished_CheckingReasonHidden
+COST SectionEditor_CheckFinished_CheckingReasonHidden 799.3
+PASS SectionEditor_UniqueSectionAbscissaStep_RefusedInStripFinishUnchanged
+COST SectionEditor_UniqueSectionAbscissaStep_RefusedInStripFinishUnchanged 1868.9
+PASS SectionEditor_EnterFromSideDoubleClick_ModeShown
+COST SectionEditor_EnterFromSideDoubleClick_ModeShown 895.1
+PASS SectionEditor_SideOverlap_ClickCyclesSections
+COST SectionEditor_SideOverlap_ClickCyclesSections 710.0
+PASS CatalogDialog_Open_FocusInSearch
+COST CatalogDialog_Open_FocusInSearch 736.7
+PASS CatalogDialog_ArrowsReachDisabledRows_Quiet
+COST CatalogDialog_ArrowsReachDisabledRows_Quiet 580.5
+PASS CatalogDialog_NoMatch_Copy115ReplaceDisabled
+COST CatalogDialog_NoMatch_Copy115ReplaceDisabled 578.5
+PASS CatalogDialog_SharedPreview_DetailNamesStationsFitLimit
+COST CatalogDialog_SharedPreview_DetailNamesStationsFitLimit 736.9
+PASS CatalogDialog_Escape_NothingChangedFocusToSectionMenu
+COST CatalogDialog_Escape_NothingChangedFocusToSectionMenu 581.4
+PASS CatalogDialog_ChainButton_AppliesAllStations
+COST CatalogDialog_ChainButton_AppliesAllStations 1892.0
+PASS CatalogDialog_MySectionsEmpty_ShowsNextAction
+COST CatalogDialog_MySectionsEmpty_ShowsNextAction 600.3
+PASS CatalogDialog_Preview_LargestChangeMarkerAtMeasuredX
+COST CatalogDialog_Preview_LargestChangeMarkerAtMeasuredX 734.5
+FAIL SaveDialog_EmptyOrDuplicate_ErrorFocusStays ContractError: DOC-UNSUPPORTED-PERSISTENCE
+STACK SaveDialog_EmptyOrDuplicate_ErrorFocusStays CfdWorkbench.Core.ContractError: DOC-UNSUPPORTED-PERSISTENCE |    at CfdWorkbench.Persistence.SectionLibrary.Save(String name, Byte[] profileBlockBytes, Provenance provenance) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Persistence\SectionLibrary.cs:line 96 |    at CfdWorkbench.Desktop.WorkbenchController.<>c__DisplayClass421_0.<SaveToMySectionsAsync>b__0() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Desktop\WorkbenchController.cs:line 1547 |    at System.Threading.Tasks.Task`1.InnerInvoke() |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) | --- End of stack trace from previous location --- |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) |    at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread) | --- End of stack trace from previous location --- |    at CfdWorkbench.Desktop.Tests.CatalogDialogTests.Wait(Task task) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\CatalogDialogTests.cs:line 221 |    at CfdWorkbench.Desktop.Tests.CatalogDialogTests.CheckSave(String name) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\CatalogDialogTests.cs:line 320 |    at CfdWorkbench.Desktop.Tests.CatalogDialogTests.<>c__DisplayClass2_1.<Run>b__1() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\CatalogDialogTests.cs:line 39 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST SaveDialog_EmptyOrDuplicate_ErrorFocusStays 621.6
+FAIL SaveDialog_Save_LiveRegionFocusToSectionMenu Exception: Save did not publish and announce the exact name
+STACK SaveDialog_Save_LiveRegionFocusToSectionMenu System.Exception: Save did not publish and announce the exact name |    at CfdWorkbench.Desktop.Tests.CatalogDialogTests.Require(Boolean condition, String message) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\CatalogDialogTests.cs:line 184 |    at CfdWorkbench.Desktop.Tests.CatalogDialogTests.CheckSave(String name) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\CatalogDialogTests.cs:line 335 |    at CfdWorkbench.Desktop.Tests.CatalogDialogTests.<>c__DisplayClass2_1.<Run>b__1() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\CatalogDialogTests.cs:line 39 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST SaveDialog_Save_LiveRegionFocusToSectionMenu 626.2
+PASS SourceChip_AfterReplaceAndEdit_TextNotColour
+COST SourceChip_AfterReplaceAndEdit_TextNotColour 1737.4
+PASS BrowserRow_AfterReplace_NameThenSource
+COST BrowserRow_AfterReplace_NameThenSource 1052.5
+PASS SaveDialog_UnsupportedPersistence_ExplainsSafety
+COST SaveDialog_UnsupportedPersistence_ExplainsSafety 2346.7
+PASS Export_Commands_RowsGestureAndPalette
+COST Export_Commands_RowsGestureAndPalette 3.0
+PASS Export_NoFoil_RowsDisabledWithReason_H9
+COST Export_NoFoil_RowsDisabledWithReason_H9 15.1
+PASS Export_TrailingEdge_RowAlways_BandOnlyBelowFloor_NeverBlocks
+COST Export_TrailingEdge_RowAlways_BandOnlyBelowFloor_NeverBlocks 602.2
+PASS Export_Shape_OwnAndAtStation_DifferWhenTcIsNotTheAuthoredPeak
+COST Export_Shape_OwnAndAtStation_DifferWhenTcIsNotTheAuthoredPeak 560.5
+PASS Export_Shell_SectionExportDat_OpensOnSelectedStation
+COST Export_Shell_SectionExportDat_OpensOnSelectedStation 641.2
+PASS Export_WriteFailure_CauseCopy_EarlierFileUntouched_NoTemp_H6
+COST Export_WriteFailure_CauseCopy_EarlierFileUntouched_NoTemp_H6 541.1
+NOT ASSESSED file-link (Windows: creating a file link needs a privilege; enable Developer Mode)
+PASS Export_Write_SymlinkTarget_Refused_LinkAndTargetUnchanged
+COST Export_Write_SymlinkTarget_Refused_LinkAndTargetUnchanged 509.2
+PASS Export_Extension_ForcedPathThatExists_NeverOverwritten
+COST Export_Extension_ForcedPathThatExists_NeverOverwritten 569.7
+PASS Export_Draft_ReadsAcceptedRevisionAndSaysSo_H1
+COST Export_Draft_ReadsAcceptedRevisionAndSaysSo_H1 1186.6
+PASS Export_Dialog_DatStlAnd3mf_StepRowExplainsItself
+COST Export_Dialog_DatStlAnd3mf_StepRowExplainsItself 726.0
+PASS Export_Dialog_Failure_StaysOpenWithTwoWaysOut
+COST Export_Dialog_Failure_StaysOpenWithTwoWaysOut 660.6
+PASS Export_Dialog_Renders_ReadyState_Screenshot
+COST Export_Dialog_Renders_ReadyState_Screenshot 646.7
+PASS ExportTelemetry_MeshFormats_WrittenEvent_CarriesScopePresetTrianglesDeviationBytes
+COST ExportTelemetry_MeshFormats_WrittenEvent_CarriesScopePresetTrianglesDeviationBytes 857.2
+PASS ExportTelemetry_FailedWrite_OneCodedEventPerCause
+COST ExportTelemetry_FailedWrite_OneCodedEventPerCause 501.7
+PASS ExportTelemetry_Events_CarryNoPathNameUserOrHost
+COST ExportTelemetry_Events_CarryNoPathNameUserOrHost 636.2
+PASS ExportStl_TrailingEdge_B8_WholeSpanRow_Jump_NeverBlocks
+COST ExportStl_TrailingEdge_B8_WholeSpanRow_Jump_NeverBlocks 1083.9
+PASS ExportStl_Presets_DraftPrintFine_TriangleCounts
+COST ExportStl_Presets_DraftPrintFine_TriangleCounts 934.1
+PASS ExportStl_TrailingEdge_LocatedValue_RowJumpAndStation
+COST ExportStl_TrailingEdge_LocatedValue_RowJumpAndStation 481.8
+PASS ExportStl_StaleBuild_NewerOptionWins
+COST ExportStl_StaleBuild_NewerOptionWins 789.2
+PASS ExportStl_H10_CancelledWrite_RemovesTempFile_EarlierFileUntouched
+COST ExportStl_H10_CancelledWrite_RemovesTempFile_EarlierFileUntouched 555.7
+PASS ExportStl_Jump_OpensTipSectionWhereTheGapIsShown
+COST ExportStl_Jump_OpensTipSectionWhereTheGapIsShown 891.1
+PASS ExportStl_Dialog_Renders_ReadyState_Screenshot
+COST ExportStl_Dialog_Renders_ReadyState_Screenshot 666.9
+PASS ExportThreeMf_Scope_Half_NameAndCount_ChangingFormatRebuilds
+COST ExportThreeMf_Scope_Half_NameAndCount_ChangingFormatRebuilds 853.3
+PASS ExportThreeMf_H7_ClosureRefused_NothingWritten
+COST ExportThreeMf_H7_ClosureRefused_NothingWritten 481.7
+PASS ExportThreeMf_Dialog_Renders_ReadyState_Screenshot
+COST ExportThreeMf_Dialog_Renders_ReadyState_Screenshot 726.9
+PARTITION 2/2 of 160 checks
+SUITE --section-editor --part=2/2 exit 1
+SUITE-TIME --section-editor --part=2/2 73.7 s
+FAIL --section-editor --part=2/2 exited 1
+SCALE_CONTEXT mode=properties-view RenderScaling=1.5 PrimaryScaling=1.5 WorkingArea=2560x1528 UseLayoutRounding=True
+PASS Properties_LeftSidebarHiddenAndShown_PaneOnScreen_ReviewWorkspace
+COST Properties_LeftSidebarHiddenAndShown_PaneOnScreen_ReviewWorkspace 3652.8
+PASS Properties_RenderFailure_ShowsVisibleReason
+COST Properties_RenderFailure_ShowsVisibleReason 1485.9
+PASS Properties_StationGroup_EndsWithEditSectionLink
+COST Properties_StationGroup_EndsWithEditSectionLink 1818.0
+PASS Pump_NeverCompletingTask_ThrowsNamedTimeoutAtDeadline
+COST Pump_NeverCompletingTask_ThrowsNamedTimeoutAtDeadline 251.2
+PASS PropertiesView_Formatter_PrecisionFollowsQuantity
+COST PropertiesView_Formatter_PrecisionFollowsQuantity 473.8
+PASS PropertiesView_ReferenceExpression_EchoSaysSetOnce
+COST PropertiesView_ReferenceExpression_EchoSaysSetOnce 11.8
+PASS PropertiesView_RowSet_FollowsCurveTable
+COST PropertiesView_RowSet_FollowsCurveTable 1762.0
+PASS PropertiesView_TypedTcBelowOnePercent_WarnsFractionHint
+COST PropertiesView_TypedTcBelowOnePercent_WarnsFractionHint 1803.6
+PASS PropertiesPane_GridBrushes_InAllThreeThemes
+COST PropertiesPane_GridBrushes_InAllThreeThemes 6.4
+PASS Unavailable_AnnouncedInStatus
+COST Unavailable_AnnouncedInStatus 1059.9
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+PASS PropertiesPane_Wing_AlwaysFullyVisibleAt1280x800_260
+COST PropertiesPane_Wing_AlwaysFullyVisibleAt1280x800_260 2009.9
+PASS PropertiesPane_NumberFields_AutomationNameHasLabelAndUnit
+COST PropertiesPane_NumberFields_AutomationNameHasLabelAndUnit 1962.8
+PASS PropertiesPane_FieldBlur_CommitsAndKeepsFocusTarget
+COST PropertiesPane_FieldBlur_CommitsAndKeepsFocusTarget 2217.0
+PASS Tangent_KindChange_KeepsFocusOnKindBox
+COST Tangent_KindChange_KeepsFocusOnKindBox 2176.6
+PASS PropertiesPane_KeyboardCopy_SelectionAndGroupHeader
+COST PropertiesPane_KeyboardCopy_SelectionAndGroupHeader 1314.6
+PASS TypeCombo_PendingThenLeave_DoesNotCommit
+COST TypeCombo_PendingThenLeave_DoesNotCommit 1371.7
+PASS PropertiesPane_TeRootAft_DescribesRootChordAuthority
+COST PropertiesPane_TeRootAft_DescribesRootChordAuthority 1241.0
+PASS PropertiesPane_Error_AnnouncedOncePerFailedCommit
+COST PropertiesPane_Error_AnnouncedOncePerFailedCommit 1433.0
+PASS PropertiesPane_NoNativeMotion
+COST PropertiesPane_NoNativeMotion 1843.1
+PASS PropertiesPane_FieldNudge_EscCancelsNoRow_KeyUpOneRow
+COST PropertiesPane_FieldNudge_EscCancelsNoRow_KeyUpOneRow 3393.3
+PASS FieldNudge_HelpTextNamesSteps_PerFamily
+COST FieldNudge_HelpTextNamesSteps_PerFamily 2041.0
+PASS FieldNudge_AngleRun_StopsAtDomainBound
+COST FieldNudge_AngleRun_StopsAtDomainBound 3760.4
+PASS StatusStrip_TypeChange_ReportInStrip_NotInRow
+COST StatusStrip_TypeChange_ReportInStrip_NotInRow 1806.2
+PASS StatusStrip_NudgeRelease_ValueInStrip_NotInRow
+COST StatusStrip_NudgeRelease_ValueInStrip_NotInRow 1831.0
+PASS StatusStrip_Refresh_DoesNotReshowOlderControllerStatus
+COST StatusStrip_Refresh_DoesNotReshowOlderControllerStatus 1979.8
+PASS Properties_DihedralHandle_AngleIsLocalDihedralBothHandles
+COST Properties_DihedralHandle_AngleIsLocalDihedralBothHandles 676.7
+PASS Properties_TypedThicknessPercent_EchoedPercent
+COST Properties_TypedThicknessPercent_EchoedPercent 1793.2
+PASS StatusLine_ChannelCommitReport_PoliteLiveRegion
+COST StatusLine_ChannelCommitReport_PoliteLiveRegion 1788.6
+PASS Copy_TwistClampReason_SameFormatterAsProbe
+COST Copy_TwistClampReason_SameFormatterAsProbe 622.0
+PASS Zoom_FocusedThreeDView_ZoomsViewNotTextSize
+COST Zoom_FocusedThreeDView_ZoomsViewNotTextSize 1606.4
+PASS Menu_Display_AppliesToTargetView
+COST Menu_Display_AppliesToTargetView 1808.0
+PASS Menu_PanItems_PanTargetView
+COST Menu_PanItems_PanTargetView 1434.9
+PASS Browser_ChannelGroups_SelectPointOnElevation
+COST Browser_ChannelGroups_SelectPointOnElevation 1553.8
+PASS UI_DEAD_CONTROL_ViewAndChannelControlsHaveActions
+COST UI_DEAD_CONTROL_ViewAndChannelControlsHaveActions 4412.6
+PARTITION 2/2 of 68 checks
+SUITE --properties-view --part=2/2 exit 0
+SUITE-TIME --properties-view --part=2/2 59.7 s
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=shell-window RenderScaling=1.5 PrimaryScaling=1.5 WorkingArea=2560x1528 UseLayoutRounding=True
+PASS Shell_F6_ModelArea_OnlyDockDocumentTabs
+COST Shell_F6_ModelArea_OnlyDockDocumentTabs 3948.5
+PASS Shell_F2_LeftPaneChromeButtons_NamedAndDrawn
+COST Shell_F2_LeftPaneChromeButtons_NamedAndDrawn 425.4
+PASS Shell_F4_LeftPane_Default260At1440And1280
+COST Shell_F4_LeftPane_Default260At1440And1280 714.3
+NATIVE-STARTUP window-opened
+PASS MainWindow_ShellMode_ContainsDockHostAndNativeMenu
+COST MainWindow_ShellMode_ContainsDockHostAndNativeMenu 181.7
+PASS UI_DEAD_CONTROL_ShellButtonsHaveActions
+COST UI_DEAD_CONTROL_ShellButtonsHaveActions 1865.4
+FAIL Recent_StoredRows_StartAndFileMenu InvalidOperationException: Recent fixture was not stored: rejected/RECENT-SCHEMA/absent root=C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\.tmp-tests\cfdw-d3a-recent-9cb898a31da54ed8a8b3d0972ec59584
+STACK Recent_StoredRows_StartAndFileMenu System.InvalidOperationException: Recent fixture was not stored: rejected/RECENT-SCHEMA/absent root=C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\.tmp-tests\cfdw-d3a-recent-9cb898a31da54ed8a8b3d0972ec59584 |    at CfdWorkbench.Desktop.Tests.ShellWindowTests.<>c.<Run>b__2_10() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ShellWindowTests.cs:line 861 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Recent_StoredRows_StartAndFileMenu 27.0
+PASS Architecture_DockConfinedToShell
+COST Architecture_DockConfinedToShell 14.8
+PASS KeyBindings_MenuGesture_NotBound
+COST KeyBindings_MenuGesture_NotBound 28.5
+NATIVE-STARTUP window-opened
+PASS Menu_UndoEnabled_FollowsFocusAndHistory
+COST Menu_UndoEnabled_FollowsFocusAndHistory 1809.9
+PASS Telemetry_MarkerPaths_SeparatorShapeCreatesFolder
+COST Telemetry_MarkerPaths_SeparatorShapeCreatesFolder 7.0
+PASS KeyBindings_F6InFloat_Bound
+COST KeyBindings_F6InFloat_Bound 36.5
+NATIVE-STARTUP window-opened
+PASS DockTabFocus_FreshBatch_ReadyAndTwoRing
+COST DockTabFocus_FreshBatch_ReadyAndTwoRing 1482.6
+PASS ShellHost_PlanformLayout_ContainsModelAndSidePanes
+COST ShellHost_PlanformLayout_ContainsModelAndSidePanes 51.5
+PASS ShellHost_AcceptedExample_BindsPanes
+COST ShellHost_AcceptedExample_BindsPanes 633.8
+PASS Controller_LockedRailControl_RefusesDraft
+COST Controller_LockedRailControl_RefusesDraft 1358.5
+PASS PaneBind_Throws_ShowsErrorStateClearsOld
+COST PaneBind_Throws_ShowsErrorStateClearsOld 3.0
+PASS Start_Opened_FocusModelArea
+COST Start_Opened_FocusModelArea 1247.9
+PASS Start_ExampleFixtureMissing_NamesFixtureNewFoilAvailable
+COST Start_ExampleFixtureMissing_NamesFixtureNewFoilAvailable 1.1
+PASS Open_Refused_ReturnsToOriginWithAlert
+COST Open_Refused_ReturnsToOriginWithAlert 1245.3
+PASS Focus_ClosePane_NextTab
+COST Focus_ClosePane_NextTab 1149.4
+PASS Focus_HideDockHoldingFocus_ToToggle
+COST Focus_HideDockHoldingFocus_ToToggle 1009.8
+PASS Focus_SizeMenu_ReturnsToTab
+COST Focus_SizeMenu_ReturnsToTab 1003.5
+PASS SidebarToggle_LiveThemeSwitch_RefreshesBrush
+COST SidebarToggle_LiveThemeSwitch_RefreshesBrush 229.1
+PASS Focus_DockRerender_NeverWindowRoot
+COST Focus_DockRerender_NeverWindowRoot 1174.1
+PASS Focus_SpanCommitTab_NextField
+COST Focus_SpanCommitTab_NextField 1268.7
+PASS Focus_UndoFromCanvas_StaysOnCanvas
+COST Focus_UndoFromCanvas_StaysOnCanvas 1126.9
+PASS Start_Opening_FocusOnCancel
+COST Start_Opening_FocusOnCancel 38.0
+PASS Start_CancelWithoutOrigin_FocusesFirstCard
+COST Start_CancelWithoutOrigin_FocusesFirstCard 31.9
+PASS AlertBand_AnnouncesAndFocusesFirstAction
+COST AlertBand_AnnouncesAndFocusesFirstAction 78.3
+PASS Recent_AccessibleName_FileAndFolder
+COST Recent_AccessibleName_FileAndFolder 2.2
+PASS Copy_OpenFailure_EveryCodeInSrc_PlainSentenceThenCodeLine_Ruling155
+COST Copy_OpenFailure_EveryCodeInSrc_PlainSentenceThenCodeLine_Ruling155 52.7
+PASS Copy_OpenFailureWithFoil_AlertBandMatchesStart
+COST Copy_OpenFailureWithFoil_AlertBandMatchesStart 1004.9
+PASS Copy_PaneErrors_WithAndWithoutFoil
+COST Copy_PaneErrors_WithAndWithoutFoil 2.2
+PASS Span_NaNOrInfinity_InvalidNotNotAssessed
+COST Span_NaNOrInfinity_InvalidNotNotAssessed 459.6
+PASS Copy_StartAlert_NoUncataloguedFallback
+COST Copy_StartAlert_NoUncataloguedFallback 1.3
+PASS Copy_Dismiss_MatchesDesignRow
+COST Copy_Dismiss_MatchesDesignRow 7.0
+FAIL Copy_RecentNotCleared_StatusAndTryAgain InvalidOperationException: COPY-147: expected 'The recent-files list wasn't cleared: it was saved by a newer version of CFD Workbench. The list is unchanged. · Try again', built 'The recent-files list wasn't cleared: it couldn't be saved. The list is unchanged. · Try again', unchanged=True
+STACK Copy_RecentNotCleared_StatusAndTryAgain System.InvalidOperationException: COPY-147: expected 'The recent-files list wasn't cleared: it was saved by a newer version of CFD Workbench. The list is unchanged. · Try again', built 'The recent-files list wasn't cleared: it couldn't be saved. The list is unchanged. · Try again', unchanged=True |    at CfdWorkbench.Desktop.Tests.ShellWindowTests.<>c.<Run>b__2_72() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ShellWindowTests.cs:line 2277 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Copy_RecentNotCleared_StatusAndTryAgain 45.9
+PASS Start_OpenMissing_AlertLocate
+COST Start_OpenMissing_AlertLocate 0.8
+PASS Start_OpenFailedDismissed_StartKept
+COST Start_OpenFailedDismissed_StartKept 0.6
+PASS OpenFailure_AlertOpenAnotherButton_OpensFile
+COST OpenFailure_AlertOpenAnotherButton_OpensFile 732.4
+PASS Properties_ControlPoint_TypeSpanAftRows
+COST Properties_ControlPoint_TypeSpanAftRows 1245.8
+PASS Properties_TypeToAnchor_OneUndoStepCurvePassesThrough
+COST Properties_TypeToAnchor_OneUndoStepCurvePassesThrough 2089.9
+PASS Properties_TangentGroup_LabelledChoiceAndHandleShowsItsAnchor
+COST Properties_TangentGroup_LabelledChoiceAndHandleShowsItsAnchor 2425.6
+PASS Properties_HandleAngleLength_TypedCommitsOneStep
+COST Properties_HandleAngleLength_TypedCommitsOneStep 2061.7
+PASS Properties_TipCloses_TipChordIsText
+COST Properties_TipCloses_TipChordIsText 1217.4
+PASS WingBlock_DuringDrag_RenderedMacTextChangesBeforeRelease
+COST WingBlock_DuringDrag_RenderedMacTextChangesBeforeRelease 1531.2
+PASS WingBlock_CrossingDraft_ShowsDashAndReason
+COST WingBlock_CrossingDraft_ShowsDashAndReason 1552.2
+PASS WingTipChord_CentimetresAndReference_EchoedMm
+COST WingTipChord_CentimetresAndReference_EchoedMm 2232.7
+PASS Focus_TypeChange_StaysOnTypeControl
+COST Focus_TypeChange_StaysOnTypeControl 1791.7
+PASS Focus_TypeValueRequest_SpanFieldFocused
+COST Focus_TypeValueRequest_SpanFieldFocused 1134.3
+PASS Copy_M12bOutcomes_ExactStrings
+COST Copy_M12bOutcomes_ExactStrings 2198.9
+PASS CommandTable_PointRows_ExecuteOrDisabled
+COST CommandTable_PointRows_ExecuteOrDisabled 2218.0
+FAIL Recovery_RailDraftResumed_PlanShowsDraftApplyCommits InvalidOperationException: opened project has no recovery: Open Example or a .foil / .cfdw.json file.
+STACK Recovery_RailDraftResumed_PlanShowsDraftApplyCommits System.InvalidOperationException: opened project has no recovery: Open Example or a .foil / .cfdw.json file. |    at CfdWorkbench.Desktop.Tests.ShellWindowTests.<>c.<U2Checks>b__3_24() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ShellWindowTests.cs:line 3154 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Recovery_RailDraftResumed_PlanShowsDraftApplyCommits 239.3
+PASS WindowsShell_Gesture_CommandKeyMapsToControlOffMac
+COST WindowsShell_Gesture_CommandKeyMapsToControlOffMac 0.4
+NATIVE-STARTUP window-opened
+PASS WindowsShell_CtrlZ_UndoesExactlyOneStep
+COST WindowsShell_CtrlZ_UndoesExactlyOneStep 1521.3
+NATIVE-STARTUP window-opened
+NATIVE-STARTUP window-opened
+PASS WindowsShell_MenuBarKeys_WiredOffMacOnly
+COST WindowsShell_MenuBarKeys_WiredOffMacOnly 453.4
+PASS WindowsShell_EveryTableGesture_FiresItsCommandOnce
+COST WindowsShell_EveryTableGesture_FiresItsCommandOnce 1073.7
+NATIVE-STARTUP window-opened
+PASS WindowsShell_SaveRefused_ShowsMessageInStatusStrip
+COST WindowsShell_SaveRefused_ShowsMessageInStatusStrip 1033.7
+PASS PlanCanvas_RetainedPointPeer_NameFollowsTheDrag_AndRaisesNameChanged
+COST PlanCanvas_RetainedPointPeer_NameFollowsTheDrag_AndRaisesNameChanged 3233.3
+PARTITION 1/2 of 118 checks
+SUITE --shell-window --part=1/2 exit 1
+SUITE-TIME --shell-window --part=1/2 55.2 s
+FAIL --shell-window --part=1/2 exited 1
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=plan-canvas RenderScaling=1.5 PrimaryScaling=1.5 WorkingArea=2560x1528 UseLayoutRounding=True
+PASS PlanComb_AutoHeldDuringDrag_RefitOnRelease
+COST PlanComb_AutoHeldDuringDrag_RefitOnRelease 6658.8
+PASS PlanComb_Analysis_NotDrawnToggleDisabled
+COST PlanComb_Analysis_NotDrawnToggleDisabled 2270.7
+PASS PlanComb_StepperAtLimit_KeepsFocus
+COST PlanComb_StepperAtLimit_KeepsFocus 1759.4
+PASS PlanProbe_StripStableOnLeave
+COST PlanProbe_StripStableOnLeave 1889.2
+PASS PlanProbe_Strip_QuietOnPointerMoveAndNudge
+COST PlanProbe_Strip_QuietOnPointerMoveAndNudge 2555.9
+PASS PlanComb_TeethPerpendicularToTangent_AtThreeZooms
+COST PlanComb_TeethPerpendicularToTangent_AtThreeZooms 1548.3
+PASS PlanCanvas_FocusRing_UsesViewportToken
+COST PlanCanvas_FocusRing_UsesViewportToken 2403.0
+PASS PlanCanvas_Tab_VisitsPlateBeforeProperties
+COST PlanCanvas_Tab_VisitsPlateBeforeProperties 1425.0
+PASS PlanCanvas_PlateHidden_TabGoesToProperties
+COST PlanCanvas_PlateHidden_TabGoesToProperties 1369.0
+PASS PlanComb_RefitFlash_OnceAndStaticUnderReducedMotion
+COST PlanComb_RefitFlash_OnceAndStaticUnderReducedMotion 3481.8
+PASS PlanComb_PlateDoesNotCoverRail_AtTipFit
+COST PlanComb_PlateDoesNotCoverRail_AtTipFit 5178.4
+PASS PlanComb_NarrowOpenPlate_DoesNotCoverTipOrStrip
+COST PlanComb_NarrowOpenPlate_DoesNotCoverTipOrStrip 1394.1
+PASS Comb_Settings_UnsupportedStore_SessionOnly_NoFile_NoError
+COST Comb_Settings_UnsupportedStore_SessionOnly_NoFile_NoError 3474.1
+NOT ASSESSED view-settings persistence: this host has no project store (Ruling 206 O2); the session-only behaviour is asserted instead
+PASS Comb_Settings_Auto_RestoredAsAuto_Visible
+COST Comb_Settings_Auto_RestoredAsAuto_Visible 3438.6
+PASS Comb_Settings_ChoiceBeforeLoadWins
+COST Comb_Settings_ChoiceBeforeLoadWins 3244.3
+PASS Comb_Settings_FoilAndProjectBytesUnchanged_Telemetry_NoPath
+COST Comb_Settings_FoilAndProjectBytesUnchanged_Telemetry_NoPath 3293.7
+PASS Comb_Settings_ValueFault_KeepsOtherMembers_NeverRewrites
+COST Comb_Settings_ValueFault_KeepsOtherMembers_NeverRewrites 3499.0
+PASS RebuildPopover_CrossingDisablesRebuildWithReason
+COST RebuildPopover_CrossingDisablesRebuildWithReason 1795.7
+PASS EditMenu_AddPoint_TypedPositionAddsSelectsNew
+COST EditMenu_AddPoint_TypedPositionAddsSelectsNew 1880.3
+PASS PlanCanvas_BackspaceAtFloor_WarningCopyNothingChanged
+COST PlanCanvas_BackspaceAtFloor_WarningCopyNothingChanged 1547.3
+PASS PlanCanvas_DoubleClickOnOutline_AddsPointSelectsAndFocusesIt
+COST PlanCanvas_DoubleClickOnOutline_AddsPointSelectsAndFocusesIt 1828.5
+PASS PlanCanvas_DoubleClickOnPolygonLeg_NoAdd
+COST PlanCanvas_DoubleClickOnPolygonLeg_NoAdd 896.1
+PASS PlanCanvas_RenderTargetBitmap_CapturesNonBackgroundPixels
+COST PlanCanvas_RenderTargetBitmap_CapturesNonBackgroundPixels 953.7
+PASS Workspace_NewFoil_WindowPixelsShowRailsAtTranslatedPoints
+COST Workspace_NewFoil_WindowPixelsShowRailsAtTranslatedPoints 835.3
+PASS PlanCanvas_ExampleOpen_RendersBothRailsAndEveryPoint
+COST PlanCanvas_ExampleOpen_RendersBothRailsAndEveryPoint 1224.1
+PASS PlanCanvas_SelectedVsUnselected_RenderedAtLeastThreeToOne
+COST PlanCanvas_SelectedVsUnselected_RenderedAtLeastThreeToOne 1113.5
+PASS PlanCanvas_HoverPoint_TooltipCopyAndRing
+COST PlanCanvas_HoverPoint_TooltipCopyAndRing 1004.4
+PASS PlanCanvas_ShiftClickAndCommandClick_ExtendAndToggle
+COST PlanCanvas_ShiftClickAndCommandClick_ExtendAndToggle 1505.6
+PASS PlanCanvas_TargetOrder_LeadingThenTrailingThenChips
+COST PlanCanvas_TargetOrder_LeadingThenTrailingThenChips 900.0
+PASS PlanCanvas_TabFromNoSelection_EntersFirstTarget_AndLeaves
+COST PlanCanvas_TabFromNoSelection_EntersFirstTarget_AndLeaves 1004.7
+PASS PlanCanvas_FitAndDefaultView_PlanformClearOfProbeAndScaleBar
+COST PlanCanvas_FitAndDefaultView_PlanformClearOfProbeAndScaleBar 1117.3
+PASS ModelArea_MinimumWindow_PlanAtLeast320x240
+COST ModelArea_MinimumWindow_PlanAtLeast320x240 962.5
+PASS PlanCanvas_HighContrast_RenderedRingContrastPrimary
+COST PlanCanvas_HighContrast_RenderedRingContrastPrimary 1071.5
+PASS PlanCanvas_Brushes_AllFromThemeResources
+COST PlanCanvas_Brushes_AllFromThemeResources 992.9
+PASS PlanCanvas_AutomationPeers_HandleNamesCarryAngleAndLength
+COST PlanCanvas_AutomationPeers_HandleNamesCarryAngleAndLength 2166.0
+PASS PlanCanvas_DragDeltaReadout_Live
+COST PlanCanvas_DragDeltaReadout_Live 2255.1
+PASS PlanCanvas_BracketWithMultiSelection_KeepsSelection
+COST PlanCanvas_BracketWithMultiSelection_KeepsSelection 1336.7
+PASS PlanCanvas_Escape_TooltipStaysDismissedAcrossRefresh
+COST PlanCanvas_Escape_TooltipStaysDismissedAcrossRefresh 1299.6
+PASS PlanCanvas_DragEmptyCanvas_PansPlainShiftMiddle_ClickStillClears
+COST PlanCanvas_DragEmptyCanvas_PansPlainShiftMiddle_ClickStillClears 1594.0
+PASS PlanCanvas_ChipStrip_OneRowBelowPlanform_AlignedAndClear
+COST PlanCanvas_ChipStrip_OneRowBelowPlanform_AlignedAndClear 1341.0
+PASS PlanCanvas_DoubleClickOnPoint_StillOpensValueField
+COST PlanCanvas_DoubleClickOnPoint_StillOpensValueField 1261.6
+PASS PlanCanvas_FocusUnderProbeOrChip_PansIntoView
+COST PlanCanvas_FocusUnderProbeOrChip_PansIntoView 1154.8
+PASS PlanCanvas_EscapeOnHandle_FocusBackToPoint
+COST PlanCanvas_EscapeOnHandle_FocusBackToPoint 1899.8
+PASS PlanCanvas_AdvisoryCrossingClear_CertificateStillDecides
+COST PlanCanvas_AdvisoryCrossingClear_CertificateStillDecides 2714.0
+PASS PlanCanvas_HoverProbe_ParksPointerFirst
+COST PlanCanvas_HoverProbe_ParksPointerFirst 1086.0
+PASS PlanCanvas_RenderThrows_CopyTryAgainAndEvent
+COST PlanCanvas_RenderThrows_CopyTryAgainAndEvent 1208.3
+PARTITION 2/2 of 92 checks
+SUITE --plan-canvas --part=2/2 exit 0
+SUITE-TIME --plan-canvas --part=2/2 90.4 s
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=plan-canvas RenderScaling=1.5 PrimaryScaling=1.5 WorkingArea=2560x1528 UseLayoutRounding=True
+PASS PlanComb_BothRails_NothingSelected
+COST PlanComb_BothRails_NothingSelected 4317.4
+MEASURE comb_build_ms=22.1 density=128 teeth=256 pieces=3+3
+PASS PlanComb_Density_ChangesToothCountOnly_FoilBytesUnchanged
+COST PlanComb_Density_ChangesToothCountOnly_FoilBytesUnchanged 1913.6
+PASS PlanComb_CurvatureToggle_InAnalysis_StaysFocusable
+COST PlanComb_CurvatureToggle_InAnalysis_StaysFocusable 1779.4
+PASS PlanProbe_RadiusInProjectUnit
+COST PlanProbe_RadiusInProjectUnit 1378.2
+PASS PlanProbe_Strip_IsOneElement
+COST PlanProbe_Strip_IsOneElement 1656.3
+PASS PlanProbe_SelectedReading_ReturnsOnFocusOut
+COST PlanProbe_SelectedReading_ReturnsOnFocusOut 1579.1
+PASS PlanComb_EnvelopePerPiece_StepAtJump
+COST PlanComb_EnvelopePerPiece_StepAtJump 6.2
+PASS PlanComb_PlateFocusRing_UsesSurfaceToken
+COST PlanComb_PlateFocusRing_UsesSurfaceToken 2360.9
+PASS PlanCanvas_ShiftTab_ReturnsToCanvas
+COST PlanCanvas_ShiftTab_ReturnsToCanvas 1648.1
+PASS PlanComb_PaletteVerbs_AnnounceNewValue
+COST PlanComb_PaletteVerbs_AnnounceNewValue 1371.4
+PASS PlanComb_StaleFlashTimer_DoesNotClearNewerEmphasis
+COST PlanComb_StaleFlashTimer_DoesNotClearNewerEmphasis 2801.3
+PASS PlanComb_NarrowPopover_EscapeClosesAndRestoresFocus
+COST PlanComb_NarrowPopover_EscapeClosesAndRestoresFocus 1329.5
+PASS PlanComb_Screenshot_WhenAsked
+COST PlanComb_Screenshot_WhenAsked 0.7
+NOT ASSESSED view-settings persistence: this host has no project store (Ruling 206 O2); the session-only behaviour is asserted instead
+PASS Comb_Settings_Persist_ChoiceSurvivesShellRestart_PlateAndTeethRendered
+COST Comb_Settings_Persist_ChoiceSurvivesShellRestart_PlateAndTeethRendered 3501.9
+PASS Comb_Settings_SaveKeepsTextSizeAndUnits
+COST Comb_Settings_SaveKeepsTextSizeAndUnits 3271.2
+PASS Comb_Settings_LimitPress_NoSave
+COST Comb_Settings_LimitPress_NoSave 1348.2
+PASS Comb_Settings_TextSizeAndUnitsSaves_CarryTheirTrigger
+COST Comb_Settings_TextSizeAndUnitsSaves_CarryTheirTrigger 1083.7
+PASS Comb_Settings_Screenshot_WhenAsked
+COST Comb_Settings_Screenshot_WhenAsked 0.7
+PASS RebuildPopover_Close_OneEventWithOutcome
+COST RebuildPopover_Close_OneEventWithOutcome 2145.2
+PASS EditMenu_PointVerbs_EnabledStateAndReasonPerSelection
+COST EditMenu_PointVerbs_EnabledStateAndReasonPerSelection 2762.2
+PASS PlanCanvas_BackspaceWithSeveralSelected_OneAtATimeCopy
+COST PlanCanvas_BackspaceWithSeveralSelected_OneAtATimeCopy 1583.4
+PASS PlanCanvas_DoubleClickOnPortHalf_StatusSaysStarboard
+COST PlanCanvas_DoubleClickOnPortHalf_StatusSaysStarboard 911.4
+PASS ContextMenu_Outline_AddPointHere_AddsAtPressPoint
+COST ContextMenu_Outline_AddPointHere_AddsAtPressPoint 2164.3
+PASS PlanCanvas_AutomationPeers_BoundsFocusSelectedInvoke
+COST PlanCanvas_AutomationPeers_BoundsFocusSelectedInvoke 1120.8
+PASS PlanCanvas_Orientation_SpanRightAftDown
+COST PlanCanvas_Orientation_SpanRightAftDown 1010.3
+PASS PlanCanvas_SelectPoint_RenderedGlyphFilledAndHandlesDrawn
+COST PlanCanvas_SelectPoint_RenderedGlyphFilledAndHandlesDrawn 1301.6
+PASS PlanCanvas_HitTest_NearestWithin14Px
+COST PlanCanvas_HitTest_NearestWithin14Px 944.1
+PASS PlanCanvas_HoverRail_TracingProbeReadout
+COST PlanCanvas_HoverRail_TracingProbeReadout 1021.4
+PASS PlanCanvas_SpaceAndShiftSpace_SelectAndToggle
+COST PlanCanvas_SpaceAndShiftSpace_SelectAndToggle 1289.8
+PASS Plan_BracketKeys_MoveBetweenPoints_InTargetOrder
+COST Plan_BracketKeys_MoveBetweenPoints_InTargetOrder 1590.4
+PASS PlanCanvas_CombToggle_RenderedTeethOnSelectedRail
+COST PlanCanvas_CombToggle_RenderedTeethOnSelectedRail 1563.3
+PASS PlanCanvas_ZoomPanFit_KeyboardAndPointerSameCamera
+COST PlanCanvas_ZoomPanFit_KeyboardAndPointerSameCamera 910.2
+PASS PlanCanvas_FocusRing_RenderedPixelsAtLeastThreeToOne
+COST PlanCanvas_FocusRing_RenderedPixelsAtLeastThreeToOne 1013.9
+PASS PlanCanvas_AfterDockReattach_RendersSameScene
+COST PlanCanvas_AfterDockReattach_RendersSameScene 1260.5
+PASS PlanCanvas_ProbeAndDelta_NotLiveRegions
+COST PlanCanvas_ProbeAndDelta_NotLiveRegions 999.5
+PASS PlanCanvas_DragFrame_RenderedCurveThroughDraftSample
+COST PlanCanvas_DragFrame_RenderedCurveThroughDraftSample 2322.2
+PASS PlanCanvas_ShiftDragFromPoint_OrthoLocked
+COST PlanCanvas_ShiftDragFromPoint_OrthoLocked 2198.6
+PASS PlanCanvas_Escape_DismissTooltipThenClearSelection
+COST PlanCanvas_Escape_DismissTooltipThenClearSelection 1316.9
+PASS PlanCanvas_CKeyInTipChordField_CombNotToggled
+COST PlanCanvas_CKeyInTipChordField_CombNotToggled 1190.3
+PASS PlanCanvas_ClickStationChip_SelectsStation
+COST PlanCanvas_ClickStationChip_SelectsStation 1632.6
+PASS PlanCanvas_CollidingChips_AlternateHiddenStillInBrowser
+COST PlanCanvas_CollidingChips_AlternateHiddenStillInBrowser 1362.6
+PASS PlanCanvas_FocusOffscreenPoint_PansIntoView
+COST PlanCanvas_FocusOffscreenPoint_PansIntoView 1397.3
+PASS PlanCanvas_LockedNudge_AssertiveLockCopy
+COST PlanCanvas_LockedNudge_AssertiveLockCopy 1656.1
+PASS PlanCanvas_ReleaseEdgesCross_PointRenderedAtOriginal
+COST PlanCanvas_ReleaseEdgesCross_PointRenderedAtOriginal 2780.6
+PASS StatusStrip_GestureRefused_ErrorInStrip_NoToast
+COST StatusStrip_GestureRefused_ErrorInStrip_NoToast 2513.9
+PASS PlanCanvas_NotCertifiedFoil_PointsDimmedBannerNoDraft
+COST PlanCanvas_NotCertifiedFoil_PointsDimmedBannerNoDraft 1781.7
+PARTITION 1/2 of 92 checks
+SUITE --plan-canvas --part=1/2 exit 0
+SUITE-TIME --plan-canvas --part=1/2 76.3 s
+PASS GestureLimit_TipDragPastMinimum_HoldsAndSpeaksOnce_ReleaseCommitsHeldValueAsOneUndoStep
+COST GestureLimit_TipDragPastMinimum_HoldsAndSpeaksOnce_ReleaseCommitsHeldValueAsOneUndoStep 1491.5
+PASS GestureLimit_Escape_AfterHold_ChangesNothing
+COST GestureLimit_Escape_AfterHold_ChangesNothing 370.9
+PASS GestureLimit_RootDragPastMaximum_HoldsAndLeadsWithTheRoot
+COST GestureLimit_RootDragPastMaximum_HoldsAndLeadsWithTheRoot 887.0
+PASS GestureLimit_KeyboardNudges_HoldWithoutBankingAndAnnounceOnce
+COST GestureLimit_KeyboardNudges_HoldWithoutBankingAndAnnounceOnce 1242.0
+PASS GestureLimit_AnalysisMode_Inert
+COST GestureLimit_AnalysisMode_Inert 252.8
+PASS GestureLimit_GestureEnd_TelemetryNamesTheClampReason
+COST GestureLimit_GestureEnd_TelemetryNamesTheClampReason 392.8
+PASS GroupDrag_PressOnMember_KeepsSelection
+COST GroupDrag_PressOnMember_KeepsSelection 499.1
+PASS GroupDrag_ClickWithoutDrag_CollapsesOnRelease
+COST GroupDrag_ClickWithoutDrag_CollapsesOnRelease 481.2
+PASS GroupDrag_OneUndoStep_EscapeNone_AnalysisInert
+COST GroupDrag_OneUndoStep_EscapeNone_AnalysisInert 723.1
+PASS GroupDrag_HoldsRigid_GrabNotTheBinder_AppliedNotRequested
+COST GroupDrag_HoldsRigid_GrabNotTheBinder_AppliedNotRequested 581.9
+PASS GroupDrag_NeighbourHolds_NamesThePoint
+COST GroupDrag_NeighbourHolds_NamesThePoint 536.8
+PASS GroupDrag_RootSeeded_HeldAxisSaysSo_LockedMemberRefusesBeforeADraft
+COST GroupDrag_RootSeeded_HeldAxisSaysSo_LockedMemberRefusesBeforeADraft 523.4
+PASS GroupDrag_TwoCurves_HandleWithoutAnchor_RefuseWithTheirWords
+COST GroupDrag_TwoCurves_HandleWithoutAnchor_RefuseWithTheirWords 598.4
+PASS GroupNudge_TenPressesPastLimit_OneAnnouncement_OneUndoRow
+COST GroupNudge_TenPressesPastLimit_OneAnnouncement_OneUndoRow 1245.7
+PASS StatusStrip_VerbReport_NotClobberedBySampling
+COST StatusStrip_VerbReport_NotClobberedBySampling 859.7
+PASS Controller_RefusalCopy_UsesCoreReasonNotCode
+COST Controller_RefusalCopy_UsesCoreReasonNotCode 202.0
+PASS Strip_VerbReports_FormattedFromOutcomeWithUnit
+COST Strip_VerbReports_FormattedFromOutcomeWithUnit 971.0
+PASS StatusStrip_BackgroundCompletion_DoesNotReplaceNewerReport
+COST StatusStrip_BackgroundCompletion_DoesNotReplaceNewerReport 926.6
+PASS ApplySpan_EdgesCross_Refused
+COST ApplySpan_EdgesCross_Refused 455.2
+PASS ApplySpan_NonPositive_Refused
+COST ApplySpan_NonPositive_Refused 468.6
+PASS ApplySpan_NotANumber_Refused
+COST ApplySpan_NotANumber_Refused 433.8
+PASS Controller_ApplySpanAsync_CoreBoundaryRefusalUnchanged
+COST Controller_ApplySpanAsync_CoreBoundaryRefusalUnchanged 195.1
+PASS LockedNudge_DuringSampling_LockCopySurvivesCompletion
+COST LockedNudge_DuringSampling_LockCopySurvivesCompletion 694.1
+PASS OpenFailure_AccessDenied_Classified
+COST OpenFailure_AccessDenied_Classified 1.3
+PASS OpenFailure_Missing_Classified
+COST OpenFailure_Missing_Classified 0.5
+PASS OpenFailure_Newer_Classified
+COST OpenFailure_Newer_Classified 0.9
+PASS OpenFailure_NotRecognised_Classified
+COST OpenFailure_NotRecognised_Classified 0.6
+PASS OpenFailure_TooLarge_Classified
+COST OpenFailure_TooLarge_Classified 0.5
+PASS OpenFailure_UnknownContent_Classified
+COST OpenFailure_UnknownContent_Classified 0.4
+PASS OpenFailure_Unreadable_Classified
+COST OpenFailure_Unreadable_Classified 0.4
+PASS Open_CancelAfterCommit_Ignored
+COST Open_CancelAfterCommit_Ignored 120.1
+PASS Open_CancelDuringPrepare_CurrentFoilUnchanged
+COST Open_CancelDuringPrepare_CurrentFoilUnchanged 441.3
+PASS Open_IdCandidate_NeedsIds
+COST Open_IdCandidate_NeedsIds 5.9
+PASS Open_SecondRequest_SupersedesFirst
+COST Open_SecondRequest_SupersedesFirst 110.0
+PASS Open_Uncertified_RefusedReadOnly
+COST Open_Uncertified_RefusedReadOnly 26.0
+PASS Properties_SectionMode_WingAsText
+COST Properties_SectionMode_WingAsText 463.7
+PASS Properties_TipCloses_TipChordIsText
+COST Properties_TipCloses_TipChordIsText 442.9
+PASS Properties_WingBlockLast_WhenFoilOpen
+COST Properties_WingBlockLast_WhenFoilOpen 461.8
+PASS Selection_Reconcile_PointsDropped
+COST Selection_Reconcile_PointsDropped 445.1
+PASS Selection_Reconcile_StationByExactEta
+COST Selection_Reconcile_StationByExactEta 468.4
+PASS Selection_ReconciledBeforeChanged
+COST Selection_ReconciledBeforeChanged 454.9
+PASS NewFoil_Opened_UntitledNoPath
+COST NewFoil_Opened_UntitledNoPath 196.9
+PASS NewFoil_CancelDuringPrepare_CurrentFoilUnchanged
+COST NewFoil_CancelDuringPrepare_CurrentFoilUnchanged 457.9
+PASS NewFoil_WorksWithoutExample
+COST NewFoil_WorksWithoutExample 206.1
+PASS GestureStateTable_EveryCell_TransitionOrIgnored
+COST GestureStateTable_EveryCell_TransitionOrIgnored 866.0
+PASS Controller_MoveTwoPixels_NoDraft
+COST Controller_MoveTwoPixels_NoDraft 800.1
+PASS Controller_MoveFourPixels_DraftOpened
+COST Controller_MoveFourPixels_DraftOpened 825.8
+PASS Controller_DragPoint_OneUndoStepUndoExact
+COST Controller_DragPoint_OneUndoStepUndoExact 1007.3
+PASS Controller_ReleaseWithPendingFrame_CommitsLastPointerTarget
+COST Controller_ReleaseWithPendingFrame_CommitsLastPointerTarget 893.9
+PASS Controller_NudgeLadder_CommandPlainShift
+COST Controller_NudgeLadder_CommandPlainShift 976.7
+PASS Controller_NudgeRunHeld_OneRowOnKeyUp
+COST Controller_NudgeRunHeld_OneRowOnKeyUp 1073.2
+PASS Controller_NudgeRunFocusLost_CommitsOneRow
+COST Controller_NudgeRunFocusLost_CommitsOneRow 1072.3
+PASS Controller_NudgeRunWindowDeactivated_CommitsOneRow
+COST Controller_NudgeRunWindowDeactivated_CommitsOneRow 1059.5
+PASS Controller_CaptureLostDuringDrag_Cancelled
+COST Controller_CaptureLostDuringDrag_Cancelled 754.3
+PASS Controller_EscapeDuringDrag_NoRowGeometryBack
+COST Controller_EscapeDuringDrag_NoRowGeometryBack 770.4
+FAIL Controller_SaveDuringDrag_CommitsThenSaves InvalidOperationException: Save did not commit drag first: code=DOC-UNSUPPORTED-PERSISTENCE, draft=False, undo=True.
+STACK Controller_SaveDuringDrag_CommitsThenSaves System.InvalidOperationException: Save did not commit drag first: code=DOC-UNSUPPORTED-PERSISTENCE, draft=False, undo=True. |    at CfdWorkbench.Desktop.Tests.ControllerShellTests.Require(Boolean condition, String message) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ControllerShellTests.cs:line 538 |    at CfdWorkbench.Desktop.Tests.ControllerShellTests.<>c.<RunPointControllerChecks>b__7_11() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ControllerShellTests.cs:line 650 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Controller_SaveDuringDrag_CommitsThenSaves 899.0
+PASS Controller_StaleCommitCompletion_ReturnsToIdle
+COST Controller_StaleCommitCompletion_ReturnsToIdle 876.6
+PASS Controller_PointerDownDuringChordCommit_NoDraft
+COST Controller_PointerDownDuringChordCommit_NoDraft 1111.0
+PASS Gesture_ReleaseEdgesCross_RefusedGeometryUnchanged
+COST Gesture_ReleaseEdgesCross_RefusedGeometryUnchanged 845.1
+PASS Gesture_ReleaseNotAssessed_RefusedDistinctCopy
+COST Gesture_ReleaseNotAssessed_RefusedDistinctCopy 796.8
+PASS Gesture_BeginDuringCommit_NoDraftNoBusy
+COST Gesture_BeginDuringCommit_NoDraftNoBusy 896.0
+PASS Gesture_ThousandMoves_CoalescedFramesBounded
+COST Gesture_ThousandMoves_CoalescedFramesBounded 860.8
+PASS Controller_DuringDrag_EstimatesFromDraftGeneration
+COST Controller_DuringDrag_EstimatesFromDraftGeneration 766.5
+PASS Controller_UndoDisabledDuringGesture_EnabledAfter
+COST Controller_UndoDisabledDuringGesture_EnabledAfter 854.7
+PASS Controller_Reconcile_MakeControlDropsHandleSelection
+COST Controller_Reconcile_MakeControlDropsHandleSelection 1122.7
+PASS GestureEnd_Committed_EmitsFramesAndP95
+COST GestureEnd_Committed_EmitsFramesAndP95 919.4
+PASS Telemetry_PointEdits_NoIdsOrPositions
+COST Telemetry_PointEdits_NoIdsOrPositions 930.5
+PASS Controller_Gesture_Idle_PointerMovable_Pressed
+COST Controller_Gesture_Idle_PointerMovable_Pressed 11.0
+PASS Controller_Gesture_Pressed_PointerMovable_Ignored
+COST Controller_Gesture_Pressed_PointerMovable_Ignored 18.8
+PASS Controller_Gesture_Dragging_PointerMovable_Ignored
+COST Controller_Gesture_Dragging_PointerMovable_Ignored 68.2
+PASS Controller_Gesture_Nudging_PointerMovable_BusySelect
+COST Controller_Gesture_Nudging_PointerMovable_BusySelect 182.8
+PASS Controller_Gesture_Busy_PointerMovable_SelectedWhileBusy
+COST Controller_Gesture_Busy_PointerMovable_SelectedWhileBusy 6.6
+PASS Controller_Gesture_Idle_PointerFixed_SelectedLocked
+COST Controller_Gesture_Idle_PointerFixed_SelectedLocked 6.4
+PASS Controller_Gesture_Pressed_PointerFixed_Ignored
+COST Controller_Gesture_Pressed_PointerFixed_Ignored 7.8
+PASS Controller_Gesture_Dragging_PointerFixed_Ignored
+COST Controller_Gesture_Dragging_PointerFixed_Ignored 63.2
+PASS Controller_Gesture_Nudging_PointerFixed_Busy
+COST Controller_Gesture_Nudging_PointerFixed_Busy 217.2
+PASS Controller_Gesture_Busy_PointerFixed_SelectedWhileBusy
+COST Controller_Gesture_Busy_PointerFixed_SelectedWhileBusy 6.5
+PASS Controller_Gesture_Idle_MoveUnder3_Ignored
+COST Controller_Gesture_Idle_MoveUnder3_Ignored 5.3
+PASS Controller_Gesture_Pressed_MoveUnder3_Pressed
+COST Controller_Gesture_Pressed_MoveUnder3_Pressed 8.6
+PASS Controller_Gesture_Dragging_MoveUnder3_Updated
+COST Controller_Gesture_Dragging_MoveUnder3_Updated 93.1
+PASS Controller_Gesture_Nudging_MoveUnder3_Ignored
+COST Controller_Gesture_Nudging_MoveUnder3_Ignored 88.2
+PASS Controller_Gesture_Busy_MoveUnder3_Ignored
+COST Controller_Gesture_Busy_MoveUnder3_Ignored 18.7
+PASS Controller_Gesture_Idle_MoveAtLeast3_Ignored
+COST Controller_Gesture_Idle_MoveAtLeast3_Ignored 4.9
+PASS Controller_Gesture_Pressed_MoveAtLeast3_Dragging
+COST Controller_Gesture_Pressed_MoveAtLeast3_Dragging 81.4
+PASS Controller_Gesture_Dragging_MoveAtLeast3_Updated
+COST Controller_Gesture_Dragging_MoveAtLeast3_Updated 86.8
+PASS Controller_Gesture_Nudging_MoveAtLeast3_Ignored
+COST Controller_Gesture_Nudging_MoveAtLeast3_Ignored 82.3
+PASS Controller_Gesture_Busy_MoveAtLeast3_Ignored
+COST Controller_Gesture_Busy_MoveAtLeast3_Ignored 18.5
+PASS Controller_Gesture_Idle_Release_Ignored
+COST Controller_Gesture_Idle_Release_Ignored 5.5
+PASS Controller_Gesture_Pressed_Release_NoChange
+COST Controller_Gesture_Pressed_Release_NoChange 19.2
+PASS Controller_Gesture_Dragging_Release_BusyOrNoChange
+COST Controller_Gesture_Dragging_Release_BusyOrNoChange 189.3
+PASS Controller_Gesture_Nudging_Release_Ignored
+COST Controller_Gesture_Nudging_Release_Ignored 82.8
+PASS Controller_Gesture_Busy_Release_Ignored
+COST Controller_Gesture_Busy_Release_Ignored 19.0
+PASS Controller_Gesture_Idle_ArrowDown_Nudging
+COST Controller_Gesture_Idle_ArrowDown_Nudging 74.6
+PASS Controller_Gesture_Pressed_ArrowDown_Ignored
+COST Controller_Gesture_Pressed_ArrowDown_Ignored 25.5
+PASS Controller_Gesture_Dragging_ArrowDown_Ignored
+COST Controller_Gesture_Dragging_ArrowDown_Ignored 74.4
+PASS Controller_Gesture_Nudging_ArrowDown_Updated
+COST Controller_Gesture_Nudging_ArrowDown_Updated 106.6
+PASS Controller_Gesture_Busy_ArrowDown_IgnoredStatus
+COST Controller_Gesture_Busy_ArrowDown_IgnoredStatus 21.1
+PASS Controller_Gesture_Idle_KeyUp_Ignored
+COST Controller_Gesture_Idle_KeyUp_Ignored 5.6
+PASS Controller_Gesture_Pressed_KeyUp_Ignored
+COST Controller_Gesture_Pressed_KeyUp_Ignored 8.6
+PASS Controller_Gesture_Dragging_KeyUp_Ignored
+COST Controller_Gesture_Dragging_KeyUp_Ignored 76.6
+PASS Controller_Gesture_Nudging_KeyUp_Busy
+COST Controller_Gesture_Nudging_KeyUp_Busy 222.2
+PASS Controller_Gesture_Busy_KeyUp_Ignored
+COST Controller_Gesture_Busy_KeyUp_Ignored 4.2
+PASS Controller_Gesture_Idle_Escape_SelectionCleared
+COST Controller_Gesture_Idle_Escape_SelectionCleared 7.7
+PASS Controller_Gesture_Pressed_Escape_Cancelled
+COST Controller_Gesture_Pressed_Escape_Cancelled 22.0
+PASS Controller_Gesture_Dragging_Escape_Cancelled
+COST Controller_Gesture_Dragging_Escape_Cancelled 76.8
+PASS Controller_Gesture_Nudging_Escape_Cancelled
+COST Controller_Gesture_Nudging_Escape_Cancelled 86.8
+PASS Controller_Gesture_Busy_Escape_Ignored
+COST Controller_Gesture_Busy_Escape_Ignored 4.8
+PASS Controller_Gesture_Idle_CaptureLost_Ignored
+COST Controller_Gesture_Idle_CaptureLost_Ignored 5.1
+PASS Controller_Gesture_Pressed_CaptureLost_Cancelled
+COST Controller_Gesture_Pressed_CaptureLost_Cancelled 21.7
+PASS Controller_Gesture_Dragging_CaptureLost_Cancelled
+COST Controller_Gesture_Dragging_CaptureLost_Cancelled 75.2
+PASS Controller_Gesture_Nudging_CaptureLost_Ignored
+COST Controller_Gesture_Nudging_CaptureLost_Ignored 86.9
+PASS Controller_Gesture_Busy_CaptureLost_Ignored
+COST Controller_Gesture_Busy_CaptureLost_Ignored 22.0
+PASS Controller_Gesture_Idle_FocusLost_Ignored
+COST Controller_Gesture_Idle_FocusLost_Ignored 5.7
+PASS Controller_Gesture_Pressed_FocusLost_Cancelled
+COST Controller_Gesture_Pressed_FocusLost_Cancelled 18.0
+PASS Controller_Gesture_Dragging_FocusLost_Cancelled
+COST Controller_Gesture_Dragging_FocusLost_Cancelled 63.7
+PASS Controller_Gesture_Nudging_FocusLost_Busy
+COST Controller_Gesture_Nudging_FocusLost_Busy 176.3
+PASS Controller_Gesture_Busy_FocusLost_Continues
+COST Controller_Gesture_Busy_FocusLost_Continues 5.0
+PASS Controller_Gesture_Idle_DocumentAction_Proceed
+COST Controller_Gesture_Idle_DocumentAction_Proceed 203.4
+PASS Controller_Gesture_Pressed_DocumentAction_CancelProceed
+COST Controller_Gesture_Pressed_DocumentAction_CancelProceed 181.0
+PASS Controller_Gesture_Dragging_DocumentAction_CommitProceed
+COST Controller_Gesture_Dragging_DocumentAction_CommitProceed 322.5
+PASS Controller_Gesture_Nudging_DocumentAction_CommitProceed
+COST Controller_Gesture_Nudging_DocumentAction_CommitProceed 386.3
+PASS Controller_Gesture_Busy_DocumentAction_WaitProceed
+COST Controller_Gesture_Busy_DocumentAction_WaitProceed 212.4
+PASS Controller_Gesture_Idle_TypedPosition_Busy
+COST Controller_Gesture_Idle_TypedPosition_Busy 157.2
+PASS Controller_Gesture_Pressed_TypedPosition_Ignored
+COST Controller_Gesture_Pressed_TypedPosition_Ignored 7.6
+PASS Controller_Gesture_Dragging_TypedPosition_Ignored
+COST Controller_Gesture_Dragging_TypedPosition_Ignored 60.0
+PASS Controller_Gesture_Nudging_TypedPosition_Ignored
+COST Controller_Gesture_Nudging_TypedPosition_Ignored 60.6
+PASS Controller_Gesture_Busy_TypedPosition_Ignored
+COST Controller_Gesture_Busy_TypedPosition_Ignored 10.3
+PASS Controller_Gesture_Idle_DirectCommand_Busy
+COST Controller_Gesture_Idle_DirectCommand_Busy 340.6
+PASS Controller_Gesture_Pressed_DirectCommand_Ignored
+COST Controller_Gesture_Pressed_DirectCommand_Ignored 5.1
+PASS Controller_Gesture_Dragging_DirectCommand_Ignored
+COST Controller_Gesture_Dragging_DirectCommand_Ignored 55.7
+PASS Controller_Gesture_Nudging_DirectCommand_Ignored
+COST Controller_Gesture_Nudging_DirectCommand_Ignored 72.5
+PASS Controller_Gesture_Busy_DirectCommand_Refused
+COST Controller_Gesture_Busy_DirectCommand_Refused 10.1
+PASS Controller_Gesture_Idle_BusyComplete_Ignored
+COST Controller_Gesture_Idle_BusyComplete_Ignored 6.0
+PASS Controller_Gesture_Pressed_BusyComplete_Ignored
+COST Controller_Gesture_Pressed_BusyComplete_Ignored 6.5
+PASS Controller_Gesture_Dragging_BusyComplete_Ignored
+COST Controller_Gesture_Dragging_BusyComplete_Ignored 48.4
+PASS Controller_Gesture_Nudging_BusyComplete_Ignored
+COST Controller_Gesture_Nudging_BusyComplete_Ignored 65.7
+PASS Controller_Gesture_Busy_BusyComplete_Idle
+COST Controller_Gesture_Busy_BusyComplete_Idle 365.6
+SUITE --controller-shell exit 1
+SUITE-TIME --controller-shell 46.7 s
+FAIL --controller-shell exited 1
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=views RenderScaling=1.5 PrimaryScaling=1.5 WorkingArea=2560x1528 UseLayoutRounding=True
+PASS ViewCamera_Presets_TopFrontSideIsoBottomBackPort
+COST ViewCamera_Presets_TopFrontSideIsoBottomBackPort 7.1
+PASS ViewCamera_Side_NoseRightTrailingEdgeLeft
+COST ViewCamera_Side_NoseRightTrailingEdgeLeft 0.6
+PASS ViewCamera_AxisPresetsOrthographic_OrbitPerspective
+COST ViewCamera_AxisPresetsOrthographic_OrbitPerspective 1.3
+PASS ViewCamera_OrbitPivot_IsTarget
+COST ViewCamera_OrbitPivot_IsTarget 0.7
+PASS ViewCamera_Zoom_ClampedAtLimits
+COST ViewCamera_Zoom_ClampedAtLimits 2.2
+PASS ViewCamera_FitSelection_StationBoundsFill
+COST ViewCamera_FitSelection_StationBoundsFill 130.3
+PASS ViewCamera_Title_NamedOrAzimuthElevation
+COST ViewCamera_Title_NamedOrAzimuthElevation 0.4
+PASS Controller_SurfaceAsync_StaleTicketDropped
+COST Controller_SurfaceAsync_StaleTicketDropped 1021.0
+PASS Controller_DuringChannelDrag_SurfaceFromDraftGeneration
+COST Controller_DuringChannelDrag_SurfaceFromDraftGeneration 741.8
+PASS Controller_SlowSurface_UpdatingShownAfter250Ms
+COST Controller_SlowSurface_UpdatingShownAfter250Ms 593.1
+PASS Controller_OpenCompletesAfterDispose_SupersededNoEventsNoLeak
+COST Controller_OpenCompletesAfterDispose_SupersededNoEventsNoLeak 1017.3
+PASS Controller_ChannelGesture_SameTransitionTableAsRails
+COST Controller_ChannelGesture_SameTransitionTableAsRails 1417.4
+PASS Nudge_ChannelLaneRun_Accumulates
+COST Nudge_ChannelLaneRun_Accumulates 1190.9
+PASS Controller_Layout_SessionValueNotPersisted
+COST Controller_Layout_SessionValueNotPersisted 894.9
+PASS ViewEvents_SurfaceOutcome_StaleDroppedAndError
+COST ViewEvents_SurfaceOutcome_StaleDroppedAndError 456.6
+PASS SurfaceRenderer_ShadedPainterOrder_TopShowsUpperSurface
+COST SurfaceRenderer_ShadedPainterOrder_TopShowsUpperSurface 2982.5
+PASS SurfaceRenderer_ShadingRamp_NeverBrighterThanFoilShadeLit
+COST SurfaceRenderer_ShadingRamp_NeverBrighterThanFoilShadeLit 1601.2
+PASS SurfaceRenderer_Wireframe_InteriorViewportColourTenThinRows
+COST SurfaceRenderer_Wireframe_InteriorViewportColourTenThinRows 1263.6
+PASS Workspace_NewFoil_WindowPixelsShow3dSurface
+COST Workspace_NewFoil_WindowPixelsShow3dSurface 1066.2
+PASS ModelArea_FourViews_PlanThreeDSideFront
+COST ModelArea_FourViews_PlanThreeDSideFront 1383.4
+PASS DevicePixel_RoundedAndDeviceSampler_MatchTheLoggedWindowsRun
+COST DevicePixel_RoundedAndDeviceSampler_MatchTheLoggedWindowsRun 1.1
+  view-plates: 4 plates at (6, 6), the views fill their slots; Plan 38, 24, Side 122, 24
+PASS ModelArea_ViewLabels_AreTopLeftPlates_NotStrips
+COST ModelArea_ViewLabels_AreTopLeftPlates_NotStrips 1271.6
+PASS ModelArea_ThreeDCaption_ClearOfNavbar
+COST ModelArea_ThreeDCaption_ClearOfNavbar 1646.2
+PASS ModelArea_Navbar_NotApplicable_DisabledWithReason
+COST ModelArea_Navbar_NotApplicable_DisabledWithReason 1100.4
+PASS ModelArea_LayoutRoundTripAndTabReentry_AllViewsRenderPixels
+COST ModelArea_LayoutRoundTripAndTabReentry_AllViewsRenderPixels 2522.9
+PASS ModelArea_FirstMesh_DrawingStateThenSurface
+COST ModelArea_FirstMesh_DrawingStateThenSurface 1148.6
+PASS Elevation_ChipBorderSampler_HoldsHalfOfASplitLine
+COST Elevation_ChipBorderSampler_HoldsHalfOfASplitLine 0.9
+PASS Elevation_FrontBand_StarboardPointsOnViewerLeftRendered
+COST Elevation_FrontBand_StarboardPointsOnViewerLeftRendered 1165.3
+PASS Elevation_FrontThicknessLane_CaptionedSharedSpanAxis
+COST Elevation_FrontThicknessLane_CaptionedSharedSpanAxis 179.5
+PASS ElevationView_DoubleClickOnTwistCurve_AddsPoint
+COST ElevationView_DoubleClickOnTwistCurve_AddsPoint 919.8
+PASS Elevation_SideSignFixture_ExampleTipTrailingEdgeRenderedHigher
+COST Elevation_SideSignFixture_ExampleTipTrailingEdgeRenderedHigher 181.3
+PASS Elevation_SideClickSection_SelectsStation
+COST Elevation_SideClickSection_SelectsStation 494.1
+PASS Elevation_DragDihedralPoint_BandAnd3dFollowBeforeRelease
+COST Elevation_DragDihedralPoint_BandAnd3dFollowBeforeRelease 1328.2
+PASS Elevation_TabOrder_DihedralThenThicknessThenLeaves
+COST Elevation_TabOrder_DihedralThenThicknessThenLeaves 354.4
+PASS Elevation_TwistDomainClamp_ProbeShowsReason
+COST Elevation_TwistDomainClamp_ProbeShowsReason 633.8
+PASS Elevation_ZoomPanFit_KeyboardAndPointerSameCamera
+COST Elevation_ZoomPanFit_KeyboardAndPointerSameCamera 218.0
+PASS Elevation_AutomationPeers_BandGroupChannelNamesCarryValueAndUnit
+COST Elevation_AutomationPeers_BandGroupChannelNamesCarryValueAndUnit 69.4
+PASS Elevation_SideBandHover_ProbeNamesStation
+COST Elevation_SideBandHover_ProbeNamesStation 101.9
+PASS Elevation_Probe_NotLiveRegionWrapsInNarrowView
+COST Elevation_Probe_NotLiveRegionWrapsInNarrowView 471.3
+PASS CurvePointLayer_PlanAndLane_SameGlyphPixels
+COST CurvePointLayer_PlanAndLane_SameGlyphPixels 417.4
+PASS View3d_DefaultIso_FromFrontFillsWidth
+COST View3d_DefaultIso_FromFrontFillsWidth 1046.9
+PASS View3d_SignFixture_ExampleTipTrailingEdgeRenderedHigher
+COST View3d_SignFixture_ExampleTipTrailingEdgeRenderedHigher 110.7
+PASS View3d_PointerBindings_TrackpadPansPinchAndWheelZoomMiddleAndShiftDragPan
+COST View3d_PointerBindings_TrackpadPansPinchAndWheelZoomMiddleAndShiftDragPan 404.3
+PASS View3d_KeyboardTilt_Alt15ShiftAlt45
+COST View3d_KeyboardTilt_Alt15ShiftAlt45 275.0
+PASS View3d_PlainArrows_DoNothing
+COST View3d_PlainArrows_DoNothing 168.9
+PASS View3d_HomeIsoCommandZeroFitFFitSelection
+COST View3d_HomeIsoCommandZeroFitFFitSelection 344.2
+PASS View3d_NavigateEnd_EmitsFramesAndP95
+COST View3d_NavigateEnd_EmitsFramesAndP95 460.7
+PASS View3d_CubeChevron_Orbits90
+COST View3d_CubeChevron_Orbits90 285.3
+PASS View3d_FocusedCubeFaceLosesArea_FocusToCurrentFace
+COST View3d_FocusedCubeFaceLosesArea_FocusToCurrentFace 114.9
+PASS View3d_AxisView_HomeAndArrowsVisible_HomeReturnsToIso
+COST View3d_AxisView_HomeAndArrowsVisible_HomeReturnsToIso 430.2
+PASS View3d_ClickStationSection_SelectsStationEverywhere
+COST View3d_ClickStationSection_SelectsStationEverywhere 200.6
+PASS View3d_SelectedStation_RenderedWidthAndChip
+COST View3d_SelectedStation_RenderedWidthAndChip 639.0
+PASS View3d_AutomationPeers_CubeButtonsAndHelpText
+COST View3d_AutomationPeers_CubeButtonsAndHelpText 68.8
+PASS View3d_TabPastCube_LeavesView
+COST View3d_TabPastCube_LeavesView 59.7
+PARTITION 1/2 of 107 checks
+SUITE --views --part=1/2 exit 0
+SUITE-TIME --views --part=1/2 36.1 s
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=analysis RenderScaling=1.5 PrimaryScaling=1.5 WorkingArea=2560x1528 UseLayoutRounding=True
+PASS Toggle_RoundTrip_CameraSelectionStationViewportEqual
+COST Toggle_RoundTrip_CameraSelectionStationViewportEqual 1034.7
+PASS Toggle_NeverEvaluates
+COST Toggle_NeverEvaluates 623.2
+PASS Toggle_PreviewOpen_HiddenThenRestoredUntouched
+COST Toggle_PreviewOpen_HiddenThenRestoredUntouched 592.9
+PASS Toggle_PreviewOpen_LayersOverAcceptedRevision
+COST Toggle_PreviewOpen_LayersOverAcceptedRevision 515.4
+PASS Toggle_PreviewOpen_PreviewHiddenBannerShownInAnalysisOnly
+COST Toggle_PreviewOpen_PreviewHiddenBannerShownInAnalysisOnly 857.8
+PASS Toggle_SectionDraftOpen_EditorRestoredOnReturn
+COST Toggle_SectionDraftOpen_EditorRestoredOnReturn 741.7
+PASS Analysis_EditVerb_RefusedWithInertMessage
+COST Analysis_EditVerb_RefusedWithInertMessage 471.6
+PASS ConditionsBand_Running_EvaluateBecomesCancelAnnounced
+COST ConditionsBand_Running_EvaluateBecomesCancelAnnounced 2.3
+PASS ConditionsBand_At1024_MoreHoldsDerivedExceptQAndSigma
+COST ConditionsBand_At1024_MoreHoldsDerivedExceptQAndSigma 1.7
+PASS ConditionsBand_CliRunKey_EqualsAnalyse
+COST ConditionsBand_CliRunKey_EqualsAnalyse 846.2
+PASS StatusStrip_AnalysisItem_FollowsRunState
+COST StatusStrip_AnalysisItem_FollowsRunState 4.0
+PASS Toggle_HistoricalRun_BannerInBothModes
+COST Toggle_HistoricalRun_BannerInBothModes 1420.4
+PASS Telemetry_AnalysisProject_FreshnessOnRebuild
+COST Telemetry_AnalysisProject_FreshnessOnRebuild 1053.9
+NATIVE-STARTUP window-opened
+PASS Toggle_NavbarAndMenuReachable
+COST Toggle_NavbarAndMenuReachable 1067.4
+PASS Feed_InsideStrips_OnlyTheTwoTipsReadNotJudged
+COST Feed_InsideStrips_OnlyTheTwoTipsReadNotJudged 1297.9
+PASS Feed_Stations_DepthBandAndTipDepthRecorded
+COST Feed_Stations_DepthBandAndTipDepthRecorded 3.1
+PASS Feed_RootThickness_ReadsTheRootStationRatio
+COST Feed_RootThickness_ReadsTheRootStationRatio 2.7
+PASS Layers_Visibility_ControllerFlagFeedsProjection
+COST Layers_Visibility_ControllerFlagFeedsProjection 9.8
+PASS Feed_HistoricalOperatingPoint_KeepsVerdicts
+COST Feed_HistoricalOperatingPoint_KeepsVerdicts 7.4
+PASS Feed_OutsideStrips_LabelledOutsideAndOutlined
+COST Feed_OutsideStrips_LabelledOutsideAndOutlined 632.6
+PASS HistFeed_GeometryHistorical_KeepsOwnVerdictsStationsRootAndNormals
+COST HistFeed_GeometryHistorical_KeepsOwnVerdictsStationsRootAndNormals 1359.5
+PASS HistFeed_RevisionNotHeld_UnavailableWithReasonNeverTheCurrentRevision
+COST HistFeed_RevisionNotHeld_UnavailableWithReasonNeverTheCurrentRevision 1741.9
+PASS HistFeed_FailedEvaluate_PreviousCompletedKeepsItsVerdicts
+COST HistFeed_FailedEvaluate_PreviousCompletedKeepsItsVerdicts 1048.3
+PASS HistFeed_SetLayerVisible_RaisesLayersChangedOncePerChange
+COST HistFeed_SetLayerVisible_RaisesLayersChangedOncePerChange 443.2
+PASS ModelArea_LayersChanged_UnsubscribesOnWindowClose
+COST ModelArea_LayersChanged_UnsubscribesOnWindowClose 98.2
+PASS PlanLayer_BatlowBrushes_MatchDesignTokens
+COST PlanLayer_BatlowBrushes_MatchDesignTokens 4.2
+PASS PlanLayer_OutsideStrips_DashedOutlineAndCount
+COST PlanLayer_OutsideStrips_DashedOutlineAndCount 3.5
+PASS View3dLayer_NormalAndMissingVector
+COST View3dLayer_NormalAndMissingVector 2.8
+PASS View3dLayer_AnchorInterpolatesBetweenSections
+COST View3dLayer_AnchorInterpolatesBetweenSections 4.1
+PASS ElevationLayer_DepthUnsetNoBand
+COST ElevationLayer_DepthUnsetNoBand 1.7
+PASS LayersPane_HideLayer_ViewDropsLayerTwinKept
+COST LayersPane_HideLayer_ViewDropsLayerTwinKept 1133.9
+PASS PropertiesView_Analysis_StationShowsStripOfWingRun
+COST PropertiesView_Analysis_StationShowsStripOfWingRun 24.1
+PASS PropertiesPane_Analysis_BuildsWithAnalysisModeAndContext
+COST PropertiesPane_Analysis_BuildsWithAnalysisModeAndContext 1711.7
+PASS AnalysisPanel_Tabs_BoundToSelectedRun
+COST AnalysisPanel_Tabs_BoundToSelectedRun 314.5
+PASS LoadingChart_TableTwin_Imperial_ReadsLbfPerFt
+COST LoadingChart_TableTwin_Imperial_ReadsLbfPerFt 2.4
+PASS LoadingChart_TableTwin_TogglesAndKeepsFocus
+COST LoadingChart_TableTwin_TogglesAndKeepsFocus 54.4
+PASS Shell_AnalysisSlots_BottomPanelInAnalysisOnly_LayersTabInLeftDock
+COST Shell_AnalysisSlots_BottomPanelInAnalysisOnly_LayersTabInLeftDock 1521.5
+PASS Shell_SectionDraftHiddenInAnalysis_EvaluateRepaintsProperties
+COST Shell_SectionDraftHiddenInAnalysis_EvaluateRepaintsProperties 2810.7
+PASS Properties_AnalysisLayout_OneVisibleScroll_TierChipAboveGroups
+COST Properties_AnalysisLayout_OneVisibleScroll_TierChipAboveGroups 2694.7
+PASS Analysis_Running_HidesPreviousFailureCard
+COST Analysis_Running_HidesPreviousFailureCard 1275.3
+PASS Analysis_Cells_NotCutAt1500x870_BandDepthUnsetAndRunningTickRow
+COST Analysis_Cells_NotCutAt1500x870_BandDepthUnsetAndRunningTickRow 3701.6
+PASS Analysis_Units_BandSpeedFollowsResults_ConditionsSummaryAndHistoricalChip
+COST Analysis_Units_BandSpeedFollowsResults_ConditionsSummaryAndHistoricalChip 4409.0
+FAIL Tampered_RunView_UnavailableNoLayersRowKept Exception: the fixture saved: expected OK, got DOC-UNSUPPORTED-PERSISTENCE
+STACK Tampered_RunView_UnavailableNoLayersRowKept System.Exception: the fixture saved: expected OK, got DOC-UNSUPPORTED-PERSISTENCE |    at CfdWorkbench.Desktop.Tests.AnalysisPanelTests.Equal[T](T expected, T actual, String what) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\AnalysisPanelTests.cs:line 688 |    at CfdWorkbench.Desktop.Tests.AnalysisPanelTests.<>c.<Run>b__0_13() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\AnalysisPanelTests.cs:line 461 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Tampered_RunView_UnavailableNoLayersRowKept 1491.2
+PASS LoadingChart_Axes_TicksTitlesSeriesLabel_OnlyApprovedCopy
+COST LoadingChart_Axes_TicksTitlesSeriesLabel_OnlyApprovedCopy 58.4
+PASS PlanLayer_LegendRamp_IsTheBatlowTokens_3dPlatesStayInView
+COST PlanLayer_LegendRamp_IsTheBatlowTokens_3dPlatesStayInView 30.2
+PASS PropertiesPane_Analysis_Imperial_StripLiftReadsLbfPerFt
+COST PropertiesPane_Analysis_Imperial_StripLiftReadsLbfPerFt 293.1
+PASS StaleConditions_BandEdits_EverySurfaceReadsHistorical_RevertIsCurrent_NoRun_BadInputReadsChanged
+COST StaleConditions_BandEdits_EverySurfaceReadsHistorical_RevertIsCurrent_NoRun_BadInputReadsChanged 6228.1
+PASS StaleConditions_WaterAndDepthEdits_ReadHistorical_EvaluateMakesTheNewPointCurrent
+COST StaleConditions_WaterAndDepthEdits_ReadHistorical_EvaluateMakesTheNewPointCurrent 4804.2
+PASS SectionProfile_QuarterChordPlateAndAccessibleName_ReadSf22AtOnePanel_Sf5AtFour_Ruling162
+COST SectionProfile_QuarterChordPlateAndAccessibleName_ReadSf22AtOnePanel_Sf5AtFour_Ruling162 91.5
+PASS SectionProfile_OneChordwisePanel_NoCoupleGlyph_LabelReadsNotResolved_FourPanelsDrawsIt_Ruling161
+COST SectionProfile_OneChordwisePanel_NoCoupleGlyph_LabelReadsNotResolved_FourPanelsDrawsIt_Ruling161 61.2
+SUITE --analysis exit 1
+SUITE-TIME --analysis 50.0 s
+FAIL --analysis exited 1
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=views RenderScaling=1.5 PrimaryScaling=1.5 WorkingArea=2560x1528 UseLayoutRounding=True
+PASS ViewCamera_Front_StarboardOnViewerLeft
+COST ViewCamera_Front_StarboardOnViewerLeft 3.5
+PASS ViewCamera_Top_MatchesPlanOrientation
+COST ViewCamera_Top_MatchesPlanOrientation 0.6
+PASS ViewCamera_OrbitElevation_ClampedAtPolesNoFlip
+COST ViewCamera_OrbitElevation_ClampedAtPolesNoFlip 1.0
+PASS ViewCamera_ZoomAboutPointer_PointUnderCursorFixed
+COST ViewCamera_ZoomAboutPointer_PointUnderCursorFixed 4.1
+PASS ViewCamera_Fit_BoundsInsideViewportMargin
+COST ViewCamera_Fit_BoundsInsideViewportMargin 2.1
+PASS ViewCamera_RandomVerbs_FitRecentres
+COST ViewCamera_RandomVerbs_FitRecentres 15.9
+PASS Controller_CameraOnlyChange_RaisesCameraChangedNotChanged
+COST Controller_CameraOnlyChange_RaisesCameraChangedNotChanged 985.1
+PASS Controller_SurfaceRequest_NeverStalesCommit
+COST Controller_SurfaceRequest_NeverStalesCommit 800.7
+PASS Controller_UndoDuringSurfaceCompute_ShowsUndoneShape
+COST Controller_UndoDuringSurfaceCompute_ShowsUndoneShape 707.5
+PASS Controller_DisposedWithQueuedSurfaceNotify_NotifiesNoView
+COST Controller_DisposedWithQueuedSurfaceNotify_NotifiesNoView 485.3
+PASS Controller_SurfaceComputeFails_KeepsLastMeshNoteErrorEvent
+COST Controller_SurfaceComputeFails_KeepsLastMeshNoteErrorEvent 482.6
+PASS Nudge_HeldKeyRun_AccumulatesStepsOneUndoRow
+COST Nudge_HeldKeyRun_AccumulatesStepsOneUndoRow 1282.5
+PASS Controller_GestureEnd_CurveFamilyAndThreeDVisible
+COST Controller_GestureEnd_CurveFamilyAndThreeDVisible 515.1
+MEASURE view_surface_41x101_fast_ring_ms=12.5
+PASS ViewEvents_SurfaceCompute_EmittedWithDuration
+COST ViewEvents_SurfaceCompute_EmittedWithDuration 441.4
+PASS SurfaceRenderer_RenderTargetBitmap_CapturesShadedPixels
+COST SurfaceRenderer_RenderTargetBitmap_CapturesShadedPixels 2573.0
+PASS SurfaceRenderer_Silhouette_RenderedFoilStrokeThreeToOne
+COST SurfaceRenderer_Silhouette_RenderedFoilStrokeThreeToOne 1083.2
+PASS SurfaceRenderer_PortHalf_LitSameAsStarboard
+COST SurfaceRenderer_PortHalf_LitSameAsStarboard 968.3
+PASS SurfaceRenderer_Brushes_AllFromThemeResources
+COST SurfaceRenderer_Brushes_AllFromThemeResources 2058.7
+PASS ModelArea_Plan3d_PlanTwoThirds3dOneThird
+COST ModelArea_Plan3d_PlanTwoThirds3dOneThird 990.7
+P3 layout=ViewLayout { Arrangement = One, Single = ThreeD } PlanVisible=False ThreeDVisible=True ThreeDWidth=1130.6666666666667 PlanContentWidth=1133.3333333333333 RoundedFrame=1.3333333333333333 WindowBounds=0, 0, 1400, 1000 ClientSize=1400, 1000 RenderScaling=1.5
+PASS ModelArea_ViewLabelDoubleClickOrReturn_OneViewAndBack
+COST ModelArea_ViewLabelDoubleClickOrReturn_OneViewAndBack 1663.0
+PASS ModelArea_FourViewsMinimumWindow_EachAtLeast320x240OrOneView
+COST ModelArea_FourViewsMinimumWindow_EachAtLeast320x240OrOneView 1316.2
+PASS ModelArea_OneView_PickerBack_RestoresPreviousLayout
+COST ModelArea_OneView_PickerBack_RestoresPreviousLayout 2229.1
+PASS ModelArea_OneView_PlatePicker_SwitchesView
+COST ModelArea_OneView_PlatePicker_SwitchesView 2344.6
+PASS ModelArea_Navbar_KeyboardPath_TabAfterTheViews
+COST ModelArea_Navbar_KeyboardPath_TabAfterTheViews 1081.1
+PASS ModelArea_NotCertifiedFoil_ViewsDimmedWithCaption
+COST ModelArea_NotCertifiedFoil_ViewsDimmedWithCaption 1364.6
+PASS View_RenderThrows_CopyTryAgainAndEvent
+COST View_RenderThrows_CopyTryAgainAndEvent 1220.5
+PASS Elevation_FrontBand_RenderedFromSurfaceView
+COST Elevation_FrontBand_RenderedFromSurfaceView 1116.3
+PASS Elevation_FrontDihedralFrame_PointsOnLeadingEdgeLine
+COST Elevation_FrontDihedralFrame_PointsOnLeadingEdgeLine 1098.7
+PASS Elevation_FrontLane_ArrowsFollowScreenAxes
+COST Elevation_FrontLane_ArrowsFollowScreenAxes 1323.8
+PASS Elevation_SideBodyPlan_AuthoredSectionsOverlaid
+COST Elevation_SideBodyPlan_AuthoredSectionsOverlaid 167.0
+PASS Elevation_SideSelectedStation_RenderedFullWeight
+COST Elevation_SideSelectedStation_RenderedFullWeight 349.7
+PASS Elevation_SideTwistLane_ZeroLinePositiveUpRootLeft
+COST Elevation_SideTwistLane_ZeroLinePositiveUpRootLeft 362.4
+PASS Elevation_ShiftDrag_PointLocksAxisEmptySpacePans
+COST Elevation_ShiftDrag_PointLocksAxisEmptySpacePans 691.1
+PASS Elevation_TabPastLastPoint_LeavesView
+COST Elevation_TabPastLastPoint_LeavesView 137.3
+PASS Elevation_FocusOffscreenPoint_PansIntoView
+COST Elevation_FocusOffscreenPoint_PansIntoView 172.3
+PASS Elevation_LockedDihedralRoot_AssertiveLockCopy
+COST Elevation_LockedDihedralRoot_AssertiveLockCopy 475.0
+PASS Elevation_HoverProbe_AllChannelsAtEta
+COST Elevation_HoverProbe_AllChannelsAtEta 106.9
+PASS Elevation_FocusedPoint_ProbeFollows
+COST Elevation_FocusedPoint_ProbeFollows 45.1
+PASS Elevation_SelectedPoint_RenderedFilledAtLeastThreeToOne
+COST Elevation_SelectedPoint_RenderedFilledAtLeastThreeToOne 531.6
+PASS View3d_DefaultIso_RenderedSurfaceCubeAndTriad
+COST View3d_DefaultIso_RenderedSurfaceCubeAndTriad 1028.0
+PASS View3d_DisplayWireframeShaded_RenderedPerMode
+COST View3d_DisplayWireframeShaded_RenderedPerMode 312.0
+PASS View3d_AltDrag_OrbitsTitleShowsAzimuthElevation
+COST View3d_AltDrag_OrbitsTitleShowsAzimuthElevation 92.0
+PASS View3d_KeyboardOrbit_Alt15ShiftAlt90Brackets5
+COST View3d_KeyboardOrbit_Alt15ShiftAlt90Brackets5 355.0
+PASS View3d_ShiftArrows_Pan
+COST View3d_ShiftArrows_Pan 348.0
+PASS View3d_ZoomKeys_CommandPlusMinusAndZ_AboutCentre
+COST View3d_ZoomKeys_CommandPlusMinusAndZ_AboutCentre 193.6
+PASS View3d_SingleKeys_InertInTextFieldAndBrowser
+COST View3d_SingleKeys_InertInTextFieldAndBrowser 486.5
+PASS View3d_CubeFaceClick_PresetOrthographicAndAnnounced
+COST View3d_CubeFaceClick_PresetOrthographicAndAnnounced 143.3
+PASS View3d_CubeFaces_TargetOnlyWhen24PxCircleFits
+COST View3d_CubeFaces_TargetOnlyWhen24PxCircleFits 74.8
+PASS View3d_CubeHiddenBelow240_FocusToViewMenuReachesPresets
+COST View3d_CubeHiddenBelow240_FocusToViewMenuReachesPresets 263.6
+PASS View3d_CubeFocusRing_GapOnCurrentFaceThreeToOne
+COST View3d_CubeFocusRing_GapOnCurrentFaceThreeToOne 347.0
+PASS View3d_ChipBorderSampler_FindsStationColourInTheLoggedWindowsBlock
+COST View3d_ChipBorderSampler_FindsStationColourInTheLoggedWindowsBlock 1.0
+PASS View3d_AutomationName_CameraOnlyUpdatedPerStep
+COST View3d_AutomationName_CameraOnlyUpdatedPerStep 171.6
+PASS View3d_PresetChange_NoAnimationFrames
+COST View3d_PresetChange_NoAnimationFrames 382.3
+PARTITION 2/2 of 107 checks
+SUITE --views --part=2/2 exit 0
+SUITE-TIME --views --part=2/2 36.8 s
+SCALE_CONTEXT mode=properties-cells RenderScaling=1.5 PrimaryScaling=1.5 WorkingArea=2560x1528 UseLayoutRounding=True
+MEASURE header pos 24 px
+MEASURE header rail 24 px
+PASS PropertiesPane_B_HeaderTwirl24_NoBand
+COST PropertiesPane_B_HeaderTwirl24_NoBand 3998.9
+PASS KindBox_DropDownOpen_ArrowsThenEsc_NoUndoRow
+COST KindBox_DropDownOpen_ArrowsThenEsc_NoUndoRow 2522.9
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+MEASURE CL-5 kind row 154.7..318 in a 318 px viewport, offset 367.3
+PASS PropertiesPane_B_FocusedRowStaysInViewWhenHelpToggles
+COST PropertiesPane_B_FocusedRowStaysInViewWhenHelpToggles 2614.8
+PASS PropertiesPane_Density_NothingBelow11
+COST PropertiesPane_Density_NothingBelow11 1976.5
+PASS PropertiesPane_Density_FocusedAndErrorFieldTextNotClipped
+COST PropertiesPane_Density_FocusedAndErrorFieldTextNotClipped 1346.1
+MEASURE DC-1 200 '#root_chord × 0.35': text 109.3 in 109.3, label 46
+MEASURE DC-1 200 '(#span − 2 cm) / 2': text 109.3 in 109.3, label 46
+MEASURE DC-1 260 '#root_chord × 0.35': text 169.3 in 169.3, label 46
+MEASURE DC-1 260 '(#span − 2 cm) / 2': text 169.3 in 169.3, label 46
+MEASURE DC-1 300 '#root_chord × 0.35': text 209.3 in 209.3, label 46
+MEASURE DC-1 300 '(#span − 2 cm) / 2': text 209.3 in 209.3, label 46
+MEASURE DC-1 200 subhead '#tip_chord × 0.1': text 110.7 in 110.7, label 34
+PASS PropertiesPane_Density_FocusedInputShowsWholeExpression
+COST PropertiesPane_Density_FocusedInputShowsWholeExpression 2773.6
+ITEM6 name=PointAftInput BoundsDIP=139.33333333333334, 0, 62, 24 PropertiesOriginDIP=160.66666666666669, 127.33333333333333 WidthDIP=62 HeightDIP=24 PaddingDIP=3,3,3,3 DigitsEndXDIP=NaN PropertiesXDevice=241.00000000000003 PropertiesYDevice=191 WidthDevice=93 HeightDevice=36 DigitsEndXDevice=NaN RenderScaling=1.5
+ITEM6 name=Value_p_eta BoundsDIP=0, 0, 32, 14 PropertiesOriginDIP=190.66666666666669, 108.66666666666667 WidthDIP=32 HeightDIP=14 PaddingDIP=0,0,5,0 DigitsEndXDIP=217.33333333333334 PropertiesXDevice=286 PropertiesYDevice=163 WidthDevice=48 HeightDevice=21 DigitsEndXDevice=326 RenderScaling=1.5
+ITEM6 name=PART_TextPresenter BoundsDIP=0, 0, 52.666666666666664, 14 PropertiesOriginDIP=165.33333333333334, 132 WidthDIP=52.666666666666664 HeightDIP=14 PaddingDIP=n/a DigitsEndXDIP=218.33333333333334 PropertiesXDevice=248 PropertiesYDevice=198 WidthDevice=79 HeightDevice=21 DigitsEndXDevice=327.5 RenderScaling=1.5
+MEASURE DC-3 input digits end 218.33, fact digits end 217.33
+FAIL PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs InvalidOperationException: input ends 218.33, fact 217.33
+STACK PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs System.InvalidOperationException: input ends 218.33, fact 217.33 |    at CfdWorkbench.Desktop.Tests.PropertiesCellsTests.<>c.<Run>b__4_13(WorkbenchController controller, ShellHost host, Window window) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\PropertiesCellsTests.cs:line 723 |    at CfdWorkbench.Desktop.Tests.PropertiesViewTests.<>c__DisplayClass13_0.<Pane>b__0() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\PropertiesViewTests.cs:line 1320 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs 1166.9
+PASS PropertiesPane_Density_HeaderMenuCopiesEachRow_NoRowContextMenus
+COST PropertiesPane_Density_HeaderMenuCopiesEachRow_NoRowContextMenus 1469.6
+PASS PropertiesPane_Density_EveryInputDeclaresMinHeightOf24
+COST PropertiesPane_Density_EveryInputDeclaresMinHeightOf24 1896.8
+MEASURE stacked 1: label bottom 19.3, value top 0, row 24
+MEASURE stacked 1.5: label bottom 21.3, value top 21.3, row 57.3
+MEASURE stacked 2: label bottom 28, value top 28, row 76
+PASS PropertiesPane_Density_StackedRowsAtLargeText
+COST PropertiesPane_Density_StackedRowsAtLargeText 1435.9
+PASS TextSize_Setting_ScalesEveryPropToken
+COST TextSize_Setting_ScalesEveryPropToken 1697.9
+PASS TextSize_ModelViewKeepsZoomShortcut
+COST TextSize_ModelViewKeepsZoomShortcut 1257.1
+PASS TextSize_SaveNotKept_RecordedAndAnnouncedOnce
+COST TextSize_SaveNotKept_RecordedAndAnnouncedOnce 315.6
+PARTITION 2/2 of 26 checks
+SUITE --properties-cells --part=2/2 exit 1
+SUITE-TIME --properties-cells --part=2/2 25.6 s
+FAIL --properties-cells --part=2/2 exited 1
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=properties-cells RenderScaling=1.5 PrimaryScaling=1.5 WorkingArea=2560x1528 UseLayoutRounding=True
+MEASURE identity block 31.3 px, Wing block 238 px
+MEASURE row Row_p_eta 20 px
+MEASURE row Row_p_from 24 px
+MEASURE row Row_p_aft 24 px
+MEASURE row Row_p_type 24 px
+MEASURE row Row_e_mac 20 px
+MEASURE row Row_w_span 24 px
+PASS PropertiesPane_B_RowPitch20_24
+COST PropertiesPane_B_RowPitch20_24 3129.3
+PASS PropertiesPane_B_FocusedErrorFieldDistinctFromUnfocused
+COST PropertiesPane_B_FocusedErrorFieldDistinctFromUnfocused 2067.2
+PASS PropertiesPane_B_PendingDropIsAnnounced_PendingHelpTextNamesKeys
+COST PropertiesPane_B_PendingDropIsAnnounced_PendingHelpTextNamesKeys 2684.3
+PASS PropertiesPane_Density_OneFontSizeForLabelValueUnit
+COST PropertiesPane_Density_OneFontSizeForLabelValueUnit 1327.2
+MEASURE baselines input 143.87 unit 144.54 label 144.54; fact 120.54 label 120.54
+FAIL PropertiesPane_Density_UnitOnValueBaseline InvalidOperationException: input 143.87 unit 144.54 label 144.54; fact 120.54/120.54
+STACK PropertiesPane_Density_UnitOnValueBaseline System.InvalidOperationException: input 143.87 unit 144.54 label 144.54; fact 120.54/120.54 |    at CfdWorkbench.Desktop.Tests.PropertiesCellsTests.<>c.<Run>b__4_8(WorkbenchController controller, ShellHost host, Window window) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\PropertiesCellsTests.cs:line 585 |    at CfdWorkbench.Desktop.Tests.PropertiesViewTests.<>c__DisplayClass13_0.<Pane>b__0() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\PropertiesViewTests.cs:line 1320 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST PropertiesPane_Density_UnitOnValueBaseline 1334.7
+PASS PropertiesPane_Density_DrawnBoundaryOnePxInEveryState
+COST PropertiesPane_Density_DrawnBoundaryOnePxInEveryState 1459.6
+MEASURE DC-2 '−1234.56' 46 of 52.7 px
+MEASURE DC-2 '12000.00' 44 of 52.7 px
+MEASURE DC-2 '−89.99' 34 of 52.7 px
+MEASURE DC-2 area '≈ 38125' 46×14
+PASS PropertiesPane_Density_WorstCaseNumbersNotClippedAt200
+COST PropertiesPane_Density_WorstCaseNumbersNotClippedAt200 1217.6
+PASS PropertiesPane_Density_ValuesUseTabularFigures
+COST PropertiesPane_Density_ValuesUseTabularFigures 1104.4
+PASS PropertiesPane_Density_EveryTargetAtLeast24
+COST PropertiesPane_Density_EveryTargetAtLeast24 1790.2
+PASS PropertiesPane_Density_DefinitionsIsLinkDisclosure
+COST PropertiesPane_Density_DefinitionsIsLinkDisclosure 852.4
+MEASURE Wing at 200 %: tip 172.7..280 in 280 (extent 740)
+PASS PropertiesPane_Density_FocusedWingFieldInViewAtLargeText
+COST PropertiesPane_Density_FocusedWingFieldInViewAtLargeText 1674.8
+PASS TextSize_CommandPlusMinus_StepsLadder_Clamps100To200
+COST TextSize_CommandPlusMinus_StepsLadder_Clamps100To200 876.7
+FAIL TextSize_PersistsPerUser InvalidOperationException: set 1.5; after restart 1, PropFontSize at 1x
+STACK TextSize_PersistsPerUser System.InvalidOperationException: set 1.5; after restart 1, PropFontSize at 1x |    at CfdWorkbench.Desktop.Tests.PropertiesCellsTests.<>c.<Run>b__4_24() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\PropertiesCellsTests.cs:line 964 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST TextSize_PersistsPerUser 333.0
+PARTITION 1/2 of 26 checks
+SUITE --properties-cells --part=1/2 exit 1
+SUITE-TIME --properties-cells --part=1/2 21.0 s
+FAIL --properties-cells --part=1/2 exited 1
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=status-strip RenderScaling=1.5 PrimaryScaling=1.5 WorkingArea=2560x1528 UseLayoutRounding=True
+MEASURE strip y 776 h 24 w 1280 in 1280x800
+PASS StatusStrip_SitsAtWindowBottom_FullWidth_24px
+COST StatusStrip_SitsAtWindowBottom_FullWidth_24px 2789.5
+PASS StatusStrip_ChordAboveLimit_WarningInStrip_ToastOpens_RowKeepsRailOnly
+COST StatusStrip_ChordAboveLimit_WarningInStrip_ToastOpens_RowKeepsRailOnly 2574.8
+PASS Toast_NewerWarning_ReplacesText_InfoDoesNotClose
+COST Toast_NewerWarning_ReplacesText_InfoDoesNotClose 2941.0
+PASS StatusStrip_ReplaceReport_NamesStationsAndResidual
+COST StatusStrip_ReplaceReport_NamesStationsAndResidual 2400.9
+PASS PointsPane_SectionMode_ControlNetGroupsWithKind
+COST PointsPane_SectionMode_ControlNetGroupsWithKind 2743.4
+PASS PointsPane_TypedX_OneStep
+COST PointsPane_TypedX_OneStep 2744.4
+PASS StatusStrip_SectionInsertReport_CountAndDeviation
+COST StatusStrip_SectionInsertReport_CountAndDeviation 2139.2
+PARTITION 1/3 of 19 checks
+SUITE --status-strip --part=1/3 exit 0
+SUITE-TIME --status-strip --part=1/3 19.5 s
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=status-strip RenderScaling=1.5 PrimaryScaling=1.5 WorkingArea=2560x1528 UseLayoutRounding=True
+PASS ModelArea_HasNoTopStatusLine
+COST ModelArea_HasNoTopStatusLine 2804.8
+PASS Toast_EscInside_ClosesAndReturnsFocus
+COST Toast_EscInside_ClosesAndReturnsFocus 2640.8
+MEASURE long report 705 px in 431 px, strip h 24
+PASS StatusStrip_LongReport_EllipsizesWithFullTextInNameAndTooltip
+COST StatusStrip_LongReport_EllipsizesWithFullTextInNameAndTooltip 2175.7
+PASS Workspace_Precision_ShowsPointsInHomeRegion
+COST Workspace_Precision_ShowsPointsInHomeRegion 1707.0
+PASS PointsPane_RowClick_SelectsPointInCanvas
+COST PointsPane_RowClick_SelectsPointInCanvas 2167.2
+PASS PointsPane_InvalidValue_FieldErrorNoStep
+COST PointsPane_InvalidValue_FieldErrorNoStep 2093.9
+PARTITION 2/3 of 19 checks
+SUITE --status-strip --part=2/3 exit 0
+SUITE-TIME --status-strip --part=2/3 14.7 s
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=status-strip RenderScaling=1.5 PrimaryScaling=1.5 WorkingArea=2560x1528 UseLayoutRounding=True
+PASS StatusStrip_IsTheOnlyPoliteStatusRegion
+COST StatusStrip_IsTheOnlyPoliteStatusRegion 2849.2
+PASS Toast_OpensWithoutTakingFocus
+COST Toast_OpensWithoutTakingFocus 2510.0
+PASS StatusStrip_RecentNotCleared_TryAgainInStrip
+COST StatusStrip_RecentNotCleared_TryAgainInStrip 297.4
+PASS Workspace_Planform_HidesPoints
+COST Workspace_Planform_HidesPoints 2639.5
+PASS PointsPane_CanvasSelection_RowSelected
+COST PointsPane_CanvasSelection_RowSelected 2196.4
+PASS StatusStrip_ShowAction_FramesBlockingPoint
+COST StatusStrip_ShowAction_FramesBlockingPoint 3157.7
+PARTITION 3/3 of 19 checks
+SUITE --status-strip --part=3/3 exit 0
+SUITE-TIME --status-strip --part=3/3 14.8 s
+PASS ReadinessGate_PlantedSlowFrame_FailsQuietMissesLoaded
+COST ReadinessGate_PlantedSlowFrame_FailsQuietMissesLoaded 17.0
+PASS CommandTable_PointRemove_GesturesPerOs
+COST CommandTable_PointRemove_GesturesPerOs 8.2
+PASS Preset_EveryPaneSubset_ExactlyOnePlacement
+COST Preset_EveryPaneSubset_ExactlyOnePlacement 18.9
+PASS Presets_DesktopEqualsCodec_EveryWorkspace
+COST Presets_DesktopEqualsCodec_EveryWorkspace 71.0
+PASS Layout_SavedMessagesPane_DroppedWithCode
+COST Layout_SavedMessagesPane_DroppedWithCode 28.1
+PASS ProportionFor_Bounds
+COST ProportionFor_Bounds 0.5
+PASS FloatFrame_Scaling1_15_2_Exact
+COST FloatFrame_Scaling1_15_2_Exact 0.7
+PASS FloatRestoreSnapshot_NoDrift
+COST FloatRestoreSnapshot_NoDrift 1.0
+PASS Clamp_ScreenGone_FullyInsidePrimary
+COST Clamp_ScreenGone_FullyInsidePrimary 2.4
+PASS Clear_NearestClearCorner_Chosen
+COST Clear_NearestClearCorner_Chosen 4.8
+PASS Clear_TieBreak_FixedOrder
+COST Clear_TieBreak_FixedOrder 0.4
+PASS Clear_TwoFloats_NoOverlap
+COST Clear_TwoFloats_NoOverlap 0.8
+PASS Clear_NeverOverlapsTarget_Property
+COST Clear_NeverOverlapsTarget_Property 0.9
+PASS Clear_FloatLargerThanModelArea_DocksBack
+COST Clear_FloatLargerThanModelArea_DocksBack 0.6
+PASS FocusRing_HiddenRegionsAndFloats_Order
+COST FocusRing_HiddenRegionsAndFloats_Order 1.0
+PASS CommandTable_Parity_EveryRowInMenuPaletteKey
+COST CommandTable_Parity_EveryRowInMenuPaletteKey 3.0
+PASS CommandTable_ViewRows_ExecuteOrDisabled
+COST CommandTable_ViewRows_ExecuteOrDisabled 1022.6
+SUITE --shell-model exit 0
+SUITE-TIME --shell-model 2.7 s

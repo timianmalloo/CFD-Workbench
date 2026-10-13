@@ -1,0 +1,132 @@
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=shell-window RenderScaling=1.5 PrimaryScaling=1.5 WorkingArea=2560x1528 UseLayoutRounding=True
+PASS Shell_F6_ModelArea_OnlyDockDocumentTabs
+COST Shell_F6_ModelArea_OnlyDockDocumentTabs 1764.9
+PASS Shell_F2_LeftPaneChromeButtons_NamedAndDrawn
+COST Shell_F2_LeftPaneChromeButtons_NamedAndDrawn 170.5
+PASS Shell_F4_LeftPane_Default260At1440And1280
+COST Shell_F4_LeftPane_Default260At1440And1280 322.5
+NATIVE-STARTUP window-opened
+PASS MainWindow_ShellMode_ContainsDockHostAndNativeMenu
+COST MainWindow_ShellMode_ContainsDockHostAndNativeMenu 75.7
+PASS UI_DEAD_CONTROL_ShellButtonsHaveActions
+COST UI_DEAD_CONTROL_ShellButtonsHaveActions 1372.7
+FAIL Recent_StoredRows_StartAndFileMenu InvalidOperationException: Recent fixture was not stored: rejected/RECENT-SCHEMA/absent root=C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\.tmp-tests\cfdw-d3a-recent-52572b4757064bfdbc367c07a4c6f6af
+STACK Recent_StoredRows_StartAndFileMenu System.InvalidOperationException: Recent fixture was not stored: rejected/RECENT-SCHEMA/absent root=C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\.tmp-tests\cfdw-d3a-recent-52572b4757064bfdbc367c07a4c6f6af |    at CfdWorkbench.Desktop.Tests.ShellWindowTests.<>c.<Run>b__2_10() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ShellWindowTests.cs:line 861 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Recent_StoredRows_StartAndFileMenu 14.5
+PASS Architecture_DockConfinedToShell
+COST Architecture_DockConfinedToShell 5.7
+PASS KeyBindings_MenuGesture_NotBound
+COST KeyBindings_MenuGesture_NotBound 25.3
+NATIVE-STARTUP window-opened
+PASS Menu_UndoEnabled_FollowsFocusAndHistory
+COST Menu_UndoEnabled_FollowsFocusAndHistory 1366.4
+PASS Telemetry_MarkerPaths_SeparatorShapeCreatesFolder
+COST Telemetry_MarkerPaths_SeparatorShapeCreatesFolder 12.9
+PASS KeyBindings_F6InFloat_Bound
+COST KeyBindings_F6InFloat_Bound 20.5
+NATIVE-STARTUP window-opened
+PASS DockTabFocus_FreshBatch_ReadyAndTwoRing
+COST DockTabFocus_FreshBatch_ReadyAndTwoRing 1136.8
+PASS ShellHost_PlanformLayout_ContainsModelAndSidePanes
+COST ShellHost_PlanformLayout_ContainsModelAndSidePanes 29.2
+PASS ShellHost_AcceptedExample_BindsPanes
+COST ShellHost_AcceptedExample_BindsPanes 522.2
+PASS Controller_LockedRailControl_RefusesDraft
+COST Controller_LockedRailControl_RefusesDraft 1124.5
+PASS PaneBind_Throws_ShowsErrorStateClearsOld
+COST PaneBind_Throws_ShowsErrorStateClearsOld 1.3
+PASS Start_Opened_FocusModelArea
+COST Start_Opened_FocusModelArea 908.2
+PASS Start_ExampleFixtureMissing_NamesFixtureNewFoilAvailable
+COST Start_ExampleFixtureMissing_NamesFixtureNewFoilAvailable 0.9
+PASS Open_Refused_ReturnsToOriginWithAlert
+COST Open_Refused_ReturnsToOriginWithAlert 1043.5
+PASS Focus_ClosePane_NextTab
+COST Focus_ClosePane_NextTab 773.1
+PASS Focus_HideDockHoldingFocus_ToToggle
+COST Focus_HideDockHoldingFocus_ToToggle 743.4
+PASS Focus_SizeMenu_ReturnsToTab
+COST Focus_SizeMenu_ReturnsToTab 701.7
+PASS SidebarToggle_LiveThemeSwitch_RefreshesBrush
+COST SidebarToggle_LiveThemeSwitch_RefreshesBrush 153.9
+PASS Focus_DockRerender_NeverWindowRoot
+COST Focus_DockRerender_NeverWindowRoot 728.2
+PASS Focus_SpanCommitTab_NextField
+COST Focus_SpanCommitTab_NextField 902.3
+PASS Focus_UndoFromCanvas_StaysOnCanvas
+COST Focus_UndoFromCanvas_StaysOnCanvas 710.2
+PASS Start_Opening_FocusOnCancel
+COST Start_Opening_FocusOnCancel 16.2
+PASS Start_CancelWithoutOrigin_FocusesFirstCard
+COST Start_CancelWithoutOrigin_FocusesFirstCard 15.9
+PASS AlertBand_AnnouncesAndFocusesFirstAction
+COST AlertBand_AnnouncesAndFocusesFirstAction 57.8
+PASS Recent_AccessibleName_FileAndFolder
+COST Recent_AccessibleName_FileAndFolder 2.0
+PASS Copy_OpenFailure_EveryCodeInSrc_PlainSentenceThenCodeLine_Ruling155
+COST Copy_OpenFailure_EveryCodeInSrc_PlainSentenceThenCodeLine_Ruling155 34.4
+PASS Copy_OpenFailureWithFoil_AlertBandMatchesStart
+COST Copy_OpenFailureWithFoil_AlertBandMatchesStart 663.4
+PASS Copy_PaneErrors_WithAndWithoutFoil
+COST Copy_PaneErrors_WithAndWithoutFoil 5.9
+PASS Span_NaNOrInfinity_InvalidNotNotAssessed
+COST Span_NaNOrInfinity_InvalidNotNotAssessed 308.5
+PASS Copy_StartAlert_NoUncataloguedFallback
+COST Copy_StartAlert_NoUncataloguedFallback 0.6
+PASS Copy_Dismiss_MatchesDesignRow
+COST Copy_Dismiss_MatchesDesignRow 2.9
+FAIL Copy_RecentNotCleared_StatusAndTryAgain InvalidOperationException: COPY-147: expected 'The recent-files list wasn't cleared: it was saved by a newer version of CFD Workbench. The list is unchanged. · Try again', built 'The recent-files list wasn't cleared: it couldn't be saved. The list is unchanged. · Try again', unchanged=True
+STACK Copy_RecentNotCleared_StatusAndTryAgain System.InvalidOperationException: COPY-147: expected 'The recent-files list wasn't cleared: it was saved by a newer version of CFD Workbench. The list is unchanged. · Try again', built 'The recent-files list wasn't cleared: it couldn't be saved. The list is unchanged. · Try again', unchanged=True |    at CfdWorkbench.Desktop.Tests.ShellWindowTests.<>c.<Run>b__2_72() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ShellWindowTests.cs:line 2277 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Copy_RecentNotCleared_StatusAndTryAgain 28.0
+PASS Start_OpenMissing_AlertLocate
+COST Start_OpenMissing_AlertLocate 0.4
+PASS Start_OpenFailedDismissed_StartKept
+COST Start_OpenFailedDismissed_StartKept 0.3
+PASS OpenFailure_AlertOpenAnotherButton_OpensFile
+COST OpenFailure_AlertOpenAnotherButton_OpensFile 420.1
+PASS Properties_ControlPoint_TypeSpanAftRows
+COST Properties_ControlPoint_TypeSpanAftRows 739.5
+PASS Properties_TypeToAnchor_OneUndoStepCurvePassesThrough
+COST Properties_TypeToAnchor_OneUndoStepCurvePassesThrough 1276.8
+PASS Properties_TangentGroup_LabelledChoiceAndHandleShowsItsAnchor
+COST Properties_TangentGroup_LabelledChoiceAndHandleShowsItsAnchor 1586.6
+PASS Properties_HandleAngleLength_TypedCommitsOneStep
+COST Properties_HandleAngleLength_TypedCommitsOneStep 1275.6
+PASS Properties_TipCloses_TipChordIsText
+COST Properties_TipCloses_TipChordIsText 681.8
+PASS WingBlock_DuringDrag_RenderedMacTextChangesBeforeRelease
+COST WingBlock_DuringDrag_RenderedMacTextChangesBeforeRelease 966.2
+PASS WingBlock_CrossingDraft_ShowsDashAndReason
+COST WingBlock_CrossingDraft_ShowsDashAndReason 961.9
+PASS WingTipChord_CentimetresAndReference_EchoedMm
+COST WingTipChord_CentimetresAndReference_EchoedMm 1452.7
+PASS Focus_TypeChange_StaysOnTypeControl
+COST Focus_TypeChange_StaysOnTypeControl 1340.8
+PASS Focus_TypeValueRequest_SpanFieldFocused
+COST Focus_TypeValueRequest_SpanFieldFocused 776.4
+PASS Copy_M12bOutcomes_ExactStrings
+COST Copy_M12bOutcomes_ExactStrings 1321.8
+PASS CommandTable_PointRows_ExecuteOrDisabled
+COST CommandTable_PointRows_ExecuteOrDisabled 1229.9
+FAIL Recovery_RailDraftResumed_PlanShowsDraftApplyCommits InvalidOperationException: opened project has no recovery: Open Example or a .foil / .cfdw.json file.
+STACK Recovery_RailDraftResumed_PlanShowsDraftApplyCommits System.InvalidOperationException: opened project has no recovery: Open Example or a .foil / .cfdw.json file. |    at CfdWorkbench.Desktop.Tests.ShellWindowTests.<>c.<U2Checks>b__3_24() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ShellWindowTests.cs:line 3154 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Recovery_RailDraftResumed_PlanShowsDraftApplyCommits 140.8
+PASS WindowsShell_Gesture_CommandKeyMapsToControlOffMac
+COST WindowsShell_Gesture_CommandKeyMapsToControlOffMac 0.7
+NATIVE-STARTUP window-opened
+PASS WindowsShell_CtrlZ_UndoesExactlyOneStep
+COST WindowsShell_CtrlZ_UndoesExactlyOneStep 1014.3
+NATIVE-STARTUP window-opened
+NATIVE-STARTUP window-opened
+PASS WindowsShell_MenuBarKeys_WiredOffMacOnly
+COST WindowsShell_MenuBarKeys_WiredOffMacOnly 294.7
+PASS WindowsShell_EveryTableGesture_FiresItsCommandOnce
+COST WindowsShell_EveryTableGesture_FiresItsCommandOnce 732.6
+NATIVE-STARTUP window-opened
+PASS WindowsShell_SaveRefused_ShowsMessageInStatusStrip
+COST WindowsShell_SaveRefused_ShowsMessageInStatusStrip 710.7
+PASS PlanCanvas_RetainedPointPeer_NameFollowsTheDrag_AndRaisesNameChanged
+COST PlanCanvas_RetainedPointPeer_NameFollowsTheDrag_AndRaisesNameChanged 2091.4
+PARTITION 1/2 of 118 checks

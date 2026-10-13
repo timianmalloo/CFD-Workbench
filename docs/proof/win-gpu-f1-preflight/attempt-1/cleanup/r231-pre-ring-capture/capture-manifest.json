@@ -1,0 +1,44 @@
+[
+  {
+    "name": "analysis-ringenv.log",
+    "sourceSha256": "00d00fead6e7e8db2c84cec4e71776cf3d75125e2fc85aff6e3716b9433c1551",
+    "copySha256": "00d00fead6e7e8db2c84cec4e71776cf3d75125e2fc85aff6e3716b9433c1551",
+    "bytes": 7170,
+    "redacted": false
+  },
+  {
+    "name": "controller-shell-ringenv.log",
+    "sourceSha256": "b35471367cbb58968f3a96e7215ef43f9eebe6503a07ca55e858cdc4cb1e0cd1",
+    "copySha256": "b35471367cbb58968f3a96e7215ef43f9eebe6503a07ca55e858cdc4cb1e0cd1",
+    "bytes": 15659,
+    "redacted": false
+  },
+  {
+    "name": "plan-canvas-part2-ringenv.log",
+    "sourceSha256": "b7e7f03b7feaba302ba75ef5c7d1fe28cee3a5575ae3ec9cc466ddd22d98fd8d",
+    "copySha256": "b7e7f03b7feaba302ba75ef5c7d1fe28cee3a5575ae3ec9cc466ddd22d98fd8d",
+    "bytes": 5662,
+    "redacted": false
+  },
+  {
+    "name": "section-editor-part2-ringenv.log",
+    "sourceSha256": "e2552002f1e14a150d027b89d8c8bf8ba5c87a14684d3908fdf5116288f8d329",
+    "copySha256": "e2552002f1e14a150d027b89d8c8bf8ba5c87a14684d3908fdf5116288f8d329",
+    "bytes": 18747,
+    "redacted": false
+  },
+  {
+    "name": "shell-window-part1-ringenv-classify.log",
+    "sourceSha256": "a850a497b2f9005fe5379464dd777571db8fa3166739a6520939e1b674113309",
+    "copySha256": "a850a497b2f9005fe5379464dd777571db8fa3166739a6520939e1b674113309",
+    "bytes": 8985,
+    "redacted": false
+  },
+  {
+    "name": "views-part2-ringenv.log",
+    "sourceSha256": "b15fc42d4ded7778005d670e7fc29aeac645abf67489fe554694140d9377d780",
+    "copySha256": "b15fc42d4ded7778005d670e7fc29aeac645abf67489fe554694140d9377d780",
+    "bytes": 6461,
+    "redacted": false
+  }
+]

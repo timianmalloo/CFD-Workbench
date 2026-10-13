@@ -1,0 +1,171 @@
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=section-editor RenderScaling=1.5 PrimaryScaling=1.5 WorkingArea=2560x1528 UseLayoutRounding=True
+PASS SectionStep_LandedOrExit_ClearsPriorCertificate
+COST SectionStep_LandedOrExit_ClearsPriorCertificate 1272.3
+PASS SectionAssess_DisplayCrossingVsCertificate_FinishFollowsCertificate
+COST SectionAssess_DisplayCrossingVsCertificate_FinishFollowsCertificate 1409.2
+PASS SectionMode_WingFieldsReadOnly_Copy122
+COST SectionMode_WingFieldsReadOnly_Copy122 319.7
+PASS SectionMode_AssessCompletion_NewerStripMessageSurvives
+COST SectionMode_AssessCompletion_NewerStripMessageSurvives 503.4
+FAIL Controller_ResumeSectionRecovery_EntersSectionMode ContractError: DOC-UNSUPPORTED-PERSISTENCE
+STACK Controller_ResumeSectionRecovery_EntersSectionMode CfdWorkbench.Core.ContractError: DOC-UNSUPPORTED-PERSISTENCE |    at CfdWorkbench.Desktop.WorkbenchController.OpenPathAsync(String path, CancellationToken cancellation) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Desktop\WorkbenchController.cs:line 2887 |    at CfdWorkbench.Desktop.Tests.ControllerSectionTests.Wait(Task task) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ControllerSectionTests.cs:line 50 |    at CfdWorkbench.Desktop.Tests.ControllerSectionTests.<>c.<Run>b__13_7() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ControllerSectionTests.cs:line 353 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Controller_ResumeSectionRecovery_EntersSectionMode 168.1
+PASS SectionMode_UndoRoutedToInnerStep_DocumentUndoUntouched
+COST SectionMode_UndoRoutedToInnerStep_DocumentUndoUntouched 692.5
+PASS SectionMode_Finish_OneUndoStepStationSelected
+COST SectionMode_Finish_OneUndoStepStationSelected 536.8
+PASS Selection_SectionPointReconcile_DroppedAfterLeavingMode
+COST Selection_SectionPointReconcile_DroppedAfterLeavingMode 262.9
+PASS SectionMode_StripSwitchNoEdits_DraftRebindsToNewStation
+COST SectionMode_StripSwitchNoEdits_DraftRebindsToNewStation 273.3
+PASS SectionDraft_ResumeRecovery_CurrentViewReadable
+COST SectionDraft_ResumeRecovery_CurrentViewReadable 145.6
+PASS SectionMode_StepLandingAfterCancel_Discarded
+COST SectionMode_StepLandingAfterCancel_Discarded 638.6
+PASS SectionMode_Enter_DraftBoundFirstPointSelected
+COST SectionMode_Enter_DraftBoundFirstPointSelected 256.3
+PASS Controller_ApplyReplace_OneStepChipResidualStatus
+COST Controller_ApplyReplace_OneStepChipResidualStatus 1120.4
+FAIL Controller_SaveMine_SurvivesSectionCancelAndDocumentUndo ContractError: DOC-UNSUPPORTED-PERSISTENCE
+STACK Controller_SaveMine_SurvivesSectionCancelAndDocumentUndo CfdWorkbench.Core.ContractError: DOC-UNSUPPORTED-PERSISTENCE |    at CfdWorkbench.Persistence.SectionLibrary.Save(String name, Byte[] profileBlockBytes, Provenance provenance) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Persistence\SectionLibrary.cs:line 96 |    at CfdWorkbench.Desktop.WorkbenchController.<>c__DisplayClass421_0.<SaveToMySectionsAsync>b__0() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Desktop\WorkbenchController.cs:line 1547 |    at System.Threading.Tasks.Task`1.InnerInvoke() |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) | --- End of stack trace from previous location --- |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) |    at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread) | --- End of stack trace from previous location --- |    at CfdWorkbench.Desktop.Tests.ControllerSectionTests.<>c.<Run>b__13_25() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ControllerSectionTests.cs:line 698 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Controller_SaveMine_SurvivesSectionCancelAndDocumentUndo 317.7
+PASS Commands_ModalFlag_MatchesRowsThatShowADialog
+COST Commands_ModalFlag_MatchesRowsThatShowADialog 2009.2
+PASS Controller_RefusedPreview_ClearsAndShowsCopy
+COST Controller_RefusedPreview_ClearsAndShowsCopy 540.0
+PASS Controller_PreviewCleared_OnExitAndApply
+COST Controller_PreviewCleared_OnExitAndApply 662.5
+PASS Controller_ReplaceChain_ReplacesEveryStation
+COST Controller_ReplaceChain_ReplacesEveryStation 869.5
+PASS Controller_PreviewFault_RecordsNonContractError
+COST Controller_PreviewFault_RecordsNonContractError 317.5
+PASS Controller_AsyncRefusals_DoNotThrowSynchronously
+COST Controller_AsyncRefusals_DoNotThrowSynchronously 0.8
+FAIL Controller_CatalogTelemetry_NamedSessionRing ContractError: DOC-UNSUPPORTED-PERSISTENCE
+STACK Controller_CatalogTelemetry_NamedSessionRing CfdWorkbench.Core.ContractError: DOC-UNSUPPORTED-PERSISTENCE |    at CfdWorkbench.Persistence.SectionLibrary.Save(String name, Byte[] profileBlockBytes, Provenance provenance) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Persistence\SectionLibrary.cs:line 96 |    at CfdWorkbench.Desktop.WorkbenchController.<>c__DisplayClass421_0.<SaveToMySectionsAsync>b__0() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Desktop\WorkbenchController.cs:line 1547 |    at System.Threading.Tasks.Task`1.InnerInvoke() |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) | --- End of stack trace from previous location --- |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) |    at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread) | --- End of stack trace from previous location --- |    at CfdWorkbench.Desktop.Tests.ControllerSectionTests.<>c.<Run>b__13_39() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ControllerSectionTests.cs:line 1069 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Controller_CatalogTelemetry_NamedSessionRing 301.9
+FAIL Controller_SaveOffUiThread_HonorsCancellation ContractError: DOC-UNSUPPORTED-PERSISTENCE
+STACK Controller_SaveOffUiThread_HonorsCancellation CfdWorkbench.Core.ContractError: DOC-UNSUPPORTED-PERSISTENCE |    at CfdWorkbench.Persistence.SectionLibrary.Save(String name, Byte[] profileBlockBytes, Provenance provenance) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Persistence\SectionLibrary.cs:line 96 |    at CfdWorkbench.Desktop.WorkbenchController.<>c__DisplayClass421_0.<SaveToMySectionsAsync>b__0() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Desktop\WorkbenchController.cs:line 1547 |    at System.Threading.Tasks.Task`1.InnerInvoke() |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) | --- End of stack trace from previous location --- |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) |    at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread) | --- End of stack trace from previous location --- |    at CfdWorkbench.Desktop.Tests.ControllerSectionTests.<>c.<Run>b__13_41() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\ControllerSectionTests.cs:line 1122 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST Controller_SaveOffUiThread_HonorsCancellation 289.2
+PASS Controller_SectionStep_ClearsLandedPreview
+COST Controller_SectionStep_ClearsLandedPreview 558.2
+PASS Controller_SaveCancelDuringWrite_IsCanceledNotFaulted
+COST Controller_SaveCancelDuringWrite_IsCanceledNotFaulted 311.4
+PASS SectionEditor_RefusedPairedRefit_MarkerAtMaximum
+COST SectionEditor_RefusedPairedRefit_MarkerAtMaximum 84.7
+PASS SectionEditor_ModeBar_NamesStationAndScopeChip
+COST SectionEditor_ModeBar_NamesStationAndScopeChip 195.4
+PASS SectionEditor_PlateAndProbe_SayDisplay
+COST SectionEditor_PlateAndProbe_SayDisplay 205.8
+PASS SectionEditor_ArrowRun_OneStepOnKeyUp
+COST SectionEditor_ArrowRun_OneStepOnKeyUp 567.5
+PASS SectionEditor_BracketKeys_WalkInOrder
+COST SectionEditor_BracketKeys_WalkInOrder 191.7
+PASS SectionEditor_CombAutoScale_ClippedTeethMarked
+COST SectionEditor_CombAutoScale_ClippedTeethMarked 199.2
+PASS SectionEditor_ProbeFollowsPointer_PlacedMmAtStation
+COST SectionEditor_ProbeFollowsPointer_PlacedMmAtStation 200.1
+PASS SectionEditor_DragUnderPointer_WithinTwoPixels
+COST SectionEditor_DragUnderPointer_WithinTwoPixels 239.2
+PASS SectionEditor_DragMove_HeldSurfaceDrainedBeforeThePress
+COST SectionEditor_DragMove_HeldSurfaceDrainedBeforeThePress 945.0
+PASS SectionEditor_Release_StepAppliesOffUiThread
+COST SectionEditor_Release_StepAppliesOffUiThread 1029.8
+PASS SectionEditor_StripSwitchWithEdits_RefusedByClick
+COST SectionEditor_StripSwitchWithEdits_RefusedByClick 529.1
+PASS SectionEditor_EscapeCascade_DragPointSelectionThenLeave
+COST SectionEditor_EscapeCascade_DragPointSelectionThenLeave 964.1
+PASS SectionEditor_SelectedVsUnselected_ShapeNotColourOnly
+COST SectionEditor_SelectedVsUnselected_ShapeNotColourOnly 648.0
+PASS SectionEditor_DoubleClickInserts_BackspaceDeletesNotNamed
+COST SectionEditor_DoubleClickInserts_BackspaceDeletesNotNamed 734.8
+PASS SectionEditor_CheckFinished_CheckingReasonHidden
+COST SectionEditor_CheckFinished_CheckingReasonHidden 449.0
+PASS SectionEditor_UniqueSectionAbscissaStep_RefusedInStripFinishUnchanged
+COST SectionEditor_UniqueSectionAbscissaStep_RefusedInStripFinishUnchanged 1067.5
+PASS SectionEditor_EnterFromSideDoubleClick_ModeShown
+COST SectionEditor_EnterFromSideDoubleClick_ModeShown 555.3
+PASS SectionEditor_SideOverlap_ClickCyclesSections
+COST SectionEditor_SideOverlap_ClickCyclesSections 463.7
+PASS CatalogDialog_Open_FocusInSearch
+COST CatalogDialog_Open_FocusInSearch 384.0
+PASS CatalogDialog_ArrowsReachDisabledRows_Quiet
+COST CatalogDialog_ArrowsReachDisabledRows_Quiet 296.2
+PASS CatalogDialog_NoMatch_Copy115ReplaceDisabled
+COST CatalogDialog_NoMatch_Copy115ReplaceDisabled 310.4
+PASS CatalogDialog_SharedPreview_DetailNamesStationsFitLimit
+COST CatalogDialog_SharedPreview_DetailNamesStationsFitLimit 407.3
+PASS CatalogDialog_Escape_NothingChangedFocusToSectionMenu
+COST CatalogDialog_Escape_NothingChangedFocusToSectionMenu 306.7
+PASS CatalogDialog_ChainButton_AppliesAllStations
+COST CatalogDialog_ChainButton_AppliesAllStations 990.0
+PASS CatalogDialog_MySectionsEmpty_ShowsNextAction
+COST CatalogDialog_MySectionsEmpty_ShowsNextAction 305.5
+PASS CatalogDialog_Preview_LargestChangeMarkerAtMeasuredX
+COST CatalogDialog_Preview_LargestChangeMarkerAtMeasuredX 399.0
+FAIL SaveDialog_EmptyOrDuplicate_ErrorFocusStays ContractError: DOC-UNSUPPORTED-PERSISTENCE
+STACK SaveDialog_EmptyOrDuplicate_ErrorFocusStays CfdWorkbench.Core.ContractError: DOC-UNSUPPORTED-PERSISTENCE |    at CfdWorkbench.Persistence.SectionLibrary.Save(String name, Byte[] profileBlockBytes, Provenance provenance) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Persistence\SectionLibrary.cs:line 96 |    at CfdWorkbench.Desktop.WorkbenchController.<>c__DisplayClass421_0.<SaveToMySectionsAsync>b__0() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\src\CfdWorkbench.Desktop\WorkbenchController.cs:line 1547 |    at System.Threading.Tasks.Task`1.InnerInvoke() |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) | --- End of stack trace from previous location --- |    at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state) |    at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread) | --- End of stack trace from previous location --- |    at CfdWorkbench.Desktop.Tests.CatalogDialogTests.Wait(Task task) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\CatalogDialogTests.cs:line 221 |    at CfdWorkbench.Desktop.Tests.CatalogDialogTests.CheckSave(String name) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\CatalogDialogTests.cs:line 320 |    at CfdWorkbench.Desktop.Tests.CatalogDialogTests.<>c__DisplayClass2_1.<Run>b__1() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\CatalogDialogTests.cs:line 39 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST SaveDialog_EmptyOrDuplicate_ErrorFocusStays 310.4
+FAIL SaveDialog_Save_LiveRegionFocusToSectionMenu Exception: Save did not publish and announce the exact name
+STACK SaveDialog_Save_LiveRegionFocusToSectionMenu System.Exception: Save did not publish and announce the exact name |    at CfdWorkbench.Desktop.Tests.CatalogDialogTests.Require(Boolean condition, String message) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\CatalogDialogTests.cs:line 184 |    at CfdWorkbench.Desktop.Tests.CatalogDialogTests.CheckSave(String name) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\CatalogDialogTests.cs:line 335 |    at CfdWorkbench.Desktop.Tests.CatalogDialogTests.<>c__DisplayClass2_1.<Run>b__1() in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\CatalogDialogTests.cs:line 39 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-gpu-f1-r231-ring-investigation\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 756
+COST SaveDialog_Save_LiveRegionFocusToSectionMenu 340.1
+PASS SourceChip_AfterReplaceAndEdit_TextNotColour
+COST SourceChip_AfterReplaceAndEdit_TextNotColour 1002.2
+PASS BrowserRow_AfterReplace_NameThenSource
+COST BrowserRow_AfterReplace_NameThenSource 529.5
+PASS SaveDialog_UnsupportedPersistence_ExplainsSafety
+COST SaveDialog_UnsupportedPersistence_ExplainsSafety 1292.0
+PASS Export_Commands_RowsGestureAndPalette
+COST Export_Commands_RowsGestureAndPalette 1.2
+PASS Export_NoFoil_RowsDisabledWithReason_H9
+COST Export_NoFoil_RowsDisabledWithReason_H9 9.6
+PASS Export_TrailingEdge_RowAlways_BandOnlyBelowFloor_NeverBlocks
+COST Export_TrailingEdge_RowAlways_BandOnlyBelowFloor_NeverBlocks 428.0
+PASS Export_Shape_OwnAndAtStation_DifferWhenTcIsNotTheAuthoredPeak
+COST Export_Shape_OwnAndAtStation_DifferWhenTcIsNotTheAuthoredPeak 334.3
+PASS Export_Shell_SectionExportDat_OpensOnSelectedStation
+COST Export_Shell_SectionExportDat_OpensOnSelectedStation 358.3
+PASS Export_WriteFailure_CauseCopy_EarlierFileUntouched_NoTemp_H6
+COST Export_WriteFailure_CauseCopy_EarlierFileUntouched_NoTemp_H6 303.3
+NOT ASSESSED file-link (Windows: creating a file link needs a privilege; enable Developer Mode)
+PASS Export_Write_SymlinkTarget_Refused_LinkAndTargetUnchanged
+COST Export_Write_SymlinkTarget_Refused_LinkAndTargetUnchanged 288.4
+PASS Export_Extension_ForcedPathThatExists_NeverOverwritten
+COST Export_Extension_ForcedPathThatExists_NeverOverwritten 326.3
+PASS Export_Draft_ReadsAcceptedRevisionAndSaysSo_H1
+COST Export_Draft_ReadsAcceptedRevisionAndSaysSo_H1 690.9
+PASS Export_Dialog_DatStlAnd3mf_StepRowExplainsItself
+COST Export_Dialog_DatStlAnd3mf_StepRowExplainsItself 397.0
+PASS Export_Dialog_Failure_StaysOpenWithTwoWaysOut
+COST Export_Dialog_Failure_StaysOpenWithTwoWaysOut 359.6
+PASS Export_Dialog_Renders_ReadyState_Screenshot
+COST Export_Dialog_Renders_ReadyState_Screenshot 406.7
+PASS ExportTelemetry_MeshFormats_WrittenEvent_CarriesScopePresetTrianglesDeviationBytes
+COST ExportTelemetry_MeshFormats_WrittenEvent_CarriesScopePresetTrianglesDeviationBytes 530.7
+PASS ExportTelemetry_FailedWrite_OneCodedEventPerCause
+COST ExportTelemetry_FailedWrite_OneCodedEventPerCause 303.1
+PASS ExportTelemetry_Events_CarryNoPathNameUserOrHost
+COST ExportTelemetry_Events_CarryNoPathNameUserOrHost 420.3
+PASS ExportStl_TrailingEdge_B8_WholeSpanRow_Jump_NeverBlocks
+COST ExportStl_TrailingEdge_B8_WholeSpanRow_Jump_NeverBlocks 630.4
+PASS ExportStl_Presets_DraftPrintFine_TriangleCounts
+COST ExportStl_Presets_DraftPrintFine_TriangleCounts 564.9
+PASS ExportStl_TrailingEdge_LocatedValue_RowJumpAndStation
+COST ExportStl_TrailingEdge_LocatedValue_RowJumpAndStation 309.9
+PASS ExportStl_StaleBuild_NewerOptionWins
+COST ExportStl_StaleBuild_NewerOptionWins 477.8
+PASS ExportStl_H10_CancelledWrite_RemovesTempFile_EarlierFileUntouched
+COST ExportStl_H10_CancelledWrite_RemovesTempFile_EarlierFileUntouched 387.1
+PASS ExportStl_Jump_OpensTipSectionWhereTheGapIsShown
+COST ExportStl_Jump_OpensTipSectionWhereTheGapIsShown 576.0
+PASS ExportStl_Dialog_Renders_ReadyState_Screenshot
+COST ExportStl_Dialog_Renders_ReadyState_Screenshot 400.2
+PASS ExportThreeMf_Scope_Half_NameAndCount_ChangingFormatRebuilds
+COST ExportThreeMf_Scope_Half_NameAndCount_ChangingFormatRebuilds 546.1
+PASS ExportThreeMf_H7_ClosureRefused_NothingWritten
+COST ExportThreeMf_H7_ClosureRefused_NothingWritten 332.8
+PASS ExportThreeMf_Dialog_Renders_ReadyState_Screenshot
+COST ExportThreeMf_Dialog_Renders_ReadyState_Screenshot 461.9
+PARTITION 2/2 of 160 checks

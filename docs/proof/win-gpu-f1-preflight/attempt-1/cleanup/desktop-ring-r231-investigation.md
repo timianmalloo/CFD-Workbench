@@ -11,9 +11,9 @@ links:
   - { to: proof-win-gpu-f1-r229-cleanup-candidate, rel: relates-to }
 review-by: "2026-11-12"
 summary: >-
-  Serial Windows reruns of the six Desktop children named in the R231 broad-ring
-  failure completed below the child deadline; all observed test failures match
-  the Windows expected-failures manifest.
+  Serial reruns and a full bounded-concurrency Windows ring show the six Desktop
+  timeout modes complete below the child deadline; all 33 Desktop failures match
+  the Windows expected-failures manifest, with no unexpected failures.
 ---
 
 # R231 Desktop ring investigation
@@ -88,22 +88,74 @@ not a measurement during them. This machine does not expose the ring's
 `/proc/loadavg` measure natively, so these readings cannot be compared to the
 reported 11.02.
 
+## Full bounded-concurrency ring
+
+To resolve the remaining question, one full `tools/run-tests.sh` ring ran from
+Git Bash with `%USERPROFILE%\.dotnet\dotnet.exe` SDK `10.0.203` on `PATH`,
+`DOTNET_PROCESSOR_COUNT=8` (five Desktop child slots),
+`CFD_TEST_CHILD_TIMEOUT_SECONDS=120`, and the default 60-second budget. The
+budget environment variable was unset. The captured `.tmp-tests` output is in
+[`r231-full-ring-capture`](r231-full-ring-capture/); the immediately preceding
+serial investigation logs are in [`r231-pre-ring-capture`](r231-pre-ring-capture/).
+The full capture manifest records SHA-256 and byte length for every preserved
+file. The copied output was checked for user-profile paths before commit.
+
+| Suite | Wall | Result | Functional classification |
+|---|---:|---|---|
+| Build | 15 s | exit 0 | Release build passed; three existing AVLN3001 warnings |
+| Core 1/3 | 71,132 ms | exit 0 | 346 PASS; 9 EXPECTED-FAIL |
+| Core 2/3 | 71,661 ms | exit 0 | 210 PASS; 7 EXPECTED-FAIL |
+| Core 3/3 | 76,030 ms | exit 0 | 205 PASS; 11 EXPECTED-FAIL |
+| Desktop | 180,337 ms | exit 0 | 776 PASS; 33 EXPECTED-FAIL; 0 unexpected |
+| Analysis 1/3 | 10,688 ms | exit 0 | 44 PASS; no failures |
+| Analysis 2/3 | 10,838 ms | exit 0 | 69 PASS; no failures |
+| Analysis 3/3 | 11,159 ms | exit 0 | 146 PASS; no failures |
+| CLI | 8,577 ms | exit 0 | 18 PASS; 2 EXPECTED-FAIL |
+| Python unittest | — | exit 0 | 94 PASS |
+
+The Windows expected-failure classifier independently processed the retained
+Desktop log: `EXPECTED-FAIL 33 (manifest)`, `UNEXPECTED 0`, exit 0. All 18
+Desktop child modes completed. Every partitioned mode emitted its completion
+record, including the four partitions that were incomplete in the original
+ring. In particular, the six previously timed-out modes completed within the
+full run; the Desktop suite took 180,337 ms total, but no child hit its
+120-second limit. Core, CLI, and the two known Desktop manifest categories
+remain expected failures, not new regressions.
+
+The functional ring verdict is exit 0: all suites passed or contained only
+manifest-expected failures, with no timeout or unexpected classification. The
+budget/cost verdict is separate: total wall was 207,380 ms (192,959 ms net of
+build) against the 60,000 ms budget, ending at load 11.70. The harness emitted
+`COST-MISS TEST-BUDGET 207 s` and 16 advisory `COST-MISS` entries, but reported
+`test costs: 0 failures` and final exit 0. The ring emitted a host-category
+label that matches this machine name, so the label is redacted here. The cost
+report is advisory and does not change the functional classification.
+
 ## Disposition
 
-**Verified:** each reported child mode completes serially in 24.6–56.2 seconds;
-all partition records are present; every observed test failure matches the
-Windows manifest; no unexpected failure appeared in the classifier.
+**Verified:** each of the six reported children completes serially in 24.6–56.2
+seconds and also completed in the bounded full ring. All four previously
+incomplete partitions now emit completion records. The full Desktop classifier
+reported 33 manifest-expected failures and `UNEXPECTED 0`; every suite exited 0.
 
-**Inferred:** the six broad-ring timeouts and resulting missing partition
-records are consistent with contention from the broad concurrent fan-out. The
-serial runs disconfirm a deterministic 120-second timeout for these six child
-commands, but do not prove contention caused the original timeouts.
+**Inferred:** the original six timeouts and four missing partition records were
+caused by the original broad-ring load or contention. The bounded full ring
+disconfirms deterministic child timeout and partition incompletion at five
+Desktop slots, but it does not reproduce the original concurrency level.
 
-**Flagged:** the original broad-ring child logs and in-run load samples were not
-retained here, and the six children were not rerun concurrently. Therefore the
-original red remains unresolved.
+**Verified, separate cost verdict:** the ring's functional exit is 0. The
+60-second budget was exceeded (207,380 ms wall), with 16 advisory cost misses;
+the harness reports zero cost failures and leaves exit 0. This evidence supports
+disposing of the broad-ring functional RED as a transient load timeout while
+retaining the budget/cost advisory for its owner. It does not justify waiving
+any unexpected test failure, timeout, incomplete partition, or cost gate that
+has a hard-fail policy.
 
-**Recommendation to Mac:** rerun the broad Desktop ring with bounded concurrency
-and preserve its child logs and in-run load samples. Do not waive the red on
-serial evidence alone. Keep the join blocked if any rerun child times out, omits
-its partition record, or has an unexpected manifest classification.
+**Recommendation to Mac:** dispose the reported Desktop timeout/partition RED
+as non-deterministic under the bounded five-slot rerun; classify the functional
+ring as passing with manifest-expected failures only. Track the 60-second
+budget overrun and advisory cost misses separately. Do not claim the original
+load caused the timeout as a verified fact, and keep any new timeout,
+incomplete partition, or unexpected classifier result blocking.
+
+

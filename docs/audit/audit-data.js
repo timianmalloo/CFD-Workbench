@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T04:23:22Z",
+  "generated": "2026-10-13T04:35:12Z",
   "audit": [
     {
       "actor": null,
@@ -38274,6 +38274,42 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M4SRNZ0665NCMH5HMNG5R0ZP",
+      "shortname": "r231-bounded-full-ring",
+      "datetime": "2026-10-13T04:35:08Z",
+      "session": "pc-f1-r231-ring-investigator",
+      "prompt": "Run one full Windows test ring with five Desktop child slots and exact SDK 10.0.203 to classify the reported timeouts; preserve outputs and separate functional from budget verdict.",
+      "summary": "Full bounded ring exited 0. Desktop 776 PASS, 33 manifest EXPECTED-FAIL, 0 unexpected; all children and partitions completed. Ring wall 207,380 ms versus 60,000 ms budget; 16 advisory COST-MISS, 0 cost failures.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": "Codex",
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/desktop-ring-r231-investigation.md"
+      ],
+      "tags": [
+        "windows",
+        "ring",
+        "proof"
+      ],
+      "outcome": "success",
+      "goal": "Determine whether bounded Desktop concurrency reproduces the R231 child timeouts and incomplete partitions without changing code.",
+      "done_when": "A retained full-ring run has an exact functional classification and separate budget verdict, with the investigation artifact updated and pushed.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "git": {
+        "sha": "5760154f7efff06709d279170f81ddef6a361ce5",
+        "short": "5760154f7",
+        "branch": "win/gpu-f1-r231-ring-investigation",
+        "pushed": true
+      }
     }
   ],
   "changes": [

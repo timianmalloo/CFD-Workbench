@@ -1,0 +1,48 @@
+CLI Example identity, assessment, bounded projection and extension refusal passed.
+PASS Cli_InspectJson_PointsRolesAndKinds
+PASS Cli_InspectJson_ChannelPointsRolesAndKinds
+PASS Cli_Inspect_ListsSectionPointTypesAndKinds
+FAIL Cli_AnalyseRunKey_EqualsServiceOnCustomOp Exception: inspect --runs returned 3: {
+  "code": "DOC-UNSUPPORTED-PERSISTENCE"
+}
+
+COST Cli_AnalyseRunKey_EqualsServiceOnCustomOp 226.473
+PASS Cli_AnalyseFailedRun_PrintsNoDiagnostics
+COST Cli_AnalyseFailedRun_PrintsNoDiagnostics 53.588
+FAIL Cli_InspectRuns_RevisionIsSessionLabel Exception: inspect --runs returned 3: {
+  "code": "DOC-UNSUPPORTED-PERSISTENCE"
+}
+
+COST Cli_InspectRuns_RevisionIsSessionLabel 233.237
+PASS Cli_Export_DatEqualsFixtureAndPrintsSummary
+COST Cli_Export_DatEqualsFixtureAndPrintsSummary 162.034
+PASS Cli_Export_StlPassesClosureCheck
+COST Cli_Export_StlPassesClosureCheck 303.607
+PASS Cli_Export_HalfNamesFileHalf
+COST Cli_Export_HalfNamesFileHalf 347.794
+NOT ASSESSED file-link (Windows: creating a file link needs a privilege; enable Developer Mode)
+PASS Cli_Export_SymlinkTargetRefused
+COST Cli_Export_SymlinkTargetRefused 6.896
+NOT ASSESSED file-link (Windows: creating a file link needs a privilege; enable Developer Mode)
+NOT ASSESSED file-link (Windows: creating a file link needs a privilege; enable Developer Mode)
+PASS Export_LinkTargetHasOneCodeOnBothSurfaces
+COST Export_LinkTargetHasOneCodeOnBothSurfaces 8.376
+PASS Export_DirectoryTargetHasOneCodeOnBothSurfaces
+COST Export_DirectoryTargetHasOneCodeOnBothSurfaces 230.120
+PASS Cli_Export_3mfPassesPackageCheckAndHalfNamesFile
+COST Cli_Export_3mfPassesPackageCheckAndHalfNamesFile 650.110
+PASS Cli_Export_StationTakesTheAppsNames
+COST Cli_Export_StationTakesTheAppsNames 1040.728
+PASS Cli_Export_InvalidOptionPrintsUsage
+COST Cli_Export_InvalidOptionPrintsUsage 84.067
+PASS Cli_Export_TrailingEdgeBelowFloorAdvisesAndWrites
+COST Cli_Export_TrailingEdgeBelowFloorAdvisesAndWrites 121.363
+PASS Cli_Export_GeometryNotAcceptedRefused
+COST Cli_Export_GeometryNotAcceptedRefused 20.313
+PASS Cli_Export_ForcedExtensionNeverReplaces
+COST Cli_Export_ForcedExtensionNeverReplaces 177.271
+PASS Cli_Export_UnwritablePathExitsIo
+COST Cli_Export_UnwritablePathExitsIo 89.101
+NOT ASSESSED file-link (Windows: creating a file link needs a privilege; enable Developer Mode)
+PASS Cli_Export_EmitsOneTelemetryEventPerOutcome_NoPathNoName
+COST Cli_Export_EmitsOneTelemetryEventPerOutcome_NoPathNoName 221.137

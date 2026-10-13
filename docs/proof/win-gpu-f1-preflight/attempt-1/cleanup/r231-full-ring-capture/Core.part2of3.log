@@ -1,0 +1,237 @@
+PASS Blake3_OfficialEmptyVector_Matches
+PASS CatalogGenerator_ClosedTe4412_ChordFrameLeAtMinimumX
+PASS Provenance_FormatParse_RoundTrip
+PASS Ruling15_BoundMillimeters_CompensateLargeDecimal
+PASS Parse_InvalidReference_ReportsReference
+PASS Diagnostic_MissingReference_NamesTarget
+NACA0012 residual root 1.9396237357308119E-07 m tip 1.9396237357308127E-08 m vertices 10 normalised 1.5267551620040676E-06
+PASS NewDefault_SectionResidualWithinAcceptance
+PASS NewDefault_NoExampleDependency
+planform deviation 0.011972960968201975 m analytic MAC 0.10787865603554626 m fitted MAC 0.11038811028541452
+PASS NewDefault_WingEstimates_AreaAndAspectRatioExact
+PASS Parse_SixteenChannelPointsUnder41_Parsed
+PASS Parse_Foil41RoundTrip_RandomRowsStable
+PASS Ruling18_ConstantTwist_0_QueriesComplete
+PASS Ruling18_ConstantTwist_5e-324_QueriesComplete
+QUERY FEASIBILITY RECEIPT {"Algorithm":"common-denominator-dyadic-128/taylor-grid-64/v1","RationalBitLimit":32768,"MaximumIntermediateBits":20502,"RationalOperationsUpper":321472,"InverseDepth":128,"AngleGridBits":64,"Spans":[{"Curve":"leading","Span":0,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":442,"RefinedDenominatorBits":444},{"Curve":"leading","Span":1,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":443,"RefinedDenominatorBits":444},{"Curve":"leading","Span":2,"Degree":3,"CommonDenominatorBits":58,"RefinedNumeratorBits":442,"RefinedDenominatorBits":442},{"Curve":"leading","Span":3,"Degree":3,"CommonDenominatorBits":57,"RefinedNumeratorBits":441,"RefinedDenominatorBits":441},{"Curve":"trailing","Span":0,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":442,"RefinedDenominatorBits":444},{"Curve":"trailing","Span":1,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":443,"RefinedDenominatorBits":444},{"Curve":"trailing","Span":2,"Degree":3,"CommonDenominatorBits":58,"RefinedNumeratorBits":442,"RefinedDenominatorBits":442},{"Curve":"trailing","Span":3,"Degree":3,"CommonDenominatorBits":57,"RefinedNumeratorBits":441,"RefinedDenominatorBits":441},{"Curve":"dihedral","Span":0,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":442,"RefinedDenominatorBits":444},{"Curve":"dihedral","Span":1,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":443,"RefinedDenominatorBits":444},{"Curve":"dihedral","Span":2,"Degree":3,"CommonDenominatorBits":58,"RefinedNumeratorBits":442,"RefinedDenominatorBits":442},{"Curve":"dihedral","Span":3,"Degree":3,"CommonDenominatorBits":57,"RefinedNumeratorBits":441,"RefinedDenominatorBits":441},{"Curve":"twist","Span":0,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":442,"RefinedDenominatorBits":444},{"Curve":"twist","Span":1,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":443,"RefinedDenominatorBits":444},{"Curve":"twist","Span":2,"Degree":3,"CommonDenominatorBits":58,"RefinedNumeratorBits":442,"RefinedDenominatorBits":442},{"Curve":"twist","Span":3,"Degree":3,"CommonDenominatorBits":58,"RefinedNumeratorBits":443,"RefinedDenominatorBits":442},{"Curve":"thickness","Span":0,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":442,"RefinedDenominatorBits":444},{"Curve":"thickness","Span":1,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":443,"RefinedDenominatorBits":444},{"Curve":"thickness","Span":2,"Degree":3,"CommonDenominatorBits":58,"RefinedNumeratorBits":442,"RefinedDenominatorBits":442},{"Curve":"thickness","Span":3,"Degree":3,"CommonDenominatorBits":57,"RefinedNumeratorBits":441,"RefinedDenominatorBits":441},{"Curve":"profile:0:upper","Span":0,"Degree":5,"CommonDenominatorBits":6,"RefinedNumeratorBits":646,"RefinedDenominatorBits":646},{"Curve":"profile:0:lower","Span":0,"Degree":5,"CommonDenominatorBits":6,"RefinedNumeratorBits":646,"RefinedDenominatorBits":646}],"MaximumBitPath":"placed-X/round-shift-divrem"}
+PASS Ruling18_Certificate_CarriesActualAllQueryArithmeticWitness
+PASS Ruling18_ExpensiveExactSpan_PreAdmissionRefusal
+PASS Geometry_ExhaustedWorkLimit_ProducesNoCertificate
+PASS Geometry_NormalizedSection_RejectsOutOfDomain
+PASS Geometry_ProvenNegativeChord_IsInvalid
+PASS Geometry_UpperLowerCrossing_BlocksCertificate
+PASS Geometry_IndependentProfileBasis_Unsupported
+PASS Geometry_MissingIds_NotCertified
+PASS Assess_SmoothRowSatisfied_Certified
+PASS Assess_SymmetricRowNotMidpoint_Invalid
+PASS Assess_TwistNextBinary64PastDomain_NotAssessed
+PASS Assess_SmoothRowOnDihedral_Certified
+PASS GroupGesture_OneMember_EqualsSinglePointGesture
+PASS GroupGesture_NeighbourSpacing_HoldsWholeGroupRigid
+PASS GroupGesture_HandleWithoutAnchor_Refused
+PASS GroupGesture_HandleNeverSeededTwice
+PASS ApplyGroupValue_SetTo_AllEqual
+PASS ApplyGroupValue_MoveBy_AllShifted
+PASS Blend_ThreeStations_ContinuousAtMiddle
+PASS Blend_IndependentAbscissa_RefusesUnenclosedMaximum
+PASS Blend_FourDifferingStations_Certify_SevenRefusedByOperations
+PASS Ruling17_LegacySourceAndNative_NoAdoptionOrSilentRehash
+PASS Session_Preview_HasOwnedBindingAndMeasuredRedactedEvents
+PASS Session_EmptyRecovery_RoundtripsWithoutAdoption
+PASS Session_UncapturedSaveAcknowledgement_Refuses
+PASS Session_LocalTelemetry_BoundedAndNoSourceIdentity
+PASS Session_ConcurrentSameGeneration_ExactlyOneMutation
+PASS Session_LateSaveAcknowledgement_RemainsDirty
+PASS Session_HistoryGrowthRefusal_IsAtomic
+PASS Native_UnknownField_RefusesWritableAdoption
+PASS Native_DuplicateKey_Refuses
+PASS Session_IdCandidate_NeedsExplicitAcceptance
+PASS Session_Cancel_LeavesAcceptedBytesAndHistory
+PASS Session_InvalidGeometry_LeavesAcceptedState
+PASS WindowsNative_ProductCode_UnqualifiedWin32Error_IsUnmapped
+LAYOUT UnicodeString size=16 Length=0 MaximumLength=2 Buffer=8
+LAYOUT ObjectAttributes size=48 Length=0 RootDirectory=8 ObjectName=16 Attributes=24 SecurityDescriptor=32 SecurityQualityOfService=40
+LAYOUT IoStatusBlock size=16 Status=0 Information=8
+LAYOUT FileId128 size=16 Low=0 High=8
+LAYOUT FileId size=24 VolumeSerialNumber=0 Id=8
+LAYOUT RenameHeader size=24 Flags=0 RootDirectory=8 FileNameLength=16 FirstCharacter=20
+LAYOUT Disposition size=4 Flags=0
+PASS WindowsNative_Layouts_SdkX64
+SHARE-READ-ONLY NTSTATUS=0xc0000043; IO_STATUS=0x00000000; Win32=32: The process cannot access the file because it is being used by another process. incumbent=FileIdentity { Volume = 3611534147413010381, Low = 5910974512082944, High = 0 } temp=FileIdentity { Volume = 3611534147413010381, Low = 5066549581950980, High = 0 } held_bytes=0101 fresh_bytes=0101 temp_bytes=020202 temp_exists=true
+PASS WindowsNative_Replace_ShareReadOnlyReaderRefused
+FRESH-WIN32 NTSTATUS=not recorded; IO_STATUS=not recorded; Win32=87: The parameter is incorrect.
+FRESH-NT NTSTATUS=0x00000000 IO_STATUS=0x00000000 Win32=0
+PASS WindowsNative_Rename_FreshWin32VersusNtFixtures
+PASS WindowsNative_RelativeName_TraversalRefusedBeforeCreate
+FAIL Library_Save_PublishesHashNamedFile ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Library_WriteFails_NothingPublished InvalidOperationException: Expected LIB-IO; actual DOC-UNSUPPORTED-PERSISTENCE
+PASS Profile_PairedAbscissa_MovesSameIndexAndUndoRestores
+PASS Profile_AbscissaPastNeighbour_RefusesOrder
+PASS Profile_Retry_SameOperationIsIdempotent
+PASS MakeIndependent_TangentRow_NoDslPatch
+PASS Parse_TangentsBeforeIds_RefusedDslSyntax
+PASS Session_RecoveryEnvelope_MissingProfileTarget_RefusesAtLoad
+PASS Receipt_SectionRecovery_RoundTripsExpandOnly
+PASS ReopenSectionDraft_MakeUniqueThenCrash_OpensAndResumes
+PASS Profile_DeleteInterior_ReportsDeviation
+PASS Profile_Insert_CancelRestoresBytes_OneUndoItem
+PASS Profile_Insert_RefusesOutsideChord
+PASS Fair_WithinTolerance_ApplyUndoRedo
+PASS Rebuild_TenVertices_CertifiedOneUndoItem
+PASS DatImport_Naca0012_SeligFitAndSessionCycle
+PASS DatImport_Naca0012_LednicerGivesSameProfileBlock
+PASS DatImport_Provenance_ContainsSha256OfOriginalBytes
+PASS DatExport_B6_NameLine_NeverStartsWithTwoNumbers_Reimports
+PASS DatExport_B9c_AtStation_PeakThicknessIsStationThickness
+PASS DatExport_B9_XGrid_EqualsChordGrid_AndSurfaceAbscissae
+PASS DatExport_Deviation_MatchesProbeAndShrinksWithPoints
+PASS StlExport_B3_WholeVolume_IsTwiceTheHalf
+PASS StlExport_TrailingEdge_LeastThicknessAndWhere
+PASS ThreeMfExport_Metadata_OnlyTitleDescriptionApplication
+PASS ThreeMfExport_Package_HoldsNoUserPathOrHost_RuntimeFixture
+PASS ThreeMfExport_Check_RefusesBrokenPackages
+PASS ImportDat_SharedExample_OwnSpacingNotUnsupported
+PASS Replace_SharedKeepsName_ScopeStaysShared
+PASS Replace_UniqueRootSymmetric_FitsCurrentSpacingKeepsPoints
+PASS Replace_InnerUndo_RestoresBytesAndChip
+PASS Replace_CancelSection_AssignmentsAtEntry
+PASS Replace_FourDifferingSections_Certified_SevenRefusedCopy194b
+PASS Replace_CurrentSpacing_KeepsIdsAndTangentRows
+RPL rotated 3 deg: records 0.00 um apart; reported turn 3.0000 deg; fit 5.59 um
+PASS Replace_RotatedSource3.0Deg_SameRecordAsUnrotated
+PASS Replace_CurrentSpacing_KeepsAngleSmoothSymmetricRows
+PASS Replace_VerticalRow_KeptWhenBetweenRefusedWhenNot
+PASS Reopen_Insert_AcceptedRoundtripsUndoRedo
+PASS Reopen_Delete_AcceptedRoundtripsUndoRedo
+PASS Reopen_Fair_AcceptedRoundtripsUndoRedo
+PASS Reopen_RecoveryMidRebuild_ResumesSameDraftBytes
+PASS Reopen_BogusEditRail_StillRefusesDocReference
+PASS Thickness_KeepCurrent_LeavesChannelBytes
+PASS Thickness_UseSource_ConflictingValueLock_RefusesApply
+PASS WingEstimates_Compute_EmitsEvent
+PASS WingEstimates_DraftBytes_DifferFromAccepted
+  conv=True outcome=ok mac=0.11322214154620441 ar=9.80713255360844 iterations=10 ms=38.32
+PASS WingEstimates_AnchorSymmetricTangent_MacConverges
+PASS ApplyDimension_Span15b_HalfSpanExact
+PASS ApplyDimension_Span_StationEtaUnchanged
+PASS ApplyDimension_Span_OneUndoStepUndoExact
+PASS ApplyDimension_SpanAtOneMillionMeters_RefusedEdgesCross
+PASS Recovery_Dimension_Refused
+PASS ApplyDimension_FitJustAboveLimit_AcceptedWithWarning
+PASS ApplyDimension_LocksOff_LinearRuleExact
+PASS ApplyDimension_Cad17Taper_ChordRuleWithinTolerance
+PASS ApplyDimension_EdgesWouldCross_DslEdgesCross
+PASS ApplyDimension_Receipt_CarriesRuleId
+PASS AcceptedSourceOf_AfterUndo_StillHoldsTheUndoneRevision
+PASS TipChord_Drag_LeadingTip_TowardTrailing_HoldsAtMinimum
+PASS TipChord_Drag_Escape_AfterHold_AddsNoRevision
+PASS TipChord_RootDrag_AtOrUnder250mm_NeverClamps
+PASS TipChord_InteriorVerticesAndHandles_NeverChangeEitherChord
+PASS TipChord_DrivingDimension_NamesTheLargerMinimum
+PASS TipChord_PointTipDocument_IsNeverOpenedSoNoSessionHoldsOne
+PASS TipChord_EditThatDoesNotTouchThePlanform_AdmittedOnOldFile
+PASS LayoutParse_Corrupt_ReturnsPresetsWithCode
+PASS LayoutCodec_DeepestValid_SerializesAndReaderRejectsDepth9
+PASS LayoutLoad_ReadError_NeverWrites
+FAIL PrefsSave_LayoutAndRecentConcurrent_BothKept InvalidOperationException: Expected saved; actual failed
+FAIL LayoutSave_TwoQueuedSaves_UnionOfChangedWorkspaces InvalidOperationException: Expected saved; actual failed
+FAIL Recent_Clear_NoFileContainsMarkerPath InvalidOperationException: Expected saved; actual failed
+FAIL StoreContract_CancelBeforePublish_DocCancelled InvalidOperationException: Expected False; actual True
+FAIL PrefStore_TextSize_RoundTrip InvalidOperationException: Expected saved; actual session-only
+NOT ASSESSED view-settings persistence: this host has no project store (Ruling 206 O2); the session-only behaviour is asserted instead
+PASS PrefStore_TextSize_StructureError_WholeFileDefaults_BytesUnchanged
+PASS PrefStore_Comb_RoundTrip_EveryStep_DefaultsNotWritten
+PASS PrefStore_Comb_StructureError_WholeFileDefaults_BytesUnchanged
+PASS PrefStore_Comb_Atomic_FaultBeforePublish_PreviousBytesKept_NoTemp
+PASS PrefStore_DisplayCodec_Serialize_OutOfSetComb_Throws
+PASS PointModel_DefaultExample_RolesEndsHandlesControls
+PASS PointModel_SrOneAliases_RemovedAtExit
+PASS Comb_CornerAnchor_BreakReported
+PASS Comb_SixteenPointRail_FairnessFixture
+PASS Planform_CurvatureAt_GrevilleAtT_EqualsXi
+PASS Planform_MonotonePieces_StraightRun_One
+PASS Planform_MonotonePieces_TipRoundPlusWobble_Three
+PASS Planform_MonotonePieces_MirrorInvariant
+PASS LengthExpression_RandomText_NeverThrowsUnexpected
+PASS BeginPointGesture_NonRailCurve_DslTarget
+PASS UpdatePointGesture_ControlPoint_QuantizedDeltaExactPosition
+PASS UpdatePointGesture_SymmetricHandleDrag_Midpoint
+PASS UpdatePointGesture_BypassedClamp_DslPatch
+PASS Gesture_ReleaseWithoutMove_NoAcceptedRow
+PASS PlacementRule_CertificateGoldenMaster_AssessWitnessesAndRefusalsUnchanged
+PASS PlacementRule_FoilFixtures_MatchGoldenSources
+MEASURE fixture=random-0 max_outside_m=5.5511151231257827E-17
+PASS Placement_RandomFixtures_WithinCertifiedEnclosure
+PASS Placement_FrameLeadingEdge_EqualsCertifiedPointAtXZero
+PASS Placement_SignFixture_PositiveElevationRaisesSection
+PASS Placement_Surface_AuthoredStationsIncludedExactly
+PASS Placement_Surface_AuthoredEtaOnUniformGridOnce
+MEASURE channel_evals=205 profile_evals=7798 per_point=496920
+PASS Placement_Surface_EvaluatorCallsBounded
+PASS Placement_StationFrame_ChordDerived
+PASS Sections_PlaceEqualsSurfaceMidline_Bitwise
+PASS MakeAnchor_NewFoil_TenToThirteenHeader41SmoothRow
+PASS MakeAnchor_ThirteenPoints_SixteenAccepted
+PASS MakeAnchor_RootEnd_DslLock
+PASS MakeControl_Undo_RestoresExactly
+PASS SetTangent_SymmetricNextToNeighbour_OrderKept
+PASS Reopen_RetrySamePointOperationId_ReturnsPriorId
+PASS Reopen_PointTypeAndTangentRows_UndoRedoRoundTrip
+PASS Reopen_CurveOnGestureReceipt_DocReference
+PASS Save_DragAndSpanOnlyHistory_NoNewReceiptKeys
+PASS Reopen_ForgedPointAddIdAlreadyPresent_DocReference
+PASS Verbs_UndoRedo_RestoresBytesAndAnchorRows
+PASS Verbs_UndoRedo_EachVerbBytesRestoredAndReapplied
+PASS Parse_Channel40FiveVertices_DslCurve
+PASS AddPoint_AtCeiling16_RefusedNamingCeiling
+PASS AddPoint_NextToSymmetricAnchor_RowBecomesSmoothReported
+PASS AddPoint_DefaultPosition_SpanMidpointNeverAKnot
+PASS RemovePoint_RootHandleAndTipHandle_Refused
+PASS RemovePoint_ClusteredKnots_SolvesWithSpanSamples
+PASS RemovePoint_NextToAnchorHandle_TangentRowHolds
+PASS Rebuild_SameCountSameKnots_NoRowBytesUnchanged
+PASS Rebuild_TipTurn_MatchesDirectAngle
+PASS CurvatureBreaks_SmoothAnchor_OneBreakSimpleKnotsNone
+PASS PreviewRebuilds_NoRowNoCertificate_BytesHistoryFreshnessUnchanged
+PASS PointVerbEvents_RecordKindOutcomeCountsDeviation
+PASS PlanformView_FourVertexCurve_SamplesIncludeEndsAndMinimumCount
+PASS RemovePoint_RefusalTable_OrderAndCopy
+PASS AddPoint_NextToSmoothAnchor_RowStillHolds
+PASS PointModel_Dihedral_RootEndFixedTipEndValueOnly
+PASS Channels_View_AnyChannelSameShapeAsRails
+PASS UpdatePointGesture_TwistBelowNegativeDomain_ClampedAtNegativeDomain
+PASS UpdatePointGesture_OutOfDomainCvAtBegin_NotSnappedMovesInward
+PASS UpdatePointGesture_CoMovedHandleBeyondDomain_Clamped
+PASS MakeAnchor_TwistControlPoint_PassesThroughWithinIdentity
+PASS MakeControl_DihedralAnchor_LocalityWithinIdentity
+PASS ApplyPointCommand_DihedralRootEnd_DslLock
+PASS Reopen_ChannelPointTypeAndTangentRows_UndoRedoRoundTrip
+PASS Reopen_UnknownCurveOnReceipt_DocReference
+PASS Recovery_ChannelGestureRail_RefusedProjectStillOpens
+PASS ProfileView_RebuiltProfile_NeverUsesProofBudget
+PASS SectionPoints_NoseShared_OnePointTwoHandles
+PASS Sections_Facts_LeRadiusAndWedgeAtStation_MatchPlacedRuleA
+PASS Sections_Probe_PlacedThicknessAtStation
+PASS Sections_Facts_MemoInvalidatedByNewBytes
+PASS Assess_ProfileSmoothRowNearVertical_Certified
+PASS Assess_ProfileRowsJustOutsideTau_InvalidDslLock
+PASS SectionEdits_HorizontalKind_HandlesLevelExactly
+PASS SectionEdits_AngleKind_HandlesOnRaysWithinTau
+PASS SectionEdits_FairWithAnchorRows_AnchorsKeptRowsHold
+PASS SectionEdits_AnchorPast32Points_RefusedNamingCeiling
+PASS SectionEdits_PairedAnchor_BothSurfacesSameKnotsExact
+PASS SectionEdits_PairedXMove_BothSurfacesSameAbscissa
+PASS SectionEdits_PairedAnchorToControl_RefitLocalWithin10Um
+PASS SectionEdits_PairedAnchorToControlRefitOverLimit_Refused
+PASS SectionEdits_PairedSetTangent_BothSurfacesSameKind
+PASS SectionEdits_UniqueImportOverLimit_RefusedNothingChanged
+PASS SectionDraft_StepThenUndoThenRedo_BytesRestoredExactly
+PASS SectionDraft_SecondDraftWhileOpen_DslDraftOwned
+PASS SectionDraft_FinishSixSteps_OneAcceptedRow
+PASS SectionDraft_FairStep_ReportsAchievedDeviation
+PASS SectionTelemetry_FinishEvent_CarriesStepsAndDuration
+PASS SectionTelemetry_Events_NoNamesIdsOrPositions
+PASS Profile_IndependentAbscissaEdit_NamesNeighbour
+PASS CorePartition_CostTable_PlacesEveryCheckOnceWithinFifteenPercent
+PARTITION 2/3 of 788 checks
+RESULT failures=7

@@ -19132,7 +19132,7 @@ window.DOCS_INDEX = {
       "phase": "preflight",
       "reviewBy": "2026-11-12",
       "reviewSuggested": [],
-      "summary": "Serial Windows reruns of the six Desktop children named in the R231 broad-ring failure completed below the child deadline; all observed test failures match the Windows expected-failures manifest.",
+      "summary": "Serial reruns and a full bounded-concurrency Windows ring show the six Desktop timeout modes complete below the child deadline; all 33 Desktop failures match the Windows expected-failures manifest, with no unexpected failures.",
       "tags": [
         "windows",
         "desktop",
@@ -19151,7 +19151,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "02a93c2e5a63637db137db8b1ba3a733db7de16c4c59c7e6847ea87045468e2f"
+      "sourceSha256": "6f4d82985df24fc39866179bd25e716e9e66902703961b86da93e9280a8f89b1"
     },
     {
       "id": "proof-win-gpu-f1-recovery-integration",
@@ -22454,5 +22454,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "134de19acc450f8b477370d35251916b125ec47434ecc15e5674080c5793e903"
+  "graphSha256": "bd5cccaacaeef6ab82b480b9c21e67258940fa040ad97a0c984d06c661b3e1c2"
 };
