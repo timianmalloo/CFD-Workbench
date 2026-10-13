@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 import re
 import subprocess
@@ -193,7 +194,7 @@ def cleanup_sequence(action) -> None:
 def validate_leader_sample(value: dict, epoch: int) -> None:
     if (value.get("leader") != "mac" or value.get("state") != "live"
             or value.get("epoch") != epoch or not isinstance(value.get("expires_in"), (int, float))
-            or value["expires_in"] < 200):
+            or not math.isfinite(value["expires_in"]) or value["expires_in"] < 200):
         raise ValueError("live Mac leader epoch with at least 200 seconds required")
 
 
@@ -465,9 +466,9 @@ class Cleanup:
         self.precheck()
         self.live.mkdir(parents=True)
         self.publish_precheck()
-        self.capture_pre_live_leader()
         outcome = "failed-stop-no-retry"
         try:
+            self.capture_pre_live_leader()
             cleanup_sequence(self.action)
             outcome = "cleanup-proved"
         except Exception as error:

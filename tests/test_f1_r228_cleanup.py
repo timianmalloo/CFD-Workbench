@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import importlib.util
+import math
 import tempfile
 import unittest
 from pathlib import Path
@@ -217,6 +218,29 @@ class CleanupOnlyTests(unittest.TestCase):
         source = SCRIPT.read_text(encoding="utf-8")
         self.assertIn("leader-activation.json", source)
         self.assertIn("leader-immediately-pre-live.json", source)
+
+    def test_leader_sample_rejects_non_finite_ttl(self):
+        valid = {"leader": "mac", "state": "live", "epoch": 8, "expires_in": 200.0}
+        for ttl in (math.nan, math.inf, -math.inf):
+            sample = dict(valid, expires_in=ttl)
+            with self.subTest(ttl=ttl), self.assertRaises(ValueError):
+                cleanup.validate_leader_sample(sample, 8)
+
+    def test_pre_live_leader_refusal_binds_receipt_before_stopping(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            instance = object.__new__(cleanup.Cleanup)
+            instance.precheck = Mock()
+            instance.live = Path(temporary) / "live"
+            instance.publish_precheck = Mock()
+            instance.capture_pre_live_leader = Mock(side_effect=ValueError("ttl below floor"))
+            instance.action = Mock()
+            instance.bind = Mock(return_value="d" * 40)
+            instance.failure = None
+            with self.assertRaisesRegex(ValueError, "committed receipt; no retry"):
+                instance.execute()
+            instance.action.assert_not_called()
+            instance.bind.assert_called_once_with("failed-stop-no-retry")
+            self.assertEqual(instance.failure["type"], "ValueError")
 
     def test_r223_conditions_are_fail_closed(self):
         source = SCRIPT.read_text(encoding="utf-8")
