@@ -5554,7 +5554,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "bc2f9d8ed2906ad86ce236e00a5af36176f6f0c87636211769e041a392cf1435"
+      "sourceSha256": "db145205afb99973b665cb65233aa3967f824e723b95a713bf364aed5e491d2f"
     },
     {
       "id": "domain-experts",
@@ -6340,6 +6340,43 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "5be493178924de4f4e42c8b92fb382af241883f4e22bcbcacef5d3b589231d2f"
+    },
+    {
+      "id": "plan-windows-gpu-f1-r229-cleanup",
+      "path": "docs/plans/windows-gpu-f1-r229-cleanup.md",
+      "title": "R228 attempt-1 cleanup-only recovery plan",
+      "type": "doc",
+      "status": "active",
+      "owner": "@pc-f1-r228-cleanup-author",
+      "phase": "preflight",
+      "reviewBy": "2026-10-13",
+      "reviewSuggested": [],
+      "summary": "Build and review an exact, hash-bound R229 cleanup-only action. Live execution remains forbidden until a separate accepted Mac/Fable ruling reaches origin/main.",
+      "tags": [
+        "windows",
+        "wsl",
+        "cleanup",
+        "coordination",
+        "offline-proof"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r228-attempt1-failure",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Goal and execution graph",
+          "mermaid": "flowchart LR\n  G1 --> G2 --> G3 --> G4 --> G5 --> G6 --> G7"
+        }
+      ],
+      "sourceSha256": "29ea82effe398332d4355ba0db860abd7a8e758148ac03fc21d9e149f2b40fd7"
     },
     {
       "id": "plan-windows-gpu-f1-recovery-integration",
@@ -18911,6 +18948,61 @@ window.DOCS_INDEX = {
       "sourceSha256": "03ca48bef081965d93c4acb129d253a901fcd7bedc10a5126a6348dd3481277c"
     },
     {
+      "id": "proof-win-gpu-f1-r229-cleanup-candidate",
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/README.md",
+      "title": "R229 cleanup-only candidate for R228 attempt 1",
+      "type": "proof-pack",
+      "status": "proposed",
+      "owner": "@pc-f1-r228-cleanup-author",
+      "phase": "preflight",
+      "reviewBy": "2026-10-13",
+      "reviewSuggested": [],
+      "summary": "Offline-only source and controls for exact cleanup of the target left by R228. No live authority exists until Mac/Fable accepts the projected bytes in R229.",
+      "tags": [
+        "windows",
+        "wsl",
+        "cleanup",
+        "authorization"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r228-attempt1-failure",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-windows-gpu-f1-r229-cleanup",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c9dcf3d981b612bcafd2e2e6c84a5a98b22fee24c5112cb2c1406a7ec3c8efed"
+    },
+    {
+      "id": "proof-win-gpu-f1-r229-cleanup-red-first",
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/red-first.md",
+      "title": "R229 cleanup candidate red-first observation",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@pc-f1-r228-cleanup-author",
+      "phase": "preflight",
+      "reviewBy": "2026-10-13",
+      "reviewSuggested": [],
+      "summary": "The branch baseline had no exact cleanup entrypoint, while the prior recovery was bound to another GUID and a broader deletion scope.",
+      "tags": [
+        "windows",
+        "cleanup",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r229-cleanup-candidate",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "13b25d632556e32dff823aac60f14539183755e6c0e67d750337fd54c2baffd5"
+    },
+    {
       "id": "proof-win-gpu-f1-recovery-integration",
       "path": "docs/proof/win-gpu-f1-preflight/integration/proof.md",
       "title": "F1 packet repair and cleanup recovery: offline integration proof",
@@ -22211,5 +22303,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "79b250636ceafdbd832a42a42410dfce1798e0caef85bf92bbdb5ca57971e17f"
+  "graphSha256": "502cb7b7099dd10d923b48b3bf81cd617de89bd99d8b5bab852a587821a20975"
 };

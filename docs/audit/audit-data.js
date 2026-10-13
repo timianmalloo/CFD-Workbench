@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T01:40:01Z",
+  "generated": "2026-10-13T01:51:52Z",
   "audit": [
     {
       "actor": null,
@@ -37894,6 +37894,21 @@ window.AUDIT_DATA = {
         "branch": "win/gpu-f1-r225-attempt1-review",
         "pushed": false
       }
+    },
+    {
+      "id": "al-01M4SFAZQ3KXEA4ZPPVR4XEWQY",
+      "shortname": "Prepare and commit/push an offline-only, hash-bound R228 attempt-1 clean…",
+      "datetime": "2026-10-13T01:51:52Z",
+      "session": "prompt-log",
+      "prompt": "Prepare and commit/push an offline-only, hash-bound R228 attempt-1 cleanup candidate for the exact current target GUID, with identity, owned-process, lifecycle, absence, protected-invariance, evidence, authorization, tests, audit/index and R229 request controls; perform no live WSL action.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
     }
   ],
   "changes": [
