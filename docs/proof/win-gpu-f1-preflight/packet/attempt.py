@@ -1,0 +1,127 @@
+#!/usr/bin/env python3
+"""R225 attempt admission. Proposal verification never grants live authority."""
+from __future__ import annotations
+import hashlib
+import json
+from pathlib import Path
+import re
+import subprocess
+import contract
+
+PREFIX = 'docs/proof/win-gpu-f1-preflight'
+EXTERNAL = PREFIX + '/recovery/check_cache.py'
+PROTECTED_KEY = '{b7566a82-9cee-47ce-a246-f83632353cea}'
+OLD_TARGET_KEY = '{e958c4d5-ae78-4b50-a634-7102f334d3aa}'
+PROTECTED_PATH = r'%USERPROFILE%\AppData\Local\CFDWorkbench\qualification\wsl\cfdw-openfoam2512'
+INPUT_HASHES = {
+    'rootfs': contract.ROOTFS,
+    'ubuntu_sums': '337176fdeda3dbbf7bd36146894c03670d5ed8cffc2bd804f39d4c4ace0d424f',
+    'ubuntu_signature': 'c0deb277ccda24b8fcc2d36bf9d9530c0aed7138f30375dc45b6539a6aa6799b',
+    'openfoam_keyring': '6d17d37b82fc840b8a5c767545703df7264cfa3e30f9cf74556ebb124bda1a93',
+    'nvidia_keyring': '25100d6f2eccaee7d6719a70e3c0c6145064aa9edc2c32148f693ac4c524a376',
+    'b2_lock': '2306d58e2fb0d728195ee2691cb7faab7c651e04bb70746f242310834d61e76c',
+    'b2_licenses': '470de11258ff4e78a05a38cb3d1c75090387c79b2cc3b06fc3534e9eee5da4d6',
+}
+SIGNERS = {
+    'ubuntu_rootfs': ['D2EB44626FDDC30B513D5BB71A5D6C4C7DB87C81', '4A3CE3CD565D7EB5C810E2B97FF3F408476CF100'],
+    'ubuntu_archive': ['790BC7277767219C42C86F933B4FE6ACC0B21F32', '843938DF228D22F7B3742BC0D94AA3F0EFE21092', 'F6ECB3762474EDA9D21B7022871920D1991BC93C'],
+    'openfoam': [contract.OPENFOAM], 'nvidia': [contract.NVIDIA],
+}
+LIMITS = dict(deadline_seconds=3600, work_ceiling_seconds=2700, checkpoint_ceiling_seconds=3000,
+              vhd_max_bytes=8589934592, host_initial_free_bytes=19684091961,
+              host_reserve_bytes=10737418240, target_cpus=[0, 1], protected_cpus=[0], nice=10)
+STAGES = ['probe', 'repositories', 'simulate', 'download', 'inspect', 'delete-debs']
+ACTIONS = ['fresh-target-create', 'rootfs-signature', 'completed-l3-before-watch-after',
+           'owned-stop-check', 'terminate-target', 'unregister-target', 'absence-proof',
+           'manifest-freeze-verify', 'evidence-commit']
+FORBIDDEN = ['dpkg-install', 'apt-install', 'petsc-source-fetch', 'petsc4foam-source-fetch',
+             'build', 'case-run', 'benchmark', 'protected-lifecycle', 'protected-file-change']
+
+
+def check_binding(document, run_id=None):
+    number = document.get('attempt')
+    if type(number) is not int or number != 1:
+        raise ValueError('only reviewed attempt 1 is admitted')
+    expected = dict(leader='mac', leader_epoch=8, execution_branch=f'win/gpu-f1-r225-attempt{number}',
+                    session=f'pc-f1-r225-attempt{number}', run_root=f'{PREFIX}/attempt-{number}')
+    for key, value in expected.items():
+        if document.get(key) != value:
+            raise ValueError('attempt binding changed: ' + key)
+    if not re.fullmatch(f'r225-attempt{number}-epoch8-[0-9]{{8}}', document.get('run_id', '')):
+        raise ValueError('fresh attempt run identity required')
+    if run_id is not None and run_id != document['run_id']:
+        raise ValueError('invoked RunId differs from reviewed attempt')
+    if set(document.get('inputs', {})) != set(INPUT_HASHES):
+        raise ValueError('exact seven reviewed inputs required')
+    for key, value in INPUT_HASHES.items():
+        if document['inputs'][key].get('sha256') != value:
+            raise ValueError('accepted input hash changed: ' + key)
+    if document.get('allowed_signers') != SIGNERS:
+        raise ValueError('exact accepted signer allowlists required')
+    if set(document.get('external_sha256', {})) != {EXTERNAL}:
+        raise ValueError('external deletion helper binding required')
+    if not contract.SHA.fullmatch(document['external_sha256'][EXTERNAL]):
+        raise ValueError('external helper digest invalid')
+
+
+def authorization(document, contract_sha, accepted=False):
+    number = document['attempt']
+    return dict(schema='cfdw-f1-preflight-authorization/1', status='accepted' if accepted else 'proposed',
+                requested_ruling=228, ruling=228 if accepted else None,
+                attempt=number, leader='mac', leader_epoch=8, source_commit=document['accepted_packet_commit'],
+                run_id=document['run_id'], session=document['session'], execution_branch=document['execution_branch'],
+                run_root=document['run_root'], contract_path=document['run_root'] + '/invocation-contract.json',
+                contract_sha256=contract_sha, target=document['target'], target_path=document['target_path'],
+                target_previous_key=OLD_TARGET_KEY, target_key='observed-after-fresh-creation',
+                protected=document['protected'], protected_key=PROTECTED_KEY, protected_path=PROTECTED_PATH,
+                packet_sha256=document['packet_sha256'], external_sha256=document['external_sha256'],
+                inputs=document['inputs'], allowed_signers=document['allowed_signers'], limits=LIMITS,
+                allowed_stages=STAGES, allowed_actions=ACTIONS, forbidden_actions=FORBIDDEN,
+                attempt_count=1, failure_policy='stop; immutable failure receipt; no next attempt without its own ruling',
+                prerequisites=['live-mac-epoch8', 'exclusive-PC', 'continuous-PC-side-leader-renewal',
+                               'target-name-registration-path-absent-before-creation', 'bind-new-GUID-for-rollback'])
+
+
+def check_authorization(value, document, contract_sha, proposed=False):
+    if value.get('status') not in ('proposed', 'accepted'):
+        raise ValueError('unknown attempt authorization status')
+    accepted = value.get('status') == 'accepted'
+    if not accepted and not proposed:
+        raise ValueError('proposed authorization cannot admit live work')
+    if value != authorization(document, contract_sha, accepted=accepted):
+        raise ValueError('attempt authorization source/run/hash/scope differs from exact contract')
+
+
+def check_ruling(text, value, sha):
+    number = value['ruling']
+    match = re.search(rf'^### Ruling {number} [^\n]*\n(.*?)(?=^### Ruling |\Z)', text, re.M | re.S)
+    if not match:
+        raise ValueError('accepted attempt ruling missing on main')
+    body = match.group(1)
+    required = ['ACCEPT ONE PREFLIGHT ATTEMPT', value['contract_path'], value['contract_sha256'],
+                value['source_commit'], value['run_id'], value['session'], value['execution_branch'],
+                'epoch 8', sha, value['run_root'] + '/attempt-authorization.json']
+    if any(token not in body for token in required) or re.search(r'\bPROPOSED\b', body):
+        raise ValueError('main ruling does not accept exact attempt bytes/bindings')
+
+
+def verify_authorization(repo, path, document, contract_sha, run_id, exclusive, proposed=False):
+    if run_id is None:
+        raise ValueError('explicit invoked RunId is required')
+    check_binding(document, run_id)
+    expected_path = document['run_root'] + '/attempt-authorization.json'
+    if path is None or path.resolve(strict=True).relative_to(repo).as_posix() != expected_path:
+        raise ValueError('attempt authorization is absent or outside exact live path')
+    raw = path.read_bytes()
+    value = json.loads(raw)
+    check_authorization(value, document, contract_sha, proposed=proposed)
+    if proposed:
+        return
+    if exclusive != run_id:
+        raise ValueError('exclusive-PC attestation must bind exact RunId')
+    committed = subprocess.run(['git', '-C', str(repo), 'show', 'HEAD:' + expected_path],
+                               check=True, capture_output=True, timeout=15).stdout
+    if committed != raw:
+        raise ValueError('authorization bytes differ from committed live blob')
+    main = contract.git(repo, 'show', 'origin/main:docs/notes/rulings.md')
+    check_ruling(main, value, hashlib.sha256(raw).hexdigest())

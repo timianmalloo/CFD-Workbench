@@ -1,0 +1,3 @@
+KEYRING-PASS kind=ubuntu_archive keys=3
+KEYRING-PASS kind=openfoam keys=1
+KEYRING-PASS kind=nvidia keys=1

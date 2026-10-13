@@ -1,0 +1,1 @@
+warning: in the working copy of 'docs/proof/win-gpu-f1-preflight/attempt-1/checkpoint/invocation-contract.stdout.txt', CRLF will be replaced by LF the next time Git touches it

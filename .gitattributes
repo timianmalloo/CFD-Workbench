@@ -38,6 +38,8 @@ docs/proof/wri-r184-result/source-snapshots/cfd947c3/* -text
 docs/proof/win-gpu-f1-preflight/run-1/checkpoint/** -text whitespace=-trailing-space,-blank-at-eof
 docs/proof/win-gpu-f1-preflight/run-1/failed-live/** -text whitespace=-trailing-space,-blank-at-eof
 docs/proof/win-gpu-f1-preflight/recovery-1/final/** -text whitespace=-trailing-space,-blank-at-eof
+docs/proof/win-gpu-f1-preflight/attempt-1/checkpoint/** -text whitespace=-trailing-space,-blank-at-eof
+docs/proof/win-gpu-f1-preflight/attempt-1/final/** -text whitespace=-trailing-space,-blank-at-eof
 # Every capture folder keeps its exact bytes (Ruling 229, RAW-CAPTURE-BLOB-MISMATCH recurrence 3; tools/check-capture-text-attr.py).
 docs/proof/r181-store-verifier-rerun/** -text
 docs/proof/ring-windows/** -text

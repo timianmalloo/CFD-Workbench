@@ -1,0 +1,255 @@
+{
+  "files": [
+    {
+      "bytes": 646,
+      "path": "apt-sources.list",
+      "sha256": "e0e5a9d7ee4bbc9646a5f1d97c0f9b5e432d4dd2885a18da7568a2f19c45d2cd"
+    },
+    {
+      "bytes": 0,
+      "path": "apt-update.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2812,
+      "path": "apt-update.stdout.txt",
+      "sha256": "ee9edfc95a01200a6cbcf9a6f7d8b95d2cd8f79e83054492eecb75d03b9360cd"
+    },
+    {
+      "bytes": 0,
+      "path": "checkpoint-freeze.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "checkpoint-freeze.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 8758,
+      "path": "completed-guard-events.jsonl",
+      "sha256": "bd8f6caf0744749792f533ecfe9a80754f583c9b3cd42d746933bd89d212402c"
+    },
+    {
+      "bytes": 296,
+      "path": "completed-guard.state.json",
+      "sha256": "f0b139e76c9314e63352db6395667a2f1335750f944bbf4c45fad4107354851f"
+    },
+    {
+      "bytes": 218,
+      "path": "created-target-identity.json",
+      "sha256": "3d42041e4786e204d7aa005c611ab5d075d345b349eab460a0a6ff3b0163502b"
+    },
+    {
+      "bytes": 0,
+      "path": "distro-list.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 84,
+      "path": "distro-list.stdout.txt",
+      "sha256": "9e76266001426b90b452117399fc03b3b9d258a5984bde8d7042b7ea290775b9"
+    },
+    {
+      "bytes": 2676,
+      "path": "final-precheck.json",
+      "sha256": "dfde5048ac7c3d90c965a948ebf7cef6270f023c7e40c733c3ae8c5c7a89d984"
+    },
+    {
+      "bytes": 1166,
+      "path": "guard.owner.txt",
+      "sha256": "bb74e86de021fdfbb855099e6a6dc06fece348198895ba98d7b84154eea7a3b8"
+    },
+    {
+      "bytes": 0,
+      "path": "guard.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 9053,
+      "path": "guard.stdout.txt",
+      "sha256": "73bad6a2561ea749611e03a4d108b8508536fd3fecca56f5c06f35adb63cd1f2"
+    },
+    {
+      "bytes": 114,
+      "path": "guest-capacity.txt",
+      "sha256": "8ebfd69af3470186d515e0a5ef2142f55160748360fe7cb5d73ad525562ab2ff"
+    },
+    {
+      "bytes": 700,
+      "path": "host-capacity.jsonl",
+      "sha256": "6304b0443df143e5a1b0b862dee08fa7cfb2d67cc251219ea8611ef77a93599b"
+    },
+    {
+      "bytes": 26,
+      "path": "invocation-contract.stdout.txt",
+      "sha256": "f55b84da0f7569679218610d3856506f22b061920a79473f4d1a0ee2810a8dde"
+    },
+    {
+      "bytes": 604,
+      "path": "l3-before.owner.txt",
+      "sha256": "eb8cb82cdb94d3d24fb27d13c6098defe20a9a41d6f0e6ae16c830366429efae"
+    },
+    {
+      "bytes": 0,
+      "path": "l3-before.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "l3-before.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 532,
+      "path": "l3-terminal-before.json",
+      "sha256": "42e1d0bed05aa071a70fba8445474a85fa43a1746a394adc4e46a433a090aab9"
+    },
+    {
+      "bytes": 587,
+      "path": "owned-check.entry.txt",
+      "sha256": "8515b9c554f46079da023143f9f020e573d0902d284a39e208a03cfbae393d3d"
+    },
+    {
+      "bytes": 0,
+      "path": "owned-check.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 13,
+      "path": "owned-check.stdout.txt",
+      "sha256": "1de1026d8be11b22e89492b260c15b9242ac35c1b46537170110d9925685e69b"
+    },
+    {
+      "bytes": 585,
+      "path": "owned-stop.entry.txt",
+      "sha256": "e8b3f48699b112371b6a559e3ca10291a65206385f3fcc457d1ee27726f45194"
+    },
+    {
+      "bytes": 0,
+      "path": "owned-stop.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 19,
+      "path": "owned-stop.stdout.txt",
+      "sha256": "096bb66a467fa5d017285f6b525e9e2c77670a3be395f6974c9548e3a8471fd8"
+    },
+    {
+      "bytes": 504,
+      "path": "precleanup-state.json",
+      "sha256": "c603e70baf5c154cfb1306ae3c5fad45a136fb18bf70f698988d1e1b80ec1259"
+    },
+    {
+      "bytes": 1288,
+      "path": "probe.entry.txt",
+      "sha256": "b121ba22bf510edceced64b4399ac629f2467d9b342ef00116f77a9ea4569a7e"
+    },
+    {
+      "bytes": 254,
+      "path": "probe.intent.json",
+      "sha256": "7eb3129c798cdb9f38831e77eb3d0b78994c1e3356ef9b7c7f82110f8b21f268"
+    },
+    {
+      "bytes": 1063,
+      "path": "probe.owner.txt",
+      "sha256": "89c553a7c0183a815492072bf373dd8fce91c867f77352b8096314071eb5638b"
+    },
+    {
+      "bytes": 65,
+      "path": "probe.residual-absent.sha256",
+      "sha256": "2b5f7372bacaa0a7fd7340eed276853be02d278d98129c49d02294e083bce4eb"
+    },
+    {
+      "bytes": 593,
+      "path": "probe.residual-check.entry.txt",
+      "sha256": "f3daa18f08dc7acdd559e651717b2680b18bafd6cd1ccca68f7b01ef8d694c36"
+    },
+    {
+      "bytes": 1302,
+      "path": "repositories.entry.txt",
+      "sha256": "1d908c04c322e51aa9094ed771d3231759e77bf0e81091a41fb3d1155379c9c0"
+    },
+    {
+      "bytes": 261,
+      "path": "repositories.intent.json",
+      "sha256": "8c59d6946046878ac42762dd627e1494e3e31296d5bb8f945b1fabbcf4c118a2"
+    },
+    {
+      "bytes": 1077,
+      "path": "repositories.owner.txt",
+      "sha256": "19541363d65ab7c533aa15ec8bfe023ee76f796a97f3606e2428536affe8898d"
+    },
+    {
+      "bytes": 122,
+      "path": "repository-keys.txt",
+      "sha256": "05e98bb8b943a40a8463ca544864f4190950d425d6e8a0a569f9236fa185683e"
+    },
+    {
+      "bytes": 579,
+      "path": "rootfs-signature.gpgv.txt",
+      "sha256": "011663ffbdf2e264247e88bfadaf15383d40e2236984f021227dcdf16b7bdc70"
+    },
+    {
+      "bytes": 1122,
+      "path": "rootfs-signature.owner.txt",
+      "sha256": "96ae5688f3e9c1b334b1553472a60394235332254d60fb01b149e22527ee76bc"
+    },
+    {
+      "bytes": 0,
+      "path": "rootfs-signature.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 161,
+      "path": "rootfs-signature.stdout.txt",
+      "sha256": "8de40bf02a57e30e1b597d3789f7e4bb2cfba09f10e626393b7410797cc0727b"
+    },
+    {
+      "bytes": 674,
+      "path": "signed-indices/archive.ubuntu.com_ubuntu_dists_noble-updates_InRelease.gpgv.txt",
+      "sha256": "21cf2c53354f2e51a39518154309ebd980250f24544a93630fca8022a6cc862d"
+    },
+    {
+      "bytes": 0,
+      "path": "stage-probe-residual.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 13,
+      "path": "stage-probe-residual.stdout.txt",
+      "sha256": "1de1026d8be11b22e89492b260c15b9242ac35c1b46537170110d9925685e69b"
+    },
+    {
+      "bytes": 0,
+      "path": "stage-probe.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 23,
+      "path": "stage-probe.stdout.txt",
+      "sha256": "6b4ba18d135ff645a6b54394a5be52777d73ac57211b5cb794dad0ef543b1df8"
+    },
+    {
+      "bytes": 0,
+      "path": "stage-repositories.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 106,
+      "path": "stage-repositories.stdout.txt",
+      "sha256": "b14e3cd30ba4760ac94f795a6b5645c7e981d2cfd53629f8d98a34f8fc2ecab8"
+    },
+    {
+      "bytes": 0,
+      "path": "target-create.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 414,
+      "path": "target-create.stdout.txt",
+      "sha256": "352d8429b61daa7ce045228f1202a2715a10423f8d5e2779a2899747ab2e736d"
+    }
+  ],
+  "schema": "cfdw-f1-r217-capture-manifest/1"
+}

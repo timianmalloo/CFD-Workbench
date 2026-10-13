@@ -71,7 +71,10 @@ def check_contract_fields(data: dict) -> None:
         raise ValueError("OpenFOAM/NVIDIA signer anchor missing")
     if not re.fullmatch(r"[A-Za-z0-9._-]+", data.get("session", "")):
         raise ValueError("execution session absent")
-    if not re.fullmatch(r"win/gpu-f1-r217-[A-Za-z0-9._/-]+", data.get("execution_branch", "")):
+    if 'attempt' in data:
+        import attempt
+        attempt.check_binding(data)
+    elif not re.fullmatch(r"win/gpu-f1-r217-[A-Za-z0-9._/-]+", data.get("execution_branch", "")):
         raise ValueError("execution branch absent")
 
 
@@ -121,20 +124,29 @@ def verify(args: argparse.Namespace) -> None:
     repo = args.repo.resolve(strict=True)
     path = args.contract.resolve(strict=True)
     relative = path.relative_to(repo).as_posix()
-    if relative != "docs/proof/win-gpu-f1-preflight/run-1/invocation-contract.json":
+    document = json.loads(path.read_text(encoding="utf-8"))
+    fresh = 'attempt' in document
+    expected_relative = (document.get('run_root', '') if fresh else 'docs/proof/win-gpu-f1-preflight/run-1') + '/invocation-contract.json'
+    if relative != expected_relative:
         raise ValueError("contract is not at the fixed reviewed path")
-    if git(repo, "status", "--porcelain", "--untracked-files=all"):
+    proposed = getattr(args, 'command', 'verify') == 'prepare'
+    if not proposed and git(repo, "status", "--porcelain", "--untracked-files=all"):
         raise ValueError("EXECUTE worktree is not clean before WSL")
     if git(repo, "branch", "--show-current") != args.branch:
         raise ValueError("execution branch mismatch")
-    committed = subprocess.run(["git", "-C", str(repo), "show", f"HEAD:{relative}"],
-                               check=True, capture_output=True, timeout=15).stdout
-    if committed != path.read_bytes():
-        raise ValueError("contract working bytes differ from committed blob")
-    document = json.loads(path.read_text(encoding="utf-8"))
+    if not proposed:
+        committed = subprocess.run(["git", "-C", str(repo), "show", f"HEAD:{relative}"],
+                                   check=True, capture_output=True, timeout=15).stdout
+        if committed != path.read_bytes():
+            raise ValueError("contract working bytes differ from committed blob")
     check_contract_fields(document)
     if document["execution_branch"] != args.branch or document["session"] != args.session:
         raise ValueError("contract branch/session mismatch")
+    if fresh:
+        import attempt
+        attempt.verify_authorization(repo, getattr(args, 'authorization', None), document,
+            hashlib.sha256(path.read_bytes()).hexdigest(), getattr(args, 'run_id', None),
+            getattr(args, 'exclusive_run_id', None), proposed=proposed)
     source = document["accepted_packet_commit"]
     subprocess.run(["git", "-C", str(repo), "merge-base", "--is-ancestor", source, "HEAD"],
                    check=True, capture_output=True, timeout=15)
@@ -149,6 +161,12 @@ def verify(args: argparse.Namespace) -> None:
         if hashlib.sha256(subprocess.run(["git", "-C", str(repo), "show", f"{source}:{name}"],
                                          check=True, capture_output=True, timeout=15).stdout).hexdigest() != expected:
             raise ValueError(f"accepted source blob differs: {name}")
+    if fresh:
+        for name, expected in document['external_sha256'].items():
+            check_hash(expected, (repo / name).read_bytes())
+            blob = subprocess.run(['git', '-C', str(repo), 'show', f'{source}:{name}'],
+                                  check=True, capture_output=True, timeout=15).stdout
+            check_hash(expected, blob)
     paths = {"rootfs": args.rootfs, "ubuntu_sums": args.ubuntu_sums,
              "ubuntu_signature": args.ubuntu_signature, "openfoam_keyring": args.openfoam_keyring,
              "nvidia_keyring": args.nvidia_keyring,
@@ -160,6 +178,9 @@ def verify(args: argparse.Namespace) -> None:
         if str(full).casefold() != row["path"].casefold():
             raise ValueError(f"input path changed: {name}")
         check_file_hash(row["sha256"], full)
+    if proposed:
+        print('PREPARATION-CONTRACT-PASS inputs=7 live_authority=False')
+        return
     leader = subprocess.run([sys.executable, str(repo / "docs/ai-forward-pack/scripts/coord-core.py"),
                              "leader", "who"], cwd=repo, check=True, capture_output=True,
                             text=True, encoding="utf-8", timeout=15).stdout
@@ -171,12 +192,16 @@ def verify(args: argparse.Namespace) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     sub = parser.add_subparsers(dest="command", required=True)
-    check = sub.add_parser("verify")
-    for key in ("contract", "repo", "rootfs", "ubuntu-sums", "ubuntu-signature",
-                "openfoam-keyring", "nvidia-keyring"):
-        check.add_argument("--" + key, type=Path, required=True)
-    check.add_argument("--branch", required=True)
-    check.add_argument("--session", required=True)
+    for mode in ('verify', 'prepare'):
+        check = sub.add_parser(mode)
+        for key in ("contract", "repo", "rootfs", "ubuntu-sums", "ubuntu-signature",
+                    "openfoam-keyring", "nvidia-keyring"):
+            check.add_argument("--" + key, type=Path, required=True)
+        check.add_argument("--branch", required=True)
+        check.add_argument("--session", required=True)
+        check.add_argument('--run-id')
+        check.add_argument('--authorization', type=Path)
+        check.add_argument('--exclusive-run-id')
     sign = sub.add_parser("signer")
     sign.add_argument("--contract", type=Path, required=True)
     sign.add_argument("--expected-sha256", required=True)
@@ -188,7 +213,7 @@ def main() -> None:
     ring.add_argument("--keyring", type=Path, required=True)
     ring.add_argument("--kind", choices=("ubuntu_rootfs", "ubuntu_archive", "openfoam", "nvidia"), required=True)
     args = parser.parse_args()
-    {"verify": verify, "signer": verify_signer, "keyring": verify_keyring}[args.command](args)
+    {"verify": verify, "prepare": verify, "signer": verify_signer, "keyring": verify_keyring}[args.command](args)
 
 
 if __name__ == "__main__":

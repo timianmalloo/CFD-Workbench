@@ -2016,6 +2016,66 @@ window.DOCS_INDEX = {
       "sourceSha256": "01e2b004faa986192877d894064116edcfacce57c9e4214af40f3c5182c6058f"
     },
     {
+      "id": "note-windows-gpu-f1-r229-cleanup-request",
+      "path": "docs/notes/windows-gpu-f1-r229-cleanup-request.md",
+      "title": "Request for R229 cleanup-only authority",
+      "type": "decision-note",
+      "status": "proposed",
+      "owner": "@pc-f1-r228-cleanup-author",
+      "phase": "preflight",
+      "reviewBy": "2026-10-13",
+      "reviewSuggested": [],
+      "summary": "Exact R229 request for one cleanup-only action against the target left by the failed R228 attempt. This request and its projection grant no live authority.",
+      "tags": [
+        "windows",
+        "wsl",
+        "cleanup",
+        "ruling-request"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r229-cleanup-candidate",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r228-attempt1-failure",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7a1ff2b01d5f9762191d426358c5324cb28a444597d8b136326dd98b118e9453"
+    },
+    {
+      "id": "note-windows-gpu-f1-r230-cleanup-request",
+      "path": "docs/notes/windows-gpu-f1-r230-cleanup-request.md",
+      "title": "R230 request for one activation-adapted cleanup action",
+      "type": "decision-note",
+      "status": "proposed",
+      "owner": "@pc-f1-r228-cleanup-author",
+      "phase": "preflight",
+      "reviewBy": "2026-10-13",
+      "reviewSuggested": [],
+      "summary": "Exact R230 request for one cleanup-only action against the residual R228 target. This request and authorization candidate grant no live authority.",
+      "tags": [
+        "windows",
+        "wsl",
+        "cleanup",
+        "ruling-request"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r229-cleanup-candidate",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r228-attempt1-failure",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "123b364c419619c7c4619addc670f0095c56b5c87de8b6b1a6ccc504f56a9cb6"
+    },
+    {
       "id": "property-grid-rulings",
       "path": "docs/notes/property-grid-rulings.md",
       "title": "Property grid — operator rulings on precision, field nudge, scrubbing, build order and labels",
@@ -5554,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e68732f0d448bd9adfd2f402cfa9fa444c702bb839adb5813e54de531536a6c0"
+      "sourceSha256": "fcd22ff19043af472d9e98388eaba90c9330860aef3f3e7418eef900dbaa0ef1"
     },
     {
       "id": "domain-experts",
@@ -6342,6 +6402,43 @@ window.DOCS_INDEX = {
       "sourceSha256": "5be493178924de4f4e42c8b92fb382af241883f4e22bcbcacef5d3b589231d2f"
     },
     {
+      "id": "plan-windows-gpu-f1-r230-cleanup",
+      "path": "docs/plans/windows-gpu-f1-r229-cleanup.md",
+      "title": "R230 activation-adapted R228 cleanup plan",
+      "type": "doc",
+      "status": "active",
+      "owner": "@pc-f1-r228-cleanup-author",
+      "phase": "preflight",
+      "reviewBy": "2026-10-13",
+      "reviewSuggested": [],
+      "summary": "Adapt the accepted R229 cleanup design into an exact R230 activation contract. Live execution remains forbidden until Mac/Fable commits the authority bundle.",
+      "tags": [
+        "windows",
+        "wsl",
+        "cleanup",
+        "coordination",
+        "offline-proof"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r228-attempt1-failure",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Goal and execution graph",
+          "mermaid": "flowchart LR\n  G1 --> G2 --> G3 --> G4 --> G5 --> G6 --> G7"
+        }
+      ],
+      "sourceSha256": "0e7cac768482cefb6a4df59a761d873274934e68cfe58c8bfc29c3da90f3e7d7"
+    },
+    {
       "id": "plan-windows-gpu-f1-recovery-integration",
       "path": "docs/plans/windows-gpu-f1-recovery-integration.md",
       "title": "F1 recovery and packet repair: offline integration graph",
@@ -6890,6 +6987,37 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "a7b5b1e66e83eac66cdd83c310637eb36adb52c322c168d5fada4f6cb02811dc"
+    },
+    {
+      "id": "proof-win-gpu-f1-cleanup-helper-repair",
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/helper-repair.md",
+      "title": "Prepared offline cleanup helper import repair",
+      "type": "doc",
+      "status": "draft",
+      "owner": "@pc-coordinator",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Prepared unauthorized source repair for the verified offline helper import defect, with real-loader ownership controls and sanitized future diagnostics. Frozen R230 evidence and authority are unchanged; no live action occurred.",
+      "tags": [
+        "windows",
+        "cleanup",
+        "offline",
+        "red-first",
+        "helper"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r229-cleanup-candidate",
+          "rel": "depends-on"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "988061ef667ebb5b166fc5aba1d1221c9020e4a102b612f2111f80119535ffce"
     },
     {
       "id": "proof-windows-store-implementation",
@@ -9056,6 +9184,142 @@ window.DOCS_INDEX = {
       "sourceSha256": "891740340057f89a6e07cb3a51602ab64c652e42f9255ce9e9b561eb8f6df3a2"
     },
     {
+      "id": "review-windows-gpu-f1-r225-attempt1-admission",
+      "path": "docs/reviews/windows-gpu-f1-r225-attempt1-admission.md",
+      "title": "Independent R225 attempt-1 admission review",
+      "type": "doc",
+      "status": "accepted",
+      "owner": "@pc-f1-r225-attempt1-review",
+      "phase": "preflight",
+      "reviewBy": "2026-10-19",
+      "reviewSuggested": [],
+      "summary": "Independent ACCEPT of the exact R225 attempt-1 source and proposed payload. Production GUID-survival refusal and pre-WSL authority bindings are proved offline. R227 and independent activation review remain mandatory.",
+      "tags": [
+        "windows",
+        "preflight",
+        "authorization",
+        "independent-review"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r225-attempt1-admission",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-windows-gpu-f1-guard-consistency",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d874325efa880b47c4861aec8b252e97b8790062ef702bc5a3d1cb7a14773ffa"
+    },
+    {
+      "id": "review-windows-gpu-f1-r225-attempt1-epoch8",
+      "path": "docs/reviews/windows-gpu-f1-r225-attempt1-epoch8.md",
+      "title": "Independent epoch-8 attempt-1 readiness review",
+      "type": "doc",
+      "status": "accepted",
+      "owner": "@pc-f1-r225-attempt1-review",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "ACCEPT of the narrowly rebound epoch-8 source and proposed payload. Exact hashes, old-epoch refusal and proposed-state refusal are verified offline. R228 and independent activation review remain necessary before live use.",
+      "tags": [
+        "windows",
+        "preflight",
+        "authorization",
+        "independent-review"
+      ],
+      "links": [
+        {
+          "to": "review-windows-gpu-f1-r225-attempt1-admission",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r225-attempt1-admission",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "21d2913586a12d6bb397add15a597f5c4b8fc023a6652a4d01a00b31b760cf3f"
+    },
+    {
+      "id": "review-windows-gpu-f1-r228-activation",
+      "path": "docs/reviews/windows-gpu-f1-r228-activation.md",
+      "title": "Independent R228 activation rehash",
+      "type": "doc",
+      "status": "accepted",
+      "owner": "@pc-f1-r225-attempt1-review",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "ACCEPT of exact activation 2abcd2a2 under R228. Promoted bytes equal the accepted projection, activation lease exceeds 200 seconds and the production read-only contract verifier passes. Pre-WSL sampling remains mandatory.",
+      "tags": [
+        "windows",
+        "preflight",
+        "authorization",
+        "independent-review"
+      ],
+      "links": [
+        {
+          "to": "review-windows-gpu-f1-r228-supervisor",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r225-attempt1-admission",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "659a544f2ec0c927ab285c714a308bee11e92f53583653b6a344b942ddb7f4dc"
+    },
+    {
+      "id": "review-windows-gpu-f1-r228-supervisor",
+      "path": "docs/reviews/windows-gpu-f1-r228-supervisor.md",
+      "title": "Independent R228 renewal-supervisor supplement",
+      "type": "doc",
+      "status": "accepted",
+      "owner": "@pc-f1-r225-attempt1-review",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "ACCEPT of c9c7af0e with the committed epoch-8 renewal supervisor and unchanged payload hashes. Activation/pre-WSL lease samples and whole-run supervisor evidence remain mandatory runtime conditions before live use.",
+      "tags": [
+        "windows",
+        "preflight",
+        "authorization",
+        "independent-review"
+      ],
+      "links": [
+        {
+          "to": "review-windows-gpu-f1-r225-attempt1-epoch8",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r225-attempt1-admission",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9c97341e926da4a63a3fbe4a14a6e8ca0a82310c24c4ace42b2bbe02e63eda7c"
+    },
+    {
       "id": "rulings",
       "path": "docs/notes/rulings.md",
       "title": "Rulings — the Owner seat's numbered decisions (the only definition site)",
@@ -9079,7 +9343,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2845c682ea00b39d9ed9e6730de89862c707d86396e703a0af23876d4c6bd460"
+      "sourceSha256": "a21cacc742cbcd98137064ffc0405cca1d3f00c22481a5f75bf8fe2928d55fee"
     },
     {
       "id": "kb-hw-glossary",
@@ -14343,6 +14607,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "b65e52933f8f5ddacfca1640816a445b12a016b2246af3aef3ccff783b374a47"
     },
     {
+      "id": "proof-f1-composite-helper-reader-r233",
+      "path": "docs/proof/win-gpu-f1-preflight/composite-r233.md",
+      "title": "Prepared composite F1 helper and reader repair",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@pc-coordinator",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Prepared unauthorized composite of the exact accepted cleanup-helper ancestry and the accepted reader-sharing delta; new packet blobs require fresh review. Protected parent source/tests/evidence are conserved; no live action occurred.",
+      "tags": [
+        "windows",
+        "offline",
+        "integration",
+        "reader-sharing",
+        "conservation"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-cleanup-helper-repair",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "documents"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "44f0fbcbb461ef4c7e19099bf12b167721511d3878ef8bdfc875fa2b4c04173c"
+    },
+    {
       "id": "proof-flk-investigation",
       "path": "docs/proof/flk/investigation.md",
       "title": "SectionEditor DragMove flake investigation",
@@ -18735,6 +19034,130 @@ window.DOCS_INDEX = {
       "sourceSha256": "40b8547429b0a6921da44d7d8453db02ac89fb917c22d0150bf2555609ed44ad"
     },
     {
+      "id": "proof-win-gpu-f1-r225-attempt1-admission",
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/README.md",
+      "title": "R225 attempt 1: offline admission candidate",
+      "type": "proof-pack",
+      "status": "proposed",
+      "owner": "@pc-f1-r225-attempt1",
+      "phase": "preflight",
+      "reviewBy": "2026-10-19",
+      "reviewSuggested": [],
+      "summary": "Fresh attempt/run/session/branch at epoch 8, exact packet and external helper bytes, seven rehashed inputs, proposed live-path authorization and precomputed accepted projection. Normal admission refuses until a hash-bound main ruling.",
+      "tags": [
+        "windows",
+        "wsl",
+        "preflight",
+        "admission",
+        "offline-proof"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-windows-gpu-f1-guard-consistency-repair",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d28572668c1015ab2eb3a3fdb6cf9b088b9a95f1cf3233be2e6077b9f3362baf"
+    },
+    {
+      "id": "proof-win-gpu-f1-r228-attempt1-failure",
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/final/attempt-failure.md",
+      "title": "R228 F1 attempt 1 failure receipt",
+      "type": "proof-pack",
+      "status": "blocked",
+      "owner": "@pc-f1-r225-attempt1",
+      "phase": "preflight",
+      "reviewBy": "2026-10-13",
+      "reviewSuggested": [],
+      "summary": "Attempt 1 stopped after a guard-event sharing failure; checkpoint binding failed, the fresh target remains registered, and exact cleanup requires a Mac ruling.",
+      "tags": [
+        "windows",
+        "wsl",
+        "preflight",
+        "failure-receipt"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r225-attempt1-admission",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "03ca48bef081965d93c4acb129d253a901fcd7bedc10a5126a6348dd3481277c"
+    },
+    {
+      "id": "proof-win-gpu-f1-r229-cleanup-candidate",
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/README.md",
+      "title": "R230 activation-adapted cleanup candidate for R228 attempt 1",
+      "type": "proof-pack",
+      "status": "proposed",
+      "owner": "@pc-f1-r228-cleanup-author",
+      "phase": "preflight",
+      "reviewBy": "2026-10-13",
+      "reviewSuggested": [],
+      "summary": "Offline-only R230 candidate for exact cleanup of the target left by R228. It cannot run until Mac/Fable commits the exact authorization with the next owner ruling and a qualifying activation leader sample.",
+      "tags": [
+        "windows",
+        "wsl",
+        "cleanup",
+        "authorization"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r228-attempt1-failure",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-windows-gpu-f1-r230-cleanup",
+          "rel": "relates-to"
+        },
+        {
+          "to": "note-windows-gpu-f1-r230-cleanup-request",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "707fa26daa16aa4f2a437edafa3174f9510d604311d2c94c78dad830e3a9e89d"
+    },
+    {
+      "id": "proof-win-gpu-f1-r230-cleanup-red-first",
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/red-first.md",
+      "title": "R230 cleanup candidate red-first record",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@pc-f1-r228-cleanup-author",
+      "phase": "preflight",
+      "reviewBy": "2026-10-13",
+      "reviewSuggested": [],
+      "summary": "The accepted cleanup candidate admitted target/protected BasePath aliases; three inert regression probes were red before repair and green after.",
+      "tags": [
+        "windows",
+        "cleanup",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r229-cleanup-candidate",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a8348c56f0e1b76fe571025a9e4f47b5547c6b8d02e51294449bc19485c8a7b7"
+    },
+    {
       "id": "proof-win-gpu-f1-recovery-integration",
       "path": "docs/proof/win-gpu-f1-preflight/integration/proof.md",
       "title": "F1 packet repair and cleanup recovery: offline integration proof",
@@ -22035,5 +22458,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "3f60e4304637a9f855a3828d616133bd0217705ffc3b169bb25c0c49ddf2b210"
+  "graphSha256": "31422aa64a9813bacffb0fd1c4b18c678cd95b5fb8792b5da46672e3370dc042"
 };
