@@ -6264,7 +6264,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3c31f9d46833bc326222b7c30a0a37600255b6926761c438b239b8c762f7037e"
+      "sourceSha256": "309f3cd498b79e0c82909becc17150d57567d5c83ed2d9bfa86d75a78408253d"
     },
     {
       "id": "plan-tip-handling",
@@ -6725,6 +6725,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "272f1bdefd27f8d4607e116d01b51aad9d687263362c23df0eeec0b11004e101"
+    },
+    {
+      "id": "proof-dtj-red-first",
+      "path": "docs/proof/dtj/red-first.md",
+      "title": "Track DTJ red-first record (per-host Desktop child slots)",
+      "type": "doc",
+      "status": "done",
+      "owner": "@trk-dtj",
+      "phase": "implementation",
+      "reviewBy": "2026-11-13",
+      "reviewSuggested": [],
+      "summary": "Red and green runs for the per-host Desktop slot count and the measurement script, with the Mac before and after Desktop walls.",
+      "tags": [
+        "proof",
+        "test-ring",
+        "desktop",
+        "windows"
+      ],
+      "links": [
+        {
+          "to": "plan-test-cost",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4c627db5bda52b32c597c803b7be3bdc920abcb2e0774180b657dd2b79fa8902"
     },
     {
       "id": "proof-lsp-red-first",
@@ -22519,5 +22545,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "570fa5454878e88add2dbcf8d368457b52f4c8a16397a6db9ed911007a841aa6"
+  "graphSha256": "a27c3ff979b78ba4c820027c489718c445a2615f9c916cc404d21e04f4aea5e6"
 };
