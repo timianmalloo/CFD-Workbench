@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T19:34:15Z",
+  "generated": "2026-10-13T19:36:08Z",
   "audit": [
     {
       "actor": null,
@@ -38687,6 +38687,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-13T19:33:54Z",
       "duration_seconds": 21.0
+    },
+    {
+      "id": "al-01M4VC7QAWQW6XXJ14GP3XE4XS",
+      "shortname": "join-pr38",
+      "datetime": "2026-10-13T19:36:08Z",
+      "session": "3122f106",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "join recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-13T19:34:55Z",
+      "duration_seconds": 73.0
     }
   ],
   "changes": [
