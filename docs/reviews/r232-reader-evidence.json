@@ -1,0 +1,275 @@
+{
+  "candidate": "70d022bf4369c8cb58888f88e6efba00070f35db",
+  "source_bindings": {
+    "Invoke-Preflight.ps1": {
+      "bytes": 33057,
+      "sha256": "3bc3be1b64e8d5e2aec5c18b6817494ece30a82c7e12852b9f375414048534c4",
+      "blob_oid": "ab47d52e450099c2f6a82feb8a6cf7027b44525c"
+    },
+    "SelfTest.ps1": {
+      "bytes": 14043,
+      "sha256": "ee263c1ff382293ace76be40f3ae89c8ee30be46e54fe5e3dba72b002b48f953",
+      "blob_oid": "8605616014058b45a1fa4afb7c553e3122bd742c"
+    }
+  },
+  "removed_grandfather_entries": [
+    [
+      "docs/proof/win-gpu-f1-preflight/packet/Invoke-Preflight.ps1",
+      "4d6c0d7abb1f764a8b64c32d1949116b6ec38cf3b9eb8e5b509a253aa52408b4"
+    ],
+    [
+      "docs/proof/win-gpu-f1-preflight/packet/Invoke-Preflight.ps1",
+      "928b56cef6c926523eb3b95ab73f86b360f76b8ba905e987e239ce5bac02e7a9"
+    ]
+  ],
+  "remaining_grandfather_count": 7,
+  "ring_attempts": [
+    {
+      "attempt": 1,
+      "capture_basename": "r232-reader-repair-ring1-capture",
+      "file_count": 80,
+      "all_file_inventory_sha256": "13bde1b23307ca9e1f57da6d8ca62995668669a11978628ebcee5e8a559f5b60",
+      "bindings": {
+        "Core.part1of3.log": {
+          "bytes": 21175,
+          "sha256": "158b40c300d511ab9c4eb8669ed6338b05bd02fbfcb6a67d6f282ed0ce668462"
+        },
+        "Core.part2of3.log": {
+          "bytes": 16589,
+          "sha256": "7d0b12bac9dea6f15412190640eda391b0c62641e62eb44a09f312b52c2bf225"
+        },
+        "Core.part3of3.log": {
+          "bytes": 14264,
+          "sha256": "662691a6d583f0f007dcdf0f5f482e7c607b11b89c6ad27b58f84823844e1597"
+        },
+        "Desktop.log": {
+          "bytes": 119753,
+          "sha256": "738d1851a5fba6ba746504a1315ea7cb7fe6c1f38e9cdfaf3bb89cd231098d26"
+        },
+        "Analysis.part1of3.log": {
+          "bytes": 5383,
+          "sha256": "cd190937ceb9b4f3bb4d5bc7abd740f6a84ca6eeb521e76a311089178586fc21"
+        },
+        "Analysis.part2of3.log": {
+          "bytes": 8704,
+          "sha256": "39d153570b424a67af1180683be7394ee88e71542b5bda15d9dc98d906ba35bc"
+        },
+        "Analysis.part3of3.log": {
+          "bytes": 16661,
+          "sha256": "0168348308727350a88d4006029d7a82b671b83b024e991ec02e755787ca7d7b"
+        },
+        "Cli.log": {
+          "bytes": 2491,
+          "sha256": "c89fd632ab7047f2b9cb743ddd7f2dab85f7d9dd8055ffd92f4735481e5c26a0"
+        },
+        "wall.ms": {
+          "bytes": 7,
+          "sha256": "8901153eb71fd800fedefa282fdac5e6d702eb21035f64c47658339b979de6d7"
+        },
+        "build.ms": {
+          "bytes": 6,
+          "sha256": "03c0f1c44272bbb69fd9a4be7dcddf0fda61d773b2acfae8904accdf13ce00b8"
+        },
+        "python-unittest.out": {
+          "bytes": 154,
+          "sha256": "6950150f07256733af60a809e348146a0351f4984809065ca17803a06602a1fc"
+        }
+      },
+      "suites": {
+        "Core.part1of3": {
+          "pass": 346,
+          "expected": 9,
+          "unexpected": 0,
+          "milliseconds": 88373
+        },
+        "Core.part2of3": {
+          "pass": 210,
+          "expected": 7,
+          "unexpected": 0,
+          "milliseconds": 89229
+        },
+        "Core.part3of3": {
+          "pass": 205,
+          "expected": 11,
+          "unexpected": 0,
+          "milliseconds": 96357
+        },
+        "Desktop": {
+          "pass": 673,
+          "expected": 30,
+          "unexpected": 18,
+          "milliseconds": 135433
+        },
+        "Analysis.part1of3": {
+          "pass": 44,
+          "expected": 0,
+          "unexpected": 0,
+          "milliseconds": 10931
+        },
+        "Analysis.part2of3": {
+          "pass": 69,
+          "expected": 0,
+          "unexpected": 0,
+          "milliseconds": 10950
+        },
+        "Analysis.part3of3": {
+          "pass": 146,
+          "expected": 0,
+          "unexpected": 0,
+          "milliseconds": 11373
+        },
+        "Cli": {
+          "pass": 18,
+          "expected": 2,
+          "unexpected": 0,
+          "milliseconds": 9289
+        }
+      },
+      "wall_ms": 169751,
+      "build_ms": 25891,
+      "net_ms": 143860,
+      "python_tests": 50,
+      "desktop_child_records": 18,
+      "desktop_partition_records": 12,
+      "desktop_max_child_seconds": 120.3,
+      "original_telemetry": {
+        "source_basename": "rollout-2026-10-12T21-07-51-01a13371-fd53-76a3-bfb5-4e0e7082e37c.jsonl",
+        "line_number": 2161,
+        "json_path": "$.payload.item.aggregated_output",
+        "raw_line_sha256": "8d57a82b0de9fbb36a51776df69f2b7c7c74f5b4080871fb92de873a6fff82f5",
+        "output_utf8_sha256": "5aedeb2a9e6cd9bd5ae103ed54a86c8face3b57e8ea7705d938db3724e5e4445",
+        "exit_code": 1,
+        "status": "failed",
+        "allowlisted_lines": [
+          "test costs: 0 failures, 16 COST-MISS (load 17.19)",
+          "wall 170 s (169751 ms, net 143860 ms) (budget 60 s) cpu 6 s load 11.67 -> 17.19"
+        ]
+      }
+    },
+    {
+      "attempt": 2,
+      "capture_basename": "r232-reader-repair-ring2-capture",
+      "file_count": 116,
+      "all_file_inventory_sha256": "3ab2c0b665f9cbe4b6fa401805287ce95bed4f2699f3de1425b3d8bc4d6570ce",
+      "bindings": {
+        "Core.part1of3.log": {
+          "bytes": 21175,
+          "sha256": "c805a4e3fb08977cdb0b749707a3e5fbb5d4146f5ece68a91b5ff8b2805d33cc"
+        },
+        "Core.part2of3.log": {
+          "bytes": 16589,
+          "sha256": "51b6214f41a6ac606cd29900af168563329dfae8679a25efdd202b4553af398d"
+        },
+        "Core.part3of3.log": {
+          "bytes": 14264,
+          "sha256": "17abd371973fc969ed5554635b550f15fe49c43dda470cb2490d718cabcf8f5a"
+        },
+        "Desktop.log": {
+          "bytes": 129394,
+          "sha256": "417dd8e6b4e6769a987970670503586e44b66efccd26a0a78012e2b4cf7bde1c"
+        },
+        "Analysis.part1of3.log": {
+          "bytes": 5381,
+          "sha256": "e543a6344c61caaf43d9e2a8ee09bf97154f6ac67f5be5f058b0d2d3a280e6fa"
+        },
+        "Analysis.part2of3.log": {
+          "bytes": 8702,
+          "sha256": "c5bc3f715854bcf22bdcce1024c6089b9d29bec8d8b5cd50375d3d729b1f7501"
+        },
+        "Analysis.part3of3.log": {
+          "bytes": 16661,
+          "sha256": "67e7b7c9eab857ccd1497a227fe87637d391e4e042098a41aca871935d0537e6"
+        },
+        "Cli.log": {
+          "bytes": 2490,
+          "sha256": "5d28c0b97f4b12e7b4c7a5fa5077fe08376b6272ac9bdfa8d5189c8ec5d346de"
+        },
+        "wall.ms": {
+          "bytes": 7,
+          "sha256": "abace5691caceffdbb7fa62044256a6ce89c1a835384bffcf109764910c7782b"
+        },
+        "build.ms": {
+          "bytes": 5,
+          "sha256": "4140b822ae97896ba4e530f47cda828d64975b2ef3c637e614898ff6dd929bd9"
+        },
+        "python-unittest.out": {
+          "bytes": 154,
+          "sha256": "7a64903559d254607ef3dc413a9b8f656daaed451ae62a2c2abfa97645f858a4"
+        }
+      },
+      "suites": {
+        "Core.part1of3": {
+          "pass": 346,
+          "expected": 9,
+          "unexpected": 0,
+          "milliseconds": 72423
+        },
+        "Core.part2of3": {
+          "pass": 210,
+          "expected": 7,
+          "unexpected": 0,
+          "milliseconds": 73496
+        },
+        "Core.part3of3": {
+          "pass": 205,
+          "expected": 11,
+          "unexpected": 0,
+          "milliseconds": 76914
+        },
+        "Desktop": {
+          "pass": 776,
+          "expected": 33,
+          "unexpected": 0,
+          "milliseconds": 180597
+        },
+        "Analysis.part1of3": {
+          "pass": 44,
+          "expected": 0,
+          "unexpected": 0,
+          "milliseconds": 9661
+        },
+        "Analysis.part2of3": {
+          "pass": 69,
+          "expected": 0,
+          "unexpected": 0,
+          "milliseconds": 9176
+        },
+        "Analysis.part3of3": {
+          "pass": 146,
+          "expected": 0,
+          "unexpected": 0,
+          "milliseconds": 9666
+        },
+        "Cli": {
+          "pass": 18,
+          "expected": 2,
+          "unexpected": 0,
+          "milliseconds": 7234
+        }
+      },
+      "wall_ms": 190933,
+      "build_ms": 2114,
+      "net_ms": 188819,
+      "python_tests": 50,
+      "desktop_child_records": 18,
+      "desktop_partition_records": 15,
+      "desktop_max_child_seconds": 91.6,
+      "original_telemetry": {
+        "source_basename": "rollout-2026-10-12T21-07-51-01a13371-fd53-76a3-bfb5-4e0e7082e37c.jsonl",
+        "line_number": 2378,
+        "json_path": "$.payload.item.aggregated_output",
+        "raw_line_sha256": "48bdde0d32f55db27fa22ef6c0f82853c67c3fb1fa1c6987b51e9f4f67c33dd9",
+        "output_utf8_sha256": "b58eee03ec9a2d15f4e87a7459110cc61fc4918e2d8f638feedb831a03f6eae4",
+        "exit_code": 0,
+        "status": "completed",
+        "allowlisted_lines": [
+          "test costs: 0 failures, 17 COST-MISS (load 13.45)",
+          "wall 191 s (190933 ms, net 188819 ms) (budget 60 s) cpu 5 s load 11.20 -> 13.45",
+          "COST-MISS TEST-BUDGET 191 s host [redacted]",
+          "all test harnesses passed"
+        ]
+      }
+    }
+  ],
+  "privacy": "No raw capture text or absolute private path is published; inventory digest covers all retained files."
+}

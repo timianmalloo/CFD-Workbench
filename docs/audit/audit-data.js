@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T05:30:15Z",
+  "generated": "2026-10-13T05:43:51Z",
   "audit": [
     {
       "actor": null,
@@ -37894,6 +37894,46 @@ window.AUDIT_DATA = {
         "branch": "win/gpu-f1-r232-reader-repair",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M4SWFAA5R3XYB7GBTHH02AN1",
+      "shortname": "Independent adversarial review of70d022bf Ruling229 F1 reader-sharing re…",
+      "datetime": "2026-10-13T05:41:25Z",
+      "session": "pc-f1-r232-reader-review",
+      "prompt": "Independent adversarial review of70d022bf Ruling229 F1 reader-sharing repair: verify ReadWrite|Delete, encoding/BOM, complete events, disposal, exactly two F1 exemptions removed, red-first quality, class/docs/audit and both distinct ring outcomes. Rerun focused offline/static checks; no WSL/live lifecycle. Commit/push exact ACCEPT/HOLD/REJECT.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4SWKS2M9Z339NGCY0KR1Y5P",
+      "shortname": "r232-reader-independent-review",
+      "datetime": "2026-10-13T05:43:51Z",
+      "session": "pc-f1-r232-reader-review",
+      "prompt": "Independently review exact candidate70d022bf reader sharing end to end, including FileShare, encoding/BOM, complete events, disposal, exemptions, tests/class/docs/audit and both ring outcomes; commit/push verdict without WSL or live action.",
+      "summary": "ACCEPT exact70d022bf4369c8cb58888f88e6efba00070f35db. PS5.1/7 packet and independent production probes pass: old-reader behavioral RED/new reader GREEN,4encodings,writer-first,rename/delete,4event negatives,constructor/read exception disposal. Literal exemption delta exactly2F1 removed/7B1B2 preserved. Static reader selftest/scan and safe10/10 green. Two private ring captures independently hashed/classified; actual telemetry binds attempt1 exit1/18unexpected/169751ms/16costmisses and attempt2 exit0/0unexpected/190933ms/17costmisses. Attempt2 all18children/15partitions and other suites/Python50 verified; budget misses retained. Source and historical evidence unchanged outside exact repair. Final check-docs PASS,134existing graph advisories; no raw private text published. Five planned/actual nodes,zero reviewer source repairs,no ring/live rerun.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-r232-reader-review.md",
+        "docs/reviews/r232-reader-evidence.json"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Independently accept, hold or reject the exact offline reader-sharing candidate with measured proof",
+      "done_when": "Review and exact evidence committed/pushed with complete checks and explicit live-authority limits",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-10-13T05:32:47Z",
+      "duration_seconds": 664.0
     }
   ],
   "changes": [

@@ -6342,6 +6342,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "5be493178924de4f4e42c8b92fb382af241883f4e22bcbcacef5d3b589231d2f"
     },
     {
+      "id": "plan-windows-gpu-f1-r232-reader-review",
+      "path": "docs/plans/windows-gpu-f1-r232-reader-review.md",
+      "title": "Independent reader-sharing review plan",
+      "type": "doc",
+      "status": "complete",
+      "owner": "@pc-f1-r232-reader-review",
+      "phase": "",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Exact source review through runtime sharing, event parsing, static control and separate retained ring outcomes.",
+      "tags": [
+        "review",
+        "offline",
+        "execution-graph"
+      ],
+      "links": [
+        {
+          "to": "review-windows-gpu-f1-r232-reader",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-f1-ruling-229-reader-sharing-r232",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Diagram 1",
+          "mermaid": "graph LR\n A --> B\n A --> C\n B --> D\n C --> D\n D --> E"
+        }
+      ],
+      "sourceSha256": "8b4fd3547e9e06d2f4c182f6b754b7e150408416325c8ca2da7ac1f5ce9f0e14"
+    },
+    {
       "id": "plan-windows-gpu-f1-recovery-integration",
       "path": "docs/plans/windows-gpu-f1-recovery-integration.md",
       "title": "F1 recovery and packet repair: offline integration graph",
@@ -9054,6 +9089,36 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "891740340057f89a6e07cb3a51602ab64c652e42f9255ce9e9b561eb8f6df3a2"
+    },
+    {
+      "id": "review-windows-gpu-f1-r232-reader",
+      "path": "docs/reviews/windows-gpu-f1-r232-reader-review.md",
+      "title": "Independent Ruling 229 F1 reader-sharing review",
+      "type": "doc",
+      "status": "accepted",
+      "owner": "@pc-f1-r232-reader-review",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "ACCEPT exact offline reader-sharing candidate. Independent PowerShell 5.1/7 probes verify sharing, decoding, event boundaries and exception disposal; distinct ring results are retained with their separate cost misses.",
+      "tags": [
+        "windows",
+        "reader-sharing",
+        "offline",
+        "independent-review"
+      ],
+      "links": [
+        {
+          "to": "proof-f1-ruling-229-reader-sharing-r232",
+          "rel": "depends-on"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "953b9b99e7ddd30ecc8c012f5c39177e8093497a3a21db0b60ef741a266fed08"
     },
     {
       "id": "rulings",
@@ -22064,5 +22129,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "97d54539b4c4a18d4bab907ea9651310adb7601d5accf819ee137b8b277d221f"
+  "graphSha256": "0ac54b5c568b1f08213295ae7d5a6a11fcf4092e72e0c4fb75750a18de2d8bff"
 };
