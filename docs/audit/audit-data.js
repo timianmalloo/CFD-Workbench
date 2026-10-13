@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T04:50:07Z",
+  "generated": "2026-10-13T04:57:46Z",
   "audit": [
     {
       "actor": null,
@@ -38348,6 +38348,45 @@ window.AUDIT_DATA = {
         "branch": "win/gpu-f1-r231-ring-investigation",
         "pushed": true
       }
+    },
+    {
+      "id": "al-01M4SSYNF478QH4EX4HBNKH4JB",
+      "shortname": "Review retained R231 ring evidence2ae90b17 and corrected evidence73cf89c…",
+      "datetime": "2026-10-13T04:57:22Z",
+      "session": "pc-f1-r231-ring-review",
+      "prompt": "Review retained R231 ring evidence2ae90b17 and corrected evidence73cf89c6: verify manifests, original exit receipt,18 children, partitions, expected classifiers, suite outcomes,207s/16COST-MISS separation, privacy and immutable history. Decide whether prior helper HOLD clears. Commit and push concise disposition; no source repair or ring/live rerun.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4SSZCYD1TB7YZRC58PJAVGV",
+      "shortname": "r231-ring-independent-disposition",
+      "datetime": "2026-10-13T04:57:46Z",
+      "session": "pc-f1-r231-ring-review",
+      "prompt": "Independently verify corrected retained R231 ring evidence73cf89c6 and clear or retain prior helper HOLD; verify hashes, original exit, completions, classifications, cost limits, privacy and history. No source repair, ring rerun or live action; commit/push disposition.",
+      "summary": "ACCEPT retained evidence73cf89c667386225fe646115a8191e6bedc067bf; prior functional-ring HOLD cleared for review-only helper37b96e47. Original2ae manifests rejected9/85 and6/6; one external evidence repair yields85/85+6/6 Git blob OID/size/SHA matches,91 unchanged blobs. Telemetry source2 raw lines+2 outputs hash-match original exit0 and18 allowlisted verdicts; no raw content copied. Desktop776PASS/33expected/0unexpected,18 children,15 partitions, max90.4s; all other suite counts/Python94 confirm.207380ms wall,192959net,16advisory misses at11.70 retained separately. Privacy/history pass; graph0defects/134retained flags. Five planned/actual nodes, no review source repairs/reruns/live action; elapsed includes waiting for evidence correction.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-r231-ring-disposition.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Resolve prior helper HOLD using exact retained ring evidence without live action",
+      "done_when": "Committed and pushed confidence-labeled disposition with exact bindings and preserved cost/authority limits",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-10-13T04:42:38Z",
+      "duration_seconds": 908.0
     }
   ],
   "changes": [

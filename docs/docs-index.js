@@ -6439,6 +6439,45 @@ window.DOCS_INDEX = {
       "sourceSha256": "0e7cac768482cefb6a4df59a761d873274934e68cfe58c8bfc29c3da90f3e7d7"
     },
     {
+      "id": "plan-windows-gpu-f1-r231-ring-review",
+      "path": "docs/plans/windows-gpu-f1-r231-ring-review.md",
+      "title": "R231 retained-ring evidence review plan",
+      "type": "doc",
+      "status": "complete",
+      "owner": "@pc-f1-r231-ring-review",
+      "phase": "",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Independent retained-evidence replay, with no test-ring or live rerun.",
+      "tags": [
+        "review",
+        "evidence",
+        "execution-graph"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r231-desktop-ring-investigation",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-cleanup-helper-repair",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-windows-gpu-f1-r231-ring-disposition",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Diagram 1",
+          "mermaid": "graph LR\n A --> B\n A --> C\n B --> D\n C --> D\n D --> E"
+        }
+      ],
+      "sourceSha256": "d6cf1f65bd2d3f318500f10afcef816ed9d3c8806d2194654196d92d9e0f2dac"
+    },
+    {
       "id": "plan-windows-gpu-f1-recovery-integration",
       "path": "docs/plans/windows-gpu-f1-recovery-integration.md",
       "title": "F1 recovery and packet repair: offline integration graph",
@@ -9318,6 +9357,36 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "9c97341e926da4a63a3fbe4a14a6e8ca0a82310c24c4ace42b2bbe02e63eda7c"
+    },
+    {
+      "id": "review-windows-gpu-f1-r231-ring-disposition",
+      "path": "docs/reviews/windows-gpu-f1-r231-ring-disposition.md",
+      "title": "Independent R231 retained-ring disposition",
+      "type": "doc",
+      "status": "accepted",
+      "owner": "@pc-f1-r231-ring-review",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "ACCEPT corrected retained evidence and clear the prior functional-ring HOLD for the review-only helper candidate. Original exit 0 is independently bound; budget/cost advisories remain, and no live authority is granted.",
+      "tags": [
+        "windows",
+        "ring",
+        "evidence",
+        "independent-review"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r231-desktop-ring-investigation",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-cleanup-helper-repair",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "efd18f0a53e3d6b7a746bd8c824cb33bea63e38ed1e9f66dbfc9655f99a5c0c4"
     },
     {
       "id": "rulings",
@@ -22454,5 +22523,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "388165351a49c6aff22e33d6de983d24defcd90439e0c7dff06c8a4d938e3b1f"
+  "graphSha256": "22214b50f8d9f241feb0c2a2fe2fe030fc92d9b0314893f607ec872df01d17ce"
 };
