@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2d14436f6b9835d103c402ba9d46f2a9bb8b52ed1adf72d50d2224bf515cfca1"
+      "sourceSha256": "e43c56979cc33257708e0cedd170f8f55c6a1a2573d16a04787cb2bc0aa8c49d"
     },
     {
       "id": "domain-experts",
@@ -6437,6 +6437,41 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "6e46a0b654fb4daa8ccf4cae355b67e174669578117a8a35ce889882f0717f1e"
+    },
+    {
+      "id": "plan-windows-gpu-f1-r230-cleanup-review",
+      "path": "docs/plans/windows-gpu-f1-r230-cleanup-review.md",
+      "title": "Independent R230 cleanup activation review plan",
+      "type": "doc",
+      "status": "complete",
+      "owner": "@pc-f1-r230-cleanup-review",
+      "phase": "",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Exact activation review stopped at measured production-boundary vetoes.",
+      "tags": [
+        "review",
+        "cleanup",
+        "offline"
+      ],
+      "links": [
+        {
+          "to": "review-windows-gpu-f1-r230-cleanup-veto",
+          "rel": "relates-to"
+        },
+        {
+          "to": "note-windows-gpu-f1-r230-cleanup-request",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Diagram 1",
+          "mermaid": "flowchart LR\n  A --> B --> D\n  A --> C --> D"
+        }
+      ],
+      "sourceSha256": "2b4c82dfb2ad41be127dc88942c82e09816fdb15f2a9cbe93af5a44e9adee09f"
     },
     {
       "id": "plan-windows-gpu-f1-recovery-integration",
@@ -9287,6 +9322,44 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "9c97341e926da4a63a3fbe4a14a6e8ca0a82310c24c4ace42b2bbe02e63eda7c"
+    },
+    {
+      "id": "review-windows-gpu-f1-r230-cleanup-veto",
+      "path": "docs/reviews/windows-gpu-f1-r230-cleanup-veto.md",
+      "title": "Independent VETO of R230 activation candidate 4044b77a",
+      "type": "doc",
+      "status": "blocked",
+      "owner": "@pc-f1-r230-cleanup-review",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "VETO exact source f75ae322 and candidate 4044b77a. A low-TTL second sample bypasses receipt binding; the leader validator admits NaN and infinity.",
+      "tags": [
+        "windows",
+        "cleanup",
+        "independent-review",
+        "veto"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r229-cleanup-candidate",
+          "rel": "depends-on"
+        },
+        {
+          "to": "note-windows-gpu-f1-r230-cleanup-request",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r228-attempt1-failure",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ea0f13e08928201e414411784cb0cfe8ba8cfe7fa17704f6119081b69dd6bf37"
     },
     {
       "id": "rulings",
@@ -22392,5 +22465,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "83865a92edad77b918091df64baedba742df3d2efe7cfea463774f710b484f08"
+  "graphSha256": "c7daba48b2813317cb32a72b239bb09213008528e28ede5c5b0e7ef7f441d063"
 };

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T02:42:55Z",
+  "generated": "2026-10-13T02:49:01Z",
   "audit": [
     {
       "actor": null,
@@ -38119,6 +38119,58 @@ window.AUDIT_DATA = {
         "short": "f75ae3225",
         "branch": "win/gpu-f1-r228-cleanup",
         "pushed": false
+      }
+    },
+    {
+      "id": "al-01M4SJKKB4FX0165RHRDF1087H",
+      "shortname": "Independent hard-veto review of R230 activation candidate 4044b77a08fcbd…",
+      "datetime": "2026-10-13T02:49:00Z",
+      "session": "pc-f1-r230-cleanup-review",
+      "prompt": "Independent hard-veto review of R230 activation candidate 4044b77a08fcbdc9b5b19151fb3e9b93b043d009, source f75ae322574c5e3160012708b80fc610faa5a0e9 in win/gpu-f1-r230-cleanup-review. Ground in exact R229 and R223(a)-(d). Verify authorization-driven exact identities, no delete-debs/preflight, same-commit/source ancestry, two >=200s samples, exclusive session, one attempt and stop/new ruling, allowed/forbidden operations, payload/blob/manifest/history and inert canonical authority until origin/main. Repeat production probes and safe gates. Coordinator directed exact VETO with both measured production failures; no repair, WSL, registry, lifecycle, GitHub, mail or activation. Commit and push.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4SJKMM0C0GZKV323AWQ5MGS",
+      "shortname": "r230-cleanup-independent-veto",
+      "datetime": "2026-10-13T02:49:01Z",
+      "session": "pc-f1-r230-cleanup-review",
+      "prompt": "Publish exact 4044b77a/f75ae322 VETO with both production probes and otherwise-green evidence; no repair or live action.",
+      "summary": "VETO: real execute with low-TTL second sample refuses before lifecycle but bind calls0; production sample validator admits NaN/infinity.17 tests pass; ten payload source bindings, exact payload/auth/request hashes, checkpoint ancestry, two85-file manifest verifications, alias refusals and historical bytes pass. Safe bundle10/10 with prescribed skips. Canonical auth remains inert: activation sample and origin/main requested section absent. Four plan nodes completed; no repair or live action.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-r230-cleanup-veto.md",
+        "docs/reviews/r230-cleanup-review-probe.py",
+        "docs/plans/windows-gpu-f1-r230-cleanup-review.md"
+      ],
+      "tags": [],
+      "outcome": "blocked",
+      "compiled": false,
+      "goal": "Independently accept or veto exact R230 activation candidate",
+      "done_when": "Exact findings and verdict committed and pushed without source repair or live effects",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-10-13T02:44:34Z",
+      "duration_seconds": 267.0,
+      "git": {
+        "sha": "4044b77a08fcbdc9b5b19151fb3e9b93b043d009",
+        "short": "4044b77a0",
+        "branch": "win/gpu-f1-r230-cleanup-review",
+        "pushed": null
       }
     }
   ],
