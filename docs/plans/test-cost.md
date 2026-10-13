@@ -569,7 +569,12 @@ prints `DESKTOP-SLOTS <n> (source: env|baseline|default)` once:
 
 **Calibrate a host** (the PC, `pc-win`, is the first user): on a quiet machine run `tools/measure-desktop-slots.sh` (Git Bash on Windows; default
 N = 2 4 6 8, three reps each). It writes `docs/proof/ring-<host>/desktop-slots.csv` (slots, rep, wall ms, TIMEOUT count, DRAIN count, 1-minute
-load, exit) and prints the N with the lowest median wall and zero TIMEOUTs. It changes no cap, budget or timeout. Then commit
+load, raw exit, verdict) and prints the N with the lowest median wall, a `pass` verdict and zero TIMEOUTs. Expected failures are classified as
+in the ring: after each run the script makes the call `tools/run-tests.sh` makes (`check-expected-failures.py --log --status --host windows`, same
+host test), so a Windows harness whose only failures are listed in `tests/expected-failures.windows.json` reads `pass` although its raw exit is 1
+(DTJ2; before, every Windows sample read as a failure and no N could be chosen). On the Mac the verdict follows the raw exit. The first sample is
+also a sanity check: a failure that is not a TIMEOUT or a DRAIN stops the run and names it, so a broken tree never costs the other runs.
+`tools/measure-desktop-slots.sh --self-test` checks the classification without a build. It changes no cap, budget or timeout. Then commit
 `limit.desktop_slots=<that N>` in the host's `baseline.csv` together with the three quiet baseline rows, under the existing Ruling 173/176 rule
 (three quiet runs, derive every other limit from them, replay through `check-test-costs.py` before the file is committed). If every N timed out,
 add smaller counts and re-measure; the child timeout and the 60 s budget stay as they are.

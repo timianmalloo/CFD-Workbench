@@ -1,0 +1,1 @@
+measure-desktop-slots self-test ok: 6 classifications, 1 best-N pick

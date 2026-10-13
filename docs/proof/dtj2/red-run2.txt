@@ -1,0 +1,4 @@
+SELF-TEST FAIL: best N from the verdict column, got: slots 2: median wall 100.0 s over 1 rep(s), 0 TIMEOUT, 0 DRAIN, 1 non-zero exit (disqualified)
+slots 4: median wall 90.0 s over 1 rep(s), 0 TIMEOUT, 0 DRAIN, 1 non-zero exit (disqualified)
+slots 6: median wall 50.0 s over 1 rep(s), 1 TIMEOUT, 0 DRAIN, 1 non-zero exit (disqualified)
+BEST none: every slot count had a TIMEOUT or a failing run

@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c02dc2bc30d1c4bd54bfbebd7deafc09eb073d5b6fe7f371f8152d1fd0a33349"
+      "sourceSha256": "20565d338701d5e22ff30563c6044f1602acbd9444a480bd5919c7d2543b491c"
     },
     {
       "id": "domain-experts",
@@ -6295,7 +6295,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "309f3cd498b79e0c82909becc17150d57567d5c83ed2d9bfa86d75a78408253d"
+      "sourceSha256": "92a5ff9b4904cf2822c6620a9544b2afc1270d11cf416e5ac1f0f9eaa5e79199"
     },
     {
       "id": "plan-tip-handling",
@@ -6782,6 +6782,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "4c627db5bda52b32c597c803b7be3bdc920abcb2e0774180b657dd2b79fa8902"
+    },
+    {
+      "id": "proof-dtj2-red-first",
+      "path": "docs/proof/dtj2/red-first.md",
+      "title": "Track DTJ2 red-first record (desktop-slots measurement classifies expected failures)",
+      "type": "doc",
+      "status": "done",
+      "owner": "@trk-dtj2",
+      "phase": "implementation",
+      "reviewBy": "2026-11-13",
+      "reviewSuggested": [],
+      "summary": "Red and green runs for the measurement script classifying listed expected failures as the ring does, and the best-N pick on the verdict column.",
+      "tags": [
+        "proof",
+        "test-ring",
+        "desktop",
+        "windows"
+      ],
+      "links": [
+        {
+          "to": "plan-test-cost",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7de6cacf3f80852206a148db2f26b893b772e3d12f8f63d5cec0862310a08633"
     },
     {
       "id": "proof-lsp-red-first",
@@ -9400,7 +9426,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9cc707281334b408ac5a3450acba61f5f677187391569199375be0aa6d05f17d"
+      "sourceSha256": "2f9096d9441c3366f9539f77813bd819cb37c75327d1d1305ec66e3a14d41a0b"
     },
     {
       "id": "kb-hw-glossary",
@@ -22610,5 +22636,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "c9bdad8a8320b2e011b46ae442f63390b6ac096c88ee69e41f0b184bd227854d"
+  "graphSha256": "bd0581aeb1b38191b4737c3cd35caddeb3cde2a8d3c514cc3e4f22c65ac6b3d2"
 };

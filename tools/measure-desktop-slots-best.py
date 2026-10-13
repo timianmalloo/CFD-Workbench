@@ -3,7 +3,8 @@
 
   python3 tools/measure-desktop-slots-best.py <csv>        prints one line per N and the best N; exit 0, or 1 when none qualifies
 
-A slot count qualifies when every rep exited 0 with zero TIMEOUTs. The best is the qualifying N with the lowest median wall.
+A slot count qualifies when every rep has verdict `pass` (the harness log classified against the expected-failure manifest,
+as tools/run-tests.sh does on Windows; the raw `exit` column is kept but not used) with zero TIMEOUTs. The best is the qualifying N with the lowest median wall.
 It reads a CSV and prints; it changes no baseline, cap or budget.
 """
 import csv
@@ -33,9 +34,9 @@ def main(argv: list[str]) -> int:
         median = statistics.median(int(r["wall_ms"]) for r in rows)
         timeouts = sum(int(r["timeouts"]) for r in rows)
         drains = sum(int(r["drains"]) for r in rows)
-        failed = sum(r["exit"] != "0" for r in rows)
+        failed = sum(r["verdict"] != "pass" for r in rows)
         ok = timeouts == 0 and failed == 0
-        print(f"slots {slots}: median wall {median / 1000:.1f} s over {len(rows)} rep(s), {timeouts} TIMEOUT, {drains} DRAIN, {failed} non-zero exit"
+        print(f"slots {slots}: median wall {median / 1000:.1f} s over {len(rows)} rep(s), {timeouts} TIMEOUT, {drains} DRAIN, {failed} non-pass verdict"
               + ("" if ok else " (disqualified)"))
         if ok:
             medians[slots] = median

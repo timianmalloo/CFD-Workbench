@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T19:36:08Z",
+  "generated": "2026-10-13T19:52:26Z",
   "audit": [
     {
       "actor": null,
@@ -38712,6 +38712,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-13T19:34:55Z",
       "duration_seconds": 73.0
+    },
+    {
+      "id": "al-01M4VD5J9HX8759GSH7T6Z2PB1",
+      "shortname": "dtj2-classify",
+      "datetime": "2026-10-13T19:52:26Z",
+      "session": "trk-dtj2",
+      "prompt": "DTJ2",
+      "summary": "classify_log reuses check-expected-failures.py; CSV gains a verdict column; best-N and first-sample sanity stop use it; test-cost 9.11 updated",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "measure-desktop-slots classifies Windows expected failures like the ring",
+      "done_when": "self-test green, run-tests green, gates and check-docs exit 0",
+      "started_at": "2026-10-13T19:48:05Z",
+      "duration_seconds": 261.0
     }
   ],
   "changes": [
