@@ -77,3 +77,22 @@ sequence, so refusal binds `failed-stop-no-retry` evidence and performs zero
 lifecycle calls. The candidate-only threshold sweep found one production parse,
 `validate_leader_sample`; both activation and immediate samples use it. The
 complete offline recovery union passes 69 tests. This is repair cycle 1 of 2.
+
+## Authorized R230 conformance pass
+
+The post-activation attempt-admission test was red on merged HOLD baseline
+`ee9797a4`: it expected live authorization and accepted projection to differ by
+`status` and `ruling`, but the committed files are byte-identical after R228
+activation. The renamed test now asserts that equality while retaining the
+separate refusal to execute from the projection path.
+
+The cleanup regression was also red because `cleanup.py` declared a global
+`RULING = 230`. The replacement test selects synthetic owner number 731 through
+an authorization-shaped call, proves section selection and receipt propagation,
+and rejects a source-level ruling constant. The executor validates a positive
+integer ruling, derives the schema/session/exclusive bindings from it, and then
+uses that bound value for owner-section lookup, same-commit discovery,
+verification, receipt, binding and messages. No number is guessed from branch
+state. The focused cleanup/recovery union passes 70 tests; the complete attempt
+admission module passes 11. This owner-authorized conformance pass is outside
+the repair-cycle count.

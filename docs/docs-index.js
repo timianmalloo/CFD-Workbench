@@ -2073,7 +2073,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3ae84f590c980f8ef6ae8abf758e61db644ef8170bcf1fbbe3504bd7d34fcca6"
+      "sourceSha256": "123b364c419619c7c4619addc670f0095c56b5c87de8b6b1a6ccc504f56a9cb6"
     },
     {
       "id": "property-grid-rulings",
@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2d14436f6b9835d103c402ba9d46f2a9bb8b52ed1adf72d50d2224bf515cfca1"
+      "sourceSha256": "71fd5c23370b7f2a4a6d2879aef92a93ac637efab3a87ac8579e6fcd6c460457"
     },
     {
       "id": "domain-experts",
@@ -6436,7 +6436,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  G1 --> G2 --> G3 --> G4 --> G5 --> G6 --> G7"
         }
       ],
-      "sourceSha256": "3e2961817a8a605323d83340b30e47fdef74c2a8c4896da06a8762cef1b8daad"
+      "sourceSha256": "0e7cac768482cefb6a4df59a761d873274934e68cfe58c8bfc29c3da90f3e7d7"
     },
     {
       "id": "plan-windows-gpu-f1-recovery-integration",
@@ -19064,7 +19064,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "77604688c3069d2e9be8a5669ad11921b8715302a3d0108bc2074c1856517e93"
+      "sourceSha256": "707fa26daa16aa4f2a437edafa3174f9510d604311d2c94c78dad830e3a9e89d"
     },
     {
       "id": "proof-win-gpu-f1-r230-cleanup-red-first",
@@ -19089,7 +19089,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8450632e58d7eab387baf12313a098f9854851e8da2e0639e3c3fd9aacdc422e"
+      "sourceSha256": "a8348c56f0e1b76fe571025a9e4f47b5547c6b8d02e51294449bc19485c8a7b7"
     },
     {
       "id": "proof-win-gpu-f1-recovery-integration",
@@ -22392,5 +22392,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "e5baff95ef9f41163bbaa2ee133efaa7e882b40f7d6c165b1a71764421df5c11"
+  "graphSha256": "c739b09e47ff1104ec737447912419b76ebc78a610701beb27e395155ba054cf"
 };

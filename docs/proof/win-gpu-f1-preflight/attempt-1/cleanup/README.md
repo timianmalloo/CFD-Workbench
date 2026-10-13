@@ -55,6 +55,7 @@ Do not run that command from this proposed state.
 | Artifact | SHA-256 |
 | --- | --- |
 | Source commit | `6e788efbb7c2bc6f708927b183515c9ced60226d` |
+| Candidate commit holding hashed bytes | `2a7c269f08149af2bb6165e94249c7d25dcb46c2` |
 | Executor source | `0241d5f5d4f7e6cfeda33581af51884dacfb54c2015f5a58484b7b2999d41e3a` |
 | Payload | `3a431ac6707de7d452dda99d5fc1eef750b2245edd45ad3d9dd081559a2f0a89` |
 | Canonical authorization | `1ad90e081ac10fb1b2daded500a6dec4496e2546b349d053684377101b33fb8d` |

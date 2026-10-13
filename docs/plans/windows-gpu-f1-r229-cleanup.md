@@ -72,7 +72,9 @@ full-corpus manifest check before payload freeze. Independent review then found
 one path-multiplicity class across admission and absence; bounded repair cycle 1
 closed all three aliases. The R230 activation follow-on added five tests; its
 repair cycle 1 made the TTL finite and moved pre-live refusal into receipt
-binding. The final focused union contains 69 tests. Token usage is not exposed
-by the runner. No concurrency was
+binding. The authorized conformance pass then removed the global ruling-number
+preclaim and reconciled the activated attempt-authorization test. The final
+focused cleanup/recovery union contains 70 tests, plus 11 attempt-admission
+tests. Token usage is not exposed by the runner. No concurrency was
 used and no WSL process was launched during authoring. Final gate durations and
 outcomes are recorded in the closing audit entry and author handoff.

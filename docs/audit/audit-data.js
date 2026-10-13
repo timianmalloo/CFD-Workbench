@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T02:48:30Z",
+  "generated": "2026-10-13T03:01:56Z",
   "audit": [
     {
       "actor": null,
@@ -38150,6 +38150,40 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "c8df1291bb96f164cafb94b5f6eb106472bcfd7d",
         "short": "c8df1291b",
+        "branch": "win/gpu-f1-r228-cleanup",
+        "pushed": false
+      }
+    },
+    {
+      "id": "al-01M4SKB97TY1G9VFVN9AQAGS7N",
+      "shortname": "r230-cleanup-authorized-conformance",
+      "datetime": "2026-10-13T03:01:56Z",
+      "session": "pc-f1-r228-cleanup-author",
+      "prompt": "Execute the Mac-authorized R230 conformance pass after HOLD ee9797a4: derive owner ruling from bound authorization, fix activated admission truth, distinguish source anchor from exact candidate commit holding hashed bytes, regenerate and gate; no live action.",
+      "summary": "HOLD conformance complete: source 6e788efb reads and propagates the validated authorization ruling with no global preclaim; activated live attempt authorization equals its projection while the projection path remains noncanonical; candidate 2a7c269f first holds exact payload/auth bytes and is named separately from the source anchor. Cleanup/recovery 70/70, attempt admission 11/11, safe bundle 10/10.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/windows-gpu-f1-r230-cleanup-request.md",
+        "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/red-first.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Conform the R230 cleanup candidate to the Mac HOLD without consuming repair cycle 2.",
+      "done_when": "Ruling selection is authorization-driven, activated admission truth is tested, exact source/candidate bindings are documented, gates green, and branch pushed clean.",
+      "tier": "T1",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "git": {
+        "sha": "2a7c269f08149af2bb6165e94249c7d25dcb46c2",
+        "short": "2a7c269f0",
         "branch": "win/gpu-f1-r228-cleanup",
         "pushed": false
       }
