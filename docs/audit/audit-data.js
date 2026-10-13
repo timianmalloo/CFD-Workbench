@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T02:09:33Z",
+  "generated": "2026-10-13T02:17:58Z",
   "audit": [
     {
       "actor": null,
@@ -37992,6 +37992,58 @@ window.AUDIT_DATA = {
         "short": "ad4cedbbd",
         "branch": "win/gpu-f1-r228-cleanup",
         "pushed": false
+      }
+    },
+    {
+      "id": "al-01M4SGN8J3BQ9N99YD4EZ9900B",
+      "shortname": "Independent re-review of repair cycle 1 in clean worktree C:\\Projects\\CF…",
+      "datetime": "2026-10-13T02:14:57Z",
+      "session": "pc-f1-r229-cleanup-review1",
+      "prompt": "Independent re-review of repair cycle 1 in clean worktree C:\\Projects\\CFD-Workbench-win-gpu-f1-r229-cleanup-review1, branch win/gpu-f1-r229-cleanup-review1, exact candidate tip 6946da407fe0e3412aa22b205a56debac1a82d35, repaired source ad4cedbbd34f4d0178576330c98072c84f4dcc69. Re-run three production alias probes plus full identity/hash/manifest/authorization/prohibition checks. Confirm payload dd41827d0e26b9452bcbe4c9040d23f417449a43e55ae0863e9270a05e154370 and projection 82799f9938781b9f2aed94988dde9b5ab90cb61f9262d667eba6ec4796972e71. Review only, no source repair, WSL, GitHub, registry, or lifecycle action. Commit/push exact ACCEPT or VETO review on this new branch and report clean status.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4SGTRZ7P0RB64293QGHRSFN",
+      "shortname": "r229-cleanup-cycle1-veto",
+      "datetime": "2026-10-13T02:17:57Z",
+      "session": "pc-f1-r229-cleanup-review1",
+      "prompt": "Independently re-review candidate 6946da407fe0e3412aa22b205a56debac1a82d35 and source ad4cedbbd34f4d0178576330c98072c84f4dcc69; publish exact VETO for required ruling-citation gate, retaining green safety evidence; no repair or live action.",
+      "summary": "VETO: safe bundle 9/10, candidate README fails ruling-citation gate; direct rerun confirms. Fourteen author tests pass, independent old-three-red/new-three-green alias probes and normalized variants pass, ten payload bindings and 85-file failure manifest verify, authority probes launch zero processes, history unchanged. Docs exit0, graph defects0/134 suggestions, privacy green. Four plan nodes completed without repair; source/tests/evidence unchanged.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-r229-cleanup-cycle1.md",
+        "docs/reviews/r229-cleanup-cycle1-probe.py",
+        "docs/plans/windows-gpu-f1-r229-cleanup-review1.md"
+      ],
+      "tags": [],
+      "outcome": "blocked",
+      "compiled": false,
+      "goal": "Accept or veto exact repaired cleanup-only candidate",
+      "done_when": "Exact review committed and pushed without source repair or live action",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-10-13T02:11:11Z",
+      "duration_seconds": 406.0,
+      "git": {
+        "sha": "6946da407fe0e3412aa22b205a56debac1a82d35",
+        "short": "6946da407",
+        "branch": "win/gpu-f1-r229-cleanup-review1",
+        "pushed": null
       }
     }
   ],

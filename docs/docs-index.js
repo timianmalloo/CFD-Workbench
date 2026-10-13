@@ -5584,7 +5584,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7c08fe5b2c2f7a7ca2db761f8fe09dcfa0b21048f552672e2083e4cfc87d198c"
+      "sourceSha256": "07d6ab27cddac96364c469bafe699b5a928b9e79aec978c17fc0f96d99cd6249"
     },
     {
       "id": "domain-experts",
@@ -6407,6 +6407,41 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "8132d2550f28bbc7e8600d1a4216d50bc5c3da6d77a747afdc5f45259de9f5fa"
+    },
+    {
+      "id": "plan-windows-gpu-f1-r229-cleanup-review1",
+      "path": "docs/plans/windows-gpu-f1-r229-cleanup-review1.md",
+      "title": "Independent R229 cleanup cycle 1 review plan",
+      "type": "doc",
+      "status": "complete",
+      "owner": "@pc-f1-r229-cleanup-review1",
+      "phase": "",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Bounded offline re-review of source ad4cedbb and candidate 6946da40.",
+      "tags": [
+        "review",
+        "cleanup",
+        "offline"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r229-cleanup-candidate",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-windows-gpu-f1-r229-cleanup-cycle1",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Goal and graph",
+          "mermaid": "flowchart LR\n  A --> B --> D\n  A --> C --> D"
+        }
+      ],
+      "sourceSha256": "90cbde26c4e106f0707677c761edefb0e4c6d0c129295ac8119971e882e5387b"
     },
     {
       "id": "plan-windows-gpu-f1-recovery-integration",
@@ -9257,6 +9292,43 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "9c97341e926da4a63a3fbe4a14a6e8ca0a82310c24c4ace42b2bbe02e63eda7c"
+    },
+    {
+      "id": "review-windows-gpu-f1-r229-cleanup-cycle1",
+      "path": "docs/reviews/windows-gpu-f1-r229-cleanup-cycle1.md",
+      "title": "Independent VETO of R229 cleanup repair cycle 1",
+      "type": "doc",
+      "status": "blocked",
+      "owner": "@pc-f1-r229-cleanup-review1",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Independent VETO of candidate 6946da40: the required ruling-citation gate fails on its README. Repaired source ad4cedbb closes all three prior production path-alias failures. No live authority follows.",
+      "tags": [
+        "windows",
+        "cleanup",
+        "independent-review"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r229-cleanup-candidate",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r228-attempt1-failure",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-windows-gpu-f1-r229-cleanup-review1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0a2039fd8603febb46d27532e11212d0c613bd74dfe04244ec5ed5b2eaff1b03"
     },
     {
       "id": "rulings",
@@ -22333,5 +22405,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "25c5507396c522748631268a8fc76e49bf33d28a28a253827045bec20a1b5e41"
+  "graphSha256": "e04d374118f3d5f10a236d890f296772bec6cd4b9a942c61a658b73b517542a6"
 };
