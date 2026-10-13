@@ -6439,6 +6439,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "0e7cac768482cefb6a4df59a761d873274934e68cfe58c8bfc29c3da90f3e7d7"
     },
     {
+      "id": "plan-windows-gpu-f1-r231-helper-review2",
+      "path": "docs/plans/windows-gpu-f1-r231-helper-review2.md",
+      "title": "Final-cycle helper review plan",
+      "type": "doc",
+      "status": "complete",
+      "owner": "@pc-f1-r231-helper-review2",
+      "phase": "",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Exact final-cycle review with six CLI refusal probes and unchanged authority.",
+      "tags": [
+        "review",
+        "offline",
+        "execution-graph"
+      ],
+      "links": [
+        {
+          "to": "review-windows-gpu-f1-r231-helper2",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-gpu-f1-cleanup-helper-repair",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Diagram 1",
+          "mermaid": "graph LR\n A --> B\n A --> C\n B --> D\n C --> D\n D --> E"
+        }
+      ],
+      "sourceSha256": "97e0d84c96833e992e8b4c41e4f3b1203086e9a63c0cd59ad6eeca733205811c"
+    },
+    {
       "id": "plan-windows-gpu-f1-recovery-integration",
       "path": "docs/plans/windows-gpu-f1-recovery-integration.md",
       "title": "F1 recovery and packet repair: offline integration graph",
@@ -9318,6 +9353,36 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "9c97341e926da4a63a3fbe4a14a6e8ca0a82310c24c4ace42b2bbe02e63eda7c"
+    },
+    {
+      "id": "review-windows-gpu-f1-r231-helper2",
+      "path": "docs/reviews/windows-gpu-f1-r231-helper-review2.md",
+      "title": "Final-cycle independent R231 helper review",
+      "type": "doc",
+      "status": "blocked",
+      "owner": "@pc-f1-r231-helper-review2",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "HOLD for the unresolved Desktop ring. The bounded offline helper repair is technically accepted: six evidence-root CLI refusals precede all process calls, existing fixtures pass and historical authority/evidence is unchanged.",
+      "tags": [
+        "windows",
+        "cleanup",
+        "offline",
+        "independent-review"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-cleanup-helper-repair",
+          "rel": "depends-on"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "feac7ac22b1398e39232a958ba940b153c7030aa9404eb6527675ee4bde2ce38"
     },
     {
       "id": "rulings",
@@ -22423,5 +22488,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "0f9fad791dc3f160498aa4dab4d3acdcba19f80f5c6214b08bfab525d6fc9b17"
+  "graphSha256": "cca85304874eee30841e55d8f2600b8c23dc2928ca08cc5bd37ccd90939a6805"
 };
