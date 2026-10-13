@@ -1,6 +1,6 @@
 ---
-id: proof-win-gpu-f1-r229-cleanup-red-first
-title: "R229 cleanup candidate red-first observation"
+id: proof-win-gpu-f1-r230-cleanup-red-first
+title: "R230 cleanup candidate red-first record"
 type: proof-pack
 status: complete
 owner: "@pc-f1-r228-cleanup-author"
@@ -14,7 +14,7 @@ summary: >-
   three inert regression probes were red before repair and green after.
 ---
 
-# R229 cleanup candidate red-first observation
+# R230 cleanup candidate red-first record
 
 Before the isolated source was added, Git could not resolve the required entry
 point at the branch baseline:
@@ -47,3 +47,12 @@ registration with a distinct name/GUID and one reviewed BasePath. This proves
 the failure is path multiplicity across all registrations, not a missing named
 row. After the repair, all three probes pass and the complete offline recovery
 union passes 64 tests. No WSL boundary is imported or called by these probes.
+
+## R230 activation adaptation
+
+The R230 follow-on changes the authority and identity seams. Three offline
+probes require the canonical `cleanup-authorization.json`, prove lifecycle
+arguments come from the validated authorization identity, and reject either
+leader sample below 200 seconds or outside exact Mac epoch 8. The complete
+offline recovery union now passes 67 tests. No probe imports `winreg` or starts
+WSL. The accepted R229 alias regressions remain in the union unchanged.

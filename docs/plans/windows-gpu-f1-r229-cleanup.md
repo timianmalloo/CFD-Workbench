@@ -1,6 +1,6 @@
 ---
-id: plan-windows-gpu-f1-r229-cleanup
-title: "R228 attempt-1 cleanup-only recovery plan"
+id: plan-windows-gpu-f1-r230-cleanup
+title: "R230 activation-adapted R228 cleanup plan"
 type: doc
 status: active
 owner: "@pc-f1-r228-cleanup-author"
@@ -11,15 +11,15 @@ links:
   - { to: defect-classes, rel: relates-to }
 review-by: "2026-10-13"
 summary: >-
-  Build and review an exact, hash-bound R229 cleanup-only action. Live execution
-  remains forbidden until a separate accepted Mac/Fable ruling reaches origin/main.
+  Adapt the accepted R229 cleanup design into an exact R230 activation contract.
+  Live execution remains forbidden until Mac/Fable commits the authority bundle.
 ---
 
 # Goal and execution graph
 
 Goal: provide a reviewable cleanup-only candidate for the registered target left
 by failed R228 attempt 1. Done when the source, offline controls, exact payload,
-accepted projection and R229 request are committed and pushed. Not in scope: any
+canonical authorization and R230 request are committed and pushed. Not in scope: any
 WSL invocation, registry mutation, preflight resumption, package action, source
 fetch, build, case, benchmark or host-path deletion. Tier T2; fan-out one. The
 requested independent review is a later coordinator-owned node.
@@ -34,10 +34,10 @@ as its inspected evidence edges.
 | G1 | Ground exact residual identity and authority boundary | R228 receipt, R228 ruling, runbook | Target/protected rows and forbidden scope copied exactly | T0 | Deterministic mechanics | — |
 | G2 | Build isolated cleanup source | G1; reviewed ownership and manifest helpers | Only exact identity, read-only owned checks, terminate, unregister, absence and evidence binding are reachable | T1 | Reasoning | G1 data |
 | G3 | Prove refusal and lifecycle order offline | G2 source | Inert tests reject authority/ruling/identity/absence mutations and launch zero WSL on precheck refusal | T0 | Deterministic mechanics | G2 data |
-| G4 | Freeze source payload and two authorization representations | Green G3 and source commit | Exact source/payload hashes; proposed authorization cannot execute; accepted projection has R229 bindings | T0 | Deterministic mechanics | G3 data |
+| G4 | Freeze source payload and canonical authorization | Green G3 and source commit | Exact source/payload/auth hashes; canonical bytes bind R230 and R223(a)-(d) | T0 | Deterministic mechanics | G3 data |
 | G5 | Run repository floors and conservation checks | G4 artifacts | Focused tests, docs, graph, privacy, whitespace and historical byte checks pass | T0 | Deterministic mechanics | G4 data |
 | G6 | Independent adversarial review | Candidate commit and G5 results | Separate reviewer ACCEPT or VETO; author cannot clear it | T2 | Independent review | G5 decision |
-| G7 | Request R229; activation and live action remain separate | G6 ACCEPT | Mac/Fable ruling on origin/main names exact accepted hashes; later byte-identical activation gets rehashed | T2 | Reasoning | G6 decision |
+| G7 | Request R230; activation and live action remain separate | G6 ACCEPT | Mac/Fable same-commit owner section, exact auth and activation sample reach origin/main | T2 | Reasoning | G6 decision |
 
 ```mermaid
 flowchart LR

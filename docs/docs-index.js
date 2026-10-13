@@ -2046,6 +2046,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "7a1ff2b01d5f9762191d426358c5324cb28a444597d8b136326dd98b118e9453"
     },
     {
+      "id": "note-windows-gpu-f1-r230-cleanup-request",
+      "path": "docs/notes/windows-gpu-f1-r230-cleanup-request.md",
+      "title": "R230 request for one activation-adapted cleanup action",
+      "type": "decision-note",
+      "status": "proposed",
+      "owner": "@pc-f1-r228-cleanup-author",
+      "phase": "preflight",
+      "reviewBy": "2026-10-13",
+      "reviewSuggested": [],
+      "summary": "Exact R230 request for one cleanup-only action against the residual R228 target. This request and authorization candidate grant no live authority.",
+      "tags": [
+        "windows",
+        "wsl",
+        "cleanup",
+        "ruling-request"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r229-cleanup-candidate",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r228-attempt1-failure",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c39fcc493212fef2448ee82bea1dcabdd9b53ab4ad4d867d9a6bd8645dc46e5d"
+    },
+    {
       "id": "property-grid-rulings",
       "path": "docs/notes/property-grid-rulings.md",
       "title": "Property grid — operator rulings on precision, field nudge, scrubbing, build order and labels",
@@ -5584,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7c08fe5b2c2f7a7ca2db761f8fe09dcfa0b21048f552672e2083e4cfc87d198c"
+      "sourceSha256": "2d14436f6b9835d103c402ba9d46f2a9bb8b52ed1adf72d50d2224bf515cfca1"
     },
     {
       "id": "domain-experts",
@@ -6372,16 +6402,16 @@ window.DOCS_INDEX = {
       "sourceSha256": "5be493178924de4f4e42c8b92fb382af241883f4e22bcbcacef5d3b589231d2f"
     },
     {
-      "id": "plan-windows-gpu-f1-r229-cleanup",
+      "id": "plan-windows-gpu-f1-r230-cleanup",
       "path": "docs/plans/windows-gpu-f1-r229-cleanup.md",
-      "title": "R228 attempt-1 cleanup-only recovery plan",
+      "title": "R230 activation-adapted R228 cleanup plan",
       "type": "doc",
       "status": "active",
       "owner": "@pc-f1-r228-cleanup-author",
       "phase": "preflight",
       "reviewBy": "2026-10-13",
       "reviewSuggested": [],
-      "summary": "Build and review an exact, hash-bound R229 cleanup-only action. Live execution remains forbidden until a separate accepted Mac/Fable ruling reaches origin/main.",
+      "summary": "Adapt the accepted R229 cleanup design into an exact R230 activation contract. Live execution remains forbidden until Mac/Fable commits the authority bundle.",
       "tags": [
         "windows",
         "wsl",
@@ -6406,7 +6436,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  G1 --> G2 --> G3 --> G4 --> G5 --> G6 --> G7"
         }
       ],
-      "sourceSha256": "8132d2550f28bbc7e8600d1a4216d50bc5c3da6d77a747afdc5f45259de9f5fa"
+      "sourceSha256": "6e46a0b654fb4daa8ccf4cae355b67e174669578117a8a35ce889882f0717f1e"
     },
     {
       "id": "plan-windows-gpu-f1-recovery-integration",
@@ -9282,7 +9312,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cc7c0c0350328bc6e6295eacae5dc2757246ae699fa44fc59168520ec0603980"
+      "sourceSha256": "2845c682ea00b39d9ed9e6730de89862c707d86396e703a0af23876d4c6bd460"
     },
     {
       "id": "kb-hw-glossary",
@@ -17029,6 +17059,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "3933950736c8c77e8408096a2178260cd2b6d68282dd945bc298564c6be2646a"
     },
     {
+      "id": "proof-rsx-red-first",
+      "path": "docs/proof/rsx/red-first.md",
+      "title": "RSX red-first - proof PowerShell reader sharing and text-unset capture folders",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-rsx",
+      "phase": "",
+      "reviewBy": "2026-11-12",
+      "reviewSuggested": [],
+      "summary": "The reader-sharing scan now covers proof PowerShell (9 existing hits hash-pinned, new hits fail) and a fast-ring check keeps every capture folder text-unset.",
+      "tags": [
+        "rsx",
+        "reader-share",
+        "capture-manifest"
+      ],
+      "links": [
+        {
+          "to": "proof-application-core",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5c2105ed15a9dde7f397ff6b90476dffa15091be4ae36de093a7d381908cf2d4"
+    },
+    {
       "id": "proof-sdg",
       "path": "docs/proof/sdg/receipt.md",
       "title": "SDG scale-diagnostic mode receipt",
@@ -18980,14 +19035,14 @@ window.DOCS_INDEX = {
     {
       "id": "proof-win-gpu-f1-r229-cleanup-candidate",
       "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/README.md",
-      "title": "R229 cleanup-only candidate for R228 attempt 1",
+      "title": "R230 activation-adapted cleanup candidate for R228 attempt 1",
       "type": "proof-pack",
       "status": "proposed",
       "owner": "@pc-f1-r228-cleanup-author",
       "phase": "preflight",
       "reviewBy": "2026-10-13",
       "reviewSuggested": [],
-      "summary": "Offline-only source and controls for exact cleanup of the target left by R228. No live authority exists until Mac/Fable accepts the projected bytes in R229.",
+      "summary": "Offline-only R230 candidate for exact cleanup of the target left by R228. It cannot run until Mac/Fable commits the exact authorization with the next owner ruling and a qualifying activation leader sample.",
       "tags": [
         "windows",
         "wsl",
@@ -19000,17 +19055,21 @@ window.DOCS_INDEX = {
           "rel": "depends-on"
         },
         {
-          "to": "plan-windows-gpu-f1-r229-cleanup",
+          "to": "plan-windows-gpu-f1-r230-cleanup",
+          "rel": "relates-to"
+        },
+        {
+          "to": "note-windows-gpu-f1-r230-cleanup-request",
           "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "934fca7992514c58b8b264128c0d131f176a454b8010ab6182ea8856d0b8c6dd"
+      "sourceSha256": "7ec2b7954f679321357ab1eaabd3501aec60d41b53dc121fffbab989edc37cc7"
     },
     {
-      "id": "proof-win-gpu-f1-r229-cleanup-red-first",
+      "id": "proof-win-gpu-f1-r230-cleanup-red-first",
       "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/red-first.md",
-      "title": "R229 cleanup candidate red-first observation",
+      "title": "R230 cleanup candidate red-first record",
       "type": "proof-pack",
       "status": "complete",
       "owner": "@pc-f1-r228-cleanup-author",
@@ -19030,7 +19089,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3bf89133fb2fa2e2eab30346cda4a6bcf470e12ba8fff667665893f50e38f0f1"
+      "sourceSha256": "aa7e89e3f073b89a90aabd69316305d6dc07d076799cfed80fdb081638164b06"
     },
     {
       "id": "proof-win-gpu-f1-recovery-integration",
@@ -22333,5 +22392,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "b7ddb53ccb7d6db2c54060757009f82173e3e5ad855348c33b0b8f60f9a240ba"
+  "graphSha256": "83865a92edad77b918091df64baedba742df3d2efe7cfea463774f710b484f08"
 };
