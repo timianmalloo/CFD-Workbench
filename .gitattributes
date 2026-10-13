@@ -40,3 +40,15 @@ docs/proof/win-gpu-f1-preflight/run-1/failed-live/** -text whitespace=-trailing-
 docs/proof/win-gpu-f1-preflight/recovery-1/final/** -text whitespace=-trailing-space,-blank-at-eof
 docs/proof/win-gpu-f1-preflight/attempt-1/checkpoint/** -text whitespace=-trailing-space,-blank-at-eof
 docs/proof/win-gpu-f1-preflight/attempt-1/final/** -text whitespace=-trailing-space,-blank-at-eof
+# Every capture folder keeps its exact bytes (Ruling 229, RAW-CAPTURE-BLOB-MISMATCH recurrence 3; tools/check-capture-text-attr.py).
+docs/proof/r181-store-verifier-rerun/** -text
+docs/proof/ring-windows/** -text
+docs/proof/win-gpu-b1/** -text
+docs/proof/win-gpu-b2/** -text
+docs/proof/win-gpu-g1/** -text
+docs/proof/win-gpu-qualification/** -text
+docs/proof/win-r151-l3/** -text
+docs/proof/win-store-implementation/** -text
+docs/proof/wri-probe/** -text
+docs/proof/wri-r182-runner/** -text
+docs/proof/wri-r184-result/** -text
