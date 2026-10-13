@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3eab864f32dc6c45ea39e7d7421af7e81f3891aa50b8b0e3e8ec514f4b5bfafe"
+      "sourceSha256": "df98ea01c2a333edf9ee4051d23dc9b25450c92efc21aab14592111e45204a72"
     },
     {
       "id": "domain-experts",
@@ -6264,7 +6264,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3c31f9d46833bc326222b7c30a0a37600255b6926761c438b239b8c762f7037e"
+      "sourceSha256": "309f3cd498b79e0c82909becc17150d57567d5c83ed2d9bfa86d75a78408253d"
     },
     {
       "id": "plan-tip-handling",
@@ -6725,6 +6725,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "272f1bdefd27f8d4607e116d01b51aad9d687263362c23df0eeec0b11004e101"
+    },
+    {
+      "id": "proof-dtj-red-first",
+      "path": "docs/proof/dtj/red-first.md",
+      "title": "Track DTJ red-first record (per-host Desktop child slots)",
+      "type": "doc",
+      "status": "done",
+      "owner": "@trk-dtj",
+      "phase": "implementation",
+      "reviewBy": "2026-11-13",
+      "reviewSuggested": [],
+      "summary": "Red and green runs for the per-host Desktop slot count and the measurement script, with the Mac before and after Desktop walls.",
+      "tags": [
+        "proof",
+        "test-ring",
+        "desktop",
+        "windows"
+      ],
+      "links": [
+        {
+          "to": "plan-test-cost",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4c627db5bda52b32c597c803b7be3bdc920abcb2e0774180b657dd2b79fa8902"
     },
     {
       "id": "proof-lsp-red-first",
@@ -19005,7 +19031,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d55e1a306a3033d7a63119a87a0b05219f0a4aa8c176b928ca77441e22213349"
+      "sourceSha256": "14635f746204a2ccb20b40de4153e99a7ccba59bc96c674444efcc89c2093d28"
     },
     {
       "id": "proof-win-gpu-f1-r217-contract-preparation",
@@ -22519,5 +22545,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "4a1dc95b5e196fb4a6bec5341a2a3fb64bf44aae00f72d3ae8a199bd7982bf6d"
+  "graphSha256": "61790812e97949042d40bd91e8181108213083dc4ae0a6aee7c5c689788fc399"
 };

@@ -788,15 +788,53 @@ namespace CfdWorkbench.Desktop.Tests
             return Math.Max(0, (long)(DateTime.Now - self.StartTime).TotalMilliseconds).ToString(System.Globalization.CultureInfo.InvariantCulture);
         }
 
+        /// <summary>
+        /// The child-slot count and where it came from. CFD_DESKTOP_SLOTS (1..modes, else ArgumentException, never clamped) beats
+        /// CFD_DESKTOP_SLOTS_BASELINE (tools/run-tests.sh sets it from the host's limit.desktop_slots line; capped at the mode count),
+        /// which beats the Mac-tuned ProcessorCount * 5 / 8.
+        /// </summary>
+        public static (int Slots, string Source) ResolveSlots(Func<string, string?> env, int cpus, int modeCount)
+        {
+            static bool Whole(string text) => System.Text.RegularExpressions.Regex.IsMatch(text, "^[1-9][0-9]{0,5}$");
+            string? set = env("CFD_DESKTOP_SLOTS");
+            if (set != null)
+            {
+                if (!Whole(set) || int.Parse(set, System.Globalization.CultureInfo.InvariantCulture) > modeCount)
+                    throw new ArgumentException($"CFD_DESKTOP_SLOTS='{set}' is refused: use a whole number from 1 to {modeCount}");
+                return (int.Parse(set, System.Globalization.CultureInfo.InvariantCulture), "env");
+            }
+            string? fromBaseline = env("CFD_DESKTOP_SLOTS_BASELINE");
+            if (fromBaseline != null)
+            {
+                if (!Whole(fromBaseline)) throw new ArgumentException($"limit.desktop_slots='{fromBaseline}' is refused: use a positive whole number");
+                return (Math.Min(int.Parse(fromBaseline, System.Globalization.CultureInfo.InvariantCulture), modeCount), "baseline");
+            }
+            return (Math.Clamp(cpus * 5 / 8, 1, modeCount), "default");
+        }
+
         /// <summary>Spawn with its output and child runner injected, so the start lines are checkable without launching a child.</summary>
         public static int SpawnWith(TextWriter output, TextWriter errors,
-            Func<string, (List<(bool Error, string Text)> Lines, int ExitCode, double Seconds)> runBuffered, string[] modes)
+            Func<string, (List<(bool Error, string Text)> Lines, int ExitCode, double Seconds)> runBuffered, string[] modes,
+            Func<string, string?>? env = null, int? cpus = null)
         {
+            int slotCount;
+            try
+            {
+                (int count, string source) = ResolveSlots(env ?? Environment.GetEnvironmentVariable, cpus ?? Environment.ProcessorCount, modes.Length);
+                slotCount = count;
+                output.WriteLine($"DESKTOP-SLOTS {count} (source: {source})");
+                output.Flush();
+            }
+            catch (ArgumentException exception)
+            {
+                output.WriteLine("FAIL DESKTOP-SLOTS " + exception.Message);
+                return 2;
+            }
             // A child uses about 1.4 cores. The proof budget now counts deterministic bit-work rather than wall time,
             // so thread contention cannot starve proofs into GEOMETRY-BUDGET failures. 1/2 (8 of 16) uses the available
             // headroom to parallelize child runs faster. B3: 5/8 (10 of 16). At quiet load, 3 runs each: 8 slots read Desktop
             // 46.0 / 46.4 / 43.7 s, 10 slots 40.5 / 40.4 / 40.3 s (the greedy fill of the measured child times predicts 40.5 and 34.5 s at 8 and 10).
-            using var slots = new SemaphoreSlim(Math.Clamp(Environment.ProcessorCount * 5 / 8, 1, modes.Length));
+            using var slots = new SemaphoreSlim(slotCount);
             var runs = new Task<(List<(bool Error, string Text)> Lines, int ExitCode, double Seconds)>[modes.Length];
             for (int index = 0; index < modes.Length; index++)
             {
