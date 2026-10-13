@@ -9128,6 +9128,40 @@ window.DOCS_INDEX = {
       "sourceSha256": "21d2913586a12d6bb397add15a597f5c4b8fc023a6652a4d01a00b31b760cf3f"
     },
     {
+      "id": "review-windows-gpu-f1-r228-activation",
+      "path": "docs/reviews/windows-gpu-f1-r228-activation.md",
+      "title": "Independent R228 activation rehash",
+      "type": "doc",
+      "status": "accepted",
+      "owner": "@pc-f1-r225-attempt1-review",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "ACCEPT of exact activation 2abcd2a2 under R228. Promoted bytes equal the accepted projection, activation lease exceeds 200 seconds and the production read-only contract verifier passes. Pre-WSL sampling remains mandatory.",
+      "tags": [
+        "windows",
+        "preflight",
+        "authorization",
+        "independent-review"
+      ],
+      "links": [
+        {
+          "to": "review-windows-gpu-f1-r228-supervisor",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r225-attempt1-admission",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "659a544f2ec0c927ab285c714a308bee11e92f53583653b6a344b942ddb7f4dc"
+    },
+    {
       "id": "review-windows-gpu-f1-r228-supervisor",
       "path": "docs/reviews/windows-gpu-f1-r228-supervisor.md",
       "title": "Independent R228 renewal-supervisor supplement",
@@ -9181,7 +9215,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "28487b8a2ed3a68f5511a2bf2e099141ae510cbcfb62e8f05f7aa320cee647fd"
+      "sourceSha256": "cc7c0c0350328bc6e6295eacae5dc2757246ae699fa44fc59168520ec0603980"
     },
     {
       "id": "kb-hw-glossary",
@@ -22147,5 +22181,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "825811564f662d24746a6eedfc87b556eaff4fb63e3aed2b350c1a169f635778"
+  "graphSha256": "1d1c3d45491143fa3ad6d9300260e4ff17adc586574c69a8b58dde55e993828e"
 };

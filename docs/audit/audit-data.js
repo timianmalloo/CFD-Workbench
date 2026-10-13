@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T01:31:53Z",
+  "generated": "2026-10-13T01:40:01Z",
   "audit": [
     {
       "actor": null,
@@ -37843,6 +37843,56 @@ window.AUDIT_DATA = {
         "short": "e9f43a7b4",
         "branch": "win/gpu-f1-r225-attempt1-review",
         "pushed": true
+      }
+    },
+    {
+      "id": "al-01M4SEM5ZCK78CAM1R1ZHA3SQP",
+      "shortname": "r228-activation-rehash",
+      "datetime": "2026-10-13T01:39:24Z",
+      "session": "pc-f1-r225-attempt1-review",
+      "prompt": "Activation rehash required by R228. Exact activation commit 2abcd2a26e349ee6a2d58127195158f0b9d5e19e after merging R228 from main7a25122f. Verify exact ruling/bindings/conditions, ancestry2cb40b67/c9c7/df21/b782, live authorization bytes equal projection SHA39217fae100c358c1c98aba5e1827e23cb0e0824d2be9329f98c339a8275dff3, valid raw live mac epoch8 activation sample with >=200s, and only auth promotion plus sample after merge. Run contract verify only without WSL. Commit/push ACCEPT or VETO promptly. No WSL.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4SEN9J6J85DKVR421RQ6VN1",
+      "shortname": "r228-activation-accept",
+      "datetime": "2026-10-13T01:40:01Z",
+      "session": "pc-f1-r225-attempt1-review",
+      "prompt": "Review exact2abcd2a2 R228 activation, hashes/sample/ancestry/conditions; run production verifier only withoutWSL; publish verdict promptly with no broad gate repeat.",
+      "summary": "ACCEPT activation2abcd2a26e349ee6a2d58127195158f0b9d5e19e under R228 at7a25122f65893d9b2357bedd668e016688d2514c. Required2cb/c9/df21/b782/ruling ancestry verified. Exactly auth status+ruling promotion and activation sample after46101cf5 merge. Auth byte-identical projection SHA39217fae100c358c1c98aba5e1827e23cb0e0824d2be9329f98c339a8275dff3. Samplelive mac8 TTL874.3052248954773 matchesstoredOID1b9762d0cca1a878ab0510b854ca8f1aa9fa304b. Actual clean executionworktree at exactHEAD passed production INVOCATION-CONTRACT-PASS using boundinputs; noWSL. Independent probe2.331s. R228 all5conditions read; immediatepre-firstWSL live8 TTL>=200 sample, exclusivity andwhole-run supervisor events/stderr/exit stillrequired. Graph0/134retained, privacy0, whitespacePASS. Broadunchanged gatesnotrepeated.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-r228-activation.md",
+        "docs/reviews/r228-activation-probe.py"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Accept or veto exact R228 activation rehash without WSL",
+      "done_when": "Exact ruling/bytes/sample/ancestry and read-only verifier checked; verdict committed and pushed",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-13T01:37:56Z",
+      "duration_seconds": 125.0,
+      "git": {
+        "sha": "2abcd2a26e349ee6a2d58127195158f0b9d5e19e",
+        "short": "2abcd2a26",
+        "branch": "win/gpu-f1-r225-attempt1-review",
+        "pushed": false
       }
     }
   ],
