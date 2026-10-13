@@ -5554,7 +5554,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4b34fb42427bd7c1f16b56616c52845b54ce67d67dfee0d0fab36b3bbecba0c1"
+      "sourceSha256": "e68732f0d448bd9adfd2f402cfa9fa444c702bb839adb5813e54de531536a6c0"
     },
     {
       "id": "domain-experts",
@@ -9079,7 +9079,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f399e0c48c780acd976964a08b41547e79ffd26f41b4928b652cb0de79eef897"
+      "sourceSha256": "2845c682ea00b39d9ed9e6730de89862c707d86396e703a0af23876d4c6bd460"
     },
     {
       "id": "kb-hw-glossary",
@@ -16826,6 +16826,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "3933950736c8c77e8408096a2178260cd2b6d68282dd945bc298564c6be2646a"
     },
     {
+      "id": "proof-rsx-red-first",
+      "path": "docs/proof/rsx/red-first.md",
+      "title": "RSX red-first - proof PowerShell reader sharing and text-unset capture folders",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-rsx",
+      "phase": "",
+      "reviewBy": "2026-11-12",
+      "reviewSuggested": [],
+      "summary": "The reader-sharing scan now covers proof PowerShell (9 existing hits hash-pinned, new hits fail) and a fast-ring check keeps every capture folder text-unset.",
+      "tags": [
+        "rsx",
+        "reader-share",
+        "capture-manifest"
+      ],
+      "links": [
+        {
+          "to": "proof-application-core",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5c2105ed15a9dde7f397ff6b90476dffa15091be4ae36de093a7d381908cf2d4"
+    },
+    {
       "id": "proof-sdg",
       "path": "docs/proof/sdg/receipt.md",
       "title": "SDG scale-diagnostic mode receipt",
@@ -22010,5 +22035,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "b37e2e12763dc96138e149f044910139361fcc1e4e88478a251fc0ee3c12a3d5"
+  "graphSha256": "3f60e4304637a9f855a3828d616133bd0217705ffc3b169bb25c0c49ddf2b210"
 };

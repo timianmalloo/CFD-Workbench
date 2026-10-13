@@ -1,0 +1,12 @@
+CAPTURE-TEXT-ATTR: docs/proof/r181-store-verifier-rerun: 5 of 14 listed files have text 'auto' (first: docs/proof/r181-store-verifier-rerun/.gitattributes); add to .gitattributes: docs/proof/r181-store-verifier-rerun/** -text
+CAPTURE-TEXT-ATTR: docs/proof/ring-windows: 40 of 497 listed files have text 'auto' (first: docs/proof/ring-windows/calibration-ruling-170/calibration-rows.csv); add to .gitattributes: docs/proof/ring-windows/** -text
+CAPTURE-TEXT-ATTR: docs/proof/win-gpu-b1: 31 of 82 listed files have text 'auto' (first: docs/proof/win-gpu-b1/.gitattributes); add to .gitattributes: docs/proof/win-gpu-b1/** -text
+CAPTURE-TEXT-ATTR: docs/proof/win-gpu-b2: 81 of 163 listed files have text 'auto' (first: docs/proof/win-gpu-b2/.gitattributes); add to .gitattributes: docs/proof/win-gpu-b2/** -text
+CAPTURE-TEXT-ATTR: docs/proof/win-gpu-g1: 8 of 19 listed files have text 'auto' (first: docs/proof/win-gpu-g1/.gitattributes); add to .gitattributes: docs/proof/win-gpu-g1/** -text
+CAPTURE-TEXT-ATTR: docs/proof/win-gpu-qualification: 3 of 14 listed files have text 'auto' (first: docs/proof/win-gpu-qualification/.gitattributes); add to .gitattributes: docs/proof/win-gpu-qualification/** -text
+CAPTURE-TEXT-ATTR: docs/proof/win-r151-l3: 2 of 7 listed files have text 'auto' (first: docs/proof/win-r151-l3/.gitattributes); add to .gitattributes: docs/proof/win-r151-l3/** -text
+CAPTURE-TEXT-ATTR: docs/proof/win-store-implementation: 1 of 71 listed files have text 'auto' (first: docs/proof/win-store-implementation/final-rerun-r175/watchdog.ps1); add to .gitattributes: docs/proof/win-store-implementation/** -text
+CAPTURE-TEXT-ATTR: docs/proof/wri-probe: 19 of 91 listed files have text 'auto' (first: docs/proof/wri-probe/.gitattributes); add to .gitattributes: docs/proof/wri-probe/** -text
+CAPTURE-TEXT-ATTR: docs/proof/wri-r182-runner: 16 of 35 listed files have text 'auto' (first: docs/proof/wri-r182-runner/capture-proof.py); add to .gitattributes: docs/proof/wri-r182-runner/** -text
+CAPTURE-TEXT-ATTR: docs/proof/wri-r184-result: 12 of 28 listed files have text 'auto' (first: docs/proof/wri-r184-result/docs-repair1.json); add to .gitattributes: docs/proof/wri-r184-result/** -text
+CAPTURE-TEXT-ATTR FAIL: 11 capture folder(s) can be normalised by git

@@ -1,0 +1,10 @@
+READER-SHARE grandfathered docs/proof/win-gpu-b1/capture.ps1:75 (Ruling 229)
+READER-SHARE grandfathered docs/proof/win-gpu-b1/capture.ps1:92 (Ruling 229)
+READER-SHARE grandfathered docs/proof/win-gpu-b1/wait-observer.ps1:24 (Ruling 229)
+READER-SHARE grandfathered docs/proof/win-gpu-b1/wait-observer.ps1:41 (Ruling 229)
+READER-SHARE grandfathered docs/proof/win-gpu-b2/capture-completed-install.ps1:83 (Ruling 229)
+READER-SHARE grandfathered docs/proof/win-gpu-b2/capture-install.ps1:75 (Ruling 229)
+READER-SHARE grandfathered docs/proof/win-gpu-b2/capture-install.ps1:131 (Ruling 229)
+READER-SHARE grandfathered docs/proof/win-gpu-f1-preflight/packet/Invoke-Preflight.ps1:122 (Ruling 229)
+READER-SHARE grandfathered docs/proof/win-gpu-f1-preflight/packet/Invoke-Preflight.ps1:133 (Ruling 229)
+READER-SHARE ok: 0 readers without delete sharing

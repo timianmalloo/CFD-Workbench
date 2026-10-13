@@ -94,7 +94,9 @@ def run_lesson_controls():
         ("check-capture-manifests.py", ("--self-test",)),  # CAPTURE-MANIFEST (Ruling 167); fast ring, ~1.3 s + ~1.1 s
         ("check-capture-manifests.py", ()),
         ("check-reader-sharing.py", ("--self-test",)),
-        ("check-reader-sharing.py", ()),
+        ("check-reader-sharing.py", ()),  # also proof/tools PowerShell, hash-pinned grandfathering of 9 PowerShell hits (Ruling 229); ~0.3 s
+        ("check-capture-text-attr.py", ("--self-test",)),  # CAPTURE-TEXT-ATTR (Ruling 229); fast ring, ~0.3 s
+        ("check-capture-text-attr.py", ()),  # ~0.3 s
         ("check-expected-failures.py", ("--self-test",)),
         ("check-windows-admission.py", ("--self-test",)),  # Ruling 189 (4) staleness line; fast ring, ~0.3 s
         ("check-windows-admission.py", ()),  # PLAT-A real check (a bare stale claim fails); fast ring, ~0.35 s measured
