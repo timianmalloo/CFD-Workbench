@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T03:01:56Z",
+  "generated": "2026-10-13T03:23:15Z",
   "audit": [
     {
       "actor": null,
@@ -38186,6 +38186,58 @@ window.AUDIT_DATA = {
         "short": "2a7c269f0",
         "branch": "win/gpu-f1-r228-cleanup",
         "pushed": false
+      }
+    },
+    {
+      "id": "al-01M4SMJ8ATR4S6HZ5XCAT0S373",
+      "shortname": "Independent R230 activation review in win/gpu-f1-r230-activation-review.…",
+      "datetime": "2026-10-13T03:23:13Z",
+      "session": "pc-f1-r230-activation-review",
+      "prompt": "Independent R230 activation review in win/gpu-f1-r230-activation-review. Exact executed head fd4f738ad01f6a4be89c92d844c5ef372c47ea07; origin/main04354ecf contains R230 commit2f22eea9. Rehash auth1ad90e08, payload3a431ac6, executor0241d5f5, activation samplecd1dca8e. Verify source6e788efb and candidate2a7c269f ancestry, same-commit ruling/auth/sample, exact identities/checkpoint/session/exclusive/scope/deadline/R223(a-d), finite live epoch8 activation TTL>=200, clean/pushed branch and second runtime sample. Exact contract/offline precheck only. No WSL, registry, lifecycle, cleanup, GitHub/mail or source repair. Commit/push ACCEPT or VETO.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4SMJAC8A3WX0J31BE339YQ4",
+      "shortname": "r230-activation-accept",
+      "datetime": "2026-10-13T03:23:15Z",
+      "session": "pc-f1-r230-activation-review",
+      "prompt": "Verify exact owner-authorized R230 activation and publish independent verdict without live action.",
+      "summary": "ACCEPT exact fd4f738a under R2302f22eea9/main04354ecf. Four exact hashes, source/candidate/main ancestry, same-commit auth/sample,11 source binds and unchanged history verified. Real production precheck on clean/pushed execution branch passes28 allowlisted read-only Git/manifest commands; WSL0 registry0 writes0;8.295s. Activation mac epoch8 live finiteTTL836.385735. Three plan nodes complete; no source/live changes. Fresh second sample and operational exclusivity remain runtime requirements.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-r230-activation.md",
+        "docs/reviews/r230-activation-probe.py",
+        "docs/plans/windows-gpu-f1-r230-activation-review.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Accept or veto exact R230 activation",
+      "done_when": "Independent activation verdict committed and pushed with clean reviewer branch",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-13T03:20:56Z",
+      "duration_seconds": 139.0,
+      "git": {
+        "sha": "fd4f738ad01f6a4be89c92d844c5ef372c47ea07",
+        "short": "fd4f738ad",
+        "branch": "win/gpu-f1-r230-activation-review",
+        "pushed": null
       }
     }
   ],

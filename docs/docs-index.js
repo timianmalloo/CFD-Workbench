@@ -6402,6 +6402,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "5be493178924de4f4e42c8b92fb382af241883f4e22bcbcacef5d3b589231d2f"
     },
     {
+      "id": "plan-windows-gpu-f1-r230-activation-review",
+      "path": "docs/plans/windows-gpu-f1-r230-activation-review.md",
+      "title": "Exact R230 activation review plan",
+      "type": "doc",
+      "status": "complete",
+      "owner": "@pc-f1-r230-activation-review",
+      "phase": "",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Bounded activation rehash and real read-only precheck, then publication.",
+      "tags": [
+        "review",
+        "cleanup",
+        "activation",
+        "offline"
+      ],
+      "links": [
+        {
+          "to": "review-windows-gpu-f1-r230-activation",
+          "rel": "relates-to"
+        },
+        {
+          "to": "note-windows-gpu-f1-r230-cleanup-request",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "067ae5205b9d7ce1035a48b714db146a28ab1eed38314887334695bc300e7052"
+    },
+    {
       "id": "plan-windows-gpu-f1-r230-cleanup",
       "path": "docs/plans/windows-gpu-f1-r229-cleanup.md",
       "title": "R230 activation-adapted R228 cleanup plan",
@@ -9289,6 +9319,40 @@ window.DOCS_INDEX = {
       "sourceSha256": "9c97341e926da4a63a3fbe4a14a6e8ca0a82310c24c4ace42b2bbe02e63eda7c"
     },
     {
+      "id": "review-windows-gpu-f1-r230-activation",
+      "path": "docs/reviews/windows-gpu-f1-r230-activation.md",
+      "title": "Independent ACCEPT of exact R230 activation fd4f738a",
+      "type": "doc",
+      "status": "accepted",
+      "owner": "@pc-f1-r230-activation-review",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Exact activation fd4f738a accepted under owner R230. Four hashes, same-commit authority/sample, ancestry and the real read-only production precheck pass.",
+      "tags": [
+        "windows",
+        "cleanup",
+        "activation",
+        "independent-review"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r229-cleanup-candidate",
+          "rel": "depends-on"
+        },
+        {
+          "to": "note-windows-gpu-f1-r230-cleanup-request",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r228-attempt1-failure",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a96232ea5eaf435eac428ea91b0064dfe03d4dd1336b0a6d440d2612a5816f73"
+    },
+    {
       "id": "rulings",
       "path": "docs/notes/rulings.md",
       "title": "Rulings — the Owner seat's numbered decisions (the only definition site)",
@@ -9312,7 +9376,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2845c682ea00b39d9ed9e6730de89862c707d86396e703a0af23876d4c6bd460"
+      "sourceSha256": "a21cacc742cbcd98137064ffc0405cca1d3f00c22481a5f75bf8fe2928d55fee"
     },
     {
       "id": "kb-hw-glossary",
@@ -22392,5 +22456,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "c739b09e47ff1104ec737447912419b76ebc78a610701beb27e395155ba054cf"
+  "graphSha256": "36ba5a5fda31fdd021bf2c6a1ce31546c913d850f58ad140a2218c2975ab0346"
 };
