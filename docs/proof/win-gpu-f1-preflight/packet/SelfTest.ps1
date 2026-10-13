@@ -1,5 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $freshAttempt = $false # Legacy cleanup fixture; fresh-attempt controls have their own sentinel suite.
+$attemptNumber = 1 # Explicit legacy context for AST-loaded production cleanup.
 $script:CreatedTargetKey = ''
 Set-StrictMode -Version Latest
 $testClock = [Diagnostics.Stopwatch]::StartNew()

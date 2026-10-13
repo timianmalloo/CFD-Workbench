@@ -1,5 +1,5 @@
 # Pure host control functions. The offline SelfTest.ps1 exercises failure and deadline paths.
-function Get-GuardAgeSeconds([object]$Timestamp, [DateTimeOffset]$Now) {
+function ConvertTo-EvidenceUtc([object]$Timestamp) {
     if ($Timestamp -is [DateTimeOffset]) {
         $sample = ([DateTimeOffset]$Timestamp).ToUniversalTime()
     } elseif ($Timestamp -is [DateTime]) {
@@ -11,7 +11,10 @@ function Get-GuardAgeSeconds([object]$Timestamp, [DateTimeOffset]$Now) {
         $sample = [DateTimeOffset]::Parse($Timestamp, [Globalization.CultureInfo]::InvariantCulture,
             [Globalization.DateTimeStyles]::RoundtripKind).ToUniversalTime()
     } else { throw 'guard timestamp has unsupported type' }
-    return ($Now.ToUniversalTime() - $sample).TotalSeconds
+    return $sample
+}
+function Get-GuardAgeSeconds([object]$Timestamp, [DateTimeOffset]$Now) {
+    return ($Now.ToUniversalTime() - (ConvertTo-EvidenceUtc $Timestamp)).TotalSeconds
 }
 
 function Get-ChildWaitSeconds([double]$Elapsed, [double]$StageStart, [double]$StageCap,
@@ -69,6 +72,17 @@ function Invoke-Finalization(
 }
 function Get-InvocationRunRoot([object]$ContractData, [string]$RepoRoot, [string]$RunId, [string]$AgentSession) {
     if ($null -eq $ContractData.psobject.Properties['attempt']) { return (Join-Path $RepoRoot 'docs\proof\win-gpu-f1-preflight\run-1') }
+    if ($ContractData.attempt -is [int] -or $ContractData.attempt -is [long]) {
+        if ($ContractData.attempt -eq 2) {
+            if (($ContractData.leader_epoch -isnot [int] -and $ContractData.leader_epoch -isnot [long]) -or
+                $ContractData.leader_epoch -le 0 -or $ContractData.leader -cne 'mac' -or
+                $ContractData.execution_branch -cne 'win/gpu-f1-attempt2' -or
+                $ContractData.session -cne 'pc-f1-attempt2' -or $AgentSession -cne $ContractData.session -or
+                $ContractData.run_id -cne $RunId -or $RunId -cnotmatch '^f1-attempt2-[0-9]{8}$' -or
+                $ContractData.run_root -cne 'docs/proof/win-gpu-f1-preflight/attempt-2') { throw 'attempt-2 binding differs' }
+            return (Join-Path $RepoRoot 'docs\proof\win-gpu-f1-preflight\attempt-2')
+        }
+    }
     if ($ContractData.attempt -ne 1 -or $ContractData.leader_epoch -ne 8 -or
         $ContractData.execution_branch -cne 'win/gpu-f1-r225-attempt1' -or
         $ContractData.session -cne 'pc-f1-r225-attempt1' -or $AgentSession -cne $ContractData.session -or
@@ -79,7 +93,7 @@ function Get-InvocationRunRoot([object]$ContractData, [string]$RepoRoot, [string
     return (Join-Path $RepoRoot 'docs\proof\win-gpu-f1-preflight\attempt-1')
 }
 
-function Get-BoundTargetKey([object[]]$Registration, [string]$TargetPath, [string]$ExpectedKey = '') {
+function Get-BoundTargetKey([object[]]$Registration, [string]$TargetPath, [string]$ExpectedKey = '', [int]$AttemptNumber = 1) {
     if ($Registration.Count -ne 1) { throw 'exactly one target registration required' }
     $row = $Registration[0]
     $key = [string]$row.PSChildName
@@ -88,17 +102,19 @@ function Get-BoundTargetKey([object[]]$Registration, [string]$TargetPath, [strin
         ([string]$row.BasePath).Replace('\\?\', '').TrimEnd('\') -ine $TargetPath -or
         $key -ieq '{b7566a82-9cee-47ce-a246-f83632353cea}' -or
         $key -ieq '{e958c4d5-ae78-4b50-a634-7102f334d3aa}' -or
+        ($AttemptNumber -eq 2 -and $key -ieq '{e874e10f-c7b9-4a2b-a03b-87ad52fb9c41}') -or
         ($ExpectedKey -and $key -ine $ExpectedKey)) { throw 'created target GUID/path binding changed' }
     return $key
 }
 
-function Assert-FreshRegistrations([object[]]$Rows, [string[]]$Names, [bool]$PathPresent) {
+function Assert-FreshRegistrations([object[]]$Rows, [string[]]$Names, [bool]$PathPresent, [int]$AttemptNumber = 1) {
     if ($PathPresent -or $Names -ccontains 'cfdw-petsc-cuda132-f1') { throw 'fresh target name/path absence unproved' }
     $protected = @()
     $expectedPath = [Environment]::ExpandEnvironmentVariables('%USERPROFILE%\AppData\Local\CFDWorkbench\qualification\wsl\cfdw-openfoam2512')
     foreach ($row in $Rows) {
         if ($row.DistributionName -ceq 'cfdw-petsc-cuda132-f1' -or
             $row.PSChildName -ieq '{e958c4d5-ae78-4b50-a634-7102f334d3aa}' -or
+            ($AttemptNumber -eq 2 -and $row.PSChildName -ieq '{e874e10f-c7b9-4a2b-a03b-87ad52fb9c41}') -or
             ([string]$row.BasePath).Replace('\\?\', '').TrimEnd('\') -ieq 'C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1') {
             throw 'fresh target registration/GUID/path absence unproved'
         }
@@ -112,5 +128,47 @@ function Assert-FreshRegistrations([object[]]$Rows, [string[]]$Names, [bool]$Pat
         $protected[0].PSChildName -ine '{b7566a82-9cee-47ce-a246-f83632353cea}' -or $protected[0].Version -ne 2 -or
         ([string]$protected[0].BasePath).Replace('\\?\', '').TrimEnd('\') -ine $expectedPath) {
         throw 'protected GUID/name/path/version differs'
+    }
+}
+
+function Assert-AttemptLeader([object]$Sample, [long]$Epoch) {
+    $ttl=$Sample.expires_in
+    if ($Sample.leader -cne 'mac' -or $Sample.state -cne 'live' -or
+        ($Sample.epoch -isnot [int] -and $Sample.epoch -isnot [long]) -or $Sample.epoch -ne $Epoch -or
+        ($ttl -isnot [double] -and $ttl -isnot [int] -and $ttl -isnot [long] -and $ttl -isnot [decimal]) -or
+        [double]::IsNaN([double]$ttl) -or [double]::IsInfinity([double]$ttl) -or $ttl -lt 200 -or
+        $Sample.oid -cnotmatch '^[a-f0-9]{40}$') { throw 'F1-LEADER-REFUSED: exact live epoch and finite TTL >=200 required' }
+}
+
+function Get-ProcessCreationUtc([object]$Value) {
+    if ($Value -is [DateTimeOffset]) { return $Value.ToUniversalTime().ToString('o') }
+    if ($Value -is [DateTime] -and $Value.Kind -ne [DateTimeKind]::Unspecified) {
+        return ([DateTimeOffset]$Value).ToUniversalTime().ToString('o')
+    }
+    throw 'F1-PROCESS-IDENTITY-REFUSED: creation time is not an offset-bearing timestamp'
+}
+
+function Assert-AttemptExclusivity([object[]]$Processes, [object[]]$Owned, [string]$ProtectedKey) {
+    $parent=@($Processes | Where-Object {$_.ProcessId -eq 19296})
+    $child=@($Processes | Where-Object {$_.ProcessId -eq 3524})
+    if ($ProtectedKey -cne '{b7566a82-9cee-47ce-a246-f83632353cea}' -or $parent.Count -ne 1 -or $child.Count -ne 1 -or
+        $parent[0].ParentProcessId -ne 15528 -or $child[0].ParentProcessId -ne 19296 -or $parent[0].Name -cne 'wsl.exe' -or $child[0].Name -cne 'wsl.exe' -or
+        $parent[0].CommandLine -cne '"C:\WINDOWS\System32\wsl.exe" -d cfdw-openfoam2512 -u root -- /usr/bin/sleep infinity' -or
+        $child[0].CommandLine -cne $parent[0].CommandLine -or
+        (Get-ProcessCreationUtc $child[0].CreationDate) -cne '2026-10-08T17:02:23.2168250+00:00' -or
+        (Get-ProcessCreationUtc $parent[0].CreationDate) -cne '2026-10-08T17:02:23.1776050+00:00') {
+        throw 'F1-EXCLUSIVITY-REFUSED: exact protected keepalive identity unavailable'
+    }
+    foreach ($row in $Processes) {
+        if ($row.ProcessId -in @(19296,3524)) { continue }
+        # Host services/VM infrastructure are not user launchers. Include shells whose command invokes WSL.
+        $actor=$row.Name -imatch '^(wsl|bash|ubuntu(?:[0-9.]*)|debian|kali)\.exe$' -or
+            ([string]$row.CommandLine -imatch '(?:^|[\\\s"''])wsl(?:\.exe)?(?:[\s"'']|$)')
+        if (-not $actor) { continue }
+        $bound=@($Owned | Where-Object {$_.pid -eq $row.ProcessId})
+        if ($bound.Count -ne 1 -or $bound[0].command -cne $row.CommandLine -or
+            $bound[0].created_utc -cne (Get-ProcessCreationUtc $row.CreationDate)) {
+            throw 'F1-EXCLUSIVITY-REFUSED: additional or changed WSL actor'
+        }
     }
 }

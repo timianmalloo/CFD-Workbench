@@ -12,6 +12,7 @@ $definition=$ast.Find({param($node) $node -is [Management.Automation.Language.Fu
 Invoke-Expression $definition.Extent.Text
 $Target='cfdw-petsc-cuda132-f1'; $Protected='cfdw-openfoam2512'
 $TargetPath='C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1'; $freshAttempt=$true
+$attemptNumber=1 # Historical fixture retains the attempt-1 identity policy.
 $script:CreatedTargetKey='{11111111-2222-3333-4444-555555555555}'
 $protectedRow=[pscustomobject]@{DistributionName=$Protected;PSChildName='{b7566a82-9cee-47ce-a246-f83632353cea}';Version=2;BasePath=[Environment]::ExpandEnvironmentVariables('%USERPROFILE%\AppData\Local\CFDWorkbench\qualification\wsl\cfdw-openfoam2512');PSPath='protected'} # machine-path-ok: synthetic fixture expansion; no expanded value is captured.
 $survivor=[pscustomobject]@{DistributionName='renamed-survivor';PSChildName=$script:CreatedTargetKey;Version=2;BasePath='C:\Projects\moved-survivor';PSPath='survivor'}

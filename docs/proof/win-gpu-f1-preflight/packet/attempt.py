@@ -3,15 +3,26 @@
 from __future__ import annotations
 import hashlib
 import json
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import re
 import subprocess
 import contract
 
 PREFIX = 'docs/proof/win-gpu-f1-preflight'
 EXTERNAL = PREFIX + '/recovery/check_cache.py'
+COORDINATOR = 'docs/ai-forward-pack/scripts/coord-core.py'
 PROTECTED_KEY = '{b7566a82-9cee-47ce-a246-f83632353cea}'
 OLD_TARGET_KEY = '{e958c4d5-ae78-4b50-a634-7102f334d3aa}'
+RETIRED_TARGET_KEYS = [OLD_TARGET_KEY, '{e874e10f-c7b9-4a2b-a03b-87ad52fb9c41}']
+KEEPALIVE_COMMAND = r'"C:\WINDOWS\System32\wsl.exe" -d cfdw-openfoam2512 -u root -- /usr/bin/sleep infinity'
+KEEPALIVE = dict(pid=19296, parent_pid=15528, name='wsl.exe', child_pid=3524, child_parent_pid=19296,
+    created_local='2026-10-08T10:02:23.1776050-07:00',
+    child_name='wsl.exe', child_created_local='2026-10-08T10:02:23.2168250-07:00',
+    command=KEEPALIVE_COMMAND, child_command=KEEPALIVE_COMMAND,
+    protected_key=PROTECTED_KEY)
+RENEWAL_EVIDENCE = ['leader-activation.json', 'leader-immediately-pre-live.json',
+    'leader-renew-start.json', 'leader-renew-events.jsonl', 'leader-renew.stderr.txt', 'leader-renew-exit.json',
+    'keepalive-activation.json', 'keepalive-immediately-pre-live.json', 'keepalive-finalization.json']
 PROTECTED_PATH = r'%USERPROFILE%\AppData\Local\CFDWorkbench\qualification\wsl\cfdw-openfoam2512'
 INPUT_HASHES = {
     'rootfs': contract.ROOTFS,
@@ -40,14 +51,32 @@ FORBIDDEN = ['dpkg-install', 'apt-install', 'petsc-source-fetch', 'petsc4foam-so
 
 def check_binding(document, run_id=None):
     number = document.get('attempt')
-    if type(number) is not int or number != 1:
-        raise ValueError('only reviewed attempt 1 is admitted')
+    if type(number) is not int or number not in (1, 2):
+        raise ValueError('only reviewed attempt 1 or 2 is admitted')
     expected = dict(leader='mac', leader_epoch=8, execution_branch=f'win/gpu-f1-r225-attempt{number}',
                     session=f'pc-f1-r225-attempt{number}', run_root=f'{PREFIX}/attempt-{number}')
+    pattern = f'r225-attempt{number}-epoch8-[0-9]{{8}}'
+    if number == 2:
+        epoch = document.get('leader_epoch')
+        if type(epoch) is not int or epoch <= 0:
+            raise ValueError('attempt-2 epoch must be a positive integer')
+        expected.update(leader_epoch=epoch, execution_branch='win/gpu-f1-attempt2', session='pc-f1-attempt2')
+        pattern = r'f1-attempt2-[0-9]{8}'
+        worktree = document.get('execution_worktree', '')
+        if (not isinstance(worktree, str) or not PureWindowsPath(worktree).is_absolute() or
+                str(PureWindowsPath(worktree)) != worktree or '..' in PureWindowsPath(worktree).parts or
+                any(ord(char) < 32 for char in worktree)):
+            raise ValueError('attempt-2 execution worktree must be explicit and canonical')
+        if worktree.lower().endswith('cfd-workbench-win-gpu-f1-r225-attempt1'):
+            raise ValueError('attempt-1 execution worktree is retired')
+        for key, name in (('b2_lock', 'package-lock.json'), ('b2_licenses', 'license-map.json')):
+            path = str(PureWindowsPath(worktree) / 'docs/proof/win-gpu-b2' / name)
+            if document.get('inputs', {}).get(key, {}).get('path') != path:
+                raise ValueError('attempt-2 B2 input path differs from execution worktree')
     for key, value in expected.items():
         if document.get(key) != value:
             raise ValueError('attempt binding changed: ' + key)
-    if not re.fullmatch(f'r225-attempt{number}-epoch8-[0-9]{{8}}', document.get('run_id', '')):
+    if not re.fullmatch(pattern, document.get('run_id', '')):
         raise ValueError('fresh attempt run identity required')
     if run_id is not None and run_id != document['run_id']:
         raise ValueError('invoked RunId differs from reviewed attempt')
@@ -58,15 +87,16 @@ def check_binding(document, run_id=None):
             raise ValueError('accepted input hash changed: ' + key)
     if document.get('allowed_signers') != SIGNERS:
         raise ValueError('exact accepted signer allowlists required')
-    if set(document.get('external_sha256', {})) != {EXTERNAL}:
+    external = {EXTERNAL, COORDINATOR} if number == 2 else {EXTERNAL}
+    if set(document.get('external_sha256', {})) != external:
         raise ValueError('external deletion helper binding required')
-    if not contract.SHA.fullmatch(document['external_sha256'][EXTERNAL]):
+    if any(not contract.SHA.fullmatch(value) for value in document['external_sha256'].values()):
         raise ValueError('external helper digest invalid')
 
 
-def authorization(document, contract_sha, accepted=False):
+def authorization(document, contract_sha, accepted=False, ruling=None):
     number = document['attempt']
-    return dict(schema='cfdw-f1-preflight-authorization/1', status='accepted' if accepted else 'proposed',
+    value = dict(schema='cfdw-f1-preflight-authorization/1', status='accepted' if accepted else 'proposed',
                 requested_ruling=228, ruling=228 if accepted else None,
                 attempt=number, leader='mac', leader_epoch=8, source_commit=document['accepted_packet_commit'],
                 run_id=document['run_id'], session=document['session'], execution_branch=document['execution_branch'],
@@ -80,6 +110,16 @@ def authorization(document, contract_sha, accepted=False):
                 attempt_count=1, failure_policy='stop; immutable failure receipt; no next attempt without its own ruling',
                 prerequisites=['live-mac-epoch8', 'exclusive-PC', 'continuous-PC-side-leader-renewal',
                                'target-name-registration-path-absent-before-creation', 'bind-new-GUID-for-rollback'])
+    if number == 2:
+        if type(ruling) is not int or ruling <= 0:
+            raise ValueError('attempt-2 authorization ruling must be a positive integer')
+        value.update(requested_ruling=ruling, ruling=ruling if accepted else None,
+                     leader_epoch=document['leader_epoch'], execution_worktree=document['execution_worktree'],
+                     target_previous_keys=RETIRED_TARGET_KEYS, keepalive=KEEPALIVE,
+                     minimum_leader_ttl_seconds=200, renewal_evidence=RENEWAL_EVIDENCE)
+        del value['target_previous_key']
+        value['prerequisites'][0] = 'live-mac-contract-epoch-two-fresh-samples-at-least-200s'
+    return value
 
 
 def check_authorization(value, document, contract_sha, proposed=False):
@@ -88,20 +128,24 @@ def check_authorization(value, document, contract_sha, proposed=False):
     accepted = value.get('status') == 'accepted'
     if not accepted and not proposed:
         raise ValueError('proposed authorization cannot admit live work')
-    if value != authorization(document, contract_sha, accepted=accepted):
+    ruling = value.get('ruling') if accepted else value.get('requested_ruling')
+    if value != authorization(document, contract_sha, accepted=accepted, ruling=ruling):
         raise ValueError('attempt authorization source/run/hash/scope differs from exact contract')
 
 
 def check_ruling(text, value, sha):
     number = value['ruling']
+    if type(number) is not int or number <= 0:
+        raise ValueError('accepted ruling must be a positive integer')
     match = re.search(rf'^### Ruling {number} [^\n]*\n(.*?)(?=^### Ruling |\Z)', text, re.M | re.S)
     if not match:
         raise ValueError('accepted attempt ruling missing on main')
     body = match.group(1)
     required = ['ACCEPT ONE PREFLIGHT ATTEMPT', value['contract_path'], value['contract_sha256'],
                 value['source_commit'], value['run_id'], value['session'], value['execution_branch'],
-                'epoch 8', sha, value['run_root'] + '/attempt-authorization.json']
-    if any(token not in body for token in required) or re.search(r'\bPROPOSED\b', body):
+                f"epoch {value['leader_epoch']}", sha, value['run_root'] + '/attempt-authorization.json']
+    exact_epoch = re.search(rf"\bepoch {value['leader_epoch']}(?![0-9.])\b", body)
+    if any(token not in body for token in required) or re.search(r'\bPROPOSED\b', body) or not exact_epoch:
         raise ValueError('main ruling does not accept exact attempt bytes/bindings')
 
 

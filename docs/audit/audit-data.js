@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T19:54:18Z",
+  "generated": "2026-10-13T20:19:45Z",
   "audit": [
     {
       "actor": null,
@@ -38757,6 +38757,60 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-13T19:53:06Z",
       "duration_seconds": 72.0
+    },
+    {
+      "id": "al-01M4VEGMM3MP4R7GDQETTXC5RT",
+      "shortname": "f1-attempt2-offline-admission",
+      "datetime": "2026-10-13T20:15:57Z",
+      "session": "pc-f1-attempt2-admission",
+      "prompt": "Ruling 234 is joined on origin/main exact dc3e0752f04c3b8f680bc8738ef2e7fea4d5f0df. Start the approved OFFLINE source update as Astra owner. Create a NEW worktree/branch from exact dc3e0752; branch name must not include a ruling number. Implement red-first and smallest exact scope: attempt-2 admission; verifier reads the future live ruling number from authorization (never constant and no prose citation before it exists); reject both retired target GUIDs e958... and e874... on every lifecycle/absence/binding path; code-enforce finite leader TTL >=200 seconds using machine-readable leader state; attempt-2 capture attrs; new execution-worktree B2 paths; committed renewal-supervisor evidence contract; preserve PR36 helper/reader controls on every lifecycle path; carry the exact R233 keepalive exception identity only and refuse any other WSL-touching session. Epoch is contract-selected and may be reused/reclaimed; no hard-coded epoch 8. Preserve attempt-1 historical behavior/evidence bytes and conservation tests. No WSL, registry, lifecycle, lease mutation, preflight, or full ring. Use up to 2 repair cycles. Run the focused offline ring, docs checks, audit, independent review boundary; commit/push and report exact candidate. Do not open or merge PR yourself; parent coordinates GitHub.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [
+        "offline"
+      ],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4VEQJR9WG44N00TDK5JSHNB",
+      "shortname": "f1-attempt2-admission-source",
+      "datetime": "2026-10-13T20:19:45Z",
+      "session": "pc-f1-attempt2-admission",
+      "prompt": "Ruling 234 is joined on origin/main exact dc3e0752f04c3b8f680bc8738ef2e7fea4d5f0df. Start the approved OFFLINE source update as Astra owner. Create a NEW worktree/branch from exact dc3e0752; branch name must not include a ruling number. Implement red-first and smallest exact scope: attempt-2 admission; verifier reads the future live ruling number from authorization (never constant and no prose citation before it exists); reject both retired target GUIDs e958... and e874... on every lifecycle/absence/binding path; code-enforce finite leader TTL >=200 seconds using machine-readable leader state; attempt-2 capture attrs; new execution-worktree B2 paths; committed renewal-supervisor evidence contract; preserve PR36 helper/reader controls on every lifecycle path; carry the exact R233 keepalive exception identity only and refuse any other WSL-touching session. Epoch is contract-selected and may be reused/reclaimed; no hard-coded epoch 8. Preserve attempt-1 historical behavior/evidence bytes and conservation tests. No WSL, registry, lifecycle, lease mutation, preflight, or full ring. Use up to 2 repair cycles. Run the focused offline ring, docs checks, audit, independent review boundary; commit/push and report exact candidate. Do not open or merge PR yourself; parent coordinates GitHub.",
+      "summary": "Implemented R234 offline attempt-2 admission and one bounded safety repair batch. Shared full authorization; exact epoch/ref CAS renewal and owner identity; fresh startup; finite TTL; retired GUID refusal; exact keepalive samples and nine validated receipt inputs; bounded rollback. Independent ACCEPT binds source diff SHA256 5482e3d1e91c4ff8df0bcd28e3e5ce3770016cd108ccad7efd3e7de1409340e3 (109632 bytes), base 4e168c05. Python 115/115 PASS in 23.110s; both PowerShell runtimes PASS; docs/graph/portable/authority/import gates PASS. Parent-observed read-only CIM evidence at 2026-10-13T19:56:27.8083144Z is explicitly attributed in proof. No WSL, registry, lifecycle, lease mutation, preflight, full ring or PR action. Candidate ready for commit/push; Mac live contract/ruling remains unresolved.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": "Astra-owner",
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/attempt-2/admission-proof.md"
+      ],
+      "tags": [
+        "offline",
+        "f1"
+      ],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Produce the R234-authorized offline attempt-2 source candidate without live effects.",
+      "done_when": "Exact source is independently accepted, focused tests and docs pass, audit is committed, and the branch is pushed for parent coordination.",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true
+      },
+      "started_at": "2026-10-13T19:42:18Z",
+      "duration_seconds": 2247.0,
+      "git": {
+        "sha": "4e168c05f94ff2f717e69a78d63f7b08773f7561",
+        "short": "4e168c05f",
+        "branch": "win/gpu-f1-attempt2-admission",
+        "pushed": null
+      }
     }
   ],
   "changes": [
