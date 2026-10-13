@@ -1,0 +1,46 @@
+{
+    "schema":  "cfdw-f1-manual-unregister/1",
+    "ruling":  232,
+    "utc":  "2026-10-13T18:02:57.1820073Z",
+    "result":  "MANUAL-UNREGISTER-OK",
+    "notes":  {
+                  "ruling":  233,
+                  "protected_keepalive":  {
+                                                "pid":  19296,
+                                                "child_pid":  3524,
+                                                "wslhost_pid":  7664,
+                                                "created_local":  "2026-10-08T10:02:23.177605-07:00",
+                                                "command":  "wsl.exe -d cfdw-openfoam2512 -u root -- /usr/bin/sleep infinity",
+                                                "protected_distro_key":  "{b7566a82-9cee-47ce-a246-f83632353cea}",
+                                                "present_before":  true,
+                                                "present_after":  true
+                                            }
+              },
+    "target":  {
+                   "name":  "cfdw-petsc-cuda132-f1",
+                   "key":  "{e874e10f-c7b9-4a2b-a03b-87ad52fb9c41}",
+                   "base_path":  "C:\\Projects\\CFD-Workbench-wsl\\cfdw-petsc-cuda132-f1"
+               },
+    "protected":  {
+                      "name":  "cfdw-openfoam2512",
+                      "key":  "{b7566a82-9cee-47ce-a246-f83632353cea}",
+                      "unchanged":  true
+                  },
+    "before":  [
+                   {
+                       "key":  "{b7566a82-9cee-47ce-a246-f83632353cea}",
+                       "name":  "cfdw-openfoam2512",
+                       "base_path":  "\u003cnot recorded\u003e"
+                   },
+                   {
+                       "key":  "{e874e10f-c7b9-4a2b-a03b-87ad52fb9c41}",
+                       "name":  "cfdw-petsc-cuda132-f1",
+                       "base_path":  "C:\\Projects\\CFD-Workbench-wsl\\cfdw-petsc-cuda132-f1"
+                   }
+               ],
+    "after":  {
+                  "key":  "{b7566a82-9cee-47ce-a246-f83632353cea}",
+                  "name":  "cfdw-openfoam2512",
+                  "base_path":  "\u003cnot recorded\u003e"
+              }
+}
