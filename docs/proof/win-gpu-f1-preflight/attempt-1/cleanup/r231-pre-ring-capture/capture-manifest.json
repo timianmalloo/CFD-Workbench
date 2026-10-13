@@ -1,44 +1,43 @@
-[
-  {
-    "name": "analysis-ringenv.log",
-    "sourceSha256": "00d00fead6e7e8db2c84cec4e71776cf3d75125e2fc85aff6e3716b9433c1551",
-    "copySha256": "00d00fead6e7e8db2c84cec4e71776cf3d75125e2fc85aff6e3716b9433c1551",
-    "bytes": 7170,
-    "redacted": false
-  },
-  {
-    "name": "controller-shell-ringenv.log",
-    "sourceSha256": "b35471367cbb58968f3a96e7215ef43f9eebe6503a07ca55e858cdc4cb1e0cd1",
-    "copySha256": "b35471367cbb58968f3a96e7215ef43f9eebe6503a07ca55e858cdc4cb1e0cd1",
-    "bytes": 15659,
-    "redacted": false
-  },
-  {
-    "name": "plan-canvas-part2-ringenv.log",
-    "sourceSha256": "b7e7f03b7feaba302ba75ef5c7d1fe28cee3a5575ae3ec9cc466ddd22d98fd8d",
-    "copySha256": "b7e7f03b7feaba302ba75ef5c7d1fe28cee3a5575ae3ec9cc466ddd22d98fd8d",
-    "bytes": 5662,
-    "redacted": false
-  },
-  {
-    "name": "section-editor-part2-ringenv.log",
-    "sourceSha256": "e2552002f1e14a150d027b89d8c8bf8ba5c87a14684d3908fdf5116288f8d329",
-    "copySha256": "e2552002f1e14a150d027b89d8c8bf8ba5c87a14684d3908fdf5116288f8d329",
-    "bytes": 18747,
-    "redacted": false
-  },
-  {
-    "name": "shell-window-part1-ringenv-classify.log",
-    "sourceSha256": "a850a497b2f9005fe5379464dd777571db8fa3166739a6520939e1b674113309",
-    "copySha256": "a850a497b2f9005fe5379464dd777571db8fa3166739a6520939e1b674113309",
-    "bytes": 8985,
-    "redacted": false
-  },
-  {
-    "name": "views-part2-ringenv.log",
-    "sourceSha256": "b15fc42d4ded7778005d670e7fc29aeac645abf67489fe554694140d9377d780",
-    "copySha256": "b15fc42d4ded7778005d670e7fc29aeac645abf67489fe554694140d9377d780",
-    "bytes": 6461,
-    "redacted": false
-  }
-]
+{
+  "algorithm": "SHA-256",
+  "capture_scope": "R231 Desktop ring evidence; canonical committed blob bytes",
+  "source_commit": "2ae90b1717c208e8d42129d5e735b92fa1a04e52",
+  "files": [
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-pre-ring-capture/analysis-ringenv.log",
+      "blob_oid": "34cb465418f0d0fa39ed726dbf1543761af311bd",
+      "bytes": 7065,
+      "sha256": "9671c251000093cd5b31877b166b1109780df9586c651a2d87cef5d64359097c"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-pre-ring-capture/controller-shell-ringenv.log",
+      "blob_oid": "9d04065a50d4945b0c1ae1624cbce6c5d36860db",
+      "bytes": 15384,
+      "sha256": "08b4c34667f0f017fa5d7d496e3e9d01976ceb61af65b85e1d97a7e0e8a211af"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-pre-ring-capture/plan-canvas-part2-ringenv.log",
+      "blob_oid": "83d823c875821b8ada08ce927ba287d8d57e3fce",
+      "bytes": 5565,
+      "sha256": "af017581006c6a1c1b8713860bd904312e09a200a85a767c9905d29d635c2d9b"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-pre-ring-capture/section-editor-part2-ringenv.log",
+      "blob_oid": "4c5938ddbcbf98408399c6240773ccefdefade24",
+      "bytes": 18576,
+      "sha256": "ddb614229503b9f236df46c9ec4a4b22203b6ab67b7a8dbef86a1f79d8e59e89"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-pre-ring-capture/shell-window-part1-ringenv-classify.log",
+      "blob_oid": "a22d148da69644b285d74047b55311ddcb139927",
+      "bytes": 8853,
+      "sha256": "79edba5d339b25b853e719fe55dc5b3c8f6d6d9e8ada539d56f0646669ed511e"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-pre-ring-capture/views-part2-ringenv.log",
+      "blob_oid": "c5d271cad137ad6724b20746a1c5f40e3145f7a4",
+      "bytes": 6349,
+      "sha256": "8ce6800561f8c5dca7a43b7a4e0f2f844e53bc666644b1bb0791f292a8da06d8"
+    }
+  ]
+}

@@ -100,6 +100,24 @@ serial investigation logs are in [`r231-pre-ring-capture`](r231-pre-ring-capture
 The full capture manifest records SHA-256 and byte length for every preserved
 file. The copied output was checked for user-profile paths before commit.
 
+### Original top-level ring receipt — evidence repair cycle 1
+
+The original `tools/run-tests.sh` result was recovered from local Codex session
+telemetry, without rerunning the ring. The structured, PII-safe receipt is
+[`r231-original-ring-telemetry-receipt.json`](r231-original-ring-telemetry-receipt.json).
+It records the telemetry basename, line numbers and event ordinals, timestamps,
+JSON paths, raw-line hashes, wrapper and aggregate-output hashes, observed
+wrapper result (`exit_code: 0`, chunk `a8bd43`, `wall_time_seconds: 13.297008`),
+and only allowlisted suite and verdict lines. The COST-MISS host-category value
+is redacted because it matches the machine hostname; hashes are over the
+unmodified telemetry content.
+
+Both preserved capture manifests were repaired against canonical Git blobs at
+the preceding commit, `2ae90b1717c208e8d42129d5e735b92fa1a04e52`, rather than
+working-tree bytes. The full-ring manifest has 85/85 entries and the serial
+pre-ring manifest has 6/6 entries verified by `git cat-file blob`; each records
+the blob OID, byte count, and SHA-256. The captured log blobs were not changed.
+
 | Suite | Wall | Result | Functional classification |
 |---|---:|---|---|
 | Build | 15 s | exit 0 | Release build passed; three existing AVLN3001 warnings |

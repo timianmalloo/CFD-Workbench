@@ -19151,7 +19151,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6f4d82985df24fc39866179bd25e716e9e66902703961b86da93e9280a8f89b1"
+      "sourceSha256": "de26e834ea5c2cd5fdb1e9e2ffc0afbd5a0a4a761f2f0504bdf2577b8acf7fc2"
     },
     {
       "id": "proof-win-gpu-f1-recovery-integration",
@@ -22454,5 +22454,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "bd5cccaacaeef6ab82b480b9c21e67258940fa040ad97a0c984d06c661b3e1c2"
+  "graphSha256": "388165351a49c6aff22e33d6de983d24defcd90439e0c7dff06c8a4d938e3b1f"
 };

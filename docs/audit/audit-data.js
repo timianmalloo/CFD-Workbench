@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T04:35:12Z",
+  "generated": "2026-10-13T04:50:07Z",
   "audit": [
     {
       "actor": null,
@@ -38307,6 +38307,44 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "5760154f7efff06709d279170f81ddef6a361ce5",
         "short": "5760154f7",
+        "branch": "win/gpu-f1-r231-ring-investigation",
+        "pushed": true
+      }
+    },
+    {
+      "id": "al-01M4SSH86JWG912W3DKHA2DHVD",
+      "shortname": "r231-original-telemetry-receipt",
+      "datetime": "2026-10-13T04:50:03Z",
+      "session": "pc-f1-r231-ring-investigator",
+      "prompt": "Recover the original R231 top-level ring result from the specified Codex telemetry lines without rerunning the ring; repair capture manifests against canonical Git blobs and preserve only allowlisted, PII-safe evidence.",
+      "summary": "Recovered line 763 wrapper (exit 0, chunk a8bd43, wall_time_seconds 13.297008) and line 762 full aggregate. Added the PII-safe receipt with 18 allowlisted verdict lines. Rebuilt capture manifests from commit 2ae90b17 Git blobs and verified 85/85 full-ring and 6/6 serial entries by blob OID, byte count, and SHA-256. Evidence repair cycle 1.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": "Codex",
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-original-ring-telemetry-receipt.json"
+      ],
+      "tags": [
+        "windows",
+        "ring",
+        "proof"
+      ],
+      "outcome": "success",
+      "goal": "Close the evidence provenance gap for the original R231 ring and repair capture manifest hashes without rerunning tests or changing source.",
+      "done_when": "A PII-safe telemetry receipt and both canonical-blob manifests are verified, indexed, committed, and pushed.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-13T04:49:22Z",
+      "duration_seconds": 41.0,
+      "git": {
+        "sha": "2ae90b1717c208e8d42129d5e735b92fa1a04e52",
+        "short": "2ae90b171",
         "branch": "win/gpu-f1-r231-ring-investigation",
         "pushed": true
       }

@@ -1,427 +1,517 @@
-[
-  {
-    "path": "Analysis.part1of3.log",
-    "bytes": 5382,
-    "sha256": "042195E9BF691CF52413A17C858BE3261AC64298625551F377CF269B11B0C2B1"
-  },
-  {
-    "path": "Analysis.part1of3.ms",
-    "bytes": 6,
-    "sha256": "CD3B45E50DF64408A33528BA25BBD0F124402DDF47E2903E10FCA5A51BE0F633"
-  },
-  {
-    "path": "Analysis.part1of3.seconds",
-    "bytes": 3,
-    "sha256": "25D4F2A86DEB5E2574BB3210B67BB24FCC4AFB19F93A7B65A057DAA874A9D18E"
-  },
-  {
-    "path": "Analysis.part2of3.log",
-    "bytes": 8707,
-    "sha256": "EC7CD993F421CB2C89066AC51CD70051F75F7A9C9B7FEA44D8CDEF8DC8851C8C"
-  },
-  {
-    "path": "Analysis.part2of3.ms",
-    "bytes": 6,
-    "sha256": "91EA6F93CD1636C77E5EE40A40236533A6681BACEBE9D2FF1C1CE7EECD87EB6A"
-  },
-  {
-    "path": "Analysis.part2of3.seconds",
-    "bytes": 3,
-    "sha256": "25D4F2A86DEB5E2574BB3210B67BB24FCC4AFB19F93A7B65A057DAA874A9D18E"
-  },
-  {
-    "path": "Analysis.part3of3.log",
-    "bytes": 16659,
-    "sha256": "984311B806E659926DC04B921103738C93BA51982FAC0963B7E25921DF6B5D46"
-  },
-  {
-    "path": "Analysis.part3of3.ms",
-    "bytes": 6,
-    "sha256": "526CEC7E0F78C99E48CFB138F8F2FE18B3EE90210BE6BDDA722888B7C97EDC3C"
-  },
-  {
-    "path": "Analysis.part3of3.seconds",
-    "bytes": 3,
-    "sha256": "25D4F2A86DEB5E2574BB3210B67BB24FCC4AFB19F93A7B65A057DAA874A9D18E"
-  },
-  {
-    "path": "build.ms",
-    "bytes": 6,
-    "sha256": "F930CC02BC3F518886BA898925BC71C0566C6BBB9DEADFD2F53564A9FF9A2A53"
-  },
-  {
-    "path": "capability-rail-recovery.cfdw.json",
-    "bytes": 6564,
-    "sha256": "B14CD8D67208BD30E5480E4FC6EC321680C0F8B0EE222963BFEC67071B4707A7"
-  },
-  {
-    "path": "Cli.log",
-    "bytes": 2489,
-    "sha256": "B51BEE170D3D6FE71E8721E0D4DBA269D49356FD4A977D22B82D7939DD419301"
-  },
-  {
-    "path": "Cli.ms",
-    "bytes": 5,
-    "sha256": "5E088488EB1674B5E69450F541DF62705D7D4A6B9ED0D14F57F9A504DEC68514"
-  },
-  {
-    "path": "Cli.seconds",
-    "bytes": 2,
-    "sha256": "2E6D31A5983A91251BFAE5AEFA1C0A19D8BA3CF601D0E8A706B4CFA9661A6B8A"
-  },
-  {
-    "path": "Core.part1of3.log",
-    "bytes": 21179,
-    "sha256": "6054CEE4CF59115A8C8D04B29E4B478A742EF48E2450B6BA4D93BF15E0FD9185"
-  },
-  {
-    "path": "Core.part1of3.ms",
-    "bytes": 6,
-    "sha256": "59889C69428A8ABB46C8907DA2B1C9FB7ECC08290441A8E238E561F968CA37D6"
-  },
-  {
-    "path": "Core.part1of3.seconds",
-    "bytes": 3,
-    "sha256": "826B6832E45BA17D625DEBC95AE8554E148550B00C05B47FA8F7BE1C555BC83C"
-  },
-  {
-    "path": "Core.part2of3.log",
-    "bytes": 16589,
-    "sha256": "408CA7CC2C093A65CEE344B45A621D9BEE5F213C5B501420B5ACEBDC5E8070A6"
-  },
-  {
-    "path": "Core.part2of3.ms",
-    "bytes": 6,
-    "sha256": "A03BEBB3E6C14FB8A794880EC47E19AE5C92BEEBACFAEC34E4F42AE564A3A64E"
-  },
-  {
-    "path": "Core.part2of3.seconds",
-    "bytes": 3,
-    "sha256": "BD5FA6E75F0DDFCD9FF32E0A2297554CD81188F177F14D7CE416310EFA0B5C77"
-  },
-  {
-    "path": "Core.part3of3.log",
-    "bytes": 14264,
-    "sha256": "0A6155B92F4D7BD60E031596A38D821B618AC4531FE03D2914DF7F95697430F3"
-  },
-  {
-    "path": "Core.part3of3.ms",
-    "bytes": 6,
-    "sha256": "4A9085A23E938AEF13842900D8C284A9925598537242B14BDFAA5EAAB017C2D8"
-  },
-  {
-    "path": "Core.part3of3.seconds",
-    "bytes": 3,
-    "sha256": "461144CCFD56EE3CF0F9A9D80E520C5B872166B23092D5FD838ECBDB46D64DAB"
-  },
-  {
-    "path": "Desktop.log",
-    "bytes": 129816,
-    "sha256": "CEB8CA75A81A1034E2980038FB1A17106C32A5744827EB91D8F60EB039045612"
-  },
-  {
-    "path": "Desktop.ms",
-    "bytes": 7,
-    "sha256": "2D913BC68225B82740F0BF987C9143039C114312B58751642B7E133AFC498ECD"
-  },
-  {
-    "path": "Desktop.seconds",
-    "bytes": 4,
-    "sha256": "CBD91CDBA3348178FA87E56ABD4E1D96506DB346EB2288BE4284B9014A52FD94"
-  },
-  {
-    "path": "python-unittest.out",
-    "bytes": 198,
-    "sha256": "5F23485A006B0CC072165602DD6665DA0234BB18B01622CF492757E2E4260FFF"
-  },
-  {
-    "path": "times.txt",
-    "bytes": 36,
-    "sha256": "F7830371479E8DF436C1BD7A4CB7CD7A1B5C6350965B673D37CFA6EA795F55FB"
-  },
-  {
-    "path": "u2-rail-recovery.cfdw.json",
-    "bytes": 6564,
-    "sha256": "B14CD8D67208BD30E5480E4FC6EC321680C0F8B0EE222963BFEC67071B4707A7"
-  },
-  {
-    "path": "wall.ms",
-    "bytes": 7,
-    "sha256": "5AE49A8150859BC4BFAD20AE5D5078139C16366230D56E93B56C93D68CF34960"
-  },
-  {
-    "path": "comb-prefs-0kp2fuf4.1ug/display/display.json",
-    "bytes": 102,
-    "sha256": "3EAE876D9C956448F7D04D879DF2AF62FDE85AB73C41F11CE97FAD3833A5B38E"
-  },
-  {
-    "path": "comb-prefs-1scipmsy.nfd/display/display.json",
-    "bytes": 102,
-    "sha256": "3EAE876D9C956448F7D04D879DF2AF62FDE85AB73C41F11CE97FAD3833A5B38E"
-  },
-  {
-    "path": "comb-prefs-3isyl5li.0ql/display/display.json",
-    "bytes": 102,
-    "sha256": "3EAE876D9C956448F7D04D879DF2AF62FDE85AB73C41F11CE97FAD3833A5B38E"
-  },
-  {
-    "path": "comb-prefs-brfy1ohv.y0c/display/display.json",
-    "bytes": 102,
-    "sha256": "3EAE876D9C956448F7D04D879DF2AF62FDE85AB73C41F11CE97FAD3833A5B38E"
-  },
-  {
-    "path": "comb-prefs-enf41elu.ys5/display/display.json",
-    "bytes": 102,
-    "sha256": "3EAE876D9C956448F7D04D879DF2AF62FDE85AB73C41F11CE97FAD3833A5B38E"
-  },
-  {
-    "path": "comb-prefs-fowgcicf.hqd/display/display.json",
-    "bytes": 102,
-    "sha256": "3EAE876D9C956448F7D04D879DF2AF62FDE85AB73C41F11CE97FAD3833A5B38E"
-  },
-  {
-    "path": "comb-prefs-ir4hh4xh.li5/display/display.json",
-    "bytes": 102,
-    "sha256": "3EAE876D9C956448F7D04D879DF2AF62FDE85AB73C41F11CE97FAD3833A5B38E"
-  },
-  {
-    "path": "comb-prefs-l13ggwhn.3aa/display/display.json",
-    "bytes": 102,
-    "sha256": "3EAE876D9C956448F7D04D879DF2AF62FDE85AB73C41F11CE97FAD3833A5B38E"
-  },
-  {
-    "path": "comb-prefs-nsmzxrop.itr/display/display.json",
-    "bytes": 102,
-    "sha256": "3EAE876D9C956448F7D04D879DF2AF62FDE85AB73C41F11CE97FAD3833A5B38E"
-  },
-  {
-    "path": "comb-prefs-q52i4zby.5k4/display/display.json",
-    "bytes": 102,
-    "sha256": "3EAE876D9C956448F7D04D879DF2AF62FDE85AB73C41F11CE97FAD3833A5B38E"
-  },
-  {
-    "path": "comb-prefs-w1g3lxwn.kwq/display/display.json",
-    "bytes": 102,
-    "sha256": "3EAE876D9C956448F7D04D879DF2AF62FDE85AB73C41F11CE97FAD3833A5B38E"
-  },
-  {
-    "path": "comb-prefs-zamhf52z.ncd/display/display.json",
-    "bytes": 102,
-    "sha256": "3EAE876D9C956448F7D04D879DF2AF62FDE85AB73C41F11CE97FAD3833A5B38E"
-  },
-  {
-    "path": "library-04a32ae7872e46fab9cde1345df7858d/0000000000000000000000000000000000000000000000000000000000000000.foil",
-    "bytes": 508,
-    "sha256": "1C915B1E9FC714074BD2D1A5DC7989FDBF6E25CFBD113055F2EE73A67F4A5C58"
-  },
-  {
-    "path": "library-57da2a23a1cf4ce0983bd480afa89959/0000000000000000000000000000000000000000000000000000000000000000.foil",
-    "bytes": 1048577,
-    "sha256": "2CB74EDBA754A81D121C9DB6833704A8E7D417E5B13D1A19F4A52F007D644264"
-  },
-  {
-    "path": "library-8c01930c4760483dad559db74b3cef3d/held.foil",
-    "bytes": 2,
-    "sha256": "4674D5929BF80D90D5D455D37BD530CA60BDF6A870C7014D92B529A89C4C4E95"
-  },
-  {
-    "path": "library-dc73628c1af64e5cb4c045215dc146c0/.cfd-writer.claim",
-    "bytes": 1,
-    "sha256": "CA358758F6D27E6CF45272937977A748FD88391DB679CEDA7DC7BF1F005EE879"
-  },
-  {
-    "path": "p1-0d1931752c6c4f078ae7288e7bc0ae02/display/display.json",
-    "bytes": 102,
-    "sha256": "9C84CD918EC63B5F73B20BDE3595A83492221ED47558DA7927FB625B03732D16"
-  },
-  {
-    "path": "p1-194fdab21d4c4829800b7972d90d5712/layout/layout.json",
-    "bytes": 188,
-    "sha256": "7BCEAD8452689B79AEF67C2135F34E787908BB9C3A27273D4F4E78CE88ED5848"
-  },
-  {
-    "path": "p1-27c4c82d22d04280b973808561154d71/display/display.json",
-    "bytes": 102,
-    "sha256": "9C84CD918EC63B5F73B20BDE3595A83492221ED47558DA7927FB625B03732D16"
-  },
-  {
-    "path": "p1-28e7372280f24584a15c0690d20e62d0/display/display.json",
-    "bytes": 102,
-    "sha256": "9C84CD918EC63B5F73B20BDE3595A83492221ED47558DA7927FB625B03732D16"
-  },
-  {
-    "path": "p1-41cbe1e0414d4b32a4ffcb5785233b41/display/display.json",
-    "bytes": 102,
-    "sha256": "9C84CD918EC63B5F73B20BDE3595A83492221ED47558DA7927FB625B03732D16"
-  },
-  {
-    "path": "p1-622e26e2aff74ee1a801f71fa3fb468b/display/display.json",
-    "bytes": 102,
-    "sha256": "9C84CD918EC63B5F73B20BDE3595A83492221ED47558DA7927FB625B03732D16"
-  },
-  {
-    "path": "p1-6760b90903a943768aed0cb83a67c4c9/layout/layout.json",
-    "bytes": 87,
-    "sha256": "57A88BA71B1E78CB6905A0C249A264B012FD985B140498C44D36A2B1262F752B"
-  },
-  {
-    "path": "p1-70614bf315cd4b469c58c419253155cb/display/display.json",
-    "bytes": 1,
-    "sha256": "2B4C342F5433EBE591A1DA77E013D1B72475562D48578DCA8B84BAC6651C3CB9"
-  },
-  {
-    "path": "p1-821f9852c4124352b2ae53792797b24f/layout/.cfd-writer.claim",
-    "bytes": 1,
-    "sha256": "4BF5122F344554C53BDE2EBB8CD2B7E3D1600AD631C385A5D7CCE23C7785459A"
-  },
-  {
-    "path": "p1-9041da09560444468e925a8fb6f698c1/layout/layout.json",
-    "bytes": 1,
-    "sha256": "2B4C342F5433EBE591A1DA77E013D1B72475562D48578DCA8B84BAC6651C3CB9"
-  },
-  {
-    "path": "p1-92ea52db6d9144cfbbd756b72877a648/display/display.json",
-    "bytes": 102,
-    "sha256": "9C84CD918EC63B5F73B20BDE3595A83492221ED47558DA7927FB625B03732D16"
-  },
-  {
-    "path": "p1-98c49c7212ab4952856919194aa51f67/layout/layout.json",
-    "bytes": 3,
-    "sha256": "039058C6F2C0CB492C533B0A4D14EF77CC0F78ABCCCED5287D84A1A2011CFB81"
-  },
-  {
-    "path": "p1-a956543872b6469989b998d544015c0d/display/display.json",
-    "bytes": 102,
-    "sha256": "9C84CD918EC63B5F73B20BDE3595A83492221ED47558DA7927FB625B03732D16"
-  },
-  {
-    "path": "p1-a9b375ecdf8643b0b25b1ac08be50250/recent/recent.json",
-    "bytes": 89,
-    "sha256": "1D462A964F4210262BE9293AC8046C5246969226BDBC0EF3F9FC4F71A73FC3EF"
-  },
-  {
-    "path": "p1-abfa8df30fed478ba3de0b5036323d32/display/display.json",
-    "bytes": 52,
-    "sha256": "D0E5D97E726341C7CB18C3BFB0536C7B5EE3897DEDFB3ECF0C40DF69CFBAE691"
-  },
-  {
-    "path": "p1-b43c00a270dd4d67939eb6827c3ed123/display/display.json",
-    "bytes": 102,
-    "sha256": "9C84CD918EC63B5F73B20BDE3595A83492221ED47558DA7927FB625B03732D16"
-  },
-  {
-    "path": "p1-bbb57660d44b473ab09b111a07ebcc36/layout/layout.json",
-    "bytes": 11,
-    "sha256": "122610D881B411E8520CFECA2E111AED683969B7A6B4BD4274CF4B985B78677F"
-  },
-  {
-    "path": "p1-ca07067fc9b34f56b573a837b40f9292/display/display.json",
-    "bytes": 102,
-    "sha256": "9C84CD918EC63B5F73B20BDE3595A83492221ED47558DA7927FB625B03732D16"
-  },
-  {
-    "path": "p1-cdf8a9f4301c4f2ab07f097b2a55d517/layout/layout.json",
-    "bytes": 857,
-    "sha256": "63A9290FF004340F4B34D7BE82E12AD22C042FC0E18BB87914DF548948D8D6A9"
-  },
-  {
-    "path": "p1-df1307d5dee74336b33a01fe2bb08125/layout/layout.json",
-    "bytes": 3,
-    "sha256": "039058C6F2C0CB492C533B0A4D14EF77CC0F78ABCCCED5287D84A1A2011CFB81"
-  },
-  {
-    "path": "p1-e57633e815384c5ca6333b562777554a/display/display.json",
-    "bytes": 102,
-    "sha256": "9C84CD918EC63B5F73B20BDE3595A83492221ED47558DA7927FB625B03732D16"
-  },
-  {
-    "path": "p1-e59f4e52702944babe3016febe69cf2f/layout/layout.json",
-    "bytes": 70081,
-    "sha256": "88DF73745156BA6F46CD4737B553D7C29B4060D9AB7FF8FDA18EFF770A238E73"
-  },
-  {
-    "path": "p1-f49e89a926fa4e9588afda42bdc0f502/display/display.json",
-    "bytes": 102,
-    "sha256": "9C84CD918EC63B5F73B20BDE3595A83492221ED47558DA7927FB625B03732D16"
-  },
-  {
-    "path": "p1-fb38e66927a2423788956a430704aeeb/display/display.json",
-    "bytes": 67,
-    "sha256": "8943311E67E17DF5CB4BD299790CA82512FC291322536B17375EBDDF32853C97"
-  },
-  {
-    "path": "p1-fed460949a854710b160b2df1346fd13/layout/layout.json",
-    "bytes": 3,
-    "sha256": "039058C6F2C0CB492C533B0A4D14EF77CC0F78ABCCCED5287D84A1A2011CFB81"
-  },
-  {
-    "path": "private/001-fixture.stderr.txt",
-    "bytes": 0,
-    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
-  },
-  {
-    "path": "private/001-fixture.stdout.txt",
-    "bytes": 0,
-    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
-  },
-  {
-    "path": "VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/1/Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll",
-    "bytes": 207160,
-    "sha256": "0BDBB63F408755B02EDDB70B21C7339E62DCC5545083C07F4A131979449DA70D"
-  },
-  {
-    "path": "VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/1/Microsoft.CodeAnalysis.NetAnalyzers.dll",
-    "bytes": 5404936,
-    "sha256": "5596F25B17DD226760205A90FED68D15AA2C9AA33B8803842267EF16F76CB18A"
-  },
-  {
-    "path": "VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/2/Microsoft.Interop.ComInterfaceGenerator.dll",
-    "bytes": 328504,
-    "sha256": "113AE49F48A35133F37662F9490380C36A442944988D1CD287B0200CED9971E9"
-  },
-  {
-    "path": "VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/2/Microsoft.Interop.JavaScript.JSImportGenerator.dll",
-    "bytes": 136968,
-    "sha256": "56B090F39863EF6162B58F4923A5215DF770986B0FFF708AF03800A919707EE4"
-  },
-  {
-    "path": "VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/2/Microsoft.Interop.LibraryImportGenerator.dll",
-    "bytes": 262416,
-    "sha256": "0B7DBDE439331223DE4BE82FDB61A37022A2C2D1D411071DB8805F3663CC8F78"
-  },
-  {
-    "path": "VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/2/Microsoft.Interop.SourceGeneration.dll",
-    "bytes": 463112,
-    "sha256": "6F105D99531E8B74897BB12F2BB4832D433B1932458440C78B227A603DF12218"
-  },
-  {
-    "path": "VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/2/System.Text.Json.SourceGeneration.dll",
-    "bytes": 203568,
-    "sha256": "7318505F8D3964E9B1BD3899E982F64434CCF6D53A955F8DB83A567BEC3FF2C7"
-  },
-  {
-    "path": "VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/2/System.Text.RegularExpressions.Generator.dll",
-    "bytes": 371976,
-    "sha256": "B821A8647F281D4D01C66A3213F2046560E902C9B62E299A597BB88ED51C729C"
-  },
-  {
-    "path": "VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/3/Avalonia.Analyzers.dll",
-    "bytes": 89088,
-    "sha256": "4ABF77121E68354DFF4CB2FA39479EB0671292F258A679ECE8E25EC306EAE362"
-  },
-  {
-    "path": "VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/3/Avalonia.Generators.dll",
-    "bytes": 333312,
-    "sha256": "3C20F3ECD83C94FB5FE936528F92279E3A6651BE7F45F79AC6C1BFCEA9E27EE3"
-  },
-  {
-    "path": "VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/4/CommunityToolkit.Mvvm.CodeFixers.dll",
-    "bytes": 61728,
-    "sha256": "3E44756F2B31C0B5ED73D62470392375A4B6B6B24364AB20E5AFC217440EFF3C"
-  },
-  {
-    "path": "VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/4/CommunityToolkit.Mvvm.SourceGenerators.dll",
-    "bytes": 411432,
-    "sha256": "D9D6EF45B0E26E8AA47ED728177516C6DD94CA61B946383283A27E728437DB43"
-  }
-]
+{
+  "algorithm": "SHA-256",
+  "capture_scope": "R231 Desktop ring evidence; canonical committed blob bytes",
+  "source_commit": "2ae90b1717c208e8d42129d5e735b92fa1a04e52",
+  "files": [
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Analysis.part1of3.log",
+      "blob_oid": "77ed56b774653bb96f1d79a4cd0f8ebc8c68a3fb",
+      "bytes": 5277,
+      "sha256": "844973c4037c09e7570a14207660d589543de974051ba45cdcd31bfe9b856f25"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Analysis.part1of3.ms",
+      "blob_oid": "9e646d33bb2998ecb8b7643dee1bf27532839f89",
+      "bytes": 6,
+      "sha256": "cd3b45e50df64408a33528ba25bbd0f124402ddf47e2903e10fca5a51be0f633"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Analysis.part1of3.seconds",
+      "blob_oid": "b4de3947675361a7770d29b8982c407b0ec6b2a0",
+      "bytes": 3,
+      "sha256": "25d4f2a86deb5e2574bb3210b67bb24fcc4afb19f93a7b65a057daa874a9d18e"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Analysis.part2of3.log",
+      "blob_oid": "72049a2bd3c3767fe9ed764a8633b28d6cdcb173",
+      "bytes": 8544,
+      "sha256": "b355b78b929923b72133d1cfed5c4b0cf801fc8fe64459f401a2c023a9f8215f"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Analysis.part2of3.ms",
+      "blob_oid": "040cabc20bebd3c40eb263d28a0f0ae17bdbb2e3",
+      "bytes": 6,
+      "sha256": "91ea6f93cd1636c77e5ee40a40236533a6681bacebe9d2ff1c1ce7eecd87eb6a"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Analysis.part2of3.seconds",
+      "blob_oid": "b4de3947675361a7770d29b8982c407b0ec6b2a0",
+      "bytes": 3,
+      "sha256": "25d4f2a86deb5e2574bb3210b67bb24fcc4afb19f93a7b65a057daa874a9d18e"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Analysis.part3of3.log",
+      "blob_oid": "ec082e6d3b9693ca5ddf2812f8b0fd0f2cf0e195",
+      "bytes": 16346,
+      "sha256": "bee731fdf818c0d38f512add9206016383b43625f0857ad2862188c8be7cc490"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Analysis.part3of3.ms",
+      "blob_oid": "12ae772458343089ad7405a4bb311471115e6f2d",
+      "bytes": 6,
+      "sha256": "526cec7e0f78c99e48cfb138f8f2fe18b3ee90210be6bdda722888b7c97edc3c"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Analysis.part3of3.seconds",
+      "blob_oid": "b4de3947675361a7770d29b8982c407b0ec6b2a0",
+      "bytes": 3,
+      "sha256": "25d4f2a86deb5e2574bb3210b67bb24fcc4afb19f93a7b65a057daa874a9d18e"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Cli.log",
+      "blob_oid": "5eb082c86b49cd3133ab168c1d3286e5883a2cbf",
+      "bytes": 2445,
+      "sha256": "7ffaa6209b2f21a30ea5d4ffdbaa162bfd1e595478660e055c65172bddc6dbbd"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Cli.ms",
+      "blob_oid": "7c6cfdff7403931de7e55e9057ae5434ddc82937",
+      "bytes": 5,
+      "sha256": "5e088488eb1674b5e69450f541df62705d7d4a6b9ed0d14f57f9a504dec68514"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Cli.seconds",
+      "blob_oid": "ec635144f60048986bc560c5576355344005e6e7",
+      "bytes": 2,
+      "sha256": "2e6d31a5983a91251bfae5aefa1c0a19d8ba3cf601d0e8a706b4cfa9661a6b8a"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Core.part1of3.log",
+      "blob_oid": "04f6d1de40459772b1488642013c6b428badf4d1",
+      "bytes": 20802,
+      "sha256": "ec8cb949e5e3a1c9fd5991241f7517febe539ba128c60bc4257640fd55fba3c2"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Core.part1of3.ms",
+      "blob_oid": "08a64135c4378c32f41dfffff7f78113da56c926",
+      "bytes": 6,
+      "sha256": "59889c69428a8abb46c8907da2b1c9fb7ecc08290441a8e238e561f968ca37d6"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Core.part1of3.seconds",
+      "blob_oid": "39f5b69311da6ebf2dc2d18ebcb0193934caebb3",
+      "bytes": 3,
+      "sha256": "826b6832e45ba17d625debc95ae8554e148550b00c05b47fa8f7be1c555bc83c"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Core.part2of3.log",
+      "blob_oid": "0bfb8e6f6c42131d1954c1293337046ef45cfba6",
+      "bytes": 16352,
+      "sha256": "602354a9cb52a6fcab97613bd1eaedba2e6ee2b0189450d0e5adbab2c0a7b952"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Core.part2of3.ms",
+      "blob_oid": "6373e10d1249286108b7e11e53f2b262717340d7",
+      "bytes": 6,
+      "sha256": "a03bebb3e6c14fb8a794880ec47e19ae5c92beebacfaec34e4f42ae564a3a64e"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Core.part2of3.seconds",
+      "blob_oid": "ea70ce013438b2e42d5297cf39110708d9cfe033",
+      "bytes": 3,
+      "sha256": "bd5fa6e75f0ddfcd9ff32e0a2297554cd81188f177f14d7ce416310efa0b5c77"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Core.part3of3.log",
+      "blob_oid": "76a6f2b0b7319cb9e4f038c972c92fb21e2979a3",
+      "bytes": 14024,
+      "sha256": "35edfb0103875e973608441f85dfcb65ddd902009052a2fa276079428093bae8"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Core.part3of3.ms",
+      "blob_oid": "b70d1c30fe948e3f4eb018a750744cbceaf9a5bc",
+      "bytes": 6,
+      "sha256": "4a9085a23e938aef13842900d8c284a9925598537242b14bdfaa5eaab017c2d8"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Core.part3of3.seconds",
+      "blob_oid": "dd475631baeff3ce652b97d921c1cc43c917b9e2",
+      "bytes": 3,
+      "sha256": "461144ccfd56ee3cf0f9a9d80e520c5b872166b23092d5fd838ecbdb46d64dab"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Desktop.log",
+      "blob_oid": "ba7c7cdb770c2b0e1b0bc63bf3c8d35df1c96c4c",
+      "bytes": 127951,
+      "sha256": "20ba8aa70df1c4944a6d356ad6dbb42291a855c42cee8c9aad29d867f59b75fa"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Desktop.ms",
+      "blob_oid": "b3c1e61facea8c29af0bdac929d05233953a27b4",
+      "bytes": 7,
+      "sha256": "2d913bc68225b82740f0bf987c9143039c114312b58751642b7e133afc498ecd"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/Desktop.seconds",
+      "blob_oid": "3af99eeec11bbfeb1fc5514129c2cd6e97503dbd",
+      "bytes": 4,
+      "sha256": "cbd91cdba3348178fa87e56abd4e1d96506db346eb2288be4284b9014a52fd94"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/1/Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll",
+      "blob_oid": "2859b3c31333a498b96c9494aa53db039de81360",
+      "bytes": 207160,
+      "sha256": "0bdbb63f408755b02eddb70b21c7339e62dcc5545083c07f4a131979449da70d"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/1/Microsoft.CodeAnalysis.NetAnalyzers.dll",
+      "blob_oid": "f59dfe771ccf317a54b2a9951093f21f38c87790",
+      "bytes": 5404936,
+      "sha256": "5596f25b17dd226760205a90fed68d15aa2c9aa33b8803842267ef16f76cb18a"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/2/Microsoft.Interop.ComInterfaceGenerator.dll",
+      "blob_oid": "d8075ac996861f2e05d1aa3b385ff4fabf72d779",
+      "bytes": 328504,
+      "sha256": "113ae49f48a35133f37662f9490380c36a442944988d1cd287b0200ced9971e9"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/2/Microsoft.Interop.JavaScript.JSImportGenerator.dll",
+      "blob_oid": "23abc870783dec43dcab49e77e1866d4ccf22f83",
+      "bytes": 136968,
+      "sha256": "56b090f39863ef6162b58f4923a5215df770986b0fff708af03800a919707ee4"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/2/Microsoft.Interop.LibraryImportGenerator.dll",
+      "blob_oid": "387eea5bcea7447183237afd6f0b6acb17f11ea2",
+      "bytes": 262416,
+      "sha256": "0b7dbde439331223de4be82fdb61a37022a2c2d1d411071db8805f3663cc8f78"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/2/Microsoft.Interop.SourceGeneration.dll",
+      "blob_oid": "96cb64dec3a1798e5bfe373d5ac34fecd393ac29",
+      "bytes": 463112,
+      "sha256": "6f105d99531e8b74897bb12f2bb4832d433b1932458440c78b227a603df12218"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/2/System.Text.Json.SourceGeneration.dll",
+      "blob_oid": "a32ad4b26a30ef67502daaaf5806d4603b4f4c08",
+      "bytes": 203568,
+      "sha256": "7318505f8d3964e9b1bd3899e982f64434ccf6d53a955f8db83a567bec3ff2c7"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/2/System.Text.RegularExpressions.Generator.dll",
+      "blob_oid": "9b0717acf5253ea8bfda62580b6e79f6b1a81041",
+      "bytes": 371976,
+      "sha256": "b821a8647f281d4d01c66a3213f2046560e902c9b62e299a597bb88ed51c729c"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/3/Avalonia.Analyzers.dll",
+      "blob_oid": "26b117a1ffe66effacda29b4dad401aa9922992c",
+      "bytes": 89088,
+      "sha256": "4abf77121e68354dff4cb2fa39479eb0671292f258a679ece8e25ec306eae362"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/3/Avalonia.Generators.dll",
+      "blob_oid": "f1ed7a822dfe6706a2f4b1bd721865d64c16bb9b",
+      "bytes": 333312,
+      "sha256": "3c20f3ecd83c94fb5fe936528f92279e3a6651be7f45f79ac6c1bfcea9e27ee3"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/4/CommunityToolkit.Mvvm.CodeFixers.dll",
+      "blob_oid": "55422f2af5e0802d50eebe4c40575c920e71c3aa",
+      "bytes": 61728,
+      "sha256": "3e44756f2b31c0b5ed73d62470392375a4b6b6b24364ab20e5afc217440eff3c"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/VBCSCompiler/AnalyzerAssemblyLoader/e6db3b0e43f64abb87c4ab1b14f4b438/4/CommunityToolkit.Mvvm.SourceGenerators.dll",
+      "blob_oid": "87390e4e78cdeb51de02ea3b284bb63eabc1dc6d",
+      "bytes": 411432,
+      "sha256": "d9d6ef45b0e26e8aa47ed728177516c6dd94ca61b946383283a27e728437db43"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/build.ms",
+      "blob_oid": "b6bb6df3e76af147c1596736293af940bf34a2b7",
+      "bytes": 6,
+      "sha256": "f930cc02bc3f518886ba898925bc71c0566c6bbb9deadfd2f53564a9ff9a2a53"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/capability-rail-recovery.cfdw.json",
+      "blob_oid": "e2d4d6b2c9a91dba7ace8b69cfda1a02dfd58b46",
+      "bytes": 6564,
+      "sha256": "b14cd8d67208bd30e5480e4fc6ec321680c0f8b0ee222963bfec67071b4707a7"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/comb-prefs-0kp2fuf4.1ug/display/display.json",
+      "blob_oid": "7e896bbd570669bf195ddc7e0b44fcd2cc279c70",
+      "bytes": 102,
+      "sha256": "3eae876d9c956448f7d04d879df2af62fde85ab73c41f11ce97fad3833a5b38e"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/comb-prefs-1scipmsy.nfd/display/display.json",
+      "blob_oid": "7e896bbd570669bf195ddc7e0b44fcd2cc279c70",
+      "bytes": 102,
+      "sha256": "3eae876d9c956448f7d04d879df2af62fde85ab73c41f11ce97fad3833a5b38e"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/comb-prefs-3isyl5li.0ql/display/display.json",
+      "blob_oid": "7e896bbd570669bf195ddc7e0b44fcd2cc279c70",
+      "bytes": 102,
+      "sha256": "3eae876d9c956448f7d04d879df2af62fde85ab73c41f11ce97fad3833a5b38e"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/comb-prefs-brfy1ohv.y0c/display/display.json",
+      "blob_oid": "7e896bbd570669bf195ddc7e0b44fcd2cc279c70",
+      "bytes": 102,
+      "sha256": "3eae876d9c956448f7d04d879df2af62fde85ab73c41f11ce97fad3833a5b38e"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/comb-prefs-enf41elu.ys5/display/display.json",
+      "blob_oid": "7e896bbd570669bf195ddc7e0b44fcd2cc279c70",
+      "bytes": 102,
+      "sha256": "3eae876d9c956448f7d04d879df2af62fde85ab73c41f11ce97fad3833a5b38e"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/comb-prefs-fowgcicf.hqd/display/display.json",
+      "blob_oid": "7e896bbd570669bf195ddc7e0b44fcd2cc279c70",
+      "bytes": 102,
+      "sha256": "3eae876d9c956448f7d04d879df2af62fde85ab73c41f11ce97fad3833a5b38e"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/comb-prefs-ir4hh4xh.li5/display/display.json",
+      "blob_oid": "7e896bbd570669bf195ddc7e0b44fcd2cc279c70",
+      "bytes": 102,
+      "sha256": "3eae876d9c956448f7d04d879df2af62fde85ab73c41f11ce97fad3833a5b38e"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/comb-prefs-l13ggwhn.3aa/display/display.json",
+      "blob_oid": "7e896bbd570669bf195ddc7e0b44fcd2cc279c70",
+      "bytes": 102,
+      "sha256": "3eae876d9c956448f7d04d879df2af62fde85ab73c41f11ce97fad3833a5b38e"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/comb-prefs-nsmzxrop.itr/display/display.json",
+      "blob_oid": "7e896bbd570669bf195ddc7e0b44fcd2cc279c70",
+      "bytes": 102,
+      "sha256": "3eae876d9c956448f7d04d879df2af62fde85ab73c41f11ce97fad3833a5b38e"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/comb-prefs-q52i4zby.5k4/display/display.json",
+      "blob_oid": "7e896bbd570669bf195ddc7e0b44fcd2cc279c70",
+      "bytes": 102,
+      "sha256": "3eae876d9c956448f7d04d879df2af62fde85ab73c41f11ce97fad3833a5b38e"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/comb-prefs-w1g3lxwn.kwq/display/display.json",
+      "blob_oid": "7e896bbd570669bf195ddc7e0b44fcd2cc279c70",
+      "bytes": 102,
+      "sha256": "3eae876d9c956448f7d04d879df2af62fde85ab73c41f11ce97fad3833a5b38e"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/comb-prefs-zamhf52z.ncd/display/display.json",
+      "blob_oid": "7e896bbd570669bf195ddc7e0b44fcd2cc279c70",
+      "bytes": 102,
+      "sha256": "3eae876d9c956448f7d04d879df2af62fde85ab73c41f11ce97fad3833a5b38e"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/library-04a32ae7872e46fab9cde1345df7858d/0000000000000000000000000000000000000000000000000000000000000000.foil",
+      "blob_oid": "68ed44dba99287f206e5d92b03584c850a7235ad",
+      "bytes": 508,
+      "sha256": "1c915b1e9fc714074bd2d1a5dc7989fdbf6e25cfbd113055f2ee73a67f4a5c58"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/library-57da2a23a1cf4ce0983bd480afa89959/0000000000000000000000000000000000000000000000000000000000000000.foil",
+      "blob_oid": "4d435148d93240e4d05d1e03e5fe5b84fe9a7a47",
+      "bytes": 1048577,
+      "sha256": "2cb74edba754a81d121c9db6833704a8e7d417e5b13d1a19f4a52f007d644264"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/library-8c01930c4760483dad559db74b3cef3d/held.foil",
+      "blob_oid": "155aad2fe7a854f44ec110328869e2acd27e6764",
+      "bytes": 2,
+      "sha256": "4674d5929bf80d90d5d455d37bd530ca60bdf6a870c7014d92b529a89c4c4e95"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/library-dc73628c1af64e5cb4c045215dc146c0/.cfd-writer.claim",
+      "blob_oid": "303e398c82e88040b372475614e4fe2888bcbe56",
+      "bytes": 1,
+      "sha256": "ca358758f6d27e6cf45272937977a748fd88391db679ceda7dc7bf1f005ee879"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-0d1931752c6c4f078ae7288e7bc0ae02/display/display.json",
+      "blob_oid": "297ae0ed92e5ccdc721f863976529597de432370",
+      "bytes": 102,
+      "sha256": "9c84cd918ec63b5f73b20bde3595a83492221ed47558da7927fb625b03732d16"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-194fdab21d4c4829800b7972d90d5712/layout/layout.json",
+      "blob_oid": "b1b4eb103b70f916434092766709457352befd52",
+      "bytes": 188,
+      "sha256": "7bcead8452689b79aef67c2135f34e787908bb9c3a27273d4f4e78ce88ed5848"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-27c4c82d22d04280b973808561154d71/display/display.json",
+      "blob_oid": "297ae0ed92e5ccdc721f863976529597de432370",
+      "bytes": 102,
+      "sha256": "9c84cd918ec63b5f73b20bde3595a83492221ed47558da7927fb625b03732d16"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-28e7372280f24584a15c0690d20e62d0/display/display.json",
+      "blob_oid": "297ae0ed92e5ccdc721f863976529597de432370",
+      "bytes": 102,
+      "sha256": "9c84cd918ec63b5f73b20bde3595a83492221ed47558da7927fb625b03732d16"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-41cbe1e0414d4b32a4ffcb5785233b41/display/display.json",
+      "blob_oid": "297ae0ed92e5ccdc721f863976529597de432370",
+      "bytes": 102,
+      "sha256": "9c84cd918ec63b5f73b20bde3595a83492221ed47558da7927fb625b03732d16"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-622e26e2aff74ee1a801f71fa3fb468b/display/display.json",
+      "blob_oid": "297ae0ed92e5ccdc721f863976529597de432370",
+      "bytes": 102,
+      "sha256": "9c84cd918ec63b5f73b20bde3595a83492221ed47558da7927fb625b03732d16"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-6760b90903a943768aed0cb83a67c4c9/layout/layout.json",
+      "blob_oid": "9700ba06067a88bdb96fe740cebf9270059de8c4",
+      "bytes": 87,
+      "sha256": "57a88ba71b1e78cb6905a0c249a264b012fd985b140498c44d36a2b1262f752b"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-70614bf315cd4b469c58c419253155cb/display/display.json",
+      "blob_oid": "501a6bbaf1e2cec78ba2c39f1bd551a43638094b",
+      "bytes": 1,
+      "sha256": "2b4c342f5433ebe591a1da77e013d1b72475562d48578dca8b84bac6651c3cb9"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-821f9852c4124352b2ae53792797b24f/layout/.cfd-writer.claim",
+      "blob_oid": "6b2aaa7640726588bcd3d57e1de4b1315b7f315e",
+      "bytes": 1,
+      "sha256": "4bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-9041da09560444468e925a8fb6f698c1/layout/layout.json",
+      "blob_oid": "501a6bbaf1e2cec78ba2c39f1bd551a43638094b",
+      "bytes": 1,
+      "sha256": "2b4c342f5433ebe591a1da77e013d1b72475562d48578dca8b84bac6651c3cb9"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-92ea52db6d9144cfbbd756b72877a648/display/display.json",
+      "blob_oid": "297ae0ed92e5ccdc721f863976529597de432370",
+      "bytes": 102,
+      "sha256": "9c84cd918ec63b5f73b20bde3595a83492221ed47558da7927fb625b03732d16"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-98c49c7212ab4952856919194aa51f67/layout/layout.json",
+      "blob_oid": "aed2973e4b8a7ff1b30ff5c4751e5a2b38989e74",
+      "bytes": 3,
+      "sha256": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-a956543872b6469989b998d544015c0d/display/display.json",
+      "blob_oid": "297ae0ed92e5ccdc721f863976529597de432370",
+      "bytes": 102,
+      "sha256": "9c84cd918ec63b5f73b20bde3595a83492221ed47558da7927fb625b03732d16"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-a9b375ecdf8643b0b25b1ac08be50250/recent/recent.json",
+      "blob_oid": "e675f7356707bed146b38441bd96285f6e8f4d55",
+      "bytes": 89,
+      "sha256": "1d462a964f4210262be9293ac8046c5246969226bdbc0ef3f9fc4f71a73fc3ef"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-abfa8df30fed478ba3de0b5036323d32/display/display.json",
+      "blob_oid": "96dd9a7f2e3286e03cf2a12352bf26f1b2c665ee",
+      "bytes": 52,
+      "sha256": "d0e5d97e726341c7cb18c3bfb0536c7b5ee3897dedfb3ecf0c40df69cfbae691"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-b43c00a270dd4d67939eb6827c3ed123/display/display.json",
+      "blob_oid": "297ae0ed92e5ccdc721f863976529597de432370",
+      "bytes": 102,
+      "sha256": "9c84cd918ec63b5f73b20bde3595a83492221ed47558da7927fb625b03732d16"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-bbb57660d44b473ab09b111a07ebcc36/layout/layout.json",
+      "blob_oid": "652b5e50fc8b5e599d08bb213ff495ac99260331",
+      "bytes": 11,
+      "sha256": "122610d881b411e8520cfeca2e111aed683969b7a6b4bd4274cf4b985b78677f"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-ca07067fc9b34f56b573a837b40f9292/display/display.json",
+      "blob_oid": "297ae0ed92e5ccdc721f863976529597de432370",
+      "bytes": 102,
+      "sha256": "9c84cd918ec63b5f73b20bde3595a83492221ed47558da7927fb625b03732d16"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-cdf8a9f4301c4f2ab07f097b2a55d517/layout/layout.json",
+      "blob_oid": "6a94e7328f86ddc963915f9a8506698063ca4b12",
+      "bytes": 857,
+      "sha256": "63a9290ff004340f4b34d7be82e12ad22c042fc0e18bb87914df548948d8d6a9"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-df1307d5dee74336b33a01fe2bb08125/layout/layout.json",
+      "blob_oid": "aed2973e4b8a7ff1b30ff5c4751e5a2b38989e74",
+      "bytes": 3,
+      "sha256": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-e57633e815384c5ca6333b562777554a/display/display.json",
+      "blob_oid": "297ae0ed92e5ccdc721f863976529597de432370",
+      "bytes": 102,
+      "sha256": "9c84cd918ec63b5f73b20bde3595a83492221ed47558da7927fb625b03732d16"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-e59f4e52702944babe3016febe69cf2f/layout/layout.json",
+      "blob_oid": "8acd73e281e158f4797ff7f96b2408bcfdf2eead",
+      "bytes": 70081,
+      "sha256": "88df73745156ba6f46cd4737b553d7c29b4060d9ab7ff8fda18eff770a238e73"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-f49e89a926fa4e9588afda42bdc0f502/display/display.json",
+      "blob_oid": "297ae0ed92e5ccdc721f863976529597de432370",
+      "bytes": 102,
+      "sha256": "9c84cd918ec63b5f73b20bde3595a83492221ed47558da7927fb625b03732d16"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-fb38e66927a2423788956a430704aeeb/display/display.json",
+      "blob_oid": "cec512404402c52334cb588e22b1265046de4bed",
+      "bytes": 67,
+      "sha256": "8943311e67e17df5cb4bd299790ca82512fc291322536b17375ebddf32853c97"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/p1-fed460949a854710b160b2df1346fd13/layout/layout.json",
+      "blob_oid": "aed2973e4b8a7ff1b30ff5c4751e5a2b38989e74",
+      "bytes": 3,
+      "sha256": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/private/001-fixture.stderr.txt",
+      "blob_oid": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/private/001-fixture.stdout.txt",
+      "blob_oid": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/python-unittest.out",
+      "blob_oid": "128a7c76a87eb40c823b7ceca167f621cd72fa20",
+      "bytes": 193,
+      "sha256": "2f336a75f3ad463d314eb9a9f39bd1202c841dcdd33fd035526e167d260f6994"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/times.txt",
+      "blob_oid": "d39f577f46a7ffa7567ada2ee7b6b00d7f9a6313",
+      "bytes": 36,
+      "sha256": "f7830371479e8df436c1bd7a4cb7cd7a1b5c6350965b673d37cfa6ea795f55fb"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/u2-rail-recovery.cfdw.json",
+      "blob_oid": "e2d4d6b2c9a91dba7ace8b69cfda1a02dfd58b46",
+      "bytes": 6564,
+      "sha256": "b14cd8d67208bd30e5480e4fc6ec321680c0f8b0ee222963bfec67071b4707a7"
+    },
+    {
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/r231-full-ring-capture/wall.ms",
+      "blob_oid": "6858dc49b6f00a9bcc5a7361f552f638d05de0e6",
+      "bytes": 7,
+      "sha256": "5ae49a8150859bc4bfad20ae5d5078139c16366230d56e93b56c93d68cf34960"
+    }
+  ]
+}

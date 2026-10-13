@@ -1,0 +1,51 @@
+{
+  "receipt_type": "r231-original-ring-telemetry-receipt",
+  "source_file_basename": "rollout-2026-10-12T21-07-51-01a13371-fd53-76a3-bfb5-4e0e7082e37c.jsonl",
+  "source_line_number": 763,
+  "event": {
+    "timestamp_utc": "2026-10-13T04:33:38.622Z",
+    "ordinal": 762,
+    "json_path": "$.payload.output[1].text",
+    "raw_jsonl_line_sha256": "eedfdde1e97053f18301c93aaa5b8f15420dab022b1e95bfe546a2b97d23090a"
+  },
+  "paired_aggregate": {
+    "source_line_number": 762,
+    "timestamp_utc": "2026-10-13T04:33:38.606Z",
+    "ordinal": 761,
+    "json_path": "$.payload.item.aggregated_output",
+    "raw_jsonl_line_sha256": "71b35d75b63622bf4e1a91944ba9ce52fb6757f2b7a02a8141c9073c1228b053",
+    "output_utf8_sha256": "17ca8af2c3ab95d154d1ab521291d03df713a17fe68ee4a0d51f3011d17e1989"
+  },
+  "wrapper": {
+    "text_utf8_sha256": "d9f67ea847524e8601556db79b559169e5d52bdcd16f19bd6da1e3d090545e76",
+    "exit_code": 0,
+    "chunk_id": "a8bd43",
+    "wall_time_seconds": 13.297008,
+    "item_exit_code": 0,
+    "item_status": "completed",
+    "item_duration_seconds": 210.0380908
+  },
+  "allowlisted_verdict_lines": [
+    "== CfdWorkbench.Core.Tests 1/3 71 s (71132 ms), 346 PASS",
+    "EXPECTED-FAIL 9 (manifest)",
+    "== CfdWorkbench.Core.Tests 2/3 72 s (71661 ms), 210 PASS",
+    "EXPECTED-FAIL 7 (manifest)",
+    "== CfdWorkbench.Core.Tests 3/3 76 s (76030 ms), 205 PASS",
+    "EXPECTED-FAIL 11 (manifest)",
+    "== CfdWorkbench.Desktop.Tests 180 s (180337 ms), 776 PASS",
+    "EXPECTED-FAIL 33 (manifest)",
+    "== CfdWorkbench.Analysis.Tests 1/3 11 s (10688 ms), 44 PASS",
+    "== CfdWorkbench.Analysis.Tests 2/3 11 s (10838 ms), 69 PASS",
+    "== CfdWorkbench.Analysis.Tests 3/3 11 s (11159 ms), 146 PASS",
+    "== CfdWorkbench.Cli.Tests 9 s (8577 ms), 18 PASS",
+    "EXPECTED-FAIL 2 (manifest)",
+    "== Python unittest tests/test_*.py, 94 PASS",
+    "test costs: 0 failures, 16 COST-MISS (load 11.70)",
+    "wall 207 s (207380 ms, net 192959 ms) (budget 60 s) cpu 5 s load 13.09 -> 11.70",
+    "COST-MISS TEST-BUDGET 207 s host [redacted]",
+    "all test harnesses passed"
+  ],
+  "redactions": [
+    "The COST-MISS TEST-BUDGET host-category token is replaced with [redacted] because it matches this machine hostname; hashes cover unmodified telemetry text."
+  ]
+}
