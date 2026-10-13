@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T05:02:38Z",
+  "generated": "2026-10-13T05:45:15Z",
   "audit": [
     {
       "actor": null,
@@ -37974,6 +37974,42 @@ window.AUDIT_DATA = {
         "short": "f592c0ca2",
         "branch": "win/gpu-status-r228",
         "pushed": false
+      }
+    },
+    {
+      "id": "al-01M4SWPADRF18AM1WH6VXHHPGZ",
+      "shortname": "win-gpu-r232-status",
+      "datetime": "2026-10-13T05:45:14Z",
+      "session": "pc",
+      "prompt": "Refresh the OpenFOAM GPU status after the independently accepted R232 reader-sharing repair.",
+      "summary": "Updated the status markdown and HTML with reader candidate 70d022bf, Astra ACCEPT 8ee609f3, the green bounded ring, and the remaining Mac-ruling and packet-rebinding gates.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": "coordinator",
+      "artifacts": [
+        "docs/coordination/openfoam-gpu-status-r220.md"
+      ],
+      "tags": [
+        "windows-gpu",
+        "r232"
+      ],
+      "outcome": "success",
+      "goal": "Keep the user-facing OpenFOAM GPU status current with accepted offline blocker repairs.",
+      "done_when": "The markdown and HTML identify both accepted repairs and the exact remaining authorization boundary.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "git": {
+        "sha": "6acb2c7977755229821086b819a9816513f15c97",
+        "short": "6acb2c797",
+        "branch": "win/gpu-status-r228",
+        "pushed": true
       }
     }
   ],

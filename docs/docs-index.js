@@ -5441,14 +5441,14 @@ window.DOCS_INDEX = {
     {
       "id": "coordination-openfoam-gpu-status-r220",
       "path": "docs/coordination/openfoam-gpu-status-r220.md",
-      "title": "OpenFOAM GPU work status after R231 evidence acceptance",
+      "title": "OpenFOAM GPU work status after R232 reader acceptance",
       "type": "doc",
       "status": "blocked",
       "owner": "@pc-gpu-status-r228",
       "phase": "",
       "reviewBy": "2026-10-20",
       "reviewSuggested": [],
-      "summary": "B2 CUDA capability is proved and F1 remains the selected route. The R230 cleanup action failed closed before any terminate or unregister operation. The bounded helper repair and its full Windows ring evidence are independently accepted. The candidate remains review-only and awaits a new exact Mac-leader ruling; no live cleanup is authorized.",
+      "summary": "B2 CUDA capability is proved and F1 remains the selected route. The R230 cleanup action failed closed before any terminate or unregister operation. The bounded cleanup-helper repair, its Windows ring, and the Ruling-229 preflight reader repair are independently accepted. Both candidates remain review-only and await a new exact Mac-leader ruling.",
       "tags": [
         "coordination",
         "windows",
@@ -5457,7 +5457,7 @@ window.DOCS_INDEX = {
         "gpu",
         "cuda",
         "petsc",
-        "ruling-231"
+        "ruling-232"
       ],
       "links": [
         {
@@ -5486,7 +5486,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "586d30944aa471456ac6ec7560fd5509c4325dc23ea123816ec3115fe21b476a"
+      "sourceSha256": "29d902d7d6484798caa80d81a46d565e58b6d03e7d340206c09583209cd83143"
     },
     {
       "id": "defect-classes",
@@ -22140,7 +22140,7 @@ window.DOCS_INDEX = {
     {
       "id": "surface-coordination-openfoam-gpu-status-r220",
       "path": "docs/coordination/openfoam-gpu-status-r220.html",
-      "title": "OpenFOAM GPU status — R231 evidence accepted",
+      "title": "OpenFOAM GPU status — R232 reader accepted",
       "kind": "knowledge-tool",
       "description": "Open an interactive knowledge artifact.",
       "artifactId": "coordination-openfoam-gpu-status-r220"
@@ -22234,5 +22234,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "4ad07b4990bb0d24c3c35c1719ea380aab7e277aa61dae1bd11330d43817775b"
+  "graphSha256": "778044706ee44ab48a32334ec4666c2dfb48fa6669371ba45f9149793527655a"
 };

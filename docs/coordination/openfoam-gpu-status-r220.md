@@ -1,10 +1,10 @@
 ---
 id: coordination-openfoam-gpu-status-r220
-title: "OpenFOAM GPU work status after R231 evidence acceptance"
+title: "OpenFOAM GPU work status after R232 reader acceptance"
 type: doc
 status: blocked
 owner: "@pc-gpu-status-r228"
-tags: [coordination, windows, wsl, openfoam, gpu, cuda, petsc, ruling-231]
+tags: [coordination, windows, wsl, openfoam, gpu, cuda, petsc, ruling-232]
 links:
   - { to: plan-win-openfoam-gpu-qualification, rel: relates-to }
   - { to: proof-win-gpu-b2, rel: depends-on }
@@ -15,13 +15,13 @@ links:
 review-by: "2026-10-20"
 summary: >-
   B2 CUDA capability is proved and F1 remains the selected route. The R230 cleanup action failed closed before any
-  terminate or unregister operation. The bounded helper repair and its full Windows ring evidence are independently
-  accepted. The candidate remains review-only and awaits a new exact Mac-leader ruling; no live cleanup is authorized.
+  terminate or unregister operation. The bounded cleanup-helper repair, its Windows ring, and the Ruling-229 preflight
+  reader repair are independently accepted. Both candidates remain review-only and await a new exact Mac-leader ruling.
 ---
 
-# OpenFOAM GPU work status after R231 evidence acceptance
+# OpenFOAM GPU work status after R232 reader acceptance
 
-**Snapshot:** 2026-10-13 04:59 UTC. Primary Windows checkout and this status branch include `origin/main` at
+**Snapshot:** 2026-10-13 05:44 UTC. Primary Windows checkout and this status branch include `origin/main` at
 `64dbed61`. Mac remains repository leader.
 
 ## Current result
@@ -47,6 +47,11 @@ modes and 15 partitions completed; the other suites and Python 94/94 matched. Bo
 
 The prior HOLD is cleared. The helper is **PREPARED-UNAUTHORIZED**. A new exact Mac-leader ruling is the next gate.
 
+The Ruling-229 preflight reader repair is `70d022bf4369c8cb58888f88e6efba00070f35db`, independently accepted at
+`8ee609f355ce002e59b2d06f459d6f8ff0b0a8f6`. Both live guard-file readers now use explicit `ReadWrite|Delete`
+sharing. PowerShell 5.1 and 7 behavioral probes, reader controls, safe gates 10/10, documentation, and privacy checks
+pass. Exactly the two F1 exceptions were removed from the control; the seven immutable B1/B2 proof entries remain.
+
 ## Stage ledger
 
 | Stage | State | Verified result | Next gate |
@@ -55,10 +60,11 @@ The prior HOLD is cleared. The helper is **PREPARED-UNAUTHORIZED**. A new exact 
 | B1 inventory and guard | Complete | Read-only machine/package inventory and completed-L3 guard evidence accepted. | None. |
 | B2 CUDA capability | Complete and rolled back | CUDA 13.2 managed-memory SAXPY passed on the RTX 3080 Ti Laptop GPU. | None. |
 | F1 design | Selected | PETSc-CUDA plus petsc4Foam and a three-arm benchmark remain the qualification route. | Dependency closure, build, then benchmark rulings. |
-| R228 dependency preflight | Failed closed; attempt 1 consumed | Only probe and repositories ran. | Repair all attempt-1 defects before a separately ruled attempt 2 or 3. |
+| R228 dependency preflight | Failed closed; attempt 1 consumed | Only probe and repositories ran; the reader-sharing repair and capture-byte control are now accepted offline. | Re-bind the repaired packet before a separately ruled attempt 2 or 3. |
 | R230 cleanup-only action | Failed closed; authority consumed | Stopped at owned-stage evidence validation; no terminate or unregister ran. | New exact ruling before any new live action. |
 | Cleanup helper repair | Accepted; review-only | Candidate `37b96e47`; repair cycle cap 2/2 consumed. | Mac leader decides whether and how it may be activated. |
 | Windows ring | Accepted | Desktop 776 pass, 33 expected, 0 unexpected; all child modes and partitions complete. | None for the review-only candidate. |
+| Preflight reader repair | Accepted; review-only | Candidate `70d022bf`; Astra review `8ee609f3`; explicit `ReadWrite|Delete` sharing. | Include it in the Mac leader's next packet/ruling decision. |
 | Exact target cleanup | Not authorized | No post-R230 target-state read or absence proof exists. | Fresh ruling, activation, identity and ownership admission, then exact action if authorized. |
 | PETSc/petsc4Foam build and benchmark | Not run | No build, CFD case, accuracy comparison, or speed-up evidence exists. | Separate authority after dependency preflight succeeds. |
 
@@ -69,7 +75,7 @@ The prior HOLD is cleared. The helper is **PREPARED-UNAUTHORIZED**. A new exact 
 3. If the ruling authorizes cleanup, capture fresh leader activation, exact identity, and ownership admission before the
    first WSL command; execute only the named action and stop on any mismatch.
 4. Commit the cleanup receipt and obtain independent review.
-5. Repair and re-bind every remaining dependency-preflight defect before attempt 2 or 3.
+5. Re-bind the accepted reader repair and capture-byte control into a fresh dependency-preflight packet before attempt 2 or 3.
 6. After dependency closure, request separate build authority for PETSc-CUDA plus petsc4Foam and run the native GAMG,
    PETSc CPU, and PETSc GPU comparison.
 
@@ -84,7 +90,8 @@ and its exact bindings.
 
 **Verified:** B2 CUDA capability and rollback; F1 route selection; R228 stopped after two stages; R230 cleanup stopped
 before terminate/unregister; helper candidate `37b96e47`; corrected evidence `73cf89c6`; independent ACCEPT
-`bc4ba582`; full ring counts and manifest bindings; no new cleanup action was run.
+`bc4ba582`; reader candidate `70d022bf`; reader ACCEPT `8ee609f3`; full ring counts and manifest bindings; no new live
+action was run.
 
 **Inferred:** the loader defect explains the offline helper failure class. Live causation was not observed because the
 failed action stopped before process inspection.

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <title>OpenFOAM GPU status — R231 evidence accepted</title>
+  <title>OpenFOAM GPU status — R232 reader accepted</title>
   <style>
     :root { color-scheme:dark; --ink:#edf4f2; --muted:#9db0ac; --line:#29413d; --bg:#08110f; --panel:#101c19; --ok:#65d39b; --work:#f2c96b; --stop:#ff8b7d; --cyan:#77cbd5; }
     * { box-sizing:border-box; }
@@ -49,14 +49,14 @@
 <body>
 <main>
   <header>
-    <div><div class="eyebrow">CFD-Workbench · Windows GPU lane</div><h1>The cleanup repair is accepted and awaits a new Mac ruling.</h1></div>
-    <div class="stamp">Snapshot<br><strong>13 Oct 2026 · 04:59 UTC</strong><br><span>Main <code>64dbed61</code></span></div>
+    <div><div class="eyebrow">CFD-Workbench · Windows GPU lane</div><h1>The known offline repairs are accepted and await a new Mac ruling.</h1></div>
+    <div class="stamp">Snapshot<br><strong>13 Oct 2026 · 05:44 UTC</strong><br><span>Main <code>64dbed61</code></span></div>
   </header>
 
   <section class="headline" aria-label="Key status">
     <div class="metric"><span class="label">CUDA capability</span><b class="ok">Proved</b><span>13.2 · RTX 3080 Ti</span></div>
     <div class="metric"><span class="label">F1 design</span><b class="ok">Selected</b><span>PETSc-CUDA + petsc4Foam</span></div>
-    <div class="metric"><span class="label">Helper + ring</span><b class="ok">Accepted</b><span>Cycle 2/2 · 0 unexpected</span></div>
+    <div class="metric"><span class="label">Repairs + rings</span><b class="ok">Accepted</b><span>Helper and reader controls</span></div>
     <div class="metric"><span class="label">Live authority</span><b class="work">Pending</b><span>Mac ruling required</span></div>
   </section>
 
@@ -68,7 +68,7 @@
     <div class="step done"><span class="label">Selected</span><strong>F1 design</strong><small>PETSc-CUDA + petsc4Foam; three-arm benchmark defined.</small></div>
     <div class="step closed"><span class="label">Consumed</span><strong>R228 preflight</strong><small>Probe + repositories only; stopped before later stages.</small></div>
     <div class="step closed"><span class="label">Consumed</span><strong>R230 cleanup</strong><small>Failed closed before terminate or unregister.</small></div>
-    <div class="step done"><span class="label">Accepted</span><strong>Repair + ring</strong><small>Helper 13/13; Desktop 776 pass, 0 unexpected.</small></div>
+    <div class="step done"><span class="label">Accepted</span><strong>Repairs + rings</strong><small>Cleanup helper and preflight readers independently accepted.</small></div>
     <div class="step active"><span class="label">Waiting</span><strong>Mac ruling</strong><small>Fresh authority and bindings required before live work.</small></div>
   </div>
 
@@ -80,7 +80,8 @@
         <li>The R230 cleanup stopped before any terminate or unregister operation.</li>
         <li>Final helper candidate <code>37b96e47</code> refuses missing, file, and unreadable evidence roots before process inspection.</li>
         <li>Corrected evidence <code>73cf89c6</code> binds 85/85 and 6/6 capture files; all 91 blobs are unchanged.</li>
-        <li>Astra disposition <code>bc4ba582</code> clears the HOLD: all 18 child modes and 15 partitions completed.</li>
+        <li>Astra disposition <code>bc4ba582</code> clears the helper HOLD: all 18 child modes and 15 partitions completed.</li>
+        <li>Reader repair <code>70d022bf</code>, accepted at <code>8ee609f3</code>, uses explicit <code>ReadWrite|Delete</code> sharing and removes both F1 exceptions.</li>
       </ul>
     </article>
     <article class="card">
@@ -88,7 +89,7 @@
       <ul>
         <li>No new ruling authorizes cleanup or any other live WSL action.</li>
         <li>Current target registration and runtime state have not been re-read after the stopped action.</li>
-        <li>Dependency-preflight attempt 1 is consumed; every remaining defect must be repaired and re-bound before attempt 2 or 3.</li>
+        <li>Dependency-preflight attempt 1 is consumed; the accepted reader and capture-byte controls need a fresh packet binding before attempt 2 or 3.</li>
         <li>No PETSc/petsc4Foam build, OpenFOAM GPU solver run, numerical comparison, or speed-up result exists.</li>
       </ul>
     </article>
@@ -103,6 +104,7 @@
         <tr><th scope="row">Helper candidate</th><td><code>37b96e4749a13d2fee3a7d73444d66a6a39a6403</code></td><td>Repair cycle 2/2; PREPARED-UNAUTHORIZED.</td></tr>
         <tr><th scope="row">Bound ring evidence</th><td><code>73cf89c667386225fe646115a8191e6bedc067bf</code></td><td>Desktop 776 pass, 33 expected, 0 unexpected; manifests 85/85 and 6/6.</td></tr>
         <tr><th scope="row">Independent disposition</th><td><code>bc4ba58203fe9f652127e071fc0e8e160695d9ac</code></td><td>ACCEPT; prior ring HOLD cleared for the review-only candidate.</td></tr>
+        <tr><th scope="row">Preflight reader repair</th><td><code>70d022bf4369c8cb58888f88e6efba00070f35db</code> · review <code>8ee609f355ce002e59b2d06f459d6f8ff0b0a8f6</code></td><td>ACCEPT; both F1 reader exceptions removed after Windows behavioral proof.</td></tr>
         <tr><th scope="row">Runtime cost</th><td>207.380 seconds; 16 advisory cost misses</td><td>Recorded separately from functional success.</td></tr>
         <tr><th scope="row">Coordination</th><td>PR #34 comment <code>6138580964</code>; mail <code>mail-01M4ST1EM7AJ3Q6NNP3PABSCJN</code></td><td>Mac leader has the decision request.</td></tr>
       </tbody>
@@ -115,12 +117,12 @@
     <li>Windows fetches and merges it, then verifies every binding.</li>
     <li>If cleanup is authorized, capture fresh leader activation, identity, and ownership admission before the first WSL command.</li>
     <li>Execute only the named action, commit its receipt, and obtain independent review.</li>
-    <li>Repair and re-bind dependency preflight, then seek separate build and benchmark rulings.</li>
+    <li>Re-bind the accepted reader and capture-byte controls into a fresh preflight packet, then seek separate build and benchmark rulings.</li>
   </ol>
 
   <h2>End-to-end route</h2>
   <div class="route" aria-label="Remaining qualification route">
-    <span>B2 proved</span><i aria-hidden="true">→</i><span>F1 selected</span><i aria-hidden="true">→</i><span>R228 failed closed</span><i aria-hidden="true">→</i><span>R230 cleanup stopped</span><i aria-hidden="true">→</i><span>Repair accepted</span><i aria-hidden="true">→</i><span>New Mac ruling</span><i aria-hidden="true">→</i><span>Exact cleanup if authorized</span><i aria-hidden="true">→</i><span>Dependency closure</span><i aria-hidden="true">→</i><span>Build ruling</span><i aria-hidden="true">→</i><span>Three-arm benchmark</span>
+    <span>B2 proved</span><i aria-hidden="true">→</i><span>F1 selected</span><i aria-hidden="true">→</i><span>R228 failed closed</span><i aria-hidden="true">→</i><span>R230 cleanup stopped</span><i aria-hidden="true">→</i><span>Helper + reader accepted</span><i aria-hidden="true">→</i><span>New Mac ruling</span><i aria-hidden="true">→</i><span>Exact cleanup if authorized</span><i aria-hidden="true">→</i><span>Re-bound preflight</span><i aria-hidden="true">→</i><span>Build ruling</span><i aria-hidden="true">→</i><span>Three-arm benchmark</span>
   </div>
 
   <footer>
