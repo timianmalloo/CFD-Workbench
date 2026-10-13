@@ -42,12 +42,12 @@ def check_binding(document, run_id=None):
     number = document.get('attempt')
     if type(number) is not int or number != 1:
         raise ValueError('only reviewed attempt 1 is admitted')
-    expected = dict(leader='mac', leader_epoch=7, execution_branch=f'win/gpu-f1-r225-attempt{number}',
+    expected = dict(leader='mac', leader_epoch=8, execution_branch=f'win/gpu-f1-r225-attempt{number}',
                     session=f'pc-f1-r225-attempt{number}', run_root=f'{PREFIX}/attempt-{number}')
     for key, value in expected.items():
         if document.get(key) != value:
             raise ValueError('attempt binding changed: ' + key)
-    if not re.fullmatch(f'r225-attempt{number}-epoch7-[0-9]{{8}}', document.get('run_id', '')):
+    if not re.fullmatch(f'r225-attempt{number}-epoch8-[0-9]{{8}}', document.get('run_id', '')):
         raise ValueError('fresh attempt run identity required')
     if run_id is not None and run_id != document['run_id']:
         raise ValueError('invoked RunId differs from reviewed attempt')
@@ -67,8 +67,8 @@ def check_binding(document, run_id=None):
 def authorization(document, contract_sha, accepted=False):
     number = document['attempt']
     return dict(schema='cfdw-f1-preflight-authorization/1', status='accepted' if accepted else 'proposed',
-                requested_ruling=227, ruling=227 if accepted else None,
-                attempt=number, leader='mac', leader_epoch=7, source_commit=document['accepted_packet_commit'],
+                requested_ruling=228, ruling=228 if accepted else None,
+                attempt=number, leader='mac', leader_epoch=8, source_commit=document['accepted_packet_commit'],
                 run_id=document['run_id'], session=document['session'], execution_branch=document['execution_branch'],
                 run_root=document['run_root'], contract_path=document['run_root'] + '/invocation-contract.json',
                 contract_sha256=contract_sha, target=document['target'], target_path=document['target_path'],
@@ -78,7 +78,7 @@ def authorization(document, contract_sha, accepted=False):
                 inputs=document['inputs'], allowed_signers=document['allowed_signers'], limits=LIMITS,
                 allowed_stages=STAGES, allowed_actions=ACTIONS, forbidden_actions=FORBIDDEN,
                 attempt_count=1, failure_policy='stop; immutable failure receipt; no next attempt without its own ruling',
-                prerequisites=['live-mac-epoch7', 'exclusive-PC', 'continuous-PC-side-leader-renewal',
+                prerequisites=['live-mac-epoch8', 'exclusive-PC', 'continuous-PC-side-leader-renewal',
                                'target-name-registration-path-absent-before-creation', 'bind-new-GUID-for-rollback'])
 
 
@@ -100,7 +100,7 @@ def check_ruling(text, value, sha):
     body = match.group(1)
     required = ['ACCEPT ONE PREFLIGHT ATTEMPT', value['contract_path'], value['contract_sha256'],
                 value['source_commit'], value['run_id'], value['session'], value['execution_branch'],
-                'epoch 7', sha, value['run_root'] + '/attempt-authorization.json']
+                'epoch 8', sha, value['run_root'] + '/attempt-authorization.json']
     if any(token not in body for token in required) or re.search(r'\bPROPOSED\b', body):
         raise ValueError('main ruling does not accept exact attempt bytes/bindings')
 

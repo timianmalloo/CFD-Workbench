@@ -18,8 +18,8 @@ import attempt
 
 def fixture():
     value = json.loads((ROOT / 'docs/proof/win-gpu-f1-preflight/run-1/invocation-contract.json').read_bytes())
-    value.update(attempt=1, leader_epoch=7, execution_branch='win/gpu-f1-r225-attempt1',
-                 session='pc-f1-r225-attempt1', run_id='r225-attempt1-epoch7-20261012',
+    value.update(attempt=1, leader_epoch=8, execution_branch='win/gpu-f1-r225-attempt1',
+                 session='pc-f1-r225-attempt1', run_id='r225-attempt1-epoch8-20261012',
                  run_root='docs/proof/win-gpu-f1-preflight/attempt-1')
     value['external_sha256'] = {attempt.EXTERNAL: hashlib.sha256((ROOT / attempt.EXTERNAL).read_bytes()).hexdigest()}
     return value
@@ -78,10 +78,10 @@ class AttemptAdmissionTests(unittest.TestCase):
         sha = 'c' * 64
         tokens = ['ACCEPT ONE PREFLIGHT ATTEMPT', value['contract_path'], value['contract_sha256'],
                   value['source_commit'], value['run_id'], value['session'], value['execution_branch'],
-                  'epoch 7', sha, value['run_root'] + '/attempt-authorization.json']
-        exact = '### Ruling 227 — fixture\n' + '\n'.join(tokens) + '\n'
+                  'epoch 8', sha, value['run_root'] + '/attempt-authorization.json']
+        exact = '### Ruling 228 — fixture\n' + '\n'.join(tokens) + '\n'
         attempt.check_ruling(exact, value, sha)
-        for text in ('### Ruling 227 — fixture\nmissing\n### Ruling 228 — fixture\n' + '\n'.join(tokens),
+        for text in ('### Ruling 228 — fixture\nmissing\n### Ruling 229 — fixture\n' + '\n'.join(tokens),
                      exact.replace(sha, 'd' * 64), exact.replace('ACCEPT ONE', 'PROPOSED ONE')):
             with self.subTest(text=text[:40]), self.assertRaises(ValueError):
                 attempt.check_ruling(text, value, sha)
@@ -124,8 +124,8 @@ class AttemptAdmissionTests(unittest.TestCase):
         auth_path.write_bytes(accepted_raw)
         tokens = ['ACCEPT ONE PREFLIGHT ATTEMPT', accepted['contract_path'], accepted['contract_sha256'],
                   accepted['source_commit'], accepted['run_id'], accepted['session'], accepted['execution_branch'],
-                  'epoch 7', hashlib.sha256(accepted_raw).hexdigest(), data['run_root'] + '/attempt-authorization.json']
-        ruling = '### Ruling 227 — synthetic fixture\n' + '\n'.join(tokens)
+                  'epoch 8', hashlib.sha256(accepted_raw).hexdigest(), data['run_root'] + '/attempt-authorization.json']
+        ruling = '### Ruling 228 — synthetic fixture\n' + '\n'.join(tokens)
         calls = []
         def git_boundary(repo, *argv):
             if argv[0] == 'status': return ''
@@ -137,7 +137,7 @@ class AttemptAdmissionTests(unittest.TestCase):
             calls.append(argv)
             if argv[0] == 'wsl.exe': raise AssertionError('WSL-SENTINEL: never launch real WSL')
             if argv[0] == sys.executable:
-                return SimpleNamespace(stdout='leader mac\nepoch 7\nstate live\n', returncode=0)
+                return SimpleNamespace(stdout='leader mac\nepoch 8\nstate live\n', returncode=0)
             if 'merge-base' in argv: return SimpleNamespace(stdout=b'', returncode=0)
             if 'show' in argv:
                 name = argv[-1]

@@ -69,10 +69,10 @@ function Invoke-Finalization(
 }
 function Get-InvocationRunRoot([object]$ContractData, [string]$RepoRoot, [string]$RunId, [string]$AgentSession) {
     if ($null -eq $ContractData.psobject.Properties['attempt']) { return (Join-Path $RepoRoot 'docs\proof\win-gpu-f1-preflight\run-1') }
-    if ($ContractData.attempt -ne 1 -or $ContractData.leader_epoch -ne 7 -or
+    if ($ContractData.attempt -ne 1 -or $ContractData.leader_epoch -ne 8 -or
         $ContractData.execution_branch -cne 'win/gpu-f1-r225-attempt1' -or
         $ContractData.session -cne 'pc-f1-r225-attempt1' -or $AgentSession -cne $ContractData.session -or
-        $ContractData.run_id -cne $RunId -or $RunId -cnotmatch '^r225-attempt1-epoch7-[0-9]{8}$' -or
+        $ContractData.run_id -cne $RunId -or $RunId -cnotmatch '^r225-attempt1-epoch8-[0-9]{8}$' -or
         $ContractData.run_root -cne 'docs/proof/win-gpu-f1-preflight/attempt-1') {
         throw 'fresh attempt run/session/root binding differs'
     }

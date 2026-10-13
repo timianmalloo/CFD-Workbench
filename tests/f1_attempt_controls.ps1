@@ -27,7 +27,7 @@ $alias = $target.psobject.Copy(); $alias.DistributionName='alias'; $alias.BasePa
 Refuses { Assert-FreshRegistrations @($protected, $alias) @('cfdw-openfoam2512') $false }
 $alias.BasePath='other'; $alias.PSChildName=$protected.PSChildName
 Refuses { Assert-FreshRegistrations @($protected, $alias) @('cfdw-openfoam2512') $false }
-$data = [pscustomobject]@{attempt=1;leader_epoch=7;execution_branch='win/gpu-f1-r225-attempt1';session='pc-f1-r225-attempt1';run_id='r225-attempt1-epoch7-20261012';run_root='docs/proof/win-gpu-f1-preflight/attempt-1'}
+$data = [pscustomobject]@{attempt=1;leader_epoch=8;execution_branch='win/gpu-f1-r225-attempt1';session='pc-f1-r225-attempt1';run_id='r225-attempt1-epoch8-20261012';run_root='docs/proof/win-gpu-f1-preflight/attempt-1'}
 Require ((Get-InvocationRunRoot $data 'C:\Projects\fixture' $data.run_id $data.session) -like '*attempt-1') 'fresh routing rejected'
 Refuses { Get-InvocationRunRoot $data 'C:\Projects\fixture' 'wrong-run' $data.session }
 # Execute the actual entrypoint admission span. Only the child boundary is inert.
