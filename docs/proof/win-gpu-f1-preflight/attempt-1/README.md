@@ -64,6 +64,14 @@ activation before live use. An accepted projection passed as an invocation path
 still refuses. Unknown/proposed status, absent ruling, altered scope/hash or
 uncommitted live bytes refuse before WSL.
 
+`leader-renew.ps1` is the committed coordinator-side supervisor required by the
+R228 amendment. Every cycle refuses a changed leader, epoch or state, renews the
+same `mac` epoch-8 designation, reads it back, and appends the measured remaining
+TTL and ref object ID. The coordinator records a separate `leader who --json`
+sample with at least 200 seconds remaining at activation and immediately before
+the first WSL command. The run receipt retains the supervisor log for the full
+live interval.
+
 # Fresh target and fixed limits
 
 The same target name/path (`cfdw-petsc-cuda132-f1` at its dedicated C: path) is

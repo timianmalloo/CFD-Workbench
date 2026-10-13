@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T01:24:11Z",
+  "generated": "2026-10-13T01:31:53Z",
   "audit": [
     {
       "actor": null,
@@ -37793,6 +37793,56 @@ window.AUDIT_DATA = {
         "short": "df21decf4",
         "branch": "win/gpu-f1-r225-attempt1-review",
         "pushed": false
+      }
+    },
+    {
+      "id": "al-01M4SE50MKJPH0QN804VKPNWH4",
+      "shortname": "r228-supervisor-supplement",
+      "datetime": "2026-10-13T01:31:07Z",
+      "session": "pc-f1-r225-attempt1-review",
+      "prompt": "Mac/Fable says R228 is ready after reviewer accepts current tip, with two added conditions: at least 200s lease remaining at activation and immediately before first WSL, record samples; receipt includes renewal supervisor events for whole run. Review candidate c9c7af0ea9d6361cda5934884a2ed9db47ada787 after canonical index fa59b125. Verify ancestry includes fa59 and df21, inspect leader-renew.ps1 for live mac/epoch8/state fail-closed checks, renewal/readback/log events and 90s default, verify PowerShell syntax and unchanged contract/projection hashes. Commit/push ACCEPT or VETO supplement. No WSL/live action.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4SE6DA34P4YZDPH6KGF22A7",
+      "shortname": "r228-supervisor-accept",
+      "datetime": "2026-10-13T01:31:53Z",
+      "session": "pc-f1-r225-attempt1-review",
+      "prompt": "Supplementally review exact c9c7af0e supervisor, ancestry fa59/df21, unchanged payload hashes and two Mac runtime conditions. Prioritize narrow verdict; coordinator requests no repeat long whole-repo gates.",
+      "summary": "ACCEPT supplemental offline readiness c9c7af0ea9d6361cda5934884a2ed9db47ada787. Ancestry fa59b125/df21decf verified. Supervisor SHAae05660c; defaults epoch8/90s; live/mac/epoch pre/post checks and renewal TTL/OID events verified. Production inert nine-case probes PASS on PS5.1 and7, initial invalidity never renews; failures exit1. Harness corrected explicit-exit propagation and PS5 stderr capture, class/control retained. Payload/source/helper/input hashes unchanged and independent probe PASS. Mac conditions: recorded liveepoch8 TTL>=200 at activation and immediately pre-firstWSL; whole-run supervisor events plus stderr/exit retained. These are runtime coordinator obligations, not supervisor checkpoint gates. No WSL/live renewal. Graph0/134retained, privacy0, PS exit-code gate/whitespace PASS. Full docs rerun canceled at coordinator request as redundant; root reports existing c9 gates green. No independent full-docs pass claimed for this supplement. R228 and activation rehash still required.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-r228-supervisor.md",
+        "docs/reviews/r225-leader-renew-probe.ps1"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Accept or veto exact supervisor supplement without live authority",
+      "done_when": "Ancestry, refusals, syntax and unchanged hashes verified; supplement committed and pushed",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-13T01:25:49Z",
+      "duration_seconds": 364.0,
+      "git": {
+        "sha": "e9f43a7b42108addcd59cf676a80d977d786b2db",
+        "short": "e9f43a7b4",
+        "branch": "win/gpu-f1-r225-attempt1-review",
+        "pushed": true
       }
     }
   ],

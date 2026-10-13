@@ -5554,7 +5554,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "19da6a80c0ce10747b8c566c5b3566af712726599531c8b32ff827902a93d1d0"
+      "sourceSha256": "bc2f9d8ed2906ad86ce236e00a5af36176f6f0c87636211769e041a392cf1435"
     },
     {
       "id": "domain-experts",
@@ -9126,6 +9126,36 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "21d2913586a12d6bb397add15a597f5c4b8fc023a6652a4d01a00b31b760cf3f"
+    },
+    {
+      "id": "review-windows-gpu-f1-r228-supervisor",
+      "path": "docs/reviews/windows-gpu-f1-r228-supervisor.md",
+      "title": "Independent R228 renewal-supervisor supplement",
+      "type": "doc",
+      "status": "accepted",
+      "owner": "@pc-f1-r225-attempt1-review",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "ACCEPT of c9c7af0e with the committed epoch-8 renewal supervisor and unchanged payload hashes. Activation/pre-WSL lease samples and whole-run supervisor evidence remain mandatory runtime conditions before live use.",
+      "tags": [
+        "windows",
+        "preflight",
+        "authorization",
+        "independent-review"
+      ],
+      "links": [
+        {
+          "to": "review-windows-gpu-f1-r225-attempt1-epoch8",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r225-attempt1-admission",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9c97341e926da4a63a3fbe4a14a6e8ca0a82310c24c4ace42b2bbe02e63eda7c"
     },
     {
       "id": "rulings",
@@ -18814,7 +18844,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5c1f879bcb3ca65e5cf23ada799a499b0d252d39310be20b49488ab8c631f437"
+      "sourceSha256": "d28572668c1015ab2eb3a3fdb6cf9b088b9a95f1cf3233be2e6077b9f3362baf"
     },
     {
       "id": "proof-win-gpu-f1-recovery-integration",
@@ -22117,5 +22147,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "6bcf25e11a9f399a565280f738a00c03e1f90a4e9ce7c978b1df795ce087555b"
+  "graphSha256": "825811564f662d24746a6eedfc87b556eaff4fb63e3aed2b350c1a169f635778"
 };
