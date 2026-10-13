@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Offline authoring only: index an already copied historical live tree without rewriting captures."""
+import sys
 import importlib.util
 import json
 from pathlib import Path
@@ -10,6 +11,7 @@ def main():
     base = repo / 'docs/proof/win-gpu-f1-preflight'
     spec = importlib.util.spec_from_file_location('manifest', base / 'packet/manifest.py')
     manifest = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = manifest
     spec.loader.exec_module(manifest)
     retained = base / 'run-1/failed-live'
     output = retained / 'capture-manifest.json'

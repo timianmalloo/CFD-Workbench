@@ -100,6 +100,7 @@ def _load_by_path(name: str, path: Path) -> Any:
     if spec is None or spec.loader is None:
         raise ImportError(str(path))
     module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module
 

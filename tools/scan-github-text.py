@@ -35,6 +35,7 @@ for _stream in (sys.stdout, sys.stderr):
 def load_post():
     spec = importlib.util.spec_from_file_location("post_github_comment", TOOLS / "post-github-comment.py")
     module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module
 

@@ -139,6 +139,7 @@ def admission_line() -> str:
     """The WINDOWS-STORE-EVIDENCE line from tools/check-windows-admission.py (Ruling 189 (4))."""
     spec = importlib.util.spec_from_file_location("check_windows_admission", ROOT / "tools" / "check-windows-admission.py")
     module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module.evidence_line()
 

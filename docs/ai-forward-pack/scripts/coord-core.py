@@ -3803,6 +3803,7 @@ def _load_mail():
     import importlib.util
     spec = importlib.util.spec_from_file_location("coord_mail_for_kick", target)
     module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module
 

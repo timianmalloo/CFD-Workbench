@@ -37,6 +37,7 @@ for _stream in (sys.stdout, sys.stderr):
 def load_scanner():
     spec = importlib.util.spec_from_file_location("check_proof_pii", TOOLS / "check-proof-pii.py")
     module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module
 

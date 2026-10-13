@@ -4,15 +4,19 @@ from __future__ import annotations
 import importlib.util
 import math
 import re
+import subprocess
+import sys
 import tempfile
 import unittest
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from unittest.mock import Mock, patch
+from test_f1_cleanup_owned_check import write_subprocess_owned_fixture
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/cleanup.py"
 spec = importlib.util.spec_from_file_location("r230_cleanup", SCRIPT)
 cleanup = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = cleanup
 spec.loader.exec_module(cleanup)
 
 
@@ -212,12 +216,31 @@ class CleanupOnlyTests(unittest.TestCase):
                 instance.precheck()
             launch.assert_not_called()
 
-    def test_owned_checker_is_read_only(self):
-        helper = SCRIPT.with_name("cleanup_owned_check.py").read_text(encoding="utf-8")
-        self.assertNotIn("killpg", helper)
-        self.assertNotIn("SIGTERM", helper)
-        self.assertNotIn("SIGKILL", helper)
-        self.assertIn("OWNED-ABSENT", helper)
+    def test_owned_checker_production_argv_subprocess_proves_absence(self):
+        # Derive the helper tail from its actual production caller. Only its two
+        # filesystem inputs are substituted; process data are inert in the child.
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            owned = root / "owned_fixture.py"
+            write_subprocess_owned_fixture(owned)
+            instance = object.__new__(cleanup.Cleanup)
+            instance.repo = PureWindowsPath("C:/offline-fixture/repository")
+            instance.identity = self.identity
+            instance.original_run_id = cleanup.RUN_ID
+            instance.original_run_root = cleanup.ORIGINAL_RUN_ROOT
+            for kind, distro in (("stage", cleanup.TARGET), ("guard", cleanup.PROTECTED)):
+                with self.subTest(kind=kind):
+                    instance.run_command = Mock(return_value=b"OWNED-ABSENT")
+                    instance.owned_check(distro, kind)
+                    argv = instance.run_command.call_args.args[0]
+                    tail = argv[argv.index("/usr/bin/python3") + 2:]
+                    tail[tail.index("--evidence-root") + 1] = str(root)
+                    tail[tail.index("--owned-control") + 1] = str(owned)
+                    command = [sys.executable, str(SCRIPT.with_name("cleanup_owned_check.py")), *tail]
+                    result = subprocess.run(command, capture_output=True, timeout=10, check=False)
+                    self.assertEqual(result.returncode, 0)
+                    self.assertEqual(result.stdout.splitlines(), [b"OWNED-ABSENT"])
+                    self.assertEqual(result.stderr, b"")
 
     def test_historical_evidence_is_not_under_cleanup_source(self):
         for path in (ROOT / cleanup.FAILURE_REL, ROOT / "docs/proof/win-gpu-f1-preflight/recovery-1",

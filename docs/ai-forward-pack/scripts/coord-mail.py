@@ -51,6 +51,7 @@ import bounded_process  # noqa: E402
 def _load_by_path(name: str, filename: str):
     spec = importlib.util.spec_from_file_location(name, HERE / filename)
     module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
     assert spec.loader is not None
     spec.loader.exec_module(module)
     return module

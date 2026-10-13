@@ -433,6 +433,7 @@ def check_requests(root):
     import time
     spec = importlib.util.spec_from_file_location("coord_core_for_doctor", core_path)
     core = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = core
     try:
         spec.loader.exec_module(core)
     except Exception as exc:  # a broken coord-core is a finding here, not a crash
@@ -462,6 +463,7 @@ def check_heartbeat(root):
     import time
     spec = importlib.util.spec_from_file_location("coord_core_for_heartbeat_doctor", core_path)
     core = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = core
     try:
         spec.loader.exec_module(core)
     except Exception as exc:  # a broken coord-core is a finding here, not a crash

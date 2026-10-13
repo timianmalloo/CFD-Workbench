@@ -36,6 +36,7 @@ def digest(path):
 def load_helper(packet, name):
     spec = importlib.util.spec_from_file_location('recovery_' + name, packet / (name + '.py'))
     module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module
 

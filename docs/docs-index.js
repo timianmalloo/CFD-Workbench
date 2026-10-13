@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "fcd22ff19043af472d9e98388eaba90c9330860aef3f3e7418eef900dbaa0ef1"
+      "sourceSha256": "3eab864f32dc6c45ea39e7d7421af7e81f3891aa50b8b0e3e8ec514f4b5bfafe"
     },
     {
       "id": "domain-experts",
@@ -9343,7 +9343,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a21cacc742cbcd98137064ffc0405cca1d3f00c22481a5f75bf8fe2928d55fee"
+      "sourceSha256": "5540c07959f916893a71a687a836d1669fcc562bc8cf1a407494233d48610e45"
     },
     {
       "id": "kb-hw-glossary",
@@ -18947,6 +18947,67 @@ window.DOCS_INDEX = {
       "sourceSha256": "d8d3881c7831e9f094748fd94121c87794f402e08affd0561b03e44bb8d8fe70"
     },
     {
+      "id": "proof-win-gpu-f1-offline-followups",
+      "path": "docs/proof/win-gpu-f1-preflight/offline-followups.md",
+      "title": "F1 subprocess and dynamic import offline controls",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@pc-coordinator",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Prepared offline follow-ups replace the cleanup helper's source assertion with a real production-argv subprocess check and require registered dynamic modules across tracked Python. Historical proof loaders remain exact hash/line pins.",
+      "tags": [
+        "windows",
+        "offline",
+        "testing",
+        "importlib",
+        "recurrence-prevention"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-cleanup-helper-repair",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-f1-composite-helper-reader-r233",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "documents"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f308ddf97acb6a25e85e368d698d3c106eed9b73fdaa977e54afc19906e7b877"
+    },
+    {
+      "id": "proof-win-gpu-f1-offline-followups-review",
+      "path": "docs/proof/win-gpu-f1-preflight/offline-followups-review.md",
+      "title": "Independent acceptance of F1 offline controls",
+      "type": "proof-pack",
+      "status": "accepted",
+      "owner": "@pc-coordinator",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Independent ACCEPT of exact candidate 7affd893 for the two Ruling 231 offline controls, with behavioral mutation proof and immutable evidence conservation.",
+      "tags": [
+        "windows",
+        "offline",
+        "independent-review",
+        "importlib"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-offline-followups",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d55e1a306a3033d7a63119a87a0b05219f0a4aa8c176b928ca77441e22213349"
+    },
+    {
       "id": "proof-win-gpu-f1-r217-contract-preparation",
       "path": "docs/proof/win-gpu-f1-preflight/run-1/contract-preparation.md",
       "title": "Ruling 217 run 1 environment contract preparation",
@@ -22458,5 +22519,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "31422aa64a9813bacffb0fd1c4b18c678cd95b5fb8792b5da46672e3370dc042"
+  "graphSha256": "4a1dc95b5e196fb4a6bec5341a2a3fb64bf44aae00f72d3ae8a199bd7982bf6d"
 };

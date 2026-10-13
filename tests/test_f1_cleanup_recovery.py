@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / 'docs/proof/win-gpu-f1-preflight/recovery/recover.py'
 spec = importlib.util.spec_from_file_location('recover', SCRIPT)
 recovery = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = recovery
 spec.loader.exec_module(recovery)
 
 
@@ -339,6 +340,7 @@ class RecoveryTests(unittest.TestCase):
         with patch.object(sys, 'path', [str(packet), *sys.path]):
             module_spec = importlib.util.spec_from_file_location('packet_selftest', packet / 'packet_selftest.py')
             module = importlib.util.module_from_spec(module_spec)
+            sys.modules[module_spec.name] = module
             module_spec.loader.exec_module(module)
             data = (packet / 'preflight.sh').read_bytes()
             module.assert_cleanup_stage_scope(data)
@@ -422,6 +424,7 @@ class RecoveryTests(unittest.TestCase):
     def test_PinnedUnlink_ChangedFile_RefusesAndExactFdUsed(self):
         cache_spec = importlib.util.spec_from_file_location('cache', SCRIPT.parent / 'check_cache.py')
         cache = importlib.util.module_from_spec(cache_spec)
+        sys.modules[cache_spec.name] = cache
         cache_spec.loader.exec_module(cache)
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / 'package.deb'
@@ -639,6 +642,7 @@ class RecoveryTests(unittest.TestCase):
     def test_Cache_LinkMountUnexpectedEntry_Refuses(self):
         cache_spec = importlib.util.spec_from_file_location('cache', SCRIPT.parent / 'check_cache.py')
         cache = importlib.util.module_from_spec(cache_spec)
+        sys.modules[cache_spec.name] = cache
         cache_spec.loader.exec_module(cache)
         with tempfile.TemporaryDirectory() as temporary:
             # The validator refuses a linked ancestor by design; on macOS /var is a symlink to /private/var, so the

@@ -27,12 +27,29 @@ MODULE_NAME = "r229_owned_control"
 def load_source(name, path):
     spec = importlib.util.spec_from_file_location(name, path)
     module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module
 
 
 helper = load_source("cleanup_owned_check_test", ROOT / REL / "cleanup_owned_check.py")
 cleanup = load_source("cleanup_diagnostic_test", ROOT / REL / "cleanup.py")
+
+
+def write_subprocess_owned_fixture(path, drop_registration=False):
+    """Load real packet definitions; replace only live process/signal boundaries."""
+    prefix = "import sys\nfrom pathlib import Path\n"
+    if drop_registration:
+        prefix += "sys.modules.pop(__name__, None)\n"
+    source = prefix + (
+        f"exec(compile(Path({str(OWNED)!r}).read_bytes(), {str(OWNED)!r}, 'exec'), globals())\n"
+        "def forbidden_process(*args, **kwargs):\n"
+        "    raise AssertionError('offline fixture forbids process or signal actions')\n"
+        "subprocess.run = forbidden_process\n"
+        "send_group_signal = forbidden_process\n"
+        "def read_processes():\n"
+        "    return []\n")
+    path.write_text(source, encoding="utf-8", newline="\n")
 
 
 class OwnedCheckTests(unittest.TestCase):
@@ -167,6 +184,19 @@ class OwnedCheckTests(unittest.TestCase):
         self.assertEqual(output.getvalue(), "")
         self.assertEqual(error_output.getvalue(), "F1-OWNED-IMPORT-FAILED\n")
         launch.assert_not_called()
+
+    def test_Cli_UnregisteredRealDataclass_RefusesImportWithoutProcessCalls(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            owned = root / "owned_fixture.py"
+            write_subprocess_owned_fixture(owned, drop_registration=True)
+            command = [sys.executable, str(ROOT / REL / "cleanup_owned_check.py"),
+                       "--evidence-root", str(root), "--expected-run-root", RUN_ROOT,
+                       "--run-id", RUN_ID, "--owned-control", str(owned), "--kind", "stage"]
+            result = subprocess.run(command, capture_output=True, timeout=10, check=False)
+        self.assertEqual(result.returncode, 5)
+        self.assertEqual(result.stdout, b"")
+        self.assertEqual(result.stderr.splitlines(), [b"F1-OWNED-IMPORT-FAILED"])
 
     # cleanup.py's linux_path accepts only a Windows (C:\) repo root, so this case can run only on the PC (Fable join
     # condition 1, 2026-10-13). Skipped, and so reported, elsewhere; the PC ring still runs it.
