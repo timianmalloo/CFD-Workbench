@@ -5441,14 +5441,14 @@ window.DOCS_INDEX = {
     {
       "id": "coordination-openfoam-gpu-status-r220",
       "path": "docs/coordination/openfoam-gpu-status-r220.md",
-      "title": "OpenFOAM GPU work status after Ruling 229",
+      "title": "OpenFOAM GPU work status after R231 evidence acceptance",
       "type": "doc",
       "status": "blocked",
       "owner": "@pc-gpu-status-r228",
       "phase": "",
       "reviewBy": "2026-10-20",
       "reviewSuggested": [],
-      "summary": "B2 CUDA remains proved and F1 remains the selected route. R228 attempt 1 failed closed after probe and repositories; Ruling 229 verified the stopped state and allows one cleanup-only action after an identity-rebinding repair. Source f75ae322 remains under offline validation; no R230 authorization or live cleanup exists, and the target remains registered.",
+      "summary": "B2 CUDA capability is proved and F1 remains the selected route. The R230 cleanup action failed closed before any terminate or unregister operation. The bounded helper repair and its full Windows ring evidence are independently accepted. The candidate remains review-only and awaits a new exact Mac-leader ruling; no live cleanup is authorized.",
       "tags": [
         "coordination",
         "windows",
@@ -5457,7 +5457,7 @@ window.DOCS_INDEX = {
         "gpu",
         "cuda",
         "petsc",
-        "ruling-229"
+        "ruling-231"
       ],
       "links": [
         {
@@ -5485,14 +5485,8 @@ window.DOCS_INDEX = {
           "rel": "depends-on"
         }
       ],
-      "diagrams": [
-        {
-          "kind": "flowchart",
-          "title": "End-to-end route",
-          "mermaid": "flowchart LR\n  A[B2 CUDA capability proved] --> B[F1 design selected]\n  B --> C[R228 attempt 1: probe + repositories]\n  C --> D[R229 verifies failed-closed state]\n  D --> E[Reader-sharing and capture-byte controls]\n  E --> F[f75ae322 cleanup identity repair under offline validation]\n  F --> G{R230 hash-bound authorization committed?}\n  G -->|No| H[Target remains registered; stop]\n  G -->|Yes| I[One cleanup-only action + exact absence proof]\n  I --> J[Repair both defects and re-hash packet]\n  J --> K[New ruling for each remaining preflight attempt]\n  K --> L[Dependency evidence]\n  L --> M[Separate build ruling]\n  M --> N[PETSc-CUDA + petsc4Foam build]\n  N --> O[Native GAMG / PETSc CPU / PETSc GPU benchmark]\n  O --> P[Case-specific worth-it verdict]"
-        }
-      ],
-      "sourceSha256": "e0a4657e03af45c2291ecae19fd41568334a1e74861d8afc582f32e287319002"
+      "diagrams": [],
+      "sourceSha256": "586d30944aa471456ac6ec7560fd5509c4325dc23ea123816ec3115fe21b476a"
     },
     {
       "id": "defect-classes",
@@ -9219,7 +9213,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2845c682ea00b39d9ed9e6730de89862c707d86396e703a0af23876d4c6bd460"
+      "sourceSha256": "a21cacc742cbcd98137064ffc0405cca1d3f00c22481a5f75bf8fe2928d55fee"
     },
     {
       "id": "kb-hw-glossary",
@@ -22146,7 +22140,7 @@ window.DOCS_INDEX = {
     {
       "id": "surface-coordination-openfoam-gpu-status-r220",
       "path": "docs/coordination/openfoam-gpu-status-r220.html",
-      "title": "OpenFOAM GPU status — Ruling 229",
+      "title": "OpenFOAM GPU status — R231 evidence accepted",
       "kind": "knowledge-tool",
       "description": "Open an interactive knowledge artifact.",
       "artifactId": "coordination-openfoam-gpu-status-r220"
@@ -22240,5 +22234,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "537fd4d59e8157e54da34718a102206b53497f33e40bc10f32990188f5b4a119"
+  "graphSha256": "4ad07b4990bb0d24c3c35c1719ea380aab7e277aa61dae1bd11330d43817775b"
 };

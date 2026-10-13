@@ -4,127 +4,127 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <title>OpenFOAM GPU status — Ruling 229</title>
+  <title>OpenFOAM GPU status — R231 evidence accepted</title>
   <style>
-    :root { color-scheme:dark; --ink:#e9f0ef; --muted:#9fb1ae; --line:#29403e; --bg:#091110; --ok:#66d19e; --work:#f3c96b; --stop:#ff887d; --cyan:#73c8d3; }
+    :root { color-scheme:dark; --ink:#edf4f2; --muted:#9db0ac; --line:#29413d; --bg:#08110f; --panel:#101c19; --ok:#65d39b; --work:#f2c96b; --stop:#ff8b7d; --cyan:#77cbd5; }
     * { box-sizing:border-box; }
-    body { margin:0; background:radial-gradient(circle at 80% -10%,#183b38 0,transparent 36rem),var(--bg); color:var(--ink); font:15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    body { margin:0; background:radial-gradient(circle at 82% -12%,#19413a 0,transparent 38rem),var(--bg); color:var(--ink); font:15px/1.58 system-ui,-apple-system,"Segoe UI",sans-serif; }
     main { max-width:1180px; margin:auto; padding:42px 28px 64px; }
     header { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:28px; align-items:end; padding-bottom:28px; border-bottom:1px solid var(--line); }
-    h1 { margin:0; font-size:clamp(34px,5vw,64px); line-height:1.02; letter-spacing:-.045em; max-width:820px; }
-    h2 { margin:36px 0 14px; font-size:22px; }
-    p { max-width:86ch; }
-    a { color:#9ee5ec; text-underline-offset:3px; }
+    h1 { margin:0; max-width:850px; font-size:clamp(34px,5vw,62px); line-height:1.02; letter-spacing:-.045em; }
+    h2 { margin:34px 0 14px; font-size:22px; }
+    p { max-width:88ch; }
+    a { color:#a3e6ec; text-underline-offset:3px; }
     a:focus-visible { outline:3px solid var(--cyan); outline-offset:3px; border-radius:3px; }
-    .eyebrow { color:var(--cyan); text-transform:uppercase; letter-spacing:.14em; font-weight:750; font-size:12px; margin-bottom:12px; }
+    code { color:#b9e4dc; overflow-wrap:anywhere; }
+    .eyebrow,.label { color:var(--cyan); text-transform:uppercase; letter-spacing:.12em; font-size:12px; font-weight:750; }
+    .eyebrow { margin-bottom:12px; }
     .stamp { text-align:right; color:var(--muted); white-space:nowrap; }
     .headline { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:28px 0; }
-    .metric,.card,.notice { background:linear-gradient(145deg,#152523,#101b1a); border:1px solid var(--line); border-radius:14px; padding:18px; }
-    .metric b { display:block; font-size:23px; margin-top:4px; }
-    .label { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.1em; }
+    .metric,.card,.notice { background:linear-gradient(145deg,#152622,var(--panel)); border:1px solid var(--line); border-radius:14px; padding:18px; }
+    .metric b { display:block; margin:4px 0 1px; font-size:23px; }
     .ok { color:var(--ok); } .work { color:var(--work); } .stop { color:var(--stop); }
-    .notice { border-left:5px solid var(--stop); margin:20px 0; }
+    .notice { border-left:5px solid var(--work); margin:20px 0; }
     .track { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; margin:18px 0 30px; }
-    .step { min-height:150px; border-top:4px solid var(--line); padding:14px 12px; background:#101a19; }
+    .step { min-height:156px; border-top:4px solid var(--line); padding:14px 12px; background:#0f1a18; }
     .step.done { border-color:var(--ok); } .step.active { border-color:var(--work); } .step.closed { border-color:var(--stop); }
     .step strong { display:block; margin:5px 0 7px; }
     .step small { color:var(--muted); }
     .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
-    ul { padding-left:22px; }
-    li { margin:.45em 0; }
-    code { color:#b8e3dc; overflow-wrap:anywhere; }
+    ul,ol { padding-left:22px; } li { margin:.45em 0; }
     .table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:10px; }
-    table { width:100%; border-collapse:collapse; background:#0f1918; min-width:780px; }
+    table { width:100%; min-width:760px; border-collapse:collapse; background:#0e1916; }
     caption { text-align:left; padding:12px; color:var(--muted); }
-    th,td { text-align:left; vertical-align:top; border-bottom:1px solid var(--line); padding:12px; }
+    th,td { text-align:left; vertical-align:top; padding:12px; border-bottom:1px solid var(--line); }
     th { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
     .route { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:15px 0; }
-    .route span { padding:9px 12px; border:1px solid var(--line); border-radius:999px; background:#10201e; }
+    .route span { padding:9px 12px; border:1px solid var(--line); border-radius:999px; background:#10201d; }
     .route i { color:var(--muted); font-style:normal; }
-    footer { margin-top:42px; color:var(--muted); border-top:1px solid var(--line); padding-top:20px; }
+    footer { margin-top:42px; padding-top:20px; border-top:1px solid var(--line); color:var(--muted); }
     @media (max-width:900px) { .headline,.track { grid-template-columns:repeat(2,minmax(0,1fr)); } .grid,header { grid-template-columns:1fr; } .stamp { text-align:left; } }
     @media (max-width:560px) { main { padding:28px 16px 48px; } .headline,.track { grid-template-columns:1fr; } .step { min-height:0; } }
-    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; animation-duration:.01ms !important; transition-duration:.01ms !important; } }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; animation-duration:.01ms!important; transition-duration:.01ms!important; } }
   </style>
 </head>
 <body>
 <main>
   <header>
-    <div><div class="eyebrow">CFD-Workbench · Windows GPU lane</div><h1>GPU qualification is blocked after the R228 preflight failure.</h1></div>
-    <div class="stamp">Snapshot<br><strong>13 Oct 2026 UTC · Ruling 229</strong><br><span>Status branch merged main at c1f4b5c9</span></div>
+    <div><div class="eyebrow">CFD-Workbench · Windows GPU lane</div><h1>The cleanup repair is accepted and awaits a new Mac ruling.</h1></div>
+    <div class="stamp">Snapshot<br><strong>13 Oct 2026 · 04:59 UTC</strong><br><span>Main <code>64dbed61</code></span></div>
   </header>
 
   <section class="headline" aria-label="Key status">
     <div class="metric"><span class="label">CUDA capability</span><b class="ok">Proved</b><span>13.2 · RTX 3080 Ti</span></div>
     <div class="metric"><span class="label">F1 design</span><b class="ok">Selected</b><span>PETSc-CUDA + petsc4Foam</span></div>
-    <div class="metric"><span class="label">Attempt 1</span><b class="stop">Consumed</b><span>Failed closed · 2 stages</span></div>
-    <div class="metric"><span class="label">R230 authority</span><b class="work">Not issued</b><span>No live cleanup</span></div>
+    <div class="metric"><span class="label">Helper + ring</span><b class="ok">Accepted</b><span>Cycle 2/2 · 0 unexpected</span></div>
+    <div class="metric"><span class="label">Live authority</span><b class="work">Pending</b><span>Mac ruling required</span></div>
   </section>
 
-  <aside class="notice" aria-label="Current blocker"><strong>Current blocker:</strong> cleanup identity-rebinding source <code>f75ae322</code> is under offline validation. No R230 ruling or hash-bound authorization has been supplied. The exact target <code>cfdw-petsc-cuda132-f1</code>, GUID <code>{e874e10f-c7b9-4a2b-a03b-87ad52fb9c41}</code>, remains registered.</aside>
+  <aside class="notice" aria-label="Current gate"><strong>Current gate:</strong> Ruling 230's one cleanup action failed closed at the owned-stage evidence check and is consumed. No terminate or unregister ran. Candidate <code>37b96e47</code> is review-only until the Mac leader commits a new exact ruling.</aside>
 
   <h2>Qualification path</h2>
   <div class="track" aria-label="Qualification stages">
-    <div class="step done"><span class="label">Complete</span><strong>CUDA B2</strong><small>CUDA 13.2 SAXPY pass; disposable distro rolled back.</small></div>
+    <div class="step done"><span class="label">Complete</span><strong>CUDA B2</strong><small>CUDA 13.2 SAXPY passed; disposable distro rolled back.</small></div>
     <div class="step done"><span class="label">Selected</span><strong>F1 design</strong><small>PETSc-CUDA + petsc4Foam; three-arm benchmark defined.</small></div>
-    <div class="step closed"><span class="label">Stopped</span><strong>R228 attempt 1</strong><small>Probe + repositories only; no simulation or download.</small></div>
-    <div class="step done"><span class="label">Ruled</span><strong>R229 disposition</strong><small>Protected distro unchanged; target registration verified.</small></div>
-    <div class="step active"><span class="label">Offline</span><strong>R230 candidate</strong><small>Source f75ae322 awaits offline validation.</small></div>
-    <div class="step closed"><span class="label">Not authorized</span><strong>Cleanup + benchmark</strong><small>No R230 authority; no cleanup or GPU benchmark.</small></div>
+    <div class="step closed"><span class="label">Consumed</span><strong>R228 preflight</strong><small>Probe + repositories only; stopped before later stages.</small></div>
+    <div class="step closed"><span class="label">Consumed</span><strong>R230 cleanup</strong><small>Failed closed before terminate or unregister.</small></div>
+    <div class="step done"><span class="label">Accepted</span><strong>Repair + ring</strong><small>Helper 13/13; Desktop 776 pass, 0 unexpected.</small></div>
+    <div class="step active"><span class="label">Waiting</span><strong>Mac ruling</strong><small>Fresh authority and bindings required before live work.</small></div>
   </div>
 
   <div class="grid">
     <article class="card">
-      <h2>Verified state</h2>
+      <h2>Verified now</h2>
       <ul>
-        <li>Only probe and repositories ran; apt metadata was fetched. No simulate, download, package, install, or build artifacts exist.</li>
-        <li>Owned work and the guard were stopped; the protected <code>cfdw-openfoam2512</code> distro was unchanged. L3 before and after matched.</li>
-        <li>Protected distro GUID is <code>{b7566a82-9cee-47ce-a246-f83632353cea}</code>; its registered path is unchanged.</li>
-        <li>R228 epoch-8 lease samples were 874 s at activation and 852 s before WSL; renewal supervisor exited 0 with empty stderr.</li>
-        <li>The capture-text attribute control is on main; it does not change the failed checkpoint binding retroactively.</li>
+        <li>B2 proved CUDA 13.2 managed-memory execution on the RTX 3080 Ti Laptop GPU.</li>
+        <li>The R230 cleanup stopped before any terminate or unregister operation.</li>
+        <li>Final helper candidate <code>37b96e47</code> refuses missing, file, and unreadable evidence roots before process inspection.</li>
+        <li>Corrected evidence <code>73cf89c6</code> binds 85/85 and 6/6 capture files; all 91 blobs are unchanged.</li>
+        <li>Astra disposition <code>bc4ba582</code> clears the HOLD: all 18 child modes and 15 partitions completed.</li>
       </ul>
     </article>
     <article class="card">
-      <h2>Open work</h2>
+      <h2>Still open</h2>
       <ul>
-        <li>The preflight reader-sharing defect still needs a fix and review.</li>
-        <li>Cleanup executor source <code>f75ae322</code> is a candidate under offline validation.</li>
-        <li>R230 ruling, payload hash, cleanup-authorization hash, and live authority have not been supplied.</li>
-        <li>Target cleanup has not run; the target remains registered.</li>
-        <li>Dependency attempts 2 and 3 each require both defect fixes, new packet hashes, and their own ruling.</li>
-        <li>No PETSc build, OpenFOAM GPU solver run, numerical check, or performance benchmark exists.</li>
+        <li>No new ruling authorizes cleanup or any other live WSL action.</li>
+        <li>Current target registration and runtime state have not been re-read after the stopped action.</li>
+        <li>Dependency-preflight attempt 1 is consumed; every remaining defect must be repaired and re-bound before attempt 2 or 3.</li>
+        <li>No PETSc/petsc4Foam build, OpenFOAM GPU solver run, numerical comparison, or speed-up result exists.</li>
       </ul>
     </article>
   </div>
 
-  <h2>Repair and attempt ledger</h2>
+  <h2>Evidence ledger</h2>
   <div class="table-wrap">
     <table>
-      <caption>Ruling 229 state and pending authorization</caption>
-      <thead><tr><th scope="col">Item</th><th scope="col">Current state</th><th scope="col">Next gate</th></tr></thead>
+      <caption>Accepted review evidence and remaining authority gate</caption>
+      <thead><tr><th scope="col">Item</th><th scope="col">Result</th><th scope="col">Meaning</th></tr></thead>
       <tbody>
-        <tr><th scope="row">Ruling 229</th><td>Committed at <code>7ceed8b6</code>; it verifies the failed-closed state and accepts one cleanup-only action after identity rebinding.</td><td>Meet the identity-repair precondition and obtain R230 authorization.</td></tr>
-        <tr><th scope="row">Windows merge</th><td>Cleanup lane merged main at <code>e52a9d2d</code>; this status branch merged current <code>origin/main</code> at <code>c1f4b5c9</code>.</td><td>Status is current to that merge.</td></tr>
-        <tr><th scope="row">Reader-sharing defect</th><td>Guard event reader conflicts with the live append handle. Reader-sharing scan now covers proof PowerShell files.</td><td>Repair the preflight reader and review it offline.</td></tr>
-        <tr><th scope="row">Capture-byte defect</th><td>CRLF normalization changed the captured stdout bytes. Main now carries the capture-text attribute control.</td><td>Retain byte-exact proof on future capture; the old checkpoint remains failed.</td></tr>
-        <tr><th scope="row">R230 source candidate</th><td><code>f75ae322</code> adapts the cleanup executor for R230 activation and is under offline validation.</td><td>Payload and authorization hashes are not recorded until supplied with the later ruling.</td></tr>
-        <tr><th scope="row">One-shot cleanup</th><td>No R230 ruling or live authority; target <code>{e874e10f-c7b9-4a2b-a03b-87ad52fb9c41}</code> remains registered.</td><td>After authorization, terminate and unregister only this target and prove exact name/GUID/path absence.</td></tr>
-        <tr><th scope="row">Preflight repair cap</th><td>Ruling 225 allows up to 3 attempts; attempt 1 is consumed.</td><td>Attempts 2 and 3 each need both defect fixes, fresh packet hashes, and a separate ruling.</td></tr>
+        <tr><th scope="row">Helper candidate</th><td><code>37b96e4749a13d2fee3a7d73444d66a6a39a6403</code></td><td>Repair cycle 2/2; PREPARED-UNAUTHORIZED.</td></tr>
+        <tr><th scope="row">Bound ring evidence</th><td><code>73cf89c667386225fe646115a8191e6bedc067bf</code></td><td>Desktop 776 pass, 33 expected, 0 unexpected; manifests 85/85 and 6/6.</td></tr>
+        <tr><th scope="row">Independent disposition</th><td><code>bc4ba58203fe9f652127e071fc0e8e160695d9ac</code></td><td>ACCEPT; prior ring HOLD cleared for the review-only candidate.</td></tr>
+        <tr><th scope="row">Runtime cost</th><td>207.380 seconds; 16 advisory cost misses</td><td>Recorded separately from functional success.</td></tr>
+        <tr><th scope="row">Coordination</th><td>PR #34 comment <code>6138580964</code>; mail <code>mail-01M4ST1EM7AJ3Q6NNP3PABSCJN</code></td><td>Mac leader has the decision request.</td></tr>
       </tbody>
     </table>
   </div>
 
+  <h2>Next actions</h2>
+  <ol>
+    <li>Mac commits a new exact ruling.</li>
+    <li>Windows fetches and merges it, then verifies every binding.</li>
+    <li>If cleanup is authorized, capture fresh leader activation, identity, and ownership admission before the first WSL command.</li>
+    <li>Execute only the named action, commit its receipt, and obtain independent review.</li>
+    <li>Repair and re-bind dependency preflight, then seek separate build and benchmark rulings.</li>
+  </ol>
+
   <h2>End-to-end route</h2>
   <div class="route" aria-label="Remaining qualification route">
-    <span>B2 proved</span><i aria-hidden="true">→</i><span>F1 selected</span><i aria-hidden="true">→</i><span>R228 failed closed</span><i aria-hidden="true">→</i><span>R229 verifies state</span><i aria-hidden="true">→</i><span>Offline source validation</span><i aria-hidden="true">→</i><span>R230 authorization</span><i aria-hidden="true">→</i><span>One cleanup-only action</span><i aria-hidden="true">→</i><span>Repair packet</span><i aria-hidden="true">→</i><span>Separately ruled preflight</span><i aria-hidden="true">→</i><span>Build ruling</span><i aria-hidden="true">→</i><span>Three-arm benchmark</span>
+    <span>B2 proved</span><i aria-hidden="true">→</i><span>F1 selected</span><i aria-hidden="true">→</i><span>R228 failed closed</span><i aria-hidden="true">→</i><span>R230 cleanup stopped</span><i aria-hidden="true">→</i><span>Repair accepted</span><i aria-hidden="true">→</i><span>New Mac ruling</span><i aria-hidden="true">→</i><span>Exact cleanup if authorized</span><i aria-hidden="true">→</i><span>Dependency closure</span><i aria-hidden="true">→</i><span>Build ruling</span><i aria-hidden="true">→</i><span>Three-arm benchmark</span>
   </div>
-  <p>The cleanup-only action cannot run a preflight stage. The dependency preflight does not authorize package installation, source acquisition, builds, CFD cases, benchmarks, or changes to the protected distro.</p>
-
-  <h2>Coordination</h2>
-  <p>Ruling 229 is at <code>7ceed8b6</code>. The Windows cleanup lane merged main at <code>e52a9d2d</code>. Source <code>f75ae322</code> is under offline validation. No R230 ruling or live authorization has been supplied. See the <a href="../proof/win-gpu-f1-preflight/attempt-1/final/attempt-failure.md">R228 failure receipt</a>.</p>
 
   <footer>
-    <strong>Confidence:</strong> Verified: R228 stopped after two stages; R229's failure disposition; unchanged protected distro; registered target and exact GUID; epoch-8 renewal evidence; merge and candidate source commit. Inferred: no incomplete preflight stage ran; offline source does not imply live authority. Flagged / not recorded: R230 ruling and hashes, cleanup, target absence, remaining attempts, dependency closure, build, GPU solver use, accuracy, and speed-up. No GPU OpenFOAM benchmark has run.<br>
+    <strong>Confidence:</strong> Verified claims come from committed receipts and independent review. The loader defect is an inferred live cause because the failed action stopped before process inspection. Current target state, target absence, build success, GPU solver execution, numerical equivalence, and speed-up are not recorded.<br>
     Canonical source: <a href="openfoam-gpu-status-r220.md">openfoam-gpu-status-r220.md</a>
   </footer>
 </main>
