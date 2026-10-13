@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T19:52:26Z",
+  "generated": "2026-10-13T19:54:18Z",
   "audit": [
     {
       "actor": null,
@@ -38732,6 +38732,31 @@ window.AUDIT_DATA = {
       "done_when": "self-test green, run-tests green, gates and check-docs exit 0",
       "started_at": "2026-10-13T19:48:05Z",
       "duration_seconds": 261.0
+    },
+    {
+      "id": "al-01M4VD8ZVSET2YTFC8JXMTYV76",
+      "shortname": "join-dtj2",
+      "datetime": "2026-10-13T19:54:18Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/dtj2-classify into main",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-13T19:53:06Z",
+      "duration_seconds": 72.0
     }
   ],
   "changes": [
