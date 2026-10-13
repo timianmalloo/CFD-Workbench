@@ -5554,7 +5554,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4b34fb42427bd7c1f16b56616c52845b54ce67d67dfee0d0fab36b3bbecba0c1"
+      "sourceSha256": "a4991b0bc5d110f8d5416fac78bcccc9453c2a5918a097042a47756ae92016fd"
     },
     {
       "id": "domain-experts",
@@ -9079,7 +9079,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f399e0c48c780acd976964a08b41547e79ffd26f41b4928b652cb0de79eef897"
+      "sourceSha256": "2845c682ea00b39d9ed9e6730de89862c707d86396e703a0af23876d4c6bd460"
     },
     {
       "id": "kb-hw-glossary",
@@ -16826,6 +16826,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "3933950736c8c77e8408096a2178260cd2b6d68282dd945bc298564c6be2646a"
     },
     {
+      "id": "proof-rsx-red-first",
+      "path": "docs/proof/rsx/red-first.md",
+      "title": "RSX red-first - proof PowerShell reader sharing and text-unset capture folders",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-rsx",
+      "phase": "",
+      "reviewBy": "2026-11-12",
+      "reviewSuggested": [],
+      "summary": "The reader-sharing scan now covers proof PowerShell (report mode until 2026-10-20) and a fast-ring check keeps every capture folder text-unset.",
+      "tags": [
+        "rsx",
+        "reader-share",
+        "capture-manifest"
+      ],
+      "links": [
+        {
+          "to": "proof-application-core",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "05b25c6b413abb7c3ea833a1f126c046e164ea23a5b2770237539e2f49d620a4"
+    },
+    {
       "id": "proof-sdg",
       "path": "docs/proof/sdg/receipt.md",
       "title": "SDG scale-diagnostic mode receipt",
@@ -22010,5 +22035,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "b37e2e12763dc96138e149f044910139361fcc1e4e88478a251fc0ee3c12a3d5"
+  "graphSha256": "5422bdf16bcc4fc5167683ae234c022cb38cd656e4dc42bb573b77f9654d5f75"
 };

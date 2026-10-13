@@ -1,0 +1,11 @@
+READER-SHARE-PS REPORT: docs/proof/win-gpu-b1/capture.ps1:75: $raw = [IO.File]::ReadAllText($eventsPath)
+READER-SHARE-PS REPORT: docs/proof/win-gpu-b1/capture.ps1:92: $initialRows = @(Get-Content -LiteralPath $samplesPath).Count
+READER-SHARE-PS REPORT: docs/proof/win-gpu-b1/wait-observer.ps1:24: $raw = [IO.File]::ReadAllText($eventsPath)
+READER-SHARE-PS REPORT: docs/proof/win-gpu-b1/wait-observer.ps1:41: $state = Get-Content -LiteralPath $statePath -Raw | ConvertFrom-Json
+READER-SHARE-PS REPORT: docs/proof/win-gpu-b2/capture-completed-install.ps1:83: $raw = [IO.File]::ReadAllText($eventsPath)
+READER-SHARE-PS REPORT: docs/proof/win-gpu-b2/capture-install.ps1:75: $raw = [IO.File]::ReadAllText($eventsPath)
+READER-SHARE-PS REPORT: docs/proof/win-gpu-b2/capture-install.ps1:131: $initialRows = @(Get-Content -LiteralPath $samplesPath).Count
+READER-SHARE-PS REPORT: docs/proof/win-gpu-f1-preflight/packet/Invoke-Preflight.ps1:122: return Get-Content -LiteralPath $path -Raw | ConvertFrom-Json
+READER-SHARE-PS REPORT: docs/proof/win-gpu-f1-preflight/packet/Invoke-Preflight.ps1:133: $raw = [IO.File]::ReadAllText($events)
+READER-SHARE-PS report mode until 2026-10-20: 9 live default-share reads (PC repairs Ruling 229); not failing
+READER-SHARE ok: 0 readers without delete sharing

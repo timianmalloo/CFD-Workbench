@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T19:53:24Z",
+  "generated": "2026-10-13T02:06:14Z",
   "audit": [
     {
       "actor": null,
@@ -37653,6 +37653,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-12T19:52:17Z",
       "duration_seconds": 67.0
+    },
+    {
+      "id": "al-01M4SG59EYYFBB4WNKGA2W8P6P",
+      "shortname": "rsx-proof-controls",
+      "datetime": "2026-10-13T02:06:13Z",
+      "session": "trk-rsx",
+      "prompt": "Track RSX",
+      "summary": "check-reader-sharing.py scans proof/tools PowerShell (report mode to 2026-10-20); new check-capture-text-attr.py in fast ring; 11 root .gitattributes -text lines, no blob changed; register lines",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Ruling 229 controls: proof PowerShell reader-sharing scan and text-unset capture folders",
+      "done_when": "both checks red first, self-tests green, ring and gates green",
+      "started_at": "2026-10-13T01:59:44Z",
+      "duration_seconds": 389.0
     }
   ],
   "changes": [
