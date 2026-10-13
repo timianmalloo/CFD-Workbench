@@ -116,10 +116,22 @@ function Assert-Host([bool]$Initial, [bool]$RequireVhd = $false) {
     }
     return $free
 }
+function Open-LiveEvidenceStream([string]$Path) {
+    return [IO.FileStream]::new($Path, [IO.FileMode]::Open, [IO.FileAccess]::Read,
+        ([IO.FileShare]::ReadWrite -bor [IO.FileShare]::Delete))
+}
+function Read-LiveText([string]$Path) {
+    $stream = Open-LiveEvidenceStream -Path $Path
+    try {
+        $reader = [IO.StreamReader]::new($stream, [Text.Encoding]::UTF8, $true)
+        try { return $reader.ReadToEnd() }
+        finally { $reader.Dispose() }
+    } finally { $stream.Dispose() }
+}
 function Read-GuardState {
     $path = Join-Path $Live 'completed-guard.state.json'
     if (-not (Test-Path -LiteralPath $path)) { throw 'completed guard state missing' }
-    return Get-Content -LiteralPath $path -Raw | ConvertFrom-Json
+    return (Read-LiveText -Path $path) | ConvertFrom-Json
 }
 function Assert-Guard {
     if ($null -eq $Guard -or $Guard.HasExited) { throw 'completed guard exited or was not started' }
@@ -130,7 +142,7 @@ function Assert-Guard {
     if ($age -lt -5 -or $age -gt 12) { throw "completed guard sample missing/stale: $age seconds" }
     $events = Join-Path $Live 'completed-guard-events.jsonl'
     if (-not (Test-Path -LiteralPath $events)) { throw 'completed guard event stream missing' }
-    $raw = [IO.File]::ReadAllText($events)
+    $raw = Read-LiveText -Path $events
     $lastLf = $raw.LastIndexOf("`n", [StringComparison]::Ordinal)
     if ($lastLf -lt 0) { throw 'completed guard has no complete event' }
     $line = $raw.Substring(0, $lastLf).Split("`n")[-1].TrimEnd("`r")

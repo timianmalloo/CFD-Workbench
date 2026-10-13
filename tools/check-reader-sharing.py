@@ -24,7 +24,7 @@ Read shapes: [IO.File]::ReadAllText/ReadAllLines/ReadAllBytes/OpenRead/OpenText,
 FileShare token, and Get-Content. A read is "live" when its line, or the line that assigns a variable it uses,
 names a live directory (word "live", any case) or a *.jsonl file. FileStream readers are never flagged (they
 choose sharing explicitly). Allow-marker on the same or the previous line: `# reader-share: reviewed <ruling>`.
-Enforced now, with hash-pinned grandfathering (Ruling 229): the 9 hits that existed on 2026-10-13 are listed in
+Enforced now, with hash-pinned grandfathering (Ruling 229): the 7 frozen B1/B2 hits that remain are listed in
 PS_GRANDFATHERED by path plus SHA-256 of the exact line text. A listed line is exempt only while byte-identical and
 prints `READER-SHARE grandfathered <path>:<line> (Ruling 229)`; a new hit or a changed listed line fails at once.
 Chosen over a date or markers because the B1/B2 scripts are delivered proofs that are never edited (a date would turn
@@ -53,8 +53,8 @@ READ_ACCESS = re.compile(r"\bFileAccess\.Read\b")
 STATEMENT_LINES = 6
 
 # Ruling 229 grandfathering: (path, SHA-256 of the exact line text, EOL excluded). A pinned line is exempt only while
-# byte-identical; a changed line or a new hit fails. Delivered B1/B2 proofs are never edited, so these stay; the
-# F1 Invoke-Preflight.ps1 lines leave the list when the PC repair changes them (then delete those two entries).
+# byte-identical; a changed line or a new hit fails. Delivered B1/B2 proofs are never edited, so their seven
+# entries stay. The repaired F1 Invoke-Preflight.ps1 reads now pass with explicit ReadWrite|Delete sharing.
 PS_GRANDFATHERED = {
     ("docs/proof/win-gpu-b1/capture.ps1", "5b4659c6aa84064f8b892ef62cee1fa3737c33101e1080a809933ae6873c41a7"),  # :75
     ("docs/proof/win-gpu-b1/capture.ps1", "2a1bea9cbfffb5913042cf0078fb77991e1f09b23165b24b6b3efa242e862b67"),  # :92
@@ -63,8 +63,6 @@ PS_GRANDFATHERED = {
     ("docs/proof/win-gpu-b2/capture-completed-install.ps1", "5b4659c6aa84064f8b892ef62cee1fa3737c33101e1080a809933ae6873c41a7"),  # :83
     ("docs/proof/win-gpu-b2/capture-install.ps1", "5b4659c6aa84064f8b892ef62cee1fa3737c33101e1080a809933ae6873c41a7"),  # :75
     ("docs/proof/win-gpu-b2/capture-install.ps1", "2a1bea9cbfffb5913042cf0078fb77991e1f09b23165b24b6b3efa242e862b67"),  # :131
-    ("docs/proof/win-gpu-f1-preflight/packet/Invoke-Preflight.ps1", "4d6c0d7abb1f764a8b64c32d1949116b6ec38cf3b9eb8e5b509a253aa52408b4"),  # :122
-    ("docs/proof/win-gpu-f1-preflight/packet/Invoke-Preflight.ps1", "928b56cef6c926523eb3b95ab73f86b360f76b8ba905e987e239ce5bac02e7a9"),  # :133
 }
 PS_READ = re.compile(
     r"\[(?:System\.)?IO\.File\]::(?:ReadAll(?:Text|Lines|Bytes)|OpenRead|OpenText)\b"

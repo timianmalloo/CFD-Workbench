@@ -5554,7 +5554,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e68732f0d448bd9adfd2f402cfa9fa444c702bb839adb5813e54de531536a6c0"
+      "sourceSha256": "13e5dce37b13620b69f17aa5f48af4fe788e974ccc8c42c6a5421213f266a3a1"
     },
     {
       "id": "domain-experts",
@@ -9079,7 +9079,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2845c682ea00b39d9ed9e6730de89862c707d86396e703a0af23876d4c6bd460"
+      "sourceSha256": "a21cacc742cbcd98137064ffc0405cca1d3f00c22481a5f75bf8fe2928d55fee"
     },
     {
       "id": "kb-hw-glossary",
@@ -14341,6 +14341,35 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "b65e52933f8f5ddacfca1640816a445b12a016b2246af3aef3ccff783b374a47"
+    },
+    {
+      "id": "proof-f1-ruling-229-reader-sharing-r232",
+      "path": "docs/proof/win-gpu-f1-preflight/reader-sharing-r232.md",
+      "title": "Ruling 229 F1 live evidence reader-sharing repair",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@pc-f1-r232-reader-repair",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Offline red-first repair of the F1 preflight live evidence readers with explicit ReadWrite|Delete sharing; no live action.",
+      "tags": [
+        "windows",
+        "offline",
+        "reader-sharing"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "refines"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "documents"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "450f0296826ebaee57772993c89803c64966d14f73cddebecca66376eaa63663"
     },
     {
       "id": "proof-flk-investigation",
@@ -22035,5 +22064,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "3f60e4304637a9f855a3828d616133bd0217705ffc3b169bb25c0c49ddf2b210"
+  "graphSha256": "97d54539b4c4a18d4bab907ea9651310adb7601d5accf819ee137b8b277d221f"
 };
