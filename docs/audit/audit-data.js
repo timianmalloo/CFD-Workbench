@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T20:33:07Z",
+  "generated": "2026-10-13T20:51:02Z",
   "audit": [
     {
       "actor": null,
@@ -38836,6 +38836,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-13T20:31:55Z",
       "duration_seconds": 72.0
+    },
+    {
+      "id": "al-01M4VGGVMPD7P82MCFKDAJ4HFF",
+      "shortname": "dtj-pc-calibration",
+      "datetime": "2026-10-13T20:51:01Z",
+      "session": "dtj-pc-calibration-20261013",
+      "prompt": "Calibrate Windows desktop slots and publish proof, baseline limit, checks, commit, and PR.",
+      "summary": "Measured 12 Windows desktop-slot samples at 4e168c05; documented BEST N=8 and prepared proof publication.",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/ring-pc-win/desktop-slots.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Publish validated Windows desktop-slot calibration evidence while preserving the measured source HEAD.",
+      "done_when": "Proof and baseline limit are committed on a branch based on current main, docs gates pass, and a PR to main is open.",
+      "tier": "T1",
+      "fan_out": 0,
+      "git": {
+        "sha": "51b1cc65900c5e2ba87f4461b0d3a4938fdf7a73",
+        "short": "51b1cc659",
+        "branch": "dtj/pc-calibration",
+        "pushed": null
+      }
     }
   ],
   "changes": [
