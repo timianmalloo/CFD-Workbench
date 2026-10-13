@@ -85,6 +85,11 @@ machine_host=$(hostname | cut -d. -f1)
 ring_host=$(py "$root/tools/check-test-costs.py" --resolve-host "$machine_host") || exit 2
 # Ruling 176 (2): the wall budget is CFD_TEST_BUDGET_SECONDS, else the host baseline's limit.budget, else 60 s.
 budget=$(py "$root/tools/check-test-costs.py" --resolve-budget "$ring_load_source" "$ring_host") || exit 2
+# Track DTJ: the host's limit.desktop_slots (if any) sets the Desktop harness's child-slot count; CFD_DESKTOP_SLOTS still wins.
+# No line, or a Mac host, leaves the variable unset and the harness keeps ProcessorCount * 5 / 8.
+unset CFD_DESKTOP_SLOTS_BASELINE
+desktop_slots=$(py "$root/tools/check-test-costs.py" --resolve-slots "$ring_load_source" "$ring_host") || exit 2
+if [ -n "$desktop_slots" ]; then export CFD_DESKTOP_SLOTS_BASELINE="$desktop_slots"; fi
 load_start=$(load)
 started=$SECONDS
 started_ms=$(now_ms)

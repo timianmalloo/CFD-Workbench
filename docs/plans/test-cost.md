@@ -554,3 +554,22 @@ only the full rings), and the 1-minute load reached 47-77. That caused the load-
 over 24 (the Ruling 81/84/87 gate). Before each dispatch run `python3 tools/dispatch-gate.py --running <n>`: it prints `GO load=<n>`
 (exit 0) or `WAIT load=<n> <reason>` (exit 1); an unreadable load prints `WAIT load=not-recorded`. Its `--self-test` runs in
 `tools/check-docs.py`. Review and docs-only tracks are not build tracks. Class: PARALLEL-BUILD-LOAD in `docs/lessons/defect-classes.md`.
+
+### 9.11 Per-host Desktop child slots: how a host calibrates (track DTJ, 2026-10-13)
+
+The Desktop harness runs its child modes through a slot pool. The count was tuned on the Mac (`ProcessorCount * 5 / 8`, 10 of 16) and
+applied unchanged on the PC, where the Windows ring read 210.7 s wall with Desktop children hitting the 120 s child TIMEOUT although
+each passes alone in seconds (PR #34 evidence): contention, not a slow check. The harness now reads its slot count in this order and
+prints `DESKTOP-SLOTS <n> (source: env|baseline|default)` once:
+
+1. `CFD_DESKTOP_SLOTS`, a whole number from 1 to the number of modes; anything else is refused (`FAIL DESKTOP-SLOTS ...`, exit 2), never clamped.
+2. The host's `limit.desktop_slots=<n>` line in `docs/proof/ring-<host>/baseline.csv` (read by `check-test-costs.py --resolve-slots`, exported by
+   `tools/run-tests.sh` as `CFD_DESKTOP_SLOTS_BASELINE`; applies on a calibrated `proc-gitbash` host like the other limits, capped at the mode count).
+3. `ProcessorCount * 5 / 8`. The Mac has no such line, so its count and timing are unchanged.
+
+**Calibrate a host** (the PC, `pc-win`, is the first user): on a quiet machine run `tools/measure-desktop-slots.sh` (Git Bash on Windows; default
+N = 2 4 6 8, three reps each). It writes `docs/proof/ring-<host>/desktop-slots.csv` (slots, rep, wall ms, TIMEOUT count, DRAIN count, 1-minute
+load, exit) and prints the N with the lowest median wall and zero TIMEOUTs. It changes no cap, budget or timeout. Then commit
+`limit.desktop_slots=<that N>` in the host's `baseline.csv` together with the three quiet baseline rows, under the existing Ruling 173/176 rule
+(three quiet runs, derive every other limit from them, replay through `check-test-costs.py` before the file is committed). If every N timed out,
+add smaller counts and re-measure; the child timeout and the 60 s budget stay as they are.

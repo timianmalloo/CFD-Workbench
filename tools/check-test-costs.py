@@ -4,6 +4,7 @@
   python3 tools/check-test-costs.py [--dir .tmp-tests] [--jobs Core.part1of3,Core.part2of3,Core.part3of3,Desktop,Analysis.part1of3,Analysis.part2of3,Analysis.part3of3,Cli] [--load <1-minute load>] [--load-source proc-gitbash|...] [--host <name>]
   python3 tools/check-test-costs.py --budget <wall s> <budget s> <load>    [--load-source S --host H]    (TEST-BUDGET, Ruling 87: exit 3 or 0)
   python3 tools/check-test-costs.py --resolve-host <hostname>    (prints the baseline key: $CFD_RING_HOST if set, validated [a-z0-9-]{1,32}, else <hostname>; Ruling 168 (3))
+  python3 tools/check-test-costs.py --resolve-slots <load source> <host>    (prints limit.desktop_slots or an empty line; track DTJ)
   python3 tools/check-test-costs.py --resolve-budget <load source> <host>    (prints the TEST-BUDGET seconds: $CFD_TEST_BUDGET_SECONDS > the host's limit.budget > 60; Ruling 176)
   python3 tools/check-test-costs.py --self-test
 
@@ -57,6 +58,7 @@ LOAD_GATE = 24.0
 # calibrate. A limit line replaces the Mac constant for that host: limit.analysis_part (C-2), limit.wall (C-3, net of the build),
 # limit.desktop (C-4), limit.check and limit.check_exempt (C-5, the per-check limit and the two A8.4 exemptions); a name without a
 # line keeps the Mac constant. C-2 covers Analysis only, so there is no limit.core_part. A malformed limit line exits 2 with REFUSED.
+# limit.desktop_slots (a count, not ms) is the Desktop harness's child-slot count on that host (track DTJ; tools/measure-desktop-slots.sh).
 # C-6 is never re-based. limit.budget (seconds) is the host's TEST-BUDGET. limit.check, limit.check_exempt and limit.budget go
 # beyond Ruling 173's three limits (Ruling 176): its run-1 simulation showed 24 of the 28 cost failures were C-5 (docs/proof/phl/red-first.md).
 UNCALIBRATED_SOURCE = "proc-gitbash"
@@ -132,7 +134,7 @@ def resolve_host(override: str | None, hostname: str) -> str:
 #     (the Windows/Mac per-check ratio spans 3.6-10.1x).
 #   budget (TEST-BUDGET, whole seconds): ceil((limit.wall + max build.ms + 2,000 ms) / 1000).
 # A new host re-derives every line from its own runs and replays them through this tool to 0 failures before the file is committed.
-HOST_LIMIT_NAMES = ("analysis_part", "desktop", "wall", "check", "check_exempt", "budget")
+HOST_LIMIT_NAMES = ("analysis_part", "desktop", "wall", "check", "check_exempt", "budget", "desktop_slots")
 DEFAULT_BUDGET_S = 60
 
 
@@ -144,6 +146,12 @@ def resolve_budget(env: str | None, source: str, host: str, proof: Path | None =
             raise ValueError(f"CFD_TEST_BUDGET_SECONDS={env!r} is refused: use a positive whole number of seconds")
         return int(env)
     return host_gate(source, host, proof)[2].get("budget", DEFAULT_BUDGET_S)
+
+
+def resolve_slots(source: str, host: str, proof: Path | None = None) -> int | None:
+    """The Desktop harness's child-slot count from the calibrated host's limit.desktop_slots (track DTJ), else None (the harness
+    then keeps ProcessorCount * 5 / 8). Like the other limits it applies only on a calibrated proc-gitbash host."""
+    return host_gate(source, host, proof)[2].get("desktop_slots")
 
 
 class BaselineError(ValueError):
@@ -343,7 +351,8 @@ def self_test_host_limits() -> tuple[int, int]:
     baselines = {"pcl": "gate=13\n" + limits + rows, "pcn": "gate=13\n" + rows, "pcd": "gate=13\nlimit.desktop=306344\n" + rows,
                  "pcc": "gate=13\nlimit.check=2600\n" + rows,
                  "bad1": "gate=13\nlimit.desktop=fast\n" + rows, "bad2": "gate=13\nlimit.core_part=30000\n" + rows,
-                 "bad3": "gate=13\nlimit.wall=0\n" + rows, "bad4": "gate=13\nlimit.wall=1\nlimit.wall=2\n" + rows}
+                 "bad3": "gate=13\nlimit.wall=0\n" + rows, "bad4": "gate=13\nlimit.wall=1\nlimit.wall=2\n" + rows,
+                 "pcs": "gate=13\nlimit.desktop_slots=4\n" + rows}
     failures = 0
     total = 0
 
@@ -389,6 +398,13 @@ def self_test_host_limits() -> tuple[int, int]:
                 ("budget: an uncalibrated host keeps 60", None, "proc-gitbash", "nohost", 60),
                 ("budget: a sysctl (Mac) host ignores the baseline", None, "sysctl", "pcl", 60)):
             got = resolve_budget(env, source, host, proof)
+            report(got == want, label, f"expected {want}, got {got}")
+        for label, source, host, want in (
+                ("slots: limit.desktop_slots applies on a calibrated host", "proc-gitbash", "pcs", 4),
+                ("slots: no line means no slot count", "proc-gitbash", "pcn", None),
+                ("slots: an uncalibrated host has none", "proc-gitbash", "nohost", None),
+                ("slots: a sysctl (Mac) host ignores the baseline", "sysctl", "pcs", None)):
+            got = resolve_slots(source, host, proof)
             report(got == want, label, f"expected {want}, got {got}")
         for bad in ("fast", "0", "-5", ""):
             try:
@@ -601,6 +617,14 @@ def main(argv: list[str]) -> int:
         except ValueError as exc:  # BaselineError is a ValueError
             print(f"REFUSED: {exc}", file=sys.stderr)
             return 2
+        return 0
+    if len(args) == 3 and args[0] == "--resolve-slots":  # run-tests.sh: --resolve-slots <load source> <host>; prints the count or an empty line
+        try:
+            slots = resolve_slots(args[1], args[2])
+        except ValueError as exc:
+            print(f"REFUSED: {exc}", file=sys.stderr)
+            return 2
+        print("" if slots is None else slots)
         return 0
     directory, jobs, load, source, host, budget = DEFAULT_DIR, DEFAULT_JOBS, "not-recorded", "", "", None
     while args:
