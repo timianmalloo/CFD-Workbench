@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T05:45:15Z",
+  "generated": "2026-10-13T06:27:08Z",
   "audit": [
     {
       "actor": null,
@@ -38008,6 +38008,39 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "6acb2c7977755229821086b819a9816513f15c97",
         "short": "6acb2c797",
+        "branch": "win/gpu-status-r228",
+        "pushed": true
+      }
+    },
+    {
+      "id": "al-01M4SZ2SRA08Q1RMRP837NCR31",
+      "shortname": "gpu-status-r233-composite",
+      "datetime": "2026-10-13T06:27:01Z",
+      "session": "pc-gpu-status-r233",
+      "prompt": "Refresh the OpenFOAM GPU status after the unified Windows composite is independently accepted.",
+      "summary": "Updated the Markdown and HTML status surfaces to the exact b74af1e candidate, 4e5e205e Astra ACCEPT, conservation counts, independently bound ring result, retained cost finding, PR comment 6139627881, and PREPARED-UNAUTHORIZED boundary.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/openfoam-gpu-status-r220.md",
+        "docs/coordination/openfoam-gpu-status-r220.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Make the current accepted composite and remaining Mac authority gate visible.",
+      "done_when": "Both status surfaces name the exact composite and review, pass docs checks, and are pushed.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "git": {
+        "sha": "0d80774e42f9570141c3bc3daeb7ef7443c37b02",
+        "short": "0d80774e4",
         "branch": "win/gpu-status-r228",
         "pushed": true
       }

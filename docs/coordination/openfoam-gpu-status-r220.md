@@ -1,10 +1,10 @@
 ---
 id: coordination-openfoam-gpu-status-r220
-title: "OpenFOAM GPU work status after R232 reader acceptance"
+title: "OpenFOAM GPU work status after R233 composite acceptance"
 type: doc
 status: blocked
 owner: "@pc-gpu-status-r228"
-tags: [coordination, windows, wsl, openfoam, gpu, cuda, petsc, ruling-232]
+tags: [coordination, windows, wsl, openfoam, gpu, cuda, petsc, composite-r233]
 links:
   - { to: plan-win-openfoam-gpu-qualification, rel: relates-to }
   - { to: proof-win-gpu-b2, rel: depends-on }
@@ -15,13 +15,13 @@ links:
 review-by: "2026-10-20"
 summary: >-
   B2 CUDA capability is proved and F1 remains the selected route. The R230 cleanup action failed closed before any
-  terminate or unregister operation. The bounded cleanup-helper repair, its Windows ring, and the Ruling-229 preflight
-  reader repair are independently accepted. Both candidates remain review-only and await a new exact Mac-leader ruling.
+  terminate or unregister operation. The accepted cleanup-helper and reader-sharing repairs are now combined in one
+  independently accepted candidate. It remains review-only and awaits a new exact Mac-leader ruling.
 ---
 
-# OpenFOAM GPU work status after R232 reader acceptance
+# OpenFOAM GPU work status after R233 composite acceptance
 
-**Snapshot:** 2026-10-13 05:44 UTC. Primary Windows checkout and this status branch include `origin/main` at
+**Snapshot:** 2026-10-13 06:23 UTC. Primary Windows checkout and this status branch include `origin/main` at
 `64dbed61`. Mac remains repository leader.
 
 ## Current result
@@ -52,6 +52,14 @@ The Ruling-229 preflight reader repair is `70d022bf4369c8cb58888f88e6efba00070f3
 sharing. PowerShell 5.1 and 7 behavioral probes, reader controls, safe gates 10/10, documentation, and privacy checks
 pass. Exactly the two F1 exceptions were removed from the control; the seven immutable B1/B2 proof entries remain.
 
+The unified candidate is `b74af1e488e7d7bd3fd7c7901d2940da10fa4c07`, with the accepted helper as its sole parent.
+Independent Astra review `4e5e205e49057094dc3edddd2357b30b958fac8f` accepted the exact four-file reader delta on
+that ancestry. It conserved 5,379 protected parent mode/blob pairs, 1,087 raw audit-prefix entries, and 2,897 ordered
+defect-register lines. Focused checks, both PowerShell runtimes, Python 94/94, docs, and safe gates 10/10 passed. The
+original bounded ring was independently bound at exit 0: Desktop 776 pass, 33 expected, zero unexpected across all 18
+children and 15 partitions. Its separate 210.689-second wall-time finding and 14 advisory cost misses remain recorded.
+The composite is **PREPARED-UNAUTHORIZED**.
+
 ## Stage ledger
 
 | Stage | State | Verified result | Next gate |
@@ -65,12 +73,13 @@ pass. Exactly the two F1 exceptions were removed from the control; the seven imm
 | Cleanup helper repair | Accepted; review-only | Candidate `37b96e47`; repair cycle cap 2/2 consumed. | Mac leader decides whether and how it may be activated. |
 | Windows ring | Accepted | Desktop 776 pass, 33 expected, 0 unexpected; all child modes and partitions complete. | None for the review-only candidate. |
 | Preflight reader repair | Accepted; review-only | Candidate `70d022bf`; Astra review `8ee609f3`; explicit `ReadWrite|Delete` sharing. | Include it in the Mac leader's next packet/ruling decision. |
+| Unified F1 repair composite | Accepted; review-only | Candidate `b74af1e`; Astra review `4e5e205e`; helper ancestry and exact reader delta independently conserved. | Mac leader reviews the one joinable candidate and issues the next exact ruling. |
 | Exact target cleanup | Not authorized | No post-R230 target-state read or absence proof exists. | Fresh ruling, activation, identity and ownership admission, then exact action if authorized. |
 | PETSc/petsc4Foam build and benchmark | Not run | No build, CFD case, accuracy comparison, or speed-up evidence exists. | Separate authority after dependency preflight succeeds. |
 
 ## Next actions
 
-1. Mac reviews PR #34 comment `6138580964` and issues a new exact ruling.
+1. Mac reviews PR #34 comment `6139627881` and issues a new exact ruling.
 2. Windows fetches and merges that ruling from `origin/main`, then verifies its byte-exact bindings.
 3. If the ruling authorizes cleanup, capture fresh leader activation, exact identity, and ownership admission before the
    first WSL command; execute only the named action and stop on any mismatch.
@@ -81,7 +90,7 @@ pass. Exactly the two F1 exceptions were removed from the control; the seven imm
 
 ## Authority boundary
 
-The accepted helper and ring evidence do not authorize a live action. Ruling 230's one cleanup action is consumed. No
+The accepted composite and ring evidence do not authorize a live action. Ruling 230's one cleanup action is consumed. No
 current WSL, distro, or process state is asserted beyond the last committed evidence. The Windows session will not
 terminate, unregister, install, build, or benchmark until the Mac leader commits a ruling that names the allowed action
 and its exact bindings.
@@ -90,8 +99,8 @@ and its exact bindings.
 
 **Verified:** B2 CUDA capability and rollback; F1 route selection; R228 stopped after two stages; R230 cleanup stopped
 before terminate/unregister; helper candidate `37b96e47`; corrected evidence `73cf89c6`; independent ACCEPT
-`bc4ba582`; reader candidate `70d022bf`; reader ACCEPT `8ee609f3`; full ring counts and manifest bindings; no new live
-action was run.
+`bc4ba582`; reader candidate `70d022bf`; reader ACCEPT `8ee609f3`; unified candidate `b74af1e`; composite ACCEPT
+`4e5e205e`; conservation counts and full ring bindings; no new live action was run.
 
 **Inferred:** the loader defect explains the offline helper failure class. Live causation was not observed because the
 failed action stopped before process inspection.

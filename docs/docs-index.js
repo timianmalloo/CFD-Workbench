@@ -5441,14 +5441,14 @@ window.DOCS_INDEX = {
     {
       "id": "coordination-openfoam-gpu-status-r220",
       "path": "docs/coordination/openfoam-gpu-status-r220.md",
-      "title": "OpenFOAM GPU work status after R232 reader acceptance",
+      "title": "OpenFOAM GPU work status after R233 composite acceptance",
       "type": "doc",
       "status": "blocked",
       "owner": "@pc-gpu-status-r228",
       "phase": "",
       "reviewBy": "2026-10-20",
       "reviewSuggested": [],
-      "summary": "B2 CUDA capability is proved and F1 remains the selected route. The R230 cleanup action failed closed before any terminate or unregister operation. The bounded cleanup-helper repair, its Windows ring, and the Ruling-229 preflight reader repair are independently accepted. Both candidates remain review-only and await a new exact Mac-leader ruling.",
+      "summary": "B2 CUDA capability is proved and F1 remains the selected route. The R230 cleanup action failed closed before any terminate or unregister operation. The accepted cleanup-helper and reader-sharing repairs are now combined in one independently accepted candidate. It remains review-only and awaits a new exact Mac-leader ruling.",
       "tags": [
         "coordination",
         "windows",
@@ -5457,7 +5457,7 @@ window.DOCS_INDEX = {
         "gpu",
         "cuda",
         "petsc",
-        "ruling-232"
+        "composite-r233"
       ],
       "links": [
         {
@@ -5486,7 +5486,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "29d902d7d6484798caa80d81a46d565e58b6d03e7d340206c09583209cd83143"
+      "sourceSha256": "b72845fe681c4cc42bdac212072ecb2ab34df431a9d385dd8f4e5dca76b16a20"
     },
     {
       "id": "defect-classes",
@@ -22140,7 +22140,7 @@ window.DOCS_INDEX = {
     {
       "id": "surface-coordination-openfoam-gpu-status-r220",
       "path": "docs/coordination/openfoam-gpu-status-r220.html",
-      "title": "OpenFOAM GPU status — R232 reader accepted",
+      "title": "OpenFOAM GPU status — R233 composite accepted",
       "kind": "knowledge-tool",
       "description": "Open an interactive knowledge artifact.",
       "artifactId": "coordination-openfoam-gpu-status-r220"
@@ -22234,5 +22234,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "778044706ee44ab48a32334ec4666c2dfb48fa6669371ba45f9149793527655a"
+  "graphSha256": "e02f814d1f1f8644e979e689ff2bee71f638eeb3202bd443647ad1f6d7df1020"
 };
