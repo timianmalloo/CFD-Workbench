@@ -168,6 +168,9 @@ class OwnedCheckTests(unittest.TestCase):
         self.assertEqual(error_output.getvalue(), "F1-OWNED-IMPORT-FAILED\n")
         launch.assert_not_called()
 
+    # cleanup.py's linux_path accepts only a Windows (C:\) repo root, so this case can run only on the PC (Fable join
+    # condition 1, 2026-10-13). Skipped, and so reported, elsewhere; the PC ring still runs it.
+    @unittest.skipUnless(sys.platform == "win32", "needs a Windows repo root (cleanup.py linux_path); runs on the PC ring")
     def test_Execute_HelperDiagnostic_BindsSanitizedCodeAndStops(self):
         for diagnostic in (b"F1-OWNED-IMPORT-FAILED", b"F1-OWNED-RESIDUAL", b"F1-OWNED-STATE-UNKNOWN",
                            b"private argv: /synthetic/private", b"F1-OWNED-RESIDUAL\nprivate detail"):
