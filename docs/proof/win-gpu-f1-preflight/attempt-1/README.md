@@ -12,7 +12,7 @@ links:
   - { to: plan-windows-gpu-f1-guard-consistency-repair, rel: relates-to }
 review-by: "2026-10-19"
 summary: >-
-  Fresh attempt/run/session/branch at epoch 7, exact packet and external helper
+  Fresh attempt/run/session/branch at epoch 8, exact packet and external helper
   bytes, seven rehashed inputs, proposed live-path authorization and precomputed
   accepted projection. Normal admission refuses until a hash-bound main ruling.
 ---
@@ -24,11 +24,13 @@ and refusal controls pass and the candidate is pushed. Not in scope: WSL, live
 effects, installation, build or CFD. Tier T1; no author delegation. Repair cap 2.
 Astra holds independent review; the author does not grant or clear authority.
 
-**Verified final source anchor:** `f1114270e38e04bf8cca47030a2a4125eafb750d`.
+**Verified final source anchor:** `b7821e27d75a0a5ffed5ee3f9d36c3bf08e535a8`.
 Earlier source candidates `a3086d4c` and `50a05988`, and payload candidate
 `705e8ea0`, are **superseded**, retained as history, and must not be activated.
 Production fix `1fc9519f` is retained but superseded for final binding by the
-annotation-only source anchor above; its production logic is identical.
+epoch-8 source anchor above. The earlier epoch-7 source `f1114270` and Ruling 227
+were superseded after the local epoch-7 designation expired before invocation;
+no WSL action occurred under that ruling.
 Source controls were committed before payloads to avoid self-hash circularity.
 All 16 packet files and external `recovery/check_cache.py` are bound to those
 Git blobs. The invocation keeps schema `cfdw-f1-r217-invocation/1` and adds exact
@@ -36,24 +38,24 @@ attempt/run/root values. Legacy run-1/epoch-6 admission is not reused.
 
 | Binding | Exact value |
 | --- | --- |
-| Attempt / run | `1` / `r225-attempt1-epoch7-20261012` |
+| Attempt / run | `1` / `r225-attempt1-epoch8-20261012` |
 | Session / branch | `pc-f1-r225-attempt1` / `win/gpu-f1-r225-attempt1` |
-| Leader | `mac`, PC-local epoch `7`; live renewal required for execution |
+| Leader | `mac`, PC-local epoch `8`; live renewal required for execution |
 | Evidence root | `docs/proof/win-gpu-f1-preflight/attempt-1` |
-| Contract SHA-256 | `63b38a67d661dc2164295a5af192bf107378b0d935c01b4529d3293c4468bf72` |
-| Proposed authorization SHA-256 | `8fb79e406575febc807f69dd5a33a5131505ef38f489c4672b69013ad3694760` |
-| Accepted projection SHA-256 | `d7d371ba768da659cf561fdd9dda9360c91ecf41d249cf40fbeb6dea8b01ed71` |
+| Contract SHA-256 | `1141ee15dde086991290c508104addf9fe5c32c789dccbdbfdbfbaeb9e49f696` |
+| Proposed authorization SHA-256 | `a274d4d89eb789ffae57009b4197c08ea0dd632c95bfa576f7c446a30749e5b6` |
+| Accepted projection SHA-256 | `39217fae100c358c1c98aba5e1827e23cb0e0824d2be9329f98c339a8275dff3` |
 
 The live-path `attempt-authorization.json` remains **proposed**. The separate
 `authorization.accepted-projection.json` is a review candidate, never an invocation
-path. Its only differences are `status: accepted` and `ruling: 227`; `requested_ruling:
-227` is supported by Ruling 226's explicit next-ruling statement. Future ruling
+path. Its only differences are `status: accepted` and `ruling: 228`; `requested_ruling:
+228` requests an amendment because Ruling 227's epoch expired unused. Future ruling
 numbers are not derived. Projection bytes grant no permission.
 
-The request to the Owner is for R227 to name the projection SHA above and admit
+The request to the Owner is for R228 to name the projection SHA above and admit
 byte-identical promotion to the live path after source/payload acceptance. Its
 accepted section must bind the live authorization path, projection SHA, source
-anchor, contract path/SHA, run, session, branch and `epoch 7`, with the acceptance
+anchor, contract path/SHA, run, session, branch and `epoch 8`, with the acceptance
 marker `ACCEPT ONE PREFLIGHT ATTEMPT`. The verifier requires those bindings inside
 that exact section of `origin/main:docs/notes/rulings.md`; tokens elsewhere cannot
 satisfy it. No such ruling was authored here. After it exists, copy only the
