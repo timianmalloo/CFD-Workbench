@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T20:51:02Z",
+  "generated": "2026-10-13T22:35:47Z",
   "audit": [
     {
       "actor": null,
@@ -38863,6 +38863,31 @@ window.AUDIT_DATA = {
         "branch": "dtj/pc-calibration",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M4VPGNTK2Y7MN9EDDPPHRDCS",
+      "shortname": "join-pr40",
+      "datetime": "2026-10-13T22:35:47Z",
+      "session": "3122f106",
+      "prompt": "the join of origin/dtj/pc-calibration into main",
+      "summary": "join recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-13T22:35:26Z",
+      "duration_seconds": 21.0
     }
   ],
   "changes": [
