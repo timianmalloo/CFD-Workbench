@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T06:09:21Z",
+  "generated": "2026-10-13T13:25:10Z",
   "audit": [
     {
       "actor": null,
@@ -38295,6 +38295,31 @@ window.AUDIT_DATA = {
         "branch": "win/gpu-f1-r233-repairs-integration",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M4TQ0F1MMC88T9ZK9TFVJZMQ",
+      "shortname": "join-f1-repairs",
+      "datetime": "2026-10-13T13:25:10Z",
+      "session": "3122f106",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-13T13:24:01Z",
+      "duration_seconds": 69.0
     }
   ],
   "changes": [
