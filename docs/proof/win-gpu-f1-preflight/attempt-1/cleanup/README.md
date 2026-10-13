@@ -49,10 +49,10 @@ Do not run that command from this proposed state.
 
 | Artifact | SHA-256 |
 | --- | --- |
-| Source commit | `ad4cedbbd34f4d0178576330c98072c84f4dcc69` |
-| Payload | `dd41827d0e26b9452bcbe4c9040d23f417449a43e55ae0863e9270a05e154370` |
-| Proposed authorization | `e4806d0188185bc76a59c5ee06f39e639d597e4e09e5c1c486b00c417d735211` |
-| Accepted projection | `82799f9938781b9f2aed94988dde9b5ab90cb61f9262d667eba6ec4796972e71` |
+| Source commit | `0f478493dccafb9965e3083fb68007f7b3740cc5` |
+| Payload | `c801342babe37f96b4e02b233236cc554fef5adb0d7a99e385ccd9a7e990674f` |
+| Proposed authorization | `2a436adc78850090c7b98eb24c1286eac8fa4a36a1e583470d43656daa15a6cf` |
+| Accepted projection | `aa3f67827c95efd99b62d5ece018d1d62320267bbb5737b1d4bc3409c7c57898` |
 
 The exact owner request is
 `docs/notes/windows-gpu-f1-r229-cleanup-request.md`.

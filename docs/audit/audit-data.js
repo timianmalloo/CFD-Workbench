@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T02:17:21Z",
+  "generated": "2026-10-13T02:20:06Z",
   "audit": [
     {
       "actor": null,
@@ -38008,6 +38008,39 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M4SGYPNG24XMK1EA1RFNN1ZZ",
+      "shortname": "r229-cleanup-ruling-citation-repair",
+      "datetime": "2026-10-13T02:20:06Z",
+      "session": "pc-f1-r228-cleanup-author",
+      "prompt": "Bounded repair cycle 2: replace the undefined Ruling 229 citation with proposed-request terminology, inspect sibling candidate docs, regenerate bindings, and run all gates; no WSL or GitHub.",
+      "summary": "Final allowed repair changed only premature authority prose; ruling-citation gate moved from one undefined citation to 228 cited/228 defined, 64 offline tests and docs/graph/privacy/history gates passed; cap now consumed.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/README.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Remove the premature Ruling 229 citation in final repair cycle 2.",
+      "done_when": "Candidate docs use defined request terminology, regenerated bindings and gates pass, and the clean branch is pushed.",
+      "tier": "T1",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "git": {
+        "sha": "0f478493dccafb9965e3083fb68007f7b3740cc5",
+        "short": "0f478493d",
+        "branch": "win/gpu-f1-r228-cleanup",
+        "pushed": false
+      }
     }
   ],
   "changes": [
