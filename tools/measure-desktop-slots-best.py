@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Pick the Desktop slot count from a tools/measure-desktop-slots.sh CSV (track DTJ).
 
-  python3 tools/measure-desktop-slots-best.py <csv>        prints one line per N and the best N; exit 0, or 1 when none qualifies
+  python3 tools/measure-desktop-slots-best.py <csv>        prints one line per N and the best N; exit 0, 1 when none qualifies,
+                                                           or 3 (AT-EDGE) when the best is the largest N tested
 
 A slot count qualifies when every rep has verdict `pass` (the harness log classified against the expected-failure manifest,
 as tools/run-tests.sh does on Windows; the raw `exit` column is kept but not used) with zero TIMEOUTs. The best is the qualifying N with the lowest median wall.
@@ -44,6 +45,10 @@ def main(argv: list[str]) -> int:
         print("BEST none: every slot count had a TIMEOUT or a failing run")
         return 1
     best = min(medians, key=lambda n: (medians[n], n))
+    if best == max(runs) and len(runs) > 1:
+        print(f"AT-EDGE {best} (median wall {medians[best] / 1000:.1f} s): the wall was still falling at the largest N tested, so the "
+              "optimum may lie above it. Measure larger N (up to the Desktop mode count) before committing limit.desktop_slots.")
+        return 3
     print(f"BEST {best} (median wall {medians[best] / 1000:.1f} s, zero TIMEOUTs); commit limit.desktop_slots={best} with the host's quiet baseline rows")
     return 0
 
