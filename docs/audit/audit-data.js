@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T02:42:55Z",
+  "generated": "2026-10-13T02:48:30Z",
   "audit": [
     {
       "actor": null,
@@ -38117,6 +38117,39 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "f75ae322574c5e3160012708b80fc610faa5a0e9",
         "short": "f75ae3225",
+        "branch": "win/gpu-f1-r228-cleanup",
+        "pushed": false
+      }
+    },
+    {
+      "id": "al-01M4SJJP2TYZKCS053Y5QPXYRR",
+      "shortname": "r230-cleanup-leader-receipt-cycle1",
+      "datetime": "2026-10-13T02:48:30Z",
+      "session": "pc-f1-r228-cleanup-author",
+      "prompt": "R230 activation repair cycle 1: reject NaN/Infinity leader TTL and bind immediate pre-live leader refusal into the classified receipt path with zero lifecycle calls; regenerate all bindings and gates; no live action.",
+      "summary": "Two red-first probes exposed non-finite TTL admission and an unbound pre-live refusal. Source c8df1291 requires finite TTL >=200 and captures the immediate leader sample inside the receipt-binding failure path before lifecycle dispatch. Focused union 69/69 and safe bundle 10/10 passed; cycle 1 of 2.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/red-first.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Close Astra's two R230 leader-sample vetoes without widening cleanup scope.",
+      "done_when": "Both regressions are red then green, bindings regenerated, required gates green, clean branch pushed.",
+      "tier": "T1",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "git": {
+        "sha": "c8df1291bb96f164cafb94b5f6eb106472bcfd7d",
+        "short": "c8df1291b",
         "branch": "win/gpu-f1-r228-cleanup",
         "pushed": false
       }

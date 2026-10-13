@@ -54,10 +54,10 @@ Do not run that command from this proposed state.
 
 | Artifact | SHA-256 |
 | --- | --- |
-| Source commit | `f75ae322574c5e3160012708b80fc610faa5a0e9` |
-| Executor source | `0094cde3c83795ee7064e41aff18e6d70882bccb952e8cf581178792ee8abfb1` |
-| Payload | `b5aecd640ce42c91760c7410a6e45c8a8ef867f0a45bbb7398b314bbfca82368` |
-| Canonical authorization | `30f5a67158121ce9c1ba3fa622fd43db4ff692d439afce1fbb5ae8ca2d9f0822` |
+| Source commit | `c8df1291bb96f164cafb94b5f6eb106472bcfd7d` |
+| Executor source | `69f1dc6028c0f573ef3b9b1158891168f7f08bad439ae9b4b989bb373117d219` |
+| Payload | `4a8337ddd0548f7f7cbd8fa306d188db9f8a28ef0a41b4c77882b735f3564e55` |
+| Canonical authorization | `b3143f40ffa541accca45797eb6e620ebcc7272b505434a66c63582e1a960890` |
 
 The exact owner request is
 `docs/notes/windows-gpu-f1-r230-cleanup-request.md`.

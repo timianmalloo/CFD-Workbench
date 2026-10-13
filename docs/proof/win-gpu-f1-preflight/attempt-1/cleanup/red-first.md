@@ -56,3 +56,24 @@ arguments come from the validated authorization identity, and reject either
 leader sample below 200 seconds or outside exact Mac epoch 8. The complete
 offline recovery union now passes 67 tests. No probe imports `winreg` or starts
 WSL. The accepted R229 alias regressions remain in the union unchanged.
+
+## R230 repair cycle 1: leader refusal receipt and finite TTL
+
+Two production-boundary probes were red on candidate `4044b77a`. `NaN` and
+positive infinity passed the numeric comparison, and a planted pre-live sample
+refusal escaped before `bind()`:
+
+```text
+test_leader_sample_rejects_non_finite_ttl ... FAIL (ttl=nan)
+test_leader_sample_rejects_non_finite_ttl ... FAIL (ttl=inf)
+test_pre_live_leader_refusal_binds_receipt_before_stopping ... FAIL
+Ran 2 tests in 0.004s
+FAILED (failures=3)
+```
+
+The executor now requires a finite TTL at or above 200 seconds. The immediate
+pre-live capture is inside the classified failure path, before the cleanup
+sequence, so refusal binds `failed-stop-no-retry` evidence and performs zero
+lifecycle calls. The candidate-only threshold sweep found one production parse,
+`validate_leader_sample`; both activation and immediate samples use it. The
+complete offline recovery union passes 69 tests. This is repair cycle 1 of 2.
