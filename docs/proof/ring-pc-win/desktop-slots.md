@@ -41,6 +41,21 @@ The complete per-run readings are in `desktop-slots.csv`. The script selected **
 `limit.desktop_slots=8`. Its three existing quiet Ruling 173/176 rows remain unchanged: end loads 12.18, 10.08, and 11.80,
 all below the host gate of 13.
 
+## Extension above 8 (Mac leader hold, PR #40)
+
+The PC has 20 logical processors (`docs/proof/win-routes/receipt.md`). Without a baseline line, the harness would default to
+`Math.Clamp(20 * 5 / 8, 1, 14)` = 12 slots (`tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs`). Because 8 was the largest
+count tested and the wall was still falling, the Mac leader asked for 10, 12 and 14 before the join.
+
+- N=10: rep 1 took 138,271 ms and rep 2 took 141,368 ms. Both passed with zero TIMEOUT and DRAIN, and both were slower than
+  the 8-slot median. Rep 3 took 128,972 ms with **one DRAIN** (verdict `fail`, load 12.03). The run stopped there, as instructed.
+- N=12 and N=14 have no valid measurement. Two N=12 rows were recorded after the stop, because the outer shell kept running after
+  its child was interrupted. They are not a three-repetition set and are excluded. The partial CSV stays uncommitted on the PC.
+
+**Decision:** keep `limit.desktop_slots=8`. N=10 is no faster in its passing reps and is not clean, so 8 is the best qualified
+count. It is also below the PC's untested default of 12. `tools/measure-desktop-slots-best.py` now reports a best N at the edge
+of the tested range as `AT-EDGE` (exit 3) rather than `BEST`. That is how this extension was found to be needed.
+
 ## Validation
 
 - `tools/measure-desktop-slots.sh --self-test`: passed (six classifications and one best-N selection).
