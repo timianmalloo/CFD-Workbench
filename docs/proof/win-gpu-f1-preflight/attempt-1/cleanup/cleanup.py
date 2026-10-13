@@ -83,6 +83,9 @@ def validate_identity(rows: list[dict], names: list[str], target_path_present: b
         raise ValueError("missing or duplicate registration GUID")
     target = exact_row(rows, TARGET, TARGET_KEY, TARGET_PATH)
     protected = exact_row(rows, PROTECTED, PROTECTED_KEY, PROTECTED_PATH)
+    for name, path in ((TARGET, TARGET_PATH), (PROTECTED, PROTECTED_PATH)):
+        if sum(normalize(str(row.get("path", ""))) == normalize(path) for row in rows) != 1:
+            raise ValueError("ambiguous registration path: " + name)
     if names.count(TARGET) != 1 or names.count(PROTECTED) != 1:
         raise ValueError("WSL list identity mismatch")
     if not target_path_present or not protected_path_present:
@@ -102,6 +105,10 @@ def validate_absence(rows: list[dict], names: list[str], target_path_present: bo
     if TARGET in names or target_path_present:
         raise ValueError("target list/path absence not proved")
     protected = exact_row(rows, PROTECTED, PROTECTED_KEY, PROTECTED_PATH)
+    if sum(str(row.get("key", "")).casefold() == PROTECTED_KEY.casefold() for row in rows) != 1:
+        raise ValueError("ambiguous protected registration GUID")
+    if sum(normalize(str(row.get("path", ""))) == normalize(PROTECTED_PATH) for row in rows) != 1:
+        raise ValueError("ambiguous protected registration path")
     if protected != protected_before or names.count(PROTECTED) != 1 or not protected_path_present:
         raise ValueError("protected identity changed")
 

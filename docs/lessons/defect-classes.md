@@ -2725,6 +2725,21 @@ seconds", and the derive step picked the suspect clock.
 
 **R225 packet sibling, final repair cycle:** the first attempt-admission sweep missed `Invoke-Preflight.ps1:Assert-FinalAbsence`, which still checked the old name/path only. Astra's production-function probe proved that the newly observed created GUID could survive renamed and moved while final absence passed. Class → sweep → derive → prevent: sweep all packet registration readers (`Get-TargetRegistration`, fresh admission, containment, cleanup and final absence) and compare `recovery.validate_absence`, which already refuses surviving GUIDs across all rows. Derive: prove absence by the recorded identity across every registration, and retain exact protected GUID/name/path/version, not only labels. Prevent: `tests/f1_attempt_absence.ps1` loads the actual final-absence AST; red at `50a05988`, green on final source `1fc9519f` on both PS runtimes, with renamed/moved created GUID and protected identity mutations. Final absence now enumerates all rows and reuses the fresh-registration control before rejecting any surviving created GUID. The actual `contract.verify` wiring controls in `tests/test_f1_attempt_admission.py` also reject missing/proposed/altered authority and source/worktree external-helper mutations; a policy-only inert child was insufficient proof. Ring: offline-admission; eleven Python controls measured 6.222 s, including recursive historical conservation; no build or live action. Earlier source/artifact candidates remain superseded history, and historical failure bytes are unchanged.
 
+**R229 cleanup sibling, repair cycle 1:** the isolated cleanup candidate checked
+the exact named target/protected rows but did not require their reviewed
+BasePaths to occur exactly once across every registration. A third renamed row
+could therefore alias either path, including after target unregister on the
+protected path. Class → sweep → derive → prevent: sweep both registration
+consumers, `validate_identity` and `validate_absence`, over name, GUID and
+normalized BasePath multiplicity. Derive: an exact named row is necessary but
+does not establish unique ownership of its path; admission and absence each
+require one global match for every retained identity. Prevent:
+`tests/test_f1_r228_cleanup.py` plants target-path alias, protected-path alias
+and post-unregister protected-path alias rows. All three were red on source
+`9803961c...` and green after the global multiplicity guards. Ring:
+offline-fast; the full recovery union passes 64 tests. No WSL or lifecycle
+operation is part of the control.
+
 **Cycle 1 control, 2026-10-12:** Astra independently reproduced post-launch deadline admission,
 name-only absence despite a surviving exact GUID, and finally-error overwrite. Sweep: both
 `Popen` sites, all registration rows, deletion/final-owned/absence paths and receipt/binding.

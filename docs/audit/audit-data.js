@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T02:00:48Z",
+  "generated": "2026-10-13T02:06:51Z",
   "audit": [
     {
       "actor": null,
@@ -37945,6 +37945,21 @@ window.AUDIT_DATA = {
         "branch": "win/gpu-f1-r228-cleanup",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M4SG6DKCBP2HZS8WXSF3C74K",
+      "shortname": "Bounded repair cycle 1: reject third registrations aliasing the target o…",
+      "datetime": "2026-10-13T02:06:50Z",
+      "session": "prompt-log",
+      "prompt": "Bounded repair cycle 1: reject third registrations aliasing the target or protected BasePath during identity admission and protected absence; add red-first probes, regenerate all source and authorization bindings, run focused and repository gates, commit and push; no WSL or GitHub.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
     }
   ],
   "changes": [

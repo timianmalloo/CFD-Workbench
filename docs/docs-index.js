@@ -5584,7 +5584,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "db145205afb99973b665cb65233aa3967f824e723b95a713bf364aed5e491d2f"
+      "sourceSha256": "7c08fe5b2c2f7a7ca2db761f8fe09dcfa0b21048f552672e2083e4cfc87d198c"
     },
     {
       "id": "domain-experts",
@@ -19017,7 +19017,7 @@ window.DOCS_INDEX = {
       "phase": "preflight",
       "reviewBy": "2026-10-13",
       "reviewSuggested": [],
-      "summary": "The branch baseline had no exact cleanup entrypoint, while the prior recovery was bound to another GUID and a broader deletion scope.",
+      "summary": "The accepted cleanup candidate admitted target/protected BasePath aliases; three inert regression probes were red before repair and green after.",
       "tags": [
         "windows",
         "cleanup",
@@ -19030,7 +19030,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "13b25d632556e32dff823aac60f14539183755e6c0e67d750337fd54c2baffd5"
+      "sourceSha256": "3bf89133fb2fa2e2eab30346cda4a6bcf470e12ba8fff667665893f50e38f0f1"
     },
     {
       "id": "proof-win-gpu-f1-recovery-integration",
@@ -22333,5 +22333,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "f2f951b6c3ad068eedd36afc50f90fbedeb4642f4fda570e10b0a6a6b7250ea1"
+  "graphSha256": "81d481388233b43891c6602cfbab251e57b7764101f418a0655386ba2a4d7338"
 };

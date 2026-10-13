@@ -43,6 +43,18 @@ class CleanupOnlyTests(unittest.TestCase):
             with self.subTest(names=names), self.assertRaises(ValueError):
                 cleanup.validate_identity([self.target, self.protected], names, target_path, protected_path)
 
+    def test_identity_target_path_alias_refuses(self):
+        alias = row("renamed-target-alias", "{third}", cleanup.TARGET_PATH)
+        with self.assertRaises(ValueError):
+            cleanup.validate_identity([self.target, self.protected, alias],
+                                      [cleanup.TARGET, cleanup.PROTECTED, "renamed-target-alias"], True, True)
+
+    def test_identity_protected_path_alias_refuses(self):
+        alias = row("renamed-protected-alias", "{third}", cleanup.PROTECTED_PATH)
+        with self.assertRaises(ValueError):
+            cleanup.validate_identity([self.target, self.protected, alias],
+                                      [cleanup.TARGET, cleanup.PROTECTED, "renamed-protected-alias"], True, True)
+
     def test_absence_rejects_every_target_alias_and_protected_change(self):
         cleanup.validate_absence([self.protected], [cleanup.PROTECTED], False, True, self.protected)
         survivors = (dict(self.target, name="renamed", path="C:\\moved"),
@@ -53,6 +65,12 @@ class CleanupOnlyTests(unittest.TestCase):
                 cleanup.validate_absence([self.protected, survivor], [cleanup.PROTECTED], False, True, self.protected)
         with self.assertRaises(ValueError):
             cleanup.validate_absence([dict(self.protected, path="C:\\moved")], [cleanup.PROTECTED], False, True, self.protected)
+
+    def test_absence_protected_path_alias_refuses(self):
+        alias = row("renamed-protected-alias", "{third}", cleanup.PROTECTED_PATH)
+        with self.assertRaises(ValueError):
+            cleanup.validate_absence([self.protected, alias],
+                                     [cleanup.PROTECTED, "renamed-protected-alias"], False, True, self.protected)
 
     def test_sequence_stops_at_first_failure(self):
         expected = ["precheck-identity", "owned-stage-refusal", "owned-guard-refusal",
