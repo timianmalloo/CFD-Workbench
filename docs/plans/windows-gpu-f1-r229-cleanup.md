@@ -68,8 +68,9 @@ review vetoes a binding, or Mac/Fable changes the permitted cleanup scope.
 # Planned versus actual
 
 All five author nodes ran serially as planned. The source pass found one missing
-full-corpus manifest check before payload freeze; it was repaired before review,
-for one rework pass and no repair-cap event. The final focused union contains 61
-tests. Token usage is not exposed by the runner. No concurrency was used and no
-WSL process was launched during authoring. Final gate durations and outcomes are
-recorded in the closing audit entry and author handoff.
+full-corpus manifest check before payload freeze. Independent review then found
+one path-multiplicity class across admission and absence; bounded repair cycle 1
+closed all three aliases. The repair cap did not fire. The final focused union
+contains 64 tests. Token usage is not exposed by the runner. No concurrency was
+used and no WSL process was launched during authoring. Final gate durations and
+outcomes are recorded in the closing audit entry and author handoff.

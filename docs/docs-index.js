@@ -2043,7 +2043,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1269bd66d2036282976339651ef1e1ae83eb473b11bf7e6f7a2f499d6210c865"
+      "sourceSha256": "869d19b8cada65554c82fb7d26bbf79e18efff42677da54cc1ff4b8260e78a05"
     },
     {
       "id": "property-grid-rulings",
@@ -6406,7 +6406,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  G1 --> G2 --> G3 --> G4 --> G5 --> G6 --> G7"
         }
       ],
-      "sourceSha256": "b24d6a8dbf8621d48a47be6c57dc41fce0a3a15cbb4d5c6c27a8eff1ba71ae54"
+      "sourceSha256": "8132d2550f28bbc7e8600d1a4216d50bc5c3da6d77a747afdc5f45259de9f5fa"
     },
     {
       "id": "plan-windows-gpu-f1-recovery-integration",
@@ -19005,7 +19005,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "335cd76cfd26f30ba68b9ad0fe7ec6a71c4839332c470b48c751d27262df9e39"
+      "sourceSha256": "c3ed4b7283ea2cbdf825363865eab468e97dfb180c6b5364d1cce526c980fdd2"
     },
     {
       "id": "proof-win-gpu-f1-r229-cleanup-red-first",
@@ -22333,5 +22333,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "81d481388233b43891c6602cfbab251e57b7764101f418a0655386ba2a4d7338"
+  "graphSha256": "25c5507396c522748631268a8fc76e49bf33d28a28a253827045bec20a1b5e41"
 };

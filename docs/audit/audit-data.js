@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T02:06:51Z",
+  "generated": "2026-10-13T02:09:33Z",
   "audit": [
     {
       "actor": null,
@@ -37960,6 +37960,39 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M4SGBCEG1CWWX12RPBSYQCMH",
+      "shortname": "r229-cleanup-path-alias-repair",
+      "datetime": "2026-10-13T02:09:33Z",
+      "session": "pc-f1-r228-cleanup-author",
+      "prompt": "Bounded repair cycle 1: reject target/protected BasePath aliases in cleanup identity and absence checks; regenerate all bindings and rerun focused/repository gates; no WSL or GitHub.",
+      "summary": "Astra's three BasePath alias probes were red on accepted source and green after global normalized-path multiplicity checks; 64 offline tests, docs, graph, privacy and history conservation passed; repair cycle 1 of 2.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/red-first.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Close Astra's path-alias veto in bounded repair cycle 1.",
+      "done_when": "All three alias regressions are red then green, regenerated bindings are pushed, and repository gates pass.",
+      "tier": "T1",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "git": {
+        "sha": "ad4cedbbd34f4d0178576330c98072c84f4dcc69",
+        "short": "ad4cedbbd",
+        "branch": "win/gpu-f1-r228-cleanup",
+        "pushed": false
+      }
     }
   ],
   "changes": [

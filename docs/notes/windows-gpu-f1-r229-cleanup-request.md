@@ -24,10 +24,10 @@ This proposed note and the accepted projection do not grant authority.
 
 | Binding | Exact value |
 | --- | --- |
-| Source commit | `eb1e0e64c5fcbc9a77ea10d8593e99e2912a0c1f` |
-| Payload SHA-256 | `05779548b652f380222357df515766629d3bd096d7526be95af4a8c2c259a5fa` |
-| Proposed authorization SHA-256 | `8cf8d84ab7049e681ae45670db78cd3662ffcb632a00a23a8c24387eff401de4` |
-| Accepted projection SHA-256 | `fd0b7f668844a730a2623eff7a798d8b7a5c217533a48fd3039fd9e1859193cd` |
+| Source commit | `ad4cedbbd34f4d0178576330c98072c84f4dcc69` |
+| Payload SHA-256 | `dd41827d0e26b9452bcbe4c9040d23f417449a43e55ae0863e9270a05e154370` |
+| Proposed authorization SHA-256 | `e4806d0188185bc76a59c5ee06f39e639d597e4e09e5c1c486b00c417d735211` |
+| Accepted projection SHA-256 | `82799f9938781b9f2aed94988dde9b5ab90cb61f9262d667eba6ec4796972e71` |
 | Session / branch / leader epoch | `pc-f1-r229-cleanup1` / `win/gpu-f1-r228-cleanup` / `8` |
 | Original run | `r225-attempt1-epoch8-20261012` |
 | Target | `cfdw-petsc-cuda132-f1` / `{e874e10f-c7b9-4a2b-a03b-87ad52fb9c41}` / `C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1` |
