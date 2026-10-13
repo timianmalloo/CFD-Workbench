@@ -9320,6 +9320,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "9c97341e926da4a63a3fbe4a14a6e8ca0a82310c24c4ace42b2bbe02e63eda7c"
     },
     {
+      "id": "review-windows-gpu-f1-r233-composite",
+      "path": "docs/reviews/windows-gpu-f1-r233-composite-review.md",
+      "title": "Independent acceptance of the exact F1 composite repair",
+      "type": "doc",
+      "status": "accepted",
+      "owner": "@pc-f1-r233-repairs-review",
+      "phase": "",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Independent ACCEPT of b74af1e for offline integration only. Helper controls, reader sharing, protected history and the single retained functional ring are verified; budget misses remain recorded and no live authority is granted.",
+      "tags": [
+        "windows",
+        "offline",
+        "review",
+        "conservation"
+      ],
+      "links": [
+        {
+          "to": "proof-f1-composite-helper-reader-r233",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-cleanup-helper-repair",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "14ae85f786e80ac92abbb1a6b745ca5dfe47a13bdcecc423ae2d294e06983771"
+    },
+    {
       "id": "rulings",
       "path": "docs/notes/rulings.md",
       "title": "Rulings — the Owner seat's numbered decisions (the only definition site)",
@@ -11559,6 +11589,31 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "c727a8dbb6eb3393124ebcd3dc65153645f4546ea2df26a3d1c9a1bebebd52ec"
+    },
+    {
+      "id": "plan-windows-gpu-f1-r233-composite-review",
+      "path": "docs/plans/windows-gpu-f1-r233-composite-review.md",
+      "title": "Bounded independent composite review",
+      "type": "plan",
+      "status": "complete",
+      "owner": "@pc-f1-r233-repairs-review",
+      "phase": "",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Exact candidate, independent safety/conservation checks, retained ring, disposition and publication.",
+      "tags": [],
+      "links": [
+        {
+          "to": "review-windows-gpu-f1-r233-composite",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-f1-composite-helper-reader-r233",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d685f095e47a8f026157906f29cbd55186f3a67e72d9abe8305345ab8d10b3eb"
     },
     {
       "id": "privacy-review",
@@ -22458,5 +22513,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "31422aa64a9813bacffb0fd1c4b18c678cd95b5fb8792b5da46672e3370dc042"
+  "graphSha256": "c06907e69126f3225a8d54c4a2b47f1907c43ca60c5618727715cc764ca2848c"
 };

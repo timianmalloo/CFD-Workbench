@@ -1,0 +1,233 @@
+{
+  "candidate": "b74af1e488e7d7bd3fd7c7901d2940da10fa4c07",
+  "sole_parent": "37b96e4749a13d2fee3a7d73444d66a6a39a6403",
+  "reader_delta_origin": "70d022bf4369c8cb58888f88e6efba00070f35db",
+  "protected_modes_and_blobs": 5379,
+  "parent_audit_raw_prefix_entries": 1087,
+  "parent_register_ordered_lines": 2897,
+  "source_bindings": [
+    {
+      "base_blob": "ebe8f5995591d3a63abb8f4e91a71449404524b0",
+      "bytes": 36278,
+      "composite_blob": "d53b5d85c92e976b483c2e7e57a895ca4777afc1",
+      "path": "docs/proof/win-gpu-f1-preflight/packet/Invoke-Preflight.ps1",
+      "sha256": "fec35b23017fb96a6496de331c0dcf7a9a4d54dfb8e230ed7fade7c1d0df7029"
+    },
+    {
+      "base_blob": "dc08f5676afa69ccd90adb9966c0b417bb932ff1",
+      "bytes": 14176,
+      "composite_blob": "d4caaf28cafa4f9d1a6840169d1e1bce74904f92",
+      "path": "docs/proof/win-gpu-f1-preflight/packet/SelfTest.ps1",
+      "sha256": "f97bcfac7fdb292759a5d8bf9f8a45cd85ee14dd41ad9e21ae048ed27fcf4f1a"
+    },
+    {
+      "base_blob": "1719e70427192064425a10bd0e5e9f8a4112c691",
+      "bytes": 12788,
+      "composite_blob": "74e329f98c811341b486561e66c4984ed9795082",
+      "path": "tools/check-docs.py",
+      "sha256": "d0078df2e6ae5a4d0f7fb748c11542ba76d363debeec8c1ca82207bdc6954110"
+    },
+    {
+      "base_blob": "3ce08c22e4d3b049694e7fd358c9629de5f963a8",
+      "bytes": 13685,
+      "composite_blob": "343ab7be89213cc9c79e91f322b0a8ac73431bb6",
+      "path": "tools/check-reader-sharing.py",
+      "sha256": "13b9a2847e0b9dc5ca5b9e66ee8f073887d1c052dc88e9ccf6c28eba5cb716bd"
+    }
+  ],
+  "patch_sha256": "5b33ae81e5cd3337ab713536b37357b56879db9e90e325b9b1a3a338b1945c4e",
+  "ring": {
+    "suites": {
+      "Core.part1of3": {
+        "passes": 346,
+        "expected_classifications": 9,
+        "unexpected": 0,
+        "milliseconds": 70473
+      },
+      "Core.part2of3": {
+        "passes": 210,
+        "expected_classifications": 7,
+        "unexpected": 0,
+        "milliseconds": 71622
+      },
+      "Core.part3of3": {
+        "passes": 205,
+        "expected_classifications": 11,
+        "unexpected": 0,
+        "milliseconds": 75179
+      },
+      "Desktop": {
+        "passes": 776,
+        "expected_classifications": 33,
+        "unexpected": 0,
+        "milliseconds": 181933
+      },
+      "Analysis.part1of3": {
+        "passes": 44,
+        "expected_classifications": 0,
+        "unexpected": 0,
+        "milliseconds": 10897
+      },
+      "Analysis.part2of3": {
+        "passes": 69,
+        "expected_classifications": 0,
+        "unexpected": 0,
+        "milliseconds": 10804
+      },
+      "Analysis.part3of3": {
+        "passes": 146,
+        "expected_classifications": 0,
+        "unexpected": 0,
+        "milliseconds": 11131
+      },
+      "Cli": {
+        "passes": 18,
+        "expected_classifications": 2,
+        "unexpected": 0,
+        "milliseconds": 8777
+      }
+    },
+    "file_bindings": {
+      "Core.part1of3.log": {
+        "bytes": 21181,
+        "sha256": "3f34a8ea452ae62b3b2f86274b8a448e4774eeb50adfa7773b135793c2913b20"
+      },
+      "Core.part1of3.ms": {
+        "bytes": 6,
+        "sha256": "0f35b7bab8282d9a442e51ab5364ed2a2c386c066da79f7f084222aa72d78cec"
+      },
+      "Core.part1of3.seconds": {
+        "bytes": 3,
+        "sha256": "826b6832e45ba17d625debc95ae8554e148550b00c05b47fa8f7be1c555bc83c"
+      },
+      "Core.part2of3.log": {
+        "bytes": 16589,
+        "sha256": "f14bd47dc312a417089816bc0514dbbfd8b00a7d22d56090cee5200a0f7a9cbc"
+      },
+      "Core.part2of3.ms": {
+        "bytes": 6,
+        "sha256": "70dd6d22e685e51a52e3de4eb3c0daf7dba16438179e641154414b7ca9a6ab94"
+      },
+      "Core.part2of3.seconds": {
+        "bytes": 3,
+        "sha256": "bd5fa6e75f0ddfcd9ff32e0a2297554cd81188f177f14d7ce416310efa0b5c77"
+      },
+      "Core.part3of3.log": {
+        "bytes": 14264,
+        "sha256": "4f7f6fec0a2997f2ba5bcd0b296232b4517af3089825a168ecb3b6aa077d91af"
+      },
+      "Core.part3of3.ms": {
+        "bytes": 6,
+        "sha256": "964cae8002db8639de04138654fbf426446325ae552227562973c8dc284bc5c6"
+      },
+      "Core.part3of3.seconds": {
+        "bytes": 3,
+        "sha256": "461144ccfd56ee3cf0f9a9d80e520c5b872166b23092d5fd838ecbdb46d64dab"
+      },
+      "Desktop.log": {
+        "bytes": 129914,
+        "sha256": "1c8337c9fe069588548101da878facc2a4851ce04c1f73b471c568e97ea36ce6"
+      },
+      "Desktop.ms": {
+        "bytes": 7,
+        "sha256": "95547e39590429a55ec2afad6770933c691fe4eea90e571be28751a1c4109427"
+      },
+      "Desktop.seconds": {
+        "bytes": 4,
+        "sha256": "02dc668144d5bceea63129dbf78d853aafbadddf8c4b1e7909965e62422f2ebf"
+      },
+      "Analysis.part1of3.log": {
+        "bytes": 5380,
+        "sha256": "c051f3f2d5b7d65527ced6f4b7d2c17114886744c09ef24409f5b973a701a9cf"
+      },
+      "Analysis.part1of3.ms": {
+        "bytes": 6,
+        "sha256": "ca74cbd269d5ccf2cf8d83520eeb2f6d88048799a33d2830731693a6159dd79b"
+      },
+      "Analysis.part1of3.seconds": {
+        "bytes": 3,
+        "sha256": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164"
+      },
+      "Analysis.part2of3.log": {
+        "bytes": 8705,
+        "sha256": "53558fbe9faa15b0c8056775ea1d2f87b3e0054063d1e99520e0ee6aa3879c58"
+      },
+      "Analysis.part2of3.ms": {
+        "bytes": 6,
+        "sha256": "d71217ea6b4e52368621121e6f7d791acbdc02e28d3310c2e0fcdc21a32b1dde"
+      },
+      "Analysis.part2of3.seconds": {
+        "bytes": 3,
+        "sha256": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164"
+      },
+      "Analysis.part3of3.log": {
+        "bytes": 16661,
+        "sha256": "466ac69870171d35d81b4b13c02346e5babd767e0ed767a0093f1983f8c7e7f4"
+      },
+      "Analysis.part3of3.ms": {
+        "bytes": 6,
+        "sha256": "ba3f69e92760ffde8c277c7e7f9fee6c8100d28b700a054a7fd91e7d467eaef2"
+      },
+      "Analysis.part3of3.seconds": {
+        "bytes": 3,
+        "sha256": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164"
+      },
+      "Cli.log": {
+        "bytes": 2489,
+        "sha256": "d47d2c2c90aa45fc19fbac99230f5c5c5a676b84a686dd8be31960fd03832016"
+      },
+      "Cli.ms": {
+        "bytes": 5,
+        "sha256": "981454e020fce63b68eee9e2a625009c6567c622f8bf7a7f3470bd07d2a2ea9d"
+      },
+      "Cli.seconds": {
+        "bytes": 3,
+        "sha256": "917df3320d778ddbaa5c5c7742bc4046bf803c36ed2b050f30844ed206783469"
+      },
+      "wall.ms": {
+        "bytes": 7,
+        "sha256": "c9d9a89e5f2adcd7c1d6d2af48f240d41e857728686b2dd28946338463c98417"
+      },
+      "build.ms": {
+        "bytes": 6,
+        "sha256": "dd946464414b457654f7e12bf1612c28e9c4667f662f308043dc8e49427be231"
+      },
+      "times.txt": {
+        "bytes": 36,
+        "sha256": "9df7073c4335d5b784cec6a81493d2981cf1d5d39c2b9b68a4234ca0d5fa947b"
+      },
+      "python-unittest.out": {
+        "bytes": 198,
+        "sha256": "e941329009782b10e79f6ddf32a11d9d2c944feb9f21b37a9eb326ecd46f9284"
+      },
+      "r233-functional-ring.txt": {
+        "bytes": 5568,
+        "sha256": "b7de89e7cef3f2fc3a1ad84bac4e1c282d80d75aec2e87a5037ee14d11606283"
+      }
+    },
+    "desktop_children": 18,
+    "desktop_partitions": 15,
+    "max_child_seconds": 90.3,
+    "python_tests": 94,
+    "wall_ms": 210689,
+    "build_ms": 16169,
+    "net_ms": 194520,
+    "original_exit": 0,
+    "cost_failures": 0,
+    "cost_misses": 14,
+    "telemetry": {
+      "source_basename": "rollout-2026-10-12T20-35-42-01a13354-8f61-7582-9b9a-13b253936fd9.jsonl",
+      "line_number": 720,
+      "json_path": "$.payload.item.aggregated_output",
+      "raw_line_sha256": "8bc1291fa1f3d7ab34b9d7bc26c45e7b52b86fb4b1d794d343479a78d24e6822",
+      "output_utf8_sha256": "ddca8d45e4c1b7be39913154b6492b07c5d82f82e45f40695421c0211c429425",
+      "allowlisted_lines": [
+        "test costs: 0 failures, 14 COST-MISS (load 13.97)",
+        "wall 211 s (210689 ms, net 194520 ms) (budget 60 s) cpu 5 s load 6.92 -> 13.97",
+        "COST-MISS TEST-BUDGET 211 s host [redacted]",
+        "all test harnesses passed"
+      ]
+    }
+  },
+  "privacy": "Only metadata/hashes/allowlisted verdicts; no raw private text or absolute capture path."
+}

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T06:09:21Z",
+  "generated": "2026-10-13T06:23:17Z",
   "audit": [
     {
       "actor": null,
@@ -38293,6 +38293,57 @@ window.AUDIT_DATA = {
         "sha": "37b96e4749a13d2fee3a7d73444d66a6a39a6403",
         "short": "37b96e474",
         "branch": "win/gpu-f1-r233-repairs-integration",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M4SYRKGB2QF07Q1NW2GA7EX1",
+      "shortname": "Independently review final composite b74af1e488e7d7bd3fd7c7901d2940da10f…",
+      "datetime": "2026-10-13T06:21:26Z",
+      "session": "pc-f1-r233-repairs-review",
+      "prompt": "Independently review final composite b74af1e488e7d7bd3fd7c7901d2940da10fa4c07 on helper 37b96e47 with reader delta 70d022bf: prove conservation, safety and reader controls, focused test union and original bounded ring evidence; no repair, ring rerun or live actions; commit and push ACCEPT/HOLD/REJECT.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4SYVZC8TB9VR9F0SMCHPAH6",
+      "shortname": "r233-composite-review",
+      "datetime": "2026-10-13T06:23:17Z",
+      "session": "pc-f1-r233-repairs-review",
+      "prompt": "Independent final composite review of b74af1e; conserve helper safety and history, verify reader replay, focused union and retained ring; no live action or source repair; commit and push disposition.",
+      "summary": "ACCEPT exact b74af1e offline only. Verified 5379 protected modes/blobs, 1087 raw audit prefix entries, 2897 ordered register lines, four-file replay and two F1 exception removals. Helper 13/13; Python 94/94; both PowerShell runtimes and adversarial probes; safe gates 10/10 with three configured skips; docs exit 0, zero graph defects and 134 retained suggestions. Original ring exit 0 independently bound: Desktop 776/33 expected/0 unexpected, 18 children/15 partitions, wall 210689 ms, 14 advisory cost misses. Reviewer-only corrections: measured telemetry argv list and registered graph metadata; existing schema/receipt assertions control those shapes. No production repair, WSL, registry, lifecycle action, ring rerun or new authority.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-r233-composite-review.md",
+        "docs/reviews/r233-composite-evidence.json"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Decide and publish independent disposition for exact final composite b74af1e.",
+      "done_when": "Evidence and ACCEPT/HOLD/REJECT artifact committed and pushed on assigned review branch.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-13T06:11:06Z",
+      "duration_seconds": 731.0,
+      "git": {
+        "sha": "b74af1e488e7d7bd3fd7c7901d2940da10fa4c07",
+        "short": "b74af1e48",
+        "branch": "win/gpu-f1-r233-repairs-review",
         "pushed": null
       }
     }
