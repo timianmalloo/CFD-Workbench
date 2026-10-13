@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T02:09:33Z",
+  "generated": "2026-10-13T02:17:21Z",
   "audit": [
     {
       "actor": null,
@@ -37993,6 +37993,21 @@ window.AUDIT_DATA = {
         "branch": "win/gpu-f1-r228-cleanup",
         "pushed": false
       }
+    },
+    {
+      "id": "al-01M4SGSNP9E18GP51D9YHS94H9",
+      "shortname": "Bounded repair cycle 2: remove the undefined Ruling 229 authority citati…",
+      "datetime": "2026-10-13T02:17:21Z",
+      "session": "prompt-log",
+      "prompt": "Bounded repair cycle 2: remove the undefined Ruling 229 authority citation from the proposed cleanup README, inspect candidate docs for siblings, regenerate bindings, and run the ruling-citation and repository gates; no WSL or GitHub.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
     }
   ],
   "changes": [

@@ -26,13 +26,13 @@ and immutable evidence freeze/commit. It has no package, solver or case path.
 `authorization.proposed.json` is review material and always refuses execution.
 `authorization.accepted-projection.json` is the exact byte form requested from
 Mac/Fable. It is still inert outside the canonical `authorization.json` path.
-After R229 reaches `origin/main`, activation copies the projection byte-for-byte
-to that canonical path and requires a separate independent rehash before any
-live command.
+After the requested owner ruling is defined in `docs/notes/rulings.md` and
+reaches `origin/main`, activation copies the projection byte-for-byte to that
+canonical path and requires a separate independent rehash before any live command.
 
 The runtime refuses before WSL unless the worktree is clean, the exact source is
 an ancestor, every payload file matches its source blob, the live authorization
-equals the committed projection, and `origin/main` Ruling 229 includes every
+equals the committed projection, and that defined owner ruling includes every
 required hash, identity and forbidden-action sentence. One failure stops the
 action and commits a classified receipt. There is no automatic retry.
 
