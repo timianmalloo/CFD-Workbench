@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "02f306d65582a52a1773a014b7a2b3db3f2ead8d483d44b320bbacab544ee86c"
+      "sourceSha256": "fe385eb5eb232b154510b5e57c1d305e1e8dd20f4b4b9a743003462cc9bdc15e"
     },
     {
       "id": "domain-experts",
@@ -16024,6 +16024,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "adee8b3bb2ae1cab0c26acad09efd64af6075d81ba0032a44dd092f05e94faaf"
     },
     {
+      "id": "proof-pc-win-desktop-slot-calibration",
+      "path": "docs/proof/ring-pc-win/desktop-slots.md",
+      "title": "PC Windows Desktop child-slot calibration",
+      "type": "proof-pack",
+      "status": "done",
+      "owner": "@trk-dtj",
+      "phase": "implementation",
+      "reviewBy": "2026-11-13",
+      "reviewSuggested": [],
+      "summary": "Twelve Desktop harness measurements on the quiet Windows PC classify as pass with zero TIMEOUT and DRAIN; eight slots is fastest at a 134.3-second median.",
+      "tags": [
+        "windows",
+        "desktop",
+        "test-ring",
+        "calibration",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "plan-test-cost",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e281168e5ac7d1ff7283a64425148b8ffb0f002982918abf2db4ca8682f3a423"
+    },
+    {
       "id": "proof-pef-red-first",
       "path": "docs/proof/pef/red-first.md",
       "title": "PEF red-first - Escape tooltip dismissal survives a refresh",
@@ -22674,5 +22701,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "20bc4de4409374492704a1f62494fbc5addd246125ec6b1a7fa7357cd2378989"
+  "graphSha256": "57da884932a847ab7192ea696f8896fad43d59438f5e1b3764b994a52a7015c7"
 };
