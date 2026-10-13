@@ -9117,7 +9117,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "673e5ece82d22d8ad4e1a63674e08c9dbb1b29e4e3daf578ec6a2380f592ef73"
+      "sourceSha256": "28487b8a2ed3a68f5511a2bf2e099141ae510cbcfb62e8f05f7aa320cee647fd"
     },
     {
       "id": "kb-hw-glossary",
@@ -18757,7 +18757,7 @@ window.DOCS_INDEX = {
       "phase": "preflight",
       "reviewBy": "2026-10-19",
       "reviewSuggested": [],
-      "summary": "Fresh attempt/run/session/branch at epoch 7, exact packet and external helper bytes, seven rehashed inputs, proposed live-path authorization and precomputed accepted projection. Normal admission refuses until a hash-bound main ruling.",
+      "summary": "Fresh attempt/run/session/branch at epoch 8, exact packet and external helper bytes, seven rehashed inputs, proposed live-path authorization and precomputed accepted projection. Normal admission refuses until a hash-bound main ruling.",
       "tags": [
         "windows",
         "wsl",
@@ -18780,7 +18780,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "63bd60c8cbb8b1c7c13899b7ad5f46bd097359c96df26295e50558c2d18d859b"
+      "sourceSha256": "5c1f879bcb3ca65e5cf23ada799a499b0d252d39310be20b49488ab8c631f437"
     },
     {
       "id": "proof-win-gpu-f1-recovery-integration",
@@ -22083,5 +22083,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "70ce76e282139e275bd7e533b33b30660898b724b50024bd083d83221b847426"
+  "graphSha256": "393c07f978ab30e20066eaaf828540d2bf01d657beea5ed513155e4226f7d45b"
 };
