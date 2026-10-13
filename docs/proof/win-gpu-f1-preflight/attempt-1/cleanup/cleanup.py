@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""R229 cleanup-only executor for the stopped R228 attempt.
+"""R230 cleanup-only executor for the stopped R228 attempt.
 
 This source performs no preflight stage and no host-path deletion. It refuses
 unless origin/main contains the exact accepted Mac/Fable ruling.
@@ -19,8 +19,8 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 
 REL = Path("docs/proof/win-gpu-f1-preflight/attempt-1/cleanup")
-AUTH_REL = REL / "authorization.json"
-PROJECTION_REL = REL / "authorization.accepted-projection.json"
+AUTH_REL = REL / "cleanup-authorization.json"
+ACTIVATION_SAMPLE_REL = REL / "leader-activation.json"
 PAYLOAD_REL = REL / "payload.json"
 FAILURE_REL = Path("docs/proof/win-gpu-f1-preflight/attempt-1/final")
 PACKET_REL = Path("docs/proof/win-gpu-f1-preflight/packet")
@@ -32,7 +32,10 @@ PROTECTED_KEY = "{b7566a82-9cee-47ce-a246-f83632353cea}"
 PROTECTED_PATH = r"%USERPROFILE%\AppData\Local\CFDWorkbench\qualification\wsl\cfdw-openfoam2512"
 RUN_ID = "r225-attempt1-epoch8-20261012"
 ORIGINAL_RUN_ROOT = r"C:\Projects\CFD-Workbench-win-gpu-f1-r225-attempt1\docs\proof\win-gpu-f1-preflight\attempt-1\live"
-RULING = 229
+CHECKPOINT_COMMIT = "d6edbc63a39c7f59d9e4ad853c92e7821406e371"
+CHECKPOINT_ANCESTORS = ["7c8a7984fcb101a4f29c212f221488aa1a44e637",
+                        "8e10f78ea4c99fc60184c8b7372e751a149ff3b4"]
+RULING = 230
 DEADLINE_SECONDS = 600
 
 
@@ -76,17 +79,24 @@ def exact_row(rows: list[dict], name: str, key: str, path: str) -> dict:
     return row
 
 
+def reviewed_identity(value: dict) -> dict:
+    """Read the identity binding from authorization after exact-value validation."""
+    return {key: value[key] for key in ("target", "target_key", "target_path", "protected",
+                                         "protected_key", "protected_path", "protected_version")}
+
+
 def validate_identity(rows: list[dict], names: list[str], target_path_present: bool,
-                      protected_path_present: bool) -> tuple[dict, dict]:
+                      protected_path_present: bool, identity: dict) -> tuple[dict, dict]:
     keys = [str(row.get("key", "")).casefold() for row in rows]
     if not keys or len(keys) != len(set(keys)):
         raise ValueError("missing or duplicate registration GUID")
-    target = exact_row(rows, TARGET, TARGET_KEY, TARGET_PATH)
-    protected = exact_row(rows, PROTECTED, PROTECTED_KEY, PROTECTED_PATH)
-    for name, path in ((TARGET, TARGET_PATH), (PROTECTED, PROTECTED_PATH)):
+    target = exact_row(rows, identity["target"], identity["target_key"], identity["target_path"])
+    protected = exact_row(rows, identity["protected"], identity["protected_key"], identity["protected_path"])
+    for name, path in ((identity["target"], identity["target_path"]),
+                       (identity["protected"], identity["protected_path"])):
         if sum(normalize(str(row.get("path", ""))) == normalize(path) for row in rows) != 1:
             raise ValueError("ambiguous registration path: " + name)
-    if names.count(TARGET) != 1 or names.count(PROTECTED) != 1:
+    if names.count(identity["target"]) != 1 or names.count(identity["protected"]) != 1:
         raise ValueError("WSL list identity mismatch")
     if not target_path_present or not protected_path_present:
         raise ValueError("required distro path absent")
@@ -96,35 +106,38 @@ def validate_identity(rows: list[dict], names: list[str], target_path_present: b
 
 
 def validate_absence(rows: list[dict], names: list[str], target_path_present: bool,
-                     protected_path_present: bool, protected_before: dict) -> None:
-    if any(row.get("name") == TARGET
-           or str(row.get("key", "")).casefold() == TARGET_KEY.casefold()
-           or normalize(str(row.get("path", ""))) == normalize(TARGET_PATH)
+                     protected_path_present: bool, protected_before: dict, identity: dict) -> None:
+    if any(row.get("name") == identity["target"]
+           or str(row.get("key", "")).casefold() == identity["target_key"].casefold()
+           or normalize(str(row.get("path", ""))) == normalize(identity["target_path"])
            for row in rows):
         raise ValueError("target registration identity survived unregister")
-    if TARGET in names or target_path_present:
+    if identity["target"] in names or target_path_present:
         raise ValueError("target list/path absence not proved")
-    protected = exact_row(rows, PROTECTED, PROTECTED_KEY, PROTECTED_PATH)
-    if sum(str(row.get("key", "")).casefold() == PROTECTED_KEY.casefold() for row in rows) != 1:
+    protected = exact_row(rows, identity["protected"], identity["protected_key"], identity["protected_path"])
+    if sum(str(row.get("key", "")).casefold() == identity["protected_key"].casefold() for row in rows) != 1:
         raise ValueError("ambiguous protected registration GUID")
-    if sum(normalize(str(row.get("path", ""))) == normalize(PROTECTED_PATH) for row in rows) != 1:
+    if sum(normalize(str(row.get("path", ""))) == normalize(identity["protected_path"]) for row in rows) != 1:
         raise ValueError("ambiguous protected registration path")
-    if protected != protected_before or names.count(PROTECTED) != 1 or not protected_path_present:
+    if protected != protected_before or names.count(identity["protected"]) != 1 or not protected_path_present:
         raise ValueError("protected identity changed")
 
 
 def validate_authorization(value: dict, payload_sha256: str) -> None:
     expected = {
-        "schema": "cfdw-f1-r229-cleanup-authorization/1",
+        "schema": "cfdw-f1-r230-cleanup-authorization/1",
         "status": "accepted",
         "ruling": RULING,
         "leader": "mac",
         "leader_epoch": 8,
         "source_commit": value.get("source_commit"),
         "payload_sha256": payload_sha256,
-        "session": "pc-f1-r229-cleanup1",
+        "session": "pc-f1-r230-cleanup1",
         "branch": "win/gpu-f1-r228-cleanup",
+        "checkpoint_commit": CHECKPOINT_COMMIT,
+        "checkpoint_ancestors": CHECKPOINT_ANCESTORS,
         "original_run_id": RUN_ID,
+        "original_run_root": ORIGINAL_RUN_ROOT,
         "target": TARGET,
         "target_key": TARGET_KEY,
         "target_path": TARGET_PATH,
@@ -135,6 +148,12 @@ def validate_authorization(value: dict, payload_sha256: str) -> None:
         "allowed_actions": ["precheck", "owned-process-refusal", "terminate-target", "unregister-target", "prove-absence", "freeze-and-commit-evidence"],
         "forbidden_actions": ["resume-preflight", "download", "install", "source-fetch", "build", "run-case", "benchmark", "manual-host-path-delete"],
         "deadline_seconds": DEADLINE_SECONDS,
+        "exclusive_run_id": "pc-f1-r230-cleanup1",
+        "pc_exclusive_required": True,
+        "attempt": 1,
+        "one_attempt_only": True,
+        "failure_policy": "commit-receipt-stop-no-retry",
+        "retry_requires_new_ruling": True,
     }
     if not re.fullmatch(r"[0-9a-f]{40}", str(value.get("source_commit", ""))):
         raise ValueError("exact reviewed source commit absent")
@@ -145,7 +164,7 @@ def validate_authorization(value: dict, payload_sha256: str) -> None:
 def ruling_section(text: str) -> str:
     match = re.search(rf"(?ms)^### Ruling {RULING}\b.*?(?=^### Ruling |\Z)", text)
     if match is None:
-        raise ValueError("Ruling 229 absent from origin/main")
+        raise ValueError("Ruling 230 absent from origin/main")
     return match.group(0)
 
 
@@ -154,10 +173,12 @@ def verify_ruling(section: str, auth_sha: str, payload_sha: str, source_commit: 
                 TARGET_KEY, TARGET_PATH, PROTECTED_KEY, PROTECTED_PATH,
                 "never resume preflight", "never download", "never install",
                 "never fetch source", "never build", "never run a case", "never benchmark",
-                "never delete host paths manually"]
+                "never delete host paths manually", "R223(a)", "same commit", "R223(b)",
+                "two leader samples", "at least 200 seconds", "R223(c)", "PC exclusive",
+                "R223(d)", "one attempt", "no second run without a new ruling"]
     missing = [token for token in required if token not in section]
     if missing:
-        raise ValueError("origin/main Ruling 229 lacks exact cleanup bindings: " + repr(missing))
+        raise ValueError("origin/main Ruling 230 lacks exact cleanup bindings: " + repr(missing))
     if "PROPOSED" in section:
         raise ValueError("origin/main ruling retains proposed marker")
 
@@ -169,12 +190,21 @@ def cleanup_sequence(action) -> None:
         action(name)
 
 
+def validate_leader_sample(value: dict, epoch: int) -> None:
+    if (value.get("leader") != "mac" or value.get("state") != "live"
+            or value.get("epoch") != epoch or not isinstance(value.get("expires_in"), (int, float))
+            or value["expires_in"] < 200):
+        raise ValueError("live Mac leader epoch with at least 200 seconds required")
+
+
 class Cleanup:
-    def __init__(self, repo: Path, authorization: Path, session: str, epoch: int):
+    def __init__(self, repo: Path, authorization: Path, session: str, epoch: int,
+                 exclusive_run_id: str):
         self.repo = repo
         self.authorization = authorization
         self.session = session
         self.epoch = epoch
+        self.exclusive_run_id = exclusive_run_id
         self.root = repo / REL
         self.live = self.root / "run-1/live"
         self.final = self.root / "run-1/final"
@@ -223,16 +253,15 @@ class Cleanup:
         if self.live.exists() or self.final.exists() or self.binding.exists():
             raise ValueError("cleanup run-1 output already exists")
         payload_path = self.repo / PAYLOAD_REL
-        projection_path = self.repo / PROJECTION_REL
         payload_sha = digest(payload_path)
         value = json.loads(self.authorization.read_bytes())
         validate_authorization(value, payload_sha)
         if self.authorization != (self.repo / AUTH_REL).resolve():
             raise ValueError("only canonical cleanup authorization path accepted")
-        if self.authorization.read_bytes() != projection_path.read_bytes():
-            raise ValueError("live authorization is not byte-identical to accepted projection")
         if self.session != value["session"] or self.epoch != value["leader_epoch"]:
             raise ValueError("runtime session or leader epoch differs")
+        if self.exclusive_run_id != value["exclusive_run_id"]:
+            raise ValueError("R223(c) PC-exclusive run binding differs")
         if self.run_command(["git", "status", "--porcelain"], "clean").strip():
             raise ValueError("worktree dirty before cleanup")
         branch = self.run_command(["git", "branch", "--show-current"], "branch").decode().strip()
@@ -240,7 +269,7 @@ class Cleanup:
             raise ValueError("execution branch differs")
         head = self.run_command(["git", "rev-parse", "HEAD"], "head").decode().strip()
         self.run_command(["git", "merge-base", "--is-ancestor", value["source_commit"], head], "source-ancestor")
-        for relative in (AUTH_REL, PROJECTION_REL, PAYLOAD_REL):
+        for relative in (AUTH_REL, ACTIVATION_SAMPLE_REL, PAYLOAD_REL):
             blob = self.run_command(["git", "cat-file", "blob", head + ":" + relative.as_posix()], "committed-blob")
             if blob != (self.repo / relative).read_bytes():
                 raise ValueError("committed artifact differs: " + relative.as_posix())
@@ -258,21 +287,51 @@ class Cleanup:
         self.run_command([sys.executable, str(manifest), "verify", "--repo", str(self.repo),
                           "--frozen", str(self.repo / FAILURE_REL),
                           "--commit", value["source_commit"]], "verify-r228-failure", 120)
+        self.run_command(["git", "merge-base", "--is-ancestor", value["checkpoint_commit"],
+                          value["source_commit"]], "checkpoint-source-ancestor")
+        for commit in value["checkpoint_ancestors"]:
+            self.run_command(["git", "merge-base", "--is-ancestor", commit,
+                              value["source_commit"]], "checkpoint-prerequisite-ancestor")
+        self.run_command([sys.executable, str(manifest), "verify", "--repo", str(self.repo),
+                          "--frozen", str(self.repo / FAILURE_REL),
+                          "--commit", value["checkpoint_commit"]], "verify-r228-checkpoint", 120)
         auth_sha = digest(self.authorization)
         origin_ruling = self.run_command(["git", "show", "origin/main:docs/notes/rulings.md"], "origin-main-ruling").decode("utf-8")
         verify_ruling(ruling_section(origin_ruling), auth_sha, payload_sha, value["source_commit"])
-        leader = self.run_command([sys.executable, "docs/ai-forward-pack/scripts/coord-core.py", "leader", "who"], "leader").decode()
-        leader_name = re.search(r"(?m)^leader\s+(\S+)\s*$", leader)
-        leader_state = re.search(r"(?m)^state\s+(\S+)\s*$", leader)
-        leader_epoch = re.search(r"(?m)^epoch\s+(\d+)\s*$", leader)
-        leader_ttl = re.search(r"(?m)^expires in\s+([0-9.]+)\s+s\s*$", leader)
-        if (leader_name is None or leader_name.group(1) != "mac"
-                or leader_state is None or leader_state.group(1) != "live"
-                or leader_epoch is None or int(leader_epoch.group(1)) != self.epoch
-                or leader_ttl is None or float(leader_ttl.group(1)) < 200):
-            raise ValueError("live Mac leader epoch with at least 200 seconds required")
+        ruling_commits = self.run_command(["git", "log", "--format=%H", "--reverse",
+                                           "-S", "### Ruling 230", "origin/main", "--",
+                                           "docs/notes/rulings.md"], "ruling-commit").decode().splitlines()
+        if len(ruling_commits) != 1:
+            raise ValueError("R223(a) requires one defining R230 commit")
+        ruling_commit = ruling_commits[0]
+        changed = self.run_command(["git", "diff-tree", "--no-commit-id", "--name-only", "-r",
+                                    ruling_commit], "ruling-paths").decode().splitlines()
+        if "docs/notes/rulings.md" not in changed or AUTH_REL.as_posix() not in changed:
+            raise ValueError("R223(a) ruling and authorization are not in one commit")
+        ruling_auth = self.run_command(["git", "cat-file", "blob",
+                                        ruling_commit + ":" + AUTH_REL.as_posix()], "ruling-auth-blob")
+        if ruling_auth != self.authorization.read_bytes():
+            raise ValueError("R223(a) ruling commit authorization differs")
+        activation_path = self.repo / ACTIVATION_SAMPLE_REL
+        ruling_sample = self.run_command(["git", "cat-file", "blob",
+                                          ruling_commit + ":" + ACTIVATION_SAMPLE_REL.as_posix()],
+                                         "ruling-leader-sample")
+        if ruling_sample != activation_path.read_bytes():
+            raise ValueError("R223(b) activation sample is not from ruling commit")
+        validate_leader_sample(json.loads(ruling_sample), self.epoch)
         self.authorization_value = value
+        self.identity = reviewed_identity(value)
+        self.original_run_id = value["original_run_id"]
+        self.original_run_root = value["original_run_root"]
+        self.activation_sample = json.loads(ruling_sample)
         self.payload_sha = payload_sha
+
+    def capture_pre_live_leader(self) -> None:
+        raw = self.run_command([sys.executable, "docs/ai-forward-pack/scripts/coord-core.py",
+                                "leader", "who", "--json"], "leader-immediately-pre-live")
+        sample = json.loads(raw)
+        validate_leader_sample(sample, self.epoch)
+        self.write("leader-immediately-pre-live.json", sample)
 
     def registrations(self) -> list[dict]:
         import winreg
@@ -292,14 +351,14 @@ class Cleanup:
         return [line.strip().lstrip("\ufeff") for line in raw.decode("utf-16-le").splitlines() if line.strip()]
 
     def observe(self) -> tuple[list[dict], list[str], bool, bool]:
-        return (self.registrations(), self.names(), os.path.lexists(TARGET_PATH),
-                os.path.lexists(os.path.expandvars(PROTECTED_PATH)))
+        return (self.registrations(), self.names(), os.path.lexists(self.identity["target_path"]),
+                os.path.lexists(os.path.expandvars(self.identity["protected_path"])))
 
     def stable_identity(self, label: str) -> tuple[dict, dict]:
         first = self.observe()
-        a = validate_identity(*first)
+        a = validate_identity(*first, self.identity)
         second = self.observe()
-        b = validate_identity(*second)
+        b = validate_identity(*second, self.identity)
         if first != second or a != b:
             raise ValueError("identity changed across stable admission")
         self.write(label + ".json", {"registrations": first[0], "names": first[1],
@@ -308,9 +367,9 @@ class Cleanup:
 
     def stable_absence(self) -> None:
         first = self.observe()
-        validate_absence(*first, self.protected_before)
+        validate_absence(*first, self.protected_before, self.identity)
         second = self.observe()
-        validate_absence(*second, self.protected_before)
+        validate_absence(*second, self.protected_before, self.identity)
         if first != second:
             raise ValueError("absence changed across stable proof")
         self.write("absence.json", {"registrations": first[0], "names": first[1],
@@ -326,11 +385,11 @@ class Cleanup:
         helper = self.repo / REL / "cleanup_owned_check.py"
         owned = self.repo / PACKET_REL / "owned_control.py"
         argv = ["wsl.exe", "--distribution", distro, "--user", "root", "--exec",
-                "/usr/bin/taskset", "--cpu-list", "0" if distro == PROTECTED else "0-1",
+                "/usr/bin/taskset", "--cpu-list", "0" if distro == self.identity["protected"] else "0-1",
                 "/usr/bin/nice", "-n", "10", "/usr/bin/python3", self.linux_path(helper),
                 "--evidence-root", self.linux_path(self.repo / FAILURE_REL),
-                "--expected-run-root", self.linux_path(ORIGINAL_RUN_ROOT),
-                "--run-id", RUN_ID, "--owned-control", self.linux_path(owned), "--kind", kind]
+                "--expected-run-root", self.linux_path(self.original_run_root),
+                "--run-id", self.original_run_id, "--owned-control", self.linux_path(owned), "--kind", kind]
         output = self.run_command(argv, "owned-" + kind + "-check", 30)
         if output.strip() != b"OWNED-ABSENT":
             raise ValueError("owned-process checker did not prove absence")
@@ -349,37 +408,37 @@ class Cleanup:
         if name == "precheck-identity":
             target, protected = self.stable_identity("identity-before")
             self.protected_before = protected
-            if target["key"].casefold() != TARGET_KEY.casefold():
+            if target["key"].casefold() != self.identity["target_key"].casefold():
                 raise ValueError("target GUID changed")
         elif name == "owned-stage-refusal":
-            self.owned_check(TARGET, "stage")
+            self.owned_check(self.identity["target"], "stage")
         elif name == "owned-guard-refusal":
-            self.owned_check(PROTECTED, "guard")
+            self.owned_check(self.identity["protected"], "guard")
         elif name == "stable-before-terminate":
             self.stable_identity("identity-before-terminate")
         elif name == "terminate":
-            self.run_command(["wsl.exe", "--terminate", TARGET], "terminate", 30)
+            self.run_command(["wsl.exe", "--terminate", self.identity["target"]], "terminate", 30)
         elif name == "stable-before-unregister":
             self.stable_identity("identity-before-unregister")
         elif name == "unregister":
-            self.run_command(["wsl.exe", "--unregister", TARGET], "unregister", 120)
+            self.run_command(["wsl.exe", "--unregister", self.identity["target"]], "unregister", 120)
         elif name == "stable-absence":
             self.stable_absence()
         elif name == "protected-invariance":
             rows, names, target_path, protected_path = self.observe()
-            validate_absence(rows, names, target_path, protected_path, self.protected_before)
+            validate_absence(rows, names, target_path, protected_path, self.protected_before, self.identity)
             self.write("protected-after.json", self.protected_before)
         else:
             raise ValueError("unknown cleanup action")
 
     def receipt(self, outcome: str) -> dict:
-        return {"schema": "cfdw-f1-r229-cleanup-receipt/1", "outcome": outcome,
+        return {"schema": "cfdw-f1-r230-cleanup-receipt/1", "outcome": outcome,
                 "ruling": RULING, "source_commit": self.authorization_value["source_commit"],
                 "authorization_sha256": digest(self.authorization), "payload_sha256": self.payload_sha,
-                "target": TARGET, "target_key": TARGET_KEY, "target_path": TARGET_PATH,
-                "protected": PROTECTED, "protected_key": PROTECTED_KEY,
-                "protected_path": PROTECTED_PATH, "protected_version": 2,
-                "original_run_id": RUN_ID, "commands": self.log, "failure": self.failure,
+                **self.identity, "original_run_id": self.original_run_id,
+                "exclusive_run_id": self.exclusive_run_id,
+                "activation_leader_sample": self.activation_sample,
+                "commands": self.log, "failure": self.failure,
                 "elapsed_seconds": time.monotonic() - self.start,
                 "evidence_binding": "pending separate binding commit"}
 
@@ -390,22 +449,23 @@ class Cleanup:
                           "--frozen", str(self.final)], "freeze", 120)
         relative = self.final.relative_to(self.repo).as_posix()
         self.run_command(["git", "add", "-f", "--", relative], "git-add-final", 30)
-        self.run_command(["git", "commit", "-m", "proof: retain R229 cleanup-only outcome"], "git-commit-final", 120)
+        self.run_command(["git", "commit", "-m", "proof: retain R230 cleanup-only outcome"], "git-commit-final", 120)
         evidence_commit = self.run_command(["git", "rev-parse", "HEAD"], "evidence-head").decode().strip()
         self.run_command([sys.executable, str(manifest), "verify", "--repo", str(self.repo),
                           "--frozen", str(self.final), "--commit", evidence_commit], "verify-final", 120)
-        binding = {"schema": "cfdw-f1-r229-cleanup-binding/1", "outcome": outcome,
+        binding = {"schema": "cfdw-f1-r230-cleanup-binding/1", "outcome": outcome,
                    "evidence_commit": evidence_commit,
                    "manifest_sha256": digest(self.final / "capture-manifest.json")}
         self.binding.write_bytes(canonical(binding))
         self.run_command(["git", "add", "--", self.binding.relative_to(self.repo).as_posix()], "git-add-binding", 30)
-        self.run_command(["git", "commit", "-m", "proof: bind R229 cleanup-only evidence"], "git-commit-binding", 120)
+        self.run_command(["git", "commit", "-m", "proof: bind R230 cleanup-only evidence"], "git-commit-binding", 120)
         return self.run_command(["git", "rev-parse", "HEAD"], "binding-head").decode().strip()
 
     def execute(self) -> None:
         self.precheck()
         self.live.mkdir(parents=True)
         self.publish_precheck()
+        self.capture_pre_live_leader()
         outcome = "failed-stop-no-retry"
         try:
             cleanup_sequence(self.action)
@@ -416,7 +476,7 @@ class Cleanup:
         binding_commit = self.bind(outcome)
         if outcome != "cleanup-proved":
             raise ValueError("cleanup failed; committed receipt; no retry")
-        print("R229-CLEANUP-PASS binding_commit=" + binding_commit)
+        print("R230-CLEANUP-PASS binding_commit=" + binding_commit)
 
 
 def main() -> None:
@@ -424,16 +484,18 @@ def main() -> None:
     parser.add_argument("--authorization", type=Path, required=True)
     parser.add_argument("--session", required=True)
     parser.add_argument("--epoch", type=int, required=True)
+    parser.add_argument("--exclusive-run-id", required=True)
     args = parser.parse_args()
     repo = Path(__file__).resolve().parents[5]
     os.environ["AGENT_SESSION"] = args.session
-    Cleanup(repo, args.authorization.resolve(strict=True), args.session, args.epoch).execute()
+    Cleanup(repo, args.authorization.resolve(strict=True), args.session, args.epoch,
+            args.exclusive_run_id).execute()
 
 
 if __name__ == "__main__":
     try:
         main()
     except (OSError, ValueError, subprocess.SubprocessError) as error:
-        print("R229-CLEANUP-REFUSED type=" + type(error).__name__ + " sha256="
+        print("R230-CLEANUP-REFUSED type=" + type(error).__name__ + " sha256="
               + hashlib.sha256(str(error).encode()).hexdigest(), file=sys.stderr)
         raise SystemExit(5)
