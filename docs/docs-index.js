@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3e98b1d8f25acc43febcda2b90df59d6860eeaf10c4611d0d58706a961a8929d"
+      "sourceSha256": "3eab864f32dc6c45ea39e7d7421af7e81f3891aa50b8b0e3e8ec514f4b5bfafe"
     },
     {
       "id": "domain-experts",
@@ -18982,6 +18982,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "f308ddf97acb6a25e85e368d698d3c106eed9b73fdaa977e54afc19906e7b877"
     },
     {
+      "id": "proof-win-gpu-f1-offline-followups-review",
+      "path": "docs/proof/win-gpu-f1-preflight/offline-followups-review.md",
+      "title": "Independent acceptance of F1 offline controls",
+      "type": "proof-pack",
+      "status": "accepted",
+      "owner": "@pc-coordinator",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Independent ACCEPT of exact candidate 7affd893 for the two Ruling 231 offline controls, with behavioral mutation proof and immutable evidence conservation.",
+      "tags": [
+        "windows",
+        "offline",
+        "independent-review",
+        "importlib"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-offline-followups",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d55e1a306a3033d7a63119a87a0b05219f0a4aa8c176b928ca77441e22213349"
+    },
+    {
       "id": "proof-win-gpu-f1-r217-contract-preparation",
       "path": "docs/proof/win-gpu-f1-preflight/run-1/contract-preparation.md",
       "title": "Ruling 217 run 1 environment contract preparation",
@@ -22493,5 +22519,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "f80c390168671b695828419132e0af766e88b4775d2ccce5ded14c31e7e25633"
+  "graphSha256": "4a1dc95b5e196fb4a6bec5341a2a3fb64bf44aae00f72d3ae8a199bd7982bf6d"
 };

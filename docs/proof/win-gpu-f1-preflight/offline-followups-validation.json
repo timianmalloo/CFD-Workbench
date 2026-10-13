@@ -67,6 +67,29 @@
     "full_functional_ring": "NOT RUN by parent instruction; parent owns join-ring decision",
     "mac_execution": "NOT ASSESSED",
     "new_historical_pin": "visible reviewed policy change; manifest digest not frozen",
-    "independent_acceptance": "PENDING"
+    "independent_acceptance": "ACCEPT"
+  },
+  "independent_review": {
+    "decision": "ACCEPT",
+    "candidate": "7affd8932eb304f282008d8e662d98ce77f6653a",
+    "sole_parent": "d860ec33bcbaa9bf6e18fba024c3654641d642b0",
+    "reviewer_session": "pc-f1-offline-followups-review",
+    "artifact": "docs/proof/win-gpu-f1-preflight/offline-followups-review.md",
+    "candidate_worktree_clean_before_and_after": true,
+    "commands": [
+      {"command": "py -3 -B tools/check-importlib-registration.py --self-test", "flow_cases": 24, "pin_cases": 6, "exit_code": 0, "elapsed_seconds": 0.003},
+      {"command": "py -3 -B tools/check-importlib-registration.py", "tracked_python_files": 251, "failures": 0, "historical_pins": 10, "exit_code": 0, "elapsed_seconds": 1.515},
+      {"command": "py -3 -B -m unittest discover -s tests -p test_f1_cleanup*.py", "tests": 64, "failures": 0, "errors": 0, "exit_code": 0, "elapsed_seconds": 2.120},
+      {"command": "py -3 -B -m unittest discover -s tests -p test_f1_r228_cleanup.py", "tests": 20, "failures": 0, "errors": 0, "exit_code": 0, "elapsed_seconds": 0.238},
+      {"command": "py -3 -B docs/ai-forward-pack/scripts/verify-portable-text-io.py", "result": "PASS", "exit_code": 0, "elapsed_seconds": null}
+    ],
+    "path_flavor_check": {"method": "run existing production-argv unittest with REL, FAILURE_REL and PACKET_REL replaced by PurePosixPath; fixture repository remains PureWindowsPath", "result": "PASS", "elapsed_seconds": 0.161, "native_macos_execution": false},
+    "subprocess_mutation": {"method": "temporary helper copy with sole sys.modules registration removed; run existing production-argv unittest", "expected_failed_subtests": 2, "observed_failed_subtests": 2, "child_exit_codes": [5, 5], "errors": 0, "result": "EXPECTED-RED-PASS", "elapsed_seconds": 0.179},
+    "pin_mutations": {"changed_lines": "IMPORTLIB-PIN-CHANGED", "empty_reason": "IMPORTLIB-PIN-INVALID"},
+    "conservation": {"existing_proof_blobs": 3798, "unchanged_proof_blobs": 3796, "changed_existing_proof_paths": ["docs/proof/win-gpu-f1-preflight/recovery/index_retained.py", "docs/proof/win-gpu-f1-preflight/recovery/recover.py"], "historical_pins_equal_parent": 10, "authority_helper_and_unregister_receipt_unchanged": true},
+    "full_docs_and_safe_union": "author records inspected; not independently rerun during candidate review",
+    "wsl_actions": 0,
+    "full_ring_runs": 0,
+    "publication_validation": {"command": "py -3 tools/check-docs.py", "result": "Documentation checks passed.", "exit_code": 0, "existing_freshness_findings": 134, "elapsed_seconds": null, "elapsed_source": "not recorded for aggregate", "scope": "documentation-only reviewer descendant of the accepted candidate"}
   }
 }

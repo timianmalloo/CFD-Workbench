@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T18:29:55Z",
+  "generated": "2026-10-13T18:38:16Z",
   "audit": [
     {
       "actor": null,
@@ -38379,6 +38379,57 @@ window.AUDIT_DATA = {
         "sha": "d860ec33bcbaa9bf6e18fba024c3654641d642b0",
         "short": "d860ec33b",
         "branch": "win/gpu-f1-offline-followups",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M4V8NGBKX6J0FGMAQPRP0T7G",
+      "shortname": "f1-offline-acceptance-review",
+      "datetime": "2026-10-13T18:33:45Z",
+      "session": "pc-f1-offline-followups-review",
+      "prompt": "Durably bind your ACCEPT. Create a new owned worktree/branch from exact 7affd893 (do not edit author worktree). Add concise docs/proof/win-gpu-f1-preflight/offline-followups-review.md and update validation independent_acceptance to ACCEPT with exact candidate and your measured commands/results. Regenerate docs index/audit as required, run docs-only validation, commit and push. No source edits, WSL, or full ring. Return review commit SHA and branch.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4V8XRNDEWG3SW5PASEBPXRX",
+      "shortname": "f1-offline-controls-independent-accept",
+      "datetime": "2026-10-13T18:38:16Z",
+      "session": "pc-f1-offline-followups-review",
+      "prompt": "Durably bind your ACCEPT. Create a new owned worktree/branch from exact 7affd893 (do not edit author worktree). Add concise docs/proof/win-gpu-f1-preflight/offline-followups-review.md and update validation independent_acceptance to ACCEPT with exact candidate and your measured commands/results. Regenerate docs index/audit as required, run docs-only validation, commit and push. No source edits, WSL, or full ring. Return review commit SHA and branch.",
+      "summary": "ACCEPT exact 7affd8932eb304f282008d8e662d98ce77f6653a, sole parent d860ec33. Independent 84 cleanup tests, scanner 24 flow/6 pin cases and 251-file scan PASS; POSIX-relative/PureWindowsPath argv PASS; temporary registration-removal mutation produces expected stage/guard exit 5. 3796 proof blobs conserved, ten pins match exact parent; authority/helper/receipt unchanged. Review metadata and index published on a dedicated descendant branch. Required check-docs PASS with 134 existing advisory freshness findings. One graph-relation correction recorded in existing REVIEW-ENUM-CONTRACT-A; premature unsupported-help gate invocation cancelled before final successful validation. No source edit, WSL or full ring. Native Mac execution remains unassessed; reflective Python and historical classification are documented review boundaries.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/offline-followups-review.md",
+        "docs/proof/win-gpu-f1-preflight/offline-followups-validation.json"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Durably bind the independent ACCEPT to exact candidate 7affd893 in an owned review branch.",
+      "done_when": "Review, validation, derived index and audit committed and pushed after docs-only validation.",
+      "tier": "T0",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-13T18:33:00Z",
+      "duration_seconds": 316.0,
+      "git": {
+        "sha": "7affd8932eb304f282008d8e662d98ce77f6653a",
+        "short": "7affd8932",
+        "branch": "win/gpu-f1-offline-followups-review",
         "pushed": null
       }
     }
