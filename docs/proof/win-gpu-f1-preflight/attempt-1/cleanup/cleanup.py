@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""R230 cleanup-only executor for the stopped R228 attempt.
+"""Ruling-bound cleanup-only executor for the stopped R228 attempt.
 
 This source performs no preflight stage and no host-path deletion. It refuses
 unless origin/main contains the exact accepted Mac/Fable ruling.
@@ -36,7 +36,6 @@ ORIGINAL_RUN_ROOT = r"C:\Projects\CFD-Workbench-win-gpu-f1-r225-attempt1\docs\pr
 CHECKPOINT_COMMIT = "d6edbc63a39c7f59d9e4ad853c92e7821406e371"
 CHECKPOINT_ANCESTORS = ["7c8a7984fcb101a4f29c212f221488aa1a44e637",
                         "8e10f78ea4c99fc60184c8b7372e751a149ff3b4"]
-RULING = 230
 DEADLINE_SECONDS = 600
 
 
@@ -125,15 +124,18 @@ def validate_absence(rows: list[dict], names: list[str], target_path_present: bo
 
 
 def validate_authorization(value: dict, payload_sha256: str) -> None:
+    ruling = value.get("ruling")
+    if type(ruling) is not int or ruling <= 0:
+        raise ValueError("valid leader-assigned ruling number absent")
     expected = {
-        "schema": "cfdw-f1-r230-cleanup-authorization/1",
+        "schema": f"cfdw-f1-r{ruling}-cleanup-authorization/1",
         "status": "accepted",
-        "ruling": RULING,
+        "ruling": ruling,
         "leader": "mac",
         "leader_epoch": 8,
         "source_commit": value.get("source_commit"),
         "payload_sha256": payload_sha256,
-        "session": "pc-f1-r230-cleanup1",
+        "session": f"pc-f1-r{ruling}-cleanup1",
         "branch": "win/gpu-f1-r228-cleanup",
         "checkpoint_commit": CHECKPOINT_COMMIT,
         "checkpoint_ancestors": CHECKPOINT_ANCESTORS,
@@ -149,7 +151,7 @@ def validate_authorization(value: dict, payload_sha256: str) -> None:
         "allowed_actions": ["precheck", "owned-process-refusal", "terminate-target", "unregister-target", "prove-absence", "freeze-and-commit-evidence"],
         "forbidden_actions": ["resume-preflight", "download", "install", "source-fetch", "build", "run-case", "benchmark", "manual-host-path-delete"],
         "deadline_seconds": DEADLINE_SECONDS,
-        "exclusive_run_id": "pc-f1-r230-cleanup1",
+        "exclusive_run_id": f"pc-f1-r{ruling}-cleanup1",
         "pc_exclusive_required": True,
         "attempt": 1,
         "one_attempt_only": True,
@@ -162,14 +164,15 @@ def validate_authorization(value: dict, payload_sha256: str) -> None:
         raise ValueError("cleanup authorization differs from exact accepted contract")
 
 
-def ruling_section(text: str) -> str:
-    match = re.search(rf"(?ms)^### Ruling {RULING}\b.*?(?=^### Ruling |\Z)", text)
+def ruling_section(text: str, ruling: int) -> str:
+    match = re.search(rf"(?ms)^### Ruling {ruling}\b.*?(?=^### Ruling |\Z)", text)
     if match is None:
-        raise ValueError("Ruling 230 absent from origin/main")
+        raise ValueError(f"Ruling {ruling} absent from origin/main")
     return match.group(0)
 
 
-def verify_ruling(section: str, auth_sha: str, payload_sha: str, source_commit: str) -> None:
+def verify_ruling(section: str, auth_sha: str, payload_sha: str, source_commit: str,
+                  ruling: int) -> None:
     required = ["ACCEPT ONE CLEANUP-ONLY ACTION", auth_sha, payload_sha, source_commit,
                 TARGET_KEY, TARGET_PATH, PROTECTED_KEY, PROTECTED_PATH,
                 "never resume preflight", "never download", "never install",
@@ -179,7 +182,7 @@ def verify_ruling(section: str, auth_sha: str, payload_sha: str, source_commit: 
                 "R223(d)", "one attempt", "no second run without a new ruling"]
     missing = [token for token in required if token not in section]
     if missing:
-        raise ValueError("origin/main Ruling 230 lacks exact cleanup bindings: " + repr(missing))
+        raise ValueError(f"origin/main Ruling {ruling} lacks exact cleanup bindings: " + repr(missing))
     if "PROPOSED" in section:
         raise ValueError("origin/main ruling retains proposed marker")
 
@@ -298,12 +301,14 @@ class Cleanup:
                           "--commit", value["checkpoint_commit"]], "verify-r228-checkpoint", 120)
         auth_sha = digest(self.authorization)
         origin_ruling = self.run_command(["git", "show", "origin/main:docs/notes/rulings.md"], "origin-main-ruling").decode("utf-8")
-        verify_ruling(ruling_section(origin_ruling), auth_sha, payload_sha, value["source_commit"])
+        ruling = value["ruling"]
+        verify_ruling(ruling_section(origin_ruling, ruling), auth_sha, payload_sha,
+                      value["source_commit"], ruling)
         ruling_commits = self.run_command(["git", "log", "--format=%H", "--reverse",
-                                           "-S", "### Ruling 230", "origin/main", "--",
+                                           "-S", f"### Ruling {ruling}", "origin/main", "--",
                                            "docs/notes/rulings.md"], "ruling-commit").decode().splitlines()
         if len(ruling_commits) != 1:
-            raise ValueError("R223(a) requires one defining R230 commit")
+            raise ValueError(f"R223(a) requires one defining Ruling {ruling} commit")
         ruling_commit = ruling_commits[0]
         changed = self.run_command(["git", "diff-tree", "--no-commit-id", "--name-only", "-r",
                                     ruling_commit], "ruling-paths").decode().splitlines()
@@ -433,8 +438,9 @@ class Cleanup:
             raise ValueError("unknown cleanup action")
 
     def receipt(self, outcome: str) -> dict:
-        return {"schema": "cfdw-f1-r230-cleanup-receipt/1", "outcome": outcome,
-                "ruling": RULING, "source_commit": self.authorization_value["source_commit"],
+        ruling = self.authorization_value["ruling"]
+        return {"schema": f"cfdw-f1-r{ruling}-cleanup-receipt/1", "outcome": outcome,
+                "ruling": ruling, "source_commit": self.authorization_value["source_commit"],
                 "authorization_sha256": digest(self.authorization), "payload_sha256": self.payload_sha,
                 **self.identity, "original_run_id": self.original_run_id,
                 "exclusive_run_id": self.exclusive_run_id,
@@ -450,16 +456,19 @@ class Cleanup:
                           "--frozen", str(self.final)], "freeze", 120)
         relative = self.final.relative_to(self.repo).as_posix()
         self.run_command(["git", "add", "-f", "--", relative], "git-add-final", 30)
-        self.run_command(["git", "commit", "-m", "proof: retain R230 cleanup-only outcome"], "git-commit-final", 120)
+        ruling = self.authorization_value["ruling"]
+        self.run_command(["git", "commit", "-m",
+                          f"proof: retain R{ruling} cleanup-only outcome"], "git-commit-final", 120)
         evidence_commit = self.run_command(["git", "rev-parse", "HEAD"], "evidence-head").decode().strip()
         self.run_command([sys.executable, str(manifest), "verify", "--repo", str(self.repo),
                           "--frozen", str(self.final), "--commit", evidence_commit], "verify-final", 120)
-        binding = {"schema": "cfdw-f1-r230-cleanup-binding/1", "outcome": outcome,
+        binding = {"schema": f"cfdw-f1-r{ruling}-cleanup-binding/1", "outcome": outcome,
                    "evidence_commit": evidence_commit,
                    "manifest_sha256": digest(self.final / "capture-manifest.json")}
         self.binding.write_bytes(canonical(binding))
         self.run_command(["git", "add", "--", self.binding.relative_to(self.repo).as_posix()], "git-add-binding", 30)
-        self.run_command(["git", "commit", "-m", "proof: bind R230 cleanup-only evidence"], "git-commit-binding", 120)
+        self.run_command(["git", "commit", "-m",
+                          f"proof: bind R{ruling} cleanup-only evidence"], "git-commit-binding", 120)
         return self.run_command(["git", "rev-parse", "HEAD"], "binding-head").decode().strip()
 
     def execute(self) -> None:
@@ -477,7 +486,7 @@ class Cleanup:
         binding_commit = self.bind(outcome)
         if outcome != "cleanup-proved":
             raise ValueError("cleanup failed; committed receipt; no retry")
-        print("R230-CLEANUP-PASS binding_commit=" + binding_commit)
+        print(f"R{self.authorization_value['ruling']}-CLEANUP-PASS binding_commit=" + binding_commit)
 
 
 def main() -> None:
@@ -497,6 +506,6 @@ if __name__ == "__main__":
     try:
         main()
     except (OSError, ValueError, subprocess.SubprocessError) as error:
-        print("R230-CLEANUP-REFUSED type=" + type(error).__name__ + " sha256="
+        print("CLEANUP-REFUSED type=" + type(error).__name__ + " sha256="
               + hashlib.sha256(str(error).encode()).hexdigest(), file=sys.stderr)
         raise SystemExit(5)

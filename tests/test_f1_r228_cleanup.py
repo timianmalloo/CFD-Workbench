@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import importlib.util
 import math
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -140,7 +141,9 @@ class CleanupOnlyTests(unittest.TestCase):
                  "failure_policy": "commit-receipt-stop-no-retry",
                  "retry_requires_new_ruling": True}
         cleanup.validate_authorization(value, "b" * 64)
-        for field, replacement in (("status", "proposed"), ("ruling", None), ("target_key", "{wrong}"),
+        for field, replacement in (("status", "proposed"), ("ruling", None), ("ruling", True),
+                                   ("ruling", 0), ("ruling", "230"), ("ruling", 231),
+                                   ("target_key", "{wrong}"),
                                    ("payload_sha256", "c" * 64), ("allowed_actions", []),
                                    ("forbidden_actions", []), ("deadline_seconds", 601)):
             changed = dict(value)
@@ -157,12 +160,44 @@ class CleanupOnlyTests(unittest.TestCase):
                               "never benchmark", "never delete host paths manually", "R223(a) same commit",
                               "R223(b) two leader samples at least 200 seconds", "R223(c) PC exclusive",
                               "R223(d) one attempt; no second run without a new ruling"])
-        cleanup.verify_ruling(section, auth, payload, source)
+        cleanup.verify_ruling(section, auth, payload, source, 230)
         for token in (auth, cleanup.TARGET_KEY, "never benchmark"):
             with self.subTest(token=token), self.assertRaises(ValueError):
-                cleanup.verify_ruling(section.replace(token, "missing", 1), auth, payload, source)
+                cleanup.verify_ruling(section.replace(token, "missing", 1), auth, payload, source, 230)
         with self.assertRaises(ValueError):
-            cleanup.verify_ruling(section + "\nPROPOSED", auth, payload, source)
+            cleanup.verify_ruling(section + "\nPROPOSED", auth, payload, source, 230)
+
+    def test_ruling_number_is_authorization_driven_without_global_preclaim(self):
+        source_text = SCRIPT.read_text(encoding="utf-8")
+        self.assertIsNone(re.search(r"(?m)^RULING\s*=", source_text))
+        number = 731
+        auth, payload, source = "a" * 64, "b" * 64, "c" * 40
+        section = "\n".join([f"### Ruling {number} — ACCEPT ONE CLEANUP-ONLY ACTION",
+                              auth, payload, source, cleanup.TARGET_KEY, cleanup.TARGET_PATH,
+                              cleanup.PROTECTED_KEY, cleanup.PROTECTED_PATH,
+                              "never resume preflight", "never download", "never install",
+                              "never fetch source", "never build", "never run a case",
+                              "never benchmark", "never delete host paths manually",
+                              "R223(a) same commit", "R223(b) two leader samples at least 200 seconds",
+                              "R223(c) PC exclusive",
+                              "R223(d) one attempt; no second run without a new ruling"])
+        self.assertEqual(cleanup.ruling_section(section, number), section)
+        cleanup.verify_ruling(section, auth, payload, source, number)
+        with tempfile.TemporaryDirectory() as temporary:
+            authorization = Path(temporary) / "authorization.json"
+            authorization.write_text("{}\n", encoding="utf-8")
+            instance = object.__new__(cleanup.Cleanup)
+            instance.authorization_value = {"source_commit": source, "ruling": number}
+            instance.authorization = authorization
+            instance.payload_sha = payload
+            instance.identity = self.identity
+            instance.original_run_id = cleanup.RUN_ID
+            instance.exclusive_run_id = "exclusive"
+            instance.activation_sample = {}
+            instance.log = []
+            instance.failure = None
+            instance.start = 0.0
+            self.assertEqual(instance.receipt("failed-stop-no-retry")["ruling"], number)
 
     def test_precheck_refusal_does_not_launch_wsl(self):
         with tempfile.TemporaryDirectory() as temporary:

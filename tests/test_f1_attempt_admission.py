@@ -86,15 +86,15 @@ class AttemptAdmissionTests(unittest.TestCase):
             with self.subTest(text=text[:40]), self.assertRaises(ValueError):
                 attempt.check_ruling(text, value, sha)
 
-    def test_ActualProjection_OnlyAuthorityFieldsDifferAndCannotUseLivePath(self):
+    def test_ActivatedLiveAuthorization_EqualsProjectionButProjectionPathRemainsNonCanonical(self):
         root = ROOT / attempt.PREFIX / 'attempt-1'
         data = json.loads((root / 'invocation-contract.json').read_bytes())
         sha = hashlib.sha256((root / 'invocation-contract.json').read_bytes()).hexdigest()
-        proposed = json.loads((root / 'attempt-authorization.json').read_bytes())
+        live = json.loads((root / 'attempt-authorization.json').read_bytes())
         projection_path = root / 'authorization.accepted-projection.json'
         projection = json.loads(projection_path.read_bytes())
-        self.assertEqual({key for key in proposed if proposed[key] != projection[key]}, {'status', 'ruling'})
-        attempt.check_authorization(proposed, data, sha, proposed=True)
+        self.assertEqual(live, projection)
+        attempt.check_authorization(live, data, sha)
         attempt.check_authorization(projection, data, sha)
         with self.assertRaisesRegex(ValueError, 'outside exact live path'):
             attempt.verify_authorization(ROOT, projection_path, data, sha, data['run_id'], data['run_id'])
