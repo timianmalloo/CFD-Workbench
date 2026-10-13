@@ -7,6 +7,10 @@ unselected. Platform and product acceptance gates remain open until verified.
 Keep future implementation and developer tooling compatible with both target platforms.
 Run repository checks with `python3 tools/check-docs.py` (Windows: `py -3`).
 
+- PowerShell gate capture is fail-closed: create a redirected output file's parent first and set
+  `$ErrorActionPreference = 'Stop'`, or run the gate directly. Capture `$LASTEXITCODE` immediately
+  after the gate. A redirection setup error is a failed gate, never a green result.
+
 Pack examples mentioning other products or technology stacks are reference examples,
 not architecture decisions for this project. Project-specific decisions belong outside
 the managed block below.
