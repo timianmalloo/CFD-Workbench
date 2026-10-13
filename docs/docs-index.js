@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3eab864f32dc6c45ea39e7d7421af7e81f3891aa50b8b0e3e8ec514f4b5bfafe"
+      "sourceSha256": "07e52ba1644186c2e851e02f102c81b3cf6513212188dcfe00a6da9da23a00b2"
     },
     {
       "id": "domain-experts",
@@ -19005,7 +19005,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d55e1a306a3033d7a63119a87a0b05219f0a4aa8c176b928ca77441e22213349"
+      "sourceSha256": "14635f746204a2ccb20b40de4153e99a7ccba59bc96c674444efcc89c2093d28"
     },
     {
       "id": "proof-win-gpu-f1-r217-contract-preparation",
@@ -22519,5 +22519,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "4a1dc95b5e196fb4a6bec5341a2a3fb64bf44aae00f72d3ae8a199bd7982bf6d"
+  "graphSha256": "570fa5454878e88add2dbcf8d368457b52f4c8a16397a6db9ed911007a841aa6"
 };

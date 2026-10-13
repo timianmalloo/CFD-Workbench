@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T18:44:16Z",
+  "generated": "2026-10-13T19:18:19Z",
   "audit": [
     {
       "actor": null,
@@ -38457,6 +38457,90 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-13T18:43:05Z",
       "duration_seconds": 71.0
+    },
+    {
+      "id": "al-01M4VAWKZ90WD0GAXSDJDAPKBD",
+      "shortname": "Poll PR 36 and continue GPU prerequisites",
+      "datetime": "2026-10-13T19:12:35Z",
+      "session": "pc-f1-register-closure-correction",
+      "prompt": "keep polling every 5 minutes instead of pausing and keep going where you can",
+      "summary": "Requested five-minute GitHub polling and continued offline progress",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [
+        "coordination"
+      ],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4VB10HWWG93XP81W7WK1PAV",
+      "shortname": "f1-register-closure-correction",
+      "datetime": "2026-10-13T19:14:59Z",
+      "session": "pc-f1-register-closure-correction",
+      "prompt": "keep polling every 5 minutes instead of pausing and keep going where you can",
+      "summary": "Polled PR 36 through merge, fast-forwarded main, and corrected its stale loader-status clause",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": "codex",
+      "artifacts": [
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Poll PR 36 through a Mac result and continue authorized offline GPU work",
+      "done_when": "PR 36 is joined or answered, main is current, and any discovered offline inconsistency is corrected with green docs validation",
+      "tier": "T1",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "git": {
+        "sha": "f73b6cba552ecfab8f55d352eb92017b507a4c74",
+        "short": "f73b6cba5",
+        "branch": "win/f1-register-closure-correction",
+        "pushed": true
+      }
+    },
+    {
+      "id": "al-01M4VB6YPPN1P4P6QTDS99M7RS",
+      "shortname": "powershell-redirect-parent-control",
+      "datetime": "2026-10-13T19:18:14Z",
+      "session": "pc-f1-register-closure-correction",
+      "prompt": "Final docs verification wrapper after PR 36 closure correction",
+      "summary": "Captured missing redirection-parent plus stale LASTEXITCODE as a defect class and added an always-loaded fail-closed PowerShell rule",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": "codex",
+      "artifacts": [
+        "AGENTS.md",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Prevent a PowerShell redirection setup failure from masquerading as a green native gate",
+      "done_when": "The class is recorded, the always-loaded control is present, and the final docs gate runs directly and passes",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "git": {
+        "sha": "f73b6cba552ecfab8f55d352eb92017b507a4c74",
+        "short": "f73b6cba5",
+        "branch": "win/f1-register-closure-correction",
+        "pushed": true
+      }
     }
   ],
   "changes": [
