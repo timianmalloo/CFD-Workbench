@@ -18881,6 +18881,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "d28572668c1015ab2eb3a3fdb6cf9b088b9a95f1cf3233be2e6077b9f3362baf"
     },
     {
+      "id": "proof-win-gpu-f1-r228-attempt1-failure",
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-1/final/attempt-failure.md",
+      "title": "R228 F1 attempt 1 failure receipt",
+      "type": "proof-pack",
+      "status": "blocked",
+      "owner": "@pc-f1-r225-attempt1",
+      "phase": "preflight",
+      "reviewBy": "2026-10-13",
+      "reviewSuggested": [],
+      "summary": "Attempt 1 stopped after a guard-event sharing failure; checkpoint binding failed, the fresh target remains registered, and exact cleanup requires a Mac ruling.",
+      "tags": [
+        "windows",
+        "wsl",
+        "preflight",
+        "failure-receipt"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r225-attempt1-admission",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "03ca48bef081965d93c4acb129d253a901fcd7bedc10a5126a6348dd3481277c"
+    },
+    {
       "id": "proof-win-gpu-f1-recovery-integration",
       "path": "docs/proof/win-gpu-f1-preflight/integration/proof.md",
       "title": "F1 packet repair and cleanup recovery: offline integration proof",
@@ -22181,5 +22211,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "1d1c3d45491143fa3ad6d9300260e4ff17adc586574c69a8b58dde55e993828e"
+  "graphSha256": "79b250636ceafdbd832a42a42410dfce1798e0caef85bf92bbdb5ca57971e17f"
 };

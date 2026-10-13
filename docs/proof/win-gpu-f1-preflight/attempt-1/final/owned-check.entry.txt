@@ -1,0 +1,6 @@
+pid=1214
+pgid=1214
+sid=1214
+nice=10
+Cpus_allowed_list=0-1
+cmdline=/bin/bash /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r225-attempt1/docs/proof/win-gpu-f1-preflight/packet/identity.sh /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r225-attempt1/docs/proof/win-gpu-f1-preflight/attempt-1/live/owned-check.entry.txt -- /bin/bash /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r225-attempt1/docs/proof/win-gpu-f1-preflight/packet/owned-control.sh --mode check --run-root /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r225-attempt1/docs/proof/win-gpu-f1-preflight/attempt-1/live r225-attempt1-epoch8-20261012 
