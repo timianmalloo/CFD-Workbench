@@ -11,6 +11,7 @@ import argparse
 
 PACKET = Path(__file__).resolve().parents[1] / 'docs/proof/win-gpu-f1-preflight/packet'
 sys.path.insert(0, str(PACKET))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 
 class RenewalTests(unittest.TestCase):
