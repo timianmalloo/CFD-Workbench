@@ -6439,6 +6439,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "0e7cac768482cefb6a4df59a761d873274934e68cfe58c8bfc29c3da90f3e7d7"
     },
     {
+      "id": "plan-windows-gpu-f1-r231-helper-review",
+      "path": "docs/plans/windows-gpu-f1-r231-helper-review.md",
+      "title": "R231 independent helper review execution plan",
+      "type": "doc",
+      "status": "complete",
+      "owner": "@pc-f1-r231-helper-review",
+      "phase": "",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Bounded adversarial review from exact source through helper, receipt and immutable evidence.",
+      "tags": [
+        "review",
+        "offline",
+        "execution-graph"
+      ],
+      "links": [
+        {
+          "to": "review-windows-gpu-f1-r231-helper",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-gpu-f1-cleanup-helper-repair",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Diagram 1",
+          "mermaid": "graph LR\n A --> B\n A --> C\n B --> D\n C --> D\n D --> E"
+        }
+      ],
+      "sourceSha256": "03ea3a9d9677abe44b8ffefa68391dcbc31482aa0416c842e68c983b7558e003"
+    },
+    {
       "id": "plan-windows-gpu-f1-recovery-integration",
       "path": "docs/plans/windows-gpu-f1-recovery-integration.md",
       "title": "F1 recovery and packet repair: offline integration graph",
@@ -9318,6 +9353,36 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "9c97341e926da4a63a3fbe4a14a6e8ca0a82310c24c4ace42b2bbe02e63eda7c"
+    },
+    {
+      "id": "review-windows-gpu-f1-r231-helper",
+      "path": "docs/reviews/windows-gpu-f1-r231-helper-review.md",
+      "title": "Independent R231 helper candidate review",
+      "type": "doc",
+      "status": "blocked",
+      "owner": "@pc-f1-r231-helper-review",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "REJECT: the import repair and sanitized failure propagation pass, but missing or non-directory evidence still reports owned absence. The disclosed Desktop ring remains red. No source repair or live action occurred.",
+      "tags": [
+        "windows",
+        "cleanup",
+        "offline",
+        "independent-review"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-cleanup-helper-repair",
+          "rel": "depends-on"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "430ccc12c21d2c031888cdba625b9a62258f8df10239edb6f3dc16d7f9a614ca"
     },
     {
       "id": "rulings",
@@ -22423,5 +22488,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "7ca8fdb03beaeb4b45f3621d025753850f00de1e3d89f8ef6f91a1e9824f4252"
+  "graphSha256": "639ec65ddef199da73e7e2cdb88d1e6856c07cef077844918a3ebd8b95413e99"
 };

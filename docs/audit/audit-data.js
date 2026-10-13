@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T03:52:03Z",
+  "generated": "2026-10-13T04:00:11Z",
   "audit": [
     {
       "actor": null,
@@ -38223,6 +38223,45 @@ window.AUDIT_DATA = {
         "branch": "win/gpu-f1-r231-helper-repair",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M4SPHPGDJVR1YHW5652086Z7",
+      "shortname": "Independent review of candidate 6089217fe55ae7b10624bd892b44e7ca0ad717b5…",
+      "datetime": "2026-10-13T03:57:52Z",
+      "session": "pc-f1-r231-helper-review",
+      "prompt": "Independent review of candidate 6089217fe55ae7b10624bd892b44e7ca0ad717b5 in assigned R231 helper review worktree. Verify loader repair, full helper fixtures, unknown-state fail-closed behavior, sanitized receipt diagnostics, privacy, immutable R230 evidence; run offline tests and gates; account for disclosed red Desktop ring; commit and push ACCEPT/HOLD/REJECT. No source repair, WSL, registry, live inspection or lifecycle action.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4SPNZ0HESKCF4WBJZEVCTT4",
+      "shortname": "r231-helper-independent-review",
+      "datetime": "2026-10-13T04:00:11Z",
+      "session": "pc-f1-r231-helper-review",
+      "prompt": "Independently review exact 6089217f helper candidate, including loader, unknown-state refusal, sanitized diagnostics, immutable evidence, offline gates and red Desktop ring; publish verdict without live action.",
+      "summary": "REJECT: real helper returns OWNED-ABSENT for missing stage/guard evidence roots and file roots. Import and diagnostic repair verified; focused10/10, Python91/91, safe10/10, manifest69, conservation, privacy and check-docs PASS. Author Desktop16 findings remain RED and unclassified. Review reproducer committed; no source repair/live action. Five planned/actual nodes, zero repairs. Copied graph target absent: derive caught dangling link and final derive fixed it; no nonexistent grounding claimed.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-r231-helper-review.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Independent exact-candidate review with confidence-labeled evidence and authority limits",
+      "done_when": "Review verdict and reproducer committed and pushed with exact hashes and checks",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-10-13T03:54:21Z",
+      "duration_seconds": 350.0
     }
   ],
   "changes": [
