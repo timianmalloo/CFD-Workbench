@@ -9,7 +9,7 @@ links:
   - { to: proof-application-core, rel: relates-to }
 review-by: 2026-11-12
 summary: >-
-  The reader-sharing scan now covers proof PowerShell (report mode until 2026-10-20) and a fast-ring check keeps every capture folder text-unset.
+  The reader-sharing scan now covers proof PowerShell (9 existing hits hash-pinned, new hits fail) and a fast-ring check keeps every capture folder text-unset.
 ---
 # RSX red-first (Ruling 229)
 
@@ -18,14 +18,15 @@ Base main 0d37bced. Both controls were run on the unchanged tree first.
 ## Item 1: reader-sharing scan covers proof PowerShell
 Rule chosen: a default-share read (`[IO.File]::ReadAll*/OpenRead/OpenText`, `[IO.File]::Open` without FileShare,
 `Get-Content`) is flagged when its line, or the line assigning a variable it uses, names a `live` directory or a
-`*.jsonl` file. Allow-marker `# reader-share: reviewed <ruling>`. Report mode until 2026-10-20, then failing.
-Why not markers only: a marker on the PC scripts edits frozen proof bytes. Why not fail now: main's ring must not
-go red while the PC repairs the scripts.
+`*.jsonl` file. Allow-marker `# reader-share: reviewed <ruling>`. Enforced now, with the 9 existing hits pinned
+(grandfathered) by path plus SHA-256 of the exact line text: a new hit, or a pinned line whose text changes, fails at once.
+Why not markers: they edit frozen proof bytes. Why not a date: it turns main red over delivered B1/B2 evidence that is never edited.
+The F1 repair changes its two lines, so they leave the list and the repair must pass the check.
 
 - Old check on main: `python3 tools/check-reader-sharing.py` exit 0, `READER-SHARE ok: 0 readers without delete sharing`
   (`old-reader-share.txt`). It missed the F1 defect.
-- New check, default (report mode): exit 0, 9 `READER-SHARE-PS REPORT` lines (`new-reader-share.txt`).
-- New check, `--enforce-ps` (what it does from 2026-10-20): exit 1 (`enforced-reader-share.txt`), including
+- New check, default: exit 0, 9 `READER-SHARE grandfathered <path>:<line> (Ruling 229)` lines (`new-reader-share.txt`).
+- New check, `--no-grandfather` (audit: ignore the list; replaces the earlier `--enforce-ps`): exit 1 (`enforced-reader-share.txt`), including
   `docs/proof/win-gpu-f1-preflight/packet/Invoke-Preflight.ps1:133: $raw = [IO.File]::ReadAllText($events)`.
   The ruling cites line 136; on main the same statement is at line 133 (the attempt branch has a different file).
 - Sweep (9 hits, 5 scripts; not fixed here, the PC repairs the F1 ones):
@@ -34,6 +35,8 @@ go red while the PC repairs the scripts.
   - win-gpu-b2/capture-completed-install.ps1:83 ReadAllText($eventsPath)
   - win-gpu-b2/capture-install.ps1:75 ReadAllText($eventsPath), :131 Get-Content $samplesPath
   - win-gpu-f1-preflight/packet/Invoke-Preflight.ps1:122 Get-Content $path (completed-guard.state.json, the os.replace'd state file), :133 ReadAllText($events)
+- Grandfathering self-test: a pinned line passes; the same path with one character changed fails; a new offender in
+  another file fails; `audit=True` fails a pinned line.
 - Self-test: 9 C# offenders and 3 PowerShell offenders caught (variable-resolved ReadAllText, Get-Content on a Live path,
   `[System.IO.File]::Open` default share); 8 C# and 6 PowerShell clean forms pass (FileStream with
   `ReadWrite,Delete`, `File.Open` with FileShare, marker on the same line, marker on the previous line, non-live

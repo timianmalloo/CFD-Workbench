@@ -24,15 +24,17 @@ Read shapes: [IO.File]::ReadAllText/ReadAllLines/ReadAllBytes/OpenRead/OpenText,
 FileShare token, and Get-Content. A read is "live" when its line, or the line that assigns a variable it uses,
 names a live directory (word "live", any case) or a *.jsonl file. FileStream readers are never flagged (they
 choose sharing explicitly). Allow-marker on the same or the previous line: `# reader-share: reviewed <ruling>`.
-Report mode: until PS_ENFORCE_FROM (the PC repair of Ruling 229 joins by then) PowerShell hits print as
-READER-SHARE-PS REPORT and do not fail; on and after that date they fail. Chosen over markers-only because markers
-on the PC scripts would edit frozen proof bytes, which the Mac must not do.
+Enforced now, with hash-pinned grandfathering (Ruling 229): the 9 hits that existed on 2026-10-13 are listed in
+PS_GRANDFATHERED by path plus SHA-256 of the exact line text. A listed line is exempt only while byte-identical and
+prints `READER-SHARE grandfathered <path>:<line> (Ruling 229)`; a new hit or a changed listed line fails at once.
+Chosen over a date or markers because the B1/B2 scripts are delivered proofs that are never edited (a date would turn
+main red over frozen evidence; a marker would edit frozen bytes). The F1 repair changes its lines, so they leave the list.
 
-Usage: check-reader-sharing.py [--self-test] [--root DIR] [--enforce-ps]  (--enforce-ps: PowerShell hits fail now)
+Usage: check-reader-sharing.py [--self-test] [--root DIR] [--no-grandfather]  (--no-grandfather: audit, fail every PowerShell hit)
 """
 from __future__ import annotations
 
-import datetime
+import hashlib
 import re
 import sys
 from pathlib import Path
@@ -50,7 +52,20 @@ WRITE_MODE = re.compile(r"\bFileAccess\.Write\b|\bFileMode\.(?:Append|Create|Cre
 READ_ACCESS = re.compile(r"\bFileAccess\.Read\b")
 STATEMENT_LINES = 6
 
-PS_ENFORCE_FROM = datetime.date(2026, 10, 20)  # after the PC repair of Ruling 229 joins; hits then fail
+# Ruling 229 grandfathering: (path, SHA-256 of the exact line text, EOL excluded). A pinned line is exempt only while
+# byte-identical; a changed line or a new hit fails. Delivered B1/B2 proofs are never edited, so these stay; the
+# F1 Invoke-Preflight.ps1 lines leave the list when the PC repair changes them (then delete those two entries).
+PS_GRANDFATHERED = {
+    ("docs/proof/win-gpu-b1/capture.ps1", "5b4659c6aa84064f8b892ef62cee1fa3737c33101e1080a809933ae6873c41a7"),  # :75
+    ("docs/proof/win-gpu-b1/capture.ps1", "2a1bea9cbfffb5913042cf0078fb77991e1f09b23165b24b6b3efa242e862b67"),  # :92
+    ("docs/proof/win-gpu-b1/wait-observer.ps1", "5b4659c6aa84064f8b892ef62cee1fa3737c33101e1080a809933ae6873c41a7"),  # :24
+    ("docs/proof/win-gpu-b1/wait-observer.ps1", "50b2a5df19a08af56e91006f03dcc89c663d228895f5f2335cf54828d4303a3d"),  # :41
+    ("docs/proof/win-gpu-b2/capture-completed-install.ps1", "5b4659c6aa84064f8b892ef62cee1fa3737c33101e1080a809933ae6873c41a7"),  # :83
+    ("docs/proof/win-gpu-b2/capture-install.ps1", "5b4659c6aa84064f8b892ef62cee1fa3737c33101e1080a809933ae6873c41a7"),  # :75
+    ("docs/proof/win-gpu-b2/capture-install.ps1", "2a1bea9cbfffb5913042cf0078fb77991e1f09b23165b24b6b3efa242e862b67"),  # :131
+    ("docs/proof/win-gpu-f1-preflight/packet/Invoke-Preflight.ps1", "4d6c0d7abb1f764a8b64c32d1949116b6ec38cf3b9eb8e5b509a253aa52408b4"),  # :122
+    ("docs/proof/win-gpu-f1-preflight/packet/Invoke-Preflight.ps1", "928b56cef6c926523eb3b95ab73f86b360f76b8ba905e987e239ce5bac02e7a9"),  # :133
+}
 PS_READ = re.compile(
     r"\[(?:System\.)?IO\.File\]::(?:ReadAll(?:Text|Lines|Bytes)|OpenRead|OpenText)\b"
     r"|\[(?:System\.)?IO\.File\]::Open\((?![^)]*FileShare)"
@@ -105,7 +120,7 @@ def scan_ps_text(text: str) -> list[tuple[int, str]]:
             continue
         used = {v.lower() for v in PS_VAR.findall(line)}
         if PS_LIVE.search(line) or used & live_vars:
-            hits.append((i + 1, line.strip()))
+            hits.append((i + 1, line.rstrip("\r\n")))
     return hits
 
 
@@ -117,6 +132,18 @@ def scan_ps_tree(root: Path) -> dict[str, list[tuple[int, str]]]:
             if hits:
                 found[path.relative_to(root).as_posix()] = hits
     return found
+
+
+def ps_split(found: dict[str, list[tuple[int, str]]], pinned: set[tuple[str, str]] | None = None,
+             audit: bool = False) -> tuple[list[tuple[str, int, str]], list[tuple[str, int, str]]]:
+    """(grandfathered, failing) hits. A hit is grandfathered only while its line text hashes to a pinned entry."""
+    pinned = PS_GRANDFATHERED if pinned is None else pinned
+    grandfathered, failing = [], []
+    for rel, hits in found.items():
+        for number, line in hits:
+            key = (rel, hashlib.sha256(line.encode("utf-8")).hexdigest())
+            (grandfathered if key in pinned and not audit else failing).append((rel, number, line))
+    return grandfathered, failing
 
 
 def scan_tree(root: Path) -> dict[str, list[tuple[int, str]]]:
@@ -166,6 +193,21 @@ def self_test() -> int:
         "ps-comment": "# $r = [IO.File]::ReadAllText($live\\events.jsonl)",
     }
     bad = 0
+    line = "$raw = [IO.File]::ReadAllText($events)"
+    pinned = {("a.ps1", hashlib.sha256(line.encode()).hexdigest())}
+    cases = {
+        "grandfathered line passes": ({"a.ps1": [(3, line)]}, 1, 0),
+        "same path, one character changed fails": ({"a.ps1": [(3, line + " ")]}, 0, 1),
+        "new offender in another file fails": ({"b.ps1": [(3, line)]}, 0, 1),
+    }
+    for label, (hits, want_g, want_f) in cases.items():
+        g, f = ps_split(hits, pinned=pinned)
+        if (len(g), len(f)) != (want_g, want_f):
+            print(f"SELF-TEST FAIL: grandfathering: {label}: got {len(g)} grandfathered, {len(f)} failing")
+            bad += 1
+    if ps_split({"a.ps1": [(3, line)]}, pinned=pinned, audit=True)[1] == []:
+        print("SELF-TEST FAIL: --no-grandfather did not fail a pinned line")
+        bad += 1
     for label, text in ps_offenders.items():
         if not scan_ps_text(text):
             print(f"SELF-TEST FAIL: PowerShell offender not caught: {label}")
@@ -196,22 +238,19 @@ def main(argv: list[str]) -> int:
     for rel, hits in found.items():
         for number, line in hits:
             print(f"READER-SHARE: {rel}:{number}: {line}")
-    ps_found = scan_ps_tree(root)
-    enforcing = "--enforce-ps" in argv or datetime.date.today() >= PS_ENFORCE_FROM
-    for rel, hits in ps_found.items():
-        for number, line in hits:
-            print(f"READER-SHARE-PS {'FAIL' if enforcing else 'REPORT'}: {rel}:{number}: {line}")
-    if ps_found and enforcing:
+    grandfathered, failing = ps_split(scan_ps_tree(root), audit="--no-grandfather" in argv)
+    for rel, number, _ in grandfathered:
+        print(f"READER-SHARE grandfathered {rel}:{number} (Ruling 229)")
+    for rel, number, line in failing:
+        print(f"READER-SHARE-PS FAIL: {rel}:{number}: {line.strip()}")
+    if failing:
         print("READER-SHARE-PS FAIL: open live files with FileStream(..., FileShare.ReadWrite|Delete), "
               "or mark a reviewed read with `# reader-share: reviewed <ruling>`")
-    elif ps_found:
-        print(f"READER-SHARE-PS report mode until {PS_ENFORCE_FROM}: {sum(map(len, ps_found.values()))} live "
-              "default-share reads (PC repairs Ruling 229); not failing")
     if found:
         print("READER-SHARE FAIL: open user files with CfdWorkbench.Persistence.UserFile.OpenRead "
               "(FileShare.Read | FileShare.Delete)")
         return 1
-    if ps_found and enforcing:
+    if failing:
         return 1
     print("READER-SHARE ok: 0 readers without delete sharing")
     return 0

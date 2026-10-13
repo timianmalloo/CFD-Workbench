@@ -5554,7 +5554,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a4991b0bc5d110f8d5416fac78bcccc9453c2a5918a097042a47756ae92016fd"
+      "sourceSha256": "e68732f0d448bd9adfd2f402cfa9fa444c702bb839adb5813e54de531536a6c0"
     },
     {
       "id": "domain-experts",
@@ -16835,7 +16835,7 @@ window.DOCS_INDEX = {
       "phase": "",
       "reviewBy": "2026-11-12",
       "reviewSuggested": [],
-      "summary": "The reader-sharing scan now covers proof PowerShell (report mode until 2026-10-20) and a fast-ring check keeps every capture folder text-unset.",
+      "summary": "The reader-sharing scan now covers proof PowerShell (9 existing hits hash-pinned, new hits fail) and a fast-ring check keeps every capture folder text-unset.",
       "tags": [
         "rsx",
         "reader-share",
@@ -16848,7 +16848,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "05b25c6b413abb7c3ea833a1f126c046e164ea23a5b2770237539e2f49d620a4"
+      "sourceSha256": "5c2105ed15a9dde7f397ff6b90476dffa15091be4ae36de093a7d381908cf2d4"
     },
     {
       "id": "proof-sdg",
@@ -22035,5 +22035,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "5422bdf16bcc4fc5167683ae234c022cb38cd656e4dc42bb573b77f9654d5f75"
+  "graphSha256": "3f60e4304637a9f855a3828d616133bd0217705ffc3b169bb25c0c49ddf2b210"
 };
