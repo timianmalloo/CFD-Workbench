@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1c3ff6c28d4d75e1157d67f51e9b5125420c74bd1f1407932b81d61bfc17bc55"
+      "sourceSha256": "fcd22ff19043af472d9e98388eaba90c9330860aef3f3e7418eef900dbaa0ef1"
     },
     {
       "id": "domain-experts",
@@ -14607,6 +14607,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "b65e52933f8f5ddacfca1640816a445b12a016b2246af3aef3ccff783b374a47"
     },
     {
+      "id": "proof-f1-composite-helper-reader-r233",
+      "path": "docs/proof/win-gpu-f1-preflight/composite-r233.md",
+      "title": "Prepared composite F1 helper and reader repair",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@pc-coordinator",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Prepared unauthorized composite of the exact accepted cleanup-helper ancestry and the accepted reader-sharing delta; new packet blobs require fresh review. Protected parent source/tests/evidence are conserved; no live action occurred.",
+      "tags": [
+        "windows",
+        "offline",
+        "integration",
+        "reader-sharing",
+        "conservation"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-cleanup-helper-repair",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "documents"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "44f0fbcbb461ef4c7e19099bf12b167721511d3878ef8bdfc875fa2b4c04173c"
+    },
+    {
       "id": "proof-flk-investigation",
       "path": "docs/proof/flk/investigation.md",
       "title": "SectionEditor DragMove flake investigation",
@@ -22423,5 +22458,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "0f9fad791dc3f160498aa4dab4d3acdcba19f80f5c6214b08bfab525d6fc9b17"
+  "graphSha256": "31422aa64a9813bacffb0fd1c4b18c678cd95b5fb8792b5da46672e3370dc042"
 };

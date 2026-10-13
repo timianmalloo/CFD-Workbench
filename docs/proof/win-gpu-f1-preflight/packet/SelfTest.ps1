@@ -34,6 +34,59 @@ $parseErrors = $null
 $wrapperAst = [Management.Automation.Language.Parser]::ParseFile(
     (Join-Path $PSScriptRoot 'Invoke-Preflight.ps1'), [ref]$tokens, [ref]$parseErrors)
 Require ($parseErrors.Count -eq 0) 'wrapper parse failed'
+# Ruling 229: exercise the actual live-evidence reader without wrapper top-level actions.
+$openLiveReaderAst = $wrapperAst.Find({ param($node)
+    $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Open-LiveEvidenceStream'
+}, $true)
+Require ($null -ne $openLiveReaderAst) 'Ruling 229 live evidence FileStream opener missing'
+$openText = $openLiveReaderAst.Extent.Text
+Require ($openText -match 'FileStream' -and $openText -match 'FileShare.*ReadWrite' -and
+    $openText -match 'FileShare.*Delete') 'Ruling 229 reader must share ReadWrite and Delete'
+$readLiveTextAst = $wrapperAst.Find({ param($node)
+    $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Read-LiveText'
+}, $true)
+$readStateAst = $wrapperAst.Find({ param($node)
+    $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Read-GuardState'
+}, $true)
+$assertGuardAst = $wrapperAst.Find({ param($node)
+    $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Assert-Guard'
+}, $true)
+Require ($null -ne $readLiveTextAst -and $null -ne $readStateAst -and $null -ne $assertGuardAst) 'Ruling 229 live reader functions missing'
+Require ($readStateAst.Extent.Text -match 'Read-LiveText' -and $assertGuardAst.Extent.Text -match 'Read-LiveText') 'guard state and event reads must use the shared FileStream reader'
+Invoke-Expression $openLiveReaderAst.Extent.Text
+Invoke-Expression $readLiveTextAst.Extent.Text
+Invoke-Expression $readStateAst.Extent.Text
+Invoke-Expression $assertGuardAst.Extent.Text
+$readerFixture = Join-Path ([IO.Path]::GetTempPath()) ('f1-reader-sharing-' + [guid]::NewGuid().ToString('N'))
+$null = New-Item -ItemType Directory -Path $readerFixture
+try {
+    $Live = $readerFixture
+    $script:BeforeSha = 'reader-fixture-sha'
+    $RunId = 'reader-fixture'
+    $Guard = [pscustomobject]@{ HasExited=$false }
+    $statePath = Join-Path $Live 'completed-guard.state.json'
+    $eventsPath = Join-Path $Live 'completed-guard-events.jsonl'
+    $stateJson = [ordered]@{ state='running'; session_id=$RunId; expected_sha256=$script:BeforeSha
+        last_sample_utc=[DateTimeOffset]::UtcNow.ToString('o'); completed_samples=7 } | ConvertTo-Json -Compress
+    [IO.File]::WriteAllText($statePath, $stateJson, [Text.UTF8Encoding]::new($true))
+    $eventJson = [ordered]@{ verdict='continue'; session_id=$RunId; expected_sha256=$script:BeforeSha } | ConvertTo-Json -Compress
+    [IO.File]::WriteAllText($eventsPath, ($eventJson + "`r`n" + '{"partial":true}'), [Text.UTF8Encoding]::new($false))
+    Require ((Read-GuardState).session_id -ceq $RunId) 'Ruling 229 BOM state read changed'
+    Require ((Assert-Guard) -eq 7) 'Ruling 229 complete event selection changed'
+    $reader = Open-LiveEvidenceStream -Path $eventsPath
+    try {
+        $writer = [IO.FileStream]::new($eventsPath, [IO.FileMode]::Open, [IO.FileAccess]::Write,
+            ([IO.FileShare]::ReadWrite -bor [IO.FileShare]::Delete))
+        try {
+            $writer.Seek(0, [IO.SeekOrigin]::End) | Out-Null
+            $tail = [Text.Encoding]::UTF8.GetBytes('{"concurrent":true}')
+            $writer.Write($tail, 0, $tail.Length)
+            $writer.Flush()
+        } finally { $writer.Dispose() }
+        [IO.File]::Delete($eventsPath)
+        Require (-not (Test-Path -LiteralPath $eventsPath)) 'Ruling 229 reader blocked concurrent delete'
+    } finally { $reader.Dispose() }
+} finally { [IO.Directory]::Delete($readerFixture, $true) }
 foreach ($file in @('Control.ps1', 'SelfTest.ps1')) {
     $null = [Management.Automation.Language.Parser]::ParseFile(
         (Join-Path $PSScriptRoot $file), [ref]$tokens, [ref]$parseErrors)

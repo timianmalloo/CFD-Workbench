@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T04:04:55Z",
+  "generated": "2026-10-13T06:09:21Z",
   "audit": [
     {
       "actor": null,
@@ -38258,6 +38258,42 @@ window.AUDIT_DATA = {
         "short": "6089217fe",
         "branch": "win/gpu-f1-r231-helper-repair",
         "pushed": true
+      }
+    },
+    {
+      "id": "al-01M4SY2EMX1JK16SD2DJD9YGRE",
+      "shortname": "f1-composite-reader-helper-final-cycle",
+      "datetime": "2026-10-13T06:09:21Z",
+      "session": "pc-f1-r233-repairs-integration",
+      "prompt": "Proceed with a bounded composite integration, authorized as the second/final reader integration cycle. In the existing clean integration worktree, fast-forward the branch base to exact helper candidate 37b96e4749a13d2fee3a7d73444d66a6a39a6403. Reapply only the accepted reader-sharing behavior/tests/control from 70d022bf onto that helper ancestry: preserve every R225/R230 authority, GUID, final-absence, unknown-evidence, and cleanup-helper control already in 37b; add explicit ReadWrite|Delete live readers, both F1 self-tests, and remove exactly the two F1 reader grandfather entries. Resolve audit/docs artifacts through canonical append/derive tools. This composite will have new blobs and must be labeled PREPARED-UNAUTHORIZED pending a fresh independent Astra review. Run helper 13/13, Python union, focused PS tests, reader static checks, check-docs/safe gates, and one bounded DOTNET_PROCESSOR_COUNT=8 ring if join policy requires it. Stop on any semantic conflict, failed focused union after one correction, or need for a third cycle. No WSL/live/lifecycle action.",
+      "summary": "PREPARED-UNAUTHORIZED final reader integration cycle. Original exact-blob join stopped on older reader ancestry lacking helper-base authority/GUID controls; revised parent authorization permits new composite blobs. Clean unused branch moved from retained main 64dbed61 to exact helper 37b96e47 (not a fast-forward; merge base 04354ecf). Context-checked replay of only four accepted 70d022bf reader deltas; no semantic conflict/correction. Composite PS red missing opener, then PS5.1/7 PASS 0.470/0.354 s; helper 13/13 0.204 s; Python union 94/94 9.546 s; packet Python PASS 0.681 s; reader checks zero unshared, seven B1/B2 pins. Single processor-8 functional ring GREEN exit 0: Desktop 776 PASS/33 EXPECTED-FAIL, Python 94 PASS; cost separate, 211 s wall against 60 s, zero cost failures, 14 COST-MISS plus budget advisory. Final docs PASS; safe bundle 10/10 with three explicit readiness skips. Conservation verifier proves exact delta replay, 5379 protected base blobs, 1087 parent audit entries and 2897 register lines; incidental register transcription restored from parent and line conservation added. R230 GIT-BINDING-PASS 69 files. No review parents, WSL/live/lifecycle action, new ruling, or third cycle. Fresh independent Astra review and cost disposition remain required.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/composite-r233.md",
+        "docs/proof/win-gpu-f1-preflight/composite-r233-conservation.json"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Produce a prepared composite with accepted reader-sharing delta on exact helper ancestry while preserving all existing authority and ownership controls.",
+      "done_when": "Focused checks, required single bounded ring, docs/safe gates and exact conservation recorded; clean candidate committed/pushed for fresh independent review.",
+      "tier": "T0",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-10-13T05:54:25Z",
+      "duration_seconds": 896.0,
+      "git": {
+        "sha": "37b96e4749a13d2fee3a7d73444d66a6a39a6403",
+        "short": "37b96e474",
+        "branch": "win/gpu-f1-r233-repairs-integration",
+        "pushed": null
       }
     }
   ],
