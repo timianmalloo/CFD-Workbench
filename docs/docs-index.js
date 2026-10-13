@@ -6439,6 +6439,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "0e7cac768482cefb6a4df59a761d873274934e68cfe58c8bfc29c3da90f3e7d7"
     },
     {
+      "id": "plan-windows-gpu-f1-r230-conformance-review",
+      "path": "docs/plans/windows-gpu-f1-r230-conformance-review.md",
+      "title": "Independent R230 HOLD conformance review plan",
+      "type": "doc",
+      "status": "complete",
+      "owner": "@pc-f1-r230-conformance-review",
+      "phase": "",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Repeat exact safety proof and verify all named HOLD conformance surfaces.",
+      "tags": [
+        "review",
+        "cleanup",
+        "offline"
+      ],
+      "links": [
+        {
+          "to": "review-windows-gpu-f1-r230-conformance",
+          "rel": "relates-to"
+        },
+        {
+          "to": "note-windows-gpu-f1-r230-cleanup-request",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Diagram 1",
+          "mermaid": "flowchart LR\n  A --> B --> D\n  A --> C --> D"
+        }
+      ],
+      "sourceSha256": "91dc000575050555608a2c529907ab4743cf80580ec4ff82f1ae1612193ef8e4"
+    },
+    {
       "id": "plan-windows-gpu-f1-recovery-integration",
       "path": "docs/plans/windows-gpu-f1-recovery-integration.md",
       "title": "F1 recovery and packet repair: offline integration graph",
@@ -9287,6 +9322,40 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "9c97341e926da4a63a3fbe4a14a6e8ca0a82310c24c4ace42b2bbe02e63eda7c"
+    },
+    {
+      "id": "review-windows-gpu-f1-r230-conformance",
+      "path": "docs/reviews/windows-gpu-f1-r230-conformance.md",
+      "title": "Independent ACCEPT of R230 HOLD conformance",
+      "type": "doc",
+      "status": "accepted",
+      "owner": "@pc-f1-r230-conformance-review",
+      "phase": "preflight",
+      "reviewBy": "2026-10-20",
+      "reviewSuggested": [],
+      "summary": "Exact final tip 5cecf7ae conforms to the Mac-authorized HOLD. Authorization drives ruling selection; the source and hashed-byte candidate are distinct; activated attempt bytes equal the still-noncanonical projection.",
+      "tags": [
+        "windows",
+        "cleanup",
+        "independent-review",
+        "conformance"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-f1-r229-cleanup-candidate",
+          "rel": "depends-on"
+        },
+        {
+          "to": "note-windows-gpu-f1-r230-cleanup-request",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r228-attempt1-failure",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c20dec4dbe10a60c9d88ca66928e2ae4a7cd4ba8c28528043a0e89477ed69197"
     },
     {
       "id": "rulings",
@@ -22392,5 +22461,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "c739b09e47ff1104ec737447912419b76ebc78a610701beb27e395155ba054cf"
+  "graphSha256": "5b38c9ea2db5219f65f82a2e803a59806873d75fcb687b346a62ef2df23609e1"
 };

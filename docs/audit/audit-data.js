@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T03:01:56Z",
+  "generated": "2026-10-13T03:08:44Z",
   "audit": [
     {
       "actor": null,
@@ -38186,6 +38186,58 @@ window.AUDIT_DATA = {
         "short": "2a7c269f0",
         "branch": "win/gpu-f1-r228-cleanup",
         "pushed": false
+      }
+    },
+    {
+      "id": "al-01M4SKQPZZMJH8XTG1A12AHMR6",
+      "shortname": "Independent final review of Mac-authorized HOLD conformance: final tip 5…",
+      "datetime": "2026-10-13T03:08:43Z",
+      "session": "pc-f1-r230-conformance-review",
+      "prompt": "Independent final review of Mac-authorized HOLD conformance: final tip 5cecf7ae2b976d1b4b29ec0e8cdd99a16fe44e80; source 6e788efbb7c2bc6f708927b183515c9ced60226d; hashed-byte candidate 2a7c269f08149af2bb6165e94249c7d25dcb46c2; payload 3a431ac6707de7d452dda99d5fc1eef750b2245edd45ad3d9dd081559a2f0a89; auth 1ad90e081ac10fb1b2daded500a6dec4496e2546b349d053684377101b33fb8d; request 123b364c419619c7c4619addc670f0095c56b5c87de8b6b1a6ccc504f56a9cb6. Verify no global/hard-coded ruling choice; leader-assigned auth drives section/receipt/binding; activated attempt bytes equal projection with noncanonical projection path; separate source/candidate naming; checkpoint and two samples. Repeat prior probes, hashes, admission, safe bundle/manifests/history. Review only, no repair/live/GitHub/mail/activation. Commit/push ACCEPT or VETO.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4SKQR9TNF1H1BJ2RD17A1V7",
+      "shortname": "r230-hold-conformance-accept",
+      "datetime": "2026-10-13T03:08:44Z",
+      "session": "pc-f1-r230-conformance-review",
+      "prompt": "Close exact Mac-authorized HOLD conformance review with independent ACCEPT or VETO; no added scope or live effects.",
+      "summary": "ACCEPT offline exact final tip5cecf7ae/source6e788efb/byte candidate2a7c269f. Dynamic alternate731 drives real section/receipt/binding/commit messages; no global/literal230 executor choice. Raw attempt live=projection, noncanonical path refuses;11 admission tests7.980s;20 cleanup tests0.011s; independent probe3.200s includes previous vetoes and20 synthetic prechecks. Eleven source hashes, exact payload/auth/request, candidate ancestry,85-file manifest/history and safe10/10 pass. Four plan nodes, no rework; no repair or live action; owner activation remains separate.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": "Astra",
+      "artifacts": [
+        "docs/reviews/windows-gpu-f1-r230-conformance.md",
+        "docs/reviews/r230-conformance-probe.py",
+        "docs/plans/windows-gpu-f1-r230-conformance-review.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Accept or veto exact HOLD conformance candidate",
+      "done_when": "Exact verdict committed and pushed with clean review branch",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-13T03:04:37Z",
+      "duration_seconds": 247.0,
+      "git": {
+        "sha": "5cecf7ae2b976d1b4b29ec0e8cdd99a16fe44e80",
+        "short": "5cecf7ae2",
+        "branch": "win/gpu-f1-r230-conformance-review",
+        "pushed": null
       }
     }
   ],
