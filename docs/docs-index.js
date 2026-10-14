@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "fe385eb5eb232b154510b5e57c1d305e1e8dd20f4b4b9a743003462cc9bdc15e"
+      "sourceSha256": "1aa741e9eb55c9f917c2aeca9fb5aa80ef4a19f8fe521437bbd0a87b8dc20038"
     },
     {
       "id": "domain-experts",
@@ -6295,7 +6295,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "92a5ff9b4904cf2822c6620a9544b2afc1270d11cf416e5ac1f0f9eaa5e79199"
+      "sourceSha256": "8efa381860ad4a9522a83916319269fe1d63ab721c9a7d98d40eef08cc35aeb7"
     },
     {
       "id": "plan-tip-handling",
@@ -9426,7 +9426,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2f9096d9441c3366f9539f77813bd819cb37c75327d1d1305ec66e3a14d41a0b"
+      "sourceSha256": "7c4c41708474243c8f8e3d4036570443f2bd17c113af594c8faa9e634b477c78"
     },
     {
       "id": "kb-hw-glossary",
@@ -11915,6 +11915,33 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "45f0254b7dff5e2d3230608516b6073a347d3a2d1fba3aa2654011fdca7aebba"
+    },
+    {
+      "id": "coordination-handoff-2026-10-13-pc-sole-leader",
+      "path": "docs/coordination/handoff-2026-10-13-pc-sole-leader.md",
+      "title": "Handoff 2026-10-13: the PC becomes the sole leader",
+      "type": "proof-pack",
+      "status": "reviewed",
+      "owner": "@leader-3122f106",
+      "phase": "",
+      "reviewBy": "2026-10-27",
+      "reviewSuggested": [],
+      "summary": "Ruling 236 ends the two-machine split. From 2026-10-14 the PC's Claude Code session is the single executor and owns main. This file lists the state of main, the work in flight, the open items, and the commands the PC leader needs.",
+      "tags": [
+        "coordination",
+        "handoff",
+        "leader",
+        "windows",
+        "f1"
+      ],
+      "links": [
+        {
+          "to": "plan-test-cost",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "020e771cbd54e0b3bdba2bc789dff4e9c080eeb55d050631d4ca6962e01d4a24"
     },
     {
       "id": "proof-a3a-cor-red-first",
@@ -16048,7 +16075,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e281168e5ac7d1ff7283a64425148b8ffb0f002982918abf2db4ca8682f3a423"
+      "sourceSha256": "127c886460d4fc5a352a5c291b20b77d1cd5ca34a18db524f1a18835b5452251"
     },
     {
       "id": "proof-pef-red-first",
@@ -22701,5 +22728,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "57da884932a847ab7192ea696f8896fad43d59438f5e1b3764b994a52a7015c7"
+  "graphSha256": "9c30eabd54e857dbb7c89f2039ab2a2858b35a45233d46d57f5442585ba715e4"
 };

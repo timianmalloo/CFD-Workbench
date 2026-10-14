@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-13T22:40:23Z",
+  "generated": "2026-10-14T00:04:14Z",
   "audit": [
     {
       "actor": null,
@@ -38913,6 +38913,21 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-13T22:39:11Z",
       "duration_seconds": 72.0
+    },
+    {
+      "id": "al-01M4VVJM8RK5CKXKKAA9CA2P50",
+      "shortname": "the coordination between pc and mac is just too clumsy; move execution t…",
+      "datetime": "2026-10-14T00:04:14Z",
+      "session": "prompt-log",
+      "prompt": "the coordination between pc and mac is just too clumsy; move execution to just the PC; wind the work down here and leave everything so I can resume from Claude Code on the PC tomorrow",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
     }
   ],
   "changes": [
