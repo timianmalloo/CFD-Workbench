@@ -111,7 +111,7 @@ needs its own source update and ruling. Ruling 225 allows at most three attempts
 | TMX 150 % diagnostic | Ruling 221 allows one PC run with `CFD_DIAG_SCROLL`. It was never run. | Run it once. A product fix follows only if the scroll falls short on Windows. |
 | Properties-view hang | The `--properties-view --part=2/2` hang cause is unknown. A TIMEOUT line now names the in-flight check (PVH). | Read the named check on the next real TIMEOUT. |
 | Mac slot default was also an edge pick | The Mac's 10-of-16 count came from measuring 8 and 10 only. | Low priority. Only matters if the Mac runs the ring again. |
-| Remote branch clean-up | About 90 `win/*`, `feature/*` and `fix/*` branches are on origin, most of them merged review branches. | **The operator's call.** Do not delete them without asking. |
+| Remote branch clean-up | **Done 2026-10-14 (operator).** 59 branches whose commits were all on main were deleted. 23 branches with commits not on main were tagged `archive/<branch>` on origin and then deleted. Origin now has only `main`. | None. To revive one: `git fetch origin tag archive/<branch>` then `git switch -c <branch> archive/<branch>`. New PR branches are deleted after their join. |
 
 ## 5. Commands the PC leader needs (Windows: `py -3` for `python3`)
 
