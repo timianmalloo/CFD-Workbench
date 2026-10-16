@@ -55,8 +55,9 @@ def renew(repo, epoch, owner):
     now = time.time()
     if error or not row:
         raise ValueError('F1-RENEW-NOT-CHECKED')
+    expires_in_before = row['expires_at'] - now
     contract.check_live_leader_json(dict(leader=row['leader'], epoch=row['epoch'],
-        state=core.leader_state(row, now), expires_in=row['expires_at']-now, oid=oid), epoch)
+        state=core.leader_state(row, now), expires_in=expires_in_before, oid=oid), epoch)
     updated, error = core.leader_decide('renew', row, now, 'mac', 'mac', row['ttl'],
                                       host=row.get('host'), tree=row.get('tree'))
     if error:
@@ -67,7 +68,7 @@ def renew(repo, epoch, owner):
     new_oid, error = core.leader_write(repo, updated, oid)
     if error:
         raise ValueError('F1-RENEW-CAS-REFUSED')
-    return dict(ref_old=oid, ref_new=new_oid)
+    return dict(ref_old=oid, ref_new=new_oid, expires_in_before=expires_in_before)
 
 
 def owner_alive(owner):

@@ -17,7 +17,7 @@ try {
     $base=@{schema='cfdw-f1-leader-sample/1';leader='mac';state='live';epoch=19;expires_in=300;oid=('a'*40);run_id=$RunId;utc='2026-10-13T01:00:01Z';event_id='activation'}
     $activation=$base.Clone();$activation.phase='activation'
     $pre=$base.Clone();$pre.phase='immediately-pre-live';$pre.event_id='pre'
-    $renew=$base.Clone();$renew.phase='renewal';$renew.event='renew';$renew.instance_id='instance';$renew.pid=42
+    $renew=$base.Clone();$renew.phase='renewal';$renew.event='renew';$renew.instance_id='instance';$renew.pid=42;$renew.expires_in_before=200.0
     $start=@{schema='cfdw-f1-renewal-start/1';instance_id='instance';pid=42;run_id=$RunId;epoch=19;utc='2026-10-13T01:00:00Z';owner=@{pid=41;created_ticks=123}}
     $script:RenewalIdentity=($start|ConvertTo-Json -Depth 5)|ConvertFrom-Json
     $exit=@{schema='cfdw-f1-renewal-exit/1';run_id=$RunId;epoch=19;exit_code=0;instance_id='instance';pid=42}
@@ -35,6 +35,14 @@ try {
     if($result.status -cne 'verified' -or $result.files.Count -ne 9){throw 'actual evidence not bound'}
     # JSON runtimes may retain an offset-bearing string or materialize DateTime.
     $script:RenewalIdentity=$start.Clone();$null=Get-AttemptLeaderEvidence
+    foreach($ttl in @($null,199.999,'300',$true,[double]::NaN,[double]::PositiveInfinity)) {
+        $bad=$renew.Clone();$bad.expires_in_before=$ttl
+        WriteFixture 'leader-renew-events.jsonl' $bad;Refuses {Get-AttemptLeaderEvidence}
+    }
+    $bad=$renew.Clone();$bad.Remove('expires_in_before');WriteFixture 'leader-renew-events.jsonl' $bad;Refuses {Get-AttemptLeaderEvidence}
+    WriteFixture 'leader-renew-events.jsonl' $renew
+    [IO.File]::WriteAllText((Join-Path $Live 'leader-renew.stderr.txt')," `n");Refuses {Get-AttemptLeaderEvidence}
+    [IO.File]::WriteAllText((Join-Path $Live 'leader-renew.stderr.txt'),'')
     foreach($name in @($fixtures.Keys)+@('leader-renew.stderr.txt')) {
         $path=Join-Path $Live $name;$raw=[IO.File]::ReadAllBytes($path)
         Remove-Item -LiteralPath $path

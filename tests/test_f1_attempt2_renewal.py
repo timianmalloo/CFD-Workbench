@@ -15,6 +15,19 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 
 class RenewalTests(unittest.TestCase):
+    def test_Renew_EmitsPreWriteTtlRatherThanRenewedTtl(self):
+        module=importlib.import_module('leader_supervisor')
+        core=Mock()
+        before={'leader':'mac','epoch':19,'expires_at':1200.125,'ttl':900}
+        core.leader_read.return_value=(before,'a'*40,None)
+        core.leader_state.return_value='live'
+        core.leader_decide.return_value=({'leader':'mac','epoch':19,'expires_at':1900,'ttl':900},None)
+        core.leader_write.return_value=('b'*40,None)
+        with patch.object(module,'load_core',return_value=core), patch.object(module.time,'time',return_value=1000), patch.object(module,'owner_alive',return_value=True):
+            emitted=module.renew(Path('.'),19,{'pid':42,'created_ticks':123})
+        self.assertEqual(emitted['expires_in_before'],200.125)
+        self.assertNotEqual(emitted['expires_in_before'],900)
+
     def test_OwnerIdentity_ExactCreationTicksAndLiveHandleRequired(self):
         module = importlib.import_module('leader_supervisor')
         kernel=Mock()
@@ -119,12 +132,13 @@ class RenewalTests(unittest.TestCase):
             root = Path(tmp)
             def stop_after_wait(seconds):
                 (root / 'leader-renew-stop.request').write_text('run\n', encoding='utf-8')
-            with patch.object(module, 'owner_alive', return_value=True), patch.object(module, 'read_leader', return_value=good), patch.object(module, 'renew', return_value={'ref_old':'a'*40,'ref_new':'b'*40}) as renew, patch.object(module.time, 'sleep', side_effect=stop_after_wait):
+            with patch.object(module, 'owner_alive', return_value=True), patch.object(module, 'read_leader', return_value=good), patch.object(module, 'renew', return_value={'ref_old':'a'*40,'ref_new':'b'*40,'expires_in_before':200.125}) as renew, patch.object(module.time, 'sleep', side_effect=stop_after_wait):
                 module.supervise(root, root, 19, 'run', limit=3600)
             renew.assert_called_once()
             rows = [json.loads(line) for line in (root / 'leader-renew-events.jsonl').read_text().splitlines()]
             self.assertEqual([row['event'] for row in rows], ['renew'])
             self.assertEqual(rows[0]['epoch'], 19)
+            self.assertEqual(rows[0]['expires_in_before'],200.125)
             result = json.loads((root / 'leader-renew-exit.json').read_bytes())
             self.assertEqual(result['exit_code'], 0)
             self.assertEqual(result['run_id'], 'run')

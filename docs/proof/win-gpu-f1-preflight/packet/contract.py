@@ -10,7 +10,7 @@ import os
 import re
 import subprocess
 import sys
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 OPENFOAM = "DC93C096174122E256DA24063386DD74948D208F"
 NVIDIA = "EB693B3035CD5710E231E123A4B469963BF863CC"
@@ -214,6 +214,91 @@ def verify(args: argparse.Namespace) -> None:
     print("INVOCATION-CONTRACT-PASS")
 
 
+def prepare(args: argparse.Namespace) -> None:
+    """Produce attempt-2 proposals from a clean source commit, without live checks."""
+    if getattr(args, 'source_commit', None) is None:
+        return verify(args)  # Existing validation-only preparation remains available.
+    import attempt
+    repo = args.repo.resolve(strict=True)
+    source = args.source_commit
+    if not re.fullmatch(r'[a-f0-9]{40}', source) or git(repo, 'rev-parse', 'HEAD') != source:
+        raise ValueError('preparation source must be the exact author HEAD')
+    if git(repo, 'status', '--porcelain', '--untracked-files=all'):
+        raise ValueError('preparation author worktree must be clean')
+    if type(args.leader_epoch) is not int or args.leader_epoch <= 0:
+        raise ValueError('preparation epoch must be a positive integer')
+    if type(args.requested_ruling) is not int or args.requested_ruling <= 0:
+        raise ValueError('preparation requested ruling must be a positive integer')
+    run_root = attempt.PREFIX + '/attempt-2'
+    paths = [repo / run_root / name for name in ('invocation-contract.json', 'attempt-authorization.json')]
+    if (args.authorization is None or args.contract.resolve() != paths[0] or
+            args.authorization.resolve() != paths[1] or any(path.exists() for path in paths)):
+        raise ValueError('preparation requires the exact absent output pair')
+    if not paths[0].parent.is_dir():
+        raise ValueError('preparation output directory must already exist')
+    worktree = args.execution_worktree
+    if not isinstance(worktree, str) or not worktree or Path(worktree).exists():
+        raise ValueError('future execution worktree must remain uncreated')
+
+    def source_digest(name):
+        blob = subprocess.run(['git', '-C', str(repo), 'show', f'{source}:{name}'],
+                              check=True, capture_output=True, timeout=15).stdout
+        if (repo / name).read_bytes() != blob:
+            raise ValueError('preparation source/blob mismatch: ' + name)
+        return hashlib.sha256(blob).hexdigest()
+
+    names = sorted(path.relative_to(repo).as_posix() for path in (repo / PACKET).iterdir() if path.is_file())
+    committed = sorted(git(repo, 'ls-tree', '-r', '--name-only', source, '--', PACKET).splitlines())
+    if names != committed:
+        raise ValueError('preparation packet file set differs from source')
+    packet_hashes = {name: source_digest(name) for name in names}
+    external_hashes = {name: source_digest(name) for name in (attempt.EXTERNAL, attempt.COORDINATOR)}
+    inputs = {}
+    for name in INPUT_KEYS:
+        if name in ('b2_lock', 'b2_licenses'):
+            filename = 'package-lock.json' if name == 'b2_lock' else 'license-map.json'
+            relative = 'docs/proof/win-gpu-b2/' + filename
+            actual = repo / relative
+            source_digest(relative)
+            projected = str(PureWindowsPath(worktree) / relative)
+        else:
+            actual = getattr(args, name).resolve(strict=True)
+            projected = str(actual)
+        check_file_hash(attempt.INPUT_HASHES[name], actual)
+        inputs[name] = dict(path=projected, sha256=attempt.INPUT_HASHES[name])
+    document = dict(schema='cfdw-f1-r217-invocation/1', attempt=2, leader='mac',
+        leader_epoch=args.leader_epoch, target='cfdw-petsc-cuda132-f1', protected='cfdw-openfoam2512',
+        target_path=r'C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1', accepted_packet_commit=source,
+        execution_branch=args.branch, session=args.session, execution_worktree=worktree,
+        run_id=args.run_id, run_root=run_root, packet_sha256=packet_hashes,
+        external_sha256=external_hashes, inputs=inputs, allowed_signers=attempt.SIGNERS)
+    check_contract_fields(document)
+    attempt.check_binding(document, args.run_id)
+    contract_bytes = (json.dumps(document, indent=2, sort_keys=True) + '\n').encode('utf-8')
+    contract_sha = hashlib.sha256(contract_bytes).hexdigest()
+    authorization = attempt.authorization(document, contract_sha, ruling=args.requested_ruling)
+    attempt.check_authorization(authorization, document, contract_sha, proposed=True)
+    authorization_bytes = (json.dumps(authorization, indent=2, sort_keys=True) + '\n').encode('utf-8')
+    # Acquire both destinations before writing. A collision never overwrites or
+    # leaves a new half-pair; these are exact repo-local paths created by this call.
+    opened = []
+    try:
+        for path in paths:
+            opened.append((path, path.open('xb')))
+        for (_, stream), payload in zip(opened, (contract_bytes, authorization_bytes)):
+            stream.write(payload)
+        for _, stream in opened:
+            stream.close()
+    except OSError:
+        for path, stream in opened:
+            stream.close()
+            path.unlink()
+        raise
+    print('PREPARATION-GENERATED outputs=2 inputs=7 live_authority=False')
+    print('contract_sha256=' + contract_sha)
+    print('authorization_sha256=' + hashlib.sha256(authorization_bytes).hexdigest())
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     sub = parser.add_subparsers(dest="command", required=True)
@@ -227,6 +312,11 @@ def main() -> None:
         check.add_argument('--run-id')
         check.add_argument('--authorization', type=Path)
         check.add_argument('--exclusive-run-id')
+        if mode == 'prepare':
+            check.add_argument('--source-commit')
+            check.add_argument('--execution-worktree')
+            check.add_argument('--leader-epoch', type=int)
+            check.add_argument('--requested-ruling', type=int)
     sign = sub.add_parser("signer")
     sign.add_argument("--contract", type=Path, required=True)
     sign.add_argument("--expected-sha256", required=True)
@@ -238,7 +328,7 @@ def main() -> None:
     ring.add_argument("--keyring", type=Path, required=True)
     ring.add_argument("--kind", choices=("ubuntu_rootfs", "ubuntu_archive", "openfoam", "nvidia"), required=True)
     args = parser.parse_args()
-    {"verify": verify, "prepare": verify, "signer": verify_signer, "keyring": verify_keyring}[args.command](args)
+    {"verify": verify, "prepare": prepare, "signer": verify_signer, "keyring": verify_keyring}[args.command](args)
 
 
 if __name__ == "__main__":
