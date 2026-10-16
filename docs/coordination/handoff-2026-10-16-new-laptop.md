@@ -28,11 +28,11 @@ leader.
 | Commits that existed only on the old PC | tags `archive/docs/windows-grounding-summary`, `archive/win/gpu-g2-b1-r199`, `archive/win/pr19-followups` | Archived, same scheme as the 2026-10-14 clean-up. |
 | All other old local branches | `main` or the existing `archive/*` tags | Nothing left to move. |
 
-**Not on origin yet (see section 4):** the leftover evidence files in four old worktrees. If the old PC is already gone,
-they are lost. Their loss is small: the old PC compared every file with origin, and apart from the files below all the
-bytes were already on origin (for example as `run-1/failed-live`).
+**Leftover evidence (pushed 2026-10-16 by the operator, section 4):** the uncommitted files in four old worktrees are
+archived as `archive/<branch>-pc-leftovers` tags. Apart from the files below, their bytes were already on origin (for
+example as `run-1/failed-live`).
 
-| Old worktree | Files not on origin |
+| Old worktree → tag | Files that were only on the old PC |
 |---|---|
 | `CFD-Workbench-win-gpu-f1-preflight-r217` | One uncommitted `docs/audit/audit-log.jsonl` line (prompt "the mac has unblocked you hours ago", 2026-10-12) and its `audit-data.js` view. |
 | `CFD-Workbench-win-gpu-f1-r217-execute-r220` | `run-1/live/checkpoint-freeze.stdout.txt`, `run-1/live/invocation-contract.stdout.txt`, `Save-Checkpoint/invocation-contract.stdout.txt` (the stray `Save-Checkpoint/` folder at the tree root is otherwise a copy of `run-1/live`). |
@@ -65,10 +65,12 @@ bytes were already on origin (for example as `run-1/failed-live`).
 4. `git push origin main`, then `bash tools/verify-push.sh`.
 5. Delete the move branch: `git push origin --delete win/old-pc-session-logs`.
 
-## 4. Push the leftover evidence (only while the old PC still exists)
+## 4. The leftover evidence push (done)
 
-The old PC's Claude Code session could not push these: the auto-mode classifier blocked it twice. On the old PC, the
-operator runs the script below from a terminal. It commits the files on each worktree's own branch, tags each commit
+**Done 2026-10-16.** The tags are `archive/win/gpu-f1-preflight-r217-pc-leftovers` (`b579ab84`),
+`archive/win/gpu-f1-r217-execute-r220-pc-leftovers` (`28281b76`), `archive/win/gpu-f1-r228-cleanup-pc-leftovers`
+(`fab5fb3c`) and `archive/dtj/pc-calibration-pc-leftovers` (`5e6d6a19`). The Claude Code session could not push them (the
+auto-mode classifier blocked it twice), so the operator ran the script below on the old PC. It is kept as the record. It commits the files on each worktree's own branch, tags each commit
 `archive/<branch>-pc-leftovers` and pushes the four tags. It does not touch `main`.
 
 Save it as `leftovers.sh` outside the repo and run `bash leftovers.sh` in Git Bash.
