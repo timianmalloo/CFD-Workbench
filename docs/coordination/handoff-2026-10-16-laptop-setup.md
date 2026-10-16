@@ -105,9 +105,7 @@ is not generated or committed, and the test fixtures still request Ruling 235.
 
 2. Check: `dotnet --version` in the repo prints 10.0.402 only on the SDK branch (on `main` it still asks for
    10.0.203); `uv --version`; `py -3 docs/ai-forward-pack/scripts/pack-doctor.py`; `py -3 tools/check-proof-pii.py`.
-3. Waiting on the operator: may the SDK branch also carry (a) `MSBUILDDISABLENODEREUSE=1` in `tools/run-tests.sh`,
-   (b) the architecture-recording form of `WindowsNative_Environment_RealNtfsX64`, and (c) deleting the two Density
-   manifest entries? With those the ring should show no unexpected result; the time budget stays open.
+3. **Done (operator approved 2026-10-16), on `build/sdk-10.0.402` commit `93749794`:** `WindowsNative_Environment_RealNtfsX64` admits X64 or Arm64 and records which ran (observed PASS, `arch=Arm64`), and the two Density manifest entries are deleted (their UNEXPECTED-PASS is gone). The third approved change, `MSBUILDDISABLENODEREUSE=1` in `tools/run-tests.sh`, was **disproved and not shipped**: a ring run with node reuse off still had one DRAIN (`--controller-shell`). DRAIN is open as `DRAIN-ON-ARM64-LAPTOP` in `docs/lessons/defect-classes.md`; the next step is to name the process holding the pipe when it fires. With DRAIN the ring is still red on the laptop, so readiness is not GREEN and `main` cannot move yet.
 4. Then join in the order of section 1 with `conductor-join.py` (branches 1, 2 and 4 are docs-only, 3 runs the ring),
    run `py -3 tools/run-readiness.py` to GREEN, push `main`, `bash tools/verify-push.sh`, and delete the joined
    branches on origin.
