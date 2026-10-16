@@ -1,0 +1,3 @@
+{"agent": "pc-f1-astra-r211-review2", "at": 1791744364.4194467, "kind": "session-start", "path": "-", "seq": 1, "session": "pc-f1-astra-r211-review2", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-win-gpu-f1-r211-astra-review2"}
+{"agent": "pc-f1-astra-r211-review2", "at": 1791744411.3044755, "kind": "claim", "path": "docs/reviews/windows-gpu-f1-astra-r2.md", "seq": 2, "session": "pc-f1-astra-r211-review2", "ttl": 600.0, "wi": "F1-ASTRA-R2"}
+{"agent": "pc-f1-astra-r211-review2", "at": 1791744548.789455, "kind": "release", "path": "docs/reviews/windows-gpu-f1-astra-r2.md", "seq": 3, "session": "pc-f1-astra-r211-review2", "wi": "F1-ASTRA-R2"}

@@ -1,0 +1,3 @@
+{"agent": "pc-f1-r217-astra-packet-r2", "at": 1791771201.7978923, "kind": "session-start", "path": "-", "seq": 1, "session": "pc-f1-r217-astra-packet-r2", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-win-gpu-f1-r217-astra-packet-r2"}
+{"agent": "pc-f1-r217-astra-packet-r2", "at": 1791771498.3980803, "kind": "claim", "path": "docs/reviews/windows-gpu-f1-preflight-packet.md", "seq": 2, "session": "pc-f1-r217-astra-packet-r2", "ttl": 900.0, "wi": "F1-R217-PACKET-REVIEW-R2"}
+{"agent": "pc-f1-r217-astra-packet-r2", "at": 1791771867.4387932, "kind": "release", "path": "docs/reviews/windows-gpu-f1-preflight-packet.md", "seq": 3, "session": "pc-f1-r217-astra-packet-r2", "wi": "F1-R217-PACKET-REVIEW-R2"}

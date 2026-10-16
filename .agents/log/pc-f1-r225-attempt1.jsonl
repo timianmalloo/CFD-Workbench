@@ -1,0 +1,4 @@
+{"agent": "pc-f1-r217-coordinator", "at": 1791845532.6192415, "kind": "session-start", "path": "-", "seq": 1, "session": "pc-f1-r225-attempt1", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-win-gpu-f1-r225-attempt1"}
+{"at": 1791854557.7809234, "from": "pc-f1-r225-attempt1", "kind": "decision-request", "mail_id": "mail-01M4SDNEJMT8HY87SW0DGBSVP7", "ref": "PR34-R228-epoch8", "session": "pc-f1-r225-attempt1", "to": "mac", "type": "mail"}
+{"at": 1791855163.7716222, "from": "pc-f1-r225-attempt1", "kind": "done", "mail_id": "mail-01M4SE7YBVG878E1BPWR2DYJ97", "ref": "PR34-R228-review-2cb40b67", "session": "pc-f1-r225-attempt1", "to": "mac", "type": "mail"}
+{"at": 1791856231.5746043, "from": "pc-f1-r225-attempt1", "kind": "blocked", "mail_id": "mail-01M4SF8H4PXRGK8G03CSSNKST1", "ref": "PR34-R228-failure-d6edbc63", "session": "pc-f1-r225-attempt1", "to": "mac", "type": "mail"}

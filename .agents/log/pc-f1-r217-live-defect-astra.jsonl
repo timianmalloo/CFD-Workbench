@@ -1,0 +1,3 @@
+{"agent": "pc-f1-r217-execute-r220", "at": 1791818684.6169364, "kind": "session-start", "path": "-", "seq": 1, "session": "pc-f1-r217-live-defect-astra", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-win-gpu-f1-r217-live-defect-review"}
+{"agent": "pc-f1-r217-live-defect-astra", "at": 1791819052.2915213, "kind": "claim", "path": "docs/reviews/windows-gpu-f1-live-defect-repair.md", "seq": 2, "session": "pc-f1-r217-live-defect-astra", "ttl": 900.0, "wi": "F1-R217-LIVE-DEFECT-REVIEW"}
+{"agent": "pc-f1-r217-live-defect-astra", "at": 1791819317.132278, "kind": "release", "path": "docs/reviews/windows-gpu-f1-live-defect-repair.md", "seq": 3, "session": "pc-f1-r217-live-defect-astra", "wi": "F1-R217-LIVE-DEFECT-REVIEW"}
