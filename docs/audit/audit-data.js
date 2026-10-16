@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-12T17:56:01Z",
+  "generated": "2026-10-12T22:51:29Z",
   "audit": [
     {
       "actor": null,
@@ -37482,6 +37482,21 @@ window.AUDIT_DATA = {
         "branch": "win/gpu-f1-preflight-r217",
         "pushed": true
       }
+    },
+    {
+      "id": "al-01M4S50PFARZJ16BKQDG8WRN47",
+      "shortname": "the mac has unblocked you hours ago",
+      "datetime": "2026-10-12T22:51:29Z",
+      "session": "prompt-log",
+      "prompt": "the mac has unblocked you hours ago",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
     }
   ],
   "changes": [
