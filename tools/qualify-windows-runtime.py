@@ -452,7 +452,7 @@ def main():
     if not dotnet:
         raise ValueError("W0-SDK-MISSING")
     sdk, version = run("sdk", [dotnet, "--version"])
-    if sdk["exit"] != 0 or version.strip() != "10.0.203":
+    if sdk["exit"] != 0 or version.strip() != "10.0.402":
         raise ValueError("W0-SDK-MISMATCH")
     sdk_info, _ = run("sdk-info", [dotnet, "--info"])
     if sdk_info["exit"] != 0:

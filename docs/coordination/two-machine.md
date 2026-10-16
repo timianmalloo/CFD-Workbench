@@ -89,7 +89,7 @@ and pushed.
 2. `python docs/ai-forward-pack/scripts/coord-core.py install` **in the PC's primary clone** (never in a worktree).
    Without it every register file (`rulings.md`, `audit-log.jsonl`, `xmsg.jsonl`, `docs-index.js`) conflicts on merge,
    because the merge drivers live in `.git/config`, which is not cloned. Then `coord-core.py doctor`.
-3. .NET SDK **10.0.203** exactly: `global.json` pins it with `rollForward: disable`.
+3. .NET SDK **10.0.402** or a later 10.0.4xx patch: `global.json` pins 10.0.402 with `rollForward: latestPatch` (Ruling 239).
 
 ## What stays out
 

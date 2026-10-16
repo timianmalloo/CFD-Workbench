@@ -293,8 +293,8 @@ function Assert-WriToolchain {
     if (-not [IO.Path]::IsPathFullyQualified($DotnetPath) -or
         [IO.Path]::GetFullPath($DotnetPath) -ne $expectedDotnet -or
         -not (Test-Path -LiteralPath $expectedDotnet -PathType Leaf) -or
-        -not (Test-Path -LiteralPath (Join-Path $sdkRoot 'sdk/10.0.203') -PathType Container)) {
-        throw 'WRI-TOOLCHAIN: expected user-local .dotnet/dotnet.exe and SDK 10.0.203'
+        -not (Test-Path -LiteralPath (Join-Path $sdkRoot 'sdk/10.0.402') -PathType Container)) {
+        throw 'WRI-TOOLCHAIN: expected user-local .dotnet/dotnet.exe and SDK 10.0.402'
     }
     if (-not $PythonPath -or -not [IO.Path]::IsPathFullyQualified($PythonPath) -or
         -not (Test-Path -LiteralPath $PythonPath -PathType Leaf)) { throw 'WRI-TOOLCHAIN: absolute Python executable required' }
@@ -305,7 +305,7 @@ function Assert-WriToolchain {
     $sdkResult = Invoke-WriProcess -Repo $Repo -Exe $expectedDotnet -Arguments @('--version') -Clock $identityClock -CeilingMs 60000
     $sdkVersion = $sdkResult.Stdout.Trim()
     $sdkExit = $sdkResult.ExitCode
-    if ($sdkExit -ne 0 -or $sdkVersion -ne '10.0.203') { throw 'WRI-TOOLCHAIN: SDK version must be exactly 10.0.203' }
+    if ($sdkExit -ne 0 -or $sdkVersion -ne '10.0.402') { throw 'WRI-TOOLCHAIN: SDK version must be exactly 10.0.402' }
     $pythonResult = Invoke-WriProcess -Repo $Repo -Exe $PythonPath -Arguments @('-c','import sys; print(sys.version.split()[0]); print(sys.executable)') -Clock $identityClock -CeilingMs 60000
     $pythonVersion = @($pythonResult.Stdout.Trim() -split '\r?\n')
     $pythonExit = $pythonResult.ExitCode
