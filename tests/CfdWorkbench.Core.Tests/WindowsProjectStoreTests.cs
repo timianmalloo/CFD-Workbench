@@ -34,7 +34,8 @@ internal static class WindowsProjectStoreTests
         });
         Check("WindowsNative_Environment_RealNtfsX64", () =>
         {
-            Equal(Architecture.X64, RuntimeInformation.ProcessArchitecture);
+            // Ruling 238: Windows x64 and ARM64 are both admitted; the NATIVE-ENV line records which one ran.
+            Equal(true, RuntimeInformation.ProcessArchitecture is Architecture.X64 or Architecture.Arm64);
             Equal("NTFS", new DriveInfo(Path.GetPathRoot(TestTemp.Root)!).DriveFormat);
             Equal(true, OperatingSystem.IsWindowsVersionAtLeast(10, 0, 14393));
             Console.WriteLine($"NATIVE-ENV os={Environment.OSVersion.Version} arch={RuntimeInformation.ProcessArchitecture} filesystem=NTFS");
