@@ -839,7 +839,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "53f63a14f84abf87c56c573ede93acc4831173568897deff1956d009f87cf084"
+      "sourceSha256": "57e116b45799a3978fab1fe1499b2458fddfe130ca532ebaf31b33b39f457cc5"
     },
     {
       "id": "adr-foildsl-authority",
@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1aa741e9eb55c9f917c2aeca9fb5aa80ef4a19f8fe521437bbd0a87b8dc20038"
+      "sourceSha256": "38b0882cc44a5be4feb65f2f0884fe56c165b3e98e9a6396bdfafd1079f59091"
     },
     {
       "id": "domain-experts",
@@ -9426,7 +9426,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7c4c41708474243c8f8e3d4036570443f2bd17c113af594c8faa9e634b477c78"
+      "sourceSha256": "bcca6e47ab357e7d49740dbbe0cf4104bac87d1389fea12dc497e10588e3e432"
     },
     {
       "id": "kb-hw-glossary",
@@ -11133,7 +11133,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "889a1a56d46d2a913d39a324a0914b9d641e484a2987269b28ffcf7b4a3c7cca"
+      "sourceSha256": "f1cc9810e24d1f5da46c20e3557b404f835618127901c63ad7edca2441288a6b"
     },
     {
       "id": "coordination-r17-companions",
@@ -11344,7 +11344,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "17f64e07ff79ade4bbe0a1ae2156fb4885b435fd6c202762b07cba7e672d4efa"
+      "sourceSha256": "4e2cd8b9b7c47c5c8c75af819bd597255640b2883d6db1b1bf548e461485c75b"
     },
     {
       "id": "coordination-windows-gpu-f1-design",
@@ -11944,6 +11944,39 @@ window.DOCS_INDEX = {
       "sourceSha256": "e8b56410e9ed4ad00b655dcde6fb1a0505bda806fab093161b96a5fa634bed83"
     },
     {
+      "id": "coordination-handoff-2026-10-16-laptop-setup",
+      "path": "docs/coordination/handoff-2026-10-16-laptop-setup.md",
+      "title": "Handoff 2026-10-16: laptop setup state before the D: reformat",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@operator",
+      "phase": "",
+      "reviewBy": "2026-10-30",
+      "reviewSuggested": [],
+      "summary": "Where the laptop session stopped on 2026-10-16: Rulings 237-239, the .NET SDK 10.0.402 branch, the ring evidence on Windows ARM64, the open decisions, and the steps to resume after the operator reformats D: from exFAT to NTFS.",
+      "tags": [
+        "coordination",
+        "handoff",
+        "windows",
+        "laptop",
+        "arm64",
+        "sdk",
+        "f1"
+      ],
+      "links": [
+        {
+          "to": "coordination-handoff-2026-10-13-pc-sole-leader",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "cdb98eae5caf88f83e6353856314d83f1bb354364ee737a019469a54be1c1dc3"
+    },
+    {
       "id": "coordination-handoff-2026-10-16-new-laptop",
       "path": "docs/coordination/handoff-2026-10-16-new-laptop.md",
       "title": "Handoff 2026-10-16: moving the PC work to a new laptop",
@@ -11968,7 +12001,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4bd89b9ac63922e41a9b818b4a8c311c19dc56bd6b34c9ec63e4b43785b4f979"
+      "sourceSha256": "c49d4d600021f16a0453f79866ceede7594dd7cbddb334fa348e59dc8782cbd7"
     },
     {
       "id": "proof-a3a-cor-red-first",
@@ -22755,5 +22788,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "e7be979d8c6c5e6d0b271dd5ab3c2cddb50d40f8afbcfd8375b6a6ec8be19d12"
+  "graphSha256": "822f770ccdbb450896fb17ac4eb77be3b5c993bf9bf2417b82c8d70ae805b75c"
 };
