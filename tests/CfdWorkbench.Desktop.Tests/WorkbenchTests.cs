@@ -164,6 +164,20 @@ if (args.Contains("--inflight-probe", StringComparer.Ordinal))
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
 
+// DRAIN-ON-ARM64-LAPTOP: a child that starts a grandchild with inherited standard handles and exits at once, so a test can prove
+// the parent's DRAIN line names the grandchild as the pipe holder. The grandchild holds the pipes for 5 s. Never spawned by Spawn.
+if (args.Contains("--drain-probe", StringComparer.Ordinal))
+{
+    using var grandchild = System.Diagnostics.Process.Start(CfdWorkbench.Desktop.Tests.SelfLaunch.StartInfo("--drain-probe-hold"))!;
+    Console.WriteLine($"DRAIN-PROBE grandchild pid={grandchild.Id}");
+    Environment.Exit(0);
+}
+if (args.Contains("--drain-probe-hold", StringComparer.Ordinal))
+{
+    Thread.Sleep(TimeSpan.FromSeconds(5));
+    Environment.Exit(0);
+}
+
 // Readiness tier (docs/design/m12b-points.md §12.3): never spawned by run-tests.sh or DesktopChecks.Spawn.
 // PRE adds the switch; U1a and U1b fill the RunReadiness members it calls.
 if (args.Contains("--readiness", StringComparer.Ordinal))
@@ -918,8 +932,34 @@ namespace CfdWorkbench.Desktop.Tests
             return $"FAIL TIMEOUT {mode} after {limit} s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed; in-flight check: {(name.Length == 0 ? "(unknown)" : name)}";
         }
 
-        /// <summary>Runs one mode as a child, killing its process tree after <paramref name="limit"/> seconds.</summary>
-        public static (List<(bool Error, string Text)> Lines, int ExitCode, double Seconds) RunBufferedWithin(string mode, int limit)
+        /// <summary>Reads one redirected stream to end of file on its own thread, appending each line; <paramref name="onEof"/> marks the moment.</summary>
+        private static Thread Pump(StreamReader reader, bool error, List<(bool Error, string Text)> lines, Action onEof)
+        {
+            var pump = new Thread(() =>
+            {
+                try { while (reader.ReadLine() is { } line) lock (lines) lines.Add((error, line)); }
+                catch (Exception failure) when (failure is IOException or ObjectDisposedException) { }   // the handle was closed under a blocked read: that is the end
+                onEof();
+            }) { IsBackground = true };
+            pump.Start();
+            return pump;
+        }
+
+        /// <summary>True when every thread ended within <paramref name="limit"/> in all.</summary>
+        private static bool JoinAll(Thread[] threads, TimeSpan limit)
+        {
+            long began = System.Diagnostics.Stopwatch.GetTimestamp();
+            foreach (var thread in threads)
+            {
+                var remaining = limit - System.Diagnostics.Stopwatch.GetElapsedTime(began);
+                if (!thread.Join(remaining > TimeSpan.Zero ? remaining : TimeSpan.Zero)) return false;
+            }
+            return true;
+        }
+
+        /// <summary>Runs one mode as a child, killing its process tree after <paramref name="limit"/> seconds; after the child ends its
+        /// output must reach end of file within <paramref name="drainSeconds"/>, or the DRAIN line names what still holds the pipe.</summary>
+        public static (List<(bool Error, string Text)> Lines, int ExitCode, double Seconds) RunBufferedWithin(string mode, int limit, int drainSeconds = 10)
         {
             string[] spec = mode.Split(' ');
             var info = SelfLaunch.StartInfo(spec[0]);
@@ -931,30 +971,47 @@ namespace CfdWorkbench.Desktop.Tests
             info.RedirectStandardError = true;
             var lines = new List<(bool Error, string Text)>();
             using var child = new System.Diagnostics.Process { StartInfo = info };
-            child.OutputDataReceived += (_, line) => { if (line.Data is not null) lock (lines) lines.Add((false, line.Data)); };
-            child.ErrorDataReceived += (_, line) => { if (line.Data is not null) lock (lines) lines.Add((true, line.Data)); };
             long started = System.Diagnostics.Stopwatch.GetTimestamp();
+            DateTime startedUtc = DateTime.UtcNow;   // the floor for the child's lineage: a descendant was created after this
             child.Start();
-            child.BeginOutputReadLine();
-            child.BeginErrorReadLine();
+            // The harness pumps both pipes on its own threads: it then holds the read ends (the DRAIN scan needs their identity), and
+            // end of file is read straight from the kernel, with no thread-pool hop between the write end closing and the parent seeing it.
+            var pipes = new[] { PipeHolders.Of("stdout", child.StandardOutput), PipeHolders.Of("stderr", child.StandardError) };
+            long[] eofAt = new long[2];
+            var pumps = new[] { Pump(child.StandardOutput, false, lines, () => eofAt[0] = System.Diagnostics.Stopwatch.GetTimestamp()),
+                                Pump(child.StandardError, true, lines, () => eofAt[1] = System.Diagnostics.Stopwatch.GetTimestamp()) };
             // A hung native-window check must not hang the join (test-cost F-2): past the limit the child's whole process
             // tree is killed and the log names the mode. 120 s is about 2.4x the slowest child under load 24 (49.5 s).
             bool timedOut = !child.WaitForExit(TimeSpan.FromSeconds(limit));
+            long ended = System.Diagnostics.Stopwatch.GetTimestamp();
             if (timedOut)
             {
                 // CLEANUP-BLOCKS-CEILING: a failed kill (the child ended first, or the OS refused) must not throw past the ceiling.
                 try { child.Kill(entireProcessTree: true); }
                 catch (Exception error) when (error is InvalidOperationException or System.ComponentModel.Win32Exception or NotSupportedException) { }
             }
-            // After a true WaitForExit(timeout), the no-argument overload waits until both redirected streams reach end of file.
-            // A grandchild that left the tree can hold a pipe open forever, so that wait runs on a daemon thread and is bounded.
-            var drain = new Thread(() => { try { child.WaitForExit(); } catch (Exception) { } }) { IsBackground = true };
-            drain.Start();
-            bool drained = drain.Join(TimeSpan.FromSeconds(10));
+            // After the child ends both pipes must reach end of file: a process that inherited or duplicated a write end can hold one
+            // open, so the wait is bounded, and on the failure path what holds it is named while it still holds it.
+            bool drained = JoinAll(pumps, TimeSpan.FromSeconds(drainSeconds));
             if (timedOut) lines.Add((false, TimeoutLine(mode, limit, sidecar)));
             try { File.Delete(sidecar); }
             catch (Exception error) when (error is IOException or UnauthorizedAccessException) { }
-            if (!drained) lines.Add((false, $"FAIL DRAIN {mode}: its output did not reach end of file within 10 s of the child ending (a process outside the tree holds the pipe)"));
+            if (!drained)
+            {
+                // DRAIN-ON-ARM64-LAPTOP: name what holds the pipe while it is still held (measured, not reasoned), then keep waiting
+                // a bounded while so the log also says whether end of file ever arrived and how long after the child ended.
+                string exited;
+                try { exited = $"exit {child.ExitCode} at {child.ExitTime.ToUniversalTime():HH:mm:ss.fff}Z"; }
+                catch (Exception error) when (error is InvalidOperationException or System.ComponentModel.Win32Exception) { exited = "exit not recorded"; }
+                string holders;
+                try { holders = PipeHolders.Describe(child.Id, startedUtc, pipes); }
+                catch (Exception error) { holders = $"holder scan failed: {error.GetType().Name}: {error.Message}"; }   // the scan is evidence, never a second failure
+                lines.Add((false, $"FAIL DRAIN {mode}: its output did not reach end of file within {drainSeconds} s of the child ending ({exited}); {holders}"));
+                JoinAll(pumps, TimeSpan.FromSeconds(20));
+                lines.Add((false, $"DRAIN-EOF {mode}: " + string.Join("; ", pipes.Select((pipe, i) => eofAt[i] != 0
+                    ? FormattableString.Invariant($"{pipe.Stream} end of file arrived {System.Diagnostics.Stopwatch.GetElapsedTime(ended, eofAt[i]).TotalSeconds:F1} s after the child ended")
+                    : FormattableString.Invariant($"{pipe.Stream} still open {System.Diagnostics.Stopwatch.GetElapsedTime(ended).TotalSeconds:F0} s after the child ended")))));
+            }
             return (lines, timedOut ? 124 : !drained ? 125 : child.ExitCode, System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalSeconds);
         }
     }
