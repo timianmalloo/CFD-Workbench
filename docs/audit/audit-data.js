@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-18T21:01:24Z",
+  "generated": "2026-10-18T21:04:35Z",
   "audit": [
     {
       "actor": null,
@@ -39229,6 +39229,33 @@ window.AUDIT_DATA = {
         "branch": "fix/readiness-windows-not-assessed",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M58D99HNAAH8E52WY87N1A90",
+      "shortname": "join-readiness-not-assessed",
+      "datetime": "2026-10-18T21:04:35Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of fix/readiness-windows-not-assessed into main",
+      "summary": "the join of fix/readiness-windows-not-assessed into main: run-readiness.py names both application verifiers with the not-assessed exit 4, verify-application-core.py exits 4 on Windows, self-test cases per name; register entry. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Make readiness treat the two application verifiers' Windows not-assessed exits as not assessed, join the fix, push main",
+      "done_when": "Red-first self-test green, readiness shows those two steps as not assessed, main pushed",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-18T21:01:38Z",
+      "duration_seconds": 177.0
     }
   ],
   "changes": [
