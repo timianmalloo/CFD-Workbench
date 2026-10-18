@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-18T20:29:51Z",
+  "generated": "2026-10-18T20:32:44Z",
   "audit": [
     {
       "actor": null,
@@ -38955,6 +38955,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-18T20:28:02Z",
       "duration_seconds": 109.0
+    },
+    {
+      "id": "al-01M58BEXG576SNYDVP21Q17DKM",
+      "shortname": "join-rulings-237-238",
+      "datetime": "2026-10-18T20:32:43Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of docs/rulings-237-238 into main",
+      "summary": "the join of docs/rulings-237-238 into main (docs-only: docs/notes/rulings.md) recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Join the stack into main with the ring green per join",
+      "done_when": "main carries old-pc-session-logs, rulings-237-238, the owned-check test fix, build/sdk-10.0.402, investigate/drain-holder and the laptop handoff with readiness green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-18T20:31:13Z",
+      "duration_seconds": 90.0
     }
   ],
   "changes": [
