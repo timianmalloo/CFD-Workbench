@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-18T21:50:34Z",
+  "generated": "2026-10-18T21:52:53Z",
   "audit": [
     {
       "actor": null,
@@ -39256,6 +39256,45 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-18T21:01:38Z",
       "duration_seconds": 177.0
+    },
+    {
+      "id": "al-01M58FPFZQYSVPFCG8J1AETD0P",
+      "shortname": "tests: the theme matrix proves the Browser row is on screen before measuring",
+      "datetime": "2026-10-18T21:46:45Z",
+      "session": "pc-laptop-leader",
+      "prompt": "developer mode is on, rerun readiness; work through all the tasks that you can",
+      "summary": "PRECONDITION-FAILS-AS-ORACLE: at RenderScaling 2 on Windows BringIntoView left the second Browser row one row below the fold (offset 120, viewport 584, row top 584), the shape docs/proof/tmx/diagnosis.md reproduced on the Mac at 1.5; the enclose check named the consequence. ScrollRowIntoView scrolls the remaining overflow and asserts the row is in the viewport with a named precondition; red first (assert alone), green with the scroll (offset 160, four themes). Diagnosis section 8 records the Windows result; the product-side keyboard-navigation question stays open as a finding. check-docs green.",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "tests/CfdWorkbench.Desktop.Tests/ShellWindowTests.cs",
+        "docs/proof/tmx/diagnosis.md",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [
+        "readiness",
+        "laptop",
+        "scale"
+      ],
+      "outcome": "success",
+      "goal": "Readiness green on the laptop, then the open items that need no operator input",
+      "done_when": "each item fixed and joined or closed with a recorded finding",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "git": {
+        "sha": "48015ef480a5fc54da8249ed69aa70b243459d92",
+        "short": "48015ef48",
+        "branch": "fix/tmx-row-under-fold",
+        "pushed": null
+      }
     },
     {
       "id": "al-01M58FGMCZNJDEC62NYV272TMZ",
