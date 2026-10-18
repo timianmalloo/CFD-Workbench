@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "38b0882cc44a5be4feb65f2f0884fe56c165b3e98e9a6396bdfafd1079f59091"
+      "sourceSha256": "5bbae19ece51e53396fefbae3518b9bca5b621bed9d3884e7b64e8a00f536799"
     },
     {
       "id": "domain-experts",
@@ -18445,7 +18445,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "654b0ae6a1cda2a02e6784a63c52ca67afee90ed31c4d9059229eabb8f8c231c"
+      "sourceSha256": "e6b5efaaf64f0f734849d6c08844405c349f8cf5fecfd7117df18e0c5b5cf98a"
     },
     {
       "id": "proof-u1fix-red-runs",
@@ -19067,6 +19067,38 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "fdcaa145f308468efbe68a13db50e82d6639f16cbcfc30c9988ff0ccc82bdb56"
+    },
+    {
+      "id": "proof-win-gpu-f1-arm64-spike",
+      "path": "docs/proof/win-gpu-f1-preflight/arm64-spike/README.md",
+      "title": "Ruling 237 (5) spike: CUDA in WSL on the Windows ARM64 laptop",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@pc-laptop-leader",
+      "phase": "preflight",
+      "reviewBy": "2026-11-18",
+      "reviewSuggested": [],
+      "summary": "The read-only spike Ruling 237 (5) asked for before any packet change. On the Windows ARM64 laptop WSL 2 exposes the NVIDIA GPU: the WSL driver reports CUDA 13.4, and the arm64 CUDA 13.2 runtime from NVIDIA's sbsa repository completes a device round trip (Verified). The toolkit 13.2.2 and OpenFOAM 2512.0-2 exist for arm64. The spike does not refuse; what it did not run (nvcc, a PETSc-CUDA build) is listed.",
+      "tags": [
+        "windows",
+        "arm64",
+        "wsl",
+        "cuda",
+        "f1",
+        "spike"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-attempt2-offline-request",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a9d77ef685c869d33e47e0949d7a9ee7e471e691b6ddc53f7a83bd7ddfd60945"
     },
     {
       "id": "proof-win-gpu-f1-attempt2-admission",
@@ -22788,5 +22820,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "822f770ccdbb450896fb17ac4eb77be3b5c993bf9bf2417b82c8d70ae805b75c"
+  "graphSha256": "cb3c2c23b8beb4ab503e2e6b95532abbcb82ce6953c6e0c78f4e069ecc1cdcdb"
 };
