@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-18T21:59:36Z",
+  "generated": "2026-10-18T22:16:02Z",
   "audit": [
     {
       "actor": null,
@@ -39466,6 +39466,61 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-18T21:56:48Z",
       "duration_seconds": 168.0
+    },
+    {
+      "id": "al-01M58GZ351AJ0VV9RQDJ5QZZQ4",
+      "shortname": "go ahead and install the WSL distro, then start the 237 spike",
+      "datetime": "2026-10-18T22:08:55Z",
+      "session": "prompt-log",
+      "prompt": "go ahead and install the WSL distro, then start the 237 spike",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M58HC3PWY2DFYSNAXNCG0NJE",
+      "shortname": "Ruling 237 (5) spike: CUDA in WSL on the ARM64 laptop",
+      "datetime": "2026-10-18T22:16:02Z",
+      "session": "pc-laptop-leader",
+      "prompt": "go ahead and install the WSL distro, then start the 237 spike",
+      "summary": "WSL 2 Ubuntu-24.04 installed (--no-launch, root use). Read-only spike: /dev/dxg and /usr/lib/wsl/lib present; nvidia-smi driver 615.78.05, CUDA UMD 13.4; driver API enumerates the RTX Spark N1X (cc 12.1); arm64 cudart 13.2.86 from ubuntu2404/sbsa, extracted with dpkg -x, completes a 1 MiB malloc/memset/copy-back verified. Repos: wsl-ubuntu x86_64-only; sbsa has cuda-toolkit-13-2 13.2.2-1; openfoam2512 2512.0-2 arm64 on noble. Not run: nvcc, PETSc-CUDA build. Spike does not refuse. Proof: docs/proof/win-gpu-f1-preflight/arm64-spike.",
+      "kind": "skill",
+      "skill": "investigate",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/arm64-spike/README.md"
+      ],
+      "tags": [
+        "f1",
+        "arm64",
+        "spike"
+      ],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Install a WSL distribution and run the Ruling 237 spike",
+      "done_when": "the distribution boots and the spike's measurements are recorded as proof on a branch",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-10-18T22:08:56Z",
+      "duration_seconds": 426.0,
+      "git": {
+        "sha": "d2811cd1858cc4272365bcdccb6c90cc223f8590",
+        "short": "d2811cd18",
+        "branch": "spike/arm64-cuda-in-wsl",
+        "pushed": null
+      }
     }
   ],
   "changes": [

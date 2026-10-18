@@ -1,0 +1,25 @@
+{
+  "schema": "cfdw-arm64-spike-repository-evidence/1",
+  "read_at": "2026-10-18",
+  "method": "HTTP GET of the public index pages and apt Packages files from the Windows host; nothing installed",
+  "nvidia_cuda_repositories": {
+    "wsl-ubuntu": {"url": "https://developer.download.nvidia.com/compute/cuda/repos/wsl-ubuntu/", "architectures": ["x86_64"]},
+    "ubuntu2404": {
+      "url": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/",
+      "architectures": ["arm64", "cross-linux-aarch64", "cross-linux-sbsa", "sbsa", "x86_64"],
+      "arm64_holds": "cudnn, cudss and related libraries only (398 .deb entries, no cuda-toolkit-13-x)",
+      "sbsa_holds": "the CUDA toolkit for arm64 servers (6612 .deb entries)",
+      "sbsa_cuda_toolkit_13_2": ["13.2.0-1", "13.2.1-1", "13.2.2-1"],
+      "sbsa_cuda_cudart_13_2_newest": "13.2.86-1",
+      "sbsa_cuda_nvcc_13_2_newest": "13.2.86-1"
+    },
+    "packet_pin_amd64": {"source": "ubuntu2404/x86_64", "cuda-toolkit-13-2": "13.2.2-1"}
+  },
+  "openfoam_repository": {
+    "url": "https://dl.openfoam.com/repos/deb",
+    "suite": "noble",
+    "release_architectures": ["all", "amd64", "arm64"],
+    "openfoam2512_versions": {"arm64": ["2512.0-1", "2512.0-2"], "amd64": ["2512.0-1", "2512.0-2"]},
+    "packet_pin": "openfoam2512=2512.0-2 and its -common, -dev, -source, -tools (amd64)"
+  }
+}
