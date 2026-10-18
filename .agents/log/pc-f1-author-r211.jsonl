@@ -1,0 +1,4 @@
+{"agent": "pc-f1-author-r211", "at": 1791740037.751513, "kind": "session-start", "path": "-", "seq": 1, "session": "pc-f1-author-r211", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-win-gpu-f1-r211-author"}
+{"agent": "pc-f1-author-r211", "at": 1791740431.887639, "kind": "claim", "path": "docs/plans/windows-gpu-f1-r211.md", "seq": 2, "session": "pc-f1-author-r211", "ttl": 300.0, "wi": "pc-f1-author-r211"}
+{"agent": "pc-f1-author-r211", "at": 1791740786.8356454, "kind": "claim", "path": "docs/plans/windows-gpu-f1-r211.md", "seq": 3, "session": "pc-f1-author-r211", "ttl": 300.0, "wi": "pc-f1-author-r211"}
+{"agent": "pc-f1-author-r211", "at": 1791740902.3193247, "kind": "release", "path": "docs/plans/windows-gpu-f1-r211.md", "seq": 4, "session": "pc-f1-author-r211", "wi": "pc-f1-author-r211"}

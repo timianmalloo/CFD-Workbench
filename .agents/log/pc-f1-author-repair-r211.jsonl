@@ -1,0 +1,5 @@
+{"agent": "pc-f1-author-repair-r211", "at": 1791743550.9895034, "kind": "session-start", "path": "-", "seq": 1, "session": "pc-f1-author-repair-r211", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-win-gpu-f1-r211-author-repair"}
+{"agent": "pc-f1-author-repair-r211", "at": 1791743859.5422516, "kind": "claim", "path": "docs/plans/windows-gpu-f1-r211.md", "seq": 2, "session": "pc-f1-author-repair-r211", "ttl": 300.0, "wi": "pc-f1-author-repair-r211"}
+{"agent": "pc-f1-author-repair-r211", "at": 1791743860.8104525, "kind": "claim", "path": "docs/proof/win-gpu-f1-design", "seq": 3, "session": "pc-f1-author-repair-r211", "ttl": 300.0, "wi": "pc-f1-author-repair-r211"}
+{"agent": "pc-f1-author-repair-r211", "at": 1791744155.138151, "kind": "release", "path": "docs/plans/windows-gpu-f1-r211.md", "seq": 4, "session": "pc-f1-author-repair-r211", "wi": "pc-f1-author-repair-r211"}
+{"agent": "pc-f1-author-repair-r211", "at": 1791744156.405278, "kind": "release", "path": "docs/proof/win-gpu-f1-design", "seq": 5, "session": "pc-f1-author-repair-r211", "wi": "pc-f1-author-repair-r211"}

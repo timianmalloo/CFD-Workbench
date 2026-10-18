@@ -1,0 +1,12 @@
+{"agent": "pc-coord-shell-r211", "at": 1791741211.201254, "kind": "session-start", "path": "-", "seq": 1, "session": "pc-coord-shell-r211", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-win-coord-windows-shell-r211"}
+{"agent": "pc-coord-shell-r211", "at": 1791741388.4012852, "kind": "claim", "path": "docs/lessons/defect-classes.md", "seq": 2, "session": "pc-coord-shell-r211", "ttl": 300.0, "wi": "windows-shell-resolver"}
+{"agent": "pc-coord-shell-r211", "at": 1791741474.9083688, "kind": "claim", "path": "tools/check-docs.py", "seq": 3, "session": "pc-coord-shell-r211", "ttl": 300.0, "wi": "windows-shell-resolver"}
+{"agent": "pc-coord-shell-r211", "at": 1791741805.7044299, "kind": "release", "path": "docs/ai-forward-pack/scripts/conductor-join.py", "seq": 4, "session": "pc-coord-shell-r211", "wi": "WI-0"}
+{"agent": "pc-coord-shell-r211", "at": 1791741807.0434675, "kind": "release", "path": "tools/check-docs.py", "seq": 5, "session": "pc-coord-shell-r211", "wi": "WI-0"}
+{"agent": "pc-coord-shell-r211", "at": 1791741808.3214245, "kind": "release", "path": "docs/lessons/defect-classes.md", "seq": 6, "session": "pc-coord-shell-r211", "wi": "WI-0"}
+{"agent": "pc-coord-shell-r211", "at": 1791742588.2469943, "kind": "claim", "path": "docs/coordination/join.json", "seq": 7, "session": "pc-coord-shell-r211", "ttl": 300.0, "wi": "windows-shell-contract-adjust"}
+{"agent": "pc-coord-shell-r211", "at": 1791742589.5300066, "kind": "claim", "path": "docs/lessons/defect-classes.md", "seq": 8, "session": "pc-coord-shell-r211", "ttl": 300.0, "wi": "windows-shell-contract-adjust"}
+{"agent": "pc-coord-shell-r211", "at": 1791742590.827658, "kind": "claim", "path": "tools/check-docs.py", "seq": 9, "session": "pc-coord-shell-r211", "ttl": 300.0, "wi": "windows-shell-contract-adjust"}
+{"agent": "pc-coord-shell-r211", "at": 1791742707.1119597, "kind": "release", "path": "docs/coordination/join.json", "seq": 10, "session": "pc-coord-shell-r211", "wi": "WI-0"}
+{"agent": "pc-coord-shell-r211", "at": 1791742708.3989153, "kind": "release", "path": "docs/lessons/defect-classes.md", "seq": 11, "session": "pc-coord-shell-r211", "wi": "WI-0"}
+{"agent": "pc-coord-shell-r211", "at": 1791742709.677256, "kind": "release", "path": "tools/check-docs.py", "seq": 12, "session": "pc-coord-shell-r211", "wi": "WI-0"}

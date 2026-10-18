@@ -1,0 +1,2 @@
+{"agent": "pc-f1-r217-execute-r220", "at": 1791818271.462244, "kind": "session-start", "path": "-", "seq": 1, "session": "pc-f1-r217-cleanup-recovery-author", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-win-gpu-f1-r217-cleanup-recovery"}
+{"agent": "pc-f1-r217-cleanup-recovery-author", "at": 1791818395.4304414, "kind": "session-start", "path": "-", "seq": 2, "session": "pc-f1-r217-cleanup-recovery-author", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-win-gpu-f1-r217-cleanup-recovery"}

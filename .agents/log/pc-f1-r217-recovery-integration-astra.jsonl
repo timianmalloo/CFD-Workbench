@@ -1,0 +1,2 @@
+{"agent": "pc-f1-r217-execute-r220", "at": 1791822461.149369, "kind": "session-start", "path": "-", "seq": 1, "session": "pc-f1-r217-recovery-integration-astra", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-win-gpu-f1-r217-recovery-integration-review"}
+{"agent": "pc-f1-r217-recovery-integration-astra", "at": 1791822631.2340796, "kind": "session-start", "path": "-", "seq": 2, "session": "pc-f1-r217-recovery-integration-astra", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-win-gpu-f1-r217-recovery-integration-review"}

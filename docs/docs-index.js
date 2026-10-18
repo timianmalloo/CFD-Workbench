@@ -11941,7 +11941,34 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "020e771cbd54e0b3bdba2bc789dff4e9c080eeb55d050631d4ca6962e01d4a24"
+      "sourceSha256": "e8b56410e9ed4ad00b655dcde6fb1a0505bda806fab093161b96a5fa634bed83"
+    },
+    {
+      "id": "coordination-handoff-2026-10-16-new-laptop",
+      "path": "docs/coordination/handoff-2026-10-16-new-laptop.md",
+      "title": "Handoff 2026-10-16: moving the PC work to a new laptop",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@operator",
+      "phase": "",
+      "reviewBy": "2026-10-30",
+      "reviewSuggested": [],
+      "summary": "What the old PC pushed before the move, what it could not push, and the steps to resume the PC sole-leader work on a new Windows laptop. Read it after the 2026-10-13 PC sole-leader handoff.",
+      "tags": [
+        "coordination",
+        "handoff",
+        "windows",
+        "laptop",
+        "f1"
+      ],
+      "links": [
+        {
+          "to": "coordination-handoff-2026-10-13-pc-sole-leader",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4bd89b9ac63922e41a9b818b4a8c311c19dc56bd6b34c9ec63e4b43785b4f979"
     },
     {
       "id": "proof-a3a-cor-red-first",
@@ -22728,5 +22755,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "9c30eabd54e857dbb7c89f2039ab2a2858b35a45233d46d57f5442585ba715e4"
+  "graphSha256": "e7be979d8c6c5e6d0b271dd5ab3c2cddb50d40f8afbcfd8375b6a6ec8be19d12"
 };

@@ -1,0 +1,2 @@
+{"agent": "pc-f1-r217-cleanup-live1", "at": 1791823730.4159508, "kind": "session-start", "path": "-", "seq": 1, "session": "pc-f1-r217-cleanup-live1", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-win-gpu-f1-r217-cleanup-live1"}
+{"at": 1791824471.1057343, "from": "pc-f1-r217-cleanup-live1", "kind": "blocked", "mail_id": "mail-01M4RGZ921N2H717PQXFM59HP4", "ref": "11f56c79add5054c420c23911dbb2cf748c659c7", "session": "pc-f1-r217-cleanup-live1", "to": "mac", "type": "mail"}

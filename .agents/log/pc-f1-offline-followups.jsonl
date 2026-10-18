@@ -1,0 +1,2 @@
+{"agent": "pc-f1-offline-followups", "at": 1791914411.5491433, "kind": "session-start", "path": "-", "seq": 1, "session": "pc-f1-offline-followups", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-win-gpu-f1-offline-followups"}
+{"at": 1791916243.2065873, "from": "pc-f1-offline-followups", "kind": "done", "mail_id": "mail-01M4V8FY86M1ATJ66TTDX7ZJBX", "ref": "docs/proof/win-gpu-f1-preflight/offline-followups.md", "session": "pc-f1-offline-followups", "to": "pc-f1-r230-cleanup1", "type": "mail"}

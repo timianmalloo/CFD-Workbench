@@ -1,0 +1,11 @@
+{"agent": "pc-f1-r217-packet-repair", "at": 1791769453.4345868, "kind": "session-start", "path": "-", "seq": 1, "session": "pc-f1-r217-packet-repair", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-win-gpu-f1-r217-packet-repair"}
+{"agent": "pc-f1-r217-packet-repair", "at": 1791769518.5487125, "kind": "claim", "path": "docs/proof/win-gpu-f1-preflight/packet", "seq": 2, "session": "pc-f1-r217-packet-repair", "ttl": 300.0, "wi": "PACKET-REPAIR"}
+{"agent": "pc-f1-r217-packet-repair", "at": 1791769519.2531085, "kind": "claim", "path": "docs/lessons/defect-classes.md", "seq": 3, "session": "pc-f1-r217-packet-repair", "ttl": 300.0, "wi": "PACKET-REPAIR"}
+{"agent": "pc-f1-r217-packet-repair", "at": 1791770533.1019192, "kind": "claim", "path": "docs/lessons/defect-classes.md", "seq": 4, "session": "pc-f1-r217-packet-repair", "ttl": 300.0, "wi": "PACKET-REPAIR"}
+{"agent": "pc-f1-r217-packet-repair", "at": 1791770533.1036937, "kind": "claim", "path": "docs/proof/win-gpu-f1-preflight/packet", "seq": 4, "session": "pc-f1-r217-packet-repair", "ttl": 300.0, "wi": "PACKET-REPAIR"}
+{"agent": "pc-f1-r217-packet-repair", "at": 1791770880.3710015, "kind": "claim", "path": "docs/proof/win-gpu-f1-preflight/packet", "seq": 6, "session": "pc-f1-r217-packet-repair", "ttl": 300.0, "wi": "PACKET-REPAIR"}
+{"agent": "pc-f1-r217-packet-repair", "at": 1791770880.518329, "kind": "claim", "path": "docs/lessons/defect-classes.md", "seq": 7, "session": "pc-f1-r217-packet-repair", "ttl": 300.0, "wi": "PACKET-REPAIR"}
+{"agent": "pc-f1-r217-packet-repair", "at": 1791770933.3210642, "kind": "release", "path": "docs/proof/win-gpu-f1-preflight/packet", "seq": 8, "session": "pc-f1-r217-packet-repair", "wi": "PACKET-REPAIR"}
+{"agent": "pc-f1-r217-packet-repair", "at": 1791770933.453003, "kind": "release", "path": "docs/lessons/defect-classes.md", "seq": 9, "session": "pc-f1-r217-packet-repair", "wi": "PACKET-REPAIR"}
+{"agent": "pc-f1-r217-packet-repair", "at": 1791771020.63598, "kind": "claim", "path": "docs/proof/win-gpu-f1-preflight/packet", "seq": 10, "session": "pc-f1-r217-packet-repair", "ttl": 300.0, "wi": "PACKET-REPAIR"}
+{"agent": "pc-f1-r217-packet-repair", "at": 1791771063.457852, "kind": "release", "path": "docs/proof/win-gpu-f1-preflight/packet", "seq": 11, "session": "pc-f1-r217-packet-repair", "wi": "PACKET-REPAIR"}

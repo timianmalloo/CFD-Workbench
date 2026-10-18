@@ -1,0 +1,4 @@
+{"agent": "pc-f1-r217-packet", "at": 1791766911.601138, "kind": "session-start", "path": "-", "seq": 1, "session": "pc-f1-r217-packet", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-win-gpu-f1-r217-packet"}
+{"agent": "pc-f1-r217-packet", "at": 1791767031.8035314, "kind": "claim", "path": "docs/proof/win-gpu-f1-preflight/packet", "seq": 2, "session": "pc-f1-r217-packet", "ttl": 300.0, "wi": "pc-f1-r217-packet"}
+{"agent": "pc-f1-r217-packet", "at": 1791768385.9707797, "kind": "claim", "path": "docs/proof/win-gpu-f1-preflight/packet", "seq": 3, "session": "pc-f1-r217-packet", "ttl": 300.0, "wi": "PACKET"}
+{"agent": "pc-f1-r217-packet", "at": 1791768412.5208566, "kind": "release", "path": "docs/proof/win-gpu-f1-preflight/packet", "seq": 4, "session": "pc-f1-r217-packet", "wi": "PACKET"}
