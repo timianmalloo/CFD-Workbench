@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-18T21:56:35Z",
+  "generated": "2026-10-18T21:59:36Z",
   "audit": [
     {
       "actor": null,
@@ -39439,6 +39439,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-18T21:53:17Z",
       "duration_seconds": 165.0
+    },
+    {
+      "id": "al-01M58GE0X1JHM72KNG4TJ954KZ",
+      "shortname": "join-camera-step-rule",
+      "datetime": "2026-10-18T21:59:36Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "the join of investigate/camera-step-samples into main: the camera-step check hands its worst step p95 to RequireFrameBudget (MISS with no load recorded, FAIL at a quiet load); CFD_DIAG_STEPS=1 prints every sample. Merge conflicts in the audit log and the register, resolved as unions; audit-data.js regenerated. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Readiness green on the laptop, then the open items that need no operator input",
+      "done_when": "each item fixed and joined or closed with a recorded finding",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-18T21:56:48Z",
+      "duration_seconds": 168.0
     }
   ],
   "changes": [
