@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-18T22:16:02Z",
+  "generated": "2026-10-18T22:17:29Z",
   "audit": [
     {
       "actor": null,
@@ -39521,6 +39521,33 @@ window.AUDIT_DATA = {
         "branch": "spike/arm64-cuda-in-wsl",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M58HER940T3722JX3C2NC63B",
+      "shortname": "join-arm64-cuda-spike",
+      "datetime": "2026-10-18T22:17:29Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of spike/arm64-cuda-in-wsl into main",
+      "summary": "the join of spike/arm64-cuda-in-wsl into main (docs-only: the spike proof folder and the docs index) recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Install a WSL distribution and run the Ruling 237 spike",
+      "done_when": "the spike's measurements are on main as proof",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-18T22:16:13Z",
+      "duration_seconds": 76.0
     }
   ],
   "changes": [
