@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-18T20:42:05Z",
+  "generated": "2026-10-18T20:45:08Z",
   "audit": [
     {
       "actor": null,
@@ -39084,6 +39084,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-18T20:31:13Z",
       "duration_seconds": 90.0
+    },
+    {
+      "id": "al-01M58C5NPSVPJ3QDR29H54HRD7",
+      "shortname": "join-drain-holder",
+      "datetime": "2026-10-18T20:45:08Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "the join of investigate/drain-holder into main: the Desktop harness pumps child pipes on its own threads and names pipe holders by pipe id on DRAIN; readiness check Drain_OrphanGrandchild_IsNamedAsThePipeHolder. Merge conflicts in the audit log (union in time order, audit-data.js regenerated) and the register (the branch's extended DRAIN entry, then TEMP-REPO-INHERITS-THE-DRIVE). The ring at the previous merge (build/sdk-10.0.402, ae0baefe) ran with one unexpected failure: DRAIN on --properties-view --part=2/2 under the old async reader (the defect this branch instruments), 0 unexpected elsewhere, Python 115 OK; that join stopped at step 4 with no join entry. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Join the stack into main with the ring green per join",
+      "done_when": "main carries old-pc-session-logs, rulings-237-238, the owned-check test fix, build/sdk-10.0.402, investigate/drain-holder and the laptop handoff with readiness green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-18T20:42:21Z",
+      "duration_seconds": 167.0
     }
   ],
   "changes": [
