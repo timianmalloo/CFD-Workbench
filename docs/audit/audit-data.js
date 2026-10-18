@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-18T21:46:38Z",
+  "generated": "2026-10-18T21:50:34Z",
   "audit": [
     {
       "actor": null,
@@ -39309,6 +39309,33 @@ window.AUDIT_DATA = {
         "branch": "fix/ring-raw-exit-refused",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M58FXFRY0MPDJCXNW073FHCC",
+      "shortname": "join-ring-raw-exit",
+      "datetime": "2026-10-18T21:50:34Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of fix/ring-raw-exit-refused into main",
+      "summary": "the join of fix/ring-raw-exit-refused into main: the expected-failure classifier refuses a status of 126 or more; the ring prints each harness's raw exit; the raw exits recorded on the laptop. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Readiness green on the laptop, then the open items that need no operator input",
+      "done_when": "each item fixed and joined or closed with a recorded finding",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-18T21:47:51Z",
+      "duration_seconds": 163.0
     }
   ],
   "changes": [
