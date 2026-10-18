@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-18T20:47:33Z",
+  "generated": "2026-10-18T20:54:37Z",
   "audit": [
     {
       "actor": null,
@@ -39138,6 +39138,44 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-18T20:46:19Z",
       "duration_seconds": 73.0
+    },
+    {
+      "id": "al-01M58CQ0NNS20NAQZESPABVHQS",
+      "shortname": "stack joined into main; readiness RED on the laptop (5 steps)",
+      "datetime": "2026-10-18T20:54:36Z",
+      "session": "pc-laptop-leader",
+      "prompt": "push the branch and keep going",
+      "summary": "investigate/drain-holder pushed. The stack is joined into main locally (a0361739, not pushed): win/old-pc-session-logs, docs/rulings-237-238, fix/owned-check-ring-drive (new: the Python ring test refused a D: temp root, TEMP-REPO-INHERITS-THE-DRIVE), build/sdk-10.0.402, investigate/drain-holder, docs/laptop-handoff-2026-10-16. Joins 1-2: the store gate was red for the SDK mismatch (global.json 10.0.203 vs installed 10.0.402) until the SDK join; join 3's ring could not build for the same reason; join 4's ring had one unexpected failure, DRAIN on --properties-view --part=2/2 under the old reader; join 5's ring passed (wall 90 s, 0 DRAIN) and every gate; join 6 docs-only, gates green. Readiness on a0361739: RED in 232 s (budget 240): verify-application-core.py exits 1 and verify-application-adapters.py exits 4 with 'Not assessed' on Windows by design, and run-readiness.py has a notAssessed rule only for verify-windows-store.py (readiness had never run with a Windows sole leader); recount-architecture-spike.py fails at a symlink (WinError 1314: this user holds no SeCreateSymbolicLinkPrivilege, Developer Mode off); Desktop readiness fails ThemeMatrix_ShellControls_AppliedContrast at RenderScaling=2 (the display-scale class) and Readiness_CameraStep_NoPaneRefresh_Under8Ms (3d_arrow_pan p95 11.7 ms in the group; alone 3 of 4 steps over 8 ms: 15.8/14.0/19.9 ms), with Readiness_OrbitFrameP95Under33Ms a READINESS-MISS at 48 ms. Core and Analysis readiness green; Drain_OrphanGrandchild_IsNamedAsThePipeHolder green on the joined HEAD. main not pushed: a merge to main needs readiness green for that HEAD. Four worktrees are merged and removable (reported, not removed).",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/lessons/defect-classes.md",
+        "tools/run-readiness.py"
+      ],
+      "tags": [
+        "join",
+        "readiness",
+        "laptop"
+      ],
+      "outcome": "partial",
+      "goal": "Join the stack into main with the ring green per join",
+      "done_when": "main carries the stack with readiness green, or the first blocking red is reported",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false,
+        "regression": false
+      },
+      "git": {
+        "sha": "a03617396f8c510a6360816b98a7a3487d9a5d66",
+        "short": "a03617396",
+        "branch": "main",
+        "pushed": false
+      }
     }
   ],
   "changes": [
