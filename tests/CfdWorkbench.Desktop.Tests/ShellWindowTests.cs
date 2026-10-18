@@ -446,9 +446,9 @@ public static class ShellWindowTests
                     Settle(window);
                     if (!rowItems[0].IsSelected) throw new InvalidOperationException("Example Browser row did not select");
                     // DR-STATUS-1: the status strip takes 24 px of the 700 px window, so the second row can sit under the
-                    // Browser's fold; scroll it into view before measuring what paints behind its text.
-                    rowItems[1].BringIntoView();
-                    Settle(window);
+                    // Browser's fold; scroll it into view, and prove it is on screen, before measuring what paints behind
+                    // its text (docs/proof/tmx/diagnosis.md: below the fold it is clipped, and the enclose check refuses it).
+                    ScrollRowIntoView(window, rowItems[1]);
                     PrintScrollDiagnostic(theme, window, rowItems[1]);
                     Probe(theme, "browser.selected", () => TextRow(theme, "browser.selected", rowItems[0]));
                     Probe(theme, "browser.unselected", () => TextRow(theme, "browser.unselected", rowItems[1]));
@@ -3571,6 +3571,31 @@ public static class ShellWindowTests
             ?? throw new InvalidOperationException("HandleScalingChanged absent");
         handle.Invoke(window, [scale]);
         Console.WriteLine(FormattableString.Invariant($"DIAG-SCALE forced={scale} RenderScaling={window.RenderScaling}"));
+    }
+
+    // BringIntoView, then the precondition the enclose check relies on: the row lies inside its outer ScrollViewer's viewport.
+    // At scale 1.5 (Mac emulation) and 2 (Windows, 2026-10-18) BringIntoView left the row one row below the fold.
+    private static void ScrollRowIntoView(Window window, Control row)
+    {
+        var viewer = row.GetVisualAncestors().OfType<ScrollViewer>().LastOrDefault()
+            ?? throw new InvalidOperationException("Browser row has no ScrollViewer ancestor");
+        row.BringIntoView();
+        Settle(window);
+        double Top() => row.TranslatePoint(default, viewer)?.Y ?? throw new InvalidOperationException("Browser row has no position in its viewer");
+        double top = Top();
+        double overflow = top + row.Bounds.Height - viewer.Viewport.Height;
+        if (overflow > 0)
+        {
+            // Observed at scale 2 on Windows: BringIntoView moved the offset to 120 where 160 was needed (the row's top sat
+            // exactly on the viewport bottom). The fixture scrolls the remainder itself; the product-side question (a keyboard
+            // user focusing a row below the fold) is a finding in docs/proof/tmx/diagnosis.md, not this check's subject.
+            viewer.Offset = new Vector(viewer.Offset.X, viewer.Offset.Y + overflow);
+            Settle(window);
+            top = Top();
+        }
+        if (top < -.01 || top + row.Bounds.Height > viewer.Viewport.Height + .01)
+            throw new InvalidOperationException(FormattableString.Invariant(
+                $"Browser row could not be scrolled into view at scale {window.RenderScaling}: top {top:F2}, height {row.Bounds.Height:F2}, viewport {viewer.Viewport.Height:F2}, offset {viewer.Offset.Y:F2}"));
     }
 
     private static void PrintScrollDiagnostic(string theme, Window window, Control row)

@@ -89,3 +89,15 @@ For readiness in the meantime: the `fractional-scale` expected-failure class exi
 - Logs (Mac, outside the repo): `scratch/tmx/base.log` (scale 2 PASS), `s15.log` (env var ignored), `s15f.log` (forced 1.5 FAIL), `sv2.log` and `sv15.log` (scroll state), `tw15.log` (second `BringIntoView`), `slack.log` (326 window-layer slack lines).
 - Limit: the emulation is not a native 1.5 surface. It reproduces the assertion and the layout-rounding growth; it does not prove the Windows scroll behaviour or the exact layer. All Windows statements are Inferred.
 - Window size: 1024 x 700 is also the `WindowMinWidth` / `WindowMinHeight`, so a smaller window is impossible. Heights 480 to 640 passed because the clamp keeps 700 (Verified).
+
+## 8. Windows at 2.0 (Verified, 2026-10-18, the laptop)
+
+The print in §5 item 4 ran on Windows at RenderScaling 2 (readiness, three runs, then the check alone with `CFD_DIAG_SCROLL=1`):
+
+| scale | offset Y | extent | viewport | row 1 top | row 1 in view |
+|---|---|---|---|---|---|
+| 2 (Windows) | 120 | 1696 | 584 | 584 | **no**: starts at the viewport bottom |
+
+So §3 point 2 is settled: `BringIntoView` leaves the row at the fold on Windows too, not only in the emulation. §5 item 1 is applied: `ScrollRowIntoView` scrolls the outer viewer by the remaining overflow (offset 160, row top 544) and asserts the row is inside the viewport, naming the precondition when it is not ("Browser row could not be scrolled into view at scale 2: top 584.00, height 40.00, viewport 584.00, offset 120.00" was the red run). The check then passes in all four themes.
+
+§4 (a) stands as a product finding to file: whether a keyboard user focusing a Browser row below the fold sees it scroll into view on Windows at 1.5 and 2.0 is not proven by this fixture, which scrolls for itself. Register: PRECONDITION-FAILS-AS-ORACLE.
