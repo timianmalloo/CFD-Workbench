@@ -198,15 +198,18 @@ class OwnedCheckTests(unittest.TestCase):
         self.assertEqual(result.stdout, b"")
         self.assertEqual(result.stderr.splitlines(), [b"F1-OWNED-IMPORT-FAILED"])
 
-    # cleanup.py's linux_path accepts only a Windows (C:\) repo root, so this case can run only on the PC (Fable join
-    # condition 1, 2026-10-13). Skipped, and so reported, elsewhere; the PC ring still runs it.
-    @unittest.skipUnless(sys.platform == "win32", "needs a Windows repo root (cleanup.py linux_path); runs on the PC ring")
+    # PC-only on the recorded join condition (Fable join condition 1, 2026-10-13); the case has not been run elsewhere.
+    # It no longer needs a C:\ repo root: linux_path is stubbed below (as test_f1_cleanup_recovery.py does), because the
+    # ring's temp dir is .tmp-tests under the checkout, so a repo on D: made every path refuse before the owned-stage
+    # check ran and no diagnostic code was bound (defect class TEMP-REPO-INHERITS-THE-DRIVE).
+    @unittest.skipUnless(sys.platform == "win32", "runs on the PC ring only (Fable join condition 1, 2026-10-13)")
     def test_Execute_HelperDiagnostic_BindsSanitizedCodeAndStops(self):
         for diagnostic in (b"F1-OWNED-IMPORT-FAILED", b"F1-OWNED-RESIDUAL", b"F1-OWNED-STATE-UNKNOWN",
                            b"private argv: /synthetic/private", b"F1-OWNED-RESIDUAL\nprivate detail"):
             with self.subTest(diagnostic=diagnostic), tempfile.TemporaryDirectory() as temporary:
                 repo = Path(temporary)
                 instance = cleanup.Cleanup(repo, repo / "synthetic-auth.json", "synthetic-session", 8, "synthetic-run")
+                instance.linux_path = lambda path: str(path)   # the WSL path translation is linux_path's own contract
                 instance.precheck = Mock()
                 instance.publish_precheck = Mock()
                 instance.capture_pre_live_leader = Mock()

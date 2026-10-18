@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-18T20:32:44Z",
+  "generated": "2026-10-18T20:33:27Z",
   "audit": [
     {
       "actor": null,
@@ -38928,6 +38928,58 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M58AZBYJPGAZVM9VY5R89QYT",
+      "shortname": "push the branch and keep going",
+      "datetime": "2026-10-18T20:24:13Z",
+      "session": "prompt-log",
+      "prompt": "push the branch and keep going",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M58B4TG3CEWSFYACZX6N9R7X",
+      "shortname": "ring: the owned-check diagnostic test runs from any drive",
+      "datetime": "2026-10-18T20:27:12Z",
+      "session": "pc-laptop-leader",
+      "prompt": "push the branch and keep going",
+      "summary": "TEMP-REPO-INHERITS-THE-DRIVE: test_Execute_HelperDiagnostic_BindsSanitizedCodeAndStops failed on the laptop ring (repo on D:) because the ring's temp dir is under the checkout and cleanup.py's linux_path accepts only a C: path, so the owned-stage check never ran and no diagnostic code was bound (probe under both environments). Fix: the test stubs linux_path as test_f1_cleanup_recovery.py does; red (5 subfailures) then green under the ring's temp variables and without them. Register entry with class, sweep (no other temp-derived drive-bound path in tests/ or tools/), derive, control. check-docs green. Blocks every code join on the laptop, so it joins before build/sdk-10.0.402.",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "tests/test_f1_cleanup_owned_check.py",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [
+        "ring",
+        "laptop"
+      ],
+      "outcome": "success",
+      "goal": "Join the stack into main with the ring green per join",
+      "done_when": "main carries old-pc-session-logs, rulings-237-238, this fix, build/sdk-10.0.402, investigate/drain-holder and the laptop handoff with readiness green, or the first blocking red is reported",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "git": {
+        "sha": "2f8bac48dc83a3d6d97843c342000210ccd46d06",
+        "short": "2f8bac48d",
+        "branch": "fix/owned-check-ring-drive",
+        "pushed": null
+      }
     },
     {
       "id": "al-01M58B9NQE0ZAVSMW1CPJT27ZQ",
