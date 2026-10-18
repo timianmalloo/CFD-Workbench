@@ -11,3 +11,6 @@
 {"agent": "pc-laptop-leader", "at": 1792359280.3110106, "kind": "session-start", "path": "-", "seq": 11, "session": "pc-laptop-leader", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-ring-raw-exit-refused"}
 {"agent": "pc-laptop-leader", "at": 1792359317.3403227, "kind": "session-start", "path": "-", "seq": 12, "session": "pc-laptop-leader", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-tmx-row-under-fold"}
 {"agent": "pc-laptop-leader", "at": 1792359331.7923644, "kind": "session-start", "path": "-", "seq": 13, "session": "pc-laptop-leader", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-investigate-camera-step-samples"}
+{"agent": "pc-laptop-leader", "at": 1792361057.6294906, "kind": "session-end", "path": "-", "seq": 14, "session": "pc-laptop-leader", "wi": "WI-0", "worktree": "CFD-Workbench-fix-ring-raw-exit-refused"}
+{"agent": "pc-laptop-leader", "at": 1792361059.169137, "kind": "session-end", "path": "-", "seq": 15, "session": "pc-laptop-leader", "wi": "WI-0", "worktree": "CFD-Workbench-fix-tmx-row-under-fold"}
+{"agent": "pc-laptop-leader", "at": 1792361060.7449455, "kind": "session-end", "path": "-", "seq": 16, "session": "pc-laptop-leader", "wi": "WI-0", "worktree": "CFD-Workbench-investigate-camera-step-samples"}
