@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-18T20:54:37Z",
+  "generated": "2026-10-18T21:01:24Z",
   "audit": [
     {
       "actor": null,
@@ -39175,6 +39175,59 @@ window.AUDIT_DATA = {
         "short": "a03617396",
         "branch": "main",
         "pushed": false
+      }
+    },
+    {
+      "id": "al-01M58D2YQKCCP6SC03Y77GD1FK",
+      "shortname": "fix the script then push and merge",
+      "datetime": "2026-10-18T21:01:08Z",
+      "session": "prompt-log",
+      "prompt": "fix the script then push and merge",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M58D3E7VHC52M437GW31JVYX",
+      "shortname": "readiness: the application verifiers' Windows not-assessed exit is not red",
+      "datetime": "2026-10-18T21:01:24Z",
+      "session": "pc-laptop-leader",
+      "prompt": "fix the script then push and merge",
+      "summary": "READINESS-NOT-ASSESSED-UNRULED: run-readiness.py knew the not-assessed exit 4 only for verify-windows-store.py; verify-application-core.py exited 1 with a message on Windows and verify-application-adapters.py exited 4, both read as red. verify-application-core.py now exits 4 on Windows; ENTRY_RULES names both application verifiers; the self-test runs each at exit 4/0/1 (red before the rule for both names, green after). Both verifiers observed at exit 4 on the laptop. Register entry. check-docs green.",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "tools/run-readiness.py",
+        "tools/verify-application-core.py",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [
+        "readiness",
+        "laptop"
+      ],
+      "outcome": "success",
+      "goal": "Make readiness treat the two application verifiers' Windows not-assessed exits as not assessed, join the fix, push main",
+      "done_when": "Red-first self-test green, readiness shows those two steps as not assessed, main pushed",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "git": {
+        "sha": "190633a97925780b85090c721218535f2cef62ca",
+        "short": "190633a97",
+        "branch": "fix/readiness-windows-not-assessed",
+        "pushed": null
       }
     }
   ],

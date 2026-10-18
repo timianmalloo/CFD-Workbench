@@ -187,7 +187,8 @@ def run(command: list[str], environment: dict[str, str], scratch: Path, child_um
 def main() -> None:
     # Temporary capability guard: Windows ownership/cleanup still requires native proof.
     if os.name == "nt":
-        raise SystemExit("Windows gate/runtime: Not assessed; no dotnet process launched")
+        print("Windows gate/runtime: Not assessed; no dotnet process launched", file=sys.stderr)
+        raise SystemExit(4)  # Not assessed: the exit verify-application-adapters.py and verify-windows-store.py use
     scratch = Path(tempfile.mkdtemp(prefix="cfd-application-core-20260923-", dir="/tmp"))
     # A red run keeps its scratch for debugging; say where, whichever way the run fails.
     atexit.register(lambda: (scratch / "artifacts").exists() and print(f"SCRATCH kept: {scratch}", flush=True))
