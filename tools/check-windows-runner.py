@@ -244,7 +244,7 @@ def problems(runner: str, preflight: str, driver: str) -> list[str]:
         found.append("c Stopwatch remaining deadline missing")
     if not re.search(r"\$startupRemaining = Get-WriRemainingMilliseconds \$rootDeadline \$Clock.ElapsedMilliseconds\s+if \(\$InjectStartupDelayMs -ge \$startupRemaining\) \{ throw 'WRI-ENVELOPE:[^']+' \}\s+\[Threading.Thread\]::Sleep\(\$InjectStartupDelayMs\)", process_body):
         found.append("c startup allowance refusal before sleep/launch missing")
-    if "sdk/10.0.203" not in runner or "$sdkVersion -ne '10.0.203'" not in runner or "GetFullPath($DotnetPath) -ne $expectedDotnet" not in runner:
+    if "sdk/10.0.402" not in runner or "$sdkVersion -ne '10.0.402'" not in runner or "GetFullPath($DotnetPath) -ne $expectedDotnet" not in runner:
         found.append("d exact toolchain identity missing")
     if not re.search(r"\$handle\s*=\s*\$child.Handle", process_body) or not re.search(r"\$exitCode\s*=\s*\$child.ExitCode\s+Assert-WriNumericExit\s+\$exitCode", process_body):
         found.append("e retained handle or numeric exit missing")
@@ -283,7 +283,7 @@ def self_test() -> int:
         ("b", runner.replace("'-Action','Preflight'", "'-Action','200'"), preflight),
         ("c", runner + "\nif([DateTime]::UtcNow -gt [DateTime]::Parse('2026-10-09T00:00:00Z')){}", preflight),
         ("c", runner.replace("$Process.WaitForExit([int]$remainingMs)", "$Process.WaitForExit(900000)"), preflight),
-        ("d", runner.replace("$sdkVersion -ne '10.0.203'", "$sdkVersion -ne '10.0.999'"), preflight),
+        ("d", runner.replace("$sdkVersion -ne '10.0.402'", "$sdkVersion -ne '10.0.999'"), preflight),
         ("e", runner.replace("$handle = $child.Handle", "$handle = $null"), preflight),
         ("e", runner.replace("Assert-WriNumericExit $exitCode", "# lost exit accepted"), preflight),
         ("f", runner.replace("Assert-WriSourceUnchanged $Repo $before", "# after-source omitted"), preflight),

@@ -33,6 +33,8 @@ and the named product gates remain required; acceptance does not claim a deliver
 1. Select a native modular monolith with C#/.NET 10 and Avalonia 11.3.14 for the first offline editor,
    with one UI-free deterministic core consumed by native GUI and CLI. Pin .NET SDK 10.0.203 for the
    observed spike; release support/security updates require explicit maintenance review. Do not float packages.
+   *Amended 2026-10-16 by Ruling 239 (the maintenance review): `global.json` pins 10.0.402 with
+   `rollForward: latestPatch`.*
 2. Retain ADR-0002 source snapshot history in a versioned `.cfdw.json` envelope, no database, no second writable
    AST. Store exact source bytes, immutable accepted-revision references and append-only cursor facts; store
    invalid recovery separately. Parsed geometry is a derived projection.
