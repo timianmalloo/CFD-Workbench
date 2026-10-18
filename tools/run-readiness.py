@@ -57,7 +57,11 @@ KILL_WAIT_SECONDS = 2
 # never a failure and left out of the ring result; evidence marks a pass recorded as evidence, not as a gate.
 # tools/verify-windows-store.py (Rulings 171 (4), 175): exit 4 off Windows; a Windows PASS enters readiness only
 # through a reviewed receipt from a rerun of the final script, so a pass here is evidence only.
-ENTRY_RULES = {"verify-windows-store.py": {"timeout": 60, "notAssessed": (4,), "evidence": True}}
+# tools/verify-application-core.py and tools/verify-application-adapters.py: exit 4 on Windows (Not assessed; the
+# ownership and cleanup proof is native there), a pass elsewhere is the gate (READINESS-NOT-ASSESSED-UNRULED).
+ENTRY_RULES = {"verify-windows-store.py": {"timeout": 60, "notAssessed": (4,), "evidence": True},
+               "verify-application-core.py": {"notAssessed": (4,)},
+               "verify-application-adapters.py": {"notAssessed": (4,)}}
 
 
 def git(root: Path, *arguments: str) -> str:
@@ -288,6 +292,18 @@ def self_test() -> int:
         ring([["python3", "-c", "raise SystemExit(4)"]], "exit 4 of another script")
         if run_ring(repo, join, receipt) != 1:
             problems.append("exit 4 of a script with no rule was not red")
+        # The two application verifiers say Not assessed on Windows with exit 4 (the store verifier's convention) and
+        # readiness, first run with a Windows sole leader on 2026-10-18, read both as red (READINESS-NOT-ASSESSED-UNRULED).
+        for name in ("verify-application-core.py", "verify-application-adapters.py"):
+            verifier = repo / "tools" / name
+            for exit_code, ring_exit, status in ((4, 0, "not-assessed"), (0, 0, "ok"), (1, 1, "fail")):
+                verifier.write_text("raise SystemExit({0})\n".format(exit_code), encoding="utf-8", newline="\n")
+                ring([["python3", "tools/" + name], ok], "{0} exit {1}".format(name, exit_code))
+                observed = run_ring(repo, join, receipt)
+                recorded = json.loads(receipt.read_text(encoding="utf-8"))["results"][0]["status"]
+                if observed != ring_exit or recorded != status or check(repo, receipt) != ring_exit:
+                    problems.append("{0} exit {1} gave ring {2} and status {3}, not {4} and {5}".format(
+                        name, exit_code, observed, recorded, ring_exit, status))
         # A rule belongs to the executed script only: a ruled name in a later argument (a --skip list) earns no rule.
         (repo / "tools" / "other.py").write_text("raise SystemExit(4)\n", encoding="utf-8", newline="\n")
         ring([["python3", "tools/other.py", "--skip", "verify-windows-store.py"]], "ruled name as an argument")
