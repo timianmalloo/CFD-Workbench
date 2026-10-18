@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-14T00:04:14Z",
+  "generated": "2026-10-18T20:27:12Z",
   "audit": [
     {
       "actor": null,
@@ -38928,6 +38928,58 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M58AZBYJPGAZVM9VY5R89QYT",
+      "shortname": "push the branch and keep going",
+      "datetime": "2026-10-18T20:24:13Z",
+      "session": "prompt-log",
+      "prompt": "push the branch and keep going",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M58B4TG3CEWSFYACZX6N9R7X",
+      "shortname": "ring: the owned-check diagnostic test runs from any drive",
+      "datetime": "2026-10-18T20:27:12Z",
+      "session": "pc-laptop-leader",
+      "prompt": "push the branch and keep going",
+      "summary": "TEMP-REPO-INHERITS-THE-DRIVE: test_Execute_HelperDiagnostic_BindsSanitizedCodeAndStops failed on the laptop ring (repo on D:) because the ring's temp dir is under the checkout and cleanup.py's linux_path accepts only a C: path, so the owned-stage check never ran and no diagnostic code was bound (probe under both environments). Fix: the test stubs linux_path as test_f1_cleanup_recovery.py does; red (5 subfailures) then green under the ring's temp variables and without them. Register entry with class, sweep (no other temp-derived drive-bound path in tests/ or tools/), derive, control. check-docs green. Blocks every code join on the laptop, so it joins before build/sdk-10.0.402.",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "tests/test_f1_cleanup_owned_check.py",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [
+        "ring",
+        "laptop"
+      ],
+      "outcome": "success",
+      "goal": "Join the stack into main with the ring green per join",
+      "done_when": "main carries old-pc-session-logs, rulings-237-238, this fix, build/sdk-10.0.402, investigate/drain-holder and the laptop handoff with readiness green, or the first blocking red is reported",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "git": {
+        "sha": "2f8bac48dc83a3d6d97843c342000210ccd46d06",
+        "short": "2f8bac48d",
+        "branch": "fix/owned-check-ring-drive",
+        "pushed": null
+      }
     }
   ],
   "changes": [
@@ -41761,6 +41813,60 @@ window.AUDIT_DATA = {
       "kind": "decision-request",
       "ref": "req-01M4NQM8P69Y5TDXJTS0DYQS15",
       "session": "3122f106"
+    },
+    {
+      "id": "mail-01M531X80R67WJ0577J2XCDN28",
+      "ts": "2026-10-16T19:09:34Z",
+      "from": "pc-laptop-leader",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M531X8063WD9TAXPNGD8YEW6",
+      "session": "pc-laptop-leader"
+    },
+    {
+      "id": "mail-01M531X8M0TJ3PEKQD0Q4GEM7T",
+      "ts": "2026-10-16T19:09:35Z",
+      "from": "operator-timianmalloo",
+      "to": "pc-laptop-leader",
+      "kind": "ruling",
+      "ref": "req-01M531X8063WD9TAXPNGD8YEW6",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M531X91HPQ4RSKEK7BJW9JTC",
+      "ts": "2026-10-16T19:09:35Z",
+      "from": "pc-laptop-leader",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M531X90WAF27DM99TXX3J2Y3",
+      "session": "pc-laptop-leader"
+    },
+    {
+      "id": "mail-01M531X9JV3VQF55DJ5HW947X4",
+      "ts": "2026-10-16T19:09:36Z",
+      "from": "operator-timianmalloo",
+      "to": "pc-laptop-leader",
+      "kind": "ruling",
+      "ref": "req-01M531X90WAF27DM99TXX3J2Y3",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M532C5CSCXH9BG86C35HJA52",
+      "ts": "2026-10-16T19:17:43Z",
+      "from": "pc-laptop-leader",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M532C5C0E97EA1GHYJDK7ZWS",
+      "session": "pc-laptop-leader"
+    },
+    {
+      "id": "mail-01M532C5ZBKF9W460G35TXNXQE",
+      "ts": "2026-10-16T19:17:44Z",
+      "from": "operator-timianmalloo",
+      "to": "pc-laptop-leader",
+      "kind": "ruling",
+      "ref": "req-01M532C5C0E97EA1GHYJDK7ZWS",
+      "session": "operator-timianmalloo"
     }
   ]
 };
