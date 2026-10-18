@@ -110,5 +110,26 @@ public static class StageTimingTests
             if (exit != 124 || !timeout.EndsWith("; in-flight check: InFlightProbe_SleepsPastTheTimeout", StringComparison.Ordinal))
                 throw new Exception($"exit {exit}: {timeout}");
         });
+
+        // DRAIN-ON-ARM64-LAPTOP: a real child whose grandchild outlives it holding the inherited standard pipes. The parent's DRAIN
+        // line must name that grandchild as the holder (on Windows matched by the pipe's index number through the grandchild's own
+        // handle, read-only), and the DRAIN-EOF line must time, per stream, when end of file finally arrived.
+        // Ring: readiness (a child, a 5 s grandchild, a 1 s drain wait, then the EOF wait). Cost: about 5 s (measured 5.1-5.2 s).
+        DesktopChecks.Check("Drain_OrphanGrandchild_IsNamedAsThePipeHolder", () =>
+        {
+            var (lines, exit, _) = DesktopChecks.RunBufferedWithin("--drain-probe", 30, drainSeconds: 1);
+            string[] texts = lines.Select(l => l.Text).ToArray();
+            string probe = texts.FirstOrDefault(t => t.StartsWith("DRAIN-PROBE grandchild pid=", StringComparison.Ordinal)) ?? "(no DRAIN-PROBE line)";
+            string drain = texts.FirstOrDefault(t => t.StartsWith("FAIL DRAIN --drain-probe", StringComparison.Ordinal)) ?? "(no DRAIN line)";
+            string eof = texts.FirstOrDefault(t => t.StartsWith("DRAIN-EOF --drain-probe", StringComparison.Ordinal)) ?? "(no DRAIN-EOF line)";
+            string pid = probe.Split('=')[^1];
+            Console.WriteLine($"DRAIN-PROBE rendered: {drain} | {eof}");   // the rendered surface, in every readiness log
+            string holder = OperatingSystem.IsWindows() ? $"pid {pid} " : "holder scan: not available on ";
+            string proof = OperatingSystem.IsWindows() ? "a descendant of the child) holds stdout, stderr (verified by pipe id)" : "";
+            if (exit != 125 || !drain.Contains(holder, StringComparison.Ordinal) || !drain.Contains(proof, StringComparison.Ordinal) ||
+                !eof.StartsWith("DRAIN-EOF --drain-probe: stdout end of file arrived ", StringComparison.Ordinal) ||
+                !eof.Contains("; stderr end of file arrived ", StringComparison.Ordinal))
+                throw new Exception($"exit {exit}: {probe} | {drain} | {eof}");
+        });
     }
 }
