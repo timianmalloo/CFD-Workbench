@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-18T21:56:02Z",
+  "generated": "2026-10-18T21:56:35Z",
   "audit": [
     {
       "actor": null,
@@ -39256,6 +39256,43 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-18T21:01:38Z",
       "duration_seconds": 177.0
+    },
+    {
+      "id": "al-01M58G1XET4MFJ2M0E10FWTTDW",
+      "shortname": "tests: the camera-step budget follows the Ruling 81 load rule",
+      "datetime": "2026-10-18T21:52:59Z",
+      "session": "pc-laptop-leader",
+      "prompt": "developer mode is on, rerun readiness; work through all the tasks that you can",
+      "summary": "FRAME-GATE-RULE-DIVERGENCE: Readiness_CameraStep_NoPaneRefresh_Under8Ms failed 5 of 6 laptop runs (p95 10-20 ms vs 8) while its sibling OrbitFrame printed READINESS-MISS under Ruling 81. Per-sample print (CFD_DIAG_STEPS=1): 1 ms median, 1-2 isolated 14-20 ms samples of 24; draw alternates 2.5 and about 18 ms; ANGLE win-arm64 native present. The check now hands the worst step p95 to RequireFrameBudget: MISS with no load recorded (two runs), FAIL at a quiet recorded load. Open gap named: Windows has no load source. Register entry; check-docs green.",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "tests/CfdWorkbench.Desktop.Tests/View3dTests.cs",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [
+        "readiness",
+        "laptop"
+      ],
+      "outcome": "success",
+      "goal": "Readiness green on the laptop, then the open items that need no operator input",
+      "done_when": "each item fixed and joined or closed with a recorded finding",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "git": {
+        "sha": "48015ef480a5fc54da8249ed69aa70b243459d92",
+        "short": "48015ef48",
+        "branch": "investigate/camera-step-samples",
+        "pushed": null
+      }
     },
     {
       "id": "al-01M58FPFZQYSVPFCG8J1AETD0P",

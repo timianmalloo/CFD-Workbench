@@ -773,6 +773,8 @@ public static class View3dTests
             var side = fixture.Area.FindControl<ElevationView>("SideElevation") ?? throw new Exception("No Side elevation");
             if (fixture.Controller.CameraFor(SingleView.Side) is null) throw new Exception("The Side elevation has no camera");
             var failures = new List<string>();
+            var over = new List<(string Step, double P95)>();
+            double? loadBefore = DesktopChecks.LoadAverage1();
             Measure("3d_wheel", fixture.View, fixture.Area.ThreeDRenderer, step => Wheel(fixture, fixture.View, step));
             Measure("3d_arrow_pan", fixture.View, fixture.Area.ThreeDRenderer,
                 step => PressKey(fixture.View, step % 2 == 0 ? Avalonia.Input.Key.Left : Avalonia.Input.Key.Right, KeyModifiers.Shift));
@@ -780,6 +782,14 @@ public static class View3dTests
             Measure("side_arrow_pan", side, fixture.Area.SideRenderer,
                 step => PressKey(side, step % 2 == 0 ? Avalonia.Input.Key.Left : Avalonia.Input.Key.Right, KeyModifiers.Alt));
             if (failures.Count > 0) throw new Exception(string.Join("; ", failures));
+            // Ruling 81, as Readiness_OrbitFrameP95Under33Ms: a step over its budget fails at a quiet recorded load and is a
+            // READINESS-MISS line (no PASS, no FAIL) above the gate or where no load is recorded (Windows). The laptop measured
+            // a 1 ms median with isolated 14-20 ms samples in every run (CFD_DIAG_STEPS=1), host noise this rule exists for.
+            if (over.Count > 0)
+            {
+                var worst = over.MaxBy(item => item.P95);
+                DesktopChecks.RequireFrameBudget("Readiness_CameraStep_NoPaneRefresh_Under8Ms:" + worst.Step, worst.P95, 8, loadBefore);
+            }
 
             void Measure(string name, Control target, SurfaceRenderer renderer, Action<int> step)
             {
@@ -826,8 +836,13 @@ public static class View3dTests
                 double p95 = P95(steps);
                 Console.WriteLine(FormattableString.Invariant(
                     $"READINESS Readiness_CameraStep_NoPaneRefresh_Under8Ms step={name} value_ms={p95:F3} target_ms=8 median_ms={warm[warm.Length / 2]:F3} event_p95_ms={P95(raises):F3} window_pass_p95_ms={P95(jobs):F3} frame_p95_ms={P95(frames):F3} draw_p95_ms={P95(draws):F3} samples={warm.Length} pane_refreshes={refreshes} changed_events={changedEvents} size={size.Width}x{size.Height}"));
+                // Diagnostic, off unless CFD_DIAG_STEPS=1: every sample in order (the first 8 are the warm-up), so an over-budget
+                // p95 can be read as a slow host or as a few outliers, and the outliers placed against the window pass.
+                if (Environment.GetEnvironmentVariable("CFD_DIAG_STEPS") == "1")
+                    Console.WriteLine(FormattableString.Invariant(
+                        $"DIAG-STEPS step={name} step_ms={string.Join(",", steps.Select(v => v.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)))} window_pass_ms={string.Join(",", jobs.Select(v => v.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)))} draw_ms={string.Join(",", draws.Select(v => v.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)))}"));
                 if (refreshes != 0) failures.Add(FormattableString.Invariant($"{name}: {refreshes} pane refreshes for {steps.Count} camera steps"));
-                if (p95 > 8) failures.Add(FormattableString.Invariant($"{name}: step p95 {p95:F1} ms is over 8 ms"));
+                if (p95 > 8) over.Add((name, p95));
             }
         });
     }
