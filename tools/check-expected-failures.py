@@ -21,6 +21,7 @@ Usage:
   check-expected-failures.py --self-test
   check-expected-failures.py --log FILE [--status N] [--host windows|other] [--manifest FILE]
 Exit 0: no unexpected failure or pass, and (with --status N != 0) at least one expected failure explains the status.
+A status of 126 or more is a killed or unlaunched harness, never a verdict: always exit 1 (MEASURE-CONTINUES-AFTER-INTERRUPT).
 Exit 1: otherwise. Output ends with `EXPECTED-FAIL <n> (manifest)` and `UNEXPECTED <m>`.
 """
 from __future__ import annotations
@@ -141,12 +142,17 @@ def report(result: dict[str, list[str]], status: int) -> int:
     for line in result["unexpected_pass"]:
         print("UNEXPECTED-PASS " + line)
     bad = len(result["unexpected"]) + len(result["unexpected_pass"])
-    unexplained = status != 0 and not result["expected"] and bad == 0
+    # MEASURE-CONTINUES-AFTER-INTERRUPT (3): the harnesses exit 0 or 1 (every Windows ring harness observed 2026-10-18);
+    # 126 and above is a killed or unlaunched child, never a verdict, whatever its partial log holds.
+    killed = status >= 126
+    if killed:
+        print(f"UNEXPECTED harness exit {status}: a killed or unlaunched harness, not a verdict (its log is partial)")
+    unexplained = status != 0 and not killed and not result["expected"] and bad == 0
     if unexplained:
         print(f"UNEXPECTED harness exit {status} with no FAIL line the manifest explains")
     print(f"EXPECTED-FAIL {len(result['expected'])} (manifest)")
-    print(f"UNEXPECTED {bad + (1 if unexplained else 0)}")
-    return 1 if bad or unexplained else 0
+    print(f"UNEXPECTED {bad + (1 if unexplained or killed else 0)}")
+    return 1 if bad or unexplained or killed else 0
 
 
 def self_test() -> int:
@@ -174,6 +180,11 @@ def self_test() -> int:
          "FAIL Store_B\nUnhandled exception. DOC-UNSUPPORTED-PERSISTENCE\n", True, 1, 1, 0, 1, 0),
         ("standalone crash", "STAGE s\nAPP-UNHANDLED APP-CRASH System.Exception\nSystem.Exception: x\n", True, 1, 1, 0, 1, 0),
         ("exit status with no FAIL line", "PASS X\n", True, 1, 0, 0, 0, 0),
+        # MEASURE-CONTINUES-AFTER-INTERRUPT (3): a status of 126 or more is a killed or unlaunched harness, never a verdict,
+        # even when its partial log holds only listed failures.
+        # (the counts are classify()'s; the killed verdict is report()'s and shows in the exit, 0 before the rule for the first case)
+        ("killed harness (exit 127) with only listed failures is unexpected", f"{probe}\n{store}\n", True, 1, 0, 2, 0, 0),
+        ("killed harness (exit 137) with no FAIL line is unexpected", "PASS X\n", True, 1, 0, 0, 0, 0),
         ("not Windows: a listed failure stays a failure", f"{probe}\n{store}\n", False, 1, 2, 0, 2, 0),
         ("not Windows: a listed pass is fine", "PASS Store_B\n", False, 0, 0, 0, 0, 0),
         ("child exit whose block holds only expected failures is expected",
@@ -196,10 +207,12 @@ def self_test() -> int:
     bad = 0
     for label, text, windows, want_exit, _count, want_ok, want_unexpected, want_pass in cases:
         status = 1 if label == "exit status with no FAIL line" else 0
+        if label.startswith("killed harness (exit "):
+            status = int(label.split("(exit ")[1].split(")")[0])
         result = classify(text, manifest, windows)
         got = (len(result["expected"]), len(result["unexpected"]), len(result["unexpected_pass"]))
         print(f"-- {label}")
-        code = report(result, 1 if "FAIL" in text else status)
+        code = report(result, status if status else 1 if "FAIL" in text else 0)
         if code != want_exit or got != (want_ok, want_unexpected, want_pass):
             print(f"SELF-TEST FAIL: {label}: exit {code} (want {want_exit}), "
                   f"expected/unexpected/pass {got} (want {(want_ok, want_unexpected, want_pass)})")

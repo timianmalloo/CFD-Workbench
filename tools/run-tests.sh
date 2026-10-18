@@ -130,6 +130,7 @@ for index in "${!jobs[@]}"; do
   if [ "$name" != "$project" ]; then label="$label ${jobs[$index]#* }"; fi
   status=0
   wait "${pids[$index]}" || status=$?
+  raw=$status   # the harness's own exit, printed on the summary line before the manifest explains it (0 or 1; 126+ is a kill)
   expected_n=0
   if [ "$ring_windows" -eq 1 ]; then
     verdict=0
@@ -143,7 +144,7 @@ for index in "${!jobs[@]}"; do
     fi
   fi
   passes=$(grep -c '^PASS ' "$scratch/$name.log" || true)
-  echo "== $label $(cat "$scratch/$name.seconds") s ($(cat "$scratch/$name.ms") ms), $passes PASS"
+  echo "== $label $(cat "$scratch/$name.seconds") s ($(cat "$scratch/$name.ms") ms), $passes PASS, exit $raw"
   if [ "$status" -eq 0 ] && [ "$passes" -eq 0 ] && [[ "$named" == *" $project "* ]]; then
     echo "FAILED: $label exited 0 but printed no PASS line"
     failed=1

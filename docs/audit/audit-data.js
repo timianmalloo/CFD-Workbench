@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-18T21:04:35Z",
+  "generated": "2026-10-18T21:46:38Z",
   "audit": [
     {
       "actor": null,
@@ -39256,6 +39256,59 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-18T21:01:38Z",
       "duration_seconds": 177.0
+    },
+    {
+      "id": "al-01M58FGMCZNJDEC62NYV272TMZ",
+      "shortname": "developer mode is on, rerun readiness; work through all the tasks that y…",
+      "datetime": "2026-10-18T21:43:33Z",
+      "session": "prompt-log",
+      "prompt": "developer mode is on, rerun readiness; work through all the tasks that you can",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M58FP8PXNEGSSDDS1AXP45BN",
+      "shortname": "ring: a harness exit of 126 or more is a kill, never a verdict",
+      "datetime": "2026-10-18T21:46:38Z",
+      "session": "pc-laptop-leader",
+      "prompt": "developer mode is on, rerun readiness; work through all the tasks that you can",
+      "summary": "KILLED-HARNESS-READS-AS-VERDICT: check-expected-failures.py refuses any status of 126 or more before reading the log (self-test: exit 127 over only listed failures was exit 0 before the rule); run-tests.sh prints each harness's raw exit on its summary line. Raw exits recorded on the laptop ring (green, 101 s): Core 1,1,1; Desktop 1; Cli 1; Analysis 0,0,0; Python 0. Register entry; check-docs green.",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "tools/check-expected-failures.py",
+        "tools/run-tests.sh",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [
+        "ring",
+        "laptop"
+      ],
+      "outcome": "success",
+      "goal": "Readiness green on the laptop, then the open items that need no operator input",
+      "done_when": "each item fixed and joined or closed with a recorded finding",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "git": {
+        "sha": "48015ef480a5fc54da8249ed69aa70b243459d92",
+        "short": "48015ef48",
+        "branch": "fix/ring-raw-exit-refused",
+        "pushed": null
+      }
     }
   ],
   "changes": [
