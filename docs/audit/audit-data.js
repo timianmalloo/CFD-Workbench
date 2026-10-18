@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-14T00:04:14Z",
+  "generated": "2026-10-18T20:29:51Z",
   "audit": [
     {
       "actor": null,
@@ -38928,6 +38928,33 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M58B9NQE0ZAVSMW1CPJT27ZQ",
+      "shortname": "join-old-pc-session-logs",
+      "datetime": "2026-10-18T20:29:51Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of win/old-pc-session-logs into main",
+      "summary": "the join of win/old-pc-session-logs into main (docs-only: .agents/log session logs and the PC handoff notes) recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Join the stack into main with the ring green per join",
+      "done_when": "main carries old-pc-session-logs, rulings-237-238, the owned-check test fix, build/sdk-10.0.402, investigate/drain-holder and the laptop handoff with readiness green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-18T20:28:02Z",
+      "duration_seconds": 109.0
     }
   ],
   "changes": [
@@ -41430,6 +41457,15 @@ window.AUDIT_DATA = {
       "session": "fable-owner"
     },
     {
+      "id": "mail-01M4F7KKXJ23P95J1T2VTMNRYS",
+      "ts": "2026-10-09T02:24:21Z",
+      "from": "pc",
+      "to": "mac",
+      "kind": "decision-request",
+      "ref": "WRI P6 scale confirmation",
+      "session": "pc"
+    },
+    {
       "id": "mail-01M4F80WSDNVC90KECDC5HY3JS",
       "ts": "2026-10-09T02:31:37Z",
       "from": "3122f106",
@@ -41761,6 +41797,411 @@ window.AUDIT_DATA = {
       "kind": "decision-request",
       "ref": "req-01M4NQM8P69Y5TDXJTS0DYQS15",
       "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4PWJ0578N0SPX5WD6RCRD7J",
+      "ts": "2026-10-12T01:45:10Z",
+      "from": "pc-f1-preflight-r217",
+      "to": "mac",
+      "kind": "blocked",
+      "ref": "c8f4da4aa13c1969643b042ca3f1931db52707d9",
+      "session": "pc-f1-preflight-r217"
+    },
+    {
+      "id": "mail-01M4PZJGQD8XXQC8KQJGFW4B2R",
+      "ts": "2026-10-12T02:37:52Z",
+      "from": "pc-f1-preflight-r217",
+      "to": "mac",
+      "kind": "blocked",
+      "ref": "https://github.com/timianmalloo/CFD-Workbench/pull/33",
+      "session": "pc-f1-preflight-r217"
+    },
+    {
+      "id": "mail-01M4R8X8DMV9301F5KP1Y5GAK1",
+      "ts": "2026-10-12T14:40:16Z",
+      "from": "pc-gpu-status-r217-cont",
+      "to": "mac",
+      "kind": "decision-request",
+      "ref": "https://github.com/timianmalloo/CFD-Workbench/pull/33#issuecomment-6126496203",
+      "session": "pc-gpu-status-r217-cont"
+    },
+    {
+      "id": "mail-01M4RAV3VHK2P7ESWSF4Q41R5X",
+      "ts": "2026-10-12T15:14:03Z",
+      "from": "pc-f1-r217-execute-r220",
+      "to": "mac",
+      "kind": "decision-request",
+      "ref": "docs/proof/win-gpu-f1-preflight/run-1/live/cleanup-receipt.json",
+      "session": "pc-f1-r217-execute-r220"
+    },
+    {
+      "id": "mail-01M4RB1DD8G8PRKE7H0J2XJV4R",
+      "ts": "2026-10-12T15:17:29Z",
+      "from": "pc-f1-r217-execute-r220",
+      "to": "mac",
+      "kind": "decision-request",
+      "ref": "docs/proof/win-gpu-f1-preflight/run-1/live/cleanup-receipt.json",
+      "session": "pc-f1-r217-execute-r220"
+    },
+    {
+      "id": "mail-01M4RFZYMNPY6PCS26XRGX935D",
+      "ts": "2026-10-12T16:44:04Z",
+      "from": "pc-f1-r217-recovery-integration-author",
+      "to": "mac",
+      "kind": "decision-request",
+      "ref": "db2826a6798a788344d666b2a10465f975236808",
+      "session": "pc-f1-r217-recovery-integration-author"
+    },
+    {
+      "id": "mail-01M4RGA4K8BBWA2Y2NKAE39BRC",
+      "ts": "2026-10-12T16:49:38Z",
+      "from": "pc-f1-r217-recovery-integration-author",
+      "to": "mac",
+      "kind": "decision-request",
+      "ref": "db2826a6798a788344d666b2a10465f975236808",
+      "session": "pc-f1-r217-recovery-integration-author"
+    },
+    {
+      "id": "mail-01M4RGZ921N2H717PQXFM59HP4",
+      "ts": "2026-10-12T17:01:11Z",
+      "from": "pc-f1-r217-cleanup-live1",
+      "to": "mac",
+      "kind": "blocked",
+      "ref": "11f56c79add5054c420c23911dbb2cf748c659c7",
+      "session": "pc-f1-r217-cleanup-live1"
+    },
+    {
+      "id": "mail-01M4RKS38Q99P2XN9TDD4BS23Z",
+      "ts": "2026-10-12T17:50:14Z",
+      "from": "pc-f1-r217-coordinator",
+      "to": "mac",
+      "kind": "unblocked",
+      "ref": "https://github.com/timianmalloo/CFD-Workbench/pull/33#issuecomment-6129540741",
+      "session": "pc-f1-r217-coordinator"
+    },
+    {
+      "id": "mail-01M4RM39VZ35KZMNARRDAJY41A",
+      "ts": "2026-10-12T17:55:48Z",
+      "from": "pc-f1-r217-coordinator",
+      "to": "mac",
+      "kind": "blocked",
+      "ref": "https://github.com/timianmalloo/CFD-Workbench/pull/33#issuecomment-6129681647",
+      "session": "pc-f1-r217-coordinator"
+    },
+    {
+      "id": "mail-01M4SDNEJMT8HY87SW0DGBSVP7",
+      "ts": "2026-10-13T01:22:37Z",
+      "from": "pc-f1-r225-attempt1",
+      "to": "mac",
+      "kind": "decision-request",
+      "ref": "PR34-R228-epoch8",
+      "session": "pc-f1-r225-attempt1"
+    },
+    {
+      "id": "mail-01M4SE7YBVG878E1BPWR2DYJ97",
+      "ts": "2026-10-13T01:32:43Z",
+      "from": "pc-f1-r225-attempt1",
+      "to": "mac",
+      "kind": "done",
+      "ref": "PR34-R228-review-2cb40b67",
+      "session": "pc-f1-r225-attempt1"
+    },
+    {
+      "id": "mail-01M4SF8H4PXRGK8G03CSSNKST1",
+      "ts": "2026-10-13T01:50:31Z",
+      "from": "pc-f1-r225-attempt1",
+      "to": "mac",
+      "kind": "blocked",
+      "ref": "PR34-R228-failure-d6edbc63",
+      "session": "pc-f1-r225-attempt1"
+    },
+    {
+      "id": "mail-01M4SH7ESAV0Y3ZCJT6Z13A5CM",
+      "ts": "2026-10-13T02:24:53Z",
+      "from": "pc-f1-r229-cleanup1",
+      "to": "mac",
+      "kind": "decision-request",
+      "ref": "https://github.com/timianmalloo/CFD-Workbench/pull/34#issuecomment-6136832982",
+      "session": "pc-f1-r229-cleanup1"
+    },
+    {
+      "id": "mail-01M4SK1MW3PAF6A9P5A9A20V7T",
+      "ts": "2026-10-13T02:56:40Z",
+      "from": "pc-f1-r230-cleanup1",
+      "to": "mac",
+      "kind": "decision-request",
+      "ref": "https://github.com/timianmalloo/CFD-Workbench/pull/34#issuecomment-6137188173",
+      "session": "pc-f1-r230-cleanup1"
+    },
+    {
+      "id": "mail-01M4SKSFRQR1WYYC53XS4KJY7C",
+      "ts": "2026-10-13T03:09:41Z",
+      "from": "pc-f1-r230-cleanup1",
+      "to": "mac",
+      "kind": "decision-request",
+      "ref": "https://github.com/timianmalloo/CFD-Workbench/pull/34#issuecomment-6137332317",
+      "session": "pc-f1-r230-cleanup1"
+    },
+    {
+      "id": "mail-01M4SKWBWRJFFYBMKJSGYQZESG",
+      "ts": "2026-10-13T03:11:15Z",
+      "from": "pc-f1-r230-cleanup1",
+      "to": "mac",
+      "kind": "done",
+      "ref": "https://github.com/timianmalloo/CFD-Workbench/pull/34#issuecomment-6137349402",
+      "session": "pc-f1-r230-cleanup1"
+    },
+    {
+      "id": "mail-01M4SM22P9YMDY0TCG4YWSZ4M0",
+      "ts": "2026-10-13T03:14:23Z",
+      "from": "pc-f1-r230-cleanup1",
+      "to": "mac",
+      "kind": "unblocked",
+      "ref": "https://github.com/timianmalloo/CFD-Workbench/pull/34#issuecomment-6137349402",
+      "session": "pc-f1-r230-cleanup1"
+    },
+    {
+      "id": "mail-01M4SMPY8WJCFTTN5CBTR860GN",
+      "ts": "2026-10-13T03:25:46Z",
+      "from": "pc-f1-r230-cleanup1",
+      "to": "mac",
+      "kind": "blocked",
+      "ref": "https://github.com/timianmalloo/CFD-Workbench/pull/34#issuecomment-6137511956",
+      "session": "pc-f1-r230-cleanup1"
+    },
+    {
+      "id": "mail-01M4SNEHWZ6ECP8PWVBX6MQCD2",
+      "ts": "2026-10-13T03:38:40Z",
+      "from": "pc-f1-r230-cleanup1",
+      "to": "mac",
+      "kind": "decision-request",
+      "ref": "https://github.com/timianmalloo/CFD-Workbench/pull/34#issuecomment-6137649979",
+      "session": "pc-f1-r230-cleanup1"
+    },
+    {
+      "id": "mail-01M4SP9J67ZFXCV20MM5GCZX2C",
+      "ts": "2026-10-13T03:53:25Z",
+      "from": "pc-f1-r231-helper-repair-prep",
+      "to": "mac",
+      "kind": "decision-request",
+      "ref": "req-01M4SP9J5ZBTJDDHN3M7JAR5CP",
+      "session": "pc-f1-r231-helper-repair-prep"
+    },
+    {
+      "id": "mail-01M4SPA5G4MDSNC13QA407C7G9",
+      "ts": "2026-10-13T03:53:45Z",
+      "from": "pc-f1-r231-helper-repair-prep",
+      "to": "pc-f1-r230-cleanup1",
+      "kind": "done",
+      "ref": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/helper-repair.md@6089217f",
+      "session": "pc-f1-r231-helper-repair-prep"
+    },
+    {
+      "id": "mail-01M4SPQRCG0QM3899CZCAKV7JX",
+      "ts": "2026-10-13T04:01:10Z",
+      "from": "pc-f1-r230-cleanup1",
+      "to": "mac",
+      "kind": "blocked",
+      "ref": "https://github.com/timianmalloo/CFD-Workbench/pull/34#issuecomment-6137938806",
+      "session": "pc-f1-r230-cleanup1"
+    },
+    {
+      "id": "mail-01M4SPZTSKMC0057BM7YSX2FQ2",
+      "ts": "2026-10-13T04:05:35Z",
+      "from": "pc-f1-r231-helper-repair-prep",
+      "to": "mac",
+      "kind": "decision-request",
+      "ref": "req-01M4SPZTSAK59G0GBPRDC1N6PD",
+      "session": "pc-f1-r231-helper-repair-prep"
+    },
+    {
+      "id": "mail-01M4SQ0A81KKWDDDVRN3MZXZSM",
+      "ts": "2026-10-13T04:05:50Z",
+      "from": "pc-f1-r231-helper-repair-prep",
+      "to": "pc-f1-r230-cleanup1",
+      "kind": "done",
+      "ref": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/helper-repair.md@37b96e47",
+      "session": "pc-f1-r231-helper-repair-prep"
+    },
+    {
+      "id": "mail-01M4SQ9TSDX2JY20ZTVNQTG0TR",
+      "ts": "2026-10-13T04:11:02Z",
+      "from": "pc-f1-r230-cleanup1",
+      "to": "mac",
+      "kind": "decision-request",
+      "ref": "https://github.com/timianmalloo/CFD-Workbench/pull/34#issuecomment-6138050816",
+      "session": "pc-f1-r230-cleanup1"
+    },
+    {
+      "id": "mail-01M4SQEBGGJ5ZWE2EVTT9QM3A8",
+      "ts": "2026-10-13T04:13:31Z",
+      "from": "pc-f1-r230-cleanup1",
+      "to": "mac",
+      "kind": "blocked",
+      "ref": "https://github.com/timianmalloo/CFD-Workbench/pull/34#issuecomment-6138050816",
+      "session": "pc-f1-r230-cleanup1"
+    },
+    {
+      "id": "mail-01M4SR79AKJ3XHS05G5X2FV3GJ",
+      "ts": "2026-10-13T04:27:07Z",
+      "from": "pc-f1-r231-ring-investigator",
+      "to": "mac",
+      "kind": "decision-request",
+      "ref": "req-01M4SR79A9WB06BW929C5HA78G",
+      "session": "pc-f1-r231-ring-investigator"
+    },
+    {
+      "id": "mail-01M4SR7DNJY6K45R5FKXY7CA7M",
+      "ts": "2026-10-13T04:27:12Z",
+      "from": "pc-f1-r231-ring-investigator",
+      "to": "pc-f1-r230-cleanup1",
+      "kind": "done",
+      "ref": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/desktop-ring-r231-investigation.md@5760154f",
+      "session": "pc-f1-r231-ring-investigator"
+    },
+    {
+      "id": "mail-01M4SS2P2HE2T4FGNDA0X922AC",
+      "ts": "2026-10-13T04:42:05Z",
+      "from": "pc-f1-r231-ring-investigator",
+      "to": "mac",
+      "kind": "decision-request",
+      "ref": "req-01M4SS2P28X3BJ3T0XA0XFGW2F",
+      "session": "pc-f1-r231-ring-investigator"
+    },
+    {
+      "id": "mail-01M4SS2V8MGBVXZ3CYFMXYEAQ6",
+      "ts": "2026-10-13T04:42:11Z",
+      "from": "pc-f1-r231-ring-investigator",
+      "to": "pc-f1-r230-cleanup1",
+      "kind": "done",
+      "ref": "docs/proof/win-gpu-f1-preflight/attempt-1/cleanup/desktop-ring-r231-investigation.md",
+      "session": "pc-f1-r231-ring-investigator"
+    },
+    {
+      "id": "mail-01M4ST1EM7AJ3Q6NNP3PABSCJN",
+      "ts": "2026-10-13T04:58:53Z",
+      "from": "pc",
+      "to": "mac",
+      "kind": "decision-request",
+      "ref": "PR#34-comment-6138580964",
+      "session": "pc"
+    },
+    {
+      "id": "mail-01M4STGP77WCDCVT7AK80HEKNH",
+      "ts": "2026-10-13T05:07:13Z",
+      "from": "pc",
+      "to": "mac",
+      "kind": "kick",
+      "ref": "mail-01M4ST1EM7AJ3Q6NNP3PABSCJN",
+      "session": "pc"
+    },
+    {
+      "id": "mail-01M4SWN2E06059XSSCFQDA54Y4",
+      "ts": "2026-10-13T05:44:33Z",
+      "from": "pc",
+      "to": "mac",
+      "kind": "decision-request",
+      "ref": "PR#34-R232-reader",
+      "session": "pc"
+    },
+    {
+      "id": "mail-01M4SY51N6A1K9MH1WGPQGPD18",
+      "ts": "2026-10-13T06:10:46Z",
+      "from": "pc-f1-r233-repairs-integration",
+      "to": "pc-f1-r230-cleanup1",
+      "kind": "done",
+      "ref": "docs/proof/win-gpu-f1-preflight/composite-r233.md@b74af1e4",
+      "session": "pc-f1-r233-repairs-integration"
+    },
+    {
+      "id": "mail-01M4SYYS319ZM4WR680990PTXH",
+      "ts": "2026-10-13T06:24:49Z",
+      "from": "pc",
+      "to": "mac",
+      "kind": "decision-request",
+      "ref": "https://github.com/timianmalloo/CFD-Workbench/pull/34#issuecomment-6139627881",
+      "session": "pc"
+    },
+    {
+      "id": "mail-01M4T04BM94GMEE0EAZX912FWG",
+      "ts": "2026-10-13T06:45:20Z",
+      "from": "pc",
+      "to": "mac",
+      "kind": "kick",
+      "ref": "https://github.com/timianmalloo/CFD-Workbench/pull/34#issuecomment-6139627881",
+      "session": "pc"
+    },
+    {
+      "id": "mail-01M4V6HAJS9VTHGQZKGA29Z3BJ",
+      "ts": "2026-10-13T17:56:31Z",
+      "from": "pc",
+      "to": "mac",
+      "kind": "decision-request",
+      "ref": "https://github.com/timianmalloo/CFD-Workbench/pull/34",
+      "session": "pc"
+    },
+    {
+      "id": "mail-01M4V8FY86M1ATJ66TTDX7ZJBX",
+      "ts": "2026-10-13T18:30:43Z",
+      "from": "pc-f1-offline-followups",
+      "to": "pc-f1-r230-cleanup1",
+      "kind": "done",
+      "ref": "docs/proof/win-gpu-f1-preflight/offline-followups.md",
+      "session": "pc-f1-offline-followups"
+    },
+    {
+      "id": "mail-01M531X80R67WJ0577J2XCDN28",
+      "ts": "2026-10-16T19:09:34Z",
+      "from": "pc-laptop-leader",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M531X8063WD9TAXPNGD8YEW6",
+      "session": "pc-laptop-leader"
+    },
+    {
+      "id": "mail-01M531X8M0TJ3PEKQD0Q4GEM7T",
+      "ts": "2026-10-16T19:09:35Z",
+      "from": "operator-timianmalloo",
+      "to": "pc-laptop-leader",
+      "kind": "ruling",
+      "ref": "req-01M531X8063WD9TAXPNGD8YEW6",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M531X91HPQ4RSKEK7BJW9JTC",
+      "ts": "2026-10-16T19:09:35Z",
+      "from": "pc-laptop-leader",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M531X90WAF27DM99TXX3J2Y3",
+      "session": "pc-laptop-leader"
+    },
+    {
+      "id": "mail-01M531X9JV3VQF55DJ5HW947X4",
+      "ts": "2026-10-16T19:09:36Z",
+      "from": "operator-timianmalloo",
+      "to": "pc-laptop-leader",
+      "kind": "ruling",
+      "ref": "req-01M531X90WAF27DM99TXX3J2Y3",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M532C5CSCXH9BG86C35HJA52",
+      "ts": "2026-10-16T19:17:43Z",
+      "from": "pc-laptop-leader",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M532C5C0E97EA1GHYJDK7ZWS",
+      "session": "pc-laptop-leader"
+    },
+    {
+      "id": "mail-01M532C5ZBKF9W460G35TXNXQE",
+      "ts": "2026-10-16T19:17:44Z",
+      "from": "operator-timianmalloo",
+      "to": "pc-laptop-leader",
+      "kind": "ruling",
+      "ref": "req-01M532C5C0E97EA1GHYJDK7ZWS",
+      "session": "operator-timianmalloo"
     }
   ]
 };
