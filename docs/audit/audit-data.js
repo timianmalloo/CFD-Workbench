@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-18T20:45:08Z",
+  "generated": "2026-10-18T20:47:33Z",
   "audit": [
     {
       "actor": null,
@@ -39111,6 +39111,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-18T20:42:21Z",
       "duration_seconds": 167.0
+    },
+    {
+      "id": "al-01M58CA20SMFG6FP7C8PT1D3V2",
+      "shortname": "join-laptop-handoff",
+      "datetime": "2026-10-18T20:47:32Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "the join of docs/laptop-handoff-2026-10-16 into main (docs-only: the laptop setup handoff, the laptop and operator session logs, the docs index). Merge conflicts: the pc-laptop-leader session log (union) and docs/docs-index.js (derived, regenerated with docs-graph.py derive). recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Join the stack into main with the ring green per join",
+      "done_when": "main carries old-pc-session-logs, rulings-237-238, the owned-check test fix, build/sdk-10.0.402, investigate/drain-holder and the laptop handoff with readiness green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-18T20:46:19Z",
+      "duration_seconds": 73.0
     }
   ],
   "changes": [
