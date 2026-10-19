@@ -16,10 +16,10 @@ import transaction
 
 
 def assert_cleanup_stage_scope(data):
-    """Offline-fast: only delete-debs may differ from the accepted source (re-pinned at Ruling 240 nodes C1 and C2; 02ec2cc3 before Ruling 237)."""
+    """Offline-fast: only delete-debs may differ from the accepted source (re-pinned at Ruling 240 nodes C1, C2 and C3; 02ec2cc3 before Ruling 237)."""
     prefix, tail = data.split(b'    delete-debs)\n', 1)
     suffix = tail.split(b'    *)', 1)[1]
-    assert hashlib.sha256(prefix).hexdigest() == '0c47712ee503f6af6a0c669862a5692854630cec2452b2f1caae0dbb8295f3c1', 'non-cleanup packet stage changed'
+    assert hashlib.sha256(prefix).hexdigest() == 'f0678550906d8616b1fcae888bc69c877b5fcaa50ae2eaa97b45521ef08a4271', 'non-cleanup packet stage changed'
     assert hashlib.sha256(suffix).hexdigest() == '5f944b439dcdb44a87e81a051cfd0c670348f7e6e49a1bdf0623d25295beaefa', 'packet dispatch suffix changed'
     assert b'"${packet_root}/../recovery/check_cache.py" --mode delete --cache "$cache"' in tail, 'pinned cache helper missing'
 

@@ -516,7 +516,7 @@ function Invoke-Stage([string]$Stage, [int]$CapSeconds, [bool]$NewWork, [bool]$G
     $linuxPacket = Convert-LinuxPath $PacketRoot
     $command = @('/bin/bash', "$linuxPacket/preflight.sh", '--stage', $Stage,
         '--run-root', (Convert-LinuxPath $Live), '--packet-root', $linuxPacket,
-        '--b2-lock', (Convert-LinuxPath (Join-Path $RepoRoot 'docs\proof\win-gpu-b2\package-lock.json')),
+        '--b2-licences', (Convert-LinuxPath (Join-Path $RepoRoot 'docs\proof\win-gpu-b2\license-map.json')),
         '--openfoam-key', (Convert-LinuxPath $OpenFoamKeyring),
         '--nvidia-key', (Convert-LinuxPath $NvidiaKeyring),
         '--openfoam-fingerprint', $OpenFoamFingerprint, '--run-id', $RunId,
@@ -837,7 +837,6 @@ try {
         invocation_contract_sha256=$script:ContractSha
         accepted_packet_commit=$contractData.accepted_packet_commit
         leader='mac'; leader_epoch=$contractData.leader_epoch; execution_branch=$executionBranch; execution_session=$AgentSession
-        b2_lock_sha256=$contractData.inputs.b2_lock.sha256
         b2_licenses_sha256=$contractData.inputs.b2_licenses.sha256
         openfoam_key_sha256=(Get-FileHash -Algorithm SHA256 -LiteralPath $OpenFoamKeyring).Hash.ToLowerInvariant()
         nvidia_key_sha256=(Get-FileHash -Algorithm SHA256 -LiteralPath $NvidiaKeyring).Hash.ToLowerInvariant()

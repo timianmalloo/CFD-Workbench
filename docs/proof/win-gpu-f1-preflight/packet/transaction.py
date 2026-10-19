@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Ruling 217 metadata-only apt lock and downloaded-archive inspection."""
+"""Ruling 217 metadata-only apt lock and downloaded-archive inspection.
+
+Lock model (Ruling 237 (1), plan f1-rescope-r237 node C3): the roots are pins the publisher keeps (release roots and
+unversioned tool names); the run on each architecture resolves them and writes its own transaction-lock.json,
+hashed against that run's signed indices. No prior lock is an input.
+"""
 from __future__ import annotations
 
 import argparse
@@ -17,7 +22,8 @@ import architecture
 INST = re.compile(r"^Inst\s+(\S+)(?:\s+\[([^]]+)\])?\s+\((\S+)\s+")
 URI = re.compile(r"^'([^']+)'\s+(\S+)\s+(\d+)\s+(\S+)$")
 FORBIDDEN = re.compile(r"^(?:cuda-drivers(?:$|-)|nvidia-(?:driver|dkms|kernel|headless|open)(?:$|-)|linux-(?:modules|objects)-nvidia(?:$|-))")
-EXTRA_ROOTS = (
+PINS = (
+    "cuda-toolkit-13-2=13.2.2-1",
     "openfoam2512=2512.0-2", "openfoam2512-common=2512.0-2",
     "openfoam2512-dev=2512.0-2", "openfoam2512-source=2512.0-2",
     "openfoam2512-tools=2512.0-2", "gcc-13", "g++-13", "gfortran-13", "openmpi-bin",
@@ -25,9 +31,19 @@ EXTRA_ROOTS = (
 )
 
 
-def extra_roots(token: str) -> tuple[str, ...]:
-    """The F1 roots beyond the B2 lock; `make` is asked for per architecture (Ruling 237)."""
-    return EXTRA_ROOTS + (architecture.row(token)["make_root"],)
+def pinned_roots(token: str) -> tuple[str, ...]:
+    """The pins the run resolves: the toolkit and OpenFOAM release roots, the tool names, and `make` per architecture."""
+    return PINS + (architecture.row(token)["make_root"],)
+
+
+def check_pins(rows: list[tuple[str, str, str]], pins: tuple[str, ...] | list[str]) -> None:
+    """Every pin is an install row of the simulated transaction, at the pinned version when one is given."""
+    versions = {name: version for name, _old, version in rows}
+    for pin in pins:
+        name, _sep, version = pin.partition("=")
+        name = name.split(":", 1)[0]   # make:<arch> is the row `make` on its native architecture
+        if name not in versions or (version and versions[name] != version):
+            raise ValueError(f"pinned root absent from the transaction: {pin}")
 
 
 def write_json(path: Path, value: object) -> None:
@@ -61,22 +77,9 @@ def paragraphs(text: str) -> list[dict[str, str]]:
 
 
 def roots(args: argparse.Namespace) -> None:
-    extras = extra_roots(args.architecture)
-    b2 = json.loads(args.b2_lock.read_text(encoding="utf-8"))
-    if b2.get("package_count") != 135 or len(b2["packages"]) != 135:
-        raise ValueError("B2 lock is not the frozen 135-row lock")
-    selected = {item["package"]: item["version"] for item in b2["packages"]}
-    if len(selected) != 135:
-        raise ValueError("duplicate B2 package name")
-    values = [f"{name}={version}" for name, version in sorted(selected.items())]
-    for value in extras:
-        name = value.split("=", 1)[0]
-        if name not in selected:
-            values.append(value)
-        elif "=" in value and selected[name] != value.split("=", 1)[1]:
-            raise ValueError(f"B2 root conflicts with F1: {value}")
+    values = pinned_roots(args.architecture)
     args.output.write_text("\n".join(values) + "\n", encoding="utf-8", newline="\n")
-    print(f"ROOTS-PASS b2=135 extras={len(values)-135}")
+    print(f"ROOTS-PASS pins={len(values)} architecture={args.architecture}")
 
 
 def metadata(package: str, version: str) -> dict[str, str]:
@@ -156,12 +159,17 @@ def match_uri(filename: str, size: int, uris: dict[str, tuple[str, int]]) -> tup
 
 
 def lock(args: argparse.Namespace) -> None:
+    token = args.architecture
+    pins = pinned_roots(token)
     selected = simulation_rows(args.simulation)
+    check_pins(selected, pins)   # before any index read: an absent pin never reaches apt-cache
     uris = uri_rows(args.uris)
     packages = []
     consumed = set()
     for name, old, version in selected:
         row = metadata(name, version)
+        if row["Architecture"] not in (token, "all"):
+            raise ValueError(f"row architecture differs from the host: {name} is {row['Architecture']}, host {token}")
         filename = Path(row["Filename"]).name
         cache_name, url = match_uri(filename, int(row["Size"]), uris)
         consumed.add(cache_name)
@@ -176,15 +184,9 @@ def lock(args: argparse.Namespace) -> None:
         })
     if consumed != set(uris):
         raise ValueError(f"URI/transaction set differs: unused={sorted(set(uris)-consumed)[:5]}")
-    names = {item["package"]: item["version"] for item in packages}
-    required = {"cuda-toolkit-13-2": "13.2.2-1", "openfoam2512": "2512.0-2",
-                "openfoam2512-common": "2512.0-2", "openfoam2512-dev": "2512.0-2",
-                "openfoam2512-source": "2512.0-2", "openfoam2512-tools": "2512.0-2"}
-    for name, version in required.items():
-        if names.get(name) != version:
-            raise ValueError(f"required F1 root absent: {name}={version}")
     document = {
-        "schema": "cfdw-f1-r217-transaction-lock/1", "installable": False,
+        "schema": "cfdw-f1-r217-transaction-lock/2", "installable": False, "architecture": token,
+        "pins": list(pins),
         "removals": 0, "recommendations": "excluded", "packages": packages,
         "package_count": len(packages),
         "total_download_bytes_signed_index": sum(x["download_bytes_signed_index"] for x in packages),
@@ -196,7 +198,8 @@ def lock(args: argparse.Namespace) -> None:
     write_json(args.output, document)
     args.args.write_text("".join(f"{x['package']}={x['version']}\n" for x in packages),
                          encoding="utf-8", newline="\n")
-    print(f"LOCK-PASS packages={len(packages)} download={document['total_download_bytes_signed_index']}")
+    print(f"LOCK-PASS architecture={token} pins={len(pins)} packages={len(packages)} "
+          f"download={document['total_download_bytes_signed_index']}")
 
 
 def control_field(path: Path, name: str) -> str:
@@ -369,6 +372,14 @@ def self_test() -> None:
         else:
             raise AssertionError("planted Linux driver passed")
     assert len(paragraphs("Package: a\nVersion: 1\n\nPackage: b\nVersion: 2\n")) == 2
+    check_pins([("make", "Not installed", "4.3"), ("gcc-13", "Not installed", "13.3")], ("make:arm64", "gcc-13"))
+    for pins in (("make:arm64", "gcc-13", "g++-13"), ("make=4.4",)):
+        try:
+            check_pins([("make", "Not installed", "4.3"), ("gcc-13", "Not installed", "13.3")], pins)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("planted absent pin passed")
     uri = "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/./nsight_1-1_amd64.deb"
     assert match_uri("nsight_1-1_amd64.deb", 5, {"nsight_1-virtual_amd64.deb": (uri, 5)}) == (
         "nsight_1-virtual_amd64.deb", uri)
@@ -379,7 +390,6 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     commands = parser.add_subparsers(dest="command", required=True)
     roots_parser = commands.add_parser("roots")
-    roots_parser.add_argument("--b2-lock", type=Path, required=True)
     roots_parser.add_argument("--architecture", required=True)
     roots_parser.add_argument("--output", type=Path, required=True)
     lock_parser = commands.add_parser("lock")
@@ -387,6 +397,7 @@ def main() -> None:
     lock_parser.add_argument("--uris", type=Path, required=True)
     lock_parser.add_argument("--output", type=Path, required=True)
     lock_parser.add_argument("--args", type=Path, required=True)
+    lock_parser.add_argument("--architecture", required=True)
     verify_parser = commands.add_parser("verify")
     verify_parser.add_argument("--lock", type=Path, required=True)
     verify_parser.add_argument("--archives", type=Path, required=True)

@@ -3,7 +3,7 @@
 set -euo pipefail
 export LC_ALL=C DEBIAN_FRONTEND=noninteractive
 if (($# != 22)) || [[ "$1" != "--stage" || "$3" != "--run-root" || "$5" != "--packet-root" ||
-                     "$7" != "--b2-lock" || "$9" != "--openfoam-key" ||
+                     "$7" != "--b2-licences" || "$9" != "--openfoam-key" ||
                      "${11}" != "--nvidia-key" || "${13}" != "--openfoam-fingerprint" ||
                      "${15}" != "--run-id" || "${17}" != "--contract" ||
                      "${19}" != "--contract-sha256" || "${21}" != "--architecture" ]]; then
@@ -13,7 +13,7 @@ fi
 stage=$2
 run_root=$4
 packet_root=$6
-b2_lock=$8
+b2_licences=$8
 openfoam_key=${10}
 nvidia_key=${12}
 openfoam_fingerprint=${14}
@@ -145,7 +145,7 @@ case "$stage" in
         [[ -f "${run_root}/signed-indices/packages.tar.xz" ]] || exit 65
         dpkg-query -W -f='${binary:Package}\t${Version}\t${Architecture}\n' \
             > "${run_root}/baseline-packages.tsv"
-        python3 "${packet_root}/transaction.py" roots --b2-lock "$b2_lock" --architecture "$architecture" \
+        python3 "${packet_root}/transaction.py" roots --architecture "$architecture" \
             --output "${run_root}/roots.args"
         mapfile -t roots < "${run_root}/roots.args"
         apt-get --simulate --no-install-recommends install "${roots[@]}" \
@@ -154,7 +154,8 @@ case "$stage" in
             > "${run_root}/apt-uris.stdout.txt" 2> "${run_root}/apt-uris.stderr.txt"
         python3 "${packet_root}/transaction.py" lock \
             --simulation "${run_root}/apt-simulate.stdout.txt" --uris "${run_root}/apt-uris.stdout.txt" \
-            --output "${run_root}/transaction-lock.json" --args "${run_root}/transaction.args"
+            --output "${run_root}/transaction-lock.json" --args "${run_root}/transaction.args" \
+            --architecture "$architecture"
         mapfile -t exact < "${run_root}/transaction.args"
         apt-get --simulate --no-install-recommends install "${exact[@]}" \
             > "${run_root}/apt-exact-simulate.stdout.txt" 2> "${run_root}/apt-exact-simulate.stderr.txt"
@@ -174,7 +175,7 @@ case "$stage" in
             --lock "${run_root}/transaction-lock.json" --archives "$cache" \
             --licences "${run_root}/license-map.json" --capacity "${run_root}/capacity.json" \
             --guest-capacity "${run_root}/guest-capacity.txt" --host-capacity "${run_root}/host-capacity.jsonl" \
-            --b2-licences "$(dirname "$b2_lock")/license-map.json"
+            --b2-licences "$b2_licences"
         ;;
     delete-debs)
         /usr/bin/python3 "${packet_root}/../recovery/check_cache.py" --mode delete --cache "$cache"

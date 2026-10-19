@@ -18,7 +18,7 @@ OPENFOAM = "DC93C096174122E256DA24063386DD74948D208F"
 NVIDIA = "EB693B3035CD5710E231E123A4B469963BF863CC"
 PACKET = "docs/proof/win-gpu-f1-preflight/packet"
 INPUT_KEYS = ("rootfs", "ubuntu_sums", "ubuntu_signature", "openfoam_keyring",
-              "nvidia_keyring", "b2_lock", "b2_licenses")
+              "nvidia_keyring", "b2_licenses")   # the B2 lock left the input set at node C3 (Ruling 237 (1))
 FPR = re.compile(r"^[A-F0-9]{40}$")
 SHA = re.compile(r"^[a-f0-9]{64}$")
 TARGET_NAME = "cfdw-petsc-cuda132-f1"
@@ -224,7 +224,6 @@ def verify(args: argparse.Namespace) -> None:
     paths = {"rootfs": args.rootfs, "ubuntu_sums": args.ubuntu_sums,
              "ubuntu_signature": args.ubuntu_signature, "openfoam_keyring": args.openfoam_keyring,
              "nvidia_keyring": args.nvidia_keyring,
-             "b2_lock": repo / "docs/proof/win-gpu-b2/package-lock.json",
              "b2_licenses": repo / "docs/proof/win-gpu-b2/license-map.json"}
     for name, actual in paths.items():
         full = actual.resolve(strict=True)
@@ -233,7 +232,7 @@ def verify(args: argparse.Namespace) -> None:
             raise ValueError(f"input path changed: {name}")
         check_file_hash(row["sha256"], full)
     if proposed:
-        print('PREPARATION-CONTRACT-PASS inputs=7 live_authority=False')
+        print('PREPARATION-CONTRACT-PASS inputs=6 live_authority=False')
         return
     leader_args = [sys.executable, str(repo / "docs/ai-forward-pack/scripts/coord-core.py"), "leader", "who"]
     if document.get('attempt') == 2:

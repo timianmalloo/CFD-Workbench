@@ -30,13 +30,12 @@ INPUT_HASHES = {
     'ubuntu_signature': 'c0deb277ccda24b8fcc2d36bf9d9530c0aed7138f30375dc45b6539a6aa6799b',
     'openfoam_keyring': '6d17d37b82fc840b8a5c767545703df7264cfa3e30f9cf74556ebb124bda1a93',
     'nvidia_keyring': '25100d6f2eccaee7d6719a70e3c0c6145064aa9edc2c32148f693ac4c524a376',
-    'b2_lock': '2306d58e2fb0d728195ee2691cb7faab7c651e04bb70746f242310834d61e76c',
     'b2_licenses': '470de11258ff4e78a05a38cb3d1c75090387c79b2cc3b06fc3534e9eee5da4d6',
 }
 
 
 def input_hashes(token):
-    """The seven reviewed input hashes for one architecture: the rootfs pin follows the token (Ruling 237)."""
+    """The six reviewed input hashes for one architecture: the rootfs pin follows the token (Ruling 237)."""
     return dict(INPUT_HASHES, rootfs=architecture.row(token)['rootfs_sha256'])
 SIGNERS = {
     'ubuntu_rootfs': ['D2EB44626FDDC30B513D5BB71A5D6C4C7DB87C81', '4A3CE3CD565D7EB5C810E2B97FF3F408476CF100'],
@@ -84,10 +83,9 @@ def check_binding(document, run_id=None):
             raise ValueError('attempt-2 execution worktree must be explicit and canonical')
         if worktree.lower().endswith('cfd-workbench-win-gpu-f1-r225-attempt1'):
             raise ValueError('attempt-1 execution worktree is retired')
-        for key, name in (('b2_lock', 'package-lock.json'), ('b2_licenses', 'license-map.json')):
-            path = str(PureWindowsPath(worktree) / 'docs/proof/win-gpu-b2' / name)
-            if document.get('inputs', {}).get(key, {}).get('path') != path:
-                raise ValueError('attempt-2 B2 input path differs from execution worktree')
+        path = str(PureWindowsPath(worktree) / 'docs/proof/win-gpu-b2/license-map.json')
+        if document.get('inputs', {}).get('b2_licenses', {}).get('path') != path:
+            raise ValueError('attempt-2 B2 input path differs from execution worktree')
     for key, value in expected.items():
         if document.get(key) != value:
             raise ValueError('attempt binding changed: ' + key)
@@ -97,7 +95,7 @@ def check_binding(document, run_id=None):
         raise ValueError('invoked RunId differs from reviewed attempt')
     hashes = input_hashes(document.get('architecture'))
     if set(document.get('inputs', {})) != set(hashes):
-        raise ValueError('exact seven reviewed inputs required')
+        raise ValueError('exact six reviewed inputs required')
     for key, value in hashes.items():
         if document['inputs'][key].get('sha256') != value:
             raise ValueError('accepted input hash changed: ' + key)

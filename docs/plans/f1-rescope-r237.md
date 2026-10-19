@@ -130,7 +130,7 @@ LOCK-PINS-A-MOVING-SUITE records it with this plan as the control.
 | Protected distro: exactly one `cfdw-openfoam2512` registration, its GUID and `%USERPROFILE%` path, the keepalive on CPU 0, `verify-rootfs.sh` run inside it | `Control.ps1` Assert-FreshRegistrations, `attempt.py` PROTECTED_KEY/PROTECTED_PATH/KEEPALIVE, `Invoke-Preflight.ps1` | **changed under DR-1 (b):** `protected` becomes a contract field with a `none` state; with `none` the registration check no longer requires a protected row (other registrations, such as the stock `Ubuntu-24.04`, are neither required nor refused, as today for any non-target, non-protected row), the guard records `not applicable`, and the rootfs signature is verified on the Windows side (C4). With a declared protected distro everything stays as today | changed, said here; DR-1 |
 | Rootfs name and hash | `contract.py` ROOTFS, `Invoke-Preflight.ps1` $RootfsSha256, `verify-rootfs.sh` basename check, `attempt.py` INPUT_HASHES | a per-architecture table (name, SHA-256), one producer (§5 C1) | kept (per architecture) |
 | apt sources `arch=amd64`, `archive.ubuntu.com`, `ubuntu2404/x86_64` | `preflight.sh` repositories stage; the InRelease-to-keyring map | per-architecture rows from the same table; the five-index count stays; `ports.ubuntu.com` joins the Ubuntu keyring map | kept (signed indices) |
-| `make:amd64`, 135 `name=version` roots | `transaction.py` EXTRA_ROOTS, roots() | `make:<arch>`; roots are the pins (§4.2) | kept (simulate then download only) |
+| `make:amd64`, 135 `name=version` roots (done, C3) | `transaction.py` EXTRA_ROOTS, roots() | `make:<arch>`; roots are the pins (§4.2) | kept (simulate then download only) |
 | `leader_epoch=8`, run id pattern, branch, session, run root for attempt 2 | `attempt.py` check_binding, `Control.ps1` Get-InvocationRunRoot | attempt-2 selections chosen again on the laptop (Ruling 237 (2)); the same binding shape | kept |
 | Old-PC registry GUIDs (retired target keys) | `attempt.py`, `Control.ps1` | keep refusing them (harmless on any host) | kept |
 | Receipts carry no architecture, CPU or GPU | `manifest.py`, the attempt-1 README | `host-identity.json` written before the first WSL effect and frozen with the evidence (§5 C1) | added (Ruling 238 (1)) |
@@ -252,6 +252,17 @@ carries the run itself.
   (`tools/run-f1-powershell-suites.ps1`, 15685 ms for 18 runs on the laptop), failing `F1-PS-EMULATED` or
   `F1-PS-MODULES` before any suite. Finding beyond the plan: register entry PWSH-CHILD-INHERITS-CORE-MODULE-PATH (a 5.1
   child of a pwsh script loses `Get-FileHash` until it gets its own module path). Duration: the join's audit entry.
+- **C3 (2026-10-19).** Planned: pinned roots, `--b2-lock` and the 135-row check leave, the lock carries `architecture`,
+  three named tests. Actual: `transaction.py` `PINS` (the toolkit and OpenFOAM release roots, the tool names,
+  `make:<arch>`), `pinned_roots`, `check_pins` (run by `lock` before any index read), the lock schema `/2` with
+  `architecture` and `pins` and a per-row architecture check; `roots` takes `--architecture` only. Beyond the node's
+  text, as section 4.2 says: the B2 lock left the input set (`contract.INPUT_KEYS` and `attempt.INPUT_HASHES` are
+  six, `preflight.sh` takes `--b2-licences` in the slot `--b2-lock` held, the launcher passes `license-map.json`,
+  the final precheck drops `b2_lock_sha256`; a contract still listing the lock refuses as `exact six reviewed
+  inputs`). Tests: `tests/test_f1_transaction_roots.py` (the three named tests, plus the lock document carrying
+  `architecture` and the input-set exit); 140 Python tests green; 9 PowerShell suites green on both native
+  runtimes (16810 ms for 18 runs); the packet self-tests green; the stage-scope pin re-based. The
+  LOCK-PINS-A-MOVING-SUITE control now names these tests. Duration: the join's audit entry.
 
 ## 10. Gate record
 

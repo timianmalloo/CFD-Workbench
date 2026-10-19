@@ -22,8 +22,8 @@ def fixture(epoch=19):
                 attempt=2, leader_epoch=epoch, execution_branch='win/gpu-f1-attempt2',
                 session='pc-f1-attempt2', run_id='f1-attempt2-20261013',
                 run_root=attempt.PREFIX + '/attempt-2', execution_worktree=r'C:\Projects\f1-execution')
-    for key, file in (('b2_lock', 'package-lock.json'), ('b2_licenses', 'license-map.json')):
-        data['inputs'][key]['path'] = data['execution_worktree'] + '\\docs\\proof\\win-gpu-b2\\' + file
+    del data['inputs']['b2_lock']   # the committed attempt-1 contract is /1; the B2 lock left the input set at C3
+    data['inputs']['b2_licenses']['path'] = data['execution_worktree'] + '\\docs\\proof\\win-gpu-b2\\license-map.json'
     data['external_sha256']['docs/ai-forward-pack/scripts/coord-core.py'] = 'b'*64
     return data
 
@@ -43,11 +43,14 @@ class AttemptTwoTests(unittest.TestCase):
                 contract.check_contract_fields(dict(fixture(), **{key: value}))
 
     def test_Binding_B2OldWorktreeOrTraversal_Refuses(self):
-        for key in ('b2_lock', 'b2_licenses'):
-            data = fixture()
-            data['inputs'][key]['path'] = r'C:\Projects\old-attempt1\file.json'
-            with self.subTest(key=key), self.assertRaises(ValueError):
-                contract.check_contract_fields(data)
+        data = fixture()
+        data['inputs']['b2_licenses']['path'] = r'C:\Projects\old-attempt1\file.json'
+        with self.assertRaises(ValueError):
+            contract.check_contract_fields(data)
+        data = fixture()   # a contract that still lists the B2 lock as an input is refused: nothing reads it
+        data['inputs']['b2_lock'] = dict(data['inputs']['b2_licenses'])
+        with self.assertRaisesRegex(ValueError, 'exact six reviewed inputs'):
+            contract.check_contract_fields(data)
         for path in (r'C:\Projects\foo\..\old', 'relative', ''):
             with self.subTest(path=path), self.assertRaises(ValueError):
                 contract.check_contract_fields(dict(fixture(), execution_worktree=path))

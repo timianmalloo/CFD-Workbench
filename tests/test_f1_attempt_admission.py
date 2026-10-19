@@ -24,6 +24,7 @@ def fixture():
                  session='pc-f1-r225-attempt1', run_id='r225-attempt1-epoch8-20261012',
                  run_root='docs/proof/win-gpu-f1-preflight/attempt-1')
     value['external_sha256'] = {attempt.EXTERNAL: hashlib.sha256((ROOT / attempt.EXTERNAL).read_bytes()).hexdigest()}
+    del value['inputs']['b2_lock']   # the committed run-1 contract is /1; the B2 lock left the input set at C3
     return value
 
 
@@ -100,9 +101,13 @@ class AttemptAdmissionTests(unittest.TestCase):
         # the path check (Rulings 237, 238 (3)), so the claims are made on the same document lifted to /2 with the
         # floors the committed authorization recorded.
         lifted = dict(data, schema='cfdw-f1-r217-invocation/2', architecture='amd64',
-                      host_start_floor_bytes=19684091961, host_reserve_bytes=10737418240)
-        attempt.check_authorization(live, lifted, sha)
-        attempt.check_authorization(projection, lifted, sha)
+                      host_start_floor_bytes=19684091961, host_reserve_bytes=10737418240,
+                      inputs={key: value for key, value in data['inputs'].items() if key != 'b2_lock'})
+        # The committed attempt-1 authorization projected the /1 seven-input map (the B2 lock left the input set at
+        # C3), so the projection equality is claimed over that map; the binding and path claims use the /2 input set.
+        committed_inputs = dict(lifted, inputs=data['inputs'])
+        attempt.check_authorization(live, committed_inputs, sha)
+        attempt.check_authorization(projection, committed_inputs, sha)
         with self.assertRaisesRegex(ValueError, 'outside exact live path'):
             attempt.verify_authorization(ROOT, projection_path, lifted, sha, data['run_id'], data['run_id'])
 
@@ -118,11 +123,10 @@ class AttemptAdmissionTests(unittest.TestCase):
             path.write_bytes(raw)
         data['packet_sha256'] = {packet_name: hashlib.sha256(packet_bytes).hexdigest()}
         data['external_sha256'] = {attempt.EXTERNAL: hashlib.sha256(helper_bytes).hexdigest()}
-        for key, name in (('b2_lock', 'package-lock.json'), ('b2_licenses', 'license-map.json')):
-            path = root / 'docs/proof/win-gpu-b2' / name
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes((ROOT / 'docs/proof/win-gpu-b2' / name).read_bytes())
-            data['inputs'][key]['path'] = str(path.resolve())
+        path = root / 'docs/proof/win-gpu-b2/license-map.json'
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes((ROOT / 'docs/proof/win-gpu-b2/license-map.json').read_bytes())
+        data['inputs']['b2_licenses']['path'] = str(path.resolve())
         contract_path = root / data['run_root'] / 'invocation-contract.json'
         contract_path.parent.mkdir(parents=True)
         contract_raw = (json.dumps(data) + '\n').encode()
