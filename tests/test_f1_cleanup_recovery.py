@@ -324,14 +324,15 @@ class RecoveryTests(unittest.TestCase):
             recovery.validate_absence([protected, surviving], [recovery.PROTECTED, 'renamed'], False, protected)
 
     def test_Packet_OnlyDeletionBranchChangesAndUsesPinnedHelper(self):
-        import subprocess
-        relative = 'docs/proof/win-gpu-f1-preflight/packet/preflight.sh'
-        original = subprocess.run(['git', 'show', '02ec2cc3:' + relative], cwd=ROOT, check=True, capture_output=True).stdout
-        current = (ROOT / relative).read_bytes()
-        old_prefix, old_deletion = original.split(b'    delete-debs)\n', 1)
-        new_prefix, new_deletion = current.split(b'    delete-debs)\n', 1)
-        self.assertEqual(new_prefix, old_prefix)
-        self.assertEqual(new_deletion.split(b'    *)', 1)[1], old_deletion.split(b'    *)', 1)[1])
+        # The non-deletion stages are pinned once, in packet_selftest.assert_cleanup_stage_scope (re-pinned only by an
+        # accepted re-scope node, Ruling 240); 02ec2cc3 was the pin before Ruling 237. A change to any other stage
+        # must change that pin in the same commit.
+        packet = ROOT / recovery.REL / 'packet'
+        with patch.object(sys, 'path', [str(packet), *sys.path]):
+            selftest = importlib.import_module('packet_selftest')
+        current = (packet / 'preflight.sh').read_bytes()
+        selftest.assert_cleanup_stage_scope(current)
+        new_deletion = current.split(b'    delete-debs)\n', 1)[1]
         self.assertIn(b'check_cache.py', new_deletion)
         self.assertIn(b'--mode delete', new_deletion)
 

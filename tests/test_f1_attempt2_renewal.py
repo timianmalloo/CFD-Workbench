@@ -154,10 +154,11 @@ class RenewalTests(unittest.TestCase):
             live.mkdir()
             for name in attempt.RENEWAL_EVIDENCE:
                 (live / name).write_bytes(b'{}\n' if name.endswith(('.json', '.jsonl')) else b'')
+            (live / 'host-identity.json').write_bytes(b'{}\n')  # required by every freeze (Ruling 238 (1))
             frozen = Path(tmp) / 'final'
             manifest.freeze(live, frozen)
             captured = {row['path'] for row in json.loads((frozen / 'capture-manifest.json').read_bytes())['files']}
-            self.assertEqual(captured, set(attempt.RENEWAL_EVIDENCE))
+            self.assertEqual(captured, set(attempt.RENEWAL_EVIDENCE) | {'host-identity.json'})
             for name in captured:
                 self.assertEqual((frozen / name).read_bytes(), (live / name).read_bytes())
 

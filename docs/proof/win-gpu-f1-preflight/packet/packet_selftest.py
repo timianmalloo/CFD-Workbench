@@ -9,16 +9,17 @@ import time
 from pathlib import PurePosixPath
 from subprocess import CompletedProcess
 
+import architecture
 import contract
 import owned_control
 import transaction
 
 
 def assert_cleanup_stage_scope(data):
-    """Offline-fast: only delete-debs may differ from the immutable 02ec2cc3 source."""
+    """Offline-fast: only delete-debs may differ from the accepted source (re-pinned at Ruling 240 node C1; 02ec2cc3 before Ruling 237)."""
     prefix, tail = data.split(b'    delete-debs)\n', 1)
     suffix = tail.split(b'    *)', 1)[1]
-    assert hashlib.sha256(prefix).hexdigest() == 'd4aa0f307d4f1d7cf792386a0982a4be0d50d2ecf331d6a5b6ef7938cb7eb185', 'non-cleanup packet stage changed'
+    assert hashlib.sha256(prefix).hexdigest() == '1ff7e3d41cdaa10ee93f51fd7d56017cb97c45a9faea733182ed3428dd83e774', 'non-cleanup packet stage changed'
     assert hashlib.sha256(suffix).hexdigest() == '5f944b439dcdb44a87e81a051cfd0c670348f7e6e49a1bdf0623d25295beaefa', 'packet dispatch suffix changed'
     assert b'"${packet_root}/../recovery/check_cache.py" --mode delete --cache "$cache"' in tail, 'pinned cache helper missing'
 
@@ -232,7 +233,7 @@ def main():
                                       {"DC93C096174122E256DA24063386DD74948D208F"})
     expect_failure(lambda: contract.signer_is_allowed(["[GNUPG:] VALIDSIG FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF 2026"],
                                                      {"DC93C096174122E256DA24063386DD74948D208F"}), "signer mismatch")
-    valid = {"schema": "cfdw-f1-r217-invocation/1", "leader": "mac", "leader_epoch": 5,
+    valid = {"schema": "cfdw-f1-r217-invocation/2", "architecture": "amd64", "leader": "mac", "leader_epoch": 5,
              "target": "cfdw-petsc-cuda132-f1", "protected": "cfdw-openfoam2512",
              "target_path": r"C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1",
              "accepted_packet_commit": "a" * 40,
@@ -240,7 +241,8 @@ def main():
              "allowed_signers": {"ubuntu_rootfs": ["A" * 40], "ubuntu_archive": ["B" * 40],
                                  "openfoam": [contract.OPENFOAM], "nvidia": [contract.NVIDIA]},
              "session": "r217", "execution_branch": "win/gpu-f1-r217-execute"}
-    valid["inputs"]["rootfs"]["sha256"] = contract.ROOTFS
+    valid["inputs"]["rootfs"] = {"path": "C:\\reviewed\\" + architecture.TABLE["amd64"]["rootfs_name"],
+                                "sha256": architecture.TABLE["amd64"]["rootfs_sha256"]}
     contract.check_contract_fields(valid)
     for invalid in (None, 0, -1, "5", True):
         expect_failure(lambda invalid=invalid: contract.check_contract_fields(

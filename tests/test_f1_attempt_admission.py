@@ -18,7 +18,8 @@ import attempt
 
 def fixture():
     value = json.loads((ROOT / 'docs/proof/win-gpu-f1-preflight/run-1/invocation-contract.json').read_bytes())
-    value.update(attempt=1, leader_epoch=8, execution_branch='win/gpu-f1-r225-attempt1',
+    value.update(schema='cfdw-f1-r217-invocation/2', architecture='amd64',
+                 attempt=1, leader_epoch=8, execution_branch='win/gpu-f1-r225-attempt1',
                  session='pc-f1-r225-attempt1', run_id='r225-attempt1-epoch8-20261012',
                  run_root='docs/proof/win-gpu-f1-preflight/attempt-1')
     value['external_sha256'] = {attempt.EXTERNAL: hashlib.sha256((ROOT / attempt.EXTERNAL).read_bytes()).hexdigest()}
@@ -96,8 +97,11 @@ class AttemptAdmissionTests(unittest.TestCase):
         self.assertEqual(live, projection)
         attempt.check_authorization(live, data, sha)
         attempt.check_authorization(projection, data, sha)
+        # The committed attempt-1 contract is schema /1; /2 code refuses it before the path check (Ruling 237), so the
+        # path claim is made on the same document lifted to /2.
+        lifted = dict(data, schema='cfdw-f1-r217-invocation/2', architecture='amd64')
         with self.assertRaisesRegex(ValueError, 'outside exact live path'):
-            attempt.verify_authorization(ROOT, projection_path, data, sha, data['run_id'], data['run_id'])
+            attempt.verify_authorization(ROOT, projection_path, lifted, sha, data['run_id'], data['run_id'])
 
     def verify_boundary_fixture(self, root):
         data = fixture()

@@ -12,15 +12,22 @@ import tarfile
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
+import architecture
+
 INST = re.compile(r"^Inst\s+(\S+)(?:\s+\[([^]]+)\])?\s+\((\S+)\s+")
 URI = re.compile(r"^'([^']+)'\s+(\S+)\s+(\d+)\s+(\S+)$")
 FORBIDDEN = re.compile(r"^(?:cuda-drivers(?:$|-)|nvidia-(?:driver|dkms|kernel|headless|open)(?:$|-)|linux-(?:modules|objects)-nvidia(?:$|-))")
 EXTRA_ROOTS = (
     "openfoam2512=2512.0-2", "openfoam2512-common=2512.0-2",
     "openfoam2512-dev=2512.0-2", "openfoam2512-source=2512.0-2",
-    "openfoam2512-tools=2512.0-2", "gcc-13", "g++-13", "gfortran-13", "make:amd64", "openmpi-bin",
+    "openfoam2512-tools=2512.0-2", "gcc-13", "g++-13", "gfortran-13", "openmpi-bin",
     "libopenmpi-dev", "libblas-dev", "liblapack-dev", "pkg-config",
 )
+
+
+def extra_roots(token: str) -> tuple[str, ...]:
+    """The F1 roots beyond the B2 lock; `make` is asked for per architecture (Ruling 237)."""
+    return EXTRA_ROOTS + (architecture.row(token)["make_root"],)
 
 
 def write_json(path: Path, value: object) -> None:
@@ -54,6 +61,7 @@ def paragraphs(text: str) -> list[dict[str, str]]:
 
 
 def roots(args: argparse.Namespace) -> None:
+    extras = extra_roots(args.architecture)
     b2 = json.loads(args.b2_lock.read_text(encoding="utf-8"))
     if b2.get("package_count") != 135 or len(b2["packages"]) != 135:
         raise ValueError("B2 lock is not the frozen 135-row lock")
@@ -61,7 +69,7 @@ def roots(args: argparse.Namespace) -> None:
     if len(selected) != 135:
         raise ValueError("duplicate B2 package name")
     values = [f"{name}={version}" for name, version in sorted(selected.items())]
-    for value in EXTRA_ROOTS:
+    for value in extras:
         name = value.split("=", 1)[0]
         if name not in selected:
             values.append(value)
@@ -372,6 +380,7 @@ def main() -> None:
     commands = parser.add_subparsers(dest="command", required=True)
     roots_parser = commands.add_parser("roots")
     roots_parser.add_argument("--b2-lock", type=Path, required=True)
+    roots_parser.add_argument("--architecture", required=True)
     roots_parser.add_argument("--output", type=Path, required=True)
     lock_parser = commands.add_parser("lock")
     lock_parser.add_argument("--simulation", type=Path, required=True)

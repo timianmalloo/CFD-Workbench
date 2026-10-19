@@ -1,7 +1,7 @@
 #!/bin/bash
 # Read-only Ubuntu signature and existing local rootfs verification in the protected distro.
 set -euo pipefail
-if (($# != 7)); then exit 64; fi
+if (($# != 8)); then exit 64; fi
 sums=$1
 signature=$2
 rootfs=$3
@@ -9,7 +9,9 @@ contract=$4
 packet_root=$5
 status=$6
 contract_sha256=$7
-[[ "$(basename "$rootfs")" == "ubuntu-noble-wsl-amd64-wsl.rootfs.tar.gz" ]] || exit 65
+architecture=$8
+expected_name=$(python3 "${packet_root}/architecture.py" rootfs-name --architecture "$architecture")
+[[ "$(basename "$rootfs")" == "$expected_name" ]] || exit 65
 python3 "${packet_root}/contract.py" keyring --contract "$contract" --expected-sha256 "$contract_sha256" \
     --keyring /usr/share/keyrings/ubuntu-cloudimage-keyring.gpg --kind ubuntu_rootfs
 gpgv --status-fd 1 --keyring /usr/share/keyrings/ubuntu-cloudimage-keyring.gpg "$signature" "$sums" > "$status" 2>&1

@@ -2,11 +2,11 @@
 # Each stage is a separate foreground, owned Linux session. No package installation.
 set -euo pipefail
 export LC_ALL=C DEBIAN_FRONTEND=noninteractive
-if (($# != 20)) || [[ "$1" != "--stage" || "$3" != "--run-root" || "$5" != "--packet-root" ||
+if (($# != 22)) || [[ "$1" != "--stage" || "$3" != "--run-root" || "$5" != "--packet-root" ||
                      "$7" != "--b2-lock" || "$9" != "--openfoam-key" ||
                      "${11}" != "--nvidia-key" || "${13}" != "--openfoam-fingerprint" ||
                      "${15}" != "--run-id" || "${17}" != "--contract" ||
-                     "${19}" != "--contract-sha256" ]]; then
+                     "${19}" != "--contract-sha256" || "${21}" != "--architecture" ]]; then
     printf 'preflight: exact stage argument contract required\n' >&2
     exit 64
 fi
@@ -20,7 +20,9 @@ openfoam_fingerprint=${14}
 run_id=${16}
 contract=${18}
 contract_sha256=${20}
-[[ "$run_id" =~ ^[A-Za-z0-9._-]+$ && "$openfoam_fingerprint" =~ ^[A-F0-9]{40}$ ]] || exit 65
+architecture=${22}
+[[ "$run_id" =~ ^[A-Za-z0-9._-]+$ && "$openfoam_fingerprint" =~ ^[A-F0-9]{40}$ &&
+   "$architecture" =~ ^[a-z0-9]+$ ]] || exit 65
 [[ "$stage" == probe || "$stage" == repositories || "$stage" == simulate ||
    "$stage" == download || "$stage" == inspect || "$stage" == delete-debs ]] || exit 64
 [[ "$run_root" == /mnt/c/* && "$packet_root" == /mnt/c/* ]] || exit 65
@@ -62,6 +64,21 @@ case "$stage" in
         }
         printf 'device=%s\nblock_bytes=%s\nfilesystem_bytes=%s\nfree_bytes=%s\nmaximum_bytes=%s\n' \
             "$source_device" "$block_bytes" "$fs_bytes" "$free_bytes" "$max" > "${run_root}/guest-capacity.txt"
+        # Ruling 238 (1): what the fresh guest reports; the host compares it with host-identity.json before any
+        # network stage (architecture.py check). The GPU name is recorded when WSL exposes nvidia-smi, else absent.
+        dpkg_architecture=$(dpkg --print-architecture)
+        uname_m=$(uname -m)
+        nvidia_smi_name=absent
+        if [[ -x /usr/lib/wsl/lib/nvidia-smi ]]; then
+            nvidia_smi_name=$(timeout 20 /usr/lib/wsl/lib/nvidia-smi --query-gpu=name --format=csv,noheader 2>/dev/null | head -n 1 || true)
+            [[ -n "$nvidia_smi_name" ]] || nvidia_smi_name="not recorded"
+        fi
+        printf 'dpkg_architecture=%s\nuname_m=%s\nnvidia_smi_name=%s\n' \
+            "$dpkg_architecture" "$uname_m" "$nvidia_smi_name" > "${run_root}/guest-identity.txt"
+        [[ "$dpkg_architecture" == "$architecture" ]] || {
+            printf 'guest architecture %s differs from the contract %s\n' "$dpkg_architecture" "$architecture" >&2
+            exit 65
+        }
         ;;
     repositories)
         [[ -f "${run_root}/guest-capacity.txt" ]] || exit 65
@@ -82,13 +99,8 @@ case "$stage" in
            "$nvidia_actual" == EB693B3035CD5710E231E123A4B469963BF863CC ]] || exit 65
         printf 'openfoam_fingerprint=%s\nnvidia_fingerprint=%s\n' "$openfoam_actual" "$nvidia_actual" \
             > "${run_root}/repository-keys.txt"
-        printf '%s\n' \
-            'deb [arch=amd64 signed-by=/usr/share/keyrings/ubuntu-archive-keyring.gpg] http://archive.ubuntu.com/ubuntu noble main universe' \
-            'deb [arch=amd64 signed-by=/usr/share/keyrings/ubuntu-archive-keyring.gpg] http://archive.ubuntu.com/ubuntu noble-updates main universe' \
-            'deb [arch=amd64 signed-by=/usr/share/keyrings/ubuntu-archive-keyring.gpg] http://security.ubuntu.com/ubuntu noble-security main universe' \
-            'deb [arch=amd64 signed-by=/etc/apt/keyrings/cfdw-openfoam.gpg] https://dl.openfoam.com/repos/deb noble main' \
-            'deb [arch=amd64 signed-by=/etc/apt/keyrings/cfdw-nvidia.gpg] https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/ /' \
-            > "$sources"
+        # The five sources per architecture come from one table (architecture.py, Ruling 237).
+        python3 "${packet_root}/architecture.py" sources --architecture "$architecture" > "$sources"
         printf '%s\n' \
             'Dir::Etc::sourcelist "/etc/apt/cfdw-f1-r217.list";' \
             'Dir::Etc::sourceparts "-";' \
@@ -108,7 +120,7 @@ case "$stage" in
             case "$name" in
                 *dl.openfoam.com*) key=/etc/apt/keyrings/cfdw-openfoam.gpg ;;
                 *developer.download.nvidia.com*) key=/etc/apt/keyrings/cfdw-nvidia.gpg ;;
-                *archive.ubuntu.com*|*security.ubuntu.com*) key=/usr/share/keyrings/ubuntu-archive-keyring.gpg ;;
+                *archive.ubuntu.com*|*security.ubuntu.com*|*ports.ubuntu.com*) key=/usr/share/keyrings/ubuntu-archive-keyring.gpg ;;
                 *) printf 'unexpected apt index: %s\n' "$name" >&2; exit 65 ;;
             esac
             gpgv --status-fd 1 --keyring "$key" "$index" > "${run_root}/signed-indices/${name}.gpgv.txt" 2>&1
@@ -133,7 +145,8 @@ case "$stage" in
         [[ -f "${run_root}/signed-indices/packages.tar.xz" ]] || exit 65
         dpkg-query -W -f='${binary:Package}\t${Version}\t${Architecture}\n' \
             > "${run_root}/baseline-packages.tsv"
-        python3 "${packet_root}/transaction.py" roots --b2-lock "$b2_lock" --output "${run_root}/roots.args"
+        python3 "${packet_root}/transaction.py" roots --b2-lock "$b2_lock" --architecture "$architecture" \
+            --output "${run_root}/roots.args"
         mapfile -t roots < "${run_root}/roots.args"
         apt-get --simulate --no-install-recommends install "${roots[@]}" \
             > "${run_root}/apt-simulate.stdout.txt" 2> "${run_root}/apt-simulate.stderr.txt"
