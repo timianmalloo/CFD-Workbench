@@ -14,7 +14,7 @@ summary: >-
   The read-only spike Ruling 237 (5) asked for before any packet change. On the Windows ARM64 laptop WSL 2 exposes the NVIDIA
   GPU: the WSL driver reports CUDA 13.4, and the arm64 CUDA 13.2 runtime from NVIDIA's sbsa repository completes a device
   round trip (Verified). The toolkit 13.2.2 and OpenFOAM 2512.0-2 exist for arm64. The spike does not refuse; what it did not
-  run (nvcc, a PETSc-CUDA build) is listed.
+  run (nvcc, a PETSc-CUDA build) is listed. §5 adds the lock-resolution probe for the re-scope plan.
 ---
 
 # Ruling 237 (5) spike: CUDA in WSL on the Windows ARM64 laptop
@@ -23,7 +23,7 @@ summary: >-
 the plan starts with a read-only spike that establishes it. If the spike refuses, the track stops.
 
 **Answer.** CUDA in WSL works on this host (Verified, two probes). The packaged stack exists for arm64 (Verified, repository
-indexes). The spike does not refuse. Two things it did not run are named in §4.
+indexes). The spike does not refuse. Two things it did not run are named in §4; §5 adds the lock-resolution probe.
 
 ## 1. Host and method
 
@@ -73,9 +73,34 @@ Repository facts (`repository-evidence.json`, read 2026-10-18):
 - **Compute capability 12.1 against the toolkit's `sm_` list.** Not read; recorded as the first thing the packet's nvcc step
   prints.
 
-## 5. Files
+## 5. Added for the re-scope plan (2026-10-19): does the amd64 lock resolve on arm64?
+
+`lock_resolution_probe.py` reads the arm64 binary indices the re-scoped packet would use (Ubuntu ports `noble`,
+`noble-updates`, `noble-security`, main and universe; NVIDIA `ubuntu2404/sbsa`; OpenFOAM `noble`) over HTTP, unsigned,
+nothing installed, and looks up every row of the frozen 135-row B2 amd64 lock and the 14 F1 extra roots.
+`lock-resolution-arm64.json` is its receipt (each index with its SHA-256 and entry count; every row with the arm64
+versions, filename, size and SHA-256). Result: 142 of 149 resolve at the locked version; `cpp-13`, `gcc-13` and
+`g++-13` `-x86-64-linux-gnu` exist on arm64 only as cross packages (the native rows are `-aarch64-linux-gnu` at the same
+version); `libquadmath0`, `cuda-nsight-13-2` and `cuda-opencl-13-2` are absent on arm64; `linux-libc-dev` is at
+6.8.0-147.147, and the same read of amd64 `noble-updates` no longer carries the locked 146.146 either. What this
+settles is in the plan (`docs/plans/f1-rescope-r237.md` §4.2) and the register entry LOCK-PINS-A-MOVING-SUITE.
+The probe exits 3 when any locked version is missing, so its exit today is 3 by design, and the receipt is the result.
+
+Two more receipts back the plan's §3, so no fact there rests on a session transcript: `sources_evidence_probe.py` →
+`sources-evidence.json` (the six noble WSL rootfs `SHA256SUMS` lines with that file's own SHA-256, an unsigned read; and
+the amd64 `noble-updates` main index's `linux-libc-dev` versions, where the B2-locked 6.8.0-146.146 is absent), and
+`host_identity_probe.ps1` with `wsl_tools_check.sh` → `host-identity-evidence.pwsh.json` and
+`host-identity-evidence.ps51.json` (the architecture identifiers under PowerShell 7 and 5.1, CPU and GPU names, the WSL
+registrations with the profile prefix redacted, the stock distro's tools, keyrings, apt sources and architecture from
+inside, and the Git-for-Windows `gpgv.exe` path and version). All read-only.
+
+## 6. Files
 
 - `cuda_driver_probe.py`, `cuda-driver-probe.json`: the driver-API probe and its receipt.
 - `cuda_runtime_probe.py`, `cuda-runtime-probe.json`, `cuda-runtime-source.json`: the runtime round trip, its receipt, and
   the `.deb` it loaded (name, SHA-256, size, repository; extracted with `dpkg -x`, not installed).
 - `repository-evidence.json`: the repository index facts and the URLs read.
+- `lock_resolution_probe.py`, `lock-resolution-arm64.json`: the lock-resolution probe (§5) and its receipt.
+- `sources_evidence_probe.py`, `sources-evidence.json`: the rootfs checksums per architecture and the amd64 index drift (§5).
+- `host_identity_probe.ps1`, `wsl_tools_check.sh`, `host-identity-evidence.pwsh.json`, `host-identity-evidence.ps51.json`:
+  the host-identity receipts under both PowerShell runtimes (§5).

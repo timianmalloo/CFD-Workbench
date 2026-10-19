@@ -1,0 +1,2589 @@
+{
+  "indices": [
+    {
+      "entries": 5977,
+      "sha256": "86d8c27108110e8ebceb4b8548e2995c422cff642666b4ca0307be7358c68b21",
+      "url": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz"
+    },
+    {
+      "entries": 63665,
+      "sha256": "b8408fe3d33d80c5f9b958ae19dc20f2a19ff65b0d1522e1e86d44316f552307",
+      "url": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/universe/binary-arm64/Packages.gz"
+    },
+    {
+      "entries": 7438,
+      "sha256": "8aec48d9775d4313d8acc174ea076ae18f3a9e8f1927a277dadf7e65e5a9989e",
+      "url": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-updates/main/binary-arm64/Packages.gz"
+    },
+    {
+      "entries": 8487,
+      "sha256": "8e4f00d3a090950666cd9045b56b8e4d21b3ed241dda6b3ca16cebfcbb8ddba0",
+      "url": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-updates/universe/binary-arm64/Packages.gz"
+    },
+    {
+      "entries": 6327,
+      "sha256": "290fab40ea421470f05e9c446808f1f15172800e45e31db81583b1ff53a8622a",
+      "url": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz"
+    },
+    {
+      "entries": 6351,
+      "sha256": "1941f8bd09cc80f90114646a7f66bc94f15c9568a1cc2bf10057e0faa58f189b",
+      "url": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/universe/binary-arm64/Packages.gz"
+    },
+    {
+      "entries": 6650,
+      "sha256": "1db8b8ddd7910053c850adb0e2a0eb72adbaf29fdaab006e04a1811b7e8c1c3e",
+      "url": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages"
+    },
+    {
+      "entries": 183,
+      "sha256": "e591f8dc3a1797ae9c6f7a3b003e2e900a39c2820214f74d67e1ef216e90fd7b",
+      "url": "https://dl.openfoam.com/repos/deb/dists/noble/main/binary-arm64/Packages"
+    }
+  ],
+  "lock": {
+    "package_count": 135,
+    "path": "proof/win-gpu-b2/package-lock.json",
+    "sha256": "2306d58e2fb0d728195ee2691cb7faab7c651e04bb70746f242310834d61e76c"
+  },
+  "method": "unsigned HTTP read of the arm64 binary indices from the Windows host; nothing installed; indices listed with their SHA-256",
+  "rows": [
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/b/build-essential/build-essential_12.10ubuntu1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "6242b151676903160a5eeaffcddaba3d1c77b1d94d60dfad28c2d8c505cd9dee",
+        "size": 4932
+      },
+      "arm64_versions": [
+        "12.10ubuntu1"
+      ],
+      "locked_version": "12.10ubuntu1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "build-essential"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/b/bzip2/bzip2_1.0.8-5.1ubuntu0.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "1e07aa20c5f052c13b878367c397777886df1abc5253d29a7d36becb982cfca2",
+        "size": 34022
+      },
+      "arm64_versions": [
+        "1.0.8-5.1",
+        "1.0.8-5.1ubuntu0.1"
+      ],
+      "locked_version": "1.0.8-5.1ubuntu0.1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "bzip2"
+    },
+    {
+      "arm64": {
+        "architecture": "all",
+        "filename": "pool/main/c/ca-certificates-java/ca-certificates-java_20240118_all.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "6d5859b713371c4725cf8deca131685067219ffa30129a6c5b09d53ff63d40e9",
+        "size": 11624
+      },
+      "arm64_versions": [
+        "20240118"
+      ],
+      "locked_version": "20240118",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "ca-certificates-java"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-defaults/cpp_13.2.0-7ubuntu1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "133d40380f18509cf137347f7c470d87ccaf75fd1fa488c3b42b7d6ca3c09d30",
+        "size": 22438
+      },
+      "arm64_versions": [
+        "4:13.2.0-7ubuntu1"
+      ],
+      "locked_version": "4:13.2.0-7ubuntu1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cpp"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-13/cpp-13_13.3.0-6ubuntu2~24.04.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "0f3245c804313d970a2eabb72b68b0f6d8119905e1babdccfcf66f771fa3d9f1",
+        "size": 1038
+      },
+      "arm64_versions": [
+        "13.2.0-23ubuntu4",
+        "13.3.0-6ubuntu2~24.04.1"
+      ],
+      "locked_version": "13.3.0-6ubuntu2~24.04.1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cpp-13"
+    },
+    {
+      "arm64_versions": [
+        "13.2.0-23ubuntu4cross1",
+        "13.3.0-6ubuntu2~24.04.1cross1",
+        "13.3.0-6ubuntu2~24.04cross1"
+      ],
+      "locked_version": "13.3.0-6ubuntu2~24.04.1",
+      "locked_version_on_arm64": false,
+      "origin": "b2-lock",
+      "package": "cpp-13-x86-64-linux-gnu"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-defaults/cpp-x86-64-linux-gnu_13.2.0-7ubuntu1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "ae5d86eb86481edc94ea334b47f1c5eec159524bb75d47e0e101a277dc4fa598",
+        "size": 5332
+      },
+      "arm64_versions": [
+        "4:13.2.0-7ubuntu1"
+      ],
+      "locked_version": "4:13.2.0-7ubuntu1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cpp-x86-64-linux-gnu"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-cccl-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "b55f0f0e8300c81c807adf51c4b07576db226587ace478fcb248ca4fa91f9384",
+        "size": 1259904
+      },
+      "arm64_versions": [
+        "13.2.27-1",
+        "13.2.75-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-cccl-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-command-line-tools-13-2_13.2.2-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "2ff15d92120f9c6344f69fc8647a77341817744bd2904371941d02c090143eb7",
+        "size": 2534
+      },
+      "arm64_versions": [
+        "13.2.0-1",
+        "13.2.1-1",
+        "13.2.2-1"
+      ],
+      "locked_version": "13.2.2-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-command-line-tools-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-compiler-13-2_13.2.2-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "558f232ded58663909357fe9d821eb359cc051d8df29ce5f5114716a5cc45b2a",
+        "size": 2534
+      },
+      "arm64_versions": [
+        "13.2.0-1",
+        "13.2.1-1",
+        "13.2.2-1"
+      ],
+      "locked_version": "13.2.2-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-compiler-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-crt-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "3ff9567b31a9f78d3609b321bf69aa3f1fc53511700071a927699ba8944ee136",
+        "size": 83114
+      },
+      "arm64_versions": [
+        "13.2.51-1",
+        "13.2.78-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-crt-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-cudart-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "136f07f53c0d44d091c636c5dced39cbdffe37e51b4906190cae3d72f4ce2174",
+        "size": 180618
+      },
+      "arm64_versions": [
+        "13.2.51-1",
+        "13.2.75-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-cudart-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-cudart-dev-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "3a87a38cee72f1ae0ce16b3b44500173ada17ee8d94717e7d30bc5350ee0a92c",
+        "size": 1438300
+      },
+      "arm64_versions": [
+        "13.2.51-1",
+        "13.2.75-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-cudart-dev-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-culibos-dev-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "e9222b4674eca93e8101feb7bbca800ac00b040596a7c57f5d962838dc99348f",
+        "size": 23924
+      },
+      "arm64_versions": [
+        "13.2.51-1",
+        "13.2.75-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-culibos-dev-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-cuobjdump-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "57b6da4d2c2f5c3b4aa4da83670c6b98c36e5dea310a6c056476fb878c0706de",
+        "size": 264554
+      },
+      "arm64_versions": [
+        "13.2.51-1",
+        "13.2.78-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-cuobjdump-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-cupti-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "b7d457f34c9b30490e89f51a5b68d4e3beb21dabd830f8e99409c5d0737d7ac6",
+        "size": 10471036
+      },
+      "arm64_versions": [
+        "13.2.23-1",
+        "13.2.75-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-cupti-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-cupti-dev-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "f1aeaa8a609f2ba50c3277687a1fef5679c724c75f22b0cc2adaf00030699f89",
+        "size": 2583016
+      },
+      "arm64_versions": [
+        "13.2.23-1",
+        "13.2.75-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-cupti-dev-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-cuxxfilt-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "988e9f9fe5a7e284eb32f20877856836041e53b4b9806f4bcbf9524bea13ecaf",
+        "size": 55940
+      },
+      "arm64_versions": [
+        "13.2.51-1",
+        "13.2.78-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-cuxxfilt-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-documentation-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "a756f7d789c54b40c99145ced20de24ac70b98bb2384987750d9d109eee0844b",
+        "size": 50864
+      },
+      "arm64_versions": [
+        "13.2.51-1",
+        "13.2.75-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-documentation-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-driver-dev-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "e34389ee29af308ca2ed372e3a6c349cf570e858c5484b2f97f3bb0f39a3a656",
+        "size": 32412
+      },
+      "arm64_versions": [
+        "13.2.51-1",
+        "13.2.75-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-driver-dev-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-gdb-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "675c98580e7ca3b156cf83725cbe0b56c97e1b2c5edb662bbf1d9ba79a45db1a",
+        "size": 25051848
+      },
+      "arm64_versions": [
+        "13.2.20-1",
+        "13.2.75-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-gdb-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-libraries-13-2_13.2.2-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "e978931c0ec3ec99e0dc0fda2715ab0e8a4156b346ab7d0b3cba20a5c81836e4",
+        "size": 2622
+      },
+      "arm64_versions": [
+        "13.2.0-1",
+        "13.2.1-1",
+        "13.2.2-1"
+      ],
+      "locked_version": "13.2.2-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-libraries-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-libraries-dev-13-2_13.2.2-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "6dd660e90f1a617d04999772f0ce39e59ca0aa0fa6d64a13bcd3cc06a01014c0",
+        "size": 2654
+      },
+      "arm64_versions": [
+        "13.2.0-1",
+        "13.2.1-1",
+        "13.2.2-1"
+      ],
+      "locked_version": "13.2.2-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-libraries-dev-13-2"
+    },
+    {
+      "arm64_versions": [],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": false,
+      "origin": "b2-lock",
+      "package": "cuda-nsight-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-nsight-compute-13-2_13.2.2-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "b82c40fe051c27fbb7fb17133204ef7451ca1a308f9e35fd39bbaf7bb60e879f",
+        "size": 3660
+      },
+      "arm64_versions": [
+        "13.2.0-1",
+        "13.2.1-1",
+        "13.2.2-1"
+      ],
+      "locked_version": "13.2.2-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-nsight-compute-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-nsight-systems-13-2_13.2.2-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "9782cc2336e52f4bcf10e4e0ba1939296860b8490e9c7dbb19ef713907ae8eab",
+        "size": 3348
+      },
+      "arm64_versions": [
+        "13.2.0-1",
+        "13.2.1-1",
+        "13.2.2-1"
+      ],
+      "locked_version": "13.2.2-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-nsight-systems-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-nvcc-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "d33c578dc8a9fbeb2ea1550b59069ffdaa69fba852789aa85c75a29060e736e3",
+        "size": 26706796
+      },
+      "arm64_versions": [
+        "13.2.51-1",
+        "13.2.78-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-nvcc-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-nvdisasm-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "d1073de039b2538e7535e952fb84bdcc35698b8a8e349f356334f12b296e83b2",
+        "size": 4223106
+      },
+      "arm64_versions": [
+        "13.2.51-1",
+        "13.2.78-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-nvdisasm-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-nvml-dev-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "803790ae513301982de152b7d29e62230f5d94e1e4f3aeb15bcbf64aab0a6de1",
+        "size": 151838
+      },
+      "arm64_versions": [
+        "13.2.51-1",
+        "13.2.82-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-nvml-dev-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-nvprune-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "fe028867337c39a720b19418531fb6614bcbe8d7842075d6097090b14ee46352",
+        "size": 481778
+      },
+      "arm64_versions": [
+        "13.2.51-1",
+        "13.2.78-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-nvprune-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-nvrtc-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "99235709485fe0150fed423ef3ab8ae32d66d0651bec7e3c79cd914fa60788ce",
+        "size": 29710680
+      },
+      "arm64_versions": [
+        "13.2.51-1",
+        "13.2.78-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-nvrtc-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-nvrtc-dev-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "6e9d5686572537f5a9d93e10385d23c07e59eb918091e0285861348f5f0bea18",
+        "size": 26155388
+      },
+      "arm64_versions": [
+        "13.2.51-1",
+        "13.2.78-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-nvrtc-dev-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-nvtx-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "fb84a62fbdcf7d6205cac5dcad7566a94d0128414c5acf95cd1be3a1edc7326d",
+        "size": 101434
+      },
+      "arm64_versions": [
+        "13.2.20-1",
+        "13.2.75-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-nvtx-13-2"
+    },
+    {
+      "arm64_versions": [],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": false,
+      "origin": "b2-lock",
+      "package": "cuda-opencl-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-profiler-api-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "2bcf27c74cbdd0a348681464090180b51718cdd21922186483d8b12ca7260c3e",
+        "size": 19588
+      },
+      "arm64_versions": [
+        "13.2.20-1",
+        "13.2.75-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-profiler-api-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-sandbox-dev-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "4b32146cbfd3ed8137dc2153b0d2f95ebab82c4eaff7be5644bdcf89858ed2f5",
+        "size": 33384
+      },
+      "arm64_versions": [
+        "13.2.51-1",
+        "13.2.82-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-sandbox-dev-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-sanitizer-13-2_13.2.87-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "46c7061f60d13b9193c61327d6a03e0c631bc37bb80cca1ea7237a9326cef9d8",
+        "size": 7941072
+      },
+      "arm64_versions": [
+        "13.2.23-1",
+        "13.2.76-1",
+        "13.2.87-1"
+      ],
+      "locked_version": "13.2.87-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-sanitizer-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-tileiras-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "46dc9faa46f9fccca0b28cf8238b631420565cb5c676a244549bec1a38791434",
+        "size": 23737412
+      },
+      "arm64_versions": [
+        "13.2.51-1",
+        "13.2.78-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-tileiras-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-toolkit-13-2_13.2.2-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "1a5b12d61b14662e30ff20c3e87f9dbf692597d658d5e6c07ef4138feac4f77d",
+        "size": 3320
+      },
+      "arm64_versions": [
+        "13.2.0-1",
+        "13.2.1-1",
+        "13.2.2-1"
+      ],
+      "locked_version": "13.2.2-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-toolkit-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "all",
+        "filename": "./cuda-toolkit-13-2-config-common_13.2.86-1_all.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "9eac5246cdf51a30e8b5cd3a7bf08728b0b8cf5a5fde16df0f672550d3a90f38",
+        "size": 17404
+      },
+      "arm64_versions": [
+        "13.2.51-1",
+        "13.2.75-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-toolkit-13-2-config-common"
+    },
+    {
+      "arm64": {
+        "architecture": "all",
+        "filename": "./cuda-toolkit-13-config-common_13.2.86-1_all.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "cffe01cf23939d3d934762243471ad0f00a2ff9ef22c3d70bf7296eebc2ba18a",
+        "size": 17452
+      },
+      "arm64_versions": [
+        "13.0.48-1",
+        "13.0.88-1",
+        "13.0.96-1",
+        "13.1.80-1",
+        "13.2.51-1",
+        "13.2.75-1",
+        "13.2.86-1",
+        "13.3.29-1",
+        "13.4.49-1",
+        "13.4.92-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-toolkit-13-config-common"
+    },
+    {
+      "arm64": {
+        "architecture": "all",
+        "filename": "./cuda-toolkit-config-common_13.2.86-1_all.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "a03870e2257477ac3527af83a8ce4866ad814c474a239c225017150ba36e7bff",
+        "size": 17448
+      },
+      "arm64_versions": [
+        "12.5.82-1",
+        "12.6.37-1",
+        "12.6.68-1",
+        "12.6.77-1",
+        "12.8.57-1",
+        "12.8.90-1",
+        "12.9.37-1",
+        "12.9.79-1",
+        "13.0.48-1",
+        "13.0.88-1",
+        "13.0.96-1",
+        "13.1.80-1",
+        "13.2.51-1",
+        "13.2.75-1",
+        "13.2.86-1",
+        "13.3.29-1",
+        "13.4.49-1",
+        "13.4.92-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-toolkit-config-common"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-tools-13-2_13.2.2-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "e40cd28b48ccb42e7d38f660414212795a741229937d9963e0df0a77c7481d95",
+        "size": 2470
+      },
+      "arm64_versions": [
+        "13.2.0-1",
+        "13.2.1-1",
+        "13.2.2-1"
+      ],
+      "locked_version": "13.2.2-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-tools-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./cuda-visual-tools-13-2_13.2.2-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "c7f2be2b1dcb41c5fb52f8bdf7ae6c8bc521a86bc31edc069553324312315ad3",
+        "size": 2922
+      },
+      "arm64_versions": [
+        "13.2.0-1",
+        "13.2.1-1",
+        "13.2.2-1"
+      ],
+      "locked_version": "13.2.2-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "cuda-visual-tools-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/j/java-common/default-jre_1.21-75+exp1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "38b7de2312d8b61081b6288ebfc2fc4d6ce077258e8814a59b67b38a137374db",
+        "size": 922
+      },
+      "arm64_versions": [
+        "2:1.21-75+exp1"
+      ],
+      "locked_version": "2:1.21-75+exp1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "default-jre"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/j/java-common/default-jre-headless_1.21-75+exp1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "e492dfb104882f415fb3c2953fb0f88e287aef3775274add48471865ea1a0328",
+        "size": 3096
+      },
+      "arm64_versions": [
+        "2:1.21-75+exp1"
+      ],
+      "locked_version": "2:1.21-75+exp1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "default-jre-headless"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/d/dpkg/dpkg_1.22.6ubuntu6.6_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "c34117a1f62fe8a2026cfba7bde0ec3fedd5d39abad7515bdd45fffcec764288",
+        "size": 1264616
+      },
+      "arm64_versions": [
+        "1.22.6ubuntu6",
+        "1.22.6ubuntu6.6"
+      ],
+      "locked_version": "1.22.6ubuntu6.6",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "dpkg"
+    },
+    {
+      "arm64": {
+        "architecture": "all",
+        "filename": "pool/main/d/dpkg/dpkg-dev_1.22.6ubuntu6.6_all.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "70da073557dbed76dc14eb1e682e7ec30fcb736f3d98812490a4c785b4c481cb",
+        "size": 1074218
+      },
+      "arm64_versions": [
+        "1.22.6ubuntu6",
+        "1.22.6ubuntu6.6"
+      ],
+      "locked_version": "1.22.6ubuntu6.6",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "dpkg-dev"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-defaults/g++_13.2.0-7ubuntu1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "1c0786b509b97ebce60d6c98de64c7f8a9ed0e68ccdbc908a3feb6045123b89c",
+        "size": 1082
+      },
+      "arm64_versions": [
+        "4:13.2.0-7ubuntu1"
+      ],
+      "locked_version": "4:13.2.0-7ubuntu1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "g++"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-13/g++-13_13.3.0-6ubuntu2~24.04.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "2bc3b9363781481b5b3b1c24baa18a3876e12126f355181db83303e9e0bede3b",
+        "size": 16046
+      },
+      "arm64_versions": [
+        "13.2.0-23ubuntu4",
+        "13.3.0-6ubuntu2~24.04.1"
+      ],
+      "locked_version": "13.3.0-6ubuntu2~24.04.1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "g++-13"
+    },
+    {
+      "arm64_versions": [
+        "13.2.0-23ubuntu4cross1",
+        "13.3.0-6ubuntu2~24.04.1cross1",
+        "13.3.0-6ubuntu2~24.04cross1"
+      ],
+      "locked_version": "13.3.0-6ubuntu2~24.04.1",
+      "locked_version_on_arm64": false,
+      "origin": "b2-lock",
+      "package": "g++-13-x86-64-linux-gnu"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-defaults/g++-x86-64-linux-gnu_13.2.0-7ubuntu1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "862a12041050660972a11174526edf39c4a8cfdd269269cba296e9445d10003c",
+        "size": 966
+      },
+      "arm64_versions": [
+        "4:13.2.0-7ubuntu1"
+      ],
+      "locked_version": "4:13.2.0-7ubuntu1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "g++-x86-64-linux-gnu"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-defaults/gcc_13.2.0-7ubuntu1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "11dec7614bba0bd5b7cfad6a9890a4680dac5de6908ae625dd07105679bad67c",
+        "size": 5018
+      },
+      "arm64_versions": [
+        "4:13.2.0-7ubuntu1"
+      ],
+      "locked_version": "4:13.2.0-7ubuntu1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "gcc"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-13/gcc-13_13.3.0-6ubuntu2~24.04.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "04b729a6c728b92c941926be688f8c1a90a89602b10f131516a1e7574cc5b418",
+        "size": 484024
+      },
+      "arm64_versions": [
+        "13.2.0-23ubuntu4",
+        "13.3.0-6ubuntu2~24.04.1"
+      ],
+      "locked_version": "13.3.0-6ubuntu2~24.04.1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "gcc-13"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-13/gcc-13-base_13.3.0-6ubuntu2~24.04.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "1c1ca489da0d48237036318189a9b6525abe7703b75495f257f68bccae8c45a7",
+        "size": 51632
+      },
+      "arm64_versions": [
+        "13.2.0-23ubuntu4",
+        "13.3.0-6ubuntu2~24.04.1"
+      ],
+      "locked_version": "13.3.0-6ubuntu2~24.04.1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "gcc-13-base"
+    },
+    {
+      "arm64_versions": [
+        "13.2.0-23ubuntu4cross1",
+        "13.3.0-6ubuntu2~24.04.1cross1",
+        "13.3.0-6ubuntu2~24.04cross1"
+      ],
+      "locked_version": "13.3.0-6ubuntu2~24.04.1",
+      "locked_version_on_arm64": false,
+      "origin": "b2-lock",
+      "package": "gcc-13-x86-64-linux-gnu"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-14/gcc-14-base_14.2.0-4ubuntu2~24.04.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "bddbe21061fdc73a23e7de79ece91693bf61aa22d634d1c69c5048385c114968",
+        "size": 50984
+      },
+      "arm64_versions": [
+        "14-20240412-0ubuntu1",
+        "14.2.0-4ubuntu2~24.04.1"
+      ],
+      "locked_version": "14.2.0-4ubuntu2~24.04.1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "gcc-14-base"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-defaults/gcc-x86-64-linux-gnu_13.2.0-7ubuntu1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "2fa3fc4dce8e9d0f1cd9d9e55b7dec4453bc1ba7362981545be4205627a1d195",
+        "size": 1218
+      },
+      "arm64_versions": [
+        "4:13.2.0-7ubuntu1"
+      ],
+      "locked_version": "4:13.2.0-7ubuntu1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "gcc-x86-64-linux-gnu"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./gds-tools-13-2_1.17.1.22-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "c06994d47559cb5560bb0f89e07cc553afa2af1e8e2f7e2042330e4c87dfd12d",
+        "size": 40688912
+      },
+      "arm64_versions": [
+        "1.17.0.44-1",
+        "1.17.1.22-1"
+      ],
+      "locked_version": "1.17.1.22-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "gds-tools-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "all",
+        "filename": "pool/main/j/java-common/java-common_0.75+exp1_all.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "9029d787c97f9b9e9bb04e7a4fb92bfc12fbd10b5809aab8694a8735b85bc070",
+        "size": 6798
+      },
+      "arm64_versions": [
+        "0.75+exp1"
+      ],
+      "locked_version": "0.75+exp1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "java-common"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-14/libasan8_14.2.0-4ubuntu2~24.04.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "0b7957bc5bbc5d30eabe8b71bab06e624ac530be7b1b1315d2bd54629cf2559f",
+        "size": 2927874
+      },
+      "arm64_versions": [
+        "14-20240412-0ubuntu1",
+        "14.2.0-4ubuntu2~24.04.1"
+      ],
+      "locked_version": "14.2.0-4ubuntu2~24.04.1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libasan8"
+    },
+    {
+      "arm64": {
+        "architecture": "all",
+        "filename": "pool/main/a/alsa-lib/libasound2-data_1.2.11-1ubuntu0.3_all.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "0c26896193480d9dbb055e85e8ddfb9c9f34cf19afee340987cd6311e2886fc1",
+        "size": 21350
+      },
+      "arm64_versions": [
+        "1.2.11-1build2",
+        "1.2.11-1ubuntu0.3"
+      ],
+      "locked_version": "1.2.11-1ubuntu0.3",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libasound2-data"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/a/alsa-lib/libasound2t64_1.2.11-1ubuntu0.3_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "de49425b8480c651eae0ffbe24a1f1d88b2ea578f95a291b95f78fae10662ec6",
+        "size": 386648
+      },
+      "arm64_versions": [
+        "1.2.11-1build2",
+        "1.2.11-1ubuntu0.3"
+      ],
+      "locked_version": "1.2.11-1ubuntu0.3",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libasound2t64"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-14/libatomic1_14.2.0-4ubuntu2~24.04.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "fdeab74e7ad8572cf69c7024e8040c7ac851f6e667d35f0d429e7a0352840f73",
+        "size": 11604
+      },
+      "arm64_versions": [
+        "14-20240412-0ubuntu1",
+        "14.2.0-4ubuntu2~24.04.1"
+      ],
+      "locked_version": "14.2.0-4ubuntu2~24.04.1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libatomic1"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/b/bzip2/libbz2-1.0_1.0.8-5.1ubuntu0.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "1a92811105f89bf948a629de99715ef23941ef93c901e0942883029069db3f94",
+        "size": 35936
+      },
+      "arm64_versions": [
+        "1.0.8-5.1",
+        "1.0.8-5.1ubuntu0.1"
+      ],
+      "locked_version": "1.0.8-5.1ubuntu0.1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libbz2-1.0"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/glibc/libc-bin_2.39-0ubuntu8.9_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "5a96fe62c7803a4b886b29afbb67b5e41952de918abd217d2b8fdfbc44c3b72d",
+        "size": 591286
+      },
+      "arm64_versions": [
+        "2.39-0ubuntu8",
+        "2.39-0ubuntu8.9"
+      ],
+      "locked_version": "2.39-0ubuntu8.9",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libc-bin"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/glibc/libc-dev-bin_2.39-0ubuntu8.9_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "85564f1ba7dce372d0fdec055986b428f72cd9c235af1dd29950f589562d19bc",
+        "size": 19684
+      },
+      "arm64_versions": [
+        "2.39-0ubuntu8",
+        "2.39-0ubuntu8.9"
+      ],
+      "locked_version": "2.39-0ubuntu8.9",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libc-dev-bin"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/glibc/libc6_2.39-0ubuntu8.9_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "ad109797c5f78a5eeb6d4c296bfbaae68b239111a0c9ac0eb97b8d430284ac45",
+        "size": 2776414
+      },
+      "arm64_versions": [
+        "2.39-0ubuntu8",
+        "2.39-0ubuntu8.9"
+      ],
+      "locked_version": "2.39-0ubuntu8.9",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libc6"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/glibc/libc6-dev_2.39-0ubuntu8.9_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "9bf6acb8a3433ffe561182517640970d324425fabbbeb54a24d737ba1f3c816b",
+        "size": 1596264
+      },
+      "arm64_versions": [
+        "2.39-0ubuntu8",
+        "2.39-0ubuntu8.9"
+      ],
+      "locked_version": "2.39-0ubuntu8.9",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libc6-dev"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-14/libcc1-0_14.2.0-4ubuntu2~24.04.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "a72eb7353138e671ce46cdb7afc09cd400eaa8ae20e2e7750d40fbbdf63a3811",
+        "size": 49734
+      },
+      "arm64_versions": [
+        "14-20240412-0ubuntu1",
+        "14.2.0-4ubuntu2~24.04.1"
+      ],
+      "locked_version": "14.2.0-4ubuntu2~24.04.1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libcc1-0"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/libx/libxcrypt/libcrypt-dev_4.4.36-4build1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "cadcc00021aa1082a8cb5cd1c2686b25b7a4d396f2029eaa1b12159ca46f1766",
+        "size": 118238
+      },
+      "arm64_versions": [
+        "1:4.4.36-4build1"
+      ],
+      "locked_version": "1:4.4.36-4build1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libcrypt-dev"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libcublas-13-2_13.4.1.3-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "3d2dd96cc2dcc037843cdfabb220204d6cd9cce1c35acb8b9ca0aa236d1e8890",
+        "size": 483711336
+      },
+      "arm64_versions": [
+        "13.3.0.5-1",
+        "13.4.0.1-1",
+        "13.4.1.3-1"
+      ],
+      "locked_version": "13.4.1.3-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libcublas-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libcublas-dev-13-2_13.4.1.3-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "999badfc2f31ae2341abb0e7289989c0ab18cd5a9553edba1208f8aa46f65e8b",
+        "size": 537792992
+      },
+      "arm64_versions": [
+        "13.3.0.5-1",
+        "13.4.0.1-1",
+        "13.4.1.3-1"
+      ],
+      "locked_version": "13.4.1.3-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libcublas-dev-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libcufft-13-2_12.2.0.57-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "f7b645d8f7e5ff8a126ba5a6be6dfeb760a4bc50042bb4376e36a948933f9901",
+        "size": 180926232
+      },
+      "arm64_versions": [
+        "12.2.0.37-1",
+        "12.2.0.46-1",
+        "12.2.0.57-1"
+      ],
+      "locked_version": "12.2.0.57-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libcufft-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libcufft-dev-13-2_12.2.0.57-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "00c97b74a10d12f8af40cd4fd02a7a34ba93a027dda1e82fa670d3e68941db97",
+        "size": 181641376
+      },
+      "arm64_versions": [
+        "12.2.0.37-1",
+        "12.2.0.46-1",
+        "12.2.0.57-1"
+      ],
+      "locked_version": "12.2.0.57-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libcufft-dev-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libcufile-13-2_1.17.1.22-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "966502e596799e7e6cb3d51b23cdf077b7afdf47bbbc9e4ad6f525dc99036dca",
+        "size": 826874
+      },
+      "arm64_versions": [
+        "1.17.0.44-1",
+        "1.17.1.22-1"
+      ],
+      "locked_version": "1.17.1.22-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libcufile-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libcufile-dev-13-2_1.17.1.22-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "50fca57074cd404c7a9734ff95e122e7ce22127a81fbd2eed4fa79b41873926b",
+        "size": 2860596
+      },
+      "arm64_versions": [
+        "1.17.0.44-1",
+        "1.17.1.22-1"
+      ],
+      "locked_version": "1.17.1.22-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libcufile-dev-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libcuobjclient-13-2_1.1.1.22-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "4ef2363a7170517206f688442474b7b8bf33ee6110deb01e80dc0ed347ac49a3",
+        "size": 152170
+      },
+      "arm64_versions": [
+        "1.1.0.44-1",
+        "1.1.1.22-1"
+      ],
+      "locked_version": "1.1.1.22-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libcuobjclient-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libcuobjclient-dev-13-2_1.1.1.22-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "9de8ac6be5e0a651de1e665d558d44616fba399152ae7b58028e82d6a0a75f92",
+        "size": 20292
+      },
+      "arm64_versions": [
+        "1.1.0.44-1",
+        "1.1.1.22-1"
+      ],
+      "locked_version": "1.1.1.22-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libcuobjclient-dev-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libcurand-13-2_10.4.2.66-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "8df633c5e4c8259bd79381e4df742a1a04ca71d5a00e5f60309d4d27a68f47e2",
+        "size": 43889948
+      },
+      "arm64_versions": [
+        "10.4.2.51-1",
+        "10.4.2.55-1",
+        "10.4.2.66-1"
+      ],
+      "locked_version": "10.4.2.66-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libcurand-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libcurand-dev-13-2_10.4.2.66-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "c8ebcf628e7bfdd1702c4943f6f3d86cc0688c6166e5eec59ee0da62488c9677",
+        "size": 43800092
+      },
+      "arm64_versions": [
+        "10.4.2.51-1",
+        "10.4.2.55-1",
+        "10.4.2.66-1"
+      ],
+      "locked_version": "10.4.2.66-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libcurand-dev-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libcusolver-13-2_12.2.0.11-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "2e4490b57350ec0871181f74dfe03242ab80cf872ca9e2c2b17c71afa2bf65f6",
+        "size": 197272204
+      },
+      "arm64_versions": [
+        "12.1.0.51-1",
+        "12.2.0.1-1",
+        "12.2.0.11-1"
+      ],
+      "locked_version": "12.2.0.11-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libcusolver-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libcusolver-dev-13-2_12.2.0.11-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "0f0c98f7da7ba35756212cc812900519fe248f9bfe2b6abe273a9ab5bef73da2",
+        "size": 121387880
+      },
+      "arm64_versions": [
+        "12.1.0.51-1",
+        "12.2.0.1-1",
+        "12.2.0.11-1"
+      ],
+      "locked_version": "12.2.0.11-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libcusolver-dev-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libcusparse-13-2_12.7.10.12-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "80c7421447f4552f687ba6785b38437432e88ea283f7b36de8747877d0653ded",
+        "size": 157785296
+      },
+      "arm64_versions": [
+        "12.7.10.1-1",
+        "12.7.10.12-1",
+        "12.7.9.17-1"
+      ],
+      "locked_version": "12.7.10.12-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libcusparse-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libcusparse-dev-13-2_12.7.10.12-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "57a2d24ed6dccdfb64c9408ce347e926e1b5810eaa7e03ec468ebbcf3b43f372",
+        "size": 160408180
+      },
+      "arm64_versions": [
+        "12.7.10.1-1",
+        "12.7.10.12-1",
+        "12.7.9.17-1"
+      ],
+      "locked_version": "12.7.10.12-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libcusparse-dev-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "all",
+        "filename": "pool/main/d/dpkg/libdpkg-perl_1.22.6ubuntu6.6_all.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "db57f9f0608f78001b5f468e03541fdb88b7e30a07b46d0bcdb57a916a6e8c11",
+        "size": 268420
+      },
+      "arm64_versions": [
+        "1.22.6ubuntu6",
+        "1.22.6ubuntu6.6"
+      ],
+      "locked_version": "1.22.6ubuntu6.6",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libdpkg-perl"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-13/libgcc-13-dev_13.3.0-6ubuntu2~24.04.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "609a9410d9a1f25a1cb7847de92ee9f438336a0a3a82d282c3686f52ddd61526",
+        "size": 2473368
+      },
+      "arm64_versions": [
+        "13.2.0-23ubuntu4",
+        "13.3.0-6ubuntu2~24.04.1"
+      ],
+      "locked_version": "13.3.0-6ubuntu2~24.04.1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libgcc-13-dev"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-14/libgcc-s1_14.2.0-4ubuntu2~24.04.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "5b191f79ad985a9a653dbba45214619f729f9178a9bdf92f7c68db06c50d070b",
+        "size": 61884
+      },
+      "arm64_versions": [
+        "14-20240412-0ubuntu1",
+        "14.2.0-4ubuntu2~24.04.1"
+      ],
+      "locked_version": "14.2.0-4ubuntu2~24.04.1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libgcc-s1"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/giflib/libgif7_5.2.2-1ubuntu1.2_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "ef7849d9887be357725efc55c71456e1b6d4911e88314121471f715f0f0bc0c4",
+        "size": 36150
+      },
+      "arm64_versions": [
+        "5.2.2-1ubuntu1",
+        "5.2.2-1ubuntu1.2"
+      ],
+      "locked_version": "5.2.2-1ubuntu1.2",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libgif7"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-14/libgomp1_14.2.0-4ubuntu2~24.04.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "cd49d2e8834d41a6618f097b678980defeebc47271bc7c5aa8ea2c2f1a53b7a6",
+        "size": 144962
+      },
+      "arm64_versions": [
+        "14-20240412-0ubuntu1",
+        "14.2.0-4ubuntu2~24.04.1"
+      ],
+      "locked_version": "14.2.0-4ubuntu2~24.04.1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libgomp1"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-14/libhwasan0_14.2.0-4ubuntu2~24.04.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "44851293eede488ad89fd12db1bd8bfcb2b732f68ad4c13b83d6e0ce5d7b4bfa",
+        "size": 1604938
+      },
+      "arm64_versions": [
+        "14-20240412-0ubuntu1",
+        "14.2.0-4ubuntu2~24.04.1"
+      ],
+      "locked_version": "14.2.0-4ubuntu2~24.04.1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libhwasan0"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/i/isl/libisl23_0.26-3build1.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-updates/main/binary-arm64/Packages.gz",
+        "sha256": "250bff60f1405c2fa7cd8cdd839f83105c7fec9b42ed6cb5f62e1bcda709bbc2",
+        "size": 669128
+      },
+      "arm64_versions": [
+        "0.26-3build1",
+        "0.26-3build1.1"
+      ],
+      "locked_version": "0.26-3build1.1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libisl23"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-14/libitm1_14.2.0-4ubuntu2~24.04.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "7f7d7c5a26888e5e34eb62a193762eb6a8d5805c5d6f22248f638193d1804993",
+        "size": 28154
+      },
+      "arm64_versions": [
+        "14-20240412-0ubuntu1",
+        "14.2.0-4ubuntu2~24.04.1"
+      ],
+      "locked_version": "14.2.0-4ubuntu2~24.04.1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libitm1"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-14/liblsan0_14.2.0-4ubuntu2~24.04.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "21bb80325192b0cce6ccd041a8d823609c5e656bdda43368db6cdfe501593188",
+        "size": 1289238
+      },
+      "arm64_versions": [
+        "14-20240412-0ubuntu1",
+        "14.2.0-4ubuntu2~24.04.1"
+      ],
+      "locked_version": "14.2.0-4ubuntu2~24.04.1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "liblsan0"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/m/mpclib3/libmpc3_1.3.1-1build1.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-updates/main/binary-arm64/Packages.gz",
+        "sha256": "efc4a44fb7382db33bf3adbfd0058201fd73d0e56fd48662d653e9a93f6139da",
+        "size": 56402
+      },
+      "arm64_versions": [
+        "1.3.1-1build1",
+        "1.3.1-1build1.1"
+      ],
+      "locked_version": "1.3.1-1build1.1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libmpc3"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libnpp-13-2_13.1.0.59-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "16d1f45ca489048286224a4ec9b7b6b3b1064c4e5189de294fafb459f4ba9e35",
+        "size": 128095052
+      },
+      "arm64_versions": [
+        "13.1.0.44-1",
+        "13.1.0.48-1",
+        "13.1.0.59-1"
+      ],
+      "locked_version": "13.1.0.59-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libnpp-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libnpp-dev-13-2_13.1.0.59-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "d2548865d20eb2881adc8cc30f3470fc132dad551cd4dd5887e788e3d7a709e4",
+        "size": 126093666
+      },
+      "arm64_versions": [
+        "13.1.0.44-1",
+        "13.1.0.48-1",
+        "13.1.0.59-1"
+      ],
+      "locked_version": "13.1.0.59-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libnpp-dev-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/n/nspr/libnspr4_4.35-1.1build1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "0bd5994126c41aa05aa380954a3cb2ae56a0a8ebe368a0e01a411fdcc0cb9c68",
+        "size": 114244
+      },
+      "arm64_versions": [
+        "2:4.35-1.1build1"
+      ],
+      "locked_version": "2:4.35-1.1build1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libnspr4"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/n/nss/libnss3_3.98-1ubuntu0.2_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "daf32de5e12139aa84fde7a3e2784d5d7277259e22f14affcd82d81545b5312e",
+        "size": 1405988
+      },
+      "arm64_versions": [
+        "2:3.98-1build1",
+        "2:3.98-1ubuntu0.2"
+      ],
+      "locked_version": "2:3.98-1ubuntu0.2",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libnss3"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/n/numactl/libnuma1_2.0.18-1ubuntu0.24.04.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-updates/main/binary-arm64/Packages.gz",
+        "sha256": "fb1de2dbe2a22cb59753c2ec622575a408d1ade28a9b090acc4c59d247462eb4",
+        "size": 23710
+      },
+      "arm64_versions": [
+        "2.0.18-1build1",
+        "2.0.18-1ubuntu0.24.04.1"
+      ],
+      "locked_version": "2.0.18-1ubuntu0.24.04.1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libnuma1"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libnvfatbin-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "25c473b7936347d35e97d5af56d51e246efc6244175225ab3d4202f697b40a1d",
+        "size": 389502
+      },
+      "arm64_versions": [
+        "13.2.51-1",
+        "13.2.78-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libnvfatbin-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libnvfatbin-dev-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "254203871084e14c8793a4f128ebdcce81407712e961cf86e02818b674b272cb",
+        "size": 732050
+      },
+      "arm64_versions": [
+        "13.2.51-1",
+        "13.2.78-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libnvfatbin-dev-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libnvjitlink-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "d1aad6a250d1ea3131c8040c6e35fdf69173886053bb5cada5b109d84b0f49ad",
+        "size": 26314032
+      },
+      "arm64_versions": [
+        "13.2.51-1",
+        "13.2.78-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libnvjitlink-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libnvjitlink-dev-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "f4928f66ac2cf6100b307b71bd72fe9eeb11edba893286f291261e0d7567aa82",
+        "size": 25257260
+      },
+      "arm64_versions": [
+        "13.2.51-1",
+        "13.2.78-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libnvjitlink-dev-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libnvjpeg-13-2_13.1.0.59-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "484c244db24b9f9a37b522e0d789ed5ccee4db4e6c1305660e9877dd9beaf3a8",
+        "size": 3175030
+      },
+      "arm64_versions": [
+        "13.0.4.44-1",
+        "13.1.0.48-1",
+        "13.1.0.59-1"
+      ],
+      "locked_version": "13.1.0.59-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libnvjpeg-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libnvjpeg-dev-13-2_13.1.0.59-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "69847cb0158ea335f2584fbda213abc04011eba29664e0b5915c6fe87c8c2238",
+        "size": 2959022
+      },
+      "arm64_versions": [
+        "13.0.4.44-1",
+        "13.1.0.48-1",
+        "13.1.0.59-1"
+      ],
+      "locked_version": "13.1.0.59-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libnvjpeg-dev-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libnvptxcompiler-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "644462ab2750560cbb64e9bcc0b0810c120658bf77cd354ec900d4578e21cdd7",
+        "size": 13621284
+      },
+      "arm64_versions": [
+        "13.2.51-1",
+        "13.2.78-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libnvptxcompiler-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./libnvvm-13-2_13.2.86-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "fa22d6cf5151304d681b9ae1ccd72d5bfbacf1e2bf30ccee1f149e0f87b2c375",
+        "size": 40170956
+      },
+      "arm64_versions": [
+        "13.2.51-1",
+        "13.2.78-1",
+        "13.2.86-1"
+      ],
+      "locked_version": "13.2.86-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libnvvm-13-2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/libg/libglvnd/libopengl0_1.7.0-1build1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "85227472e62fe06c64dd9574a3fc1bc075dd7fc4bed157f9cc92d97bc5261cee",
+        "size": 35136
+      },
+      "arm64_versions": [
+        "1.7.0-1build1"
+      ],
+      "locked_version": "1.7.0-1build1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libopengl0"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/p/pcsc-lite/libpcsclite1_2.0.3-1build1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "5b107b3dc85fa6f3b051c63b4cbbd064d13543e9881dd777653f0e48c3d85d51",
+        "size": 21806
+      },
+      "arm64_versions": [
+        "2.0.3-1build1"
+      ],
+      "locked_version": "2.0.3-1build1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libpcsclite1"
+    },
+    {
+      "arm64_versions": [],
+      "locked_version": "14.2.0-4ubuntu2~24.04.1",
+      "locked_version_on_arm64": false,
+      "origin": "b2-lock",
+      "package": "libquadmath0"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-13/libstdc++-13-dev_13.3.0-6ubuntu2~24.04.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "e4911c9281d73b318ca47cb7976011a7dc13e299a91a06bc6d3e2d174cc2ce51",
+        "size": 2397276
+      },
+      "arm64_versions": [
+        "13.2.0-23ubuntu4",
+        "13.3.0-6ubuntu2~24.04.1"
+      ],
+      "locked_version": "13.3.0-6ubuntu2~24.04.1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libstdc++-13-dev"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-14/libstdc++6_14.2.0-4ubuntu2~24.04.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "f84a05ac45a6884109b6527e911081a38263b89e042fc94a338cf975f61a330c",
+        "size": 750976
+      },
+      "arm64_versions": [
+        "14-20240412-0ubuntu1",
+        "14.2.0-4ubuntu2~24.04.1"
+      ],
+      "locked_version": "14.2.0-4ubuntu2~24.04.1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libstdc++6"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-14/libtsan2_14.2.0-4ubuntu2~24.04.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "00beb501f4979c7fd3a978b52a489ea7dbfc1203e5c56936e4c0ea5c2032fb3d",
+        "size": 2696830
+      },
+      "arm64_versions": [
+        "14-20240412-0ubuntu1",
+        "14.2.0-4ubuntu2~24.04.1"
+      ],
+      "locked_version": "14.2.0-4ubuntu2~24.04.1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libtsan2"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-14/libubsan1_14.2.0-4ubuntu2~24.04.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "a5b4383f70f41cd949315c89e99e6416a0ee48037f7c5ea6b33f88f3c733757a",
+        "size": 1157016
+      },
+      "arm64_versions": [
+        "14-20240412-0ubuntu1",
+        "14.2.0-4ubuntu2~24.04.1"
+      ],
+      "locked_version": "14.2.0-4ubuntu2~24.04.1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libubsan1"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/universe/x/xcb-util-cursor/libxcb-cursor0_0.1.4-1build1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/universe/binary-arm64/Packages.gz",
+        "sha256": "3f46f48bc0ff4fd6cd566541cd047cc9e5c0afd5d4fb24eb4f07e53f1d0e2e50",
+        "size": 10602
+      },
+      "arm64_versions": [
+        "0.1.4-1build1"
+      ],
+      "locked_version": "0.1.4-1build1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libxcb-cursor0"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/x/xcb-util-wm/libxcb-icccm4_0.4.1-1.1build3_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "6151a4c23f743685cd124e0a288064c08deeaae865eeb5aa04dfd3f188859351",
+        "size": 10534
+      },
+      "arm64_versions": [
+        "0.4.1-1.1build3"
+      ],
+      "locked_version": "0.4.1-1.1build3",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libxcb-icccm4"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/x/xcb-util-image/libxcb-image0_0.4.0-2build1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "b04b31296932a8a0aa331eadd9da0003b0fa59aa60c0cb68fe974e4253eb891c",
+        "size": 10834
+      },
+      "arm64_versions": [
+        "0.4.0-2build1"
+      ],
+      "locked_version": "0.4.0-2build1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libxcb-image0"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/x/xcb-util-keysyms/libxcb-keysyms1_0.4.0-1build4_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "77ab9d4bf1c7c84e2e29e5c20de7e44dac023a0c3f6c042f7ef486126f3469c3",
+        "size": 7984
+      },
+      "arm64_versions": [
+        "0.4.0-1build4"
+      ],
+      "locked_version": "0.4.0-1build4",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libxcb-keysyms1"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/x/xcb-util-renderutil/libxcb-render-util0_0.3.9-1build4_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "15352905a205b7adab3d5556c45d9a0f90ffab1fe7f0de8da86d25e643644e34",
+        "size": 9648
+      },
+      "arm64_versions": [
+        "0.3.9-1build4"
+      ],
+      "locked_version": "0.3.9-1build4",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libxcb-render-util0"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/libx/libxcb/libxcb-shape0_1.15-1ubuntu2_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "678a611d3181c6bb72a9cd003d55e46a2491763f897c32e7712032635b62cc48",
+        "size": 6250
+      },
+      "arm64_versions": [
+        "1.15-1ubuntu2"
+      ],
+      "locked_version": "1.15-1ubuntu2",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libxcb-shape0"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/x/xcb-util/libxcb-util1_0.4.0-1build3_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "f61e6cc77672ed8694a415a0afd7027f0b5d7db7dee1de86e9e547e56f2aca44",
+        "size": 10650
+      },
+      "arm64_versions": [
+        "0.4.0-1build3"
+      ],
+      "locked_version": "0.4.0-1build3",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libxcb-util1"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/libx/libxcb/libxcb-xinerama0_1.15-1ubuntu2_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "47b834146e57c3d630ffd0330a93eb3fe00932bfbecf34c2c59961f2d55fff0d",
+        "size": 5598
+      },
+      "arm64_versions": [
+        "1.15-1ubuntu2"
+      ],
+      "locked_version": "1.15-1ubuntu2",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libxcb-xinerama0"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/libx/libxcb/libxcb-xinput0_1.15-1ubuntu2_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "95af4f4665076fbde5f1e7c18b50974b3490eade88c343f67144092b237d255f",
+        "size": 34178
+      },
+      "arm64_versions": [
+        "1.15-1ubuntu2"
+      ],
+      "locked_version": "1.15-1ubuntu2",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libxcb-xinput0"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/libx/libxcb/libxcb-xkb1_1.15-1ubuntu2_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "e559534b89be9518f9eca70c111ace3eb3d21cc37aa5266754873122a8bd8e71",
+        "size": 32616
+      },
+      "arm64_versions": [
+        "1.15-1ubuntu2"
+      ],
+      "locked_version": "1.15-1ubuntu2",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libxcb-xkb1"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/libx/libxkbcommon/libxkbcommon-x11-0_1.6.0-1build1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "350c788f4d34aee330e2065288d607b356d207f3be4256d95975cf99a5920f2e",
+        "size": 13606
+      },
+      "arm64_versions": [
+        "1.6.0-1build1"
+      ],
+      "locked_version": "1.6.0-1build1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "libxkbcommon-x11-0"
+    },
+    {
+      "arm64_versions": [
+        "6.8.0-147.147",
+        "6.8.0-31.31"
+      ],
+      "locked_version": "6.8.0-146.146",
+      "locked_version_on_arm64": false,
+      "origin": "b2-lock",
+      "package": "linux-libc-dev"
+    },
+    {
+      "arm64": {
+        "architecture": "all",
+        "filename": "pool/main/g/glibc/locales_2.39-0ubuntu8.9_all.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "f8310ef4ba442845cf5d44a5ce3d5d7accb659bae96b3a0999002132209cd367",
+        "size": 4231704
+      },
+      "arm64_versions": [
+        "2.39-0ubuntu8",
+        "2.39-0ubuntu8.9"
+      ],
+      "locked_version": "2.39-0ubuntu8.9",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "locales"
+    },
+    {
+      "arm64": {
+        "architecture": "all",
+        "filename": "pool/main/l/lto-disabled-list/lto-disabled-list_47_all.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "cac0f63c88188f376bb4df10a2af2b49a607bbef97a57db50ed58f678c21eee9",
+        "size": 12400
+      },
+      "arm64_versions": [
+        "47"
+      ],
+      "locked_version": "47",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "lto-disabled-list"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/m/make-dfsg/make_4.3-4.1build2_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "3bbbf5d426bc68fc232fc4e20f135aaf3eb76a514839acf82eeffa0dce9c81d4",
+        "size": 178236
+      },
+      "arm64_versions": [
+        "4.3-4.1build2"
+      ],
+      "locked_version": "4.3-4.1build2",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "make"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./nsight-compute-2026.1.1_2026.1.1.2-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "b75659746da1a8a7aafd631d47ee07d129907de4afdc0f9ac83365104346f330",
+        "size": 160968462
+      },
+      "arm64_versions": [
+        "2026.1.1.2-1"
+      ],
+      "locked_version": "2026.1.1.2-1",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "nsight-compute-2026.1.1"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "./nsight-systems-2025.6.3_2025.6.3.541-1_arm64.deb",
+        "index": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/Packages",
+        "sha256": "4d0e0dc88a940146da9880e62c34a2ccc6d3a4f973d687667d694a9b2bbd0c59",
+        "size": 438898472
+      },
+      "arm64_versions": [
+        "2025.6.3.343-256337165561v0",
+        "2025.6.3.541-256337736014v0"
+      ],
+      "locked_version": "2025.6.3.541-256337736014v0",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "nsight-systems-2025.6.3"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/o/openjdk-21/openjdk-21-jre_21.0.12.1+1-1~24.04.4_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "b7c85576a007210c968d4cd0ba53fa38d0e2465475b81b86c82b6532c4bf92c7",
+        "size": 231642
+      },
+      "arm64_versions": [
+        "21.0.12.1+1-1~24.04.4",
+        "21.0.3+9-1ubuntu1"
+      ],
+      "locked_version": "21.0.12.1+1-1~24.04.4",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "openjdk-21-jre"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/o/openjdk-21/openjdk-21-jre-headless_21.0.12.1+1-1~24.04.4_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "c727cb036f0818578866deea1dc4ad85ddf0178635c3a606896b4f7ba946c273",
+        "size": 45800134
+      },
+      "arm64_versions": [
+        "21.0.12.1+1-1~24.04.4",
+        "21.0.3+9-1ubuntu1"
+      ],
+      "locked_version": "21.0.12.1+1-1~24.04.4",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "openjdk-21-jre-headless"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/r/rpcsvc-proto/rpcsvc-proto_1.4.2-0ubuntu7_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "ae527152fc2bf9c1a645c2620d802b0849db32c8aa48328b4ae94c59cc57bcc9",
+        "size": 64816
+      },
+      "arm64_versions": [
+        "1.4.2-0ubuntu7"
+      ],
+      "locked_version": "1.4.2-0ubuntu7",
+      "locked_version_on_arm64": true,
+      "origin": "b2-lock",
+      "package": "rpcsvc-proto"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "dists/noble/main/pool/2512_0/binary-arm64/openfoam2512_2512.0-2_arm64.deb",
+        "index": "https://dl.openfoam.com/repos/deb/dists/noble/main/binary-arm64/Packages",
+        "sha256": "f01ec4093ac66ad6afcb61ed0144e5ee3df2425a16ffea52f45c93f7c1e588a5",
+        "size": 61532936
+      },
+      "arm64_versions": [
+        "2512.0-1",
+        "2512.0-2"
+      ],
+      "locked_version": "2512.0-2",
+      "locked_version_on_arm64": true,
+      "origin": "f1-extra-root",
+      "package": "openfoam2512"
+    },
+    {
+      "arm64": {
+        "architecture": "all",
+        "filename": "dists/noble/main/pool/2512_0/binary-all/openfoam2512-common_2512.0-2_all.deb",
+        "index": "https://dl.openfoam.com/repos/deb/dists/noble/main/binary-arm64/Packages",
+        "sha256": "f438ecbfaff0248b9273502f3b43a6cb1b4f81c07224dbda811f1b48d989026f",
+        "size": 1311782
+      },
+      "arm64_versions": [
+        "2512.0-1",
+        "2512.0-2"
+      ],
+      "locked_version": "2512.0-2",
+      "locked_version_on_arm64": true,
+      "origin": "f1-extra-root",
+      "package": "openfoam2512-common"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "dists/noble/main/pool/2512_0/binary-arm64/openfoam2512-dev_2512.0-2_arm64.deb",
+        "index": "https://dl.openfoam.com/repos/deb/dists/noble/main/binary-arm64/Packages",
+        "sha256": "2b08ed95ff43064b57651df12baf9aa2d5eaf2cfeb7ed9ed543069a5a3bc7445",
+        "size": 11228
+      },
+      "arm64_versions": [
+        "2512.0-1",
+        "2512.0-2"
+      ],
+      "locked_version": "2512.0-2",
+      "locked_version_on_arm64": true,
+      "origin": "f1-extra-root",
+      "package": "openfoam2512-dev"
+    },
+    {
+      "arm64": {
+        "architecture": "all",
+        "filename": "dists/noble/main/pool/2512_0/binary-all/openfoam2512-source_2512.0-2_all.deb",
+        "index": "https://dl.openfoam.com/repos/deb/dists/noble/main/binary-arm64/Packages",
+        "sha256": "3fa3396a40b41c35e23d3544ac8e49d65e0d15ad46d12ddf480626c23c822b1b",
+        "size": 7567038
+      },
+      "arm64_versions": [
+        "2512.0-1",
+        "2512.0-2"
+      ],
+      "locked_version": "2512.0-2",
+      "locked_version_on_arm64": true,
+      "origin": "f1-extra-root",
+      "package": "openfoam2512-source"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "dists/noble/main/pool/2512_0/binary-arm64/openfoam2512-tools_2512.0-2_arm64.deb",
+        "index": "https://dl.openfoam.com/repos/deb/dists/noble/main/binary-arm64/Packages",
+        "sha256": "a5bc1970f549f0c49d831708fd54d8f361aa269735fb4f142c5f9e94cbcf54f4",
+        "size": 53286
+      },
+      "arm64_versions": [
+        "2512.0-1",
+        "2512.0-2"
+      ],
+      "locked_version": "2512.0-2",
+      "locked_version_on_arm64": true,
+      "origin": "f1-extra-root",
+      "package": "openfoam2512-tools"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-13/gcc-13_13.3.0-6ubuntu2~24.04.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "04b729a6c728b92c941926be688f8c1a90a89602b10f131516a1e7574cc5b418",
+        "size": 484024
+      },
+      "arm64_versions": [
+        "13.2.0-23ubuntu4",
+        "13.3.0-6ubuntu2~24.04.1"
+      ],
+      "locked_version": null,
+      "locked_version_on_arm64": true,
+      "origin": "f1-extra-root",
+      "package": "gcc-13"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-13/g++-13_13.3.0-6ubuntu2~24.04.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "2bc3b9363781481b5b3b1c24baa18a3876e12126f355181db83303e9e0bede3b",
+        "size": 16046
+      },
+      "arm64_versions": [
+        "13.2.0-23ubuntu4",
+        "13.3.0-6ubuntu2~24.04.1"
+      ],
+      "locked_version": null,
+      "locked_version_on_arm64": true,
+      "origin": "f1-extra-root",
+      "package": "g++-13"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/g/gcc-13/gfortran-13_13.3.0-6ubuntu2~24.04.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-security/main/binary-arm64/Packages.gz",
+        "sha256": "dad06597db308738be25b5e8d65a249335754e0ec386680d33e405aa04144665",
+        "size": 13912
+      },
+      "arm64_versions": [
+        "13.2.0-23ubuntu4",
+        "13.3.0-6ubuntu2~24.04.1"
+      ],
+      "locked_version": null,
+      "locked_version_on_arm64": true,
+      "origin": "f1-extra-root",
+      "package": "gfortran-13"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/m/make-dfsg/make_4.3-4.1build2_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "3bbbf5d426bc68fc232fc4e20f135aaf3eb76a514839acf82eeffa0dce9c81d4",
+        "size": 178236
+      },
+      "arm64_versions": [
+        "4.3-4.1build2"
+      ],
+      "locked_version": null,
+      "locked_version_on_arm64": true,
+      "origin": "f1-extra-root",
+      "package": "make"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/universe/o/openmpi/openmpi-bin_4.1.6-7ubuntu2_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/universe/binary-arm64/Packages.gz",
+        "sha256": "6344943263d67fa9066e30147c9bc9c610ea9044a5f7d8be8d9a52b5d4e6c5b6",
+        "size": 113296
+      },
+      "arm64_versions": [
+        "4.1.6-7ubuntu2"
+      ],
+      "locked_version": null,
+      "locked_version_on_arm64": true,
+      "origin": "f1-extra-root",
+      "package": "openmpi-bin"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/universe/o/openmpi/libopenmpi-dev_4.1.6-7ubuntu2_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/universe/binary-arm64/Packages.gz",
+        "sha256": "677f55e64281a4b1ce033e8a2530652095f94d5689cdb3a07381ca89bc6d8eb1",
+        "size": 864640
+      },
+      "arm64_versions": [
+        "4.1.6-7ubuntu2"
+      ],
+      "locked_version": null,
+      "locked_version_on_arm64": true,
+      "origin": "f1-extra-root",
+      "package": "libopenmpi-dev"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/l/lapack/libblas-dev_3.12.0-3build1.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-updates/main/binary-arm64/Packages.gz",
+        "sha256": "1240f536316bccbb4b33939aeb528d58b4e6c359b55196d7f08a02f11dcbc419",
+        "size": 110984
+      },
+      "arm64_versions": [
+        "3.12.0-3build1",
+        "3.12.0-3build1.1"
+      ],
+      "locked_version": null,
+      "locked_version_on_arm64": true,
+      "origin": "f1-extra-root",
+      "package": "libblas-dev"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/l/lapack/liblapack-dev_3.12.0-3build1.1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble-updates/main/binary-arm64/Packages.gz",
+        "sha256": "8c081de67734c69bc6b6f49d12a6cbaa429edbe69a0fd3237c743e558ac74042",
+        "size": 4292752
+      },
+      "arm64_versions": [
+        "3.12.0-3build1",
+        "3.12.0-3build1.1"
+      ],
+      "locked_version": null,
+      "locked_version_on_arm64": true,
+      "origin": "f1-extra-root",
+      "package": "liblapack-dev"
+    },
+    {
+      "arm64": {
+        "architecture": "arm64",
+        "filename": "pool/main/p/pkgconf/pkg-config_1.8.1-2build1_arm64.deb",
+        "index": "http://ports.ubuntu.com/ubuntu-ports/dists/noble/main/binary-arm64/Packages.gz",
+        "sha256": "460d166c529651438347548fc1b2731440ce52c2643f678ec993a29dce5a3647",
+        "size": 7264
+      },
+      "arm64_versions": [
+        "1.8.1-2build1"
+      ],
+      "locked_version": null,
+      "locked_version_on_arm64": true,
+      "origin": "f1-extra-root",
+      "package": "pkg-config"
+    }
+  ],
+  "schema": "cfdw-arm64-lock-resolution/1",
+  "totals": {
+    "checked": 149,
+    "locked_version_exists_on_arm64": 142,
+    "package_absent": [
+      "cuda-nsight-13-2",
+      "cuda-opencl-13-2",
+      "libquadmath0"
+    ],
+    "package_exists_but_locked_version_absent": [
+      "cpp-13-x86-64-linux-gnu",
+      "g++-13-x86-64-linux-gnu",
+      "gcc-13-x86-64-linux-gnu",
+      "linux-libc-dev"
+    ]
+  }
+}
