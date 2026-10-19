@@ -126,7 +126,7 @@ def self_test() -> None:
         subprocess.run(["git", "-C", str(root), "init", "-q"], check=True)
         packet = root / PACKET
         packet.mkdir(parents=True)
-        (packet / "new.sh").write_text("x=/mnt/c/y\n", encoding="utf-8")
+        (packet / "new.sh").write_text("x=/mnt/c/y\n", encoding="utf-8", newline="\n")
         hits, _ = scan(packet_files(root))
         assert len(hits) == 1 and "new.sh:1: c-mount" in hits[0], hits
     print("f1 host bindings self-test: PASS")
