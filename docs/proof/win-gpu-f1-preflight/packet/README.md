@@ -209,8 +209,9 @@ positive integer `leader_epoch` set to the
 current coordinator-reviewed value at invocation, exact `target`, `protected`,
 `target_path`, `session`, and `execution_branch`. It names `accepted_packet_commit` (the separately accepted source
 commit) and `packet_sha256` mapping **every** `packet/**` relative path to its SHA-256. Its `inputs` map has exact
-absolute `path` and SHA-256 for `rootfs`, `ubuntu_sums`, `ubuntu_signature`, `openfoam_keyring`, `nvidia_keyring`,
-`b2_lock`, and `b2_licenses`. Its `allowed_signers` map has reviewed 40-hex fingerprint arrays for `ubuntu_rootfs`,
+absolute `path` and SHA-256 for `rootfs`, `ubuntu_sums`, `ubuntu_signature`, `openfoam_keyring`, `nvidia_keyring`
+and `b2_licenses` (six; the B2 package lock left the input set at Ruling 240 node C3, see the lock model below).
+Its `allowed_signers` map has reviewed 40-hex fingerprint arrays for `ubuntu_rootfs`,
 `ubuntu_archive`, `openfoam`, and `nvidia`; the fixed OpenFOAM/NVIDIA anchors must be present. The executor and
 coordinator review those values against primary publisher metadata and local signed evidence, commit the contract on
 the clean execution branch, and only then invoke the wrapper. A placeholder, uncommitted contract, stale epoch,
@@ -260,8 +261,15 @@ NVIDIA CUDA 13.2, rendered per architecture from `architecture.py`'s table (amd6
 `security.ubuntu.com`, NVIDIA `ubuntu2404/x86_64`; arm64: `ports.ubuntu.com/ubuntu-ports`, NVIDIA
 `ubuntu2404/sbsa`); `make` is asked for as `make:<architecture>`. `apt-get update` must authenticate them with explicit keyrings. It copies all five `InRelease`
 files from an isolated target-only apt lists directory, verifies each via `gpgv`, records key fingerprints and hashes package indices, and freezes index bytes as a
-compressed tar. The simulation pins all 135 B2 package versions and five OpenFOAM 2512.0-2 packages, and asks for
-GCC/G++/gfortran 13, make, OpenMPI, BLAS/LAPACK and `pkg-config`. It excludes recommendations, requires zero removals, maps every
+compressed tar. **Lock model (Ruling 237 (1)).** The roots are pins the publisher keeps: `cuda-toolkit-13-2=13.2.2-1`,
+the five OpenFOAM `2512.0-2` packages, and the unversioned tool names GCC/G++/gfortran 13, OpenMPI, BLAS/LAPACK,
+`pkg-config` and `make:<architecture>` (`transaction.py PINS`, `roots`). The run on each architecture resolves them
+(`apt-get --simulate`), `transaction.py lock` refuses before any index read when a pin is absent from the transaction
+or at another version, refuses a row the index serves for another architecture, and writes the run's own
+`transaction-lock.json` (schema `cfdw-f1-r217-transaction-lock/2`, `architecture`, `pins`) hashed against that run's
+signed indices. No prior lock is an input: B2's 135-row amd64 lock is a regression fixture
+(`tests/test_f1_transaction_roots.py`), not a root list, because its exact pins stop resolving once `noble-updates`
+drops a superseded version (register entry LOCK-PINS-A-MOVING-SUITE). The simulation excludes recommendations, requires zero removals, maps every
 `apt-get --print-uris` row to one signed-index SHA-256/size row, and confirms an exact pinned re-simulation. Only
 then does `apt-get download` fetch that resolved set into the disposable guest. `transaction.py` verifies every
 downloaded archive against the authenticated index, streams package payloads without extracting them to disk,

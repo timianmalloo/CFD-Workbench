@@ -14,7 +14,6 @@ from types import SimpleNamespace
 ROOT = Path(__file__).resolve().parents[1]
 PACKET = ROOT / 'docs/proof/win-gpu-f1-preflight/packet'
 SPIKE = ROOT / 'docs/proof/win-gpu-f1-preflight/arm64-spike'
-B2_LOCK = ROOT / 'docs/proof/win-gpu-b2/package-lock.json'
 sys.path.insert(0, str(PACKET))
 import architecture
 import attempt
@@ -278,12 +277,12 @@ class ArchitectureTests(unittest.TestCase):
     def test_Roots_MakeFollowsArchitecture(self):
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary) / 'roots.args'
-            transaction.roots(SimpleNamespace(b2_lock=B2_LOCK, output=output, architecture='arm64'))
+            transaction.roots(SimpleNamespace(output=output, architecture='arm64'))
             lines = output.read_text(encoding='utf-8').splitlines()
             self.assertIn('make:arm64', lines)
             self.assertNotIn('make:amd64', lines)
             with self.assertRaises(ValueError):
-                transaction.roots(SimpleNamespace(b2_lock=B2_LOCK, output=output, architecture='x64'))
+                transaction.roots(SimpleNamespace(output=output, architecture='x64'))
 
     def test_Contract_ArchitectureToken_AgreesAcrossSurfaces(self):
         # Plan section 7: the token read from every C1 surface of one prepared contract agrees.
@@ -300,7 +299,7 @@ class ArchitectureTests(unittest.TestCase):
                 for line in architecture.sources(token):
                     self.assertTrue(line.startswith(f'deb [arch={token} '), line)
                 output = Path(temporary) / 'roots.args'
-                transaction.roots(SimpleNamespace(b2_lock=B2_LOCK, output=output, architecture=token))
+                transaction.roots(SimpleNamespace(output=output, architecture=token))
                 self.assertIn(f'make:{token}', output.read_text(encoding='utf-8').splitlines())
                 self.assertEqual(architecture.linux_token(row['dpkg'], row['uname_m']), token)
                 self.assertEqual(attempt.input_hashes(token)['rootfs'], row['rootfs_sha256'])

@@ -70,6 +70,7 @@ try {
     $Rootfs=$UbuntuSums=$UbuntuSignature=$OpenFoamKeyring=$NvidiaKeyring=$Contract
     $body = Get-Content (Join-Path $RepoRoot 'docs\proof\win-gpu-f1-preflight\run-1\invocation-contract.json') -Raw | ConvertFrom-Json
     foreach ($p in $data.psobject.Properties) { $body | Add-Member NoteProperty $p.Name $p.Value -Force }
+    $body.inputs.psobject.Properties.Remove('b2_lock')   # the committed run-1 contract is /1; the B2 lock left the input set at C3
     $body | Add-Member NoteProperty target_path (Get-DerivedTargetPath $scratch) -Force   # Ruling 237: the admission span derives from $scratch
     $body | Add-Member NoteProperty external_sha256 @{ 'docs/proof/win-gpu-f1-preflight/recovery/check_cache.py'=(Get-FileHash (Join-Path $packet '..\recovery\check_cache.py')).Hash.ToLowerInvariant() }
     $body | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $Contract -Encoding UTF8
