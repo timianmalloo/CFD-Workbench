@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-19T16:32:31Z",
+  "generated": "2026-10-19T19:02:47Z",
   "audit": [
     {
       "actor": null,
@@ -39835,6 +39835,50 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-19T16:29:27Z",
       "duration_seconds": 184.0
+    },
+    {
+      "id": "al-01M5AQZBGMMWP2ZMWXQ97V269F",
+      "shortname": "ok keep the x64 bash, start C3",
+      "datetime": "2026-10-19T18:49:53Z",
+      "session": "pc-laptop-leader",
+      "prompt": "ok keep the x64 bash, start C3",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M5ARPZ6ENB8AFHZDK188NGJ1",
+      "shortname": "join-f1-c3-lock-model",
+      "datetime": "2026-10-19T19:02:47Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of f1/c3-lock-model into main",
+      "summary": "Ruling 240 node C3: the roots are pins, the run produces the per-architecture transaction lock (schema /2 with architecture and pins), the B2 lock leaves the input set (six inputs); tests/test_f1_transaction_roots.py red-first; 140 Python tests, 9 PowerShell suites on both native runtimes, packet self-tests green recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "tests/test_f1_transaction_roots.py"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "land plan node C3 (lock model) on main",
+      "done_when": "the three named tests green on both runtimes, the ledger line in plan section 9, the join readiness-green and pushed",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-19T18:59:31Z",
+      "duration_seconds": 196.0
     }
   ],
   "changes": [
