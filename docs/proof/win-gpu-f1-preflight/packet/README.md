@@ -190,8 +190,11 @@ accepts the packet, so its packet hash map has no circular dependency.
   -RunId <REVIEWED_UNIQUE_ID> -AgentSession <EXECUTOR_SESSION>
 ```
 
-The path examples are placeholders, not local files. The rootfs must be the B2 356,739,129-byte archive at SHA-256
-`8251e27ffff381a4af5f41dcb94d867de3e0d9774a9241908ab34555d99315ea`; `verify-rootfs.sh` checks its
+The path examples are placeholders, not local files. The rootfs is the Ubuntu noble WSL rootfs for the host's
+architecture (Ruling 237), pinned by name and SHA-256 in `architecture.py`'s table: amd64
+`ubuntu-noble-wsl-amd64-wsl.rootfs.tar.gz` at `8251e27ffff381a4af5f41dcb94d867de3e0d9774a9241908ab34555d99315ea`
+(the B2 356,739,129-byte archive), arm64 `ubuntu-noble-wsl-arm64-wsl.rootfs.tar.gz` at
+`fecec1d9b7b750c12c109edb49c13c1006f4a2efabb9b8bf341f11c4c9f2ef11`; `verify-rootfs.sh` checks its
 Ubuntu detached signature with the protected distro's cloud-image keyring before target creation. NVIDIA's expected
 key fingerprint is `EB693B3035CD5710E231E123A4B469963BF863CC`, established in the
 [B2 source-verification receipt](../../win-gpu-b2/source-verify.stdout.txt). The OpenFOAM publisher fingerprint is
@@ -200,7 +203,9 @@ fixed at `DC93C096174122E256DA24063386DD74948D208F`, also captured in the
 must be in the reviewed contract's allowlists; all keyring fingerprints must also be allowlisted. Ubuntu cloud-image
 and archive signer sets remain **Flagged until independently reviewed** in the committed invocation contract.
 
-The contract has schema `cfdw-f1-r217-invocation/1`, `leader: "mac"`, a positive integer `leader_epoch` set to the
+The contract has schema `cfdw-f1-r217-invocation/2`, `architecture` (`amd64` or `arm64`, the dpkg name; the
+launcher refuses a contract prepared for another architecture than the one it detects), `leader: "mac"`, a
+positive integer `leader_epoch` set to the
 current coordinator-reviewed value at invocation, exact `target`, `protected`,
 `target_path`, `session`, and `execution_branch`. It names `accepted_packet_commit` (the separately accepted source
 commit) and `packet_sha256` mapping **every** `packet/**` relative path to its SHA-256. Its `inputs` map has exact
@@ -214,7 +219,16 @@ SHA-256 and passes it into guest signer checks.
 
 ## Effects and evidence
 
-The wrapper starts one host monotonic deadline **before the final precheck**. It checks exact distro absence,
+The wrapper starts one host monotonic deadline **before the final precheck**. Right after the contract precheck it
+records the host's OS architecture, CPU and GPU names (`host-observations.json`, from `RuntimeInformation` and CIM)
+and `architecture.py` maps them once into `host-identity.json` (Ruling 238 (1)); an unmapped or emulated host, or
+a contract for the other architecture, is refused there with the receipt still written, and target creation
+requires that receipt. The token comes from CIM's `Win32_OperatingSystem.OSArchitecture`; the process view
+(`RuntimeInformation`, `PROCESSOR_ARCHITECTURE`) must agree with it, so on an ARM64 host the launcher is the
+native `pwsh`: Windows PowerShell 5.1 there is an ARM64X image that runs as an x64 process when an x64 parent
+starts it and is refused as emulated. The guest's `probe` stage records `guest-identity.txt` (`dpkg --print-architecture`,
+`uname -m`, the `nvidia-smi` GPU name when WSL exposes it) and the host compares it with the receipt before any
+network stage. The wrapper checks exact distro absence,
 protected presence, rootfs hash and signature, then starts the copied/adapted B2 `completed_guard.py` before the
 first target-creation effect. The guard samples every 5 seconds through unregister. Its terminal projection includes
 unit result/status, final iteration, marker counts and log byte/mtime/tail/full hashes. Missing, stale, partial or
@@ -238,7 +252,9 @@ identity blocks unregister. Timed-out creation is bounded by repeated registrati
 an uncertain failed attempt even if a stable absence is later seen.
 
 The repositories stage uses exact Ubuntu Noble main/universe, updates and security indices, OpenFOAM Noble and
-NVIDIA CUDA 13.2. `apt-get update` must authenticate them with explicit keyrings. It copies all five `InRelease`
+NVIDIA CUDA 13.2, rendered per architecture from `architecture.py`'s table (amd64: `archive.ubuntu.com`,
+`security.ubuntu.com`, NVIDIA `ubuntu2404/x86_64`; arm64: `ports.ubuntu.com/ubuntu-ports`, NVIDIA
+`ubuntu2404/sbsa`); `make` is asked for as `make:<architecture>`. `apt-get update` must authenticate them with explicit keyrings. It copies all five `InRelease`
 files from an isolated target-only apt lists directory, verifies each via `gpgv`, records key fingerprints and hashes package indices, and freezes index bytes as a
 compressed tar. The simulation pins all 135 B2 package versions and five OpenFOAM 2512.0-2 packages, and asks for
 GCC/G++/gfortran 13, make, OpenMPI, BLAS/LAPACK and `pkg-config`. It excludes recommendations, requires zero removals, maps every
@@ -291,6 +307,9 @@ powershell -NoProfile -File docs/proof/win-gpu-f1-preflight/packet/SelfTest.ps1
 py -3 docs/proof/win-gpu-f1-preflight/packet/transaction.py self-test
 py -3 docs/proof/win-gpu-f1-preflight/packet/manifest.py self-test
 py -3 docs/proof/win-gpu-f1-preflight/packet/completed_guard.py self-test
+py -3 -m unittest discover -s tests -p 'test_f1_*.py'
+powershell -NoProfile -File tests/f1_architecture.ps1
+pwsh -NoProfile -File tests/f1_architecture.ps1
 py -3 tools/check-wsl-inline.py
 py -3 tools/check-docs.py
 ```

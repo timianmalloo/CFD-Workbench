@@ -80,7 +80,7 @@ Every row labelled Verified names the committed receipt that holds the observati
 | arm64 Ubuntu packages come from `ports.ubuntu.com/ubuntu-ports`, not `archive.ubuntu.com/ubuntu` | `host-identity-evidence.pwsh.json` (`stock_distro_inside.apt_sources_uris`); the eight index URLs in `lock-resolution-arm64.json` | Verified |
 | Of the 149 locked rows (135 B2 rows + 14 F1 extra roots), 142 resolve on arm64 at the locked version; 4 exist at other versions; 3 are absent (§4.2) | `lock-resolution-arm64.json` (`totals`), produced by `lock_resolution_probe.py` | Verified |
 | The frozen amd64 lock has drifted on amd64 too: `linux-libc-dev` 6.8.0-146.146 is no longer in amd64 noble-updates main (147.147 is) | `sources-evidence.json` (`amd64_noble_updates_main`: index SHA-256, versions, `b2_locked_version_present: false`) | Verified |
-| Host identifiers under **both** PowerShell runtimes (7.6.7 and 5.1): `PROCESSOR_ARCHITECTURE=ARM64`, `OSArchitecture=Arm64`, `ProcessArchitecture=Arm64`, CIM "ARM 64-bit Processor"; CPU `NVIDIA RTX Spark N1X (6144-core GPU, 20-core CPU)`; GPUs `NVIDIA RTX Spark N1X (6144-core Blackwell RTX GPU)` and `NVIDIA NPU`; inside WSL `dpkg --print-architecture=arm64`, `uname -m=aarch64` | `host-identity-evidence.pwsh.json`, `host-identity-evidence.ps51.json`, produced by `host_identity_probe.ps1` | Verified |
+| Host identifiers under **both** PowerShell runtimes (7.6.7 and 5.1): `PROCESSOR_ARCHITECTURE=ARM64`, `OSArchitecture=Arm64`, `ProcessArchitecture=Arm64`, CIM "ARM 64-bit Processor"; CPU `NVIDIA RTX Spark N1X (6144-core GPU, 20-core CPU)`; GPUs `NVIDIA RTX Spark N1X (6144-core Blackwell RTX GPU)` and `NVIDIA NPU`; inside WSL `dpkg --print-architecture=arm64`, `uname -m=aarch64` | `host-identity-evidence.pwsh.json`, `host-identity-evidence.ps51.json`, produced by `host_identity_probe.ps1` | Verified from an ARM64 parent; the same 5.1 binary started from an x64 parent reports x64 (C1 finding, register EMULATED-PROCESS-REPORTS-AN-EMULATED-OS); CIM's `ARM 64-bit Processor` holds in both |
 | A fresh noble distro carries every tool the packet's Linux side calls (gpgv, gpg, dpkg, dpkg-query, apt-get, apt-cache, python3 3.12.3, sha256sum, setsid, taskset, findmnt, blockdev, xz, tar, curl, ps, awk) and both Ubuntu keyrings (`ubuntu-keyring` 2023.11.28.1; archive keyring SHA-256 `80a36b0a...`, cloud-image keyring `c2d40d92...`) | the two host-identity receipts (`stock_distro_inside`), via `wsl_tools_check.sh` in the stock Ubuntu-24.04 distro | Verified for the stock distro; the fresh target rootfs is the same release (Inferred until the first arm64 target creation) |
 | Git for Windows on the ARM64 laptop ships `gpgv.exe` (GnuPG 2.4.9) at `<git root>\usr\bin`, found by walking three levels up from `git --exec-path` (`...\Git\clangarm64\libexec\git-core`) | the two host-identity receipts (`git`) | Verified on arm64; the x64 layout (`...\Git\mingw64\...`) Inferred |
 | No `cfdw-openfoam2512` distro exists on the laptop; the only registration is `Ubuntu-24.04`, version 2, at `%USERPROFILE%\AppData\Local\wsl\<guid>` | the two host-identity receipts (`wsl_registrations`, `wsl_list_verbose`) | Verified |
@@ -166,7 +166,8 @@ serial under one author; only V runs two branches. Gates P0 and R are immovable.
 on the old PC (Verified there; Ruling 238 (3) says re-measure); the laptop's ring is 87-101 s (Verified, 2026-10-18);
 token cost not recorded. **Degradation:** a red in V returns to the author (cycle 1); a second red stops the track
 (cycle 2 is the cap); a DR answered "stop" ends the track with this plan as its record. **Re-plan checkpoints:** the
-DR-1 ruling (changes C4 and A); the arm64 `simulate` stage's first real transaction (may add rows the probe did not
+DR-1 ruling (ruled, Ruling 240); the launcher runtime on the ARM64 laptop is the native `pwsh` (C1 refuses an
+emulated Windows PowerShell 5.1, so A's invocation names `pwsh`); the arm64 `simulate` stage's first real transaction (may add rows the probe did not
 see, never a refusal of a pinned root that the index carries); the first `nvcc` print of the `sm_` list (Inferred
 today); the x64 Git layout for `gpgv.exe` (Inferred today).
 
@@ -225,6 +226,19 @@ surface of one prepared contract and asserts they agree (`Contract_ArchitectureT
 Planned: the probes and this plan in one docs-only join. Actual: filled at the join (the audit entry records duration).
 Planned-vs-actual for C1..A is recorded here, one line per node, when each node joins; the attempt-2 proof
 carries the run itself.
+
+- **C1 (2026-10-19).** Planned: one module, the table, `host-identity.json`, seven named tests, T0. Actual:
+  `architecture.py` (the token from CIM's OS architecture checked against the process view, the table, `sources`,
+  `host-identity` and `check`), `contract.py` schema `/2` with `architecture` and the per-architecture rootfs pin,
+  `attempt.py` `input_hashes(token)`, `transaction.py` `roots --architecture` and `make:<arch>`, `manifest.py`
+  requires the receipt, `preflight.sh` takes `--architecture` (22 arguments), writes `guest-identity.txt` in `probe`
+  and renders the sources from the table, `verify-rootfs.sh` takes the token, the launcher records
+  `host-observations.json`, writes the receipt before the first WSL effect, asserts it before `wsl --install` and
+  checks the guest after `probe`; the stage-scope pin re-based (packet_selftest). Tests: `test_f1_architecture.py`
+  15 cases (0.5 s), `f1_architecture.ps1` on 5.1 (2.9 s) and 7 (2.2 s); 130 Python tests green; both PowerShell
+  runtimes green on the eight F1 suites and the packet self-test. Finding beyond the plan: register entry
+  EMULATED-PROCESS-REPORTS-AN-EMULATED-OS (Windows PowerShell 5.1 on the ARM64 laptop runs as x64 from an x64
+  parent; the token therefore comes from CIM and an emulated launcher is refused). Duration: the join's audit entry.
 
 ## 10. Gate record
 

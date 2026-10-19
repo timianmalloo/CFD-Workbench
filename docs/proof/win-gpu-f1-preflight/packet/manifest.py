@@ -12,6 +12,7 @@ import tempfile
 from pathlib import Path
 
 EXCLUDE = {"current-owner.pid", "cancel.request", "completed-guard-stop.request"}
+REQUIRED = ("host-identity.json",)  # Ruling 238 (1): no evidence freeze without the host record.
 
 
 def hash_file(path: Path) -> tuple[int, str]:
@@ -27,6 +28,9 @@ def hash_file(path: Path) -> tuple[int, str]:
 def freeze(live: Path, frozen: Path) -> None:
     if frozen.exists() or not live.is_dir():
         raise ValueError("frozen destination exists or live source is absent")
+    for name in REQUIRED:
+        if not (live / name).is_file():
+            raise ValueError(f"required live evidence absent: {name}")
     frozen.mkdir(parents=True)
     for source in sorted(live.rglob("*")):
         if source.is_symlink():
@@ -95,11 +99,12 @@ def self_test() -> None:
         live, frozen = root / "live", root / "frozen"
         live.mkdir()
         (live / "a.txt").write_text("one\n", encoding="utf-8")
+        (live / "host-identity.json").write_text('{"architecture": "amd64"}\n', encoding="utf-8")
         (live / "completed-guard-events.jsonl").write_bytes(b'{"sample_number":1}\n{"partial":')
         freeze(live, frozen)
         assert (frozen / "completed-guard-events.jsonl").read_bytes() == b'{"sample_number":1}\n'
         manifest = json.loads((frozen / "capture-manifest.json").read_text(encoding="utf-8"))
-        assert len(manifest["files"]) == 2
+        assert len(manifest["files"]) == 3
         (frozen / "a.txt").write_text("two\n", encoding="utf-8")
         assert hash_file(frozen / "a.txt")[1] != manifest["files"][0]["sha256"]
     print("manifest self-test: PASS")

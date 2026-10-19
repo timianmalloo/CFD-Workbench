@@ -6,6 +6,7 @@ import json
 from pathlib import Path, PureWindowsPath
 import re
 import subprocess
+import architecture
 import contract
 
 PREFIX = 'docs/proof/win-gpu-f1-preflight'
@@ -25,7 +26,6 @@ RENEWAL_EVIDENCE = ['leader-activation.json', 'leader-immediately-pre-live.json'
     'keepalive-activation.json', 'keepalive-immediately-pre-live.json', 'keepalive-finalization.json']
 PROTECTED_PATH = r'%USERPROFILE%\AppData\Local\CFDWorkbench\qualification\wsl\cfdw-openfoam2512'
 INPUT_HASHES = {
-    'rootfs': contract.ROOTFS,
     'ubuntu_sums': '337176fdeda3dbbf7bd36146894c03670d5ed8cffc2bd804f39d4c4ace0d424f',
     'ubuntu_signature': 'c0deb277ccda24b8fcc2d36bf9d9530c0aed7138f30375dc45b6539a6aa6799b',
     'openfoam_keyring': '6d17d37b82fc840b8a5c767545703df7264cfa3e30f9cf74556ebb124bda1a93',
@@ -33,6 +33,11 @@ INPUT_HASHES = {
     'b2_lock': '2306d58e2fb0d728195ee2691cb7faab7c651e04bb70746f242310834d61e76c',
     'b2_licenses': '470de11258ff4e78a05a38cb3d1c75090387c79b2cc3b06fc3534e9eee5da4d6',
 }
+
+
+def input_hashes(token):
+    """The seven reviewed input hashes for one architecture: the rootfs pin follows the token (Ruling 237)."""
+    return dict(INPUT_HASHES, rootfs=architecture.row(token)['rootfs_sha256'])
 SIGNERS = {
     'ubuntu_rootfs': ['D2EB44626FDDC30B513D5BB71A5D6C4C7DB87C81', '4A3CE3CD565D7EB5C810E2B97FF3F408476CF100'],
     'ubuntu_archive': ['790BC7277767219C42C86F933B4FE6ACC0B21F32', '843938DF228D22F7B3742BC0D94AA3F0EFE21092', 'F6ECB3762474EDA9D21B7022871920D1991BC93C'],
@@ -80,9 +85,10 @@ def check_binding(document, run_id=None):
         raise ValueError('fresh attempt run identity required')
     if run_id is not None and run_id != document['run_id']:
         raise ValueError('invoked RunId differs from reviewed attempt')
-    if set(document.get('inputs', {})) != set(INPUT_HASHES):
+    hashes = input_hashes(document.get('architecture'))
+    if set(document.get('inputs', {})) != set(hashes):
         raise ValueError('exact seven reviewed inputs required')
-    for key, value in INPUT_HASHES.items():
+    for key, value in hashes.items():
         if document['inputs'][key].get('sha256') != value:
             raise ValueError('accepted input hash changed: ' + key)
     if document.get('allowed_signers') != SIGNERS:

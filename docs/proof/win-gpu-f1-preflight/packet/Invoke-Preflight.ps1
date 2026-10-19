@@ -21,7 +21,6 @@ $TargetPath = 'C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1'
 $HostStartFloor = [int64]19684091961
 $HostReserve = [int64]10737418240
 $VhdMaximum = [int64]8589934592
-$RootfsSha256 = '8251e27ffff381a4af5f41dcb94d867de3e0d9774a9241908ab34555d99315ea'
 $NvidiaFingerprint = 'EB693B3035CD5710E231E123A4B469963BF863CC'
 $OpenFoamFingerprint = 'DC93C096174122E256DA24063386DD74948D208F'
 $PacketRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -48,12 +47,41 @@ $script:Renewal = $null
 $script:OwnedLaunchers = @()
 $script:RenewalIdentity = $null
 $script:LastIdentitySampleSeconds = -100.0
+$script:Architecture = ''
 
 function Write-Lf([string]$Path, [string]$Value) {
     [IO.File]::WriteAllText($Path, ($Value -replace "`r`n", "`n"), [Text.UTF8Encoding]::new($false))
 }
 function Write-Json([string]$Path, [object]$Value) {
     Write-Lf $Path (($Value | ConvertTo-Json -Depth 20) + "`n")
+}
+function Write-HostObservations([string]$Path) {
+    # Ruling 238 (1): the raw host identifiers, recorded before the first WSL effect; architecture.py maps them once.
+    Write-Json $Path ([ordered]@{
+        schema='cfdw-f1-host-observations/1'; utc=[DateTimeOffset]::UtcNow.ToString('o')
+        powershell_version=$PSVersionTable.PSVersion.ToString(); powershell_edition=[string]$PSVersionTable.PSEdition
+        os_architecture=[Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString()
+        process_architecture=[Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture.ToString()
+        processor_architecture_env=[string]$env:PROCESSOR_ARCHITECTURE
+        processor_architew6432_env=[string]$env:PROCESSOR_ARCHITEW6432
+        os_architecture_cim=[string](Get-CimInstance Win32_OperatingSystem).OSArchitecture
+        os_version=[Environment]::OSVersion.Version.ToString()
+        cpu=@(Get-CimInstance Win32_Processor | ForEach-Object { [string]$_.Name })
+        gpu=@(Get-CimInstance Win32_VideoController | ForEach-Object { [string]$_.Name })
+    })
+}
+function Assert-HostIdentity {
+    # No target creation without the host record, and none for a contract prepared for another architecture.
+    $path = Join-Path $Live 'host-identity.json'
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw 'host identity receipt absent before target creation' }
+    $identity = (Read-LiveText $path) | ConvertFrom-Json
+    if ([string]$identity.schema -cne 'cfdw-f1-host-identity/1') { throw 'host identity receipt schema mismatch' }
+    if (-not [string]::IsNullOrEmpty([string]$identity.refusal)) { throw "host identity refused: $($identity.refusal)" }
+    $token = [string]$identity.architecture
+    if ([string]::IsNullOrEmpty($token) -or $token -cne [string]$contractData.architecture) {
+        throw "contract architecture '$($contractData.architecture)' differs from the detected host '$token'"
+    }
+    return $token
 }
 function Convert-LinuxPath([string]$Path) {
     $full = [IO.Path]::GetFullPath($Path)
@@ -493,7 +521,8 @@ function Invoke-Stage([string]$Stage, [int]$CapSeconds, [bool]$NewWork, [bool]$G
         '--openfoam-key', (Convert-LinuxPath $OpenFoamKeyring),
         '--nvidia-key', (Convert-LinuxPath $NvidiaKeyring),
         '--openfoam-fingerprint', $OpenFoamFingerprint, '--run-id', $RunId,
-        '--contract', (Convert-LinuxPath $Contract), '--contract-sha256', $script:ContractSha)
+        '--contract', (Convert-LinuxPath $Contract), '--contract-sha256', $script:ContractSha,
+        '--architecture', $script:Architecture)
     $owner = Join-Path $Live "$Stage.entry.txt"
     $null = Invoke-WslLinux $Target '0-1' "stage-$Stage" $owner $command $CapSeconds $GuardRequired $NewWork
     if (-not (Test-Path -LiteralPath (Join-Path $Live "$Stage.owner.txt"))) {
@@ -767,6 +796,11 @@ $script:ContractSha = (Get-FileHash -Algorithm SHA256 -LiteralPath $Contract).Ha
 if ($attemptNumber -eq 2) { $script:AuthorizationSha = (Get-FileHash -Algorithm SHA256 -LiteralPath $Authorization).Hash.ToLowerInvariant() }
 New-Item -ItemType Directory -Path $Live -Force | Out-Null
 Copy-Item -LiteralPath $precheckOut -Destination (Join-Path $Live 'invocation-contract.stdout.txt')
+Write-HostObservations (Join-Path $Live 'host-observations.json')
+$null = Invoke-Child 'py' @('-3', (Join-Path $PacketRoot 'architecture.py'), 'host-identity',
+    '--observations', (Join-Path $Live 'host-observations.json'), '--output', (Join-Path $Live 'host-identity.json'),
+    '--expected-architecture', [string]$contractData.architecture) 'host-identity' 60 $false $true
+$script:Architecture = Assert-HostIdentity
 $linuxGuard = Convert-LinuxPath (Join-Path $PacketRoot 'completed_guard.py')
 $linuxRoot = Convert-LinuxPath $Rootfs
 $linuxSums = Convert-LinuxPath $UbuntuSums
@@ -787,8 +821,8 @@ try {
         @(Get-TargetRegistration).Count -ne 0 -or (Test-Path -LiteralPath $TargetPath)) {
         throw 'final precheck found target collision or missing protected distro'
     }
-    if ((Get-FileHash -Algorithm SHA256 -LiteralPath $Rootfs).Hash.ToLowerInvariant() -cne $RootfsSha256) {
-        throw 'existing B2 rootfs SHA-256 changed'
+    if ((Get-FileHash -Algorithm SHA256 -LiteralPath $Rootfs).Hash.ToLowerInvariant() -cne [string]$contractData.inputs.rootfs.sha256) {
+        throw 'reviewed rootfs SHA-256 changed'
     }
     $packetHashes = [ordered]@{}
     foreach ($file in Get-ChildItem -LiteralPath $PacketRoot -File) {
@@ -797,7 +831,8 @@ try {
     Write-Json (Join-Path $Live 'final-precheck.json') ([ordered]@{
         schema='cfdw-f1-r217-final-precheck/1'; utc=[DateTimeOffset]::UtcNow.ToString('o')
         target=$Target; protected=$Protected; distro_names=$names; host_free_bytes=$initialHostFree
-        host_required_bytes=$HostStartFloor; rootfs_sha256=$RootfsSha256
+        host_required_bytes=$HostStartFloor; architecture=$script:Architecture
+        rootfs_sha256=[string]$contractData.inputs.rootfs.sha256
         invocation_contract_sha256=$script:ContractSha
         accepted_packet_commit=$contractData.accepted_packet_commit
         leader='mac'; leader_epoch=$contractData.leader_epoch; execution_branch=$executionBranch; execution_session=$AgentSession
@@ -813,7 +848,7 @@ try {
         @('/bin/bash', $verifyRootfs, $linuxSums, $linuxSignature, $linuxRoot,
           (Convert-LinuxPath $Contract), (Convert-LinuxPath $PacketRoot),
           (Convert-LinuxPath (Join-Path $Live 'rootfs-signature.gpgv.txt')),
-          $script:ContractSha) 90 $false $false
+          $script:ContractSha, $script:Architecture) 90 $false $false
     $before = Join-Path $Live 'l3-terminal-before.json'
     $null = Invoke-WslLinux $Protected '0' 'l3-before' (Join-Path $Live 'l3-before.owner.txt') `
         @('/usr/bin/python3', $linuxGuard, 'snapshot', '--output', (Convert-LinuxPath $before), '--include-log-sha256') 60 $false $false
@@ -850,6 +885,7 @@ try {
         $freshRows = @(Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss' | ForEach-Object { Get-ItemProperty -LiteralPath $_.PSPath })
         Assert-FreshRegistrations $freshRows $freshNames (Test-Path -LiteralPath $TargetPath) $attemptNumber
     }
+    $null = Assert-HostIdentity
     $null = Invoke-Child 'wsl.exe' @('--install', '--from-file', $Rootfs, '--name', $Target,
         '--location', $TargetPath, '--vhd-size', '8GB', '--no-launch') 'target-create' 300 $true $true
     if (@(Get-TargetRegistration).Count -ne 1) { throw 'target creation did not register exactly once' }
@@ -858,6 +894,9 @@ try {
         target=$Target; target_path=$TargetPath; target_key=$script:CreatedTargetKey; run_id=$RunId })
     $null = Assert-Host $false $true
     Invoke-Stage 'probe' 60 $true
+    $null = Invoke-Child 'py' @('-3', (Join-Path $PacketRoot 'architecture.py'), 'check',
+        '--host-identity', (Join-Path $Live 'host-identity.json'),
+        '--guest-identity', (Join-Path $Live 'guest-identity.txt')) 'host-guest-architecture' 60 $true $true
     # No network stage is entered until both guest and host VHD checks have passed.
     Invoke-Stage 'repositories' 300 $true
     Invoke-Stage 'simulate' 300 $true

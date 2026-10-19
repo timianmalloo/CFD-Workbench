@@ -10,11 +10,12 @@ import os
 import re
 import subprocess
 import sys
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
+
+import architecture
 
 OPENFOAM = "DC93C096174122E256DA24063386DD74948D208F"
 NVIDIA = "EB693B3035CD5710E231E123A4B469963BF863CC"
-ROOTFS = "8251e27ffff381a4af5f41dcb94d867de3e0d9774a9241908ab34555d99315ea"
 PACKET = "docs/proof/win-gpu-f1-preflight/packet"
 INPUT_KEYS = ("rootfs", "ubuntu_sums", "ubuntu_signature", "openfoam_keyring",
               "nvidia_keyring", "b2_lock", "b2_licenses")
@@ -44,8 +45,9 @@ def check_file_hash(expected: str, path: Path) -> None:
 
 
 def check_contract_fields(data: dict) -> None:
-    if data.get("schema") != "cfdw-f1-r217-invocation/1":
+    if data.get("schema") != "cfdw-f1-r217-invocation/2":
         raise ValueError("invocation contract schema mismatch")
+    token = architecture.require_token(data.get("architecture"))
     epoch = data.get("leader_epoch")
     if data.get("leader") != "mac" or type(epoch) is not int or epoch <= 0:
         raise ValueError("reviewed Mac leader epoch must be a positive integer")
@@ -59,8 +61,11 @@ def check_contract_fields(data: dict) -> None:
         row = data.get("inputs", {}).get(key, {})
         if not isinstance(row.get("path"), str) or not SHA.fullmatch(row.get("sha256", "")):
             raise ValueError(f"unreviewed input: {key}")
-    if data["inputs"]["rootfs"]["sha256"] != ROOTFS:
-        raise ValueError("B2 rootfs hash changed")
+    rootfs = architecture.row(token)
+    if data["inputs"]["rootfs"]["sha256"] != rootfs["rootfs_sha256"]:
+        raise ValueError(f"rootfs hash is not the {token} pin")
+    if PureWindowsPath(data["inputs"]["rootfs"]["path"]).name != rootfs["rootfs_name"]:
+        raise ValueError(f"rootfs name is not the {token} pin")
     signers = data.get("allowed_signers", {})
     for name in ("ubuntu_rootfs", "ubuntu_archive", "openfoam", "nvidia"):
         values = signers.get(name)

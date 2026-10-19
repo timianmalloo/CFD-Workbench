@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-19T15:19:26Z",
+  "generated": "2026-10-19T15:42:04Z",
   "audit": [
     {
       "actor": null,
@@ -39662,6 +39662,44 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-19T15:17:24Z",
       "duration_seconds": 122.0
+    },
+    {
+      "id": "al-01M5AD7F229EEJYC34TY7RJJ12",
+      "shortname": "f1-rescope-c1-architecture",
+      "datetime": "2026-10-19T15:42:04Z",
+      "session": "pc-laptop-leader",
+      "prompt": "rule DR-1 as (b), then start C1",
+      "summary": "F1 re-scope node C1: architecture.py (token from CIM checked against the process view, per-architecture table, host-identity and check CLIs), contract schema /2 with architecture and the per-architecture rootfs pin, roots and sources per architecture, manifest requires the receipt, launcher records host-observations.json and asserts host-identity.json before wsl --install, guest identity checked after probe. 15 Python cases + one PowerShell suite on both runtimes, red first; 130 Python tests green. Finding: EMULATED-PROCESS-REPORTS-AN-EMULATED-OS (Windows PowerShell 5.1 on the ARM64 laptop runs as x64 from an x64 parent).",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/packet/architecture.py",
+        "tests/test_f1_architecture.py",
+        "tests/f1_architecture.ps1",
+        "docs/plans/f1-rescope-r237.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Execute plan node C1 under Ruling 240: detect and record the host architecture, one table per architecture, host-identity.json required evidence",
+      "done_when": "Named red-first tests green on both runtimes, packet checks and gates green, joined to main with readiness green and pushed, ledger line in the plan",
+      "tier": "T2",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-19T15:21:48Z",
+      "duration_seconds": 1216.0,
+      "git": {
+        "sha": "6f22dcb3aad0f015cf77024e4de689b70f7fc731",
+        "short": "6f22dcb3a",
+        "branch": "f1/c1-architecture",
+        "pushed": null
+      }
     }
   ],
   "changes": [

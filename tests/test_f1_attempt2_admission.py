@@ -17,7 +17,8 @@ import contract
 
 def fixture(epoch=19):
     data = json.loads((ROOT / attempt.PREFIX / 'attempt-1/invocation-contract.json').read_bytes())
-    data.update(attempt=2, leader_epoch=epoch, execution_branch='win/gpu-f1-attempt2',
+    data.update(schema='cfdw-f1-r217-invocation/2', architecture='amd64',
+                attempt=2, leader_epoch=epoch, execution_branch='win/gpu-f1-attempt2',
                 session='pc-f1-attempt2', run_id='f1-attempt2-20261013',
                 run_root=attempt.PREFIX + '/attempt-2', execution_worktree=r'C:\Projects\f1-execution')
     for key, file in (('b2_lock', 'package-lock.json'), ('b2_licenses', 'license-map.json')):
