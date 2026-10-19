@@ -9426,7 +9426,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "bcca6e47ab357e7d49740dbbe0cf4104bac87d1389fea12dc497e10588e3e432"
+      "sourceSha256": "41bb6ddcb414c4068225e388e140f635494c99d0d97dc67f76801bcf843e6ec6"
     },
     {
       "id": "kb-hw-glossary",
@@ -11526,12 +11526,12 @@ window.DOCS_INDEX = {
       "path": "docs/plans/f1-rescope-r237.md",
       "title": "F1 re-scope plan (Ruling 237): one preflight packet for Windows x64 and ARM64 hosts with an NVIDIA GPU",
       "type": "plan",
-      "status": "proposed",
+      "status": "accepted",
       "owner": "@pc-laptop-leader",
       "phase": "preflight",
       "reviewBy": "2026-11-02",
       "reviewSuggested": [],
-      "summary": "The plan Ruling 237 (4) asks for before any packet code: what the re-scope changes in the F1 preflight packet so one packet runs on Windows x64 and Windows ARM64 with an NVIDIA GPU, the evidence each decision rests on (every Verified row names a committed receipt), the execution graph with its two-cycle repair cap and a named red-first test per node, the surfaces a change must reach, and the three decisions the reviewer and the operator settle before code starts. The spike did not refuse; two findings beyond the ruling's text are named.",
+      "summary": "The plan Ruling 237 (4) asks for before any packet code: what the re-scope changes in the F1 preflight packet so one packet runs on Windows x64 and Windows ARM64 with an NVIDIA GPU, the evidence each decision rests on (every Verified row names a committed receipt), the execution graph with its two-cycle repair cap and a named red-first test per node, the surfaces a change must reach, and the three decisions the reviewer and the operator settle before code starts. The spike did not refuse; two findings beyond the ruling's text are named. Ruling 240 (2026-10-19) ruled DR-1 as (b) and accepted the plan; the nodes run in order from C1.",
       "tags": [
         "f1",
         "windows",
@@ -11573,7 +11573,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "dac5e708820f34ed6848405f634a09be589b1561aeb3567365ffc792c48d8a47"
+      "sourceSha256": "a32df6773285b461dabe227237941a7a1e49226cdfec364cb5447e5b6e31102f"
     },
     {
       "id": "plan-seam-repair-1",
@@ -22874,5 +22874,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "91abfdd1dc960fb88b0b67a8feb81a5a0f8456d0cdf1b2e913a2c83867d872da"
+  "graphSha256": "32ea3f3ad8a93253e832e9e1e8c6effe84a6272680d0310cdfa59192e073200c"
 };

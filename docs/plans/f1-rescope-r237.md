@@ -2,7 +2,7 @@
 id: plan-f1-rescope-r237
 title: "F1 re-scope plan (Ruling 237): one preflight packet for Windows x64 and ARM64 hosts with an NVIDIA GPU"
 type: plan
-status: proposed
+status: accepted
 owner: "@pc-laptop-leader"
 phase: preflight
 tags: [f1, windows, wsl, arm64, x64, cuda, execution-graph, planning]
@@ -20,7 +20,8 @@ summary: >-
   packet runs on Windows x64 and Windows ARM64 with an NVIDIA GPU, the evidence each decision rests on (every Verified
   row names a committed receipt), the execution graph with its two-cycle repair cap and a named red-first test per
   node, the surfaces a change must reach, and the three decisions the reviewer and the operator settle before code
-  starts. The spike did not refuse; two findings beyond the ruling's text are named.
+  starts. The spike did not refuse; two findings beyond the ruling's text are named. Ruling 240 (2026-10-19)
+  ruled DR-1 as (b) and accepted the plan; the nodes run in order from C1.
 ---
 
 # F1 re-scope plan (Ruling 237)
@@ -186,6 +187,12 @@ today); the x64 Git layout for `gpgv.exe` (Inferred today).
 - **DR-3, reviewer acceptance of this plan** (Ruling 237 (4)), recorded in the audit log, with the hard vetoes cleared
   by someone other than the author.
 
+**Ruled.** Ruling 240 (2026-10-19, operator: "rule DR-1 as (b), then start C1"): DR-1 is (b), as recommended; the
+completed-L3 guard and the keepalive bind only when a protected distro is declared, and a `none` state records
+"protected: none, guard: not applicable"; a B2 rerun on the laptop is not a precondition and stays available as its own
+track. DR-2 and DR-3 are settled by the reviews in §10 (the Simplifier ACCEPT with conditions applied; the Test Architect
+ACCEPT in cycle 2), so the plan's status is `accepted` and P0 is closed. Node C1 starts under the two-cycle cap.
+
 ## 7. Surface list (E7) and consistency
 
 architecture module (C1: token, table, host identity) → contract fields (schema `cfdw-f1-r217-invocation/2`:
@@ -216,7 +223,8 @@ surface of one prepared contract and asserts they agree (`Contract_ArchitectureT
 ## 9. Ledger
 
 Planned: the probes and this plan in one docs-only join. Actual: filled at the join (the audit entry records duration).
-Planned-vs-actual for C1..A is recorded in the attempt-2 proof when those nodes run.
+Planned-vs-actual for C1..A is recorded here, one line per node, when each node joins; the attempt-2 proof
+carries the run itself.
 
 ## 10. Gate record
 
