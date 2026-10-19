@@ -286,6 +286,24 @@ carries the run itself.
   committed fixture signed by a throwaway key, with the real `gpgv.exe` on both runtimes) and
   `tests/test_f1_protected_none.py` (4 cases); 144 Python tests green; 10 PowerShell suites green on both native
   runtimes (22834 ms for 20 runs); the packet self-tests green. Duration: the join's audit entry.
+- **C5 (2026-10-19).** Planned: carry the Ruling 235 cycle-3 items from the candidate 46c0df8c: (i) `expires_in_before`
+  and its tests, (ii) the stderr check by byte length with the sweep, (iii) the `prepare` producer and its tests.
+  Actual: (i) `leader_supervisor.renew` returns `expires_in_before` read before the CAS write (the two lines keep their
+  order); `Get-AttemptLeaderEvidence` refuses a first event without the field and runs `Assert-AttemptLeader` on it;
+  the candidate's evidence cases (null, 199.999, a string, a boolean, NaN, infinity, missing) and its renewal cases
+  (200.125 before, never 900 after) carried; the candidate's `ParentProcessId` mutation case in the controls suite
+  carried. (ii) `([IO.FileInfo] ...).Length -ne 0`; the sweep over `Invoke-Preflight.ps1`, `Control.ps1`,
+  `preflight.sh`, the Python modules and `recovery/` found that read to be the only must-be-empty read (the apt stderr
+  files are recorded, never required empty); `RenewStderr_BomOnly_Refused` was red on main (`Read-LiveText` strips the
+  BOM, `.Trim()` then saw ''), `RenewStderr_WhitespaceOnly_Refused`, `RenewStderr_Empty_Accepted` (zero bytes via
+  `WriteAllBytes`). (iii) `contract.prepare` re-based on the `/2` contract: `--architecture`, `--protected`, the two
+  host floors, the target path derived from the future worktree, the two repository inputs (B2 licence map, cloud-image
+  keyring) projected under it, seven inputs; `tests/test_f1_attempt2_prepare.py` (8 cases, real Git). Not carried: the
+  candidate's `docs/plans/f1-attempt2-contract.md` (the old PC's track; this plan supersedes it) and its contract
+  literals (`/1`, the old target path). Register: F1-PRECONDITION-AFTER-MUTATION-A and
+  F1-PREPARATION-EXECUTION-CONFLATION-A carried with their controls named on main; EMPTY-MEANS-ZERO-BYTES new.
+  152 Python tests green (11 `tests/test_f1_*.py`, V's floor is 9); 10 PowerShell suites green on both native
+  runtimes (22014 ms for 20 runs; V's floor is 9); the packet self-tests green. Duration: the join's audit entry.
 
 ## 10. Gate record
 

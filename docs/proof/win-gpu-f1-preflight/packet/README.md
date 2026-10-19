@@ -213,6 +213,18 @@ fixed at `DC93C096174122E256DA24063386DD74948D208F`, also captured in the
 must be in the reviewed contract's allowlists; all keyring fingerprints must also be allowlisted. Ubuntu cloud-image
 and archive signer sets remain **Flagged until independently reviewed** in the committed invocation contract.
 
+**Producing the attempt-2 pair (Ruling 235 (3)).** `contract.py prepare --source-commit <author HEAD>
+--execution-worktree <absolute, uncreated path> --leader-epoch <n> --requested-ruling <n> --architecture <amd64|arm64>
+--protected <cfdw-openfoam2512|none> --host-start-floor-bytes <n> --host-reserve-bytes <n>` plus the verify inputs
+writes `attempt-2/invocation-contract.json` and the proposed `attempt-authorization.json` offline from a clean, exact
+author source commit: the packet and external hashes are the committed blobs, the two repository inputs (the B2
+licence map and the cloud-image keyring) are projected under the future execution worktree, the target path is derived
+from that worktree, and both files are acquired exclusively before either is written (a collision never overwrites,
+a failure never leaves a half pair). No live check runs. Without `--source-commit` the command is the validation-only
+preparation. The renewal supervisor's stderr must be byte-empty for the leader evidence to verify (a BOM-only file is
+not empty; Ruling 235 (1)), and the first renewal event's `expires_in_before` (the TTL read before the CAS write) must
+pass the leader floor (Ruling 235 (2)).
+
 The contract has schema `cfdw-f1-r217-invocation/2`, `architecture` (`amd64` or `arm64`, the dpkg name; the
 launcher refuses a contract prepared for another architecture than the one it detects), `leader: "mac"`, a
 positive integer `leader_epoch` set to the

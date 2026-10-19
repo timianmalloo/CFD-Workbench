@@ -353,6 +353,12 @@ function Get-AttemptLeaderEvidence {
     $raw = Read-LiveText (Join-Path $Live $names[3])
     if (-not $raw.EndsWith("`n") -or -not $raw.Trim()) { throw 'F1-LEADER-EVIDENCE-INCOMPLETE' }
     $events = @($raw.TrimEnd("`n").Split("`n") | ForEach-Object {$_ | ConvertFrom-Json})
+    # Ruling 235 (2): the first renewal event carries expires_in_before, the TTL the supervisor read before its CAS write;
+    # it must pass the leader floor, so the activation floor is proved on the record that was renewed, not after it.
+    if ($null -eq $events[0].psobject.Properties['expires_in_before']) { throw 'F1-LEADER-EVIDENCE-ACTIVATION-FLOOR-MISSING' }
+    $beforeFirstRenewal = $events[0].psobject.Copy()
+    $beforeFirstRenewal.expires_in = $events[0].expires_in_before
+    Assert-AttemptLeader $beforeFirstRenewal $contractData.leader_epoch
     $exit = (Read-LiveText (Join-Path $Live $names[5])) | ConvertFrom-Json
     if ($null -eq $script:RenewalIdentity -or $start.instance_id -cne $script:RenewalIdentity.instance_id -or
         $start.pid -ne $script:RenewalIdentity.pid -or
@@ -374,7 +380,8 @@ function Get-AttemptLeaderEvidence {
         $exit.schema -cne 'cfdw-f1-renewal-exit/1' -or $exit.run_id -cne $RunId -or
         $exit.epoch -ne $contractData.leader_epoch -or $exit.instance_id -cne $start.instance_id -or
         $exit.pid -ne $start.pid -or ($exit.exit_code -isnot [int] -and $exit.exit_code -isnot [long]) -or
-        $exit.exit_code -ne 0 -or (Read-LiveText (Join-Path $Live $names[4])).Trim()) { throw 'F1-LEADER-EVIDENCE-REFUSED' }
+        $exit.exit_code -ne 0 -or
+        ([IO.FileInfo](Join-Path $Live $names[4])).Length -ne 0) { throw 'F1-LEADER-EVIDENCE-REFUSED' }   # Ruling 235 (1): byte length, never a decoded string (a BOM-only file decoded to '')
     foreach ($event in $events) {
         if ($event.phase -cne 'renewal' -or $event.event -cne 'renew' -or
             $event.instance_id -cne $start.instance_id -or $event.pid -ne $start.pid) { throw 'F1-LEADER-EVIDENCE-RENEWAL' }
