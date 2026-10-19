@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-19T19:02:47Z",
+  "generated": "2026-10-19T21:36:58Z",
   "audit": [
     {
       "actor": null,
@@ -39879,6 +39879,51 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-19T18:59:31Z",
       "duration_seconds": 196.0
+    },
+    {
+      "id": "al-01M5B05CV9ZCK1QKSZRF9RP7X2",
+      "shortname": "start C4",
+      "datetime": "2026-10-19T21:13:00Z",
+      "session": "pc-laptop-leader",
+      "prompt": "start C4",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M5B1H9MYJH9SXKAFXTZMKHFV",
+      "shortname": "join-f1-c4-protected-none",
+      "datetime": "2026-10-19T21:36:58Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of f1/c4-protected-none into main",
+      "summary": "Ruling 240 node C4: protected is a contract field with a none state (no protected row required, keepalive and completed-L3 guard do not bind, receipts record protected: none, guard: not applicable); the rootfs signature is verified on the Windows side by Git's gpgv (found from git --exec-path, recorded in host-identity.json) against the reviewed cloud-image keyring input, a seventh contract input; verify-rootfs.sh deleted; two register entries; tests/f1_protected_none.ps1 and tests/test_f1_protected_none.py red-first; 144 Python tests, 10 PowerShell suites on both native runtimes green recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "tests/f1_protected_none.ps1",
+        "tests/test_f1_protected_none.py"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "land plan node C4 (protected none state, Windows-side rootfs signature) on main",
+      "done_when": "the five named PowerShell tests green on both runtimes, the Python test green, the ledger line in plan section 9, the join readiness-green and pushed",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-19T21:33:49Z",
+      "duration_seconds": 189.0
     }
   ],
   "changes": [
