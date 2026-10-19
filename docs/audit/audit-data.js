@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-19T13:21:11Z",
+  "generated": "2026-10-19T15:13:52Z",
   "audit": [
     {
       "actor": null,
@@ -39620,6 +39620,21 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-19T13:19:22Z",
       "duration_seconds": 109.0
+    },
+    {
+      "id": "al-01M5ABKTCR6YX9GTZASGWV5JRV",
+      "shortname": "dr-1-ruled-b-start-c1",
+      "datetime": "2026-10-19T15:13:52Z",
+      "session": "pc-laptop-leader",
+      "prompt": "rule DR-1 as (b), then start C1",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
     }
   ],
   "changes": [
