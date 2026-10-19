@@ -2,7 +2,7 @@
 import copy
 import hashlib
 import json
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import sys
 import tempfile
 import unittest
@@ -19,6 +19,7 @@ import attempt
 def fixture():
     value = json.loads((ROOT / 'docs/proof/win-gpu-f1-preflight/run-1/invocation-contract.json').read_bytes())
     value.update(schema='cfdw-f1-r217-invocation/2', architecture='amd64',
+                 host_start_floor_bytes=19684091961, host_reserve_bytes=10737418240,
                  attempt=1, leader_epoch=8, execution_branch='win/gpu-f1-r225-attempt1',
                  session='pc-f1-r225-attempt1', run_id='r225-attempt1-epoch8-20261012',
                  run_root='docs/proof/win-gpu-f1-preflight/attempt-1')
@@ -95,16 +96,20 @@ class AttemptAdmissionTests(unittest.TestCase):
         projection_path = root / 'authorization.accepted-projection.json'
         projection = json.loads(projection_path.read_bytes())
         self.assertEqual(live, projection)
-        attempt.check_authorization(live, data, sha)
-        attempt.check_authorization(projection, data, sha)
-        # The committed attempt-1 contract is schema /1; /2 code refuses it before the path check (Ruling 237), so the
-        # path claim is made on the same document lifted to /2.
-        lifted = dict(data, schema='cfdw-f1-r217-invocation/2', architecture='amd64')
+        # The committed attempt-1 contract is schema /1; /2 code reads the floors from the contract and refuses /1 before
+        # the path check (Rulings 237, 238 (3)), so the claims are made on the same document lifted to /2 with the
+        # floors the committed authorization recorded.
+        lifted = dict(data, schema='cfdw-f1-r217-invocation/2', architecture='amd64',
+                      host_start_floor_bytes=19684091961, host_reserve_bytes=10737418240)
+        attempt.check_authorization(live, lifted, sha)
+        attempt.check_authorization(projection, lifted, sha)
         with self.assertRaisesRegex(ValueError, 'outside exact live path'):
             attempt.verify_authorization(ROOT, projection_path, lifted, sha, data['run_id'], data['run_id'])
 
     def verify_boundary_fixture(self, root):
         data = fixture()
+        # Ruling 237: verify compares the contract's target_path with the path derived from the repository it runs in.
+        data['target_path'] = contract.derived_target_path(PureWindowsPath(str(root.resolve())))
         packet_name = contract.PACKET + '/fixture.txt'
         packet_bytes, helper_bytes = b'packet-fixture', b'helper-fixture'
         for name, raw in ((packet_name, packet_bytes), (attempt.EXTERNAL, helper_bytes)):

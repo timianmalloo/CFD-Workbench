@@ -17,15 +17,15 @@ Set-StrictMode -Version Latest
 $env:AGENT_SESSION = $AgentSession
 $Target = 'cfdw-petsc-cuda132-f1'
 $Protected = 'cfdw-openfoam2512'
-$TargetPath = 'C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1'
-$HostStartFloor = [int64]19684091961
-$HostReserve = [int64]10737418240
 $VhdMaximum = [int64]8589934592
 $NvidiaFingerprint = 'EB693B3035CD5710E231E123A4B469963BF863CC'
 $OpenFoamFingerprint = 'DC93C096174122E256DA24063386DD74948D208F'
 $PacketRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 . (Join-Path $PacketRoot 'Control.ps1')
 $RepoRoot = (Resolve-Path (Join-Path $PacketRoot '..\..\..\..')).Path
+$TargetPath = Get-DerivedTargetPath $RepoRoot   # Ruling 237: derived from the repository location, never a constant
+$HostStartFloor = [int64]0   # Ruling 238 (3): both floors come from the contract (Get-ContractHostFloors) after the precheck
+$HostReserve = [int64]0
 $RunRoot = Join-Path $RepoRoot 'docs\proof\win-gpu-f1-preflight\run-1'
 $Live = Join-Path $RunRoot 'live'
 $CheckpointPath = Join-Path $RunRoot 'checkpoint'
@@ -85,10 +85,10 @@ function Assert-HostIdentity {
 }
 function Convert-LinuxPath([string]$Path) {
     $full = [IO.Path]::GetFullPath($Path)
-    if (-not $full.StartsWith('C:\', [StringComparison]::OrdinalIgnoreCase) -or $full -match '\s') {
-        throw "path must be a no-space absolute C: path: $full"
+    if ($full -notmatch '^[A-Za-z]:\\' -or $full -match '\s') {
+        throw "path must be a no-space absolute drive path: $full"
     }
-    return '/mnt/c/' + $full.Substring(3).Replace('\', '/')
+    return '/mnt/' + $full.Substring(0, 1).ToLowerInvariant() + '/' + $full.Substring(3).Replace('\', '/')
 }
 function RemainingSeconds {
     if ($null -eq $Clock) { return 3600.0 }
@@ -115,19 +115,18 @@ function Get-TargetRegistration {
     return $matches
 }
 function Assert-TargetPath {
+    # The bound path, the path derived from the repository and the path the contract was prepared for must agree.
     $actual = [IO.Path]::GetFullPath($TargetPath).TrimEnd('\')
-    $expected = 'C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1'
-    if (-not $actual.Equals($expected, [StringComparison]::OrdinalIgnoreCase)) {
-        throw "unsafe target path: $actual"
-    }
-    $parent = [IO.Path]::GetFullPath((Split-Path -Parent $actual)).TrimEnd('\')
-    if (-not $parent.Equals('C:\Projects\CFD-Workbench-wsl', [StringComparison]::OrdinalIgnoreCase)) {
-        throw "unsafe target parent: $parent"
+    $derived = Get-DerivedTargetPath $RepoRoot
+    $recorded = ([string]$contractData.target_path).TrimEnd('\')
+    if (-not $actual.Equals($derived, [StringComparison]::OrdinalIgnoreCase)) { throw "unsafe target path: $actual (derived $derived)" }
+    if (-not $recorded.Equals($derived, [StringComparison]::OrdinalIgnoreCase)) {
+        throw "contract target path '$recorded' differs from the derived path $derived"
     }
     return $actual
 }
 function Get-HostFree {
-    return [int64](Get-PSDrive -Name C).Free
+    return [int64](Get-PSDrive -Name $TargetPath.Substring(0, 1)).Free   # the target's drive, whichever letter
 }
 function Assert-Host([bool]$Initial, [bool]$RequireVhd = $false) {
     $free = Get-HostFree
@@ -625,7 +624,7 @@ function Assert-FinalAbsence {
     if ($freshAttempt) {
         if (-not $script:CreatedTargetKey) { throw 'MAC-DECISION-REQUIRED: created GUID unbound; final absence unknown' }
         $rows = @(Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss' | ForEach-Object { Get-ItemProperty -LiteralPath $_.PSPath })
-        Assert-FreshRegistrations $rows $names (Test-Path -LiteralPath $TargetPath) $attemptNumber
+        Assert-FreshRegistrations $rows $names (Test-Path -LiteralPath $TargetPath) $attemptNumber $TargetPath
         if (@($rows | Where-Object { $_.PSChildName -ieq $script:CreatedTargetKey }).Count -ne 0) {
             throw 'created target GUID survives under a name/path alias'
         }
@@ -792,6 +791,7 @@ if ($precheckWait -le 0 -or -not $precheck.WaitForExit([int]($precheckWait * 100
     throw 'invocation contract precheck exceeded absolute deadline'
 }
 if ($precheck.ExitCode -ne 0) { throw "invocation contract rejected: $([IO.File]::ReadAllText($precheckErr))" }
+$HostStartFloor, $HostReserve = Get-ContractHostFloors $contractData
 $script:ContractSha = (Get-FileHash -Algorithm SHA256 -LiteralPath $Contract).Hash.ToLowerInvariant()
 if ($attemptNumber -eq 2) { $script:AuthorizationSha = (Get-FileHash -Algorithm SHA256 -LiteralPath $Authorization).Hash.ToLowerInvariant() }
 New-Item -ItemType Directory -Path $Live -Force | Out-Null
@@ -814,7 +814,7 @@ try {
     $names = Get-DistroNames
     if ($freshAttempt) {
         $rows = @(Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss' | ForEach-Object { Get-ItemProperty -LiteralPath $_.PSPath })
-        Assert-FreshRegistrations $rows $names (Test-Path -LiteralPath $TargetPath) $attemptNumber
+        Assert-FreshRegistrations $rows $names (Test-Path -LiteralPath $TargetPath) $attemptNumber $TargetPath
     }
     if (@($names | Where-Object { $_ -ceq $Protected }).Count -ne 1 -or
         @($names | Where-Object { $_ -ceq $Target }).Count -ne 0 -or
@@ -831,7 +831,8 @@ try {
     Write-Json (Join-Path $Live 'final-precheck.json') ([ordered]@{
         schema='cfdw-f1-r217-final-precheck/1'; utc=[DateTimeOffset]::UtcNow.ToString('o')
         target=$Target; protected=$Protected; distro_names=$names; host_free_bytes=$initialHostFree
-        host_required_bytes=$HostStartFloor; architecture=$script:Architecture
+        host_required_bytes=$HostStartFloor; host_reserve_bytes=$HostReserve; target_path=$TargetPath
+        architecture=$script:Architecture
         rootfs_sha256=[string]$contractData.inputs.rootfs.sha256
         invocation_contract_sha256=$script:ContractSha
         accepted_packet_commit=$contractData.accepted_packet_commit
@@ -883,7 +884,7 @@ try {
     if ($freshAttempt) {
         $freshNames = Get-DistroNames
         $freshRows = @(Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss' | ForEach-Object { Get-ItemProperty -LiteralPath $_.PSPath })
-        Assert-FreshRegistrations $freshRows $freshNames (Test-Path -LiteralPath $TargetPath) $attemptNumber
+        Assert-FreshRegistrations $freshRows $freshNames (Test-Path -LiteralPath $TargetPath) $attemptNumber $TargetPath
     }
     $null = Assert-HostIdentity
     $null = Invoke-Child 'wsl.exe' @('--install', '--from-file', $Rootfs, '--name', $Target,

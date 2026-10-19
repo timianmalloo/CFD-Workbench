@@ -171,6 +171,22 @@ if [ "$py_status" -ne 0 ] || [ "${py_ran:-0}" -eq 0 ]; then
   echo "FAILED: Python unittest (exit $py_status, ${py_ran:-0} tests ran)"
   failed=1
 fi
+# The F1 PowerShell suites (tests/f1_*.ps1) on pwsh and on Windows PowerShell 5.1 started from pwsh, Windows only
+# (tools/run-f1-powershell-suites.ps1). A bash-started 5.1 on an ARM64 host runs emulated and reports an x64 OS
+# (EMULATED-PROCESS-REPORTS-AN-EMULATED-OS); the runner measures each runtime's process architecture and module path
+# and fails F1-PS-EMULATED / F1-PS-MODULES before any suite. Serial after the harnesses; 15.7 s measured 2026-10-19
+# (9 suites x 2 runtimes, ARM64 laptop). On macOS nothing runs here.
+if [ "$ring_windows" -eq 1 ]; then
+  f1_out="$scratch/f1-powershell.out"
+  f1_status=0
+  pwsh -NoProfile -NonInteractive -File "$root/tools/run-f1-powershell-suites.ps1" -Scratch "$scratch" > "$f1_out" 2>&1 || f1_status=$?
+  grep '^F1-PS\|^== f1 ' "$f1_out" || true
+  if [ "$f1_status" -ne 0 ]; then
+    grep '^   [|!] \|^FAILED' "$f1_out" | tail -30 || true
+    echo "FAILED: F1 PowerShell suites (exit $f1_status)"
+    failed=1
+  fi
+fi
 # The parts run each check once only if the jobs hold parts 1..n of one n and every part enumerated the same registrations
 # (Core: checks; Analysis: test classes): one PARTITION line per part, one count. Otherwise a check could drop out silently.
 check_parts() {

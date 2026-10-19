@@ -18,16 +18,16 @@ foreach ($guid in @($protected.PSChildName, '{e958c4d5-ae78-4b50-a634-7102f334d3
     $bad = $target.psobject.Copy(); $bad.PSChildName = $guid
     Refuses { Get-BoundTargetKey @($bad) $path }
 }
-Assert-FreshRegistrations @($protected) @('cfdw-openfoam2512') $false
-Refuses { Assert-FreshRegistrations @($protected, $target) @('cfdw-openfoam2512') $false }
+Assert-FreshRegistrations @($protected) @('cfdw-openfoam2512') $false 1 $path
+Refuses { Assert-FreshRegistrations @($protected, $target) @('cfdw-openfoam2512') $false 1 $path }
 Refuses { Assert-FreshRegistrations @($protected) @('cfdw-openfoam2512') $true }
 $renamed = $target.psobject.Copy(); $renamed.DistributionName='renamed'; $renamed.BasePath='moved'; $renamed.PSChildName='{e958c4d5-ae78-4b50-a634-7102f334d3aa}'
-Refuses { Assert-FreshRegistrations @($protected, $renamed) @('cfdw-openfoam2512') $false }
+Refuses { Assert-FreshRegistrations @($protected, $renamed) @('cfdw-openfoam2512') $false 1 $path }
 $alias = $target.psobject.Copy(); $alias.DistributionName='alias'; $alias.BasePath=$protected.BasePath
-Refuses { Assert-FreshRegistrations @($protected, $alias) @('cfdw-openfoam2512') $false }
+Refuses { Assert-FreshRegistrations @($protected, $alias) @('cfdw-openfoam2512') $false 1 $path }
 $alias.BasePath='other'; $alias.PSChildName=$protected.PSChildName
-Refuses { Assert-FreshRegistrations @($protected, $alias) @('cfdw-openfoam2512') $false }
-$data = [pscustomobject]@{attempt=1;leader_epoch=8;execution_branch='win/gpu-f1-r225-attempt1';session='pc-f1-r225-attempt1';run_id='r225-attempt1-epoch8-20261012';run_root='docs/proof/win-gpu-f1-preflight/attempt-1'}
+Refuses { Assert-FreshRegistrations @($protected, $alias) @('cfdw-openfoam2512') $false 1 $path }
+$data = [pscustomobject]@{schema='cfdw-f1-r217-invocation/2';architecture='amd64';host_start_floor_bytes=19684091961;host_reserve_bytes=10737418240;attempt=1;leader_epoch=8;execution_branch='win/gpu-f1-r225-attempt1';session='pc-f1-r225-attempt1';run_id='r225-attempt1-epoch8-20261012';run_root='docs/proof/win-gpu-f1-preflight/attempt-1'}
 Require ((Get-InvocationRunRoot $data 'C:\Projects\fixture' $data.run_id $data.session) -like '*attempt-1') 'fresh routing rejected'
 Refuses { Get-InvocationRunRoot $data 'C:\Projects\fixture' 'wrong-run' $data.session }
 # Execute the actual entrypoint admission span. Only the child boundary is inert.
@@ -70,6 +70,7 @@ try {
     $Rootfs=$UbuntuSums=$UbuntuSignature=$OpenFoamKeyring=$NvidiaKeyring=$Contract
     $body = Get-Content (Join-Path $RepoRoot 'docs\proof\win-gpu-f1-preflight\run-1\invocation-contract.json') -Raw | ConvertFrom-Json
     foreach ($p in $data.psobject.Properties) { $body | Add-Member NoteProperty $p.Name $p.Value -Force }
+    $body | Add-Member NoteProperty target_path (Get-DerivedTargetPath $scratch) -Force   # Ruling 237: the admission span derives from $scratch
     $body | Add-Member NoteProperty external_sha256 @{ 'docs/proof/win-gpu-f1-preflight/recovery/check_cache.py'=(Get-FileHash (Join-Path $packet '..\recovery\check_cache.py')).Hash.ToLowerInvariant() }
     $body | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $Contract -Encoding UTF8
     # Override only filesystem names needed by this real admission span.

@@ -21,6 +21,32 @@ INPUT_KEYS = ("rootfs", "ubuntu_sums", "ubuntu_signature", "openfoam_keyring",
               "nvidia_keyring", "b2_lock", "b2_licenses")
 FPR = re.compile(r"^[A-F0-9]{40}$")
 SHA = re.compile(r"^[a-f0-9]{64}$")
+TARGET_NAME = "cfdw-petsc-cuda132-f1"
+TARGET_PARENT = "CFD-Workbench-wsl"
+
+
+def derived_target_path(repo: PureWindowsPath) -> str:
+    """Ruling 237: <repository parent>\\CFD-Workbench-wsl\\cfdw-petsc-cuda132-f1; never a constant, never a parameter.
+    Control.ps1 Get-DerivedTargetPath is the same rule on the launcher side (tests/f1_derived_paths.ps1 proves them equal)."""
+    repo = PureWindowsPath(repo)
+    if (not re.fullmatch(r"[A-Za-z]:", repo.drive) or repo.root != "\\" or repo.parent == repo
+            or re.search(r"\s", str(repo))):
+        raise ValueError(f"repository root must be a no-space absolute drive path with a parent: {repo}")
+    return str(repo.parent / TARGET_PARENT / TARGET_NAME)
+
+
+def is_target_path(value: object) -> bool:
+    if not isinstance(value, str) or re.search(r"\s", value) or any(ord(c) < 32 for c in value):
+        return False
+    path = PureWindowsPath(value)
+    return (bool(re.fullmatch(r"[A-Za-z]:", path.drive)) and path.root == "\\" and ".." not in path.parts
+            and path.parts[-2:] == (TARGET_PARENT, TARGET_NAME))
+
+
+def check_target_path_derived(data: dict, repo: PureWindowsPath) -> None:
+    recorded = str(PureWindowsPath(data["target_path"]))
+    if recorded.casefold() != derived_target_path(repo).casefold():
+        raise ValueError(f"contract target path {recorded} differs from the path derived from the repository")
 
 
 def git(repo: Path, *args: str) -> str:
@@ -51,10 +77,12 @@ def check_contract_fields(data: dict) -> None:
     epoch = data.get("leader_epoch")
     if data.get("leader") != "mac" or type(epoch) is not int or epoch <= 0:
         raise ValueError("reviewed Mac leader epoch must be a positive integer")
-    if (data.get("target") != "cfdw-petsc-cuda132-f1" or
-            data.get("protected") != "cfdw-openfoam2512" or
-            data.get("target_path") != r"C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1"):
+    if (data.get("target") != TARGET_NAME or data.get("protected") != "cfdw-openfoam2512" or
+            not is_target_path(data.get("target_path"))):
         raise ValueError("distro identity/path mismatch")
+    floors = [data.get(name) for name in ("host_start_floor_bytes", "host_reserve_bytes")]
+    if any(type(value) is not int or value <= 0 for value in floors) or floors[0] <= floors[1]:
+        raise ValueError("host_start_floor_bytes and host_reserve_bytes must be positive integers, floor above reserve")
     if not re.fullmatch(r"[0-9a-f]{40}", data.get("accepted_packet_commit", "")):
         raise ValueError("accepted packet commit absent")
     for key in INPUT_KEYS:
@@ -163,6 +191,7 @@ def verify(args: argparse.Namespace) -> None:
         if committed != path.read_bytes():
             raise ValueError("contract working bytes differ from committed blob")
     check_contract_fields(document)
+    check_target_path_derived(document, PureWindowsPath(str(repo)))
     if document.get('attempt') == 2 and str(repo).casefold() != document['execution_worktree'].casefold():
         raise ValueError('attempt-2 execution worktree differs from invocation')
     if document["execution_branch"] != args.branch or document["session"] != args.session:
@@ -237,13 +266,16 @@ def main() -> None:
     sign.add_argument("--expected-sha256", required=True)
     sign.add_argument("--status", type=Path, required=True)
     sign.add_argument("--kind", choices=("ubuntu_rootfs", "ubuntu_archive", "openfoam", "nvidia"), required=True)
+    target = sub.add_parser("target-path")
+    target.add_argument("--repo", type=Path, required=True)
     ring = sub.add_parser("keyring")
     ring.add_argument("--contract", type=Path, required=True)
     ring.add_argument("--expected-sha256", required=True)
     ring.add_argument("--keyring", type=Path, required=True)
     ring.add_argument("--kind", choices=("ubuntu_rootfs", "ubuntu_archive", "openfoam", "nvidia"), required=True)
     args = parser.parse_args()
-    {"verify": verify, "prepare": verify, "signer": verify_signer, "keyring": verify_keyring}[args.command](args)
+    {"verify": verify, "prepare": verify, "signer": verify_signer, "keyring": verify_keyring,
+     "target-path": lambda a: print(derived_target_path(PureWindowsPath(str(a.repo))))}[args.command](args)
 
 
 if __name__ == "__main__":
