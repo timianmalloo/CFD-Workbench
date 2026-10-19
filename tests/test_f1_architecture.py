@@ -79,6 +79,8 @@ def contract_fixture(token):
     value.update(schema='cfdw-f1-r217-invocation/2', architecture=token,
                  host_start_floor_bytes=19684091961, host_reserve_bytes=10737418240)
     value['inputs']['rootfs'] = {'path': 'C:\\reviewed\\' + row['rootfs_name'], 'sha256': row['rootfs_sha256']}
+    value['inputs']['ubuntu_cloudimage_keyring'] = {'path': 'C:\\reviewed\\ubuntu-cloudimage-keyring.gpg',
+                                                    'sha256': attempt.INPUT_HASHES['ubuntu_cloudimage_keyring']}   # joined at C4
     return value
 
 

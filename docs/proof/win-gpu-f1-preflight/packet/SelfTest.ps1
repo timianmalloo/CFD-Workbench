@@ -58,6 +58,7 @@ Invoke-Expression $openLiveReaderAst.Extent.Text
 Invoke-Expression $readLiveTextAst.Extent.Text
 Invoke-Expression $readStateAst.Extent.Text
 Invoke-Expression $assertGuardAst.Extent.Text
+$Protected = 'cfdw-openfoam2512'   # the declared state; under 'none' Assert-Guard returns 'not applicable' (Ruling 240, tests/f1_protected_none.ps1)
 $readerFixture = Join-Path ([IO.Path]::GetTempPath()) ('f1-reader-sharing-' + [guid]::NewGuid().ToString('N'))
 $null = New-Item -ItemType Directory -Path $readerFixture
 try {

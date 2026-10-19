@@ -174,7 +174,7 @@ fi
 # The F1 PowerShell suites (tests/f1_*.ps1) on pwsh and on Windows PowerShell 5.1 started from pwsh, Windows only
 # (tools/run-f1-powershell-suites.ps1). A bash-started 5.1 on an ARM64 host runs emulated and reports an x64 OS
 # (EMULATED-PROCESS-REPORTS-AN-EMULATED-OS); the runner measures each runtime's process architecture and module path
-# and fails F1-PS-EMULATED / F1-PS-MODULES before any suite. Serial after the harnesses; 15.7 s measured 2026-10-19
+# and fails F1-PS-EMULATED / F1-PS-MODULES before any suite. Serial after the harnesses; 22.8 s measured 2026-10-19 (20 runs after node C4)
 # (9 suites x 2 runtimes, ARM64 laptop). On macOS nothing runs here.
 if [ "$ring_windows" -eq 1 ]; then
   f1_out="$scratch/f1-powershell.out"

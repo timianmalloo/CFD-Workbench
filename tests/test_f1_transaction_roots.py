@@ -155,7 +155,8 @@ class TransactionRootsTests(unittest.TestCase):
         for token in ('amd64', 'arm64'):
             self.assertEqual(set(attempt.input_hashes(token)), set(contract.INPUT_KEYS))
         self.assertNotIn('b2_lock', attempt.INPUT_HASHES)
-        self.assertEqual(len(contract.INPUT_KEYS), 6)
+        self.assertEqual(len(contract.INPUT_KEYS), 7)   # six after C3, plus the cloud-image keyring at C4
+        self.assertIn('ubuntu_cloudimage_keyring', contract.INPUT_KEYS)
         source = (PACKET / 'preflight.sh').read_text(encoding='utf-8')
         self.assertNotIn('--b2-lock', source)
         self.assertIn('--b2-licences', source)

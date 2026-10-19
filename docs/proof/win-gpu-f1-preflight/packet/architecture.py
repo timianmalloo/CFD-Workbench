@@ -121,6 +121,8 @@ def host_identity(observations: dict, expected: str | None) -> dict:
         "windows": windows,
         "cpu": _names(observations.get("cpu"), "CPU"),
         "gpu": _names(observations.get("gpu"), "GPU"),
+        "gpgv": {"path": observations.get("gpgv_path") or "Not recorded",   # Ruling 240 (2): the Windows-side verifier
+                 "version": observations.get("gpgv_version") or "Not recorded"},
         "refusal": None,
     }
     try:
@@ -180,10 +182,6 @@ def command_sources(args: argparse.Namespace) -> None:
     sys.stdout.write("\n".join(sources(args.architecture)) + "\n")
 
 
-def command_rootfs_name(args: argparse.Namespace) -> None:
-    print(row(args.architecture)["rootfs_name"])
-
-
 def main() -> None:
     parser = argparse.ArgumentParser()
     commands = parser.add_subparsers(dest="command", required=True)
@@ -194,11 +192,9 @@ def main() -> None:
     check = commands.add_parser("check")
     check.add_argument("--host-identity", type=Path, required=True)
     check.add_argument("--guest-identity", type=Path, required=True)
-    for name in ("sources", "rootfs-name"):
-        commands.add_parser(name).add_argument("--architecture", required=True)
+    commands.add_parser("sources").add_argument("--architecture", required=True)
     args = parser.parse_args()
-    {"host-identity": command_host_identity, "check": command_check, "sources": command_sources,
-     "rootfs-name": command_rootfs_name}[args.command](args)
+    {"host-identity": command_host_identity, "check": command_check, "sources": command_sources}[args.command](args)
 
 
 if __name__ == "__main__":

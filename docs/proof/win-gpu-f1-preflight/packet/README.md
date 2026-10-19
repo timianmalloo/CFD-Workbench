@@ -161,7 +161,8 @@ into the register at the join.
 
 This packet is for **one** reviewed live attempt in an isolated EXECUTE worktree. The PACKET author did not run it.
 It permits a disposable dependency simulation and resolved `.deb` acquisition for licence/size inspection only.
-`cfdw-openfoam2512` is read only for the completed-L3 guard and signed Ubuntu rootfs verification. The target is
+A declared protected distro (`cfdw-openfoam2512`) is read only for the completed-L3 guard; with `protected: none`
+nothing on the host is read or guarded (Ruling 240 (1)). The target is
 exactly `cfdw-petsc-cuda132-f1` at `C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1`.
 [Ruling 217](../../../notes/rulings.md) and the [execution plan](../../../plans/windows-gpu-f1-preflight-r217.md)
 govern. Mac is the decision owner. The coordinator lease had reached epoch **5** when this repair was authored;
@@ -186,6 +187,7 @@ accepts the packet, so its packet hash map has no circular dependency.
   -UbuntuSignature C:\reviewed\SHA256SUMS.gpg `
   -OpenFoamKeyring C:\reviewed\openfoam.gpg `
   -NvidiaKeyring C:\reviewed\cuda-archive-keyring.gpg `
+  -UbuntuCloudimageKeyring <execution worktree>\docs\proof\win-gpu-f1-preflight\inputs\ubuntu-cloudimage-keyring.gpg `
   -Contract C:\Projects\CFD-Workbench-win-gpu-f1-r217-execute\docs\proof\win-gpu-f1-preflight\run-1\invocation-contract.json `
   -RunId <REVIEWED_UNIQUE_ID> -AgentSession <EXECUTOR_SESSION>
 ```
@@ -194,8 +196,16 @@ The path examples are placeholders, not local files. The rootfs is the Ubuntu no
 architecture (Ruling 237), pinned by name and SHA-256 in `architecture.py`'s table: amd64
 `ubuntu-noble-wsl-amd64-wsl.rootfs.tar.gz` at `8251e27ffff381a4af5f41dcb94d867de3e0d9774a9241908ab34555d99315ea`
 (the B2 356,739,129-byte archive), arm64 `ubuntu-noble-wsl-arm64-wsl.rootfs.tar.gz` at
-`fecec1d9b7b750c12c109edb49c13c1006f4a2efabb9b8bf341f11c4c9f2ef11`; `verify-rootfs.sh` checks its
-Ubuntu detached signature with the protected distro's cloud-image keyring before target creation. NVIDIA's expected
+`fecec1d9b7b750c12c109edb49c13c1006f4a2efabb9b8bf341f11c4c9f2ef11`. The launcher's `Invoke-RootfsSignature`
+checks its Ubuntu detached signature on the Windows side, before any WSL effect, with the Git-for-Windows `gpgv.exe`
+found by walking up from `git --exec-path` (path and version recorded in `host-identity.json`; an absent `gpgv.exe`
+refuses with every searched path named) against the reviewed cloud-image keyring input `-UbuntuCloudimageKeyring`:
+the committed copy under `../inputs/` (ubuntu-keyring 2023.11.28.1, SHA-256
+`c2d40d925557dbe9a0745c12ca0dc98bed593ce9a6652f1b2faa1ff0858dbf2f`), hash-bound in the contract like the OpenFOAM
+and NVIDIA keyrings (Ruling 240 (2)). The keyring's identities and the `VALIDSIG` signer must be in the contract's
+`ubuntu_rootfs` allowlist, and the signed `SHA256SUMS` line for the rootfs must carry the contract's pin. The MSYS
+`gpgv` reads a drive-letter keyring path as a URL scheme, so the launcher hands it the `/d/...` form
+(`Convert-MsysPath`). NVIDIA's expected
 key fingerprint is `EB693B3035CD5710E231E123A4B469963BF863CC`, established in the
 [B2 source-verification receipt](../../win-gpu-b2/source-verify.stdout.txt). The OpenFOAM publisher fingerprint is
 fixed at `DC93C096174122E256DA24063386DD74948D208F`, also captured in the
@@ -206,11 +216,14 @@ and archive signer sets remain **Flagged until independently reviewed** in the c
 The contract has schema `cfdw-f1-r217-invocation/2`, `architecture` (`amd64` or `arm64`, the dpkg name; the
 launcher refuses a contract prepared for another architecture than the one it detects), `leader: "mac"`, a
 positive integer `leader_epoch` set to the
-current coordinator-reviewed value at invocation, exact `target`, `protected`,
+current coordinator-reviewed value at invocation, exact `target`, `protected` (`cfdw-openfoam2512`, or `none` when
+the host carries no protected distro: the registration check then requires no protected row, the keepalive and the
+completed-L3 guard do not bind, and every receipt records `protected: none, guard: not applicable`; Ruling 240 (1)),
 `target_path`, `session`, and `execution_branch`. It names `accepted_packet_commit` (the separately accepted source
 commit) and `packet_sha256` mapping **every** `packet/**` relative path to its SHA-256. Its `inputs` map has exact
-absolute `path` and SHA-256 for `rootfs`, `ubuntu_sums`, `ubuntu_signature`, `openfoam_keyring`, `nvidia_keyring`
-and `b2_licenses` (six; the B2 package lock left the input set at Ruling 240 node C3, see the lock model below).
+absolute `path` and SHA-256 for `rootfs`, `ubuntu_sums`, `ubuntu_signature`, `openfoam_keyring`, `nvidia_keyring`,
+`ubuntu_cloudimage_keyring` and `b2_licenses` (seven; the B2 package lock left the input set at Ruling 240 node C3,
+see the lock model below, and the cloud-image keyring joined it at node C4).
 Its `allowed_signers` map has reviewed 40-hex fingerprint arrays for `ubuntu_rootfs`,
 `ubuntu_archive`, `openfoam`, and `nvidia`; the fixed OpenFOAM/NVIDIA anchors must be present. The executor and
 coordinator review those values against primary publisher metadata and local signed evidence, commit the contract on
@@ -230,7 +243,8 @@ native `pwsh`: Windows PowerShell 5.1 there is an ARM64X image that runs as an x
 starts it and is refused as emulated. The guest's `probe` stage records `guest-identity.txt` (`dpkg --print-architecture`,
 `uname -m`, the `nvidia-smi` GPU name when WSL exposes it) and the host compares it with the receipt before any
 network stage. The wrapper checks exact distro absence,
-protected presence, rootfs hash and signature, then starts the copied/adapted B2 `completed_guard.py` before the
+protected presence (when one is declared), rootfs hash and signature, then, when a protected distro is declared,
+starts the copied/adapted B2 `completed_guard.py` before the
 first target-creation effect. The guard samples every 5 seconds through unregister. Its terminal projection includes
 unit result/status, final iteration, marker counts and log byte/mtime/tail/full hashes. Missing, stale, partial or
 changed observations stop new work. Guard events and state are frozen into both evidence commits; the final binding

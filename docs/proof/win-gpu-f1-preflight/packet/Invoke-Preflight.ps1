@@ -4,6 +4,7 @@ param(
     [Parameter(Mandatory = $true)][string]$UbuntuSignature,
     [Parameter(Mandatory = $true)][string]$OpenFoamKeyring,
     [Parameter(Mandatory = $true)][string]$NvidiaKeyring,
+    [Parameter(Mandatory = $true)][string]$UbuntuCloudimageKeyring,
     [Parameter(Mandatory = $true)][string]$Contract,
     [Parameter(Mandatory = $true)][ValidatePattern('^[A-Za-z0-9._-]+$')][string]$RunId,
     [Parameter(Mandatory = $true)][ValidatePattern('^[A-Za-z0-9._-]+$')][string]$AgentSession,
@@ -16,7 +17,7 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 $env:AGENT_SESSION = $AgentSession
 $Target = 'cfdw-petsc-cuda132-f1'
-$Protected = 'cfdw-openfoam2512'
+$Protected = $null   # Ruling 240 (1): the contract's protected field ('cfdw-openfoam2512' or 'none'), bound after the precheck
 $VhdMaximum = [int64]8589934592
 $NvidiaFingerprint = 'EB693B3035CD5710E231E123A4B469963BF863CC'
 $OpenFoamFingerprint = 'DC93C096174122E256DA24063386DD74948D208F'
@@ -48,6 +49,7 @@ $script:OwnedLaunchers = @()
 $script:RenewalIdentity = $null
 $script:LastIdentitySampleSeconds = -100.0
 $script:Architecture = ''
+$script:GpgvPath = ''
 
 function Write-Lf([string]$Path, [string]$Value) {
     [IO.File]::WriteAllText($Path, ($Value -replace "`r`n", "`n"), [Text.UTF8Encoding]::new($false))
@@ -57,6 +59,8 @@ function Write-Json([string]$Path, [object]$Value) {
 }
 function Write-HostObservations([string]$Path) {
     # Ruling 238 (1): the raw host identifiers, recorded before the first WSL effect; architecture.py maps them once.
+    $gpgv = Get-GpgvObservation   # Ruling 240 (2): the Windows-side verifier's path and version go into the receipt
+    $script:GpgvPath = [string]$gpgv.path
     Write-Json $Path ([ordered]@{
         schema='cfdw-f1-host-observations/1'; utc=[DateTimeOffset]::UtcNow.ToString('o')
         powershell_version=$PSVersionTable.PSVersion.ToString(); powershell_edition=[string]$PSVersionTable.PSEdition
@@ -68,6 +72,7 @@ function Write-HostObservations([string]$Path) {
         os_version=[Environment]::OSVersion.Version.ToString()
         cpu=@(Get-CimInstance Win32_Processor | ForEach-Object { [string]$_.Name })
         gpu=@(Get-CimInstance Win32_VideoController | ForEach-Object { [string]$_.Name })
+        gpgv_path=[string]$gpgv.path; gpgv_version=[string]$gpgv.version
     })
 }
 function Assert-HostIdentity {
@@ -82,6 +87,68 @@ function Assert-HostIdentity {
         throw "contract architecture '$($contractData.architecture)' differs from the detected host '$token'"
     }
     return $token
+}
+function New-ProtectedRecord {
+    # Ruling 240 (1): every receipt says whether a protected distro is declared and whether the completed-L3 guard binds.
+    if ($null -eq $Protected) { return [ordered]@{ protected = 'Not recorded'; guard = 'Not recorded' } }
+    if ($Protected -ceq 'none') { return [ordered]@{ protected = 'none'; guard = 'not applicable' } }
+    return [ordered]@{ protected = $Protected; guard = 'binds' }
+}
+function Get-GpgvPath([string]$ExecPath) {
+    # Ruling 240 (2): walk up from `git --exec-path` to the Git root that carries usr\bin\gpgv.exe; the refusal names
+    # every path searched.
+    $searched = @()
+    $folder = [IO.Path]::GetFullPath($ExecPath)
+    while (-not [string]::IsNullOrEmpty($folder)) {
+        $candidate = [IO.Path]::Combine($folder, 'usr', 'bin', 'gpgv.exe')
+        $searched += $candidate
+        if (Test-Path -LiteralPath $candidate -PathType Leaf) { return $candidate }
+        $folder = [IO.Path]::GetDirectoryName($folder)
+    }
+    throw "gpgv.exe absent: searched $($searched -join '; ')"
+}
+function Get-GpgvObservation {
+    # Never throws: the host-identity receipt records an absence; Invoke-RootfsSignature then refuses with the path named.
+    try {
+        $execPath = [string](& git --exec-path 2>$null | Select-Object -First 1)
+        if ([string]::IsNullOrEmpty($execPath)) { return [ordered]@{ path = 'absent: git --exec-path gave nothing'; version = 'Not recorded' } }
+        $gpgv = Get-GpgvPath $execPath
+        $version = [string](& $gpgv --version 2>$null | Select-Object -First 1)
+        if ([string]::IsNullOrEmpty($version)) { $version = 'Not recorded' }
+        return [ordered]@{ path = $gpgv; version = $version }
+    } catch { return [ordered]@{ path = 'absent: ' + $_.Exception.Message; version = 'Not recorded' } }
+}
+function Convert-MsysPath([string]$Path) {
+    # Git's gpgv is an MSYS program: started from a native parent it reads `D:\x` as a URL with scheme `D` ("invalid key
+    # resource URL", measured 2026-10-19 on pwsh 7.6.7 with gpgv 2.4.9) and accepts the MSYS form /d/x. Reviewed inputs
+    # are absolute drive paths without whitespace, so the conversion is a prefix swap.
+    if ($Path -notmatch '^[A-Za-z]:\\' -or $Path -match '\s') { throw "MSYS path requires an absolute drive path without whitespace: $Path" }
+    $full = [IO.Path]::GetFullPath($Path)   # the raw input is checked above: GetFullPath would admit a relative path
+    return '/' + $full.Substring(0, 1).ToLowerInvariant() + '/' + $full.Substring(3).Replace('\', '/')
+}
+function Invoke-RootfsSignature([string]$Gpgv, [string]$Keyring, [string]$Signature, [string]$Sums, [string]$Rootfs,
+                                [string]$StatusPath, [string]$ContractPath, [string]$ContractSha, [string]$ExpectedSha256) {
+    # Ruling 240 (2): the Ubuntu detached signature is verified on the Windows side, before any WSL effect, by the
+    # Git-for-Windows gpgv against the reviewed cloud-image keyring; the keyring's identities and the VALIDSIG signer
+    # must be in the contract's allowlist, and the signed sums line for the rootfs must carry the contract's pin.
+    if (-not (Test-Path -LiteralPath $Gpgv -PathType Leaf)) { throw "gpgv.exe absent: $Gpgv" }
+    $gpg = '"' + (Join-Path (Split-Path -Parent $Gpgv) 'gpg.exe') + '"'   # under "Program Files": quoted for the argument line
+    $null = Invoke-Child 'py' @('-3', (Join-Path $PacketRoot 'contract.py'), 'keyring', '--contract', $ContractPath,
+        '--expected-sha256', $ContractSha, '--keyring', $Keyring, '--kind', 'ubuntu_rootfs', '--gpg', $gpg) 'rootfs-keyring' 60 $false $false
+    $status = Invoke-Child $Gpgv @('--status-fd', '1', '--keyring', (Convert-MsysPath $Keyring), $Signature, $Sums) 'rootfs-gpgv' 60 $false $false
+    Copy-Item -LiteralPath $status -Destination $StatusPath -Force
+    $null = Invoke-Child 'py' @('-3', (Join-Path $PacketRoot 'contract.py'), 'signer', '--contract', $ContractPath,
+        '--expected-sha256', $ContractSha, '--status', $StatusPath, '--kind', 'ubuntu_rootfs') 'rootfs-signer' 60 $false $false
+    $name = [IO.Path]::GetFileName($Rootfs)
+    $lines = @([IO.File]::ReadAllLines($Sums) | Where-Object { $_ -cmatch ('^[0-9a-f]{64} [ *]' + [regex]::Escape($name) + '$') })
+    if ($lines.Count -ne 1) { throw "signed SHA256SUMS has $($lines.Count) lines for $name" }
+    $signed = $lines[0].Substring(0, 64)
+    $measured = (Get-FileHash -Algorithm SHA256 -LiteralPath $Rootfs).Hash.ToLowerInvariant()
+    if ($signed -cne $ExpectedSha256 -or $measured -cne $ExpectedSha256) {
+        throw "rootfs hash differs: signed $signed, measured $measured, contract $ExpectedSha256"
+    }
+    Write-Lf (Join-Path $Live 'rootfs-signature.txt') "ROOTFS-SIGNED-PASS sha256=$signed`n"
+    return $signed
 }
 function Convert-LinuxPath([string]$Path) {
     $full = [IO.Path]::GetFullPath($Path)
@@ -176,17 +243,21 @@ function Capture-AttemptLeader([ValidateSet('activation','immediately-pre-live')
 }
 function Assert-AttemptIdentity([bool]$Force = $true, [string]$CapturePhase = '') {
     if (-not $Force -and $Clock.Elapsed.TotalSeconds - $script:LastIdentitySampleSeconds -lt 5) { return }
-    $key = '{b7566a82-9cee-47ce-a246-f83632353cea}'
-    $registration = Get-ItemProperty -LiteralPath ("HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss\" + $key)
-    if ($registration.DistributionName -cne $Protected -or $registration.PSChildName -cne $key) {
-        throw 'F1-PROTECTED-REGISTRATION-CHANGED'
+    $key = 'none'   # Ruling 240 (1): with no protected distro declared there is no registration and no keepalive to identify
+    if ($Protected -cne 'none') {
+        $key = '{b7566a82-9cee-47ce-a246-f83632353cea}'
+        $registration = Get-ItemProperty -LiteralPath ("HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss\" + $key)
+        if ($registration.DistributionName -cne $Protected -or $registration.PSChildName -cne $key) {
+            throw 'F1-PROTECTED-REGISTRATION-CHANGED'
+        }
     }
     $processes = @(Get-CimInstance Win32_Process)
     Assert-AttemptExclusivity $processes $script:OwnedLaunchers $key
     $script:LastIdentitySampleSeconds = $Clock.Elapsed.TotalSeconds
     if ($CapturePhase) {
         if ($CapturePhase -cnotin @('activation','immediately-pre-live','finalization')) { throw 'F1-KEEPALIVE-PHASE' }
-        $public = @($processes | Where-Object {$_.ProcessId -in @(19296,3524)} | ForEach-Object {
+        $keepalivePids = if ($Protected -cne 'none') { @(19296,3524) } else { @() }
+        $public = @($processes | Where-Object {$_.ProcessId -in $keepalivePids} | ForEach-Object {
             [ordered]@{pid=$_.ProcessId;parent_pid=$_.ParentProcessId;name=$_.Name;
                 created_utc=(Get-ProcessCreationUtc $_.CreationDate);command=$_.CommandLine}
         })
@@ -315,7 +386,8 @@ function Get-AttemptLeaderEvidence {
         $utc = ConvertTo-EvidenceUtc $sample.utc
         if ($sample.schema -cne 'cfdw-f1-keepalive-sample/1' -or $sample.run_id -cne $RunId -or
             $sample.phase -cne $phase -or -not $sample.event_id -or $sample.event_id -cin $seenIds -or
-            $utc -lt $previousUtc -or @($sample.processes).Count -ne 2) { throw 'F1-KEEPALIVE-EVIDENCE-IDENTITY' }
+            $utc -lt $previousUtc -or
+            @($sample.processes).Count -ne $(if ($sample.protected_key -ceq 'none') { 0 } else { 2 })) { throw 'F1-KEEPALIVE-EVIDENCE-IDENTITY' }
         $rows = @($sample.processes | ForEach-Object {
             if (($_.pid -isnot [int] -and $_.pid -isnot [long]) -or
                 ($_.parent_pid -isnot [int] -and $_.parent_pid -isnot [long])) { throw 'F1-KEEPALIVE-EVIDENCE-PID' }
@@ -406,6 +478,7 @@ function Assert-AttemptRollback([string[]]$Arguments, [string]$Label) {
     Assert-AttemptIdentity $true
 }
 function Assert-Guard {
+    if ($Protected -ceq 'none') { return 'not applicable' }   # Ruling 240 (1): the guard binds only when a protected distro is declared
     if ($null -eq $Guard -or $Guard.HasExited) { throw 'completed guard exited or was not started' }
     $state = Read-GuardState
     if ($state.state -cne 'running' -or $state.session_id -cne $RunId -or
@@ -624,7 +697,7 @@ function Assert-FinalAbsence {
     if ($freshAttempt) {
         if (-not $script:CreatedTargetKey) { throw 'MAC-DECISION-REQUIRED: created GUID unbound; final absence unknown' }
         $rows = @(Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss' | ForEach-Object { Get-ItemProperty -LiteralPath $_.PSPath })
-        Assert-FreshRegistrations $rows $names (Test-Path -LiteralPath $TargetPath) $attemptNumber $TargetPath
+        Assert-FreshRegistrations $rows $names (Test-Path -LiteralPath $TargetPath) $attemptNumber $TargetPath $Protected
         if (@($rows | Where-Object { $_.PSChildName -ieq $script:CreatedTargetKey }).Count -ne 0) {
             throw 'created target GUID survives under a name/path alias'
         }
@@ -634,7 +707,7 @@ function Assert-FinalAbsence {
         @(Get-TargetRegistration).Count -ne 0 -or (Test-Path -LiteralPath $TargetPath)) {
         throw 'target distro, registration or path remains after cleanup'
     }
-    if (@($names | Where-Object { $_ -ceq $Protected }).Count -ne 1) {
+    if ($Protected -cne 'none' -and @($names | Where-Object { $_ -ceq $Protected }).Count -ne 1) {
         throw 'protected distro missing after cleanup'
     }
 }
@@ -748,7 +821,7 @@ function Bind-Observer {
 }
 
 # Input validation and static self-tests precede the measured final precheck.
-foreach ($inputPath in @($Rootfs, $UbuntuSums, $UbuntuSignature, $OpenFoamKeyring, $NvidiaKeyring, $Contract)) {
+foreach ($inputPath in @($Rootfs, $UbuntuSums, $UbuntuSignature, $OpenFoamKeyring, $NvidiaKeyring, $UbuntuCloudimageKeyring, $Contract)) {
     if (-not (Test-Path -LiteralPath $inputPath -PathType Leaf)) { throw "missing reviewed input: $inputPath" }
     $null = Convert-LinuxPath $inputPath
 }
@@ -780,6 +853,7 @@ $contractArguments = @('-3', (Join-Path $PacketRoot 'contract.py'), 'verify',
     '--contract', $Contract, '--repo', $RepoRoot, '--rootfs', $Rootfs,
     '--ubuntu-sums', $UbuntuSums, '--ubuntu-signature', $UbuntuSignature,
     '--openfoam-keyring', $OpenFoamKeyring, '--nvidia-keyring', $NvidiaKeyring,
+    '--ubuntu-cloudimage-keyring', $UbuntuCloudimageKeyring,
     '--branch', $executionBranch, '--session', $AgentSession, '--run-id', $RunId)
 if ($freshAttempt) { $contractArguments += @('--authorization', $Authorization, '--exclusive-run-id', $ExclusiveRunId) }
 $precheck = Start-Process -FilePath 'py' -ArgumentList $contractArguments `
@@ -792,6 +866,8 @@ if ($precheckWait -le 0 -or -not $precheck.WaitForExit([int]($precheckWait * 100
 }
 if ($precheck.ExitCode -ne 0) { throw "invocation contract rejected: $([IO.File]::ReadAllText($precheckErr))" }
 $HostStartFloor, $HostReserve = Get-ContractHostFloors $contractData
+$Protected = [string]$contractData.protected   # Ruling 240 (1)
+if ($Protected -cnotin @('cfdw-openfoam2512', 'none')) { throw "unknown protected state: '$Protected'" }
 $script:ContractSha = (Get-FileHash -Algorithm SHA256 -LiteralPath $Contract).Hash.ToLowerInvariant()
 if ($attemptNumber -eq 2) { $script:AuthorizationSha = (Get-FileHash -Algorithm SHA256 -LiteralPath $Authorization).Hash.ToLowerInvariant() }
 New-Item -ItemType Directory -Path $Live -Force | Out-Null
@@ -802,9 +878,6 @@ $null = Invoke-Child 'py' @('-3', (Join-Path $PacketRoot 'architecture.py'), 'ho
     '--expected-architecture', [string]$contractData.architecture) 'host-identity' 60 $false $true
 $script:Architecture = Assert-HostIdentity
 $linuxGuard = Convert-LinuxPath (Join-Path $PacketRoot 'completed_guard.py')
-$linuxRoot = Convert-LinuxPath $Rootfs
-$linuxSums = Convert-LinuxPath $UbuntuSums
-$linuxSignature = Convert-LinuxPath $UbuntuSignature
 try {
     if ($attemptNumber -eq 2) {
         Start-AttemptRenewal
@@ -814,9 +887,9 @@ try {
     $names = Get-DistroNames
     if ($freshAttempt) {
         $rows = @(Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss' | ForEach-Object { Get-ItemProperty -LiteralPath $_.PSPath })
-        Assert-FreshRegistrations $rows $names (Test-Path -LiteralPath $TargetPath) $attemptNumber $TargetPath
+        Assert-FreshRegistrations $rows $names (Test-Path -LiteralPath $TargetPath) $attemptNumber $TargetPath $Protected
     }
-    if (@($names | Where-Object { $_ -ceq $Protected }).Count -ne 1 -or
+    if (($Protected -cne 'none' -and @($names | Where-Object { $_ -ceq $Protected }).Count -ne 1) -or
         @($names | Where-Object { $_ -ceq $Target }).Count -ne 0 -or
         @(Get-TargetRegistration).Count -ne 0 -or (Test-Path -LiteralPath $TargetPath)) {
         throw 'final precheck found target collision or missing protected distro'
@@ -828,9 +901,10 @@ try {
     foreach ($file in Get-ChildItem -LiteralPath $PacketRoot -File) {
         $packetHashes[$file.Name] = (Get-FileHash -Algorithm SHA256 -LiteralPath $file.FullName).Hash.ToLowerInvariant()
     }
+    $protectedRecord = New-ProtectedRecord
     Write-Json (Join-Path $Live 'final-precheck.json') ([ordered]@{
         schema='cfdw-f1-r217-final-precheck/1'; utc=[DateTimeOffset]::UtcNow.ToString('o')
-        target=$Target; protected=$Protected; distro_names=$names; host_free_bytes=$initialHostFree
+        target=$Target; protected=$protectedRecord.protected; guard=$protectedRecord.guard; distro_names=$names; host_free_bytes=$initialHostFree
         host_required_bytes=$HostStartFloor; host_reserve_bytes=$HostReserve; target_path=$TargetPath
         architecture=$script:Architecture
         rootfs_sha256=[string]$contractData.inputs.rootfs.sha256
@@ -843,47 +917,48 @@ try {
         openfoam_fingerprint=$OpenFoamFingerprint; nvidia_fingerprint=$NvidiaFingerprint
         packet_sha256=$packetHashes; affinity='host lifecycle N/A'
     })
-    $verifyRootfs = Convert-LinuxPath (Join-Path $PacketRoot 'verify-rootfs.sh')
-    $null = Invoke-WslLinux $Protected '0' 'rootfs-signature' (Join-Path $Live 'rootfs-signature.owner.txt') `
-        @('/bin/bash', $verifyRootfs, $linuxSums, $linuxSignature, $linuxRoot,
-          (Convert-LinuxPath $Contract), (Convert-LinuxPath $PacketRoot),
-          (Convert-LinuxPath (Join-Path $Live 'rootfs-signature.gpgv.txt')),
-          $script:ContractSha, $script:Architecture) 90 $false $false
-    $before = Join-Path $Live 'l3-terminal-before.json'
-    $null = Invoke-WslLinux $Protected '0' 'l3-before' (Join-Path $Live 'l3-before.owner.txt') `
-        @('/usr/bin/python3', $linuxGuard, 'snapshot', '--output', (Convert-LinuxPath $before), '--include-log-sha256') 60 $false $false
-    $script:BeforeSha = (Get-FileHash -Algorithm SHA256 -LiteralPath $before).Hash.ToLowerInvariant()
-    $events = Join-Path $Live 'completed-guard-events.jsonl'
-    $state = Join-Path $Live 'completed-guard.state.json'
-    $stopRequest = Join-Path $Live 'completed-guard-stop.request'
-    $guardArguments = @('--distribution', $Protected, '--user', 'root', '--exec',
-        '/usr/bin/taskset', '--cpu-list', '0', '/usr/bin/nice', '-n', '10',
-        '/usr/bin/setsid', '--wait', '/bin/bash', (Convert-LinuxPath (Join-Path $PacketRoot 'identity.sh')),
-        (Convert-LinuxPath (Join-Path $Live 'guard.owner.txt')), '--',
-        '/usr/bin/python3', $linuxGuard, 'watch', '--expected', (Convert-LinuxPath $before),
-        '--expected-sha256', $BeforeSha, '--events', (Convert-LinuxPath $events),
-        '--state', (Convert-LinuxPath $state), '--stop-request', (Convert-LinuxPath $stopRequest),
-        '--session-id', $RunId, '--interval-seconds', '5', '--max-samples', '732')
-    $guardStart = $Clock.Elapsed.TotalSeconds
-    if ($attemptNumber -eq 2) { Assert-AttemptRuntime }
-    $Guard = Start-Process -FilePath 'wsl.exe' -ArgumentList $guardArguments `
-        -RedirectStandardOutput (Join-Path $Live 'guard.stdout.txt') `
-        -RedirectStandardError (Join-Path $Live 'guard.stderr.txt') -PassThru -WindowStyle Hidden
-    $null = $Guard.Handle
-    if ($attemptNumber -eq 2) { Register-AttemptLauncher $Guard }
-    while (-not (Test-Path -LiteralPath $state)) {
-        Assert-Deadline
-        if ($Guard.HasExited -or (Get-ChildWaitSeconds $Clock.Elapsed.TotalSeconds $guardStart 20 work) -le 0) {
-            throw 'completed guard did not start inside absolute startup deadline'
+    # Ruling 240 (2): the rootfs signature is verified on the Windows side, before any WSL effect, by the gpgv the
+    # host identity recorded, against the reviewed cloud-image keyring input.
+    $null = Invoke-RootfsSignature $script:GpgvPath $UbuntuCloudimageKeyring $UbuntuSignature $UbuntuSums $Rootfs `
+        (Join-Path $Live 'rootfs-signature.gpgv.txt') $Contract $script:ContractSha ([string]$contractData.inputs.rootfs.sha256)
+    if ($Protected -cne 'none') {
+        # Ruling 240 (1): the completed-L3 guard binds only when a protected distro is declared.
+        $before = Join-Path $Live 'l3-terminal-before.json'
+        $null = Invoke-WslLinux $Protected '0' 'l3-before' (Join-Path $Live 'l3-before.owner.txt') `
+            @('/usr/bin/python3', $linuxGuard, 'snapshot', '--output', (Convert-LinuxPath $before), '--include-log-sha256') 60 $false $false
+        $script:BeforeSha = (Get-FileHash -Algorithm SHA256 -LiteralPath $before).Hash.ToLowerInvariant()
+        $events = Join-Path $Live 'completed-guard-events.jsonl'
+        $state = Join-Path $Live 'completed-guard.state.json'
+        $stopRequest = Join-Path $Live 'completed-guard-stop.request'
+        $guardArguments = @('--distribution', $Protected, '--user', 'root', '--exec',
+            '/usr/bin/taskset', '--cpu-list', '0', '/usr/bin/nice', '-n', '10',
+            '/usr/bin/setsid', '--wait', '/bin/bash', (Convert-LinuxPath (Join-Path $PacketRoot 'identity.sh')),
+            (Convert-LinuxPath (Join-Path $Live 'guard.owner.txt')), '--',
+            '/usr/bin/python3', $linuxGuard, 'watch', '--expected', (Convert-LinuxPath $before),
+            '--expected-sha256', $BeforeSha, '--events', (Convert-LinuxPath $events),
+            '--state', (Convert-LinuxPath $state), '--stop-request', (Convert-LinuxPath $stopRequest),
+            '--session-id', $RunId, '--interval-seconds', '5', '--max-samples', '732')
+        $guardStart = $Clock.Elapsed.TotalSeconds
+        if ($attemptNumber -eq 2) { Assert-AttemptRuntime }
+        $Guard = Start-Process -FilePath 'wsl.exe' -ArgumentList $guardArguments `
+            -RedirectStandardOutput (Join-Path $Live 'guard.stdout.txt') `
+            -RedirectStandardError (Join-Path $Live 'guard.stderr.txt') -PassThru -WindowStyle Hidden
+        $null = $Guard.Handle
+        if ($attemptNumber -eq 2) { Register-AttemptLauncher $Guard }
+        while (-not (Test-Path -LiteralPath $state)) {
+            Assert-Deadline
+            if ($Guard.HasExited -or (Get-ChildWaitSeconds $Clock.Elapsed.TotalSeconds $guardStart 20 work) -le 0) {
+                throw 'completed guard did not start inside absolute startup deadline'
+            }
+            Start-Sleep -Milliseconds 200
         }
-        Start-Sleep -Milliseconds 200
+        $null = Assert-Guard
     }
-    $null = Assert-Guard
     $script:CreationArmed = $true  # Before the first target-creation effect.
     if ($freshAttempt) {
         $freshNames = Get-DistroNames
         $freshRows = @(Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss' | ForEach-Object { Get-ItemProperty -LiteralPath $_.PSPath })
-        Assert-FreshRegistrations $freshRows $freshNames (Test-Path -LiteralPath $TargetPath) $attemptNumber $TargetPath
+        Assert-FreshRegistrations $freshRows $freshNames (Test-Path -LiteralPath $TargetPath) $attemptNumber $TargetPath $Protected
     }
     $null = Assert-HostIdentity
     $null = Invoke-Child 'wsl.exe' @('--install', '--from-file', $Rootfs, '--name', $Target,
@@ -921,8 +996,9 @@ try {
         try { $leaderEvidence = Get-AttemptLeaderEvidence }
         catch { $leaderEvidence = 'Not recorded'; $CleanupErrors += "leader evidence: $($_.Exception.Message)" }
     }
+    $protectedRecord = New-ProtectedRecord
     $cleanupReceipt = [ordered]@{
-        schema='cfdw-f1-r217-cleanup/1'; run_id=$RunId; target=$Target; protected=$Protected
+        schema='cfdw-f1-r217-cleanup/1'; run_id=$RunId; target=$Target; protected=$protectedRecord.protected; guard=$protectedRecord.guard
         initiating_error=if ($null -eq $InitiatingError) { 'Not recorded' } else { $InitiatingError }
         cleanup_errors=$CleanupErrors; checkpoint_sha=if ($null -eq $CheckpointSha) { 'Not recorded' } else { $CheckpointSha }
         elapsed_seconds=if ($null -eq $Clock) { 'Not recorded' } else { $Clock.Elapsed.TotalSeconds }

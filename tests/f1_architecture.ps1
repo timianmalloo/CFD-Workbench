@@ -8,7 +8,7 @@ $errors = $null; $tokens = $null
 $ast = [Management.Automation.Language.Parser]::ParseFile((Join-Path $packet 'Invoke-Preflight.ps1'), [ref]$tokens, [ref]$errors)
 if ($errors.Count) { throw 'launcher parse failed' }
 $definitions = @{}
-foreach ($name in @('Write-Lf', 'Write-Json', 'Open-LiveEvidenceStream', 'Read-LiveText', 'Write-HostObservations', 'Assert-HostIdentity')) {
+foreach ($name in @('Write-Lf', 'Write-Json', 'Open-LiveEvidenceStream', 'Read-LiveText', 'Get-GpgvPath', 'Get-GpgvObservation', 'Write-HostObservations', 'Assert-HostIdentity')) {
     $node = $ast.Find({ param($n) $n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq $name }, $true)
     if ($null -eq $node) { throw "launcher function missing: $name" }
     $definitions[$name] = $node

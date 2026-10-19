@@ -30,12 +30,13 @@ INPUT_HASHES = {
     'ubuntu_signature': 'c0deb277ccda24b8fcc2d36bf9d9530c0aed7138f30375dc45b6539a6aa6799b',
     'openfoam_keyring': '6d17d37b82fc840b8a5c767545703df7264cfa3e30f9cf74556ebb124bda1a93',
     'nvidia_keyring': '25100d6f2eccaee7d6719a70e3c0c6145064aa9edc2c32148f693ac4c524a376',
+    'ubuntu_cloudimage_keyring': 'c2d40d925557dbe9a0745c12ca0dc98bed593ce9a6652f1b2faa1ff0858dbf2f',   # ubuntu-keyring 2023.11.28.1, docs/proof/win-gpu-f1-preflight/inputs (Ruling 240 (2))
     'b2_licenses': '470de11258ff4e78a05a38cb3d1c75090387c79b2cc3b06fc3534e9eee5da4d6',
 }
 
 
 def input_hashes(token):
-    """The six reviewed input hashes for one architecture: the rootfs pin follows the token (Ruling 237)."""
+    """The seven reviewed input hashes for one architecture: the rootfs pin follows the token (Ruling 237)."""
     return dict(INPUT_HASHES, rootfs=architecture.row(token)['rootfs_sha256'])
 SIGNERS = {
     'ubuntu_rootfs': ['D2EB44626FDDC30B513D5BB71A5D6C4C7DB87C81', '4A3CE3CD565D7EB5C810E2B97FF3F408476CF100'],
@@ -83,9 +84,10 @@ def check_binding(document, run_id=None):
             raise ValueError('attempt-2 execution worktree must be explicit and canonical')
         if worktree.lower().endswith('cfd-workbench-win-gpu-f1-r225-attempt1'):
             raise ValueError('attempt-1 execution worktree is retired')
-        path = str(PureWindowsPath(worktree) / 'docs/proof/win-gpu-b2/license-map.json')
-        if document.get('inputs', {}).get('b2_licenses', {}).get('path') != path:
-            raise ValueError('attempt-2 B2 input path differs from execution worktree')
+        for key, name in (('b2_licenses', 'docs/proof/win-gpu-b2/license-map.json'),
+                          ('ubuntu_cloudimage_keyring', 'docs/proof/win-gpu-f1-preflight/inputs/ubuntu-cloudimage-keyring.gpg')):
+            if document.get('inputs', {}).get(key, {}).get('path') != str(PureWindowsPath(worktree) / name):
+                raise ValueError(f'attempt-2 reviewed input {key} path differs from execution worktree')
     for key, value in expected.items():
         if document.get(key) != value:
             raise ValueError('attempt binding changed: ' + key)
@@ -95,7 +97,7 @@ def check_binding(document, run_id=None):
         raise ValueError('invoked RunId differs from reviewed attempt')
     hashes = input_hashes(document.get('architecture'))
     if set(document.get('inputs', {})) != set(hashes):
-        raise ValueError('exact six reviewed inputs required')
+        raise ValueError('exact seven reviewed inputs required')
     for key, value in hashes.items():
         if document['inputs'][key].get('sha256') != value:
             raise ValueError('accepted input hash changed: ' + key)
@@ -110,6 +112,7 @@ def check_binding(document, run_id=None):
 
 def authorization(document, contract_sha, accepted=False, ruling=None):
     number = document['attempt']
+    declared = document['protected'] != 'none'   # Ruling 240 (1): with none, nothing binds and the projection says so
     value = dict(schema='cfdw-f1-preflight-authorization/1', status='accepted' if accepted else 'proposed',
                 requested_ruling=228, ruling=228 if accepted else None,
                 attempt=number, leader='mac', leader_epoch=8, source_commit=document['accepted_packet_commit'],
@@ -117,7 +120,8 @@ def authorization(document, contract_sha, accepted=False, ruling=None):
                 run_root=document['run_root'], contract_path=document['run_root'] + '/invocation-contract.json',
                 contract_sha256=contract_sha, target=document['target'], target_path=document['target_path'],
                 target_previous_key=OLD_TARGET_KEY, target_key='observed-after-fresh-creation',
-                protected=document['protected'], protected_key=PROTECTED_KEY, protected_path=PROTECTED_PATH,
+                protected=document['protected'], protected_key=PROTECTED_KEY if declared else 'not applicable',
+                protected_path=PROTECTED_PATH if declared else 'not applicable',
                 packet_sha256=document['packet_sha256'], external_sha256=document['external_sha256'],
                 inputs=document['inputs'], allowed_signers=document['allowed_signers'], limits=host_limits(document),
                 allowed_stages=STAGES, allowed_actions=ACTIONS, forbidden_actions=FORBIDDEN,
@@ -129,7 +133,7 @@ def authorization(document, contract_sha, accepted=False, ruling=None):
             raise ValueError('attempt-2 authorization ruling must be a positive integer')
         value.update(requested_ruling=ruling, ruling=ruling if accepted else None,
                      leader_epoch=document['leader_epoch'], execution_worktree=document['execution_worktree'],
-                     target_previous_keys=RETIRED_TARGET_KEYS, keepalive=KEEPALIVE,
+                     target_previous_keys=RETIRED_TARGET_KEYS, keepalive=KEEPALIVE if declared else 'not applicable',
                      minimum_leader_ttl_seconds=200, renewal_evidence=RENEWAL_EVIDENCE)
         del value['target_previous_key']
         value['prerequisites'][0] = 'live-mac-contract-epoch-two-fresh-samples-at-least-200s'
