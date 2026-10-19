@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-19T13:19:14Z",
+  "generated": "2026-10-19T13:21:11Z",
   "audit": [
     {
       "actor": null,
@@ -39593,6 +39593,33 @@ window.AUDIT_DATA = {
         "branch": "plan/f1-rescope",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M5A55FRJN6NETH22ZQN1NAE8",
+      "shortname": "join-f1-rescope-plan",
+      "datetime": "2026-10-19T13:21:11Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of plan/f1-rescope into main",
+      "summary": "Ruling 237 (4) re-scope plan, its receipts and the LOCK-PINS-A-MOVING-SUITE register entry; docs-only, RING-SKIPPED recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Join the reviewed F1 re-scope plan to main",
+      "done_when": "Merged, audit entry, derived views regenerated, gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-19T13:19:22Z",
+      "duration_seconds": 109.0
     }
   ],
   "changes": [
