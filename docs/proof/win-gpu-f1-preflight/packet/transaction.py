@@ -372,10 +372,13 @@ def self_test() -> None:
         else:
             raise AssertionError("planted Linux driver passed")
     assert len(paragraphs("Package: a\nVersion: 1\n\nPackage: b\nVersion: 2\n")) == 2
-    check_pins([("make", "Not installed", "4.3"), ("gcc-13", "Not installed", "13.3")], ("make:arm64", "gcc-13"))
-    for pins in (("make:arm64", "gcc-13", "g++-13"), ("make=4.4",)):
+    # The fixture names are not build tools: authority_scan.py refuses a quoted compiler or make literal in the packet
+    # (found at plan node V); the real make:<arch> case runs in tests/test_f1_transaction_roots.py.
+    rows = [("pkg-config", "Not installed", "1.8"), ("libblas-dev", "Not installed", "3.12")]
+    check_pins(rows, ("pkg-config:arm64", "libblas-dev"))
+    for pins in (("pkg-config:arm64", "libblas-dev", "liblapack-dev"), ("pkg-config=1.9",)):
         try:
-            check_pins([("make", "Not installed", "4.3"), ("gcc-13", "Not installed", "13.3")], pins)
+            check_pins(rows, pins)
         except ValueError:
             pass
         else:
