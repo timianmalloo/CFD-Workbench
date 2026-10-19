@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5bbae19ece51e53396fefbae3518b9bca5b621bed9d3884e7b64e8a00f536799"
+      "sourceSha256": "b2ff46ea5d783775c9f9fd870f71a32076938962cf9357edba054412099bbb6f"
     },
     {
       "id": "domain-experts",
@@ -11520,6 +11520,60 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "18657a1f106c1cd1da94c3c65d82e6bdb8091ef07e261d254d3b6a26e23028f4"
+    },
+    {
+      "id": "plan-f1-rescope-r237",
+      "path": "docs/plans/f1-rescope-r237.md",
+      "title": "F1 re-scope plan (Ruling 237): one preflight packet for Windows x64 and ARM64 hosts with an NVIDIA GPU",
+      "type": "plan",
+      "status": "proposed",
+      "owner": "@pc-laptop-leader",
+      "phase": "preflight",
+      "reviewBy": "2026-11-02",
+      "reviewSuggested": [],
+      "summary": "The plan Ruling 237 (4) asks for before any packet code: what the re-scope changes in the F1 preflight packet so one packet runs on Windows x64 and Windows ARM64 with an NVIDIA GPU, the evidence each decision rests on (every Verified row names a committed receipt), the execution graph with its two-cycle repair cap and a named red-first test per node, the surfaces a change must reach, and the three decisions the reviewer and the operator settle before code starts. The spike did not refuse; two findings beyond the ruling's text are named.",
+      "tags": [
+        "f1",
+        "windows",
+        "wsl",
+        "arm64",
+        "x64",
+        "cuda",
+        "execution-graph",
+        "planning"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-arm64-spike",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-windows-gpu-f1-preflight-r217",
+          "rel": "refines"
+        },
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-gpu-b2",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-gpu-f1-attempt2-offline-request",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-handoff-2026-10-16-laptop-setup",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "dac5e708820f34ed6848405f634a09be589b1561aeb3567365ffc792c48d8a47"
     },
     {
       "id": "plan-seam-repair-1",
@@ -19078,7 +19132,7 @@ window.DOCS_INDEX = {
       "phase": "preflight",
       "reviewBy": "2026-11-18",
       "reviewSuggested": [],
-      "summary": "The read-only spike Ruling 237 (5) asked for before any packet change. On the Windows ARM64 laptop WSL 2 exposes the NVIDIA GPU: the WSL driver reports CUDA 13.4, and the arm64 CUDA 13.2 runtime from NVIDIA's sbsa repository completes a device round trip (Verified). The toolkit 13.2.2 and OpenFOAM 2512.0-2 exist for arm64. The spike does not refuse; what it did not run (nvcc, a PETSc-CUDA build) is listed.",
+      "summary": "The read-only spike Ruling 237 (5) asked for before any packet change. On the Windows ARM64 laptop WSL 2 exposes the NVIDIA GPU: the WSL driver reports CUDA 13.4, and the arm64 CUDA 13.2 runtime from NVIDIA's sbsa repository completes a device round trip (Verified). The toolkit 13.2.2 and OpenFOAM 2512.0-2 exist for arm64. The spike does not refuse; what it did not run (nvcc, a PETSc-CUDA build) is listed. §5 adds the lock-resolution probe for the re-scope plan.",
       "tags": [
         "windows",
         "arm64",
@@ -19098,7 +19152,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a9d77ef685c869d33e47e0949d7a9ee7e471e691b6ddc53f7a83bd7ddfd60945"
+      "sourceSha256": "0c866334259ecb8ef3e73143c88ad49025e1d659b66beafcd0a3be9b67d0821b"
     },
     {
       "id": "proof-win-gpu-f1-attempt2-admission",
@@ -22820,5 +22874,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "cb3c2c23b8beb4ab503e2e6b95532abbcb82ce6953c6e0c78f4e069ecc1cdcdb"
+  "graphSha256": "91abfdd1dc960fb88b0b67a8feb81a5a0f8456d0cdf1b2e913a2c83867d872da"
 };

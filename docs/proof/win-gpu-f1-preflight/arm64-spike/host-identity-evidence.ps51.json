@@ -1,0 +1,75 @@
+{
+    "schema":  "cfdw-arm64-spike-host-identity/1",
+    "recorded_utc":  "2026-10-19T13:12:39Z",
+    "runtime":  {
+                    "ps_version":  "5.1.28000.3231",
+                    "ps_edition":  "Desktop",
+                    "clr":  "4.0.30319.42000",
+                    "process_architecture":  "Arm64"
+                },
+    "windows":  {
+                    "processor_architecture_env":  "ARM64",
+                    "processor_architew6432_env":  null,
+                    "os_architecture":  "Arm64",
+                    "os_architecture_cim":  "ARM 64-bit Processor",
+                    "os_version":  "10.0.28000.0",
+                    "cpu":  [
+                                "NVIDIA RTX Spark N1X (6144-core GPU, 20-core CPU)"
+                            ],
+                    "gpu":  [
+                                "NVIDIA RTX Spark N1X (6144-core Blackwell RTX GPU)",
+                                "NVIDIA NPU"
+                            ]
+                },
+    "wsl_registrations":  [
+                              {
+                                  "key":  "{043e1e9e-cd9f-4586-b731-037b7dbd8319}",
+                                  "name":  "Ubuntu-24.04",
+                                  "version":  2,
+                                  "base_path":  "%USERPROFILE%\\AppData\\Local\\wsl\\{043e1e9e-cd9f-4586-b731-037b7dbd8319}"
+                              }
+                          ],
+    "wsl_list_verbose":  [
+                             "  NAME            STATE           VERSION",
+                             "* Ubuntu-24.04    Running         2"
+                         ],
+    "stock_distro_inside":  {
+                                "tool_gpgv":  "/usr/bin/gpgv",
+                                "tool_gpg":  "/usr/bin/gpg",
+                                "tool_dpkg":  "/usr/bin/dpkg",
+                                "tool_dpkg-query":  "/usr/bin/dpkg-query",
+                                "tool_apt-get":  "/usr/bin/apt-get",
+                                "tool_apt-cache":  "/usr/bin/apt-cache",
+                                "tool_python3":  "/usr/bin/python3",
+                                "tool_sha256sum":  "/usr/bin/sha256sum",
+                                "tool_setsid":  "/usr/bin/setsid",
+                                "tool_taskset":  "/usr/bin/taskset",
+                                "tool_findmnt":  "/usr/bin/findmnt",
+                                "tool_blockdev":  "/usr/sbin/blockdev",
+                                "tool_xz":  "/usr/bin/xz",
+                                "tool_tar":  "/usr/bin/tar",
+                                "tool_curl":  "/usr/bin/curl",
+                                "tool_ps":  "/usr/bin/ps",
+                                "tool_awk":  "/usr/bin/awk",
+                                "python3_version":  "Python 3.12.3",
+                                "dpkg_architecture":  "arm64",
+                                "uname_m":  "aarch64",
+                                "kernel":  "6.18.54.1-microsoft-standard-WSL2",
+                                "os_release_version_id":  "24.04",
+                                "ubuntu_keyring_package":  "2023.11.28.1",
+                                "ubuntu-archive-keyring_sha256":  "80a36b0a6de2f69f49d2df75ef473ccde121e9e190b9ea01d20a4f63778d5c31",
+                                "ubuntu-cloudimage-keyring_sha256":  "c2d40d925557dbe9a0745c12ca0dc98bed593ce9a6652f1b2faa1ff0858dbf2f",
+                                "apt_sources_uris":  "URIs: http://ports.ubuntu.com/ubuntu-ports/",
+                                "dev_dxg":  "present"
+                            },
+    "git":  {
+                "exec_path":  "C:/Program Files/Git/clangarm64/libexec/git-core",
+                "gpgv_path":  "C:\\Program Files\\Git\\usr\\bin\\gpgv.exe",
+                "gpgv_version":  "gpgv (GnuPG) 2.4.9",
+                "walk_up_levels_from_exec_path":  3
+            },
+    "repo_drive_free_bytes":  {
+                                  "drive":  "D",
+                                  "free":  3998793449472
+                              }
+}

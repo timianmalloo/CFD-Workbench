@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-18T22:17:29Z",
+  "generated": "2026-10-19T13:19:14Z",
   "audit": [
     {
       "actor": null,
@@ -39548,6 +39548,51 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-18T22:16:13Z",
       "duration_seconds": 76.0
+    },
+    {
+      "id": "al-01M5A3MPA5MD8ATAFAZRVP7031",
+      "shortname": "start the re-scope plan",
+      "datetime": "2026-10-19T12:54:32Z",
+      "session": "prompt-log",
+      "prompt": "start the re-scope plan",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M5A51W2T37WJB8V2J94Z9K12",
+      "shortname": "optimize-graph-f1-rescope-r237",
+      "datetime": "2026-10-19T13:19:12Z",
+      "session": "pc-laptop-leader",
+      "prompt": "start the re-scope plan",
+      "summary": "Ruling 237 (4) re-scope plan written and reviewed before code: docs/plans/f1-rescope-r237.md with receipts for every Verified fact (lock resolution on arm64, rootfs checksums per architecture, host identity under both PowerShell runtimes), two findings beyond the ruling (protected distro absent on the laptop: DR-1; the lock is per-architecture by row set and the amd64 lock has drifted: LOCK-PINS-A-MOVING-SUITE), the execution graph C1..A with a named red-first test per node, and the gate record (Simplifier ACCEPT with two conditions applied; Test Architect VETO in cycle 1, ACCEPT in cycle 2).",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/plans/f1-rescope-r237.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Write the Ruling 237 re-scope track's plan as a committed, reviewed artifact before any packet code",
+      "done_when": "Plan on its own branch with frontmatter, check-docs and check-proof-pii green, independent Adversary review recorded, joined to main with readiness green and pushed",
+      "tier": "T2",
+      "fan_out": 2,
+      "started_at": "2026-10-19T12:55:23Z",
+      "duration_seconds": 1429.0,
+      "git": {
+        "sha": "5b8506e326b4a7cac18b723207ab6b07b923c588",
+        "short": "5b8506e32",
+        "branch": "plan/f1-rescope",
+        "pushed": null
+      }
     }
   ],
   "changes": [
@@ -40406,6 +40451,28 @@ window.AUDIT_DATA = {
         "after": "be3900d5304e663418c94291123e5885f038c896",
         "branch": "win/wri-r182-runner-ready",
         "pushed": true,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M5A51WND6R5VMB9JYDNGFE4P",
+      "datetime": "2026-10-19T13:19:13Z",
+      "session": null,
+      "kind": "design",
+      "skill": "optimize-graph",
+      "title": "F1 re-scope (Ruling 237): per-architecture lock produced by the run from pinned roots; paths derived from the repo location; protected distro gets a none state pending DR-1",
+      "prompt": "start the re-scope plan",
+      "summary": "docs/plans/f1-rescope-r237.md accepted by two Adversary reviewers; DR-1..DR-3 wait on the operator and the reviewer",
+      "rationale": "The arm64 lock has a different row set (3 x86-64 compiler rows, 3 absent rows, one drifted version) and the amd64 lock has drifted too, so a lock is an output of the run on its architecture; the protected distro is an old-PC B2 artifact absent on the laptop",
+      "artifacts": [
+        "docs/plans/f1-rescope-r237.md"
+      ],
+      "tags": [],
+      "git": {
+        "before": "5b8506e326b4a7cac18b723207ab6b07b923c588",
+        "after": "5b8506e326b4a7cac18b723207ab6b07b923c588",
+        "branch": "plan/f1-rescope",
+        "pushed": null,
         "commits": []
       }
     }
