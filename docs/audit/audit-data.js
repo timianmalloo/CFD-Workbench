@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-19T15:42:04Z",
+  "generated": "2026-10-19T15:45:04Z",
   "audit": [
     {
       "actor": null,
@@ -39700,6 +39700,33 @@ window.AUDIT_DATA = {
         "branch": "f1/c1-architecture",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M5ADCYN9QG5N4QW3TMM0BN3W",
+      "shortname": "join-f1-c1-architecture",
+      "datetime": "2026-10-19T15:45:04Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of f1/c1-architecture into main",
+      "summary": "F1 re-scope node C1: architecture module, host-identity receipt, per-architecture table through contract, sources, roots and rootfs pin; red-first tests on both runtimes; register entry EMULATED-PROCESS-REPORTS-AN-EMULATED-OS recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Join node C1 to main with the ring and gates green",
+      "done_when": "Merged, ring green, gates green, audit entry, derived views regenerated",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-19T15:42:17Z",
+      "duration_seconds": 167.0
     }
   ],
   "changes": [
