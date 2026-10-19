@@ -304,6 +304,17 @@ carries the run itself.
   F1-PREPARATION-EXECUTION-CONFLATION-A carried with their controls named on main; EMPTY-MEANS-ZERO-BYTES new.
   152 Python tests green (11 `tests/test_f1_*.py`, V's floor is 9); 10 PowerShell suites green on both native
   runtimes (22014 ms for 20 runs; V's floor is 9); the packet self-tests green. Duration: the join's audit entry.
+- **V (2026-10-19).** Planned: the union green on both runtimes, the file counts at least the floors, width 2. Actual:
+  `tools/run-f1-verification.py` runs the packet README's whole check list (authority scan, Python and PowerShell
+  packet self-tests, the unit suites and the PowerShell runner concurrently, the three gates, `check-docs`), refuses
+  a suite count below the floors before anything runs (`--self-test` plants a smaller count and a red step), and
+  writes the receipt `docs/proof/win-gpu-f1-preflight/rescope/verification-v.json` (HEAD, `worktree_clean`, counts,
+  per-step command, exit and seconds; no machine path). Counts: 11 Python suites (floor 9), 10 PowerShell suites
+  (floor 9), 152 Python tests, 20 PowerShell runs. Two reds before green: the authority scan refused the C3
+  self-test's quoted `"make"` literal (the scan ran in no ring; now a `check-docs` sub-check, register entry
+  LISTED-CHECK-IN-NO-RING; the fixture names are not build tools), and the proof-PII gate refused the first
+  receipt's scratch path (the runner scrubs `<repo>` and `<scratch>`). The receipt is the code-stage proof pack owed
+  at R; its exact seconds are in the file. Duration: the join's audit entry.
 
 ## 10. Gate record
 

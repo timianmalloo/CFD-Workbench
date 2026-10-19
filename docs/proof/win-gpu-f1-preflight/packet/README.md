@@ -350,6 +350,7 @@ pwsh -NoProfile -File tools/run-f1-powershell-suites.ps1
 py -3 tools/check-f1-host-bindings.py
 py -3 tools/check-wsl-inline.py
 py -3 tools/check-docs.py
+py -3 tools/run-f1-verification.py --receipt docs/proof/win-gpu-f1-preflight/rescope/verification-v.json   # the whole list above, both runtimes, the suite-count floors (plan node V)
 ```
 
 The wrapper and helpers were authored from B2's

@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "885296f55089ac3ea00b5ca54f8c2301983e1832f5b534fd5fedec720393b5bf"
+      "sourceSha256": "25cf1322aeac564c5c8f6746ba457e335b559d9d56e27e7e8a1b07036ba51d40"
     },
     {
       "id": "domain-experts",
@@ -11573,7 +11573,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "732f823080c184987087d10f09bb3bd26098cb5235abf19be1a58161fee44a4e"
+      "sourceSha256": "e0e692e5c981888231d8da55e5cfa08177d8dac80cec80a006adea4ce32a2327"
     },
     {
       "id": "plan-seam-repair-1",
@@ -19447,7 +19447,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1afc08bd63ad4c261a62c2754837aeec73f69fb60b5ac350fcc4323a8364783c"
+      "sourceSha256": "841e35168a5d47d016bd77ab40cd39f3815427733fa2f515a0f68ae5d089df00"
     },
     {
       "id": "proof-win-gpu-f1-r225-attempt1-admission",
@@ -19618,6 +19618,41 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "bee466cf574254cab84b37534e83d0b0e2829428a00e78123fc6aa1235519193"
+    },
+    {
+      "id": "proof-win-gpu-f1-rescope-verification",
+      "path": "docs/proof/win-gpu-f1-preflight/rescope/README.md",
+      "title": "F1 re-scope (Ruling 237): node V verification receipts",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@pc-laptop-leader",
+      "phase": "preflight",
+      "reviewBy": "2026-11-18",
+      "reviewSuggested": [],
+      "summary": "The code-stage proof pack of plan docs/plans/f1-rescope-r237.md node V: one receipt per run of tools/run-f1-verification.py, the whole offline union of the packet's checks on both PowerShell runtimes with the plan's suite-count floors. verification-v.json is the run the independent review (node R) reads; its `head` names the commit it measured and `worktree_clean` says nothing else was in the tree.",
+      "tags": [
+        "windows",
+        "arm64",
+        "f1",
+        "verification",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "plan-f1-rescope-r237",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3dccf2ab7775e1dc6c4442bca601cd258a8d82141a9d57535469abd9dea6787b"
     },
     {
       "id": "proof-win-gpu-g1",
@@ -22874,5 +22909,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "c8241b072ac41ee44d7b3f9fedf3943b2cc3ba79a8211297f720c52f07428e7c"
+  "graphSha256": "329c3b547bbe4a525adc3b7843f50995acc92256bc0d56161be83982d8fcfe1c"
 };
