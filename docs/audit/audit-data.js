@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-19T21:36:58Z",
+  "generated": "2026-10-19T22:33:58Z",
   "audit": [
     {
       "actor": null,
@@ -39924,6 +39924,51 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-19T21:33:49Z",
       "duration_seconds": 189.0
+    },
+    {
+      "id": "al-01M5B44D6B8FJ7GVVAA5VE5ZAR",
+      "shortname": "start C5",
+      "datetime": "2026-10-19T22:22:21Z",
+      "session": "pc-laptop-leader",
+      "prompt": "start C5",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M5B4SNP1R4F42HG08BBBAGGB",
+      "shortname": "join-f1-c5-r235-items",
+      "datetime": "2026-10-19T22:33:58Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of f1/c5-r235-items into main",
+      "summary": "Ruling 235 cycle-3 items carried from the candidate 46c0df8c at plan node C5: expires_in_before from the renewal supervisor checked on the first event, the renewal stderr judged by byte length (the only must-be-empty read in the packet; a BOM-only file was accepted before), contract.py prepare as the offline producer of the attempt-2 pair re-based on the /2 contract; red-first on both runtimes; 152 Python tests, 10 PowerShell suites on both native runtimes green; three register entries recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "tests/test_f1_attempt2_prepare.py",
+        "tests/f1_attempt2_evidence.ps1"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "land plan node C5 (Ruling 235 cycle-3 items) on main",
+      "done_when": "the four named PowerShell tests green on both runtimes, the carried prepare test green on the laptop, every must-be-empty read checks byte length, the ledger line in plan section 9, the join readiness-green and pushed",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-19T22:30:38Z",
+      "duration_seconds": 200.0
     }
   ],
   "changes": [
