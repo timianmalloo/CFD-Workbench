@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-19T16:25:20Z",
+  "generated": "2026-10-19T16:28:35Z",
   "audit": [
     {
       "actor": null,
@@ -39781,6 +39781,33 @@ window.AUDIT_DATA = {
         "branch": "f1/c2-derived-paths",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M5AFWM9NCX4BYRK6SJDQGCHA",
+      "shortname": "join-f1-c2-derived-paths",
+      "datetime": "2026-10-19T16:28:35Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of f1/c2-derived-paths into main",
+      "summary": "F1 re-scope node C2: derived target path and drive, contract floors, the host-bindings gate; the ring runs the F1 PowerShell suites on both native runtimes; register entry PWSH-CHILD-INHERITS-CORE-MODULE-PATH recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Join node C2 to main with the ring (including the new F1 PowerShell step) and gates green",
+      "done_when": "Merged, ring green, gates green, audit entry, derived views regenerated",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-19T16:25:31Z",
+      "duration_seconds": 184.0
     }
   ],
   "changes": [
