@@ -17,3 +17,4 @@
 {"agent": "pc-laptop-leader", "at": 1792361271.6353567, "kind": "session-start", "path": "-", "seq": 17, "session": "pc-laptop-leader", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-spike-arm64-cuda-in-wsl"}
 {"agent": "pc-laptop-leader", "at": 1792362129.0084126, "kind": "session-end", "path": "-", "seq": 18, "session": "pc-laptop-leader", "wi": "WI-0", "worktree": "CFD-Workbench-spike-arm64-cuda-in-wsl"}
 {"agent": "pc-laptop-leader", "at": 1792414759.3367982, "kind": "session-start", "path": "-", "seq": 19, "session": "pc-laptop-leader", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-plan-f1-rescope"}
+{"agent": "pc-laptop-leader", "at": 1792416103.4535332, "kind": "session-end", "path": "-", "seq": 20, "session": "pc-laptop-leader", "wi": "WI-0", "worktree": "CFD-Workbench-plan-f1-rescope"}
