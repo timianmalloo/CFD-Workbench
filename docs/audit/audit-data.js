@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-19T16:28:35Z",
+  "generated": "2026-10-19T16:32:31Z",
   "audit": [
     {
       "actor": null,
@@ -39807,6 +39807,33 @@ window.AUDIT_DATA = {
         "acceptance_met": true
       },
       "started_at": "2026-10-19T16:25:31Z",
+      "duration_seconds": 184.0
+    },
+    {
+      "id": "al-01M5AG3TS8547EW7ZM73JQE0PV",
+      "shortname": "join-f1-c2-derived-paths-fix",
+      "datetime": "2026-10-19T16:32:31Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of f1/c2-derived-paths into main",
+      "summary": "Node C2 follow-up: the host-bindings gate's self-test fixture write carries newline (verify-portable-text-io); completes the C2 join whose step 8 stopped recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Complete the C2 join with every verify gate green",
+      "done_when": "Merged, ring green, every verify gate green, audit entry, derived views regenerated",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-19T16:29:27Z",
       "duration_seconds": 184.0
     }
   ],
