@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-19T22:33:58Z",
+  "generated": "2026-10-19T23:21:09Z",
   "audit": [
     {
       "actor": null,
@@ -39969,6 +39969,51 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-19T22:30:38Z",
       "duration_seconds": 200.0
+    },
+    {
+      "id": "al-01M5B6GHEMDJ7XVMZ1GNE9G7RS",
+      "shortname": "start V",
+      "datetime": "2026-10-19T23:03:56Z",
+      "session": "pc-laptop-leader",
+      "prompt": "start V",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M5B7G2DBQWF6X0ZA7NY4RPK8",
+      "shortname": "join-f1-v-verification",
+      "datetime": "2026-10-19T23:21:09Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of f1/v-verification into main",
+      "summary": "Plan node V: tools/run-f1-verification.py runs the packet's whole check list on both PowerShell runtimes with the plan's suite-count floors and writes the receipt docs/proof/win-gpu-f1-preflight/rescope/verification-v.json (green on c174d4c3, clean tree: 11 Python suites, 10 PowerShell suites, 152 tests, 20 runs); found that authority_scan.py ran in no ring and refused the C3 self-test's quoted make literal (fixture renamed, the scan is a check-docs sub-check, register entry LISTED-CHECK-IN-NO-RING); the proof-PII gate refused the first receipt's scratch path (scrubbed) recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/rescope/verification-v.json",
+        "tools/run-f1-verification.py"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "land plan node V (verification union, suite-count floors, the code-stage proof pack) on main",
+      "done_when": "the verification runner refuses a smaller count, its run is green on a clean committed tree, the receipt is committed, the ledger line is in plan section 9, the join readiness-green and pushed",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-19T23:17:29Z",
+      "duration_seconds": 220.0
     }
   ],
   "changes": [
