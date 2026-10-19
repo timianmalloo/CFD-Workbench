@@ -27,3 +27,4 @@
 {"agent": "pc-laptop-leader", "at": 1792426011.5924797, "kind": "session-start", "path": "-", "seq": 27, "session": "pc-laptop-leader", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-f1-c2-derived-paths"}
 {"agent": "pc-laptop-leader", "at": 1792427574.090154, "kind": "session-end", "path": "-", "seq": 28, "session": "pc-laptop-leader", "wi": "WI-0", "worktree": "CFD-Workbench-f1-c2-derived-paths"}
 {"agent": "pc-laptop-leader", "at": 1792435796.1520886, "kind": "session-start", "path": "-", "seq": 29, "session": "pc-laptop-leader", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-f1-c3-lock-model"}
+{"agent": "pc-laptop-leader", "at": 1792436603.3999646, "kind": "session-end", "path": "-", "seq": 30, "session": "pc-laptop-leader", "wi": "WI-0", "worktree": "CFD-Workbench-f1-c3-lock-model"}
