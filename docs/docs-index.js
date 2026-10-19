@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "25cf1322aeac564c5c8f6746ba457e335b559d9d56e27e7e8a1b07036ba51d40"
+      "sourceSha256": "ca2c7a00d07cb2bd2187bada6d4d7bae9512306ad245ee68837e50507a78c8ef"
     },
     {
       "id": "domain-experts",
@@ -11573,7 +11573,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e0e692e5c981888231d8da55e5cfa08177d8dac80cec80a006adea4ce32a2327"
+      "sourceSha256": "8749ce337a5dd6625c5c6091513f19e3874c643ada095577bf613908c1af87b4"
     },
     {
       "id": "plan-seam-repair-1",
@@ -19302,6 +19302,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "d8d3881c7831e9f094748fd94121c87794f402e08affd0561b03e44bb8d8fe70"
     },
     {
+      "id": "proof-win-gpu-f1-inputs",
+      "path": "docs/proof/win-gpu-f1-preflight/inputs/README.md",
+      "title": "F1 preflight: repository-reviewed inputs",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@pc-laptop-leader",
+      "phase": "preflight",
+      "reviewBy": "2026-11-18",
+      "reviewSuggested": [],
+      "summary": "The inputs of the F1 preflight that live in the repository and are hash-bound in the contract: today the Ubuntu cloud-image keyring the Windows-side rootfs signature check reads (Ruling 240 (2)). Each file states where its bytes came from, measured, and what a reviewer still has to confirm.",
+      "tags": [
+        "windows",
+        "f1",
+        "inputs",
+        "keyring",
+        "provenance"
+      ],
+      "links": [
+        {
+          "to": "plan-f1-rescope-r237",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "12e6a3592b02bba93cea864dda2edc83c321ef1e1b7782fcd315708b9349d27a"
+    },
+    {
       "id": "proof-win-gpu-f1-offline-followups",
       "path": "docs/proof/win-gpu-f1-preflight/offline-followups.md",
       "title": "F1 subprocess and dynamic import offline controls",
@@ -19447,7 +19482,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "841e35168a5d47d016bd77ab40cd39f3815427733fa2f515a0f68ae5d089df00"
+      "sourceSha256": "d75f128a4a0d783cc1594ffe229a3648f55120a330b79a688c661dc8f51dbf15"
     },
     {
       "id": "proof-win-gpu-f1-r225-attempt1-admission",
@@ -20761,6 +20796,41 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "7445730f0ec31bf91dca72db4ebe50a7196d1e8870eb92ee5935c1206a20e5df"
+    },
+    {
+      "id": "review-f1-rescope-r237-node-r",
+      "path": "docs/reviews/f1-rescope-r237-node-r.md",
+      "title": "F1 re-scope (Ruling 237): node R independent source review",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@pc-laptop-leader",
+      "phase": "preflight",
+      "reviewBy": "2026-11-18",
+      "reviewSuggested": [],
+      "summary": "The two Adversary-mode reviews of the C1 to C5 source (change set 6f22dcb3..9e047b28) that plan node R convened on 2026-10-19, recorded verbatim: the Test Architect (ACCEPT WITH CONDITIONS: the pin oracle, structural tests on the AST) and the Security & Identity Architect (ACCEPT WITH CONDITIONS: the contract read once, the protected identity under none, the retired legacy contract). The conditions and their disposition are in the plan's section 10.",
+      "tags": [
+        "f1",
+        "windows",
+        "arm64",
+        "review",
+        "adversary"
+      ],
+      "links": [
+        {
+          "to": "plan-f1-rescope-r237",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-rescope-verification",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "997b6e4427e95358ad0d1b0fa28cdd106b0be3ee79acba50ecc9a6bef0bd8ca3"
     },
     {
       "id": "review-foil-editing-flow-results",
@@ -22909,5 +22979,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "329c3b547bbe4a525adc3b7843f50995acc92256bc0d56161be83982d8fcfe1c"
+  "graphSha256": "2b535e74a41b6b6c290833485f290d6f1910ecec6857e68a52e5455f211eadf1"
 };

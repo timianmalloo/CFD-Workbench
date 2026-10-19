@@ -175,7 +175,8 @@ Run from the native PowerShell (`pwsh` on an ARM64 host) in the **EXECUTE** work
 reviewed absolute local paths on any drive letter, without whitespace. Required inputs are the already existing B2 Ubuntu Noble WSL rootfs tarball, its matching Ubuntu
 `SHA256SUMS` and `.gpg`, reviewed binary OpenFOAM and NVIDIA keyrings, a unique run id, the executor's coordination
 session, and a **separately reviewed and committed** `run-1/invocation-contract.json`. No input is silently fetched.
-The wrapper verifies that contract, its Git blob, Mac's live epoch against the separately reviewed contract value,
+The wrapper reads the contract's bytes once, hashes them and parses them, and passes that hash to `contract.py verify`
+(`--expected-sha256`), which refuses other bytes; a contract without `attempt` is retired at admission (node R). The wrapper verifies that contract, its Git blob, Mac's live epoch against the separately reviewed contract value,
 the exact execution branch/session, all packet
 source blobs, and all local input hashes **before the first WSL effect**. The contract is created only after Astra
 accepts the packet, so its packet hash map has no circular dependency.

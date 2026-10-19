@@ -10,6 +10,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path, PureWindowsPath
 
 import architecture
@@ -140,9 +141,12 @@ def verify_keyring(args: argparse.Namespace) -> None:
     check_file_hash(args.expected_sha256, args.contract)
     document = json.loads(args.contract.read_text(encoding="utf-8"))
     check_contract_fields(document)
-    result = subprocess.run([args.gpg, "--batch", "--show-keys", "--with-colons", "--fingerprint",
-                             str(args.keyring)], check=True, capture_output=True, text=True,
-                            encoding="utf-8", timeout=15)
+    with tempfile.TemporaryDirectory() as home:   # never the user's gpg.conf or keybox (node R, Security F6)
+        if sys.platform == "win32":   # Git's gpg is an MSYS program: --homedir D:\x is read relative to its root; /d/x works
+            home = "/" + home[0].lower() + "/" + home[3:].replace("\\", "/")
+        result = subprocess.run([args.gpg, "--batch", "--no-options", "--homedir", home, "--show-keys",
+                                 "--with-colons", "--fingerprint", str(args.keyring)], check=True,
+                                capture_output=True, text=True, encoding="utf-8", timeout=15)
     found = {line.split(":")[9] for line in result.stdout.splitlines() if line.startswith("fpr:")}
     allowed = set(document["allowed_signers"][args.kind])
     if not found or not found.issubset(allowed):
@@ -169,7 +173,10 @@ def verify(args: argparse.Namespace) -> None:
     repo = args.repo.resolve(strict=True)
     path = args.contract.resolve(strict=True)
     relative = path.relative_to(repo).as_posix()
-    document = json.loads(path.read_text(encoding="utf-8"))
+    raw = path.read_bytes()   # one read: the hash the launcher passed, the committed-blob comparison and the fields
+    if getattr(args, 'expected_sha256', None):
+        check_hash(args.expected_sha256, raw)
+    document = json.loads(raw.decode("utf-8-sig"))
     fresh = 'attempt' in document
     expected_relative = (document.get('run_root', '') if fresh else 'docs/proof/win-gpu-f1-preflight/run-1') + '/invocation-contract.json'
     if relative != expected_relative:
@@ -190,7 +197,7 @@ def verify(args: argparse.Namespace) -> None:
     if not proposed:
         committed = subprocess.run(["git", "-C", str(repo), "show", f"HEAD:{relative}"],
                                    check=True, capture_output=True, timeout=15).stdout
-        if committed != path.read_bytes():
+        if committed != raw:
             raise ValueError("contract working bytes differ from committed blob")
     check_contract_fields(document)
     check_target_path_derived(document, PureWindowsPath(str(repo)))
@@ -201,7 +208,7 @@ def verify(args: argparse.Namespace) -> None:
     if fresh:
         import attempt
         attempt.verify_authorization(repo, getattr(args, 'authorization', None), document,
-            hashlib.sha256(path.read_bytes()).hexdigest(), getattr(args, 'run_id', None),
+            hashlib.sha256(raw).hexdigest(), getattr(args, 'run_id', None),
             getattr(args, 'exclusive_run_id', None), proposed=proposed)
     source = document["accepted_packet_commit"]
     subprocess.run(["git", "-C", str(repo), "merge-base", "--is-ancestor", source, "HEAD"],
@@ -359,6 +366,7 @@ def main() -> None:
         check.add_argument('--run-id')
         check.add_argument('--authorization', type=Path)
         check.add_argument('--exclusive-run-id')
+        check.add_argument('--expected-sha256', help='the launcher hashes the bytes it parsed; verify refuses other bytes')
         if mode == 'prepare':   # the producer (Ruling 235 (3)); without --source-commit, validation only
             check.add_argument('--source-commit')
             check.add_argument('--execution-worktree')

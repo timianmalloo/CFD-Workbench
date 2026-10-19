@@ -6,6 +6,7 @@ plan's section 4.2. Red observed before C3: transaction.roots required --b2-lock
 """
 import hashlib
 import json
+import re
 import sys
 import tempfile
 import unittest
@@ -35,6 +36,12 @@ ARM64_RESOLVED = {
     'cpp-13-aarch64-linux-gnu': '13.3.0-6ubuntu2~24.04.1', 'gcc-13-aarch64-linux-gnu': '13.3.0-6ubuntu2~24.04.1',
     'g++-13-aarch64-linux-gnu': '13.3.0-6ubuntu2~24.04.1', 'linux-libc-dev': '6.8.0-147.147',
 }
+# The pins, as a literal the code cannot see (node R, Test Architect F1): the toolkit meta-package, the OpenFOAM set,
+# the compilers, MPI, BLAS/LAPACK, pkg-config, then make for the architecture.
+EXPECTED_PINS = ('cuda-toolkit-13-2=13.2.2-1', 'openfoam2512=2512.0-2', 'openfoam2512-common=2512.0-2',
+                 'openfoam2512-dev=2512.0-2', 'openfoam2512-source=2512.0-2', 'openfoam2512-tools=2512.0-2',
+                 'gcc-13', 'g++-13', 'gfortran-13', 'openmpi-bin', 'libopenmpi-dev', 'libblas-dev', 'liblapack-dev',
+                 'pkg-config')
 # Rows of the amd64 lock that the arm64 index does not carry (section 4.2).
 AMD64_ONLY = ('cpp-13-x86-64-linux-gnu', 'gcc-13-x86-64-linux-gnu', 'g++-13-x86-64-linux-gnu',
               'libquadmath0', 'cuda-nsight-13-2', 'cuda-opencl-13-2')
@@ -62,7 +69,7 @@ class TransactionRootsTests(unittest.TestCase):
             pins = roots_for('arm64', folder)
             self.assertIn('make:arm64', pins)
             self.assertNotIn('make:amd64', pins)
-            self.assertEqual(len(pins), len(transaction.PINS) + 1, pins)
+            self.assertEqual(tuple(pins), EXPECTED_PINS + ('make:arm64',))
             self.assertEqual(sorted(pins), sorted(set(pins)), 'duplicate pin')
             versioned = [pin for pin in pins if '=' in pin]
             self.assertTrue(all(pin.startswith(('cuda-toolkit-13-2=', 'openfoam2512')) for pin in versioned), versioned)
@@ -92,6 +99,12 @@ class TransactionRootsTests(unittest.TestCase):
                 transaction.check_pins(rows, pins)
             with self.assertRaises(ValueError):
                 transaction.roots(SimpleNamespace(output=Path(folder) / 'x.args', architecture='x64'))
+            for pin in pins:   # every pin, not three: a root that leaves the resolved set refuses by name (node R)
+                name = pin.partition('=')[0].split(':', 1)[0]
+                missing = {key: value for key, value in ARM64_RESOLVED.items() if key != name}
+                rows = transaction.simulation_rows(write(folder, 'missing', simulation_text(missing, 'arm64')))
+                with self.assertRaisesRegex(ValueError, 'pinned root absent.*' + re.escape(pin)):
+                    transaction.check_pins(rows, pins)
 
     def test_Roots_Amd64B2Fixture_ExpandsTo135Rows(self):
         # The regression oracle: B2's recorded simulate output is the amd64 expansion of the toolkit pin, and its 135
@@ -107,8 +120,8 @@ class TransactionRootsTests(unittest.TestCase):
                          {(item['package'], item['version']) for item in lock['packages']})
         with tempfile.TemporaryDirectory() as folder:
             pins = roots_for('amd64', folder)
+        self.assertEqual(tuple(pins), EXPECTED_PINS + ('make:amd64',))
         self.assertIn(lock['root'], pins)
-        self.assertIn('make:amd64', pins)
         transaction.check_pins(rows, [lock['root'], 'make:amd64', 'gcc-13', 'g++-13'])
         # The F1 transaction is not the B2 transaction: the OpenFOAM pins are absent from B2's expansion.
         with self.assertRaisesRegex(ValueError, 'pinned root absent.*openfoam2512'):
