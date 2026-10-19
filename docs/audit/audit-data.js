@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-19T15:13:52Z",
+  "generated": "2026-10-19T15:19:26Z",
   "audit": [
     {
       "actor": null,
@@ -39635,6 +39635,33 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M5ABY02Q37BNEB2J901B2FYK",
+      "shortname": "join-ruling-240",
+      "datetime": "2026-10-19T15:19:26Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of rulings/dr-1-f1-protected-none into main",
+      "summary": "Ruling 240: DR-1 ruled (b), the F1 re-scope plan accepted, C1 starts; docs-only recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land Ruling 240 and the plan's acceptance on main before node C1 code",
+      "done_when": "Merged, gates green, audit entry, derived views regenerated",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-19T15:17:24Z",
+      "duration_seconds": 122.0
     }
   ],
   "changes": [
@@ -42903,6 +42930,24 @@ window.AUDIT_DATA = {
       "to": "pc-laptop-leader",
       "kind": "ruling",
       "ref": "req-01M532C5C0E97EA1GHYJDK7ZWS",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M5ABMATT7413Y7BM3HZDX2ZK",
+      "ts": "2026-10-19T15:14:09Z",
+      "from": "pc-laptop-leader",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M5ABMATB97Y7YJCWJXJ9SRK3",
+      "session": "pc-laptop-leader"
+    },
+    {
+      "id": "mail-01M5ABMJ029R29ZEZY6YKGR4PY",
+      "ts": "2026-10-19T15:14:16Z",
+      "from": "operator-timianmalloo",
+      "to": "pc-laptop-leader",
+      "kind": "ruling",
+      "ref": "req-01M5ABMATB97Y7YJCWJXJ9SRK3",
       "session": "operator-timianmalloo"
     }
   ]
