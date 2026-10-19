@@ -171,12 +171,13 @@ def main() -> int:
         return 3
     started = time.perf_counter()
     head = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "HEAD"], check=True, capture_output=True,
-                          text=True, timeout=15).stdout.strip()
+                          text=True, encoding="utf-8", errors="replace", timeout=15).stdout.strip()
     # The receipt says what tree it measured: HEAD, and whether anything beyond the receipt itself was uncommitted.
     status_args = ["git", "-C", str(ROOT), "status", "--porcelain", "--untracked-files=all", "--", "."]
     if args.receipt:
         status_args.append(":(exclude)" + args.receipt.resolve().relative_to(ROOT).as_posix())
-    uncommitted = subprocess.run(status_args, check=True, capture_output=True, text=True, timeout=30).stdout.splitlines()
+    uncommitted = subprocess.run(status_args, check=True, capture_output=True, text=True, encoding="utf-8",
+                                 errors="replace", timeout=30).stdout.splitlines()
     counts = count_suites()
     floors = {"python_files": args.python_floor, "powershell_files": args.powershell_floor}
     refusals = check_floors(counts, args.python_floor, args.powershell_floor)
