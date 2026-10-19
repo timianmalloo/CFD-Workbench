@@ -157,7 +157,7 @@ $cleanupAst = $wrapperAst.Find({ param($node)
 $cleanupBody = $cleanupAst.Body.GetScriptBlock()
 $CreationArmed = $true
 $CheckpointSha = 'offline-fixture'
-$TargetPath = 'C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1'
+$TargetPath = Get-DerivedTargetPath 'X:\fixture\CFD-Workbench'
 $stageEvents = [Collections.Generic.List[string]]::new()
 function Wait-TargetSettled { return $null }
 function Get-TargetRegistration { return [pscustomobject]@{ BasePath=$TargetPath } }

@@ -1,7 +1,7 @@
 """Offline-fast renewal protocol with deterministic subprocess/clock boundaries."""
 import importlib
 import json
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import sys
 import tempfile
 import unittest
@@ -90,6 +90,7 @@ class RenewalTests(unittest.TestCase):
             with self.subTest(problem=problem), tempfile.TemporaryDirectory() as tmp:
                 repo=Path(tmp).resolve()
                 document=fixture()
+                document['target_path']=module.contract.derived_target_path(PureWindowsPath(str(repo)))  # Ruling 237
                 path=repo/document['run_root']/'invocation-contract.json'
                 path.parent.mkdir(parents=True)
                 path.write_text(json.dumps(document),encoding='utf-8')

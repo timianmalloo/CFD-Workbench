@@ -124,9 +124,9 @@ LOCK-PINS-A-MOVING-SUITE records it with this plan as the control.
 
 | Binding | Where | Re-scope | Ruling 217/225 limit |
 |---|---|---|---|
-| Target path `C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1` | `Invoke-Preflight.ps1` ($TargetPath, Assert-TargetPath), `Control.ps1` (Get-BoundTargetKey, Assert-FreshRegistrations), `SelfTest.ps1`, `contract.py` check_contract_fields, the attempt-1 contract, the attempt-2 request | derived only: `<repo parent>\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1` from `$RepoRoot`; the contract records the absolute path it was prepared for, and the launcher checks equality with the derived value. No override parameter: both known hosts derive (the old PC's `C:\Projects` derives to today's constant), and an override would be a second definition of the path | kept |
+| Target path `C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1` (done, C2) | `Invoke-Preflight.ps1` ($TargetPath, Assert-TargetPath), `Control.ps1` (Get-BoundTargetKey, Assert-FreshRegistrations), `SelfTest.ps1`, `contract.py` check_contract_fields, the attempt-1 contract, the attempt-2 request | derived only: `<repo parent>\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1` from `$RepoRoot`; the contract records the absolute path it was prepared for, and the launcher checks equality with the derived value. No override parameter: both known hosts derive (the old PC's `C:\Projects` derives to today's constant), and an override would be a second definition of the path | kept |
 | Drive `C:` | `Convert-LinuxPath` (`/mnt/c/` only), `Get-HostFree` (drive C), `preflight.sh` (`/mnt/c/*` arguments), the README's "absolute local paths on C:" | the drive letter of the target root and of each input; `/mnt/<letter>/`; the free-space floor measured on the target's drive | kept (drive follows the target) |
-| Free-space floor and reserve numbers `19684091961` and `10737418240` | `Invoke-Preflight.ps1` $HostStartFloor/$HostReserve, `attempt.py` LIMITS | **changed:** the numbers are the old PC's `C:` worksheet; under Ruling 238 (3) they become contract fields (`host_start_floor_bytes`, `host_reserve_bytes`) from a laptop worksheet recorded in the attempt-2 proof; a contract without them refuses | changed, said here |
+| Free-space floor and reserve numbers `19684091961` and `10737418240` (done, C2) | `Invoke-Preflight.ps1` $HostStartFloor/$HostReserve, `attempt.py` LIMITS | **changed:** the numbers are the old PC's `C:` worksheet; under Ruling 238 (3) they become contract fields (`host_start_floor_bytes`, `host_reserve_bytes`) from a laptop worksheet recorded in the attempt-2 proof; a contract without them refuses | changed, said here |
 | Protected distro: exactly one `cfdw-openfoam2512` registration, its GUID and `%USERPROFILE%` path, the keepalive on CPU 0, `verify-rootfs.sh` run inside it | `Control.ps1` Assert-FreshRegistrations, `attempt.py` PROTECTED_KEY/PROTECTED_PATH/KEEPALIVE, `Invoke-Preflight.ps1` | **changed under DR-1 (b):** `protected` becomes a contract field with a `none` state; with `none` the registration check no longer requires a protected row (other registrations, such as the stock `Ubuntu-24.04`, are neither required nor refused, as today for any non-target, non-protected row), the guard records `not applicable`, and the rootfs signature is verified on the Windows side (C4). With a declared protected distro everything stays as today | changed, said here; DR-1 |
 | Rootfs name and hash | `contract.py` ROOTFS, `Invoke-Preflight.ps1` $RootfsSha256, `verify-rootfs.sh` basename check, `attempt.py` INPUT_HASHES | a per-architecture table (name, SHA-256), one producer (§5 C1) | kept (per architecture) |
 | apt sources `arch=amd64`, `archive.ubuntu.com`, `ubuntu2404/x86_64` | `preflight.sh` repositories stage; the InRelease-to-keyring map | per-architecture rows from the same table; the five-index count stays; `ports.ubuntu.com` joins the Ubuntu keyring map | kept (signed indices) |
@@ -239,6 +239,19 @@ carries the run itself.
   runtimes green on the eight F1 suites and the packet self-test. Finding beyond the plan: register entry
   EMULATED-PROCESS-REPORTS-AN-EMULATED-OS (Windows PowerShell 5.1 on the ARM64 laptop runs as x64 from an x64
   parent; the token therefore comes from CIM and an emulated launcher is refused). Duration: the join's audit entry.
+- **C2 (2026-10-19).** Planned: derived target path, `/mnt/<letter>/`, floors as contract fields, the grep gate, five named
+  PowerShell tests. Actual: `Control.ps1` `Get-DerivedTargetPath` and `Get-ContractHostFloors`; the launcher derives
+  `$TargetPath` from `$RepoRoot`, `Assert-TargetPath` requires the bound, derived and contract paths to agree,
+  `Convert-LinuxPath` and `Get-HostFree` follow the drive letter, the floors are read from the contract after the
+  precheck, `Assert-FreshRegistrations` takes the target path; `contract.py` `derived_target_path`, `is_target_path`,
+  `check_target_path_derived` (run by `verify`), the `target-path` CLI, and the floor fields; `attempt.host_limits`;
+  `preflight.sh` accepts `/mnt/<letter>/`; the gate `tools/check-f1-host-bindings.py` (17 allowlisted fixture and
+  table lines, wired into check-docs). Tests: `tests/f1_derived_paths.ps1` (both runtimes; the Python and PowerShell
+  derivations proved equal), `tests/test_f1_derived_paths.py` (5 cases); 135 Python tests green. Added at the operator's
+  request: the ring runs every `tests/f1_*.ps1` on pwsh and on Windows PowerShell 5.1 started from pwsh
+  (`tools/run-f1-powershell-suites.ps1`, 15685 ms for 18 runs on the laptop), failing `F1-PS-EMULATED` or
+  `F1-PS-MODULES` before any suite. Finding beyond the plan: register entry PWSH-CHILD-INHERITS-CORE-MODULE-PATH (a 5.1
+  child of a pwsh script loses `Get-FileHash` until it gets its own module path). Duration: the join's audit entry.
 
 ## 10. Gate record
 

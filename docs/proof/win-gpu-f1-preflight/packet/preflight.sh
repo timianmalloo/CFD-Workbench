@@ -25,7 +25,7 @@ architecture=${22}
    "$architecture" =~ ^[a-z0-9]+$ ]] || exit 65
 [[ "$stage" == probe || "$stage" == repositories || "$stage" == simulate ||
    "$stage" == download || "$stage" == inspect || "$stage" == delete-debs ]] || exit 64
-[[ "$run_root" == /mnt/c/* && "$packet_root" == /mnt/c/* ]] || exit 65
+[[ "$run_root" == /mnt/[a-z]/* && "$packet_root" == /mnt/[a-z]/* ]] || exit 65   # any drive letter (Ruling 237)
 mkdir -p "$run_root"
 pid=$$
 pgid=$(ps -o pgid= -p "$pid" | tr -d ' ')

@@ -16,10 +16,10 @@ import transaction
 
 
 def assert_cleanup_stage_scope(data):
-    """Offline-fast: only delete-debs may differ from the accepted source (re-pinned at Ruling 240 node C1; 02ec2cc3 before Ruling 237)."""
+    """Offline-fast: only delete-debs may differ from the accepted source (re-pinned at Ruling 240 nodes C1 and C2; 02ec2cc3 before Ruling 237)."""
     prefix, tail = data.split(b'    delete-debs)\n', 1)
     suffix = tail.split(b'    *)', 1)[1]
-    assert hashlib.sha256(prefix).hexdigest() == '1ff7e3d41cdaa10ee93f51fd7d56017cb97c45a9faea733182ed3428dd83e774', 'non-cleanup packet stage changed'
+    assert hashlib.sha256(prefix).hexdigest() == '0c47712ee503f6af6a0c669862a5692854630cec2452b2f1caae0dbb8295f3c1', 'non-cleanup packet stage changed'
     assert hashlib.sha256(suffix).hexdigest() == '5f944b439dcdb44a87e81a051cfd0c670348f7e6e49a1bdf0623d25295beaefa', 'packet dispatch suffix changed'
     assert b'"${packet_root}/../recovery/check_cache.py" --mode delete --cache "$cache"' in tail, 'pinned cache helper missing'
 
@@ -48,7 +48,7 @@ def verify_size_case(index_value, control_value, should_pass):
         guest = here / "guest.txt"
         guest.write_text("block_bytes=8589934592\nfilesystem_bytes=8589934592\nfree_bytes=1000000000\nmaximum_bytes=8589934592\n", encoding="utf-8")
         host = here / "host.jsonl"
-        host.write_text('{"host_free_bytes":20000000000,"host_floor_bytes":19684091961,"target_vhd_physical_bytes":1000000000}\n', encoding="utf-8")
+        host.write_text('{"host_free_bytes":20000000000,"host_floor_bytes":19000000000,"target_vhd_physical_bytes":1000000000}\n', encoding="utf-8")
         args = SimpleNamespace(lock=lock, b2_licences=b2, archives=archives,
             licences=here / "licenses.json", capacity=here / "capacity.json",
             guest_capacity=guest, host_capacity=host)
@@ -235,7 +235,8 @@ def main():
                                                      {"DC93C096174122E256DA24063386DD74948D208F"}), "signer mismatch")
     valid = {"schema": "cfdw-f1-r217-invocation/2", "architecture": "amd64", "leader": "mac", "leader_epoch": 5,
              "target": "cfdw-petsc-cuda132-f1", "protected": "cfdw-openfoam2512",
-             "target_path": r"C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1",
+             "target_path": r"X:\fixture\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1",
+             "host_start_floor_bytes": 19000000000, "host_reserve_bytes": 10000000000,
              "accepted_packet_commit": "a" * 40,
              "inputs": {name: {"path": "C:\\reviewed", "sha256": "a" * 64} for name in contract.INPUT_KEYS},
              "allowed_signers": {"ubuntu_rootfs": ["A" * 40], "ubuntu_archive": ["B" * 40],

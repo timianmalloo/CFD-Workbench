@@ -70,6 +70,30 @@ function Invoke-Finalization(
         checkpoint_proved=$checkpointProved; cleanup_proved=$cleanupProved
         snapshot_proved=$snapshotProved; guard_stopped=$guardStopped; guard_bound=$guardBound }
 }
+function Get-DerivedTargetPath([string]$RepoRoot) {
+    # Ruling 237: the target root derives from the repository location (<repository parent>\CFD-Workbench-wsl\<target>),
+    # never a constant and never a parameter; the contract records the path it was prepared for and Assert-TargetPath
+    # checks equality. contract.py derived_target_path is the same rule; tests/f1_derived_paths.ps1 proves them equal.
+    if ($RepoRoot -notmatch '^[A-Za-z]:\\' -or $RepoRoot -match '\s') { throw "repository root must be a no-space absolute drive path: $RepoRoot" }
+    $root = [IO.Path]::GetFullPath($RepoRoot).TrimEnd('\')
+    $parent = [IO.Path]::GetDirectoryName($root)   # string-only: Join-Path and Split-Path validate the drive, a fixture drive may not exist
+    if ([string]::IsNullOrEmpty($parent)) { throw "repository root has no parent: $root" }
+    return [IO.Path]::Combine($parent, 'CFD-Workbench-wsl', 'cfdw-petsc-cuda132-f1')
+}
+
+function Get-ContractHostFloors([object]$ContractData) {
+    # Ruling 238 (3): the free-space floor and reserve are contract fields from the host's worksheet, never constants.
+    foreach ($name in @('host_start_floor_bytes', 'host_reserve_bytes')) {
+        if ($null -eq $ContractData.psobject.Properties[$name]) { throw "contract has no $name" }
+        $value = $ContractData.$name
+        if (($value -isnot [int] -and $value -isnot [long]) -or $value -le 0) { throw "contract $name must be a positive integer" }
+    }
+    $floor = [int64]$ContractData.host_start_floor_bytes
+    $reserve = [int64]$ContractData.host_reserve_bytes
+    if ($floor -le $reserve) { throw 'contract host_start_floor_bytes must exceed host_reserve_bytes' }
+    return @($floor, $reserve)
+}
+
 function Get-InvocationRunRoot([object]$ContractData, [string]$RepoRoot, [string]$RunId, [string]$AgentSession) {
     if ($null -eq $ContractData.psobject.Properties['attempt']) { return (Join-Path $RepoRoot 'docs\proof\win-gpu-f1-preflight\run-1') }
     if ($ContractData.attempt -is [int] -or $ContractData.attempt -is [long]) {
@@ -107,7 +131,8 @@ function Get-BoundTargetKey([object[]]$Registration, [string]$TargetPath, [strin
     return $key
 }
 
-function Assert-FreshRegistrations([object[]]$Rows, [string[]]$Names, [bool]$PathPresent, [int]$AttemptNumber = 1) {
+function Assert-FreshRegistrations([object[]]$Rows, [string[]]$Names, [bool]$PathPresent, [int]$AttemptNumber = 1, [string]$TargetPath = '') {
+    if ([string]::IsNullOrEmpty($TargetPath)) { throw 'target path required for the registration check' }
     if ($PathPresent -or $Names -ccontains 'cfdw-petsc-cuda132-f1') { throw 'fresh target name/path absence unproved' }
     $protected = @()
     $expectedPath = [Environment]::ExpandEnvironmentVariables('%USERPROFILE%\AppData\Local\CFDWorkbench\qualification\wsl\cfdw-openfoam2512')
@@ -115,7 +140,7 @@ function Assert-FreshRegistrations([object[]]$Rows, [string[]]$Names, [bool]$Pat
         if ($row.DistributionName -ceq 'cfdw-petsc-cuda132-f1' -or
             $row.PSChildName -ieq '{e958c4d5-ae78-4b50-a634-7102f334d3aa}' -or
             ($AttemptNumber -eq 2 -and $row.PSChildName -ieq '{e874e10f-c7b9-4a2b-a03b-87ad52fb9c41}') -or
-            ([string]$row.BasePath).Replace('\\?\', '').TrimEnd('\') -ieq 'C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1') {
+            ([string]$row.BasePath).Replace('\\?\', '').TrimEnd('\') -ieq $TargetPath.TrimEnd('\')) {
             throw 'fresh target registration/GUID/path absence unproved'
         }
         if ($row.DistributionName -ceq 'cfdw-openfoam2512') { $protected += $row }

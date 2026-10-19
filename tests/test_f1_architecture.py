@@ -77,7 +77,8 @@ def observations(token):
 def contract_fixture(token):
     value = json.loads((ROOT / 'docs/proof/win-gpu-f1-preflight/run-1/invocation-contract.json').read_bytes())
     row = architecture.TABLE[token]
-    value.update(schema='cfdw-f1-r217-invocation/2', architecture=token)
+    value.update(schema='cfdw-f1-r217-invocation/2', architecture=token,
+                 host_start_floor_bytes=19684091961, host_reserve_bytes=10737418240)
     value['inputs']['rootfs'] = {'path': 'C:\\reviewed\\' + row['rootfs_name'], 'sha256': row['rootfs_sha256']}
     return value
 

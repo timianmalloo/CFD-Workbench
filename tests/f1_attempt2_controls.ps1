@@ -21,7 +21,7 @@ foreach ($key in @('{e958c4d5-ae78-4b50-a634-7102f334d3aa}','{e874e10f-c7b9-4a2b
     $bad=$target.psobject.Copy(); $bad.PSChildName=$key
     Refuses { Get-BoundTargetKey @($bad) $path '' 2 }
     $bad.DistributionName='renamed';$bad.BasePath='C:\Projects\moved'
-    Refuses { Assert-FreshRegistrations @($protected,$bad) @('cfdw-openfoam2512') $false 2 }
+    Refuses { Assert-FreshRegistrations @($protected,$bad) @('cfdw-openfoam2512') $false 2 $path }
 }
 $lease=[pscustomobject]@{leader='mac';state='live';epoch=19;expires_in=200.0;oid=('a'*40)}
 Assert-AttemptLeader $lease 19

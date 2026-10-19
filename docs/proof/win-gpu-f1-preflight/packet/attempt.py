@@ -43,9 +43,19 @@ SIGNERS = {
     'ubuntu_archive': ['790BC7277767219C42C86F933B4FE6ACC0B21F32', '843938DF228D22F7B3742BC0D94AA3F0EFE21092', 'F6ECB3762474EDA9D21B7022871920D1991BC93C'],
     'openfoam': [contract.OPENFOAM], 'nvidia': [contract.NVIDIA],
 }
-LIMITS = dict(deadline_seconds=3600, work_ceiling_seconds=2700, checkpoint_ceiling_seconds=3000,
-              vhd_max_bytes=8589934592, host_initial_free_bytes=19684091961,
-              host_reserve_bytes=10737418240, target_cpus=[0, 1], protected_cpus=[0], nice=10)
+LIMITS_FIXED = dict(deadline_seconds=3600, work_ceiling_seconds=2700, checkpoint_ceiling_seconds=3000,
+                    vhd_max_bytes=8589934592, target_cpus=[0, 1], protected_cpus=[0], nice=10)
+
+
+def host_limits(document):
+    """Ruling 238 (3): the free-space floor and reserve come from the contract's worksheet fields, never constants."""
+    floors = {}
+    for key, name in (('host_initial_free_bytes', 'host_start_floor_bytes'), ('host_reserve_bytes', 'host_reserve_bytes')):
+        value = document.get(name)
+        if type(value) is not int or value <= 0:
+            raise ValueError('contract host floors must be positive integers: ' + name)
+        floors[key] = value
+    return dict(LIMITS_FIXED, **floors)
 STAGES = ['probe', 'repositories', 'simulate', 'download', 'inspect', 'delete-debs']
 ACTIONS = ['fresh-target-create', 'rootfs-signature', 'completed-l3-before-watch-after',
            'owned-stop-check', 'terminate-target', 'unregister-target', 'absence-proof',
@@ -111,7 +121,7 @@ def authorization(document, contract_sha, accepted=False, ruling=None):
                 target_previous_key=OLD_TARGET_KEY, target_key='observed-after-fresh-creation',
                 protected=document['protected'], protected_key=PROTECTED_KEY, protected_path=PROTECTED_PATH,
                 packet_sha256=document['packet_sha256'], external_sha256=document['external_sha256'],
-                inputs=document['inputs'], allowed_signers=document['allowed_signers'], limits=LIMITS,
+                inputs=document['inputs'], allowed_signers=document['allowed_signers'], limits=host_limits(document),
                 allowed_stages=STAGES, allowed_actions=ACTIONS, forbidden_actions=FORBIDDEN,
                 attempt_count=1, failure_policy='stop; immutable failure receipt; no next attempt without its own ruling',
                 prerequisites=['live-mac-epoch8', 'exclusive-PC', 'continuous-PC-side-leader-renewal',

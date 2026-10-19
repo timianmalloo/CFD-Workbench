@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-19T15:45:04Z",
+  "generated": "2026-10-19T16:25:20Z",
   "audit": [
     {
       "actor": null,
@@ -39727,6 +39727,60 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-19T15:42:17Z",
       "duration_seconds": 167.0
+    },
+    {
+      "id": "al-01M5AENB4STGASY4JTN46CE3A5",
+      "shortname": "c2-with-ring-runner-native-ps51",
+      "datetime": "2026-10-19T16:07:08Z",
+      "session": "pc-laptop-leader",
+      "prompt": "yes, add it to the ring runner in C2",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M5AFPNRNSTNA47TZ9FXAD70C",
+      "shortname": "f1-rescope-c2-derived-paths",
+      "datetime": "2026-10-19T16:25:20Z",
+      "session": "pc-laptop-leader",
+      "prompt": "yes, add it to the ring runner in C2",
+      "summary": "F1 re-scope node C2: target path derived from the repository (Control.ps1 Get-DerivedTargetPath, contract.py derived_target_path, equal by test), /mnt/<letter>/, host free on the target's drive, floors as contract fields (Get-ContractHostFloors, attempt.host_limits), Assert-FreshRegistrations takes the path, the F1-HOST-BINDING gate in check-docs; the ring runs the F1 PowerShell suites on pwsh and on 5.1 started from pwsh (native), failing F1-PS-EMULATED/F1-PS-MODULES. Red first; 135 Python tests, 9 PowerShell suites x 2 runtimes, packet self-tests green. Finding: PWSH-CHILD-INHERITS-CORE-MODULE-PATH.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "tools/run-f1-powershell-suites.ps1",
+        "tools/check-f1-host-bindings.py",
+        "tests/f1_derived_paths.ps1",
+        "tests/test_f1_derived_paths.py",
+        "docs/plans/f1-rescope-r237.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Execute plan node C2 and add the native-runtime rule to the ring runner",
+      "done_when": "Named red-first tests green on both runtimes, the gate green, the runner in the ring with its cost measured, joined with readiness green and pushed, ledger line",
+      "tier": "T2",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-19T16:07:09Z",
+      "duration_seconds": 1091.0,
+      "git": {
+        "sha": "d1b998f3b3f9e1866865712fed70401fe2391e6f",
+        "short": "d1b998f3b",
+        "branch": "f1/c2-derived-paths",
+        "pushed": null
+      }
     }
   ],
   "changes": [

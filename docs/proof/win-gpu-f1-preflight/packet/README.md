@@ -170,8 +170,8 @@ reconciliation of the earlier plan text precede any EXECUTE invocation.
 
 ## Inputs and invocation
 
-Run from PowerShell in the **EXECUTE** worktree after packet acceptance, using reviewed absolute local paths on C:
-without whitespace. Required inputs are the already existing B2 Ubuntu Noble WSL rootfs tarball, its matching Ubuntu
+Run from the native PowerShell (`pwsh` on an ARM64 host) in the **EXECUTE** worktree after packet acceptance, using
+reviewed absolute local paths on any drive letter, without whitespace. Required inputs are the already existing B2 Ubuntu Noble WSL rootfs tarball, its matching Ubuntu
 `SHA256SUMS` and `.gpg`, reviewed binary OpenFOAM and NVIDIA keyrings, a unique run id, the executor's coordination
 session, and a **separately reviewed and committed** `run-1/invocation-contract.json`. No input is silently fetched.
 The wrapper verifies that contract, its Git blob, Mac's live epoch against the separately reviewed contract value,
@@ -236,10 +236,14 @@ changed observations stop new work. Guard events and state are frozen into both 
 has a contiguous complete-row prefix and a full before/after protected snapshot comparison.
 
 Only `wsl.exe --install --from-file <verified local rootfs> --name cfdw-petsc-cuda132-f1 --location
-C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1 --vhd-size 8GB --no-launch` creates the target. The next
+<repository parent>\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1 --vhd-size 8GB --no-launch` creates the target; the
+location derives from the EXECUTE worktree's parent directory (Ruling 237: never a constant, never a parameter), the
+contract records the absolute path it was prepared for in `target_path`, and the launcher refuses a contract whose
+path differs from the derived one. WSL paths follow the drive letter (`/mnt/<letter>/`). The next
 Linux stage measures both root block-device and filesystem maxima and requires each ≤8,589,934,592 bytes. The host
-also checks target physical VHD ≤8 GiB, C: free ≥19,684,091,961 bytes before creation and ≥10,737,418,240 bytes
-throughout. **No network stage starts before both capacity checks pass.** The host records five-second capacity rows.
+also checks target physical VHD ≤8 GiB and the target drive's free space: at or above the contract's
+`host_start_floor_bytes` before creation and `host_reserve_bytes` throughout (Ruling 238 (3): both come from the
+host's worksheet recorded with the attempt, never from the old PC's numbers; a contract without them refuses). **No network stage starts before both capacity checks pass.** The host records five-second capacity rows.
 Target Linux stages are `probe`, `repositories`, `simulate`, `download`, `inspect`, and cleanup `delete-debs`.
 Every Linux entry uses `taskset --cpu-list 0-1` (protected guard uses CPU 0), `nice -n 10`, and foreground
 `setsid --wait`; it records effective `Cpus_allowed_list`, nice, PID, PGID, SID and cmdline. Stage leaders must have
@@ -308,8 +312,8 @@ py -3 docs/proof/win-gpu-f1-preflight/packet/transaction.py self-test
 py -3 docs/proof/win-gpu-f1-preflight/packet/manifest.py self-test
 py -3 docs/proof/win-gpu-f1-preflight/packet/completed_guard.py self-test
 py -3 -m unittest discover -s tests -p 'test_f1_*.py'
-powershell -NoProfile -File tests/f1_architecture.ps1
-pwsh -NoProfile -File tests/f1_architecture.ps1
+pwsh -NoProfile -File tools/run-f1-powershell-suites.ps1
+py -3 tools/check-f1-host-bindings.py
 py -3 tools/check-wsl-inline.py
 py -3 tools/check-docs.py
 ```
