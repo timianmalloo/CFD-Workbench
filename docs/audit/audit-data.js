@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-19T23:21:09Z",
+  "generated": "2026-10-19T23:26:03Z",
   "audit": [
     {
       "actor": null,
@@ -40014,6 +40014,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-19T23:17:29Z",
       "duration_seconds": 220.0
+    },
+    {
+      "id": "al-01M5B7S1H063EX15K7NCS64V47",
+      "shortname": "join-f1-v-verification-fix",
+      "datetime": "2026-10-19T23:26:03Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of f1/v-verification-fix into main",
+      "summary": "The V join stopped at step 8 on verify-subprocess-utf8 (two git calls in tools/run-f1-verification.py without an encoding); both name utf-8 now; the gate is green recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "clear the verify gate the V join stopped on",
+      "done_when": "every verify gate green at the join, readiness green, pushed",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-19T23:22:28Z",
+      "duration_seconds": 215.0
     }
   ],
   "changes": [
