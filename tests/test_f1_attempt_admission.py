@@ -25,6 +25,8 @@ def fixture():
                  run_root='docs/proof/win-gpu-f1-preflight/attempt-1')
     value['external_sha256'] = {attempt.EXTERNAL: hashlib.sha256((ROOT / attempt.EXTERNAL).read_bytes()).hexdigest()}
     del value['inputs']['b2_lock']   # the committed run-1 contract is /1; the B2 lock left the input set at C3
+    value['inputs']['ubuntu_cloudimage_keyring'] = {'path': 'C:\\reviewed\\ubuntu-cloudimage-keyring.gpg',
+                                                    'sha256': attempt.INPUT_HASHES['ubuntu_cloudimage_keyring']}   # joined at C4
     return value
 
 
@@ -102,7 +104,8 @@ class AttemptAdmissionTests(unittest.TestCase):
         # floors the committed authorization recorded.
         lifted = dict(data, schema='cfdw-f1-r217-invocation/2', architecture='amd64',
                       host_start_floor_bytes=19684091961, host_reserve_bytes=10737418240,
-                      inputs={key: value for key, value in data['inputs'].items() if key != 'b2_lock'})
+                      inputs=dict({key: value for key, value in data['inputs'].items() if key != 'b2_lock'},
+                                  ubuntu_cloudimage_keyring=fixture()['inputs']['ubuntu_cloudimage_keyring']))
         # The committed attempt-1 authorization projected the /1 seven-input map (the B2 lock left the input set at
         # C3), so the projection equality is claimed over that map; the binding and path claims use the /2 input set.
         committed_inputs = dict(lifted, inputs=data['inputs'])
@@ -123,10 +126,12 @@ class AttemptAdmissionTests(unittest.TestCase):
             path.write_bytes(raw)
         data['packet_sha256'] = {packet_name: hashlib.sha256(packet_bytes).hexdigest()}
         data['external_sha256'] = {attempt.EXTERNAL: hashlib.sha256(helper_bytes).hexdigest()}
-        path = root / 'docs/proof/win-gpu-b2/license-map.json'
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes((ROOT / 'docs/proof/win-gpu-b2/license-map.json').read_bytes())
-        data['inputs']['b2_licenses']['path'] = str(path.resolve())
+        for key, name in (('b2_licenses', 'docs/proof/win-gpu-b2/license-map.json'),
+                          ('ubuntu_cloudimage_keyring', 'docs/proof/win-gpu-f1-preflight/inputs/ubuntu-cloudimage-keyring.gpg')):
+            path = root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes((ROOT / name).read_bytes())
+            data['inputs'][key]['path'] = str(path.resolve())
         contract_path = root / data['run_root'] / 'invocation-contract.json'
         contract_path.parent.mkdir(parents=True)
         contract_raw = (json.dumps(data) + '\n').encode()
@@ -165,7 +170,8 @@ class AttemptAdmissionTests(unittest.TestCase):
             branch=data['execution_branch'], session=data['session'], run_id=data['run_id'], exclusive_run_id=data['run_id'],
             rootfs=Path(data['inputs']['rootfs']['path']), ubuntu_sums=Path(data['inputs']['ubuntu_sums']['path']),
             ubuntu_signature=Path(data['inputs']['ubuntu_signature']['path']),
-            openfoam_keyring=Path(data['inputs']['openfoam_keyring']['path']), nvidia_keyring=Path(data['inputs']['nvidia_keyring']['path']))
+            openfoam_keyring=Path(data['inputs']['openfoam_keyring']['path']), nvidia_keyring=Path(data['inputs']['nvidia_keyring']['path']),
+            ubuntu_cloudimage_keyring=Path(data['inputs']['ubuntu_cloudimage_keyring']['path']))
         return data, args, accepted, git_boundary, process_boundary, calls
 
     def test_RealVerify_MissingProposedAlteredAuthority_ZeroWsl(self):

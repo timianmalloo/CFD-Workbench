@@ -127,7 +127,7 @@ LOCK-PINS-A-MOVING-SUITE records it with this plan as the control.
 | Target path `C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1` (done, C2) | `Invoke-Preflight.ps1` ($TargetPath, Assert-TargetPath), `Control.ps1` (Get-BoundTargetKey, Assert-FreshRegistrations), `SelfTest.ps1`, `contract.py` check_contract_fields, the attempt-1 contract, the attempt-2 request | derived only: `<repo parent>\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1` from `$RepoRoot`; the contract records the absolute path it was prepared for, and the launcher checks equality with the derived value. No override parameter: both known hosts derive (the old PC's `C:\Projects` derives to today's constant), and an override would be a second definition of the path | kept |
 | Drive `C:` | `Convert-LinuxPath` (`/mnt/c/` only), `Get-HostFree` (drive C), `preflight.sh` (`/mnt/c/*` arguments), the README's "absolute local paths on C:" | the drive letter of the target root and of each input; `/mnt/<letter>/`; the free-space floor measured on the target's drive | kept (drive follows the target) |
 | Free-space floor and reserve numbers `19684091961` and `10737418240` (done, C2) | `Invoke-Preflight.ps1` $HostStartFloor/$HostReserve, `attempt.py` LIMITS | **changed:** the numbers are the old PC's `C:` worksheet; under Ruling 238 (3) they become contract fields (`host_start_floor_bytes`, `host_reserve_bytes`) from a laptop worksheet recorded in the attempt-2 proof; a contract without them refuses | changed, said here |
-| Protected distro: exactly one `cfdw-openfoam2512` registration, its GUID and `%USERPROFILE%` path, the keepalive on CPU 0, `verify-rootfs.sh` run inside it | `Control.ps1` Assert-FreshRegistrations, `attempt.py` PROTECTED_KEY/PROTECTED_PATH/KEEPALIVE, `Invoke-Preflight.ps1` | **changed under DR-1 (b):** `protected` becomes a contract field with a `none` state; with `none` the registration check no longer requires a protected row (other registrations, such as the stock `Ubuntu-24.04`, are neither required nor refused, as today for any non-target, non-protected row), the guard records `not applicable`, and the rootfs signature is verified on the Windows side (C4). With a declared protected distro everything stays as today | changed, said here; DR-1 |
+| Protected distro: exactly one `cfdw-openfoam2512` registration, its GUID and `%USERPROFILE%` path, the keepalive on CPU 0, `verify-rootfs.sh` run inside it (done, C4) | `Control.ps1` Assert-FreshRegistrations, `attempt.py` PROTECTED_KEY/PROTECTED_PATH/KEEPALIVE, `Invoke-Preflight.ps1` | **changed under DR-1 (b):** `protected` becomes a contract field with a `none` state; with `none` the registration check no longer requires a protected row (other registrations, such as the stock `Ubuntu-24.04`, are neither required nor refused, as today for any non-target, non-protected row), the guard records `not applicable`, and the rootfs signature is verified on the Windows side (C4). With a declared protected distro everything stays as today | changed, said here; DR-1 |
 | Rootfs name and hash | `contract.py` ROOTFS, `Invoke-Preflight.ps1` $RootfsSha256, `verify-rootfs.sh` basename check, `attempt.py` INPUT_HASHES | a per-architecture table (name, SHA-256), one producer (§5 C1) | kept (per architecture) |
 | apt sources `arch=amd64`, `archive.ubuntu.com`, `ubuntu2404/x86_64` | `preflight.sh` repositories stage; the InRelease-to-keyring map | per-architecture rows from the same table; the five-index count stays; `ports.ubuntu.com` joins the Ubuntu keyring map | kept (signed indices) |
 | `make:amd64`, 135 `name=version` roots (done, C3) | `transaction.py` EXTRA_ROOTS, roots() | `make:<arch>`; roots are the pins (§4.2) | kept (simulate then download only) |
@@ -169,7 +169,8 @@ token cost not recorded. **Degradation:** a red in V returns to the author (cycl
 DR-1 ruling (ruled, Ruling 240); the launcher runtime on the ARM64 laptop is the native `pwsh` (C1 refuses an
 emulated Windows PowerShell 5.1, so A's invocation names `pwsh`); the arm64 `simulate` stage's first real transaction (may add rows the probe did not
 see, never a refusal of a pinned root that the index carries); the first `nvcc` print of the `sm_` list (Inferred
-today); the x64 Git layout for `gpgv.exe` (Inferred today).
+today); the Git layout for `gpgv.exe` (measured at C4 on the ARM64 laptop: `usr\bin\gpgv.exe` four levels above
+`clangarm64\libexec\git-core`, found by walking up; the x64 layout stays Inferred until an x64 host runs the suite).
 
 ## 6. Decisions requested (before code)
 
@@ -263,6 +264,28 @@ carries the run itself.
   `architecture` and the input-set exit); 140 Python tests green; 9 PowerShell suites green on both native
   runtimes (16810 ms for 18 runs); the packet self-tests green; the stage-scope pin re-based. The
   LOCK-PINS-A-MOVING-SUITE control now names these tests. Duration: the join's audit entry.
+- **C4 (2026-10-19).** Planned: `protected` with a `none` state, the rootfs signature verified on the Windows side by the
+  `gpgv.exe` found from `git --exec-path` against a reviewed cloud-image keyring input, five PowerShell tests and one
+  Python test. Actual: `contract.PROTECTED_STATES`; `Assert-FreshRegistrations` takes the state (`none` requires no
+  protected row, other rows are neither required nor refused); `Assert-AttemptExclusivity` requires no keepalive under
+  `none` and still refuses a foreign WSL actor; the launcher binds `$Protected` from the contract after the precheck,
+  starts the guard, reads the registration, captures keepalive processes and requires the protected row only when one
+  is declared; `Assert-Guard` returns `not applicable` under `none`; `New-ProtectedRecord` puts `protected` and `guard`
+  into the final precheck and the cleanup receipt; `attempt.authorization` projects `not applicable` for the key, the
+  path and the keepalive under `none` (same keys, so the committed attempt-1 projection still verifies). Signature:
+  `Get-GpgvPath` walks up from `git --exec-path` (on the laptop `usr\gpgv.exe` is four levels above
+  `clangarm64\libexec\git-core`), `Get-GpgvObservation` never throws and the receipt's `gpgv` block records path and
+  version, `Invoke-RootfsSignature` runs `contract.py keyring` (with Git's `gpg.exe`), `gpgv --status-fd 1`,
+  `contract.py signer` and the signed sums line against the contract pin and the measured file; `verify-rootfs.sh` and
+  the `rootfs-name` CLI are deleted. The keyring is a seventh contract input (`ubuntu_cloudimage_keyring`, the
+  committed copy `docs/proof/win-gpu-f1-preflight/inputs/ubuntu-cloudimage-keyring.gpg` from Ubuntu-24.04's
+  ubuntu-keyring 2023.11.28.1, bound under the execution worktree for attempt 2 like the B2 licence map). Finding:
+  the MSYS `gpgv` reads a drive-letter `--keyring` as a URL scheme (register entry MSYS-TOOL-READS-A-DRIVE-LETTER-AS-A-URL;
+  `Convert-MsysPath`); register entry VERIFIER-RUNS-INSIDE-A-COINCIDENT-ARTIFACT records the class the node fixes. Tests:
+  `tests/f1_protected_none.ps1` (the five named tests plus the exclusivity, MSYS-path and tampered-rootfs cases, over a
+  committed fixture signed by a throwaway key, with the real `gpgv.exe` on both runtimes) and
+  `tests/test_f1_protected_none.py` (4 cases); 144 Python tests green; 10 PowerShell suites green on both native
+  runtimes (22834 ms for 20 runs); the packet self-tests green. Duration: the join's audit entry.
 
 ## 10. Gate record
 

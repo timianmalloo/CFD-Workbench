@@ -18,7 +18,9 @@ OPENFOAM = "DC93C096174122E256DA24063386DD74948D208F"
 NVIDIA = "EB693B3035CD5710E231E123A4B469963BF863CC"
 PACKET = "docs/proof/win-gpu-f1-preflight/packet"
 INPUT_KEYS = ("rootfs", "ubuntu_sums", "ubuntu_signature", "openfoam_keyring",
-              "nvidia_keyring", "b2_licenses")   # the B2 lock left the input set at node C3 (Ruling 237 (1))
+              "nvidia_keyring", "ubuntu_cloudimage_keyring", "b2_licenses")
+# The B2 lock left the input set at node C3 (Ruling 237 (1)); the cloud-image keyring joined it at node C4 (Ruling 240 (2)).
+PROTECTED_STATES = ("cfdw-openfoam2512", "none")   # Ruling 240 (1)
 FPR = re.compile(r"^[A-F0-9]{40}$")
 SHA = re.compile(r"^[a-f0-9]{64}$")
 TARGET_NAME = "cfdw-petsc-cuda132-f1"
@@ -77,7 +79,7 @@ def check_contract_fields(data: dict) -> None:
     epoch = data.get("leader_epoch")
     if data.get("leader") != "mac" or type(epoch) is not int or epoch <= 0:
         raise ValueError("reviewed Mac leader epoch must be a positive integer")
-    if (data.get("target") != TARGET_NAME or data.get("protected") != "cfdw-openfoam2512" or
+    if (data.get("target") != TARGET_NAME or data.get("protected") not in PROTECTED_STATES or
             not is_target_path(data.get("target_path"))):
         raise ValueError("distro identity/path mismatch")
     floors = [data.get(name) for name in ("host_start_floor_bytes", "host_reserve_bytes")]
@@ -138,7 +140,7 @@ def verify_keyring(args: argparse.Namespace) -> None:
     check_file_hash(args.expected_sha256, args.contract)
     document = json.loads(args.contract.read_text(encoding="utf-8"))
     check_contract_fields(document)
-    result = subprocess.run(["gpg", "--batch", "--show-keys", "--with-colons", "--fingerprint",
+    result = subprocess.run([args.gpg, "--batch", "--show-keys", "--with-colons", "--fingerprint",
                              str(args.keyring)], check=True, capture_output=True, text=True,
                             encoding="utf-8", timeout=15)
     found = {line.split(":")[9] for line in result.stdout.splitlines() if line.startswith("fpr:")}
@@ -223,7 +225,7 @@ def verify(args: argparse.Namespace) -> None:
             check_hash(expected, blob)
     paths = {"rootfs": args.rootfs, "ubuntu_sums": args.ubuntu_sums,
              "ubuntu_signature": args.ubuntu_signature, "openfoam_keyring": args.openfoam_keyring,
-             "nvidia_keyring": args.nvidia_keyring,
+             "nvidia_keyring": args.nvidia_keyring, "ubuntu_cloudimage_keyring": args.ubuntu_cloudimage_keyring,
              "b2_licenses": repo / "docs/proof/win-gpu-b2/license-map.json"}
     for name, actual in paths.items():
         full = actual.resolve(strict=True)
@@ -232,7 +234,7 @@ def verify(args: argparse.Namespace) -> None:
             raise ValueError(f"input path changed: {name}")
         check_file_hash(row["sha256"], full)
     if proposed:
-        print('PREPARATION-CONTRACT-PASS inputs=6 live_authority=False')
+        print('PREPARATION-CONTRACT-PASS inputs=7 live_authority=False')
         return
     leader_args = [sys.executable, str(repo / "docs/ai-forward-pack/scripts/coord-core.py"), "leader", "who"]
     if document.get('attempt') == 2:
@@ -253,7 +255,7 @@ def main() -> None:
     for mode in ('verify', 'prepare'):
         check = sub.add_parser(mode)
         for key in ("contract", "repo", "rootfs", "ubuntu-sums", "ubuntu-signature",
-                    "openfoam-keyring", "nvidia-keyring"):
+                    "openfoam-keyring", "nvidia-keyring", "ubuntu-cloudimage-keyring"):
             check.add_argument("--" + key, type=Path, required=True)
         check.add_argument("--branch", required=True)
         check.add_argument("--session", required=True)
@@ -272,6 +274,7 @@ def main() -> None:
     ring.add_argument("--expected-sha256", required=True)
     ring.add_argument("--keyring", type=Path, required=True)
     ring.add_argument("--kind", choices=("ubuntu_rootfs", "ubuntu_archive", "openfoam", "nvidia"), required=True)
+    ring.add_argument("--gpg", default="gpg", help="the gpg executable; on Windows the one beside Git's gpgv.exe")
     args = parser.parse_args()
     {"verify": verify, "prepare": verify, "signer": verify_signer, "keyring": verify_keyring,
      "target-path": lambda a: print(derived_target_path(PureWindowsPath(str(a.repo))))}[args.command](args)

@@ -131,8 +131,11 @@ function Get-BoundTargetKey([object[]]$Registration, [string]$TargetPath, [strin
     return $key
 }
 
-function Assert-FreshRegistrations([object[]]$Rows, [string[]]$Names, [bool]$PathPresent, [int]$AttemptNumber = 1, [string]$TargetPath = '') {
+function Assert-FreshRegistrations([object[]]$Rows, [string[]]$Names, [bool]$PathPresent, [int]$AttemptNumber = 1, [string]$TargetPath = '', [string]$ProtectedState = 'cfdw-openfoam2512') {
+    # Ruling 240 (1): $ProtectedState is the contract's field; 'none' requires no protected row (other registrations are
+    # neither required nor refused); a declared distro must be registered exactly as reviewed.
     if ([string]::IsNullOrEmpty($TargetPath)) { throw 'target path required for the registration check' }
+    if ($ProtectedState -cnotin @('cfdw-openfoam2512', 'none')) { throw "unknown protected state: '$ProtectedState'" }
     if ($PathPresent -or $Names -ccontains 'cfdw-petsc-cuda132-f1') { throw 'fresh target name/path absence unproved' }
     $protected = @()
     $expectedPath = [Environment]::ExpandEnvironmentVariables('%USERPROFILE%\AppData\Local\CFDWorkbench\qualification\wsl\cfdw-openfoam2512')
@@ -143,12 +146,14 @@ function Assert-FreshRegistrations([object[]]$Rows, [string[]]$Names, [bool]$Pat
             ([string]$row.BasePath).Replace('\\?\', '').TrimEnd('\') -ieq $TargetPath.TrimEnd('\')) {
             throw 'fresh target registration/GUID/path absence unproved'
         }
+        if ($ProtectedState -ceq 'none') { continue }
         if ($row.DistributionName -ceq 'cfdw-openfoam2512') { $protected += $row }
         elseif ($row.PSChildName -ieq '{b7566a82-9cee-47ce-a246-f83632353cea}' -or
             ([string]$row.BasePath).Replace('\\?\', '').TrimEnd('\') -ieq $expectedPath) {
             throw 'non-protected registration aliases protected identity/path'
         }
     }
+    if ($ProtectedState -ceq 'none') { return }
     if ($protected.Count -ne 1 -or @($Names | Where-Object { $_ -ceq 'cfdw-openfoam2512' }).Count -ne 1 -or
         $protected[0].PSChildName -ine '{b7566a82-9cee-47ce-a246-f83632353cea}' -or $protected[0].Version -ne 2 -or
         ([string]$protected[0].BasePath).Replace('\\?\', '').TrimEnd('\') -ine $expectedPath) {
@@ -174,18 +179,22 @@ function Get-ProcessCreationUtc([object]$Value) {
 }
 
 function Assert-AttemptExclusivity([object[]]$Processes, [object[]]$Owned, [string]$ProtectedKey) {
+    # Ruling 240 (1): with no protected distro declared ('none') there is no keepalive to identify and no process is
+    # exempt; the exclusive-PC scan of WSL actors below runs in both states.
+    if ($ProtectedKey -cnotin @('{b7566a82-9cee-47ce-a246-f83632353cea}', 'none')) { throw 'F1-EXCLUSIVITY-REFUSED: unknown protected key' }
+    $keepalivePids = if ($ProtectedKey -ceq 'none') { @() } else { @(19296, 3524) }
     $parent=@($Processes | Where-Object {$_.ProcessId -eq 19296})
     $child=@($Processes | Where-Object {$_.ProcessId -eq 3524})
-    if ($ProtectedKey -cne '{b7566a82-9cee-47ce-a246-f83632353cea}' -or $parent.Count -ne 1 -or $child.Count -ne 1 -or
+    if ($ProtectedKey -cne 'none' -and ($parent.Count -ne 1 -or $child.Count -ne 1 -or
         $parent[0].ParentProcessId -ne 15528 -or $child[0].ParentProcessId -ne 19296 -or $parent[0].Name -cne 'wsl.exe' -or $child[0].Name -cne 'wsl.exe' -or
         $parent[0].CommandLine -cne '"C:\WINDOWS\System32\wsl.exe" -d cfdw-openfoam2512 -u root -- /usr/bin/sleep infinity' -or
         $child[0].CommandLine -cne $parent[0].CommandLine -or
         (Get-ProcessCreationUtc $child[0].CreationDate) -cne '2026-10-08T17:02:23.2168250+00:00' -or
-        (Get-ProcessCreationUtc $parent[0].CreationDate) -cne '2026-10-08T17:02:23.1776050+00:00') {
+        (Get-ProcessCreationUtc $parent[0].CreationDate) -cne '2026-10-08T17:02:23.1776050+00:00')) {
         throw 'F1-EXCLUSIVITY-REFUSED: exact protected keepalive identity unavailable'
     }
     foreach ($row in $Processes) {
-        if ($row.ProcessId -in @(19296,3524)) { continue }
+        if ($row.ProcessId -in $keepalivePids) { continue }
         # Host services/VM infrastructure are not user launchers. Include shells whose command invokes WSL.
         $actor=$row.Name -imatch '^(wsl|bash|ubuntu(?:[0-9.]*)|debian|kali)\.exe$' -or
             ([string]$row.CommandLine -imatch '(?:^|[\\\s"''])wsl(?:\.exe)?(?:[\s"'']|$)')

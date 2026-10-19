@@ -24,6 +24,9 @@ def fixture(epoch=19):
                 run_root=attempt.PREFIX + '/attempt-2', execution_worktree=r'C:\Projects\f1-execution')
     del data['inputs']['b2_lock']   # the committed attempt-1 contract is /1; the B2 lock left the input set at C3
     data['inputs']['b2_licenses']['path'] = data['execution_worktree'] + '\\docs\\proof\\win-gpu-b2\\license-map.json'
+    data['inputs']['ubuntu_cloudimage_keyring'] = {   # joined the input set at C4; reviewed in the execution worktree
+        'path': data['execution_worktree'] + '\\docs\\proof\\win-gpu-f1-preflight\\inputs\\ubuntu-cloudimage-keyring.gpg',
+        'sha256': attempt.INPUT_HASHES['ubuntu_cloudimage_keyring']}
     data['external_sha256']['docs/ai-forward-pack/scripts/coord-core.py'] = 'b'*64
     return data
 
@@ -49,7 +52,7 @@ class AttemptTwoTests(unittest.TestCase):
             contract.check_contract_fields(data)
         data = fixture()   # a contract that still lists the B2 lock as an input is refused: nothing reads it
         data['inputs']['b2_lock'] = dict(data['inputs']['b2_licenses'])
-        with self.assertRaisesRegex(ValueError, 'exact six reviewed inputs'):
+        with self.assertRaisesRegex(ValueError, 'exact seven reviewed inputs'):
             contract.check_contract_fields(data)
         for path in (r'C:\Projects\foo\..\old', 'relative', ''):
             with self.subTest(path=path), self.assertRaises(ValueError):
