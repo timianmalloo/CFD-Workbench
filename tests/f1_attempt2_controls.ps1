@@ -35,8 +35,8 @@ foreach ($field in @('Name','CreationDate','CommandLine')) {
     $bad=$child.psobject.Copy();$bad.$field=if($field -eq 'CreationDate'){$child.CreationDate.AddSeconds(1)}else{'changed'}
     Refuses {Assert-AttemptExclusivity @($launcher,$bad) @() '{b7566a82-9cee-47ce-a246-f83632353cea}'}
 }
-foreach ($field in @('ProcessId','CreationDate','CommandLine')) {
-    $bad=$launcher.psobject.Copy();$bad.$field=if($field -eq 'ProcessId'){123}else{'changed'}
+foreach ($field in @('ProcessId','ParentProcessId','CreationDate','CommandLine')) {
+    $bad=$launcher.psobject.Copy();$bad.$field=if($field -cin @('ProcessId','ParentProcessId')){123}else{'changed'}
     Refuses {Assert-AttemptExclusivity @($bad,$child) @() '{b7566a82-9cee-47ce-a246-f83632353cea}'}
 }
 Refuses {Assert-AttemptExclusivity @($launcher) @() '{b7566a82-9cee-47ce-a246-f83632353cea}'}
