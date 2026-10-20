@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-20T16:09:21Z",
+  "generated": "2026-10-20T16:17:05Z",
   "audit": [
     {
       "actor": null,
@@ -40298,6 +40298,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-20T16:05:57Z",
       "duration_seconds": 204.0
+    },
+    {
+      "id": "al-01M5D1M9HYPRPYXW3551Z4CHB9",
+      "shortname": "f1-attempt3-pair",
+      "datetime": "2026-10-20T16:17:05Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of win/gpu-f1-attempt3-pair into main",
+      "summary": "The attempt-3 contract pair (contract d1de0caa..., proposal 0a917187..., accepted projection f419edc7...) produced by contract.py prepare --attempt 3 at source 5995f939, epoch 4; the attempt-3 README records it recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Commit the attempt-3 proposal so the live authorization ruling can name its bytes",
+      "done_when": "main carries the pair; check-docs green; RING-SKIPPED",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-20T16:15:53Z",
+      "duration_seconds": 72.0
     }
   ],
   "changes": [

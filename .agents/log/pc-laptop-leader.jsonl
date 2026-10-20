@@ -58,3 +58,4 @@
 {"agent": "pc-laptop-leader", "at": 1792510644.881998, "kind": "session-end", "path": "-", "seq": 58, "session": "pc-laptop-leader", "wi": "WI-0", "worktree": "CFD-Workbench-win-f1-supervisor-admission-inputs"}
 {"agent": "pc-laptop-leader", "at": 1792511256.4712172, "kind": "session-start", "path": "-", "seq": 59, "session": "pc-laptop-leader", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-win-f1-dr5-attempt3"}
 {"agent": "pc-laptop-leader", "at": 1792512588.767789, "kind": "session-end", "path": "-", "seq": 60, "session": "pc-laptop-leader", "wi": "WI-0", "worktree": "CFD-Workbench-win-f1-dr5-attempt3"}
+{"agent": "pc-laptop-leader", "at": 1792512844.6269476, "kind": "session-start", "path": "-", "seq": 61, "session": "pc-laptop-leader", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-win-gpu-f1-attempt3-pair"}
