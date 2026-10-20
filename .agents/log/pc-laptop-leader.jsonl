@@ -62,3 +62,4 @@
 {"action": "add", "agent": "pc-laptop-leader", "at": 1792513059.3663068, "deadline_at": 1792513959.3663068, "id": "req-01M5D1NAHCWEY7FZA9SZG2FV9T", "kind": "request", "path": "-", "seq": 62, "session": "pc-laptop-leader", "to": "operator-timianmalloo", "type": "request", "wi": "WI-0"}
 {"at": 1792513059.3884943, "from": "pc-laptop-leader", "kind": "decision-request", "mail_id": "mail-01M5D1NAHWBSWGYR8NNFXJC7PA", "ref": "req-01M5D1NAHCWEY7FZA9SZG2FV9T", "session": "pc-laptop-leader", "to": "operator-timianmalloo", "type": "mail"}
 {"agent": "pc-laptop-leader", "at": 1792513059.6415775, "kind": "session-end", "path": "-", "seq": 64, "session": "pc-laptop-leader", "wi": "WI-0", "worktree": "CFD-Workbench-win-gpu-f1-attempt3-pair"}
+{"agent": "pc-laptop-leader", "at": 1792514358.5490994, "kind": "session-start", "path": "-", "seq": 65, "session": "pc-laptop-leader", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-win-gpu-f1-attempt3-ruling"}

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-20T16:17:05Z",
+  "generated": "2026-10-20T16:41:19Z",
   "audit": [
     {
       "actor": null,
@@ -40325,6 +40325,48 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-20T16:15:53Z",
       "duration_seconds": 72.0
+    },
+    {
+      "id": "al-01M5D2WXBABZTDQP8MFP5WDDVK",
+      "shortname": "rule 244 as (a), then run the live attempt",
+      "datetime": "2026-10-20T16:39:16Z",
+      "session": "pc-laptop-leader",
+      "prompt": "rule 244 as (a), then run the live attempt",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M5D30NNZ62EX8B6FT3272HB7",
+      "shortname": "f1-a3-ruling-244",
+      "datetime": "2026-10-20T16:41:19Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of win/gpu-f1-attempt3-ruling into main",
+      "summary": "Ruling 244 recorded; the attempt-3 authorization accepted in place of the proposal (SHA-256 f419edc7...); check_ruling green against the local register recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Put the attempt-3 live authorization and its ruling on origin/main so the launcher's check_ruling admits the run",
+      "done_when": "origin/main carries Ruling 244 and the accepted authorization bytes; check-docs green; RING-SKIPPED",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-20T16:40:07Z",
+      "duration_seconds": 72.0
     }
   ],
   "changes": [
@@ -43665,6 +43707,24 @@ window.AUDIT_DATA = {
       "to": "pc-laptop-leader",
       "kind": "ruling",
       "ref": "req-01M5CYY968W5KQBH0HE903NZT9",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M5D1NAHWBSWGYR8NNFXJC7PA",
+      "ts": "2026-10-20T16:17:39Z",
+      "from": "pc-laptop-leader",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M5D1NAHCWEY7FZA9SZG2FV9T",
+      "session": "pc-laptop-leader"
+    },
+    {
+      "id": "mail-01M5D2XZF7H43E9D6GPRHEJ8AQ",
+      "ts": "2026-10-20T16:39:51Z",
+      "from": "operator-timianmalloo",
+      "to": "pc-laptop-leader",
+      "kind": "ruling",
+      "ref": "req-01M5D1NAHCWEY7FZA9SZG2FV9T",
       "session": "operator-timianmalloo"
     }
   ]
