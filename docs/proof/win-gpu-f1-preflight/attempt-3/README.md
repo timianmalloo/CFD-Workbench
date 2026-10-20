@@ -66,7 +66,24 @@ launcher hashes every one before the first WSL effect.
    it runs**: Git's bash is no longer an actor under Ruling 243 (1), but a bash that invokes `wsl` still is, and the
    PowerShell tool is the only safe console during the attempt.
 
-## 5. Residual risks
+## 5. The pair (A2 for attempt 3, 2026-10-20)
+
+Produced by `contract.py prepare --attempt 3` in a clean worktree at `main` = source commit
+`5995f9397a973ab1fbd8286c20e3590462db3759` (`PREPARATION-GENERATED outputs=2 inputs=7 architecture=arm64 protected=none
+live_authority=False`).
+
+| File | SHA-256 | Status |
+|---|---|---|
+| `invocation-contract.json` | `d1de0caa0fcb7475784a7519ef2ef2f884a86de252d2299cdcd4b3a29b9493d5` | committed here |
+| `attempt-authorization.json` (proposal) | `0a9171870ce04de737b8001d42e5d1608f4399aac5edbb7c0ae9a79958fe5a47` | committed here; authorizes nothing |
+| `attempt-authorization.json` (accepted) | `f419edc76413ffb65b956dc82b6e10e683a15bb7f03b4d54c473292874d2f887` | the proposal re-projected by `attempt.authorization` with status accepted and ruling 244; committed in place of the proposal after the ruling |
+
+Bindings: attempt 3, leader `mac` at epoch 4, run id `f1-attempt3-20261020`, session `pc-f1-attempt3`, branch
+`win/gpu-f1-attempt3`, run root `docs/proof/win-gpu-f1-preflight/attempt-3`, execution worktree
+`D:\Projects\CFD-Workbench-f1-attempt3`, arm64, protected none, target `D:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1`,
+host floors 19669226335 / 10737418240, the seven inputs at the pins of `../attempt-2/inputs-receipt.json`.
+
+## 6. Residual risks
 
 Those of `../attempt-2/README.md` section 6, plus: the generalized attempt gates (`-ge 2`) are proven by the suites on
 both runtimes, not by a live run; the first live run under them is this attempt. A red in the live attempt is a
