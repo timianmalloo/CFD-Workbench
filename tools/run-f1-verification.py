@@ -91,6 +91,15 @@ def summarize(step: dict) -> str:
     return lines[-1][:160] if lines else ("exit " + str(step["exit"]))
 
 
+def latest_run_root() -> str:
+    """The highest attempt-<n> run root under the proof folder: the next attempt's, once prepared (Ruling 245 (3))."""
+    folders = sorted((p for p in (ROOT / "docs/proof/win-gpu-f1-preflight").glob("attempt-*") if p.is_dir()),
+                     key=lambda p: int(p.name.split("-")[1]))
+    if not folders:
+        raise SystemExit("run-f1-verification: no attempt-<n> run root under docs/proof/win-gpu-f1-preflight")
+    return "docs/proof/win-gpu-f1-preflight/" + folders[-1].name
+
+
 def plan_steps(scratch: Path) -> dict:
     packet = ROOT / PACKET
     serial_before = [
@@ -100,6 +109,8 @@ def plan_steps(scratch: Path) -> dict:
         ("manifest-selftest", PY + [str(packet / "manifest.py"), "self-test"], 120),
         ("completed-guard-selftest", PY + [str(packet / "completed_guard.py"), "self-test"], 120),
         ("powershell-packet-selftest", PWSH + [str(packet / "SelfTest.ps1")], 300),
+        ("dry-rehearsal", PWSH + [str(ROOT / "tools/run-f1-dry-rehearsal.ps1"), "-RunRoot", latest_run_root(),
+                          "-Receipt", str(scratch / "rehearsal.json")], 300),   # Ruling 245 (3): the launcher's Windows-side paths, no WSL effect
     ]
     width_two = [
         ("python-unit", PY + ["-m", "unittest", "discover", "-s", "tests", "-p", "test_f1_*.py"], 900),

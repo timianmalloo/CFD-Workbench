@@ -21,8 +21,13 @@ foreach ($field in @('execution_branch','session','run_id','run_root')) {
     $bad=$data3.psobject.Copy();$bad.$field=$data.$field
     Refuses {Get-InvocationRunRoot $bad 'C:\Projects\fixture' $bad.run_id $bad.session}
 }
-$bad=$data3.psobject.Copy();$bad.attempt=4
+$bad=$data3.psobject.Copy();$bad.attempt=7
 Refuses {Get-InvocationRunRoot $bad 'C:\Projects\fixture' $bad.run_id $bad.session}
+# Ruling 245 (4): the new cap's numbers 4, 5 and 6 are fresh attempts with derived names.
+foreach ($n in @(4,5,6)) {
+    $dataN=$data.psobject.Copy();$dataN.attempt=$n;$dataN.execution_branch="win/gpu-f1-attempt$n";$dataN.session="pc-f1-attempt$n";$dataN.run_id="f1-attempt$n-20261021";$dataN.run_root="docs/proof/win-gpu-f1-preflight/attempt-$n"
+    Require ((Get-InvocationRunRoot $dataN 'C:\Projects\fixture' $dataN.run_id $dataN.session) -like "*attempt-$n") "attempt-$n rejected (Ruling 245 (4))"
+}
 $path='C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1'
 $target=[pscustomobject]@{DistributionName='cfdw-petsc-cuda132-f1';PSChildName='{11111111-2222-3333-4444-555555555555}';Version=2;BasePath=$path}
 $protected=[pscustomobject]@{DistributionName='cfdw-openfoam2512';PSChildName='{b7566a82-9cee-47ce-a246-f83632353cea}';Version=2;BasePath=[Environment]::ExpandEnvironmentVariables('%USERPROFILE%\AppData\Local\CFDWorkbench\qualification\wsl\cfdw-openfoam2512')} # machine-path-ok: fixture only, value not emitted.
@@ -80,4 +85,29 @@ $emptyPath=$gitBash.psobject.Copy();$emptyPath.ExecutablePath=$null
 Refuses {Assert-AttemptExclusivity @($emptyPath) @() 'none'}
 $invoking=$gitBash.psobject.Copy();$invoking.CommandLine='"C:\Program Files\Git\usr\bin\bash.exe" ./probe.sh wsl -d cfdw-petsc-cuda132-f1'
 Refuses {Assert-AttemptExclusivity @($invoking) @() 'none'}
+# Ruling 245 (3): the own-child identity across the CIM (microsecond) and .NET (100 ns) timestamps compares at the
+# coarser precision; a real microsecond or larger difference still refuses; an offset-less timestamp refuses.
+$t=[DateTimeOffset]::Parse('2026-10-20T16:47:29.7226630+00:00')
+Require (Test-OwnLauncherCreation $t ($t.AddTicks(8))) 'own-child identity refused an 8-tick difference (TIMESTAMP-IDENTITY-ACROSS-PRECISIONS)'
+Require (Test-OwnLauncherCreation $t.LocalDateTime ($t.AddTicks(9)).LocalDateTime) 'own-child identity refused local DateTimes 9 ticks apart'
+Require (-not (Test-OwnLauncherCreation $t ($t.AddTicks(10)))) 'own-child identity accepted a one-microsecond difference'
+Require (-not (Test-OwnLauncherCreation $t ($t.AddSeconds(1)))) 'own-child identity accepted a one-second difference'
+Refuses {Test-OwnLauncherCreation $t ([DateTime]::SpecifyKind($t.DateTime,[DateTimeKind]::Unspecified))}
+# Ruling 245 (3): the run root's capture folders keep their bytes, asserted by git check-attr before the first WSL effect.
+$repoFixture=Join-Path ([IO.Path]::GetTempPath()) ('cfdw-attr-' + [guid]::NewGuid().ToString('n'))
+New-Item -ItemType Directory -Path $repoFixture | Out-Null
+try {
+    $null=& git -C $repoFixture init -q
+    [IO.File]::WriteAllText((Join-Path $repoFixture '.gitattributes'), "* text=auto eol=lf`n")
+    Refuses {Assert-CaptureAttributes $repoFixture 'docs/proof/win-gpu-f1-preflight/attempt-9'}
+    [IO.File]::AppendAllText((Join-Path $repoFixture '.gitattributes'), "docs/proof/win-gpu-f1-preflight/attempt-9/checkpoint/** -text`ndocs/proof/win-gpu-f1-preflight/attempt-9/final/** -text`n")
+    Refuses {Assert-CaptureAttributes $repoFixture 'docs/proof/win-gpu-f1-preflight/attempt-9'}
+    [IO.File]::AppendAllText((Join-Path $repoFixture '.gitattributes'), "docs/proof/win-gpu-f1-preflight/attempt-9/live/** -text`n")
+    Assert-CaptureAttributes $repoFixture 'docs/proof/win-gpu-f1-preflight/attempt-9'
+} finally { Remove-Item -LiteralPath $repoFixture -Recurse -Force -ErrorAction SilentlyContinue }
+$errors=$null;$tokens=$null
+$launcherAst=[Management.Automation.Language.Parser]::ParseFile((Join-Path $packet 'Invoke-Preflight.ps1'),[ref]$tokens,[ref]$errors)
+$attrCall=@($launcherAst.FindAll({param($n)$n -is [Management.Automation.Language.CommandAst] -and $n.GetCommandName() -eq 'Assert-CaptureAttributes'},$true))
+$hostObs=@($launcherAst.FindAll({param($n)$n -is [Management.Automation.Language.CommandAst] -and $n.GetCommandName() -eq 'Write-HostObservations'},$true))
+Require ($attrCall.Count -eq 1 -and $hostObs.Count -ge 1 -and $attrCall[0].Extent.StartOffset -lt $hostObs[0].Extent.StartOffset) 'the launcher does not assert the capture attributes before its first evidence write'
 Write-Output ('attempt2 controls PASS wsl_launches=0 elapsed_seconds={0:F3}' -f $clock.Elapsed.TotalSeconds)

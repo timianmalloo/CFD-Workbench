@@ -1,7 +1,7 @@
 {
   "schema": "cfdw-f1-rescope-verification/1",
-  "head": "58807929e72b22c7d0b16021bcf6ae1cbcd19ff2",
-  "utc": "2026-10-20T16:05:37Z",
+  "head": "e65679db06c14e3ebb6ac77649065870dbd97cfd",
+  "utc": "2026-10-20T17:33:59Z",
   "host": {
     "platform": "win32",
     "machine": "ARM64",
@@ -14,15 +14,15 @@
   "counts": {
     "python_files": 11,
     "powershell_files": 10,
-    "python_tests_ran": 159,
+    "python_tests_ran": 160,
     "powershell_runs": 20,
     "powershell_suites_run": 10,
     "powershell_runtimes": 2,
-    "powershell_ms": 22684
+    "powershell_ms": 22958
   },
   "refusals": [],
   "green": true,
-  "total_seconds": 96.0,
+  "total_seconds": 98.3,
   "steps": [
     {
       "name": "authority-scan",
@@ -36,7 +36,7 @@
       "command": "py -3 -B <repo>\\docs\\proof\\win-gpu-f1-preflight\\packet\\packet_selftest.py",
       "exit": 0,
       "seconds": 0.6,
-      "summary": "packet planted-failure self-test: PASS ring=offline-fast elapsed_seconds=0.467"
+      "summary": "packet planted-failure self-test: PASS ring=offline-fast elapsed_seconds=0.485"
     },
     {
       "name": "transaction-selftest",
@@ -64,21 +64,28 @@
       "command": "pwsh -NoProfile -NonInteractive -File <repo>\\docs\\proof\\win-gpu-f1-preflight\\packet\\SelfTest.ps1",
       "exit": 0,
       "seconds": 0.6,
-      "summary": "PowerShell packet self-test: PASS ring=offline-fast elapsed_seconds=0.349"
+      "summary": "PowerShell packet self-test: PASS ring=offline-fast elapsed_seconds=0.326"
+    },
+    {
+      "name": "dry-rehearsal",
+      "command": "pwsh -NoProfile -NonInteractive -File <repo>\\tools\\run-f1-dry-rehearsal.ps1 -RunRoot docs/proof/win-gpu-f1-preflight/attempt-3 -Receipt <scratch>\\rehearsal.json",
+      "exit": 0,
+      "seconds": 1.7,
+      "summary": "F1-DRY-REHEARSAL-GREEN run_root=docs/proof/win-gpu-f1-preflight/attempt-3 head=e65679db0 own_child=5/5 attributes=ok bind=ok total=1.4 s"
     },
     {
       "name": "python-unit",
       "command": "py -3 -m unittest discover -s tests -p test_f1_*.py",
       "exit": 0,
-      "seconds": 21.7,
-      "summary": "ran 159 tests in 21.495 s"
+      "seconds": 23.6,
+      "summary": "ran 160 tests in 23.455 s"
     },
     {
       "name": "powershell-suites",
       "command": "pwsh -NoProfile -NonInteractive -File <repo>\\tools\\run-f1-powershell-suites.ps1 -Scratch <scratch>\\ps",
       "exit": 0,
-      "seconds": 23.0,
-      "summary": "20 runs (10 suites x 2 runtimes) 22684 ms"
+      "seconds": 23.2,
+      "summary": "20 runs (10 suites x 2 runtimes) 22958 ms"
     },
     {
       "name": "host-bindings",
@@ -105,7 +112,7 @@
       "name": "check-docs",
       "command": "py -3 <repo>\\tools\\check-docs.py",
       "exit": 0,
-      "seconds": 67.6,
+      "seconds": 67.4,
       "summary": "Documentation checks passed."
     }
   ],

@@ -374,6 +374,21 @@ carries the run itself.
   and 3; **the cap is reached**, and the track's repair cap (two cycles) is spent, so the track stops here and the
   controls for TIMESTAMP-IDENTITY-ACROSS-PRECISIONS and RAW-CAPTURE-BLOB-MISMATCH recurrence 4 are proposed to the
   operator, not applied. Duration: the join's audit entry.
+- **Rehearsal (2026-10-20, Ruling 245).** Planned: a new cap of three attempts (4, 5, 6), the repair loop restarted, a
+  dry rehearsal of the launcher's Windows-side paths red-first, then the two controls. Actual: `tools/run-f1-dry-rehearsal.ps1`
+  (own-child registration against real `cmd.exe` children, the run root's capture attributes, a freeze-commit-bind cycle
+  in a no-checkout scratch worktree; receipt `cfdw-f1-dry-rehearsal/1`) ran red at the attempt-3 source (`own-child`
+  0/5 and 1/5; `attributes` 0/3 for attempt-4; `bind` the exact `commit blob differs` refusal) and green at the repaired
+  source for attempt-3; for attempt-4 it stays red on `attributes` and `bind` until `prepare --attempt 4` writes the
+  rules, which is the control working. Controls: `Test-OwnLauncherCreation` (microsecond truncation), `Assert-CaptureAttributes`
+  in the launcher after the precheck, `contract.py prepare` writing the run root's `-text` lines, `FRESH_ATTEMPTS`
+  to 6; red-first on both runtimes and in Python. Harness defects on first contact, both recorded: a `$receipt` local
+  shadowed the `-Receipt` parameter (CASE-INSENSITIVE-VARIABLE-SHADOWS-A-PARAMETER) and a full scratch checkout hit
+  the repository's long paths (no checkout now). One placement repair: the attribute assertion first sat before the
+  contract precheck and changed the admission span's refusal order (`f1_attempt_controls.ps1` showed it); it now
+  follows the precheck. The rehearsal joined `tools/run-f1-verification.py` as the `dry-rehearsal` step against the
+  highest `attempt-<n>` run root. 160 Python tests, 10 PowerShell suites on both runtimes; receipts in `docs/proof/win-gpu-f1-preflight/rehearsal/`. Next: attempt 4
+  (pair at this source, rehearsal green for attempt-4 after prepare, its own ruling). Duration: the join's audit entry.
 
 ## 10. Gate record
 

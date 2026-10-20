@@ -10,7 +10,7 @@ import architecture
 import contract
 
 PREFIX = 'docs/proof/win-gpu-f1-preflight'
-FRESH_ATTEMPTS = (2, 3)   # Ruling 243 (2): the fresh-attempt scheme keys on the contract's attempt number; names derive from it
+FRESH_ATTEMPTS = (2, 3, 4, 5, 6)   # Rulings 243 (2), 245 (4): the fresh-attempt scheme keys on the contract's attempt number; names derive from it
 EXTERNAL = PREFIX + '/recovery/check_cache.py'
 COORDINATOR = 'docs/ai-forward-pack/scripts/coord-core.py'
 PROTECTED_KEY = '{b7566a82-9cee-47ce-a246-f83632353cea}'
@@ -68,7 +68,7 @@ FORBIDDEN = ['dpkg-install', 'apt-install', 'petsc-source-fetch', 'petsc4foam-so
 def check_binding(document, run_id=None):
     number = document.get('attempt')
     if type(number) is not int or number not in (1,) + FRESH_ATTEMPTS:
-        raise ValueError('only reviewed attempt 1 or a fresh attempt 2 or 3 is admitted')
+        raise ValueError(f'only reviewed attempt 1 or a fresh attempt in {FRESH_ATTEMPTS} is admitted')
     expected = dict(leader='mac', leader_epoch=8, execution_branch=f'win/gpu-f1-r225-attempt{number}',
                     session=f'pc-f1-r225-attempt{number}', run_root=f'{PREFIX}/attempt-{number}')
     pattern = f'r225-attempt{number}-epoch8-[0-9]{{8}}'

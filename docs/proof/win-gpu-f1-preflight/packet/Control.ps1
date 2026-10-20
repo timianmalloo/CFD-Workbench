@@ -97,7 +97,7 @@ function Get-ContractHostFloors([object]$ContractData) {
 function Get-InvocationRunRoot([object]$ContractData, [string]$RepoRoot, [string]$RunId, [string]$AgentSession) {
     if ($null -eq $ContractData.psobject.Properties['attempt']) { return (Join-Path $RepoRoot 'docs\proof\win-gpu-f1-preflight\run-1') }
     if ($ContractData.attempt -is [int] -or $ContractData.attempt -is [long]) {
-        if ($ContractData.attempt -in @(2, 3)) {   # Ruling 243 (2): the fresh-attempt scheme, names derived from the number
+        if ($ContractData.attempt -in @(2, 3, 4, 5, 6)) {   # Ruling 243 (2), 245 (4): the fresh-attempt scheme, names derived from the number
             $n = [int]$ContractData.attempt
             if (($ContractData.leader_epoch -isnot [int] -and $ContractData.leader_epoch -isnot [long]) -or
                 $ContractData.leader_epoch -le 0 -or $ContractData.leader -cne 'mac' -or
@@ -177,6 +177,31 @@ function Assert-AttemptLeader([object]$Sample, [long]$Epoch) {
         ($ttl -isnot [double] -and $ttl -isnot [int] -and $ttl -isnot [long] -and $ttl -isnot [decimal]) -or
         [double]::IsNaN([double]$ttl) -or [double]::IsInfinity([double]$ttl) -or $ttl -lt 200 -or
         $Sample.oid -cnotmatch '^[a-f0-9]{40}$') { throw 'F1-LEADER-REFUSED: exact live epoch and finite TTL >=200 required' }
+}
+
+function Test-OwnLauncherCreation([object]$CimCreationDate, [object]$StartTime) {
+    # Ruling 245 (3), TIMESTAMP-IDENTITY-ACROSS-PRECISIONS: the CIM creation time carries microseconds, the .NET process
+    # start time 100-nanosecond ticks; attempt 3 refused its own second child on an 8-tick difference. Both sides are
+    # truncated to whole microseconds before the compare; a real microsecond difference still refuses; an offset-less
+    # timestamp throws (ConvertTo-EvidenceUtc), which is a refusal.
+    $cim = ConvertTo-EvidenceUtc $CimCreationDate
+    $start = ConvertTo-EvidenceUtc $StartTime
+    return ($cim.UtcTicks - ($cim.UtcTicks % 10)) -eq ($start.UtcTicks - ($start.UtcTicks % 10))
+}
+
+function Assert-CaptureAttributes([string]$RepoRoot, [string]$RunRootRelative) {
+    # Ruling 245 (3), RAW-CAPTURE-BLOB-MISMATCH recurrence 4: the run root's capture folders must keep their bytes, or
+    # the checkpoint bind refuses after Git normalizes a CRLF capture (attempt 3). Asserted before the first WSL effect.
+    if ($RunRootRelative -notmatch '^docs/proof/win-gpu-f1-preflight/attempt-[0-9]+$') { throw "F1-CAPTURE-ATTRIBUTES-REFUSED: unexpected run root '$RunRootRelative'" }
+    $probes = @('checkpoint', 'final', 'live') | ForEach-Object { "$RunRootRelative/$_/probe.txt" }
+    $lines = @(& git -C $RepoRoot check-attr text -- @probes 2>&1)
+    if ($LASTEXITCODE -ne 0) { throw ('F1-CAPTURE-ATTRIBUTES-REFUSED: git check-attr failed: ' + ($lines -join '; ')) }
+    foreach ($probe in $probes) {
+        $line = @($lines | Where-Object { $_ -like "$probe*" })
+        if ($line.Count -ne 1 -or $line[0] -notmatch ': text: unset$') {
+            throw ("F1-CAPTURE-ATTRIBUTES-REFUSED: {0} would be normalized ({1}); add `{2}/** -text` to .gitattributes (contract.py prepare writes it)" -f $probe, (($line -join '; ')), (Split-Path -Parent $probe).Replace('\', '/'))
+        }
+    }
 }
 
 function Get-ProcessCreationUtc([object]$Value) {

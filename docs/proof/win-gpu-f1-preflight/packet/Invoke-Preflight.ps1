@@ -284,8 +284,9 @@ function Register-AttemptLauncher([object]$Process) {
     if ($Process.HasExited) { return }
     $rows = @(Get-CimInstance Win32_Process)
     $parent = @($rows | Where-Object {$_.ProcessId -eq $Process.Id})
-    if ($parent.Count -ne 1 -or (Get-ProcessCreationUtc $parent[0].CreationDate) -cne
-        (Get-ProcessCreationUtc $Process.StartTime)) { throw 'F1-OWN-LAUNCHER-IDENTITY' }
+    if ($parent.Count -ne 1 -or -not (Test-OwnLauncherCreation $parent[0].CreationDate $Process.StartTime)) {
+        throw 'F1-OWN-LAUNCHER-IDENTITY'   # Ruling 245 (3): compared at microsecond precision (attempt 3 refused on 8 ticks)
+    }
     foreach ($row in @($parent[0]) + @($rows | Where-Object {$_.ParentProcessId -eq $Process.Id})) {
         if (-not $row.CommandLine) { throw 'F1-OWN-LAUNCHER-COMMAND-MISSING' }
         $script:OwnedLaunchers += [pscustomobject]@{pid=$row.ProcessId;
@@ -843,7 +844,7 @@ $CheckpointPath = Join-Path $RunRoot 'checkpoint'
 $Final = Join-Path $RunRoot 'final'
 $freshAttempt = $null -ne $contractData.psobject.Properties['attempt']
 if ($freshAttempt) { $attemptNumber = [int]$contractData.attempt }
-if (-not $freshAttempt) { throw 'a contract without attempt is retired: the fresh-attempt scheme (attempt 2 or 3) is the only live form (Ruling 237 (2); node R; Ruling 243 (2))' }
+if (-not $freshAttempt) { throw 'a contract without attempt is retired: the fresh-attempt scheme (attempts 2 to 6) is the only live form (Ruling 237 (2); node R; Rulings 243 (2), 245 (4))' }
 if ($freshAttempt -and (-not $Authorization -or -not (Test-Path -LiteralPath $Authorization -PathType Leaf))) {
     throw 'attempt authorization missing before WSL'
 }
@@ -881,6 +882,9 @@ $HostStartFloor, $HostReserve = Get-ContractHostFloors $contractData
 $Protected = [string]$contractData.protected   # Ruling 240 (1)
 if ($Protected -cnotin @('cfdw-openfoam2512', 'none')) { throw "unknown protected state: '$Protected'" }
 if ($attemptNumber -ge 2) { $script:AuthorizationSha = (Get-FileHash -Algorithm SHA256 -LiteralPath $Authorization).Hash.ToLowerInvariant() }
+# Ruling 245 (3): the run root's capture folders keep their bytes, proven before the first evidence write and WSL effect
+# (attempt 3's checkpoint bind refused after Git normalized a capture); the contract precheck above runs first.
+Assert-CaptureAttributes $RepoRoot ($RunRoot.Substring($RepoRoot.Length + 1).Replace('\', '/'))
 New-Item -ItemType Directory -Path $Live -Force | Out-Null
 Copy-Item -LiteralPath $precheckOut -Destination (Join-Path $Live 'invocation-contract.stdout.txt')
 Write-HostObservations (Join-Path $Live 'host-observations.json')
