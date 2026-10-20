@@ -67,3 +67,4 @@
 {"agent": "pc-laptop-leader", "at": 1792516691.5833988, "kind": "session-start", "path": "-", "seq": 67, "session": "pc-laptop-leader", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-win-f1-r245-dry-rehearsal"}
 {"action": "add", "agent": "pc-laptop-leader", "at": 1792516707.1503916, "deadline_at": 1792517607.1503916, "id": "req-01M5D54MTM835444J1K02VKXBS", "kind": "request", "path": "-", "seq": 68, "session": "pc-laptop-leader", "to": "operator-timianmalloo", "type": "request", "wi": "WI-0"}
 {"at": 1792516707.17279, "from": "pc-laptop-leader", "kind": "decision-request", "mail_id": "mail-01M5D54MV4YTY14HGK6WHX8NT9", "ref": "req-01M5D54MTM835444J1K02VKXBS", "session": "pc-laptop-leader", "to": "operator-timianmalloo", "type": "mail"}
+{"agent": "pc-laptop-leader", "at": 1792517894.4559345, "kind": "session-end", "path": "-", "seq": 70, "session": "pc-laptop-leader", "wi": "WI-0", "worktree": "CFD-Workbench-win-f1-r245-dry-rehearsal"}
