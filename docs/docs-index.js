@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "fccab20c78aa9685a01b61973249c10c2ebc1b72d7230c75fae4c5a8cd32f0a7"
+      "sourceSha256": "87a40e93bea6f1534f6e7bb7546d0865f64829d5fe5c3178b491ce72bc905d5c"
     },
     {
       "id": "domain-experts",
@@ -11573,7 +11573,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "25aa58c8891416666e94a4235bc586827a8634c024de299f623da4c6ec898ca9"
+      "sourceSha256": "b6cbd96853cae7b5019c2c28281e8637d2974b670cc5a0528f825dc92a33c7db"
     },
     {
       "id": "plan-seam-repair-1",
@@ -20856,6 +20856,46 @@ window.DOCS_INDEX = {
       "sourceSha256": "7445730f0ec31bf91dca72db4ebe50a7196d1e8870eb92ee5935c1206a20e5df"
     },
     {
+      "id": "review-f1-rescope-r237-node-a",
+      "path": "docs/reviews/f1-rescope-r237-node-a.md",
+      "title": "F1 re-scope node A: Adversary review of the Ruling 243 bash.exe exclusivity rule",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@pc-laptop-leader",
+      "phase": "preflight",
+      "reviewBy": "2026-11-18",
+      "reviewSuggested": [],
+      "summary": "The Security & Identity Architect's Adversary-mode review of the DR-5 (a) change (Ruling 243 (1)): bash.exe counted as a WSL actor only at the System32 path. ACCEPT WITH CONDITIONS; both conditions applied in the same node (the canonical path compare with planted dotted and prefixed paths; the fixture's path restored) and the boundary wording adopted. Verbatim report, then the dispositions.",
+      "tags": [
+        "windows",
+        "f1",
+        "review",
+        "adversary",
+        "security",
+        "exclusivity"
+      ],
+      "links": [
+        {
+          "to": "plan-f1-rescope-r237",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-f1-rescope-r237-node-r",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-attempt3-plan",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4b9229e6dcc9d693a101773b2db5db3f2b64e3b7daeef328c0821b4c6e288740"
+    },
+    {
       "id": "review-f1-rescope-r237-node-r",
       "path": "docs/reviews/f1-rescope-r237-node-r.md",
       "title": "F1 re-scope (Ruling 237): node R independent source review",
@@ -23037,5 +23077,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "7fcfec9ab10cdbf321a2cb57341600bb29f652b9d82e56b21d997a8f24927d60"
+  "graphSha256": "c6ffbc6904f74a59f19194a73f29d93091e56b39d4777159d99fcd797013d6b8"
 };
