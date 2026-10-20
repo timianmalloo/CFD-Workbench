@@ -102,7 +102,7 @@ class RenewalTests(unittest.TestCase):
         module = importlib.import_module('leader_supervisor')
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp).resolve()
-            for number, admitted in ((2, True), (3, True), (4, False), (1, False)):
+            for number, admitted in ((2, True), (3, True), (6, True), (7, False), (1, False)):
                 path = root / f'contract-{number}.json'
                 path.write_text(json.dumps({'attempt': number, 'leader_epoch': 19}), encoding='utf-8')
                 argv = ['leader_supervisor.py', 'supervise', '--repo', str(root), '--epoch', '19', '--run-id', 'run',

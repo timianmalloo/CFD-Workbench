@@ -1,7 +1,7 @@
 {
   "schema": "cfdw-f1-rescope-verification/1",
-  "head": "58807929e72b22c7d0b16021bcf6ae1cbcd19ff2",
-  "utc": "2026-10-20T16:05:37Z",
+  "head": "554885dacdc7c6214684d2af435008cd3defcc78",
+  "utc": "2026-10-20T17:30:26Z",
   "host": {
     "platform": "win32",
     "machine": "ARM64",
@@ -14,15 +14,15 @@
   "counts": {
     "python_files": 11,
     "powershell_files": 10,
-    "python_tests_ran": 159,
+    "python_tests_ran": 160,
     "powershell_runs": 20,
     "powershell_suites_run": 10,
     "powershell_runtimes": 2,
-    "powershell_ms": 22684
+    "powershell_ms": 22724
   },
   "refusals": [],
-  "green": true,
-  "total_seconds": 96.0,
+  "green": false,
+  "total_seconds": 117.2,
   "steps": [
     {
       "name": "authority-scan",
@@ -36,7 +36,7 @@
       "command": "py -3 -B <repo>\\docs\\proof\\win-gpu-f1-preflight\\packet\\packet_selftest.py",
       "exit": 0,
       "seconds": 0.6,
-      "summary": "packet planted-failure self-test: PASS ring=offline-fast elapsed_seconds=0.467"
+      "summary": "packet planted-failure self-test: PASS ring=offline-fast elapsed_seconds=0.499"
     },
     {
       "name": "transaction-selftest",
@@ -63,22 +63,29 @@
       "name": "powershell-packet-selftest",
       "command": "pwsh -NoProfile -NonInteractive -File <repo>\\docs\\proof\\win-gpu-f1-preflight\\packet\\SelfTest.ps1",
       "exit": 0,
-      "seconds": 0.6,
-      "summary": "PowerShell packet self-test: PASS ring=offline-fast elapsed_seconds=0.349"
+      "seconds": 0.8,
+      "summary": "PowerShell packet self-test: PASS ring=offline-fast elapsed_seconds=0.484"
+    },
+    {
+      "name": "dry-rehearsal",
+      "command": "pwsh -NoProfile -NonInteractive -File <repo>\\tools\\run-f1-dry-rehearsal.ps1 -RunRoot docs/proof/win-gpu-f1-preflight/attempt-3 -Receipt <scratch>\\rehearsal.json",
+      "exit": 0,
+      "seconds": 1.7,
+      "summary": "F1-DRY-REHEARSAL-GREEN run_root=docs/proof/win-gpu-f1-preflight/attempt-3 head=554885dac own_child=5/5 attributes=ok bind=ok total=1.4 s"
     },
     {
       "name": "python-unit",
       "command": "py -3 -m unittest discover -s tests -p test_f1_*.py",
       "exit": 0,
-      "seconds": 21.7,
-      "summary": "ran 159 tests in 21.495 s"
+      "seconds": 24.6,
+      "summary": "ran 160 tests in 24.292 s"
     },
     {
       "name": "powershell-suites",
       "command": "pwsh -NoProfile -NonInteractive -File <repo>\\tools\\run-f1-powershell-suites.ps1 -Scratch <scratch>\\ps",
       "exit": 0,
       "seconds": 23.0,
-      "summary": "20 runs (10 suites x 2 runtimes) 22684 ms"
+      "summary": "20 runs (10 suites x 2 runtimes) 22724 ms"
     },
     {
       "name": "host-bindings",
@@ -91,24 +98,37 @@
       "name": "wsl-inline",
       "command": "py -3 <repo>\\tools\\check-wsl-inline.py",
       "exit": 0,
-      "seconds": 0.3,
+      "seconds": 2.1,
       "summary": "wsl inline ok: 0 pinned hit(s) allowlisted, no inline `bash -c` through WSL"
     },
     {
       "name": "proof-pii",
       "command": "py -3 <repo>\\tools\\check-proof-pii.py",
       "exit": 0,
-      "seconds": 3.3,
+      "seconds": 19.5,
       "summary": "PROOF-PII ok: 0 Windows user paths or machine SIDs (1 allowlisted)"
     },
     {
       "name": "check-docs",
       "command": "py -3 <repo>\\tools\\check-docs.py",
-      "exit": 0,
-      "seconds": 67.6,
-      "summary": "Documentation checks passed."
+      "exit": 1,
+      "seconds": 67.2,
+      "summary": "}"
     }
   ],
-  "worktree_clean": true,
-  "uncommitted_paths": []
+  "worktree_clean": false,
+  "uncommitted_paths": [
+    "docs/notes/rulings.md",
+    "docs/proof/win-gpu-f1-preflight/packet/Control.ps1",
+    "docs/proof/win-gpu-f1-preflight/packet/Invoke-Preflight.ps1",
+    "docs/proof/win-gpu-f1-preflight/packet/attempt.py",
+    "docs/proof/win-gpu-f1-preflight/packet/contract.py",
+    "docs/proof/win-gpu-f1-preflight/rehearsal/README.md",
+    "tests/f1_attempt2_controls.ps1",
+    "tests/test_f1_attempt2_admission.py",
+    "tests/test_f1_attempt2_prepare.py",
+    "tests/test_f1_attempt2_renewal.py",
+    "tools/run-f1-dry-rehearsal.ps1",
+    "tools/run-f1-verification.py"
+  ]
 }

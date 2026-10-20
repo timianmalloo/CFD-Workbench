@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "87a40e93bea6f1534f6e7bb7546d0865f64829d5fe5c3178b491ce72bc905d5c"
+      "sourceSha256": "ed7d8b3e3a4b4a6a5dcad6eeaceae530e36f232bc71b89e8782a16a43b20e54d"
     },
     {
       "id": "domain-experts",
@@ -9426,7 +9426,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3017855924666bdad98aae8e560ee630efd3f43c1e48ebc6dd9bd3a967124483"
+      "sourceSha256": "58624e0e02685b3298bf31fef93776e0d249bde3126ae2cd5bcc75e1ed6d678f"
     },
     {
       "id": "kb-hw-glossary",
@@ -11573,7 +11573,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b6cbd96853cae7b5019c2c28281e8637d2974b670cc5a0528f825dc92a33c7db"
+      "sourceSha256": "cdbc6b4c15ae6a93f44f70c93c02a5c0f2fde4be3952c8c0ffb7ac083a1c4eca"
     },
     {
       "id": "plan-seam-repair-1",
@@ -19282,7 +19282,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3cd87b52769179ba6fb3f4174156c1bc24f71cfccb41c608933466b3630d4af0"
+      "sourceSha256": "6453f3e0d8f7c79e8ffba090fb76388d68ad3a18de0a6b9cb3147cba5f4a0236"
     },
     {
       "id": "proof-win-gpu-f1-cleanup-recovery-cycle1-author",
@@ -19358,6 +19358,49 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "d8d3881c7831e9f094748fd94121c87794f402e08affd0561b03e44bb8d8fe70"
+    },
+    {
+      "id": "proof-win-gpu-f1-dry-rehearsal",
+      "path": "docs/proof/win-gpu-f1-preflight/rehearsal/README.md",
+      "title": "F1 dry rehearsal: the launcher's Windows-side paths with no WSL effect (Ruling 245)",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@pc-laptop-leader",
+      "phase": "preflight",
+      "reviewBy": "2026-11-18",
+      "reviewSuggested": [],
+      "summary": "The dry rehearsal Ruling 245 (3) names: tools/run-f1-dry-rehearsal.ps1 exercises the launcher's own-child registration against real processes, the run root's capture attributes and a freeze-commit-bind cycle in a scratch worktree, with no WSL effect. It ran red on the attempt-3 source against both classes that refused attempt 3, then green at the repaired source; it runs in the F1 verification runner and before every attempt.",
+      "tags": [
+        "windows",
+        "arm64",
+        "f1",
+        "rehearsal",
+        "control"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-f1-rescope-r237",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-gpu-f1-attempt3-plan",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-rescope-verification",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c961d073a3b9eb45e0d6570196dd9802ef0cc2d9aeb952ac59e4afe2a15c7376"
     },
     {
       "id": "proof-win-gpu-f1-inputs",
@@ -23077,5 +23120,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "c6ffbc6904f74a59f19194a73f29d93091e56b39d4777159d99fcd797013d6b8"
+  "graphSha256": "889f44c6aca20d460c47973036bcffa6b33fe1e87747647c9c1db33973f87cd5"
 };

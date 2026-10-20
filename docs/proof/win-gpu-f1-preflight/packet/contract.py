@@ -267,6 +267,25 @@ REPO_INPUTS = {'b2_licenses': 'docs/proof/win-gpu-b2/license-map.json',
                'ubuntu_cloudimage_keyring': 'docs/proof/win-gpu-f1-preflight/inputs/ubuntu-cloudimage-keyring.gpg'}
 
 
+CAPTURE_FOLDERS = ('checkpoint', 'final', 'live')
+
+
+def capture_attribute_lines(run_root: str) -> list[str]:
+    """The .gitattributes lines a run root needs so Git never normalizes a capture (RAW-CAPTURE-BLOB-MISMATCH 4)."""
+    return [f"{run_root}/{folder}/** -text whitespace=-trailing-space,-blank-at-eof" for folder in CAPTURE_FOLDERS]
+
+
+def ensure_capture_attributes(repo: Path, run_root: str) -> int:
+    """Ruling 245 (3): write the run root's capture rules into .gitattributes once; returns how many lines were added.
+    The launcher asserts the effect (`git check-attr text` unset) before its first WSL effect."""
+    path = repo / ".gitattributes"
+    existing = path.read_text(encoding="utf-8").splitlines() if path.exists() else []
+    missing = [line for line in capture_attribute_lines(run_root) if line not in existing]
+    if missing:
+        path.write_text("\n".join(existing + missing) + "\n", encoding="utf-8", newline="\n")
+    return len(missing)
+
+
 def prepare(args: argparse.Namespace) -> None:
     """Ruling 235 (3): produce the attempt-2 proposal pair (contract, proposed authorization) offline from a clean, exact
     author source commit, for an execution worktree that does not exist yet; no live check runs here. Without
@@ -336,6 +355,7 @@ def prepare(args: argparse.Namespace) -> None:
                     external_sha256=external_hashes, inputs=inputs, allowed_signers=attempt.SIGNERS)
     check_contract_fields(document)
     attempt.check_binding(document, args.run_id)
+    added = ensure_capture_attributes(repo, run_root)   # Ruling 245 (3): the run root keeps its captured bytes
     contract_bytes = (json.dumps(document, indent=2, sort_keys=True) + '\n').encode('utf-8')
     contract_sha = hashlib.sha256(contract_bytes).hexdigest()
     authorization = attempt.authorization(document, contract_sha, ruling=args.requested_ruling)
@@ -359,6 +379,7 @@ def prepare(args: argparse.Namespace) -> None:
     print(f'PREPARATION-GENERATED outputs=2 inputs={len(inputs)} architecture={token} protected={args.protected} live_authority=False')
     print('contract_sha256=' + contract_sha)
     print('authorization_sha256=' + hashlib.sha256(authorization_bytes).hexdigest())
+    print(f'capture_attributes_added={added}')
 
 
 def main() -> None:

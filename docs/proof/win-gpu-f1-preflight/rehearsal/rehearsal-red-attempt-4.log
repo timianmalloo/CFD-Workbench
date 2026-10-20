@@ -1,0 +1,4 @@
+== rehearsal own-child   RED registrations 1/5 passed
+== rehearsal attributes  RED 0/3 capture folders have text unset (docs/proof/win-gpu-f1-preflight/attempt-4/checkpoint/probe.txt: text: auto; docs/proof/win-gpu-f1-preflight/attempt-4/final/probe.txt: text: auto; docs/proof/win-gpu-f1-preflight/attempt-4/live/probe.txt: text: auto)
+== rehearsal bind        RED scratch worktree add failed
+F1-DRY-REHEARSAL-RED run_root=docs/proof/win-gpu-f1-preflight/attempt-4 head=554885dac own_child=1/5 attributes=red bind=red total=3.2 s

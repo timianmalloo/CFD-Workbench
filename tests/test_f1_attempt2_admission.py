@@ -42,10 +42,10 @@ class AttemptTwoTests(unittest.TestCase):
         data = dict(fixture(), attempt=3, execution_branch='win/gpu-f1-attempt3', session='pc-f1-attempt3',
                     run_id='f1-attempt3-20261020', run_root=attempt.PREFIX + '/attempt-3')
         contract.check_contract_fields(data)
-        self.assertEqual(attempt.FRESH_ATTEMPTS, (2, 3))
+        self.assertEqual(attempt.FRESH_ATTEMPTS, (2, 3, 4, 5, 6))   # Ruling 245 (4)
         auth = attempt.authorization(data, 'a' * 64, accepted=True, ruling=244)
         self.assertEqual((auth['attempt'], auth['run_root'], auth['ruling']), (3, attempt.PREFIX + '/attempt-3', 244))
-        for key, value in (('attempt', 4), ('execution_branch', 'win/gpu-f1-attempt2'), ('session', 'pc-f1-attempt2'),
+        for key, value in (('attempt', 7), ('execution_branch', 'win/gpu-f1-attempt2'), ('session', 'pc-f1-attempt2'),
                            ('run_id', 'f1-attempt2-20261020'), ('run_root', attempt.PREFIX + '/attempt-2')):
             with self.subTest(key=key, value=value), self.assertRaises(ValueError):
                 contract.check_contract_fields(dict(data, **{key: value}))

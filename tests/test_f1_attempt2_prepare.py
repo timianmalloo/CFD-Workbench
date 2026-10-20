@@ -129,7 +129,7 @@ class PreparationTests(unittest.TestCase):
         self.assertEqual(set(self.outputs()), {'invocation-contract.json', 'attempt-authorization.json'})
 
     def test_Prepare_AttemptMissingOrOutsideScheme_RefusesWithoutOutputs(self):
-        for value in (1, 4, '3', True, 3.0, None):
+        for value in (1, 7, '3', True, 3.0, None):
             if value is None:
                 del self.args.attempt
             else:
@@ -137,6 +137,28 @@ class PreparationTests(unittest.TestCase):
             with self.subTest(value=value), self.assertRaises(ValueError):
                 contract.prepare(self.args)
             self.assertEqual(self.outputs(), {})
+
+    def test_Prepare_WritesTheRunRootCaptureAttributes(self):
+        # Ruling 245 (3): the pair's run root keeps its captured bytes; prepare writes the -text rules it needs, once.
+        (self.repo / '.gitattributes').write_bytes(b'* text=auto eol=lf\n')
+        self.git('add', '.')
+        self.git('-c', 'user.name=Offline Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'attributes')
+        self.args.source_commit = self.git('rev-parse', 'HEAD')
+        printed = self.prepare()
+        self.assertEqual(printed['capture_attributes_added'], '3')
+        attributes = (self.repo / '.gitattributes').read_text(encoding='utf-8')
+        for folder in ('checkpoint', 'final', 'live'):
+            self.assertIn(f'{attempt.PREFIX}/attempt-2/{folder}/** -text', attributes)
+        out = subprocess.check_output(['git', '-C', str(self.repo), 'check-attr', 'text', '--',
+                                       f'{attempt.PREFIX}/attempt-2/checkpoint/x', f'{attempt.PREFIX}/attempt-2/live/x'],
+                                      text=True, encoding='utf-8')
+        self.assertEqual(out.count(': text: unset'), 2)
+        for path in (self.args.contract, self.args.authorization):
+            path.unlink()
+        self.git('add', '.')
+        self.git('-c', 'user.name=Offline Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'rules')
+        self.args.source_commit = self.git('rev-parse', 'HEAD')
+        self.assertEqual(self.prepare()['capture_attributes_added'], '0')
 
     def test_Prepare_DeclaredProtected_ProjectsTheBinding(self):
         self.args.protected = 'cfdw-openfoam2512'
