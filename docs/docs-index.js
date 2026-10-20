@@ -9426,7 +9426,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "41bb6ddcb414c4068225e388e140f635494c99d0d97dc67f76801bcf843e6ec6"
+      "sourceSha256": "835c39d85b79f52791d879aacc7b048e7a21c02d45f45018eee5909e8e0b9275"
     },
     {
       "id": "kb-hw-glossary",
@@ -11573,7 +11573,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8749ce337a5dd6625c5c6091513f19e3874c643ada095577bf613908c1af87b4"
+      "sourceSha256": "6f675946463ac7073aa87a980e1c6b9dc48d3cc3375eb6c1425a8fbeec929cb0"
     },
     {
       "id": "plan-seam-repair-1",
@@ -19195,18 +19195,20 @@ window.DOCS_INDEX = {
     {
       "id": "proof-win-gpu-f1-attempt2-offline-request",
       "path": "docs/proof/win-gpu-f1-preflight/attempt-2/README.md",
-      "title": "F1 attempt 2 offline decision request",
+      "title": "F1 attempt 2: the laptop re-plan (Ruling 237 node A)",
       "type": "proof-pack",
-      "status": "proposed",
-      "owner": "@pc-coordinator",
+      "status": "active",
+      "owner": "@pc-laptop-leader",
       "phase": "preflight",
-      "reviewBy": "2026-10-20",
+      "reviewBy": "2026-11-18",
       "reviewSuggested": [],
-      "summary": "Request-only attempt 2 preparation binds current committed source and historical evidence, while leaving Mac authority and live identities explicitly unresolved.",
+      "summary": "Node A of the F1 re-scope plan: the attempt-2 selections chosen on the Windows ARM64 laptop, the reviewed inputs fetched and measured against the packet's pins (inputs-receipt.json), the free-space worksheet, and the sequence that produces the contract pair with contract.py prepare and asks the operator for the live authorization ruling. The old PC's request-only preparation (offline-decision-request.json, validation.json, admission-proof.md) is history.",
       "tags": [
         "windows",
+        "arm64",
         "offline",
         "f1",
+        "attempt-2",
         "decision-request"
       ],
       "links": [
@@ -19215,16 +19217,28 @@ window.DOCS_INDEX = {
           "rel": "depends-on"
         },
         {
+          "to": "plan-f1-rescope-r237",
+          "rel": "depends-on"
+        },
+        {
           "to": "proof-win-gpu-f1-r217-packet",
           "rel": "relates-to"
         },
         {
-          "to": "proof-win-gpu-f1-offline-followups",
+          "to": "proof-win-gpu-f1-rescope-verification",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-f1-rescope-r237-node-r",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-inputs",
           "rel": "depends-on"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "fb7441ef50f3174739836402dbc9e481019098612902868da5f8a61a47098edb"
+      "sourceSha256": "602f4734d205b7000a4e0678b39c01f94d7eb64f0a09a3092e038e1979030136"
     },
     {
       "id": "proof-win-gpu-f1-cleanup-recovery-cycle1-author",
@@ -20830,7 +20844,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "997b6e4427e95358ad0d1b0fa28cdd106b0be3ee79acba50ecc9a6bef0bd8ca3"
+      "sourceSha256": "e947ca96803ff423458a8b2ec37b22fed3dc756d7e51c64450faec69199a18dc"
     },
     {
       "id": "review-foil-editing-flow-results",
@@ -22979,5 +22993,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "2b535e74a41b6b6c290833485f290d6f1910ecec6857e68a52e5455f211eadf1"
+  "graphSha256": "184a8cf3f00ae8cca530061d1d7c190271496c32d4124d29d8bac064a6f08891"
 };
