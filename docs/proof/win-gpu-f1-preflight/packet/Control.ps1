@@ -208,12 +208,15 @@ function Assert-AttemptExclusivity([object[]]$Processes, [object[]]$Owned, [stri
         # Host services/VM infrastructure are not user launchers. Include shells whose command invokes WSL.
         # Ruling 243 (1): bash.exe is WSL's legacy launcher only under System32; Git's MSYS bash (the agent harness keeps
         # it alive) is not a WSL actor unless its command line invokes wsl. A bash.exe whose path is unknown stays an actor.
+        # The path is WMI-reported text as launched (`..` segments included), compared canonical; this scan is a hygiene
+        # control over the launcher's own process population, not a boundary against a hostile peer (node A review).
         $name = [string]$row.Name
         $bashPath = ''
         if ($name -imatch '^bash\.exe$') {
             $pathProperty = $row.PSObject.Properties['ExecutablePath']
             if ($null -ne $pathProperty -and $null -ne $pathProperty.Value) { $bashPath = [string]$pathProperty.Value }
             if ([string]::IsNullOrWhiteSpace($bashPath)) { $bashPath = $wslBash }
+            else { $bashPath = [IO.Path]::GetFullPath($bashPath.Replace('\\?\', '')) }   # a throw here stays fail closed
         }
         $actor=$name -imatch '^(wsl|ubuntu(?:[0-9.]*)|debian|kali)\.exe$' -or $bashPath -ieq $wslBash -or
             ([string]$row.CommandLine -imatch '(?:^|[\\\s"''])wsl(?:\.exe)?(?:[\s"'']|$)')

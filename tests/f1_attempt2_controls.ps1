@@ -68,6 +68,12 @@ $wslBash=$gitBash.psobject.Copy();$wslBash.ExecutablePath=(Join-Path $env:System
 Refuses {Assert-AttemptExclusivity @($wslBash) @() 'none'}
 $wslBashCased=$wslBash.psobject.Copy();$wslBashCased.ExecutablePath=$wslBash.ExecutablePath.ToUpperInvariant()
 Refuses {Assert-AttemptExclusivity @($wslBashCased) @() 'none'}
+$dotted=$wslBash.psobject.Copy();$dotted.ExecutablePath=(Join-Path $env:SystemRoot 'System32\..\System32\.\bash.exe')
+Refuses {Assert-AttemptExclusivity @($dotted) @() 'none'}
+$prefixed=$wslBash.psobject.Copy();$prefixed.ExecutablePath='\\?\' + $wslBash.ExecutablePath
+Refuses {Assert-AttemptExclusivity @($prefixed) @() 'none'}
+$gitDotted=$gitBash.psobject.Copy();$gitDotted.ExecutablePath='C:\Program Files\Git\bin\..\usr\bin\bash.exe'
+Assert-AttemptExclusivity @($gitDotted) @() 'none'
 $noPath=[pscustomobject]@{ProcessId=78;ParentProcessId=1;Name='bash.exe';CreationDate=$launcher.CreationDate;CommandLine='bash.exe'}
 Refuses {Assert-AttemptExclusivity @($noPath) @() 'none'}
 $emptyPath=$gitBash.psobject.Copy();$emptyPath.ExecutablePath=$null
