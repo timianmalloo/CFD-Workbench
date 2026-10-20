@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-20T00:32:14Z",
+  "generated": "2026-10-20T00:36:18Z",
   "audit": [
     {
       "actor": null,
@@ -40130,6 +40130,36 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-20T00:30:59Z",
       "duration_seconds": 75.0
+    },
+    {
+      "id": "al-01M5BBSNN7D1ZBDBWZEEPP9QJT",
+      "shortname": "join-f1-a2-attempt2-pair",
+      "datetime": "2026-10-20T00:36:18Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of f1/a2-attempt2-pair into main",
+      "summary": "Node A2: the attempt-2 contract pair produced offline by contract.py prepare from source a7f20025 on a clean tree: invocation-contract.json 2fb4815d, proposed attempt-authorization.json 673f7667; arm64, protected none, leader epoch 3, run f1-attempt2-20261020, execution worktree D:\\Projects\\CFD-Workbench-f1-attempt2 (uncreated), requested ruling 242; a proposal, authorizing nothing recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/attempt-2/invocation-contract.json",
+        "docs/proof/win-gpu-f1-preflight/attempt-2/attempt-authorization.json"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "land the attempt-2 contract pair (node A2) on main for the operator's ruling",
+      "done_when": "the pair on main with its hashes, readiness-green and pushed, the ruling request filed with every check_ruling token",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-20T00:35:06Z",
+      "duration_seconds": 72.0
     }
   ],
   "changes": [
