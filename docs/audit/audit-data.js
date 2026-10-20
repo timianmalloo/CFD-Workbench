@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-20T00:36:18Z",
+  "generated": "2026-10-20T15:08:49Z",
   "audit": [
     {
       "actor": null,
@@ -40160,6 +40160,48 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-20T00:35:06Z",
       "duration_seconds": 72.0
+    },
+    {
+      "id": "al-01M5CXCVRA8C3T978VH88NTNA3",
+      "shortname": "rule 242 as (a), then run the live attempt",
+      "datetime": "2026-10-20T15:03:07Z",
+      "session": "pc-laptop-leader",
+      "prompt": "rule 242 as (a), then run the live attempt",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M5CXQ97H4EZBM7F1K6K4613A",
+      "shortname": "f1-a3-ruling-242",
+      "datetime": "2026-10-20T15:08:49Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of win/gpu-f1-attempt2-ruling into main",
+      "summary": "Ruling 242 recorded; the attempt-2 authorization accepted in place of the proposal (SHA-256 1a160eaf...); the cloud-image fingerprint confirmation recorded in inputs/README.md recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Put the attempt-2 live authorization and its ruling on origin/main so the launcher's check_ruling admits the run",
+      "done_when": "origin/main carries Ruling 242 and the accepted authorization bytes; check-docs green; RING-SKIPPED",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-20T15:07:15Z",
+      "duration_seconds": 94.0
     }
   ],
   "changes": [
@@ -43464,6 +43506,24 @@ window.AUDIT_DATA = {
       "to": "pc-laptop-leader",
       "kind": "ruling",
       "ref": "req-01M5B98AP83B5XVPCCE5MEE2HB",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M5BC4GW4RKVHV0MKSNQWF60K",
+      "ts": "2026-10-20T00:42:14Z",
+      "from": "pc-laptop-leader",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M5BC4FS8GSAN1XRNT4D97WST",
+      "session": "pc-laptop-leader"
+    },
+    {
+      "id": "mail-01M5CXE98MYJ3BMTBBK7HBJ0PK",
+      "ts": "2026-10-20T15:03:54Z",
+      "from": "operator-timianmalloo",
+      "to": "pc-laptop-leader",
+      "kind": "ruling",
+      "ref": "req-01M5BC4FS8GSAN1XRNT4D97WST",
       "session": "operator-timianmalloo"
     }
   ]
