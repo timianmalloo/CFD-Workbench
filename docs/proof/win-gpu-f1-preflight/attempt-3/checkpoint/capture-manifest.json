@@ -1,0 +1,170 @@
+{
+  "files": [
+    {
+      "bytes": 0,
+      "path": "checkpoint-freeze.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "checkpoint-freeze.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "distro-list.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 28,
+      "path": "distro-list.stdout.txt",
+      "sha256": "5fb131d9ba62df22e825ade0492a40e17fb8a5ff456c140004e378bc0caf0309"
+    },
+    {
+      "bytes": 2823,
+      "path": "final-precheck.json",
+      "sha256": "791ba3b584ae700cdc12fa4583fb47192dff5be40c9172d8631f4fb506413988"
+    },
+    {
+      "bytes": 178,
+      "path": "host-capacity.jsonl",
+      "sha256": "58702cc8897e4b6eea498ade4faeb7bd75d8b583bba4b00b3be8e9c942401fe2"
+    },
+    {
+      "bytes": 782,
+      "path": "host-identity.json",
+      "sha256": "817926d4b8593922f844201d2067498518af6673313dc00783657e5a91f7ffdf"
+    },
+    {
+      "bytes": 0,
+      "path": "host-identity.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 51,
+      "path": "host-identity.stdout.txt",
+      "sha256": "de4cc09c0d03e41e4a0e523cc3b0fb12151dde244d975184b43a0897e9a491bd"
+    },
+    {
+      "bytes": 644,
+      "path": "host-observations.json",
+      "sha256": "4cc3917c0167ccf05de37a46f860b00d0c837c39b1d97a5fe80f8f16cb0b7494"
+    },
+    {
+      "bytes": 26,
+      "path": "invocation-contract.stdout.txt",
+      "sha256": "f55b84da0f7569679218610d3856506f22b061920a79473f4d1a0ee2810a8dde"
+    },
+    {
+      "bytes": 248,
+      "path": "keepalive-activation.json",
+      "sha256": "753665a8b0a6461be5ffecde325cc15a2235126b1a3b16f0de93ebb535f39dce"
+    },
+    {
+      "bytes": 258,
+      "path": "keepalive-immediately-pre-live.json",
+      "sha256": "25b443a29f9d7ac81e27d98bb2f6c85d3c951f4ba2b43731178330829e90280c"
+    },
+    {
+      "bytes": 339,
+      "path": "leader-activation.json",
+      "sha256": "d5e485b50965d20f6a6dff42bc6147bb4e691de2542c9572bfa7b02f5026433c"
+    },
+    {
+      "bytes": 0,
+      "path": "leader-activation.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 318,
+      "path": "leader-activation.stdout.txt",
+      "sha256": "89de9e74876606838f1bbdaff6d9f78922d44e021fe725266384e864d1d3a1ac"
+    },
+    {
+      "bytes": 348,
+      "path": "leader-immediately-pre-live.json",
+      "sha256": "9f52fa10a15fcd56755eb222b19d79fcc573db352f1acf9d386e4bc8de660aee"
+    },
+    {
+      "bytes": 0,
+      "path": "leader-immediately-pre-live.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 327,
+      "path": "leader-immediately-pre-live.stdout.txt",
+      "sha256": "8739c00dd8cd3d88b06cb5847dbac34eea949a59e40445c4a4aa29551e54a443"
+    },
+    {
+      "bytes": 547,
+      "path": "leader-renew-events.jsonl",
+      "sha256": "8e7eecc23ddf96d5f6313319f7991794ebec4815bc272660fad953cfbe63598b"
+    },
+    {
+      "bytes": 254,
+      "path": "leader-renew-start.json",
+      "sha256": "8463cfb1eb94d5753e318af127fbf5aa45ef0d935b7b929c27d1b5f4521798d1"
+    },
+    {
+      "bytes": 0,
+      "path": "leader-renew.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 26,
+      "path": "leader-renew.stdout.txt",
+      "sha256": "f55b84da0f7569679218610d3856506f22b061920a79473f4d1a0ee2810a8dde"
+    },
+    {
+      "bytes": 298,
+      "path": "owned-windows-launchers.json",
+      "sha256": "5f9d2bfca5e253a30916d203390b7777d72fc8754ef1e9f7cdfb59efe5275cd4"
+    },
+    {
+      "bytes": 239,
+      "path": "precleanup-state.json",
+      "sha256": "edc44e5ec788db2401e0227d1e19c4a55c15b79dace0bf6ebb6e05fb846d0d4c"
+    },
+    {
+      "bytes": 207,
+      "path": "rootfs-gpgv.stderr.txt",
+      "sha256": "1d2b5ec8598eca77b897c134644e98015c11285e89aed1a820bef6ff045c792a"
+    },
+    {
+      "bytes": 372,
+      "path": "rootfs-gpgv.stdout.txt",
+      "sha256": "ca342e03db4a8417e7781e1e18079929077948dab3a72a246f4bea645c6426c8"
+    },
+    {
+      "bytes": 0,
+      "path": "rootfs-keyring.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 40,
+      "path": "rootfs-keyring.stdout.txt",
+      "sha256": "bb816ba4aa6288c761d1dd778ab4f5a2ae502bfe313bd145931ea6c7931b7113"
+    },
+    {
+      "bytes": 372,
+      "path": "rootfs-signature.gpgv.txt",
+      "sha256": "ca342e03db4a8417e7781e1e18079929077948dab3a72a246f4bea645c6426c8"
+    },
+    {
+      "bytes": 91,
+      "path": "rootfs-signature.txt",
+      "sha256": "96e1d5d57ff53a3d6686a1443209b896ef9e3257331df7e52974bea0d8d8687c"
+    },
+    {
+      "bytes": 0,
+      "path": "rootfs-signer.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 32,
+      "path": "rootfs-signer.stdout.txt",
+      "sha256": "980ebe031c8d7b55670aa9a3828ffc7fd5ecb108778eab46783c55c9b068581c"
+    }
+  ],
+  "schema": "cfdw-f1-r217-capture-manifest/1"
+}

@@ -1,0 +1,9 @@
+{
+  "schema": "cfdw-f1-keepalive-sample/1",
+  "event_id": "60a750c38c5d41178ee091e56c16d2c3",
+  "utc": "2026-10-20T16:46:45.1247298+00:00",
+  "run_id": "f1-attempt3-20261020",
+  "phase": "immediately-pre-live",
+  "protected_key": "none",
+  "processes": []
+}

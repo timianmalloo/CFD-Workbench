@@ -1,0 +1,12 @@
+[
+  {
+    "pid": 16408,
+    "created_utc": "2026-10-20T16:46:45.1315070+00:00",
+    "command": "\"C:\\Windows\\system32\\wsl.exe\" --list --quiet"
+  },
+  {
+    "pid": 18688,
+    "created_utc": "2026-10-20T16:46:45.1403660+00:00",
+    "command": "\\??\\C:\\Windows\\system32\\conhost.exe 0x4"
+  }
+]

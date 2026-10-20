@@ -1,0 +1,74 @@
+{
+  "schema": "cfdw-f1-r217-cleanup/1",
+  "run_id": "f1-attempt3-20261020",
+  "target": "cfdw-petsc-cuda132-f1",
+  "protected": "none",
+  "guard": "not applicable",
+  "initiating_error": "F1-OWN-LAUNCHER-IDENTITY",
+  "cleanup_errors": [
+    "owned-stop: owner stop unproved after exact-target containment: F1-OWN-LAUNCHER-IDENTITY",
+    "checkpoint: checkpoint-bind exited 5",
+    "MAC-DECISION-REQUIRED: checkpoint unproved; archive deletion/unregister withheld",
+    "final-owned-stop: owner stop unproved after exact-target containment: F1-OWN-LAUNCHER-IDENTITY"
+  ],
+  "checkpoint_sha": "Not recorded",
+  "elapsed_seconds": 12.2168513,
+  "target_absent": "Unknown or blocked",
+  "creation_uncertain": false,
+  "finalization": {
+    "errors": [
+      "owned-stop: owner stop unproved after exact-target containment: F1-OWN-LAUNCHER-IDENTITY",
+      "checkpoint: checkpoint-bind exited 5",
+      "MAC-DECISION-REQUIRED: checkpoint unproved; archive deletion/unregister withheld",
+      "final-owned-stop: owner stop unproved after exact-target containment: F1-OWN-LAUNCHER-IDENTITY"
+    ],
+    "owned_stopped": false,
+    "checkpoint_proved": false,
+    "cleanup_proved": false,
+    "snapshot_proved": true,
+    "guard_stopped": true,
+    "guard_bound": true
+  },
+  "affinity": "Linux CPU0-1 or guard CPU0, nice10; host lifecycle/Git N/A",
+  "leader_evidence": {
+    "status": "verified",
+    "files": [
+      {
+        "path": "leader-activation.json",
+        "sha256": "d5e485b50965d20f6a6dff42bc6147bb4e691de2542c9572bfa7b02f5026433c"
+      },
+      {
+        "path": "leader-immediately-pre-live.json",
+        "sha256": "9f52fa10a15fcd56755eb222b19d79fcc573db352f1acf9d386e4bc8de660aee"
+      },
+      {
+        "path": "leader-renew-start.json",
+        "sha256": "8463cfb1eb94d5753e318af127fbf5aa45ef0d935b7b929c27d1b5f4521798d1"
+      },
+      {
+        "path": "leader-renew-events.jsonl",
+        "sha256": "8e7eecc23ddf96d5f6313319f7991794ebec4815bc272660fad953cfbe63598b"
+      },
+      {
+        "path": "leader-renew.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "leader-renew-exit.json",
+        "sha256": "78242fbf9a8343e9ab3b73fe6517502a99e1d1da7f733e50ebb15f93ccaeb783"
+      },
+      {
+        "path": "keepalive-activation.json",
+        "sha256": "753665a8b0a6461be5ffecde325cc15a2235126b1a3b16f0de93ebb535f39dce"
+      },
+      {
+        "path": "keepalive-immediately-pre-live.json",
+        "sha256": "25b443a29f9d7ac81e27d98bb2f6c85d3c951f4ba2b43731178330829e90280c"
+      },
+      {
+        "path": "keepalive-finalization.json",
+        "sha256": "7d2c358c7f97854a4099c2f3fd253a79f82a804fe78c6f0ca46268921a094ab8"
+      }
+    ]
+  }
+}

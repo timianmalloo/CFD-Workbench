@@ -361,6 +361,19 @@ carries the run itself.
   the launcher changed the reviewed admission refusal order (`f1_attempt_controls.ps1` showed it) and was dropped, since
   `Get-InvocationRunRoot` already refuses a foreign number. `docs/proof/win-gpu-f1-preflight/attempt-3/README.md` is the
   re-plan. Duration: the join's audit entry.
+- **A, attempt 3 (2026-10-20, Ruling 244).** Planned: the last live attempt under Ruling 225. Actual: the pair at `5995f939`
+  (epoch 4), Ruling 244 with every `check_ruling` token, the accepted authorization `f419edc7…` on origin/main, the
+  execution worktree from `6b1bf813`, the launcher from native pwsh with no Bash-tool call in flight. It passed the
+  contract, the host identity, the rootfs signature (`ROOTFS-SIGNED-PASS`), the leader activation and the first
+  `wsl --list`, then refused `F1-OWN-LAUNCHER-IDENTITY` on the second `wsl --list` at second 10: the own-child identity
+  equates a CIM creation time (microseconds) with `Process.StartTime` (100 ns ticks), unequal for nine processes in
+  ten (a probe: 8 ticks apart). Stage `not-started`, no target, registrations unchanged. The cleanup then could not
+  bind its checkpoint: the attempt-3 run root had no `-text` rule, Git normalized two captures, `manifest.py verify`
+  refused, and the final commit was withheld; the launcher's checkpoint `0e24418f` and the captured bytes with the
+  live receipts (`1d2b9695`, attributes added, bind green) joined main. Attempts consumed under Ruling 225: 1, 2
+  and 3; **the cap is reached**, and the track's repair cap (two cycles) is spent, so the track stops here and the
+  controls for TIMESTAMP-IDENTITY-ACROSS-PRECISIONS and RAW-CAPTURE-BLOB-MISMATCH recurrence 4 are proposed to the
+  operator, not applied. Duration: the join's audit entry.
 
 ## 10. Gate record
 
