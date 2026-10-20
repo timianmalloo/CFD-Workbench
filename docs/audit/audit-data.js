@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-20T00:13:18Z",
+  "generated": "2026-10-20T00:32:14Z",
   "audit": [
     {
       "actor": null,
@@ -40086,6 +40086,50 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-20T00:09:43Z",
       "duration_seconds": 215.0
+    },
+    {
+      "id": "al-01M5BB1DXJF6G61Q9GFHC5QR0P",
+      "shortname": "rule DR-4 as (a), then start A",
+      "datetime": "2026-10-20T00:23:04Z",
+      "session": "pc-laptop-leader",
+      "prompt": "rule DR-4 as (a), then start A",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M5BBJ6Y24W6CS2XF7BWEC21K",
+      "shortname": "join-f1-a1-attempt2-replan",
+      "datetime": "2026-10-20T00:32:14Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of f1/a-attempt2-replan into main",
+      "summary": "Ruling 241 (DR-4 as (a): under protected none a registration carrying the protected identity refuses; Ruling 240 (1) amended) and node A1: the attempt-2 re-plan on the laptop (selections, the seven reviewed inputs fetched and measured against the pins into D:\\reviewed and the repository, the free-space worksheet floor 19669226335 / reserve 10737418240, the sequence to the live authorization); docs only recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-f1-preflight/attempt-2/inputs-receipt.json"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "record DR-4 and land the attempt-2 re-plan (node A1) on main",
+      "done_when": "Ruling 241 and the re-plan with the inputs receipt on main, readiness-green and pushed",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-20T00:30:59Z",
+      "duration_seconds": 75.0
     }
   ],
   "changes": [
@@ -43382,6 +43426,15 @@ window.AUDIT_DATA = {
       "kind": "decision-request",
       "ref": "req-01M5B98AP83B5XVPCCE5MEE2HB",
       "session": "pc-laptop-leader"
+    },
+    {
+      "id": "mail-01M5BB4FVGW8YJ0QAR5N43J0ZX",
+      "ts": "2026-10-20T00:24:44Z",
+      "from": "operator-timianmalloo",
+      "to": "pc-laptop-leader",
+      "kind": "ruling",
+      "ref": "req-01M5B98AP83B5XVPCCE5MEE2HB",
+      "session": "operator-timianmalloo"
     }
   ]
 };
