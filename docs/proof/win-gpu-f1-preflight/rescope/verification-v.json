@@ -1,0 +1,114 @@
+{
+  "schema": "cfdw-f1-rescope-verification/1",
+  "head": "1b05e89268407a5c338a3f40563a31e00e66e213",
+  "utc": "2026-10-20T00:01:18Z",
+  "host": {
+    "platform": "win32",
+    "machine": "ARM64",
+    "python": "3.14.7"
+  },
+  "floors": {
+    "python_files": 9,
+    "powershell_files": 9
+  },
+  "counts": {
+    "python_files": 11,
+    "powershell_files": 10,
+    "python_tests_ran": 152,
+    "powershell_runs": 20,
+    "powershell_suites_run": 10,
+    "powershell_runtimes": 2,
+    "powershell_ms": 23782
+  },
+  "refusals": [],
+  "green": true,
+  "total_seconds": 112.2,
+  "steps": [
+    {
+      "name": "authority-scan",
+      "command": "py -3 <repo>\\docs\\proof\\win-gpu-f1-preflight\\packet\\authority_scan.py",
+      "exit": 0,
+      "seconds": 0.1,
+      "summary": "authority scan packet: PASS"
+    },
+    {
+      "name": "packet-selftest",
+      "command": "py -3 -B <repo>\\docs\\proof\\win-gpu-f1-preflight\\packet\\packet_selftest.py",
+      "exit": 0,
+      "seconds": 0.6,
+      "summary": "packet planted-failure self-test: PASS ring=offline-fast elapsed_seconds=0.463"
+    },
+    {
+      "name": "transaction-selftest",
+      "command": "py -3 <repo>\\docs\\proof\\win-gpu-f1-preflight\\packet\\transaction.py self-test",
+      "exit": 0,
+      "seconds": 0.1,
+      "summary": "transaction self-test: PASS"
+    },
+    {
+      "name": "manifest-selftest",
+      "command": "py -3 <repo>\\docs\\proof\\win-gpu-f1-preflight\\packet\\manifest.py self-test",
+      "exit": 0,
+      "seconds": 0.1,
+      "summary": "manifest self-test: PASS"
+    },
+    {
+      "name": "completed-guard-selftest",
+      "command": "py -3 <repo>\\docs\\proof\\win-gpu-f1-preflight\\packet\\completed_guard.py self-test",
+      "exit": 0,
+      "seconds": 0.1,
+      "summary": "completed_guard self-test: PASS"
+    },
+    {
+      "name": "powershell-packet-selftest",
+      "command": "pwsh -NoProfile -NonInteractive -File <repo>\\docs\\proof\\win-gpu-f1-preflight\\packet\\SelfTest.ps1",
+      "exit": 0,
+      "seconds": 0.6,
+      "summary": "PowerShell packet self-test: PASS ring=offline-fast elapsed_seconds=0.357"
+    },
+    {
+      "name": "python-unit",
+      "command": "py -3 -m unittest discover -s tests -p test_f1_*.py",
+      "exit": 0,
+      "seconds": 22.0,
+      "summary": "ran 152 tests in 21.797 s"
+    },
+    {
+      "name": "powershell-suites",
+      "command": "pwsh -NoProfile -NonInteractive -File <repo>\\tools\\run-f1-powershell-suites.ps1 -Scratch <scratch>\\ps",
+      "exit": 0,
+      "seconds": 24.1,
+      "summary": "20 runs (10 suites x 2 runtimes) 23782 ms"
+    },
+    {
+      "name": "host-bindings",
+      "command": "py -3 <repo>\\tools\\check-f1-host-bindings.py",
+      "exit": 0,
+      "seconds": 0.1,
+      "summary": "f1 host bindings ok: 16 packet files, 17 allowlisted fixture/table lines, no host-bound literal"
+    },
+    {
+      "name": "wsl-inline",
+      "command": "py -3 <repo>\\tools\\check-wsl-inline.py",
+      "exit": 0,
+      "seconds": 0.4,
+      "summary": "wsl inline ok: 0 pinned hit(s) allowlisted, no inline `bash -c` through WSL"
+    },
+    {
+      "name": "proof-pii",
+      "command": "py -3 <repo>\\tools\\check-proof-pii.py",
+      "exit": 0,
+      "seconds": 3.5,
+      "summary": "PROOF-PII ok: 0 Windows user paths or machine SIDs (1 allowlisted)"
+    },
+    {
+      "name": "check-docs",
+      "command": "py -3 <repo>\\tools\\check-docs.py",
+      "exit": 0,
+      "seconds": 82.5,
+      "summary": "Documentation checks passed."
+    }
+  ],
+  "worktree_clean": true,
+  "uncommitted_paths": []
+}
