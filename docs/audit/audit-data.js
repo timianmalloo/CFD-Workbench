@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-20T15:36:52Z",
+  "generated": "2026-10-20T16:09:21Z",
   "audit": [
     {
       "actor": null,
@@ -40256,6 +40256,48 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-20T15:33:32Z",
       "duration_seconds": 200.0
+    },
+    {
+      "id": "al-01M5CZX5QESWPFDBANR86WYGVZ",
+      "shortname": "rule DR-5 as (a), then prepare attempt 3",
+      "datetime": "2026-10-20T15:46:59Z",
+      "session": "pc-laptop-leader",
+      "prompt": "rule DR-5 as (a), then prepare attempt 3",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M5D163ZS2080DPJ4E3246M1G",
+      "shortname": "f1-a-ruling-243-dr5-attempt3",
+      "datetime": "2026-10-20T16:09:21Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of win/f1-dr5-attempt3 into main",
+      "summary": "Ruling 243: DR-5 (a) bash.exe keyed on its canonical System32 path (Security & Identity Architect ACCEPT WITH CONDITIONS, applied); the fresh-attempt scheme keyed once on the attempt number (2 or 3) with red-first suites on both runtimes; attempt-3 re-plan; verification receipt on 58807929 recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land the operator's DR-5 ruling and make the packet able to run attempt 3",
+      "done_when": "ring green on both runtimes; F1-VERIFICATION-GREEN on the node; check-docs green; review recorded",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-20T16:05:57Z",
+      "duration_seconds": 204.0
     }
   ],
   "changes": [
@@ -43588,6 +43630,15 @@ window.AUDIT_DATA = {
       "kind": "decision-request",
       "ref": "req-01M5CYY968W5KQBH0HE903NZT9",
       "session": "pc-laptop-leader"
+    },
+    {
+      "id": "mail-01M5D00HAK8HHD2JVX0FC6W4ND",
+      "ts": "2026-10-20T15:48:49Z",
+      "from": "operator-timianmalloo",
+      "to": "pc-laptop-leader",
+      "kind": "ruling",
+      "ref": "req-01M5CYY968W5KQBH0HE903NZT9",
+      "session": "operator-timianmalloo"
     }
   ]
 };
