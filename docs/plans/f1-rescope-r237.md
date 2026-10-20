@@ -330,6 +330,25 @@ carries the run itself.
   commit. Cycle 2: both reviewers CONFIRMED every condition (mutation and probe evidence in the review doc §3) and
   jointly asked for a failing input on the `--expected-sha256` path, applied in the same cycle (Python and the
   admission stub); the cap was not reached. R is ACCEPT. Duration: the join's audit entry.
+- **A (2026-10-20).** Planned: the attempt-2 re-plan on the laptop, the pair from `contract.py prepare`, the ruling with
+  every `check_ruling` token, then one live attempt under Ruling 225. Actual: A1 the re-plan and the inputs receipt (every
+  input at its pin; a first fetch that returned a directory index was caught by the hash); A2 the pair at source
+  `a7f20025` (contract `2fb4815d…`, proposal `673f7667…`, epoch 3 of the `mac` designation kept live by a renewer because
+  the pin's TTL is at most 300 s); A3 Ruling 242 (the accepted authorization `1a160eaf…` committed in place of the
+  proposal, `check_ruling` green against the local register before the push; the cloud-image fingerprints confirmed by a
+  reviewer other than the author). The live attempt (execution worktree created from `803fb83d`, native pwsh 7.6.7 arm64,
+  session `pc-f1-attempt2`): `INVOCATION-CONTRACT-PASS` and `HOST-IDENTITY-PASS architecture=arm64`, then
+  `F1-RENEW-START-FAILED` at second 6: `leader_supervisor.admit` projected five input names while `contract.verify`
+  reads six since C4 (`AttributeError`), stage `not-started`, no WSL effect, target absent; cleanup also recorded
+  `F1-EXCLUSIVITY-REFUSED: additional or changed WSL actor` (the harness's Git-for-Windows `bash.exe` matched by name)
+  and the two consequent missing-evidence errors. Checkpoint `f1d3a22f` and final `32e6e384` joined main (`b1147fb1`).
+  Attempt 2 of Ruling 225's three is consumed; one remains. Repair (this node, cycle 1 of the track's cap): one input
+  list (`contract.ARGUMENT_INPUTS`) read by `verify` and `admit`, with a coverage test (red `['ubuntu_cloudimage_keyring']`
+  then green); the exclusivity refusal names the actor (PowerShell assertion, red then green); register entries
+  HAND-COPIED-PROJECTION-OF-AN-AUTHORITY-LIST, REFUSAL-NAMES-THE-CLASS-NOT-THE-ACTOR,
+  NAME-MATCH-COUNTS-A-FOREIGN-TOOL-AS-AN-ACTOR. Open: DR-5 (`req-01M5CYY968W5KQBH0HE903NZT9`, how the scan treats Git's
+  `bash.exe`); the next attempt needs its own pair at the repaired source and its own ruling. Duration: the join's audit
+  entry.
 
 ## 10. Gate record
 

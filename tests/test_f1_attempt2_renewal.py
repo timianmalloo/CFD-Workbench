@@ -94,8 +94,30 @@ class RenewalTests(unittest.TestCase):
         for reason in ('wrong worktree','wrong branch'):
             with patch.object(module.contract, 'verify', side_effect=ValueError(reason)) as verify:
                 with self.assertRaisesRegex(ValueError,reason):
-                    module.admit(args, {'inputs':{name:{'path':'fixture'} for name in ('rootfs','ubuntu_sums','ubuntu_signature','openfoam_keyring','nvidia_keyring')}})
+                    module.admit(args, {'inputs':{name:{'path':'fixture'} for name in module.contract.INPUT_KEYS}})
                 verify.assert_called_once()
+
+    def test_Supervisor_AdmissionProjectsEveryInputContractVerifyReads(self):
+        # Attempt 2 (2026-10-20, F1-RENEW-START-FAILED): admit projected five input names by hand while contract.verify
+        # read a sixth since node C4, so the supervisor crashed with AttributeError before its first renewal. The
+        # projection must carry every input verify reads from its arguments (every contract input but the repo-derived
+        # B2 licence map), taken from the one list contract.py owns, never a copy.
+        module = importlib.import_module("leader_supervisor")
+        expected = set(module.contract.INPUT_KEYS) - {"b2_licenses"}
+        self.assertIn("ubuntu_cloudimage_keyring", expected)
+        seen = []
+        args = Mock(repo=Path("."), contract=Path("contract.json"), output=Path("out"))
+        document = {"inputs": {name: {"path": "fixture-" + name} for name in module.contract.INPUT_KEYS},
+                    "external_sha256": {module.attempt.COORDINATOR: "0" * 64}}
+        with patch.object(module.contract, "verify", side_effect=lambda ns: seen.append(ns)):
+            with patch.object(module.contract, "check_file_hash", side_effect=ValueError("stop after verify")):
+                with self.assertRaisesRegex(ValueError, "stop after verify"):
+                    module.admit(args, document)
+        self.assertEqual(len(seen), 1)
+        namespace = vars(seen[0])
+        self.assertEqual(sorted(expected - set(namespace)), [], "contract.verify reads an input admit never projected")
+        for name in expected:
+            self.assertEqual(namespace[name], Path(document["inputs"][name]["path"]))
 
     def test_Supervisor_ActualAdmissionRefusesWrongWorktreeAndBranch(self):
         module=importlib.import_module('leader_supervisor')

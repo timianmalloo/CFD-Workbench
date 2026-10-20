@@ -210,7 +210,8 @@ function Assert-AttemptExclusivity([object[]]$Processes, [object[]]$Owned, [stri
         $bound=@($Owned | Where-Object {$_.pid -eq $row.ProcessId})
         if ($bound.Count -ne 1 -or $bound[0].command -cne $row.CommandLine -or
             $bound[0].created_utc -cne (Get-ProcessCreationUtc $row.CreationDate)) {
-            throw 'F1-EXCLUSIVITY-REFUSED: additional or changed WSL actor'
+            # The refusal names the actor: attempt 2 (2026-10-20) recorded only the class, so the receipt could not say what ran.
+            throw ('F1-EXCLUSIVITY-REFUSED: additional or changed WSL actor: {0} pid {1}' -f [string]$row.Name, [string]$row.ProcessId)
         }
     }
 }

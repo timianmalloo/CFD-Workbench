@@ -21,6 +21,7 @@ PACKET = "docs/proof/win-gpu-f1-preflight/packet"
 INPUT_KEYS = ("rootfs", "ubuntu_sums", "ubuntu_signature", "openfoam_keyring",
               "nvidia_keyring", "ubuntu_cloudimage_keyring", "b2_licenses")
 # The B2 lock left the input set at node C3 (Ruling 237 (1)); the cloud-image keyring joined it at node C4 (Ruling 240 (2)).
+ARGUMENT_INPUTS = tuple(name for name in INPUT_KEYS if name != "b2_licenses")   # the inputs verify reads from its arguments; the licence map is repo-derived
 PROTECTED_STATES = ("cfdw-openfoam2512", "none")   # Ruling 240 (1)
 FPR = re.compile(r"^[A-F0-9]{40}$")
 SHA = re.compile(r"^[a-f0-9]{64}$")
@@ -230,10 +231,8 @@ def verify(args: argparse.Namespace) -> None:
             blob = subprocess.run(['git', '-C', str(repo), 'show', f'{source}:{name}'],
                                   check=True, capture_output=True, timeout=15).stdout
             check_hash(expected, blob)
-    paths = {"rootfs": args.rootfs, "ubuntu_sums": args.ubuntu_sums,
-             "ubuntu_signature": args.ubuntu_signature, "openfoam_keyring": args.openfoam_keyring,
-             "nvidia_keyring": args.nvidia_keyring, "ubuntu_cloudimage_keyring": args.ubuntu_cloudimage_keyring,
-             "b2_licenses": repo / "docs/proof/win-gpu-b2/license-map.json"}
+    paths = {name: getattr(args, name) for name in ARGUMENT_INPUTS}
+    paths["b2_licenses"] = repo / "docs/proof/win-gpu-b2/license-map.json"
     for name, actual in paths.items():
         full = actual.resolve(strict=True)
         row = document["inputs"][name]
