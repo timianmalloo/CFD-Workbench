@@ -1,141 +1,116 @@
 ---
 id: proof-win-gpu-f1-attempt2-offline-request
-title: "F1 attempt 2 offline decision request"
+title: "F1 attempt 2: the laptop re-plan (Ruling 237 node A)"
 type: proof-pack
-status: proposed
-owner: "@pc-coordinator"
+status: active
+owner: "@pc-laptop-leader"
 phase: preflight
-tags: [windows, offline, f1, decision-request]
+tags: [windows, arm64, offline, f1, attempt-2, decision-request]
 links:
   - { to: rulings, rel: depends-on }
+  - { to: plan-f1-rescope-r237, rel: depends-on }
   - { to: proof-win-gpu-f1-r217-packet, rel: relates-to }
-  - { to: proof-win-gpu-f1-offline-followups, rel: depends-on }
-review-by: "2026-10-20"
+  - { to: proof-win-gpu-f1-rescope-verification, rel: depends-on }
+  - { to: review-f1-rescope-r237-node-r, rel: depends-on }
+  - { to: proof-win-gpu-f1-inputs, rel: depends-on }
+review-by: "2026-11-18"
 summary: >-
-  Request-only attempt 2 preparation binds current committed source and historical
-  evidence, while leaving Mac authority and live identities explicitly unresolved.
+  Node A of the F1 re-scope plan: the attempt-2 selections chosen on the Windows ARM64 laptop, the reviewed inputs
+  fetched and measured against the packet's pins (inputs-receipt.json), the free-space worksheet, and the sequence that
+  produces the contract pair with contract.py prepare and asks the operator for the live authorization ruling. The old
+  PC's request-only preparation (offline-decision-request.json, validation.json, admission-proof.md) is history.
 ---
 
-# Decision requested from the Mac leader
+# F1 attempt 2: the laptop re-plan (Ruling 237 node A)
 
-**REQUEST-ONLY-NOT-EXECUTABLE.** Reserve the next Mac-assigned ruling number
-and confirm the bounded attempt-2 admission changes below. This request does
-not ask for immediate live authorization. Ruling 225 leaves attempts 2 and 3
-available; Rulings 227/228 authorized the consumed attempt 1 only.
+**Where this stands.** The packet was re-scoped for x64 and ARM64 hosts (plan `docs/plans/f1-rescope-r237.md`, nodes
+C1 to C5), verified (node V, `../rescope/verification-v.json`) and independently reviewed (node R,
+`docs/reviews/f1-rescope-r237-node-r.md`, ACCEPT with every condition applied; Ruling 241 settled DR-4). Node A
+re-plans attempt 2 on this laptop under Ruling 237 (2): new selections, the inputs fetched here, the pair produced by
+the packet's own producer, then the live authorization ruling, then one live attempt under the Ruling 225 limits.
 
-Request JSON: `offline-decision-request.json`, SHA-256
-`d4c6b7bd8abe34630e0b24a20f8160d40644bf009aa1c12c5142f3ca00c7e035`.
-Observed source: `ad1424b12b386c17d33178b8fa1e619289b70457` (`origin/main`
-after synchronizing PR #37). This digest binds the review
-request, **not** a proposed authorization or an executable invocation contract.
-The JSON deliberately uses a different schema and carries null authority fields.
+**History.** `offline-decision-request.json`, `validation.json` and `admission-proof.md` are the old PC's request-only
+preparation (2026-10-13; observed source `ad1424b1`). Their identities (`C:\Projects` target path, the protected
+distro `cfdw-openfoam2512`, epoch and ruling unresolved) are superseded by this document; they are kept as the record
+of what that machine proposed. Ruling 235's items were carried at node C5.
 
-Recommended disposition: accept this bounded preparation scope, reserve the
-ruling number, and require a separately reviewed source freeze and complete
-hash-bound request before ruling on one live attempt. Alternatives: amend the
-scope or hold. Fallback: no activation, no attempt consumed, no live action.
-Only the Mac assigns the ruling; no next number is inferred from Ruling 233.
+## 1. Selections (Ruling 237 (2): chosen again on the laptop)
 
-# Verified baseline and explicit gaps
-
-The 27 hashes in the companion JSON were calculated from `git show` bytes at
-the exact source commit, not worktree text. The historical attempt-1 invocation
-contract still hashes to
-`1141ee15dde086991290c508104addf9fe5c32c789dccbdbfdbfbaeb9e49f696`.
-Two current packet blobs differ from that old contract: `Invoke-Preflight.ps1`
-and `SelfTest.ps1`. The JSON lists both old and current hashes. The old contract
-cannot authorize the current source or another attempt.
-
-PR #35 joined at `d860ec33bcbaa9bf6e18fba024c3654641d642b0`.
-Its committed manual-unregister receipt says `MANUAL-UNREGISTER-OK`, target
-key/name removed and protected identity unchanged, with the exact Ruling 233
-idle session present before and after. This is historical evidence, not a new
-observation of current registrations, paths or processes.
-
-PR #36 and PR #37's current main lesson closure record the Ruling 231 controls:
-the production checker registers its loaded module; the subprocess fixture
-executes production argv for stage and guard and expects `OWNED-ABSENT`; the
-dynamic-import scanner and its self-tests run in the docs gate. The independent
-acceptance binds candidate `7affd8932eb304f282008d8e662d98ce77f6653a`.
-The Ruling 229 reader repair and capture-byte preservation are also present.
-Focused verification for this preparation is recorded in `validation.json`.
-
-The current source has these blocking admission contracts:
-
-| Surface | Observed constraint | Required attempt-2 disposition |
+| Field | Value | Fixed by |
 |---|---|---|
-| `packet/attempt.py` | Attempt 1, epoch 8, Ruling 228, historical session/branch/run/root only | Narrow, reviewed attempt-2 bindings; no wildcard admission |
-| `packet/Control.ps1` | Same attempt-1 bindings and fixed run root | Match the Python admission and new invocation exactly |
-| `Get-BoundTargetKey` | Refuses protected key and the original e958 target key | Also refuse the consumed attempt-1 e874 key |
-| `contract.check_live_leader` | Name/state/epoch checked; no remaining-TTL floor | Enforce and record at least 200 seconds at activation and immediately before first WSL command |
-| `.gitattributes` | Existing attempt-1 checkpoint/final captures protected | Bind attempt-2 capture directories before any capture |
-| Contract inputs | B2 paths point to the old attempt-1 worktree | Bind both B2 files to the chosen new execution worktree |
-| Renewal supervisor | Existing script defaults to epoch 8 | Bind exact selected epoch and whole-run event/stderr/exit evidence |
+| `attempt` | 2 | Ruling 225 (attempts 2 and 3 remain) |
+| `architecture` | `arm64` | the host (C1 detects it from CIM; the contract must agree) |
+| `execution_branch` | `win/gpu-f1-attempt2` | `attempt.check_binding` |
+| `session` | `pc-f1-attempt2` | `attempt.check_binding` |
+| `run_id` | `f1-attempt2-20261020` | pattern `f1-attempt2-YYYYMMDD`, the day the pair is prepared (UTC) |
+| `run_root` | `docs/proof/win-gpu-f1-preflight/attempt-2` | `attempt.check_binding` |
+| `execution_worktree` | `D:\Projects\CFD-Workbench-f1-attempt2` | chosen here; absolute, no whitespace, uncreated at prepare time, created from the accepted commit after the ruling |
+| `target_path` | `D:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1` | derived from the execution worktree (C2; never a parameter) |
+| `protected` | `none` | the laptop carries no `cfdw-openfoam2512` (Ruling 240 (1), Ruling 241: a registration carrying that identity would refuse) |
+| `leader` / `leader_epoch` | `mac` (the PC-local designation label, Ruling 236) / the epoch `coord leader pin mac` returns at preparation time | the lease is pinned with a TTL that covers preparation, the ruling and the run (the supervisor renews it every 100 s during the run); epochs 1 and 2 were consumed by a pin-release probe on 2026-10-20 |
+| `host_start_floor_bytes` / `host_reserve_bytes` | 19,669,226,335 / 10,737,418,240 | section 3 |
+| `accepted_packet_commit` | the `main` commit the pair is prepared from (recorded in the contract and named in the ruling) | `contract.py prepare --source-commit` |
+| `requested_ruling` | the next free ruling number at the time of the request | Ruling 236 |
 
-# Proposed identities and unresolved fields
+## 2. Inputs (fetched 2026-10-20, measured against the pins: `inputs-receipt.json`)
 
-Proposed run `f1-attempt2-20261013`, session `pc-f1-attempt2`, execution branch
-`win/gpu-f1-attempt2`, and root `docs/proof/win-gpu-f1-preflight/attempt-2`
-are fresh proposals. This preparation uses its own branch and session ending
-in `-offline`. The execution worktree is not yet assigned.
+| Input | Where | Bytes | SHA-256 matches the pin |
+|---|---|---:|---|
+| arm64 rootfs `ubuntu-noble-wsl-arm64-wsl.rootfs.tar.gz` | `D:\reviewed` | 341,873,503 | yes (`fecec1d9…`, the C1 table row; also the line in the signed `SHA256SUMS`) |
+| `SHA256SUMS` | `D:\reviewed` | 642 | yes (`337176fd…`, byte-identical to the B2-era file) |
+| `SHA256SUMS.gpg` | `D:\reviewed` | 833 | yes (`c0deb277…`) |
+| OpenFOAM keyring (dearmored from `dl.openfoam.com/pubkey.gpg`) | `D:\reviewed` | 1,157 | yes (`6d17d37b…`; the armored bytes hash as attempt 1 recorded) |
+| NVIDIA keyring (from the sbsa repository's `cuda-keyring_1.1-1_all.deb`) | `D:\reviewed` | 1,134 | yes (`25100d6f…`; byte-identical to the x86_64 package's keyring that B2 extracted) |
+| Ubuntu cloud-image keyring | `<execution worktree>/docs/proof/win-gpu-f1-preflight/inputs/` | 2,444 | yes (`c2d40d92…`, provenance in `../inputs/README.md`) |
+| B2 licence map | `<execution worktree>/docs/proof/win-gpu-b2/` | repository file | yes (`470de112…`) |
 
-Keep the bounded target name `cfdw-petsc-cuda132-f1` and dedicated path
-`C:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1`. A fresh distro means
-absence proved immediately before creation and a new GUID observed and bound
-at creation. Neither historical GUID may be accepted:
-`{e958c4d5-ae78-4b50-a634-7102f334d3aa}` or
-`{e874e10f-c7b9-4a2b-a03b-87ad52fb9c41}`. The new GUID is **unresolved** and
-must never be invented offline. The protected name and key remain
-`cfdw-openfoam2512`, `{b7566a82-9cee-47ce-a246-f83632353cea}`.
+The first three were fetched with `curl.exe -sS -L` from the cloud-images `current` pointer; a first attempt with
+`Invoke-WebRequest` had written the directory index page for all three (2,563 bytes, one hash), which the hash
+comparison caught before anything else read them. The two binary keyrings were derived inside WSL Ubuntu-24.04 the way
+attempt 1 recorded (`gpg --dearmor`; `dpkg-deb --fsys-tarfile`). Every hash equals its pin, so no pin changes at A.
 
-The PC-local Mac epoch is **unresolved**. Ruling 226 describes the PC-side
-reclaim/renew mechanism on behalf of Mac; it does not make a guessed epoch
-valid. This task did not inspect or mutate the leader ref. Ruling 225 required
-a new epoch before attempt 1; it does not require a distinct epoch for attempt 2.
-Mac decides reuse versus reclaim. The selected live value must be carried through
-source admission, contract, authorization and fresh activation/pre-WSL samples
-with at least 200 seconds remaining. Mac stays leader. This request binds no
-epoch, and historical attempt-1 samples are not attempt-2 evidence.
+## 3. Free-space worksheet (Ruling 238 (3): contract fields, never constants)
 
-Final source commit, invocation-contract SHA-256, accepted-projection SHA-256,
-activation-review commit, current input-byte checks, current target absence,
-protected identity and PC exclusivity remain explicitly unresolved. Ruling 233
-exempts an exact idle protected session only from Ruling 232's cleanup clause;
-Mac must decide any attempt-2 exception. It cannot be silently carried forward.
+| Term | Bytes | Source |
+|---|---:|---|
+| `host_reserve_bytes` | 10,737,418,240 | Ruling 225's reserve, unchanged |
+| VHD cap | 8,589,934,592 | Ruling 225 |
+| rootfs bytes | 341,873,503 | the arm64 rootfs, measured |
+| `host_start_floor_bytes` = reserve + VHD cap + rootfs | **19,669,226,335** | the attempt-1 worksheet's shape (10,737,418,240 + 8,589,934,592 + 356,739,129 = 19,684,091,961 there) |
+| `D:` free, measured 2026-10-20 | 3,998,438,477,824 | `(Get-PSDrive D).Free` |
 
-# Required sequence after the Mac decision
+The launcher measures the target drive's free space itself before every stage (C2); these numbers only bind the floor
+it refuses below.
 
-1. Make the narrow source/test/capture-policy update, with historical bytes
-   preserved. Prove Python/PowerShell agreement, rejection of stale identities,
-   both prior target GUIDs, missing/stale leader samples, and changed hashes.
-   Bind any new test to the offline-fast ring and report measured cost.
-2. Independently review and freeze the source. Assign the execution worktree,
-   measure the selected PC-local Mac epoch, keep its lease renewed under the agreed
-   mechanism, and verify all seven input bytes and exact paths.
-3. Produce and hash the invocation contract, then the authorization projection.
-   Submit exact source, contract, projection, run/session/branch/root, target
-   rules and epoch to Mac. Do not present this baseline snapshot as that source.
-4. Mac commits a numbered hash-bound ruling accepting **one** attempt on those
-   exact bindings. Promote the accepted projection byte-identically; obtain
-   independent activation rehash and both required fresh leader samples.
-5. Only after all gates pass, the separately authorized executor may run.
-   Any failure stops and returns its immutable receipt; attempt 3 still needs
-   its own ruling. Never reuse the attempt-1 authorization or this request.
+## 4. Sequence
 
-All Ruling 217 limits remain exact: simulation then resolved `.deb` download
-for license/Installed-Size inspection only, signed-index hash verification,
-two cores at nice 10, 3,600 seconds total, 8,589,934,592-byte VHD cap,
-19,684,091,961-byte initial host free floor, completed-L3 guard before/after,
-manifest-bound checkpoint before cleanup, target-only unregister and proven
-absence. No install, PETSc/petsc4Foam source fetch, build, case or benchmark.
+1. **A1 (this document).** Ruling 241, this re-plan and the inputs receipt join `main` (docs only).
+2. **Leader.** `AGENT_SESSION=mac coord leader pin mac --ttl <seconds>`; `coord leader who` gives the epoch the contract
+   carries.
+3. **A2, the pair.** In a fresh worktree at `main` (clean, HEAD = the source commit): `py -3 contract.py prepare
+   --source-commit <HEAD> --execution-worktree D:\Projects\CFD-Workbench-f1-attempt2 --leader-epoch <epoch>
+   --requested-ruling <next> --architecture arm64 --protected none --host-start-floor-bytes 19669226335
+   --host-reserve-bytes 10737418240 --branch win/gpu-f1-attempt2 --session pc-f1-attempt2 --run-id
+   f1-attempt2-20261020` plus the seven input paths. It writes `invocation-contract.json` and the proposed
+   `attempt-authorization.json` here and prints both hashes; they join `main` (docs only).
+4. **The ruling.** A decision request to the operator carrying every token `attempt.check_ruling` requires: `ACCEPT ONE
+   PREFLIGHT ATTEMPT`, the contract path and SHA-256, the source commit, the run id, session and branch, `epoch <n>`,
+   the authorization file's SHA-256 and its path. The operator's ruling takes the next free number and is pushed to
+   `origin/main` (the launcher reads it from there).
+5. **A3, the live attempt.** The execution worktree is created from the accepted commit on `win/gpu-f1-attempt2`; the
+   launcher runs from native `pwsh` as `pc-f1-attempt2` with the inputs above; `INVOCATION-CONTRACT-PASS` precedes the
+   first WSL effect; the receipt carries the host identity; the evidence commits land on the branch and join.
 
-# Scope and proof boundary
+## 5. Carried from node R (open advisories), and what A does with them
 
-Goal: a hash-bound, reviewable next-attempt decision request. Done when:
-committed and pushed with measured offline checks and unresolved authority
-fields. Not in scope: source repair, authorization activation, WSL, registry,
-distro lifecycle, full ring or main merge. Tier T1; fan-out cap one; independent
-review belongs to the parent. Surface list: current Git blobs and receipts ->
-request JSON -> decision text -> Mac ruling -> later admission/source work.
-There is no product data model or UI change. The bounded execution graph is in
-`docs/plans/f1-attempt2-offline-request.md`.
+- Fingerprint confirmation of the cloud-image keyring against Ubuntu's published keys by a reviewer other than the
+  author: **required before step 5** (recorded in `../inputs/README.md` when done).
+- Test-count floors in the verification runner; message-matching `Refuses` helpers; a hashed copy of the packet run
+  from the live folder; collapsing the `$freshAttempt` conditionals now that a contract without `attempt` is refused:
+  accepted residual risks for this attempt, listed for the packet's next repair cycle.
+
+## 6. Residual risks (named, from plan section 8)
+
+The first arm64 `simulate` may add rows the probe did not see (never a refusal of a pinned root the index carries);
+the `nvcc` `sm_` list and the x64 `gpgv.exe` layout stay Inferred; lock drift at attempt time refuses by name. A red
+in the live attempt is a failed attempt with an immutable receipt, never a retry inside the same authorization.
