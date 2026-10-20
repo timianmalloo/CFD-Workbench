@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-19T23:26:03Z",
+  "generated": "2026-10-20T00:13:18Z",
   "audit": [
     {
       "actor": null,
@@ -40041,6 +40041,51 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-19T23:22:28Z",
       "duration_seconds": 215.0
+    },
+    {
+      "id": "al-01M5B8D5TS4CCS424X4NW09V9Q",
+      "shortname": "start R",
+      "datetime": "2026-10-19T23:37:03Z",
+      "session": "pc-laptop-leader",
+      "prompt": "start R",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M5BAFJ07NYC24Z60ZCSHJ4P7",
+      "shortname": "join-f1-r-review",
+      "datetime": "2026-10-20T00:13:18Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of f1/r-review into main",
+      "summary": "Plan node R: two independent Adversary reviews over main 9e047b28 with the V receipt (Test Architect; Security & Identity Architect), both ACCEPT WITH CONDITIONS and no veto; cycle 1 applied every condition (pin oracle and every-pin absence; AST structural tests with the launcher order; the contract read once with --expected-sha256 on verify; the protected identity refused under none, DR-4 requested; the legacy no-attempt contract retired; gpg with its own home; host-bindings on any drive; keyring provenance README); cycle 2 both CONFIRMED by mutation and probe, the joint follow-up (a failing input for --expected-sha256) applied; the V receipt regenerated on the reviewed commit; reports verbatim in docs/reviews/f1-rescope-r237-node-r.md; R is ACCEPT recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/f1-rescope-r237-node-r.md",
+        "docs/proof/win-gpu-f1-preflight/rescope/verification-v.json"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "land plan node R (independent review, conditions applied, recorded) on main",
+      "done_when": "the reviewers' verdicts recorded, every condition confirmed by a reviewer other than the author, the join readiness-green and pushed",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-20T00:09:43Z",
+      "duration_seconds": 215.0
     }
   ],
   "changes": [
@@ -43328,6 +43373,15 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M5ABMATB97Y7YJCWJXJ9SRK3",
       "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M5B98APSGDNBY2HRXKX471BY",
+      "ts": "2026-10-19T23:51:53Z",
+      "from": "pc-laptop-leader",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M5B98AP83B5XVPCCE5MEE2HB",
+      "session": "pc-laptop-leader"
     }
   ]
 };
