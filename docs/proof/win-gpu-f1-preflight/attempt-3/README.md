@@ -88,3 +88,26 @@ host floors 19669226335 / 10737418240, the seven inputs at the pins of `../attem
 Those of `../attempt-2/README.md` section 6, plus: the generalized attempt gates (`-ge 2`) are proven by the suites on
 both runtimes, not by a live run; the first live run under them is this attempt. A red in the live attempt is a
 failed attempt with an immutable receipt and the cap of Ruling 225 is reached.
+
+## 7. Outcome (2026-10-20): attempt 3 refused before any WSL effect; the cap of Ruling 225 is reached
+
+Ruling 244 accepted the pair; the execution worktree was created from `6b1bf813` and the launcher ran from native
+pwsh 7.6.7 (arm64) as `pc-f1-attempt3` with no Bash-tool call in flight. Recorded in order: `INVOCATION-CONTRACT-PASS`,
+`HOST-IDENTITY-PASS architecture=arm64 cpu=1 gpu=2`, the leader supervisor started and renewed (`leader-renew-events.jsonl`,
+`expires_in_before` 287 s), `ROOTFS-SIGNED-PASS`, the activation and immediately-pre-live leader and keepalive samples,
+the final precheck (`final-precheck.json`: host free 3,998,435,037,184 bytes against the 19,669,226,335 floor), the
+first `wsl --list --quiet` registered as an own launcher. Then `F1-OWN-LAUNCHER-IDENTITY` at second 10 on the second
+`wsl --list --quiet`: `Register-AttemptLauncher` equates the CIM creation time (microseconds) with `Process.StartTime`
+(100-nanosecond ticks); the first child's ticks happened to end in zero, the second's did not. Stage `not-started`;
+no target was created; the registrations are `Ubuntu-24.04` only; `D:\Projects\CFD-Workbench-wsl` does not exist.
+
+The cleanup refused the same identity on its own `wsl --list` children (`owner stop unproved`), committed the
+checkpoint (`0e24418f`), and could not bind it: this run root had no `-text` rule in `.gitattributes`, Git normalized
+two captures to LF, `manifest.py verify` refused and the final commit was withheld (`MAC-DECISION-REQUIRED:
+checkpoint unproved; archive deletion/unregister withheld`). The receipts are `checkpoint/` (the launcher's commit)
+and `live/` (`cleanup-receipt.json` is the classified receipt Ruling 244 names), re-committed with their captured
+bytes under the added attribute rules (`1d2b9695`, `GIT-BINDING-PASS` on that commit).
+
+Attempts consumed under Ruling 225: 1, 2 and 3. The cap is reached; a further attempt needs the operator's new cap.
+The two defects are recorded in `docs/lessons/defect-classes.md` (TIMESTAMP-IDENTITY-ACROSS-PRECISIONS;
+RAW-CAPTURE-BLOB-MISMATCH recurrence 4) with their controls proposed, not applied: the track's repair cap is spent.
