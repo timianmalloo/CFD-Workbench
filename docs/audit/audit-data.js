@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-20T16:53:34Z",
+  "generated": "2026-10-20T17:38:01Z",
   "audit": [
     {
       "actor": null,
@@ -40394,6 +40394,48 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-20T16:52:21Z",
       "duration_seconds": 73.0
+    },
+    {
+      "id": "al-01M5D54408956A5W92QWHPZGRZ",
+      "shortname": "rule a new cap of 3, then start with the dry rehearsal",
+      "datetime": "2026-10-20T17:18:09Z",
+      "session": "pc-laptop-leader",
+      "prompt": "rule a new cap of 3, then start with the dry rehearsal",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M5D68FP1VVDWK3SEAKPT993G",
+      "shortname": "f1-r245-dry-rehearsal",
+      "datetime": "2026-10-20T17:38:01Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of win/f1-r245-dry-rehearsal into main",
+      "summary": "Ruling 245 (a new cap of three attempts 4-6); the dry rehearsal of the launcher Windows-side paths red at the attempt-3 source and green at this one; controls: own-child identity at microsecond precision, capture attributes asserted by the launcher and written by prepare; FRESH_ATTEMPTS to 6; 160 Python tests, 10 PS suites x 2 runtimes; verification receipt on e65679db recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Give the next attempt a rehearsal that fails before an attempt is spent, and land the two controls the attempt-3 refusal named",
+      "done_when": "ring green on both runtimes; F1-VERIFICATION-GREEN with the dry-rehearsal step; check-docs green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-20T17:34:17Z",
+      "duration_seconds": 224.0
     }
   ],
   "changes": [
@@ -43752,6 +43794,24 @@ window.AUDIT_DATA = {
       "to": "pc-laptop-leader",
       "kind": "ruling",
       "ref": "req-01M5D1NAHCWEY7FZA9SZG2FV9T",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M5D54MV4YTY14HGK6WHX8NT9",
+      "ts": "2026-10-20T17:18:27Z",
+      "from": "pc-laptop-leader",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M5D54MTM835444J1K02VKXBS",
+      "session": "pc-laptop-leader"
+    },
+    {
+      "id": "mail-01M5D55CM6B66SEVSEBY9DJQZM",
+      "ts": "2026-10-20T17:18:51Z",
+      "from": "operator-timianmalloo",
+      "to": "pc-laptop-leader",
+      "kind": "ruling",
+      "ref": "req-01M5D54MTM835444J1K02VKXBS",
       "session": "operator-timianmalloo"
     }
   ]
