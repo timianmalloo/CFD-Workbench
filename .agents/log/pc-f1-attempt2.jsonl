@@ -1,0 +1,2 @@
+{"agent": "pc-f1-attempt2", "at": 1792509634.8663414, "kind": "session-start", "path": "-", "seq": 1, "session": "pc-f1-attempt2", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-f1-attempt2"}
+{"agent": "pc-f1-attempt2", "at": 1792509830.258652, "kind": "session-end", "path": "-", "seq": 2, "session": "pc-f1-attempt2", "wi": "WI-0", "worktree": "CFD-Workbench-f1-attempt2"}

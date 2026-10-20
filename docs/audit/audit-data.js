@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-20T15:08:49Z",
+  "generated": "2026-10-20T15:25:54Z",
   "audit": [
     {
       "actor": null,
@@ -40202,6 +40202,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-20T15:07:15Z",
       "duration_seconds": 94.0
+    },
+    {
+      "id": "al-01M5CYPJJJVHYE39N8NC4024XK",
+      "shortname": "f1-a3-attempt2-evidence",
+      "datetime": "2026-10-20T15:25:54Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of win/gpu-f1-attempt2 into main",
+      "summary": "Attempt 2 of Ruling 225 ran under Ruling 242 and refused before any WSL effect: F1-RENEW-START-FAILED (leader_supervisor.admit projects five input names, contract.verify reads six since C4); checkpoint f1d3a22f and final 32e6e384 join main recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land the attempt-2 failure evidence on main unchanged",
+      "done_when": "main carries the two launcher commits; RING-SKIPPED; check-docs green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-20T15:24:42Z",
+      "duration_seconds": 72.0
     }
   ],
   "changes": [
