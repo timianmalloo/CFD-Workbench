@@ -67,7 +67,29 @@ B2 licence map under the execution worktree. The launcher hashes every one befor
    again there; the renewer stops; the launcher runs from native `pwsh` as `pc-f1-attempt4`. No Bash-tool call and no
    bash-based watcher while it runs. The evidence commits land on the branch and join `main`.
 
-## 4. Residual risks
+## 4. The pair (2026-10-20)
+
+Produced by `contract.py prepare --attempt 4` in a clean worktree at `main` = source commit
+`ace7b708c1d9aa873fe961c84f782d373461c549` (`PREPARATION-GENERATED outputs=2 inputs=7 architecture=arm64 protected=none
+live_authority=False`, `capture_attributes_added=3`).
+
+| File | SHA-256 | Status |
+|---|---|---|
+| `invocation-contract.json` | `2565960a1df5cafbd0acd4ef882fde50eb8c6a5c6c972d1e0077d53659826e90` | committed here |
+| `attempt-authorization.json` (proposal) | `83a8bba1c2d8709ebe596dc1af346ac8f9c3ad4ad532dcd447c2be9b3760b8b2` | committed here; authorizes nothing |
+| `attempt-authorization.json` (accepted) | `5c01cba89c0f20ee83f21bf0b12a9569b1905db1f7830f41e62e39f9ced44332` | the proposal re-projected by `attempt.authorization` with status accepted and ruling 246; committed in place of the proposal after the ruling |
+
+Bindings: attempt 4, leader `mac` at epoch 5, run id `f1-attempt4-20261020`, session `pc-f1-attempt4`, branch
+`win/gpu-f1-attempt4`, run root `docs/proof/win-gpu-f1-preflight/attempt-4`, execution worktree
+`D:\Projects\CFD-Workbench-f1-attempt4`, arm64, protected none, target `D:\Projects\CFD-Workbench-wsl\cfdw-petsc-cuda132-f1`,
+host floors 19669226335 / 10737418240, the seven inputs at the pins of `../attempt-2/inputs-receipt.json`.
+
+**The rehearsal for this run root** (`rehearsal-prepare.json`): the first run, with the attribute rules written but
+not yet committed, was red on `bind` only (the scratch worktree reads `.gitattributes` from HEAD): the rehearsal
+distinguishes a rule in the working tree from a rule on the commit the attempt will run from. After the pair commit
+it is `F1-DRY-REHEARSAL-GREEN` (own-child 5/5, attributes 3/3, `GIT-BINDING-PASS`).
+
+## 5. Residual risks
 
 Those of `../attempt-3/README.md` section 6. The rehearsal covers the own-child registration, the capture attributes
 and the bind; the launcher paths after target creation (the WSL stages, the owned stop, the final freeze) have still
