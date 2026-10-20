@@ -1,0 +1,28 @@
+{
+  "architecture": "arm64",
+  "cpu": [
+    "NVIDIA RTX Spark N1X (6144-core GPU, 20-core CPU)"
+  ],
+  "gpgv": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\gpgv.exe",
+    "version": "gpgv (GnuPG) 2.4.9"
+  },
+  "gpu": [
+    "NVIDIA RTX Spark N1X (6144-core Blackwell RTX GPU)",
+    "NVIDIA NPU"
+  ],
+  "observed_utc": "2026-10-20T15:21:10.8217099+00:00",
+  "recorded_utc": "2026-10-20T15:21:12Z",
+  "refusal": null,
+  "schema": "cfdw-f1-host-identity/1",
+  "windows": {
+    "os_architecture": "Arm64",
+    "os_architecture_cim": "ARM 64-bit Processor",
+    "os_version": "10.0.28000.0",
+    "powershell_edition": "Core",
+    "powershell_version": "7.6.7",
+    "process_architecture": "Arm64",
+    "processor_architecture_env": "ARM64",
+    "processor_architew6432_env": ""
+  }
+}
