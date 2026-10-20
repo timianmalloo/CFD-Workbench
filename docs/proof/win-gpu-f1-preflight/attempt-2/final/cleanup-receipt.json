@@ -1,0 +1,28 @@
+{
+  "schema": "cfdw-f1-r217-cleanup/1",
+  "run_id": "f1-attempt2-20261020",
+  "target": "cfdw-petsc-cuda132-f1",
+  "protected": "none",
+  "guard": "not applicable",
+  "initiating_error": "F1-RENEW-START-FAILED",
+  "cleanup_errors": [
+    "final identity: F1-EXCLUSIVITY-REFUSED: additional or changed WSL actor",
+    "F1-RENEW-EXIT-RECEIPT-MISSING",
+    "leader evidence: F1-LEADER-EVIDENCE-MISSING"
+  ],
+  "checkpoint_sha": "f1d3a22fd267496e9ab53b65c1813d714d95e5bf",
+  "elapsed_seconds": 6.9924423,
+  "target_absent": "Not applicable",
+  "creation_uncertain": false,
+  "finalization": {
+    "errors": [],
+    "owned_stopped": true,
+    "checkpoint_proved": true,
+    "cleanup_proved": true,
+    "snapshot_proved": true,
+    "guard_stopped": true,
+    "guard_bound": true
+  },
+  "affinity": "Linux CPU0-1 or guard CPU0, nice10; host lifecycle/Git N/A",
+  "leader_evidence": "Not recorded"
+}
