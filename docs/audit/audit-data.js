@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-20T16:41:19Z",
+  "generated": "2026-10-20T16:53:34Z",
   "audit": [
     {
       "actor": null,
@@ -40367,6 +40367,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-20T16:40:07Z",
       "duration_seconds": 72.0
+    },
+    {
+      "id": "al-01M5D3Q2R3YGHKS9QPRJVJ8PZM",
+      "shortname": "f1-attempt3-evidence",
+      "datetime": "2026-10-20T16:53:34Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of win/gpu-f1-attempt3 into main",
+      "summary": "Attempt 3 of Ruling 225 ran under Ruling 244 and refused before any WSL effect: F1-OWN-LAUNCHER-IDENTITY (CIM microseconds vs Process.StartTime ticks) and a checkpoint bind refused by Git normalization (no -text rule for the attempt-3 run root); the cap is reached; evidence byte-exact with the attribute rules; two register entries, ledger, README outcome recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land the attempt-3 failure evidence on main byte-exact and record the classes",
+      "done_when": "main carries the launcher checkpoint, the captured bytes and the live receipts; capture checks green; check-docs green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-20T16:52:21Z",
+      "duration_seconds": 73.0
     }
   ],
   "changes": [
