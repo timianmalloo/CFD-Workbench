@@ -58,7 +58,7 @@ class PreparationTests(unittest.TestCase):
         self.args = argparse.Namespace(
             command='prepare', repo=self.repo, contract=output / 'invocation-contract.json',
             authorization=output / 'attempt-authorization.json', source_commit=self.git('rev-parse', 'HEAD'),
-            execution_worktree=self.worktree, leader_epoch=8, requested_ruling=241,
+            execution_worktree=self.worktree, leader_epoch=8, requested_ruling=241, attempt=2,
             architecture=self.token, protected='none', host_start_floor_bytes=30000000000, host_reserve_bytes=10000000000,
             branch='win/gpu-f1-attempt2', session='pc-f1-attempt2', run_id='f1-attempt2-20261019', **values)
 
@@ -106,6 +106,37 @@ class PreparationTests(unittest.TestCase):
             attempt.check_authorization(auth, document, printed['contract_sha256'])
         self.assertFalse(Path(self.worktree).exists())
         self.assertEqual(set(self.outputs()), {'invocation-contract.json', 'attempt-authorization.json'})
+
+    def test_Prepare_AttemptThree_DerivesRunRootAndNames(self):
+        # Ruling 243 (2): the pair for attempt 3 lands under attempt-3 with the names derived from the number.
+        output = self.repo / attempt.PREFIX / 'attempt-3'
+        output.mkdir()
+        (output / '.keep').write_bytes(b'fixture\n')
+        self.git('add', '.')
+        self.git('-c', 'user.name=Offline Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'attempt-3 folder')
+        self.args.source_commit = self.git('rev-parse', 'HEAD')
+        self.args.attempt = 3
+        self.args.contract = output / 'invocation-contract.json'
+        self.args.authorization = output / 'attempt-authorization.json'
+        self.args.branch, self.args.session, self.args.run_id = 'win/gpu-f1-attempt3', 'pc-f1-attempt3', 'f1-attempt3-20261020'
+        printed = self.prepare()
+        document = json.loads(self.args.contract.read_bytes())
+        self.assertEqual((document['attempt'], document['run_root']), (3, attempt.PREFIX + '/attempt-3'))
+        self.assertEqual((document['execution_branch'], document['session'], document['run_id']),
+                         ('win/gpu-f1-attempt3', 'pc-f1-attempt3', 'f1-attempt3-20261020'))
+        auth = json.loads(self.args.authorization.read_bytes())
+        self.assertEqual(auth, attempt.authorization(document, printed['contract_sha256'], ruling=241))
+        self.assertEqual(set(self.outputs()), {'invocation-contract.json', 'attempt-authorization.json'})
+
+    def test_Prepare_AttemptMissingOrOutsideScheme_RefusesWithoutOutputs(self):
+        for value in (1, 4, '3', True, 3.0, None):
+            if value is None:
+                del self.args.attempt
+            else:
+                self.args.attempt = value
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                contract.prepare(self.args)
+            self.assertEqual(self.outputs(), {})
 
     def test_Prepare_DeclaredProtected_ProjectsTheBinding(self):
         self.args.protected = 'cfdw-openfoam2512'

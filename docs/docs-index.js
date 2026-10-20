@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ca2c7a00d07cb2bd2187bada6d4d7bae9512306ad245ee68837e50507a78c8ef"
+      "sourceSha256": "fccab20c78aa9685a01b61973249c10c2ebc1b72d7230c75fae4c5a8cd32f0a7"
     },
     {
       "id": "domain-experts",
@@ -9426,7 +9426,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "835c39d85b79f52791d879aacc7b048e7a21c02d45f45018eee5909e8e0b9275"
+      "sourceSha256": "3017855924666bdad98aae8e560ee630efd3f43c1e48ebc6dd9bd3a967124483"
     },
     {
       "id": "kb-hw-glossary",
@@ -11573,7 +11573,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6f675946463ac7073aa87a980e1c6b9dc48d3cc3375eb6c1425a8fbeec929cb0"
+      "sourceSha256": "25aa58c8891416666e94a4235bc586827a8634c024de299f623da4c6ec898ca9"
     },
     {
       "id": "plan-seam-repair-1",
@@ -19238,7 +19238,51 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "602f4734d205b7000a4e0678b39c01f94d7eb64f0a09a3092e038e1979030136"
+      "sourceSha256": "0ab6cd196a4a2810daf0cda9ffc0758e2227e464b5aeba1e2f64fb5221305cba"
+    },
+    {
+      "id": "proof-win-gpu-f1-attempt3-plan",
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-3/README.md",
+      "title": "F1 attempt 3: the last attempt under Ruling 225 (Ruling 243)",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@pc-laptop-leader",
+      "phase": "preflight",
+      "reviewBy": "2026-11-18",
+      "reviewSuggested": [],
+      "summary": "Attempt 3 of Ruling 225, the last under its three-attempt cap, prepared on the Windows ARM64 laptop under Ruling 243: the packet generalized to the contract's attempt number, the bash.exe rule of DR-5 (a), the selections, the inputs (unchanged from attempt 2), the pair produced by contract.py prepare, and the live authorization request.",
+      "tags": [
+        "windows",
+        "arm64",
+        "offline",
+        "f1",
+        "attempt-3",
+        "decision-request"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-f1-rescope-r237",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-gpu-f1-attempt2-offline-request",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-inputs",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3cd87b52769179ba6fb3f4174156c1bc24f71cfccb41c608933466b3630d4af0"
     },
     {
       "id": "proof-win-gpu-f1-cleanup-recovery-cycle1-author",
@@ -19348,7 +19392,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "12e6a3592b02bba93cea864dda2edc83c321ef1e1b7782fcd315708b9349d27a"
+      "sourceSha256": "a3af9749027ea2a0f0ebae1bdb8eadd72d5bc740e7af8b5fc12ad54d1c0a72d1"
     },
     {
       "id": "proof-win-gpu-f1-offline-followups",
@@ -22993,5 +23037,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "184a8cf3f00ae8cca530061d1d7c190271496c32d4124d29d8bac064a6f08891"
+  "graphSha256": "7fcfec9ab10cdbf321a2cb57341600bb29f652b9d82e56b21d997a8f24927d60"
 };

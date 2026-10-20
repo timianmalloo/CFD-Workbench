@@ -349,6 +349,18 @@ carries the run itself.
   NAME-MATCH-COUNTS-A-FOREIGN-TOOL-AS-AN-ACTOR. Open: DR-5 (`req-01M5CYY968W5KQBH0HE903NZT9`, how the scan treats Git's
   `bash.exe`); the next attempt needs its own pair at the repaired source and its own ruling. Duration: the join's audit
   entry.
+- **A, Ruling 243 (2026-10-20).** Planned: DR-5 ruled, attempt 3 prepared. Actual: the operator ruled DR-5 as (a)
+  and directed attempt 3, the last under Ruling 225's cap. Finding on the way: the packet bound the fresh-attempt scheme
+  to the literal 2 in six places (`attempt.check_binding`, `contract.prepare`/`verify`, `leader_supervisor`,
+  `Control.ps1 Get-InvocationRunRoot`, eleven launcher gates and three literal `2` arguments), so "prepare attempt 3"
+  needed the scheme keyed once: `attempt.FRESH_ATTEMPTS = (2, 3)`, `contract.fresh_attempt`, `prepare --attempt`, names
+  derived from the number, the launcher gates `-ge 2`. Red-first on both sides: attempt 3 admitted with derived names and
+  refused with mixed ones; `--attempt` missing or foreign refuses without outputs; the supervisor's entry admits 2 and 3
+  only; no literal `== 2` gate left in the packet's Python (a structural test); `Get-InvocationRunRoot` for attempt 3;
+  the `bash.exe` path rule with five planted cases. One repair of the repair: a redundant attempt-number guard added to
+  the launcher changed the reviewed admission refusal order (`f1_attempt_controls.ps1` showed it) and was dropped, since
+  `Get-InvocationRunRoot` already refuses a foreign number. `docs/proof/win-gpu-f1-preflight/attempt-3/README.md` is the
+  re-plan. Duration: the join's audit entry.
 
 ## 10. Gate record
 

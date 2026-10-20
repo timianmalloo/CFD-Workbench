@@ -97,14 +97,15 @@ function Get-ContractHostFloors([object]$ContractData) {
 function Get-InvocationRunRoot([object]$ContractData, [string]$RepoRoot, [string]$RunId, [string]$AgentSession) {
     if ($null -eq $ContractData.psobject.Properties['attempt']) { return (Join-Path $RepoRoot 'docs\proof\win-gpu-f1-preflight\run-1') }
     if ($ContractData.attempt -is [int] -or $ContractData.attempt -is [long]) {
-        if ($ContractData.attempt -eq 2) {
+        if ($ContractData.attempt -in @(2, 3)) {   # Ruling 243 (2): the fresh-attempt scheme, names derived from the number
+            $n = [int]$ContractData.attempt
             if (($ContractData.leader_epoch -isnot [int] -and $ContractData.leader_epoch -isnot [long]) -or
                 $ContractData.leader_epoch -le 0 -or $ContractData.leader -cne 'mac' -or
-                $ContractData.execution_branch -cne 'win/gpu-f1-attempt2' -or
-                $ContractData.session -cne 'pc-f1-attempt2' -or $AgentSession -cne $ContractData.session -or
-                $ContractData.run_id -cne $RunId -or $RunId -cnotmatch '^f1-attempt2-[0-9]{8}$' -or
-                $ContractData.run_root -cne 'docs/proof/win-gpu-f1-preflight/attempt-2') { throw 'attempt-2 binding differs' }
-            return (Join-Path $RepoRoot 'docs\proof\win-gpu-f1-preflight\attempt-2')
+                $ContractData.execution_branch -cne "win/gpu-f1-attempt$n" -or
+                $ContractData.session -cne "pc-f1-attempt$n" -or $AgentSession -cne $ContractData.session -or
+                $ContractData.run_id -cne $RunId -or $RunId -cnotmatch "^f1-attempt$n-[0-9]{8}$" -or
+                $ContractData.run_root -cne "docs/proof/win-gpu-f1-preflight/attempt-$n") { throw 'fresh attempt binding differs' }
+            return (Join-Path $RepoRoot "docs\proof\win-gpu-f1-preflight\attempt-$n")
         }
     }
     if ($ContractData.attempt -ne 1 -or $ContractData.leader_epoch -ne 8 -or
@@ -126,7 +127,7 @@ function Get-BoundTargetKey([object[]]$Registration, [string]$TargetPath, [strin
         ([string]$row.BasePath).Replace('\\?\', '').TrimEnd('\') -ine $TargetPath -or
         $key -ieq '{b7566a82-9cee-47ce-a246-f83632353cea}' -or
         $key -ieq '{e958c4d5-ae78-4b50-a634-7102f334d3aa}' -or
-        ($AttemptNumber -eq 2 -and $key -ieq '{e874e10f-c7b9-4a2b-a03b-87ad52fb9c41}') -or
+        ($AttemptNumber -ge 2 -and $key -ieq '{e874e10f-c7b9-4a2b-a03b-87ad52fb9c41}') -or
         ($ExpectedKey -and $key -ine $ExpectedKey)) { throw 'created target GUID/path binding changed' }
     return $key
 }
@@ -142,7 +143,7 @@ function Assert-FreshRegistrations([object[]]$Rows, [string[]]$Names, [bool]$Pat
     foreach ($row in $Rows) {
         if ($row.DistributionName -ceq 'cfdw-petsc-cuda132-f1' -or
             $row.PSChildName -ieq '{e958c4d5-ae78-4b50-a634-7102f334d3aa}' -or
-            ($AttemptNumber -eq 2 -and $row.PSChildName -ieq '{e874e10f-c7b9-4a2b-a03b-87ad52fb9c41}') -or
+            ($AttemptNumber -ge 2 -and $row.PSChildName -ieq '{e874e10f-c7b9-4a2b-a03b-87ad52fb9c41}') -or
             ([string]$row.BasePath).Replace('\\?\', '').TrimEnd('\') -ieq $TargetPath.TrimEnd('\')) {
             throw 'fresh target registration/GUID/path absence unproved'
         }
@@ -201,10 +202,20 @@ function Assert-AttemptExclusivity([object[]]$Processes, [object[]]$Owned, [stri
         (Get-ProcessCreationUtc $parent[0].CreationDate) -cne '2026-10-08T17:02:23.1776050+00:00')) {
         throw 'F1-EXCLUSIVITY-REFUSED: exact protected keepalive identity unavailable'
     }
+    $wslBash = Join-Path $env:SystemRoot 'System32\bash.exe'
     foreach ($row in $Processes) {
         if ($row.ProcessId -in $keepalivePids) { continue }
         # Host services/VM infrastructure are not user launchers. Include shells whose command invokes WSL.
-        $actor=$row.Name -imatch '^(wsl|bash|ubuntu(?:[0-9.]*)|debian|kali)\.exe$' -or
+        # Ruling 243 (1): bash.exe is WSL's legacy launcher only under System32; Git's MSYS bash (the agent harness keeps
+        # it alive) is not a WSL actor unless its command line invokes wsl. A bash.exe whose path is unknown stays an actor.
+        $name = [string]$row.Name
+        $bashPath = ''
+        if ($name -imatch '^bash\.exe$') {
+            $pathProperty = $row.PSObject.Properties['ExecutablePath']
+            if ($null -ne $pathProperty -and $null -ne $pathProperty.Value) { $bashPath = [string]$pathProperty.Value }
+            if ([string]::IsNullOrWhiteSpace($bashPath)) { $bashPath = $wslBash }
+        }
+        $actor=$name -imatch '^(wsl|ubuntu(?:[0-9.]*)|debian|kali)\.exe$' -or $bashPath -ieq $wslBash -or
             ([string]$row.CommandLine -imatch '(?:^|[\\\s"''])wsl(?:\.exe)?(?:[\s"'']|$)')
         if (-not $actor) { continue }
         $bound=@($Owned | Where-Object {$_.pid -eq $row.ProcessId})

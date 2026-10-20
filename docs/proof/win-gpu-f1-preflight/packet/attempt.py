@@ -10,6 +10,7 @@ import architecture
 import contract
 
 PREFIX = 'docs/proof/win-gpu-f1-preflight'
+FRESH_ATTEMPTS = (2, 3)   # Ruling 243 (2): the fresh-attempt scheme keys on the contract's attempt number; names derive from it
 EXTERNAL = PREFIX + '/recovery/check_cache.py'
 COORDINATOR = 'docs/ai-forward-pack/scripts/coord-core.py'
 PROTECTED_KEY = '{b7566a82-9cee-47ce-a246-f83632353cea}'
@@ -66,17 +67,17 @@ FORBIDDEN = ['dpkg-install', 'apt-install', 'petsc-source-fetch', 'petsc4foam-so
 
 def check_binding(document, run_id=None):
     number = document.get('attempt')
-    if type(number) is not int or number not in (1, 2):
-        raise ValueError('only reviewed attempt 1 or 2 is admitted')
+    if type(number) is not int or number not in (1,) + FRESH_ATTEMPTS:
+        raise ValueError('only reviewed attempt 1 or a fresh attempt 2 or 3 is admitted')
     expected = dict(leader='mac', leader_epoch=8, execution_branch=f'win/gpu-f1-r225-attempt{number}',
                     session=f'pc-f1-r225-attempt{number}', run_root=f'{PREFIX}/attempt-{number}')
     pattern = f'r225-attempt{number}-epoch8-[0-9]{{8}}'
-    if number == 2:
+    if number in FRESH_ATTEMPTS:
         epoch = document.get('leader_epoch')
         if type(epoch) is not int or epoch <= 0:
             raise ValueError('attempt-2 epoch must be a positive integer')
-        expected.update(leader_epoch=epoch, execution_branch='win/gpu-f1-attempt2', session='pc-f1-attempt2')
-        pattern = r'f1-attempt2-[0-9]{8}'
+        expected.update(leader_epoch=epoch, execution_branch=f'win/gpu-f1-attempt{number}', session=f'pc-f1-attempt{number}')
+        pattern = rf'f1-attempt{number}-[0-9]{{8}}'
         worktree = document.get('execution_worktree', '')
         if (not isinstance(worktree, str) or not PureWindowsPath(worktree).is_absolute() or
                 str(PureWindowsPath(worktree)) != worktree or '..' in PureWindowsPath(worktree).parts or
@@ -103,7 +104,7 @@ def check_binding(document, run_id=None):
             raise ValueError('accepted input hash changed: ' + key)
     if document.get('allowed_signers') != SIGNERS:
         raise ValueError('exact accepted signer allowlists required')
-    external = {EXTERNAL, COORDINATOR} if number == 2 else {EXTERNAL}
+    external = {EXTERNAL, COORDINATOR} if number in FRESH_ATTEMPTS else {EXTERNAL}
     if set(document.get('external_sha256', {})) != external:
         raise ValueError('external deletion helper binding required')
     if any(not contract.SHA.fullmatch(value) for value in document['external_sha256'].values()):
@@ -128,7 +129,7 @@ def authorization(document, contract_sha, accepted=False, ruling=None):
                 attempt_count=1, failure_policy='stop; immutable failure receipt; no next attempt without its own ruling',
                 prerequisites=['live-mac-epoch8', 'exclusive-PC', 'continuous-PC-side-leader-renewal',
                                'target-name-registration-path-absent-before-creation', 'bind-new-GUID-for-rollback'])
-    if number == 2:
+    if number in FRESH_ATTEMPTS:
         if type(ruling) is not int or ruling <= 0:
             raise ValueError('attempt-2 authorization ruling must be a positive integer')
         value.update(requested_ruling=ruling, ruling=ruling if accepted else None,
