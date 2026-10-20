@@ -56,6 +56,8 @@ function Start-Process {
     $script:admissionChildren++
     $authAt = [Array]::IndexOf($ArgumentList, '--authorization')
     Require ($authAt -ge 0) 'entrypoint lost authorization forwarding'
+    $shaAt = [Array]::IndexOf($ArgumentList, '--expected-sha256')   # node R: the hash of the bytes the span parsed, never a second read
+    Require ($shaAt -ge 0 -and $ArgumentList[$shaAt+1] -ceq (Get-FileHash -Algorithm SHA256 -LiteralPath $Contract).Hash.ToLowerInvariant()) 'entrypoint lost the parsed-bytes hash'
     & pyOriginal -3 (Join-Path $PSScriptRoot 'f1_attempt_authority_probe.py') $Contract $ArgumentList[$authAt+1] $PacketRoot 2> $RedirectStandardError
     $exit = $LASTEXITCODE
     [pscustomobject]@{Handle=1;HasExited=$true;ExitCode=$exit;WaitForExit={param($milliseconds) return $true}} | ForEach-Object { $_ | Add-Member ScriptMethod WaitForExit {param($milliseconds) return $true} -Force; $_ }

@@ -211,3 +211,28 @@ architecture); input validated trusted-side (sha pins, fingerprint allowlists, p
 source/logs; no exploitable CVE on a shipped path (Inferred, offline); least privilege: user-level launcher, disposable
 root guest. RESIDUAL RISK: same-user local race windows (F1, F5); `none` on a B2 host with keepalive down (F2); legacy
 run-1 path (F3) until retired.
+
+## 3. Cycle 2: confirmations (2026-10-19, worktree at 26faf712)
+
+**Test Architect.** CONFIRMED for the four items (F1, F2, F3, F6), each Verified by mutation: dropping `gfortran-13`,
+`libopenmpi-dev` or `openfoam2512-tools=2512.0-2` from `transaction.PINS` in memory fails two cases each; in a scratch
+copy of the launcher, the pre-install `Assert-HostIdentity` turned into a comment, one receipt's `guard` pair replaced,
+and the signature moved after the guard each fail the AST suites (baseline copies green). Receipt `head` = `1b05e892`,
+`green`, `worktree_clean`, 152 tests / 20 runs. Ran at `26faf712`: Python 152 OK; 20 PowerShell runs all exit 0;
+host-bindings self-test and gate; the verification runner's self-test. One new finding from the repair (condition,
+Major, Verified): the `--expected-sha256` path had no failing input (no Python test passed `expected_sha256`; the
+admission stub ignored the argument). F4 and F5 stand as open advisories for node A.
+
+**Security & Identity Architect.** CONFIRMED (F1, F2, F3, F4, F6 met, each Verified; probe: `verify
+--expected-sha256 ffff…` refuses with `invocation contract byte/hash mismatch`, exit 5, before the branch check; the
+correct hash proceeds to `execution branch mismatch`). `contract.py` still carries the legacy `elif` for the run-1
+branch shape, but it no longer reaches a WSL effect: acceptable. Ran at `26faf712`: Python 152 OK; 20 PowerShell
+runs all passed. One gap to carry, not a cycle-3 trigger: the Python half of F1 had no negative unit test. F5 remains
+open for node A.
+
+**Disposition (author, same cycle).** The joint follow-up is applied: `tests/test_f1_attempt_admission.py`
+`RealVerify_ExpectedSha256_BoundToParsedBytes` (a wrong hash refuses before any process boundary and before the
+authorization check; the right hash proceeds to the next refusal) and the admission stub in
+`tests/f1_attempt_controls.ps1` requires the forwarded `--expected-sha256` to equal the hash of the file it wrote,
+on both runtimes. The track's repair cap (2 cycles) was not reached: cycle 1 applied the conditions, cycle 2
+confirmed them.
