@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-20T17:38:01Z",
+  "generated": "2026-10-20T17:47:40Z",
   "audit": [
     {
       "actor": null,
@@ -40436,6 +40436,48 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-20T17:34:17Z",
       "duration_seconds": 224.0
+    },
+    {
+      "id": "al-01M5D6M3PTNV6QC79B39NXSM63",
+      "shortname": "prepare attempt 4",
+      "datetime": "2026-10-20T17:44:22Z",
+      "session": "pc-laptop-leader",
+      "prompt": "prepare attempt 4",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M5D6T4E0W7H550ACZCSCMNT4",
+      "shortname": "f1-attempt4-pair",
+      "datetime": "2026-10-20T17:47:39Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of win/gpu-f1-attempt4-pair into main",
+      "summary": "The attempt-4 re-plan and pair (contract 2565960a..., proposal 83a8bba1..., accepted projection 5c01cba8...) from source ace7b708 at epoch 5, the run root attribute rules written by prepare, the dry rehearsal green for attempt-4 at the pair commit recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Commit the attempt-4 proposal so the live authorization ruling can name its bytes",
+      "done_when": "main carries the pair, the rules and the green rehearsal receipt; check-docs green; RING-SKIPPED",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-20T17:46:27Z",
+      "duration_seconds": 72.0
     }
   ],
   "changes": [
