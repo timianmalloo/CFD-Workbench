@@ -1,7 +1,7 @@
 {
   "schema": "cfdw-f1-rescope-verification/1",
-  "head": "0d30af2b3984ed56390c828f2b40a0f2a805b456",
-  "utc": "2026-10-20T15:57:52Z",
+  "head": "dcca99744b133b541062c4b9e199a2fad60e3c04",
+  "utc": "2026-10-20T15:59:58Z",
   "host": {
     "platform": "win32",
     "machine": "ARM64",
@@ -18,11 +18,11 @@
     "powershell_runs": 20,
     "powershell_suites_run": 10,
     "powershell_runtimes": 2,
-    "powershell_ms": 22244
+    "powershell_ms": 22773
   },
   "refusals": [],
-  "green": false,
-  "total_seconds": 104.5,
+  "green": true,
+  "total_seconds": 96.1,
   "steps": [
     {
       "name": "authority-scan",
@@ -36,7 +36,7 @@
       "command": "py -3 -B <repo>\\docs\\proof\\win-gpu-f1-preflight\\packet\\packet_selftest.py",
       "exit": 0,
       "seconds": 0.6,
-      "summary": "packet planted-failure self-test: PASS ring=offline-fast elapsed_seconds=0.511"
+      "summary": "packet planted-failure self-test: PASS ring=offline-fast elapsed_seconds=0.507"
     },
     {
       "name": "transaction-selftest",
@@ -63,22 +63,22 @@
       "name": "powershell-packet-selftest",
       "command": "pwsh -NoProfile -NonInteractive -File <repo>\\docs\\proof\\win-gpu-f1-preflight\\packet\\SelfTest.ps1",
       "exit": 0,
-      "seconds": 0.7,
-      "summary": "PowerShell packet self-test: PASS ring=offline-fast elapsed_seconds=0.372"
+      "seconds": 0.6,
+      "summary": "PowerShell packet self-test: PASS ring=offline-fast elapsed_seconds=0.327"
     },
     {
       "name": "python-unit",
       "command": "py -3 -m unittest discover -s tests -p test_f1_*.py",
       "exit": 0,
-      "seconds": 21.9,
-      "summary": "ran 159 tests in 21.634 s"
+      "seconds": 21.8,
+      "summary": "ran 159 tests in 21.569 s"
     },
     {
       "name": "powershell-suites",
       "command": "pwsh -NoProfile -NonInteractive -File <repo>\\tools\\run-f1-powershell-suites.ps1 -Scratch <scratch>\\ps",
       "exit": 0,
-      "seconds": 22.5,
-      "summary": "20 runs (10 suites x 2 runtimes) 22244 ms"
+      "seconds": 23.0,
+      "summary": "20 runs (10 suites x 2 runtimes) 22773 ms"
     },
     {
       "name": "host-bindings",
@@ -90,23 +90,23 @@
     {
       "name": "wsl-inline",
       "command": "py -3 <repo>\\tools\\check-wsl-inline.py",
-      "exit": 1,
-      "seconds": 1.9,
-      "summary": "exit 1"
+      "exit": 0,
+      "seconds": 0.3,
+      "summary": "wsl inline ok: 0 pinned hit(s) allowlisted, no inline `bash -c` through WSL"
     },
     {
       "name": "proof-pii",
       "command": "py -3 <repo>\\tools\\check-proof-pii.py",
       "exit": 0,
-      "seconds": 15.5,
+      "seconds": 3.2,
       "summary": "PROOF-PII ok: 0 Windows user paths or machine SIDs (1 allowlisted)"
     },
     {
       "name": "check-docs",
       "command": "py -3 <repo>\\tools\\check-docs.py",
-      "exit": 1,
-      "seconds": 62.6,
-      "summary": "check-wsl-inline self-test OK"
+      "exit": 0,
+      "seconds": 67.7,
+      "summary": "Documentation checks passed."
     }
   ],
   "worktree_clean": true,

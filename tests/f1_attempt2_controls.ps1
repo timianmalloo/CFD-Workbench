@@ -72,6 +72,6 @@ $noPath=[pscustomobject]@{ProcessId=78;ParentProcessId=1;Name='bash.exe';Creatio
 Refuses {Assert-AttemptExclusivity @($noPath) @() 'none'}
 $emptyPath=$gitBash.psobject.Copy();$emptyPath.ExecutablePath=$null
 Refuses {Assert-AttemptExclusivity @($emptyPath) @() 'none'}
-$invoking=$gitBash.psobject.Copy();$invoking.CommandLine='"C:Program FilesGitSrbinbash.exe" ./probe.sh wsl -d cfdw-petsc-cuda132-f1'
+$invoking=$gitBash.psobject.Copy();$invoking.CommandLine='"C:\Program Files\Git\usr\bin\bash.exe" ./probe.sh wsl -d cfdw-petsc-cuda132-f1'
 Refuses {Assert-AttemptExclusivity @($invoking) @() 'none'}
 Write-Output ('attempt2 controls PASS wsl_launches=0 elapsed_seconds={0:F3}' -f $clock.Elapsed.TotalSeconds)
