@@ -1,0 +1,46 @@
+{
+  "schema": "cfdw-f1-dry-rehearsal/1",
+  "utc": "2026-10-20T17:46:04.4524866+00:00",
+  "head": "693c1c926c0a4b8f912c380723698fea3a978817",
+  "run_root": "docs/proof/win-gpu-f1-preflight/attempt-4",
+  "powershell_version": "7.6.7",
+  "process_architecture": "Arm64",
+  "repetitions": 5,
+  "result": "green",
+  "steps": [
+    {
+      "name": "own-child",
+      "ok": true,
+      "summary": "registrations 5/5 passed",
+      "seconds": 0.6,
+      "refused": 0,
+      "samples": [
+        "ok",
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ]
+    },
+    {
+      "name": "attributes",
+      "ok": true,
+      "summary": "3/3 capture folders have text unset (docs/proof/win-gpu-f1-preflight/attempt-4/checkpoint/probe.txt: text: unset; docs/proof/win-gpu-f1-preflight/attempt-4/final/probe.txt: text: unset; docs/proof/win-gpu-f1-preflight/attempt-4/live/probe.txt: text: unset)",
+      "seconds": 0.657,
+      "run_root": "docs/proof/win-gpu-f1-preflight/attempt-4",
+      "lines": [
+        "docs/proof/win-gpu-f1-preflight/attempt-4/checkpoint/probe.txt: text: unset",
+        "docs/proof/win-gpu-f1-preflight/attempt-4/final/probe.txt: text: unset",
+        "docs/proof/win-gpu-f1-preflight/attempt-4/live/probe.txt: text: unset"
+      ]
+    },
+    {
+      "name": "bind",
+      "ok": true,
+      "summary": "GIT-BINDING-PASS commit=2a62f7fb3ad7cdc876754097fb56ad9c3f7fa96b files=4",
+      "seconds": 1.373,
+      "run_root": "docs/proof/win-gpu-f1-preflight/attempt-4"
+    }
+  ],
+  "line": "F1-DRY-REHEARSAL-GREEN run_root=docs/proof/win-gpu-f1-preflight/attempt-4 head=693c1c926 own_child=5/5 attributes=ok bind=ok total=1.4 s"
+}
