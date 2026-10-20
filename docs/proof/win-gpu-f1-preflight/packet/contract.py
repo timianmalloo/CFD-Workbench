@@ -116,6 +116,12 @@ def check_contract_fields(data: dict) -> None:
         raise ValueError("execution branch absent")
 
 
+def fresh_attempt(document) -> bool:
+    """Ruling 243 (2): a contract of the fresh-attempt scheme (attempt 2 or 3); the number is keyed once in attempt.py."""
+    import attempt
+    return document.get('attempt') in attempt.FRESH_ATTEMPTS
+
+
 def signer_is_allowed(lines: list[str], allowed: set[str]) -> bool:
     signatures = []
     for line in lines:
@@ -188,7 +194,7 @@ def verify(args: argparse.Namespace) -> None:
     if runtime is not None:
         # Only the supervisor's already-created evidence is exempt. All source,
         # authority and input checks below remain the same mutation admission.
-        if document.get('attempt') != 2 or runtime.resolve(strict=True) != repo / document['run_root'] / 'live':
+        if not fresh_attempt(document) or runtime.resolve(strict=True) != repo / document['run_root'] / 'live':
             raise ValueError('invalid supervisor runtime evidence path')
         status_args += ['--', '.', ':(exclude)' + document['run_root'] + '/live']
     if not proposed and git(repo, *status_args):
@@ -202,8 +208,8 @@ def verify(args: argparse.Namespace) -> None:
             raise ValueError("contract working bytes differ from committed blob")
     check_contract_fields(document)
     check_target_path_derived(document, PureWindowsPath(str(repo)))
-    if document.get('attempt') == 2 and str(repo).casefold() != document['execution_worktree'].casefold():
-        raise ValueError('attempt-2 execution worktree differs from invocation')
+    if fresh_attempt(document) and str(repo).casefold() != document['execution_worktree'].casefold():
+        raise ValueError('fresh attempt execution worktree differs from invocation')
     if document["execution_branch"] != args.branch or document["session"] != args.session:
         raise ValueError("contract branch/session mismatch")
     if fresh:
@@ -243,11 +249,11 @@ def verify(args: argparse.Namespace) -> None:
         print('PREPARATION-CONTRACT-PASS inputs=7 live_authority=False')
         return
     leader_args = [sys.executable, str(repo / "docs/ai-forward-pack/scripts/coord-core.py"), "leader", "who"]
-    if document.get('attempt') == 2:
+    if fresh_attempt(document):
         leader_args.append('--json')
     leader = subprocess.run(leader_args, cwd=repo, check=True, capture_output=True,
                             text=True, encoding="utf-8", timeout=15).stdout
-    if document.get('attempt') == 2:
+    if fresh_attempt(document):
         check_live_leader_json(json.loads(leader), document['leader_epoch'])
     else:
         observed = dict(line.split(None, 1) for line in leader.splitlines() if len(line.split(None, 1)) == 2)
@@ -255,7 +261,7 @@ def verify(args: argparse.Namespace) -> None:
     print("INVOCATION-CONTRACT-PASS")
 
 
-PREPARE_FIELDS = ('source_commit', 'execution_worktree', 'leader_epoch', 'requested_ruling', 'architecture',
+PREPARE_FIELDS = ('source_commit', 'execution_worktree', 'attempt', 'leader_epoch', 'requested_ruling', 'architecture',
                   'protected', 'host_start_floor_bytes', 'host_reserve_bytes')
 REPO_INPUTS = {'b2_licenses': 'docs/proof/win-gpu-b2/license-map.json',
                'ubuntu_cloudimage_keyring': 'docs/proof/win-gpu-f1-preflight/inputs/ubuntu-cloudimage-keyring.gpg'}
@@ -279,9 +285,12 @@ def prepare(args: argparse.Namespace) -> None:
         if type(value) is not int or value <= 0:
             raise ValueError(f'preparation {name} must be a positive integer')
     token = architecture.require_token(getattr(args, 'architecture', None))
+    number = getattr(args, 'attempt', None)   # Ruling 243 (2): the attempt number is an explicit preparation input
+    if type(number) is not int or number not in attempt.FRESH_ATTEMPTS:
+        raise ValueError(f'preparation attempt must be one of {attempt.FRESH_ATTEMPTS}')
     if getattr(args, 'protected', None) not in PROTECTED_STATES:
         raise ValueError(f'preparation protected state must be one of {PROTECTED_STATES}')
-    run_root = attempt.PREFIX + '/attempt-2'
+    run_root = attempt.PREFIX + f'/attempt-{number}'
     paths = [repo / run_root / name for name in ('invocation-contract.json', 'attempt-authorization.json')]
     if (args.authorization is None or args.contract.resolve() != paths[0] or
             args.authorization.resolve() != paths[1] or any(path.exists() for path in paths)):
@@ -318,7 +327,7 @@ def prepare(args: argparse.Namespace) -> None:
             projected = str(actual)
         check_file_hash(reviewed[name], actual)
         inputs[name] = dict(path=projected, sha256=reviewed[name])
-    document = dict(schema='cfdw-f1-r217-invocation/2', architecture=token, attempt=2, leader='mac',
+    document = dict(schema='cfdw-f1-r217-invocation/2', architecture=token, attempt=number, leader='mac',
                     leader_epoch=args.leader_epoch, target=TARGET_NAME, protected=args.protected,
                     target_path=derived_target_path(PureWindowsPath(worktree)),
                     host_start_floor_bytes=args.host_start_floor_bytes, host_reserve_bytes=args.host_reserve_bytes,
@@ -369,6 +378,7 @@ def main() -> None:
         if mode == 'prepare':   # the producer (Ruling 235 (3)); without --source-commit, validation only
             check.add_argument('--source-commit')
             check.add_argument('--execution-worktree')
+            check.add_argument('--attempt', type=int, help='the attempt number under the fresh-attempt scheme (Ruling 243 (2))')
             check.add_argument('--leader-epoch', type=int)
             check.add_argument('--requested-ruling', type=int)
             check.add_argument('--architecture', choices=sorted(architecture.TABLE))

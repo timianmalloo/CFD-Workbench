@@ -450,7 +450,7 @@ function Assert-AttemptRollback([string[]]$Arguments, [string]$Label) {
     if ($Label -ceq 'distro-list') { $expected = @('--list','--quiet') }
     elseif ($Label -cin @('target-containment-terminate','target-terminate','target-unregister')) {
         if (-not $script:CreatedTargetKey -or $null -eq $CheckpointSha) { throw 'MAC-DECISION-REQUIRED: checkpoint/GUID unbound; rollback lifecycle withheld' }
-        $null = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath $script:CreatedTargetKey 2
+        $null = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath $script:CreatedTargetKey $attemptNumber
         $verb = if ($Label -ceq 'target-unregister') {'--unregister'} else {'--terminate'}
         $expected = @($verb,$Target)
     }
@@ -461,7 +461,7 @@ function Assert-AttemptRollback([string[]]$Arguments, [string]$Label) {
         $cpus = if ($guardOwner -or $protectedRead) {'0'} else {'0-1'}
         if ($distro -ceq $Target) {
             if (-not $script:CreatedTargetKey) { throw 'F1-ROLLBACK-GUID-UNBOUND' }
-            $null = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath $script:CreatedTargetKey 2
+            $null = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath $script:CreatedTargetKey $attemptNumber
         }
         $ownerName = if ($protectedRead) {'l3-after.owner.txt'} else {"$Label.entry.txt"}
         $expected = @('--distribution',$distro,'--user','root','--exec','/usr/bin/taskset','--cpu-list',$cpus,
@@ -518,7 +518,7 @@ function Invoke-Child(
     $process = $null
     $ack = [string]::IsNullOrEmpty($OwnerFile)
     try {
-        if ($attemptNumber -eq 2 -and $File -ieq 'wsl.exe') {
+        if ($attemptNumber -ge 2 -and $File -ieq 'wsl.exe') {
             if ($phase -ceq 'cleanup' -and $Label -cnotlike 'stage-delete-debs*') { Assert-AttemptRollback $Arguments $Label }
             else { Assert-AttemptRuntime }
             if (-not $script:FirstWslStarted) { Capture-AttemptLeader 'immediately-pre-live' }
@@ -527,13 +527,13 @@ function Invoke-Child(
         $process = Start-Process -FilePath $File -ArgumentList $Arguments `
             -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru -WindowStyle Hidden
         $null = $process.Handle
-        if ($attemptNumber -eq 2 -and $File -ieq 'wsl.exe') { Register-AttemptLauncher $process }
+        if ($attemptNumber -ge 2 -and $File -ieq 'wsl.exe') { Register-AttemptLauncher $process }
         while ($true) {
             $remaining = Get-ChildWaitSeconds $Clock.Elapsed.TotalSeconds $stageStart $CapSeconds $phase
             if ($remaining -le 0) { throw "$Label exceeded min(stage cap, absolute $phase deadline)" }
             if ($process.WaitForExit([int][Math]::Max(1, [Math]::Min(200, $remaining * 1000)))) { break }
             if ($GuardRequired) { $null = Assert-Guard }
-            if ($attemptNumber -eq 2 -and $File -ieq 'wsl.exe') {
+            if ($attemptNumber -ge 2 -and $File -ieq 'wsl.exe') {
                 if ($phase -ceq 'cleanup' -and $Label -cnotlike 'stage-delete-debs*') { Assert-AttemptIdentity $false }
                 else { Assert-AttemptRuntime $false }
             }
@@ -564,9 +564,9 @@ function Invoke-WslLinux(
     [string[]]$Command, [int]$CapSeconds, [bool]$GuardRequired = $true,
     [bool]$NewWork = $false
 ) {
-    if ($attemptNumber -eq 2 -and $Distro -ceq $Target) {
+    if ($attemptNumber -ge 2 -and $Distro -ceq $Target) {
         if (-not $script:CreatedTargetKey) { throw 'F1-TARGET-GUID-UNBOUND' }
-        $null = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath $script:CreatedTargetKey 2
+        $null = Get-BoundTargetKey @(Get-TargetRegistration) $TargetPath $script:CreatedTargetKey $attemptNumber
     }
     $linuxOwner = Convert-LinuxPath $OwnerPath
     $identity = Convert-LinuxPath (Join-Path $PacketRoot 'identity.sh')
@@ -736,7 +736,7 @@ function Invoke-Cleanup {
             throw "target registration path mismatch: $basePath"
         }
         $deleteAdmitted = $true
-        if ($attemptNumber -eq 2) {
+        if ($attemptNumber -ge 2) {
             try { Assert-AttemptRuntime }
             catch {
                 $deleteAdmitted = $false
@@ -843,7 +843,7 @@ $CheckpointPath = Join-Path $RunRoot 'checkpoint'
 $Final = Join-Path $RunRoot 'final'
 $freshAttempt = $null -ne $contractData.psobject.Properties['attempt']
 if ($freshAttempt) { $attemptNumber = [int]$contractData.attempt }
-if (-not $freshAttempt) { throw 'a contract without attempt is retired: attempt 2 is the only live form (Ruling 237 (2); node R)' }
+if (-not $freshAttempt) { throw 'a contract without attempt is retired: the fresh-attempt scheme (attempt 2 or 3) is the only live form (Ruling 237 (2); node R; Ruling 243 (2))' }
 if ($freshAttempt -and (-not $Authorization -or -not (Test-Path -LiteralPath $Authorization -PathType Leaf))) {
     throw 'attempt authorization missing before WSL'
 }
@@ -880,7 +880,7 @@ if ($precheck.ExitCode -ne 0) { throw "invocation contract rejected: $([IO.File]
 $HostStartFloor, $HostReserve = Get-ContractHostFloors $contractData
 $Protected = [string]$contractData.protected   # Ruling 240 (1)
 if ($Protected -cnotin @('cfdw-openfoam2512', 'none')) { throw "unknown protected state: '$Protected'" }
-if ($attemptNumber -eq 2) { $script:AuthorizationSha = (Get-FileHash -Algorithm SHA256 -LiteralPath $Authorization).Hash.ToLowerInvariant() }
+if ($attemptNumber -ge 2) { $script:AuthorizationSha = (Get-FileHash -Algorithm SHA256 -LiteralPath $Authorization).Hash.ToLowerInvariant() }
 New-Item -ItemType Directory -Path $Live -Force | Out-Null
 Copy-Item -LiteralPath $precheckOut -Destination (Join-Path $Live 'invocation-contract.stdout.txt')
 Write-HostObservations (Join-Path $Live 'host-observations.json')
@@ -890,7 +890,7 @@ $null = Invoke-Child 'py' @('-3', (Join-Path $PacketRoot 'architecture.py'), 'ho
 $script:Architecture = Assert-HostIdentity
 $linuxGuard = Convert-LinuxPath (Join-Path $PacketRoot 'completed_guard.py')
 try {
-    if ($attemptNumber -eq 2) {
+    if ($attemptNumber -ge 2) {
         Start-AttemptRenewal
         Capture-AttemptLeader 'activation'
     }
@@ -951,12 +951,12 @@ try {
             '--state', (Convert-LinuxPath $state), '--stop-request', (Convert-LinuxPath $stopRequest),
             '--session-id', $RunId, '--interval-seconds', '5', '--max-samples', '732')
         $guardStart = $Clock.Elapsed.TotalSeconds
-        if ($attemptNumber -eq 2) { Assert-AttemptRuntime }
+        if ($attemptNumber -ge 2) { Assert-AttemptRuntime }
         $Guard = Start-Process -FilePath 'wsl.exe' -ArgumentList $guardArguments `
             -RedirectStandardOutput (Join-Path $Live 'guard.stdout.txt') `
             -RedirectStandardError (Join-Path $Live 'guard.stderr.txt') -PassThru -WindowStyle Hidden
         $null = $Guard.Handle
-        if ($attemptNumber -eq 2) { Register-AttemptLauncher $Guard }
+        if ($attemptNumber -ge 2) { Register-AttemptLauncher $Guard }
         while (-not (Test-Path -LiteralPath $state)) {
             Assert-Deadline
             if ($Guard.HasExited -or (Get-ChildWaitSeconds $Clock.Elapsed.TotalSeconds $guardStart 20 work) -le 0) {
@@ -1002,7 +1002,7 @@ try {
         -StopGuard { Stop-Observer } `
         -BindGuard { Bind-Observer }
     $CleanupErrors += $closing.errors
-    if ($attemptNumber -eq 2) {
+    if ($attemptNumber -ge 2) {
         try { Assert-AttemptIdentity $true 'finalization' } catch { $CleanupErrors += "final identity: $($_.Exception.Message)" }
         try { Stop-AttemptRenewal } catch { $CleanupErrors += $_.Exception.Message }
         try { $leaderEvidence = Get-AttemptLeaderEvidence }
@@ -1019,7 +1019,7 @@ try {
         creation_uncertain=$CreationUncertain; finalization=$closing
         affinity='Linux CPU0-1 or guard CPU0, nice10; host lifecycle/Git N/A'
     }
-    if ($attemptNumber -eq 2) { $cleanupReceipt.leader_evidence = $leaderEvidence }
+    if ($attemptNumber -ge 2) { $cleanupReceipt.leader_evidence = $leaderEvidence }
     Write-Json (Join-Path $Live 'cleanup-receipt.json') $cleanupReceipt
     if ($null -ne $CheckpointSha) {
         try {

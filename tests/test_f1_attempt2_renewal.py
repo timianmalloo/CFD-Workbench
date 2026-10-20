@@ -97,6 +97,27 @@ class RenewalTests(unittest.TestCase):
                     module.admit(args, {'inputs':{name:{'path':'fixture'} for name in module.contract.INPUT_KEYS}})
                 verify.assert_called_once()
 
+    def test_Supervisor_MainAdmitsFreshAttemptNumbersOnly(self):
+        # Ruling 243 (2): the supervisor keys on the fresh-attempt numbers, never on the literal 2.
+        module = importlib.import_module('leader_supervisor')
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp).resolve()
+            for number, admitted in ((2, True), (3, True), (4, False), (1, False)):
+                path = root / f'contract-{number}.json'
+                path.write_text(json.dumps({'attempt': number, 'leader_epoch': 19}), encoding='utf-8')
+                argv = ['leader_supervisor.py', 'supervise', '--repo', str(root), '--epoch', '19', '--run-id', 'run',
+                        '--contract', str(path), '--authorization', str(path), '--output', str(root)]
+                with self.subTest(number=number), patch.object(sys, 'argv', argv), \
+                        patch.object(module, 'admit') as admit, patch.object(module, 'supervise') as supervise:
+                    if admitted:
+                        module.main()
+                        admit.assert_called_once()
+                        supervise.assert_called_once()
+                    else:
+                        with self.assertRaisesRegex(ValueError, 'F1-RENEW-CONTRACT'):
+                            module.main()
+                        admit.assert_not_called()
+
     def test_Supervisor_AdmissionProjectsEveryInputContractVerifyReads(self):
         # Attempt 2 (2026-10-20, F1-RENEW-START-FAILED): admit projected five input names by hand while contract.verify
         # read a sixth since node C4, so the supervisor crashed with AttributeError before its first renewal. The

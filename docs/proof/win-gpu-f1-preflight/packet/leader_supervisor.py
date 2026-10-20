@@ -184,7 +184,7 @@ def main():
         parser.error('supervise requires contract, authorization and output')
     raw = args.contract.read_bytes()
     document = json.loads(raw)
-    if document.get('attempt') != 2 or args.epoch != document.get('leader_epoch'):
+    if document.get('attempt') not in attempt.FRESH_ATTEMPTS or args.epoch != document.get('leader_epoch'):
         raise ValueError('F1-RENEW-CONTRACT')
     admit(args, document)
     supervise(repo, args.output, args.epoch, args.run_id,

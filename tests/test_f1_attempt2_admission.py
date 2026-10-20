@@ -3,6 +3,7 @@ import copy
 import hashlib
 import json
 import math
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -35,6 +36,25 @@ class AttemptTwoTests(unittest.TestCase):
     def test_Binding_ExactAttemptTwoAndSelectedEpoch_Passes(self):
         for epoch in (8, 19):
             contract.check_contract_fields(fixture(epoch))
+
+    def test_Binding_AttemptThree_DerivedNamesAdmitted_OthersRefused(self):
+        # Ruling 243 (2): the fresh-attempt scheme keys on the contract's attempt number (2 or 3); names derive from it.
+        data = dict(fixture(), attempt=3, execution_branch='win/gpu-f1-attempt3', session='pc-f1-attempt3',
+                    run_id='f1-attempt3-20261020', run_root=attempt.PREFIX + '/attempt-3')
+        contract.check_contract_fields(data)
+        self.assertEqual(attempt.FRESH_ATTEMPTS, (2, 3))
+        auth = attempt.authorization(data, 'a' * 64, accepted=True, ruling=244)
+        self.assertEqual((auth['attempt'], auth['run_root'], auth['ruling']), (3, attempt.PREFIX + '/attempt-3', 244))
+        for key, value in (('attempt', 4), ('execution_branch', 'win/gpu-f1-attempt2'), ('session', 'pc-f1-attempt2'),
+                           ('run_id', 'f1-attempt2-20261020'), ('run_root', attempt.PREFIX + '/attempt-2')):
+            with self.subTest(key=key, value=value), self.assertRaises(ValueError):
+                contract.check_contract_fields(dict(data, **{key: value}))
+
+    def test_Packet_NoLiteralAttemptTwoGateRemains(self):
+        # The scheme is keyed once (attempt.FRESH_ATTEMPTS); a literal `== 2` is a second definition (Ruling 243 (2)).
+        for name in ('attempt.py', 'contract.py', 'leader_supervisor.py'):
+            source = (PACKET / name).read_text(encoding='utf-8')
+            self.assertIsNone(re.search(r"(?:get\('attempt'\)|\['attempt'\]|\bnumber)\s*(?:==|!=)\s*2\b", source), name)
 
     def test_Binding_StaleOrMalformedIdentity_Refuses(self):
         for key, value in (('attempt', 3), ('attempt', True), ('leader_epoch', True),
