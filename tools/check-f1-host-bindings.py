@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """F1-HOST-BINDING control (Ruling 237, plan docs/plans/f1-rescope-r237.md node C2): the F1 preflight packet's code carries
 no host-bound literal. Fails a tracked or untracked .py, .ps1 or .sh file under docs/proof/win-gpu-f1-preflight/packet whose
-non-comment line names the old PC's target root (C:\\Projects), the C: mount (/mnt/c/), an architecture-bound apt or
+non-comment line names a Projects root on any drive (C:\\Projects, D:\\Projects), a drive mount (/mnt/c/, /mnt/d/), an architecture-bound apt or
 repository token (arch=amd64, x86_64) or the old PC's free-space worksheet numbers (19684091961, 10737418240).
 
 Allowlisted hits (ALLOWLIST: file + stripped line + reason) are the self-test fixtures and the one table that must name
@@ -25,8 +25,8 @@ ROOT = Path(__file__).resolve().parents[1]
 PACKET = "docs/proof/win-gpu-f1-preflight/packet"
 SUFFIXES = {".py", ".ps1", ".sh"}
 PATTERNS = (
-    ("old-target-root", re.compile(r"C:\\+Projects", re.I)),
-    ("c-mount", re.compile(r"/mnt/c/")),
+    ("drive-projects-root", re.compile(r"[A-Za-z]:\\+Projects", re.I)),   # any drive: this laptop's D: is as host-bound as the old PC's C: (node R)
+    ("drive-mount", re.compile(r"/mnt/[a-z]/")),
     ("apt-arch", re.compile(r"arch=amd64")),
     ("x86_64", re.compile(r"x86_64")),
     ("old-floor", re.compile(r"\b(?:19684091961|10737418240)\b")),
@@ -109,9 +109,11 @@ def self_test() -> None:
     clean = {"a.py": 'target = derived\n# C:\\Projects in a comment is fine\n', "b.sh": '[[ "$run_root" == /mnt/[a-z]/* ]]\n'}
     hits, _ = scan(dict(clean))
     assert not hits, hits
-    for label, planted in (("old-target-root", "$TargetPath = 'C:\\Projects\\CFD-Workbench-wsl\\x'\n"),
-                           ("old-target-root", 'path = "C:\\\\Projects\\\\x"\n'),
-                           ("c-mount", "return '/mnt/c/' + $x\n"),
+    for label, planted in (("drive-projects-root", "$TargetPath = 'C:\\Projects\\CFD-Workbench-wsl\\x'\n"),
+                           ("drive-projects-root", 'path = "C:\\\\Projects\\\\x"\n'),
+                           ("drive-projects-root", "$root = 'D:\\Projects\\CFD-Workbench'\n"),
+                           ("drive-mount", "return '/mnt/c/' + $x\n"),
+                           ("drive-mount", "run_root=/mnt/d/Projects/x\n"),
                            ("apt-arch", "'deb [arch=amd64 signed-by=k] http://h noble main'\n"),
                            ("x86_64", "repos/ubuntu2404/x86_64/\n"),
                            ("old-floor", "$HostStartFloor = [int64]19684091961\n"),
@@ -128,7 +130,7 @@ def self_test() -> None:
         packet.mkdir(parents=True)
         (packet / "new.sh").write_text("x=/mnt/c/y\n", encoding="utf-8", newline="\n")
         hits, _ = scan(packet_files(root))
-        assert len(hits) == 1 and "new.sh:1: c-mount" in hits[0], hits
+        assert len(hits) == 1 and "new.sh:1: drive-mount" in hits[0], hits
     print("f1 host bindings self-test: PASS")
 
 

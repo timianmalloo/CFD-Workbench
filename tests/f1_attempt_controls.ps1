@@ -34,7 +34,7 @@ Refuses { Get-InvocationRunRoot $data 'C:\Projects\fixture' 'wrong-run' $data.se
 $parseErrors = $null; $tokens = $null
 $ast = [Management.Automation.Language.Parser]::ParseFile((Join-Path $packet 'Invoke-Preflight.ps1'), [ref]$tokens, [ref]$parseErrors)
 Require ($parseErrors.Count -eq 0) 'entrypoint syntax failed'
-$start = $ast.EndBlock.Statements | Where-Object { $_.Extent.Text.StartsWith('$contractData = [IO.File]::ReadAllText($Contract)') } | Select-Object -First 1
+$start = $ast.EndBlock.Statements | Where-Object { $_.Extent.Text.StartsWith('$contractBytes = [IO.File]::ReadAllBytes($Contract)') } | Select-Object -First 1   # the launcher's single read (node R)
 $finish = $ast.EndBlock.Statements | Where-Object { $_.Extent.Text.StartsWith('if ($precheck.ExitCode -ne 0)') } | Select-Object -First 1
 Require ($null -ne $start -and $null -ne $finish) 'normal admission span absent'
 $source = [IO.File]::ReadAllText((Join-Path $packet 'Invoke-Preflight.ps1'))
@@ -56,6 +56,8 @@ function Start-Process {
     $script:admissionChildren++
     $authAt = [Array]::IndexOf($ArgumentList, '--authorization')
     Require ($authAt -ge 0) 'entrypoint lost authorization forwarding'
+    $shaAt = [Array]::IndexOf($ArgumentList, '--expected-sha256')   # node R: the hash of the bytes the span parsed, never a second read
+    Require ($shaAt -ge 0 -and $ArgumentList[$shaAt+1] -ceq (Get-FileHash -Algorithm SHA256 -LiteralPath $Contract).Hash.ToLowerInvariant()) 'entrypoint lost the parsed-bytes hash'
     & pyOriginal -3 (Join-Path $PSScriptRoot 'f1_attempt_authority_probe.py') $Contract $ArgumentList[$authAt+1] $PacketRoot 2> $RedirectStandardError
     $exit = $LASTEXITCODE
     [pscustomobject]@{Handle=1;HasExited=$true;ExitCode=$exit;WaitForExit={param($milliseconds) return $true}} | ForEach-Object { $_ | Add-Member ScriptMethod WaitForExit {param($milliseconds) return $true} -Force; $_ }
@@ -79,6 +81,12 @@ try {
     $RepoRoot=$scratch; $RunRoot=Join-Path $scratch 'docs\proof\win-gpu-f1-preflight\attempt-1'
     New-Item -ItemType Directory -Path $RunRoot -Force | Out-Null
     $canonical=Join-Path $RunRoot 'invocation-contract.json'; Copy-Item $Contract $canonical; $Contract=$canonical
+    # The span starts at the launcher's single read, so it hashes the bytes it parses and passes the hash to verify.
+    $retire=@($ast.FindAll({ param($n) $n -is [Management.Automation.Language.IfStatementAst] -and $n.Clauses[0].Item1.Extent.Text -ceq '-not $freshAttempt' }, $true))
+    Require ($retire.Count -eq 1) 'the retired legacy-contract refusal is absent from the launcher'
+    $freshAttempt=$false; $legacyRefusal=''; try { Invoke-Expression $retire[0].Extent.Text } catch { $legacyRefusal=$_.Exception.Message }
+    Require ($legacyRefusal -like '*retired*') 'a contract without attempt was admitted (node R, Security F3)'
+    $freshAttempt=$true
     foreach ($mode in @('missing','proposed','altered')) {
         $script:admissionChildren=0
         & pyOriginal -3 (Join-Path $PSScriptRoot 'f1_attempt_authority_probe.py') $Contract $Authorization $PacketRoot $mode
@@ -87,7 +95,7 @@ try {
             $blocked=$true
             Require ($_.Exception.Message -notlike '*WSL-SENTINEL*') 'invalid authority reached WSL boundary'
             $expected = if ($mode -eq 'missing') { '*authorization missing*' } elseif ($mode -eq 'proposed') { '*proposed authorization*' } else { '*source/run/hash/scope*' }
-            Require ($_.Exception.Message -like $expected) ('wrong admission refusal for ' + $mode)
+            Require ($_.Exception.Message -like $expected) ('wrong admission refusal for ' + $mode + ': ' + $_.Exception.Message)
         }
         Require ($blocked -and $script:wslCalls -eq 0) 'invalid authority admitted a WSL call'
         Require ($script:admissionChildren -eq $(if ($mode -eq 'missing') { 0 } else { 1 })) 'authority checker was not reached as expected'

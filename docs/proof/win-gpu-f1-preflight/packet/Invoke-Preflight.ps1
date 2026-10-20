@@ -832,13 +832,18 @@ foreach ($inputPath in @($Rootfs, $UbuntuSums, $UbuntuSignature, $OpenFoamKeyrin
     if (-not (Test-Path -LiteralPath $inputPath -PathType Leaf)) { throw "missing reviewed input: $inputPath" }
     $null = Convert-LinuxPath $inputPath
 }
-$contractData = [IO.File]::ReadAllText($Contract) | ConvertFrom-Json
+# The contract is read once: every launcher field, the hash the children check against and verify's --expected-sha256
+# come from these bytes (two reads admitted a mixed state; node R, Security & Identity Architect F1).
+$contractBytes = [IO.File]::ReadAllBytes($Contract)
+$script:ContractSha = ([BitConverter]::ToString([Security.Cryptography.SHA256]::Create().ComputeHash($contractBytes)) -replace '-', '').ToLowerInvariant()
+$contractData = ([Text.Encoding]::UTF8.GetString($contractBytes)).TrimStart([char]0xFEFF) | ConvertFrom-Json
 $RunRoot = Get-InvocationRunRoot $contractData $RepoRoot $RunId $AgentSession
 $Live = Join-Path $RunRoot 'live'
 $CheckpointPath = Join-Path $RunRoot 'checkpoint'
 $Final = Join-Path $RunRoot 'final'
 $freshAttempt = $null -ne $contractData.psobject.Properties['attempt']
 if ($freshAttempt) { $attemptNumber = [int]$contractData.attempt }
+if (-not $freshAttempt) { throw 'a contract without attempt is retired: attempt 2 is the only live form (Ruling 237 (2); node R)' }
 if ($freshAttempt -and (-not $Authorization -or -not (Test-Path -LiteralPath $Authorization -PathType Leaf))) {
     throw 'attempt authorization missing before WSL'
 }
@@ -854,13 +859,13 @@ $Clock = [Diagnostics.Stopwatch]::StartNew()
 $precheckOut = Join-Path $env:TEMP ("cfdw-r217-contract-" + $RunId + '.stdout.txt')
 $precheckErr = Join-Path $env:TEMP ("cfdw-r217-contract-" + $RunId + '.stderr.txt')
 $precheckStart = $Clock.Elapsed.TotalSeconds
-$contractData = [IO.File]::ReadAllText($Contract) | ConvertFrom-Json
-$executionBranch = $contractData.execution_branch
+$executionBranch = $contractData.execution_branch   # from the single read above
 $contractArguments = @('-3', (Join-Path $PacketRoot 'contract.py'), 'verify',
     '--contract', $Contract, '--repo', $RepoRoot, '--rootfs', $Rootfs,
     '--ubuntu-sums', $UbuntuSums, '--ubuntu-signature', $UbuntuSignature,
     '--openfoam-keyring', $OpenFoamKeyring, '--nvidia-keyring', $NvidiaKeyring,
     '--ubuntu-cloudimage-keyring', $UbuntuCloudimageKeyring,
+    '--expected-sha256', $script:ContractSha,
     '--branch', $executionBranch, '--session', $AgentSession, '--run-id', $RunId)
 if ($freshAttempt) { $contractArguments += @('--authorization', $Authorization, '--exclusive-run-id', $ExclusiveRunId) }
 $precheck = Start-Process -FilePath 'py' -ArgumentList $contractArguments `
@@ -875,7 +880,6 @@ if ($precheck.ExitCode -ne 0) { throw "invocation contract rejected: $([IO.File]
 $HostStartFloor, $HostReserve = Get-ContractHostFloors $contractData
 $Protected = [string]$contractData.protected   # Ruling 240 (1)
 if ($Protected -cnotin @('cfdw-openfoam2512', 'none')) { throw "unknown protected state: '$Protected'" }
-$script:ContractSha = (Get-FileHash -Algorithm SHA256 -LiteralPath $Contract).Hash.ToLowerInvariant()
 if ($attemptNumber -eq 2) { $script:AuthorizationSha = (Get-FileHash -Algorithm SHA256 -LiteralPath $Authorization).Hash.ToLowerInvariant() }
 New-Item -ItemType Directory -Path $Live -Force | Out-Null
 Copy-Item -LiteralPath $precheckOut -Destination (Join-Path $Live 'invocation-contract.stdout.txt')
@@ -897,6 +901,7 @@ try {
         Assert-FreshRegistrations $rows $names (Test-Path -LiteralPath $TargetPath) $attemptNumber $TargetPath $Protected
     }
     if (($Protected -cne 'none' -and @($names | Where-Object { $_ -ceq $Protected }).Count -ne 1) -or
+        ($Protected -ceq 'none' -and @($names | Where-Object { $_ -ceq 'cfdw-openfoam2512' }).Count -ne 0) -or   # DR-4: a host that carries the protected distro must declare it
         @($names | Where-Object { $_ -ceq $Target }).Count -ne 0 -or
         @(Get-TargetRegistration).Count -ne 0 -or (Test-Path -LiteralPath $TargetPath)) {
         throw 'final precheck found target collision or missing protected distro'

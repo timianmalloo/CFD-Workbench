@@ -14,14 +14,33 @@ foreach ($name in @('Write-Lf', 'Write-Json', 'Open-LiveEvidenceStream', 'Read-L
     $definitions[$name] = $node
     Invoke-Expression $node.Extent.Text
 }
-# TargetCreate_WithoutHostIdentity_Refuses, structural half: the launcher body calls Assert-HostIdentity (outside its
-# definition) before the 'target-create' child starts (the last 'target-create' literal is the launch site; the
-# earlier one is Invoke-Child's catch branch).
-$text = $ast.Extent.Text
-$createIndex = $text.LastIndexOf("'target-create'")
-$callIndex = $text.LastIndexOf('Assert-HostIdentity', $createIndex)
-$definitionEnd = $definitions['Assert-HostIdentity'].Extent.EndOffset
-if ($createIndex -lt 0 -or $callIndex -lt $definitionEnd) { throw 'target creation is not preceded by an Assert-HostIdentity call' }
+# TargetCreate_WithoutHostIdentity_Refuses, structural half on the AST (never raw text: a comment cannot satisfy it; node
+# R, Test Architect F2): in the launcher body, outside every function, Assert-HostIdentity is called before
+# Invoke-RootfsSignature, the guard starts after the signature, Assert-HostIdentity is called again after the guard, and
+# the one top-level 'target-create' literal (the launch site; the other is Invoke-Child's catch branch) comes last.
+function Test-InFunction($node) {
+    $parent = $node.Parent
+    while ($null -ne $parent) { if ($parent -is [Management.Automation.Language.FunctionDefinitionAst]) { return $true }; $parent = $parent.Parent }
+    return $false
+}
+function Get-TopLevelCallOffsets([string]$CommandName) {
+    $nodes = @($ast.FindAll({ param($n) $n -is [Management.Automation.Language.CommandAst] -and $n.GetCommandName() -ceq $CommandName }, $true) | Where-Object { -not (Test-InFunction $_) })
+    if ($nodes.Count -lt 1) { throw "launcher body does not call $CommandName" }
+    return @($nodes | ForEach-Object { $_.Extent.StartOffset })
+}
+$createLiterals = @($ast.FindAll({ param($n) $n -is [Management.Automation.Language.StringConstantExpressionAst] -and $n.Value -ceq 'target-create' }, $true) | Where-Object { -not (Test-InFunction $_) })
+if ($createLiterals.Count -ne 1) { throw "expected one top-level 'target-create' launch site, found $($createLiterals.Count)" }
+$createOffset = $createLiterals[0].Extent.StartOffset
+$identityOffsets = Get-TopLevelCallOffsets 'Assert-HostIdentity'
+$signatureOffset = (Get-TopLevelCallOffsets 'Invoke-RootfsSignature' | Measure-Object -Minimum).Minimum
+$guardStarts = @($ast.FindAll({ param($n) $n -is [Management.Automation.Language.AssignmentStatementAst] -and $n.Left.Extent.Text -ceq '$Guard' -and $n.Right.Extent.Text -like 'Start-Process*' }, $true) | Where-Object { -not (Test-InFunction $_) })
+if ($guardStarts.Count -ne 1) { throw "expected one top-level guard start, found $($guardStarts.Count)" }
+$guardOffset = $guardStarts[0].Extent.StartOffset
+$firstIdentity = ($identityOffsets | Measure-Object -Minimum).Minimum
+$lastIdentity = ($identityOffsets | Measure-Object -Maximum).Maximum
+if (-not ($firstIdentity -lt $signatureOffset -and $signatureOffset -lt $guardOffset -and $guardOffset -lt $lastIdentity -and $lastIdentity -lt $createOffset)) {
+    throw "launcher order is not host identity ($firstIdentity), rootfs signature ($signatureOffset), guard ($guardOffset), host identity again ($lastIdentity), target creation ($createOffset)"
+}
 
 function Invoke-Py([string[]]$Arguments, [string]$Root) {
     $out = Join-Path $Root 'py.stdout.txt'; $err = Join-Path $Root 'py.stderr.txt'

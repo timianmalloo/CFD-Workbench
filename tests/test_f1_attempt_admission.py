@@ -193,6 +193,24 @@ class AttemptAdmissionTests(unittest.TestCase):
                     self.assertEqual(forwarded[5], args.exclusive_run_id)
                 self.assertEqual([argv for argv in calls if argv[0] == 'wsl.exe'], [])
 
+    def test_RealVerify_ExpectedSha256_BoundToParsedBytes(self):
+        # Node R (both reviewers, cycle 2): the launcher forwards the hash of the bytes it parsed; verify refuses other
+        # bytes before any other check, and the right hash proceeds to the next refusal.
+        with tempfile.TemporaryDirectory() as temporary:
+            data, args, accepted, git_boundary, process_boundary, calls = self.verify_boundary_fixture(Path(temporary))
+            args.authorization = None
+            args.expected_sha256 = '0' * 64
+            with patch.object(contract, 'git', side_effect=git_boundary), patch.object(contract.subprocess, 'run', side_effect=process_boundary), patch.object(attempt, 'verify_authorization', wraps=attempt.verify_authorization) as authorization_boundary:
+                with self.assertRaisesRegex(ValueError, 'byte/hash mismatch'):
+                    contract.verify(args)
+                authorization_boundary.assert_not_called()
+            self.assertEqual(calls, [], 'a wrong hash reached a process boundary')
+            args.expected_sha256 = hashlib.sha256(args.contract.read_bytes()).hexdigest()
+            with patch.object(contract, 'git', side_effect=git_boundary), patch.object(contract.subprocess, 'run', side_effect=process_boundary), patch.object(attempt, 'verify_authorization', wraps=attempt.verify_authorization) as authorization_boundary:
+                with self.assertRaisesRegex(ValueError, 'authorization.*absent'):
+                    contract.verify(args)
+                authorization_boundary.assert_called_once()
+
     def test_RealVerify_ExternalHelperMapWiring_RejectsChangedWorktreeAndSource(self):
         for location in ('worktree', 'source'):
             with self.subTest(location=location), tempfile.TemporaryDirectory() as temporary:

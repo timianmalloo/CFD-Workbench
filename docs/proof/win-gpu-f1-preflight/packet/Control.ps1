@@ -146,7 +146,15 @@ function Assert-FreshRegistrations([object[]]$Rows, [string[]]$Names, [bool]$Pat
             ([string]$row.BasePath).Replace('\\?\', '').TrimEnd('\') -ieq $TargetPath.TrimEnd('\')) {
             throw 'fresh target registration/GUID/path absence unproved'
         }
-        if ($ProtectedState -ceq 'none') { continue }
+        if ($ProtectedState -ceq 'none') {
+            # Node R (Security & Identity Architect F2, DR-4): 'none' says the host carries no protected distro; a row with
+            # the protected name, GUID or path must be declared, never left unguarded.
+            if ($row.DistributionName -ceq 'cfdw-openfoam2512' -or $row.PSChildName -ieq '{b7566a82-9cee-47ce-a246-f83632353cea}' -or
+                ([string]$row.BasePath).Replace('\\?\', '').TrimEnd('\') -ieq $expectedPath) {
+                throw 'protected identity registered but the contract declares none'
+            }
+            continue
+        }
         if ($row.DistributionName -ceq 'cfdw-openfoam2512') { $protected += $row }
         elseif ($row.PSChildName -ieq '{b7566a82-9cee-47ce-a246-f83632353cea}' -or
             ([string]$row.BasePath).Replace('\\?\', '').TrimEnd('\') -ieq $expectedPath) {

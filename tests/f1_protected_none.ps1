@@ -22,7 +22,6 @@ foreach ($name in @('Write-Lf', 'Write-Json', 'Open-LiveEvidenceStream', 'Read-L
     if ($null -eq $node) { throw "launcher function missing: $name" }
     Invoke-Expression $node.Extent.Text
 }
-$text = $ast.Extent.Text
 $FIXTURE_SIGNER = 'F0ABAE6667730DD5ED887B2A37FAD5AAA451C6DE'
 $FIXTURE_ROOTFS_SHA256 = '89fa28756c61ffb898294d920fc9fce84168e0eceeff5389fabf074bfd8d8989'   # sha256 of "fixture-rootfs\n"
 $REAL_SIGNERS = @('D2EB44626FDDC30B513D5BB71A5D6C4C7DB87C81', '4A3CE3CD565D7EB5C810E2B97FF3F408476CF100')
@@ -34,7 +33,15 @@ Assert-FreshRegistrations @($stock) @('Ubuntu-24.04') $false 1 $path 'none'
 Assert-FreshRegistrations @($stock) @('Ubuntu-24.04') $false 2 $path 'none'
 Assert-FreshRegistrations @() @() $false 1 $path 'none'
 $namedLikeProtected = [pscustomobject]@{ DistributionName='cfdw-openfoam2512'; PSChildName='{bbbbbbbb-1111-2222-3333-444444444444}'; Version=2; BasePath='C:\fixture\wsl\elsewhere' }
-Assert-FreshRegistrations @($stock, $namedLikeProtected) @('Ubuntu-24.04', 'cfdw-openfoam2512') $false 1 $path 'none'   # neither required nor refused
+# DR-4 (node R, Security & Identity Architect F2): 'none' says the host carries no protected distro, so a row with the
+# protected name, GUID or path refuses; any other registration is neither required nor refused.
+Refuses { Assert-FreshRegistrations @($stock, $namedLikeProtected) @('Ubuntu-24.04', 'cfdw-openfoam2512') $false 1 $path 'none' } 'a row named like the protected distro was admitted under none'
+$guidLikeProtected = [pscustomobject]@{ DistributionName='other'; PSChildName='{b7566a82-9cee-47ce-a246-f83632353cea}'; Version=2; BasePath='C:\fixture\wsl\other' }
+Refuses { Assert-FreshRegistrations @($stock, $guidLikeProtected) @('Ubuntu-24.04', 'other') $false 1 $path 'none' } 'a row with the protected GUID was admitted under none'
+$pathLikeProtected = [pscustomobject]@{ DistributionName='other'; PSChildName='{cccccccc-1111-2222-3333-444444444444}'; Version=2; BasePath=[Environment]::ExpandEnvironmentVariables('%USERPROFILE%\AppData\Local\CFDWorkbench\qualification\wsl\cfdw-openfoam2512') } # machine-path-ok: fixture only, value not emitted.
+Refuses { Assert-FreshRegistrations @($stock, $pathLikeProtected) @('Ubuntu-24.04', 'other') $false 1 $path 'none' } 'a row at the protected path was admitted under none'
+$other = [pscustomobject]@{ DistributionName='other'; PSChildName='{dddddddd-1111-2222-3333-444444444444}'; Version=2; BasePath='C:\fixture\wsl\other' }
+Assert-FreshRegistrations @($stock, $other) @('Ubuntu-24.04', 'other') $false 1 $path 'none'   # any other row: neither required nor refused
 $targetRow = [pscustomobject]@{ DistributionName='cfdw-petsc-cuda132-f1'; PSChildName='{11111111-2222-3333-4444-555555555555}'; Version=2; BasePath=$path }
 Refuses { Assert-FreshRegistrations @($stock, $targetRow) @('Ubuntu-24.04') $false 1 $path 'none' } 'a target row was admitted under none'
 Refuses { Assert-FreshRegistrations @($stock) @('Ubuntu-24.04') $true 1 $path 'none' } 'a present target path was admitted under none'
@@ -67,12 +74,20 @@ Refuses { Assert-Guard } 'a declared guard that was never started was asserted'
 $Protected = $null
 $record = New-ProtectedRecord
 Require ($record.protected -ceq 'Not recorded' -and $record.guard -ceq 'Not recorded') 'an unbound protected state is not Not recorded'
-# Structural half: both receipts (the final precheck and the cleanup receipt) carry the record, and the guard start,
-# the protected presence check and the protected cleanup check are conditional on a declared distro.
-Require (([regex]::Matches($text, [regex]::Escape('guard=$protectedRecord.guard'))).Count -ge 2) 'a receipt does not record the guard state'
-Require (([regex]::Matches($text, [regex]::Escape("`$Protected -cne 'none'"))).Count -ge 4) 'the protected binding is not conditional on the contract field'
-Require ($text.Contains("`$Protected = `$null") -and $text.Contains('$Protected = [string]$contractData.protected')) 'the protected distro is still a launcher constant'
-Require (-not $text.Contains('verify-rootfs.sh')) 'the rootfs signature still runs inside a distro'
+# Structural half on the AST (never raw text: a comment cannot satisfy it; node R, Test Architect F2): both receipts carry
+# guard=$protectedRecord.guard; at least four `$Protected -cne 'none'` conditions guard the binding; $Protected starts
+# null and is bound from the contract; no string in the launcher names verify-rootfs.sh.
+$guardPairs = @($ast.FindAll({ param($n) $n -is [Management.Automation.Language.HashtableAst] }, $true) |
+    ForEach-Object { $_.KeyValuePairs } |
+    Where-Object { $_.Item1.Extent.Text -ceq 'guard' -and $_.Item2.Extent.Text -ceq '$protectedRecord.guard' })
+Require ($guardPairs.Count -ge 2) 'a receipt does not record the guard state'
+$conditions = @($ast.FindAll({ param($n) $n -is [Management.Automation.Language.BinaryExpressionAst] -and
+    $n.Operator -eq [Management.Automation.Language.TokenKind]::Cne -and $n.Left.Extent.Text -ceq '$Protected' -and $n.Right.Extent.Text -ceq "'none'" }, $true))
+Require ($conditions.Count -ge 4) 'the protected binding is not conditional on the contract field'
+$assignments = @($ast.FindAll({ param($n) $n -is [Management.Automation.Language.AssignmentStatementAst] -and $n.Left.Extent.Text -ceq '$Protected' }, $true) | ForEach-Object { $_.Right.Extent.Text })
+Require (($assignments -ccontains '$null') -and ($assignments -ccontains '[string]$contractData.protected')) 'the protected distro is still a launcher constant'
+$rootfsStrings = @($ast.FindAll({ param($n) $n -is [Management.Automation.Language.StringConstantExpressionAst] -and $n.Value -like '*verify-rootfs*' }, $true))
+Require ($rootfsStrings.Count -eq 0) 'the rootfs signature still runs inside a distro'
 
 # --- Rootfs_GpgvAbsent_RefusesWithPath ------------------------------------------------------------------------------
 $tmp = Join-Path ([IO.Path]::GetTempPath()) ('cfdw-f1-protected-none-' + [Guid]::NewGuid().ToString('n'))
