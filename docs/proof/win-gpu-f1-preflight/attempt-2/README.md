@@ -114,3 +114,18 @@ it refuses below.
 The first arm64 `simulate` may add rows the probe did not see (never a refusal of a pinned root the index carries);
 the `nvcc` `sm_` list and the x64 `gpgv.exe` layout stay Inferred; lock drift at attempt time refuses by name. A red
 in the live attempt is a failed attempt with an immutable receipt, never a retry inside the same authorization.
+
+## 7. Outcome (2026-10-20): attempt 2 refused before any WSL effect
+
+Ruling 242 accepted the pair; the execution worktree was created from `803fb83d` and the launcher ran from native pwsh
+7.6.7 (arm64) as `pc-f1-attempt2`. `INVOCATION-CONTRACT-PASS` and `HOST-IDENTITY-PASS architecture=arm64 cpu=1 gpu=2`
+were recorded, then the leader supervisor failed at start (`F1-RENEW-START-FAILED`, elapsed 5.6 s, stage
+`not-started`): `leader_supervisor.admit` projected five input names into the namespace `contract.verify` reads, and
+`verify` has read a sixth (`ubuntu_cloudimage_keyring`) since node C4. No target was created and nothing in WSL
+changed (`target_absent: Not applicable`, registrations unchanged). The cleanup's final identity added
+`F1-EXCLUSIVITY-REFUSED: additional or changed WSL actor` (the agent harness's Git-for-Windows `bash.exe`, matched
+by name; DR-5) and the two consequent missing-evidence errors. The receipts are `checkpoint/` (commit `f1d3a22f`)
+and `final/` (commit `32e6e384`); `final/cleanup-receipt.json` is the classified receipt Ruling 242 names.
+
+Attempt 2 of Ruling 225's three attempts is consumed. The repair is on main (plan ledger, node A); the next attempt is
+attempt 3, the last under the cap, and takes its own pair at the repaired source and its own ruling.

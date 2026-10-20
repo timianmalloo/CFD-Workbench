@@ -97,8 +97,8 @@ def owner_alive(owner):
 def admit(args, document):
     values = vars(args).copy()
     values.update(command='verify', runtime_output=args.output)
-    values.update({name: Path(document['inputs'][name]['path']) for name in
-                   ('rootfs','ubuntu_sums','ubuntu_signature','openfoam_keyring','nvidia_keyring')})
+    # Every input verify reads from its arguments, from the one list contract.py owns (attempt 2 crashed on a hand copy).
+    values.update({name: Path(document['inputs'][name]['path']) for name in contract.ARGUMENT_INPUTS})
     contract.verify(argparse.Namespace(**values))
     # Cache the hash-checked mutation implementation once; later filesystem edits
     # cannot replace the implementation on the next renewal tick.

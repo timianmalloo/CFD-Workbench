@@ -44,6 +44,8 @@ $bad=$child.psobject.Copy();$bad.ParentProcessId=55
 Refuses {Assert-AttemptExclusivity @($launcher,$bad) @() '{b7566a82-9cee-47ce-a246-f83632353cea}'}
 $other=$launcher.psobject.Copy();$other.ProcessId=55
 Refuses {Assert-AttemptExclusivity @($launcher,$child,$other) @() '{b7566a82-9cee-47ce-a246-f83632353cea}'}
+$message=''; try { Assert-AttemptExclusivity @($launcher,$child,$other) @() '{b7566a82-9cee-47ce-a246-f83632353cea}' } catch { $message=$_.Exception.Message }
+Require ($message -ceq 'F1-EXCLUSIVITY-REFUSED: additional or changed WSL actor: wsl.exe pid 55') ('the exclusivity refusal names no actor: ' + $message)
 $own=[pscustomobject]@{pid=55;created_utc=$other.CreationDate.ToUniversalTime().ToString('o');command=$other.CommandLine}
 Assert-AttemptExclusivity @($launcher,$child,$other) @($own) '{b7566a82-9cee-47ce-a246-f83632353cea}'
 $other.CommandLine='wsl.exe -d wrong'
