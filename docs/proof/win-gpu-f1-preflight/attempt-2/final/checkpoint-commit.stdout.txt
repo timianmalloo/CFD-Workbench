@@ -1,0 +1,13 @@
+[win/gpu-f1-attempt2 f1d3a22f] proof: checkpoint F1 R217 before cleanup
+ 11 files changed, 128 insertions(+)
+ create mode 100644 docs/proof/win-gpu-f1-preflight/attempt-2/checkpoint/capture-manifest.json
+ create mode 100644 docs/proof/win-gpu-f1-preflight/attempt-2/checkpoint/checkpoint-freeze.stderr.txt
+ create mode 100644 docs/proof/win-gpu-f1-preflight/attempt-2/checkpoint/checkpoint-freeze.stdout.txt
+ create mode 100644 docs/proof/win-gpu-f1-preflight/attempt-2/checkpoint/host-identity.json
+ create mode 100644 docs/proof/win-gpu-f1-preflight/attempt-2/checkpoint/host-identity.stderr.txt
+ create mode 100644 docs/proof/win-gpu-f1-preflight/attempt-2/checkpoint/host-identity.stdout.txt
+ create mode 100644 docs/proof/win-gpu-f1-preflight/attempt-2/checkpoint/host-observations.json
+ create mode 100644 docs/proof/win-gpu-f1-preflight/attempt-2/checkpoint/invocation-contract.stdout.txt
+ create mode 100644 docs/proof/win-gpu-f1-preflight/attempt-2/checkpoint/leader-renew.stderr.txt
+ create mode 100644 docs/proof/win-gpu-f1-preflight/attempt-2/checkpoint/leader-renew.stdout.txt
+ create mode 100644 docs/proof/win-gpu-f1-preflight/attempt-2/checkpoint/precleanup-state.json

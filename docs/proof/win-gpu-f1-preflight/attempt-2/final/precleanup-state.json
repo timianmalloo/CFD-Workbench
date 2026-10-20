@@ -1,0 +1,8 @@
+{
+  "schema": "cfdw-f1-r217-precleanup/1",
+  "run_id": "f1-attempt2-20261020",
+  "stage": "not-started",
+  "initiating_error": "F1-RENEW-START-FAILED",
+  "elapsed_seconds": 5.6447651,
+  "affinity": "Linux CPU0-1 nice10; host Git N/A"
+}
