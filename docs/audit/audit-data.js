@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-20T15:25:54Z",
+  "generated": "2026-10-20T15:36:52Z",
   "audit": [
     {
       "actor": null,
@@ -40229,6 +40229,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-20T15:24:42Z",
       "duration_seconds": 72.0
+    },
+    {
+      "id": "al-01M5CZAN2J3E1ZQZ3PXZP5N4NA",
+      "shortname": "f1-a-repair-admission-inputs",
+      "datetime": "2026-10-20T15:36:52Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of win/f1-supervisor-admission-inputs into main",
+      "summary": "Node A repair after the attempt-2 refusal: contract.ARGUMENT_INPUTS read by verify and the supervisor admission (coverage test red then green); the exclusivity refusal names the actor; three register entries; ledger line A; attempt-2 outcome; DR-5 filed recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Remove the defect that refused attempt 2 before its first renewal and make the exclusivity refusal measurable",
+      "done_when": "ring green on both runtimes; F1-VERIFICATION-GREEN receipt on the repair commit; check-docs green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-20T15:33:32Z",
+      "duration_seconds": 200.0
     }
   ],
   "changes": [
@@ -43552,6 +43579,15 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M5BC4FS8GSAN1XRNT4D97WST",
       "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M5CYY96MCA0RPCY9B9MGG4DH",
+      "ts": "2026-10-20T15:30:07Z",
+      "from": "pc-laptop-leader",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M5CYY968W5KQBH0HE903NZT9",
+      "session": "pc-laptop-leader"
     }
   ]
 };
