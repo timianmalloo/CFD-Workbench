@@ -19285,6 +19285,54 @@ window.DOCS_INDEX = {
       "sourceSha256": "6453f3e0d8f7c79e8ffba090fb76388d68ad3a18de0a6b9cb3147cba5f4a0236"
     },
     {
+      "id": "proof-win-gpu-f1-attempt4-plan",
+      "path": "docs/proof/win-gpu-f1-preflight/attempt-4/README.md",
+      "title": "F1 attempt 4: the first attempt under Ruling 245, with the dry rehearsal in front of it",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@pc-laptop-leader",
+      "phase": "preflight",
+      "reviewBy": "2026-11-18",
+      "reviewSuggested": [],
+      "summary": "Attempt 4 of the Ruling 217 dependency preflight, the first under Ruling 245's cap of three (4, 5, 6), prepared on the Windows ARM64 laptop: the selections, the inputs (unchanged from attempts 2 and 3), the pair produced by contract.py prepare --attempt 4 (which also writes this run root's capture-attribute rules), the dry rehearsal green for this run root, and the live authorization request.",
+      "tags": [
+        "windows",
+        "arm64",
+        "offline",
+        "f1",
+        "attempt-4",
+        "decision-request"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-f1-rescope-r237",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-gpu-f1-attempt3-plan",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-dry-rehearsal",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-inputs",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "12e31d35e0bce0c11da1076235f529f0d9fb5255b3379f02b0f7971016acd789"
+    },
+    {
       "id": "proof-win-gpu-f1-cleanup-recovery-cycle1-author",
       "path": "docs/reviews/windows-gpu-f1-cleanup-recovery-cycle1-author.md",
       "title": "F1 cleanup recovery cycle 1: author repair evidence",
@@ -23120,5 +23168,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "889f44c6aca20d460c47973036bcffa6b33fe1e87747647c9c1db33973f87cd5"
+  "graphSha256": "09e04e4820295a54a607c107a2f1d97917516118b5935ccc1c39b15096101735"
 };
