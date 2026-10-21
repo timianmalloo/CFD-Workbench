@@ -6,7 +6,6 @@ docs/docs-index.js merge=coord-regen
 docs/audit/change-log.jsonl merge=coord-register
 .agents/log/*.jsonl merge=coord-register
 .agents/requests.jsonl merge=coord-register
-docs/coordination/xmsg.jsonl merge=coord-register
 docs/lessons/defect-classes.md merge=defect-register
 # Raw proof captures are byte evidence; preserve their captured line endings.
 docs/proof/win-store-implementation/*.stdout.txt -text

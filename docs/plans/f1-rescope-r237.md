@@ -2,7 +2,7 @@
 id: plan-f1-rescope-r237
 title: "F1 re-scope plan (Ruling 237): one preflight packet for Windows x64 and ARM64 hosts with an NVIDIA GPU"
 type: plan
-status: accepted
+status: superseded
 owner: "@pc-laptop-leader"
 phase: preflight
 tags: [f1, windows, wsl, arm64, x64, cuda, execution-graph, planning]
@@ -23,6 +23,8 @@ summary: >-
   starts. The spike did not refuse; two findings beyond the ruling's text are named. Ruling 240 (2026-10-19)
   ruled DR-1 as (b) and accepted the plan; the nodes run in order from C1.
 ---
+
+> **Superseded 2026-10-21 (Ruling 247).** The two-machine effort ended; the PC is the only machine and the AI-Forward pack's local coordination is what remains. Kept for history; nothing here is current guidance.
 
 # F1 re-scope plan (Ruling 237)
 

@@ -2,7 +2,7 @@
 id: coordination-windows-gpu-f1-design
 title: "Coordination plan - Windows GPU F1 design"
 type: plan
-status: completed
+status: superseded
 owner: "@pc-f1-coordinator"
 tags: [coordination, worktrees, windows, gpu, openfoam, petsc]
 links:
@@ -14,6 +14,8 @@ summary: >-
   The serial Sol AUTHOR and Astra review track ended after the second Astra VETO: the exact Ubuntu transaction
   and finite F1 capacity remain open, and execution stays closed pending a Mac/Fable/operator preflight ruling.
 ---
+
+> **Superseded 2026-10-21 (Ruling 247).** The two-machine effort ended; the PC is the only machine and the AI-Forward pack's local coordination is what remains. Kept for history; nothing here is current guidance.
 
 # Windows GPU F1 design coordination plan
 

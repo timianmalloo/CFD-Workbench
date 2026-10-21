@@ -21,4 +21,3 @@ docs/docs-index.js: derived python docs/ai-forward-pack/scripts/docs-graph.py de
 docs/audit/change-log.jsonl: register
 .agents/log/*.jsonl: register
 .agents/requests.jsonl: register
-docs/coordination/xmsg.jsonl: register

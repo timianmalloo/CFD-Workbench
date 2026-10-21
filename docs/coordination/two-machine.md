@@ -2,7 +2,7 @@
 id: coordination-two-machine
 title: "Two machines - the Mac session and the Windows PC session, and how they meet in git"
 type: plan
-status: accepted
+status: superseded
 owner: "@timianmalloo"
 tags: [coordination, windows, macos, git, rendezvous, pull-request]
 links:
@@ -18,6 +18,8 @@ summary: >-
   The PC pushes win/* branches and opens pull requests; the Fable owner on the Mac reviews them; the Mac leader merges
   through conductor-join. Messages travel in docs/coordination/xmsg.jsonl through tools/xmsg.py.
 ---
+
+> **Superseded 2026-10-21 (Ruling 247).** The two-machine effort ended; the PC is the only machine and the AI-Forward pack's local coordination is what remains. Kept for history; nothing here is current guidance.
 
 # Two machines: the Mac session and the Windows PC session
 

@@ -13,8 +13,7 @@
     ["python3", "docs/ai-forward-pack/scripts/coord-core.py", "regen"]
   ],
   "gates": [
-    ["python3", "docs/ai-forward-pack/scripts/run-verify-gates.py", "--skip", "verify-application-core.py", "verify-application-adapters.py", "verify-windows-store.py"],
-    ["python3", "tools/run-windows-store-gate.py"]
+    ["python3", "docs/ai-forward-pack/scripts/run-verify-gates.py", "--skip", "verify-application-core.py", "verify-application-adapters.py", "verify-windows-store.py"]
   ],
   "readiness": [
     ["python3", "tools/check-docs.py"],
