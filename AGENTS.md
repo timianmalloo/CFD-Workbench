@@ -12,8 +12,10 @@ not architecture decisions for this project. Project-specific decisions belong o
 the managed block below.
 
 - Tests: `bash tools/run-tests.sh` builds once and runs the four C# harnesses (and any `tests/test_*.py`); run it
-  when src/, tests/ or a build file changed. CI (`.github/workflows/tests.yml`) runs it on Windows and macOS and
-  `tools/check-docs.py` on Ubuntu for every push to main. There is no local readiness ring and no test budget.
+  when src/, tests/ or a build file changed. CI (`.github/workflows/tests.yml`) runs the Core, Analysis and Cli
+  harnesses on Windows and macOS runners (`--no-desktop`: the Desktop harness samples pixels and focus and needs a real
+  display, so it runs on the developer machines) and `tools/check-docs.py` on Ubuntu for every push to main. There is
+  no local readiness ring and no test budget.
 - A proof folder is a short note plus the script that reproduces it (`docs/proof/wsl-preflight` is the shape);
   large captures stay out of git. Windows-facing work is bash in WSL or Git bash, never PowerShell.
 

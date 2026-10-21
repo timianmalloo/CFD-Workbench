@@ -27,9 +27,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Build once and run every harness
+      - name: Build once and run the Core, Analysis and Cli harnesses
         shell: bash
-        run: bash tools/run-tests.sh
+        run: bash tools/run-tests.sh --no-desktop   # the Desktop harness needs a display; it runs on the developer machines
   docs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -40,5 +40,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Python packages the cases validator needs
+        run: python3 -m pip install --quiet jsonschema pyyaml
       - name: Documentation graph and repository checks
         run: python3 tools/check-docs.py
