@@ -104,7 +104,9 @@ internal static class WindowsProjectStoreTests
             Equal(true, refusal is not null);
             Equal(32, refusal!.Win32Error); // ERROR_SHARING_VIOLATION
             Equal(unchecked((int)0xc0000043), refusal.NtStatus); // STATUS_SHARING_VIOLATION
-            Equal(0, refusal.IoStatus);
+            // The IO_STATUS_BLOCK of a refused NtSetInformationFile reads 0 on this laptop (Windows 11 build 28000) and the NTSTATUS
+            // on the GitHub windows-latest runner: both are the same refusal; the API documents neither value.
+            Equal(true, refusal.IoStatus == 0 || refusal.IoStatus == refusal.NtStatus);
             Equal(oldIdentity, WindowsNative.Identity(reader));
             Equal(true, Read(reader).AsSpan().SequenceEqual(new byte[] { 1, 1 }));
             using var fresh = WindowsNative.OpenReader(parent, "project.cfdw");
