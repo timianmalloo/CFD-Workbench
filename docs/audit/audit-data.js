@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-21T00:00:35Z",
+  "generated": "2026-10-21T00:26:58Z",
   "audit": [
     {
       "actor": null,
@@ -40505,6 +40505,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-20T23:59:22Z",
       "duration_seconds": 73.0
+    },
+    {
+      "id": "al-01M5DXN9ZQ6VZEZ0VRH769AZGH",
+      "shortname": "f1-attempt4-evidence",
+      "datetime": "2026-10-21T00:26:58Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of win/gpu-f1-attempt4 into main",
+      "summary": "Attempt 4 (Ruling 246) refused five seconds into the import on the System32 stub's forwarded wsl.exe child; import rolled back by the WSL service; receipts bound (checkpoint b8dda9bd, final 930078ea); class OWNED-PROCESS-TREE-REGISTERED-ONCE-WHILE-IT-GROWS; DR-6 filed recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Run attempt 4 under Ruling 246 and bring its evidence to main",
+      "done_when": "receipts and README section 6 on main; ledger line; register entry; DR-6 open",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-21T00:25:46Z",
+      "duration_seconds": 72.0
     }
   ],
   "changes": [
@@ -43900,6 +43927,15 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M5D6TR1E8ACKGQHBZQGMTDJG",
       "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M5DXHZ8QH9Z48W7Q58BMZRX7",
+      "ts": "2026-10-21T00:25:09Z",
+      "from": "pc-laptop-leader",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M5DXHY5QN4YJCAF1MD5K60GT",
+      "session": "pc-laptop-leader"
     }
   ]
 };
