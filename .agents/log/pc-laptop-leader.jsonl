@@ -97,3 +97,4 @@
 {"agent": "pc-laptop-leader", "at": 1792616827.9299078, "kind": "session-start", "path": "-", "seq": 97, "session": "pc-laptop-leader", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-dotnet-test"}
 {"agent": "pc-laptop-leader", "at": 1792617947.6293285, "kind": "session-end", "path": "-", "seq": 98, "session": "pc-laptop-leader", "wi": "WI-0", "worktree": "CFD-Workbench"}
 {"agent": "pc-laptop-leader", "at": 1792618299.1007478, "kind": "session-start", "path": "-", "seq": 99, "session": "pc-laptop-leader", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-ci-summary-parse"}
+{"agent": "pc-laptop-leader", "at": 1792618566.7077966, "kind": "session-end", "path": "-", "seq": 100, "session": "pc-laptop-leader", "wi": "WI-0", "worktree": "CFD-Workbench-ci-summary-parse"}
