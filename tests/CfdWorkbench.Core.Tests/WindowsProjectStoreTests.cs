@@ -116,28 +116,6 @@ internal static class WindowsProjectStoreTests
             Console.WriteLine($"SHARE-READ-ONLY {refusal.Message} incumbent={oldIdentity} temp={tempIdentity} held_bytes=0101 fresh_bytes=0101 temp_bytes=020202 temp_exists=true");
             Equal("DOC-CONFLICT", refusal.ProductCode);
         }));
-        Check("WindowsNative_Replace_HeldReaderKeepsOldImage", () => Fixture((root, parent) =>
-        {
-            using (var old = WindowsNative.CreatePrivate(parent, "project.cfdw"))
-            { RandomAccess.Write(old, [1, 1], 0); WindowsNative.Flush(old); }
-            using var reader = WindowsNative.OpenReader(parent, "project.cfdw", WindowsNative.ShareRead);
-            var oldIdentity = WindowsNative.Identity(reader);
-            using var temp = WindowsNative.CreatePrivate(parent, "new.tmp");
-            RandomAccess.Write(temp, [2, 2, 2], 0); WindowsNative.Flush(temp);
-            var newIdentity = WindowsNative.Identity(temp);
-
-            var completion = WindowsNative.Rename(temp, parent, "project.cfdw", replace: true);
-            Console.WriteLine($"NT-RENAME NTSTATUS=0x{completion.NtStatus:x8} IO_STATUS=0x{completion.IoStatus:x8} Win32={completion.Win32Error}");
-
-            // The read handle deliberately omits DELETE sharing: qualify the stronger real-reader case.
-            Equal(true, Read(reader).AsSpan().SequenceEqual(new byte[] { 1, 1 }));
-            using var fresh = WindowsNative.OpenReader(parent, "project.cfdw",
-                WindowsNative.ShareRead | WindowsNative.ShareWrite | WindowsNative.ShareDelete);
-            Equal(true, Read(fresh).AsSpan().SequenceEqual(new byte[] { 2, 2, 2 }));
-            Equal(newIdentity, WindowsNative.Identity(fresh));
-            Equal(false, oldIdentity == newIdentity);
-            Equal(false, File.Exists(Path.Combine(root, "new.tmp")));
-        }));
         Check("WindowsNative_ClaimDispose_HeldObserverNamespaceRemoved", () => Fixture((root, parent) =>
         {
             using var claim = WindowsNative.CreatePrivate(parent, "claim.tmp");

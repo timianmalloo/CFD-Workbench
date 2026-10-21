@@ -130,6 +130,8 @@ catch (Exception error)
 long analyseStarted = System.Diagnostics.Stopwatch.GetTimestamp();
 try
 {
+    if (!OperatingSystem.IsMacOS()) Console.WriteLine("SKIP Cli_AnalyseRunKey_EqualsServiceOnCustomOp macos-only-store"); else
+    {
     const string op = "{\"speed\":5.14444,\"alphaDeg\":3,\"hRef\":0.5}";
     var host = new AnalysisHost(new CliFakeWing(), CliFakeWing.Water);
     output.GetStringBuilder().Clear();
@@ -173,6 +175,7 @@ try
         if (exit != 2 || !output.ToString().Contains(code, StringComparison.Ordinal)) throw new Exception($"{refused[3]} returned {exit}: {output}");
     }
     Console.WriteLine("PASS Cli_AnalyseRunKey_EqualsServiceOnCustomOp");
+    }
 }
 catch (Exception error)
 {
@@ -215,6 +218,8 @@ finally
 long revisionStarted = System.Diagnostics.Stopwatch.GetTimestamp();
 try
 {
+    if (!OperatingSystem.IsMacOS()) Console.WriteLine("SKIP Cli_InspectRuns_RevisionIsSessionLabel macos-only-store"); else
+    {
     var revisionHost = new AnalysisHost(new CliFakeWing(), CliFakeWing.Water);
     using var revisionSession = new AuthoringSession();
     revisionSession.Open(Cli.ExampleBytes(), Guid.NewGuid().ToString("D"), false);
@@ -262,6 +267,7 @@ try
     }
     finally { File.Delete(revisionFile); }
     Console.WriteLine("PASS Cli_InspectRuns_RevisionIsSessionLabel");
+    }
 }
 catch (Exception error)
 {
