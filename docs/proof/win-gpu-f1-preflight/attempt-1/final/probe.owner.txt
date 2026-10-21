@@ -1,7 +1,0 @@
-stage=probe
-pid=588
-pgid=588
-sid=588
-nice=10
-Cpus_allowed_list=0-1
-cmdline=/bin/bash /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r225-attempt1/docs/proof/win-gpu-f1-preflight/packet/preflight.sh --stage probe --run-root /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r225-attempt1/docs/proof/win-gpu-f1-preflight/attempt-1/live --packet-root /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r225-attempt1/docs/proof/win-gpu-f1-preflight/packet --b2-lock /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r225-attempt1/docs/proof/win-gpu-b2/package-lock.json --openfoam-key /mnt/c/Projects/CFD-Workbench-wsl/f1-r217-inputs-r220-epoch6/openfoam-archive-keyring.gpg --nvidia-key /mnt/c/Projects/CFD-Workbench-wsl/f1-r217-inputs-r220-epoch6/nvidia-cuda-archive-keyring.gpg --openfoam-fingerprint DC93C096174122E256DA24063386DD74948D208F --run-id r225-attempt1-epoch8-20261012 --contract /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r225-attempt1/docs/proof/win-gpu-f1-preflight/attempt-1/invocation-contract.json --contract-sha256 1141ee15dde086991290c508104addf9fe5c32c789dccbdbfdbfbaeb9e49f696 

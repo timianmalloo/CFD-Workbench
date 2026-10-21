@@ -1,3 +1,0 @@
-KEYRING-PASS kind=ubuntu_rootfs keys=2
-SIGNER-PASS kind=ubuntu_rootfs
-ROOTFS-SIGNED-PASS sha256=8251e27ffff381a4af5f41dcb94d867de3e0d9774a9241908ab34555d99315ea

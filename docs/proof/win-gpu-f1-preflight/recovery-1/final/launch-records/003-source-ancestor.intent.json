@@ -1,1 +1,0 @@
-{"argv": ["git", "merge-base", "--is-ancestor", "5b1a9bb460df4ae2955a3bb922b0e68138492cc0", "486ecd3ed495da3792c868fff1273767aecb937c"], "host_ack": "pending", "label": "source-ancestor", "linux_state": "Not recorded"}

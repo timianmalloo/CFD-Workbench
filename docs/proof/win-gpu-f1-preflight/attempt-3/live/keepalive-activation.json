@@ -1,9 +1,0 @@
-{
-  "schema": "cfdw-f1-keepalive-sample/1",
-  "event_id": "b1db2f064f224f43a999a94509c71811",
-  "utc": "2026-10-20T16:46:44.5393624+00:00",
-  "run_id": "f1-attempt3-20261020",
-  "phase": "activation",
-  "protected_key": "none",
-  "processes": []
-}

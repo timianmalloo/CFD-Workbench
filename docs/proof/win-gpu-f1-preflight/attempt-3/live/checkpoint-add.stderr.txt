@@ -1,7 +1,0 @@
-warning: in the working copy of 'docs/proof/win-gpu-f1-preflight/attempt-3/checkpoint/host-identity.stdout.txt', CRLF will be replaced by LF the next time Git touches it
-warning: in the working copy of 'docs/proof/win-gpu-f1-preflight/attempt-3/checkpoint/invocation-contract.stdout.txt', CRLF will be replaced by LF the next time Git touches it
-warning: in the working copy of 'docs/proof/win-gpu-f1-preflight/attempt-3/checkpoint/leader-activation.stdout.txt', CRLF will be replaced by LF the next time Git touches it
-warning: in the working copy of 'docs/proof/win-gpu-f1-preflight/attempt-3/checkpoint/leader-immediately-pre-live.stdout.txt', CRLF will be replaced by LF the next time Git touches it
-warning: in the working copy of 'docs/proof/win-gpu-f1-preflight/attempt-3/checkpoint/leader-renew.stdout.txt', CRLF will be replaced by LF the next time Git touches it
-warning: in the working copy of 'docs/proof/win-gpu-f1-preflight/attempt-3/checkpoint/rootfs-keyring.stdout.txt', CRLF will be replaced by LF the next time Git touches it
-warning: in the working copy of 'docs/proof/win-gpu-f1-preflight/attempt-3/checkpoint/rootfs-signer.stdout.txt', CRLF will be replaced by LF the next time Git touches it

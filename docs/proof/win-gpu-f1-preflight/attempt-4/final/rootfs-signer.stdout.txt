@@ -1,1 +1,0 @@
-SIGNER-PASS kind=ubuntu_rootfs

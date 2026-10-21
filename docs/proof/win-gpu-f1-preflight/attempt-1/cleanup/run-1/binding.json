@@ -1,6 +1,0 @@
-{
-  "evidence_commit": "901bc8d79767a3e4b69564749ec3319c8d750f52",
-  "manifest_sha256": "ed5417016dd8469d0db3de56ffc36d71d04d05accb0c4c97859e1675e6b64114",
-  "outcome": "failed-stop-no-retry",
-  "schema": "cfdw-f1-r230-cleanup-binding/1"
-}

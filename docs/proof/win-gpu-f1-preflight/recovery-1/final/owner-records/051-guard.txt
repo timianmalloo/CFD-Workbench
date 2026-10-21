@@ -1,6 +1,0 @@
-pid=52652
-pgid=52652
-sid=52652
-nice=10
-Cpus_allowed_list=0
-cmdline=/bin/bash /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/packet/identity.sh /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/recovery-1/live/guard.owner.txt -- /usr/bin/python3 /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/packet/completed_guard.py watch --expected /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/recovery-1/live/l3-before.json --expected-sha256 42e1d0bed05aa071a70fba8445474a85fa43a1746a394adc4e46a433a090aab9 --events /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/recovery-1/live/completed-guard-events.jsonl --state /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/recovery-1/live/completed-guard.state.json --stop-request /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r217-cleanup-live1/docs/proof/win-gpu-f1-preflight/recovery-1/live/completed-guard-stop.request --session-id pc-f1-r217-cleanup-live1 --interval-seconds 5 --max-samples 132 

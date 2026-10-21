@@ -1,1 +1,0 @@
-proof: checkpoint F1 R217 before cleanup

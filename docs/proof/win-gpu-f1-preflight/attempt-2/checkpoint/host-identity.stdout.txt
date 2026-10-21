@@ -1,1 +1,0 @@
-HOST-IDENTITY-PASS architecture=arm64 cpu=1 gpu=2
