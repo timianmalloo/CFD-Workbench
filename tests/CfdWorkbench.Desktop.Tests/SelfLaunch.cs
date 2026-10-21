@@ -17,6 +17,7 @@ public static class SelfLaunch
         // Under `dotnet X.dll` the process path is the muxer, which needs the entry assembly again; the apphost is the program itself.
         string program = Path.GetFileNameWithoutExtension(entryAssembly), host = Path.GetFileName(processPath);
         if (host != program && host != program + ".exe") info.ArgumentList.Add(entryAssembly);
+        info.ArgumentList.Add("--harness");   // the test assembly's Main runs xunit unless told to run the harness (tests/HarnessTests.cs)
         info.ArgumentList.Add(mode);
         return info;
     }
@@ -32,7 +33,7 @@ public static class SelfLaunchTests
         Check(failures, "unhandled child exception exits with a named code", UnhandledChildExitsNamed);
         Check(failures, "crash detail names the message and a frame; product shape stays type-only", CrashDetailNamesMessageAndFrame);
         Check(failures, "muxer launch passes the entry assembly", MuxerLaunchPassesEntryAssembly);
-        Check(failures, "apphost launch passes the mode only", AppHostLaunchPassesModeOnly);
+        Check(failures, "apphost launch passes --harness and the mode only", AppHostLaunchPassesHarnessAndMode);
         Check(failures, "no raw Environment.ProcessPath relaunch", () => NoRawProcessPathRelaunch());
         Check(failures, "no test resolves the repo root at runtime", () => NoRuntimeRepoRootWalk());
         Check(failures, "no cwd-relative tests/ or src/ fixture path", () => NoCwdRelativeFixturePath());
@@ -71,15 +72,15 @@ public static class SelfLaunchTests
     {
         foreach (var muxer in new[] { "/usr/local/share/dotnet/dotnet", "/opt/homebrew/bin/dotnet", "C:/Program Files/dotnet/dotnet.exe" })
             Expect(SelfLaunch.StartInfo(muxer, "/b/CfdWorkbench.Desktop.Tests.dll", "--section-flow"),
-                muxer, "/b/CfdWorkbench.Desktop.Tests.dll", "--section-flow");
+                muxer, "/b/CfdWorkbench.Desktop.Tests.dll", "--harness", "--section-flow");
     }
 
     // The apphost is the program itself. Its name ends in ".Tests", which a naive extension strip would eat.
-    private static void AppHostLaunchPassesModeOnly()
+    private static void AppHostLaunchPassesHarnessAndMode()
     {
         foreach (var apphost in new[] { "/b/CfdWorkbench.Desktop.Tests", "C:/b/CfdWorkbench.Desktop.Tests.exe" })
             Expect(SelfLaunch.StartInfo(apphost, "/b/CfdWorkbench.Desktop.Tests.dll", "--section-flow"),
-                apphost, "--section-flow");
+                apphost, "--harness", "--section-flow");
     }
 
     private static void Expect(ProcessStartInfo info, string file, params string[] arguments)

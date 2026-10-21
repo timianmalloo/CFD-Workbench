@@ -228,7 +228,7 @@ def main() -> None:
         environment.pop("CFD_TEST_ONLY", None)
         if only is not None:
             environment["CFD_TEST_ONLY"] = only
-        run(["dotnet", str(dll)], environment, scratch, child_umask=mask, label=label, cwd=cwd,
+        run(["dotnet", str(dll), "--harness"], environment, scratch, child_umask=mask, label=label, cwd=cwd,
             suite="full" if only is None else f"subset CFD_TEST_ONLY={only}")
         return passes(scratch, label)
 
@@ -241,7 +241,7 @@ def main() -> None:
         labels = [f"{label}-part{k}of{count}" for k in range(1, count + 1)]
         stop, errors = threading.Event(), []
         with ThreadPoolExecutor(count) as pool:
-            futures = [pool.submit(run, ["dotnet", str(dll), f"--part={k}/{count}"], dict(environment), scratch, 0o22,
+            futures = [pool.submit(run, ["dotnet", str(dll), "--harness", f"--part={k}/{count}"], dict(environment), scratch, 0o22,
                                    labels[k - 1], cwd, f"full part {k}/{count}", stop) for k in range(1, count + 1)]
             for future in futures:
                 try:
@@ -289,7 +289,7 @@ def main() -> None:
     published = scratch / "published"
     run(["dotnet", "publish", str(ROOT / "tests/CfdWorkbench.Core.Tests/CfdWorkbench.Core.Tests.csproj"),
          "-c", "Release", "--artifacts-path", str(artifacts), "--output", str(published), "--disable-build-servers",
-         "-p:UseSharedCompilation=false", "-p:UseAppHost=false", "--nologo"], environment, scratch, label="publish")
+         "-p:UseSharedCompilation=false", "--nologo"], environment, scratch, label="publish")
     # Test data belongs to this test package, not to production native-library resolution.
     shutil.copytree(ROOT / "docs/examples/foildsl", published / "docs/examples/foildsl")
     store_masks(published / "CfdWorkbench.Core.Tests.dll", "published", published)

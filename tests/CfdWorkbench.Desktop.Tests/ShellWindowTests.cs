@@ -2662,7 +2662,8 @@ public static class ShellWindowTests
             finally { window.Close(); }
         });
 
-        DesktopChecks.Check("Properties_TipCloses_TipChordIsText", () =>
+        // The rendered window; ControllerShellTests checks the projection under the plain name.
+        DesktopChecks.Check("Properties_TipCloses_TipChordIsText_Rendered", () =>
         {
             using var controller = new WorkbenchController();
             var window = U2Show(controller, out var host);

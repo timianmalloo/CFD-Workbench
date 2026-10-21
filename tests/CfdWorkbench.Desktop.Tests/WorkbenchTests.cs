@@ -16,508 +16,518 @@ using SolidColorBrush = Avalonia.Media.SolidColorBrush;
 using System.Text;
 using System.Text.Json.Nodes;
 
-var failureProbe = args.FirstOrDefault(arg => arg.StartsWith(CfdWorkbench.Desktop.Tests.SelfLaunchTests.FailureProbe, StringComparison.Ordinal));
-// The harness prints a crash's message and frame (the Windows ring died with the type only); the failure probe keeps the product shape.
-StartupFailure.Install(detail: failureProbe is null);
-// A stage name before it runs: the last STAGE or SUITE line in a crashed log names where it died.
-static void Stage(string name) => CfdWorkbench.Desktop.Tests.DesktopChecks.Stage(name, Console.Out);
-if (failureProbe is not null) throw new InvalidOperationException(failureProbe);
-// `--theme-evidence` (tools/verify-application-adapters.py, Debug): the same in-process prefix as a full run, then only the
-// suite that prints the THEME-ROW matrix. The fast ring runs every mode in Release (docs/plans/test-cost.md L2).
-bool themeEvidence = args is ["--theme-evidence"];
-if (args.Length == 0 || themeEvidence) { Stage("SelfLaunchTests"); CfdWorkbench.Desktop.Tests.SelfLaunchTests.Run(); }
-
-// Ruling 184: report the scale and nothing else (no check, no suite). Listed in no Spawn call and no ring.
-if (args is ["--scale-diagnostic"])
+/// <summary>
+/// The Desktop console harness: the parent that spawns one child process per suite mode, and every mode a child runs
+/// (docs/design/app-shell.md §12.2). Program.cs runs it on `--harness`; tests/HarnessTests.cs reports its lines as tests.
+/// </summary>
+internal static class DesktopHarness
 {
-    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ScaleDiagnostic(mode =>
+    public static async Task<int> Run(string[] args)
     {
-        AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
-        return CfdWorkbench.Desktop.Tests.DesktopChecks.ScaleContextLine(mode);
-    }, Console.Out));
-}
+        var failureProbe = args.FirstOrDefault(arg => arg.StartsWith(CfdWorkbench.Desktop.Tests.SelfLaunchTests.FailureProbe, StringComparison.Ordinal));
+        // The harness prints a crash's message and frame (the Windows ring died with the type only); the failure probe keeps the product shape.
+        StartupFailure.Install(detail: failureProbe is null);
+        // A stage name before it runs: the last STAGE or SUITE line in a crashed log names where it died.
+        static void Stage(string name) => CfdWorkbench.Desktop.Tests.DesktopChecks.Stage(name, Console.Out);
+        if (failureProbe is not null) throw new InvalidOperationException(failureProbe);
+        // `--theme-evidence` (tools/verify-application-adapters.py, Debug): the same in-process prefix as a full run, then only the
+        // suite that prints the THEME-ROW matrix. The fast ring runs every mode in Release (docs/plans/test-cost.md L2).
+        bool themeEvidence = args is ["--theme-evidence"];
+        if (args.Length == 0 || themeEvidence) { Stage("SelfLaunchTests"); CfdWorkbench.Desktop.Tests.SelfLaunchTests.Run(); }
 
-if (args.Contains("--section-canvas", StringComparer.Ordinal))
-{
-    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
-    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("section-canvas");
-    CfdWorkbench.Desktop.Tests.SectionCanvasTests.Run();
-    Console.WriteLine("SectionCanvas tests passed.");
-    Environment.Exit(0);
-}
-
-if (args.Contains("--catalog-dialog", StringComparer.Ordinal))
-{
-    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
-    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("catalog-dialog");
-    CfdWorkbench.Desktop.Tests.CatalogDialogTests.Run();
-    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
-}
-
-// Named-check suites (docs/design/app-shell.md §12.2): each prints PASS/FAIL lines and exits nonzero if any failed.
-if (args.Contains("--shell-model", StringComparer.Ordinal))
-{
-    CfdWorkbench.Desktop.Tests.ShellModelTests.Run();
-    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
-}
-
-if (args.Contains("--controller-shell", StringComparer.Ordinal))
-{
-    CfdWorkbench.Desktop.Tests.ControllerShellTests.Run();
-    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
-}
-
-// The THEME-ROW matrix alone: the verify-application-adapters gate's evidence, and a readiness check (Ruling 143).
-if (args.Contains("--theme-matrix", StringComparer.Ordinal))
-{
-    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
-    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("theme-matrix");
-    CfdWorkbench.Desktop.Tests.ShellWindowTests.RunThemeMatrix();
-    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
-}
-
-if (args.Contains("--shell-window", StringComparer.Ordinal))
-{
-    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
-    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("shell-window");
-    CfdWorkbench.Desktop.Tests.ShellWindowTests.Run();
-    CfdWorkbench.Desktop.Tests.WindowsShellTests.Run();
-    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
-}
-
-if (args.Contains("--plan-canvas", StringComparer.Ordinal))
-{
-    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
-    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("plan-canvas");
-    CfdWorkbench.Desktop.Tests.PlanCanvasTests.Run();
-    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
-}
-
-if (args.Contains("--views", StringComparer.Ordinal))
-{
-    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
-    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("views");
-    CfdWorkbench.Desktop.Tests.ViewCameraTests.Run();
-    CfdWorkbench.Desktop.Tests.ControllerViewTests.Run();
-    CfdWorkbench.Desktop.Tests.ElevationTests.Run();
-    CfdWorkbench.Desktop.Tests.View3dTests.Run();
-    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
-}
-
-if (args.Contains("--properties-view", StringComparer.Ordinal))
-{
-    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
-    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("properties-view");
-    CfdWorkbench.Desktop.Tests.PropertiesViewTests.Run();
-    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
-}
-
-if (args.Contains("--properties-cells", StringComparer.Ordinal))
-{
-    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
-    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("properties-cells");
-    CfdWorkbench.Desktop.Tests.PropertiesCellsTests.Run();
-    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
-}
-
-if (args.Contains("--section-editor", StringComparer.Ordinal))
-{
-    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
-    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("section-editor");
-    CfdWorkbench.Desktop.Tests.ControllerSectionTests.Run();
-    CfdWorkbench.Desktop.Tests.SectionEditorTests.Run();
-    CfdWorkbench.Desktop.Tests.CatalogDialogTests.Run();
-    CfdWorkbench.Desktop.Tests.ExportTests.Run();
-    CfdWorkbench.Desktop.Tests.ExportStlTests.Run();
-    CfdWorkbench.Desktop.Tests.ExportThreeMfTests.Run();
-    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
-}
-
-if (args.Contains("--status-strip", StringComparer.Ordinal))
-{
-    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
-    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("status-strip");
-    CfdWorkbench.Desktop.Tests.StatusStripTests.Run();
-    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
-}
-
-// Area 3 Analysis (docs/design/area3-analysis.md §18.2, seam S-A8): one child of the Desktop harness. PRE registers the mode
-// with three empty suites; TGL, LAY and PNA fill their own suite files only.
-if (args.Contains("--analysis", StringComparer.Ordinal))
-{
-    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
-    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("analysis");
-    CfdWorkbench.Desktop.Tests.AnalysisToggleTests.Run();
-    CfdWorkbench.Desktop.Tests.AnalysisFeedTests.Run();
-    CfdWorkbench.Desktop.Tests.AnalysisHistoricalFeedTests.Run();
-    CfdWorkbench.Desktop.Tests.AnalysisLayerTests.Run();
-    CfdWorkbench.Desktop.Tests.AnalysisPanelTests.Run();
-    CfdWorkbench.Desktop.Tests.StaleConditionsTests.Run();
-    CfdWorkbench.Desktop.Tests.NotResolvedViewTests.Run();
-    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
-}
-
-// A child that sleeps inside one named check, so a test can prove the parent's TIMEOUT line names it (PVH); never spawned by Spawn.
-if (args.Contains("--inflight-probe", StringComparer.Ordinal))
-{
-    CfdWorkbench.Desktop.Tests.DesktopChecks.Check("InFlightProbe_SleepsPastTheTimeout", () => Thread.Sleep(TimeSpan.FromSeconds(60)));
-    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
-}
-
-// DRAIN-ON-ARM64-LAPTOP: a child that starts a grandchild with inherited standard handles and exits at once, so a test can prove
-// the parent's DRAIN line names the grandchild as the pipe holder. The grandchild holds the pipes for 5 s. Never spawned by Spawn.
-if (args.Contains("--drain-probe", StringComparer.Ordinal))
-{
-    using var grandchild = System.Diagnostics.Process.Start(CfdWorkbench.Desktop.Tests.SelfLaunch.StartInfo("--drain-probe-hold"))!;
-    Console.WriteLine($"DRAIN-PROBE grandchild pid={grandchild.Id}");
-    Environment.Exit(0);
-}
-if (args.Contains("--drain-probe-hold", StringComparer.Ordinal))
-{
-    Thread.Sleep(TimeSpan.FromSeconds(5));
-    Environment.Exit(0);
-}
-
-// Readiness tier (docs/design/m12b-points.md §12.3): never spawned by run-tests.sh or DesktopChecks.Spawn.
-// PRE adds the switch; U1a and U1b fill the RunReadiness members it calls.
-if (args.Contains("--readiness", StringComparer.Ordinal))
-{
-    CfdWorkbench.Desktop.Tests.ControllerShellTests.RunReadiness();
-    CfdWorkbench.Desktop.Tests.PlanCanvasTests.RunReadiness();
-    // PlanCanvasTests.RunReadiness sets up Avalonia (a second setup throws), so the line follows it: it precedes every check but
-    // that suite's own frame-time checks. A subset (CFD_TEST_ONLY) runs none of those, so its line is before its first check.
-    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("readiness");
-    CfdWorkbench.Desktop.Tests.ControllerViewTests.RunReadiness();
-    CfdWorkbench.Desktop.Tests.View3dTests.RunReadiness();
-    // PlanCanvasTests.RunReadiness set up the Avalonia app above.
-    CfdWorkbench.Desktop.Tests.SectionEditorTests.RunReadiness();
-    CfdWorkbench.Desktop.Tests.AnalysisToggleTests.RunReadiness();
-    CfdWorkbench.Desktop.Tests.AnalysisFeedTests.RunReadiness();
-    CfdWorkbench.Desktop.Tests.AnalysisPanelTests.RunReadiness();
-    CfdWorkbench.Desktop.Tests.DxSectionPanelTests.RunReadiness();
-    CfdWorkbench.Desktop.Tests.SectionForceViewTests.RunReadiness();
-    CfdWorkbench.Desktop.Tests.SectionMainAreaTests.RunReadiness();
-    CfdWorkbench.Desktop.Tests.PointsPaneTests.RunReadiness();
-    CfdWorkbench.Desktop.Tests.ElevationTests.RunReadiness();
-    CfdWorkbench.Desktop.Tests.PropertiesCellsTests.RunReadiness();
-    CfdWorkbench.Desktop.Tests.ShellWindowTests.RunReadiness();
-    CfdWorkbench.Desktop.Tests.GestureLimitTests.RunReadiness();
-    CfdWorkbench.Desktop.Tests.AnalysisLayerTests.RunReadiness();
-    CfdWorkbench.Desktop.Tests.ControllerSectionTests.RunReadiness();
-    CfdWorkbench.Desktop.Tests.PropertiesViewTests.RunReadiness();
-    CfdWorkbench.Desktop.Tests.StatusStripTests.RunReadiness();
-    CfdWorkbench.Desktop.Tests.StageTimingTests.RunReadiness();
-    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
-}
-
-Stage("native-review-options");
-var reviewValues = new Dictionary<string, string>
-{
-    ["CFDW_REVIEW_MODE"] = "1", ["CFDW_REVIEW_PERSONA"] = "keyboard",
-    ["CFDW_REVIEW_SIZE"] = "1024x700", ["CFDW_REVIEW_STATE"] = "invalid-input",
-    ["CFDW_REVIEW_THEME"] = "dark", ["CFDW_REVIEW_REDUCED_MOTION"] = "1"
-};
-var review = NativeReviewOptions.Parse(key => reviewValues.GetValueOrDefault(key))
-    ?? throw new Exception("Review selector was ignored");
-if (review.Persona != "keyboard" || review.Width != 1024 || review.Height != 700 ||
-    review.State != "invalid-input" || review.Theme != "dark" || !review.ReducedMotion ||
-    NativeReviewOptions.Parse(_ => null) is not null)
-    throw new Exception("Native review selectors did not round-trip");
-var motionControl = new Button { Transitions = new Transitions { new DoubleTransition { Property = Button.OpacityProperty, Duration = TimeSpan.FromSeconds(1) } } };
-MainWindow.SuppressTransitions(motionControl);
-if (motionControl.Transitions is { Count: > 0 }) throw new Exception("Reduced-motion review retained a control transition");
-using (var reviewController = new WorkbenchController())
-{
-    // The shell window types "-" into Span for this state; the controller keeps the certified Example and opens no draft.
-    await review.ApplyStateAsync(reviewController);
-    if (reviewController.Draft is not null || reviewController.Inspection?.Geometry.Status != GeometryStatus.Certified)
-        throw new Exception("Invalid-input review state did not open the certified Example without a draft");
-}
-bool retiredDraftStateRefused = false;
-try { NativeReviewOptions.Parse(key => key == "CFDW_REVIEW_MODE" ? "1" : key == "CFDW_REVIEW_STATE" ? "draft" : null); }
-catch (ArgumentException) { retiredDraftStateRefused = true; }
-if (!retiredDraftStateRefused) throw new Exception("Review harness still offers the retired per-control draft state");
-bool reviewInvalidSizeRefused = false;
-try { NativeReviewOptions.Parse(key => key == "CFDW_REVIEW_MODE" ? "1" : key == "CFDW_REVIEW_SIZE" ? "900x600" : null); }
-catch (ArgumentException) { reviewInvalidSizeRefused = true; }
-if (!reviewInvalidSizeRefused) throw new Exception("Review harness accepted a window below its minimum size");
-using (var refusedReview = new WorkbenchController())
-{
-    await new NativeReviewOptions("designer", 1280, 800, "refused-open", "system", false, null)
-        .ApplyStateAsync(refusedReview);
-    if (refusedReview.Inspection?.Geometry.Status != GeometryStatus.Certified ||
-        string.IsNullOrEmpty(refusedReview.AcceptedSource) || refusedReview.PendingOriginal is null)
-        throw new Exception("Refused-open review state did not preserve a real accepted source and refused bytes");
-}
-using (var denseFileReview = new WorkbenchController())
-{
-    await new NativeReviewOptions("dense", 1024, 700, "file", "dark", true,
-        "src/CfdWorkbench.Desktop/Assets/example.foil").ApplyStateAsync(denseFileReview);
-    if (denseFileReview.Inspection?.Geometry.Status != GeometryStatus.Certified)
-        throw new Exception("File review state did not admit the real certified source");
-}
-bool falseNotAssessedRefused = false;
-try
-{
-    using var notAssessedReview = new WorkbenchController();
-    await new NativeReviewOptions("designer", 1024, 700, "not-assessed", "system", false,
-        "src/CfdWorkbench.Desktop/Assets/example.foil").ApplyStateAsync(notAssessedReview);
-}
-catch (ArgumentException) { falseNotAssessedRefused = true; }
-if (!falseNotAssessedRefused) throw new Exception("Review harness falsely labelled certified source Not assessed");
-string geometryPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"geometry-{Guid.NewGuid():N}.foil");
-try
-{
-    var validBytes = await File.ReadAllTextAsync("src/CfdWorkbench.Desktop/Assets/example.foil");
-    var invalidGeometry = validBytes.Replace("points [(0, 0), (0.1, 0)", "points [(0, 1), (0.1, 0)", StringComparison.Ordinal);
-    if (invalidGeometry == validBytes) throw new Exception("Invalid geometry fixture construction failed");
-    await File.WriteAllTextAsync(geometryPath, invalidGeometry);
-    using var invalidGeometryReview = new WorkbenchController();
-    await new NativeReviewOptions("designer", 1024, 700, "invalid-geometry", "system", false, geometryPath)
-        .ApplyStateAsync(invalidGeometryReview);
-    if (invalidGeometryReview.Inspection is not null || invalidGeometryReview.PendingOriginal is null)
-        throw new Exception("Invalid geometry review was accepted or original bytes were lost");
-}
-finally { File.Delete(geometryPath); }
-
-using var workbench = new WorkbenchController();
-await workbench.OpenExampleAsync();
-if (workbench.Inspection?.Geometry.Status != GeometryStatus.Certified) throw new Exception("Example is not certified");
-if (workbench.Points.Count != 15) throw new Exception("Expected 15 certified samples");
-string source = workbench.AcceptedSource;
-string acceptedHash = workbench.Inspection.Authored.Binding.SourceHash;
-await workbench.OpenFoilAsync(Encoding.UTF8.GetBytes("not FoilDSL"), "invalid.foil");
-if (workbench.AcceptedSource != source || workbench.Inspection?.Authored.Binding.SourceHash != acceptedHash)
-    throw new Exception("Rejected FoilDSL replaced the active accepted document");
-string invalidNativePath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"invalid-{Guid.NewGuid():N}.cfdw.json");
-try
-{
-    await File.WriteAllTextAsync(invalidNativePath, "not a native project");
-    try { await workbench.OpenPathAsync(invalidNativePath); }
-    catch (ContractError) { }
-    if (workbench.AcceptedSource != source || workbench.Inspection?.Authored.Binding.SourceHash != acceptedHash)
-        throw new Exception("Rejected native project replaced the active accepted document");
-}
-finally { File.Delete(invalidNativePath); }
-await workbench.EnterSectionAsync(0, EntryOrigin.Properties);
-var sectionVertex = workbench.SectionCurve(SurfaceSide.Upper)!.Points.First(vertex => vertex.Freedom != PointFreedom.Fixed);
-await workbench.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, sectionVertex.Id, sectionVertex.SpanMeters,
-    sectionVertex.Ordinate + .01));
-if (workbench.Section?.Draft.Cursor != 1) throw new Exception("Section step was not shown");
-workbench.CancelSection();
-if (workbench.AcceptedSource != source) throw new Exception("Cancel changed accepted source");
-await workbench.EnterSectionAsync(0, EntryOrigin.Properties);
-await workbench.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, sectionVertex.Id, sectionVertex.SpanMeters,
-    sectionVertex.Ordinate + .01));
-await workbench.FinishSectionAsync();
-if (workbench.AcceptedSource == source) throw new Exception("Finish did not change source");
-workbench.Changed += () =>
-{
-    if (workbench.Provenance.StartsWith("accepted", StringComparison.Ordinal) &&
-        workbench.Frame is { } shown && workbench.Inspection is { } active &&
-        shown.SourceHash != active.Authored.Binding.SourceHash)
-        throw new Exception("A stale frame was displayed as the current accepted identity");
-};
-workbench.Undo();
-if (workbench.AcceptedSource != source) throw new Exception("Undo did not restore source");
-workbench.Redo();
-if (workbench.AcceptedSource == source) throw new Exception("Redo did not restore edit");
-string conflictPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"existing-{Guid.NewGuid():N}.cfdw.json");
-byte[] foreignImage = Encoding.UTF8.GetBytes("foreign project bytes");
-// A named check, not a throw: on Windows the store answers DOC-UNSUPPORTED-PERSISTENCE until W-2 B2, and a throw here aborted
-// the whole harness and hid every later check (WRT-HARNESS-ABORT). The assertion is unchanged; the failure is one FAIL line.
-CfdWorkbench.Desktop.Tests.DesktopChecks.Check("Save_ExistingFile_DefiniteCreateOnlyConflict", () =>
-{
-    try
-    {
-        File.WriteAllBytes(conflictPath, foreignImage);
-        var conflict = workbench.SaveAsync(conflictPath).GetAwaiter().GetResult();
-        if (conflict.Code != "DOC-CONFLICT") throw new Exception("Expected definite create-only save conflict; actual " + conflict.Code);
-        if (workbench.SaveUncertain) throw new Exception("Definite prepublication conflict entered uncertain-save state");
-        if (!File.ReadAllBytes(conflictPath).SequenceEqual(foreignImage))
-            throw new Exception("Save conflict changed existing disk bytes");
-    }
-    finally { File.Delete(conflictPath); }
-});
-var uncertainStore = new UncertainStore();
-using (var uncertainWorkbench = new WorkbenchController(_ => uncertainStore))
-{
-    await uncertainWorkbench.OpenExampleAsync();
-    string attemptedPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"uncertain-{Guid.NewGuid():N}.cfdw.json");
-    var first = await uncertainWorkbench.SaveAsync(attemptedPath);
-    if (first.Code != "DOC-SAVE-UNCERTAIN" || !uncertainWorkbench.SaveUncertain ||
-        uncertainWorkbench.UncertainPath != attemptedPath || !uncertainWorkbench.IsDirty)
-        throw new Exception("First Save As did not retain its uncertain path and dirty source");
-    if (await uncertainWorkbench.ResolveUncertainSaveAsync() || !uncertainWorkbench.IsDirty)
-        throw new Exception("Matching readback or conflict incorrectly acknowledged durability");
-    if (!await uncertainWorkbench.ResolveUncertainSaveAsync() || uncertainWorkbench.IsDirty ||
-        uncertainWorkbench.NativePath != attemptedPath)
-        throw new Exception("Confirmed durable retry did not acknowledge exact first Save As image");
-}
-var delayedStore = new DelayedStore();
-using (var replacingWorkbench = new WorkbenchController(_ => delayedStore))
-{
-    await replacingWorkbench.OpenExampleAsync();
-    string attemptedPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"held-{Guid.NewGuid():N}.cfdw.json");
-    var heldSave = replacingWorkbench.SaveAsync(attemptedPath);
-    await delayedStore.Started.Task;
-    await replacingWorkbench.OpenExampleAsync();
-    string? replacementId = replacingWorkbench.Inspection!.Authored.Binding.AcceptedId;
-    delayedStore.Release();
-    await heldSave;
-    if (replacingWorkbench.Inspection?.Authored.Binding.AcceptedId != replacementId ||
-        replacingWorkbench.NativePath is not null || !replacingWorkbench.IsDirty)
-        throw new Exception("Late save acknowledged or attached its path to a replacement session");
-}
-// A named check, not top-level throws: every step opens or saves through the real store, which answers DOC-UNSUPPORTED-PERSISTENCE on
-// Windows until W-2 B2, and a throw here aborted the harness and hid every later check (WRT-HARNESS-ABORT).
-CfdWorkbench.Desktop.Tests.DesktopChecks.Check("Recovery_SaveReopenResume_KeepsDraftSeparateFromAccepted",
-    () => RecoverySaveReopenResumeAsync().GetAwaiter().GetResult());
-async Task RecoverySaveReopenResumeAsync()
-{
-    string recoveryPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"recovery-{Guid.NewGuid():N}.cfdw.json");
-    string seedRecoveryPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"seed-recovery-{Guid.NewGuid():N}.cfdw.json");
-    try
-    {
-        // The rail draft left after the per-control draft API retired is a resumed M1.2a recovery (golden bytes).
-        File.Copy("tests/CfdWorkbench.Core.Tests/Fixtures/m12b/m12a-rail-recovery.cfdw", seedRecoveryPath);
-        using var savingDraft = new WorkbenchController();
-        await savingDraft.OpenPathAsync(seedRecoveryPath);
-        string acceptedBeforeDraft = savingDraft.Inspection!.Authored.Binding.SourceHash;
-        savingDraft.ResumeRecovery();
-        byte[] retainedDraftBytes = savingDraft.Draft!.Bytes;
-        var savedRecovery = await savingDraft.SaveAsync(recoveryPath);
-        if (savedRecovery.Code != "OK" || savingDraft.IsDirty)
-            throw new Exception("Durable recovery save did not settle the unchanged visible draft; save answered " + savedRecovery.Code);
-        using var reopenedDraft = new WorkbenchController();
-        await reopenedDraft.OpenPathAsync(recoveryPath);
-        if (!reopenedDraft.HasRecovery || reopenedDraft.Draft is not null ||
-            reopenedDraft.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
-            throw new Exception("Native reopen did not offer a separate draft beside the original accepted source");
-        if (reopenedDraft.RecoverySource != Encoding.UTF8.GetString(retainedDraftBytes))
-            throw new Exception("Native recovery offer does not expose exact retained draft bytes");
-        using var recoveryReview = new WorkbenchController();
-        await new NativeReviewOptions("screen-reader", 1024, 700, "recovery", "high-contrast", true, recoveryPath)
-            .ApplyStateAsync(recoveryReview);
-        if (!recoveryReview.HasRecovery || recoveryReview.Draft is not null ||
-            recoveryReview.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
-            throw new Exception("Recovery review state bypassed the saved-project offer");
-        recoveryReview.ResumeRecovery();
-        if (recoveryReview.Draft is null || !recoveryReview.Draft.Bytes.SequenceEqual(retainedDraftBytes))
-            throw new Exception("Resumed recovery did not bind its current draft bytes");
-        reopenedDraft.ResumeRecovery();
-        if (reopenedDraft.Draft is null || !reopenedDraft.Draft.Bytes.SequenceEqual(retainedDraftBytes) ||
-            reopenedDraft.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
-            throw new Exception("Resume did not keep recovery separate from accepted identity");
-        var invalidImage = JsonNode.Parse(await File.ReadAllTextAsync(recoveryPath))!;
-        invalidImage["recovery"]!["utf8Base64Chunks"] = new JsonArray(Convert.ToBase64String(Encoding.UTF8.GetBytes("not FoilDSL")));
-        string invalidRecoveryPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"invalid-recovery-{Guid.NewGuid():N}.cfdw.json");
-        await File.WriteAllTextAsync(invalidRecoveryPath, invalidImage.ToJsonString());
-        using var invalidRecovery = new WorkbenchController();
-        try { await invalidRecovery.OpenPathAsync(invalidRecoveryPath); }
-        finally { File.Delete(invalidRecoveryPath); }
-        invalidRecovery.ResumeRecovery();
-        if (invalidRecovery.Draft is null ||
-            invalidRecovery.RecoverySource != "not FoilDSL" ||
-            invalidRecovery.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
-            throw new Exception("Unprojectable recovery draft did not retain raw bytes and accepted source separately");
-        if (!invalidRecovery.DraftInputValid) throw new Exception("Unprojectable recovery was marked as invalid numeric input");
-        await invalidRecovery.PreviewAsync();
-        if (invalidRecovery.Provenance != "draft — unavailable geometry" ||
-            !invalidRecovery.DraftInputValid || invalidRecovery.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
-            throw new Exception("Unprojectable recovery could not report Preview diagnostics without changing accepted source");
-        // Ruling 158 (5)-(7): a draft that is not a section has no station; the status is plain and ends with the code, never leads with it.
-        if (!invalidRecovery.Status.StartsWith("This shape ", StringComparison.Ordinal) ||
-            !invalidRecovery.Status.Contains(" (", StringComparison.Ordinal) ||
-            !invalidRecovery.Status.Contains("The last valid shape is still shown", StringComparison.Ordinal) ||
-            invalidRecovery.Status.Contains("Draft ", StringComparison.Ordinal))
-            throw new Exception("Unavailable draft status is not the Ruling 158 sentence: " + invalidRecovery.Status);
-    }
-    finally { File.Delete(recoveryPath); File.Delete(seedRecoveryPath); }
-}
-Console.WriteLine("Desktop Example, bounded preview, cancel, apply, undo and redo passed.");
-
-AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
-var loadedStyles = (Styles)AvaloniaXamlLoader.Load(
-    new Uri("avares://CfdWorkbench.Desktop/Styles.axaml"), null);
-var expectedThemeBrushes = new (string Key, string Light, string Dark, string HighContrast)[]
-{
-    ("CanvasBrush", "#f0f2f1", "#172326", "#000000"),
-    ("SurfaceBrush", "#fbfcfb", "#1e2d31", "#000000"),
-    ("SurfaceSoftBrush", "#e8edeb", "#2a3d40", "#000000"),
-    ("InkBrush", "#1b2929", "#ebf3f0", "#ffffff"),
-    ("MutedBrush", "#526362", "#b2c4bf", "#ffffff"),
-    ("LineBrush", "#c9d3cf", "#49605b", "#ffffff"),
-    ("PrimaryBrush", "#006c67", "#88d8c6", "#ffee58"),
-    ("OnPrimaryBrush", "#ffffff", "#172326", "#000000"),
-    ("DangerBrush", "#a92e37", "#ffaeb5", "#ffee58"),
-    ("ViewportBrush", "#17272c", "#17272c", "#000000"),
-    ("ViewportGridBrush", "#344b50", "#344b50", "#ffffff"),
-    ("ViewportInkBrush", "#edf4f2", "#edf4f2", "#ffffff"),
-    ("FoilBrush", "#85c9c4", "#85c9c4", "#ffee58"),
-    ("StationBrush", "#66ddc8", "#66ddc8", "#00ffff")
-};
-void AssertThemeBrushes(bool emit)
-{
-    foreach (var (key, light, dark, highContrast) in expectedThemeBrushes)
-        foreach (var (variant, expected) in new[] {
-            (ThemeVariant.Light, light), (ThemeVariant.Dark, dark),
-            (NativeReviewThemes.HighContrast, highContrast) })
+        // Ruling 184: report the scale and nothing else (no check, no suite). Listed in no Spawn call and no ring.
+        if (args is ["--scale-diagnostic"])
         {
-            if (!loadedStyles.TryGetResource(key, variant, out var value) ||
-                value is not ISolidColorBrush brush || brush.Color != Color.Parse(expected))
-                throw new Exception($"Loaded XAML theme brush {variant.Key}/{key}: " +
-                    $"expected {expected}, observed {((value as ISolidColorBrush)?.Color.ToString() ?? "missing/non-solid")}");
-            if (emit)
-                Console.WriteLine($"THEME-RESOURCE {variant.Key}/{key}=#{brush.Color.A:X2}{brush.Color.R:X2}{brush.Color.G:X2}{brush.Color.B:X2}");
+            Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ScaleDiagnostic(mode =>
+            {
+                AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+                return CfdWorkbench.Desktop.Tests.DesktopChecks.ScaleContextLine(mode);
+            }, Console.Out));
         }
-}
-AssertThemeBrushes(emit: true);
-foreach (var (key, light, dark, highContrast) in new[] {
-    ("SystemControlFocusVisualPrimaryBrush", "#006c67", "#88d8c6", "#ffee58"),
-    ("SystemControlFocusVisualSecondaryBrush", "#1b2929", "#ebf3f0", "#ffffff") })
-    foreach (var (variant, expected) in new[] {
-        (ThemeVariant.Light, light), (ThemeVariant.Dark, dark),
-        (NativeReviewThemes.HighContrast, highContrast) })
-    {
-        if (!loadedStyles.TryGetResource(key, variant, out var value) ||
-            value is not ISolidColorBrush brush || brush.Color != Color.Parse(expected) ||
-            Math.Abs(brush.Opacity - 1) > 0.000001)
-            throw new Exception($"Loaded XAML focus brush {variant.Key}/{key} is missing, translucent, or wrong");
-        Console.WriteLine($"THEME-FOCUS-RESOURCE {variant.Key}/{key}=#{brush.Color.A:X2}{brush.Color.R:X2}{brush.Color.G:X2}{brush.Color.B:X2}");
+
+        if (args.Contains("--section-canvas", StringComparer.Ordinal))
+        {
+            AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+            CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("section-canvas");
+            CfdWorkbench.Desktop.Tests.SectionCanvasTests.Run();
+            Console.WriteLine("SectionCanvas tests passed.");
+            Environment.Exit(0);
+        }
+
+        if (args.Contains("--catalog-dialog", StringComparer.Ordinal))
+        {
+            AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+            CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("catalog-dialog");
+            CfdWorkbench.Desktop.Tests.CatalogDialogTests.Run();
+            Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+        }
+
+        // Named-check suites (docs/design/app-shell.md §12.2): each prints PASS/FAIL lines and exits nonzero if any failed.
+        if (args.Contains("--shell-model", StringComparer.Ordinal))
+        {
+            CfdWorkbench.Desktop.Tests.ShellModelTests.Run();
+            Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+        }
+
+        if (args.Contains("--controller-shell", StringComparer.Ordinal))
+        {
+            CfdWorkbench.Desktop.Tests.ControllerShellTests.Run();
+            Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+        }
+
+        // The THEME-ROW matrix alone: the verify-application-adapters gate's evidence, and a readiness check (Ruling 143).
+        if (args.Contains("--theme-matrix", StringComparer.Ordinal))
+        {
+            AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+            CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("theme-matrix");
+            CfdWorkbench.Desktop.Tests.ShellWindowTests.RunThemeMatrix();
+            Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+        }
+
+        if (args.Contains("--shell-window", StringComparer.Ordinal))
+        {
+            AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+            CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("shell-window");
+            CfdWorkbench.Desktop.Tests.ShellWindowTests.Run();
+            CfdWorkbench.Desktop.Tests.WindowsShellTests.Run();
+            Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+        }
+
+        if (args.Contains("--plan-canvas", StringComparer.Ordinal))
+        {
+            AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+            CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("plan-canvas");
+            CfdWorkbench.Desktop.Tests.PlanCanvasTests.Run();
+            Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+        }
+
+        if (args.Contains("--views", StringComparer.Ordinal))
+        {
+            AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+            CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("views");
+            CfdWorkbench.Desktop.Tests.ViewCameraTests.Run();
+            CfdWorkbench.Desktop.Tests.ControllerViewTests.Run();
+            CfdWorkbench.Desktop.Tests.ElevationTests.Run();
+            CfdWorkbench.Desktop.Tests.View3dTests.Run();
+            Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+        }
+
+        if (args.Contains("--properties-view", StringComparer.Ordinal))
+        {
+            AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+            CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("properties-view");
+            CfdWorkbench.Desktop.Tests.PropertiesViewTests.Run();
+            Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+        }
+
+        if (args.Contains("--properties-cells", StringComparer.Ordinal))
+        {
+            AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+            CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("properties-cells");
+            CfdWorkbench.Desktop.Tests.PropertiesCellsTests.Run();
+            Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+        }
+
+        if (args.Contains("--section-editor", StringComparer.Ordinal))
+        {
+            AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+            CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("section-editor");
+            CfdWorkbench.Desktop.Tests.ControllerSectionTests.Run();
+            CfdWorkbench.Desktop.Tests.SectionEditorTests.Run();
+            CfdWorkbench.Desktop.Tests.CatalogDialogTests.Run();
+            CfdWorkbench.Desktop.Tests.ExportTests.Run();
+            CfdWorkbench.Desktop.Tests.ExportStlTests.Run();
+            CfdWorkbench.Desktop.Tests.ExportThreeMfTests.Run();
+            Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+        }
+
+        if (args.Contains("--status-strip", StringComparer.Ordinal))
+        {
+            AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+            CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("status-strip");
+            CfdWorkbench.Desktop.Tests.StatusStripTests.Run();
+            Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+        }
+
+        // Area 3 Analysis (docs/design/area3-analysis.md §18.2, seam S-A8): one child of the Desktop harness. PRE registers the mode
+        // with three empty suites; TGL, LAY and PNA fill their own suite files only.
+        if (args.Contains("--analysis", StringComparer.Ordinal))
+        {
+            AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+            CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("analysis");
+            CfdWorkbench.Desktop.Tests.AnalysisToggleTests.Run();
+            CfdWorkbench.Desktop.Tests.AnalysisFeedTests.Run();
+            CfdWorkbench.Desktop.Tests.AnalysisHistoricalFeedTests.Run();
+            CfdWorkbench.Desktop.Tests.AnalysisLayerTests.Run();
+            CfdWorkbench.Desktop.Tests.AnalysisPanelTests.Run();
+            CfdWorkbench.Desktop.Tests.StaleConditionsTests.Run();
+            CfdWorkbench.Desktop.Tests.NotResolvedViewTests.Run();
+            Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+        }
+
+        // A child that sleeps inside one named check, so a test can prove the parent's TIMEOUT line names it (PVH); never spawned by Spawn.
+        if (args.Contains("--inflight-probe", StringComparer.Ordinal))
+        {
+            CfdWorkbench.Desktop.Tests.DesktopChecks.Check("InFlightProbe_SleepsPastTheTimeout", () => Thread.Sleep(TimeSpan.FromSeconds(60)));
+            Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+        }
+
+        // DRAIN-ON-ARM64-LAPTOP: a child that starts a grandchild with inherited standard handles and exits at once, so a test can prove
+        // the parent's DRAIN line names the grandchild as the pipe holder. The grandchild holds the pipes for 5 s. Never spawned by Spawn.
+        if (args.Contains("--drain-probe", StringComparer.Ordinal))
+        {
+            using var grandchild = System.Diagnostics.Process.Start(CfdWorkbench.Desktop.Tests.SelfLaunch.StartInfo("--drain-probe-hold"))!;
+            Console.WriteLine($"DRAIN-PROBE grandchild pid={grandchild.Id}");
+            Environment.Exit(0);
+        }
+        if (args.Contains("--drain-probe-hold", StringComparer.Ordinal))
+        {
+            Thread.Sleep(TimeSpan.FromSeconds(5));
+            Environment.Exit(0);
+        }
+
+        // Readiness tier (docs/design/m12b-points.md §12.3): never spawned by run-tests.sh or DesktopChecks.Spawn.
+        // PRE adds the switch; U1a and U1b fill the RunReadiness members it calls.
+        if (args.Contains("--readiness", StringComparer.Ordinal))
+        {
+            CfdWorkbench.Desktop.Tests.ControllerShellTests.RunReadiness();
+            CfdWorkbench.Desktop.Tests.PlanCanvasTests.RunReadiness();
+            // PlanCanvasTests.RunReadiness sets up Avalonia (a second setup throws), so the line follows it: it precedes every check but
+            // that suite's own frame-time checks. A subset (CFD_TEST_ONLY) runs none of those, so its line is before its first check.
+            CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("readiness");
+            CfdWorkbench.Desktop.Tests.ControllerViewTests.RunReadiness();
+            CfdWorkbench.Desktop.Tests.View3dTests.RunReadiness();
+            // PlanCanvasTests.RunReadiness set up the Avalonia app above.
+            CfdWorkbench.Desktop.Tests.SectionEditorTests.RunReadiness();
+            CfdWorkbench.Desktop.Tests.AnalysisToggleTests.RunReadiness();
+            CfdWorkbench.Desktop.Tests.AnalysisFeedTests.RunReadiness();
+            CfdWorkbench.Desktop.Tests.AnalysisPanelTests.RunReadiness();
+            CfdWorkbench.Desktop.Tests.DxSectionPanelTests.RunReadiness();
+            CfdWorkbench.Desktop.Tests.SectionForceViewTests.RunReadiness();
+            CfdWorkbench.Desktop.Tests.SectionMainAreaTests.RunReadiness();
+            CfdWorkbench.Desktop.Tests.PointsPaneTests.RunReadiness();
+            CfdWorkbench.Desktop.Tests.ElevationTests.RunReadiness();
+            CfdWorkbench.Desktop.Tests.PropertiesCellsTests.RunReadiness();
+            CfdWorkbench.Desktop.Tests.ShellWindowTests.RunReadiness();
+            CfdWorkbench.Desktop.Tests.GestureLimitTests.RunReadiness();
+            CfdWorkbench.Desktop.Tests.AnalysisLayerTests.RunReadiness();
+            CfdWorkbench.Desktop.Tests.ControllerSectionTests.RunReadiness();
+            CfdWorkbench.Desktop.Tests.PropertiesViewTests.RunReadiness();
+            CfdWorkbench.Desktop.Tests.StatusStripTests.RunReadiness();
+            CfdWorkbench.Desktop.Tests.StageTimingTests.RunReadiness();
+            Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+        }
+
+        Stage("native-review-options");
+        var reviewValues = new Dictionary<string, string>
+        {
+            ["CFDW_REVIEW_MODE"] = "1", ["CFDW_REVIEW_PERSONA"] = "keyboard",
+            ["CFDW_REVIEW_SIZE"] = "1024x700", ["CFDW_REVIEW_STATE"] = "invalid-input",
+            ["CFDW_REVIEW_THEME"] = "dark", ["CFDW_REVIEW_REDUCED_MOTION"] = "1"
+        };
+        var review = NativeReviewOptions.Parse(key => reviewValues.GetValueOrDefault(key))
+            ?? throw new Exception("Review selector was ignored");
+        if (review.Persona != "keyboard" || review.Width != 1024 || review.Height != 700 ||
+            review.State != "invalid-input" || review.Theme != "dark" || !review.ReducedMotion ||
+            NativeReviewOptions.Parse(_ => null) is not null)
+            throw new Exception("Native review selectors did not round-trip");
+        var motionControl = new Button { Transitions = new Transitions { new DoubleTransition { Property = Button.OpacityProperty, Duration = TimeSpan.FromSeconds(1) } } };
+        MainWindow.SuppressTransitions(motionControl);
+        if (motionControl.Transitions is { Count: > 0 }) throw new Exception("Reduced-motion review retained a control transition");
+        using (var reviewController = new WorkbenchController())
+        {
+            // The shell window types "-" into Span for this state; the controller keeps the certified Example and opens no draft.
+            await review.ApplyStateAsync(reviewController);
+            if (reviewController.Draft is not null || reviewController.Inspection?.Geometry.Status != GeometryStatus.Certified)
+                throw new Exception("Invalid-input review state did not open the certified Example without a draft");
+        }
+        bool retiredDraftStateRefused = false;
+        try { NativeReviewOptions.Parse(key => key == "CFDW_REVIEW_MODE" ? "1" : key == "CFDW_REVIEW_STATE" ? "draft" : null); }
+        catch (ArgumentException) { retiredDraftStateRefused = true; }
+        if (!retiredDraftStateRefused) throw new Exception("Review harness still offers the retired per-control draft state");
+        bool reviewInvalidSizeRefused = false;
+        try { NativeReviewOptions.Parse(key => key == "CFDW_REVIEW_MODE" ? "1" : key == "CFDW_REVIEW_SIZE" ? "900x600" : null); }
+        catch (ArgumentException) { reviewInvalidSizeRefused = true; }
+        if (!reviewInvalidSizeRefused) throw new Exception("Review harness accepted a window below its minimum size");
+        using (var refusedReview = new WorkbenchController())
+        {
+            await new NativeReviewOptions("designer", 1280, 800, "refused-open", "system", false, null)
+                .ApplyStateAsync(refusedReview);
+            if (refusedReview.Inspection?.Geometry.Status != GeometryStatus.Certified ||
+                string.IsNullOrEmpty(refusedReview.AcceptedSource) || refusedReview.PendingOriginal is null)
+                throw new Exception("Refused-open review state did not preserve a real accepted source and refused bytes");
+        }
+        using (var denseFileReview = new WorkbenchController())
+        {
+            await new NativeReviewOptions("dense", 1024, 700, "file", "dark", true,
+                "src/CfdWorkbench.Desktop/Assets/example.foil").ApplyStateAsync(denseFileReview);
+            if (denseFileReview.Inspection?.Geometry.Status != GeometryStatus.Certified)
+                throw new Exception("File review state did not admit the real certified source");
+        }
+        bool falseNotAssessedRefused = false;
+        try
+        {
+            using var notAssessedReview = new WorkbenchController();
+            await new NativeReviewOptions("designer", 1024, 700, "not-assessed", "system", false,
+                "src/CfdWorkbench.Desktop/Assets/example.foil").ApplyStateAsync(notAssessedReview);
+        }
+        catch (ArgumentException) { falseNotAssessedRefused = true; }
+        if (!falseNotAssessedRefused) throw new Exception("Review harness falsely labelled certified source Not assessed");
+        string geometryPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"geometry-{Guid.NewGuid():N}.foil");
+        try
+        {
+            var validBytes = await File.ReadAllTextAsync("src/CfdWorkbench.Desktop/Assets/example.foil");
+            var invalidGeometry = validBytes.Replace("points [(0, 0), (0.1, 0)", "points [(0, 1), (0.1, 0)", StringComparison.Ordinal);
+            if (invalidGeometry == validBytes) throw new Exception("Invalid geometry fixture construction failed");
+            await File.WriteAllTextAsync(geometryPath, invalidGeometry);
+            using var invalidGeometryReview = new WorkbenchController();
+            await new NativeReviewOptions("designer", 1024, 700, "invalid-geometry", "system", false, geometryPath)
+                .ApplyStateAsync(invalidGeometryReview);
+            if (invalidGeometryReview.Inspection is not null || invalidGeometryReview.PendingOriginal is null)
+                throw new Exception("Invalid geometry review was accepted or original bytes were lost");
+        }
+        finally { File.Delete(geometryPath); }
+
+        using var workbench = new WorkbenchController();
+        await workbench.OpenExampleAsync();
+        if (workbench.Inspection?.Geometry.Status != GeometryStatus.Certified) throw new Exception("Example is not certified");
+        if (workbench.Points.Count != 15) throw new Exception("Expected 15 certified samples");
+        string source = workbench.AcceptedSource;
+        string acceptedHash = workbench.Inspection.Authored.Binding.SourceHash;
+        await workbench.OpenFoilAsync(Encoding.UTF8.GetBytes("not FoilDSL"), "invalid.foil");
+        if (workbench.AcceptedSource != source || workbench.Inspection?.Authored.Binding.SourceHash != acceptedHash)
+            throw new Exception("Rejected FoilDSL replaced the active accepted document");
+        string invalidNativePath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"invalid-{Guid.NewGuid():N}.cfdw.json");
+        try
+        {
+            await File.WriteAllTextAsync(invalidNativePath, "not a native project");
+            try { await workbench.OpenPathAsync(invalidNativePath); }
+            catch (ContractError) { }
+            if (workbench.AcceptedSource != source || workbench.Inspection?.Authored.Binding.SourceHash != acceptedHash)
+                throw new Exception("Rejected native project replaced the active accepted document");
+        }
+        finally { File.Delete(invalidNativePath); }
+        await workbench.EnterSectionAsync(0, EntryOrigin.Properties);
+        var sectionVertex = workbench.SectionCurve(SurfaceSide.Upper)!.Points.First(vertex => vertex.Freedom != PointFreedom.Fixed);
+        await workbench.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, sectionVertex.Id, sectionVertex.SpanMeters,
+            sectionVertex.Ordinate + .01));
+        if (workbench.Section?.Draft.Cursor != 1) throw new Exception("Section step was not shown");
+        workbench.CancelSection();
+        if (workbench.AcceptedSource != source) throw new Exception("Cancel changed accepted source");
+        await workbench.EnterSectionAsync(0, EntryOrigin.Properties);
+        await workbench.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, sectionVertex.Id, sectionVertex.SpanMeters,
+            sectionVertex.Ordinate + .01));
+        await workbench.FinishSectionAsync();
+        if (workbench.AcceptedSource == source) throw new Exception("Finish did not change source");
+        workbench.Changed += () =>
+        {
+            if (workbench.Provenance.StartsWith("accepted", StringComparison.Ordinal) &&
+                workbench.Frame is { } shown && workbench.Inspection is { } active &&
+                shown.SourceHash != active.Authored.Binding.SourceHash)
+                throw new Exception("A stale frame was displayed as the current accepted identity");
+        };
+        workbench.Undo();
+        if (workbench.AcceptedSource != source) throw new Exception("Undo did not restore source");
+        workbench.Redo();
+        if (workbench.AcceptedSource == source) throw new Exception("Redo did not restore edit");
+        string conflictPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"existing-{Guid.NewGuid():N}.cfdw.json");
+        byte[] foreignImage = Encoding.UTF8.GetBytes("foreign project bytes");
+        // A named check, not a throw: on Windows the store answers DOC-UNSUPPORTED-PERSISTENCE until W-2 B2, and a throw here aborted
+        // the whole harness and hid every later check (WRT-HARNESS-ABORT). The assertion is unchanged; the failure is one FAIL line.
+        CfdWorkbench.Desktop.Tests.DesktopChecks.Check("Save_ExistingFile_DefiniteCreateOnlyConflict", () =>
+        {
+            try
+            {
+                File.WriteAllBytes(conflictPath, foreignImage);
+                var conflict = workbench.SaveAsync(conflictPath).GetAwaiter().GetResult();
+                if (conflict.Code != "DOC-CONFLICT") throw new Exception("Expected definite create-only save conflict; actual " + conflict.Code);
+                if (workbench.SaveUncertain) throw new Exception("Definite prepublication conflict entered uncertain-save state");
+                if (!File.ReadAllBytes(conflictPath).SequenceEqual(foreignImage))
+                    throw new Exception("Save conflict changed existing disk bytes");
+            }
+            finally { File.Delete(conflictPath); }
+        });
+        var uncertainStore = new UncertainStore();
+        using (var uncertainWorkbench = new WorkbenchController(_ => uncertainStore))
+        {
+            await uncertainWorkbench.OpenExampleAsync();
+            string attemptedPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"uncertain-{Guid.NewGuid():N}.cfdw.json");
+            var first = await uncertainWorkbench.SaveAsync(attemptedPath);
+            if (first.Code != "DOC-SAVE-UNCERTAIN" || !uncertainWorkbench.SaveUncertain ||
+                uncertainWorkbench.UncertainPath != attemptedPath || !uncertainWorkbench.IsDirty)
+                throw new Exception("First Save As did not retain its uncertain path and dirty source");
+            if (await uncertainWorkbench.ResolveUncertainSaveAsync() || !uncertainWorkbench.IsDirty)
+                throw new Exception("Matching readback or conflict incorrectly acknowledged durability");
+            if (!await uncertainWorkbench.ResolveUncertainSaveAsync() || uncertainWorkbench.IsDirty ||
+                uncertainWorkbench.NativePath != attemptedPath)
+                throw new Exception("Confirmed durable retry did not acknowledge exact first Save As image");
+        }
+        var delayedStore = new DelayedStore();
+        using (var replacingWorkbench = new WorkbenchController(_ => delayedStore))
+        {
+            await replacingWorkbench.OpenExampleAsync();
+            string attemptedPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"held-{Guid.NewGuid():N}.cfdw.json");
+            var heldSave = replacingWorkbench.SaveAsync(attemptedPath);
+            await delayedStore.Started.Task;
+            await replacingWorkbench.OpenExampleAsync();
+            string? replacementId = replacingWorkbench.Inspection!.Authored.Binding.AcceptedId;
+            delayedStore.Release();
+            await heldSave;
+            if (replacingWorkbench.Inspection?.Authored.Binding.AcceptedId != replacementId ||
+                replacingWorkbench.NativePath is not null || !replacingWorkbench.IsDirty)
+                throw new Exception("Late save acknowledged or attached its path to a replacement session");
+        }
+        // A named check, not top-level throws: every step opens or saves through the real store, which answers DOC-UNSUPPORTED-PERSISTENCE on
+        // Windows until W-2 B2, and a throw here aborted the harness and hid every later check (WRT-HARNESS-ABORT).
+        CfdWorkbench.Desktop.Tests.DesktopChecks.Check("Recovery_SaveReopenResume_KeepsDraftSeparateFromAccepted",
+            () => RecoverySaveReopenResumeAsync().GetAwaiter().GetResult());
+        async Task RecoverySaveReopenResumeAsync()
+        {
+            string recoveryPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"recovery-{Guid.NewGuid():N}.cfdw.json");
+            string seedRecoveryPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"seed-recovery-{Guid.NewGuid():N}.cfdw.json");
+            try
+            {
+                // The rail draft left after the per-control draft API retired is a resumed M1.2a recovery (golden bytes).
+                File.Copy("tests/CfdWorkbench.Core.Tests/Fixtures/m12b/m12a-rail-recovery.cfdw", seedRecoveryPath);
+                using var savingDraft = new WorkbenchController();
+                await savingDraft.OpenPathAsync(seedRecoveryPath);
+                string acceptedBeforeDraft = savingDraft.Inspection!.Authored.Binding.SourceHash;
+                savingDraft.ResumeRecovery();
+                byte[] retainedDraftBytes = savingDraft.Draft!.Bytes;
+                var savedRecovery = await savingDraft.SaveAsync(recoveryPath);
+                if (savedRecovery.Code != "OK" || savingDraft.IsDirty)
+                    throw new Exception("Durable recovery save did not settle the unchanged visible draft; save answered " + savedRecovery.Code);
+                using var reopenedDraft = new WorkbenchController();
+                await reopenedDraft.OpenPathAsync(recoveryPath);
+                if (!reopenedDraft.HasRecovery || reopenedDraft.Draft is not null ||
+                    reopenedDraft.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
+                    throw new Exception("Native reopen did not offer a separate draft beside the original accepted source");
+                if (reopenedDraft.RecoverySource != Encoding.UTF8.GetString(retainedDraftBytes))
+                    throw new Exception("Native recovery offer does not expose exact retained draft bytes");
+                using var recoveryReview = new WorkbenchController();
+                await new NativeReviewOptions("screen-reader", 1024, 700, "recovery", "high-contrast", true, recoveryPath)
+                    .ApplyStateAsync(recoveryReview);
+                if (!recoveryReview.HasRecovery || recoveryReview.Draft is not null ||
+                    recoveryReview.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
+                    throw new Exception("Recovery review state bypassed the saved-project offer");
+                recoveryReview.ResumeRecovery();
+                if (recoveryReview.Draft is null || !recoveryReview.Draft.Bytes.SequenceEqual(retainedDraftBytes))
+                    throw new Exception("Resumed recovery did not bind its current draft bytes");
+                reopenedDraft.ResumeRecovery();
+                if (reopenedDraft.Draft is null || !reopenedDraft.Draft.Bytes.SequenceEqual(retainedDraftBytes) ||
+                    reopenedDraft.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
+                    throw new Exception("Resume did not keep recovery separate from accepted identity");
+                var invalidImage = JsonNode.Parse(await File.ReadAllTextAsync(recoveryPath))!;
+                invalidImage["recovery"]!["utf8Base64Chunks"] = new JsonArray(Convert.ToBase64String(Encoding.UTF8.GetBytes("not FoilDSL")));
+                string invalidRecoveryPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"invalid-recovery-{Guid.NewGuid():N}.cfdw.json");
+                await File.WriteAllTextAsync(invalidRecoveryPath, invalidImage.ToJsonString());
+                using var invalidRecovery = new WorkbenchController();
+                try { await invalidRecovery.OpenPathAsync(invalidRecoveryPath); }
+                finally { File.Delete(invalidRecoveryPath); }
+                invalidRecovery.ResumeRecovery();
+                if (invalidRecovery.Draft is null ||
+                    invalidRecovery.RecoverySource != "not FoilDSL" ||
+                    invalidRecovery.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
+                    throw new Exception("Unprojectable recovery draft did not retain raw bytes and accepted source separately");
+                if (!invalidRecovery.DraftInputValid) throw new Exception("Unprojectable recovery was marked as invalid numeric input");
+                await invalidRecovery.PreviewAsync();
+                if (invalidRecovery.Provenance != "draft — unavailable geometry" ||
+                    !invalidRecovery.DraftInputValid || invalidRecovery.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
+                    throw new Exception("Unprojectable recovery could not report Preview diagnostics without changing accepted source");
+                // Ruling 158 (5)-(7): a draft that is not a section has no station; the status is plain and ends with the code, never leads with it.
+                if (!invalidRecovery.Status.StartsWith("This shape ", StringComparison.Ordinal) ||
+                    !invalidRecovery.Status.Contains(" (", StringComparison.Ordinal) ||
+                    !invalidRecovery.Status.Contains("The last valid shape is still shown", StringComparison.Ordinal) ||
+                    invalidRecovery.Status.Contains("Draft ", StringComparison.Ordinal))
+                    throw new Exception("Unavailable draft status is not the Ruling 158 sentence: " + invalidRecovery.Status);
+            }
+            finally { File.Delete(recoveryPath); File.Delete(seedRecoveryPath); }
+        }
+        Console.WriteLine("Desktop Example, bounded preview, cancel, apply, undo and redo passed.");
+
+        AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+        var loadedStyles = (Styles)AvaloniaXamlLoader.Load(
+            new Uri("avares://CfdWorkbench.Desktop/Styles.axaml"), null);
+        var expectedThemeBrushes = new (string Key, string Light, string Dark, string HighContrast)[]
+        {
+            ("CanvasBrush", "#f0f2f1", "#172326", "#000000"),
+            ("SurfaceBrush", "#fbfcfb", "#1e2d31", "#000000"),
+            ("SurfaceSoftBrush", "#e8edeb", "#2a3d40", "#000000"),
+            ("InkBrush", "#1b2929", "#ebf3f0", "#ffffff"),
+            ("MutedBrush", "#526362", "#b2c4bf", "#ffffff"),
+            ("LineBrush", "#c9d3cf", "#49605b", "#ffffff"),
+            ("PrimaryBrush", "#006c67", "#88d8c6", "#ffee58"),
+            ("OnPrimaryBrush", "#ffffff", "#172326", "#000000"),
+            ("DangerBrush", "#a92e37", "#ffaeb5", "#ffee58"),
+            ("ViewportBrush", "#17272c", "#17272c", "#000000"),
+            ("ViewportGridBrush", "#344b50", "#344b50", "#ffffff"),
+            ("ViewportInkBrush", "#edf4f2", "#edf4f2", "#ffffff"),
+            ("FoilBrush", "#85c9c4", "#85c9c4", "#ffee58"),
+            ("StationBrush", "#66ddc8", "#66ddc8", "#00ffff")
+        };
+        void AssertThemeBrushes(bool emit)
+        {
+            foreach (var (key, light, dark, highContrast) in expectedThemeBrushes)
+                foreach (var (variant, expected) in new[] {
+                    (ThemeVariant.Light, light), (ThemeVariant.Dark, dark),
+                    (NativeReviewThemes.HighContrast, highContrast) })
+                {
+                    if (!loadedStyles.TryGetResource(key, variant, out var value) ||
+                        value is not ISolidColorBrush brush || brush.Color != Color.Parse(expected))
+                        throw new Exception($"Loaded XAML theme brush {variant.Key}/{key}: " +
+                            $"expected {expected}, observed {((value as ISolidColorBrush)?.Color.ToString() ?? "missing/non-solid")}");
+                    if (emit)
+                        Console.WriteLine($"THEME-RESOURCE {variant.Key}/{key}=#{brush.Color.A:X2}{brush.Color.R:X2}{brush.Color.G:X2}{brush.Color.B:X2}");
+                }
+        }
+        AssertThemeBrushes(emit: true);
+        foreach (var (key, light, dark, highContrast) in new[] {
+            ("SystemControlFocusVisualPrimaryBrush", "#006c67", "#88d8c6", "#ffee58"),
+            ("SystemControlFocusVisualSecondaryBrush", "#1b2929", "#ebf3f0", "#ffffff") })
+            foreach (var (variant, expected) in new[] {
+                (ThemeVariant.Light, light), (ThemeVariant.Dark, dark),
+                (NativeReviewThemes.HighContrast, highContrast) })
+            {
+                if (!loadedStyles.TryGetResource(key, variant, out var value) ||
+                    value is not ISolidColorBrush brush || brush.Color != Color.Parse(expected) ||
+                    Math.Abs(brush.Opacity - 1) > 0.000001)
+                    throw new Exception($"Loaded XAML focus brush {variant.Key}/{key} is missing, translucent, or wrong");
+                Console.WriteLine($"THEME-FOCUS-RESOURCE {variant.Key}/{key}=#{brush.Color.A:X2}{brush.Color.R:X2}{brush.Color.G:X2}{brush.Color.B:X2}");
+            }
+        loadedStyles.Resources["SurfaceBrush"] = new SolidColorBrush(Color.Parse("#fbfcfb"));
+        bool shadowMutationRefused = false;
+        try { AssertThemeBrushes(emit: false); }
+        catch (Exception error) when (error.Message.Contains("Dark/SurfaceBrush", StringComparison.Ordinal))
+        { shadowMutationRefused = true; }
+        loadedStyles.Resources.Remove("SurfaceBrush");
+        if (!shadowMutationRefused) throw new Exception("Root-key shadow mutation escaped loaded-resource control");
+        Console.WriteLine("THEME-SHADOW-MUTATION refused Dark/SurfaceBrush");
+        AssertThemeBrushes(emit: false);
+        Console.WriteLine("THEME-RESOURCE-CHECK loaded-XAML Light/Dark/HighContrast 42");
+        CfdWorkbench.Desktop.Tests.StageTimingTests.Run();
+        Stage("SectionCanvasTests");
+        CfdWorkbench.Desktop.Tests.SectionCanvasTests.Run();
+        Stage("spawn");
+        // Longest first by measured SUITE-TIME, so the slots never wait on a long part started last (docs/plans/test-cost.md
+        // L5/L6, B2 9.5). 2026-10-05, load 16-20, seconds: plan-canvas 33.6/28.6, properties-view 26.1/23.0, shell-window
+        // 24.4/21.5, views 20.2/16.8, section-editor 18.9/17.3, controller-shell 15.3, properties-cells 12.8/11.5,
+        // status-strip 12.0/10.3/7.0. Greedy on 8 slots in this order ends at 40.6 s; the earlier order ended at 44.7 s.
+        // SUITE-TIME shows when to re-order. Re-ordered 2026-10-08 (Ruling 143) after moving 22 checks to readiness; load 9-17,
+        // seconds: section-editor 27.2/24.1, properties-view 27.1/23.6, shell-window 25.3/22.7, plan-canvas 21.4/21.2,
+        // controller-shell 21.0, views 18.1/16.7, analysis 16.7, properties-cells 9.6/9.5, status-strip 8.5/6.2/6.0. `--analysis`
+        // had been last and started at about 25 s, so it set the Desktop wall; on 10 slots it now starts with the second wave.
+        if (themeEvidence) Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn("--theme-matrix"));
+        int spawnedExit = CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn(
+            "--section-editor --part=1/2", "--properties-view --part=1/2", "--shell-window --part=2/2",
+            "--section-editor --part=2/2", "--properties-view --part=2/2", "--shell-window --part=1/2",
+            "--plan-canvas --part=2/2", "--plan-canvas --part=1/2", "--controller-shell",
+            "--views --part=1/2", "--analysis", "--views --part=2/2",
+            "--properties-cells --part=2/2", "--properties-cells --part=1/2", "--status-strip --part=1/3",
+            "--status-strip --part=2/3", "--status-strip --part=3/3", "--shell-model");
+        // The in-process checks above fail the run too, not only the child suites.
+        return spawnedExit != 0 ? spawnedExit : CfdWorkbench.Desktop.Tests.DesktopChecks.FailureCount > 0 ? 1 : 0;
     }
-loadedStyles.Resources["SurfaceBrush"] = new SolidColorBrush(Color.Parse("#fbfcfb"));
-bool shadowMutationRefused = false;
-try { AssertThemeBrushes(emit: false); }
-catch (Exception error) when (error.Message.Contains("Dark/SurfaceBrush", StringComparison.Ordinal))
-{ shadowMutationRefused = true; }
-loadedStyles.Resources.Remove("SurfaceBrush");
-if (!shadowMutationRefused) throw new Exception("Root-key shadow mutation escaped loaded-resource control");
-Console.WriteLine("THEME-SHADOW-MUTATION refused Dark/SurfaceBrush");
-AssertThemeBrushes(emit: false);
-Console.WriteLine("THEME-RESOURCE-CHECK loaded-XAML Light/Dark/HighContrast 42");
-CfdWorkbench.Desktop.Tests.StageTimingTests.Run();
-Stage("SectionCanvasTests");
-CfdWorkbench.Desktop.Tests.SectionCanvasTests.Run();
-Stage("spawn");
-// Longest first by measured SUITE-TIME, so the slots never wait on a long part started last (docs/plans/test-cost.md
-// L5/L6, B2 9.5). 2026-10-05, load 16-20, seconds: plan-canvas 33.6/28.6, properties-view 26.1/23.0, shell-window
-// 24.4/21.5, views 20.2/16.8, section-editor 18.9/17.3, controller-shell 15.3, properties-cells 12.8/11.5,
-// status-strip 12.0/10.3/7.0. Greedy on 8 slots in this order ends at 40.6 s; the earlier order ended at 44.7 s.
-// SUITE-TIME shows when to re-order. Re-ordered 2026-10-08 (Ruling 143) after moving 22 checks to readiness; load 9-17,
-// seconds: section-editor 27.2/24.1, properties-view 27.1/23.6, shell-window 25.3/22.7, plan-canvas 21.4/21.2,
-// controller-shell 21.0, views 18.1/16.7, analysis 16.7, properties-cells 9.6/9.5, status-strip 8.5/6.2/6.0. `--analysis`
-// had been last and started at about 25 s, so it set the Desktop wall; on 10 slots it now starts with the second wave.
-if (themeEvidence) Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn("--theme-matrix"));
-int spawnedExit = CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn(
-    "--section-editor --part=1/2", "--properties-view --part=1/2", "--shell-window --part=2/2",
-    "--section-editor --part=2/2", "--properties-view --part=2/2", "--shell-window --part=1/2",
-    "--plan-canvas --part=2/2", "--plan-canvas --part=1/2", "--controller-shell",
-    "--views --part=1/2", "--analysis", "--views --part=2/2",
-    "--properties-cells --part=2/2", "--properties-cells --part=1/2", "--status-strip --part=1/3",
-    "--status-strip --part=2/3", "--status-strip --part=3/3", "--shell-model");
-// The in-process checks above fail the run too, not only the child suites.
-Environment.Exit(spawnedExit != 0 ? spawnedExit : CfdWorkbench.Desktop.Tests.DesktopChecks.FailureCount > 0 ? 1 : 0);
+}
 
 sealed class UncertainStore : IProjectStore
 {

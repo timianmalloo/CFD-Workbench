@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-# run-tests.sh - build once, run every test harness, report. Nothing else.
+# run-tests.sh - build once, run every test project with dotnet test, report. Nothing else.
 #
 #   bash tools/run-tests.sh [Release|Debug] [--no-desktop]
 #
-# The four C# test projects are console harnesses (OutputType Exe, no test SDK): each prints `PASS <name>` lines and
-# exits non-zero on a failure. They run in parallel after one build, each into its own log under .tmp-tests/. A harness
-# that exits 0 without a single PASS line fails: an exit code is not a result. Python suites under tests/test_*.py run
-# afterwards when any exist. Exit 0 when everything passed, 1 otherwise.
+# The four C# test projects are xunit v3 assemblies around console harnesses (tests/HarnessTests.cs): `dotnet test` runs each
+# harness once and reports every PASS/FAIL/SKIP line as one test, plus the harness's exit code. The projects run in parallel
+# after one build, each into its own log under .tmp-tests/. A project that passes without one succeeded test fails: an exit
+# code is not a result. Python suites under tests/test_*.py run afterwards when any exist. Exit 0 when everything passed,
+# 1 otherwise.
 #
 # TMPDIR is set to a directory under the repository because the store tests refuse symlinked paths and macOS /tmp is one.
 set -uo pipefail
@@ -43,26 +44,29 @@ if [ "$no_desktop" -eq 1 ]; then projects=(Core Analysis Cli); echo "== CfdWorkb
 pids=()
 for project in "${projects[@]}"; do
   (
-    dotnet run -c "$configuration" --no-build --project "tests/CfdWorkbench.$project.Tests/CfdWorkbench.$project.Tests.csproj" \
+    dotnet test "tests/CfdWorkbench.$project.Tests/CfdWorkbench.$project.Tests.csproj" -c "$configuration" --no-build \
       > "$scratch/$project.log" 2>&1
   ) &
   pids+=("$!")
 done
 
+# The run summary dotnet test prints: "  total: N", "  failed: N", "  succeeded: N", "  skipped: N".
+count() { sed -n "s/^ *$2: *\([0-9][0-9]*\).*/\1/p" "$1" | tail -1; }
 failed=0
 for index in "${!projects[@]}"; do
   project="${projects[$index]}"
   status=0
   wait "${pids[$index]}" || status=$?
-  passes=$(grep -c '^PASS ' "$scratch/$project.log" || true)
-  echo "== CfdWorkbench.$project.Tests: $passes PASS, exit $status"
+  log="$scratch/$project.log"
+  succeeded=$(count "$log" succeeded); skipped=$(count "$log" skipped); failures=$(count "$log" failed)
+  echo "== CfdWorkbench.$project.Tests: ${succeeded:-0} passed, ${skipped:-0} skipped, ${failures:-0} failed, exit $status"
   if [ "$status" -ne 0 ]; then
-    grep '^FAIL' "$scratch/$project.log" || true
-    tail -20 "$scratch/$project.log"
+    grep -E '^(failed|error) ' "$log" || true
+    tail -30 "$log"
     echo "FAILED: CfdWorkbench.$project.Tests (exit $status)"
     failed=1
-  elif [ "$passes" -eq 0 ] && [ "$project" != "Cli" ]; then
-    echo "FAILED: CfdWorkbench.$project.Tests exited 0 but printed no PASS line"
+  elif [ "${succeeded:-0}" -eq 0 ]; then
+    echo "FAILED: CfdWorkbench.$project.Tests exited 0 but reported no succeeded test"
     failed=1
   fi
 done

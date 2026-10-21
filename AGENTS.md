@@ -11,11 +11,13 @@ Pack examples mentioning other products or technology stacks are reference examp
 not architecture decisions for this project. Project-specific decisions belong outside
 the managed block below.
 
-- Tests: `bash tools/run-tests.sh` builds once and runs the four C# harnesses (and any `tests/test_*.py`); run it
-  when src/, tests/ or a build file changed. CI (`.github/workflows/tests.yml`) runs the Core, Analysis and Cli
-  harnesses on Windows and macOS runners (`--no-desktop`: the Desktop harness samples pixels and focus and needs a real
-  display, so it runs on the developer machines) and `tools/check-docs.py` on Ubuntu for every push to main. There is
-  no local readiness ring and no test budget.
+- Tests: `bash tools/run-tests.sh` builds once and runs the four C# test projects with `dotnet test` (and any
+  `tests/test_*.py`); run it when src/, tests/ or a build file changed. Each project is an xunit v3 assembly around a
+  console harness: `tests/HarnessTests.cs` runs the harness once (`<assembly> --harness`, from the repo root) and reports
+  every `PASS`/`FAIL`/`SKIP` line as one test, so `dotnet test CFDWorkbench.slnx` and an IDE test explorer work too. CI
+  (`.github/workflows/tests.yml`) runs the Core, Analysis and Cli projects on Windows and macOS runners (`--no-desktop`:
+  the Desktop harness samples pixels and focus and needs a real display, so it runs on the developer machines) and
+  `tools/check-docs.py` on Ubuntu for every push to main. There is no local readiness ring and no test budget.
 - A proof folder is a short note plus the script that reproduces it (`docs/proof/wsl-preflight` is the shape);
   large captures stay out of git. Windows-facing work is bash in WSL or Git bash, never PowerShell.
 
