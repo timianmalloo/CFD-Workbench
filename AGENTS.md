@@ -86,13 +86,9 @@ every non-trivial task.
   CO-S1 declare the seat, CO-S2 a stop is a message** — plus **CO-L** leadership by designation in a git
   ref. The tree comes before the first spawn (CO15). `.github/instructions/agent-coordination.instructions.md`
   (CO1–CO17, CO-S0–CO-S2, CO-L); `coord leader|mail|board|request`.
-- **Continuous improvement (a primary directive):** every bug you create, every mistaken
-  assumption, and every correction you receive is captured — as a **class, not an instance** — in
-  `docs/lessons/defect-classes.md`, and converted into a **control** that fails when the shape
-  recurs. Run **class → sweep → derive → prevent** in writing on every defect fix; a fix that stops
-  at the instance is not finished. **A lesson recorded as prose is a memoir** — it only counts once
-  it is a test, a gate, a lint rule, or a file that is always loaded. Read the register at
-  grounding. `.github/instructions/continuous-improvement.instructions.md` (CI1–CI12).
+- **Lessons:** when a bug, a wrong assumption or a correction changes a tool or a test, record the class in
+  `docs/lessons/defect-classes.md` with the control that now catches it. A lesson that changed nothing is not
+  recorded, and no fix carries a sweep-and-control write-up (Ruling 247).
 - **Smallest correct (build discipline):** climb the **Solution-Selection Ladder** before writing —
   YAGNI → reuse-in-codebase → stdlib → native → installed dep → one line → minimum — never cutting
   validation, security, accessibility, or the failure-mode/test floors; mark bounded shortcuts with an
@@ -167,13 +163,7 @@ every non-trivial task.
   the bottleneck"*. Where a measurement genuinely does not exist you may model, but label it
   **Inferred**, state the model, and **name the gap that forced it** — then close the gap rather than
   modeling around it. Every measurement path **degrades to "not recorded", never to a plausible wrong
-  number**. This applies to the agent's own work too: a skill marks its start at grounding
-  (`audit-log.py start --session <id>`) so the closing audit entry records **duration_seconds**
-  automatically — measured, not modeled, with no flag to remember. **One marker measures one run**:
-  the closing entry consumes it, so each run re-marks at its own grounding rather than a session
-  marking once (AL4a); the marker is keyed by session **and** skill, a logged prompt never consumes
-  one, and the pack's `SessionStart`/`SubagentStart` hook marks the session seam so an unmarked run
-  still measures from its true start (`duration_source: session-start-hook`).
+  number**.
   `.github/instructions/instrumentation-over-inference.instructions.md` (IO1–IO12).
 - **Personas (dual-mode):** author in Peer Mode, review in Adversary Mode; the author never
   clears its own hard veto. Agents in `.github/agents/`; the operating standard in the
