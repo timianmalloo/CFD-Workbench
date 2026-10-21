@@ -50,8 +50,12 @@ for project in "${projects[@]}"; do
   pids+=("$!")
 done
 
-# The run summary dotnet test prints: "  total: N", "  failed: N", "  succeeded: N", "  skipped: N".
-count() { sed -n "s/^ *$2: *\([0-9][0-9]*\).*/\1/p" "$1" | tail -1; }
+# The run summary dotnet test prints: "  total: N", "  failed: N", "  succeeded: N", "  skipped: N" on their own lines here, or
+# on one "Test summary: total: N, failed: N, …" line; the key may follow a colour code, so the codes and CRs are dropped first.
+count() {
+  tr -d '\r' < "$1" | sed "s/$(printf '\033')\[[0-9;]*[A-Za-z]//g" |
+    sed -n "s/^\(.*[^A-Za-z]\)\{0,1\}$2: *\([0-9][0-9]*\).*/\2/p" | tail -1
+}
 failed=0
 for index in "${!projects[@]}"; do
   project="${projects[$index]}"
@@ -66,6 +70,7 @@ for index in "${!projects[@]}"; do
     echo "FAILED: CfdWorkbench.$project.Tests (exit $status)"
     failed=1
   elif [ "${succeeded:-0}" -eq 0 ]; then
+    tail -40 "$log"   # what dotnet test printed instead of a summary with succeeded tests
     echo "FAILED: CfdWorkbench.$project.Tests exited 0 but reported no succeeded test"
     failed=1
   fi
