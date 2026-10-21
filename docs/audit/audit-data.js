@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-20T17:47:40Z",
+  "generated": "2026-10-21T00:00:35Z",
   "audit": [
     {
       "actor": null,
@@ -40478,6 +40478,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-20T17:46:27Z",
       "duration_seconds": 72.0
+    },
+    {
+      "id": "al-01M5DW4ZT0KABA6P98GFRXW2J2",
+      "shortname": "f1-ruling-246",
+      "datetime": "2026-10-21T00:00:35Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of docs/f1-ruling-246 into main",
+      "summary": "Ruling 246 (attempt 4 accepted with exact bindings) recorded; the accepted authorization committed in place of the proposal recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Record Ruling 246 as (a) and bind attempt 4's accepted authorization on main before the launch",
+      "done_when": "rulings.md carries Ruling 246; attempt-4/attempt-authorization.json sha 5c01cba8; main joined",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-20T23:59:22Z",
+      "duration_seconds": 73.0
     }
   ],
   "changes": [
@@ -43854,6 +43881,24 @@ window.AUDIT_DATA = {
       "to": "pc-laptop-leader",
       "kind": "ruling",
       "ref": "req-01M5D54MTM835444J1K02VKXBS",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M5D6TR2TEVMZY0TX5ZTGRXKA",
+      "ts": "2026-10-20T17:47:59Z",
+      "from": "pc-laptop-leader",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M5D6TR1E8ACKGQHBZQGMTDJG",
+      "session": "pc-laptop-leader"
+    },
+    {
+      "id": "mail-01M5DW1XKXD7AGX8NWNRF3CQJ8",
+      "ts": "2026-10-20T23:58:55Z",
+      "from": "operator-timianmalloo",
+      "to": "pc-laptop-leader",
+      "kind": "ruling",
+      "ref": "req-01M5D6TR1E8ACKGQHBZQGMTDJG",
       "session": "operator-timianmalloo"
     }
   ]
