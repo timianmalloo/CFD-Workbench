@@ -7,18 +7,15 @@ unselected. Platform and product acceptance gates remain open until verified.
 Keep future implementation and developer tooling compatible with both target platforms.
 Run repository checks with `python3 tools/check-docs.py` (Windows: `py -3`).
 
-- PowerShell gate capture is fail-closed: create a redirected output file's parent first and set
-  `$ErrorActionPreference = 'Stop'`, or run the gate directly. Capture `$LASTEXITCODE` immediately
-  after the gate. A redirection setup error is a failed gate, never a green result.
-
 Pack examples mentioning other products or technology stacks are reference examples,
 not architecture decisions for this project. Project-specific decisions belong outside
 the managed block below.
 
-- Repair loops are capped at 2 cycles; at the cap, stop the track and report to the operator.
-- Progress is a src/ or tests/ diff; tools/check-spiral.py fails a branch that shows the spiral signature.
-- PC sessions and any session touching `docs/proof/win-*` read `.claude/knowledge/windows-proof-runbook.md` at grounding.
-- Test rings (docs/coordination/join.json, kept by check-docs TEST-RING): every join that changes code runs `tools/run-tests.sh` (60 s budget) and the fast gates, and a docs-only join (no src/, tests/, tools/, cases/, project or build-file path in the merge diff) skips the ring and prints RING-SKIPPED (Ruling 89, `tools/join-ring.sh`); a merge to main needs `python3 tools/run-readiness.py --check` green for that HEAD. A new test or gate states its ring and its cost.
+- Tests: `bash tools/run-tests.sh` builds once and runs the four C# harnesses (and any `tests/test_*.py`); run it
+  when src/, tests/ or a build file changed. CI (`.github/workflows/tests.yml`) runs it on Windows and macOS and
+  `tools/check-docs.py` on Ubuntu for every push to main. There is no local readiness ring and no test budget.
+- A proof folder is a short note plus the script that reproduces it (`docs/proof/wsl-preflight` is the shape);
+  large captures stay out of git. Windows-facing work is bash in WSL or Git bash, never PowerShell.
 
 <!-- AI-FORWARD-PACK:BEGIN (managed block — keep this block intact when reconciling; replace it wholesale on pack updates) -->
 ## AI-Forward Pack + Agent Knowledge Pack

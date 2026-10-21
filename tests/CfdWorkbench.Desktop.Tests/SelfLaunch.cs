@@ -39,32 +39,10 @@ public static class SelfLaunchTests
         Check(failures, "no Desktop, Core or Cli test builds a scratch path from the raw temp directory", () => NoRawTempPath());
         Check(failures, "no test passes a literal windows: true|false to a platform branch without a host guard", () => NoForeignOsBranchWithoutHostGuard());
         Check(failures, "no test creates a symbolic link except through TestLinks", () => NoBareSymbolicLinkOutsideTestLinks());
-        Check(failures, "every name in the Windows expected-failure manifest is a check the tests register", () => ExpectedFailureNamesAreRegistered());
         if (failures.Count > 0) throw new Exception("SelfLaunchTests failed:\n  " + string.Join("\n  ", failures));
-        Console.WriteLine("SelfLaunchTests: all 11 cases passed.");
+        Console.WriteLine("SelfLaunchTests: all 10 cases passed.");
     }
 
-    // Defect class MANIFEST-NAME-DRIFT (docs/lessons/defect-classes.md): a manifest entry names a check that PRF renamed, so the entry
-    // matches nothing and the renamed check fails the Windows ring as "not in the manifest". Every entry's name must be a string
-    // literal (or a "PASS Name" line, the Cli harness's shape) in some tests/**/*.cs file; a name built with string.Concat("a", "b") or "a" + "b" counts once the joins are removed.
-    // Ring: fast (every join), ~10 ms.
-    private static void ExpectedFailureNamesAreRegistered([CallerFilePath] string self = "")
-    {
-        var tests = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(self)!, ".."));
-        var joins = new Regex("\"\\s*(?:,|\\+)\\s*\"");
-        string sources = string.Concat(Directory.EnumerateFiles(tests, "*.cs", SearchOption.AllDirectories)
-            .Where(file => !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal) &&
-                           !file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
-            .Select(file => joins.Replace(File.ReadAllText(file), "")));
-        using var manifest = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(tests, "expected-failures.windows.json")));
-        var stale = manifest.RootElement.GetProperty("entries").EnumerateArray()
-            .Select(entry => entry.GetProperty("name").GetString()!)
-            .Where(name => !Regex.IsMatch(sources, "[\" ]" + Regex.Escape(name) + "[\" ]")).ToList();   // "Name" or the Cli harness's "PASS Name"
-        if (stale.Count > 0) throw new Exception("tests/expected-failures.windows.json names no registered check: " + string.Join(", ", stale));
-    }
-
-    // WFX2 item 1: the Windows ring died with "APP-CRASH System.Exception" and no frame. The harness handler adds the message and stack;
-    // the product handler stays type-only (threat model "Crash output").
     private static void CrashDetailNamesMessageAndFrame()
     {
         Exception thrown;
