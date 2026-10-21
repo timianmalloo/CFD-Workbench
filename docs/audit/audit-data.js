@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-21T16:45:48Z",
+  "generated": "2026-10-21T17:40:20Z",
   "audit": [
     {
       "actor": null,
@@ -40586,6 +40586,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-21T16:43:18Z",
       "duration_seconds": 150.0
+    },
+    {
+      "id": "al-01M5FRSECN9MA5TMGSEXRACGR2",
+      "shortname": "remove-cross-machine",
+      "datetime": "2026-10-21T17:40:20Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of tools/remove-cross-machine into main",
+      "summary": "The Mac-and-PC layer removed under Ruling 247 step 2: xmsg, the Windows runner family, the store-gate join plumbing, the admission check, the leadership observer; fourteen documents superseded recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Step 2 of the simplification: remove only the cross-machine layer, keeping the pack's local coordination",
+      "done_when": "the listed tools and register gone from main; join.json and check-docs adjusted; ring green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-21T17:37:47Z",
+      "duration_seconds": 153.0
     }
   ],
   "changes": [
