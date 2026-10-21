@@ -1,0 +1,1 @@
+{"epoch": 5, "event_id": "4500b71a641b4042938ae09f4f6ee5a8", "expires_in": 298.8406889438629, "leader": "mac", "oid": "e5709e36d51e20af51949cc7e6fb399491918022", "phase": "immediately-pre-live", "run_id": "f1-attempt4-20261020", "schema": "cfdw-f1-leader-sample/1", "state": "live", "utc": "2026-10-21T00:10:54.790567+00:00"}

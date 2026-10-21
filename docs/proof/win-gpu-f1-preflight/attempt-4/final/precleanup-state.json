@@ -1,0 +1,8 @@
+{
+  "schema": "cfdw-f1-r217-precleanup/1",
+  "run_id": "f1-attempt4-20261020",
+  "stage": "not-started",
+  "initiating_error": "F1-EXCLUSIVITY-REFUSED: additional or changed WSL actor: wsl.exe pid 8464",
+  "elapsed_seconds": 15.5859799,
+  "affinity": "Linux CPU0-1 nice10; host Git N/A"
+}
