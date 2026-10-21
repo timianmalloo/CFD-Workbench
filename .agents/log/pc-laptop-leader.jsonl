@@ -73,3 +73,4 @@
 {"action": "add", "agent": "pc-laptop-leader", "at": 1792518479.9128978, "deadline_at": 1792519379.9128978, "id": "req-01M5D6TR1E8ACKGQHBZQGMTDJG", "kind": "request", "path": "-", "seq": 73, "session": "pc-laptop-leader", "to": "operator-timianmalloo", "type": "request", "wi": "WI-0"}
 {"at": 1792518479.9620068, "from": "pc-laptop-leader", "kind": "decision-request", "mail_id": "mail-01M5D6TR2TEVMZY0TX5ZTGRXKA", "ref": "req-01M5D6TR1E8ACKGQHBZQGMTDJG", "session": "pc-laptop-leader", "to": "operator-timianmalloo", "type": "mail"}
 {"agent": "pc-laptop-leader", "at": 1792540712.503356, "kind": "session-start", "path": "-", "seq": 75, "session": "pc-laptop-leader", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-docs-f1-ruling-246"}
+{"agent": "pc-laptop-leader", "at": 1792540864.2980127, "kind": "session-end", "path": "-", "seq": 76, "session": "pc-laptop-leader", "wi": "WI-0", "worktree": "CFD-Workbench-docs-f1-ruling-246"}
