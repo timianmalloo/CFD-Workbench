@@ -482,7 +482,7 @@ def main() -> int:
             # THEME-RESOURCE-CHECK) and --shell-window (THEME-ROW) only; every mode runs in Release on every join, and
             # tools/check-debug-parity.py keeps Debug and Release the same code (docs/plans/test-cost.md L2).
             arguments = ["--theme-evidence"] if project == "CfdWorkbench.Desktop.Tests" else []
-            require_step(receipt, project, ["dotnet", str(dll), *arguments])
+            require_step(receipt, project, ["dotnet", str(dll), "--harness", *arguments])
             if project == "CfdWorkbench.Desktop.Tests":
                 receipt["themeContrast"] = contrast_checks(receipt["steps"][-1])
                 receipt["appliedThemeContrast"] = applied_theme_checks(receipt["steps"][-1])

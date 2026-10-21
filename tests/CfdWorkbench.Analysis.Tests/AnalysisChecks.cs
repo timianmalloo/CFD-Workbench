@@ -17,7 +17,7 @@ internal static class AnalysisChecks
         .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
     private static readonly HashSet<string> matched = [];
 
-    private static int Main(string[] args)
+    internal static int Run(string[] args)
     {
         // Readiness tier: never spawned by tools/run-tests.sh, which calls this harness with no arguments.
         if (args.Contains("--readiness"))

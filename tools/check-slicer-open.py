@@ -191,7 +191,7 @@ def main() -> int:
     try:
         written = subprocess.run(
             ["dotnet", "run", "-c", "Release", "--project", str(ROOT / "tests" / "CfdWorkbench.Core.Tests"), "--",
-             "--write-stl-fixtures", str(work)], cwd=ROOT, capture_output=True, text=True, encoding="utf-8", errors="replace", check=False)
+             "--harness", "--write-stl-fixtures", str(work)], cwd=ROOT, capture_output=True, text=True, encoding="utf-8", errors="replace", check=False)
         if written.returncode != 0 or not (work / "expected.json").is_file():
             print("FAIL fixtures: the writer did not run\n" + (written.stdout + written.stderr)[-1500:])
             return 1
