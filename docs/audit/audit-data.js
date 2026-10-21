@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-21T18:15:32Z",
+  "generated": "2026-10-21T18:29:42Z",
   "audit": [
     {
       "actor": null,
@@ -40667,6 +40667,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-21T18:15:12Z",
       "duration_seconds": 20.0
+    },
+    {
+      "id": "al-01M5FVKVBZB40AN3XBBXX3JMX5",
+      "shortname": "ci-fixes",
+      "datetime": "2026-10-21T18:29:42Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of tools/ci-fixes into main",
+      "summary": "tests.yml: pip packages for the docs job; harness jobs run without the Desktop harness recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Make the first CI run of the simplified workflow green",
+      "done_when": "tests.yml green on all three jobs",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-21T18:27:45Z",
+      "duration_seconds": 117.0
     }
   ],
   "changes": [
