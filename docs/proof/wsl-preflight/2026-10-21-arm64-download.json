@@ -1,0 +1,2422 @@
+{
+  "architecture": "arm64",
+  "download_bytes": 3482871754,
+  "download_files": 217,
+  "downloaded": [
+    {
+      "bytes": 338946,
+      "file": "autoconf_2.71-3_all.deb",
+      "sha256": "cc3f9f7a1e576173fb59c36652c0a67c6426feae752b352404ba92dfcb1b26c9"
+    },
+    {
+      "bytes": 558172,
+      "file": "automake_1%3a1.16.5-1.3ubuntu1_all.deb",
+      "sha256": "5ae9a98e73545002cd891f028859941af2a3c760cb6190e635c7ef36953912de"
+    },
+    {
+      "bytes": 44886,
+      "file": "autotools-dev_20220109.1_all.deb",
+      "sha256": "d909f0327b09d9a9136239caca975df89782fa28efd721c4eb4caea422d3fc5a"
+    },
+    {
+      "bytes": 4932,
+      "file": "build-essential_12.10ubuntu1_arm64.deb",
+      "sha256": "6242b151676903160a5eeaffcddaba3d1c77b1d94d60dfad28c2d8c505cd9dee"
+    },
+    {
+      "bytes": 34022,
+      "file": "bzip2_1.0.8-5.1ubuntu0.1_arm64.deb",
+      "sha256": "1e07aa20c5f052c13b878367c397777886df1abc5253d29a7d36becb982cfca2"
+    },
+    {
+      "bytes": 9559928,
+      "file": "cpp-13-aarch64-linux-gnu_13.3.0-6ubuntu2~24.04.1_arm64.deb",
+      "sha256": "5de37686322fdee9432cabbab469088fe15ff99323fd0302139fd73ddb83e0fe"
+    },
+    {
+      "bytes": 1038,
+      "file": "cpp-13_13.3.0-6ubuntu2~24.04.1_arm64.deb",
+      "sha256": "0f3245c804313d970a2eabb72b68b0f6d8119905e1babdccfcf66f771fa3d9f1"
+    },
+    {
+      "bytes": 5316,
+      "file": "cpp-aarch64-linux-gnu_4%3a13.2.0-7ubuntu1_arm64.deb",
+      "sha256": "52822e3b33c0ccf29b86c6366683ebf61549973b02eda0643437a1fe8a099b9a"
+    },
+    {
+      "bytes": 22438,
+      "file": "cpp_4%3a13.2.0-7ubuntu1_arm64.deb",
+      "sha256": "133d40380f18509cf137347f7c470d87ccaf75fd1fa488c3b42b7d6ca3c09d30"
+    },
+    {
+      "bytes": 1259904,
+      "file": "cuda-cccl-13-2_13.2.86-1_arm64.deb",
+      "sha256": "b55f0f0e8300c81c807adf51c4b07576db226587ace478fcb248ca4fa91f9384"
+    },
+    {
+      "bytes": 2534,
+      "file": "cuda-command-line-tools-13-2_13.2.2-1_arm64.deb",
+      "sha256": "2ff15d92120f9c6344f69fc8647a77341817744bd2904371941d02c090143eb7"
+    },
+    {
+      "bytes": 2534,
+      "file": "cuda-compiler-13-2_13.2.2-1_arm64.deb",
+      "sha256": "558f232ded58663909357fe9d821eb359cc051d8df29ce5f5114716a5cc45b2a"
+    },
+    {
+      "bytes": 83114,
+      "file": "cuda-crt-13-2_13.2.86-1_arm64.deb",
+      "sha256": "3ff9567b31a9f78d3609b321bf69aa3f1fc53511700071a927699ba8944ee136"
+    },
+    {
+      "bytes": 180618,
+      "file": "cuda-cudart-13-2_13.2.86-1_arm64.deb",
+      "sha256": "136f07f53c0d44d091c636c5dced39cbdffe37e51b4906190cae3d72f4ce2174"
+    },
+    {
+      "bytes": 1438300,
+      "file": "cuda-cudart-dev-13-2_13.2.86-1_arm64.deb",
+      "sha256": "3a87a38cee72f1ae0ce16b3b44500173ada17ee8d94717e7d30bc5350ee0a92c"
+    },
+    {
+      "bytes": 23924,
+      "file": "cuda-culibos-dev-13-2_13.2.86-1_arm64.deb",
+      "sha256": "e9222b4674eca93e8101feb7bbca800ac00b040596a7c57f5d962838dc99348f"
+    },
+    {
+      "bytes": 264554,
+      "file": "cuda-cuobjdump-13-2_13.2.86-1_arm64.deb",
+      "sha256": "57b6da4d2c2f5c3b4aa4da83670c6b98c36e5dea310a6c056476fb878c0706de"
+    },
+    {
+      "bytes": 10471036,
+      "file": "cuda-cupti-13-2_13.2.86-1_arm64.deb",
+      "sha256": "b7d457f34c9b30490e89f51a5b68d4e3beb21dabd830f8e99409c5d0737d7ac6"
+    },
+    {
+      "bytes": 2583016,
+      "file": "cuda-cupti-dev-13-2_13.2.86-1_arm64.deb",
+      "sha256": "f1aeaa8a609f2ba50c3277687a1fef5679c724c75f22b0cc2adaf00030699f89"
+    },
+    {
+      "bytes": 55940,
+      "file": "cuda-cuxxfilt-13-2_13.2.86-1_arm64.deb",
+      "sha256": "988e9f9fe5a7e284eb32f20877856836041e53b4b9806f4bcbf9524bea13ecaf"
+    },
+    {
+      "bytes": 50864,
+      "file": "cuda-documentation-13-2_13.2.86-1_arm64.deb",
+      "sha256": "a756f7d789c54b40c99145ced20de24ac70b98bb2384987750d9d109eee0844b"
+    },
+    {
+      "bytes": 32412,
+      "file": "cuda-driver-dev-13-2_13.2.86-1_arm64.deb",
+      "sha256": "e34389ee29af308ca2ed372e3a6c349cf570e858c5484b2f97f3bb0f39a3a656"
+    },
+    {
+      "bytes": 25051848,
+      "file": "cuda-gdb-13-2_13.2.86-1_arm64.deb",
+      "sha256": "675c98580e7ca3b156cf83725cbe0b56c97e1b2c5edb662bbf1d9ba79a45db1a"
+    },
+    {
+      "bytes": 2622,
+      "file": "cuda-libraries-13-2_13.2.2-1_arm64.deb",
+      "sha256": "e978931c0ec3ec99e0dc0fda2715ab0e8a4156b346ab7d0b3cba20a5c81836e4"
+    },
+    {
+      "bytes": 2654,
+      "file": "cuda-libraries-dev-13-2_13.2.2-1_arm64.deb",
+      "sha256": "6dd660e90f1a617d04999772f0ce39e59ca0aa0fa6d64a13bcd3cc06a01014c0"
+    },
+    {
+      "bytes": 3660,
+      "file": "cuda-nsight-compute-13-2_13.2.2-1_arm64.deb",
+      "sha256": "b82c40fe051c27fbb7fb17133204ef7451ca1a308f9e35fd39bbaf7bb60e879f"
+    },
+    {
+      "bytes": 3348,
+      "file": "cuda-nsight-systems-13-2_13.2.2-1_arm64.deb",
+      "sha256": "9782cc2336e52f4bcf10e4e0ba1939296860b8490e9c7dbb19ef713907ae8eab"
+    },
+    {
+      "bytes": 26706796,
+      "file": "cuda-nvcc-13-2_13.2.86-1_arm64.deb",
+      "sha256": "d33c578dc8a9fbeb2ea1550b59069ffdaa69fba852789aa85c75a29060e736e3"
+    },
+    {
+      "bytes": 4223106,
+      "file": "cuda-nvdisasm-13-2_13.2.86-1_arm64.deb",
+      "sha256": "d1073de039b2538e7535e952fb84bdcc35698b8a8e349f356334f12b296e83b2"
+    },
+    {
+      "bytes": 151838,
+      "file": "cuda-nvml-dev-13-2_13.2.86-1_arm64.deb",
+      "sha256": "803790ae513301982de152b7d29e62230f5d94e1e4f3aeb15bcbf64aab0a6de1"
+    },
+    {
+      "bytes": 481778,
+      "file": "cuda-nvprune-13-2_13.2.86-1_arm64.deb",
+      "sha256": "fe028867337c39a720b19418531fb6614bcbe8d7842075d6097090b14ee46352"
+    },
+    {
+      "bytes": 29710680,
+      "file": "cuda-nvrtc-13-2_13.2.86-1_arm64.deb",
+      "sha256": "99235709485fe0150fed423ef3ab8ae32d66d0651bec7e3c79cd914fa60788ce"
+    },
+    {
+      "bytes": 26155388,
+      "file": "cuda-nvrtc-dev-13-2_13.2.86-1_arm64.deb",
+      "sha256": "6e9d5686572537f5a9d93e10385d23c07e59eb918091e0285861348f5f0bea18"
+    },
+    {
+      "bytes": 101434,
+      "file": "cuda-nvtx-13-2_13.2.86-1_arm64.deb",
+      "sha256": "fb84a62fbdcf7d6205cac5dcad7566a94d0128414c5acf95cd1be3a1edc7326d"
+    },
+    {
+      "bytes": 19588,
+      "file": "cuda-profiler-api-13-2_13.2.86-1_arm64.deb",
+      "sha256": "2bcf27c74cbdd0a348681464090180b51718cdd21922186483d8b12ca7260c3e"
+    },
+    {
+      "bytes": 7941072,
+      "file": "cuda-sanitizer-13-2_13.2.87-1_arm64.deb",
+      "sha256": "46c7061f60d13b9193c61327d6a03e0c631bc37bb80cca1ea7237a9326cef9d8"
+    },
+    {
+      "bytes": 23737412,
+      "file": "cuda-tileiras-13-2_13.2.86-1_arm64.deb",
+      "sha256": "46dc9faa46f9fccca0b28cf8238b631420565cb5c676a244549bec1a38791434"
+    },
+    {
+      "bytes": 17404,
+      "file": "cuda-toolkit-13-2-config-common_13.2.86-1_all.deb",
+      "sha256": "9eac5246cdf51a30e8b5cd3a7bf08728b0b8cf5a5fde16df0f672550d3a90f38"
+    },
+    {
+      "bytes": 3320,
+      "file": "cuda-toolkit-13-2_13.2.2-1_arm64.deb",
+      "sha256": "1a5b12d61b14662e30ff20c3e87f9dbf692597d658d5e6c07ef4138feac4f77d"
+    },
+    {
+      "bytes": 17442,
+      "file": "cuda-toolkit-13-config-common_13.4.92-1_all.deb",
+      "sha256": "bdcd9c4504a5ba2352bd41d805dd955bbb43197e1345cbeb4219901a6d6893a8"
+    },
+    {
+      "bytes": 17438,
+      "file": "cuda-toolkit-config-common_13.4.92-1_all.deb",
+      "sha256": "1cb4356ad1c1a3af0453a88dcd1086d20b1678298cb58b3003bad2c7a0694bec"
+    },
+    {
+      "bytes": 2470,
+      "file": "cuda-tools-13-2_13.2.2-1_arm64.deb",
+      "sha256": "e40cd28b48ccb42e7d38f660414212795a741229937d9963e0df0a77c7481d95"
+    },
+    {
+      "bytes": 2922,
+      "file": "cuda-visual-tools-13-2_13.2.2-1_arm64.deb",
+      "sha256": "c7f2be2b1dcb41c5fb52f8bdf7ae6c8bc521a86bc31edc069553324312315ad3"
+    },
+    {
+      "bytes": 1074218,
+      "file": "dpkg-dev_1.22.6ubuntu6.6_all.deb",
+      "sha256": "70da073557dbed76dc14eb1e682e7ec30fcb736f3d98812490a4c785b4c481cb"
+    },
+    {
+      "bytes": 290818,
+      "file": "flex_2.6.4-8.2build1_arm64.deb",
+      "sha256": "133560b3f2ced14e47ebf29b2058d15133a1addbfa9c0f2311d09bf31a290dd6"
+    },
+    {
+      "bytes": 10892156,
+      "file": "g++-13-aarch64-linux-gnu_13.3.0-6ubuntu2~24.04.1_arm64.deb",
+      "sha256": "2b172a55a06c454608e3004d446779b6f31792b2007d17f93d292c007e336c8f"
+    },
+    {
+      "bytes": 16046,
+      "file": "g++-13_13.3.0-6ubuntu2~24.04.1_arm64.deb",
+      "sha256": "2bc3b9363781481b5b3b1c24baa18a3876e12126f355181db83303e9e0bede3b"
+    },
+    {
+      "bytes": 962,
+      "file": "g++-aarch64-linux-gnu_4%3a13.2.0-7ubuntu1_arm64.deb",
+      "sha256": "5920bf2675f86e65338fdc9f7753f7891e07a74616c01c437ba2a7c086c7e42a"
+    },
+    {
+      "bytes": 1082,
+      "file": "g++_4%3a13.2.0-7ubuntu1_arm64.deb",
+      "sha256": "1c0786b509b97ebce60d6c98de64c7f8a9ed0e68ccdbc908a3feb6045123b89c"
+    },
+    {
+      "bytes": 18708214,
+      "file": "gcc-13-aarch64-linux-gnu_13.3.0-6ubuntu2~24.04.1_arm64.deb",
+      "sha256": "618086c3f64d780d0d8ffff2a07bef6115a301e71ee364bcf92c10b9b7dd499c"
+    },
+    {
+      "bytes": 51632,
+      "file": "gcc-13-base_13.3.0-6ubuntu2~24.04.1_arm64.deb",
+      "sha256": "1c1ca489da0d48237036318189a9b6525abe7703b75495f257f68bccae8c45a7"
+    },
+    {
+      "bytes": 484024,
+      "file": "gcc-13_13.3.0-6ubuntu2~24.04.1_arm64.deb",
+      "sha256": "04b729a6c728b92c941926be688f8c1a90a89602b10f131516a1e7574cc5b418"
+    },
+    {
+      "bytes": 1198,
+      "file": "gcc-aarch64-linux-gnu_4%3a13.2.0-7ubuntu1_arm64.deb",
+      "sha256": "14bd5f429f7e91c23fcae70ddc1acf1438adfe246fa3078273f5a0629f64e2dc"
+    },
+    {
+      "bytes": 5018,
+      "file": "gcc_4%3a13.2.0-7ubuntu1_arm64.deb",
+      "sha256": "11dec7614bba0bd5b7cfad6a9890a4680dac5de6908ae625dd07105679bad67c"
+    },
+    {
+      "bytes": 40688912,
+      "file": "gds-tools-13-2_1.17.1.22-1_arm64.deb",
+      "sha256": "c06994d47559cb5560bb0f89e07cc553afa2af1e8e2f7e2042330e4c87dfd12d"
+    },
+    {
+      "bytes": 10277946,
+      "file": "gfortran-13-aarch64-linux-gnu_13.3.0-6ubuntu2~24.04.1_arm64.deb",
+      "sha256": "49158066d0dbcc16760d3bbb9c3a9847513419f37bbd4ce4a8c8b0b19eb45a65"
+    },
+    {
+      "bytes": 13912,
+      "file": "gfortran-13_13.3.0-6ubuntu2~24.04.1_arm64.deb",
+      "sha256": "dad06597db308738be25b5e8d65a249335754e0ec386680d33e405aa04144665"
+    },
+    {
+      "bytes": 1022,
+      "file": "gfortran-aarch64-linux-gnu_4%3a13.2.0-7ubuntu1_arm64.deb",
+      "sha256": "0f1f7793d209e9451a89a7a5612ac377814e31b42476a68a57b1a8edc191df4f"
+    },
+    {
+      "bytes": 1164,
+      "file": "gfortran_4%3a13.2.0-7ubuntu1_arm64.deb",
+      "sha256": "65b55fdd8b0a4bc70eb47657404cfe76bf6b5573c942584cc11eb8beb34087bf"
+    },
+    {
+      "bytes": 374742,
+      "file": "ibverbs-providers_50.0-2ubuntu0.2_arm64.deb",
+      "sha256": "39e91a145faaa332aad6837783d6b600b7e1b136fa805fb7fc824a87d21897ab"
+    },
+    {
+      "bytes": 2927874,
+      "file": "libasan8_14.2.0-4ubuntu2~24.04.1_arm64.deb",
+      "sha256": "0b7957bc5bbc5d30eabe8b71bab06e624ac530be7b1b1315d2bd54629cf2559f"
+    },
+    {
+      "bytes": 11604,
+      "file": "libatomic1_14.2.0-4ubuntu2~24.04.1_arm64.deb",
+      "sha256": "fdeab74e7ad8572cf69c7024e8040c7ac851f6e667d35f0d429e7a0352840f73"
+    },
+    {
+      "bytes": 110984,
+      "file": "libblas-dev_3.12.0-3build1.1_arm64.deb",
+      "sha256": "1240f536316bccbb4b33939aeb528d58b4e6c359b55196d7f08a02f11dcbc419"
+    },
+    {
+      "bytes": 143534,
+      "file": "libblas3_3.12.0-3build1.1_arm64.deb",
+      "sha256": "4e8102189451f653e51571cb77072fb4403efc40e682335264184083ab2d7b56"
+    },
+    {
+      "bytes": 234590,
+      "file": "libboost-atomic1.83-dev_1.83.0-2.1ubuntu3.2_arm64.deb",
+      "sha256": "351ae4a158832289fb63323b0965d1b11e91888f3a717e0190fcf63851e1e418"
+    },
+    {
+      "bytes": 239230,
+      "file": "libboost-atomic1.83.0_1.83.0-2.1ubuntu3.2_arm64.deb",
+      "sha256": "287a505f519f8a33787d3278817bd66d374209f81dbdf1c315d657411f34af44"
+    },
+    {
+      "bytes": 245414,
+      "file": "libboost-chrono1.83-dev_1.83.0-2.1ubuntu3.2_arm64.deb",
+      "sha256": "3563e8258f50d1ce572bfc33730e59083195435dc7d91a286311e6111e015d11"
+    },
+    {
+      "bytes": 244324,
+      "file": "libboost-chrono1.83.0t64_1.83.0-2.1ubuntu3.2_arm64.deb",
+      "sha256": "19f8a709d48d9c6d84bc355e91157e01c66623490d513561af6db780a8113379"
+    },
+    {
+      "bytes": 239012,
+      "file": "libboost-date-time1.83-dev_1.83.0-2.1ubuntu3.2_arm64.deb",
+      "sha256": "9fe2228255eee5e93ff94c2f78aabc0a124b8f6e53b82f04836f78fef04d1870"
+    },
+    {
+      "bytes": 235922,
+      "file": "libboost-date-time1.83.0_1.83.0-2.1ubuntu3.2_arm64.deb",
+      "sha256": "98f8c45441241b09402555238a4ffc4771b90763c1ec187be3b534c27e38a340"
+    },
+    {
+      "bytes": 4308,
+      "file": "libboost-dev_1.83.0.1ubuntu2_arm64.deb",
+      "sha256": "806d2b5a3cad26e03c65166a94a2a719efcb47f1628e2d82fcb0d7fc47cf86db"
+    },
+    {
+      "bytes": 4084,
+      "file": "libboost-program-options-dev_1.83.0.1ubuntu2_arm64.deb",
+      "sha256": "be6f98bad1722254597908250aee6ff9f75363b19e668af587cf55ce05856a57"
+    },
+    {
+      "bytes": 390650,
+      "file": "libboost-program-options1.83-dev_1.83.0-2.1ubuntu3.2_arm64.deb",
+      "sha256": "16c354b4a887c9c5396112f101638e834d688e9b1a103b6b40f973bbda1e9496"
+    },
+    {
+      "bytes": 317000,
+      "file": "libboost-program-options1.83.0_1.83.0-2.1ubuntu3.2_arm64.deb",
+      "sha256": "b1a52b6f32ad6c8fe2dee9b2589221c7320b6ee936f47f6461a761d85a6d13b5"
+    },
+    {
+      "bytes": 391884,
+      "file": "libboost-serialization1.83-dev_1.83.0-2.1ubuntu3.2_arm64.deb",
+      "sha256": "547d027027d4a8c48d6c07ad4c4d8428795f4a2e4ee754655ef884d05bfffa24"
+    },
+    {
+      "bytes": 334922,
+      "file": "libboost-serialization1.83.0_1.83.0-2.1ubuntu3.2_arm64.deb",
+      "sha256": "5aa44c8c360e1c7c16b4d219542aab89f5fd41d075eb49b7ac06bc3a2ec5e8a9"
+    },
+    {
+      "bytes": 4204,
+      "file": "libboost-system-dev_1.83.0.1ubuntu2_arm64.deb",
+      "sha256": "63d32008ee7e13f4d0ba104ee8a554709993267241fa0c33cbdfa13e306a2c75"
+    },
+    {
+      "bytes": 231156,
+      "file": "libboost-system1.83-dev_1.83.0-2.1ubuntu3.2_arm64.deb",
+      "sha256": "7ba3067ee5004b0fd0f59bce82ded147e0392d8066d9a2895ce1af3c5e891ba8"
+    },
+    {
+      "bytes": 235974,
+      "file": "libboost-system1.83.0_1.83.0-2.1ubuntu3.2_arm64.deb",
+      "sha256": "2e6b718b122b3ef4f6e2d1866dc7dbbad17144702e05e5158594ad88e3fcbca0"
+    },
+    {
+      "bytes": 4088,
+      "file": "libboost-thread-dev_1.83.0.1ubuntu2_arm64.deb",
+      "sha256": "7b32887a9b883b3476e6c88e289b18dc658e09601f8f26a61bd332509b4da169"
+    },
+    {
+      "bytes": 283614,
+      "file": "libboost-thread1.83-dev_1.83.0-2.1ubuntu3.2_arm64.deb",
+      "sha256": "3cc5cb90a8f7ad6ae075b205cb25a7f93b3c93d6b98f619ae902d63404589d47"
+    },
+    {
+      "bytes": 275174,
+      "file": "libboost-thread1.83.0_1.83.0-2.1ubuntu3.2_arm64.deb",
+      "sha256": "6bea94ae8e15280e976e39ca686de2007faa605540932f7b7af3f63e050ac0ad"
+    },
+    {
+      "bytes": 10746196,
+      "file": "libboost1.83-dev_1.83.0-2.1ubuntu3.2_arm64.deb",
+      "sha256": "1412e461d573f66c9d5c7af63696a1d01e11a4724215299a3cf6afd1bcdd3d7f"
+    },
+    {
+      "bytes": 19684,
+      "file": "libc-dev-bin_2.39-0ubuntu8.9_arm64.deb",
+      "sha256": "85564f1ba7dce372d0fdec055986b428f72cd9c235af1dd29950f589562d19bc"
+    },
+    {
+      "bytes": 1596264,
+      "file": "libc6-dev_2.39-0ubuntu8.9_arm64.deb",
+      "sha256": "9bf6acb8a3433ffe561182517640970d324425fabbbeb54a24d737ba1f3c816b"
+    },
+    {
+      "bytes": 49734,
+      "file": "libcc1-0_14.2.0-4ubuntu2~24.04.1_arm64.deb",
+      "sha256": "a72eb7353138e671ce46cdb7afc09cd400eaa8ae20e2e7750d40fbbdf63a3811"
+    },
+    {
+      "bytes": 4969680,
+      "file": "libcgal-dev_5.6-1build3_arm64.deb",
+      "sha256": "5b77909189a76ca8818a2d3707c49782366a92d4a32e4bb6a88fe0500d485df0"
+    },
+    {
+      "bytes": 118238,
+      "file": "libcrypt-dev_1%3a4.4.36-4build1_arm64.deb",
+      "sha256": "cadcc00021aa1082a8cb5cd1c2686b25b7a4d396f2029eaa1b12159ca46f1766"
+    },
+    {
+      "bytes": 483711336,
+      "file": "libcublas-13-2_13.4.1.3-1_arm64.deb",
+      "sha256": "3d2dd96cc2dcc037843cdfabb220204d6cd9cce1c35acb8b9ca0aa236d1e8890"
+    },
+    {
+      "bytes": 537792992,
+      "file": "libcublas-dev-13-2_13.4.1.3-1_arm64.deb",
+      "sha256": "999badfc2f31ae2341abb0e7289989c0ab18cd5a9553edba1208f8aa46f65e8b"
+    },
+    {
+      "bytes": 32432,
+      "file": "libcudla-13-2_13.2.86-1_arm64.deb",
+      "sha256": "d7f9705d1ab408d58a27c1883ec03759e3956a99fd22be4f3b086ba0efa682fe"
+    },
+    {
+      "bytes": 28576,
+      "file": "libcudla-dev-13-2_13.2.86-1_arm64.deb",
+      "sha256": "e59a21d9118f054603078643b57ede81a38a73f5f5fff01acdd933a7b6f500e4"
+    },
+    {
+      "bytes": 180926232,
+      "file": "libcufft-13-2_12.2.0.57-1_arm64.deb",
+      "sha256": "f7b645d8f7e5ff8a126ba5a6be6dfeb760a4bc50042bb4376e36a948933f9901"
+    },
+    {
+      "bytes": 181641376,
+      "file": "libcufft-dev-13-2_12.2.0.57-1_arm64.deb",
+      "sha256": "00c97b74a10d12f8af40cd4fd02a7a34ba93a027dda1e82fa670d3e68941db97"
+    },
+    {
+      "bytes": 826874,
+      "file": "libcufile-13-2_1.17.1.22-1_arm64.deb",
+      "sha256": "966502e596799e7e6cb3d51b23cdf077b7afdf47bbbc9e4ad6f525dc99036dca"
+    },
+    {
+      "bytes": 2860596,
+      "file": "libcufile-dev-13-2_1.17.1.22-1_arm64.deb",
+      "sha256": "50fca57074cd404c7a9734ff95e122e7ce22127a81fbd2eed4fa79b41873926b"
+    },
+    {
+      "bytes": 152170,
+      "file": "libcuobjclient-13-2_1.1.1.22-1_arm64.deb",
+      "sha256": "4ef2363a7170517206f688442474b7b8bf33ee6110deb01e80dc0ed347ac49a3"
+    },
+    {
+      "bytes": 20292,
+      "file": "libcuobjclient-dev-13-2_1.1.1.22-1_arm64.deb",
+      "sha256": "9de8ac6be5e0a651de1e665d558d44616fba399152ae7b58028e82d6a0a75f92"
+    },
+    {
+      "bytes": 43889948,
+      "file": "libcurand-13-2_10.4.2.66-1_arm64.deb",
+      "sha256": "8df633c5e4c8259bd79381e4df742a1a04ca71d5a00e5f60309d4d27a68f47e2"
+    },
+    {
+      "bytes": 43800092,
+      "file": "libcurand-dev-13-2_10.4.2.66-1_arm64.deb",
+      "sha256": "c8ebcf628e7bfdd1702c4943f6f3d86cc0688c6166e5eec59ee0da62488c9677"
+    },
+    {
+      "bytes": 197272204,
+      "file": "libcusolver-13-2_12.2.0.11-1_arm64.deb",
+      "sha256": "2e4490b57350ec0871181f74dfe03242ab80cf872ca9e2c2b17c71afa2bf65f6"
+    },
+    {
+      "bytes": 121387880,
+      "file": "libcusolver-dev-13-2_12.2.0.11-1_arm64.deb",
+      "sha256": "0f0c98f7da7ba35756212cc812900519fe248f9bfe2b6abe273a9ab5bef73da2"
+    },
+    {
+      "bytes": 157785296,
+      "file": "libcusparse-13-2_12.7.10.12-1_arm64.deb",
+      "sha256": "80c7421447f4552f687ba6785b38437432e88ea283f7b36de8747877d0653ded"
+    },
+    {
+      "bytes": 160408180,
+      "file": "libcusparse-dev-13-2_12.7.10.12-1_arm64.deb",
+      "sha256": "57a2d24ed6dccdfb64c9408ce347e926e1b5810eaa7e03ec468ebbcf3b43f372"
+    },
+    {
+      "bytes": 268420,
+      "file": "libdpkg-perl_1.22.6ubuntu6.6_all.deb",
+      "sha256": "db57f9f0608f78001b5f468e03541fdb88b7e30a07b46d0bcdb57a916a6e8c11"
+    },
+    {
+      "bytes": 140880,
+      "file": "libevent-2.1-7t64_2.1.12-stable-9ubuntu2.2_arm64.deb",
+      "sha256": "fa673bc6df96f47db3aad32fa0158fccd0d15af9065fa4a4e11d90007abe4c9f"
+    },
+    {
+      "bytes": 283002,
+      "file": "libevent-dev_2.1.12-stable-9ubuntu2.2_arm64.deb",
+      "sha256": "35e4fca4b70f7113abea7e88e6ebdb64e675a325531cf8f9ff9324cf5116b156"
+    },
+    {
+      "bytes": 62526,
+      "file": "libevent-extra-2.1-7t64_2.1.12-stable-9ubuntu2.2_arm64.deb",
+      "sha256": "78e14cce30015511f623d9374c2b3d2ebbd480ff772f62d05126ee743a45956c"
+    },
+    {
+      "bytes": 14728,
+      "file": "libevent-openssl-2.1-7t64_2.1.12-stable-9ubuntu2.2_arm64.deb",
+      "sha256": "248753764524982173e11f731d929fc420356045b26cb5ba0ec20f31361df246"
+    },
+    {
+      "bytes": 7928,
+      "file": "libevent-pthreads-2.1-7t64_2.1.12-stable-9ubuntu2.2_arm64.deb",
+      "sha256": "07f2eb4ba77055429b24d10fce941a378197b9d4fcac44fb99fef187cede9e7b"
+    },
+    {
+      "bytes": 540710,
+      "file": "libfabric1_1.17.0-3build2_arm64.deb",
+      "sha256": "8469b772a884e6b5a42bd3fcae0e37de50adc0d4e942c648882c6ab5ecdf7036"
+    },
+    {
+      "bytes": 34182,
+      "file": "libfftw3-bin_3.3.10-1ubuntu3_arm64.deb",
+      "sha256": "d2c5eeb412355318ea3e0477d20c079474e9a5e19fcffa263abfee60f1a3e47a"
+    },
+    {
+      "bytes": 1452958,
+      "file": "libfftw3-dev_3.3.10-1ubuntu3_arm64.deb",
+      "sha256": "aaa375f7b95b003fb35de811ffb308cda2080276cce697e7e7ee4a6d3ef80556"
+    },
+    {
+      "bytes": 383620,
+      "file": "libfftw3-double3_3.3.10-1ubuntu3_arm64.deb",
+      "sha256": "242274e1c51242396e7d8d49671cd5ebc416aa96eac181bba5ec67aed96f9ca9"
+    },
+    {
+      "bytes": 639552,
+      "file": "libfftw3-long3_3.3.10-1ubuntu3_arm64.deb",
+      "sha256": "4c44fc3bb4b703ee888af04a3d8248a31f9afe910e83235455768aecabbdeb7d"
+    },
+    {
+      "bytes": 583006,
+      "file": "libfftw3-single3_3.3.10-1ubuntu3_arm64.deb",
+      "sha256": "bfebc1e67434716a17fdcbdbdb4239bf77bacf3b1e609ffd1ec3a4ecf32d7181"
+    },
+    {
+      "bytes": 6286,
+      "file": "libfl-dev_2.6.4-8.2build1_arm64.deb",
+      "sha256": "168fa966d447f64960de814f1ae2ba1606e237c36f89745d1dab982a5a74f79e"
+    },
+    {
+      "bytes": 9618,
+      "file": "libfl2_2.6.4-8.2build1_arm64.deb",
+      "sha256": "37132b780fa256302ace0c1c8d15f6f20c7901767af70da1f38cc2eed0e1fab5"
+    },
+    {
+      "bytes": 2473368,
+      "file": "libgcc-13-dev_13.3.0-6ubuntu2~24.04.1_arm64.deb",
+      "sha256": "609a9410d9a1f25a1cb7847de92ee9f438336a0a3a82d282c3686f52ddd61526"
+    },
+    {
+      "bytes": 481434,
+      "file": "libgfortran-13-dev_13.3.0-6ubuntu2~24.04.1_arm64.deb",
+      "sha256": "922394470fee49037f7c45caf5610aae41dd835902d243b92a17207d40aee1b9"
+    },
+    {
+      "bytes": 438652,
+      "file": "libgfortran5_14.2.0-4ubuntu2~24.04.1_arm64.deb",
+      "sha256": "99e5f2383ce0325fb7876c118494a8dd486afa30546102f14c26b93667ee2c70"
+    },
+    {
+      "bytes": 333552,
+      "file": "libgmp-dev_2%3a6.3.0+dfsg-2ubuntu6.1_arm64.deb",
+      "sha256": "f69fec9640bd3a21d1346aa15867b6f7c66a426a15ff902d29e5fb07e7844294"
+    },
+    {
+      "bytes": 10096,
+      "file": "libgmpxx4ldbl_2%3a6.3.0+dfsg-2ubuntu6.1_arm64.deb",
+      "sha256": "cc9d360bb4da7eae45c9e07dcd0998110017b8f06aada3c64b5222d04283c10b"
+    },
+    {
+      "bytes": 144962,
+      "file": "libgomp1_14.2.0-4ubuntu2~24.04.1_arm64.deb",
+      "sha256": "cd49d2e8834d41a6618f097b678980defeebc47271bc7c5aa8ea2c2f1a53b7a6"
+    },
+    {
+      "bytes": 1604938,
+      "file": "libhwasan0_14.2.0-4ubuntu2~24.04.1_arm64.deb",
+      "sha256": "44851293eede488ad89fd12db1bd8bfcb2b732f68ad4c13b83d6e0ce5d7b4bfa"
+    },
+    {
+      "bytes": 260702,
+      "file": "libhwloc-dev_2.10.0-1build1_arm64.deb",
+      "sha256": "6a4ed49f4a23b48457a0090ad1d211be74aa22a72becf034ddb803f2788580e8"
+    },
+    {
+      "bytes": 15728,
+      "file": "libhwloc-plugins_2.10.0-1build1_arm64.deb",
+      "sha256": "d487d61487dffa8bb0e411b06114e7fe43086ad5b5fa1aabb9dd4569830baa93"
+    },
+    {
+      "bytes": 159462,
+      "file": "libhwloc15_2.10.0-1build1_arm64.deb",
+      "sha256": "ad0c62924b223fe7ba6843103a300aed887c1db25ae325aadda483397aacf84d"
+    },
+    {
+      "bytes": 695206,
+      "file": "libibverbs-dev_50.0-2ubuntu0.2_arm64.deb",
+      "sha256": "1880ccb4116c112ccc4e6893f1d53892c0d5c1b307384ad4158c470dbed126e3"
+    },
+    {
+      "bytes": 67506,
+      "file": "libibverbs1_50.0-2ubuntu0.2_arm64.deb",
+      "sha256": "20b72b2c6b882ee4c155658be8a0a01d6edc2ee580eaeb330d9bb3ad643f386d"
+    },
+    {
+      "bytes": 669128,
+      "file": "libisl23_0.26-3build1.1_arm64.deb",
+      "sha256": "250bff60f1405c2fa7cd8cdd839f83105c7fec9b42ed6cb5f62e1bcda709bbc2"
+    },
+    {
+      "bytes": 28154,
+      "file": "libitm1_14.2.0-4ubuntu2~24.04.1_arm64.deb",
+      "sha256": "7f7d7c5a26888e5e34eb62a193762eb6a8d5805c5d6f22248f638193d1804993"
+    },
+    {
+      "bytes": 251790,
+      "file": "libjs-jquery-ui_1.13.2+dfsg-1_all.deb",
+      "sha256": "53c4ec6c6edf44eefb60dd6c51fd6a84a94e41ec366b3ff3b885f6eaf2a8515b"
+    },
+    {
+      "bytes": 327720,
+      "file": "libjs-jquery_3.6.1+dfsg+~3.5.14-1_all.deb",
+      "sha256": "8cd2eccd9c73c78c8dfdc5394861c63645f7e114553f29b4d9f15628625d191d"
+    },
+    {
+      "bytes": 4292752,
+      "file": "liblapack-dev_3.12.0-3build1.1_arm64.deb",
+      "sha256": "8c081de67734c69bc6b6f49d12a6cbaa429edbe69a0fd3237c743e558ac74042"
+    },
+    {
+      "bytes": 2241256,
+      "file": "liblapack3_3.12.0-3build1.1_arm64.deb",
+      "sha256": "5c4d4b359ab5f964382cb7ec476e7ebc10975ca21e65bbb1ab0afd09da4d1f89"
+    },
+    {
+      "bytes": 1289238,
+      "file": "liblsan0_14.2.0-4ubuntu2~24.04.1_arm64.deb",
+      "sha256": "21bb80325192b0cce6ccd041a8d823609c5e656bdda43368db6cdfe501593188"
+    },
+    {
+      "bytes": 169824,
+      "file": "libltdl-dev_2.4.7-7build1_arm64.deb",
+      "sha256": "89163373c4a1a0926d938e2e6058e0fadb5606049d77b88b860d3fd51c226776"
+    },
+    {
+      "bytes": 40402,
+      "file": "libltdl7_2.4.7-7build1_arm64.deb",
+      "sha256": "69f28804222d37670e19417cc21e54d5ec0ca3a149cbdbf0a5714d5e407e30d1"
+    },
+    {
+      "bytes": 56402,
+      "file": "libmpc3_1.3.1-1build1.1_arm64.deb",
+      "sha256": "efc4a44fb7382db33bf3adbfd0058201fd73d0e56fd48662d653e9a93f6139da"
+    },
+    {
+      "bytes": 288978,
+      "file": "libmpfr-dev_4.2.1-1build1.1_arm64.deb",
+      "sha256": "7db797041c5e1ffcd9c0beb8d1b56d3a395304fbbdec3aff63949ddea31fd320"
+    },
+    {
+      "bytes": 15056,
+      "file": "libmunge2_0.5.15-4ubuntu0.1_arm64.deb",
+      "sha256": "7e9261b18fe9695a1c1d21504adc0ea6b0f92aaee3017a6d4dc4aa6e01c93ff8"
+    },
+    {
+      "bytes": 385156,
+      "file": "libncurses-dev_6.4+20240113-1ubuntu2.2_arm64.deb",
+      "sha256": "78fe7b94467346e13a24101e10289be6e4f93664f45be6321ae78d0f75fa566e"
+    },
+    {
+      "bytes": 109620,
+      "file": "libncurses6_6.4+20240113-1ubuntu2.2_arm64.deb",
+      "sha256": "46cd7885975573fc669d93f66f2453e014e6ccae4f568659febd49e5011630d4"
+    },
+    {
+      "bytes": 57476,
+      "file": "libnl-3-200_3.7.0-0.3build1.1_arm64.deb",
+      "sha256": "be2e96607e4c6e745b9ef1ec11d8192f5603721a7a5a9989524ea3d7a7f6db16"
+    },
+    {
+      "bytes": 104738,
+      "file": "libnl-3-dev_3.7.0-0.3build1.1_arm64.deb",
+      "sha256": "27987ff9615ba55722c4958ad6109f12a1d3b945c17c2a7b4f006389b7f59ffc"
+    },
+    {
+      "bytes": 181950,
+      "file": "libnl-route-3-200_3.7.0-0.3build1.1_arm64.deb",
+      "sha256": "cce89a1737de041f03f47f71a7b177c3c22b4bc8085a39d84158ce56a8d07032"
+    },
+    {
+      "bytes": 224776,
+      "file": "libnl-route-3-dev_3.7.0-0.3build1.1_arm64.deb",
+      "sha256": "e69cfa66ed04f0d38a3f53632565e2845010632bec1b900c6dc65dcd061ebb13"
+    },
+    {
+      "bytes": 128095052,
+      "file": "libnpp-13-2_13.1.0.59-1_arm64.deb",
+      "sha256": "16d1f45ca489048286224a4ec9b7b6b3b1064c4e5189de294fafb459f4ba9e35"
+    },
+    {
+      "bytes": 126093666,
+      "file": "libnpp-dev-13-2_13.1.0.59-1_arm64.deb",
+      "sha256": "d2548865d20eb2881adc8cc30f3470fc132dad551cd4dd5887e788e3d7a709e4"
+    },
+    {
+      "bytes": 114244,
+      "file": "libnspr4_2%3a4.35-1.1build1_arm64.deb",
+      "sha256": "0bd5994126c41aa05aa380954a3cb2ae56a0a8ebe368a0e01a411fdcc0cb9c68"
+    },
+    {
+      "bytes": 1405988,
+      "file": "libnss3_2%3a3.98-1ubuntu0.2_arm64.deb",
+      "sha256": "daf32de5e12139aa84fde7a3e2784d5d7277259e22f14affcd82d81545b5312e"
+    },
+    {
+      "bytes": 39570,
+      "file": "libnuma-dev_2.0.18-1ubuntu0.24.04.1_arm64.deb",
+      "sha256": "5093fce3230ca74e0098c4dbdc4a4591cc89dc12cca7b094d4e2d2b065095467"
+    },
+    {
+      "bytes": 23710,
+      "file": "libnuma1_2.0.18-1ubuntu0.24.04.1_arm64.deb",
+      "sha256": "fb1de2dbe2a22cb59753c2ec622575a408d1ade28a9b090acc4c59d247462eb4"
+    },
+    {
+      "bytes": 389502,
+      "file": "libnvfatbin-13-2_13.2.86-1_arm64.deb",
+      "sha256": "25c473b7936347d35e97d5af56d51e246efc6244175225ab3d4202f697b40a1d"
+    },
+    {
+      "bytes": 732050,
+      "file": "libnvfatbin-dev-13-2_13.2.86-1_arm64.deb",
+      "sha256": "254203871084e14c8793a4f128ebdcce81407712e961cf86e02818b674b272cb"
+    },
+    {
+      "bytes": 26314032,
+      "file": "libnvjitlink-13-2_13.2.86-1_arm64.deb",
+      "sha256": "d1aad6a250d1ea3131c8040c6e35fdf69173886053bb5cada5b109d84b0f49ad"
+    },
+    {
+      "bytes": 25257260,
+      "file": "libnvjitlink-dev-13-2_13.2.86-1_arm64.deb",
+      "sha256": "f4928f66ac2cf6100b307b71bd72fe9eeb11edba893286f291261e0d7567aa82"
+    },
+    {
+      "bytes": 3175030,
+      "file": "libnvjpeg-13-2_13.1.0.59-1_arm64.deb",
+      "sha256": "484c244db24b9f9a37b522e0d789ed5ccee4db4e6c1305660e9877dd9beaf3a8"
+    },
+    {
+      "bytes": 2959022,
+      "file": "libnvjpeg-dev-13-2_13.1.0.59-1_arm64.deb",
+      "sha256": "69847cb0158ea335f2584fbda213abc04011eba29664e0b5915c6fe87c8c2238"
+    },
+    {
+      "bytes": 13621284,
+      "file": "libnvptxcompiler-13-2_13.2.86-1_arm64.deb",
+      "sha256": "644462ab2750560cbb64e9bcc0b0810c120658bf77cd354ec900d4578e21cdd7"
+    },
+    {
+      "bytes": 40170956,
+      "file": "libnvvm-13-2_13.2.86-1_arm64.deb",
+      "sha256": "fa22d6cf5151304d681b9ae1ccd72d5bfbacf1e2bf30ccee1f149e0f87b2c375"
+    },
+    {
+      "bytes": 35136,
+      "file": "libopengl0_1.7.0-1build1_arm64.deb",
+      "sha256": "85227472e62fe06c64dd9574a3fc1bc075dd7fc4bed157f9cc92d97bc5261cee"
+    },
+    {
+      "bytes": 864640,
+      "file": "libopenmpi-dev_4.1.6-7ubuntu2_arm64.deb",
+      "sha256": "677f55e64281a4b1ce033e8a2530652095f94d5689cdb3a07381ca89bc6d8eb1"
+    },
+    {
+      "bytes": 2463036,
+      "file": "libopenmpi3t64_4.1.6-7ubuntu2_arm64.deb",
+      "sha256": "237515678a6e4b8dd629040fe6a3e87a399cd1ba36e8b583df50528f8242b750"
+    },
+    {
+      "bytes": 19510,
+      "file": "libpciaccess0_0.17-3ubuntu0.24.04.3_arm64.deb",
+      "sha256": "de9d01338c4f0b1215526a76427fc18164f9af2c84dda56a4f52dceda37dfd7d"
+    },
+    {
+      "bytes": 31226,
+      "file": "libpkgconf3_1.8.1-2build1_arm64.deb",
+      "sha256": "f476cb81e1ecec6bf974f21181469cf5edcc749c4ead621469cdbf584dfd3be8"
+    },
+    {
+      "bytes": 4022020,
+      "file": "libpmix-dev_5.0.1-4.1build1_arm64.deb",
+      "sha256": "e6dbbb6b2cc8732c30cf8fee712ba9edb52d5f7114584143415a2dc25226a70b"
+    },
+    {
+      "bytes": 655056,
+      "file": "libpmix2t64_5.0.1-4.1build1_arm64.deb",
+      "sha256": "2ce32e8989e1db0c7e29d3459a26e84030bb11276268a0178729b5a1db703b42"
+    },
+    {
+      "bytes": 709122,
+      "file": "libptscotch-7.0_7.0.4-1ubuntu2_arm64.deb",
+      "sha256": "192e5ddeb18c0c3e0aeb46c773335fb6918a158b58f0e8ad1ab5f9f7bb741202"
+    },
+    {
+      "bytes": 1326672,
+      "file": "libptscotch-dev_7.0.4-1ubuntu2_arm64.deb",
+      "sha256": "c00fbce4772fa665616c46d14680cc981a59a77127ea53252f3336211fd65f9c"
+    },
+    {
+      "bytes": 70630,
+      "file": "librdmacm1t64_50.0-2ubuntu0.2_arm64.deb",
+      "sha256": "1cb7fb8396c368ffe92d7ca21f259579667ca8c8e6d47cce86db619d67499a71"
+    },
+    {
+      "bytes": 177426,
+      "file": "libreadline-dev_8.2-4build1_arm64.deb",
+      "sha256": "8fdc3be2bc4545974f2625905346c6a6acd1610bb7606a96ff1b999803828779"
+    },
+    {
+      "bytes": 425960,
+      "file": "libscotch-7.0_7.0.4-1ubuntu2_arm64.deb",
+      "sha256": "3df9b39e740b6f989bc70d7288576d41fbf516da84fbaa2f8107a00bcdf0a3ee"
+    },
+    {
+      "bytes": 1572740,
+      "file": "libscotch-dev_7.0.4-1ubuntu2_arm64.deb",
+      "sha256": "a9eb67ae488faaeeb996071b120a54c7a38e28300b95a42d704f0095c5fdb34f"
+    },
+    {
+      "bytes": 2397276,
+      "file": "libstdc++-13-dev_13.3.0-6ubuntu2~24.04.1_arm64.deb",
+      "sha256": "e4911c9281d73b318ca47cb7976011a7dc13e299a91a06bc6d3e2d174cc2ce51"
+    },
+    {
+      "bytes": 2696830,
+      "file": "libtsan2_14.2.0-4ubuntu2~24.04.1_arm64.deb",
+      "sha256": "00beb501f4979c7fd3a978b52a489ea7dbfc1203e5c56936e4c0ea5c2032fb3d"
+    },
+    {
+      "bytes": 1157016,
+      "file": "libubsan1_14.2.0-4ubuntu2~24.04.1_arm64.deb",
+      "sha256": "a5b4383f70f41cd949315c89e99e6416a0ee48037f7c5ea6b33f88f3c733757a"
+    },
+    {
+      "bytes": 1074226,
+      "file": "libucx0_1.16.0+ds-5ubuntu1_arm64.deb",
+      "sha256": "683193910a59fe10d56be45d8794e9604cfebc64fc940cfd623aa1605e80ebbc"
+    },
+    {
+      "bytes": 10602,
+      "file": "libxcb-cursor0_0.1.4-1build1_arm64.deb",
+      "sha256": "3f46f48bc0ff4fd6cd566541cd047cc9e5c0afd5d4fb24eb4f07e53f1d0e2e50"
+    },
+    {
+      "bytes": 7418,
+      "file": "libxcb-dri2-0_1.15-1ubuntu2_arm64.deb",
+      "sha256": "b677b745b14a5360aa7ed06818ed2e0467937b6d009693df5d6249dfa77881c6"
+    },
+    {
+      "bytes": 10534,
+      "file": "libxcb-icccm4_0.4.1-1.1build3_arm64.deb",
+      "sha256": "6151a4c23f743685cd124e0a288064c08deeaae865eeb5aa04dfd3f188859351"
+    },
+    {
+      "bytes": 10834,
+      "file": "libxcb-image0_0.4.0-2build1_arm64.deb",
+      "sha256": "b04b31296932a8a0aa331eadd9da0003b0fa59aa60c0cb68fe974e4253eb891c"
+    },
+    {
+      "bytes": 7984,
+      "file": "libxcb-keysyms1_0.4.0-1build4_arm64.deb",
+      "sha256": "77ab9d4bf1c7c84e2e29e5c20de7e44dac023a0c3f6c042f7ef486126f3469c3"
+    },
+    {
+      "bytes": 9648,
+      "file": "libxcb-render-util0_0.3.9-1build4_arm64.deb",
+      "sha256": "15352905a205b7adab3d5556c45d9a0f90ffab1fe7f0de8da86d25e643644e34"
+    },
+    {
+      "bytes": 6250,
+      "file": "libxcb-shape0_1.15-1ubuntu2_arm64.deb",
+      "sha256": "678a611d3181c6bb72a9cd003d55e46a2491763f897c32e7712032635b62cc48"
+    },
+    {
+      "bytes": 10650,
+      "file": "libxcb-util1_0.4.0-1build3_arm64.deb",
+      "sha256": "f61e6cc77672ed8694a415a0afd7027f0b5d7db7dee1de86e9e547e56f2aca44"
+    },
+    {
+      "bytes": 5598,
+      "file": "libxcb-xinerama0_1.15-1ubuntu2_arm64.deb",
+      "sha256": "47b834146e57c3d630ffd0330a93eb3fe00932bfbecf34c2c59961f2d55fff0d"
+    },
+    {
+      "bytes": 34178,
+      "file": "libxcb-xinput0_1.15-1ubuntu2_arm64.deb",
+      "sha256": "95af4f4665076fbde5f1e7c18b50974b3490eade88c343f67144092b237d255f"
+    },
+    {
+      "bytes": 32616,
+      "file": "libxcb-xkb1_1.15-1ubuntu2_arm64.deb",
+      "sha256": "e559534b89be9518f9eca70c111ace3eb3d21cc37aa5266754873122a8bd8e71"
+    },
+    {
+      "bytes": 13606,
+      "file": "libxkbcommon-x11-0_1.6.0-1build1_arm64.deb",
+      "sha256": "350c788f4d34aee330e2065288d607b356d207f3be4256d95975cf99a5920f2e"
+    },
+    {
+      "bytes": 11164,
+      "file": "libxnvctrl0_615.71.10-1ubuntu1_arm64.deb",
+      "sha256": "e6e30c207c60f49722dc764886e9a5033a7f296e7cfd6d152e33f91fb4ac54a1"
+    },
+    {
+      "bytes": 1568718,
+      "file": "linux-libc-dev_6.8.0-147.147_arm64.deb",
+      "sha256": "e489840ff836f22ae92c1bc3534ea8c68bcce2c4500e39ba560bbefc1b25e359"
+    },
+    {
+      "bytes": 12400,
+      "file": "lto-disabled-list_47_all.deb",
+      "sha256": "cac0f63c88188f376bb4df10a2af2b49a607bbef97a57db50ed58f678c21eee9"
+    },
+    {
+      "bytes": 240132,
+      "file": "m4_1.4.19-4build1_arm64.deb",
+      "sha256": "89605f10d3b94cf4a171747839d5a411587734f2be715cb8dd17bde923c937ed"
+    },
+    {
+      "bytes": 178236,
+      "file": "make_4.3-4.1build2_arm64.deb",
+      "sha256": "3bbbf5d426bc68fc232fc4e20f135aaf3eb76a514839acf82eeffa0dce9c81d4"
+    },
+    {
+      "bytes": 2376,
+      "file": "mpi-default-bin_1.15build1_arm64.deb",
+      "sha256": "d489d786798e1be9a482d65a6232ea9c9b70789f82d1808a9e1c9dd8d6ab52c2"
+    },
+    {
+      "bytes": 3154,
+      "file": "mpi-default-dev_1.15build1_arm64.deb",
+      "sha256": "2e03ea298795a3000205786bc86fd62b55ff04f84f7b5642f7b556544c8590aa"
+    },
+    {
+      "bytes": 160968462,
+      "file": "nsight-compute-2026.1.1_2026.1.1.2-1_arm64.deb",
+      "sha256": "b75659746da1a8a7aafd631d47ee07d129907de4afdc0f9ac83365104346f330"
+    },
+    {
+      "bytes": 438898472,
+      "file": "nsight-systems-2025.6.3_2025.6.3.541-256337736014v0_arm64.deb",
+      "sha256": "4d0e0dc88a940146da9880e62c34a2ccc6d3a4f973d687667d694a9b2bbd0c59"
+    },
+    {
+      "bytes": 37602,
+      "file": "ocl-icd-libopencl1_2.3.2-1build1_arm64.deb",
+      "sha256": "a3433cbacf5e8fac7bc9108d7f050c028be04e9d6c234a0e71004821f8d06b6b"
+    },
+    {
+      "bytes": 1311782,
+      "file": "openfoam2512-common_2512.0-2_all.deb",
+      "sha256": "f438ecbfaff0248b9273502f3b43a6cb1b4f81c07224dbda811f1b48d989026f"
+    },
+    {
+      "bytes": 11228,
+      "file": "openfoam2512-dev_2512.0-2_arm64.deb",
+      "sha256": "2b08ed95ff43064b57651df12baf9aa2d5eaf2cfeb7ed9ed543069a5a3bc7445"
+    },
+    {
+      "bytes": 7567038,
+      "file": "openfoam2512-source_2512.0-2_all.deb",
+      "sha256": "3fa3396a40b41c35e23d3544ac8e49d65e0d15ad46d12ddf480626c23c822b1b"
+    },
+    {
+      "bytes": 53286,
+      "file": "openfoam2512-tools_2512.0-2_arm64.deb",
+      "sha256": "a5bc1970f549f0c49d831708fd54d8f361aa269735fb4f142c5f9e94cbcf54f4"
+    },
+    {
+      "bytes": 61532936,
+      "file": "openfoam2512_2512.0-2_arm64.deb",
+      "sha256": "f01ec4093ac66ad6afcb61ed0144e5ee3df2425a16ffea52f45c93f7c1e588a5"
+    },
+    {
+      "bytes": 113296,
+      "file": "openmpi-bin_4.1.6-7ubuntu2_arm64.deb",
+      "sha256": "6344943263d67fa9066e30147c9bc9c610ea9044a5f7d8be8d9a52b5d4e6c5b6"
+    },
+    {
+      "bytes": 169738,
+      "file": "openmpi-common_4.1.6-7ubuntu2_all.deb",
+      "sha256": "1246554675cd86baa4e7e2e4195bed0f7a16d6538d484c347e2379f82791f821"
+    },
+    {
+      "bytes": 7264,
+      "file": "pkg-config_1.8.1-2build1_arm64.deb",
+      "sha256": "460d166c529651438347548fc1b2731440ce52c2643f678ec993a29dce5a3647"
+    },
+    {
+      "bytes": 20458,
+      "file": "pkgconf-bin_1.8.1-2build1_arm64.deb",
+      "sha256": "bcd0d24c48b8b73ed7ba20ffc21a3575d5d9bdd53c3cee5a8051b7bde5fbf638"
+    },
+    {
+      "bytes": 16768,
+      "file": "pkgconf_1.8.1-2build1_arm64.deb",
+      "sha256": "818ac3b4ae09f3747098872c7d5a9e387118798155b0107bb1625c2ab675664b"
+    },
+    {
+      "bytes": 64816,
+      "file": "rpcsvc-proto_1.4.2-0ubuntu7_arm64.deb",
+      "sha256": "ae527152fc2bf9c1a645c2620d802b0849db32c8aa48328b4ae94c59cc57bcc9"
+    },
+    {
+      "bytes": 893616,
+      "file": "zlib1g-dev_1%3a1.3.dfsg-3.1ubuntu2.2_arm64.deb",
+      "sha256": "de750f2515144715015e792c391bfa2ab4a926db6c370ba519af576bb3f131b5"
+    }
+  ],
+  "downloaded_bytes": 3475181718,
+  "gpu": "NVIDIA RTX Spark N1X (6144-core Blackwell RTX GPU), 617.42",
+  "indices": {
+    "developer.download.nvidia.com_compute_cuda_repos_ubuntu2404_sbsa_InRelease": {
+      "valid_signatures": [
+        "EB693B3035CD5710E231E123A4B469963BF863CC"
+      ],
+      "verified": true
+    },
+    "dl.openfoam.com_repos_deb_dists_noble_InRelease": {
+      "valid_signatures": [
+        "DC93C096174122E256DA24063386DD74948D208F"
+      ],
+      "verified": true
+    },
+    "ports.ubuntu.com_ubuntu-ports_dists_noble-security_InRelease": {
+      "valid_signatures": [
+        "F6ECB3762474EDA9D21B7022871920D1991BC93C"
+      ],
+      "verified": true
+    },
+    "ports.ubuntu.com_ubuntu-ports_dists_noble-updates_InRelease": {
+      "valid_signatures": [
+        "F6ECB3762474EDA9D21B7022871920D1991BC93C"
+      ],
+      "verified": true
+    },
+    "ports.ubuntu.com_ubuntu-ports_dists_noble_InRelease": {
+      "valid_signatures": [
+        "F6ECB3762474EDA9D21B7022871920D1991BC93C"
+      ],
+      "verified": true
+    }
+  },
+  "keyrings_sha256": {
+    "cuda-archive-keyring.gpg": "25100d6f2eccaee7d6719a70e3c0c6145064aa9edc2c32148f693ac4c524a376",
+    "openfoam-archive-keyring.gpg": "6d17d37b82fc840b8a5c767545703df7264cfa3e30f9cf74556ebb124bda1a93",
+    "ubuntu-archive-keyring.gpg": "80a36b0a6de2f69f49d2df75ef473ccde121e9e190b9ea01d20a4f63778d5c31"
+  },
+  "last_step": "done",
+  "resolved": [
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "m4",
+      "version": "1.4.19-4build1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "flex",
+      "version": "2.6.4-8.2build1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libnl-3-200",
+      "version": "3.7.0-0.3build1.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libnl-route-3-200",
+      "version": "3.7.0-0.3build1.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libibverbs1",
+      "version": "50.0-2ubuntu0.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "ibverbs-providers",
+      "version": "50.0-2ubuntu0.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libncurses6",
+      "version": "6.4+20240113-1ubuntu2.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libnuma1",
+      "version": "2.0.18-1ubuntu0.24.04.1"
+    },
+    {
+      "architecture": "all",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "autoconf",
+      "version": "2.71-3"
+    },
+    {
+      "architecture": "all",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "autotools-dev",
+      "version": "20220109.1"
+    },
+    {
+      "architecture": "all",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "automake",
+      "version": "1:1.16.5-1.3ubuntu1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libc-dev-bin",
+      "version": "2.39-0ubuntu8.9"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "linux-libc-dev",
+      "version": "6.8.0-147.147"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libcrypt-dev",
+      "version": "1:4.4.36-4build1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "rpcsvc-proto",
+      "version": "1.4.2-0ubuntu7"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libc6-dev",
+      "version": "2.39-0ubuntu8.9"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "gcc-13-base",
+      "version": "13.3.0-6ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libisl23",
+      "version": "0.26-3build1.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libmpc3",
+      "version": "1.3.1-1build1.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "cpp-13-aarch64-linux-gnu",
+      "version": "13.3.0-6ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "cpp-13",
+      "version": "13.3.0-6ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "cpp-aarch64-linux-gnu",
+      "version": "4:13.2.0-7ubuntu1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "cpp",
+      "version": "4:13.2.0-7ubuntu1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libcc1-0",
+      "version": "14.2.0-4ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libgomp1",
+      "version": "14.2.0-4ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libitm1",
+      "version": "14.2.0-4ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libatomic1",
+      "version": "14.2.0-4ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libasan8",
+      "version": "14.2.0-4ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "liblsan0",
+      "version": "14.2.0-4ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libtsan2",
+      "version": "14.2.0-4ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libubsan1",
+      "version": "14.2.0-4ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libhwasan0",
+      "version": "14.2.0-4ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libgcc-13-dev",
+      "version": "13.3.0-6ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "gcc-13-aarch64-linux-gnu",
+      "version": "13.3.0-6ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "gcc-13",
+      "version": "13.3.0-6ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "gcc-aarch64-linux-gnu",
+      "version": "4:13.2.0-7ubuntu1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "gcc",
+      "version": "4:13.2.0-7ubuntu1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libstdc++-13-dev",
+      "version": "13.3.0-6ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "g++-13-aarch64-linux-gnu",
+      "version": "13.3.0-6ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "g++-13",
+      "version": "13.3.0-6ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "g++-aarch64-linux-gnu",
+      "version": "4:13.2.0-7ubuntu1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "g++",
+      "version": "4:13.2.0-7ubuntu1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "make",
+      "version": "4.3-4.1build2"
+    },
+    {
+      "architecture": "all",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libdpkg-perl",
+      "version": "1.22.6ubuntu6.6"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "bzip2",
+      "version": "1.0.8-5.1ubuntu0.1"
+    },
+    {
+      "architecture": "all",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "lto-disabled-list",
+      "version": "47"
+    },
+    {
+      "architecture": "all",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "dpkg-dev",
+      "version": "1.22.6ubuntu6.6"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "build-essential",
+      "version": "12.10ubuntu1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-cccl-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-cupti-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-cupti-dev-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-nvdisasm-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-cuobjdump-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-gdb-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-nvtx-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-sanitizer-13-2",
+      "version": "13.2.87-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-command-line-tools-13-2",
+      "version": "13.2.2-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-cuxxfilt-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "all",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-toolkit-config-common",
+      "version": "13.4.92-1"
+    },
+    {
+      "architecture": "all",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-toolkit-13-config-common",
+      "version": "13.4.92-1"
+    },
+    {
+      "architecture": "all",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-toolkit-13-2-config-common",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-cudart-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-culibos-dev-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-driver-dev-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-cudart-dev-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libnvvm-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-crt-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libnvptxcompiler-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-nvcc-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-nvprune-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-tileiras-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-compiler-13-2",
+      "version": "13.2.2-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-documentation-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-nvrtc-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libcublas-13-2",
+      "version": "13.4.1.3-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libcufft-13-2",
+      "version": "12.2.0.57-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libcufile-13-2",
+      "version": "1.17.1.22-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libcudla-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libcuobjclient-13-2",
+      "version": "1.1.1.22-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libcurand-13-2",
+      "version": "10.4.2.66-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libcusolver-13-2",
+      "version": "12.2.0.11-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libcusparse-13-2",
+      "version": "12.7.10.12-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libnpp-13-2",
+      "version": "13.1.0.59-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libnvjitlink-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libnvfatbin-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libnvjpeg-13-2",
+      "version": "13.1.0.59-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-libraries-13-2",
+      "version": "13.2.2-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-profiler-api-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-nvrtc-dev-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libcublas-dev-13-2",
+      "version": "13.4.1.3-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libcufft-dev-13-2",
+      "version": "12.2.0.57-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libcufile-dev-13-2",
+      "version": "1.17.1.22-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libcudla-dev-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libcuobjclient-dev-13-2",
+      "version": "1.1.1.22-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libcurand-dev-13-2",
+      "version": "10.4.2.66-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libcusolver-dev-13-2",
+      "version": "12.2.0.11-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libcusparse-dev-13-2",
+      "version": "12.7.10.12-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libnpp-dev-13-2",
+      "version": "13.1.0.59-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libnvjitlink-dev-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libnvfatbin-dev-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libnvjpeg-dev-13-2",
+      "version": "13.1.0.59-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-libraries-dev-13-2",
+      "version": "13.2.2-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "nsight-compute-2026.1.1",
+      "version": "2026.1.1.2-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-nsight-compute-13-2",
+      "version": "13.2.2-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libxcb-xinerama0",
+      "version": "1.15-1ubuntu2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libxcb-icccm4",
+      "version": "0.4.1-1.1build3"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libxcb-util1",
+      "version": "0.4.0-1build3"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libxcb-image0",
+      "version": "0.4.0-2build1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libxcb-keysyms1",
+      "version": "0.4.0-1build4"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libxcb-render-util0",
+      "version": "0.3.9-1build4"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libxcb-shape0",
+      "version": "1.15-1ubuntu2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libxcb-xkb1",
+      "version": "1.15-1ubuntu2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libxkbcommon-x11-0",
+      "version": "1.6.0-1build1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libxcb-xinput0",
+      "version": "1.15-1ubuntu2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libxcb-cursor0",
+      "version": "0.1.4-1build1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libnspr4",
+      "version": "2:4.35-1.1build1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libnss3",
+      "version": "2:3.98-1ubuntu0.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libopengl0",
+      "version": "1.7.0-1build1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libxcb-dri2-0",
+      "version": "1.15-1ubuntu2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "nsight-systems-2025.6.3",
+      "version": "2025.6.3.541-256337736014v0"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-nsight-systems-13-2",
+      "version": "13.2.2-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-nvml-dev-13-2",
+      "version": "13.2.86-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-visual-tools-13-2",
+      "version": "13.2.2-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "gds-tools-13-2",
+      "version": "1.17.1.22-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-tools-13-2",
+      "version": "13.2.2-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "cuda-toolkit-13-2",
+      "version": "13.2.2-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libgfortran5",
+      "version": "14.2.0-4ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libgfortran-13-dev",
+      "version": "13.3.0-6ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "gfortran-13-aarch64-linux-gnu",
+      "version": "13.3.0-6ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "gfortran-13",
+      "version": "13.3.0-6ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "gfortran-aarch64-linux-gnu",
+      "version": "4:13.2.0-7ubuntu1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "gfortran",
+      "version": "4:13.2.0-7ubuntu1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libblas3",
+      "version": "3.12.0-3build1.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libblas-dev",
+      "version": "3.12.0-3build1.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libboost1.83-dev",
+      "version": "1.83.0-2.1ubuntu3.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libboost-atomic1.83.0",
+      "version": "1.83.0-2.1ubuntu3.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libboost-atomic1.83-dev",
+      "version": "1.83.0-2.1ubuntu3.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libboost-chrono1.83.0t64",
+      "version": "1.83.0-2.1ubuntu3.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libboost-chrono1.83-dev",
+      "version": "1.83.0-2.1ubuntu3.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libboost-date-time1.83.0",
+      "version": "1.83.0-2.1ubuntu3.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libboost-serialization1.83.0",
+      "version": "1.83.0-2.1ubuntu3.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libboost-serialization1.83-dev",
+      "version": "1.83.0-2.1ubuntu3.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libboost-date-time1.83-dev",
+      "version": "1.83.0-2.1ubuntu3.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libboost-dev",
+      "version": "1.83.0.1ubuntu2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libboost-program-options1.83.0",
+      "version": "1.83.0-2.1ubuntu3.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libboost-program-options1.83-dev",
+      "version": "1.83.0-2.1ubuntu3.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libboost-program-options-dev",
+      "version": "1.83.0.1ubuntu2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libboost-system1.83.0",
+      "version": "1.83.0-2.1ubuntu3.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libboost-system1.83-dev",
+      "version": "1.83.0-2.1ubuntu3.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libboost-system-dev",
+      "version": "1.83.0.1ubuntu2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libboost-thread1.83.0",
+      "version": "1.83.0-2.1ubuntu3.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libboost-thread1.83-dev",
+      "version": "1.83.0-2.1ubuntu3.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libboost-thread-dev",
+      "version": "1.83.0.1ubuntu2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libgmpxx4ldbl",
+      "version": "2:6.3.0+dfsg-2ubuntu6.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libgmp-dev",
+      "version": "2:6.3.0+dfsg-2ubuntu6.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libmpfr-dev",
+      "version": "4.2.1-1build1.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "zlib1g-dev",
+      "version": "1:1.3.dfsg-3.1ubuntu2.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libcgal-dev",
+      "version": "5.6-1build3"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libevent-2.1-7t64",
+      "version": "2.1.12-stable-9ubuntu2.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libevent-extra-2.1-7t64",
+      "version": "2.1.12-stable-9ubuntu2.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libevent-pthreads-2.1-7t64",
+      "version": "2.1.12-stable-9ubuntu2.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libevent-openssl-2.1-7t64",
+      "version": "2.1.12-stable-9ubuntu2.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libevent-dev",
+      "version": "2.1.12-stable-9ubuntu2.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "librdmacm1t64",
+      "version": "50.0-2ubuntu0.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libfabric1",
+      "version": "1.17.0-3build2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libfftw3-double3",
+      "version": "3.3.10-1ubuntu3"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libfftw3-long3",
+      "version": "3.3.10-1ubuntu3"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libfftw3-single3",
+      "version": "3.3.10-1ubuntu3"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libfftw3-bin",
+      "version": "3.3.10-1ubuntu3"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libfftw3-dev",
+      "version": "3.3.10-1ubuntu3"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libfl2",
+      "version": "2.6.4-8.2build1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libfl-dev",
+      "version": "2.6.4-8.2build1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libhwloc15",
+      "version": "2.10.0-1build1"
+    },
+    {
+      "architecture": "all",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libjs-jquery",
+      "version": "3.6.1+dfsg+~3.5.14-1"
+    },
+    {
+      "architecture": "all",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libjs-jquery-ui",
+      "version": "1.13.2+dfsg-1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "liblapack3",
+      "version": "3.12.0-3build1.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "liblapack-dev",
+      "version": "3.12.0-3build1.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libltdl7",
+      "version": "2.4.7-7build1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libltdl-dev",
+      "version": "2.4.7-7build1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libncurses-dev",
+      "version": "6.4+20240113-1ubuntu2.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libnl-3-dev",
+      "version": "3.7.0-0.3build1.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libnl-route-3-dev",
+      "version": "3.7.0-0.3build1.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates, Ubuntu:24.04/noble-security",
+      "package": "libmunge2",
+      "version": "0.5.15-4ubuntu0.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libpciaccess0",
+      "version": "0.17-3ubuntu0.24.04.3"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "NVIDIA CUDA:developer.download.nvidia.com",
+      "package": "libxnvctrl0",
+      "version": "615.71.10-1ubuntu1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble, Ubuntu:24.04/noble-updates",
+      "package": "ocl-icd-libopencl1",
+      "version": "2.3.2-1build1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libhwloc-plugins",
+      "version": "2.10.0-1build1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libpmix2t64",
+      "version": "5.0.1-4.1build1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libucx0",
+      "version": "1.16.0+ds-5ubuntu1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libopenmpi3t64",
+      "version": "4.1.6-7ubuntu2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libpkgconf3",
+      "version": "1.8.1-2build1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libnuma-dev",
+      "version": "2.0.18-1ubuntu0.24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libhwloc-dev",
+      "version": "2.10.0-1build1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libpmix-dev",
+      "version": "5.0.1-4.1build1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libptscotch-7.0",
+      "version": "7.0.4-1ubuntu2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libreadline-dev",
+      "version": "8.2-4build1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libscotch-7.0",
+      "version": "7.0.4-1ubuntu2"
+    },
+    {
+      "architecture": "all",
+      "origin": "OpenFOAM debian/ubuntu repository:dl.openfoam.com",
+      "package": "openfoam2512-common",
+      "version": "2512.0-2"
+    },
+    {
+      "architecture": "all",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "openmpi-common",
+      "version": "4.1.6-7ubuntu2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "openmpi-bin",
+      "version": "4.1.6-7ubuntu2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "mpi-default-bin",
+      "version": "1.15build1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "OpenFOAM debian/ubuntu repository:dl.openfoam.com",
+      "package": "openfoam2512",
+      "version": "2512.0-2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "OpenFOAM debian/ubuntu repository:dl.openfoam.com",
+      "package": "openfoam2512-tools",
+      "version": "2512.0-2"
+    },
+    {
+      "architecture": "all",
+      "origin": "OpenFOAM debian/ubuntu repository:dl.openfoam.com",
+      "package": "openfoam2512-source",
+      "version": "2512.0-2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble-updates",
+      "package": "libibverbs-dev",
+      "version": "50.0-2ubuntu0.2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libopenmpi-dev",
+      "version": "4.1.6-7ubuntu2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "mpi-default-dev",
+      "version": "1.15build1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libscotch-dev",
+      "version": "7.0.4-1ubuntu2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "libptscotch-dev",
+      "version": "7.0.4-1ubuntu2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "OpenFOAM debian/ubuntu repository:dl.openfoam.com",
+      "package": "openfoam2512-dev",
+      "version": "2512.0-2"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "pkgconf-bin",
+      "version": "1.8.1-2build1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "pkgconf",
+      "version": "1.8.1-2build1"
+    },
+    {
+      "architecture": "arm64",
+      "origin": "Ubuntu:24.04/noble",
+      "package": "pkg-config",
+      "version": "1.8.1-2build1"
+    }
+  ],
+  "resolved_count": 213,
+  "result": "PASS",
+  "roots": [
+    "cuda-toolkit-13-2=13.2.2-1",
+    "openfoam2512=2512.0-2",
+    "openfoam2512-common=2512.0-2",
+    "openfoam2512-dev=2512.0-2",
+    "openfoam2512-source=2512.0-2",
+    "openfoam2512-tools=2512.0-2",
+    "gcc-13",
+    "g++-13",
+    "gfortran-13",
+    "openmpi-bin",
+    "libopenmpi-dev",
+    "libblas-dev",
+    "liblapack-dev",
+    "pkg-config",
+    "make:arm64"
+  ],
+  "schema": "cfdw-wsl-preflight/1",
+  "seconds": 103,
+  "sources": [
+    "deb [arch=arm64 signed-by=/tmp/wsl-preflight.t2HFNu/keyrings/ubuntu-archive-keyring.gpg] http://ports.ubuntu.com/ubuntu-ports noble main universe",
+    "deb [arch=arm64 signed-by=/tmp/wsl-preflight.t2HFNu/keyrings/ubuntu-archive-keyring.gpg] http://ports.ubuntu.com/ubuntu-ports noble-updates main universe",
+    "deb [arch=arm64 signed-by=/tmp/wsl-preflight.t2HFNu/keyrings/ubuntu-archive-keyring.gpg] http://ports.ubuntu.com/ubuntu-ports noble-security main universe",
+    "deb [arch=arm64 signed-by=/tmp/wsl-preflight.t2HFNu/keyrings/openfoam-archive-keyring.gpg] https://dl.openfoam.com/repos/deb noble main",
+    "deb [arch=arm64 signed-by=/tmp/wsl-preflight.t2HFNu/keyrings/cuda-archive-keyring.gpg] https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/ /"
+  ],
+  "started_utc": "2026-10-21T16:23:51Z",
+  "uname_m": "aarch64"
+}

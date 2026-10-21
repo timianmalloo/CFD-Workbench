@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ed7d8b3e3a4b4a6a5dcad6eeaceae530e36f232bc71b89e8782a16a43b20e54d"
+      "sourceSha256": "3818a5bfb6c1524f721aa0539ff0ec156c1c1217e7070a15ddefbccbd4052d33"
     },
     {
       "id": "domain-experts",
@@ -9426,7 +9426,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "58624e0e02685b3298bf31fef93776e0d249bde3126ae2cd5bcc75e1ed6d678f"
+      "sourceSha256": "14839ed052f3a4153536c578fe2b524d6cb22db5ffeb00135bc86e1406fe5e9c"
     },
     {
       "id": "kb-hw-glossary",
@@ -11573,7 +11573,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cdbc6b4c15ae6a93f44f70c93c02a5c0f2fde4be3952c8c0ffb7ac083a1c4eca"
+      "sourceSha256": "68a5fa5083a715157371d0e28327442adb92a392774bd1424e95c3e94e767c27"
     },
     {
       "id": "plan-seam-repair-1",
@@ -19330,7 +19330,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "12e31d35e0bce0c11da1076235f529f0d9fb5255b3379f02b0f7971016acd789"
+      "sourceSha256": "c1f2f548165e99182cc32adc517cd5f597ac65c955c3f28aa6860a609092a59e"
     },
     {
       "id": "proof-win-gpu-f1-cleanup-recovery-cycle1-author",
@@ -20629,6 +20629,38 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "0f467f7bc88b89226d506fdabc484f3a6d98665a998389f94655141760e5df79"
+    },
+    {
+      "id": "proof-wsl-preflight",
+      "path": "docs/proof/wsl-preflight/README.md",
+      "title": "WSL dependency preflight: Ruling 217's question answered by one bash script in the existing distro",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@pc-laptop-leader",
+      "phase": "preflight",
+      "reviewBy": "",
+      "reviewSuggested": [],
+      "summary": "One bash script run inside the existing Ubuntu-24.04 distro answers whether the CUDA 13.2, OpenFOAM 2512 and build-tool set resolves for arm64 from the reviewed, signed repositories: it does, 213 packages, 3.24 GiB, nothing installed.",
+      "tags": [
+        "wsl",
+        "arm64",
+        "cuda",
+        "openfoam",
+        "preflight",
+        "bash"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-gpu-f1-r217-packet",
+          "rel": "supersedes"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "cc546129722df6e3bcc877223a9c36c625632db2bb1295e4b5cdaf5a109dee17"
     },
     {
       "id": "proof-wth-red-first",
@@ -23168,5 +23200,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "09e04e4820295a54a607c107a2f1d97917516118b5935ccc1c39b15096101735"
+  "graphSha256": "cc7dede4e401269bc97c855b9ec183c6f149095cace407310c99be78d57751a7"
 };
