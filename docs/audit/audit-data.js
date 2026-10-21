@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-21T18:12:12Z",
+  "generated": "2026-10-21T18:15:32Z",
   "audit": [
     {
       "actor": null,
@@ -40640,6 +40640,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-21T18:10:22Z",
       "duration_seconds": 109.0
+    },
+    {
+      "id": "al-01M5FTSX188KBX8DC02ZDC2BVS",
+      "shortname": "no-powershell-less-ceremony",
+      "datetime": "2026-10-21T18:15:32Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of tools/no-powershell-less-ceremony into main",
+      "summary": "Every PowerShell file removed; AGENTS.md ceremony trimmed (Ruling 247 steps 5 and 6) recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Steps 5 and 6 of the simplification",
+      "done_when": "zero .ps1 files tracked; AGENTS.md trimmed; check-docs green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-21T18:15:12Z",
+      "duration_seconds": 20.0
     }
   ],
   "changes": [
