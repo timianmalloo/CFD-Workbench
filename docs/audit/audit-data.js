@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-21T17:40:20Z",
+  "generated": "2026-10-21T18:12:12Z",
   "audit": [
     {
       "actor": null,
@@ -40613,6 +40613,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-21T17:37:47Z",
       "duration_seconds": 153.0
+    },
+    {
+      "id": "al-01M5FTKS2W4KT9FEJWXXBCE6W9",
+      "shortname": "plain-test-runner",
+      "datetime": "2026-10-21T18:12:11Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "Plain test runner, six gates, one CI workflow, no local readiness ring (Ruling 247 steps 3 and 4); TESTS-GREEN 85 s recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Steps 3 and 4 of the simplification",
+      "done_when": "run-tests.sh plain and green; readiness and cost tooling gone; one workflow; check-docs slim",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-21T18:10:22Z",
+      "duration_seconds": 109.0
     }
   ],
   "changes": [
