@@ -91,3 +91,4 @@
 {"agent": "pc-laptop-leader", "at": 1792607140.5644143, "kind": "session-start", "path": "-", "seq": 91, "session": "pc-laptop-leader", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-tools-ci-fixes"}
 {"agent": "pc-laptop-leader", "at": 1792607387.7442782, "kind": "session-end", "path": "-", "seq": 92, "session": "pc-laptop-leader", "wi": "WI-0", "worktree": "CFD-Workbench-tools-ci-fixes"}
 {"agent": "pc-laptop-leader", "at": 1792607701.1058297, "kind": "session-start", "path": "-", "seq": 93, "session": "pc-laptop-leader", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-tests-sddl-canonical"}
+{"agent": "pc-laptop-leader", "at": 1792607944.9190993, "kind": "session-end", "path": "-", "seq": 94, "session": "pc-laptop-leader", "wi": "WI-0", "worktree": "CFD-Workbench-tests-sddl-canonical"}
