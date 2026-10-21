@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-21T18:29:42Z",
+  "generated": "2026-10-21T18:39:00Z",
   "audit": [
     {
       "actor": null,
@@ -40694,6 +40694,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-21T18:27:45Z",
       "duration_seconds": 117.0
+    },
+    {
+      "id": "al-01M5FW4VER90QNCJSFX9DGG22V",
+      "shortname": "sddl-canonical",
+      "datetime": "2026-10-21T18:39:00Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of tests/sddl-canonical into main",
+      "summary": "The private-ACL check compares parsed descriptors; green on an Administrator account recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Make the Windows CI harness job green",
+      "done_when": "tests.yml green on all three jobs",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-21T18:37:08Z",
+      "duration_seconds": 112.0
     }
   ],
   "changes": [
