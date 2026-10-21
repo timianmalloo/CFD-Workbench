@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-21T16:31:58Z",
+  "generated": "2026-10-21T16:45:48Z",
   "audit": [
     {
       "actor": null,
@@ -40559,6 +40559,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-21T16:28:24Z",
       "duration_seconds": 214.0
+    },
+    {
+      "id": "al-01M5FNNJRGFADY4BPKWFM49CGQ",
+      "shortname": "retire-f1-packet",
+      "datetime": "2026-10-21T16:45:48Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of tools/retire-f1-packet into main",
+      "summary": "F1 packet, tests, tools and captures retired under Ruling 247 step 1; markdown kept for links recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Finish step 1 of the simplification: remove the per-attempt machinery the bash preflight replaces",
+      "done_when": "packet code, tests, F1-only gates and captures gone from main; check-docs and the ring green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-21T16:43:18Z",
+      "duration_seconds": 150.0
     }
   ],
   "changes": [
