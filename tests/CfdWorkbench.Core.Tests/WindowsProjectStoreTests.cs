@@ -1,5 +1,6 @@
 using CfdWorkbench.Persistence;
 using System.Runtime.InteropServices;
+using System.Security.AccessControl;
 using System.Runtime.Versioning;
 using Microsoft.Win32.SafeHandles;
 using static CfdWorkbench.Core.Tests.IdentityTests;
@@ -55,7 +56,7 @@ internal static class WindowsProjectStoreTests
         {
             using var file = WindowsNative.CreatePrivate(parent, "private.tmp");
             Equal(0L, RandomAccess.GetLength(file));
-            Equal(WindowsNative.PrivateDescriptor(), WindowsNative.ReadOwnerAndDacl(file));
+            Equal(CanonicalSddl(WindowsNative.PrivateDescriptor()), CanonicalSddl(WindowsNative.ReadOwnerAndDacl(file)));
             RandomAccess.Write(file, [1, 2, 3], 0);
             WindowsNative.Flush(file);
             Equal(true, Read(file).AsSpan().SequenceEqual(new byte[] { 1, 2, 3 }));
@@ -233,6 +234,14 @@ internal static class WindowsProjectStoreTests
         Equal(true, Read(observed).AsSpan().SequenceEqual(new byte[] { 4, 5 }));
         Console.WriteLine($"{label} identity={identity} bytes=0405 source_exists={win32 != 0} destination_exists={win32 == 0}");
     });
+
+    /// <summary>
+    /// One rendering for two SDDL strings that name the same owner and DACL. Windows renders a well-known account as its
+    /// two-letter alias (the built-in Administrator, RID 500, as LA; the GitHub Windows runner runs as that account) while
+    /// PrivateDescriptor writes the literal SID, so the strings differ although the descriptors are equal.
+    /// </summary>
+    private static string CanonicalSddl(string sddl) =>
+        new RawSecurityDescriptor(sddl).GetSddlForm(AccessControlSections.Owner | AccessControlSections.Access);
 
     private static byte[] Read(SafeFileHandle file)
     {
