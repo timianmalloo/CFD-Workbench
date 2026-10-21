@@ -1,0 +1,260 @@
+{
+  "files": [
+    {
+      "bytes": 0,
+      "path": "checkpoint-add.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "checkpoint-add.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "checkpoint-bind.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 75,
+      "path": "checkpoint-bind.stdout.txt",
+      "sha256": "9bf25d9f61e6b6dd8973e7a46c0ff350f7750b8a0c92e0dbf1217823e57fed43"
+    },
+    {
+      "bytes": 0,
+      "path": "checkpoint-commit.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 3674,
+      "path": "checkpoint-commit.stdout.txt",
+      "sha256": "cf82af1e8775c6401ee6141be594e604d9c189e1571b01083a77ede24f8a12d9"
+    },
+    {
+      "bytes": 0,
+      "path": "checkpoint-freeze.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 22,
+      "path": "checkpoint-freeze.stdout.txt",
+      "sha256": "39f5f90725e4bd579edd8c5a5bf4d3d81dbafa6ac45e37533c2a3ee66a2ab516"
+    },
+    {
+      "bytes": 0,
+      "path": "checkpoint-sha.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 41,
+      "path": "checkpoint-sha.stdout.txt",
+      "sha256": "9b18bfa0efaa5ebc12e46f51933471abc5cdc6ea5f07505ec17397e18d309373"
+    },
+    {
+      "bytes": 41,
+      "path": "checkpoint-sha.txt",
+      "sha256": "9b18bfa0efaa5ebc12e46f51933471abc5cdc6ea5f07505ec17397e18d309373"
+    },
+    {
+      "bytes": 41,
+      "path": "checkpoint.commit-message.txt",
+      "sha256": "62d375680e2a175a285bb8585f5ba47e949d5e0c2097820a2f14fca60007c814"
+    },
+    {
+      "bytes": 2743,
+      "path": "cleanup-receipt.json",
+      "sha256": "e8807994bf0a51232620ccb1e0d25e0948205aa0156fae634c219b002b5b66de"
+    },
+    {
+      "bytes": 0,
+      "path": "distro-list.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 28,
+      "path": "distro-list.stdout.txt",
+      "sha256": "5fb131d9ba62df22e825ade0492a40e17fb8a5ff456c140004e378bc0caf0309"
+    },
+    {
+      "bytes": 0,
+      "path": "final-freeze.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "final-freeze.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2823,
+      "path": "final-precheck.json",
+      "sha256": "6ce1a7ffe7aea1a606bd3a2dd6d1df324a190814f4a6f9dc8c4c13ea334c750c"
+    },
+    {
+      "bytes": 350,
+      "path": "host-capacity.jsonl",
+      "sha256": "f48a2ba7325727b3280887b02c59f36499180a9dc17aacd51345d748865f16bf"
+    },
+    {
+      "bytes": 782,
+      "path": "host-identity.json",
+      "sha256": "48676e6ea4ce3deaf39119fec54fb7bc7339ecc8fc40600984ee57c890df3a32"
+    },
+    {
+      "bytes": 0,
+      "path": "host-identity.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 51,
+      "path": "host-identity.stdout.txt",
+      "sha256": "de4cc09c0d03e41e4a0e523cc3b0fb12151dde244d975184b43a0897e9a491bd"
+    },
+    {
+      "bytes": 644,
+      "path": "host-observations.json",
+      "sha256": "b7cad50b12b139548f27f9f7381bdcfba34a5feede4c133aa8ec2e23f769b6a6"
+    },
+    {
+      "bytes": 26,
+      "path": "invocation-contract.stdout.txt",
+      "sha256": "f55b84da0f7569679218610d3856506f22b061920a79473f4d1a0ee2810a8dde"
+    },
+    {
+      "bytes": 248,
+      "path": "keepalive-activation.json",
+      "sha256": "804dc06611749af713db1db95fbe732759ae012b110533dbac0e8da685e4154b"
+    },
+    {
+      "bytes": 250,
+      "path": "keepalive-finalization.json",
+      "sha256": "08dda4395033667377ee21839484320058f93fa4099dc94aea4752f98028b343"
+    },
+    {
+      "bytes": 258,
+      "path": "keepalive-immediately-pre-live.json",
+      "sha256": "b0c4c7f6d0917f0fc6c765132252ea01ecf1325e988f9cb8219cd4b2932eed1f"
+    },
+    {
+      "bytes": 338,
+      "path": "leader-activation.json",
+      "sha256": "a5f9f9e689d9ff0111e9b8298cfb1d008d1ff27e1ec075442620566081dfa590"
+    },
+    {
+      "bytes": 0,
+      "path": "leader-activation.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 317,
+      "path": "leader-activation.stdout.txt",
+      "sha256": "4bda5542ab9d2af3382dad40acc3e1c7b11eb0a40d159ef7740ffd82c533b594"
+    },
+    {
+      "bytes": 348,
+      "path": "leader-immediately-pre-live.json",
+      "sha256": "c9a9243bbab1be51a69d03f6a8efe5c27d21ada200f43b880f3a39ad00e7240a"
+    },
+    {
+      "bytes": 0,
+      "path": "leader-immediately-pre-live.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 327,
+      "path": "leader-immediately-pre-live.stdout.txt",
+      "sha256": "e2d4ca38c7a5374d5e8670a170cc5459669faad2bae13e97c83d2b97a2740b3c"
+    },
+    {
+      "bytes": 547,
+      "path": "leader-renew-events.jsonl",
+      "sha256": "f53c47de3d2e09d0e5b3a6a542b1f38d72c5ebcab12df14a97c41485aaf4ce3b"
+    },
+    {
+      "bytes": 270,
+      "path": "leader-renew-exit.json",
+      "sha256": "a09ed4f29e57f4396e31cbeff8ffc50308e6ceb01d2293d1ff665ad3a5432d6e"
+    },
+    {
+      "bytes": 254,
+      "path": "leader-renew-start.json",
+      "sha256": "1a5f5df4ee38889437f903274810f539d71acb148aa44ea0904cbbdc7d1482f4"
+    },
+    {
+      "bytes": 21,
+      "path": "leader-renew-stop.request",
+      "sha256": "b0bbe2c250349765f5659d1203cdb0aa775b722a1de3df398853356d498f7df5"
+    },
+    {
+      "bytes": 0,
+      "path": "leader-renew.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 26,
+      "path": "leader-renew.stdout.txt",
+      "sha256": "f55b84da0f7569679218610d3856506f22b061920a79473f4d1a0ee2810a8dde"
+    },
+    {
+      "bytes": 1072,
+      "path": "owned-windows-launchers.json",
+      "sha256": "7d89d4ac8d45f767a4e96ac10f7c6b9fa523ba6c2fffa6dc070849c14ceab5d4"
+    },
+    {
+      "bytes": 289,
+      "path": "precleanup-state.json",
+      "sha256": "7f4e61d65d5c82c53554d2b3f3343de8a220d305987442795e631e1417ed5963"
+    },
+    {
+      "bytes": 207,
+      "path": "rootfs-gpgv.stderr.txt",
+      "sha256": "1d2b5ec8598eca77b897c134644e98015c11285e89aed1a820bef6ff045c792a"
+    },
+    {
+      "bytes": 372,
+      "path": "rootfs-gpgv.stdout.txt",
+      "sha256": "ca342e03db4a8417e7781e1e18079929077948dab3a72a246f4bea645c6426c8"
+    },
+    {
+      "bytes": 0,
+      "path": "rootfs-keyring.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 40,
+      "path": "rootfs-keyring.stdout.txt",
+      "sha256": "bb816ba4aa6288c761d1dd778ab4f5a2ae502bfe313bd145931ea6c7931b7113"
+    },
+    {
+      "bytes": 372,
+      "path": "rootfs-signature.gpgv.txt",
+      "sha256": "ca342e03db4a8417e7781e1e18079929077948dab3a72a246f4bea645c6426c8"
+    },
+    {
+      "bytes": 91,
+      "path": "rootfs-signature.txt",
+      "sha256": "96e1d5d57ff53a3d6686a1443209b896ef9e3257331df7e52974bea0d8d8687c"
+    },
+    {
+      "bytes": 0,
+      "path": "rootfs-signer.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 32,
+      "path": "rootfs-signer.stdout.txt",
+      "sha256": "980ebe031c8d7b55670aa9a3828ffc7fd5ecb108778eab46783c55c9b068581c"
+    },
+    {
+      "bytes": 0,
+      "path": "target-create.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "target-create.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "schema": "cfdw-f1-r217-capture-manifest/1"
+}

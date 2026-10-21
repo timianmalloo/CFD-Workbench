@@ -1,0 +1,72 @@
+{
+  "schema": "cfdw-f1-r217-cleanup/1",
+  "run_id": "f1-attempt4-20261020",
+  "target": "cfdw-petsc-cuda132-f1",
+  "protected": "none",
+  "guard": "not applicable",
+  "initiating_error": "F1-EXCLUSIVITY-REFUSED: additional or changed WSL actor: wsl.exe pid 8464",
+  "cleanup_errors": [
+    "owned-stop: MAC-DECISION-REQUIRED: created target GUID unbound; containment withheld",
+    "MAC-DECISION-REQUIRED: owned process not proved stopped; archive deletion/unregister withheld",
+    "final-owned-stop: MAC-DECISION-REQUIRED: created target GUID unbound; containment withheld"
+  ],
+  "checkpoint_sha": "b8dda9bda1dabc5ce39edfff564d40eea8faec6f",
+  "elapsed_seconds": 20.082893,
+  "target_absent": "Unknown or blocked",
+  "creation_uncertain": true,
+  "finalization": {
+    "errors": [
+      "owned-stop: MAC-DECISION-REQUIRED: created target GUID unbound; containment withheld",
+      "MAC-DECISION-REQUIRED: owned process not proved stopped; archive deletion/unregister withheld",
+      "final-owned-stop: MAC-DECISION-REQUIRED: created target GUID unbound; containment withheld"
+    ],
+    "owned_stopped": false,
+    "checkpoint_proved": true,
+    "cleanup_proved": false,
+    "snapshot_proved": true,
+    "guard_stopped": true,
+    "guard_bound": true
+  },
+  "affinity": "Linux CPU0-1 or guard CPU0, nice10; host lifecycle/Git N/A",
+  "leader_evidence": {
+    "status": "verified",
+    "files": [
+      {
+        "path": "leader-activation.json",
+        "sha256": "a5f9f9e689d9ff0111e9b8298cfb1d008d1ff27e1ec075442620566081dfa590"
+      },
+      {
+        "path": "leader-immediately-pre-live.json",
+        "sha256": "c9a9243bbab1be51a69d03f6a8efe5c27d21ada200f43b880f3a39ad00e7240a"
+      },
+      {
+        "path": "leader-renew-start.json",
+        "sha256": "1a5f5df4ee38889437f903274810f539d71acb148aa44ea0904cbbdc7d1482f4"
+      },
+      {
+        "path": "leader-renew-events.jsonl",
+        "sha256": "f53c47de3d2e09d0e5b3a6a542b1f38d72c5ebcab12df14a97c41485aaf4ce3b"
+      },
+      {
+        "path": "leader-renew.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "leader-renew-exit.json",
+        "sha256": "a09ed4f29e57f4396e31cbeff8ffc50308e6ceb01d2293d1ff665ad3a5432d6e"
+      },
+      {
+        "path": "keepalive-activation.json",
+        "sha256": "804dc06611749af713db1db95fbe732759ae012b110533dbac0e8da685e4154b"
+      },
+      {
+        "path": "keepalive-immediately-pre-live.json",
+        "sha256": "b0c4c7f6d0917f0fc6c765132252ea01ecf1325e988f9cb8219cd4b2932eed1f"
+      },
+      {
+        "path": "keepalive-finalization.json",
+        "sha256": "08dda4395033667377ee21839484320058f93fa4099dc94aea4752f98028b343"
+      }
+    ]
+  }
+}
