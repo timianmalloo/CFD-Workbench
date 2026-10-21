@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-21T00:26:58Z",
+  "generated": "2026-10-21T16:31:58Z",
   "audit": [
     {
       "actor": null,
@@ -40532,6 +40532,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-21T00:25:46Z",
       "duration_seconds": 72.0
+    },
+    {
+      "id": "al-01M5FMW8VK0WERASD348J9JWG9",
+      "shortname": "wsl-preflight",
+      "datetime": "2026-10-21T16:31:58Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of tools/wsl-preflight into main",
+      "summary": "Ruling 217 answered by tools/wsl-preflight.sh inside Ubuntu-24.04 (arm64: 213 packages, 3.24 GiB, 5 of 5 indices signed, downloaded and hashed); Ruling 247 records the simplification approval; leader ref released recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Step 1 of the simplification: answer the dependency preflight with one bash script and retire the per-attempt machinery",
+      "done_when": "receipts and README on main; Ruling 247 recorded; refs/coord/leader released",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-21T16:28:24Z",
+      "duration_seconds": 214.0
     }
   ],
   "changes": [
@@ -43936,6 +43963,24 @@ window.AUDIT_DATA = {
       "kind": "decision-request",
       "ref": "req-01M5DXHY5QN4YJCAF1MD5K60GT",
       "session": "pc-laptop-leader"
+    },
+    {
+      "id": "mail-01M5FMJ5V8R6YQVYGKC5G39HTA",
+      "ts": "2026-10-21T16:26:28Z",
+      "from": "pc-laptop-leader",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M5FMJ5TWY494P61QB7PFBJTJ",
+      "session": "pc-laptop-leader"
+    },
+    {
+      "id": "mail-01M5FMJ69YMCTNR8RQQ5Q25YWT",
+      "ts": "2026-10-21T16:26:28Z",
+      "from": "operator-timianmalloo",
+      "to": "pc-laptop-leader",
+      "kind": "ruling",
+      "ref": "req-01M5FMJ5TWY494P61QB7PFBJTJ",
+      "session": "operator-timianmalloo"
     }
   ]
 };
