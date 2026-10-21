@@ -1,0 +1,21 @@
+{
+  "schema": "cfdw-f1-host-observations/1",
+  "utc": "2026-10-21T00:10:49.1998149+00:00",
+  "powershell_version": "7.6.7",
+  "powershell_edition": "Core",
+  "os_architecture": "Arm64",
+  "process_architecture": "Arm64",
+  "processor_architecture_env": "ARM64",
+  "processor_architew6432_env": "",
+  "os_architecture_cim": "ARM 64-bit Processor",
+  "os_version": "10.0.28000.0",
+  "cpu": [
+    "NVIDIA RTX Spark N1X (6144-core GPU, 20-core CPU)"
+  ],
+  "gpu": [
+    "NVIDIA RTX Spark N1X (6144-core Blackwell RTX GPU)",
+    "NVIDIA NPU"
+  ],
+  "gpgv_path": "C:\\Program Files\\Git\\usr\\bin\\gpgv.exe",
+  "gpgv_version": "gpgv (GnuPG) 2.4.9"
+}
