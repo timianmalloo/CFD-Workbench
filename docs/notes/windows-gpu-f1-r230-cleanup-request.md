@@ -2,7 +2,7 @@
 id: note-windows-gpu-f1-r230-cleanup-request
 title: "R230 request for one activation-adapted cleanup action"
 type: decision-note
-status: proposed
+status: superseded
 owner: "@pc-f1-r228-cleanup-author"
 phase: preflight
 tags: [windows, wsl, cleanup, ruling-request]
@@ -14,6 +14,8 @@ summary: >-
   Exact R230 request for one cleanup-only action against the residual R228
   target. This request and authorization candidate grant no live authority.
 ---
+
+> **Superseded 2026-10-21 (Ruling 247).** The two-machine effort ended; the PC is the only machine and the AI-Forward pack's local coordination is what remains. Kept for history; nothing here is current guidance.
 
 # R230 request — one cleanup-only action
 

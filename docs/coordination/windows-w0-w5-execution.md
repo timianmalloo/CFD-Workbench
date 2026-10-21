@@ -2,7 +2,7 @@
 id: coordination-windows-w0-w5-execution
 title: "Windows W-0 through W-5 execution plan"
 type: plan
-status: in-progress
+status: superseded
 owner: "@win-local-coordinator-20261007"
 tags: [coordination, windows, openfoam, su2, persistence]
 links:
@@ -15,6 +15,8 @@ summary: >-
   Three-track Windows execution plan for W-0 through W-5. The Mac remains repository leader; the Windows session
   coordinates local work, an Astra Owner reviews decisions, and delivery occurs through win branches and GitHub PRs.
 ---
+
+> **Superseded 2026-10-21 (Ruling 247).** The two-machine effort ended; the PC is the only machine and the AI-Forward pack's local coordination is what remains. Kept for history; nothing here is current guidance.
 
 # Windows W-0 through W-5 execution plan
 

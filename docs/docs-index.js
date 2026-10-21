@@ -1984,7 +1984,7 @@ window.DOCS_INDEX = {
       "path": "docs/notes/windows-gpu-f1-cleanup-recovery.md",
       "title": "Proposed cleanup-only recovery of the failed R217 attempt",
       "type": "decision-note",
-      "status": "proposed",
+      "status": "superseded",
       "owner": "@pc-coordinator",
       "phase": "preflight",
       "reviewBy": "2026-10-19",
@@ -2013,7 +2013,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "01e2b004faa986192877d894064116edcfacce57c9e4214af40f3c5182c6058f"
+      "sourceSha256": "62ccda5b6a1c098f301bcef83c694ccd9ce9c768129003206df017d332c1526e"
     },
     {
       "id": "note-windows-gpu-f1-r229-cleanup-request",
@@ -2050,7 +2050,7 @@ window.DOCS_INDEX = {
       "path": "docs/notes/windows-gpu-f1-r230-cleanup-request.md",
       "title": "R230 request for one activation-adapted cleanup action",
       "type": "decision-note",
-      "status": "proposed",
+      "status": "superseded",
       "owner": "@pc-f1-r228-cleanup-author",
       "phase": "preflight",
       "reviewBy": "2026-10-13",
@@ -2073,7 +2073,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "123b364c419619c7c4619addc670f0095c56b5c87de8b6b1a6ccc504f56a9cb6"
+      "sourceSha256": "a3d56319c1586363d641a8f76f8e57dbc4bd7b9f6e42e3b0ae82669111de29a0"
     },
     {
       "id": "property-grid-rulings",
@@ -5503,7 +5503,7 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/openfoam-gpu-status-r220.md",
       "title": "OpenFOAM GPU work status at Ruling 220",
       "type": "doc",
-      "status": "in-progress",
+      "status": "superseded",
       "owner": "@pc-gpu-status-r217-cont",
       "phase": "",
       "reviewBy": "2026-10-19",
@@ -5548,7 +5548,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  A[CUDA capability proved] --> B[F1 design and benchmark frozen]\n  B --> C[R220 P1/P3 repair]\n  C --> D{Fresh Astra review}\n  D -->|VETO| X[Stop F1; operator decides]\n  D -->|ACCEPT| E[Review real environment contract]\n  E --> F[R217 dependency-only preflight]\n  F --> G[Dependency and capacity evidence]\n  G --> H{Later operator build ruling}\n  H --> I[PETSc-CUDA plus petsc4Foam build]\n  I --> J[Native GAMG / PETSc CPU / PETSc GPU benchmark]\n  J --> K[Case-specific worth-it verdict]"
         }
       ],
-      "sourceSha256": "d1e91233b86190ea91d0f3a34713563be04b371aa5fae12b66db0dfba6c376df"
+      "sourceSha256": "83ffd78f0f9ac2d54b7a9a493d88682eb99222b50d9d14cdc6bc18f5b2604103"
     },
     {
       "id": "defect-classes",
@@ -6394,7 +6394,7 @@ window.DOCS_INDEX = {
       "path": "docs/plans/windows-gpu-f1-preflight-r217.md",
       "title": "Optimized execution graph - Windows GPU F1 dependency preflight",
       "type": "doc",
-      "status": "blocked",
+      "status": "superseded",
       "owner": "@pc-f1-preflight-coordinator",
       "phase": "",
       "reviewBy": "2026-10-19",
@@ -6430,7 +6430,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  N1[Packet author] --> N2[Astra packet review]\n  N2 --> N3[Join and live fence]\n  N3 --> N4[One preflight plus cleanup]\n  N4 --> N5[Derive evidence]\n  N5 --> N6[Astra result review]\n  N6 --> N7[Join and gates]\n  N7 --> N8[Mac handoff]"
         }
       ],
-      "sourceSha256": "5be493178924de4f4e42c8b92fb382af241883f4e22bcbcacef5d3b589231d2f"
+      "sourceSha256": "ed4d8ec981c472a32b31dbd950971cee0e1efb7fb2a9217fcb2b4a4a7b1e5c71"
     },
     {
       "id": "plan-windows-gpu-f1-r230-cleanup",
@@ -11094,7 +11094,7 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/pc-kickoff.md",
       "title": "PC session kickoff - Windows setup, smoke test, Windows Save/Open, OpenFOAM and SU2 runs, cfMesh",
       "type": "plan",
-      "status": "accepted",
+      "status": "superseded",
       "owner": "@timianmalloo",
       "phase": "",
       "reviewBy": "2026-11-06",
@@ -11133,7 +11133,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f1cc9810e24d1f5da46c20e3557b404f835618127901c63ad7edca2441288a6b"
+      "sourceSha256": "fca567956bfc1ae67bcfc269d805559ad2d30ad9fcfa7c2bf2261b2fc85ba6f9"
     },
     {
       "id": "coordination-r17-companions",
@@ -11307,7 +11307,7 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/two-machine.md",
       "title": "Two machines - the Mac session and the Windows PC session, and how they meet in git",
       "type": "plan",
-      "status": "accepted",
+      "status": "superseded",
       "owner": "@timianmalloo",
       "phase": "",
       "reviewBy": "2026-11-06",
@@ -11344,14 +11344,14 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4e2cd8b9b7c47c5c8c75af819bd597255640b2883d6db1b1bf548e461485c75b"
+      "sourceSha256": "241b86e22920bd8f00185420beec185918146c673378f26e9cab495a6eed1b4c"
     },
     {
       "id": "coordination-windows-gpu-f1-design",
       "path": "docs/coordination/windows-gpu-f1-design.md",
       "title": "Coordination plan - Windows GPU F1 design",
       "type": "plan",
-      "status": "completed",
+      "status": "superseded",
       "owner": "@pc-f1-coordinator",
       "phase": "",
       "reviewBy": "2026-10-18",
@@ -11380,14 +11380,14 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d7de32081cd30552056f43c302cb0c534d1193dbb34533b39df314a64e7c2013"
+      "sourceSha256": "c1365c73b83bcdf247c3c3a81fbcf51197c2999b7cb6ea04a57fcf88f09ca2ad"
     },
     {
       "id": "coordination-windows-gpu-f1-preflight-r217",
       "path": "docs/coordination/windows-gpu-f1-preflight-r217.md",
       "title": "Coordination plan - Windows GPU F1 dependency preflight",
       "type": "plan",
-      "status": "blocked",
+      "status": "superseded",
       "owner": "@pc-f1-preflight-coordinator",
       "phase": "",
       "reviewBy": "2026-10-19",
@@ -11416,7 +11416,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f2992f2fcc2143d766f22a8ca391e67e7c8b02b15ed6d735783da5c1d4471df8"
+      "sourceSha256": "8d6be65fba23b8711aae877c0888c7eae9acaa14bee987615de1fab3c088baa8"
     },
     {
       "id": "coordination-windows-runtime-route",
@@ -11481,7 +11481,7 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/windows-w0-w5-execution.md",
       "title": "Windows W-0 through W-5 execution plan",
       "type": "plan",
-      "status": "in-progress",
+      "status": "superseded",
       "owner": "@win-local-coordinator-20261007",
       "phase": "",
       "reviewBy": "2026-11-07",
@@ -11519,14 +11519,14 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  P[preflight + plan] --> O[Astra Owner plan gate]\n  O --> A0[W-0 setup evidence + PR]\n  A0 --> A1[W-1 smoke evidence + PR]\n  A1 --> B1[W-2 design PR + Fable/Data gate]\n  B1 --> B2[W-2 red-first implementation]\n  A1 --> C[W-3 solver routes + PR]\n  C --> D[W-4a OpenFOAM L6]\n  C --> E[W-4b SU2 TMR]\n  D --> FS[W-4c L3 started + durable monitor]\n  E --> FS\n  FS -. measured spare capacity .-> G[W-5 cfMesh + PR]\n  FS --> FC[W-4c L3 complete + A4/GCI + PR]\n  B2 --> JB[Windows persistence review]\n  G --> JC[Solver review]\n  FC --> JC"
         }
       ],
-      "sourceSha256": "18657a1f106c1cd1da94c3c65d82e6bdb8091ef07e261d254d3b6a26e23028f4"
+      "sourceSha256": "73bfd7eb3a114361788e9de515998177157f32f80265d63157faea07b40a3ea3"
     },
     {
       "id": "plan-f1-rescope-r237",
       "path": "docs/plans/f1-rescope-r237.md",
       "title": "F1 re-scope plan (Ruling 237): one preflight packet for Windows x64 and ARM64 hosts with an NVIDIA GPU",
       "type": "plan",
-      "status": "accepted",
+      "status": "superseded",
       "owner": "@pc-laptop-leader",
       "phase": "preflight",
       "reviewBy": "2026-11-02",
@@ -11573,7 +11573,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "68a5fa5083a715157371d0e28327442adb92a392774bd1424e95c3e94e767c27"
+      "sourceSha256": "784c515835a035c541f1d016ff468c036ec0a0774298d71eb5d7ed526c449696"
     },
     {
       "id": "plan-seam-repair-1",
@@ -11657,7 +11657,7 @@ window.DOCS_INDEX = {
       "path": "docs/plans/windows-gpu-f1-r211.md",
       "title": "F1 design for PETSc CUDA and petsc4Foam on Windows WSL",
       "type": "plan",
-      "status": "proposed",
+      "status": "superseded",
       "owner": "@pc-f1-author-r211",
       "phase": "design",
       "reviewBy": "2026-10-18",
@@ -11695,7 +11695,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c727a8dbb6eb3393124ebcd3dc65153645f4546ea2df26a3d1c9a1bebebd52ec"
+      "sourceSha256": "e606739eab034bca807763654a31655cb02540cc70e5b158dc80571ab699b359"
     },
     {
       "id": "privacy-review",
@@ -11975,7 +11975,7 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/handoff-2026-10-13-pc-sole-leader.md",
       "title": "Handoff 2026-10-13: the PC becomes the sole leader",
       "type": "proof-pack",
-      "status": "reviewed",
+      "status": "superseded",
       "owner": "@leader-3122f106",
       "phase": "",
       "reviewBy": "2026-10-27",
@@ -11995,14 +11995,14 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e8b56410e9ed4ad00b655dcde6fb1a0505bda806fab093161b96a5fa634bed83"
+      "sourceSha256": "3858f7fd336220c2c35b2839f882ca7c669001656307aa00d4af052d7f4c9bb2"
     },
     {
       "id": "coordination-handoff-2026-10-16-laptop-setup",
       "path": "docs/coordination/handoff-2026-10-16-laptop-setup.md",
       "title": "Handoff 2026-10-16: laptop setup state before the D: reformat",
       "type": "proof-pack",
-      "status": "draft",
+      "status": "superseded",
       "owner": "@operator",
       "phase": "",
       "reviewBy": "2026-10-30",
@@ -12028,14 +12028,14 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cdb98eae5caf88f83e6353856314d83f1bb354364ee737a019469a54be1c1dc3"
+      "sourceSha256": "907cd84bd5c7436a6ee98eb9d85f53f965da36ceb168a8451665073b0dc00110"
     },
     {
       "id": "coordination-handoff-2026-10-16-new-laptop",
       "path": "docs/coordination/handoff-2026-10-16-new-laptop.md",
       "title": "Handoff 2026-10-16: moving the PC work to a new laptop",
       "type": "proof-pack",
-      "status": "draft",
+      "status": "superseded",
       "owner": "@operator",
       "phase": "",
       "reviewBy": "2026-10-30",
@@ -12055,7 +12055,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c49d4d600021f16a0453f79866ceede7594dd7cbddb334fa348e59dc8782cbd7"
+      "sourceSha256": "5597f7610b7c88e4c04811699447ec2fbd2a6bdd3a4aefbea81e62db9bfabaa0"
     },
     {
       "id": "proof-a3a-cor-red-first",
@@ -23200,5 +23200,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "f3bc1fe38ca05a049c8dc1d50f0eebdeb1b1914bdde814d01bdf59fa77cb4d22"
+  "graphSha256": "46171b0afd586e7738ca62287f0ccba7f0fb334dbbdfc393167698135f6826d7"
 };

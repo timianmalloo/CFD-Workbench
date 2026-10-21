@@ -2,7 +2,7 @@
 id: plan-windows-gpu-f1-r211
 title: "F1 design for PETSc CUDA and petsc4Foam on Windows WSL"
 type: plan
-status: proposed
+status: superseded
 owner: "@pc-f1-author-r211"
 phase: design
 tags: [windows, wsl, gpu, cuda, petsc, openfoam, ruling-211]
@@ -17,6 +17,8 @@ summary: >-
   One gated PETSc-CUDA plus petsc4Foam candidate, with exact build sequence, WSL memory measurement,
   one-case CPU/GPU oracle, and owned observer/rollback. Flagged input and ABI gaps block execution.
 ---
+
+> **Superseded 2026-10-21 (Ruling 247).** The two-machine effort ended; the PC is the only machine and the AI-Forward pack's local coordination is what remains. Kept for history; nothing here is current guidance.
 
 # F1: PETSc CUDA plus petsc4Foam, design only
 

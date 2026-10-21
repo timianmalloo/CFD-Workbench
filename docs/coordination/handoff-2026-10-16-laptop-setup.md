@@ -2,7 +2,7 @@
 id: coordination-handoff-2026-10-16-laptop-setup
 title: "Handoff 2026-10-16: laptop setup state before the D: reformat"
 type: proof-pack
-status: draft
+status: superseded
 owner: "@operator"
 tags: [coordination, handoff, windows, laptop, arm64, sdk, f1]
 links:
@@ -13,6 +13,8 @@ summary: >-
   Where the laptop session stopped on 2026-10-16: Rulings 237-239, the .NET SDK 10.0.402 branch, the ring evidence on
   Windows ARM64, the open decisions, and the steps to resume after the operator reformats D: from exFAT to NTFS.
 ---
+
+> **Superseded 2026-10-21 (Ruling 247).** The two-machine effort ended; the PC is the only machine and the AI-Forward pack's local coordination is what remains. Kept for history; nothing here is current guidance.
 
 # Handoff 2026-10-16: laptop setup state before the D: reformat
 

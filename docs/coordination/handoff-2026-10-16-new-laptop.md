@@ -2,7 +2,7 @@
 id: coordination-handoff-2026-10-16-new-laptop
 title: "Handoff 2026-10-16: moving the PC work to a new laptop"
 type: proof-pack
-status: draft
+status: superseded
 owner: "@operator"
 tags: [coordination, handoff, windows, laptop, f1]
 links:
@@ -12,6 +12,8 @@ summary: >-
   What the old PC pushed before the move, what it could not push, and the steps to resume the PC sole-leader work on a new
   Windows laptop. Read it after the 2026-10-13 PC sole-leader handoff.
 ---
+
+> **Superseded 2026-10-21 (Ruling 247).** The two-machine effort ended; the PC is the only machine and the AI-Forward pack's local coordination is what remains. Kept for history; nothing here is current guidance.
 
 # Handoff 2026-10-16: moving the PC work to a new laptop
 

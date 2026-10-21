@@ -2,7 +2,7 @@
 id: plan-windows-gpu-f1-preflight-r217
 title: "Optimized execution graph - Windows GPU F1 dependency preflight"
 type: doc
-status: blocked
+status: superseded
 owner: "@pc-f1-preflight-coordinator"
 tags: [windows, wsl, gpu, openfoam, petsc, coordination, ruling-217]
 links:
@@ -14,6 +14,8 @@ summary: >-
   The serial Ruling 217 packet track stopped before live execution after Astra's second VETO reproduced two remaining
   cleanup/ownership defects; the protected distro remained the only WSL distro and all installation/build/case work stayed closed.
 ---
+
+> **Superseded 2026-10-21 (Ruling 247).** The two-machine effort ended; the PC is the only machine and the AI-Forward pack's local coordination is what remains. Kept for history; nothing here is current guidance.
 
 # Windows GPU F1 dependency preflight — optimized graph
 

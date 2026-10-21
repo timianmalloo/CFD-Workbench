@@ -77,7 +77,6 @@ def run_lesson_controls():
         ("check-foildsl-spec-sync.py", ("--self-test",)),
         ("check-foildsl-spec-sync.py", ()),
         ("trace-brief.py", ("--self-test",)),
-        ("xmsg.py", ("--self-test",)),
         ("hooks/no-heredoc.py", ("--self-test",)),
         ("check-copy-ids.py", ("--self-test",)),
         ("check-copy-ids.py", ()),
@@ -98,8 +97,6 @@ def run_lesson_controls():
         ("check-importlib-registration.py", ("--self-test",)),
         ("check-importlib-registration.py", ()),  # tracked Python; immutable proof pins only; fast/docs, cost emitted per run
         ("check-expected-failures.py", ("--self-test",)),
-        ("check-windows-admission.py", ("--self-test",)),  # Ruling 189 (4) staleness line; fast ring, ~0.3 s
-        ("check-windows-admission.py", ()),  # PLAT-A real check (a bare stale claim fails); fast ring, ~0.35 s measured
         ("merge-defect-register.py", ("--self-test",)),  # JOIN-LOG-CONFLICT; fast ring, ~0.05 s
         ("dispatch-gate.py", ("--self-test",)),
         ("check-powershell-exit-code.py", ("--self-test",)),  # POWERSHELL-LASTEXITCODE-A; fast ring, 0.15 s + 0.22 s

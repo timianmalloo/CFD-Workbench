@@ -2,7 +2,7 @@
 id: coordination-handoff-2026-10-13-pc-sole-leader
 title: "Handoff 2026-10-13: the PC becomes the sole leader"
 type: proof-pack
-status: reviewed
+status: superseded
 owner: "@leader-3122f106"
 tags: [coordination, handoff, leader, windows, f1]
 links:
@@ -12,6 +12,8 @@ summary: >-
   Ruling 236 ends the two-machine split. From 2026-10-14 the PC's Claude Code session is the single executor and owns main.
   This file lists the state of main, the work in flight, the open items, and the commands the PC leader needs.
 ---
+
+> **Superseded 2026-10-21 (Ruling 247).** The two-machine effort ended; the PC is the only machine and the AI-Forward pack's local coordination is what remains. Kept for history; nothing here is current guidance.
 
 # Handoff 2026-10-13: the PC becomes the sole leader
 

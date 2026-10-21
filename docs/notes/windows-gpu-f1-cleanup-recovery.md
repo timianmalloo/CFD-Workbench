@@ -2,7 +2,7 @@
 id: note-windows-gpu-f1-cleanup-recovery
 title: "Proposed cleanup-only recovery of the failed R217 attempt"
 type: decision-note
-status: proposed
+status: superseded
 owner: "@pc-coordinator"
 phase: preflight
 tags: [windows, wsl, recovery, evidence, ruling-217, ruling-220]
@@ -15,6 +15,8 @@ summary: >-
   Cleanup-only source and offline refusal evidence for a new Mac ruling. The failed
   attempt stays failed; no recovery execution is authorized by this proposal.
 ---
+
+> **Superseded 2026-10-21 (Ruling 247).** The two-machine effort ended; the PC is the only machine and the AI-Forward pack's local coordination is what remains. Kept for history; nothing here is current guidance.
 
 # Proposed decision: one cleanup-only recovery, not a preflight retry
 

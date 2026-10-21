@@ -2,7 +2,7 @@
 id: coordination-windows-gpu-f1-preflight-r217
 title: "Coordination plan - Windows GPU F1 dependency preflight"
 type: plan
-status: blocked
+status: superseded
 owner: "@pc-f1-preflight-coordinator"
 tags: [coordination, worktrees, windows, wsl, gpu, ruling-217]
 links:
@@ -13,6 +13,8 @@ review-by: "2026-10-19"
 summary: >-
   Astra's second packet VETO stopped the serial Ruling 217 track before live execution; P1 cleanup and P3 exact process identity remain for any newly authorized track.
 ---
+
+> **Superseded 2026-10-21 (Ruling 247).** The two-machine effort ended; the PC is the only machine and the AI-Forward pack's local coordination is what remains. Kept for history; nothing here is current guidance.
 
 # Coordination plan — Windows GPU F1 dependency preflight
 

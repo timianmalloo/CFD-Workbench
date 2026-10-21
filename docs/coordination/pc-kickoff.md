@@ -2,7 +2,7 @@
 id: coordination-pc-kickoff
 title: "PC session kickoff - Windows setup, smoke test, Windows Save/Open, OpenFOAM and SU2 runs, cfMesh"
 type: plan
-status: accepted
+status: superseded
 owner: "@timianmalloo"
 tags: [coordination, windows, kickoff, openfoam, su2, wsl, cfmesh, smoke-test]
 links:
@@ -17,6 +17,8 @@ summary: >-
   done-when evidence: setup and coord install, the first Windows smoke test, Windows Save/Open, the WSL OpenFOAM and
   native SU2 routes verified step by step, NACA 0012 code-to-code runs and the SPIKE-04 L3 run, and the cfMesh tip spike.
 ---
+
+> **Superseded 2026-10-21 (Ruling 247).** The two-machine effort ended; the PC is the only machine and the AI-Forward pack's local coordination is what remains. Kept for history; nothing here is current guidance.
 
 # PC session kickoff
 

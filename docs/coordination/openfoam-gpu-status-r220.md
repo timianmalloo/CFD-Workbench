@@ -2,7 +2,7 @@
 id: coordination-openfoam-gpu-status-r220
 title: "OpenFOAM GPU work status at Ruling 220"
 type: doc
-status: in-progress
+status: superseded
 owner: "@pc-gpu-status-r217-cont"
 tags: [coordination, windows, wsl, openfoam, gpu, cuda, petsc, ruling-220]
 links:
@@ -16,6 +16,8 @@ summary: >-
   CUDA capability and rollback are proved, the PETSc-CUDA plus petsc4Foam design and three-arm benchmark are specified,
   and Ruling 220 has opened one final P1/P3 repair before the dependency-only F1 preflight may run.
 ---
+
+> **Superseded 2026-10-21 (Ruling 247).** The two-machine effort ended; the PC is the only machine and the AI-Forward pack's local coordination is what remains. Kept for history; nothing here is current guidance.
 
 # OpenFOAM GPU work status at Ruling 220
 
