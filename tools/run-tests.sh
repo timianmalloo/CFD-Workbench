@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # run-tests.sh - build once, run every test harness, report. Nothing else.
 #
-#   bash tools/run-tests.sh [Release|Debug]
+#   bash tools/run-tests.sh [Release|Debug] [--no-desktop]
 #
 # The four C# test projects are console harnesses (OutputType Exe, no test SDK): each prints `PASS <name>` lines and
 # exits non-zero on a failure. They run in parallel after one build, each into its own log under .tmp-tests/. A harness
@@ -12,7 +12,15 @@
 set -uo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd -P)"
 cd "$root"
-configuration="${1:-Release}"
+configuration=Release
+no_desktop=0
+for arg in "$@"; do
+  case "$arg" in
+    Release|Debug) configuration=$arg ;;
+    --no-desktop) no_desktop=1 ;;   # the Desktop harness samples pixels, focus and window geometry: it needs a real display
+    *) echo "usage: run-tests.sh [Release|Debug] [--no-desktop]"; exit 64 ;;
+  esac
+done
 . "$root/tools/py-resolve.sh"   # py: python3, else py -3, else python
 scratch="$root/.tmp-tests"
 rm -rf "$scratch"
@@ -31,6 +39,7 @@ fi
 echo "build $((SECONDS - started)) s ($configuration)"
 
 projects=(Core Analysis Desktop Cli)
+if [ "$no_desktop" -eq 1 ]; then projects=(Core Analysis Cli); echo "== CfdWorkbench.Desktop.Tests: not run (--no-desktop: needs a display)"; fi
 pids=()
 for project in "${projects[@]}"; do
   (
