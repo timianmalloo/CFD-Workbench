@@ -13,14 +13,6 @@
     "reason": "Immutable historical proof loader at d860ec33; retained evidence or managed source snapshot, never an active runtime exception.",
     "sha256": "abd4281adf5688f4a33d442765ed9c683adf4670da10273201c9b0f66b4c8fe3"
   },
-  "docs/proof/win-gpu-f1-preflight/integration/verify_integration.py": {
-    "lines": [
-      102,
-      126
-    ],
-    "reason": "Immutable historical proof loader at d860ec33; retained evidence or managed source snapshot, never an active runtime exception.",
-    "sha256": "4a69fc51114251ef9e94de8310985a1c58acc47bd83352a04f640deb67e3eec4"
-  },
   "docs/proof/wri-r182-runner/capture-proof.py": {
     "lines": [
       67

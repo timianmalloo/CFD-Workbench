@@ -97,18 +97,11 @@ def run_lesson_controls():
         ("check-reader-sharing.py", ()),  # also proof/tools PowerShell, hash-pinned grandfathering of 7 frozen B1/B2 PowerShell hits (Ruling 229); ~0.3 s
         ("check-importlib-registration.py", ("--self-test",)),
         ("check-importlib-registration.py", ()),  # tracked Python; immutable proof pins only; fast/docs, cost emitted per run
-        ("check-capture-text-attr.py", ("--self-test",)),  # CAPTURE-TEXT-ATTR (Ruling 229); fast ring, ~0.3 s
-        ("check-capture-text-attr.py", ()),  # ~0.3 s
         ("check-expected-failures.py", ("--self-test",)),
         ("check-windows-admission.py", ("--self-test",)),  # Ruling 189 (4) staleness line; fast ring, ~0.3 s
         ("check-windows-admission.py", ()),  # PLAT-A real check (a bare stale claim fails); fast ring, ~0.35 s measured
         ("merge-defect-register.py", ("--self-test",)),  # JOIN-LOG-CONFLICT; fast ring, ~0.05 s
         ("dispatch-gate.py", ("--self-test",)),
-        ("check-wsl-inline.py", ("--self-test",)),  # WSL-INLINE-ARGV; fast ring, ~0.05 s + ~0.3 s
-        ("check-wsl-inline.py", ()),
-        ("check-f1-host-bindings.py", ("--self-test",)),  # F1-HOST-BINDING (Ruling 237, plan C2); fast ring, ~0.1 s + ~0.05 s
-        ("check-f1-host-bindings.py", ()),
-        ("../docs/proof/win-gpu-f1-preflight/packet/authority_scan.py", ()),  # Ruling 217 command boundary over the packet, with its planted negatives; ran in no ring until plan node V found a red (LISTED-CHECK-IN-NO-RING); fast ring, ~0.2 s
         ("check-powershell-exit-code.py", ("--self-test",)),  # POWERSHELL-LASTEXITCODE-A; fast ring, 0.15 s + 0.22 s
         ("check-powershell-exit-code.py", ()),
         ("check-frozen-paths.py", ("--self-test",)),  # FROZEN-PATH-UNNAMED-IN-BRIEF (Ruling 222); fast ring, ~0.8 s measured (nine cases, seven throw-away git repos)

@@ -1,8 +1,0 @@
-{
-  "schema": "cfdw-f1-r217-precleanup/1",
-  "run_id": "r225-attempt1-epoch8-20261012",
-  "stage": "repositories",
-  "initiating_error": "Exception calling \"ReadAllText\" with \"1\" argument(s): \"The process cannot access the file 'C:\\Projects\\CFD-Workbench-win-gpu-f1-r225-attempt1\\docs\\proof\\win-gpu-f1-preflight\\attempt-1\\live\\completed-guard-events.jsonl' because it is being used by another process.\"",
-  "elapsed_seconds": 26.8923233,
-  "affinity": "Linux CPU0-1 nice10; host Git N/A"
-}

@@ -35,16 +35,6 @@ docs/proof/wri-r184-result/source-snapshots/1477951f/*.py -text
 docs/proof/wri-r184-result/source-snapshots/36ccfa49/*.ps1 -text
 docs/proof/wri-r184-result/source-snapshots/cfd947c3/* -text
 # Retained failed-run and recovery evidence must stay byte-identical to producer output.
-docs/proof/win-gpu-f1-preflight/run-1/checkpoint/** -text whitespace=-trailing-space,-blank-at-eof
-docs/proof/win-gpu-f1-preflight/run-1/failed-live/** -text whitespace=-trailing-space,-blank-at-eof
-docs/proof/win-gpu-f1-preflight/recovery-1/final/** -text whitespace=-trailing-space,-blank-at-eof
-docs/proof/win-gpu-f1-preflight/attempt-1/checkpoint/** -text whitespace=-trailing-space,-blank-at-eof
-docs/proof/win-gpu-f1-preflight/attempt-1/final/** -text whitespace=-trailing-space,-blank-at-eof
-docs/proof/win-gpu-f1-preflight/attempt-2/checkpoint/** -text whitespace=-trailing-space,-blank-at-eof
-docs/proof/win-gpu-f1-preflight/attempt-2/final/** -text whitespace=-trailing-space,-blank-at-eof
-docs/proof/win-gpu-f1-preflight/attempt-3/checkpoint/** -text whitespace=-trailing-space,-blank-at-eof
-docs/proof/win-gpu-f1-preflight/attempt-3/final/** -text whitespace=-trailing-space,-blank-at-eof
-docs/proof/win-gpu-f1-preflight/attempt-3/live/** -text whitespace=-trailing-space,-blank-at-eof
 # Every capture folder keeps its exact bytes (Ruling 229, RAW-CAPTURE-BLOB-MISMATCH recurrence 3; tools/check-capture-text-attr.py).
 docs/proof/r181-store-verifier-rerun/** -text
 docs/proof/ring-windows/** -text
@@ -57,6 +47,3 @@ docs/proof/win-store-implementation/** -text
 docs/proof/wri-probe/** -text
 docs/proof/wri-r182-runner/** -text
 docs/proof/wri-r184-result/** -text
-docs/proof/win-gpu-f1-preflight/attempt-4/checkpoint/** -text whitespace=-trailing-space,-blank-at-eof
-docs/proof/win-gpu-f1-preflight/attempt-4/final/** -text whitespace=-trailing-space,-blank-at-eof
-docs/proof/win-gpu-f1-preflight/attempt-4/live/** -text whitespace=-trailing-space,-blank-at-eof

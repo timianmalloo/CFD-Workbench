@@ -1,8 +1,0 @@
-{
-  "run_id": "r225-attempt1-epoch8-20261012",
-  "target": "cfdw-petsc-cuda132-f1",
-  "stage": "probe",
-  "utc": "2026-10-13T01:42:00.7211574+00:00",
-  "command": "preflight.sh",
-  "ownership": "stage owner is atomically published before side effects"
-}

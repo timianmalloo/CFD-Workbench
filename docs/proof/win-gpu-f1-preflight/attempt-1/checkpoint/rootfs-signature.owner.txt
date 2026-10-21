@@ -1,6 +1,0 @@
-pid=53161
-pgid=53161
-sid=53161
-nice=10
-Cpus_allowed_list=0
-cmdline=/bin/bash /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r225-attempt1/docs/proof/win-gpu-f1-preflight/packet/identity.sh /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r225-attempt1/docs/proof/win-gpu-f1-preflight/attempt-1/live/rootfs-signature.owner.txt -- /bin/bash /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r225-attempt1/docs/proof/win-gpu-f1-preflight/packet/verify-rootfs.sh /mnt/c/Projects/CFD-Workbench-wsl/f1-r217-inputs-r220-epoch6/ubuntu-noble-SHA256SUMS /mnt/c/Projects/CFD-Workbench-wsl/f1-r217-inputs-r220-epoch6/ubuntu-noble-SHA256SUMS.gpg /mnt/c/Projects/CFD-Workbench-wsl/f1-r217-inputs-r220-epoch6/ubuntu-noble-wsl-amd64-wsl.rootfs.tar.gz /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r225-attempt1/docs/proof/win-gpu-f1-preflight/attempt-1/invocation-contract.json /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r225-attempt1/docs/proof/win-gpu-f1-preflight/packet /mnt/c/Projects/CFD-Workbench-win-gpu-f1-r225-attempt1/docs/proof/win-gpu-f1-preflight/attempt-1/live/rootfs-signature.gpgv.txt 1141ee15dde086991290c508104addf9fe5c32c789dccbdbfdbfbaeb9e49f696 

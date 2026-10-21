@@ -1,5 +1,0 @@
-device=/dev/sde
-block_bytes=8589934592
-filesystem_bytes=8350298112
-free_bytes=6719971328
-maximum_bytes=8589934592

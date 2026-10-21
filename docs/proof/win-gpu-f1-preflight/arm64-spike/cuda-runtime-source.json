@@ -1,1 +1,0 @@
-{"deb": "cuda-cudart-13-2_13.2.86-1_arm64.deb", "sha256": "136f07f53c0d44d091c636c5dced39cbdffe37e51b4906190cae3d72f4ce2174", "bytes": 180618, "repository": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa", "extracted_with": "dpkg -x", "installed": false}

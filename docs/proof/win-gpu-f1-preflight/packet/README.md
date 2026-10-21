@@ -16,6 +16,8 @@ summary: >-
   Reviewed-only, self-testing host and Linux packet for one bounded disposable Ruling 217 metadata/download preflight, with a committed checkpoint before cleanup.
 ---
 
+> **Retired 2026-10-21 (Ruling 247).** The packet, its tests, rehearsal and captures were removed from the tree; they stay in git history before that ruling. The question it was built to answer is answered by `tools/wsl-preflight.sh` (`docs/proof/wsl-preflight/README.md`). The markdown under this folder is kept so the documents that cite it keep their links.
+
 # Ruling 217 preflight packet — frozen source, no live run here
 
 ## Live-defect repair proof (offline only, 2026-10-12)

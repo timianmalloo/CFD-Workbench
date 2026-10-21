@@ -1,8 +1,0 @@
-{
-  "schema": "cfdw-f1-r217-precleanup/1",
-  "run_id": "f1-attempt3-20261020",
-  "stage": "not-started",
-  "initiating_error": "F1-OWN-LAUNCHER-IDENTITY",
-  "elapsed_seconds": 10.318998,
-  "affinity": "Linux CPU0-1 nice10; host Git N/A"
-}
