@@ -389,6 +389,22 @@ carries the run itself.
   follows the precheck. The rehearsal joined `tools/run-f1-verification.py` as the `dry-rehearsal` step against the
   highest `attempt-<n>` run root. 160 Python tests, 10 PowerShell suites on both runtimes; receipts in `docs/proof/win-gpu-f1-preflight/rehearsal/`. Next: attempt 4
   (pair at this source, rehearsal green for attempt-4 after prepare, its own ruling). Duration: the join's audit entry.
+- **A, attempt 4 (2026-10-21 UTC, Ruling 246).** Planned: the first live attempt under Ruling 245's cap, the pair at
+  `ace7b708` with the rehearsal green in front of it. Actual: the accepted authorization committed in place of the
+  proposal (`4f8bd9f5`, main `4e6f67bc`), the rehearsal green again in the execution worktree, the launch from native
+  pwsh with no Bash tool in flight. The run passed every gate attempts 2 and 3 had failed (own-launcher identity on two
+  children, both binds live) and reached the import: `wsl --install --from-file` registered as an owned child, the
+  utility VM up, the VHD created; five seconds in, the runtime identity sample refused `wsl.exe pid 8464`, the import
+  child was stopped and the WSL service rolled the registration back (verified absent by hand: one registration,
+  `Ubuntu-24.04`; no target directory). Diagnosis: the System32 `wsl.exe` is a stub that spawns the packaged `wsl.exe`
+  about 43 ms later with the same command text, and the owned register is a snapshot taken at registration, so the
+  forwarded child of a long call is a foreign actor to the next sample (OWNED-PROCESS-TREE-REGISTERED-ONCE-WHILE-IT-GROWS;
+  the receipt kept only the pid, so the identity of 8464 is Inferred and the mechanism Verified on this machine). A
+  probe during the diagnosis named its parameter `$Args` and started the default distro by mistake (reported; a
+  recurrence of CASE-INSENSITIVE-VARIABLE-SHADOWS-A-PARAMETER). Receipts: `attempt-4/checkpoint/` (`b8dda9bd`) and
+  `attempt-4/final/` (`930078ea`), README section 6. Attempts consumed 1 to 4; 5 and 6 remain. Next: DR-6 (ownership
+  as a tree relation at each sample, the owned stop over the tree, the refusal keeping the row, a stub step in the
+  rehearsal; cycle 1 of the restarted loop), then attempt 5 with its own pair and ruling. Duration: the join's audit entry.
 
 ## 10. Gate record
 
