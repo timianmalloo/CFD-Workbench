@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-21T21:25:05Z",
+  "generated": "2026-10-21T21:35:55Z",
   "audit": [
     {
       "actor": null,
@@ -40775,6 +40775,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-21T21:23:10Z",
       "duration_seconds": 115.0
+    },
+    {
+      "id": "al-01M5G68T2ZMWMC1Q3N55CDA4VK",
+      "shortname": "ci-summary-parse",
+      "datetime": "2026-10-21T21:35:55Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of ci-summary-parse into main",
+      "summary": "run-tests.sh parses the dotnet test summary in one-line or multi-line shape, strips colour codes and CRs, and prints the log when no succeeded count is found (CI run 39678722401 red on every project with exit 0) recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Make CI green after the dotnet test conversion",
+      "done_when": "CI harness jobs green on Windows and macOS",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-21T21:34:02Z",
+      "duration_seconds": 113.0
     }
   ],
   "changes": [
