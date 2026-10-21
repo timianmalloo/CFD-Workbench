@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-21T18:48:36Z",
+  "generated": "2026-10-21T21:25:05Z",
   "audit": [
     {
       "actor": null,
@@ -40748,6 +40748,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-21T18:46:24Z",
       "duration_seconds": 132.0
+    },
+    {
+      "id": "al-01M5G5MZ2NM1KXY148XZQTJG6K",
+      "shortname": "dotnet-test",
+      "datetime": "2026-10-21T21:25:05Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of dotnet-test into main",
+      "summary": "xunit v3 wrapper (tests/HarnessTests.cs) runs each console harness once and reports every PASS/FAIL/SKIP line as a test; run-tests.sh and CI drive them with dotnet test; one duplicated check name split with a control (TEST-NAME-DUPLICATE) recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Convert the C# test harnesses so dotnet test drives them",
+      "done_when": "dotnet test runs all four projects with the same 1,817 checks and 51 skips, run-tests.sh uses it, CI green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-21T21:23:10Z",
+      "duration_seconds": 115.0
     }
   ],
   "changes": [
