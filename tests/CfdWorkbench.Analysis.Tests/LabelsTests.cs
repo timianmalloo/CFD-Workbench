@@ -15,7 +15,10 @@ internal static class LabelsTests
             Equal("σ 7.71 · −Cp_min 0.47 · inside the 15 % margin · V_crit 38.9 kn", Labels.ProfileCavitation(7.71, -0.47, "inside", 15, 20.0, Units.Imperial));
         });
         Check("Labels_SaveRefusal_Ruling134Wording", () => {
-            Equal("Saving isn't available on this system yet — your changes are kept in this session.", Labels.SaveRefusal("DOC-UNSUPPORTED-PERSISTENCE"));
+            // Ruling 253 (W2-Q2 a, COPY-589): on Windows the store is admitted and refuses only some locations; elsewhere COPY-31W stands.
+            Equal(OperatingSystem.IsWindows()
+                ? "CFD Workbench can't save to this location or over this file. Your changes are kept in this session. Use Save As to choose a local folder."
+                : "Saving isn't available on this system yet — your changes are kept in this session.", Labels.SaveRefusal("DOC-UNSUPPORTED-PERSISTENCE"));
         });
         CauseCopyTests.Run();
         Check("Depth_Unset_NoDeepWaterLabel", () => {

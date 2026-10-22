@@ -183,6 +183,32 @@ public static class ControllerShellTests
                 throw new InvalidOperationException($"Expected AccessDenied, got {failure.GetType().Name}");
         });
 
+        // Ruling 254 (W2-Q2 follow-up): the message the Open path shows for a project in an environment-designated OneDrive folder.
+        // The refusal is asserted; whether the text states cause and remedy is printed, not asserted: today's text has neither (a finding for the leader).
+        DesktopChecks.Check("OpenRefusal_OneDriveFolder_StoreRefuses_MessageRecorded", () =>
+        {
+            if (!OperatingSystem.IsWindows()) return;
+            string? previous = Environment.GetEnvironmentVariable("OneDrive");
+            string oneDrive = TestTemp.NewDirectory("onedrive-open-"), path = Path.Combine(oneDrive, "wing.cfdw.json");
+            try
+            {
+                Environment.SetEnvironmentVariable("OneDrive", oneDrive);
+                File.WriteAllBytes(path, "{}"u8.ToArray());
+                using var store = new CfdWorkbench.Persistence.ProjectStore();
+                Exception? error = null;
+                try { store.ReadAsync(path).GetAwaiter().GetResult(); }
+                catch (Exception caught) { error = caught; }
+                if (error is not ContractError { Code: "DOC-UNSUPPORTED-PERSISTENCE" })
+                    throw new InvalidOperationException("expected DOC-UNSUPPORTED-PERSISTENCE, got " + error);
+                var failure = OpenFailure.Classify(error, path);
+                string message = CfdWorkbench.Desktop.Panes.StartView.FailureMessage(failure, "wing.cfdw.json");
+                bool cause = message.Contains("OneDrive", StringComparison.OrdinalIgnoreCase) || message.Contains("synced", StringComparison.OrdinalIgnoreCase);
+                bool remedy = message.Contains("local folder", StringComparison.OrdinalIgnoreCase) || message.Contains("another", StringComparison.OrdinalIgnoreCase);
+                Console.WriteLine("NOTE OpenRefusal_OneDrive cause=" + cause + " remedy=" + remedy + " message=" + message.Replace("\n", " | "));
+            }
+            finally { Environment.SetEnvironmentVariable("OneDrive", previous); }
+        });
+
         DesktopChecks.Check("OpenFailure_Missing_Classified", () =>
         {
             var failure = OpenFailure.Classify(new FileNotFoundException("File not found"), "/nonexistent/path.foil");

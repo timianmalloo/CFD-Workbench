@@ -380,12 +380,13 @@ public static class Labels
     public const string CouplePlaceNote = "The centre of pressure is undefined here, so the arrows start at the quarter chord and the pitching-moment couple is drawn."; // COPY-SF15
     private static string SaveFailed(string cause, string code, string tail) => $"Save failed: {cause} ({code}) — the previous file is intact and your changes are kept. {tail}"; // COPY-31 (Ruling 134), cause per COPY-412 to 422 (Ruling 155)
     public const string SaveUnavailable = "Saving isn't available on this system yet — your changes are kept in this session."; // COPY-31W (Ruling 134)
-    public const string SaveUncertain = "Save not confirmed: CFD Workbench couldn't tell whether the file was fully written (DOC-SAVE-UNCERTAIN). Your changes are kept and still marked unsaved. Retry to check the file, or Save As."; // COPY-421 (Ruling 155)
+    public const string SaveUnavailableWindows = "CFD Workbench can't save to this location or over this file. Your changes are kept in this session. Use Save As to choose a local folder."; // COPY-589 (Ruling 253 W2-Q2 a)
+    public const string SaveUncertain ="Save not confirmed: CFD Workbench couldn't tell whether the file was fully written (DOC-SAVE-UNCERTAIN). Your changes are kept and still marked unsaved. Retry to check the file, or Save As."; // COPY-421 (Ruling 155)
 
     /// <summary>The strip sentence for a refused or failed foil save: one cause row per code family (COPY-412 to 423, Ruling 155). An unknown code gets the generic row, which still carries the code.</summary>
     public static string SaveRefusal(string code) => code switch
     {
-        "DOC-UNSUPPORTED-PERSISTENCE" => SaveUnavailable,
+        "DOC-UNSUPPORTED-PERSISTENCE" => OperatingSystem.IsWindows() ? SaveUnavailableWindows : SaveUnavailable,
         "DOC-SAVE-UNCERTAIN" => SaveUncertain,
         "DOC-IO" => SaveFailed("the disk couldn't be written", code, "Retry or Save As."), // COPY-412
         "DOC-DISK-FULL" => SaveFailed("the disk is full", code, "Free some space, then Retry or Save As."), // COPY-413

@@ -17,7 +17,45 @@ internal static class DiscrepancyCliTests
         int failures = 0;
         failures += Check("InspectRuns_ListsDiscrepancies_RecomputedLines", ListsRecomputed);
         failures += Check("InspectRuns_NoDiscrepancies_OutputUnchanged", NoneUnchanged);
+        // A3 review condition 11: the CLI binary itself, on a project saved through the Windows store (the native store runs there now).
+        if (OperatingSystem.IsWindows())
+        {
+            failures += Check("InspectRuns_WindowsStore_BinaryNoRecords_OutputUnchanged", () => BinaryRuns(withRecord: false));
+            failures += Check("InspectRuns_WindowsStore_BinaryOneRecord_ListsDiscrepancies", () => BinaryRuns(withRecord: true));
+        }
         return failures;
+    }
+
+    private static void BinaryRuns(bool withRecord)
+    {
+        using var session = Session(out var vlm, out var estimator);
+        if (withRecord) Require(Compare.Record(session, vlm, estimator).Record is not null, "the record was made");
+        string path = TestTemp.Combine(Guid.NewGuid().ToString("N") + ".cfdw.json");
+        try
+        {
+            using (var store = new CfdWorkbench.Persistence.ProjectStore())
+            {
+                var saved = store.SaveAsync(path, new CfdWorkbench.Persistence.SaveRequest(session.SaveImage(), null, Guid.NewGuid().ToString("D"))).GetAwaiter().GetResult();
+                Require(saved.Code == "OK", "saved through the store: " + saved.Code);
+            }
+            var info = new System.Diagnostics.ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "CfdWorkbench.Cli.exe"))
+                { RedirectStandardOutput = true, UseShellExecute = false, CreateNoWindow = true };
+            info.ArgumentList.Add("inspect"); info.ArgumentList.Add(path); info.ArgumentList.Add("--runs");
+            using var child = System.Diagnostics.Process.Start(info)!;
+            string stdout = child.StandardOutput.ReadToEnd();
+            child.WaitForExit();
+            Require(child.ExitCode == 0, "binary exit " + child.ExitCode + ": " + stdout);
+            using var json = JsonDocument.Parse(stdout);
+            Require(json.RootElement.GetProperty("runs").GetArrayLength() == 2, "both runs listed");
+            Require(json.RootElement.TryGetProperty("discrepancies", out var listed) == withRecord, "discrepancies member present only with a record");
+            if (withRecord) Require(listed.GetArrayLength() == 1, "one record listed");
+            else
+            {
+                // Unchanged output: exactly the three members of the pre-A3 listing, in the pre-A3 order.
+                Require(string.Join(",", json.RootElement.EnumerateObject().Select(member => member.Name)) == "schemaVersion,runs,pruned", "the unchanged member list");
+            }
+        }
+        finally { File.Delete(path); }
     }
 
     private static int Check(string name, Action check)
