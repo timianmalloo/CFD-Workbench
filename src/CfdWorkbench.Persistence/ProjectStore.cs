@@ -24,7 +24,8 @@ public sealed class SaveRequest
 }
 
 /// <summary>DurabilityConfirmed means file fsync and final-directory fsync succeeded after owned cleanup;
-/// it is not a hardware power-loss guarantee. An uncertain result requires reopen/compare before retry.</summary>
+/// on Windows it means the temp-file FlushFileBuffers, the atomic rename and owned cleanup succeeded (Ruling 135).
+/// It is not a hardware power-loss guarantee. An uncertain result requires reopen/compare before retry.</summary>
 public sealed record SaveResult(string Code, string? PublishedSha256, bool PublicationKnown, bool DurabilityConfirmed);
 public sealed class ReadResult(byte[] image, string diskSha256)
 {
@@ -70,6 +71,7 @@ public sealed class ProjectStore : IProjectStore, IDisposable
     }
     private ReadResult Read(string path, CancellationToken cancellation, string traceId)
     {
+        if (OperatingSystem.IsWindows()) return new WindowsProjectStore(hooks, Emit).Read(path, cancellation, traceId);
         var timer = System.Diagnostics.Stopwatch.StartNew(); string code = "OK"; int? count = null;
         try
         {
@@ -93,6 +95,7 @@ public sealed class ProjectStore : IProjectStore, IDisposable
 
     private SaveResult Save(string path, SaveRequest request, CancellationToken cancellation, string traceId)
     {
+        if (OperatingSystem.IsWindows()) return new WindowsProjectStore(hooks, Emit).Save(path, request, cancellation, traceId);
         var timer = System.Diagnostics.Stopwatch.StartNew();
         bool published = false;
         byte[] image = request.Image; string hash = Identity.Sha256(image);
@@ -176,6 +179,7 @@ public sealed class ProjectStore : IProjectStore, IDisposable
     {
         ArgumentNullException.ThrowIfNull(bytes);
         ArgumentNullException.ThrowIfNull(precondition);
+        if (OperatingSystem.IsWindows()) return new WindowsProjectStore(hooks, Emit, IsClosed).PublishUnderClaim(dir, fileName, bytes, precondition);
         string traceId = Guid.NewGuid().ToString("N");
         var timer = System.Diagnostics.Stopwatch.StartNew();
         string code = "OK", hash = Identity.Sha256(bytes);
@@ -263,9 +267,12 @@ public sealed class ProjectStore : IProjectStore, IDisposable
     // simplify: serialize cooperative overwrites in the selected directory. This prevents case/Unicode
     // aliases bypassing a raw-name lock. Upgrade only with measured per-file identity-lock lifetimes.
     internal static string ClaimName() => ".cfd-writer.claim";
-    private static void Supported()
+    private bool IsClosed() { lock (lifecycle) return disposed; }
+    internal static void Supported()
     {
-        // Windows handle/reparse/sharing guarantees have not been measured. No path-only fallback.
+        // Windows: the entry points dispatch to WindowsProjectStore, which admits x64 and ARM64 here and NTFS per path.
+        if (OperatingSystem.IsWindows()) { Require(WindowsProjectStore.PlatformAdmitted(), "DOC-UNSUPPORTED-PERSISTENCE"); return; }
+        // Every other platform stays fail-closed. No path-only fallback.
         Require(OperatingSystem.IsMacOS() && RuntimeInformation.ProcessArchitecture == Architecture.Arm64 &&
             Marshal.SizeOf<Native.Stat>() == 144, "DOC-UNSUPPORTED-PERSISTENCE");
     }

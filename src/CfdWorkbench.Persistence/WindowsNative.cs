@@ -6,7 +6,7 @@ using Microsoft.Win32.SafeHandles;
 
 namespace CfdWorkbench.Persistence;
 
-// Qualification boundary only: ProjectStore does not dispatch here yet.
+// The native boundary of WindowsProjectStore (ProjectStore dispatches to it on Windows).
 // Ruling 136: SDK declarations, LibraryImport and SafeHandle; no private native DLL.
 [SupportedOSPlatform("windows")]
 internal static unsafe partial class WindowsNative
@@ -27,12 +27,23 @@ internal static unsafe partial class WindowsNative
     // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-ntcreatefile
     // https://learn.microsoft.com/en-us/windows/win32/api/ntdef/ns-ntdef-_object_attributes
     private const uint NtOpen = 1, NtCreate = 2;
-    private const uint SynchronousNonalert = 0x20, NonDirectory = 0x40;
+    private const uint DirectoryFile = 0x1, SynchronousNonalert = 0x20, NonDirectory = 0x40;
     private const uint CaseInsensitive = 0x40, DontReparse = 0x1000;
 
     // minwinbase.h FILE_INFO_BY_HANDLE_CLASS ordinal values (SDK declaration and Learn).
     // https://learn.microsoft.com/en-us/windows/win32/api/minwinbase/ne-minwinbase-file_info_by_handle_class
-    private const int FileRenameInfo = 3, FileIdInfo = 18, FileDispositionInfoEx = 21, FileRenameInfoEx = 22;
+    private const int FileStandardInfo = 1, FileRenameInfo = 3, FileAttributeTagInfo = 9, FileIdInfo = 18,
+        FileDispositionInfoEx = 21, FileRenameInfoEx = 22, FileCaseSensitiveInfo = 23;
+    // winnt.h: FILE_ATTRIBUTE_DIRECTORY=0x10, FILE_ATTRIBUTE_REPARSE_POINT=0x400,
+    // FILE_ATTRIBUTE_RECALL_ON_OPEN=0x40000, FILE_ATTRIBUTE_PINNED=0x80000, FILE_ATTRIBUTE_UNPINNED=0x100000,
+    // FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS=0x400000. FILE_READ_ATTRIBUTES=0x80 (winnt.h).
+    // https://learn.microsoft.com/en-us/windows/win32/fileio/file-attribute-constants
+    internal const uint AttributeDirectory = 0x10, AttributeReparsePoint = 0x400, AttributeRecallOnOpen = 0x40000,
+        AttributePinned = 0x80000, AttributeUnpinned = 0x100000, AttributeRecallOnDataAccess = 0x400000;
+    private const uint ReadAttributes = 0x80;
+    // winnt.h FILE_CS_FLAG_CASE_SENSITIVE_DIR = 1 in FILE_CASE_SENSITIVE_INFO.Flags.
+    // https://learn.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-file_case_sensitive_info
+    private const uint CaseSensitiveDirectory = 1;
     // wdm.h FILE_INFORMATION_CLASS; different enumeration from Win32 FILE_INFO_BY_HANDLE_CLASS.
     // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/wdm/ne-wdm-_file_information_class
     private const int FileRenameInformationEx = 65;
@@ -87,15 +98,69 @@ internal static unsafe partial class WindowsNative
     [StructLayout(LayoutKind.Sequential)]
     internal struct Disposition { internal uint Flags; }
 
+    // https://learn.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-file_attribute_tag_info
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct FileAttributeTag { internal uint Attributes, ReparseTag; }
+    // https://learn.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-file_standard_info
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct FileStandard { internal long AllocationSize, EndOfFile; internal uint NumberOfLinks; internal byte DeletePending, Directory; }
+    // https://learn.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-file_case_sensitive_info
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct CaseSensitiveInfo { internal uint Flags; }
+
     internal readonly record struct FileIdentity(ulong Volume, ulong Low, ulong High);
 
-    // This open is for a trusted qualification fixture. Full root/ancestor admission is a later slice.
-    internal static SafeFileHandle OpenFixtureDirectory(string absolutePath)
+    /// <summary>Opens a drive root (or a trusted fixture directory) by path; every later component is opened relative to it.</summary>
+    internal static SafeFileHandle OpenRoot(string absolutePath)
     {
         var handle = CreateFileW(absolutePath, DirectoryAccess, ShareRead | ShareWrite, 0,
             OpenExisting, BackupSemantics | OpenReparsePoint, 0);
         if (!handle.IsInvalid) return handle;
         int error = Marshal.GetLastPInvokeError(); handle.Dispose(); throw new NativeFailure(null, error);
+    }
+
+    internal static SafeFileHandle OpenFixtureDirectory(string absolutePath) => OpenRoot(absolutePath);
+
+    /// <summary>One directory component opened relative to a retained parent; share read and write, never delete.</summary>
+    internal static SafeFileHandle OpenDirectory(SafeFileHandle parent, string child) =>
+        OpenRelative(parent, child, DirectoryAccess, ShareRead | ShareWrite, NtOpen, 0, directory: true);
+
+    internal static FileAttributeTag AttributeTag(SafeFileHandle handle)
+    {
+        FileAttributeTag tag = default;
+        Check(GetFileInformationByHandleEx(handle, FileAttributeTagInfo, &tag, (uint)sizeof(FileAttributeTag)));
+        return tag;
+    }
+
+    /// <summary>Attributes and reparse tag of a path, opened without following a reparse point (cloud-folder detection only).</summary>
+    internal static FileAttributeTag AttributeTag(string absolutePath)
+    {
+        using var handle = CreateFileW(absolutePath, ReadAttributes, ShareRead | ShareWrite | ShareDelete, 0,
+            OpenExisting, BackupSemantics | OpenReparsePoint, 0);
+        if (handle.IsInvalid) throw new NativeFailure(null, Marshal.GetLastPInvokeError());
+        return AttributeTag(handle);
+    }
+
+    internal static FileStandard Standard(SafeFileHandle handle)
+    {
+        FileStandard standard = default;
+        Check(GetFileInformationByHandleEx(handle, FileStandardInfo, &standard, (uint)sizeof(FileStandard)));
+        return standard;
+    }
+
+    internal static bool IsCaseSensitive(SafeFileHandle directory)
+    {
+        CaseSensitiveInfo info = default;
+        Check(GetFileInformationByHandleEx(directory, FileCaseSensitiveInfo, &info, (uint)sizeof(CaseSensitiveInfo)));
+        return (info.Flags & CaseSensitiveDirectory) != 0;
+    }
+
+    /// <summary>The file system name of the volume that holds the handle, for example NTFS.</summary>
+    internal static string VolumeFileSystem(SafeFileHandle handle)
+    {
+        char* name = stackalloc char[261];
+        Check(GetVolumeInformationByHandleW(handle, null, 0, null, null, null, name, 261));
+        return new string(name);
     }
 
     internal static SafeFileHandle CreatePrivate(SafeFileHandle parent, string child)
@@ -119,7 +184,7 @@ internal static unsafe partial class WindowsNative
         OpenRelative(parent, child, ReadAccess, share, NtOpen, 0);
 
     private static SafeFileHandle OpenRelative(SafeFileHandle parent, string child, uint access, uint share,
-        uint disposition, nint securityDescriptor)
+        uint disposition, nint securityDescriptor, bool directory = false)
     {
         RequireChild(child);
         bool retained = false;
@@ -134,7 +199,8 @@ internal static unsafe partial class WindowsNative
                     RootDirectory = parent.DangerousGetHandle(), ObjectName = (nint)(&unicode),
                     Attributes = CaseInsensitive | DontReparse, SecurityDescriptor = securityDescriptor };
                 int status = NtCreateFile(out nint raw, access, &attributes, out IoStatusBlock io, 0,
-                    NormalAttributes, share, disposition, SynchronousNonalert | NonDirectory | OpenReparsePoint, 0, 0);
+                    NormalAttributes, share, disposition,
+                    SynchronousNonalert | (directory ? DirectoryFile : NonDirectory) | OpenReparsePoint, 0, 0);
                 if (status == 0 && (int)io.Status == 0) return new SafeFileHandle(raw, true);
                 if (raw != 0 && raw != -1) new SafeFileHandle(raw, true).Dispose();
                 int completion = status == 0 ? (int)io.Status : status;
@@ -301,6 +367,11 @@ internal static unsafe partial class WindowsNative
     [LibraryImport("kernel32.dll", SetLastError = true)]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
     private static partial int FlushFileBuffers(SafeFileHandle handle);
+    // https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getvolumeinformationbyhandlew
+    [LibraryImport("kernel32.dll", SetLastError = true)]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    private static partial int GetVolumeInformationByHandleW(SafeFileHandle handle, char* volumeName, uint volumeNameSize,
+        uint* serial, uint* maximumComponentLength, uint* flags, char* fileSystemName, uint fileSystemNameSize);
     // https://learn.microsoft.com/en-us/windows/win32/api/aclapi/nf-aclapi-getsecurityinfo
     [LibraryImport("advapi32.dll")]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]

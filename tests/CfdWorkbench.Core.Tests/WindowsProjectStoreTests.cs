@@ -17,19 +17,27 @@ internal static class WindowsProjectStoreTests
             var failure = new WindowsNative.NativeFailure(null, 183);
             Equal<string?>(null, failure.ProductCode);
         });
-        Check("WindowsStore_Unqualified_ProductionAdmissionRemainsClosed", () =>
+        Check("WindowsStore_NtfsFixture_SaveOpenReopenSucceeds", () =>
         {
             string root = TestTemp.Combine("cfd-win-native-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(root);
             try
             {
+                string path = Path.Combine(root, "project.cfdw");
                 using var store = new ProjectStore();
-                var result = store.SaveAsync(Path.Combine(root, "project.cfdw"),
-                    new SaveRequest([1, 2, 3], null, Guid.NewGuid().ToString("D"))).GetAwaiter().GetResult();
-                Equal("DOC-UNSUPPORTED-PERSISTENCE", result.Code);
-                Equal(false, result.PublicationKnown);
-                Equal(false, result.DurabilityConfirmed);
-                Equal(0, Directory.GetFileSystemEntries(root).Length);
+                var created = store.SaveAsync(path, new SaveRequest([1, 2, 3], null, Guid.NewGuid().ToString("D"))).GetAwaiter().GetResult();
+                Equal("OK", created.Code);
+                Equal(true, created.PublicationKnown);
+                Equal(true, created.DurabilityConfirmed);
+                var first = store.ReadAsync(path).GetAwaiter().GetResult();
+                Equal(true, first.Image.AsSpan().SequenceEqual(new byte[] { 1, 2, 3 }));
+                Equal(created.PublishedSha256, first.DiskSha256);
+                var replaced = store.SaveAsync(path, new SaveRequest([4, 5], first.DiskSha256, Guid.NewGuid().ToString("D"))).GetAwaiter().GetResult();
+                Equal("OK", replaced.Code);
+                var second = store.ReadAsync(path).GetAwaiter().GetResult();
+                Equal(true, second.Image.AsSpan().SequenceEqual(new byte[] { 4, 5 }));
+                Equal(replaced.PublishedSha256, second.DiskSha256);
+                Equal(1, Directory.GetFileSystemEntries(root).Length);
             }
             finally { Directory.Delete(root, true); }
         });
