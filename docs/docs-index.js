@@ -2348,7 +2348,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f75183380c58e8d12ac77eb7b6bb7a9f47539791b9bd80056ed6671efa0c281a"
+      "sourceSha256": "987a674e731785af3a29a3e535e354e10a08ef0c9ff2e13ea1e5925720668221"
     },
     {
       "id": "design-app-shell",
@@ -23028,7 +23028,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c1f28bc3c56a282309669bdc82429965592e78cfbf6ac43edc1c6b9bad96f48e"
+      "sourceSha256": "bc5ff98ac4ccdef72f07bacb6c6eb2516e2fb5b2fa93c00cfa922fe7ed87447a"
     },
     {
       "id": "spec-amendments-add-station",
@@ -23892,5 +23892,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "18d239f35187b491cd8be08294d76a0dbd23bcacb8adf419528a370c4871d232"
+  "graphSha256": "6f36698fa012a363415d8f5271479de48ca39052852202868da8838b4e97e0ab"
 };
