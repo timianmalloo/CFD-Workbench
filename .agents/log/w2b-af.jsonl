@@ -23,3 +23,9 @@
 {"agent": "w2b-af", "at": 1792690295.417389, "kind": "release", "path": "tests/CfdWorkbench.Cli.Tests/DiscrepancyCliTests.cs", "seq": 23, "session": "w2b-af", "wi": "w2b-af"}
 {"agent": "w2b-af", "at": 1792690296.6761613, "kind": "release", "path": "DESIGN.md", "seq": 24, "session": "w2b-af", "wi": "w2b-af"}
 {"agent": "w2b-af", "at": 1792690299.7974238, "kind": "release", "path": "docs/proof/a3d-compare/README.md", "seq": 25, "session": "w2b-af", "wi": "w2b-af"}
+{"agent": "w2b-af", "at": 1792691673.718845, "kind": "claim", "path": "tests/CfdWorkbench.Analysis.Tests/CompareTests.cs", "seq": 26, "session": "w2b-af", "ttl": 300.0, "wi": "w2b-af"}
+{"agent": "w2b-af", "at": 1792691706.1664715, "kind": "claim", "path": "tests/CfdWorkbench.Cli.Tests/DiscrepancyCliTests.cs", "seq": 27, "session": "w2b-af", "ttl": 300.0, "wi": "w2b-af"}
+{"agent": "w2b-af", "at": 1792691930.9094055, "kind": "claim", "path": "docs/proof/a3d-compare/README.md", "seq": 28, "session": "w2b-af", "ttl": 300.0, "wi": "w2b-af"}
+{"agent": "w2b-af", "at": 1792691962.1447253, "kind": "release", "path": "tests/CfdWorkbench.Analysis.Tests/CompareTests.cs", "seq": 29, "session": "w2b-af", "wi": "w2b-af"}
+{"agent": "w2b-af", "at": 1792691962.3151586, "kind": "release", "path": "tests/CfdWorkbench.Cli.Tests/DiscrepancyCliTests.cs", "seq": 30, "session": "w2b-af", "wi": "w2b-af"}
+{"agent": "w2b-af", "at": 1792691962.4679189, "kind": "release", "path": "docs/proof/a3d-compare/README.md", "seq": 31, "session": "w2b-af", "wi": "w2b-af"}
