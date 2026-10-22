@@ -21,7 +21,8 @@ public enum OpenFailureKind
     TooLarge,
     Newer,
     UnknownContent,
-    NotRecognised
+    NotRecognised,
+    UnsupportedLocation
 }
 
 public abstract record OpenFailure(string Code, string Path)
@@ -63,6 +64,11 @@ public abstract record OpenFailure(string Code, string Path)
         public override OpenFailureKind Kind => OpenFailureKind.NotRecognised;
     }
 
+    public sealed record UnsupportedLocation(string Code, string Path) : OpenFailure(Code, Path)
+    {
+        public override OpenFailureKind Kind => OpenFailureKind.UnsupportedLocation;
+    }
+
     public static OpenFailure Classify(Exception exception, string path)
     {
         ArgumentNullException.ThrowIfNull(exception);
@@ -94,6 +100,8 @@ public abstract record OpenFailure(string Code, string Path)
             return new TooLarge(code, path);
         if (code is "DOC-VERSION" or "DSL-VERSION")
             return new Newer(code, path);
+        if (code is "DOC-UNSUPPORTED-PERSISTENCE" && OperatingSystem.IsWindows())
+            return new UnsupportedLocation(code, path);
         if (code is "DOC-UNSUPPORTED-FIELD")
             return new UnknownContent(code, path);
         if (code is "DOC-SCHEMA" or "DOC-TYPE" or "DOC-REFERENCE" || code.StartsWith("DSL-", StringComparison.OrdinalIgnoreCase))

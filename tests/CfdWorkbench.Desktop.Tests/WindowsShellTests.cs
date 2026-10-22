@@ -20,6 +20,11 @@ namespace CfdWorkbench.Desktop.Tests;
 /// </summary>
 public static class WindowsShellTests
 {
+    // COPY-589 on Windows (Ruling 253 W2-Q2 a), COPY-31W elsewhere.
+    private static readonly string UnsupportedSaveText = OperatingSystem.IsWindows()
+        ? "CFD Workbench can't save to this location or over this file. Your changes are kept in this session. Use Save As to choose a local folder."
+        : "Saving isn't available on this system yet — your changes are kept in this session.";
+
     public static void Run()
     {
         DesktopChecks.Check("WindowsShell_Gesture_CommandKeyMapsToControlOffMac", () =>
@@ -252,7 +257,7 @@ public static class WindowsShellTests
                 var returned = Save(window, "foil.cfdw.json");
                 Settle(window);
                 shown = StatusStripTests.Text(host).Text ?? "";
-                if (returned is not null || shown != "Saving isn't available on this system yet — your changes are kept in this session." || StatusStripTests.Kind(host) == "info")
+                if (returned is not null || shown != UnsupportedSaveText || StatusStripTests.Kind(host) == "info")
                     throw new InvalidOperationException($"An unsupported-persistence save showed '{shown}' (kind {StatusStripTests.Kind(host)}); threw {returned?.Code}");
             }
             finally { window.Close(); }
@@ -262,7 +267,7 @@ public static class WindowsShellTests
         {
             string unsupported = MainWindow.SaveFailureText(new ContractError("DOC-UNSUPPORTED-PERSISTENCE"));
             string io = MainWindow.SaveFailureText(new IOException("disk"));
-            if (unsupported != "Saving isn't available on this system yet — your changes are kept in this session." ||
+            if (unsupported != UnsupportedSaveText ||
                 io != "Save failed: the disk couldn't be written (DOC-IO) — the previous file is intact and your changes are kept. Retry or Save As.")
                 throw new InvalidOperationException($"'{unsupported}' / '{io}'");
         });

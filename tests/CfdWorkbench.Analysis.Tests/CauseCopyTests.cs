@@ -136,7 +136,7 @@ internal static class CauseCopyTests
         foreach (string code in codes)
             foreach (string text in new[] { Labels.SaveRefusal(code), Labels.Refusal(code) })
             {
-                if (text == Labels.SaveUnavailable) continue;
+                if (text == Labels.SaveUnavailable || text == Labels.SaveUnavailableWindows) continue;
                 string rest = text.Replace("(" + code + ")", "", StringComparison.Ordinal);
                 if (!text.Contains("(" + code + ")", StringComparison.Ordinal) || rest.Contains(code, StringComparison.Ordinal) || rest.Length < 40)
                     bad.Add(code + " → " + text);

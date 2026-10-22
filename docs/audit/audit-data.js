@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T07:02:04Z",
+  "generated": "2026-10-22T07:35:07Z",
   "audit": [
     {
       "actor": null,
@@ -41534,6 +41534,44 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T06:58:45Z",
       "duration_seconds": 199.0
+    },
+    {
+      "id": "al-01M5H7W2H39CB8T2T63EFZ1K6K",
+      "shortname": "w2-q2-followup",
+      "datetime": "2026-10-22T07:23:09Z",
+      "session": "w2-q2-followup",
+      "prompt": "W2-Q2 follow-up: Windows refusal copy, open-refusal check, inspect --runs end to end",
+      "summary": "W2-Q2 follow-up: COPY-589 Windows save-refusal mapping (red then green, mutant red), OneDrive open-refusal message recorded as a finding (no cause, no remedy), inspect --runs through the CLI binary on Windows (two checks, two mutants). Final run TESTS-GREEN on the third rerun after two native Desktop crashes (0xC0000374, part 2/2 of the shell-window check); check-docs exit 0.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "started_at": "2026-10-22T07:03:14Z",
+      "duration_seconds": 1195.0
+    },
+    {
+      "id": "al-01M5H8HZA9ATCBK67N5FX9KBT4",
+      "shortname": "w2-q2-open-refusal",
+      "datetime": "2026-10-22T07:35:07Z",
+      "session": "w2-q2-followup",
+      "prompt": "W2-Q2 node 2: the Windows open-refusal message under Ruling 257",
+      "summary": "W2-Q2 node 2: COPY-590 (Ruling 257) Windows open-refusal message; ClassifyCode maps DOC-UNSUPPORTED-PERSISTENCE to UnsupportedLocation on Windows; check red then green; RC1 and RC2 done.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "started_at": "2026-10-22T07:29:01Z",
+      "duration_seconds": 366.0
     }
   ],
   "changes": [
