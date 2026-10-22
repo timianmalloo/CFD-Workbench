@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T03:57:10Z",
+  "generated": "2026-10-22T04:00:31Z",
   "audit": [
     {
       "actor": null,
@@ -41480,6 +41480,33 @@ window.AUDIT_DATA = {
       "tier": "T2",
       "started_at": "2026-10-22T03:49:07Z",
       "duration_seconds": 483.0
+    },
+    {
+      "id": "al-01M5GW914EMNWA9ZJ3VBEK71EY",
+      "shortname": "join-w2-windows-store",
+      "datetime": "2026-10-22T04:00:31Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of w2-windows-store into main",
+      "summary": "W2 joins: ProjectStore dispatches to WindowsProjectStore on Windows (Rulings 135, 136, 145, 253); OneDrive placeholders exposed and cloud folders refused for Open and Save (Security veto cleared; Ruling 254); fixed local volumes only; EFS and read-only targets refused; the Save-is-blocked dialog; the 51 macos-only-store skips removed and green; crash-injection inventory measured; two Adversary passes, three repair dispatches (Ruling 255) recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "W-2 B2: the Windows project store admitted with the skipped store checks green on this laptop and CI green",
+      "done_when": "run-tests green with 0 skips on main; check-docs 0; CI green on both runners after the push",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-22T03:58:34Z",
+      "duration_seconds": 117.0
     }
   ],
   "changes": [
