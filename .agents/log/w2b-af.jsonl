@@ -29,3 +29,4 @@
 {"agent": "w2b-af", "at": 1792691962.1447253, "kind": "release", "path": "tests/CfdWorkbench.Analysis.Tests/CompareTests.cs", "seq": 29, "session": "w2b-af", "wi": "w2b-af"}
 {"agent": "w2b-af", "at": 1792691962.3151586, "kind": "release", "path": "tests/CfdWorkbench.Cli.Tests/DiscrepancyCliTests.cs", "seq": 30, "session": "w2b-af", "wi": "w2b-af"}
 {"agent": "w2b-af", "at": 1792691962.4679189, "kind": "release", "path": "docs/proof/a3d-compare/README.md", "seq": 31, "session": "w2b-af", "wi": "w2b-af"}
+{"agent": "w2b-af", "at": 1792692284.2602465, "kind": "session-end", "path": "-", "seq": 32, "session": "w2b-af", "wi": "WI-0", "worktree": "CFD-Workbench-w2b-af"}
