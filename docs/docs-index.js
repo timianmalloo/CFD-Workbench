@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "12a4d3dec43b13d62e580407c7c7ed06fdd25a974cb611925642c8cb7f1844c8"
+      "sourceSha256": "8efecf04285c8824395f27d6931266cf9bef747ded1d83439dbf4fb8bc15a885"
     },
     {
       "id": "domain-experts",
@@ -11132,7 +11132,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "210f28a9719a8d10c64ec75ec5c57b6738ab591efbecbba329f0de8602fe200f"
+      "sourceSha256": "3f3bc4617908b112f42ab01b1055d033da374513fa1446ad28940034a1f38069"
     },
     {
       "id": "coordination-pc-kickoff",
@@ -16578,6 +16578,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "96b9e43311cfd77909db62ba5984d828c3d5c18ac03c91c806d245af4221a8b3"
     },
     {
+      "id": "proof-pvh-crash-loop",
+      "path": "docs/proof/pvh/README.md",
+      "title": "PVH crash loop - the properties-view part 2/2 native crash did not reproduce, and a native exit is now named as one",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-d1",
+      "phase": "",
+      "reviewBy": "2026-11-21",
+      "reviewSuggested": [],
+      "summary": "Not reproduced in 6 runs of the Desktop harness alone and 6 runs of the full suite (0 crashes in 12); cause not found. The harness now prints a native child exit as a native crash with its NTSTATUS hex or signal, pinned by a check seen red then green.",
+      "tags": [
+        "pvh",
+        "desktop-tests",
+        "native-crash",
+        "harness-crash-as-verdict"
+      ],
+      "links": [
+        {
+          "to": "proof-pvh-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ad41722185564c56a9405c9e932c572ed97b97ca28465a599982880a1822723c"
+    },
+    {
       "id": "proof-pvh-red-first",
       "path": "docs/proof/pvh/red-first.md",
       "title": "PVH red-first - bounded test pumps and a named in-flight check on a child TIMEOUT",
@@ -18545,6 +18571,33 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "e6b5efaaf64f0f734849d6c08844405c349f8cf5fecfd7117df18e0c5b5cf98a"
+    },
+    {
+      "id": "proof-tmx-windows-2-0",
+      "path": "docs/proof/tmx/windows-2.0.md",
+      "title": "TMX Ruling 221 at this laptop's 200 percent - BringIntoView falls short, the keyboard path does not",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-d1",
+      "phase": "",
+      "reviewBy": "2026-11-21",
+      "reviewSuggested": [],
+      "summary": "At RenderScaling 2 (native), and at 1.5 and 1.0 (forced), BringIntoView on the second Browser row stops one row (40 px) short, so the fixture's own correction stays; the keyboard path (Tab into the list, then Down) lands the row fully in view at all three scales, so there is no product fix.",
+      "tags": [
+        "tmx",
+        "desktop-tests",
+        "scroll",
+        "ruling-221",
+        "windows"
+      ],
+      "links": [
+        {
+          "to": "proof-pvh-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a569a58cd068796b119fa83878c2efbd3a3480cd33b0c667db16cf84c21dc79f"
     },
     {
       "id": "proof-u1fix-red-runs",
@@ -23253,5 +23306,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "2e29207f4f13ca5f602f100860be4d75ed9bae9a1894e2000db68a0878b03d57"
+  "graphSha256": "96701d047eb7ab9efb3ecd22e369801ad8d12fe4212676840999c88644accb1e"
 };

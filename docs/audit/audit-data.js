@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T01:11:58Z",
+  "generated": "2026-10-22T01:57:15Z",
   "audit": [
     {
       "actor": null,
@@ -41136,6 +41136,25 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T01:10:10Z",
       "duration_seconds": 107.0
+    },
+    {
+      "id": "al-01M5GN7AYHAMHCHQZNM5MJ9JNF",
+      "shortname": "d1-desktop-diagnostics",
+      "datetime": "2026-10-22T01:57:15Z",
+      "session": "d1-desktop-diagnostics",
+      "prompt": "Track D1 of next-best-six: desktop diagnostics, the Ruling 221 Browser scroll question and the Properties-view child crash",
+      "summary": "D1 desktop diagnostics. (a) DIAG-SCROLL-RAW added; BringIntoView on the second Browser row is one row (40 px) short at 2.0 native and 1.5/1.0 forced; the keyboard path lands the row at all three scales, so no product fix; new check BrowserRow_BelowFold_FocusBringsIntoView_AtScales plus Probes on the fixture throws. (b) Properties-view crash not reproduced in 6 harness and 6 full-suite runs; ExitLine names a native exit (red then green); lesson HARNESS-CRASH-AS-VERDICT. Final run TESTS-GREEN.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "started_at": "2026-10-22T01:28:59Z",
+      "duration_seconds": 1696.0
     }
   ],
   "changes": [
