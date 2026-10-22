@@ -351,7 +351,9 @@ public static class ElevationTests
             var fixtures = new (string Name, byte[] Source)[]
             {
                 ("F-CAMBER", StationDesktopTests.Doc("at root profile \"a\" at tip profile \"c\"", 120, ("a", root), ("c", root.Zip(bend, (a, b) => a + b).ToArray()))),
-                ("F-PEAK", StationDesktopTests.Doc("at root profile \"a\" at tip profile \"p\"", 120, ("a", root), ("p", peakTip)))
+                ("F-PEAK", StationDesktopTests.Doc("at root profile \"a\" at tip profile \"p\"", 120, ("a", root), ("p", peakTip))),
+                // SF1 condition 3: varying chord, twist and dihedral, where a linear blend of placed points is not exact.
+                ("F-CURVED", CurvedPlanform(StationDesktopTests.Doc("at root profile \"a\" at tip profile \"c\"", 120, ("a", root), ("c", root.Zip(bend, (a, b) => a + b).ToArray()))))
             };
             foreach (var (name, source) in fixtures)
             {
@@ -788,6 +790,25 @@ public static class ElevationTests
     // ---- fixtures and helpers ------------------------------------------------------------------------------------
 
     /// <summary>The Example with a 60 mm tip dihedral, as the approved mockup draws it (the fixture itself has none).</summary>
+    /// <summary>The fixture with curved leading and trailing rails, twist and dihedral (chord 140 to 65 mm, twist up to 8 degrees, dihedral up to 100 mm).</summary>
+    private static byte[] CurvedPlanform(byte[] source)
+    {
+        string[] x = ["0", "0.1", "0.3", "0.5", "0.7", "0.9", "1"];
+        string Points(params double[] y) => string.Join(", ", x.Select((value, i) => FormattableString.Invariant($"({value}, {y[i]})")));
+        string Rail(string text, string prefix, string points)
+        {
+            var pattern = new System.Text.RegularExpressions.Regex("(?m)^(" + prefix + @" cv \{[^\n]*? points )\[[^\]]*\]");
+            if (!pattern.IsMatch(text)) throw new Exception("The fixture has no '" + prefix.Trim() + "' row");
+            return pattern.Replace(text, m => m.Groups[1].Value + "[" + points + "]");
+        }
+        string text = System.Text.Encoding.UTF8.GetString(source);
+        text = Rail(text, "    leading", Points(0, 0, -8, -12, -10, 0, 5));
+        text = Rail(text, "    trailing", Points(140, 140, 120, 100, 90, 80, 65));
+        text = Rail(text, "  dihedral", Points(0, 0, 15, 30, 50, 70, 100));
+        text = Rail(text, "  twist", Points(0, 0, 3, 6, 8, 6, 4));
+        return FoilSource.MaterializeIds(FoilSource.Parse(System.Text.Encoding.UTF8.GetBytes(text)));
+    }
+
     private static byte[] DihedralBytes()
     {
         string source = System.Text.Encoding.UTF8.GetString(CfdWorkbench.Cli.Cli.ExampleBytes());
@@ -824,7 +845,7 @@ public static class ElevationTests
         {
             if (bytes is null) Await(Controller.OpenExampleAsync());
             else Await(Controller.OpenFoilAsync(bytes, "Dihedral fixture"));
-            if (Controller.Inspection?.Geometry.Status != GeometryStatus.Certified) throw new Exception("The fixture foil is not certified");
+            if (Controller.Inspection?.Geometry.Status != GeometryStatus.Certified) throw new Exception("The fixture foil is not certified: " + Controller.Inspection?.Geometry.Status + " / " + Controller.Status);
             Host = new ShellHost(Controller);
             Window = new Window { Content = Host, Width = width, Height = height, RequestedThemeVariant = Avalonia.Styling.ThemeVariant.Dark };
             Window.Show();

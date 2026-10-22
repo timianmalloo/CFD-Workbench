@@ -1392,7 +1392,8 @@ public sealed class PlanCanvas : Control
                     int index = chip.Index;
                     children.Add(new StationChipPeer(owner, controller, index,
                         () => controller.Planform is { } plan && index < plan.Stations.Count ? plan.Stations[index].ProfileName : "",
-                        () => owner.VisibleStationChips.FirstOrDefault(item => item.Index == index)?.Bounds, EntryOrigin.Plan));
+                        () => owner.VisibleStationChips.FirstOrDefault(item => item.Index == index)?.Bounds, EntryOrigin.Plan,
+                        () => controller.Planform is { } plan && index < plan.Stations.Count ? ElevationView.StationName(index, plan.Stations[index].Eta) : ""));
                 }
             return children;
         }
@@ -1542,11 +1543,12 @@ public sealed class PlanCanvas : Control
 /// A station chip for assistive technology (finding F-CHIP): named by the chip's visible text (WCAG 2.5.3), selectable, and, in the Plan,
 /// carrying "Edit section…" as its invokable child. Shared by the Plan and the Side view; every read goes to the live model by station index.
 /// </summary>
-internal sealed class StationChipPeer(Control owner, WorkbenchController controller, int index, Func<string> name, Func<Rect?> bounds, EntryOrigin? editOrigin)
+internal sealed class StationChipPeer(Control owner, WorkbenchController controller, int index, Func<string> name, Func<Rect?> bounds, EntryOrigin? editOrigin, Func<string>? description = null)
     : ControlAutomationPeer(owner), ISelectionItemProvider
 {
     protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.ListItem;
     protected override string GetNameCore() => name();
+    protected override string? GetHelpTextCore() => description?.Invoke();
     protected override Rect GetBoundingRectangleCore() => ChipScreenRect(Owner, bounds());
     protected override List<AutomationPeer>? GetChildrenCore() => editOrigin is { } origin ? [new EditSectionPeer(Owner, controller, index, bounds, origin)] : [];
 
@@ -1569,7 +1571,9 @@ internal sealed class StationChipPeer(Control owner, WorkbenchController control
         public void Invoke()
         {
             if (controller.IsAnalysis) { controller.ReportPointWarning(WorkbenchController.AnalysisPointRefusal); return; }
-            _ = controller.EnterSectionAsync(index, origin);
+            // EnterSectionAsync throws its refusal synchronously, so it is caught here and reported as ShellHost.EnterSectionAsync does.
+            try { _ = controller.EnterSectionAsync(index, origin); }
+            catch (ContractError error) { controller.ReportPointWarning(error.Reason ?? error.Code); }
         }
     }
 }

@@ -425,7 +425,7 @@ public sealed class ElevationView : Control
 
     // ---------------------------------------------------------------- the inspection slice (design 5.2: Front line, Side outline and chip)
 
-    /// <summary>The slice's section between the two mesh sections that bracket it (simplify: linear in η; ceiling measured against Placement.Sections at 35 % and at mid-pitch 36.25 % on the Desktop F-CAMBER and F-PEAK fixtures, error 0.0000 and 0.0002 device px at scale 2; upgrade when a fixture's measured error exceeds 1 device px, the check Elevation_SliceSideOutline_MatchesExactSectionWithinOneDevicePixel).</summary>
+    /// <summary>The slice's section between the two mesh sections that bracket it (simplify: linear in η; ceiling measured against Placement.Sections at 35 % and at mid-pitch 36.25 % on three Desktop fixtures at scale 2: F-CAMBER and F-PEAK (constant chord, untwisted, flat; error 0.0000 and 0.0002 device px) and F-CURVED (chord 140 to 65 mm, twist up to 8 degrees, dihedral up to 100 mm; error 0.0338 device px at mid-pitch); upgrade when a fixture's measured error exceeds 1 device px, the check Elevation_SliceSideOutline_MatchesExactSectionWithinOneDevicePixel).</summary>
     private (Point3[] Upper, Point3[] Lower)? SliceSection()
     {
         if (controller?.Selection is not Selection.Slice slice || controller.Surface is not { } surface) return null;

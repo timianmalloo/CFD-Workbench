@@ -156,6 +156,72 @@ public static partial class PlanCanvasTests
             invoke.Invoke();
             StationWait(fixture, () => controller.Section is not null, "the section editor from the chip peer");
             if (controller.Section!.Draft is null) throw new Exception("Edit section… opened no draft");
+            if (controller.Section.Origin != EntryOrigin.Plan) throw new Exception("Edit section… from the Plan chip recorded the origin " + controller.Section.Origin);
+        });
+
+        // SF1 conditions 5 and 1: a refused entry (a point draft is open) is reported on the status line, not thrown out of Invoke.
+        DesktopChecks.Check("PlanCanvas_StationChips_EditSectionRefusalReportedNotThrown", () =>
+        {
+            using var fixture = StationFixture(StationDesktopTests.ThreeSame());
+            var controller = fixture.Controller;
+            var peer = Avalonia.Automation.Peers.ControlAutomationPeer.CreatePeerForElement(fixture.Canvas)!;
+            var point = controller.Planform!.Trailing.Points[3];
+            if (!controller.BeginGesture(new PointRef("trailing", point.Id), GestureInput.Pointer)) throw new Exception("The point gesture did not begin");
+            string expected;
+            try { controller.EnterSectionAsync(0, EntryOrigin.Plan); throw new Exception("EnterSectionAsync did not refuse with a point draft open"); }
+            catch (ContractError error) { expected = error.Reason ?? error.Code; }
+            var chip = peer.GetChildren().First(child => child is Avalonia.Automation.Provider.ISelectionItemProvider);
+            var edit = chip.GetChildren().First(child => child.GetName() == PropertiesView.EditSection);
+            try { ((Avalonia.Automation.Provider.IInvokeProvider)edit).Invoke(); }
+            catch (ContractError error) { throw new Exception("Invoke threw " + error.Code + " instead of reporting it"); }
+            if (controller.Status != expected || controller.StatusKind != ReportKind.Warning)
+                throw new Exception($"The refusal was not reported as a warning: '{controller.Status}' ({controller.StatusKind}), expected '{expected}'");
+        });
+
+        // SF1 condition 4: in Analysis the chip's Edit section… is disabled and says why.
+        DesktopChecks.Check("PlanCanvas_StationChips_EditSectionDisabledInAnalysisWithReason", () =>
+        {
+            using var fixture = StationFixture(StationDesktopTests.ThreeSame());
+            var controller = fixture.Controller;
+            var peer = Avalonia.Automation.Peers.ControlAutomationPeer.CreatePeerForElement(fixture.Canvas)!;
+            controller.ToggleAnalysis();
+            if (!controller.IsAnalysis) throw new Exception("The Analysis toggle did not enter Analysis");
+            var chip = peer.GetChildren().First(child => child is Avalonia.Automation.Provider.ISelectionItemProvider);
+            var edit = chip.GetChildren().First(child => child.GetName() == PropertiesView.EditSection);
+            if (edit.IsEnabled()) throw new Exception("Edit section… is enabled in Analysis");
+            if (edit.GetHelpText() != WorkbenchController.AnalysisPointRefusal) throw new Exception("Edit section… help text in Analysis is '" + edit.GetHelpText() + "'");
+        });
+
+        // SF1 condition 2: Plan chips can share a profile name (SC 1.3.1), so the peer's description carries the station.
+        DesktopChecks.Check("PlanCanvas_StationChips_ThreeSameNameSameDescriptionsDistinct", () =>
+        {
+            using var fixture = StationFixture(StationDesktopTests.ThreeSame());
+            var controller = fixture.Controller;
+            var peer = Avalonia.Automation.Peers.ControlAutomationPeer.CreatePeerForElement(fixture.Canvas)!;
+            var chips = peer.GetChildren().Where(child => child is Avalonia.Automation.Provider.ISelectionItemProvider).ToArray();
+            var plan = controller.Planform!;
+            if (chips.Length != 3) throw new Exception("Expected three station chip peers, found " + chips.Length);
+            if (chips.Select(chip => chip.GetName()).Distinct().Count() != 1) throw new Exception("The fixture's chips no longer share a profile name: " + string.Join(", ", chips.Select(chip => chip.GetName())));
+            string[] described = chips.Select(chip => chip.GetHelpText()).ToArray();
+            string[] expected = fixture.Canvas.VisibleStationChips.Select(chip => ElevationView.StationName(chip.Index, plan.Stations[chip.Index].Eta)).ToArray();
+            if (described.Distinct().Count() != 3 || !described.OrderBy(text => text).SequenceEqual(expected.OrderBy(text => text)))
+                throw new Exception($"Descriptions [{string.Join(" | ", described)}] do not name the stations [{string.Join(" | ", expected)}]");
+        });
+
+        // SF1 condition 6: a renamed profile changes the peer's name; a removed station's peer goes.
+        DesktopChecks.Check("PlanCanvas_StationChips_PeerFollowsRemoval", () =>
+        {
+            using var fixture = StationFixture(StationDesktopTests.ThreeSame());
+            var controller = fixture.Controller;
+            var peer = Avalonia.Automation.Peers.ControlAutomationPeer.CreatePeerForElement(fixture.Canvas)!;
+            int before = peer.GetChildren().Count(child => child is Avalonia.Automation.Provider.ISelectionItemProvider);
+            if (before != 3) throw new Exception("Expected three station chip peers before the removal, found " + before);
+            _ = controller.BeginRemoveStationAsync(1);   // not awaited: the test thread is the UI thread, which the continuation needs
+            StationWait(fixture, () => controller.Flyout is { Checking: false }, "the Remove preview");
+            _ = controller.ApplyFlyoutAsync();
+            StationWait(fixture, () => StationDesktopTests.StationCount(controller) == 2 && !controller.SurfaceUpdating, "the removal");
+            int after = peer.GetChildren().Count(child => child is Avalonia.Automation.Provider.ISelectionItemProvider);
+            if (after != 2) throw new Exception("The removed station's chip peer did not go: " + after + " station chip peers remain");
         });
 
         DesktopChecks.Check("PlanCanvas_StationChips_PeerFollowsPromotion", () =>
