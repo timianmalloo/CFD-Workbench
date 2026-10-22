@@ -84,3 +84,98 @@ Green on the new:
     PASS ExitLine_NativeTermination_NamedNotAVerdict
 
 The lesson is `HARNESS-CRASH-AS-VERDICT` in `docs/lessons/defect-classes.md`.
+
+## Crash capture (CR1)
+
+Goal: when a Desktop harness child dies with 0xC0000374, a full memory dump of it exists afterwards. Measured before this track:
+Windows Error Reporting writes no event and no LocalDumps file for this fault, and the .NET runtime's createdump does not fire,
+so the capture is a debugger attached from the child's first instruction: ProcDump 12.02 (`procdump64a.exe`, the ARM64 build) with `-x`.
+Get it from Sysinternals (the Sysinternals Suite or the standalone ProcDump download at learn.microsoft.com/sysinternals/downloads/procdump).
+It is not committed and is not a repo dependency. The wrapper value is split on spaces, so a wrapper path that contains a space is
+not supported: copy ProcDump to a folder whose path has none.
+
+The switch: `CFD_TEST_CHILD_WRAPPER` (unset in CI and in `tools/run-tests.sh`). `SelfLaunch.StartInfo` splits its value on spaces
+(quote-free) into a program and leading arguments and starts the child as
+`<program> <leading args> <process path> [entry assembly] --harness <mode>`. The wrapper applies to the suite modes only. Every mode
+whose name contains `-probe` (`--startup-failure-probe`, `--inflight-probe`, `--drain-probe`, `--drain-probe-hold`) runs bare: those
+modes assert their own exit code, process tree or pipe holders, and a wrapper replaces all three (a first wrapped run failed
+`Unhandled_Exception_StderrHasNoMarkerPath` and `unhandled child exception exits with a named code` with `exit 0`; the drain readiness
+check failed wrapped with `exit 125: (no DRAIN-PROBE line)`). `Drain_OrphanGrandchild_IsNamedAsThePipeHolder` passes with the
+variable set (checked with a wrapper name that does not exist, which fails if the wrapper reaches a probe).
+`tools/run-tests.sh` unsets both `CFD_TEST_CHILD_WRAPPER` and `CFD_FORCE_HEAP_CORRUPTION` before it builds.
+
+Red first, then green, then the mutant (the wrapper's arguments after the mode instead of before the program):
+
+    red     System.Exception: SelfLaunchTests failed:
+              a child wrapper prefixes its program and arguments: C:/b/CfdWorkbench.Desktop.Tests.exe [--harness, --section-flow] != W [-a, -b, DIR, C:/b/CfdWorkbench.Desktop.Tests.exe, --harness, --section-flow]
+    green   SelfLaunchTests: all 12 cases passed.   (11 when this was first run; the 12th pins the probe-mode exemption)
+    mutant  a child wrapper prefixes its program and arguments: W [C:/b/CfdWorkbench.Desktop.Tests.exe, --harness, --section-flow, -a, -b, DIR] != W [-a, -b, DIR, C:/b/CfdWorkbench.Desktop.Tests.exe, --harness, --section-flow]
+
+ProcDump's banner is UTF-16 text. On a pipe the parent reads it as lines of characters separated by NUL, and one NUL landed at the
+start of a harness line (`\0SCALE_CONTEXT mode=...`): five modes then printed `FAIL SCALE_CONTEXT ... printed no SCALE_CONTEXT line`
+and the PARTITION counts were lost. Red first: `Spawn_NulPrefixedChildLines_ParsedAsTheHarnessWroteThem` failed with
+`FAIL SCALE_CONTEXT --properties-view --part=1/1 printed no SCALE_CONTEXT line before its first check` and
+`FAIL PARTITION --properties-view parts are incomplete`; `DesktopChecks.SpawnWith` now removes NUL characters from a child's lines
+before it parses or prints them, only when `CFD_TEST_CHILD_WRAPPER` is set (a bare child's line reaches the parser unchanged:
+`Spawn_WrapperSet_NamesItOnce_BareLeavesNulsAlone`), and the check is green.
+
+The child's exit code. ProcDump `-x` exits 0 when the child itself fails, so under the wrapper `SpawnWith` would read a child that
+died as `exit 0` (measured in review: a selector failure exits 1 bare, 0 wrapped; an unhandled managed exception 70 bare, 0 wrapped).
+ProcDump prints the child's code on its own output as `Process Exit: PID <n>, Exit Code 0x<hex>`. With the wrapper set,
+`ChildWrapper.Read` (in `SelfLaunch.cs`) takes the last such line as the child's exit code, NULs ignored, and a missing line fails the
+child: `FAIL CHILD-WRAPPER <mode>: no ProcDump "Process Exit" line in its output, so the child's exit code is unknown`. A wrapped
+log opens with one `CHILD-WRAPPER active: <wrapper program name>` line, so it cannot pass for a bare verdict run. Pure checks
+`ChildWrapper_ReadsTheChildsExitFromProcDumpsLine` and `ChildWrapper_NoExitLine_FailsTheChildByName` pin both.
+
+    red     (parser stubbed to return the wrapper's code)
+            FAIL ChildWrapper_ReadsTheChildsExitFromProcDumpsLine Exception: '[09:00:01]Process Exit: PID 4242, Exit Code 0x00000001': exit 0, failure ; expected 1
+            FAIL ChildWrapper_NoExitLine_FailsTheChildByName Exception: exit 0, failure (none)
+    green   PASS ChildWrapper_ReadsTheChildsExitFromProcDumpsLine / PASS ChildWrapper_NoExitLine_FailsTheChildByName
+    mutant  (parsed code multiplied by 0)  FAIL ChildWrapper_ReadsTheChildsExitFromProcDumpsLine ... exit 0, failure ; expected 1
+    real    CFD_TEST_ONLY=NoSuchCheck, wrapped, `--harness --theme-evidence`: `FAIL SELECTOR NoSuchCheck matched no check`,
+            `[11:56:29]Process Exit: PID 20760, Exit Code 0x00000001`, `SUITE --theme-matrix exit 1`, `FAIL --theme-matrix exited 1`, run exit 1
+            (bare, the same selector exits 1; before this reading it exited 0 wrapped)
+
+End-to-end run. Reproduce from the repo root, in bash, after `dotnet build tests/CfdWorkbench.Desktop.Tests -c Release`:
+
+    export CFD_TEST_CHILD_WRAPPER="<procdump64a.exe> -accepteula -ma -e 1 -f C0000374 -x <dump folder>"
+    tests/CfdWorkbench.Desktop.Tests/bin/Release/net10.0/CfdWorkbench.Desktop.Tests.exe --harness
+
+Result of that first wrapped run (before the exit-code reading above): exit 0, no `FAIL` line, no `FAIL SCALE_CONTEXT` or `FAIL PARTITION`
+line, no dump written. It did not show 18 green exits: the wrapper reports 0 whatever a child's code, and the exit code was not read
+until the `Process Exit` parser. Cost, measured once on `--theme-matrix` (`--harness --theme-evidence`, one sample each):
+SUITE-TIME 11.6 s bare against 13.0 s wrapped. A dump costs about 556 MB of disk each (see below); a loop must bound the dump folder.
+
+Forced-crash probe. `ExitLine_ForcedHeapCorruption_Probe` (in `StageTimingTests.Run`) is registered only when
+`CFD_FORCE_HEAP_CORRUPTION=1` (an ordinary run prints no line for it); then it allocates 16 bytes with `Marshal.AllocHGlobal`, writes 64 bytes past the block and frees it,
+and ntdll raises 0xC0000374. Run one mode under the wrapper:
+
+    CFD_FORCE_HEAP_CORRUPTION=1 CFD_TEST_ONLY=ExitLine_ForcedHeapCorruption_Probe \
+      <procdump64a.exe> -accepteula -ma -e 1 -f C0000374 -x <dump folder> <Desktop.Tests.exe> --harness --theme-evidence
+
+- ProcDump log: `Exception: C0000374`, `Dump 1 initiated`, `Dump 1 complete: 556 MB written in 1.9 seconds`, `Dump count reached.`
+- ProcDump exit code: 1 (one dump written). ProcDump's status is not the child's code; the child's code is on the `Process Exit` line.
+- Dump: `CfdWorkbench.Desktop.Tests.exe_261022_085706.dmp`, 568,914,357 bytes (556 MB), in the dump folder. It was written by an
+  earlier build of this branch (the probe sat at line 121 of `StageTimingTests.cs`, before the NUL check was inserted above it).
+  At the repair commit the probe's `FreeHGlobal` call is at line 163 of the same file; the stack below is that earlier build's.
+- `dotnet-dump analyze <dump> -c "clrstack -all" -c "exit"` (the `--command "..." "exit"` form of the brief is refused by the tool
+  version here: `exit` is not an argument; `-c` is repeated). The crashing thread, with the repository path shortened:
+
+        OS Thread Id: ...
+        Child SP               IP Call Site
+        [InlinedCallFrame] 
+        System.Runtime.InteropServices.Marshal.FreeHGlobal(IntPtr)
+        CfdWorkbench.Desktop.Tests.StageTimingTests+<>c.<Run>b__0_7() [tests/CfdWorkbench.Desktop.Tests/StageTimingTests.cs @ 121]
+        CfdWorkbench.Desktop.Tests.DesktopChecks.Check(System.String, System.Action)
+        CfdWorkbench.Desktop.Tests.StageTimingTests.Run() [... StageTimingTests.cs @ 121]
+        DesktopHarness+<Run>d__0.MoveNext() [tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs @ ...]
+        System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox ... .MoveNext
+        System.Threading.ExecutionContext.RunInternal(...)
+
+  The first 40 lines of the same output are the other threads (the main thread waiting on the harness task, three thread-pool
+  workers waiting on the completion port, the pool's gate thread); the faulting thread starts at line 47.
+
+Limits. A wrapped run is a diagnostic, not a verdict run, and its log says so (`CHILD-WRAPPER active`). Under the wrapper a child's
+exit is read from ProcDump's `Process Exit` line (the real code, 0xC0000374 included); when that line is missing the child fails by
+name. The probe modes run bare. One unwrapped full run of this track exited -1073740940 (0xC0000374) in `--analysis`, with no wrapper
+active and so no dump.

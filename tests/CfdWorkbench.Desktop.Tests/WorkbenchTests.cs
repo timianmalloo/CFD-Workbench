@@ -846,9 +846,12 @@ namespace CfdWorkbench.Desktop.Tests
             Func<string, string?>? env = null, int? cpus = null)
         {
             int slotCount;
+            var getEnv = env ?? Environment.GetEnvironmentVariable;
+            string[] wrapper = (getEnv(SelfLaunch.WrapperVariable) ?? "").Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            bool wrapped = wrapper.Length > 0;
             try
             {
-                (int count, string source) = ResolveSlots(env ?? Environment.GetEnvironmentVariable, cpus ?? Environment.ProcessorCount, modes.Length);
+                (int count, string source) = ResolveSlots(getEnv, cpus ?? Environment.ProcessorCount, modes.Length);
                 slotCount = count;
                 output.WriteLine($"DESKTOP-SLOTS {count} (source: {source})");
                 output.Flush();
@@ -857,6 +860,12 @@ namespace CfdWorkbench.Desktop.Tests
             {
                 output.WriteLine("FAIL DESKTOP-SLOTS " + exception.Message);
                 return 2;
+            }
+            // CR1: a wrapped run is a diagnostic. Each child's exit is read from the wrapper's output (ChildWrapper.Read); the log says so once.
+            if (wrapped)
+            {
+                output.WriteLine("CHILD-WRAPPER active: " + Path.GetFileName(wrapper[0].Replace('\\', '/')) + " (suite children run under it; their exit is read from its Process Exit line)");
+                output.Flush();
             }
             // A child uses about 1.4 cores. The proof budget now counts deterministic bit-work rather than wall time,
             // so thread contention cannot starve proofs into GEOMETRY-BUDGET failures. 1/2 (8 of 16) uses the available
@@ -877,7 +886,9 @@ namespace CfdWorkbench.Desktop.Tests
             var partCounts = new Dictionary<string, List<string>>();
             for (int index = 0; index < modes.Length; index++)
             {
-                var (lines, childExit, seconds) = runs[index].GetAwaiter().GetResult();
+                var (rawLines, childExit, seconds) = runs[index].GetAwaiter().GetResult();
+                // CR1: only a child run under ProcDump (CFD_TEST_CHILD_WRAPPER) shares stdout with its UTF-16 text, whose NULs can start a harness line.
+                var lines = wrapped ? rawLines.Select(line => (line.Error, Text: line.Text.Replace("\0", "", StringComparison.Ordinal))).ToList() : rawLines;
                 foreach (var (error, text) in lines) (error ? errors : output).WriteLine(text);
                 output.WriteLine($"SUITE {modes[index]} exit {childExit}");
                 output.WriteLine(FormattableString.Invariant($"SUITE-TIME {modes[index]} {seconds:F1} s"));
@@ -1040,7 +1051,16 @@ namespace CfdWorkbench.Desktop.Tests
                     ? FormattableString.Invariant($"{pipe.Stream} end of file arrived {System.Diagnostics.Stopwatch.GetElapsedTime(ended, eofAt[i]).TotalSeconds:F1} s after the child ended")
                     : FormattableString.Invariant($"{pipe.Stream} still open {System.Diagnostics.Stopwatch.GetElapsedTime(ended).TotalSeconds:F0} s after the child ended")))));
             }
-            return (lines, timedOut ? 124 : !drained ? 125 : child.ExitCode, System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalSeconds);
+            int exitCode = timedOut ? 124 : !drained ? 125 : child.ExitCode;
+            // CR1: ProcDump -x exits 0 whatever the child's code; the child's own code is on its Process Exit line, and a missing line fails the child.
+            if (!timedOut && drained && SelfLaunch.Wrapper(spec[0]).Length > 0)
+            {
+                string[] snapshot;
+                lock (lines) snapshot = lines.Select(line => line.Text).ToArray();
+                (exitCode, string? failure) = ChildWrapper.Read(mode, snapshot, exitCode);
+                if (failure is not null) lines.Add((false, failure));
+            }
+            return (lines, exitCode, System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalSeconds);
         }
     }
 }
