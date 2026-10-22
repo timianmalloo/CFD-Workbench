@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T23:07:50Z",
+  "generated": "2026-10-22T23:40:49Z",
   "audit": [
     {
       "actor": null,
@@ -42919,6 +42919,28 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T23:07:29Z",
       "duration_seconds": 21.0
+    },
+    {
+      "id": "al-01M5JZT74WBHXCKJCW54TMRD1P",
+      "shortname": "wave2-operator-decisions",
+      "datetime": "2026-10-22T23:40:49Z",
+      "session": "pc-laptop-leader",
+      "prompt": "yes to the deltas, approve 642-646, update the memory",
+      "summary": "The operator's answers to the wave-2 close: yes, the dimensional deltas stay (Ruling 262 DF-Q1 confirmed by the operator); COPY-642 to 646 approved by the operator; recorded on the rows and in the plan record. COPY-644 still duplicates the approved COPY-125 (a copy follow-up).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "DESIGN.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "record the operator's decisions on the wave-2 close",
+      "done_when": "the five rows read approved by the operator and the plan record carries the yes",
+      "tier": "T0",
+      "fan_out": 0
     }
   ],
   "changes": [

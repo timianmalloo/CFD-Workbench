@@ -317,7 +317,7 @@ for the rings: 124s under load remain, and the rule is cheap.
 - **BS node B:** a real sharing violation (Win32 32) maps to DOC-CONFLICT for any origin. That is Ruling 145's existing
   mapping, not a regression. One store `Operation` value per action, for the Clear and read-origin telemetry.
 - **Wave report to the operator:**
-  - the dimensional deltas (Ruling 262 DF-Q1): yes or no;
+  - the dimensional deltas (Ruling 262 DF-Q1): yes or no; **Answered 2026-10-22: yes, the deltas stay (the operator confirmed Ruling 262 DF-Q1); COPY-642 to 646 approved by the operator the same day (COPY-644 still duplicates the approved COPY-125, a copy follow-up).**
   - the copy review of COPY-642 to 646 (proposed);
   - the follow-ups above.
 - **A ruling left uncommitted in the primary blocked a join (register finding):** the first CR2 merge did not start,
