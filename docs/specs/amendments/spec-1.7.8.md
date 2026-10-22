@@ -22,10 +22,10 @@ summary: >-
 # Spec 1.7.8 amendment note — dimensional deltas at differing reference quantities
 
 **For:** the spec owner (`@timianmalloo`). **Spec:** [cfd-workbench-v1](../cfd-workbench-v1.md), revision 1.7.6 (with
-the proposed [1.7.7](spec-1.7.7.md) note). **Status:** all three rows are **proposed**. Ruling 250 Q3 (a) is built:
+the proposed [1.7.7](spec-1.7.7.md) note). **Status:** all three rows are **accepted** by Ruling 262 (DF-Q1 (a)), as revised by the reviewer's H1 limit; the spec owner applies them. Ruling 250 Q3 (a) is built:
 every numeric δ is blocked when the reference quantities differ. Q3 (c) was recorded as the operator's next step; the
-design is [a3d-compare.md §12](../../design/a3d-compare.md). DR-DF-1 is **pending Owner ruling (DF-Q1)**: the ruling
-records the operator's take-up of (c), citing the logged prompt `al-01M5J79V9SGNNMS8GY2555V04Q`, before the AF build.
+design is [a3d-compare.md §12](../../design/a3d-compare.md). DR-DF-1 is settled by **Ruling 262** (DF-Q1 (a)): the Owner's reading of the logged prompt `al-01M5J79V9SGNNMS8GY2555V04Q`, which the operator
+confirms in the wave report.
 Cycle 1 (Adversary H1): an `axes` difference keeps the full block, because it changes the frame or sign of L.
 
 ## How to read this
@@ -39,9 +39,9 @@ Cycle 1 (Adversary H1): an `axes` difference keeps the full block, because it ch
 
 | ID | Spec clause | Before (quoted) | After (exact proposed text) | Source | Status |
 |---|---|---|---|---|---|
-| AM-1.7.8-1 | ANA-06 acceptance (:1217) | `incompatible reference quantities block a numeric delta` | incompatible reference quantities block every coefficient delta (CL, CDi, e); when the only differences are among S_ref, b_ref, c_ref and the moment datum (the axes, the operating point and the water are equal), the dimensional loads L and D_i are compared with deltas normalised to the base value, e is not compared, and the pair stores no Discrepancy record | Ruling 250 Q3 (c); design §12.1-12.2 | proposed |
-| AM-1.7.8-2 | Milestone acceptance summary (:172) | `a comparison with incompatible reference quantities is blocked until reconciled (ANA-06)` | a comparison with incompatible reference quantities shows no coefficient delta; at equal axes, operating point and water it compares the dimensional L and D_i (ANA-06) | design §12.1 | proposed |
-| AM-1.7.8-3 | Glossary, Discrepancy record (:259), after AM-1.7.7-3 | (AM-1.7.7-3, proposed) `Dimensional loads (L, D_i) are not stored lines: …` | Dimensional loads (L, D_i) are not stored lines. At a compatible pair they differ by the same fraction as CL and CDi and are shown side by side without a δ. At a pair that differs only in S_ref, b_ref, c_ref or the moment datum (equal axes), their δ is derived on read from the two runs, each with its own q and S_ref, and is never stored. | Ruling 250 Q5 (a), Ruling 251; DM7; design §12.2 | proposed |
+| AM-1.7.8-1 | ANA-06 acceptance (:1217) | `incompatible reference quantities block a numeric delta` | incompatible reference quantities block every coefficient delta (CL, CDi, e); when the only differences are among S_ref, b_ref, c_ref and the moment datum (the axes, the operating point and the water are equal), the dimensional loads L and D_i are compared with deltas normalised to the base value, e is not compared, and the pair stores no Discrepancy record | Ruling 250 Q3 (c); design §12.1-12.2 | accepted (Ruling 262) |
+| AM-1.7.8-2 | Milestone acceptance summary (:172) | `a comparison with incompatible reference quantities is blocked until reconciled (ANA-06)` | a comparison with incompatible reference quantities shows no coefficient delta; at equal axes, operating point and water it compares the dimensional L and D_i (ANA-06) | design §12.1 | accepted (Ruling 262) |
+| AM-1.7.8-3 | Glossary, Discrepancy record (:259), after AM-1.7.7-3 | (AM-1.7.7-3, proposed) `Dimensional loads (L, D_i) are not stored lines: …` | Dimensional loads (L, D_i) are not stored lines. At a compatible pair they differ by the same fraction as CL and CDi and are shown side by side without a δ. At a pair that differs only in S_ref, b_ref, c_ref or the moment datum (equal axes), their δ is derived on read from the two runs, each with its own q and S_ref, and is never stored. | Ruling 250 Q5 (a), Ruling 251; DM7; design §12.2 | accepted (Ruling 262) |
 
 ## What does not change
 

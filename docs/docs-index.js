@@ -2283,7 +2283,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e1c710f7940ff4739052dd048d6b2ba5b051fe5fa09c47012308e58b9d042637"
+      "sourceSha256": "8288f1cd3ca5eeb82ab858195075580633e303d87712844a3fa56b73a8c55b93"
     },
     {
       "id": "design-add-station",
@@ -2348,7 +2348,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "987a674e731785af3a29a3e535e354e10a08ef0c9ff2e13ea1e5925720668221"
+      "sourceSha256": "4479e4b8729eddd43cee7a387165a1c2ad6ecc3ad69e6cadfd2a538641a24570"
     },
     {
       "id": "design-app-shell",
@@ -22986,7 +22986,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3189af05ef6ffc1e8eddd864965e73eb2aee96ea4fdd5175c011c9b2c3701fc2"
+      "sourceSha256": "7905b54a65d187f77fd7682a6ec2a82f46464272e91ed4cd8445b690821957f4"
     },
     {
       "id": "spec-amendments-1-7-9",
@@ -23028,7 +23028,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "bc5ff98ac4ccdef72f07bacb6c6eb2516e2fb5b2fa93c00cfa922fe7ed87447a"
+      "sourceSha256": "e04bece4fd1deeeb5c5eb4d9e709f87a0df7912e4c40f50de2db25f89f4c137e"
     },
     {
       "id": "spec-amendments-add-station",
@@ -23892,5 +23892,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "6800854983ade24e4982732287a5ff09ea819d4f1a581badbb338db383da2fc9"
+  "graphSha256": "19bc48dedf9fdd46c4ea67ad50581f95b3260413b8505f4002827043b79e9a74"
 };

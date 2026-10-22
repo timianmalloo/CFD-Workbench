@@ -660,7 +660,7 @@ Adversary's missed option, recorded in §5.4 as "not built". Labels: **Verified*
    exact under rule A. It does not show that the blend minimises the residual (cycle 1, G2; in the Adversary's model the
    blend is the minimum along the blend-weight family, with no general proof).
 4. Match has **no 10 µm gate**: it is a deliberate authored edit, like Rebuild to N (A4.6 1.7 note). Its change is shown
-   before Apply. The later Remove keeps its own 10 µm gate (DR-S1-2 (a)). **Pending Owner ruling (DF-Q2)** (DR-DF-4).
+   before Apply. The later Remove keeps its own 10 µm gate (DR-S1-2 (a)). Settled by **Ruling 262** (DF-Q2 (a)) (DR-DF-4): Apply is always available.
 5. One undo step. One geometry authority: the blend is `PlacementRule.Components` / `PlacementRule.Blend` through the
    existing `StationEdits.Blend`; the measure is the existing `StationEdits.Measure`; `Placement.cs` stays read-only.
 
@@ -838,18 +838,18 @@ production grid in one test.
 (`ReplaceProfileBlock`); `src/CfdWorkbench.Desktop/WorkbenchController.cs`, `PropertiesView.cs`,
 `Shell/CommandTable.cs`, `Shell/NativeMenuBuilder.cs`; `tests/CfdWorkbench.Core.Tests/StationTests.cs`;
 `tests/fixtures/stations/f-peak3.foil`, `tests/fixtures/stations/f-four.foil` (new); the Desktop `--controller-shell`
-harness file; `DESIGN.md` §7 rows. **Read only:** `Placement.cs` (Ruling 252, Ruling 256: only the two predicates'
-modifiers ever changed), `Geometry.cs`, `SectionEdits.cs`.
+harness file; `DESIGN.md` §7 rows. **Read only:** `Placement.cs` except SF2-1's one change under Ruling 262 (Ruling 252, Ruling 256: otherwise only the two
+predicates' modifiers ever changed), `Geometry.cs`, `SectionEdits.cs`.
 
 **SF2 node list (G3).** The `Placement.Sections` speed-up is a `Placement.cs` entry, which Rulings 252 and 256 keep
-read-only (Ruling 256 Q2 (b): the operator's follow-up). It is **pending Owner ruling (DF-Q3)**:
+read-only (Ruling 256 Q2 (b): the operator's follow-up). **Ruling 262 (DF-Q3 (a)) takes it up**, relaxing Ruling 252's read-only clause for this one change only:
 
 | Node | Scope | Depends on |
 |---|---|---|
-| SF2-1 (exists **only if DF-Q3 is ruled yes**) | the `Placement.Sections` speed-up, with its own red-first test that its output equals today's bit for bit | DF-Q3 |
+| SF2-1 (Ruling 262, DF-Q3 (a)) | the `Placement.Sections` speed-up inside `Placement.cs`: it skips only the blended-maximum search and CamberSlope at every x, through a path only the station measure uses; every other caller of `Placement.Sections` gets today's output bit for bit; a bit-for-bit test over every Station fixture and the Placement test set, red under a one-bit mutant; the time of one 258-η × 2001-x call and one promotion plan recorded before and after; no rename, no change to any rule-A formula; the computational-geometry lens reviews the diff at Return | Ruling 262 |
 | SF2-2 Match the blend | §13.2-§13.7; calls `StationEdits.Measure` as built | none (does **not** depend on SF2-1; it gains from it without change if SF2-1 lands) |
 
-If DF-Q3 is ruled no, SF2 is node SF2-2 alone and `Placement.cs` stays read-only.
+Fallback (Ruling 262): if the bit-for-bit test cannot hold, `Placement.cs` stays read-only and SF2 builds SF2-2 (Match) only.
 
 ### 13.9 Spec
 
@@ -874,7 +874,7 @@ N). Match is a new deliberate edit with a shown change and no gate, so both need
 |---|---|---|
 | G1 | whole-block replacement with `ProfileBlock(P)`; `WriteSurfaces` not used; new `ReplaceProfileBlock` | §13.2 step 3 and the paragraph after the invariants; §13.6 row 1; §13.8 |
 | G2 | "no profile does better" reworded to "no profile makes Remove exact; minimality not proven" | §13.1 item 3; §13.3 R2 row |
-| G3 | the speed-up is node SF2-1 only if DF-Q3 is ruled yes; Match (SF2-2) does not depend on it | §13.8 node list |
+| G3 | the speed-up is node SF2-1, taken up by Ruling 262 (DF-Q3 (a)); Match (SF2-2) does not depend on it | §13.8 node list |
 | G4 | the point-count refusal removed; ids always `cv-0..n-1` | §13.2 step 3 and the preconditions table |
 | G5 | SF2-COPY-4b: Remove stays unavailable above 10 µm | §13.5 copy table |
 | G6 | "reported sampled amount" | `spec-1.7.9.md` AM-1.7.9-1 |
@@ -888,7 +888,7 @@ N). Match is a new deliberate edit with a shown change and no gate, so both need
 
 | Id | Question | Options | Recommendation | Status |
 |---|---|---|---|---|
-| **DR-DF-4** | Gate on Match's own change | (a) none — a deliberate previewed edit, like Rebuild to N (AM-1.7.9-2) · (b) 10 µm (makes Match useless exactly where Remove is refused, since in R1 the change equals Remove's deviation) | (a) | **pending Owner ruling (DF-Q2)** |
+| **DR-DF-4** | Gate on Match's own change | (a) none — a deliberate previewed edit, like Rebuild to N (AM-1.7.9-2) · (b) 10 µm (makes Match useless exactly where Remove is refused, since in R1 the change equals Remove's deviation) | (a) | **settled — Ruling 262 (DF-Q2 (a))** |
 | **DR-DF-5** | Differing peaks: Remove after Match is not exact | (a) offer Match with the residual shown (SF2-COPY-4, and SF2-COPY-4b above 10 µm) · (b) offer Match only when the residual is ≤ 10⁻¹² · (c) change the blend rule (out of scope: geometry authority) | (a) | **settled by the leader: (a) with G5** |
 | **DR-DF-6** | Closure mismatch | (a) refuse (`STATION-CLOSURE`) · (b) the whole-block write sets P's closure | (b) | **settled by the leader: (b)**; `STATION-CLOSURE` removed |
-| **DF-Q3** | the `Placement.Sections` speed-up inside SF2 | yes: node SF2-1 · no: SF2-2 alone | — | **pending Owner ruling (DF-Q3)** |
+| **DF-Q3** | the `Placement.Sections` speed-up inside SF2 | yes: node SF2-1 · no: SF2-2 alone | yes | **settled — Ruling 262 (DF-Q3 (a))**, with its constraints and fallback (§13.8) |

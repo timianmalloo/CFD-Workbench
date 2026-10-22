@@ -22,7 +22,7 @@ summary: >-
 # Spec 1.7.9 amendment note — Match the blend
 
 **For:** the spec owner (`@timianmalloo`). **Spec:** [cfd-workbench-v1](../cfd-workbench-v1.md), revision 1.7.6 (with
-the in-review [Add station rows](spec-add-station.md), A-S1-1..4). **Status:** both rows are **proposed**. The design is
+the in-review [Add station rows](spec-add-station.md), A-S1-1..4). **Status:** both rows are **accepted** by Ruling 262 (DF-Q2 (a)); the spec owner applies them. The design is
 [add-station.md §13](../../design/add-station.md).
 
 ## How to read this
@@ -39,8 +39,8 @@ the in-review [Add station rows](spec-add-station.md), A-S1-1..4). **Status:** b
 
 | ID | Spec clause | Before (quoted) | After (exact proposed text) | Source | Status |
 |---|---|---|---|---|---|
-| AM-1.7.9-1 | CAD-02 (:1245), appended after "root and tip stations cannot be removed." | (no clause) | **When** removing an interior station would change the loft, **then** I can first match it to the blend of its neighbours: the preview shows the measured change and the change a later Remove would still make, both sampled with their grid; after Apply, Remove changes the loft by the reported sampled amount, which is within 10⁻¹² relative when the neighbours' thickness peaks share a chord position, and Remove keeps its acceptance. | design §13.1, §13.3; DR-S1-2 (c) | proposed |
-| AM-1.7.9-2 | A4.6 (:540), the 1.7 note, after the Rebuild to N sentence | `a deliberate **Rebuild to N** on a master curve shows its measured change before Apply and has no gate (A4.2; Ruling 64, DR-PV-3);` | `a deliberate **Rebuild to N** on a master curve shows its measured change before Apply and has no gate (A4.2; Ruling 64, DR-PV-3); a deliberate **Match the blend** on an interior station shows its measured change and the residual of a later Remove before Apply and has no gate of its own (CAD-02);` | design §13.1 item 4; DR-DF-4 (a), **pending Owner ruling (DF-Q2)** | proposed |
+| AM-1.7.9-1 | CAD-02 (:1245), appended after "root and tip stations cannot be removed." | (no clause) | **When** removing an interior station would change the loft, **then** I can first match it to the blend of its neighbours: the preview shows the measured change and the change a later Remove would still make, both sampled with their grid; after Apply, Remove changes the loft by the reported sampled amount, which is within 10⁻¹² relative when the neighbours' thickness peaks share a chord position, and Remove keeps its acceptance. | design §13.1, §13.3; DR-S1-2 (c) | accepted (Ruling 262) |
+| AM-1.7.9-2 | A4.6 (:540), the 1.7 note, after the Rebuild to N sentence | `a deliberate **Rebuild to N** on a master curve shows its measured change before Apply and has no gate (A4.2; Ruling 64, DR-PV-3);` | `a deliberate **Rebuild to N** on a master curve shows its measured change before Apply and has no gate (A4.2; Ruling 64, DR-PV-3); a deliberate **Match the blend** on an interior station shows its measured change and the residual of a later Remove before Apply and has no gate of its own (CAD-02);` | design §13.1 item 4; DR-DF-4 (a), **settled — Ruling 262 (DF-Q2 (a))** | accepted (Ruling 262) |
 
 ## What does not change
 

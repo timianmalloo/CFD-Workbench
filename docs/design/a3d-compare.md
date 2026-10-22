@@ -741,8 +741,8 @@ reproduction check. LINDDUN-lite: no personal data; the event carries tiers and 
 
 Track DF of `next-best-six` wave 2 designs this; the AF build implements it. It takes up DR-A3D-3 (c), which Ruling 250
 Q3 left to the operator. The main session reads the operator's 2026-10-22 instruction ("get a3d compare … follow up
-implemented and complete"; logged prompt `al-01M5J79V9SGNNMS8GY2555V04Q`) as taking it up; **DR-DF-1** is pending
-an Owner ruling (DF-Q1) that cites that prompt, before the build. The
+implemented and complete"; logged prompt `al-01M5J79V9SGNNMS8GY2555V04Q`) as taking it up; **DR-DF-1** is settled by **Ruling 262** (DF-Q1 (a)) as the Owner's reading of that logged prompt, with the H1 limit;
+the operator confirms it in the wave report. The
 spec text changes in [`spec-1.7.8.md`](../specs/amendments/spec-1.7.8.md) (proposed). Labels as in §1.0: **Verified** =
 opened at `main` `b51315c4`; **Inferred** = reasoned.
 
@@ -911,13 +911,13 @@ assertion narrows to "no coefficient line has a δ" (the build edits that one as
 | T2 | floor rows at exactly 1e-4, one ulp below, and a D_i floor row | §12.5 `Compare_Dimensional_BaseBelowFloor_Undefined` |
 | T3 | structural check for one dimensional formula, residual risk stated | §12.5 `Compare_Dimensional_NoSecondFormula` |
 | T4 | axes rows in the reference-and-point theory | §12.5 `Compare_ReferenceAndPoint_NoDimensionalDelta` |
-| F17 / DR-DF-1 | the operator's prompt cited by its audit id; Owner ruling pending | §12.8 |
+| F17 / DR-DF-1 | the operator's prompt cited by its audit id; settled by Ruling 262 (DF-Q1 (a)) | §12.8 |
 
 ### 12.8 Decision requests (not raised by this note)
 
 | Id | Question | Options | Recommendation | Status |
 |---|---|---|---|---|
-| **DR-DF-1** | Is Ruling 250 Q3 (c) taken up by the operator's 2026-10-22 instruction (logged prompt `al-01M5J79V9SGNNMS8GY2555V04Q`)? | (a) yes, build AF on AM-1.7.8 · (b) no, keep §2.2 as is | (a), recorded as a ruling that cites the logged prompt (the decision is the operator's, Ruling 250 Q3) | **pending Owner ruling (DF-Q1)**; AF does not dispatch before it |
+| **DR-DF-1** | Is Ruling 250 Q3 (c) taken up by the operator's 2026-10-22 instruction (logged prompt `al-01M5J79V9SGNNMS8GY2555V04Q`)? | (a) yes, build AF on AM-1.7.8 · (b) no, keep §2.2 as is | (a), recorded as a ruling that cites the logged prompt (the decision is the operator's, Ruling 250 Q3) | **settled — Ruling 262 (DF-Q1 (a))**; the operator confirms in the wave report |
 | **DR-DF-2** | Store the dimensional lines? | (a) no — derived on read (§12.2) · (b) a rule 1.1.0 with L / D_i line kinds and a record for reference-only pairs | (a) | **settled by the leader: (a)** |
 | **DR-DF-3** | Headline at a trimmed point | (a) δ L always · (b) δ D_i when `op.load` is a target load | (a); the trimmed case is unreachable today (§12.7 Q1) | **settled by the leader: (a)**; reopen when DR-ANA-9 admits loads |
 
