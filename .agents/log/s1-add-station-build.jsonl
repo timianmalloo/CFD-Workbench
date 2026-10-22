@@ -1,1 +1,3 @@
 {"agent": "s1-add-station-build", "at": 1792640944.6998332, "kind": "session-start", "path": "-", "seq": 1, "session": "s1-add-station-build", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-s1-add-station-build"}
+{"agent": "s1-add-station-build", "at": 1792645520.2153292, "kind": "claim", "path": "src/CfdWorkbench.Core/AuthoringSession.cs", "seq": 2, "session": "s1-add-station-build", "ttl": 300.0, "wi": "s1-add-station-build"}
+{"agent": "s1-add-station-build", "at": 1792645520.423229, "kind": "claim", "path": "tests/CfdWorkbench.Core.Tests/StationTests.cs", "seq": 3, "session": "s1-add-station-build", "ttl": 300.0, "wi": "s1-add-station-build"}
