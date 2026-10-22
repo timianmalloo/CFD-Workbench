@@ -19,3 +19,4 @@
 {"agent": "a3-compare-build", "at": 1792640602.63782, "kind": "release", "path": "src/CfdWorkbench.Analysis/WingEstimator.cs", "seq": 19, "session": "a3-compare-build", "wi": "a3-compare-build"}
 {"agent": "a3-compare-build", "at": 1792640602.7914605, "kind": "release", "path": "docs/proof/a3d-compare/README.md", "seq": 20, "session": "a3-compare-build", "wi": "a3-compare-build"}
 {"agent": "a3-compare-build", "at": 1792640602.9461467, "kind": "release", "path": "docs/design/a3d-compare.md", "seq": 21, "session": "a3-compare-build", "wi": "a3-compare-build"}
+{"agent": "a3-compare-build", "at": 1792640828.872721, "kind": "session-end", "path": "-", "seq": 22, "session": "a3-compare-build", "wi": "WI-0", "worktree": "CFD-Workbench-a3-compare-build"}
