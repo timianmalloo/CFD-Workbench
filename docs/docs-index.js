@@ -13348,7 +13348,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8639878a3c165a483a9ed3e74e11bef32d76076c39b0019a1ab32520bbda94cc"
+      "sourceSha256": "2944be2476f888a1d1f83e3a2a0c71b2134e51112d72c8bdea7ba0a8b092ca6e"
     },
     {
       "id": "proof-app-shell-test-inventory",
@@ -18092,6 +18092,38 @@ window.DOCS_INDEX = {
       "sourceSha256": "b4ae8bc942c4c5e7bcab75f8109c116b394928fc18a0b5f62b5ea63860cc0b74"
     },
     {
+      "id": "proof-size-cap-64mb",
+      "path": "docs/proof/size-cap-64mb/README.md",
+      "title": "Document size cap at 64,000,000 bytes: budget measured, exceeded, MaxBytes stays at 8,000,000",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-w2b-mx",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "Ruling 258 raises NativeProject.MaxBytes to 64,000,000 if a document at the cap opens within 3 s, saves within 3 s and peaks within 1.5 GB. Measured on a Windows ARM64 laptop, the open (4,470 ms) and the peak (1,811,509,248 bytes) exceed their budgets, so the constant stays at 8,000,000 and the track stopped. The save (1,377 ms) was within budget.",
+      "tags": [
+        "wave-2",
+        "mx",
+        "ruling-258",
+        "document-size",
+        "doc-size",
+        "measurement"
+      ],
+      "links": [
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "refines"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "076f07f49f4efde4307b119523d65a7e8a5a088e4eff03b7bb5386e1a19eec5e"
+    },
+    {
       "id": "proof-sma-captures",
       "path": "docs/proof/sma/captures.md",
       "title": "SMA captures A-D against the approved mockup (Ruling 125)",
@@ -20894,7 +20926,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9c8b88b6935564b85c10c9ae92c98a031cef25cc41c9d61f20bb0979729e4798"
+      "sourceSha256": "98ab728cb1506786b25b61cf48ef3e44f0805ce8637c2e47995d425fb99d96d3"
     },
     {
       "id": "proof-win-trig-bits-20261008",
@@ -23989,5 +24021,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "809f23dc6b56baaa13c8a6c6ca7824b62abb154223da15630fc6cc0a72eb0500"
+  "graphSha256": "feb52a9f7d8e539c76f3c84f9289ec1ae6c52a30b5efa0ebb02261f6adbe2c2c"
 };

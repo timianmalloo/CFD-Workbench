@@ -369,7 +369,8 @@ internal static class ProjectStoreTests
     // fits, and a free-text pad (the unavailable reason of its first strip, one byte per character) that lands the canonical
     // image on exactly MaxBytes. The pad is measured, never guessed: the image length is asserted before use.
     // The build reads the one constant (Ruling 258 rules 64,000,000; the track observed this check red on 8,000,000 with the ruled number as a literal).
-    private static int RuledCap => NativeProject.MaxBytes;
+    // Measurement only: CFD_MEASURE_CAP_BYTES builds a document below the cap (see DocumentAtCap).
+    private static int RuledCap => int.TryParse(Environment.GetEnvironmentVariable("CFD_MEASURE_CAP_BYTES"), out int bytes) ? bytes : NativeProject.MaxBytes;
     internal static byte[] BuildAtCapImage(out int fullRuns, out int lastStrips, out int pad, out Func<int, AuthoringSession> withPad)
     {
         int cap = RuledCap;
@@ -406,8 +407,9 @@ internal static class ProjectStoreTests
     private static void DocumentAtCap()
     {
         byte[] image = BuildAtCapImage(out int fullRuns, out int lastStrips, out int pad, out var withPad);
-        Equal(NativeProject.MaxBytes, image.Length);
+        Equal(RuledCap, image.Length);
         if (Environment.GetEnvironmentVariable("CFD_MEASURE_CAP_WRITE") is { } measureFile) File.WriteAllBytes(measureFile, image);
+        if (RuledCap != NativeProject.MaxBytes) { Console.WriteLine($"STORE-CAP-DOC bytes={image.Length} (measurement size, below the cap: the at-cap steps are not run)"); return; }
         Console.WriteLine($"STORE-CAP-DOC bytes={image.Length} fullRuns={fullRuns} lastRunStrips={lastStrips} pad={pad}");
         // One free-text byte more is refused at the session's size preflight, and the session keeps its image.
         Refuses("DOC-SIZE", () => withPad(pad + 1).Dispose());

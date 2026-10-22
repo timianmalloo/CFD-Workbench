@@ -93,3 +93,31 @@ page if the budget is raised or the open path and memory are improved. One user-
 Core 862 PASS, Analysis 296 PASS, Cli 26 PASS, each `RESULT failures=0`; Desktop `--controller-shell` 147 PASS on the rerun.
 The first Desktop run had one failure, `GestureLimit_KeyboardNudges_HoldWithoutBankingAndAnnounceOnce` (a timing count under
 concurrent load, unrelated to size); the rerun of the same mode alone passed.
+
+## Idle re-measure
+
+The first measurement ran under load. This one ran with the investigation loops paused and no other test suite running.
+Idle check, before and after the runs (`tasklist` filtered on `CfdWorkbench.*`): "No tasks are running which match the
+specified criteria." The only `dotnet.exe` processes were 8 idle build servers (no test host).
+
+Method: the constant `NativeProject.MaxBytes` was set to 64,000,000 in the working tree only (never committed; reverted
+afterwards, `git diff` clean on `AuthoringSession.cs`) and built once. The Core check wrote the document once per size
+(`CFD_MEASURE_CAP_WRITE`; at 32,000,000 with `CFD_MEASURE_CAP_BYTES=32000000`, which builds the document at that size and skips
+the at-cap steps). The Desktop check ran in a fresh process per run:
+`CFD_MEASURE_CAP=1 CFD_MEASURE_CAP_DOC=<file> [CFD_MEASURE_CAP_BYTES=32000000] CFD_TEST_ONLY=Measure_DocumentAtCap CfdWorkbench.Desktop.Tests.exe --harness --controller-shell`.
+`CFD_MEASURE_CAP_BYTES` is the only code change committed (test-only, default `NativeProject.MaxBytes`).
+
+| Size | Figure | Run 1 | Run 2 | Run 3 | Median | Budget (Ruling 258) | Verdict |
+|---|---|---|---|---|---|---|---|
+| 64,000,000 | open (ms) | 4,277 | 4,097 | 4,020 | **4,097** | 3,000 | over |
+| 64,000,000 | save (ms) | 1,338 | 1,278 | 1,298 | **1,298** | 3,000 | within |
+| 64,000,000 | peak working set (bytes) | 1,812,115,456 | 1,812,336,640 | 1,811,357,696 | **1,812,115,456** | 1,500,000,000 | over (also over 1.5 GiB = 1,610,612,736) |
+| 32,000,000 | open (ms) | 2,119 | 2,230 | 2,208 | **2,208** | 3,000 | within |
+| 32,000,000 | save (ms) | 732 | 778 | 674 | **732** | 3,000 | within |
+| 32,000,000 | peak working set (bytes) | 1,012,297,728 | 1,109,200,896 | 1,011,113,984 | **1,012,297,728** | 1,500,000,000 | within |
+
+Reading: idle lowers the 64 MB open by about 8 % (4,470 to 4,097 ms) and leaves the peak unchanged, so the open and the peak
+still exceed their budgets at 64 MB; load did not cause either. At 32 MB all three figures are within budget. Open scales
+about 1.9x and peak about 1.8x from 32 to 64 MB. The committed constant stays 8,000,000; the choice is the Owner's.
+
+After the revert, the at-cap test is green at 8,000,000 again: `STORE-CAP-DOC bytes=8000000 fullRuns=4 lastRunStrips=592 pad=5591`, `PASS Store_DocumentAtCap_OpensAndSaves_OneByteOverRefusedIntact`.

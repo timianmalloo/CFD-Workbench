@@ -546,7 +546,7 @@ public static class ControllerShellTests
             try
             {
                 File.Copy(source, path);
-                if (new FileInfo(path).Length != NativeProject.MaxBytes) throw new Exception("The document is not exactly MaxBytes");
+                if (new FileInfo(path).Length != (int.TryParse(Environment.GetEnvironmentVariable("CFD_MEASURE_CAP_BYTES"), out int size) ? size : NativeProject.MaxBytes)) throw new Exception("The document is not the expected size (MaxBytes or CFD_MEASURE_CAP_BYTES)");
                 using var controller = new WorkbenchController();
                 var clock = System.Diagnostics.Stopwatch.StartNew();
                 var outcome = controller.OpenAsync(path).GetAwaiter().GetResult();
