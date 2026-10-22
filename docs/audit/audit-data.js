@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T01:03:41Z",
+  "generated": "2026-10-22T01:05:10Z",
   "audit": [
     {
       "actor": null,
@@ -41082,6 +41082,33 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-10-22T00:53:44Z",
       "duration_seconds": 597.0
+    },
+    {
+      "id": "al-01M5GJ7YFFBEH9BFB0MT2V71HH",
+      "shortname": "join-next-best-six-plan",
+      "datetime": "2026-10-22T01:05:10Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of coord/next-best-six-plan into main",
+      "summary": "docs-only join of the coordination plan next-best-six (six tracks, width 3) plus the compile and prepare audit entries recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "land the next-best-six coordination plan on main",
+      "done_when": "plan md and html on main, check-docs green, docs index derived",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-22T01:04:49Z",
+      "duration_seconds": 21.0
     }
   ],
   "changes": [
