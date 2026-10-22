@@ -218,7 +218,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
             if (Linked(root) || Linked(LayoutDir) || layoutSession) return Session();
             if (layoutNeverWrite) return new PrefSave("never-write", layoutBlock ?? "LAYOUT-VERSION", false, false, false, null);
             if (layoutHeld) return new PrefSave("claim-held", "DOC-CONFLICT", false, false, false, Claim(LayoutDir));
-            EnsureDir(LayoutDir);
+            if (!EnsureDir(LayoutDir)) { layoutSession = true; return Session(); }
             var snap = snapshot();
             string[] mine;
             lock (sync) mine = pending.ToArray();
@@ -272,7 +272,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
                 return new PrefSave("rejected", "RECENT-SCHEMA", false, false, false, null);
             if (recentNeverWrite)
                 return new PrefSave(op is RecentOp.Clear ? "Recent list not cleared" : "never-write", recentBlock ?? "LAYOUT-VERSION", false, false, false, null);
-            EnsureDir(RecentDir);
+            if (!EnsureDir(RecentDir)) { recentSession = true; return Session(); }
             var (entries, hash, blocked) = await CurrentRecent(ct).ConfigureAwait(false);
             if (blocked is not null)
                 return op is RecentOp.Clear ? new PrefSave("Recent list not cleared", blocked.Code, false, false, false, null) : blocked;
@@ -576,7 +576,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
             if (Linked(root) || Linked(DisplayDir) || displaySession) return Session();
             if (displayNeverWrite) return new PrefSave("never-write", displayBlock ?? "DISPLAY-SCHEMA", false, false, false, null);
             if (displayHeld) return new PrefSave("claim-held", "DOC-CONFLICT", false, false, false, Claim(DisplayDir));
-            EnsureDir(DisplayDir);
+            if (!EnsureDir(DisplayDir)) { displaySession = true; return Session(); }
             var image = DisplayImage();
             var first = await Write(DisplayPath, image, displayHash, ct).ConfigureAwait(false);
             if (first.Code == "OK")
@@ -688,11 +688,18 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
         lock (sync) return (text, loaded);
     }
 
-    private static void EnsureDir(string path)
+    /// <summary>Makes the folder private (0700 on POSIX; the private DACL on Windows, new or already there). False on Windows when the
+    /// folder is owned by someone else: it is left unchanged and the caller treats preferences as session-only.</summary>
+    private static bool EnsureDir(string path)
     {
+        if (OperatingSystem.IsWindows())
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+            return WindowsNative.EnsurePrivateDirectory(path);
+        }
         Directory.CreateDirectory(path);
-        if (OperatingSystem.IsWindows()) return;
         File.SetUnixFileMode(path, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        return true;
     }
 
     private static bool Linked(string path)

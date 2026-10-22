@@ -176,10 +176,31 @@ status line (the generic COPY-414 sentence) is still set by `WorkbenchController
 `NOT ASSESSED WindowsStore_CaseSensitiveDirectory_RefusalBranch volume-refuses-case-sensitive-flag Win32=5`, and no PASS for the refusal. T3: the NFC/NFD row, the D-B1-DUR citation and these run lines are fixed.
 The 25 non-Core former skips: the final `run-tests.sh` below reports Desktop 809 passed / 0 skipped and Cli 22 passed / 0 skipped; the baseline skip counts were 23 and 2.
 
-**Directory privacy, a gap for the Owner (not fixed here; `PreferenceStore.cs` unchanged).** The preference store makes its directory with `System.IO`
-(`EnsureDir`), so on Windows it carries the parent's inherited DACL. Measured by `PrefStore_TextSize_RoundTrip` and `LayoutLoad_Absent_ReturnsPresets`:
-`PREF-DIR-ACL protected=False aces=8 inherited=8 private_policy=False`. The files inside are private (asserted); the directory is not, so another account that can list
-the profile folder could list the directory. `AssertOwnerOnly` prints this line instead of asserting a directory policy that the product does not apply.
+**Directory privacy (wave 2, track C1; fixed).** The gap measured in wave 1 was `PREF-DIR-ACL protected=False aces=8 inherited=8 private_policy=False`: `EnsureDir`
+made the preference folder with `System.IO`, so it inherited the profile's DACL while the files inside were private. Now `AssertOwnerOnly(dir, true)` asserts the private
+policy on Windows (protected DACL, owner the current user, one allow ACE for the current user, no inherited ACE) and `EnsureDir` calls
+`WindowsNative.EnsurePrivateDirectory`:
+- a new folder is created by `CreateDirectoryW` with a `SECURITY_ATTRIBUTES` holding the private descriptor (the file descriptor with the ACE marked OICI, so a file
+  that inherits from the folder keeps its access when the folder DACL is propagated);
+- an existing folder (made by an earlier build, inheriting) that the current user owns is set to the protected private DACL with `SetSecurityInfo` on the next save;
+- a folder owned by another account is left unchanged and the store is session-only for that area (the `Session()` outcome that `DOC-UNSUPPORTED-PERSISTENCE` already maps to).
+
+Red on the old code (this machine, `Core.Tests --harness`, `CFD_TEST_ONLY=PrefStore_`):
+`PREF-DIR-ACL protected=False aces=3 inherited=3 private_policy=False` then `FAIL PrefStore_TextSize_RoundTrip ... Expected True; actual False` and
+`FAIL PrefStore_ExistingInheritedFolder_BecomesPrivateOnSave ... Expected True; actual False`. Green on the new code, full Core harness `RESULT failures=0`, with
+`PREF-DIR-ACL protected=True aces=1 inherited=0 private_policy=True`, `PASS PrefStore_ExistingInheritedFolder_BecomesPrivateOnSave`,
+`PASS PrefStore_ForeignOwnedFolder_LeftUnchanged` (the OS-owned system folder: returns false, owner and DACL string identical before and after) and
+`PASS PrefStore_NewFolder_PrivateAtCreation`. The `SECURITY_ATTRIBUTES` layout is checked in `WindowsNative_Layouts_SdkX64` (size 24; offsets 0, 8, 16).
+Mutants, each applied, run, red, reverted: creation-time descriptor dropped (`CreateDirectoryW(path, null)`) gives
+`FAIL PrefStore_NewFolder_PrivateAtCreation ... Expected True; actual False`; existing-folder tighten skipped gives
+`FAIL PrefStore_ExistingInheritedFolder_BecomesPrivateOnSave ... Expected True; actual False`.
+
+Security confirmation (review `w2b-c1/review/verdict.md`, Security lens): tightening an existing user-owned preference folder in place is in scope. It only narrows access, runs before any write, changes the folder's DACL only (owner and SACL untouched) and needs no extra privilege (the owner's implicit WRITE_DAC). Design section 5's "no post-write ACL repair" covers project files, which are still created with their own protected descriptor before any byte is written, not the preference folder. A foreign-owned folder is left untouched and that area falls back to session-only; no junction is followed (both opens use `FILE_FLAG_OPEN_REPARSE_POINT`).
+Advisory (Inferred; not measured): a folder made by an earlier elevated run may have BUILTIN\Administrators as its owner, so that area would stay session-only on every launch.
+
+Review condition T1: `AssertPrivateDirectory` also asserts the single ACE is an allow ACE (winnt.h `ACCESS_ALLOWED_ACE_TYPE` 0x0) granting exactly `FILE_ALL_ACCESS` (0x1F01FF) with flags exactly `OBJECT_INHERIT_ACE | CONTAINER_INHERIT_ACE` (0x1 | 0x2). Two descriptor mutants, each applied, run, red, reverted: a narrower grant (`0x1201BF` for `FA`) gives `FAIL PrefStore_NewFolder_PrivateAtCreation InvalidOperationException: Expected 2032127; actual 1180095`; the OI and CI flags dropped gives `FAIL PrefStore_NewFolder_PrivateAtCreation InvalidOperationException: Expected ObjectInherit, ContainerInherit; actual None`. Each is also red in `PrefStore_TextSize_RoundTrip` and `PrefStore_ExistingInheritedFolder_BecomesPrivateOnSave` (`RESULT failures=3`); the reverted tree gives `RESULT failures=0`.
+
+NOT ASSESSED: the store-level session-only fallback (`if (!EnsureDir(...)) { ...Session = true; return Session(); }`, three call sites in `PreferenceStore.cs`: layout, recent and display) is not reached by any test, so a mutant that ignores the false return survives. A non-elevated user cannot make a `layout`, `recent` or `display` folder owned by another principal (giving a folder away needs a privilege), and the store has no seam to inject the failure; none was added for the test. `PrefStore_ForeignOwnedFolder_LeftUnchanged` covers the callee (`EnsurePrivateDirectory` returns false and leaves the system folder unchanged), not these callers.
 
 ## Final run
 

@@ -225,6 +225,58 @@ internal static unsafe partial class WindowsNative
         }
     }
 
+    // winnt.h READ_CONTROL = 0x00020000, WRITE_DAC = 0x00040000; DACL_SECURITY_INFORMATION = 0x4,
+    // PROTECTED_DACL_SECURITY_INFORMATION = 0x80000000 (SetSecurityInfo stops inheritance); winerror.h ERROR_ALREADY_EXISTS = 183.
+    // https://learn.microsoft.com/en-us/windows/win32/api/aclapi/nf-aclapi-setsecurityinfo
+    // https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createdirectoryw
+    private const uint ReadControl = 0x00020000, WriteDac = 0x00040000, DaclProtected = 0x80000004;
+    private const int AlreadyExists = 183;
+
+    // https://learn.microsoft.com/en-us/windows/win32/api/wtypesbase/ns-wtypesbase-security_attributes
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct SecurityAttributes { internal uint Length; internal nint SecurityDescriptor; internal int InheritHandle; }
+
+    /// <summary>
+    /// The preference folder is private: created with the private descriptor, or, if it already exists (an earlier build made it
+    /// inheriting the profile's ACL), tightened in place when the current user owns it. False means the folder belongs to someone
+    /// else and is left unchanged. The parent is made by the caller and keeps its inherited ACL.
+    /// </summary>
+    internal static bool EnsurePrivateDirectory(string path)
+    {
+        Check(ConvertStringSecurityDescriptorToSecurityDescriptorW(PrivateDirectoryDescriptor(), SddlRevision, out LocalMemory descriptor, out _));
+        using (descriptor)
+        {
+            bool retained = false;
+            try
+            {
+                descriptor.DangerousAddRef(ref retained);
+                var attributes = new SecurityAttributes { Length = (uint)sizeof(SecurityAttributes), SecurityDescriptor = descriptor.DangerousGetHandle() };
+                if (CreateDirectoryW(path, &attributes) != 0) return true;
+                int error = Marshal.GetLastPInvokeError();
+                if (error != AlreadyExists) throw new NativeFailure(null, error);
+                if (!OwnedByCurrentUser(path)) return false;
+                using var handle = CreateFileW(path, ReadControl | WriteDac, ShareRead | ShareWrite | ShareDelete, 0, OpenExisting,
+                    BackupSemantics | OpenReparsePoint, 0);
+                if (handle.IsInvalid) throw new NativeFailure(null, Marshal.GetLastPInvokeError());
+                Check(GetSecurityDescriptorDacl(descriptor, out _, out nint acl, out _));
+                uint result = SetSecurityInfo(handle, FileObject, DaclProtected, 0, 0, acl, 0);
+                if (result != 0) throw new NativeFailure(null, checked((int)result));
+                return true;
+            }
+            finally { if (retained) descriptor.DangerousRelease(); }
+        }
+    }
+
+    private static bool OwnedByCurrentUser(string path)
+    {
+        using var handle = CreateFileW(path, ReadControl, ShareRead | ShareWrite | ShareDelete, 0, OpenExisting,
+            BackupSemantics | OpenReparsePoint, 0);
+        if (handle.IsInvalid) throw new NativeFailure(null, Marshal.GetLastPInvokeError());
+        var owner = new System.Security.AccessControl.RawSecurityDescriptor(ReadOwnerAndDacl(handle)).Owner;
+        using var current = WindowsIdentity.GetCurrent();
+        return owner is not null && owner.Value == current.User?.Value;
+    }
+
     internal static SafeFileHandle OpenReader(SafeFileHandle parent, string child, uint share = ShareRead | ShareDelete) =>
         OpenRelative(parent, child, ReadAccess, share, NtOpen, 0);
 
@@ -346,6 +398,13 @@ internal static unsafe partial class WindowsNative
         return "O:" + sid + "D:P(A;;FA;;;" + sid + ")";
     }
 
+    /// <summary>
+    /// The folder form of the private descriptor: the same single current-owner ACE, marked container-inherit and object-inherit
+    /// (SDDL OI, CI = winnt.h OBJECT_INHERIT_ACE 0x1, CONTAINER_INHERIT_ACE 0x2). Without it a protected folder DACL passes nothing
+    /// down and the files in an existing folder, which inherited their ACL, would lose all access when the DACL is propagated.
+    /// </summary>
+    internal static string PrivateDirectoryDescriptor() => PrivateDescriptor().Replace("(A;;FA;", "(A;OICI;FA;");
+
     internal static string ReadOwnerAndDacl(SafeFileHandle handle)
     {
         uint result = GetSecurityInfo(handle, FileObject, OwnerAndDacl, 0, 0, 0, 0, out LocalMemory descriptor);
@@ -431,6 +490,19 @@ internal static unsafe partial class WindowsNative
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
     private static partial uint GetSecurityInfo(SafeFileHandle handle, int kind, uint information,
         nint owner, nint group, nint dacl, nint sacl, out LocalMemory descriptor);
+    // https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createdirectoryw
+    [LibraryImport("kernel32.dll", StringMarshalling = StringMarshalling.Utf16, SetLastError = true)]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    private static partial int CreateDirectoryW(string path, SecurityAttributes* attributes);
+    // https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-getsecuritydescriptordacl
+    [LibraryImport("advapi32.dll", SetLastError = true)]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    private static partial int GetSecurityDescriptorDacl(LocalMemory descriptor, out int present, out nint acl, out int defaulted);
+    // https://learn.microsoft.com/en-us/windows/win32/api/aclapi/nf-aclapi-setsecurityinfo
+    [LibraryImport("advapi32.dll")]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    private static partial uint SetSecurityInfo(SafeFileHandle handle, int kind, uint information,
+        nint owner, nint group, nint dacl, nint sacl);
     // https://learn.microsoft.com/en-us/windows/win32/api/sddl/nf-sddl-convertstringsecuritydescriptortosecuritydescriptorw
     [LibraryImport("advapi32.dll", StringMarshalling = StringMarshalling.Utf16, SetLastError = true)]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
