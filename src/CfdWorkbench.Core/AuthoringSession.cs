@@ -121,13 +121,16 @@ public sealed record PromotionPreview(double Eta, string EtaText, int Left, int 
     /// <summary>The station index a coincident refusal selects; null otherwise.</summary>
     public int? ExistingIndex { get; init; }
     /// <summary>The sampling grid the deviation was measured on (Ruling 252: the number is labelled sampled and names its grid).</summary>
-    public string Grid => "sampled on 129 eta per interval x 2001 x";
+    public string Grid { get; init; } = StationGrid.Production.Label;
+    /// <summary>How many eta were sampled (both adjacent intervals, each end included).</summary>
+    public int EtaCount { get; init; }
 }
 public sealed record PromotionOutcome(string AcceptedId, int Index, string ProfileName, PromotionPreview Report, ThicknessIntent Thickness);
 public sealed record RemovalPreview(int Index, double DeviationRelative, double DeviationMeters, double AtEta, double LimitMeters,
     bool Admitted, bool ProfileRemoved)
 {
-    public string Grid => "sampled on 129 eta x 2001 x";
+    public string Grid { get; init; } = StationGrid.Production.Label;
+    public int EtaCount { get; init; }
 }
 public sealed record RemovalOutcome(string AcceptedId, RemovalPreview Report);
 
@@ -2735,6 +2738,7 @@ internal readonly record struct StationGrid(int EtaSamples, int XSamples)
 {
     /// <summary>The product's grid, named in the preview and in the copy (Ruling 252).</summary>
     internal static readonly StationGrid Production = new(129, 2001);
+    internal string Label => $"sampled on {EtaSamples} eta per interval x {XSamples} x";
 }
 
 internal static class StationEdits
@@ -2747,6 +2751,13 @@ internal static class StationEdits
     /// preview (its <c>RefusalCode</c>); only an out-of-range eta throws. <paramref name="assess"/> certifies the candidate and is not
     /// called when a refusal comes first or when the measured change already rules the promotion out.
     /// </summary>
+    /// <summary>
+    /// The regime follows the measurement (Ruling 252): R0 only when the neighbours are one record and the measured change is exactly 0,
+    /// R1 at or below 1e-12 of chord, R2 above. The record predicate alone never decides.
+    /// </summary>
+    internal static string Regime(bool sameRecord, double worstRelative) =>
+        sameRecord && worstRelative == 0 ? "R0" : worstRelative <= ExactRelative ? "R1" : "R2";
+
     internal static PromotionPlan Promote(byte[] source, double eta, string etaText, Func<SourceParse, GeometryAssessment> assess, StationGrid? gridOverride = null)
     {
         var grid = gridOverride ?? StationGrid.Production;
@@ -2763,7 +2774,7 @@ internal static class StationEdits
         int left = PlacementRule.Bracket(stations.Select(item => item.Eta).ToArray(), eta);
         var l = definition.Profiles[stations[left].Profile];
         var r = definition.Profiles[stations[left + 1].Profile];
-        bool same = SameRecord(l, r);
+        bool same = Placement.SameRecord(l, r);
         if (!same && !FourCurvesShareSpacing(l, r))
             return Refused(eta, etaText, left, left + 1, "STATION-SPACING", "Promote is not available: " + StationNames.Of(left, stations[left].Eta) +
                 " and " + StationNames.Of(left + 1, stations[left + 1].Eta) + " have different point spacing, so this loft is not assessed.");
@@ -2782,10 +2793,12 @@ internal static class StationEdits
         }
         byte[] candidate = FoilSource.AddAssignment(source, eta, etaText, name, block);
         var parsed = FoilSource.Parse(candidate);
-        var (relative, meters, at) = Measure(source, candidate, Grid(grid, (stations[left].Eta, eta), (eta, stations[left + 1].Eta)), grid.XSamples);
-        string regime = same ? "R0" : relative <= ExactRelative ? "R1" : "R2";
+        var measured = Grid(grid, (stations[left].Eta, eta), (eta, stations[left + 1].Eta));
+        int etasMeasured = measured.Count;
+        var (relative, meters, at, worstRelative) = Measure(source, candidate, measured, grid.XSamples);
+        string regime = Regime(same, worstRelative);
         PromotionPreview Report(bool admitted, string? code, string? reason) =>
-            new(eta, etaText, left, left + 1, regime, relative, meters, at, admitted, code, reason);
+            new(eta, etaText, left, left + 1, regime, relative, meters, at, admitted, code, reason) { EtaCount = etasMeasured, Grid = grid.Label };
         if (regime == "R2" && meters > LimitMeters)
             return new(Report(false, "STATION-INEXACT", "Promote refused: the new station would change the loft by " + Micrometres(meters) + " µm (" +
                 relative.ToString("E2", CultureInfo.InvariantCulture) + " of chord) at eta " + at.ToString("F4", CultureInfo.InvariantCulture) +
@@ -2813,10 +2826,10 @@ internal static class StationEdits
             throw new ContractError("STATION-ENDPOINT", "Root and tip stations cannot be removed.");
         var (candidate, removed, profile) = FoilSource.RemoveAssignment(source, index);
         var stations = definition.Assignments;
-        var etas = Grid(grid, (stations[index - 1].Eta, stations[index + 1].Eta));
-        etas.Add(stations[index].Eta);
-        var (relative, meters, at) = Measure(source, candidate, etas, grid.XSamples);
-        var preview = new RemovalPreview(index, relative, meters, at, LimitMeters, meters <= LimitMeters, removed);
+        // Both intervals that join into the gap, each sampled as Promote samples one; the removed station's eta is their shared end.
+        var etas = Grid(grid, (stations[index - 1].Eta, stations[index].Eta), (stations[index].Eta, stations[index + 1].Eta));
+        var (relative, meters, at, _) = Measure(source, candidate, etas, grid.XSamples);
+        var preview = new RemovalPreview(index, relative, meters, at, LimitMeters, meters <= LimitMeters, removed) { EtaCount = etas.Count, Grid = grid.Label };
         return new(preview, candidate, FoilSource.Parse(candidate), profile);
     }
 
@@ -2857,12 +2870,12 @@ internal static class StationEdits
     };
 
     /// <summary>Camber, thickness and their sum differences, 129 eta per interval plus the interval ends, 2001 x: sampled, not a bound.</summary>
-    private static (double Relative, double Meters, double AtEta) Measure(byte[] before, byte[] after, IReadOnlyList<double> etas, int xSamples)
+    private static (double Relative, double Meters, double AtEta, double WorstRelative) Measure(byte[] before, byte[] after, IReadOnlyList<double> etas, int xSamples)
     {
         var xs = Enumerable.Range(0, xSamples).Select(i => i / (double)(xSamples - 1)).ToArray();
         var a = SectionsParallel(before, etas, xs);
         var b = SectionsParallel(after, etas, xs);
-        double relative = 0, meters = 0, at = etas[0];
+        double relative = 0, meters = 0, at = etas[0], worstRelative = 0;
         for (int i = 0; i < etas.Count; i++)
         {
             double worst = 0;
@@ -2871,11 +2884,12 @@ internal static class StationEdits
                 double camber = b[i].Camber[j] - a[i].Camber[j], width = (b[i].Thickness[j] - a[i].Thickness[j]) / 2;
                 worst = Math.Max(worst, Math.Max(Math.Abs(camber + width), Math.Abs(camber - width)));
             }
-            relative = Math.Max(relative, worst);
+            worstRelative = Math.Max(worstRelative, worst);
             double placed = worst * a[i].Frame.ChordMeters;
-            if (placed > meters) (meters, at) = (placed, etas[i]);
+            // The relative figure is the one measured at the eta of the metres maximum, so the copy's pair "<rel> of chord (<um>) at eta" has one owner.
+            if (placed > meters) (meters, at, relative) = (placed, etas[i], worst);
         }
-        return (relative, meters, at);
+        return (relative, meters, at, worstRelative);
     }
 
     // Each eta is independent, so the etas split across cores; the result is the same samples in the same order. One blended eta costs about
@@ -2915,18 +2929,8 @@ internal static class StationEdits
         return count;
     }
 
-    // The curve-record identity of Placement.SameRecord (private there, so restated): identical control data selects one profile.
-    private static bool SameRecord(ProfileDefinition a, ProfileDefinition b) =>
-        ReferenceEquals(a, b) || SameCurve(a.Upper, b.Upper) && SameCurve(a.Lower, b.Lower);
-
-    private static bool SameCurve(Curve a, Curve b) => SameSpacing(a, b) && a.Points.Zip(b.Points).All(pair => pair.First[1] == pair.Second[1]);
-
-    // The identity of Placement.SameAbscissa (private there): degree, knot vector and control x, element by element.
-    private static bool SameSpacing(Curve a, Curve b) => a.Degree == b.Degree && a.Knots.AsSpan().SequenceEqual(b.Knots) &&
-        a.Points.Length == b.Points.Length && a.Points.Zip(b.Points).All(pair => pair.First[0] == pair.Second[0]);
-
     private static bool FourCurvesShareSpacing(ProfileDefinition l, ProfileDefinition r) =>
-        SameSpacing(l.Upper, l.Lower) && SameSpacing(l.Upper, r.Upper) && SameSpacing(l.Upper, r.Lower);
+        Placement.SameAbscissa(l.Upper, l.Lower) && Placement.SameAbscissa(l.Upper, r.Upper) && Placement.SameAbscissa(l.Upper, r.Lower);
 
     private static PromotionPlan Refused(double eta, string etaText, int left, int right, string code, string reason, int? existing = null) =>
         new(new PromotionPreview(eta, etaText, left, right, null, 0, 0, 0, false, code, reason) { ExistingIndex = existing }, null, null, null, null);

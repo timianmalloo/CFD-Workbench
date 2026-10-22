@@ -120,7 +120,18 @@ internal static class StationTests
                 {
                     Equal(true, preview.Admitted);
                     session.AddStation(Id(), 0.5, "50 %", true);
-                    Equal(3, Assignments(session.Snapshot().Source).Length);
+                    byte[] promoted = session.Snapshot().Source;
+                    Equal(3, Assignments(promoted).Length);
+                    if (label == "F-PEAK")
+                    {
+                        // ST-I4 in R2: the section at eta_p is the blend (the section before), to 1e-12 of chord.
+                        True(MaxDifference(before, promoted, [0.5], Xs(129)) <= Tolerance, "section at eta_p is not the blend");
+                        // CG4: P, opened alone, has the thickness the slice shows. The loft does not see this (it renormalises P by its own maximum);
+                        // Export's OwnProfile reads P's ordinates. Without the 1/k rescale the maximum is k * t (k 0.9949 here).
+                        var p = Definition(promoted).Profiles[Definition(promoted).Assignments[1].Profile];
+                        double own = Placement.ProfileDifferenceMaximum(p.Upper, p.Lower), slice = ThicknessAt(promoted, 0.5);
+                        True(Math.Abs(own - slice) <= 1e-12 * slice, $"P maximum {own:G17} vs t(eta_p) {slice:G17}");
+                    }
                 }
                 else
                 {
@@ -130,6 +141,56 @@ internal static class StationTests
                 }
             }
             Console.WriteLine($"INFO T4 F-SAMEPEAK k {K(SamePeak(), 0.35).ToString("G17", CultureInfo.InvariantCulture)}");
+        });
+        Check("Station_PromoteR2_AboveTenMicrometres_ApproximateRefusedBytesUnchanged", () =>
+        {
+            // F-PEAK on a chord ten times as long: the same relative change, ten times the metres.
+            byte[] doc = Chord(Peak(), _ => 10);
+            using var session = Open(doc);
+            var preview = session.PreviewPromote(0.5, "50 %");
+            Equal("R2", preview.Regime);
+            Console.WriteLine($"INFO T-C1 F-PEAK x10 chord {preview.DeviationRelative:E3} of chord, {preview.DeviationMeters * 1e6:F4} um at eta {preview.AtEta:F4}");
+            True(preview.DeviationMeters > 10e-6, "fixture is not above the limit: " + preview.DeviationMeters.ToString("G17", CultureInfo.InvariantCulture));
+            Equal(false, preview.Admitted);
+            Equal("STATION-INEXACT", preview.RefusalCode);
+            Refuses("STATION-INEXACT", () => session.AddStation(Id(), 0.5, "50 %", true));
+            Refuses("STATION-INEXACT", () => session.AddStation(Id(), 0.5, "50 %", false));
+            Equal(true, doc.AsSpan().SequenceEqual(session.Snapshot().Source));
+        });
+        Check("Station_Regime_MeasurementDecidesNotThePredicate", () =>
+        {
+            Equal("R0", StationEdits.Regime(true, 0));
+            Equal("R1", StationEdits.Regime(true, 1e-13));
+            Equal("R2", StationEdits.Regime(true, 3e-9));
+            Equal("R1", StationEdits.Regime(false, 0));
+            Equal("R1", StationEdits.Regime(false, 1e-12));
+            Equal("R2", StationEdits.Regime(false, 2e-12));
+        });
+        Check("Station_PreviewGrid_NamesTheGridUsed_RemoveSamplesPerInterval", () =>
+        {
+            using var session = Open(Camber());
+            var preview = session.PreviewPromote(Pct("35"), "35 %");
+            Equal("sampled on 17 eta per interval x 201 x", preview.Grid);
+            Equal(2 * 17, preview.EtaCount);
+            session.AddStation(Id(), Pct("35"), "35 %", false);
+            var removal = session.PreviewRemove(1);
+            Equal("sampled on 17 eta per interval x 201 x", removal.Grid);
+            Equal(2 * 17, removal.EtaCount);
+            Equal("sampled on 129 eta per interval x 2001 x", StationGrid.Production.Label);
+        });
+        Check("Station_Deviation_RelativeAndMetresComeFromOneEta", () =>
+        {
+            // The chord shrinks toward the tip, so over a long interval the largest relative change and the largest change in metres can fall
+            // at different eta. Whatever the slice, the reported pair must be the pair measured at AtEta.
+            using var session = Open(Peak());
+            byte[] source = session.Snapshot().Source;
+            foreach (string percent in new[] { "10", "20", "30", "40", "50", "60", "70", "80", "90" })
+            {
+                var preview = session.PreviewPromote(Pct(percent), percent + " %");
+                double chord = Placement.Sections(source, [preview.AtEta], Xs(2), CancellationToken.None)[0].Frame.ChordMeters;
+                Console.WriteLine($"INFO CG3 {percent} %: {preview.DeviationRelative:E4} of chord x chord {chord:F4} m = {preview.DeviationRelative * chord * 1e6:F4} um; metres {preview.DeviationMeters * 1e6:F4} um at eta {preview.AtEta:F4}");
+                True(Math.Abs(preview.DeviationRelative * chord - preview.DeviationMeters) <= 1e-9 * preview.DeviationMeters, percent + " %: relative and metres are not from one eta");
+            }
         });
         Check("Station_CoincidentWithinJoinTolerance_RefusedExistingSelected", () =>
         {
@@ -281,7 +342,7 @@ internal static class StationTests
         });
         Check("Station_ProfileClosure_ReferencedOnceAndClosedRule", () =>
         {
-            foreach (var (closureLeft, closureRight, expected, mutantName) in new[] { ("closed", "closed", "closed", "closed+closed"), ("closed", "open", "open", "closed+open") })
+            foreach (var (closureLeft, closureRight, expected) in new[] { ("closed", "closed", "closed"), ("closed", "open", "open") })
             {
                 // An open profile has a positive trailing-edge gap (the certificate requires it); a closed one has none.
                 double[] tipUpper = Add(Root, Bend(0.04)), tipLower = Add(Lower(Root), Bend(0.04));
@@ -293,7 +354,6 @@ internal static class StationTests
                 var added = definition.Profiles.Single(profile => profile.Name == "Station 2");
                 Equal(expected, added.Closure);
                 Equal(1, definition.Assignments.Count(item => definition.Profiles[item.Profile].Name == "Station 2"));
-                True(mutantName.Length > 0, mutantName);
             }
             using (var session = Open(Camber()))
             {
@@ -341,6 +401,7 @@ internal static class StationTests
         {
             using var session = Open(Camber());
             session.AddStation(Id(), Pct("35"), "35 %", false);
+            byte[] addedBytes = session.Snapshot().Source;
             string draftId = Id();
             var view = session.BeginSectionDraft(draftId, 1);
             var source = new ReplaceSource.Coordinates("NACA 0009", new Provenance("gen:naca-0009", false), CatalogGenerator.Naca4("0009"));
@@ -351,6 +412,11 @@ internal static class StationTests
             var definition = Definition(applied.Bytes);
             Equal(3, definition.Assignments.Length);
             Equal("Station 2", definition.Profiles[definition.Assignments[1].Profile].Name);
+            // Apply changes only that assignment: root and tip keep their profiles and their sections.
+            var was = Definition(addedBytes);
+            Equal(was.Profiles[was.Assignments[0].Profile].Name, definition.Profiles[definition.Assignments[0].Profile].Name);
+            Equal(was.Profiles[was.Assignments[2].Profile].Name, definition.Profiles[definition.Assignments[2].Profile].Name);
+            Equal(0d, MaxDifference(addedBytes, applied.Bytes, [0.0, 1.0], Xs(65)));
         });
         Check("Station_PreviewPromote_RecordsDuration", () =>
         {
@@ -425,6 +491,17 @@ internal static class StationTests
         double[] Plateau(double a, double b) => [0, a, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, b, 0];
         double[] left = Plateau(0.045, 0.020), right = Plateau(0.030, 0.040);
         return Doc(("root", Prof("root", left, Lower(left))), ("tip", Prof("tip", right, Lower(right))));
+    }
+
+    /// <summary>The document with its local chord multiplied by <paramref name="factor"/>(control abscissa): the trailing rail moves, the leading rail stays.</summary>
+    private static byte[] Chord(byte[] doc, Func<double, double> factor)
+    {
+        var definition = Definition(doc);
+        var lead = definition.Curves["leading"];
+        var trail = definition.Curves["trailing"];
+        var points = trail.Points.Select((point, i) => new[] { point[0], lead.Points[i][1] + (point[1] - lead.Points[i][1]) * factor(point[0]) }).ToArray();
+        var curves = new Dictionary<string, Curve>(definition.Curves, StringComparer.Ordinal) { ["trailing"] = trail with { Points = points } };
+        return FoilSource.Print(definition with { Curves = curves });
     }
 
     private static byte[] Real()
