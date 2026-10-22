@@ -6034,7 +6034,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c7e5746956329be16172ec3c9c36bd245531a7dc3ea8776cc4822242a399da1e"
+      "sourceSha256": "c9b5f4fc851e2ab12e1866a9129fbcbe8cd4bac29f44b9055572d12ab29cd388"
     },
     {
       "id": "domain-experts",
@@ -9846,7 +9846,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6f691e1b5927e651fc271d0fc5b45f87bcee8a3b4ff03b02bb673a0da7ad3ee2"
+      "sourceSha256": "0a8d0a11e4abb58d3840055c4fd4169cc743a89503f9155b034eaeefc4b7778f"
     },
     {
       "id": "kb-hw-glossary",
@@ -9968,7 +9968,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0d4ee77c66a672948717d4157ec8107818cfc9eb8d9a6d1b6f25cf0a691c0215"
+      "sourceSha256": "510f492a96fd9984b858529a8b1b167c460a27b7be4ce21d38845b60d4362248"
     },
     {
       "id": "investigation-ezf-zoompanfit",
@@ -11596,7 +11596,7 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/next-best-six-wave2.md",
       "title": "Coordination plan - next-best-six wave 2: the operator's decisions of 2026-10-22",
       "type": "plan",
-      "status": "proposed",
+      "status": "complete",
       "owner": "@timianmalloo",
       "phase": "",
       "reviewBy": "2026-11-22",
@@ -11635,7 +11635,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "170d3dc2236b6df73603585a8230e3a952d9b009324044ad155ee43028e42f96"
+      "sourceSha256": "e970937cd92a9f42c320ce159c4486080a1efcc391513cc485549850bc44c0a2"
     },
     {
       "id": "coordination-pc-kickoff",
@@ -15157,7 +15157,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "61f7dcd841967a011a80150d59dedac4d7f2ac61f9d94e8b9689932e6b2d48cc"
+      "sourceSha256": "c22bc4c01ad784ba162078804a2a92a13f5386bab9d51efa219e29d5d880358d"
     },
     {
       "id": "proof-doc-oct06",
@@ -21149,7 +21149,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f69411787fd7629548b918e8813a2447ce4e4c5dcf4c69d7cff046c8c7c622b3"
+      "sourceSha256": "d7a7ea221cb8d725ebb3c09ca9467e9e232333b2d3e6b00580a02a8dd98c51da"
     },
     {
       "id": "proof-win-trig-bits-20261008",
@@ -24289,5 +24289,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "1cbd9b47c2896a9e44779f3887dd264eb638d27bbc849e76d43c2f970ea86dd9"
+  "graphSha256": "ca1ffd108bd44f63b75ee5790b8017ad5f2e99969893c656f3f79c6caa5efd6c"
 };
