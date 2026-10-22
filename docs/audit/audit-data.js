@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T16:19:01Z",
+  "generated": "2026-10-22T16:42:23Z",
   "audit": [
     {
       "actor": null,
@@ -41760,6 +41760,25 @@ window.AUDIT_DATA = {
       "tier": "T2",
       "started_at": "2026-10-22T15:58:46Z",
       "duration_seconds": 1215.0
+    },
+    {
+      "id": "al-01M5J7W26JNSJS8H03RTSQQQQN",
+      "shortname": "w2b-df-r1",
+      "datetime": "2026-10-22T16:42:23Z",
+      "session": "w2b-df",
+      "prompt": "wave 2 DF revision 1: deltas H1 T1-T4, Match G1-G6 T1-T4, compatible fit C1-C4 TL1",
+      "summary": "Track DF revision cycle 1: Adversary conditions folded (deltas H1, T1-T4; Match G1-G6, T1-T4, DR-DF-6 (b); compatible fit C1-C4, TL1, next wave) and Ruling 262 (DF-Q1 a, DF-Q2 a, DF-Q3 a) written as settled. Five commits on w2b-df; check-docs exit 0 before each.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T16:34:43Z",
+      "duration_seconds": 460.0
     }
   ],
   "changes": [
