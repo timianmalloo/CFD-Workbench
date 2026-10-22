@@ -164,3 +164,13 @@ cloud-only 0x9000401A with 0x401400) are the reviewer's, not re-measured here.
 `store.read-origin` is not emitted (it would count as a document.save in `RecordPersistence`); the notice row is placed from
 `MainWindow` by inserting a shell grid row (request req-01M5JDFP0C75JZJWQ3XXP028JN, fallbacks taken). The save picker's start
 folder was not driven (the native picker); it is unchanged code.
+
+### Recorded run (C1 of the node B review)
+
+- Real-file run, 2026-10-22, main session, scratch build of 5eb0b188 (Core and Cli test projects, Release), two throwaway documents created under the OneDrive root for this run (one pinned Always keep on this device, one unpinned and freed by the client), never a user's file; the files were created by the operator session and are deleted at the wave's close:
+- REAL-ONLINE-ONLY before: attributes=0x501620 tag=0x9000401A allocation=0 length=8316; refused=DOC-CLOUD-ONLY; after: attributes=0x501620 tag=0x9000401A allocation=0
+- PASS WindowsStore_Open_RealOnlineOnlyFile_RefusedLeftCloudOnly
+- REAL-LOCAL-ONEDRIVE attributes=0x80420 tag=0x9000601A allocation=12288 length=8316 origin=OneDriveReadOnly
+- PASS WindowsStore_Open_RealFullyLocalOneDriveFile_AdmittedTagRecorded
+- PASS Cli_Inspect_OneDriveFullyLocal_Succeeds
+- Attributes before and after each check were equal (the checks assert it); the online-only file kept allocation 0, so nothing was downloaded.
