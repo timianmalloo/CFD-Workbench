@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T07:47:41Z",
+  "generated": "2026-10-22T16:10:18Z",
   "audit": [
     {
       "actor": null,
@@ -41741,6 +41741,27 @@ window.AUDIT_DATA = {
         "speedup": 1.59,
         "peak_concurrency": 4
       }
+    },
+    {
+      "id": "al-01M5J61A7RHQY37KWMS1TKMYNT",
+      "shortname": "cr1-crash-capture",
+      "datetime": "2026-10-22T16:10:18Z",
+      "session": "cr1-crash-capture",
+      "prompt": "Track CR1: out-of-process crash capture for the Desktop harness children (CFD_TEST_CHILD_WRAPPER, NUL-tolerant parsing, forced-crash probe, proof)",
+      "summary": "SelfLaunch wrapper variable, red-first check and mutant, NUL stripping in SpawnWith, heap-corruption probe, proof section with a 556 MB dump captured",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "A wrapped Desktop child that dies with 0xC0000374 leaves a full dump",
+      "done_when": "check red then green, wrapped run green, probe dump analysed, run-tests TESTS-GREEN, check-docs 0",
+      "tier": "T1",
+      "started_at": "2026-10-22T15:53:56Z",
+      "duration_seconds": 982.0
     }
   ],
   "changes": [
@@ -45333,6 +45354,42 @@ window.AUDIT_DATA = {
       "to": "opus-leader",
       "kind": "ruling",
       "ref": "req-01M5H7ZFWTNVV2KN609GRCSN30",
+      "session": "opus-owner"
+    },
+    {
+      "id": "mail-01M5J3BW6Q0YRAWP76KG3VD7QT",
+      "ts": "2026-10-22T15:23:39Z",
+      "from": "opus-leader",
+      "to": "opus-owner",
+      "kind": "decision-request",
+      "ref": "req-01M5J3BW6AST0H8GZA10M2QPBM",
+      "session": "opus-leader"
+    },
+    {
+      "id": "mail-01M5J3BWHFR00JY12M3J27KYTN",
+      "ts": "2026-10-22T15:23:39Z",
+      "from": "opus-leader",
+      "to": "opus-owner",
+      "kind": "decision-request",
+      "ref": "req-01M5J3BWGY15T8VXJRVR4X716F",
+      "session": "opus-leader"
+    },
+    {
+      "id": "mail-01M5J3F1FQ86AFXPVDCKSR36KQ",
+      "ts": "2026-10-22T15:25:22Z",
+      "from": "opus-owner",
+      "to": "opus-leader",
+      "kind": "ruling",
+      "ref": "req-01M5J3BW6AST0H8GZA10M2QPBM",
+      "session": "opus-owner"
+    },
+    {
+      "id": "mail-01M5J3FX69GQZBDBZRRK876BK4",
+      "ts": "2026-10-22T15:25:51Z",
+      "from": "opus-owner",
+      "to": "opus-leader",
+      "kind": "ruling",
+      "ref": "req-01M5J3BWGY15T8VXJRVR4X716F",
       "session": "opus-owner"
     }
   ]

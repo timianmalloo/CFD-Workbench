@@ -876,7 +876,9 @@ namespace CfdWorkbench.Desktop.Tests
             var partCounts = new Dictionary<string, List<string>>();
             for (int index = 0; index < modes.Length; index++)
             {
-                var (lines, childExit, seconds) = runs[index].GetAwaiter().GetResult();
+                var (rawLines, childExit, seconds) = runs[index].GetAwaiter().GetResult();
+                // CR1: a child run under ProcDump (CFD_TEST_CHILD_WRAPPER) shares stdout with its UTF-16 text, whose NULs can start a harness line.
+                var lines = rawLines.Select(line => (line.Error, Text: line.Text.Replace("\0", "", StringComparison.Ordinal))).ToList();
                 foreach (var (error, text) in lines) (error ? errors : output).WriteLine(text);
                 output.WriteLine($"SUITE {modes[index]} exit {childExit}");
                 output.WriteLine(FormattableString.Invariant($"SUITE-TIME {modes[index]} {seconds:F1} s"));

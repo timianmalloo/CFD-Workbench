@@ -116,6 +116,27 @@ public static class StageTimingTests
                 .Select(r => $"{r.c.Exit}/{(r.c.Windows ? "win" : "posix")}: got '{r.Got}'").ToArray();
             if (wrong.Length > 0) throw new Exception(string.Join(" | ", wrong));
         });
+        // CR1: ProcDump writes UTF-16 text, so a wrapped child's stdout carries NUL characters, some at the start of a harness line
+        // ("\0SCALE_CONTEXT ..."). The parent's SCALE_CONTEXT and PARTITION parsing must read the line as the harness wrote it.
+        DesktopChecks.Check("Spawn_NulPrefixedChildLines_ParsedAsTheHarnessWroteThem", () =>
+        {
+            var output = new StringWriter();
+            int exit = DesktopChecks.SpawnWith(output, TextWriter.Null, _ =>
+                ([(false, "P\0r\0o\0c\0e\0s\0s\0"), (false, "\0SCALE_CONTEXT mode=properties-view RenderScaling=2"), (false, "\0PARTITION 1/1 of 68 checks")], 0, 0.0),
+                ["--properties-view --part=1/1"], _ => null);
+            string text = output.ToString();
+            if (exit != 0 || text.Contains("FAIL", StringComparison.Ordinal))
+                throw new Exception($"exit {exit}: " + string.Join(" | ", text.Split('\n').Where(l => l.Contains("FAIL", StringComparison.Ordinal))));
+        });
+        // CR1 crash-capture probe: with CFD_FORCE_HEAP_CORRUPTION=1 it corrupts a native heap block so ntdll raises 0xC0000374, which a
+        // wrapped child (CFD_TEST_CHILD_WRAPPER) must leave a dump of. Unset, it does nothing and passes. Select it with CFD_TEST_ONLY.
+        DesktopChecks.Check("ExitLine_ForcedHeapCorruption_Probe", () =>
+        {
+            if (Environment.GetEnvironmentVariable("CFD_FORCE_HEAP_CORRUPTION") != "1") return;
+            nint block = System.Runtime.InteropServices.Marshal.AllocHGlobal(16);
+            for (int offset = 16; offset < 80; offset += 8) System.Runtime.InteropServices.Marshal.WriteInt64(block, offset, -1L);
+            System.Runtime.InteropServices.Marshal.FreeHGlobal(block);
+        });
     }
 
     // PVH: a real child that sleeps past a 3 s limit; the parent's TIMEOUT line must name the check it was running.

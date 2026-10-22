@@ -13,7 +13,15 @@ public static class SelfLaunch
 
     public static ProcessStartInfo StartInfo(string processPath, string entryAssembly, string mode)
     {
-        var info = new ProcessStartInfo(processPath) { UseShellExecute = false };
+        // CR1: CFD_TEST_CHILD_WRAPPER="<program> <leading args>" (quote-free) runs the child under a crash-capturing wrapper such as ProcDump -x.
+        // The startup-failure probes assert the child's own exit code, which a wrapper would replace with its status, so they run bare.
+        string[] wrapper = (mode.StartsWith(SelfLaunchTests.FailureProbe, StringComparison.Ordinal) ? "" : Environment.GetEnvironmentVariable("CFD_TEST_CHILD_WRAPPER") ?? "").Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var info = new ProcessStartInfo(wrapper.Length > 0 ? wrapper[0] : processPath) { UseShellExecute = false };
+        if (wrapper.Length > 0)
+        {
+            foreach (string argument in wrapper[1..]) info.ArgumentList.Add(argument);
+            info.ArgumentList.Add(processPath);
+        }
         // Under `dotnet X.dll` the process path is the muxer, which needs the entry assembly again; the apphost is the program itself.
         string program = Path.GetFileNameWithoutExtension(entryAssembly), host = Path.GetFileName(processPath);
         if (host != program && host != program + ".exe") info.ArgumentList.Add(entryAssembly);
@@ -32,8 +40,9 @@ public static class SelfLaunchTests
         var failures = new List<string>();
         Check(failures, "unhandled child exception exits with a named code", UnhandledChildExitsNamed);
         Check(failures, "crash detail names the message and a frame; product shape stays type-only", CrashDetailNamesMessageAndFrame);
-        Check(failures, "muxer launch passes the entry assembly", MuxerLaunchPassesEntryAssembly);
-        Check(failures, "apphost launch passes --harness and the mode only", AppHostLaunchPassesHarnessAndMode);
+        Check(failures, "muxer launch passes the entry assembly", () => WithWrapper(null, MuxerLaunchPassesEntryAssembly));
+        Check(failures, "apphost launch passes --harness and the mode only", () => WithWrapper(null, AppHostLaunchPassesHarnessAndMode));
+        Check(failures, "a child wrapper prefixes its program and arguments", () => WithWrapper("W -a -b DIR", WrapperLaunchPrefixesProgramAndArgs));
         Check(failures, "no raw Environment.ProcessPath relaunch", () => NoRawProcessPathRelaunch());
         Check(failures, "no test resolves the repo root at runtime", () => NoRuntimeRepoRootWalk());
         Check(failures, "no cwd-relative tests/ or src/ fixture path", () => NoCwdRelativeFixturePath());
@@ -41,7 +50,7 @@ public static class SelfLaunchTests
         Check(failures, "no test passes a literal windows: true|false to a platform branch without a host guard", () => NoForeignOsBranchWithoutHostGuard());
         Check(failures, "no test creates a symbolic link except through TestLinks", () => NoBareSymbolicLinkOutsideTestLinks());
         if (failures.Count > 0) throw new Exception("SelfLaunchTests failed:\n  " + string.Join("\n  ", failures));
-        Console.WriteLine("SelfLaunchTests: all 10 cases passed.");
+        Console.WriteLine("SelfLaunchTests: all 11 cases passed.");
     }
 
     private static void CrashDetailNamesMessageAndFrame()
@@ -81,6 +90,24 @@ public static class SelfLaunchTests
         foreach (var apphost in new[] { "/b/CfdWorkbench.Desktop.Tests", "C:/b/CfdWorkbench.Desktop.Tests.exe" })
             Expect(SelfLaunch.StartInfo(apphost, "/b/CfdWorkbench.Desktop.Tests.dll", "--section-flow"),
                 apphost, "--harness", "--section-flow");
+    }
+
+    // CR1: CFD_TEST_CHILD_WRAPPER launches each child under a debugger-style wrapper (ProcDump -x) to capture a native crash.
+    private static void WrapperLaunchPrefixesProgramAndArgs()
+    {
+        Expect(SelfLaunch.StartInfo("C:/b/CfdWorkbench.Desktop.Tests.exe", "/b/CfdWorkbench.Desktop.Tests.dll", "--section-flow"),
+            "W", "-a", "-b", "DIR", "C:/b/CfdWorkbench.Desktop.Tests.exe", "--harness", "--section-flow");
+        Expect(SelfLaunch.StartInfo("/usr/local/share/dotnet/dotnet", "/b/CfdWorkbench.Desktop.Tests.dll", "--section-flow"),
+            "W", "-a", "-b", "DIR", "/usr/local/share/dotnet/dotnet", "/b/CfdWorkbench.Desktop.Tests.dll", "--harness", "--section-flow");
+    }
+
+    // The launch-shape and exit-code checks must not depend on the caller's wrapper (a wrapped run sets it for the real children).
+    private static void WithWrapper(string? value, Action body)
+    {
+        const string variable = "CFD_TEST_CHILD_WRAPPER";
+        string? before = Environment.GetEnvironmentVariable(variable);
+        try { Environment.SetEnvironmentVariable(variable, value); body(); }
+        finally { Environment.SetEnvironmentVariable(variable, before); }
     }
 
     private static void Expect(ProcessStartInfo info, string file, params string[] arguments)
