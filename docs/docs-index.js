@@ -4045,6 +4045,53 @@ window.DOCS_INDEX = {
       "sourceSha256": "b834c7381e6b2ed57ee0f816caa417d98f3f753d69af48a832a2eb92bfaba945"
     },
     {
+      "id": "design-windows-store-recovery",
+      "path": "docs/design/windows-store-recovery.md",
+      "title": "Windows store recovery design: Clear unfinished save and read-only Open from OneDrive",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "windows-w-2-design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "The store design for Ruling 259. Clear unfinished save removes only the crash leftovers this store created (claim and .cfd- temps with the store's private descriptor), only when no live writer holds them (an exclusive DELETE open on Windows, an flock on the shared claim code on macOS, compiled and SKIP), claim last, checked twice, never silently and never announcing a recovery. Read-only Open admits a fully local file in a OneDrive folder through a narrow placeholder exception on Open's walk only, refuses a cloud-only file before any byte is read, and makes the document read-only for its location (in-place Save refused with the OneDrive refusal, Save As at the local default folder, a window notice).",
+      "tags": [
+        "windows",
+        "persistence",
+        "design",
+        "security",
+        "onedrive",
+        "crash-recovery",
+        "clear-unfinished-save",
+        "read-only-open",
+        "ruling-259"
+      ],
+      "links": [
+        {
+          "to": "design-windows-native-store",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "mockup-w2-recovery",
+          "rel": "relates-to"
+        },
+        {
+          "to": "mockup-w2-save-picker",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "cfe28e56531dc302b58d98985c14c038222356cacb18213ae22fe74e83586327"
+    },
+    {
       "id": "mockup-a3d-compare",
       "path": "docs/mockups/a3d-compare.md",
       "title": "A3d Compare — the Compare tab of the Analysis panel",
@@ -4870,6 +4917,48 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "afcbb83a0896f242f7c7f978ad866db1068c97aae1f74f60d38d6c5868797eb8"
+    },
+    {
+      "id": "mockup-w2-recovery",
+      "path": "docs/mockups/w2-recovery.md",
+      "title": "W2 recovery — Clear unfinished save and read-only Open from OneDrive",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Every state of the Ruling 259 build, shown before any code: the Save is blocked dialog with Clear unfinished save, its in-place confirm, the in-use refusal, the failure, the cleared outcome with no recovery wording, and the read-only Open from OneDrive (title and status notice, cloud-only refusal, Save refused, Save As at the local default folder, a still refused location). Approved copy is verbatim; new strings are provisional DS-COPY rows for the operator.",
+      "tags": [
+        "mockup",
+        "w2",
+        "crash-recovery",
+        "clear-unfinished-save",
+        "onedrive",
+        "read-only-open",
+        "windows",
+        "ruling-259"
+      ],
+      "links": [
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-windows-store-recovery",
+          "rel": "implements"
+        },
+        {
+          "to": "mockup-w2-save-picker",
+          "rel": "refines"
+        },
+        {
+          "to": "rulings",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "64743944096fb5d51e12eeea6c37ad9b8426f406e07369a3a3ad38d255d4f76c"
     },
     {
       "id": "mockup-w2-save-picker",
@@ -9651,7 +9740,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b5520e5809fb14c02de17eb0b1d8843ef68886d4d125182285543021215ad5ca"
+      "sourceSha256": "39ee2b867e981e64b5f4c4dbc480aea72ba411f6a2b0a33a0b36f70bd89aa84c"
     },
     {
       "id": "kb-hw-glossary",
@@ -23725,6 +23814,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-w2-save-picker"
     },
     {
+      "id": "surface-mockups-w2-recovery",
+      "path": "docs/mockups/w2-recovery.html",
+      "title": "W2 recovery mockup",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-w2-recovery"
+    },
+    {
       "id": "surface-coordination-windows-gpu-f1-preflight-r217",
       "path": "docs/coordination/windows-gpu-f1-preflight-r217.html",
       "title": "Windows GPU F1 dependency preflight coordination plan",
@@ -23749,5 +23846,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "bcf1cc030c5d0f938393b228d31655b8caca68e5b171df47607331b59263eb84"
+  "graphSha256": "a912a4dacae0781eb3176a1247ea3c20f7dcc66e397d34ca5204fa78a0ed03ab"
 };

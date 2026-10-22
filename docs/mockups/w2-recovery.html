@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>W2 recovery mockup</title>
+<style>
+:root{ --font: system-ui, -apple-system, "Segoe UI", sans-serif; }
+:root[data-theme="light"]{ --canvas:#f0f2f1; --surface:#fbfcfb; --soft:#e8edeb; --ink:#1b2929; --mute:#526362; --line:#c9d3cf; --control:#788d87; --accent:#006c67; --warn:#895900; --danger:#a92e37; --info:#1f5f8b; --on-accent:#ffffff; }
+:root[data-theme="dark"]{ --canvas:#172326; --surface:#1e2d31; --soft:#2a3d40; --ink:#ebf3f0; --mute:#b2c4bf; --line:#49605b; --control:#79928c; --accent:#88d8c6; --warn:#efc576; --danger:#ffaeb5; --info:#9fcdf0; --on-accent:#10201f; }
+:root[data-theme="contrast"]{ --canvas:#000000; --surface:#000000; --soft:#1a1a1a; --ink:#ffffff; --mute:#ffffff; --line:#ffffff; --control:#ffffff; --accent:#ffff00; --warn:#ffff00; --danger:#ff8080; --info:#00ffff; --on-accent:#000000; }
+:root{ --vp:#17272c; --vp-soft:#243a40; --vp-ink:#edf4f2; --foil:#85c9c4; }
+*{ box-sizing:border-box; }
+html, body{ margin:0; background:var(--canvas); color:var(--ink); font:13px/1.45 var(--font); }
+button, select{ font:inherit; color:inherit; }
+:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+.top{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; padding:10px 16px; border-bottom:1px solid var(--line); }
+.top h1{ margin:0; font-size:15px; }
+.top p{ margin:0; color:var(--mute); font-size:12px; flex-basis:100%; max-width:1280px; }
+.top label{ display:flex; align-items:center; gap:6px; color:var(--mute); font-size:12px; }
+.top select{ min-height:28px; padding:0 6px; border:1px solid var(--control); border-radius:4px; background:var(--surface); color:var(--ink); }
+.top .chk input{ width:16px; height:16px; margin:0; }
+main{ padding:16px; overflow-x:auto; }
+.shell{ width:1280px; height:800px; display:flex; flex-direction:column; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--canvas); position:relative; }
+.shell[data-vp="1500"]{ width:1500px; height:870px; }
+.shell[data-vp="1024"]{ width:1024px; height:700px; }
+.title{ flex:0 0 28px; display:flex; align-items:center; gap:8px; padding:0 12px; background:var(--surface); border-bottom:1px solid var(--line); color:var(--mute); font-size:12px; }
+.title b{ color:var(--ink); font-weight:600; }
+.title .ro{ color:var(--ink); }
+.title .dirty{ margin-left:8px; padding:0 8px; border:1px solid var(--line); border-radius:10px; }
+.toolbar{ flex:0 0 36px; display:flex; align-items:center; gap:6px; padding:0 8px; background:var(--surface); border-bottom:1px solid var(--line); }
+.toolbar button{ min-height:28px; padding:0 12px; border:1px solid var(--control); border-radius:4px; background:var(--surface); }
+.area{ flex:1; min-height:0; background:var(--vp); position:relative; }
+.area svg{ position:absolute; inset:0; width:100%; height:100%; }
+.area .cap{ position:absolute; left:8px; top:8px; padding:2px 8px; border-radius:3px; background:var(--vp-soft); color:var(--vp-ink); font-size:12px; }
+.sb{ flex:0 0 24px; display:flex; align-items:stretch; background:var(--surface); border-top:1px solid var(--line); }
+.sb .msg{ flex:1; min-width:0; display:flex; align-items:center; padding:0 10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:12px; }
+.sb .msg.info{ color:var(--info); font-weight:600; }
+.sb .item{ display:flex; align-items:center; padding:0 8px; border-left:1px solid var(--line); color:var(--mute); font-size:12px; }
+.start{ position:absolute; inset:0; background:var(--canvas); display:flex; align-items:flex-start; justify-content:center; padding-top:80px; }
+.alert{ width:560px; background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--danger); border-radius:6px; padding:14px; display:flex; flex-direction:column; gap:8px; }
+.alert h2{ margin:0; font-size:14px; }
+.alert p{ margin:0; }
+.alert .code{ color:var(--mute); font-size:12px; font-family:ui-monospace, Consolas, monospace; }
+.dlg{ position:absolute; left:50%; top:110px; width:480px; transform:translateX(-50%); background:var(--surface); border:1px solid var(--control); border-radius:6px; box-shadow:0 8px 24px rgba(0,0,0,.28); display:flex; flex-direction:column; gap:10px; padding:16px; z-index:5; }
+.dlg h2{ font-weight:600; font-size:14px; margin:0; }
+.dlg p{ margin:0; }
+.dlg ol{ margin:0; padding-left:22px; display:flex; flex-direction:column; gap:4px; }
+.dlg .err{ padding:6px 8px; border:1px solid var(--line); border-left:3px solid var(--danger); border-radius:3px; }
+.dlg code{ font-family:ui-monospace, Consolas, monospace; font-size:12px; }
+.dbtns{ display:flex; gap:6px; justify-content:flex-end; flex-wrap:wrap; margin-top:4px; }
+.dlg button, .alert button{ min-height:28px; padding:0 12px; border:1px solid var(--control); border-radius:4px; background:var(--surface); }
+.dlg button:disabled{ color:var(--mute); background:var(--soft); }
+.primary{ background:var(--accent) !important; color:var(--on-accent) !important; border-color:var(--accent) !important; font-weight:600; }
+.native{ position:absolute; left:50%; top:70px; width:680px; transform:translateX(-50%); border:2px dashed var(--control); border-radius:6px; background:var(--surface); z-index:5; }
+.native .cap{ padding:6px 10px; background:var(--soft); border-bottom:1px solid var(--line); font-size:12px; font-weight:600; }
+.native .row{ display:flex; align-items:center; gap:8px; min-height:34px; padding:0 10px; border-bottom:1px solid var(--line); }
+.native .lbl{ width:90px; color:var(--mute); font-size:12px; }
+.native .val{ flex:1; padding:3px 8px; border:1px solid var(--line); border-radius:3px; background:var(--canvas); }
+.native .body{ height:140px; background:var(--soft); display:flex; align-items:center; justify-content:center; color:var(--mute); font-size:12px; }
+.notes{ display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:16px; max-width:1500px; margin-top:16px; }
+.notes section{ border:1px solid var(--line); border-radius:6px; background:var(--surface); padding:12px 14px; }
+.notes h2{ margin:0 0 6px; font-size:13px; }
+.notes p, .notes li{ margin:0 0 4px; font-size:12px; max-width:680px; }
+.notes ul{ margin:0; padding-left:18px; }
+.flow{ display:flex; flex-wrap:wrap; gap:6px; margin:0 0 8px; padding:0; list-style:none; }
+.flow li{ padding:2px 8px; border:1px solid var(--line); border-radius:12px; color:var(--mute); font-size:12px; }
+.flow li.on{ border-color:var(--accent); color:var(--ink); font-weight:600; }
+[data-motion="reduce"] *{ transition:none !important; animation:none !important; }
+@media (max-width: 700px){ .top{ padding:10px 16px; } main{ padding:16px; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>W2 recovery: Clear unfinished save and read-only Open from OneDrive</h1>
+  <label>State
+    <select id="state" aria-label="State">
+      <option value="A1">A1 Save is blocked: Clear offered</option>
+      <option value="A2">A2 Clear: confirm (S4)</option>
+      <option value="A3">A3 Clearing</option>
+      <option value="A4">A4 Clear refused: in use</option>
+      <option value="A5">A5 Clear failed</option>
+      <option value="A6">A6 Cleared: the save runs again</option>
+      <option value="B1">B1 Read-only Open from OneDrive</option>
+      <option value="B2">B2 Cloud-only file refused</option>
+      <option value="B3">B3 Save on a read-only document</option>
+      <option value="B4">B4 Save As from it</option>
+      <option value="B5">B5 Still refused: other location</option>
+    </select>
+  </label>
+  <label>Viewport
+    <select id="vp" aria-label="Viewport"><option value="1280">1280 × 800</option><option value="1500">1500 × 870</option><option value="1024">1024 × 700</option></select>
+  </label>
+  <label>Theme
+    <select id="theme" aria-label="Theme"><option value="light">Light</option><option value="dark">Dark</option><option value="contrast">High contrast</option></select>
+  </label>
+  <label class="chk"><input type="checkbox" id="motion"> Reduced motion</label>
+  <p>Display only: nothing under src/ or tests/ changed. Copy: approved rows are verbatim (Rulings 146, 160, 259); rows marked DS-COPY are provisional, for the operator. Design: docs/design/windows-store-recovery.md.</p>
+</header>
+<main>
+  <div class="shell" id="shell" data-vp="1280">
+    <div class="title"><b id="docname">wing-a.cfdw.json</b><span class="ro" id="ro" hidden></span><span>CFD Workbench</span><span class="dirty" id="dirty">Unsaved changes</span></div>
+    <div class="toolbar"><button type="button" tabindex="-1">Open…</button><button type="button" tabindex="-1">Save</button><button type="button" tabindex="-1">Save As…</button></div>
+    <div class="area">
+      <svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path d="M120 300 C 300 200, 700 200, 880 300 C 700 330, 300 330, 120 300 Z" fill="var(--foil)" opacity=".85"/></svg>
+      <span class="cap">Plan view</span>
+      <div id="layer"></div>
+    </div>
+    <div class="sb"><div class="msg" id="status" role="status" aria-live="polite"></div><div class="item">Foil 1</div><div class="item">Accepted r4</div></div>
+  </div>
+  <div class="notes">
+    <section><h2>Flow</h2><ul class="flow" id="flow"></ul><p id="explain"></p></section>
+    <section><h2>Copy in this state</h2><ul id="copy"></ul></section>
+  </div>
+</main>
+<script>
+"use strict";
+const T = {
+  c441: "Save is blocked",
+  lead: "An earlier save of this project didn't finish (the app may have closed unexpectedly). Your saved file is unchanged.",
+  steps: ["Close any other CFD Workbench window using this project.", "Check the project shows your last saved work.",
+          "Use Save As to keep your current work in a different folder, or choose Clear unfinished save, then Save."],
+  ds5: "This folder stays blocked until the unfinished save is cleared.",
+  c443: "Save As…", c444: "Clear unfinished save…", c445: "Cancel", c446: "Clear the unfinished save?",
+  c447a: "This removes the files the unfinished save left in this folder (", c447b: "). Your saved file and your current work are not touched. It works only if no other CFD Workbench window is using this project.",
+  c448: "Clear unfinished save",
+  c449: "Can't clear it yet: another CFD Workbench window is still using this project. Close that window, then try again. Your saved file and your current work are unchanged.",
+  c450: "Try again", c452: "Saving…",
+  c455: code => "Couldn't clear the unfinished save (" + code + "). Your saved file and your current work are unchanged.",
+  c440: "Can't save to OneDrive",
+  b146_1: "This folder is synced by OneDrive. CFD Workbench saves only to local folders, so a sync can't damage a save. Choose a folder outside OneDrive.",
+  c442: "Choose another folder…",
+  ds1: "(read-only: opened from OneDrive)",
+  ds2: "This project was opened from OneDrive, so it can't be saved there. Use Save As to save it in a local folder.",
+  ds3: "This file is in OneDrive but isn't on this PC yet. The file hasn't been changed and wasn't downloaded. In OneDrive, choose “Always keep on this device” for it, or copy it to a local folder, then open it again.",
+  ds4: "CFD Workbench can't open a project from this location (a network or removable folder, or a linked folder). The file hasn't been changed. Copy the project to a local folder and open it from there.",
+  saved: "Saved wing-a.cfdw.json."
+};
+const FLOW = {
+  A: ["Save", "Save is blocked", "Confirm", "Clear (store)", "Save runs again"],
+  B: ["Open", "Cloud check (no read)", "Read", "Read-only document", "Save As local"]
+};
+const S = {
+  A1: { flow:["A",1], explain:"A save in this folder was refused because a claim file from an unfinished save is present. The dialog now offers Clear unfinished save… (Ruling 259). Save As… stays the default button.", dirty:true },
+  A2: { flow:["A",2], explain:"Clear swaps the dialog content in place (Ruling 160 (4)). First focus and Enter are on Cancel; Escape and Cancel return to A1. Nothing has been removed yet.", dirty:true },
+  A3: { flow:["A",3], explain:"The store holds each leftover exclusively, checks provenance and checks twice, then removes temps and the claim last. Buttons are disabled; no text below one second.", dirty:true },
+  A4: { flow:["A",3], explain:"A leftover is held by a live writer (a sharing violation on Windows). Nothing was removed. Try again re-runs the whole check.", dirty:true },
+  A5: { flow:["A",3], explain:"A check failed: here a .cfd- entry that this store did not create (foreign owner or DACL). Clear is all-or-nothing: nothing was removed.", dirty:true },
+  A6: { flow:["A",4], explain:"The dialog closed and the blocked save runs again (DR-DS-3, recommended a). No sentence says anything was cleared or recovered (Rulings 146, 160).", dirty:true },
+  B1: { flow:["B",3], explain:"A fully local file in a OneDrive folder opened read-only. The title and the status strip say so; no modal on open. Nothing was written to the OneDrive folder.", dirty:false, ro:true },
+  B2: { flow:["B",1], explain:"The file is online-only (a recall or offline attribute, read on an attribute-only handle). Refused before any byte was read; Windows was not asked to download it.", dirty:false, start:true },
+  B3: { flow:["B",3], explain:"Save on a read-only document is refused with the OneDrive save refusal (S2) before any store call. The document stays dirty.", dirty:true, ro:true },
+  B4: { flow:["B",4], explain:"Save As opens the Windows picker at the local default folder. After a local save the document is ordinary: the title suffix and the notice are gone.", dirty:true, ro:true },
+  B5: { flow:["B",0], explain:"A junction, link, network or removable folder, or another cloud provider's folder, is still refused, with the Ruling 257 message without “OneDrive” (DS-COPY-4; track WF owns the row).", dirty:false, start:true }
+};
+const $ = id => document.getElementById(id);
+function el(tag, attrs, ...kids){ const e = document.createElement(tag); for (const k in (attrs||{})) { if (k === "text") e.textContent = attrs[k]; else e.setAttribute(k, attrs[k]); } for (const c of kids) e.append(c); return e; }
+function btn(label, opts){ const b = el("button", Object.assign({type:"button"}, opts||{})); b.textContent = label; return b; }
+let copyUsed = [];
+function use(id, text){ copyUsed.push(id + ": " + text); return text; }
+function s3(){
+  const d = el("div", {class:"dlg", role:"dialog", "aria-modal":"true", "aria-labelledby":"dt"});
+  d.append(el("h2", {id:"dt", text:use("COPY-441", T.c441)}), el("p", {text:use("Ruling 146 (2)", T.lead)}));
+  const ol = el("ol", {"aria-label":"Steps"}); T.steps.forEach((s, i) => ol.append(el("li", {text:use(i === 2 ? "Ruling 259 step 3" : "Ruling 146 (2) step " + (i+1), s)}))); d.append(ol);
+  d.append(el("p", {text:use("DS-COPY-5", T.ds5)}));
+  const sa = btn(use("COPY-443", T.c443), {class:"primary"}), cl = btn(use("COPY-444", T.c444)), ca = btn(use("COPY-445", T.c445));
+  cl.addEventListener("click", () => render("A2"));
+  d.append(el("div", {class:"dbtns"}, sa, cl, ca)); return [d, sa];
+}
+function s4(kind){
+  const d = el("div", {class:"dlg", role:"dialog", "aria-modal":"true", "aria-labelledby":"dt", "aria-busy": kind === "busy" ? "true" : "false"});
+  const body = el("p"); body.append(T.c447a, el("code", {text:".cfd-writer.claim"}), " and any ", el("code", {text:".cfd-….tmp"}), T.c447b);
+  use("COPY-447", T.c447a + ".cfd-writer.claim and any .cfd-….tmp" + T.c447b);
+  d.append(el("h2", {id:"dt", text:use("COPY-446", T.c446)}), body);
+  if (kind === "inuse") d.append(el("p", {class:"err", role:"alert", text:use("COPY-449", T.c449)}));
+  if (kind === "failed") d.append(el("p", {class:"err", role:"alert", text:use("COPY-455", T.c455("DOC-CONFLICT"))}));
+  let go, ca;
+  if (kind === "inuse" || kind === "failed") { go = btn(use("COPY-450", T.c450)); ca = btn(use("COPY-445", T.c445), {class:"primary"}); }
+  else { go = btn(use("COPY-448", T.c448)); ca = btn(use("COPY-445", T.c445), {class:"primary"}); }
+  if (kind === "busy") { go.disabled = true; ca.disabled = true; }
+  go.addEventListener("click", () => render("A3"));
+  ca.addEventListener("click", () => render("A1"));
+  d.addEventListener("keydown", e => { if (e.key === "Escape") { e.preventDefault(); render("A1"); } });
+  d.append(el("div", {class:"dbtns"}, go, ca)); return [d, ca];
+}
+function s2(){
+  const d = el("div", {class:"dlg", role:"dialog", "aria-modal":"true", "aria-labelledby":"dt"});
+  d.append(el("h2", {id:"dt", text:use("COPY-440", T.c440)}), el("p", {text:use("Ruling 146 (1)", T.b146_1)}));
+  const ch = btn(use("COPY-442", T.c442), {class:"primary"}), ca = btn(use("COPY-445", T.c445));
+  ch.addEventListener("click", () => render("B4")); ca.addEventListener("click", () => render("B1"));
+  d.append(el("div", {class:"dbtns"}, ch, ca)); return [d, ch];
+}
+function picker(){
+  const n = el("div", {class:"native", role:"img", "aria-label":"The Windows save dialog, drawn by Windows"});
+  n.append(el("div", {class:"cap", text:"Save native CFD Workbench project (drawn by Windows)"}));
+  const r1 = el("div", {class:"row"}, el("span", {class:"lbl", text:"Folder"}), el("span", {class:"val", text:"%USERPROFILE%\\CFD Workbench (the local default folder)"}));
+  const r2 = el("div", {class:"row"}, el("span", {class:"lbl", text:"File name"}), el("span", {class:"val", text:"wing-a.cfdw.json"}));
+  n.append(r1, r2, el("div", {class:"body", text:"Folder contents"})); return [n, null];
+}
+function startAlert(sentence, id, code){
+  const w = el("div", {class:"start"});
+  const a = el("div", {class:"alert", role:"alert", "aria-labelledby":"at"});
+  a.append(el("h2", {id:"at", text:"“wing-a.cfdw.json” didn't open."}), el("p", {text:use(id, sentence)}), el("p", {class:"code", text:"Code: " + code}));
+  const o = btn("Open another…"), r = btn("Remove from recent"); a.append(el("div", {class:"dbtns"}, o, r)); w.append(a); return [w, o];
+}
+function render(id){
+  copyUsed = []; const st = S[id]; $("state").value = id;
+  const layer = $("layer"); layer.replaceChildren();
+  $("dirty").hidden = !st.dirty;
+  const ro = $("ro"); ro.hidden = !(st.ro && id !== "B4"); ro.textContent = ro.hidden ? "" : use("DS-COPY-1", T.ds1);
+  let status = "", info = false, focus = null, node = null;
+  if (id === "A1") [node, focus] = s3();
+  else if (id === "A2") [node, focus] = s4("confirm");
+  else if (id === "A3") [node, focus] = s4("busy");
+  else if (id === "A4") [node, focus] = s4("inuse");
+  else if (id === "A5") [node, focus] = s4("failed");
+  else if (id === "A6") status = use("COPY-452", T.c452);
+  else if (id === "B1") { status = use("DS-COPY-2", T.ds2); info = true; }
+  else if (id === "B2") [node, focus] = startAlert(T.ds3, "DS-COPY-3", "DOC-CLOUD-ONLY");
+  else if (id === "B3") { [node, focus] = s2(); status = T.ds2; info = true; }
+  else if (id === "B4") [node, focus] = picker();
+  else if (id === "B5") [node, focus] = startAlert(T.ds4, "DS-COPY-4", "DOC-UNSUPPORTED-PERSISTENCE");
+  if (node) layer.append(node);
+  const s = $("status"); s.textContent = status; s.className = "msg" + (info ? " info" : "");
+  const [lane, step] = st.flow; const fl = $("flow"); fl.replaceChildren();
+  FLOW[lane].forEach((f, i) => fl.append(el("li", {class: i === step ? "on" : "", text:f})));
+  $("explain").textContent = st.explain;
+  const cu = $("copy"); cu.replaceChildren(); copyUsed.forEach(c => cu.append(el("li", {text:c})));
+  if (focus) focus.focus({preventScroll:true});
+}
+$("state").addEventListener("change", e => render(e.target.value));
+$("vp").addEventListener("change", e => { $("shell").dataset.vp = e.target.value; });
+$("theme").addEventListener("change", e => { document.documentElement.dataset.theme = e.target.value; });
+$("motion").addEventListener("change", e => { document.documentElement.dataset.motion = e.target.checked ? "reduce" : ""; });
+if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) { $("motion").checked = true; document.documentElement.dataset.motion = "reduce"; }
+const q = new URLSearchParams(location.search);
+if (q.get("theme")) { document.documentElement.dataset.theme = q.get("theme"); $("theme").value = q.get("theme"); }
+render(S[q.get("state")] ? q.get("state") : "A1");
+</script>
+</body>
+</html>

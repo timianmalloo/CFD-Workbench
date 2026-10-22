@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T07:47:41Z",
+  "generated": "2026-10-22T15:46:31Z",
   "audit": [
     {
       "actor": null,
@@ -41741,6 +41741,25 @@ window.AUDIT_DATA = {
         "speedup": 1.59,
         "peak_concurrency": 4
       }
+    },
+    {
+      "id": "al-01M5J4NRJEBDZKDWSREAAB62Z3",
+      "shortname": "w2b-ds-store-design",
+      "datetime": "2026-10-22T15:46:31Z",
+      "session": "w2b-ds-store-design",
+      "prompt": "wave 2 DS: store recovery design (Clear unfinished save, read-only Open from OneDrive)",
+      "summary": "Wave 2 track DS: the store recovery design for Ruling 259. Wrote docs/design/windows-store-recovery.md (data and invariants first: provenance P1-P5 with the private descriptor as the carrying test, all-or-nothing; the no-live-writer rule as a share-0 DELETE open on Windows and an flock added to the shared claim code on macOS, compiled and SKIP; Clear checked twice, claim last; fully local = no RECALL_ON_DATA_ACCESS, RECALL_ON_OPEN or OFFLINE read on an attribute-only handle with placeholders exposed; the placeholder exception on Open's walk only, cloud-family tags at or under an environment-named OneDrive root; the read through ReOpenFile of the held handle with a post-read check; the read-only document: S2 on Save, Save As at the local default folder, title suffix and status notice), the E7 list, 11 states, copy with reserved ids and DS-COPY-1..5 provisional, a red-first test plan split Windows-run / macOS-compiled, owned paths for two sequential nodes, the review packet, and DR-DS-1..6. Mockup docs/mockups/w2-recovery.html (11 states, viewport, light/dark/high contrast, reduced motion) and its note. No spec amendment (no spec row names OneDrive). No code or tests changed.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T15:28:11Z",
+      "duration_seconds": 1100.0
     }
   ],
   "changes": [
@@ -45333,6 +45352,42 @@ window.AUDIT_DATA = {
       "to": "opus-leader",
       "kind": "ruling",
       "ref": "req-01M5H7ZFWTNVV2KN609GRCSN30",
+      "session": "opus-owner"
+    },
+    {
+      "id": "mail-01M5J3BW6Q0YRAWP76KG3VD7QT",
+      "ts": "2026-10-22T15:23:39Z",
+      "from": "opus-leader",
+      "to": "opus-owner",
+      "kind": "decision-request",
+      "ref": "req-01M5J3BW6AST0H8GZA10M2QPBM",
+      "session": "opus-leader"
+    },
+    {
+      "id": "mail-01M5J3BWHFR00JY12M3J27KYTN",
+      "ts": "2026-10-22T15:23:39Z",
+      "from": "opus-leader",
+      "to": "opus-owner",
+      "kind": "decision-request",
+      "ref": "req-01M5J3BWGY15T8VXJRVR4X716F",
+      "session": "opus-leader"
+    },
+    {
+      "id": "mail-01M5J3F1FQ86AFXPVDCKSR36KQ",
+      "ts": "2026-10-22T15:25:22Z",
+      "from": "opus-owner",
+      "to": "opus-leader",
+      "kind": "ruling",
+      "ref": "req-01M5J3BW6AST0H8GZA10M2QPBM",
+      "session": "opus-owner"
+    },
+    {
+      "id": "mail-01M5J3FX69GQZBDBZRRK876BK4",
+      "ts": "2026-10-22T15:25:51Z",
+      "from": "opus-owner",
+      "to": "opus-leader",
+      "kind": "ruling",
+      "ref": "req-01M5J3BWGY15T8VXJRVR4X716F",
       "session": "opus-owner"
     }
   ]
