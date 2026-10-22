@@ -23,6 +23,7 @@ public enum OpenFailureKind
     UnknownContent,
     NotRecognised,
     UnsupportedLocation,
+    Changed,
     CloudOnly
 }
 
@@ -70,6 +71,12 @@ public abstract record OpenFailure(string Code, string Path)
         public override OpenFailureKind Kind => OpenFailureKind.UnsupportedLocation;
     }
 
+    /// <summary>The file changed or was in use while it was read (DOC-CONFLICT with the file still present; Ruling 261).</summary>
+    public sealed record Changed(string Code, string Path) : OpenFailure(Code, Path)
+    {
+        public override OpenFailureKind Kind => OpenFailureKind.Changed;
+    }
+
     /// <summary>A OneDrive file that is not on this PC (DOC-CLOUD-ONLY, refused before any data handle: design windows-store-recovery 2.6 O3, DR-DS-6).</summary>
     public sealed record CloudOnly(string Code, string Path) : OpenFailure(Code, Path)
     {
@@ -107,8 +114,11 @@ public abstract record OpenFailure(string Code, string Path)
             return new TooLarge(code, path);
         if (code is "DOC-VERSION" or "DSL-VERSION")
             return new Newer(code, path);
-        if (code is "DOC-UNSUPPORTED-PERSISTENCE" && OperatingSystem.IsWindows())
+        if (code is "DOC-UNSUPPORTED-PERSISTENCE")
             return new UnsupportedLocation(code, path);
+        // The store reports a missing file as DOC-CONFLICT too (its Win32 2 and 3, errno 2); the file system tells the two apart, so the store stays unchanged.
+        if (code is "DOC-CONFLICT")
+            return path.Length > 0 && !File.Exists(path) ? new Missing(code, path) : new Changed(code, path);
         if (code is "DOC-CLOUD-ONLY")
             return new CloudOnly(code, path);
         if (code is "DOC-UNSUPPORTED-FIELD")

@@ -765,7 +765,7 @@ public partial class ModelArea : UserControl
         ShowAlertBand($"“{fileName}” didn't open. {StartView.FailureMessage(failure, fileName)}");
         DismissAlertBandButton.IsVisible = false;
         BandLocateButton.IsVisible = failure is OpenFailure.Missing;
-        BandTryAgainButton.IsVisible = failure is OpenFailure.Unreadable;
+        BandTryAgainButton.IsVisible = failure is OpenFailure.Unreadable or OpenFailure.Changed;
         BandOpenAnotherButton.IsVisible = failure is not OpenFailure.Newer;
         BandRemoveRecentButton.IsVisible = fromRecent && failure is OpenFailure.Missing;
         Dispatcher.UIThread.Post(() =>

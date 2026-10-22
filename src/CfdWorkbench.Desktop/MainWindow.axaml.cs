@@ -233,7 +233,7 @@ public sealed partial class MainWindow : Window
         while (true)
         {
             var options = new FilePickerSaveOptions { Title = "Save native CFD Workbench project", SuggestedFileName = "foil.cfdw.json" };
-            if (OperatingSystem.IsWindows() && EnsureDefaultSaveFolder() is { } start)
+            if (OperatingSystem.IsWindows() && WorkbenchController.EnsureDefaultSaveFolder() is { } start)
                 options.SuggestedStartLocation = await StorageProvider.TryGetFolderFromPathAsync(new Uri(start));
             var file = await StorageProvider.SaveFilePickerAsync(options);
             if (file is null) return null;
@@ -246,18 +246,6 @@ public sealed partial class MainWindow : Window
             await dialog.ShowDialog(this);
             if (!dialog.ChooseAnotherFolder) return null;
         }
-    }
-
-    /// <summary>The Windows default save folder, named "CFD Workbench" (Ruling 146 (3)). Null when it cannot be created: the picker then uses its own default.</summary>
-    private static string? EnsureDefaultSaveFolder()
-    {
-        try
-        {
-            string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "CFD Workbench");
-            Directory.CreateDirectory(folder); // no-op when the folder exists
-            return folder;
-        }
-        catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException) { return null; }
     }
 
     /// <summary>
