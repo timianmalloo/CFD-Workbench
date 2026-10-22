@@ -21040,7 +21040,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "96ed53b3d2f47ad9327cbd113647b2a53567bb1c94c82d16efcd5a2a307ef181"
+      "sourceSha256": "f69411787fd7629548b918e8813a2447ce4e4c5dcf4c69d7cff046c8c7c622b3"
     },
     {
       "id": "proof-win-trig-bits-20261008",
@@ -22969,6 +22969,43 @@ window.DOCS_INDEX = {
       "sourceSha256": "e641848c00abc3c83c662f5ee4689086d7f796d2dee3ce4b1173f9294907de5b"
     },
     {
+      "id": "spec-amendments-1-7-10",
+      "path": "docs/specs/amendments/spec-1.7.10.md",
+      "title": "Spec 1.7.10 amendment note — the 32 MB document cap (A8.5 parser caps, native-document boundary row)",
+      "type": "spec",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "Two proposed amendments to cfd-workbench-v1 that restate the 8 MB native-document limit as 32 MB (32,000,000 bytes), the value Ruling 263 set when it amended Ruling 258: the parser-caps line of the Security row and the \"8 MB+ file\" fixture of the native-document boundary row. Proposed; the spec owner applies them.",
+      "tags": [
+        "spec",
+        "amendments",
+        "security",
+        "size-cap",
+        "native-document",
+        "ruling-258",
+        "ruling-263"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-amendments-1-7-9",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "191acd3e8635d2199db31a92e394e35a0ef6c0651e0d5a8fc60a756ebf53ecfa"
+    },
+    {
       "id": "spec-amendments-1-7-2",
       "path": "docs/specs/amendments/spec-1.7.2.md",
       "title": "Spec 1.7.2 amendment batch — guided solver setup, the smoke-test scalar and the toggle shortcut, as exact text, for the spec owner's approval",
@@ -24143,5 +24180,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d722ab267370da7bb3282b3bcb3964217575a7eea3bfd4c7279556fd60393112"
+  "graphSha256": "6cf556bd24faee3f50c488d354bc2a9b0bf82c3b31ce5b525c102476befb873a"
 };

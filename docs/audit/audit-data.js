@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T19:16:11Z",
+  "generated": "2026-10-22T19:18:28Z",
   "audit": [
     {
       "actor": null,
@@ -42308,6 +42308,25 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T19:12:37Z",
       "duration_seconds": 214.0
+    },
+    {
+      "id": "al-01M5JGSV0C30X22B0S5KTGR946",
+      "shortname": "w2b-spec-1710",
+      "datetime": "2026-10-22T19:18:28Z",
+      "session": "w2b-spec-1710",
+      "prompt": "spec amendment 1.7.10: the 32 MB document cap under Ruling 263",
+      "summary": "Wrote docs/specs/amendments/spec-1.7.10.md (proposed): two rows restating the spec's 8 MB lines (:1315, :1365) as 32,000,000 bytes under Rulings 258 and 263. Spec file untouched. The brief's decision note adr-0011-size-cap.md does not exist yet, so the note links the rulings only.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T0",
+      "started_at": "2026-10-22T19:17:23Z",
+      "duration_seconds": 65.0
     }
   ],
   "changes": [
