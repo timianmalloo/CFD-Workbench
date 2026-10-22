@@ -10,13 +10,16 @@ links:
   - { to: proof-pvh-crash-loop, rel: relates-to }
   - { to: defect-classes, rel: relates-to }
   - { to: coordination-next-best-six, rel: relates-to }
+  - { to: adr-0003-application-stack, rel: relates-to }
 review-by: "2026-11-22"
 summary: >-
   Desktop harness children die with STATUS_HEAP_CORRUPTION about once in eight full runs on the Windows ARM64 laptop and
-  within a run or two when two runners overlap. Three captured dumps show a heap buffer overrun found by the segment
-  heap's timer, next to a vertex stream, on the GPU rendering path (ANGLE on D3D11 on the NVIDIA driver); seven paired
-  software-rendered runs never crashed. The writer inside that path is not yet named. First repair: the test harness
-  renders in software; then a rendering-mode switch and page heap name the module.
+  within a run or two when two runners overlap. Root cause, verified necessary and sufficient: SkiaSharp 2.88.9's array
+  helper SKCanvas.DrawVertices creates a native vertices object that nothing keeps reachable during the draw, so a
+  garbage collection mid-draw frees the vertex data; the product's one call site is MeshFrame.Draw. On the raster path
+  that is an immediate access violation, on the GPU path a use-after-free the segment heap's timer reports later as heap
+  corruption. The fix (CR2) holds the vertices object through the draw at that one site, proven by a GC-pressure probe
+  and the paired loop on both rendering paths.
 ---
 
 # Investigation: the intermittent native crash of Desktop harness children
@@ -81,11 +84,38 @@ one child, and it fires in any mode (eight different modes so far).
 
 | Hypothesis | Mechanism | Status |
 |---|---|---|
-| H1 the native rendering stack (Skia Ganesh, ANGLE, the NVIDIA driver) overruns a heap buffer under concurrency | a timing-dependent overrun in vertex staging | **Supported (Verified necessary at the path level; the module is open)** |
-| H2 our own P/Invoke (WindowsNative, the harness's pipe holders, the placeholder calls) writes past a buffer | a layout or lifetime error under load | **Refuted** for the three dumps: the faulting thread has no managed frames, the corrupted memory is a rendering vertex stream, and the software-rendered loop, which runs every P/Invoke of ours just the same, never crashed |
+| H1 the native rendering stack (Skia Ganesh, ANGLE, the NVIDIA driver) overruns a heap buffer under concurrency | a timing-dependent overrun in vertex staging | **Refuted as the cause**: the GPU path only changes the signature of H2's fault (a later use-after-free instead of an immediate access violation); the software path crashes too under the same load, which the first software loop hid (section 7) |
+| H2 our own native call path: a managed wrapper's native object freed during a long native call | the SkiaSharp array helper `DrawVertices` creates an `SKVertices` that nothing keeps reachable once its handle is read; a garbage collection during the draw runs its finalizer and frees the vertex data the draw is still reading | **Verified necessary and sufficient** (section 6) |
 | H3 the harness parent closes something twice | a handle closed twice | **Refuted**: the crash is in the child, every time |
+| H4 a non-finite or astronomically large projected coordinate reaches Skia | a transient camera or zero size under load | **Refuted**: a Skia spike drew huge, infinite and NaN coordinates 200 times each without fault |
+| H5 the render thread draws into a window the UI thread is closing | a canvas or surface freed under the draw | **Refuted as stated**: with the vertices call skipped, every stroke draw into the same canvases after the same window closes ran clean for eight paired runs; the timing coincidence with window close is GC pressure at window teardown, not the canvas |
 
-## 6. Root cause (Verified to the rendering path; the module is Inferred)
+## 6. Root cause (Verified necessary and sufficient)
+
+**The cause.** `MeshFrame.Draw` (`src/CfdWorkbench.Desktop/SurfaceRenderer.cs`, the product's only draw-vertices site)
+calls SkiaSharp 2.88.9's array helper `SKCanvas.DrawVertices(SKVertexMode, SKPoint[], SKPoint[], SKColor[], SKPaint)`.
+That helper creates an `SKVertices` (a managed wrapper owning a native `SkVertices`), reads its handle for the native
+call, and keeps no reference to it, so the wrapper is unreachable while `sk_canvas_draw_vertices` runs. A garbage
+collection during the draw runs the wrapper's finalizer, which frees the native vertex data the draw is still reading.
+On the raster path the draw faults at once (`0xC0000005` in `sk_canvas_draw_vertices`, the managed stack naming
+`MeshFrame.Draw` on Avalonia's render thread); on the GPU path the freed block is reused while Skia's vertex staging
+still copies from it, and the segment heap's timer reports the damage later as `0xC0000374`. Load matters because it is
+GC pressure (many windows opened and closed, many children) and thread count that make a collection land inside a draw.
+
+**Necessary (Verified).** With the draw-vertices call skipped and everything else unchanged, eight paired
+software-rendered runs produced no fatal exit (`runs6-default-novertices`), against two fatal exits on the first pair
+with it; every stroke draw into the same canvases kept running.
+
+**Sufficient (Verified, deterministic).** A spike outside the repo (`scratchpad/skia-spike/Program.cs`; raster surface,
+3,000 vertices per draw, a thread forcing `GC.Collect` and `GC.WaitForPendingFinalizers` continuously): the array
+helper crashed with a native fault inside its first 60 s run, with the stack `sk_canvas_draw_vertices` <-
+`SKCanvas.DrawVertices(SKVertexMode, SKPoint[], SKPoint[], SKColor[], SKPaint)`; an explicit
+`using var vertices = SKVertices.CreateCopy(...)` drawn with `canvas.DrawVertices(vertices, SKBlendMode.Modulate, paint)`
+survived 317 draws under 205,338 collections.
+
+**The evidence that led here**, kept because the dumps are the only record of the GPU-path shape:
+
+## 6a. What the dumps showed before the cause was known (Verified facts, superseded reading)
 
 Three full dumps, read without a debugger (`minidump_exception.py`, `minidump_native_stack.py` walking the ARM64
 frame chain, `symbolize.py` with `ntdll.pdb` and `kernel32.pdb` fetched from the Microsoft symbol server by their RSDS
@@ -105,16 +135,15 @@ keys and resolved through the System32 `dbghelp.dll`, `heap_failure.py` reading 
   floats in pixel range (30 to 533) followed by an opaque ARGB colour in the pane's dark palette, running over the
   block's tail guard bytes to the next header. **Inferred:** a per-vertex-colour vertex writer wrote one or more
   records past its allocation. The writer's module is not recorded in the dump (the detector runs later, elsewhere).
-- **Necessary (Verified by contrast):** with the app-local ANGLE removed and Git for Windows' own `av_libGLESv2.dll`
-  kept off the PATH (verified by the children's loaded-module lists: Skia present, neither ANGLE nor the NVIDIA driver
-  nor D3D11 loaded), seven paired runs produced no crash; the same paired load on the GPU path produced three dumps in
-  about seven paired runs. The sample is small (eight paired runs were planned, seven completed), but the contrast is
-  three to zero under the same load.
-- **Sufficient (Verified):** two runners at once on the GPU path crashed on the first paired run (loop D) and twice
-  more in the overlapped attempt.
-- **What would name the module:** page heap with allocation stacks (an HKLM IFEO entry for the harness exe, the one step
-  that needs elevation on this laptop), or a harness rendering-mode switch (ANGLE on WARP, Vulkan, software) run under
-  the paired loop; `ANGLE_DEFAULT_PLATFORM=warp` does not move Avalonia's ANGLE off the NVIDIA device (Verified).
+- **The withdrawn reading.** Seven software-rendered paired runs (app-local ANGLE removed, Git's own ANGLE off the PATH,
+  verified by the loaded-module lists) showed "no crash" against three GPU-path dumps, and the report at its first
+  review took the GPU path as necessary. That reading was an artefact: the wrapper of the time returned 0 for a failing
+  child (section 7), so the software path's own fatal exits (access violations, no dump because the ProcDump filter was
+  the heap code only) never printed, and the loop's crash count did not look for them. The R1 harness, which reads the
+  child's real exit, showed two fatal access violations on its first software-rendered pair and the heap signature on
+  its first GPU pair (dump 4, 1,258 MB).
+- **What the GPU path adds:** nothing but the signature. With the cause fixed at the call site the path is immaterial;
+  `ANGLE_DEFAULT_PLATFORM=warp` does not move Avalonia's ANGLE off the NVIDIA device (Verified), which no longer matters.
 
 ## 7. Ruled out and corrected
 
@@ -150,48 +179,65 @@ the module probe and the process killer are stdlib Python and bash in `scratchpa
 
 ## 9. Generalisation
 
-- **The class:** a native fault that the platform reports nowhere (no event, no dump, no exit reason beyond a status
-  code), detected by a background mechanism at its own cadence, so that it shows up as an intermittent harness exit in
-  unrelated modes. Signature: a Desktop child exits 0xC0000374 (or any status with no WER event) under load, never
-  alone, in no fixed mode. Why it survived: the harness treated the exit as a mode failure (fixed by D1's `ExitLine`),
-  WER was trusted to catch it (it cannot), and every reproduction tried the suspect alone (it needs load).
-- **Siblings swept:** the only other native-stack consumers in a child are HarfBuzz (text shaping) and DirectWrite
-  (both loaded in every crashed process and in the software-rendered runs that did not crash, so they are not
-  necessary) and our P/Invoke (refuted above). No other process in the repo renders through Avalonia.
-- **The reusable rule:** a native crash under load is captured by an out-of-process debugger wrapper on the child
-  (opt-in env hook, kept in the harness), the dump is read for its failure record and faulting module before any
-  hypothesis is believed, and the first discriminating experiment removes whole paths (GPU versus software), verified by
-  the loaded-module list rather than by the switch that was flipped.
+- **The class:** a managed wrapper's native object handed to a long native call with nothing keeping the wrapper
+  reachable, so the garbage collector may finalize it mid-call and free memory the native code is still using.
+  Signature: a native fault (access violation, or heap corruption reported later by the heap's own checks) inside a
+  library call that was given a temporary created by a convenience overload; it appears only under GC pressure, so
+  "only under load, never alone, in any mode". Why it survived: the convenience overload reads as safe, the fault is
+  reported by the platform nowhere (no event, no dump), the detector on the GPU path is a background timer that names
+  nothing, and every reproduction isolated the suspect, which removed the pressure.
+- **The instance:** SkiaSharp 2.88.9's `SKCanvas.DrawVertices(SKVertexMode, SKPoint[], SKPoint[], SKColor[], SKPaint)`
+  called from `MeshFrame.Draw`.
+- **Siblings swept (CR2 sweeps the code; this is the shape to look for):** any SkiaSharp call site that passes a
+  native temporary the caller never holds: array overloads that build an `SKVertices`, text blobs or pictures created
+  inline for one draw, a `new SKPath(...)` passed straight into a draw without a `using`. `DrawPoints` and the other
+  array overloads that pin the array for the call are safe. The product has one `DrawVertices` site; the sweep's result
+  is in the CR2 proof section.
+- **The reusable rules:** (1) hold a wrapper through the native call it feeds (`using` plus `GC.KeepAlive` after the
+  call) whenever the library's overload would otherwise leave it unreachable; (2) test such a call under a thread that
+  forces collections (the GC-pressure probe is the red-first test and stays as a child mode); (3) a native crash under
+  load is captured by an out-of-process debugger wrapper on the child and the dump is read for its failure record before
+  any hypothesis is believed; (4) a first discriminating experiment removes one call or one path and is verified by what
+  was actually loaded and actually exited, never by the switch that was flipped (the first software loop's "no crash"
+  came from a wrapper that masked the child's exit).
+- **Second class, kept from the first review:** a native fault the platform reports nowhere (no event, no dump, no exit
+  reason beyond a status code), detected by a background mechanism at its own cadence. Its control is the capture
+  wrapper (R0, on main) and the join rule.
 
 ## 10. Phased repair plan
 
-| Phase | Scope (code + tests) | Failure mode it removes | Validation | Depends on |
+| Phase | Scope (code + tests) | Failure mode it removes | Validation | Status |
 |---|---|---|---|---|
-| R0 | Join CR1: the `CFD_TEST_CHILD_WRAPPER` hook, the NUL strip, the forced-crash probe; `docs/proof/pvh/README.md` gains the capture section | a crash with no dump | the hook's pure check and mutant; 18 modes green with the wrapper on; CI green with it off | none |
-| R1 | The Desktop test harness renders in software: one `Win32PlatformOptions { RenderingMode = [Software] }` in the harness app builder (one shared helper for the ten `AppBuilder.Configure` sites), behind an env override `CFD_TEST_RENDERING=gpu` for the GPU runs that stay opt-in; a check that the loaded modules of a harness child exclude ANGLE and the driver by default | the intermittent 0xC0000374 at joins and in CI on this machine class | the module check red first (today's harness loads ANGLE) then green; the paired loop (two harness parents, 8 pairs) green with the default and the crash reproduced with the override; pixel checks that sample colours re-verified in software rendering | R0 |
-| R2 | Name the module: a paired loop under each of ANGLE-on-WARP, Vulkan and GPU (the override from R1 extended to those modes), and, if the operator runs the one elevated step, page heap with allocation stacks on the GPU mode; the dump's allocation stack names the writer | not knowing whether the shipped app (which renders on the GPU) carries the same overrun | one dump with the allocation stack, or a clean 16-pair loop on each non-NVIDIA mode | R1 |
-| R3 | The product decision from R2: a driver report, a SkiaSharp or ANGLE version change, or a rendering-mode default for the shipped app on ARM64 with the NVIDIA driver; an Owner ruling if the shipped app's rendering changes | the shipped app crashing the same way under load | the paired loop on the shipped rendering mode | R2, Owner ruling |
-| R4 | Register the class in `docs/lessons/defect-classes.md` (HARNESS-CRASH-AS-VERDICT gains the instance and the capture control; a new entry for "the platform reports the fault nowhere"); the join rule (a crashed or timed-out child is rerun alone, two consecutive crashes or a crash after a check printed stops the join, loops paused during joins) into the testing knowledge doc | the lesson staying a memoir | `check-docs` green; the register entry names the control that was observed failing on the unfixed harness (loop D's dump) | R0 |
+| R0 | CR1: the `CFD_TEST_CHILD_WRAPPER` hook, the wrapped child's real exit read from ProcDump's `Process Exit` line, the gated forced-crash probe, probe modes bare, both variables unset by the runner | a crash with no dump; a wrapped run that reads green while its child failed | the hook's pure checks and mutants, one real wrapped forced failure, the proof | **on main at 48ea4297** |
+| R1 | The harness renders in software behind `CFD_TEST_RENDERING=gpu`, with a loaded-module check | none, in the end: the software path has the same fault | built on branch `cr-r1`; the module check was red on today's harness and green after; its paired loop crashed on the first software pair and the first GPU pair | **dropped** (the leader's decision: a harness that renders unlike the shipped app diverges from the path the signature appeared on; the branch closes unmerged, its findings stay here) |
+| R2 (CR2) | `MeshFrame.Draw` builds the `SKVertices` explicitly and holds it through the draw (`using` plus `GC.KeepAlive`); a GC-pressure child probe mode (`array` arm must crash on today's code, `held` arm exits 0); three mutants; a sweep of `src/` and `tests/` for other unheld native temporaries; the register entries; the proof section | the crash itself, on both rendering paths | the probe observed red then green; the paired loop on both rendering paths with zero fatal exits over at least as many pairs as crashed before (two parents, eight pairs each path); every surface mode green with no pixel check touched | **in progress** on branch `cr2-vertices-lifetime` |
+| R3 | Product decision: none needed. The fix changes no behaviour a user sees; the shipped app carries the same call and the same fix | the shipped app crashing the same way under GC pressure | the probe and the surface modes above | folded into R2 |
+| R4 | The register: `HARNESS-CRASH-AS-VERDICT` gains this instance; `NATIVE-FAULT-REPORTED-NOWHERE` and `WRAPPER-MASKS-CHILD-EXIT` (on main with the first report); the new class for the unheld native temporary lands with CR2; the join rule (a crashed or timed-out child rerun alone, two consecutive crashes or a crash after a check printed stops the join, loops paused during joins) into the testing knowledge doc | the lesson staying a memoir | `check-docs` green; each entry names the control observed failing on the un-fixed code | partly on main; the rest with CR2 |
 
 ## 11. Residual risk and what would change the diagnosis
 
-- The software-rendered sample is seven paired runs. A crash in a later software-rendered loop would refute "the GPU
-  path is necessary" and point at Skia's raster path or at our code; the dump readers would say which within minutes.
-- Naming the module is open. If page heap names our own code after all (for instance a Skia callback we supply), R1
-  stays a correct mitigation for the harness but R3 becomes a product fix with a layout or lifetime test.
-- The three dumps come from one machine, one driver build and one OS build; the CI runners (x64, no NVIDIA driver)
-  have never shown the crash, which is consistent with H1 but is not a measurement of the shipped app on other
-  hardware.
+- The sufficiency proof is a spike with a thread forcing collections; the harness probe (R2) must reproduce it in a
+  harness child on today's code before the fix is believed in context. A probe that cannot crash today's code would
+  send the investigation back to section 6 with the spike as the only evidence.
+- The paired loop after the fix is the necessity proof in context. A fatal exit in it, on either path, means a second
+  cause exists; the dump readers and the managed stack would say where within minutes.
+- CI runners (x64, no NVIDIA driver, lighter load) never showed the crash; after R2 the GC-pressure probe runs there on
+  its variable only, so CI proves the fix's presence through the pure checks, not the race.
+- The two handled first-chance access violations per child run (each followed by a managed-exception banner) are not
+  investigated; they are consistent with managed null dereferences inside tests and did not change under any experiment.
 
 ## 12. Gate record
 
-No Adversary pass had been run on this report at the time of writing; the first one is the CR1 review (Test Architect,
-then SRE) on phase R0, and the report joins only after it. The Test Architect's veto on the repair phases is cleared
-when R1's module check is observed red on today's harness. On self-certification: the "debugger perturbation" reading
-of loop C was held by both the investigator and the leader seat; it was withdrawn by the investigator on the base-rate
-argument once the first dump showed the segment heap and its tail guards active in the wrapped process, and the leader
-withdrew it in its notes on the same argument. Nothing in sections 6 to 10 has yet been challenged by a reviewer.
+The first Adversary pass on this report was the CR1 review (Test Architect, then SRE) on phase R0, which set three
+blocking conditions, all repaired and joined. The report's first version named the GPU path as the cause; that was
+withdrawn by the investigator when the R1 harness, reading the child's real exit, showed the software path crashing
+too, and the leader seat withdrew the same reading in its notes. Two later hypotheses from the seats were refuted by
+experiment before any brief was dispatched on them (H4 by the coordinate spike, H5 by the stroke draws surviving window
+close), and the verified cause came from the leader's two-arm GC-pressure spike run by the investigator. On
+self-certification: the earlier "debugger perturbation" reading was held by both seats and withdrawn on the base-rate
+argument. Sections 6, 9 and 10 in this version are the investigator's; the CR2 review (native desktop, then Test
+Architect) is their Adversary pass, and the report's final gate is the paired loop after the fix.
 
 **Stop.** This report ends the investigation at the review gate. The operator's standing instruction ("keep going")
-authorises R0 and R1 as the first repair phases; R2 needs the operator's one elevated step for page heap, and R3 needs
-an Owner ruling.
+authorises R2 as the repair; no step needs elevation and no Owner ruling is needed, because the fix changes nothing a
+user sees.

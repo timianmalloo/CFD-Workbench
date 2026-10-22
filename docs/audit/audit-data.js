@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T20:02:32Z",
+  "generated": "2026-10-22T20:16:38Z",
   "audit": [
     {
       "actor": null,
@@ -42579,6 +42579,28 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T19:57:46Z",
       "duration_seconds": 286.0
+    },
+    {
+      "id": "al-01M5JM4BTHFCN8EQ3SXHCSYGAG",
+      "shortname": "investigate-desktop-native-crash-r1",
+      "datetime": "2026-10-22T20:16:38Z",
+      "session": "pc-laptop-leader",
+      "prompt": "/investigate the intermittendt desktop native crash skip the macos run ... we are pivoting to focus on windows accept 4 do 3 increase the VLM run budget so it works keep going and lets get a3d compare, add station and w2-q2 follow up implemented and complete",
+      "summary": "Correction of the investigation report after the R1 harness read the child's real exit: the GPU path is not the cause; root cause verified necessary and sufficient as SkiaSharp 2.88.9's array helper SKCanvas.DrawVertices creating an SKVertices nothing keeps reachable during the draw (a GC mid-draw frees the vertex data: raster 0xC0000005, GPU a later 0xC0000374), the product's one call site MeshFrame.Draw; necessity by the skip experiment (0 fatal exits in 8 pairs), sufficiency by the two-arm GC-pressure spike (the helper arm crashed inside 60 s, the held arm survived 317 draws under 205,338 collections); H1, H4 and H5 refuted; R1 dropped; R2 is CR2 (hold the vertices through the draw, a GC-pressure probe, the sweep, the register class for an unheld native temporary).",
+      "kind": "skill",
+      "skill": "investigate",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/investigations/desktop-native-crash.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "correct the investigation report to the verified root cause before the fix joins",
+      "done_when": "the corrected report is on main with the gates green and the CR2 phase named",
+      "tier": "T2",
+      "fan_out": 3
     }
   ],
   "changes": [
