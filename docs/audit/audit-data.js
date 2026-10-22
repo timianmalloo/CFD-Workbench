@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T16:10:29Z",
+  "generated": "2026-10-22T16:14:26Z",
   "audit": [
     {
       "actor": null,
@@ -41779,6 +41779,33 @@ window.AUDIT_DATA = {
       "tier": "T2",
       "started_at": "2026-10-22T16:01:47Z",
       "duration_seconds": 522.0
+    },
+    {
+      "id": "al-01M5J68WG7ZDNKWFZY3SBN65V8",
+      "shortname": "join-w2b-ds-store-design",
+      "datetime": "2026-10-22T16:14:26Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of w2b-ds-store-design into main",
+      "summary": "docs-only join of the store recovery design after one Adversary pass (accept with conditions) and one revision; Rulings 259 and 260 folded; the S4 code question filed to the Owner; the BS build brief follows recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "design the store recovery slice before its build",
+      "done_when": "design, mockup and note on main with check-docs 0",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-22T16:13:53Z",
+      "duration_seconds": 33.0
     }
   ],
   "changes": [
@@ -45408,6 +45435,33 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M5J3BWGY15T8VXJRVR4X716F",
       "session": "opus-owner"
+    },
+    {
+      "id": "mail-01M5J55Y4E317JY1X9XTGYM7JZ",
+      "ts": "2026-10-22T15:55:21Z",
+      "from": "opus-leader",
+      "to": "opus-owner",
+      "kind": "decision-request",
+      "ref": "req-01M5J55WS7WZWA8A3PX6647M4N",
+      "session": "opus-leader"
+    },
+    {
+      "id": "mail-01M5J57C7JJ59KQA7SPW5Q4MQD",
+      "ts": "2026-10-22T15:56:08Z",
+      "from": "opus-owner",
+      "to": "opus-leader",
+      "kind": "ruling",
+      "ref": "req-01M5J55WS7WZWA8A3PX6647M4N",
+      "session": "opus-owner"
+    },
+    {
+      "id": "mail-01M5J67TNMMYAXGR72DE1KJFDX",
+      "ts": "2026-10-22T16:13:52Z",
+      "from": "opus-leader",
+      "to": "opus-owner",
+      "kind": "decision-request",
+      "ref": "req-01M5J67THX7KE3DNADZGMY53CC",
+      "session": "opus-leader"
     }
   ]
 };
