@@ -50,7 +50,8 @@ internal static class CompareTests
         Check("Discrepancy_CompareEvent_CarriesDocumentBytes", CompareEventBytes);
         Check("Compare_TierHeadline_OnlyWhenBothRunsShareARevision", TierHeadlineNeedsOneRevision);
         Check("Discrepancy_PinnedRuns_ReachDocSize_RefusedNotCorrupted", ReachDocSize);
-        Check("Discrepancy_CompareFields_EncodeCost_Measured", CompareFieldsEncodeCost);
+        if (EncodeTiming) Check("Discrepancy_CompareFields_EncodeCost_Measured", CompareFieldsEncodeCost);
+        else Console.WriteLine("SKIP Discrepancy_CompareFields_EncodeCost_Measured measurement-only (set CFD_COMPARE_ENCODE_TIMING=1)");
         Check("Discrepancy_StoreInvariants_Refused", StoreInvariants);
         Check("Discrepancy_TamperedLine_ReadsNoLongerReproduces", TamperedLine);
         Check("Discrepancy_TamperedHash_ReadsPayloadFailedCheck", TamperedHash);
@@ -662,7 +663,7 @@ internal static class CompareTests
         Func<AnalysisRun, Coefficients> lookup = run => values[run.RunId];
         AnalysisRun? previous = null; DiscrepancyRecord? stored = null;
         int length = 0;
-        for (int step = 0; step < 400 && length < 7_800_000; step++)
+        for (int step = 0; step < 600 && length < NativeProject.MaxBytes - 200_000; step++)
         {
             var run = Row(session, "vlm-strip", alpha: 1.0 + step * 0.01, strips: 128);
             values[run.RunId] = new Coefficients(0.4 + step * 1e-3, 0.0076, 0.9);
@@ -670,7 +671,7 @@ internal static class CompareTests
             previous = run;
             if (step % 4 == 3) length = session.SaveImage().Length;
         }
-        Equal(true, stored is not null && length >= 7_800_000, "the document reached the cap region;");
+        Equal(true, stored is not null && length >= NativeProject.MaxBytes - 200_000, "the document reached the cap region;");
         var milliseconds = new List<double>();
         for (int i = 0; i < 3; i++)
         {

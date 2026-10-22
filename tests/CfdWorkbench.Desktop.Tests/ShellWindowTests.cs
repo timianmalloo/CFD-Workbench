@@ -2183,6 +2183,16 @@ public static class ShellWindowTests
             }
         });
 
+        // Ruling 263: the too-large sentence for a project names the cap the store enforces (32 MB), and a .foil keeps its 1 MiB.
+        DesktopChecks.Check("Copy_OpenFailure_TooLargeProject_NamesTheDocumentCap_Ruling263", () =>
+        {
+            string project = StartView.FailureMessage(new OpenFailure.TooLarge("DOC-SIZE", "sample.cfdw"), "sample.cfdw");
+            if (!project.Contains("can open (32 MB).", StringComparison.Ordinal) || CfdWorkbench.Core.NativeProject.MaxBytes != 32_000_000)
+                throw new InvalidOperationException($"The project sentence does not name 32 MB: '{project}'");
+            string foil = StartView.FailureMessage(new OpenFailure.TooLarge("DSL-LIMIT", "sample.foil"), "sample.foil");
+            if (!foil.Contains("can open (1 MiB).", StringComparison.Ordinal)) throw new InvalidOperationException($"The .foil sentence changed: '{foil}'");
+        });
+
         // Control (Ruling 155, with Labels_NoRawDocDslCodeAloneOnAProductSurface): every DOC-/DSL- code quoted in src/ opens to a plain
         // sentence with the code on its own second line, never the code alone. Ring: Desktop fast part, one scan of src/ (about 0.1 s).
         DesktopChecks.Check("Copy_OpenFailure_EveryCodeInSrc_PlainSentenceThenCodeLine_Ruling155", () =>

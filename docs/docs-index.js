@@ -1630,6 +1630,47 @@ window.DOCS_INDEX = {
       "sourceSha256": "e403ec1fa6749f66600021007d59dfa7500598d7dc70f5fca239831f1c7dc0dd"
     },
     {
+      "id": "note-adr-0011-size-cap",
+      "path": "docs/notes/adr-0011-size-cap.md",
+      "title": "ADR-0011 amendment note: the native document size cap is 32,000,000 bytes",
+      "type": "decision-note",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "Ruling 263 sets NativeProject.MaxBytes to 32,000,000 bytes (it was 8,000,000), because a document at 32 MB meets Ruling 258's unchanged budget as measured and a document at 64 MB does not. The format and its version do not change. An older build refuses a larger document with DOC-SIZE and never truncates or rewrites it. Lowering the cap later needs a migration note.",
+      "tags": [
+        "persistence",
+        "document-size",
+        "doc-size",
+        "adr-0011",
+        "ruling-258",
+        "ruling-263",
+        "measurement"
+      ],
+      "links": [
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-application-project-contract",
+          "rel": "refines"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "refines"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "234326abbaa57d61a765abcf0f8cfff729f5679187a46593d33b554e7f5f346a"
+    },
+    {
       "id": "note-area3-analysis-reading-contract",
       "path": "docs/notes/area3-analysis-reading-contract.md",
       "title": "Analysis reads the accepted revision through the snapshot and one Core read, never ProfileAt",
@@ -1779,10 +1820,14 @@ window.DOCS_INDEX = {
         {
           "to": "rulings",
           "rel": "depends-on"
+        },
+        {
+          "to": "note-adr-0011-size-cap",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ec8d3646543d56f1114556cd11137b95e87c8bc313140c0ddf5099c985179d18"
+      "sourceSha256": "f35f346babeb0a4e27fe6d1df919675373f988854c3df463ab6d1b42ba202489"
     },
     {
       "id": "note-m1-scope-decision",
@@ -2283,7 +2328,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8288f1cd3ca5eeb82ab858195075580633e303d87712844a3fa56b73a8c55b93"
+      "sourceSha256": "e702d6e65f66ef0126e5a07b31aabe6bd04e0a437782757ddbb4c1355cd88649"
     },
     {
       "id": "design-add-station",
@@ -2531,7 +2576,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e4aef2c723f005e573eee85742a6a4881c85290d43f04ff63f8ed9848938b354"
+      "sourceSha256": "5ae1dabac26fcc843f8aa84b76b8c2d7a37335d0775382f190651e9a9796f1a5"
     },
     {
       "id": "design-application-foundation",
@@ -2604,7 +2649,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "59c5acc2f57489994a5574fae8dbddc2c2ff696b106151fda09470babb3330f4"
+      "sourceSha256": "f67fb3084fe73d426fad880c9dcb6fad57131967175e27195f787d98d6edc8c1"
     },
     {
       "id": "design-area3-analysis",
@@ -2715,7 +2760,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "04c3aa307ff7bb5311c1bba65f3a3c9140a14009fdde0279f685eff88e577be0"
+      "sourceSha256": "9338decd6b814249a2730ec74666ff8572f48e993f54616639274dd93c7339b7"
     },
     {
       "id": "design-authoring-decisions",
@@ -4043,7 +4088,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2bccea4d210a781ebcd9922c6a6ded7c60af02fb9e1ba3f1b9907930c2772556"
+      "sourceSha256": "7d244da0e1e37f166fb611bc5388f696588c379dea6318d1d18efd2b5e7b904b"
     },
     {
       "id": "design-windows-runtime",
@@ -13348,7 +13393,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "dd14b4dd2aa0d7a70bc77a7ec590d58de65e806d4d5870c5d16c9c0a025dbe73"
+      "sourceSha256": "5c0fa3abd3ff28e121d275798f65c695cc0ac0e43cf23f748aaeb330671e6eed"
     },
     {
       "id": "proof-abl-measure",
@@ -18205,6 +18250,43 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "b4ae8bc942c4c5e7bcab75f8109c116b394928fc18a0b5f62b5ea63860cc0b74"
+    },
+    {
+      "id": "proof-size-cap-64mb",
+      "path": "docs/proof/size-cap-64mb/README.md",
+      "title": "Document size cap at 32,000,000 bytes: Ruling 258's budget measured, 64 MB refused, 32 MB adopted (Ruling 263)",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-w2b-mx",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "Ruling 258 raises NativeProject.MaxBytes if a document at the cap opens within 3 s, saves within 3 s and peaks within 1.5 GB. Measured idle on a Windows ARM64 laptop (medians of three), 64,000,000 bytes opens in 4,097 ms and peaks at 1,812,115,456 bytes, over budget, so it is refused. 32,000,000 bytes opens in 2,208 ms, saves in 732 ms and peaks at 1,012,297,728 bytes, within budget, so Ruling 263 sets MaxBytes to 32,000,000. The folder keeps its first name.",
+      "tags": [
+        "wave-2",
+        "mx",
+        "ruling-258",
+        "ruling-263",
+        "document-size",
+        "doc-size",
+        "measurement"
+      ],
+      "links": [
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "refines"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "note-adr-0011-size-cap",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "516da86b1c76cec41679f50465b996627c1c5787edf01a66f38077315a09ce36"
     },
     {
       "id": "proof-sma-captures",
@@ -24180,5 +24262,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "4f3c102467128695a03e5208c7359b4d2024252b5a7e33ad4fe300bf5c09a232"
+  "graphSha256": "76457fc3fce50bf8761c8f5ff5fdb7f3f1d3dc1d70ac58e819be294ddd771e4f"
 };

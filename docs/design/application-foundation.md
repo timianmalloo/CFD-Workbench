@@ -79,7 +79,7 @@ This is a **proposed contract for the serial core design gate**, not an implemen
 keys are case-sensitive; duplicate keys, comments, trailing commas and nonfinite numbers are invalid.
 All listed keys are required except nullable values explicitly shown; unknown keys cause read-only
 `DOC-UNSUPPORTED-FIELD`, preserving bytes and refusing overwrite. Unknown `format` gives
-`DOC-VERSION`; no migration is guessed. Maximum8MB applies to encoded envelope bytes; each native line
+`DOC-VERSION`; no migration is guessed. Maximum 32 MB (Rulings 258, 263) applies to encoded envelope bytes; each native line
 maximum4096bytes excludes its CR/LF delimiter. Strict UTF-8, no BOM for native JSON. Base64 uses RFC4648
 standard alphabet with required padding, no whitespace, chunks of at most3072characters; concatenate
 decoded chunks, not encoded strings. Nonfinal chunks encode complete byte triples. Decoded source≤1MiB.
@@ -185,7 +185,7 @@ the bound/algorithm and supported domain. Deterministic cap exhaustion after adm
 M1 one-profile restriction and supported lock/ID forms are feature admission, not changes to grammar.
 Station root/tip/interior positions remain authored assignments; slices remain derived. Source preserves
 unmodified unsupported input bytes in a read-only view. No duplicate chord/t/c authority is introduced.
-Memory/time bounds: source1MiB, native8MB, language point/count caps, token/nesting bounds derived from grammar,
+Memory/time bounds: source1MiB, native 32 MB (Rulings 258, 263), language point/count caps, token/nesting bounds derived from grammar,
 at most4096 subdivision nodes per scalar bound and a one-second cooperatively checked validation deadline.
 This is not a scheduler or hard wall-clock completion guarantee. Cancellation, environmental failure and
 elapsed-time refusal remain observable outcomes that retain accepted state; they do not make certified

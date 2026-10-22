@@ -16,6 +16,9 @@ internal static class AnalysisChecks
     private static readonly string[]? only = Environment.GetEnvironmentVariable("CFD_TEST_ONLY")?
         .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
     private static readonly HashSet<string> matched = [];
+    // Measurement-only switch for the CompareFields encode check (about 2.5 minutes at the 32 MB cap, asserts no bound): off by
+    // default, so the ring and CI print one SKIP line for it. tools/run-tests.sh unsets it.
+    internal static readonly bool EncodeTiming = Environment.GetEnvironmentVariable("CFD_COMPARE_ENCODE_TIMING") == "1";
 
     internal static int Run(string[] args)
     {

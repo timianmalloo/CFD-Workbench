@@ -532,7 +532,7 @@ fixture; **reviewer-measured 200-panel Cp_min under-read is 6.9–7.7 % for 6 %-
 | FM-8 | Depth unset printed as deep water | **prevent** — projection rule (DR-ANA-13) | `Depth_Unset_NoDeepWaterLabel`, `Labels_DepthUnset_FreeSurfaceNotModelled` |
 | FM-9 | Polar unavailable zeroes profile drag | **prevent** — Total drag Unavailable naming "profile" | `Loads_PolarUnavailable_TotalDragNamesProfile` |
 | FM-10 | Process polar hangs or orphans | **mitigate** — timeout, kill tree, outputs by files (only if DR-ANA-1 picks a process) | fault injection with a sleeping stub |
-| FM-11 | Document grows past 8 MB | **mitigate** — strip cap, DR-ANA-4 retention, preflight `DOC-SIZE` | `Store_SizeAtStripCap_UnderDocLimit` |
+| FM-11 | Document grows past 32 MB (Rulings 258, 263) | **mitigate** — strip cap, DR-ANA-4 retention, preflight `DOC-SIZE` | `Store_SizeAtStripCap_UnderDocLimit` |
 | FM-12 | Global evaluator counters raced (G-3) | **prevent** — counters `Interlocked` in the Core track; counter tests run with analysis idle | counter test under a concurrent evaluation |
 | FM-13 | Evaluate during a CAD gesture | **accept** — snapshot is the accepted revision; residual: one wasted evaluation | — |
 | FM-14 | Duplicate row for one key | **prevent** — store invariant | `RecordRun_SameKeyTwice_OneCompletedRow` |
@@ -549,7 +549,7 @@ fixture; **reviewer-measured 200-panel Cp_min under-read is 6.9–7.7 % for 6 %-
 | Boundary | Threat | Disposition | Negative test |
 |---|---|---|---|
 | Native document `analysis` member (user-writable JSON) | **T**ampering: edited strip values or a forged key | **mitigate** — per-run content hash; key recomputed from the manifest, never trusted; mismatch → that run Unavailable. Residual: someone who recomputes the hash can forge a run; accepted — it is the user's own local calculation and is recomputable | edit a strip value; set the stored key to the current key |
-| same | **D**oS: huge arrays | **mitigate** — 8 MB / 4 kB-line caps, `MaxDepth`, strip cap 2,048 per run | 8 MB+ file; 10⁵ strips |
+| same | **D**oS: huge arrays | **mitigate** — 32 MB (Rulings 258, 263) / 4 kB-line caps, `MaxDepth`, strip cap 2,048 per run | 32 MB+ file (Rulings 258, 263); 10⁵ strips |
 | Water table data file | **T**ampering changes ρ or p_v | **mitigate** — hash at load against the build manifest; mismatch → water Unavailable | one-bit flip |
 | Polar process (DR-ANA-1 c/d) | **E**levation / injection via argv or names | **mitigate** — argv array, never a shell string; run directory from the run key; coordinates written by us | profile name with `;`, `$(`, newline |
 | CLI `analyse` | malformed op JSON | **mitigate** — the GUI's validators; stable codes | non-finite speed; unknown member |
@@ -706,7 +706,7 @@ against the failing input or mutant named.
 | `Tamper_EditedStripValue_RunUnavailable` | one strip's Fz edited in the file → that run "Unavailable — run payload failed its check" | 0 | est. < 50 ms |
 | `Tamper_StoredKeySetToCurrent_RunUnavailable` | stored `runKey` overwritten with the current key → key recomputed, run Unavailable | 0 | est. < 50 ms |
 | `Retention_PruneThenUndo_TombstoneReadsPruned` | prune, then Undo to the pruned key → "pruned", never a silent Current | 0 | est. < 50 ms |
-| `Store_SizeAtStripCap_UnderDocLimit` | a run at 2,048 strips, size measured; red when the document passes 8 MB | 0 | est. 0.2 s |
+| `Store_SizeAtStripCap_UnderDocLimit` | a run at 2,048 strips, size measured; red when the document passes 32 MB (Rulings 258, 263) | 0 | est. 0.2 s |
 | `Store_HundredThousandStrips_RefusedDocSize` | 10⁵ strips in the file → refused, `DOC-SIZE` | readiness | est. 2 s |
 | `Evaluate_Supersede_OlderCancelledViaBarrier` | two Evaluates; the barrier holds the first; the first ends `ANA-CANCELLED`, one row | 0 | est. < 20 ms |
 | `Evaluate_Cancel_NoRowRecorded` | Cancel while the barrier holds → no row | 0 | est. < 20 ms |
