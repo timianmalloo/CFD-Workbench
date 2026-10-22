@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T20:20:37Z",
+  "generated": "2026-10-22T22:20:00Z",
   "audit": [
     {
       "actor": null,
@@ -42628,6 +42628,25 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T20:20:14Z",
       "duration_seconds": 23.0
+    },
+    {
+      "id": "al-01M5JV67SZ6EH3RWFYTW3TYYPS",
+      "shortname": "w2b-wf",
+      "datetime": "2026-10-22T22:20:00Z",
+      "session": "w2b-wf",
+      "prompt": "wave 2 WF: Open refusal by cause, off-Windows and conflict sentences, Finder on Windows, Save-section dialog, cloud-folder wording, export default, COPY-615",
+      "summary": "Wave 2 WF: Open refusals by cause (COPY-641 to 645), Save-section Windows sentence (COPY-646), export default for a read-only OneDrive document, COPY-615 left as is with the reason; seven mutants seen red; store unchanged.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "started_at": "2026-10-22T20:23:14Z",
+      "duration_seconds": 7006.0
     }
   ],
   "changes": [
