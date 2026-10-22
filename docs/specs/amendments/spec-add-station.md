@@ -12,38 +12,45 @@ links:
   - {to: decision-loft-rule-a, rel: relates-to}
 review-by: 2027-01-31
 summary: >-
-  Three proposed amendments from the Add station design (track S1). Promotion of an inspection slice is exact only when
-  the two neighbouring sections share spacing and peak thickness location; otherwise it is an approximate path with a
-  measured deviation (DR-S1-1). The thickness policy for Promote and Remove is Keep current thickness (DR-S1-5). Not
-  approved; the Owner rules before any build.
+  Three proposed amendments from the Add station design (track S1), written for the recommended options. Promotion is an
+  exact path when its measured deviation is ≤ 1e-12; otherwise it is a separately labelled, previewed approximate
+  promotion admitted at 10 µm (S1-Q1, option d). Promote and Remove keep current thickness (S1-Q2). Pending the Owner's
+  ruling; nothing applies before it.
 ---
 
 # Proposed amendments: Add station and Promote
 
 **For:** the spec owner (`@timianmalloo`). **Spec:** [cfd-workbench-v1](../cfd-workbench-v1.md), revision 1.7.6.
-**Status:** **proposed, not approved.** The leader raises DR-S1-1 and DR-S1-5 of
-[the Add station design](../../design/add-station.md) §10; each row lands only on its ruling.
+**Status:** **proposed, pending Owner ruling (S1-Q1, S1-Q2).** The leader files the request; each row lands only on its
+ruling. Design: [Add station](../../design/add-station.md) §2.4–2.6 and §10.
 
 ## How to read this
 
 One row is one amendment, in the form of [spec 1.7.6](spec-1.7.6.md). *Before* quotes the 1.7.6 text; *After* is the
-proposed text. The reason and the evidence are in the design's §2.4 (the proof) and §2.5 (a scratch model).
+proposed text for the recommended option.
 
 ## The finding behind A-S1-1 and A-S1-3
 
 Rule A renormalises the blended unit thickness by its own maximum. A promoted station's profile always has a unit
 thickness peak of 1, so the loft between it and its neighbours equals the old loft only when the two neighbours' unit
-thickness shapes peak at the same chord fraction. When they peak at different chord fractions, both adjacent intervals
-move. A scratch model sized the change at 0.8 × 10⁻⁶ to 3.1 × 10⁻⁵ of chord for peaks at 30 % against 35 % to 50 %. The
-section **at** the promoted η is exact in every case.
+thickness shapes peak at a common chord fraction; no other choice of profile is exact (design §2.4). The section **at**
+the promoted η is exact in every case.
+
+**Measured size, a model of `Placement.cs` rule A, not the product** (script `r2_real_pair.py` in the track's scratch
+folder; inputs `docs/examples/foildsl/foil-basic.foil` profile `section-a` and
+`src/CfdWorkbench.Core/CatalogData/naca-0012.dat`, root at η 0, tip at η 1, promotion at η 0.5, t/c 0.12, 1999 η × 2001 x
+samples): largest deviation **5.1 × 10⁻⁷ of chord (0.08 µm at 150 mm chord)** at η 0.25. The catalog pair
+`naca-0012.dat` / `naca-4412.dat` gives 3.4 × 10⁻¹⁰, already above 10⁻¹². Across thickness-shape families the size
+reaches 1.5 × 10⁻⁴ of chord (23 µm at 150 mm, the Adversary's model for peaks at 30 % and 50 %), so some real pairs are
+refused under any 10 µm gate.
 
 ## Rows
 
 | Id | Where | Before (1.7.6) | After (proposed) | Ruling |
 |---|---|---|---|---|
-| A-S1-1 | GEO-06 (`cfd-workbench-v1.md:1198`) | "**when** I promote it, **then** the reported deviation is ≤ 10⁻¹² relative (exact under rule A) and the station is selectable in every view." | "**when** I promote it, **then** the deviation over both adjacent intervals is measured and reported; it is ≤ 10⁻¹² relative (exact under rule A) when the neighbouring sections are the same, or share spacing and their unit thickness peaks at the same chord fraction; otherwise it is accepted at the 10 µm model/join tolerance at the local chord and Promote is refused above it; the station is selectable in every view." | DR-S1-1 (b) |
-| A-S1-2 | CAD-02 (`cfd-workbench-v1.md:1245`) | "…selectable in every view, with an explicit thickness command policy and referenced profile closure;" | "…selectable in every view, with an explicit thickness command policy (Promote and Remove keep current thickness: the t/c channel is unchanged byte for byte) and referenced profile closure;" | DR-S1-5 (a) |
-| A-S1-3 | A4.6 (`cfd-workbench-v1.md:540`) | "an exact path (knot insertion, mirror, promotion under rule A, an unmodified catalog copy) must report ≤ 10⁻¹² relative;" | "an exact path (knot insertion, mirror, promotion under rule A between sections of the same unit thickness peak location, an unmodified catalog copy) must report ≤ 10⁻¹² relative; promotion between sections whose peaks differ is an approximate path;" | DR-S1-1 (b) |
+| A-S1-1 | GEO-06 (`cfd-workbench-v1.md:1198`) | "**when** I promote it, **then** the reported deviation is ≤ 10⁻¹² relative (exact under rule A) and the station is selectable in every view." | "**when** I promote it, **then** the deviation over both adjacent intervals is measured and reported; when the measured deviation is ≤ 10⁻¹² relative the promotion is exact and applies in one action; otherwise it is offered only as a labelled approximate promotion that previews the measured deviation and applies with Apply when it is ≤ the 10 µm model/join tolerance at the local chord, Apply disabled above; the station is selectable in every view." | pending S1-Q1 (d) |
+| A-S1-2 | CAD-02 (`cfd-workbench-v1.md:1245`) | "…selectable in every view, with an explicit thickness command policy and referenced profile closure;" | "…selectable in every view, with an explicit thickness command policy (Promote and Remove keep current thickness: the t/c channel is unchanged byte for byte) and referenced profile closure;" | pending S1-Q2 (a) |
+| A-S1-3 | A4.6 (`cfd-workbench-v1.md:540`) | "an exact path (knot insertion, mirror, promotion under rule A, an unmodified catalog copy) must report ≤ 10⁻¹² relative;" | "an exact path (knot insertion, mirror, promotion under rule A whose measured deviation is ≤ 10⁻¹² relative, an unmodified catalog copy) must report ≤ 10⁻¹² relative; a promotion whose measured deviation is larger is an approximate path (an approximate promotion);" | pending S1-Q1 (d) |
 
-If the Owner rules DR-S1-1 (a) instead, A-S1-1 and A-S1-3 are withdrawn: the spec text stands, and Promote is refused
-in that case with the measured number (design S1-COPY-11).
+If the Owner rules S1-Q1 (a) instead, A-S1-1 and A-S1-3 are withdrawn: the spec text stands and an R2 promotion is
+refused with its measured number.

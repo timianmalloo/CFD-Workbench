@@ -2208,10 +2208,10 @@ window.DOCS_INDEX = {
       "type": "design",
       "status": "in-review",
       "owner": "@timianmalloo",
-      "phase": "design — track S1 of next-best-six; documents only; build after the leader's Adversary pass and the Owner's rulings on DR-S1-1..6",
+      "phase": "design — track S1 of next-best-six; documents only; repair cycle 1 folded (Adversary ACCEPT WITH CONDITIONS); build after the Owner rules S1-Q1 and S1-Q2",
       "reviewBy": "2027-01-31",
       "reviewSuggested": [],
-      "summary": "The inspection slice is a selection (never syntax); Promote writes one new profile block and one `at <η> %` assignment whose section is the as-built rule-A blend at η, built in control-point space by the one PlacementRule definition. Promotion is exact (≤ 1e-12 relative) only when the two neighbours share spacing and their unit thickness shapes peak at the same chord fraction; when the peaks differ the renormalising blend moves both adjacent intervals by a measured amount (a scratch model gives 0.8 to 31 µm per metre of chord), which this design reports and puts to the Owner (DR-S1-1, amendment note). Remove re-blends across the gap with the measured deviation and Apply gated at 10 µm.",
+      "summary": "The inspection slice is a selection (never syntax); Promote writes one new profile block and one assignment whose section is the as-built rule-A blend at η, built in control-point space by the one PlacementRule definition. Rule A renormalises the blended unit thickness, so a promotion is exact (measured ≤ 1e-12) only in regimes R0/R1; in R2 both adjacent intervals move by a shape-dependent measured amount (5.1e-7 of chord on the committed section-a / NACA 0012 pair, in a model). Recommended (pending S1-Q1): R0/R1 one-press, R2 a previewed approximate promotion gated at 10 µm. Remove re-blends across the gap with the measured deviation and Apply gated at 10 µm.",
       "tags": [
         "cad",
         "station",
@@ -2260,7 +2260,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3b283bf9db1c3e2035c476587bcbddbbcb572123adb90475963e7ae941a081c0"
+      "sourceSha256": "11ae994d26df54b47c80659fb31e546a18eed6fa74f9641b6c6efb94ddd26596"
     },
     {
       "id": "design-app-shell",
@@ -3974,7 +3974,7 @@ window.DOCS_INDEX = {
       "phase": "ui-design",
       "reviewBy": "2027-01-31",
       "reviewSuggested": [],
-      "summary": "Eight states of the 1280 × 800 shell (and the 640 × 400 reflow) on a stated two-station fixture wing: no slice, a slice placed with its label and Promote, the promoted station selected in the Plan chip strip, Front, Side, Browser and Properties, a coincident η refused with the existing station selected, Remove with the change above 10 µm (Apply disabled with its reason), Root remove refused, the certificate budget refused, and a competing draft. For the operator's review after the Adversary pass.",
+      "summary": "Nine states of the 1280 × 800 shell (and the 640 × 400 reflow) on stated fixture wings: no slice, a slice placed with its η and mm readout and Promote, the promoted station selected in the Plan chip strip, Front, Side, Browser and Properties, a coincident η refused, Remove above 10 µm (Apply disabled with its reason), Root remove refused, the certificate budget refused at seven differing stations, a competing draft, and the approximate promotion preview for R2 (pending Owner ruling S1-Q1). For the operator's review.",
       "tags": [
         "mockup",
         "cad",
@@ -4006,7 +4006,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "991e049bd34ab6b5247aa416aca27564341a3bd17feedb003f6ceb2d10cbc26e"
+      "sourceSha256": "7ee315cf8c0c3fd91618ff0f6bb568dd79502c9be6f3f67089a1b3e1c08e98ca"
     },
     {
       "id": "mockup-area3-analysis",
@@ -22591,7 +22591,7 @@ window.DOCS_INDEX = {
       "phase": "specification",
       "reviewBy": "2027-01-31",
       "reviewSuggested": [],
-      "summary": "Three proposed amendments from the Add station design (track S1). Promotion of an inspection slice is exact only when the two neighbouring sections share spacing and peak thickness location; otherwise it is an approximate path with a measured deviation (DR-S1-1). The thickness policy for Promote and Remove is Keep current thickness (DR-S1-5). Not approved; the Owner rules before any build.",
+      "summary": "Three proposed amendments from the Add station design (track S1), written for the recommended options. Promotion is an exact path when its measured deviation is ≤ 1e-12; otherwise it is a separately labelled, previewed approximate promotion admitted at 10 µm (S1-Q1, option d). Promote and Remove keep current thickness (S1-Q2). Pending the Owner's ruling; nothing applies before it.",
       "tags": [
         "spec",
         "amendments",
@@ -22617,7 +22617,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4016682aaa8b4776da981ea5a9a1d565152f050369e42d7284d6a922b1f6c8a7"
+      "sourceSha256": "898f9a46d10ecd31bceb007c5d407cba199bb528d4db37e9f8cb0e5d929566ea"
     },
     {
       "id": "spec-cfd-workbench",
@@ -23430,5 +23430,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "b195c12b27bd8963b86122c036e1c01fe65e0129f74bb2b2826f7a1aba5b70f6"
+  "graphSha256": "9dcc31a2bf4859a35fa6407a2ae830e58ec8259cbba61c70fbe8479bd30c48a8"
 };

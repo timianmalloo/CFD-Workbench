@@ -8,8 +8,10 @@
   Review page for the Add station design (docs/design/add-station.md, track S1). Eight states of the 1280 x 800 shell
   (and the 640 x 400 reflow preset): no slice, slice placed with Promote, promoted, coincident eta refused, Remove above
   the acceptance, Root remove refused, certificate budget refused, competing draft. Geometry is computed in the page from
-  the stated fixture (see FIX below). Deviation numbers are illustrative, not computed: the product measures them
-  (design section 2.6). Display only; no network, no external fonts or scripts.
+  the stated fixture (see FIX below). Cycle 1 adds state 9, the approximate promotion preview (R2, pending Owner ruling
+  S1-Q1), and re-bases state 7 on the as-built capacity (seven differing stations refused). Deviation numbers are
+  illustrative, not computed: the product measures them (design section 2.6). Display only; no network, no external
+  fonts or scripts.
 -->
 <style>
 :root{ --font: system-ui, -apple-system, "Segoe UI", sans-serif; --mono: ui-monospace, monospace;
@@ -86,6 +88,7 @@ main{ padding:16px; overflow-x:auto; }
     <option value="rootRemove">6 · Root remove refused</option>
     <option value="budget">7 · Certificate budget refused</option>
     <option value="draft">8 · Competing draft</option>
+    <option value="approx">9 · Approximate promotion preview (R2, pending S1-Q1)</option>
   </select></label>
   <label>Viewport <select id="viewport"><option value="full">1280 × 800</option><option value="reflow">640 × 400 reflow</option></select></label>
   <label>Theme <select id="theme"><option value="light">Light</option><option value="dark">Dark</option><option value="contrast">High contrast</option></select></label>
@@ -110,7 +113,8 @@ main{ padding:16px; overflow-x:auto; }
   </div>
   <p class="notes">Fixture: half-span 0.50 m; chord c(η) = 0.130 − 0.080 η² m; leading edge aft offset 0.030 η² m; no twist,
   no dihedral; t/c(η) = 0.12 − 0.04 η. Root “NACA 0012”, Tip “NACA 0008”, both closed, one 10-point spacing; the promoted
-  “Blend 35 %” shares it. Sections are drawn as NACA 4-digit thickness at the local t/c. Deviation numbers are illustrative;
+  profile “Station 2” shares it. State 7 uses six differing stations (profiles A to D between root and tip); state 9 a
+  tip whose thickness peaks at 40 %. Sections are drawn as NACA 4-digit thickness at the local t/c. Deviation numbers are illustrative;
   the product measures them (design §2.6).</p>
 </main>
 <script>
@@ -118,8 +122,12 @@ main{ padding:16px; overflow-x:auto; }
 const NS = "http://www.w3.org/2000/svg";
 const FIX = { half: 0.5, chord: e => 0.130 - 0.080 * e * e, le: e => 0.030 * e * e, tc: e => 0.12 - 0.04 * e };
 const base = [ { eta: 0, name: "Root", profile: "NACA 0012" }, { eta: 1, name: "Tip", profile: "NACA 0008" } ];
-const promoted = [ { eta: 0, name: "Root", profile: "NACA 0012" }, { eta: 0.35, name: "Station 2", profile: "Blend 35 %" }, { eta: 1, name: "Tip", profile: "NACA 0008" } ];
+const promoted = [ { eta: 0, name: "Root", profile: "NACA 0012" }, { eta: 0.35, name: "Station 2", profile: "Station 2" }, { eta: 1, name: "Tip", profile: "NACA 0008" } ];
+const six = [ { eta: 0, name: "Root", profile: "NACA 0012" }, { eta: 0.2, name: "Station 2", profile: "A" }, { eta: 0.4, name: "Station 3", profile: "B" },
+  { eta: 0.6, name: "Station 4", profile: "C" }, { eta: 0.8, name: "Station 5", profile: "D" }, { eta: 1, name: "Tip", profile: "NACA 0008" } ];
+const peaks = [ { eta: 0, name: "Root", profile: "NACA 0012" }, { eta: 1, name: "Tip", profile: "Peak 40 %" } ];
 const pct = e => (e * 100).toFixed(1) + " %";
+const mm = e => (e * FIX.half * 1000).toFixed(1) + " mm";
 
 const STATES = {
   none: { what: "<b>No slice.</b> Two authored stations. Press empty space in the chip strip (or Edit ▸ Add station…) to place a slice.",
@@ -136,9 +144,11 @@ const STATES = {
     stations: promoted, sel: { kind: "station", i: 1 }, slice: null, flyout: "removeAbove", status: "" },
   rootRemove: { what: "<b>Root remove refused.</b> Root selected: Remove station is disabled with its reason (also in Edit ▸ Remove station).",
     stations: promoted, sel: { kind: "station", i: 0 }, slice: null, status: "" },
-  budget: { what: "<b>Certificate budget refused.</b> A second slice at η 70.0 % between Station 2 and Tip: a fourth differing section is past the blend certificate's capacity. The slice stays; nothing changed.",
-    stations: promoted, sel: { kind: "slice" }, slice: 0.70, entry: "70", budget: true,
-    status: "<span class=no>Promote refused: Root, Station 2, the new station and Tip would all differ, and the blend certificate cannot carry that many different sections. Make one of them match a neighbour first. Nothing changed.</span>" },
+  budget: { what: "<b>Certificate budget refused.</b> A wing with six stations whose sections all differ (10 points each; six certify up to 5 spans). A slice at η 70.0 % would make a seventh differing section, which the operation bound refuses at any span count. The slice stays; nothing changed.",
+    stations: six, sel: { kind: "slice" }, slice: 0.70, entry: "70", budget: true,
+    status: "<span class=no>Promote refused: 7 stations would have different sections, more than the blend certificate can carry. Make one of them match a neighbour first. Nothing changed.</span>" },
+  approx: { what: "<b>Approximate promotion (R2), pending Owner ruling S1-Q1.</b> Root and Tip peak at different chord positions, so a station at η 50.0 % changes the loft. The flyout previews the measured change; Apply is enabled because it is under 10 µm. Exact (R0/R1) promotions stay one press.",
+    stations: peaks, sel: { kind: "slice" }, slice: 0.50, entry: "50", flyout: "approx", status: "" },
   draft: { what: "<b>Competing draft.</b> A point draft is open on the leading edge. The slice can still be placed and read (CAD-11); Promote is disabled with the reason.",
     stations: base, sel: { kind: "slice" }, slice: 0.35, entry: "35", draft: "Leading edge · point 4", status: "" }
 };
@@ -174,17 +184,17 @@ function drawPlan(s) {
     const e = s.slice;
     [1, -1].forEach(side => el("line", { x1: X(side * e * FIX.half), y1: Y(FIX.le(e)) - 10, x2: X(side * e * FIX.half), y2: Y(FIX.le(e) + FIX.chord(e)) + 10,
       stroke: css("--station"), "stroke-width": 2, "stroke-dasharray": "6 4" }, svg));
-    const text = "Slice · η " + pct(e), w = 250, x = Math.min(X(e * FIX.half) - w / 2, W - w - 8), y = strip + 28 > H - 26 ? strip : strip + 28;
+    const text = "Slice · η " + pct(e) + " · " + mm(e), w = 300, x = Math.min(X(e * FIX.half) - w / 2, W - w - 8), y = strip + 28 > H - 26 ? strip : strip + 28;
     const g = el("g", { role: "group", "aria-label": "Inspection slice, η " + pct(e) }, svg);
     el("rect", { x, y: y, width: w, height: 28, rx: 4, fill: "none", stroke: css("--station"), "stroke-width": 2, "stroke-dasharray": "5 3" }, g);
     el("text", { x: x + 10, y: y + 18, fill: css("--viewport-ink"), "font-size": 11, "font-weight": 600 }, g).textContent = text;
     const promoteOff = !!(s.draft || s.budget);
     const b = el("g", { class: "chipbtn", tabindex: "0", role: "button", "aria-label": "Promote" + (promoteOff ? ", unavailable" : "") }, g);
-    el("rect", { x: x + 130, y: y + 2, width: 80, height: 24, rx: 4, fill: promoteOff ? css("--viewport") : css("--station"), stroke: css("--station"), "stroke-dasharray": promoteOff ? "3 2" : "none" }, b);
-    el("text", { x: x + 170, y: y + 18, "text-anchor": "middle", fill: promoteOff ? css("--viewport-mute") : css("--viewport"), "font-size": 11, "font-weight": 700 }, b).textContent = "Promote";
+    el("rect", { x: x + 180, y: y + 2, width: 80, height: 24, rx: 4, fill: promoteOff ? css("--viewport") : css("--station"), stroke: css("--station"), "stroke-dasharray": promoteOff ? "3 2" : "none" }, b);
+    el("text", { x: x + 220, y: y + 18, "text-anchor": "middle", fill: promoteOff ? css("--viewport-mute") : css("--viewport"), "font-size": 11, "font-weight": 700 }, b).textContent = "Promote";
     const c = el("g", { class: "chipbtn", tabindex: "0", role: "button", "aria-label": "Clear slice" }, g);
-    el("rect", { x: x + 216, y: y + 2, width: 28, height: 24, rx: 4, fill: css("--viewport-soft"), stroke: css("--viewport-mute") }, c);
-    el("text", { x: x + 230, y: y + 18, "text-anchor": "middle", fill: css("--viewport-ink"), "font-size": 12 }, c).textContent = "×";
+    el("rect", { x: x + 266, y: y + 2, width: 28, height: 24, rx: 4, fill: css("--viewport-soft"), stroke: css("--viewport-mute") }, c);
+    el("text", { x: x + 280, y: y + 18, "text-anchor": "middle", fill: css("--viewport-ink"), "font-size": 12 }, c).textContent = "×";
   }
 }
 
@@ -234,7 +244,7 @@ function render() {
   const props = document.getElementById("props");
   if (s.sel.kind === "slice") {
     const e = s.slice, off = s.draft ? "Apply or cancel the open draft on " + s.draft + " first." : s.budget ? "Refused: a fourth differing section is past the certificate's capacity." : "";
-    props.innerHTML = "<h3>Inspection slice</h3><p class=note>Derived view — not saved</p><dl><dt>η</dt><dd>" + pct(e) + "</dd><dt>Span</dt><dd>" + (e * FIX.half * 1000).toFixed(1) + " mm</dd><dt>Chord</dt><dd>" + (FIX.chord(e) * 1000).toFixed(1) +
+    props.innerHTML = "<h3>Inspection slice</h3><p class=note>Derived view — not saved</p><dl><dt>η</dt><dd>" + pct(e) + "</dd><dt>From root</dt><dd>" + mm(e) + "</dd><dt>Chord</dt><dd>" + (FIX.chord(e) * 1000).toFixed(1) +
       " mm</dd><dt>t/c</dt><dd>" + (FIX.tc(e) * 100).toFixed(2) + " %</dd><dt>Twist</dt><dd>0.00°</dd></dl>" +
       '<button class="btn primary"' + (off ? " disabled aria-describedby=pr" : "") + ">Promote</button>" + (off ? '<p class=reason id=pr>' + off + "</p>" : "");
   } else {
@@ -246,8 +256,10 @@ function render() {
   }
   document.getElementById("status").innerHTML = s.status;
   const fly = document.getElementById("flyout");
-  fly.hidden = s.flyout !== "removeAbove";
-  if (!fly.hidden) fly.innerHTML = '<h4>Remove Station 2</h4><p>The shape between Root and Tip is re-blended. Largest change 412 µm (0.41 % of chord) at η 33.0 %, sampled. Limit 10 µm.</p>' +
+  fly.hidden = !s.flyout;
+  if (s.flyout === "approx") fly.innerHTML = '<h4>Approximate promotion at η 50.0 % · 250.0 mm <small>(pending S1-Q1)</small></h4><p>Root and Tip peak at different chord positions, so a station here changes the loft. Largest change 0.83 µm (0.0009 % of chord) at η 74.0 %, sampled. Limit 10 µm.</p>' +
+    '<div class=row><button class="btn">Cancel</button><button class="btn primary">Apply</button></div>';
+  else if (s.flyout === "removeAbove") fly.innerHTML = '<h4>Remove Station 2</h4><p>The shape between Root and Tip is re-blended. Largest change 412 µm (0.41 % of chord) at η 33.0 %, sampled. Limit 10 µm.</p>' +
     '<p class=reason id=ap>Apply is disabled: the change is above the 10 µm limit.</p><div class=row><button class="btn">Cancel</button><button class="btn primary" disabled aria-describedby=ap>Apply</button></div>';
   drawPlan(s); drawFront(s); drawSide(s);
 }

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T01:58:59Z",
+  "generated": "2026-10-22T02:21:04Z",
   "audit": [
     {
       "actor": null,
@@ -41201,6 +41201,25 @@ window.AUDIT_DATA = {
       "tier": "T2",
       "started_at": "2026-10-22T01:39:53Z",
       "duration_seconds": 1146.0
+    },
+    {
+      "id": "al-01M5GPJXZPZ5NXH73YZ8E0FRHZ",
+      "shortname": "s1-add-station-design-r1",
+      "datetime": "2026-10-22T02:21:04Z",
+      "session": "s1-add-station-design",
+      "prompt": "Add station design revision cycle 1: fold the Adversary conditions and the Browser addendum",
+      "summary": "Repair cycle 1 of the S1 Add station design: folded every Adversary condition (CG1-CG5, UX1-UX4, TA1-TA6, F14, F17), the Browser cross-view scroll addendum (D8, E7 row 12), and the leader's DR settlements (DR-S1-2, -3, -4, -6). S1-Q1 (option d, approximate promotion with preview) and S1-Q2 (keep current thickness) written as recommended with pending markers. R2 measured on a committed real pair with a model of Placement.cs rule A (not the product): foil-basic.foil section-a vs naca-0012.dat at eta 0.5 gives 5.1e-7 of chord, 0.08 um at 150 mm; naca-0012/naca-4412 gives 3.4e-10. Mockup gains state 9 (approximate promotion) and a corrected budget state (seven differing refused). New DR-S1-7 (minimum station spacing). check-docs exit 0.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T02:13:41Z",
+      "duration_seconds": 443.0
     }
   ],
   "changes": [
