@@ -5614,7 +5614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3818a5bfb6c1524f721aa0539ff0ec156c1c1217e7070a15ddefbccbd4052d33"
+      "sourceSha256": "12a4d3dec43b13d62e580407c7c7ed06fdd25a974cb611925642c8cb7f1844c8"
     },
     {
       "id": "domain-experts",
@@ -11088,6 +11088,51 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "58b48f57cdf0861c1fef89081e40150be60eb7f03b062762e23756751fd3573e"
+    },
+    {
+      "id": "coordination-next-best-six",
+      "path": "docs/coordination/next-best-six.md",
+      "title": "Coordination plan - the six next-best items of the 2026-10-21 stock-take",
+      "type": "plan",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2026-11-21",
+      "reviewSuggested": [],
+      "summary": "Six items from the 2026-10-21 stock-take in one bounded wave on the ARM64 laptop: one ruling (DR-6 moot), two measurements (the application verify gates, the Browser scroll and Properties-view diagnostics), one qualification track (W-2 B2, the Windows project store) and two product slices (A3d Compare, Add station), each designed before it is built. Opus holds the Owner and leader seats; Sonnet sub-agents code where the task allows; Fable runs the pack mechanics. Width cap 3, serial spine first.",
+      "tags": [
+        "coordination",
+        "worktrees",
+        "parallelism"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "design-area3-analysis",
+          "rel": "implements"
+        },
+        {
+          "to": "design-windows-native-store",
+          "rel": "implements"
+        },
+        {
+          "to": "design-next-cad-increment",
+          "rel": "relates-to"
+        },
+        {
+          "to": "plan-application-build",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "210f28a9719a8d10c64ec75ec5c57b6738ab591efbecbba329f0de8602fe200f"
     },
     {
       "id": "coordination-pc-kickoff",
@@ -23056,6 +23101,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-workbench-v7"
     },
     {
+      "id": "surface-coordination-next-best-six",
+      "path": "docs/coordination/next-best-six.html",
+      "title": "Coordination plan - the six next-best items of the 2026-10-21 stock-take",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "coordination-next-best-six"
+    },
+    {
       "id": "surface-mockups-export",
       "path": "docs/mockups/export.html",
       "title": "Export Dialog",
@@ -23200,5 +23253,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "46171b0afd586e7738ca62287f0ccba7f0fb334dbbdfc393167698135f6826d7"
+  "graphSha256": "2e29207f4f13ca5f602f100860be4d75ed9bae9a1894e2000db68a0878b03d57"
 };
