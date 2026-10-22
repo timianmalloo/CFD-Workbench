@@ -9651,7 +9651,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "453a3f2b136c7c3e408fbe7cf7439cf511053573517486ec8a734afcd27df54d"
+      "sourceSha256": "b5520e5809fb14c02de17eb0b1d8843ef68886d4d125182285543021215ad5ca"
     },
     {
       "id": "kb-hw-glossary",
@@ -11319,7 +11319,7 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/next-best-six.md",
       "title": "Coordination plan - the six next-best items of the 2026-10-21 stock-take",
       "type": "plan",
-      "status": "proposed",
+      "status": "complete",
       "owner": "@timianmalloo",
       "phase": "",
       "reviewBy": "2026-11-21",
@@ -11357,7 +11357,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3f3bc4617908b112f42ab01b1055d033da374513fa1446ad28940034a1f38069"
+      "sourceSha256": "46ebe9cd92f2526bdfa8376d50cee27c0832cdbd8e983c00595bcd8c54c51486"
     },
     {
       "id": "coordination-pc-kickoff",
@@ -20744,7 +20744,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9f6ab7590080bdba20dcebea1eebe3923210479290cdc0fe0793d2032bd30271"
+      "sourceSha256": "9c8b88b6935564b85c10c9ae92c98a031cef25cc41c9d61f20bb0979729e4798"
     },
     {
       "id": "proof-win-trig-bits-20261008",
@@ -23749,5 +23749,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "6ec67196d22c54084c3095fde5a678bbbc6289ea3b4b51d3e023f3be33f44c73"
+  "graphSha256": "bcf1cc030c5d0f938393b228d31655b8caca68e5b171df47607331b59263eb84"
 };
