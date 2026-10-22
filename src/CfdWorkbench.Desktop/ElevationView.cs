@@ -423,6 +423,63 @@ public sealed class ElevationView : Control
 
     public static string StationName(int index, double eta) => StationNames.Of(index, eta);
 
+    // ---------------------------------------------------------------- the inspection slice (design 5.2: Front line, Side outline and chip)
+
+    /// <summary>The slice's section between the two mesh sections that bracket it (simplify: linear in η; ceiling the mesh pitch, upgrade when Core exposes a placed section at any η).</summary>
+    private (Point3[] Upper, Point3[] Lower)? SliceSection()
+    {
+        if (controller?.Selection is not Selection.Slice slice || controller.Surface is not { } surface) return null;
+        var meshes = surface.Sections;
+        int above = 0;
+        while (above < meshes.Count && meshes[above].Eta < slice.Eta) above++;
+        if (above == 0 || above >= meshes.Count) return null;
+        var from = meshes[above - 1];
+        var to = meshes[above];
+        double t = to.Eta == from.Eta ? 0 : (slice.Eta - from.Eta) / (to.Eta - from.Eta);
+        Point3[] Blend(IReadOnlyList<Point3> a, IReadOnlyList<Point3> b) => Enumerable.Range(0, Math.Min(a.Count, b.Count))
+            .Select(i => new Point3(a[i].X + (b[i].X - a[i].X) * t, a[i].Y + (b[i].Y - a[i].Y) * t, a[i].Z + (b[i].Z - a[i].Z) * t)).ToArray();
+        return (Blend(from.Upper, to.Upper), Blend(from.Lower, to.Lower));
+    }
+
+    /// <summary>Front: the slice's dashed vertical line on each half, top to bottom in band pixels; empty without a slice or in Side.</summary>
+    public IReadOnlyList<(Point Top, Point Bottom)> SliceLines()
+    {
+        if (!IsFront || SliceSection() is not { } section || Camera is not { } camera) return [];
+        double minimum = section.Upper.Concat(section.Lower).Min(p => p.Z), maximum = section.Upper.Concat(section.Lower).Max(p => p.Z);
+        return new[] { 1d, -1d }.Select(side => (
+            camera.Project(new Point3(camera.Target.X, side * section.Upper[0].Y, maximum), BandRect.Size) - new Vector(0, 6),
+            camera.Project(new Point3(camera.Target.X, side * section.Upper[0].Y, minimum), BandRect.Size) + new Vector(0, 6))).ToArray();
+    }
+
+    /// <summary>Side: the slice's section outline in band pixels, or null.</summary>
+    public Point[]? SliceOutline() => !IsFront && SliceSection() is { } section && Camera is { } camera
+        ? section.Upper.Concat(section.Lower.Reverse()).Select(p => camera.Project(p, BandRect.Size)).ToArray() : null;
+
+    /// <summary>Side: the slice's chip ("Slice · η 35.0 % · 175.0 mm", S1-COPY-2) beside the nose, clear of the station chips.</summary>
+    public (string Text, Rect Bounds)? SliceChip()
+    {
+        if (SliceOutline() is not { } outline || controller?.Selection is not Selection.Slice slice || controller.Planform is not { } plan) return null;
+        string text = WorkbenchController.SliceChipText(slice.Eta, slice.Eta * plan.HalfSpanMeters * 1000);
+        var rect = new Rect(outline[0].X + 10, outline[0].Y - 9, TextWidth(text, ChipFont, FontWeight.SemiBold) + 12, 18);
+        var others = Chips();
+        while (others.Any(chip => chip.Bounds.Intersects(rect))) rect = rect.Translate(new Vector(0, 20));
+        return (text, rect);
+    }
+
+    private bool sliceDrag;
+
+    /// <summary>Place (Front): the span axis under the t/c lane, where a press-drag moves the slice (design 5.2, the same snap as the Plan).</summary>
+    public Rect SliceAxisRect => new(0, LaneRect.Bottom, Bounds.Width, Math.Max(0, Math.Min(28, Bounds.Height - LaneRect.Bottom)));
+
+    /// <summary>The x of an η on the lane's span axis (a read-out for the placement check).</summary>
+    public double? LaneX(double eta) => controller?.Planform is { } plan && LayerFor(IsFront ? "thickness" : "twist") is { } layer
+        ? layer.ToScreen(eta * plan.HalfSpanMeters, 0).X : null;
+
+    private void PlaceSliceAt(Point position)
+    {
+        if (controller?.Planform is { } plan && EtaAt(position, plan) is { } eta) controller.PlaceSlice(eta);
+    }
+
     /// <summary>The authored section whose outline passes within 8 px of the pointer (Side band), or null.</summary>
     public (int Index, double Eta, string Name)? SectionAt(Point position) =>
         SectionsAt(position) is [var nearest, ..] ? nearest : null;
@@ -803,6 +860,15 @@ public sealed class ElevationView : Control
         var hit = HitTestPoint(position);
         if (hit is null)
         {
+            if (IsFront && pressed.IsLeftButtonPressed && !controller.IsAnalysis && SliceAxisRect.Contains(position))
+            {
+                PlaceSliceAt(position);
+                sliceDrag = controller.Selection is Selection.Slice;
+                if (sliceDrag) e.Pointer.Capture(this);
+                Focus();
+                e.Handled = true;
+                return;
+            }
             if (controller.IsAnalysis && pressed.IsLeftButtonPressed && e.ClickCount >= 2)
             { controller.ReportPointWarning(WorkbenchController.AnalysisPointRefusal); e.Handled = true; return; }
             if (pressed.IsLeftButtonPressed && e.ClickCount >= 2 && controller.Gesture == GestureState.Idle)
@@ -874,6 +940,12 @@ public sealed class ElevationView : Control
     {
         base.OnPointerMoved(e);
         var position = e.GetPosition(this);
+        if (sliceDrag)
+        {
+            PlaceSliceAt(position);
+            e.Handled = true;
+            return;
+        }
         if (panOrigin is not null)
         {
             if (!panning && Point.Distance(position, panPress) <= 3) return;
@@ -936,6 +1008,13 @@ public sealed class ElevationView : Control
     {
         if (e.InitialPressMouseButton == MouseButton.Right) e.Handled = true;
         base.OnPointerReleased(e);
+        if (sliceDrag)
+        {
+            sliceDrag = false;
+            e.Pointer.Capture(null);
+            e.Handled = true;
+            return;
+        }
         if (panOrigin is not null)
         {
             if (!panning && panClicks && controller is not null) controller.Select(new Selection.Foil());
@@ -1116,6 +1195,7 @@ public sealed class ElevationView : Control
         {
             if (IsFront) DrawFrontBand(context, brushes);
             else DrawSideChips(context);
+            DrawSlice(context);
             if (controller.IsAnalysis && controller.Surface is { } surface && Camera is { } camera)
                 ElevationDepthLayer.Draw(context, controller.LayerSet.FirstOrDefault(l => l.Id == "depth-band"),
                     camera, surface, band, IsFront, InkBrush ?? foil, mute, SoftBrush ?? BackgroundBrush ?? Brushes.Black);
@@ -1192,6 +1272,33 @@ public sealed class ElevationView : Control
         }
         DrawText(context, "starboard", new Point(12, band.Bottom - 24), MuteBrush ?? brushes.Foil, TickFont);
         DrawText(context, "port", new Point(Bounds.Width - 40, band.Bottom - 24), MuteBrush ?? brushes.Foil, TickFont);
+    }
+
+    /// <summary>Design 5.2 (UX2): Front a dashed vertical line, Side a dashed full-weight outline with its chip; the `station` token, 2 px dash.</summary>
+    private void DrawSlice(DrawingContext context)
+    {
+        var station = SelectionBrush ?? Brushes.White;
+        var dash = new Pen(station, 2, new DashStyle([3, 2], 0));
+        using (context.PushClip(BandRect))
+        {
+            foreach (var (top, bottom) in SliceLines()) context.DrawLine(dash, top, bottom);
+            if (SliceOutline() is { } outline) context.DrawGeometry(null, dash, Polygon(outline));
+            if (SliceChip() is { } chip)
+            {
+                context.DrawRectangle(null, dash, chip.Bounds.Deflate(.5), 4, 4);
+                DrawText(context, chip.Text, chip.Bounds.TopLeft + new Vector(6, 2), InkBrush ?? FoilBrush ?? Brushes.White, ChipFont, FontWeight.SemiBold);
+            }
+        }
+    }
+
+    private static StreamGeometry Polygon(Point[] points)
+    {
+        var geometry = new StreamGeometry();
+        using var open = geometry.Open();
+        open.BeginFigure(points[0], false);
+        for (int i = 1; i < points.Length; i++) open.LineTo(points[i]);
+        open.EndFigure(true);
+        return geometry;
     }
 
     private void DrawSideChips(DrawingContext context)
