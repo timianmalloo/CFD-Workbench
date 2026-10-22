@@ -135,7 +135,6 @@ internal static class CliHarness
         long analyseStarted = System.Diagnostics.Stopwatch.GetTimestamp();
         try
         {
-            if (!OperatingSystem.IsMacOS()) Console.WriteLine("SKIP Cli_AnalyseRunKey_EqualsServiceOnCustomOp macos-only-store"); else
             {
             const string op = "{\"speed\":5.14444,\"alphaDeg\":3,\"hRef\":0.5}";
             var host = new AnalysisHost(new CliFakeWing(), CliFakeWing.Water);
@@ -223,7 +222,6 @@ internal static class CliHarness
         long revisionStarted = System.Diagnostics.Stopwatch.GetTimestamp();
         try
         {
-            if (!OperatingSystem.IsMacOS()) Console.WriteLine("SKIP Cli_InspectRuns_RevisionIsSessionLabel macos-only-store"); else
             {
             var revisionHost = new AnalysisHost(new CliFakeWing(), CliFakeWing.Water);
             using var revisionSession = new AuthoringSession();
@@ -285,6 +283,29 @@ internal static class CliHarness
                 System.Diagnostics.Stopwatch.GetElapsedTime(revisionStarted).TotalMilliseconds.ToString("F3", System.Globalization.CultureInfo.InvariantCulture));
         }
 
+        // Repair cycle 2 (Security veto): a missing project under a OneDrive folder was read as DOC-CONFLICT because the ancestor walk could not
+        // see the cloud placeholder; the store now refuses the location first. The folder is designated through the OneDrive variable.
+        if (OperatingSystem.IsWindows())
+        {
+            string? previousOneDrive = Environment.GetEnvironmentVariable("OneDrive");
+            try
+            {
+                string oneDrive = TestTemp.NewDirectory("onedrive-");
+                Environment.SetEnvironmentVariable("OneDrive", oneDrive);
+                output.GetStringBuilder().Clear();
+                exit = await Cli.RunAsync(["inspect", Path.Combine(oneDrive, "no-such.cfdw.json"), "--json"], output);
+                Console.WriteLine("CLI-ONEDRIVE exit=" + exit + " " + output.ToString().Trim().Replace("\r", "").Replace("\n", " "));
+                if (!output.ToString().Contains("DOC-UNSUPPORTED-PERSISTENCE", StringComparison.Ordinal))
+                    throw new Exception($"inspect under OneDrive returned {exit}: {output}");
+                Console.WriteLine("PASS Cli_InspectUnderOneDrive_RefusedNotConflict");
+            }
+            catch (Exception error)
+            {
+                Console.WriteLine("FAIL Cli_InspectUnderOneDrive_RefusedNotConflict " + error.GetType().Name + ": " + error.Message);
+                cliFailures++;
+            }
+            finally { Environment.SetEnvironmentVariable("OneDrive", previousOneDrive); }
+        }
         cliFailures += DiscrepancyCliTests.Run();
         cliFailures += await ExportCliTests.RunAsync();
 

@@ -12,24 +12,33 @@ internal static class WindowsProjectStoreTests
 {
     internal static void Run()
     {
+        if (Environment.GetEnvironmentVariable("CFD_WIN_CRASH_STAGE") is { } crashStage) { CrashChild(crashStage); return; }
         Check("WindowsNative_ProductCode_UnqualifiedWin32Error_IsUnmapped", () =>
         {
             var failure = new WindowsNative.NativeFailure(null, 183);
             Equal<string?>(null, failure.ProductCode);
         });
-        Check("WindowsStore_Unqualified_ProductionAdmissionRemainsClosed", () =>
+        Check("WindowsStore_NtfsFixture_SaveOpenReopenSucceeds", () =>
         {
             string root = TestTemp.Combine("cfd-win-native-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(root);
             try
             {
+                string path = Path.Combine(root, "project.cfdw");
                 using var store = new ProjectStore();
-                var result = store.SaveAsync(Path.Combine(root, "project.cfdw"),
-                    new SaveRequest([1, 2, 3], null, Guid.NewGuid().ToString("D"))).GetAwaiter().GetResult();
-                Equal("DOC-UNSUPPORTED-PERSISTENCE", result.Code);
-                Equal(false, result.PublicationKnown);
-                Equal(false, result.DurabilityConfirmed);
-                Equal(0, Directory.GetFileSystemEntries(root).Length);
+                var created = store.SaveAsync(path, new SaveRequest([1, 2, 3], null, Guid.NewGuid().ToString("D"))).GetAwaiter().GetResult();
+                Equal("OK", created.Code);
+                Equal(true, created.PublicationKnown);
+                Equal(true, created.DurabilityConfirmed);
+                var first = store.ReadAsync(path).GetAwaiter().GetResult();
+                Equal(true, first.Image.AsSpan().SequenceEqual(new byte[] { 1, 2, 3 }));
+                Equal(created.PublishedSha256, first.DiskSha256);
+                var replaced = store.SaveAsync(path, new SaveRequest([4, 5], first.DiskSha256, Guid.NewGuid().ToString("D"))).GetAwaiter().GetResult();
+                Equal("OK", replaced.Code);
+                var second = store.ReadAsync(path).GetAwaiter().GetResult();
+                Equal(true, second.Image.AsSpan().SequenceEqual(new byte[] { 4, 5 }));
+                Equal(replaced.PublishedSha256, second.DiskSha256);
+                Equal(1, Directory.GetFileSystemEntries(root).Length);
             }
             finally { Directory.Delete(root, true); }
         });
@@ -51,6 +60,9 @@ internal static class WindowsProjectStoreTests
             Layout<WindowsNative.FileId>(24, ("VolumeSerialNumber", 0), ("Id", 8));
             Layout<WindowsNative.RenameHeader>(24, ("Flags", 0), ("RootDirectory", 8), ("FileNameLength", 16), ("FirstCharacter", 20));
             Layout<WindowsNative.Disposition>(4, ("Flags", 0));
+            Layout<WindowsNative.FileAttributeTag>(8, ("Attributes", 0), ("ReparseTag", 4));
+            Layout<WindowsNative.FileStandard>(24, ("AllocationSize", 0), ("EndOfFile", 8), ("NumberOfLinks", 16), ("DeletePending", 20), ("Directory", 21));
+            Layout<WindowsNative.CaseSensitiveInfo>(4, ("Flags", 0));
         });
         Check("WindowsNative_RelativeCreate_PrivateAclBeforeAnyBytes", () => Fixture((root, parent) =>
         {
@@ -203,6 +215,475 @@ internal static class WindowsProjectStoreTests
             using var boundary = WindowsNative.CreatePrivate(parent, new string('a', 255));
             Equal(1, Directory.GetFileSystemEntries(root).Length);
         }));
+        // Ruling 135 binding conditions, through the public store: the held-reader overwrite pair (red on the closed store,
+        // green on the adapter), path admission, long path, reparse points, case-sensitive directories, crash leftovers.
+        Check("WindowsStore_Overwrite_ShareReadDeleteReaderKeepsOldImage", OverwriteKeepsHeldReader);
+        Check("WindowsStore_Overwrite_ShareReadOnlyReaderRefused_IncumbentKept", OverwriteRefusedByShareReadReader);
+        Check("WindowsStore_CreatedFiles_PrivateDescriptorBeforeAnyByteAndAfterPublication", PrivateBeforeAnyByte);
+        Check("WindowsStore_PathAdmission_RefusedBeforeAnyWrite", PathAdmission);
+        Check("WindowsStore_LongPath_Over260_SaveOpenRoundTrip", LongPath);
+        Check("WindowsStore_ReparseAndHardLink_RefusedNothingWrittenThrough", ReparseAndHardLink);
+        Check("WindowsStore_CaseSensitiveDirectory_QueryReadsFlag", CaseSensitiveQuery);
+        CaseSensitiveRefusal(); // registers its check only where the fixture can be made; otherwise a NOT ASSESSED line and no PASS
+        // Repair cycle 2: OneDrive placeholders are disguised in a normal process (mode 1), so the walk must expose them.
+        Check("WindowsStore_PlaceholderMode_ExposedInSaveWalkAndCloudFolder", PlaceholderModeExposed);
+        Check("WindowsStore_Save_UnderEnvironmentOneDriveFolder_RefusedNothingWritten", SaveUnderOneDriveRefused);
+        Check("WindowsStore_VolumeDevice_RemoteRemovableRefused_LocalAdmitted", VolumeDevice);
+        Check("WindowsStore_ForeignDaclTarget_Overwrite", ForeignDaclTarget);
+        Check("WindowsStore_ReadOnlyTarget_OverwriteRefused", ReadOnlyTarget);
+        EfsTarget();
+        Check("WindowsStore_AncestorRenameRefusedWhileRetained", AncestorRenameRefused);
+        Check("WindowsStore_OwnedTempRenameWriteDeleteRefusedWhileHeld", OwnedTempProtected);
+        Check("WindowsStore_IoEvents_NoDirectoryFlushClaimed", EventsWithoutDirectoryFlush);
+        Check("WindowsStore_CrashInjection_LeftoverInventoryMeasured", CrashInjection);
+        // Ruling 160 (1) and (5): the OneDrive refusal and its fail-closed form, decided in Persistence so no window is needed.
+        Check("WindowsStore_CloudFolder_OneDriveEnvironmentPathRefused", CloudEnvironmentPath);
+        Check("WindowsStore_CloudFolder_CloudAttributeOrReparseTagOnFolderOrAncestorRefused", CloudAttributes);
+        Check("WindowsStore_CloudFolder_CheckFailureRefusedFailClosed", CloudCheckFailure);
+        Check("WindowsStore_CloudFolder_LocalFolderAdmitted_RealAttributeQuery", CloudLocalFolder);
+    }
+
+    private static (uint, uint) Plain(string path) => (0x10u, 0u); // FILE_ATTRIBUTE_DIRECTORY, no reparse tag
+
+    private static void CloudEnvironmentPath()
+    {
+        string root = NewRoot(), oneDrive = Path.Combine(root, "OneDrive"), inside = Path.Combine(oneDrive, "Projects", "wing");
+        foreach (string variable in new[] { "OneDrive", "OneDriveConsumer", "OneDriveCommercial" })
+        {
+            Func<string, string?> env = name => name == variable ? oneDrive : null;
+            Equal(FolderLocation.Cloud, CloudFolder.Classify(inside, env, Plain));
+            Equal(FolderLocation.Cloud, CloudFolder.Classify(oneDrive + @"\", env, Plain));
+            Equal(FolderLocation.Cloud, CloudFolder.Classify(inside.ToUpperInvariant(), env, Plain));
+            Equal(FolderLocation.Cloud, CloudFolder.Classify(Path.Combine(oneDrive, "..", "OneDrive", "x"), env, Plain));
+            Equal(FolderLocation.Local, CloudFolder.Classify(oneDrive + "-archive", env, Plain)); // a sibling that shares the prefix
+            Equal(FolderLocation.Local, CloudFolder.Classify(Path.Combine(root, "elsewhere"), env, Plain));
+        }
+        Equal(FolderLocation.Local, CloudFolder.Classify(inside, _ => null, Plain)); // no variable set and no attribute: local
+    }
+
+    private static void CloudAttributes()
+    {
+        string root = NewRoot(), folder = Path.Combine(root, "a", "b");
+        // winnt.h: RECALL_ON_OPEN 0x40000, PINNED 0x80000, UNPINNED 0x100000, RECALL_ON_DATA_ACCESS 0x400000.
+        foreach (uint attribute in new uint[] { 0x40000, 0x80000, 0x100000, 0x400000 })
+        {
+            Equal(FolderLocation.Cloud, CloudFolder.Classify(folder, _ => null, path => path == folder ? (0x10u | attribute, 0u) : (0x10u, 0u)));
+            Equal(FolderLocation.Cloud, CloudFolder.Classify(folder, _ => null, path => path == root ? (0x10u | attribute, 0u) : (0x10u, 0u)));
+        }
+        // IO_REPARSE_TAG_CLOUD, IO_REPARSE_TAG_CLOUD_F, IO_REPARSE_TAG_ONEDRIVE on an ancestor.
+        foreach (uint tag in new uint[] { 0x9000001A, 0x9000F01A, 0x9000701A, 0x80000021 })
+            Equal(FolderLocation.Cloud, CloudFolder.Classify(folder, _ => null, path => path == Path.GetDirectoryName(folder) ? (0x410u, tag) : (0x10u, 0u)));
+        // A symbolic link tag (IO_REPARSE_TAG_SYMLINK 0xA000000C) is not a cloud tag; the store refuses it on its own.
+        Equal(FolderLocation.Local, CloudFolder.Classify(folder, _ => null, path => path == folder ? (0x410u, 0xA000000C) : (0x10u, 0u)));
+        // The walk reaches the volume root.
+        var visited = new List<string>(); CloudFolder.Classify(folder, _ => null, path => { visited.Add(path); return (0x10u, 0u); });
+        Equal<string?>(Path.GetPathRoot(folder), visited.Last()); Equal(folder, visited.First());
+    }
+
+    private static void CloudCheckFailure()
+    {
+        string root = NewRoot();
+        Equal(FolderLocation.CheckFailed, CloudFolder.Classify(root, _ => null, _ => throw new IOException("denied")));
+        Equal(FolderLocation.CheckFailed, CloudFolder.Classify(root, _ => null, _ => throw new WindowsNative.NativeFailure(null, 5)));
+        Equal(FolderLocation.CheckFailed, CloudFolder.Classify(root, _ => null, _ => throw new UnauthorizedAccessException()));
+        Equal(FolderLocation.CheckFailed, CloudFolder.Classify(@"\\server\share\folder", _ => null, Plain));
+        Equal(FolderLocation.CheckFailed, CloudFolder.Classify(root, name => name == "OneDrive" ? "not-a-drive-path" : null, Plain));
+        // The real query on a folder that does not exist cannot say; it refuses rather than guess.
+        Equal(FolderLocation.CheckFailed, CloudFolder.Classify(Path.Combine(root, "missing")));
+    }
+
+    private static void CloudLocalFolder()
+    {
+        string root = NewRoot();
+        Equal(FolderLocation.Local, CloudFolder.Classify(root, _ => null, path => { var tag = WindowsNative.AttributeTag(path); return (tag.Attributes, tag.ReparseTag); }));
+        Equal(FolderLocation.Local, CloudFolder.Classify(root)); // the real environment variables: the test folder is not under OneDrive
+        // A real cloud attribute on a folder, where this account may set one (attrib +P sets FILE_ATTRIBUTE_PINNED).
+        string pinned = Path.Combine(root, "pinned"); Directory.CreateDirectory(pinned);
+        var start = new System.Diagnostics.ProcessStartInfo("attrib.exe") { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
+        start.ArgumentList.Add("+P"); start.ArgumentList.Add(pinned);
+        using var process = System.Diagnostics.Process.Start(start)!; process.StandardOutput.ReadToEnd(); process.StandardError.ReadToEnd(); process.WaitForExit(30_000);
+        bool set = process.ExitCode == 0 && ((uint)File.GetAttributes(pinned) & 0x80000) != 0;
+        if (set) Equal(FolderLocation.Cloud, CloudFolder.Classify(pinned));
+        Console.WriteLine("CLOUD-REAL-ATTRIBUTE pinned_set=" + set + (set ? " classified=Cloud" : " (attrib +P not accepted here; the seam cases above cover the attribute)"));
+    }
+
+    private static string Id() => Guid.NewGuid().ToString("D");
+    private static string NewRoot() => TestTemp.NewDirectory("winstore-");
+    private static SaveResult Save(ProjectStore store, string path, SaveRequest request) => store.SaveAsync(path, request).GetAwaiter().GetResult();
+
+    private static void OverwriteKeepsHeldReader()
+    {
+        string path = Path.Combine(NewRoot(), "project.cfdw"); using var store = new ProjectStore();
+        var created = Save(store, path, new([1, 1], null, Id())); Equal("OK", created.Code);
+        using var held = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read | FileShare.Delete);
+        var replaced = Save(store, path, new([2, 2, 2], created.PublishedSha256, Id()));
+        Equal("OK", replaced.Code); Equal(true, replaced.DurabilityConfirmed);
+        byte[] old = new byte[4]; Equal(2, held.Read(old, 0, 4)); Equal(true, old.AsSpan(0, 2).SequenceEqual(new byte[] { 1, 1 }));
+        Equal(true, store.ReadAsync(path).GetAwaiter().GetResult().Image.AsSpan().SequenceEqual(new byte[] { 2, 2, 2 }));
+        Equal(1, Directory.GetFileSystemEntries(Path.GetDirectoryName(path)!).Length);
+        Console.WriteLine("STORE-HELD-READER-OVERWRITE code=OK held_bytes=0101 fresh_bytes=020202 entries=1");
+    }
+
+    private static void OverwriteRefusedByShareReadReader()
+    {
+        string path = Path.Combine(NewRoot(), "project.cfdw"); using var store = new ProjectStore();
+        var created = Save(store, path, new([1, 1], null, Id())); Equal("OK", created.Code);
+        SaveResult refused;
+        using (var held = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+        {
+            refused = Save(store, path, new([2, 2, 2], created.PublishedSha256, Id()));
+            Equal("DOC-CONFLICT", refused.Code); // Win32 32 maps to the stable product code, never DOC-IO (Ruling 145 (3))
+            Equal(false, refused.PublicationKnown); Equal(false, refused.DurabilityConfirmed);
+            byte[] bytes = new byte[4]; Equal(2, held.Read(bytes, 0, 4));
+            Equal(1, Directory.GetFileSystemEntries(Path.GetDirectoryName(path)!).Length); // temp and claim removed through their own handles
+        }
+        Equal(true, store.ReadAsync(path).GetAwaiter().GetResult().Image.AsSpan().SequenceEqual(new byte[] { 1, 1 }));
+        Equal("OK", Save(store, path, new([2, 2, 2], created.PublishedSha256, Id())).Code); // the retry succeeds once the reader is gone
+        Console.WriteLine("STORE-SHARE-READ-ONLY-REFUSAL code=" + refused.Code + " incumbent_bytes=0101 entries_after_refusal=1");
+    }
+
+    private static void PrivateBeforeAnyByte()
+    {
+        string root = NewRoot(), path = Path.Combine(root, "project.cfdw"); var seen = new List<string>();
+        foreach (bool overwrite in new[] { false, true })
+        {
+            string operation = Id(); seen.Clear();
+            if (overwrite) File.WriteAllBytes(path, [7]); // inherited DACL: the replacement is private anyway
+            using var store = new ProjectStore(new StoreHooks { OnStage = stage =>
+            {
+                if (stage is not (StoreStage.TempCreated or StoreStage.ClaimCreated)) return;
+                string entry = Path.Combine(root, stage == StoreStage.TempCreated ? ProjectStore.TempName(operation) : ProjectStore.ClaimName());
+                Equal(0L, new FileInfo(entry).Length); AssertPrivateFile(entry); seen.Add(stage.ToString());
+            } });
+            var result = Save(store, path, new([1, 2, 3], overwrite ? Identity.Sha256([7]) : null, operation));
+            Equal("OK", result.Code); Equal(overwrite ? 2 : 1, seen.Count); AssertPrivateFile(path);
+        }
+    }
+
+    private static void PathAdmission()
+    {
+        string root = NewRoot(); using var store = new ProjectStore();
+        string[] refused = ["relative.cfdw", @"C:drive-relative.cfdw", @"\\server\share\project.cfdw", @"\\?\" + Path.Combine(root, "x.cfdw"),
+            root + "/forward.cfdw", Path.Combine(root, "NUL"), Path.Combine(root, "com1.txt"), Path.Combine(root, "a:stream"),
+            Path.Combine(root, "trailing."), Path.Combine(root, "trailing "), Path.Combine(root, ".cfd-claim"), Path.Combine(root, ".CFD-x.TMP"),
+            Path.Combine(root, "a|b"), Path.Combine(root, "q?x"), Path.Combine(root, new string('x', 256)), Path.Combine(root, "..", "up.cfdw")];
+        foreach (string path in refused)
+        {
+            var result = Save(store, path, new([1], null, Id()));
+            if (result.Code != "DOC-UNSUPPORTED-PERSISTENCE") throw new InvalidOperationException($"{path.Replace(root, "<root>")} -> {result.Code}");
+            Equal(false, result.PublicationKnown);
+        }
+        Equal("DOC-CONFLICT", Save(store, Path.Combine(root, "missing-dir", "x.cfdw"), new([1], null, Id())).Code); // ERROR_PATH_NOT_FOUND
+        Equal(0, Directory.GetFileSystemEntries(root).Length);
+        // A directory in the leaf's place is refused too (design section 4: a disk regular file for leaves).
+        string folder = Path.Combine(root, "folder.cfdw"); Directory.CreateDirectory(folder);
+        Equal("DOC-UNSUPPORTED-PERSISTENCE", Save(store, folder, new([1], null, Id())).Code);
+        Equal(1, Directory.GetFileSystemEntries(root).Length);
+    }
+
+    private static void LongPath()
+    {
+        string dir = NewRoot();
+        for (int i = 0; i < 3; i++) dir = Path.Combine(dir, new string((char)('a' + i), 120));
+        Directory.CreateDirectory(dir);
+        string path = Path.Combine(dir, "project-" + new string('p', 60) + ".cfdw");
+        Equal(true, path.Length > 400);
+        using var store = new ProjectStore();
+        var created = Save(store, path, new([4, 5, 6], null, Id())); Equal("OK", created.Code);
+        Equal(true, store.ReadAsync(path).GetAwaiter().GetResult().Image.AsSpan().SequenceEqual(new byte[] { 4, 5, 6 }));
+        Equal("OK", Save(store, path, new([7], created.PublishedSha256, Id())).Code);
+        Console.WriteLine($"STORE-LONG-PATH utf16_units={path.Length} components={path.Split('\\').Length}");
+    }
+
+    private static void RunProcess(string file, params string[] arguments)
+    {
+        var start = new System.Diagnostics.ProcessStartInfo(file) { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
+        foreach (string argument in arguments) start.ArgumentList.Add(argument);
+        using var process = System.Diagnostics.Process.Start(start)!;
+        process.StandardOutput.ReadToEnd(); process.StandardError.ReadToEnd();
+        if (!process.WaitForExit(30_000)) { process.Kill(); throw new TimeoutException(file); }
+        Equal(0, process.ExitCode);
+    }
+
+    private static void ReparseAndHardLink()
+    {
+        string root = NewRoot(), real = Path.Combine(root, "real"); Directory.CreateDirectory(real);
+        File.WriteAllBytes(Path.Combine(real, "inside.cfdw"), [7]);
+        using var store = new ProjectStore();
+        // An ancestor that is a junction: nothing is written through it.
+        string junction = Path.Combine(root, "junction");
+        Equal(true, TestLinks.TryDirectoryLink(junction, real)); // a junction on Windows: it needs no privilege
+        Equal("DOC-UNSUPPORTED-PERSISTENCE", Save(store, Path.Combine(junction, "new.cfdw"), new([1], null, Id())).Code);
+        Equal("DOC-UNSUPPORTED-PERSISTENCE", Save(store, Path.Combine(junction, "inside.cfdw"), new([1], Identity.Sha256([7]), Id())).Code);
+        Refuses("DOC-UNSUPPORTED-PERSISTENCE", () => store.ReadAsync(Path.Combine(junction, "inside.cfdw")).GetAwaiter().GetResult());
+        Equal(1, Directory.GetFileSystemEntries(real).Length); Equal((byte)7, File.ReadAllBytes(Path.Combine(real, "inside.cfdw"))[0]);
+        // A leaf that is a symbolic link (when this account may create one) or, failing that, a junction.
+        string leaf = Path.Combine(root, "leaf.cfdw");
+        string kind = TestLinks.TryFileLink(leaf, Path.Combine(real, "inside.cfdw")) ? "file-symlink" : "junction-as-leaf";
+        if (kind == "junction-as-leaf") Equal(true, TestLinks.TryDirectoryLink(leaf, real));
+        Equal("DOC-UNSUPPORTED-PERSISTENCE", Save(store, leaf, new([1], Identity.Sha256([7]), Id())).Code);
+        Refuses("DOC-UNSUPPORTED-PERSISTENCE", () => store.ReadAsync(leaf).GetAwaiter().GetResult());
+        Equal((byte)7, File.ReadAllBytes(Path.Combine(real, "inside.cfdw"))[0]);
+        // A second hard link: link count other than one is refused for read and overwrite, both names preserved.
+        string linked = Path.Combine(root, "linked.cfdw");
+        RunProcess("cmd.exe", "/c", "mklink", "/H", linked, Path.Combine(real, "inside.cfdw"));
+        Equal("DOC-UNSUPPORTED-PERSISTENCE", Save(store, linked, new([1], Identity.Sha256([7]), Id())).Code);
+        Refuses("DOC-UNSUPPORTED-PERSISTENCE", () => store.ReadAsync(linked).GetAwaiter().GetResult());
+        Equal((byte)7, File.ReadAllBytes(linked)[0]); Equal((byte)7, File.ReadAllBytes(Path.Combine(real, "inside.cfdw"))[0]);
+        Equal("OK", Save(store, Path.Combine(root, "control.cfdw"), new([1], null, Id())).Code); // a plain folder beside the refused ones is admitted
+        Console.WriteLine("STORE-REPARSE ancestor=junction leaf=" + kind + " hardlink=refused control=OK");
+    }
+
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    private static extern SafeFileHandle CreateFileW(string name, uint access, uint share, nint security, uint disposition, uint flags, nint template);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern bool SetFileInformationByHandle(SafeFileHandle handle, int informationClass, ref uint information, uint length);
+
+    private static void CaseSensitiveQuery()
+    {
+        string normal = NewRoot(); using var store = new ProjectStore();
+        Equal("OK", Save(store, Path.Combine(normal, "project.cfdw"), new([1], null, Id())).Code);
+        using (var directory = WindowsNative.OpenFixtureDirectory(normal)) Equal(false, WindowsNative.IsCaseSensitive(directory));
+    }
+
+    // The refusal branch needs a case-sensitive directory, which some volumes refuse to create (Win32 5, observed on D: and not on C:, unelevated). Then it is NOT ASSESSED
+    // and prints no PASS; the query above is the only thing observed here. winbase.h FileCaseSensitiveInfo = 23, FILE_CS_FLAG_CASE_SENSITIVE_DIR = 1.
+    private static void CaseSensitiveRefusal()
+    {
+        string sensitive = NewRoot(); uint flags = 1; int enableError = 0;
+        using (var handle = CreateFileW(sensitive, 0x100 | 0x00100000, 7, 0, 3, 0x02000000, 0)) // FILE_WRITE_ATTRIBUTES | SYNCHRONIZE; OPEN_EXISTING; BACKUP_SEMANTICS
+        {
+            if (handle.IsInvalid || !SetFileInformationByHandle(handle, 23, ref flags, 4)) enableError = Marshal.GetLastWin32Error();
+        }
+        if (enableError != 0)
+        {
+            Console.WriteLine($"NOT ASSESSED WindowsStore_CaseSensitiveDirectory_RefusalBranch volume-refuses-case-sensitive-flag Win32={enableError}");
+            return;
+        }
+        Check("WindowsStore_CaseSensitiveDirectory_RefusalBranch", () =>
+        {
+            using var store = new ProjectStore();
+            Equal("DOC-UNSUPPORTED-PERSISTENCE", Save(store, Path.Combine(sensitive, "project.cfdw"), new([1], null, Id())).Code);
+            Equal(0, Directory.GetFileSystemEntries(sensitive).Length);
+        });
+    }
+
+    // ntifs.h: RtlQueryThreadPlaceholderCompatibilityMode returns the calling thread's mode; PHCM_DISGUISE_PLACEHOLDER = 1, PHCM_EXPOSE_PLACEHOLDERS = 2.
+    [DllImport("ntdll.dll")]
+    private static extern sbyte RtlQueryThreadPlaceholderCompatibilityMode();
+
+    private static void WithEnvironment(string name, string? value, Action action)
+    {
+        string? old = Environment.GetEnvironmentVariable(name);
+        try { Environment.SetEnvironmentVariable(name, value); action(); }
+        finally { Environment.SetEnvironmentVariable(name, old); }
+    }
+
+    private static void PlaceholderModeExposed()
+    {
+        sbyte before = RtlQueryThreadPlaceholderCompatibilityMode();
+        var stages = new List<sbyte>();
+        using var store = new ProjectStore(new StoreHooks { OnStage = _ => stages.Add(RtlQueryThreadPlaceholderCompatibilityMode()) });
+        Equal("OK", Save(store, Path.Combine(NewRoot(), "project.cfdw"), new([1], null, Id())).Code);
+        Equal(true, stages.Count > 0 && stages.All(mode => mode == 2)); // the Save walk and everything after it ran exposed
+        Equal(before, RtlQueryThreadPlaceholderCompatibilityMode());    // and the thread is back in the mode it had
+        var walked = new List<sbyte>();
+        CloudFolder.Classify(NewRoot(), _ => null, _ => { walked.Add(RtlQueryThreadPlaceholderCompatibilityMode()); return (0x10u, 0u); });
+        Equal(true, walked.Count > 0 && walked.All(mode => mode == 2));
+        Equal(before, RtlQueryThreadPlaceholderCompatibilityMode());
+        Console.WriteLine($"PLACEHOLDER-MODE thread_before={before} save_stages={stages.Count} all_exposed=true cloud_reads={walked.Count} all_exposed=true restored=true");
+    }
+
+    private static void SaveUnderOneDriveRefused()
+    {
+        string root = NewRoot(), oneDrive = Path.Combine(root, "OneDrive"), path = Path.Combine(oneDrive, "project.cfdw");
+        Directory.CreateDirectory(oneDrive);
+        using var plain = new ProjectStore();
+        var created = Save(plain, path, new([1, 2], null, Id())); Equal("OK", created.Code); // seeded before the variable names this folder
+        var stages = new List<StoreStage>();
+        WithEnvironment("OneDrive", oneDrive, () =>
+        {
+            using var store = new ProjectStore(new StoreHooks { OnStage = stages.Add });
+            foreach (var request in new[] { new SaveRequest([9], created.PublishedSha256, Id()), new SaveRequest([9], null, Id()) })
+            {
+                var result = Save(store, request.CreateOnly ? Path.Combine(oneDrive, "new.cfdw") : path, request);
+                Equal("DOC-UNSUPPORTED-PERSISTENCE", result.Code); Equal(false, result.PublicationKnown); Equal(false, result.DurabilityConfirmed);
+            }
+        });
+        Equal(false, stages.Any(stage => stage is StoreStage.ClaimCreated or StoreStage.TempCreated or StoreStage.Writing));
+        Equal(1, Directory.GetFileSystemEntries(oneDrive).Length); // no temp, no claim, no new file
+        Equal(true, File.ReadAllBytes(path).AsSpan().SequenceEqual(new byte[] { 1, 2 }));
+    }
+
+    private static void VolumeDevice()
+    {
+        // ntifs.h / wdm.h: FILE_DEVICE_DISK 0x7, FILE_DEVICE_NETWORK_FILE_SYSTEM 0x14; FILE_REMOVABLE_MEDIA 0x1, FILE_FLOPPY_DISKETTE 0x4,
+        // FILE_REMOTE_DEVICE 0x10, FILE_DEVICE_IS_MOUNTED 0x20, FILE_CHARACTERISTIC_TS_DEVICE 0x1000, FILE_CHARACTERISTIC_WEBDAV_DEVICE 0x2000.
+        Equal(true, WindowsNative.IsFixedLocalVolume(0x7, 0x20));
+        Equal(true, WindowsNative.IsFixedLocalVolume(0x7, 0x0));
+        Equal(false, WindowsNative.IsFixedLocalVolume(0x14, 0x10)); // a mapped SMB drive: remote, network file system
+        Equal(false, WindowsNative.IsFixedLocalVolume(0x7, 0x10));  // remote flag alone
+        Equal(false, WindowsNative.IsFixedLocalVolume(0x14, 0x0));  // network device type alone
+        Equal(false, WindowsNative.IsFixedLocalVolume(0x7, 0x21));  // removable media (a USB stick)
+        Equal(false, WindowsNative.IsFixedLocalVolume(0x7, 0x24));  // floppy
+        Equal(false, WindowsNative.IsFixedLocalVolume(0x7, 0x1000)); // terminal-services redirected
+        Equal(false, WindowsNative.IsFixedLocalVolume(0x7, 0x2000)); // WebDAV
+        string root = Path.GetPathRoot(NewRoot())!;
+        using var handle = WindowsNative.OpenRoot(root);
+        var (type, characteristics) = WindowsNative.VolumeDevice(handle);
+        Equal(true, WindowsNative.IsFixedLocalVolume(type, characteristics)); // the local NTFS fixture volume is still admitted
+        Console.WriteLine($"VOLUME-DEVICE local_ntfs type=0x{type:x} characteristics=0x{characteristics:x} admitted=true; real remote and removable volumes: NOT ASSESSED");
+        Layout<WindowsNative.FileFsDevice>(8, ("DeviceType", 0), ("Characteristics", 4));
+    }
+
+    // Ruling 253 (W2-Q1 b): a target that does not carry the private owner/DACL is overwritten; the result is the private temp, so the
+    // target's owner, extra ACEs, compression and named streams are not carried over.
+    private static void ForeignDaclTarget()
+    {
+        string root = NewRoot(), path = Path.Combine(root, "project.cfdw"); File.WriteAllBytes(path, [7]); // inherited DACL
+        using var store = new ProjectStore();
+        var result = Save(store, path, new([1], Identity.Sha256([7]), Id()));
+        Equal("OK", result.Code); Equal(true, result.DurabilityConfirmed);
+        Equal(true, File.ReadAllBytes(path).AsSpan().SequenceEqual(new byte[] { 1 })); Equal(1, Directory.GetFileSystemEntries(root).Length);
+        AssertPrivateFile(path);
+    }
+
+    // Ruling 253: refused before the claim with a definite code (not DOC-SAVE-UNCERTAIN); the target, its attributes and the folder are untouched.
+    private static void ReadOnlyTarget()
+    {
+        string root = NewRoot(), path = Path.Combine(root, "project.cfdw"); File.WriteAllBytes(path, [7]);
+        File.SetAttributes(path, FileAttributes.ReadOnly);
+        try
+        {
+            var stages = new List<StoreStage>();
+            using var store = new ProjectStore(new StoreHooks { OnStage = stages.Add });
+            var result = Save(store, path, new([1], Identity.Sha256([7]), Id()));
+            Equal("DOC-UNSUPPORTED-PERSISTENCE", result.Code); Equal(false, result.PublicationKnown);
+            Equal(false, stages.Contains(StoreStage.ClaimCreated)); Equal(1, Directory.GetFileSystemEntries(root).Length);
+            Equal(true, File.ReadAllBytes(path).AsSpan().SequenceEqual(new byte[] { 7 })); Equal(true, (File.GetAttributes(path) & FileAttributes.ReadOnly) != 0);
+        }
+        finally { File.SetAttributes(path, FileAttributes.Normal); }
+    }
+
+    // EFS needs a SKU and a profile that can encrypt; where File.Encrypt fails the check is not registered and a NOT ASSESSED line is printed, never a PASS.
+    private static void EfsTarget()
+    {
+        string root = NewRoot(), path = Path.Combine(root, "project.cfdw"); File.WriteAllBytes(path, [7]);
+        try { File.Encrypt(path); }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or PlatformNotSupportedException)
+        { Console.WriteLine($"NOT ASSESSED WindowsStore_EfsTarget_OverwriteRefused efs-unavailable {error.GetType().Name}"); return; }
+        if ((File.GetAttributes(path) & FileAttributes.Encrypted) == 0)
+        { Console.WriteLine("NOT ASSESSED WindowsStore_EfsTarget_OverwriteRefused efs-attribute-not-set"); return; }
+        Check("WindowsStore_EfsTarget_OverwriteRefused", () =>
+        {
+            var stages = new List<StoreStage>();
+            using var store = new ProjectStore(new StoreHooks { OnStage = stages.Add });
+            var result = Save(store, path, new([1], Identity.Sha256([7]), Id()));
+            Equal("DOC-UNSUPPORTED-PERSISTENCE", result.Code); Equal(false, result.PublicationKnown);
+            Equal(false, stages.Contains(StoreStage.ClaimCreated)); Equal(1, Directory.GetFileSystemEntries(root).Length);
+            Equal(true, File.ReadAllBytes(path).AsSpan().SequenceEqual(new byte[] { 7 })); Equal(true, (File.GetAttributes(path) & FileAttributes.Encrypted) != 0);
+        });
+    }
+
+    private static void AncestorRenameRefused()
+    {
+        string root = NewRoot(), selected = Path.Combine(root, "selected"); Directory.CreateDirectory(selected);
+        string path = Path.Combine(selected, "project"); File.WriteAllBytes(path, [7]); Exception? refused = null;
+        var store = new ProjectStore(new StoreHooks { OnStage = stage =>
+        {
+            if (stage != StoreStage.BeforePublish) return;
+            try { Directory.Move(selected, Path.Combine(root, "moved")); } catch (IOException error) { refused = error; }
+        } });
+        Equal("OK", Save(store, path, new([1], Identity.Sha256([7]), Id())).Code);
+        Equal(true, refused is not null); Equal(true, Directory.Exists(selected)); Equal(false, Directory.Exists(Path.Combine(root, "moved")));
+        Equal((byte)1, File.ReadAllBytes(path)[0]);
+    }
+
+    private static void OwnedTempProtected()
+    {
+        string root = NewRoot(), path = Path.Combine(root, "project"), operation = Id(), temp = Path.Combine(root, ProjectStore.TempName(operation));
+        int refusals = 0;
+        var store = new ProjectStore(new StoreHooks { OnStage = stage =>
+        {
+            if (stage != StoreStage.BeforePublish) return;
+            try { File.Move(temp, temp + ".moved"); } catch (IOException) { refusals++; }
+            try { File.WriteAllBytes(temp, [9]); } catch (IOException) { refusals++; }
+            try { File.Delete(temp); } catch (IOException) { refusals++; }
+        } });
+        Equal("OK", Save(store, path, new([1], null, operation)).Code);
+        Equal(3, refusals); Equal((byte)1, File.ReadAllBytes(path)[0]); Equal(1, Directory.GetFileSystemEntries(root).Length);
+    }
+
+    private static void EventsWithoutDirectoryFlush()
+    {
+        string root = NewRoot(), path = Path.Combine(root, "project"); using var store = new ProjectStore();
+        Equal("OK", Save(store, path, new([1, 2], null, Id())).Code);
+        var events = store.ReadLocalEvents();
+        // Ruling 135: the Windows level is file flush plus atomic rename; no store.flush (directory) event is claimed.
+        Equal("store.file-flush,store.publish,store.save", string.Join(',', events.Select(e => e.Action)));
+        Equal(1, events.Select(e => e.TraceId).Distinct().Count());
+        Equal(true, events.Last().PublicationKnown); Equal(true, events.Last().DurabilityConfirmed);
+        Equal("DOC-CONFLICT", Save(store, path, new([9], null, Id())).Code);
+        Equal("DOC-CONFLICT", store.ReadLocalEvents().Last().Outcome); Equal(false, store.ReadLocalEvents().Last().PublicationKnown);
+        Equal(false, System.Text.Json.JsonSerializer.Serialize(store.ReadLocalEvents()).Contains(root, StringComparison.Ordinal));
+    }
+
+    // Ruling 190: kill the save in a child process at three points and list exactly what is left. The listing is the basis
+    // of the COPY-447 wording ("the leftover files").
+    private static void CrashInjection()
+    {
+        foreach (string stage in new[] { "Writing", "BeforePublish", "Published" })
+        {
+            string root = NewRoot(), path = Path.Combine(root, "project.cfdw"); using var store = new ProjectStore();
+            var seeded = Save(store, path, new([1, 2, 3], null, Id())); Equal("OK", seeded.Code);
+            string host = Path.Combine(AppContext.BaseDirectory, System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + ".exe"); // the apphost, as HarnessRun starts it
+            var start = new System.Diagnostics.ProcessStartInfo(host) { UseShellExecute = false, RedirectStandardOutput = true };
+            start.ArgumentList.Add("--harness");
+            start.Environment["CFD_TEST_ONLY"] = "WindowsStore_CrashChild_NeverMatches";
+            start.Environment["CFD_WIN_CRASH_STAGE"] = stage; start.Environment["CFD_WIN_CRASH_PATH"] = path;
+            start.Environment["CFD_WIN_CRASH_HASH"] = seeded.PublishedSha256;
+            using var child = System.Diagnostics.Process.Start(start)!;
+            string output = child.StandardOutput.ReadToEnd();
+            if (!child.WaitForExit(120_000)) { child.Kill(); throw new TimeoutException("crash child"); }
+            Equal(true, output.Contains("CRASH-AT " + stage, StringComparison.Ordinal));
+            Equal(false, output.Contains("CRASH-CHILD-NOT-KILLED", StringComparison.Ordinal));
+            Equal(true, child.ExitCode != 0);
+            var entries = new DirectoryInfo(root).GetFileSystemInfos().OrderBy(e => e.Name, StringComparer.Ordinal).ToArray();
+            string inventory = string.Join("; ", entries.Select(e => $"{(e.Name.StartsWith(".cfd-", StringComparison.Ordinal) && e.Name.EndsWith(".tmp", StringComparison.Ordinal) ? ".cfd-<operation>.tmp" : e.Name)} {((FileInfo)e).Length} bytes {e.Attributes}"));
+            Console.WriteLine($"CRASH-INVENTORY stage={stage} child_exit={child.ExitCode} entries={entries.Length}: {inventory}");
+            bool published = stage == "Published";
+            Equal(true, File.ReadAllBytes(path).AsSpan().SequenceEqual(published ? new byte[] { 9, 9, 9, 9, 9, 9 } : new byte[] { 1, 2, 3 }));
+            Equal(true, File.Exists(Path.Combine(root, ProjectStore.ClaimName())));
+            Equal(published ? 2 : 3, entries.Length);
+            if (!published) Equal(1, entries.Count(e => e.Name.StartsWith(".cfd-", StringComparison.Ordinal) && e.Name.EndsWith(".tmp", StringComparison.Ordinal)));
+            // The unfinished save blocks the next overwrite (a crash-left claim is never reclaimed by age) and changes nothing.
+            string current = Identity.Sha256(File.ReadAllBytes(path));
+            Equal("DOC-CONFLICT", Save(store, path, new([5], current, Id())).Code);
+            Equal(true, File.ReadAllBytes(path).AsSpan().SequenceEqual(published ? new byte[] { 9, 9, 9, 9, 9, 9 } : new byte[] { 1, 2, 3 }));
+            // The saved file stays openable, and removing the leftovers by hand unblocks the project.
+            Equal(current, store.ReadAsync(path).GetAwaiter().GetResult().DiskSha256);
+            foreach (var entry in entries.Where(e => e.Name.StartsWith(".cfd-", StringComparison.Ordinal))) entry.Delete();
+            Equal("OK", Save(store, path, new([5], current, Id())).Code);
+        }
+    }
+
+    private static void CrashChild(string stage)
+    {
+        string path = Environment.GetEnvironmentVariable("CFD_WIN_CRASH_PATH")!, expected = Environment.GetEnvironmentVariable("CFD_WIN_CRASH_HASH")!;
+        int writes = 0;
+        var hooks = new StoreHooks { WriteFragment = 2, OnStage = visited =>
+        {
+            if (stage == "Writing" ? visited == StoreStage.Writing && ++writes == 2 : visited.ToString() == stage) Die(stage);
+        } };
+        new ProjectStore(hooks).SaveAsync(path, new SaveRequest([9, 9, 9, 9, 9, 9], expected, Id())).GetAwaiter().GetResult();
+        Console.WriteLine("CRASH-CHILD-NOT-KILLED");
+    }
+
+    private static void Die(string stage)
+    {
+        Console.WriteLine("CRASH-AT " + stage); Console.Out.Flush();
+        System.Diagnostics.Process.GetCurrentProcess().Kill();
+        Thread.Sleep(Timeout.Infinite);
     }
 
     private static void Probe(string label, int expectedWin32,
@@ -244,6 +725,34 @@ internal static class WindowsProjectStoreTests
     /// </summary>
     private static string CanonicalSddl(string sddl) =>
         new RawSecurityDescriptor(sddl).GetSddlForm(AccessControlSections.Owner | AccessControlSections.Access);
+
+    /// <summary>Another instance of the app publishes: a private temp renamed over the target by handle (never an in-place write).</summary>
+    internal static void ExternalReplace(string path, byte[] bytes)
+    {
+        using var parent = WindowsNative.OpenFixtureDirectory(Path.GetDirectoryName(path)!);
+        string temp = ".external-" + Guid.NewGuid().ToString("N") + ".tmp";
+        using var file = WindowsNative.CreatePrivate(parent, temp);
+        RandomAccess.Write(file, bytes, 0); WindowsNative.Flush(file);
+        WindowsNative.Rename(file, parent, Path.GetFileName(path), replace: true);
+    }
+
+    /// <summary>The DACL of a directory in numbers, no account names or SIDs: whether it is protected, how many ACEs, how many inherited.</summary>
+    internal static string DirectoryAclSummary(string path)
+    {
+        using var directory = WindowsNative.OpenFixtureDirectory(path);
+        var descriptor = new RawSecurityDescriptor(WindowsNative.ReadOwnerAndDacl(directory));
+        var acl = descriptor.DiscretionaryAcl;
+        bool protectedAcl = (descriptor.ControlFlags & ControlFlags.DiscretionaryAclProtected) != 0;
+        int inherited = acl?.OfType<CommonAce>().Count(ace => (ace.AceFlags & AceFlags.Inherited) != 0) ?? 0;
+        return $"protected={protectedAcl} aces={acl?.Count ?? 0} inherited={inherited} private_policy={(protectedAcl && inherited == 0 && acl?.Count == 1)}";
+    }
+
+    /// <summary>The file carries the store's private owner/DACL (Windows has no mode bits).</summary>
+    internal static void AssertPrivateFile(string path)
+    {
+        using var file = File.OpenHandle(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+        Equal(CanonicalSddl(WindowsNative.PrivateDescriptor()), CanonicalSddl(WindowsNative.ReadOwnerAndDacl(file)));
+    }
 
     private static byte[] Read(SafeFileHandle file)
     {

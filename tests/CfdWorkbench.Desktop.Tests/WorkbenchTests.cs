@@ -135,6 +135,8 @@ internal static class DesktopHarness
             CfdWorkbench.Desktop.Tests.ControllerSectionTests.Run();
             CfdWorkbench.Desktop.Tests.SectionEditorTests.Run();
             CfdWorkbench.Desktop.Tests.CatalogDialogTests.Run();
+            CfdWorkbench.Desktop.Tests.FolderRefusalDialogTests.Run();
+            CfdWorkbench.Desktop.Tests.FolderRefusalDialogTests.RunWindowsStore();
             CfdWorkbench.Desktop.Tests.ExportTests.Run();
             CfdWorkbench.Desktop.Tests.ExportStlTests.Run();
             CfdWorkbench.Desktop.Tests.ExportThreeMfTests.Run();
@@ -762,38 +764,6 @@ namespace CfdWorkbench.Desktop.Tests
         }
 
         /// <summary>Runs one named check, prints <c>PASS name</c> or <c>FAIL name …</c>, and continues either way.</summary>
-        /// <summary>
-        /// The project and preference stores are macOS-only until the Windows store lands (ProjectStore.Supported; W-2 B2),
-        /// so these checks skip on other hosts and print SKIP. Nothing excuses a failure (Ruling 247): a check that fails on
-        /// a host where it runs is a failure.
-        /// </summary>
-        private static readonly HashSet<string> MacOnlyStoreChecks = new(StringComparer.Ordinal)
-        {
-            "Recovery_SaveReopenResume_KeepsDraftSeparateFromAccepted",
-            "Save_ExistingFile_DefiniteCreateOnlyConflict",
-            "Controller_SaveMine_DraftDocumentUndoUnchanged",
-            "Controller_SaveMine_ListedAfterOpeningAnotherFoil",
-            "Controller_CatalogTelemetry_NamedSessionRing",
-            "Controller_SaveOffUiThread_HonorsCancellation",
-            "SaveDialog_EmptyOrDuplicate_ErrorFocusStays",
-            "Controller_ResumeSectionRecovery_EntersSectionMode",
-            "Controller_SaveMine_SurvivesSectionCancelAndDocumentUndo",
-            "Controller_QuotedNameAndBraceProvenance_SaveReload",
-            "Controller_CatalogTelemetry_OmitsInapplicableFields",
-            "Controller_SaveDuringDrag_CommitsThenSaves",
-            "Tampered_RunView_UnavailableNoLayersRowKept",
-            "SaveDialog_Save_LiveRegionFocusToSectionMenu",
-            "Recent_OpenedOutcome_AppendsPath",
-            "OpenFailure_RemoveFromRecent_RemovesOnlyFailedPath",
-            "Commands_SectionMenu_ReplaceSaveImportRowsRun",
-            "Recent_StoredRows_StartAndFileMenu",
-            "Copy_RecentNotCleared_StatusAndTryAgain",
-            "Recovery_RailDraftResumed_PlanShowsDraftApplyCommits",
-            "Telemetry_MarkerInjection_AbsentEverywhere",
-            "TextSize_PersistsPerUser",
-            "RailEditorPane_Removed_NoReferencesRemain",
-        };
-
         public static void Check(string name, Action assertion)
         {
             if (only is not null)
@@ -810,7 +780,6 @@ namespace CfdWorkbench.Desktop.Tests
             // flake debuggable from the log alone: a job queued by an earlier check surfaces inside this check's
             // RunJobs, and only the stack shows whose job it was (UI-LIFETIME, 2026-10-02).
             long began = System.Diagnostics.Stopwatch.GetTimestamp();
-            if (!OperatingSystem.IsMacOS() && MacOnlyStoreChecks.Contains(name)) { Console.WriteLine("SKIP " + name + " macos-only-store"); return; }
             try { assertion(); Console.WriteLine("PASS " + name); }
             catch (ReadinessMissException miss) { Console.WriteLine(miss.Message); }   // Ruling 81: no PASS, no FAIL
             catch (Exception failure)

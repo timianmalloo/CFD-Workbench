@@ -170,41 +170,6 @@ internal static class IdentityTests
         return unmatched.Length == 0;
     }
 
-    /// <summary>
-    /// The project and preference stores are macOS-only until the Windows store lands (ProjectStore.Supported; W-2 B2),
-    /// so these checks skip on other hosts and print SKIP. Nothing excuses a failure (Ruling 247): a check that fails on
-    /// a host where it runs is a failure.
-    /// </summary>
-    private static readonly HashSet<string> MacOnlyStoreChecks = new(StringComparer.Ordinal)
-    {
-        "Library_DuplicateIgnoringCaseNfc_Refused",
-        "Library_StaleClaim_ReportedNotDeleted",
-        "Library_SecondInstanceSameRoot_EntryListed",
-        "Library_Save_PublishesHashNamedFile",
-        "Library_WriteFails_NothingPublished",
-        "Library_EntryBytes_ParseAsStandaloneSection",
-        "Library_ScanNameCollision_BothReported",
-        "Rollback_V2Oversized_BytesUnchanged",
-        "Rollback_TextSizeV2_NewerVersionIsStructureClass_BytesUnchanged",
-        "Rollback_V2UnknownTopLevel_BytesUnchanged",
-        "Rollback_V2UnknownWorkspaceMember_BytesUnchanged",
-        "Recent_ClearFails_ReportedNotCleared",
-        "LayoutLoad_Absent_ReturnsPresets",
-        "LayoutSave_Conflict_MergesChangedWorkspaceOnly",
-        "Recent_Conflict_ReappliesAdd",
-        "Recent_Remove_KeepsEveryOtherEntry",
-        "PrefsSave_LayoutAndRecentConcurrent_BothKept",
-        "LayoutSave_TwoQueuedSaves_UnionOfChangedWorkspaces",
-        "Recent_RemoveWriteFails_ListUnchanged",
-        "PrefStore_TextSize_RoundTrip",
-        "PrefStore_TextSize_PriorRoot_LayoutAndRecentUntouched",
-        "PrefStore_TextSize_LoadAndSaveSerialized_NoStaleHash",
-        "LayoutSave_ClaimBusyHashSame_RetriesOnce",
-        "LayoutSave_StaleClaim_SessionOnlyNamesClaim",
-        "Recent_Clear_NoFileContainsMarkerPath",
-        "StoreContract_CancelBeforePublish_DocCancelled",
-    };
-
     internal static void Check(string name, Action assertion)
     {
         if (only is not null)
@@ -215,7 +180,6 @@ internal static class IdentityTests
         }
         // After the selector, so a prefix counts as matched in every part and a subset run splits like a full one.
         if (part is { } p && !CorePartition.Owns(name, registered++, p.Index, p.Count)) return;
-        if (!OperatingSystem.IsMacOS() && MacOnlyStoreChecks.Contains(name)) { Console.WriteLine("SKIP " + name + " macos-only-store"); return; }
         ran++;
         long started = costs ? System.Diagnostics.Stopwatch.GetTimestamp() : 0;
         // Test-runner boundary: report unexpected exceptions as failures and continue.
