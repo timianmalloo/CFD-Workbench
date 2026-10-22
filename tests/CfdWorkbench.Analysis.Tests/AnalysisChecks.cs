@@ -60,6 +60,7 @@ internal static class AnalysisChecks
             ("NotResolved+SectionForce", 937, () => { NotResolvedTests.Run(); SectionForceTests.Run(); }),
             ("TeFloor", 1, () => { TeFloorLabelTests.Run(); StationGoldenTests.Run(); }),
             ("WingEstimator", 60, WingEstimatorTests.Run),
+            ("Compare", 400, CompareTests.Run),
         };
         int[] owner = Assign(groups.Select(group => group.CostHintMs).ToArray(), part?.Count ?? 1);
         for (int i = 0; i < groups.Length; i++)
