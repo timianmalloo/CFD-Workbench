@@ -195,8 +195,12 @@ Mutants, each applied, run, red, reverted: creation-time descriptor dropped (`Cr
 `FAIL PrefStore_NewFolder_PrivateAtCreation ... Expected True; actual False`; existing-folder tighten skipped gives
 `FAIL PrefStore_ExistingInheritedFolder_BecomesPrivateOnSave ... Expected True; actual False`.
 
-Assumption (for the Security review): tightening an existing preference folder in place is in scope, because design section 5's "no post-write ACL repair" governs
-project files, not the preference folder. Confirm: Security lens. If wrong: the fix must instead leave existing folders and record them.
+Security confirmation (review `w2b-c1/review/verdict.md`, Security lens): tightening an existing user-owned preference folder in place is in scope. It only narrows access, runs before any write, changes the folder's DACL only (owner and SACL untouched) and needs no extra privilege (the owner's implicit WRITE_DAC). Design section 5's "no post-write ACL repair" covers project files, which are still created with their own protected descriptor before any byte is written, not the preference folder. A foreign-owned folder is left untouched and that area falls back to session-only; no junction is followed (both opens use `FILE_FLAG_OPEN_REPARSE_POINT`).
+Advisory (Inferred; not measured): a folder made by an earlier elevated run may have BUILTIN\Administrators as its owner, so that area would stay session-only on every launch.
+
+Review condition T1: `AssertPrivateDirectory` also asserts the single ACE is an allow ACE (winnt.h `ACCESS_ALLOWED_ACE_TYPE` 0x0) granting exactly `FILE_ALL_ACCESS` (0x1F01FF) with flags exactly `OBJECT_INHERIT_ACE | CONTAINER_INHERIT_ACE` (0x1 | 0x2). Two descriptor mutants, each applied, run, red, reverted: a narrower grant (`0x1201BF` for `FA`) gives `FAIL PrefStore_NewFolder_PrivateAtCreation InvalidOperationException: Expected 2032127; actual 1180095`; the OI and CI flags dropped gives `FAIL PrefStore_NewFolder_PrivateAtCreation InvalidOperationException: Expected ObjectInherit, ContainerInherit; actual None`. Each is also red in `PrefStore_TextSize_RoundTrip` and `PrefStore_ExistingInheritedFolder_BecomesPrivateOnSave` (`RESULT failures=3`); the reverted tree gives `RESULT failures=0`.
+
+NOT ASSESSED: the store-level session-only fallback (`if (!EnsureDir(...)) { ...Session = true; return Session(); }`, three call sites in `PreferenceStore.cs`: layout, recent and display) is not reached by any test, so a mutant that ignores the false return survives. A non-elevated user cannot make a `layout`, `recent` or `display` folder owned by another principal (giving a folder away needs a privilege), and the store has no seam to inject the failure; none was added for the test. `PrefStore_ForeignOwnedFolder_LeftUnchanged` covers the callee (`EnsurePrivateDirectory` returns false and leaves the system folder unchanged), not these callers.
 
 ## Final run
 

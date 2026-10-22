@@ -659,6 +659,10 @@ internal static class PreferenceStoreTests
         var ace = (System.Security.AccessControl.CommonAce)descriptor.DiscretionaryAcl![0];
         Equal(expected.Owner!.Value, ace.SecurityIdentifier.Value);
         Equal(false, (ace.AceFlags & System.Security.AccessControl.AceFlags.Inherited) != 0);
+        // winnt.h: ACCESS_ALLOWED_ACE_TYPE 0x0, FILE_ALL_ACCESS 0x1F01FF, OBJECT_INHERIT_ACE 0x1 | CONTAINER_INHERIT_ACE 0x2.
+        Equal(System.Security.AccessControl.AceType.AccessAllowed, ace.AceType);
+        Equal(0x1F01FF, ace.AccessMask);
+        Equal(System.Security.AccessControl.AceFlags.ObjectInherit | System.Security.AccessControl.AceFlags.ContainerInherit, ace.AceFlags);
     }
 
     /// <summary>A folder an earlier build made with System.IO carries the profile's inherited ACL; the next save makes it private.</summary>
