@@ -69,8 +69,8 @@ lists `b08f329a`, `65fd226b` and `105c515b`; the commit message says "the one Wi
 |---|---|---|
 | POSIX-semantics rename and disposition | `WindowsNative_Replace_*`, `WindowsNative_ClaimDispose_HeldObserverNamespaceRemoved`, and every store save | existed (native); store form new |
 | Held-reader overwrite, red then green on NTFS | the pair above, red on the closed store, green on the adapter | native pair existed; store pair new |
-| NFC/NFD duplicate refusal | `Library_DuplicateIgnoringCaseNfc_Refused` (SectionLibrary normalises to NFC and compares ignoring case) | existed; it was a skip, now PASS on Windows |
-| Case-sensitive-directory detection | `WindowsStore_CaseSensitiveDirectory_Refused`: the query is false on a normal directory; the refusal branch needs an elevated account to create the fixture, so here it prints `NOT ASSESSED` (Win32 5) | new; positive branch **not assessed on this laptop** |
+| NFC/NFD duplicate refusal | `Library_DuplicateIgnoringCaseNfc_Refused` evidences the **SectionLibrary name level only** (it normalises to NFC and compares ignoring case). The store-level qualification of composed/decomposed spellings and 8.3 aliases by handle identity (design section 4) is **open**; no project-store NFC/NFD check was added | existed; it was a skip, now PASS on Windows |
+| Case-sensitive-directory detection | `WindowsStore_CaseSensitiveDirectory_QueryReadsFlag` (PASS: the flag reads false on a normal directory) and, split from it, `WindowsStore_CaseSensitiveDirectory_RefusalBranch`, which is registered only when the fixture can be made. Here it prints `NOT ASSESSED WindowsStore_CaseSensitiveDirectory_RefusalBranch needs-elevation Win32=5` and **no PASS**; the Ruling 135 condition stays open until an elevated run observes the refusal | new; refusal **not observed on this laptop** |
 | Crash-recovery steps the user sees | the steps are Ruling 146 (2); the dialog is the S3 follow-up (not built). The leftover inventory below is the basis | new inventory |
 | Long path | `WindowsStore_LongPath_Over260_SaveOpenRoundTrip`: 536 UTF-16 units, 10 components, save, open, overwrite | new |
 | Layout tests for every new structure | `WindowsNative_Layouts_SdkX64` gains `FileAttributeTag` (8), `FileStandard` (24), `CaseSensitiveInfo` (4) | extended |
@@ -122,26 +122,75 @@ Desktop checks. The native Windows picker cannot be driven from the harness, so 
 
 **Open or deviating (for the Adversary and for S3):**
 
-1. Overwrite admission deviates from design section 5 (above). Seam request `req-01M5GPKDZG8PW3RY27ATEBAM48`.
-2. `DurabilityConfirmed = true` on Windows `OK` means file flush plus atomic rename plus owned cleanup (Ruling 135); the controller acknowledges a save only on it. An
-   Inferred reading of "closing D-B1-DUR".
+1. Overwrite admission: superseded by Ruling 253 (W2-Q1 b), which admits it with conditions (see "Repair cycle 2"). The first seam request `req-01M5GPKDZG8PW3RY27ATEBAM48` was resolved by the leader.
+2. `DurabilityConfirmed = true` on Windows `OK` means file flush plus atomic rename plus owned cleanup. This is **Ruling 135 (1)'s own text**
+   ("the Windows store flushes the temporary file (FlushFileBuffers) and then atomically renames it over the target ... Windows Save ships with it,
+   closing D-B1-DUR"), Verified by the reviewer in the code; the controller acknowledges a save only on it.
 3. The volume-GUID binding of design section 4 is not built (a residual).
 4. The case-sensitive positive branch ran nowhere here; CI (an elevated runner account) may exercise it.
-5. Not built (follow-ups on both platforms): the S3 "Save is blocked" dialog, Clear unfinished save (Ruling 160 (2), (4)); a save in place over a file opened from a OneDrive folder is not checked;
-   `Labels.SaveUnavailable` still says "Saving isn't available on this system yet" for `DOC-UNSUPPORTED-PERSISTENCE`, which a refused path now also produces.
+5. Not built: Clear unfinished save (Ruling 160 (4)); the volume-GUID binding; observing the case-sensitive refusal with elevation. COPY-31W
+   (`Labels.SaveUnavailable`, "Saving isn't available on this system yet") is **known to be false on Windows** for `DOC-UNSUPPORTED-PERSISTENCE`, which a
+   refused path or file now also produces; Ruling 253 (W2-Q2) approves the replacement wording, which lands after the A3 join.
 6. Ruling 145 (6) and 146 (3) called the picker default, OneDrive placement and copy ids Mac-owned; this track did them under the plan assignment (Inferred reading).
 7. CI on the Windows x64 and macOS runners is read after the join.
+
+## Repair cycle 2 (Security veto, Data and Test conditions, Ruling 253)
+
+**The veto.** A normal .NET process runs with OneDrive placeholders disguised (mode 1), so the reparse attribute and the cloud tag of a OneDrive
+folder are hidden: the branch CLI read a missing file under `%OneDrive%` as `DOC-CONFLICT` (the walk admitted it) while a process that exposes
+placeholders got `DOC-UNSUPPORTED-PERSISTENCE`. Fix: `RtlSetThreadPlaceholderCompatibilityMode(PHCM_EXPOSE_PLACEHOLDERS = 2)` (ntdll, ntifs.h) around
+`Read`, `Save`, `PublishUnderClaim` and `CloudFolder.Classify`, restored in a `finally`; the store refuses a OneDrive-rooted or cloud-tagged folder
+before any write; `MainWindow` checks an in-place save like a pick. Because the ancestor rule rejects every reparse point, a read under a OneDrive
+folder is refused too (the instruction said a read stays permissive; the CLI line it asked for cannot be had otherwise, flagged for the Owner).
+
+| Check | Red on `c93f9cff` | Green |
+|---|---|---|
+| `WindowsStore_PlaceholderMode_ExposedInSaveWalkAndCloudFolder` | `FAIL ... InvalidOperationException: Expected True; actual False` | `PLACEHOLDER-MODE thread_before=0 save_stages=7 all_exposed=true cloud_reads=6 all_exposed=true restored=true` / `PASS`. Mutants: restore skipped -> `FAIL ... Expected 0; actual 2`; set removed -> `FAIL ... Expected True; actual False` |
+| `WindowsStore_Save_UnderEnvironmentOneDriveFolder_RefusedNothingWritten` | `FAIL ... Expected DOC-UNSUPPORTED-PERSISTENCE; actual OK` | `PASS` (no claim, temp or write stage; one entry; bytes unchanged) |
+| `SaveInPlace_UnderEnvironmentOneDrive_RefusedNothingWritten` (Desktop, through `WorkbenchController.SaveAsync(NativePath)`) | `FAIL ... in-place save under OneDrive: OK` | `PASS` |
+| `Cli_InspectUnderOneDrive_RefusedNotConflict` | `CLI-ONEDRIVE exit=5 { "code": "DOC-CONFLICT" }` / `FAIL` | `CLI-ONEDRIVE exit=3 { "code": "DOC-UNSUPPORTED-PERSISTENCE" }` / `PASS` |
+
+Laptop line, the real variable (read only, nothing written): `CfdWorkbench.Cli.exe inspect "<OneDrive variable>\no-such-w2.cfdw.json" --json` -> `{ "code": "DOC-UNSUPPORTED-PERSISTENCE" }`.
+The picker and `MainWindow`'s in-place branch call `CloudFolder.Classify` and `FolderRefusalDialog`; the native picker is not driven by the harness.
+
+**D1, fixed local volumes.** `WindowsNative.IsFixedLocalVolume(deviceType, characteristics)` is a pure function over `FILE_FS_DEVICE_INFORMATION`
+read from the held root handle (`NtQueryVolumeInformationFile`, class 4): `FILE_DEVICE_DISK` (0x7) without `FILE_REMOVABLE_MEDIA` (0x1), `FILE_FLOPPY_DISKETTE`
+(0x4), `FILE_REMOTE_DEVICE` (0x10), `FILE_CHARACTERISTIC_TS_DEVICE` (0x1000) or `FILE_CHARACTERISTIC_WEBDAV_DEVICE` (0x2000). Red: the function did not exist
+(`error CS0117: 'WindowsNative' does not contain a definition for 'IsFixedLocalVolume'`; run on the old code with the body stubbed: `FAIL ... no WindowsNative.IsFixedLocalVolume on the old code`).
+Green: `VOLUME-DEVICE local_ntfs type=0x7 characteristics=0x260020 admitted=true`, remote (0x14, 0x10), network type alone, remote flag alone, removable, floppy, TS and
+WebDAV refused. **Real remote and removable volumes: Not assessed** (no SMB share or USB stick here).
+
+**Overwrite of a target without the private DACL (Ruling 253, W2-Q1 b).** `WindowsStore_ForeignDaclTarget_Overwrite` expects success and a private DACL on the result:
+`PASS`. Red first, both refused before the claim with `DOC-UNSUPPORTED-PERSISTENCE`: `WindowsStore_ReadOnlyTarget_OverwriteRefused` (`FAIL ... actual DOC-SAVE-UNCERTAIN`) and
+`WindowsStore_EfsTarget_OverwriteRefused` (`FAIL ... actual OK`; EFS could be set with `File.Encrypt` on this machine; where it cannot the check is not registered and a
+`NOT ASSESSED ... efs-unavailable` line is printed, never a PASS). Design section 5 is amended by the ruling (erratum in the design). The seven checks were not reseeded:
+with the overwrite admitted they are valid as they stand (the ruling makes the reseeding the instruction asked for unnecessary).
+
+**"Save is blocked" (Ruling 253, W2-Q3 c).** `SaveBlockedDialog` (COPY-441; Save As COPY-443; Cancel COPY-445; the Ruling 146 (2) text with step 3 reworded; a sentence that the folder stays
+blocked until the leftover files are removed; no Clear action). `MainWindow.SaveToAsync` shows it when a save returns `DOC-CONFLICT` and `UnfinishedSave.BlocksFolder` sees the claim.
+`SaveBlocked_CrashLeftClaim_DialogShownInsteadOfInUseLine` builds the measured inventory (a 0-byte `.cfd-writer.claim` and a `.cfd-<operation>.tmp` beside the project), saves, and reads the
+dialog from the window's owned windows: red with the wiring removed (`FAIL ... TimeoutException: the Save is blocked dialog did not appear`), green after. The controller's own
+status line (the generic COPY-414 sentence) is still set by `WorkbenchController` behind the dialog; that file is outside this track.
+
+**Test Architect conditions.** T1: the case-sensitive check is split (above); the output holds `PASS WindowsStore_CaseSensitiveDirectory_QueryReadsFlag` and
+`NOT ASSESSED WindowsStore_CaseSensitiveDirectory_RefusalBranch needs-elevation Win32=5`, and no PASS for the refusal. T3: the NFC/NFD row, the D-B1-DUR citation and these run lines are fixed.
+The 25 non-Core former skips: the final `run-tests.sh` below reports Desktop 809 passed / 0 skipped and Cli 22 passed / 0 skipped; the baseline skip counts were 23 and 2.
+
+**Directory privacy, a gap for the Owner (not fixed here; `PreferenceStore.cs` unchanged).** The preference store makes its directory with `System.IO`
+(`EnsureDir`), so on Windows it carries the parent's inherited DACL. Measured by `PrefStore_TextSize_RoundTrip` and `LayoutLoad_Absent_ReturnsPresets`:
+`PREF-DIR-ACL protected=False aces=8 inherited=8 private_policy=False`. The files inside are private (asserted); the directory is not, so another account that can list
+the profile folder could list the directory. `AssertOwnerOnly` prints this line instead of asserting a directory policy that the product does not apply.
 
 ## Final run
 
 `bash tools/run-tests.sh` on the final tree (exit 0; the four logs hold no `SKIP` line):
 
 ```
-== CfdWorkbench.Core.Tests: 827 passed, 0 skipped, 0 failed, exit 0
+== CfdWorkbench.Core.Tests: 833 passed, 0 skipped, 0 failed, exit 0
 == CfdWorkbench.Analysis.Tests: 260 passed, 0 skipped, 0 failed, exit 0
-== CfdWorkbench.Desktop.Tests: 807 passed, 0 skipped, 0 failed, exit 0
-== CfdWorkbench.Cli.Tests: 21 passed, 0 skipped, 0 failed, exit 0
-TESTS-GREEN 90 s
+== CfdWorkbench.Desktop.Tests: 809 passed, 0 skipped, 0 failed, exit 0
+== CfdWorkbench.Cli.Tests: 22 passed, 0 skipped, 0 failed, exit 0
+TESTS-GREEN 105 s
 ```
 
 Skip lines: 51 before (26 + 23 + 2), 0 after. `python tools/check-docs.py` exits 0.

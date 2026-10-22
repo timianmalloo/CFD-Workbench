@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T02:44:53Z",
+  "generated": "2026-10-22T03:15:04Z",
   "audit": [
     {
       "actor": null,
@@ -41247,6 +41247,25 @@ window.AUDIT_DATA = {
       "tier": "T2",
       "started_at": "2026-10-22T02:02:58Z",
       "duration_seconds": 2515.0
+    },
+    {
+      "id": "al-01M5GSNT2MMN794RAM18S8039Z",
+      "shortname": "w2-windows-store",
+      "datetime": "2026-10-22T03:15:04Z",
+      "session": "w2-windows-store",
+      "prompt": "track W2 repair cycle 2: Security veto, D1, Ruling 253",
+      "summary": "Repair cycle 2 (W2): placeholders exposed for the store walk and CloudFolder (Security veto), OneDrive-rooted or cloud folders refused before any write incl. in-place save, fixed-local-volume refusal (D1), EFS and read-only targets refused (Ruling 253 W2-Q1 b), Save is blocked dialog on a crash-left claim (W2-Q3 c), case-sensitive check split, proof corrections, directory ACL gap recorded. Final run: Core 833, Analysis 260, Desktop 809, Cli 22, 0 skipped. Open: real remote/removable volumes and the case-sensitive refusal Not assessed; Clear unfinished save deferred.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T03:01:36Z",
+      "duration_seconds": 808.0
     }
   ],
   "changes": [

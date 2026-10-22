@@ -342,9 +342,27 @@ metadata rather than borrowing a path-only check.
 - *Not built: the volume-GUID binding.* The drive root is held by handle for the operation, but the drive letter is not bound to a
   volume GUID and rechecked (the paragraph "Bind a drive root once to an OS-returned volume GUID"). A drive-map swap during one save is
   inside the accepted cooperative-writer posture; it is a residual, not a guarantee.
-- *Overwrite admission deviates from section 5.* An overwrite of a file whose DACL is not the private one is admitted: the
-  replacement is always the private temp, and a file written by another tool is a routine target. Decision request raised
-  to the leader; the Adversary and Security passes may overturn it.
+- *Overwrite admission amends section 5 (Ruling 253, W2-Q1 b).* An overwrite of a file whose owner and DACL are not the private ones is
+  admitted. The published file is always the private temp, whose owner-only protected DACL is read back before the first byte, so a save
+  narrows access and never broadens it. **A save over an existing file does not carry over the target's owner, its additional ACEs, its
+  compression or its named streams, including the downloaded-file mark (Mark-of-the-Web)**; a user who shared the file through its ACL
+  loses that access after a save. This is the explicit qualification section 5 asks for, so "do not silently broaden" stays true. The
+  adapter refuses, before the claim and with `DOC-UNSUPPORTED-PERSISTENCE`, a target with `FILE_ATTRIBUTE_ENCRYPTED` (0x4000: a plaintext
+  replacement would downgrade it) and a target with `FILE_ATTRIBUTE_READONLY` (0x1: the rename would otherwise fail into
+  `DOC-SAVE-UNCERTAIN`), each with a check.
+- *Placeholders are exposed (Security veto, repair cycle 2).* A normal process runs with OneDrive placeholders disguised
+  (`PHCM_DISGUISE_PLACEHOLDER` 1), which hides the reparse attribute and the cloud tag. `Read`, `Save`, `PublishUnderClaim` and
+  `CloudFolder.Classify` call `RtlSetThreadPlaceholderCompatibilityMode(PHCM_EXPOSE_PLACEHOLDERS = 2)` (ntdll, ntifs.h) and restore the
+  previous mode in a `finally`; the mode is thread-scoped, so the set, the work and the restore run synchronously on one thread with no
+  await between. A folder under a `OneDrive*` variable path, or one with a cloud attribute or tag on it or an ancestor, is refused with
+  `DOC-UNSUPPORTED-PERSISTENCE` before any write. The same refusal applies to a read, because the ancestor rule that rejects any reparse
+  point sees the exposed OneDrive folder; a project cannot be opened from a OneDrive folder in this build.
+- *Fixed local volumes only.* The root handle's `FileFsDeviceInformation` (class 4, `NtQueryVolumeInformationFile`) must be
+  `FILE_DEVICE_DISK` (0x7) without `FILE_REMOVABLE_MEDIA` (0x1), `FILE_FLOPPY_DISKETTE` (0x4), `FILE_REMOTE_DEVICE` (0x10),
+  `FILE_CHARACTERISTIC_TS_DEVICE` (0x1000) or `FILE_CHARACTERISTIC_WEBDAV_DEVICE` (0x2000). The decision is a pure function
+  (`WindowsNative.IsFixedLocalVolume`); real SMB shares and USB sticks are Not assessed on the laptop.
+- *Crash-left claim.* A save refused because `.cfd-writer.claim` is in the folder shows the "Save is blocked" dialog (Ruling 253, W2-Q3 c,
+  COPY-441), Save As and Cancel only; Clear unfinished save and its no-live-writer rule are deferred for both stores.
 
 ## 5. Publication, security, cleanup and durability
 
@@ -532,8 +550,8 @@ plan `next-best-six` assigns them to W2 (an Inferred reading, checked in the Adv
 | `tests/CfdWorkbench.Core.Tests/WindowsProjectStoreTests.cs`, `ProjectStoreTests.cs` | the Windows cases below; the portable Mac cases now run on Windows, the POSIX-only ones stay behind `IsMacOS` |
 | `tests/CfdWorkbench.Desktop.Tests/FolderRefusalDialogTests.cs` | the dialog copy and answers |
 
-Out of scope and recorded as follow-ups on both platforms: the S3 "Save is blocked" dialog and Clear unfinished save (Ruling 160 (2),
-(4)). A save in place over a file that was opened from a OneDrive folder is not checked: the check runs after a pick.
+Follow-up on both platforms: Clear unfinished save and its no-live-writer rule (Ruling 160 (4), Ruling 253). The "Save is blocked"
+dialog is built (Ruling 253). A save in place is checked like a pick, and the store itself refuses a cloud folder.
 
 ## 7. Failure-mode analysis
 

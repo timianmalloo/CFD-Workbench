@@ -3841,7 +3841,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e04d8c47146c55ef0b184ea6a8ad6a876dcdb83e04da26b414d6ace603e74a37"
+      "sourceSha256": "60e5439cccccc33adc3fdc20ff17c36421a3414f3a772e74dcc81c660da629f5"
     },
     {
       "id": "design-windows-runtime",
@@ -20462,7 +20462,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "18a9b66e105e70bc93ca24c1d14e01aae6d96822bba8b322d47d78fa434bd790"
+      "sourceSha256": "53e66bb6cee8ca7c8f1a3f4108f6061ed7d99219ce36ccac05ae600115061729"
     },
     {
       "id": "proof-win-trig-bits-20261008",
@@ -23368,5 +23368,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "58075d5f1d8551f9bddec854b0cd11e61bd4cdf601f090e5c3fde30ca6836dd9"
+  "graphSha256": "f089988221bc2a627c43ed3c1116aa75cd503ac233e5c61a864fc962b3597374"
 };
