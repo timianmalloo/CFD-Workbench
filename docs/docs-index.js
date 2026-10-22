@@ -12986,6 +12986,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "b0673fdb6f2871565c8fc0f5b1be74a6148438f314dab6e8a27e7c4ac00effe4"
     },
     {
+      "id": "proof-a3d-compare",
+      "path": "docs/proof/a3d-compare/README.md",
+      "title": "A3d Compare build proof: red and green lines, mutants, receipts",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@track-a3-compare-build",
+      "phase": "implementation",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "The observed red and green lines of the A3d Compare build, by node. Node A3d-1 (the wing estimator tier) is recorded; the A3d-2 sections (older-reader receipt, measured bytes, copy id mapping) are filled by that node.",
+      "tags": [
+        "a3d",
+        "compare",
+        "estimator",
+        "analysis",
+        "discrepancy-record"
+      ],
+      "links": [
+        {
+          "to": "design-a3d-compare",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f7afe2ee4f36b9f9881ea9661b1b2c7e536c9a22b1998939785a411e738ad8d0"
+    },
+    {
       "id": "proof-abl-measure",
       "path": "docs/proof/abl/measure.md",
       "title": "ABL Analysis part balance: measurements",
@@ -23500,5 +23527,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "e37378939c8c6f1e6f757a0968c0b034fe597377cb20e051c8a155510487ea4f"
+  "graphSha256": "280ccce021f5c0c51e8bb2408720fe4bbac34a5f11afdfa560c0348177c1fe96"
 };
