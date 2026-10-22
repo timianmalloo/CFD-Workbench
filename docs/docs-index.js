@@ -1746,6 +1746,45 @@ window.DOCS_INDEX = {
       "sourceSha256": "a751c211ad65b84b206fabe0105424dfa8788ed278cc51c49e54e437f4ef869c"
     },
     {
+      "id": "note-discrepancy-records",
+      "path": "docs/notes/discrepancy-records.md",
+      "title": "Discrepancy records in the analysis member of cfdw-project-2",
+      "type": "decision-note",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "The A3d Compare slice adds an optional discrepancies member to the analysis object of cfdw-project-2, one record per unordered pair of Completed runs in canonical orientation; it refines ADR-0011 (expand only, older readers refuse the file, referenced runs are never pruned) without editing it.",
+      "tags": [
+        "analysis",
+        "persistence",
+        "compare",
+        "discrepancy-record",
+        "adr-0011"
+      ],
+      "links": [
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "refines"
+        },
+        {
+          "to": "design-a3d-compare",
+          "rel": "relates-to"
+        },
+        {
+          "to": "spec-amendments-1-7-7",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ec8d3646543d56f1114556cd11137b95e87c8bc313140c0ddf5099c985179d18"
+    },
+    {
       "id": "note-m1-scope-decision",
       "path": "docs/notes/m1-scope-decision.md",
       "title": "User decision — section editing in M1.1; on-screen timing removed as a gate; Windows deferred",
@@ -2240,7 +2279,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2d8be3a4ce0f5659990440834b2bdb5c7eb5f1059c53cfb7b441d69f677797f7"
+      "sourceSha256": "a76f96027dd22fa4c8c9c03ee0b88cedea8ecd973783a673998aacf9bf51f681"
     },
     {
       "id": "design-app-shell",
@@ -22569,7 +22608,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "537bedc47e42dfb12bff62ec5039df20a2d4d1d160242239bb6670296453d537"
+      "sourceSha256": "cb8d874199c0d3cf65d518c8f900f2c1af150b9129e8b5d2859740b8bf299044"
     },
     {
       "id": "spec-cfd-workbench",
@@ -23382,5 +23421,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "4ffb8b4d33a158d81700b5a3852f610771abaa5e08b52a7215a5d41e0e4b737e"
+  "graphSha256": "f8650af723c5cef16668d0839d9d1815dfab1bdc85134f0103f340f51d44476a"
 };

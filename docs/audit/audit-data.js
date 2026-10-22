@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T01:58:31Z",
+  "generated": "2026-10-22T02:08:44Z",
   "audit": [
     {
       "actor": null,
@@ -41174,6 +41174,25 @@ window.AUDIT_DATA = {
       "tier": "T2",
       "started_at": "2026-10-22T01:50:59Z",
       "duration_seconds": 452.0
+    },
+    {
+      "id": "al-01M5GNWBN1DDWYZ6YEFQDG7CMV",
+      "shortname": "a3-compare-design-r2",
+      "datetime": "2026-10-22T02:08:44Z",
+      "session": "a3-compare-design",
+      "prompt": "A3d design revision cycle 2: fold the Data and Persistence confirmation conditions",
+      "summary": "A3d design revision cycle 2: folded the nine Data and Persistence confirmation conditions as text. Orientation and key defined once in Core; CheckStore gains an acceptedOrdinal lookup argument and a same-revision refused test row; Compare.Lines dispatches on the stored rule version with ANA-CMP-RULE-UNKNOWN (A3D-COPY-29) and two tests; DR-A3D-6 trigger widened to the first DOC-SIZE refusal, documentBytes in the event, residual risk stated, pending the Owner; C1 doc comment rewrite named; spec note 1.7.7 AM-1 and AM-2 reworded; AnalysisEvent dropped from the RunRecord.cs paths; new linked decision note docs/notes/discrepancy-records.md refining ADR-0011. Blocked-pair rule now settled text.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T02:06:17Z",
+      "duration_seconds": 147.0
     }
   ],
   "changes": [

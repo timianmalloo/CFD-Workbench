@@ -25,7 +25,7 @@ summary: >-
 Status: **in review, repair cycle 1.** The design half of track A3 (`next-best-six`). No code is written by this
 document. **Ruling 250** (Owner, 2026-10-22, `docs/notes/rulings.md`) settled Q1 (a), Q2 (c), Q3 (a), Q4 (c) and
 Q5 (a); each place it decides cites it. DR-A3D-5 was not part of that request; the design's reading stands. **The build
-stays held until the Data & Persistence lens confirms the grain and the spec-note text in §1.0.**
+stays held until the Data & Persistence lens confirms the grain and the spec-note text in §1.0.** That lens confirmed both, with conditions, in cycle 2 (folded below; §9.1b).
 
 ## 1.0 For the Data & Persistence lens — the grain and the spec note, in one place
 
@@ -39,12 +39,15 @@ stays held until the Data & Persistence lens confirms the grain and the spec-not
 **Spec-note text (Ruling 250 Q5)** — the "After" text of AM-1.7.7-1 to AM-1.7.7-3 in
 [`spec-1.7.7.md`](../specs/amendments/spec-1.7.7.md), status proposed:
 
-1. Line 329 (grain): *"one Discrepancy record is one unordered pair of evaluations (evaluation_lo, evaluation_hi) in
-   canonical orientation — lower tier to higher tier, or earlier to later revision — under one compare-rule version;
-   each of its lines is one (evaluation_hi, evaluation_lo, quantity, operating point); δ is non-additive; re-comparing
-   the pair in either order is a read."*
+1. Line 329 (grain): *"one Discrepancy record is one unordered pair of evaluations, stored as a first (base) and a
+   second (compared) evaluation — lower tier first, else earlier accepted revision first, else earlier recorded run
+   first — under one compare-rule version; each of its lines is one (pair, quantity, operating point); δ is
+   non-additive; re-comparing the pair in either order is a read. A blocked pair stores no record."* (wording per the
+   cycle-2 confirmation, condition 6)
 2. Line 259 (fields): ρ is removed from the stored fields: *"ρ = compared / base is derived on read from the two
-   evaluations and never stored."*
+   evaluations and never stored."* The clause "not a second row" becomes *"not a second record"*; *"A3d stores pairs
+   of Analysis runs only; a pair that includes a Polar sample (which this line allows) is an additive later change."*
+   (condition 7)
 3. Line 259 (quantities): *"dimensional loads (L, D_i) are not stored lines: at a compatible pair they differ by the
    same fraction as CL and CDi."*
 
@@ -206,6 +209,12 @@ number into one shared function both call, it does not parse strings.
 
 ### 1.7 History rule
 
+**Rule versions are kept (confirmation condition 3).** `Compare.Lines` dispatches on the record's **stored**
+`rule.version`. A rule bump adds a new function and **keeps the old one**, so a past record is re-verified by the rule
+that wrote it and never reads "no longer reproduces" just because the rule moved on. A record whose rule id or version
+the build does not know reads **Unavailable — unknown compare rule** (code `ANA-CMP-RULE-UNKNOWN`, A3D-COPY-29); it is
+never re-verified under another rule, never rewritten, never deleted.
+
 Append-only fact. Every attribute is immutable; a different rule or pair is a different key and a new record. A record
 has **no freshness of its own**: each column shows its run's Current / Historical (ANA-07, derived by key equality
 now). A revision compare always has at least one Historical run; that is the normal case. Historical never blocks δ.
@@ -245,11 +254,29 @@ now). A revision compare always has at least one Historical run; that is the nor
   `runs` (not a tombstone) whose outcome is Completed (`DOC-REFERENCE`); `contentHash` hex64 (`DOC-INTEGRITY`); every
   number finite; line codes from the closed set; lines in rule order (`DOC-SCHEMA`). Per-record integrity (hash,
   reproduction) is not structural: a failing record stays, Unavailable.
+- **One definition of orientation and key, in Core (confirmation condition 1).** Canonical orientation and the
+  comparison key are defined **once**, in `DiscrepancyRecord.cs` (`DiscrepancyRecords.Orient`, `DiscrepancyRecords.Key`),
+  because `DiscrepancyRecords.Check` must enforce both and Core cannot reference `CfdWorkbench.Analysis`.
+  `Compare.Orient` and `Compare.Key` in the Analysis project call the Core functions and define nothing of their own
+  (DM7).
+- **The ordinal lookup (confirmation condition 2).** The orientation check needs each run's accepted-row ordinal
+  (document order of `accepted`) and the run's own document order. `CheckStore` today receives only
+  `Func<string, bool> acceptedExists` (`RunRecord.cs` line 253, Verified). The build passes one more argument,
+  `Func<string, int?> acceptedOrdinal` (null when the id names no accepted row), from both callers — the native reader
+  and `AuthoringSession.RecordRunCore` / `RecordDiscrepancy`, which hold `accepted` — and the run's document order is
+  its index in `records.Runs`. This is a parameter of the one `CheckStore` call Ruling 250 allows, not a fourth change
+  to `RunRecord.cs`. Tie-break for a same-tier pair: earlier accepted ordinal first, then earlier run in document order.
+- **Recorded as a decision note (confirmation condition 9).** The `discrepancies` member, its grain and key, these
+  invariants, the pinning rule, the expand-only migration and the older-reader refusal are recorded in the linked
+  decision note [`docs/notes/discrepancy-records.md`](../notes/discrepancy-records.md), which refines ADR-0011
+  (DM13); ADR-0011 stays unedited.
 
 #### Retention, and what pinning costs (cycle-1 condition D2)
 
 `PruneRunsAtSave` marks `keep[i] = true` for every run whose id a record references, before the per-tier quota, so a
-referenced run is never pruned and never tombstoned (condition C1). Records are never pruned in A3d, and **there is no
+referenced run is never pruned and never tombstoned (condition C1). The build **rewrites the C1 doc comment** on
+`PruneRunsAtSave` (`AuthoringSession.cs` about lines 2097–2104) in the same change, to say C1 is met by keeping
+referenced runs by id: Compare reads runs and opens no revision outside Undo/Redo (confirmation condition 5). Records are never pruned in A3d, and **there is no
 unpin path**: every recorded pair pins its two runs for the life of the document.
 
 The bound, against `NativeProject.MaxBytes` = 8,000,000 bytes (Verified, line 2182):
@@ -378,7 +405,7 @@ for every existing document is byte-identical and `schemaVersion` stays `1`:
    {"quantity":"e","base":null,"compared":0.9479157,"notCompared":"ANA-CMP-ESTIMATOR-E"}]}]}
 ```
 
-Records print in canonical orientation (Ruling 250 Q2). `integrity` ∈ `Intact` · `PayloadFailedCheck` · `NoLongerReproduces` ·
+Records print in canonical orientation (Ruling 250 Q2). `integrity` ∈ `Intact` · `PayloadFailedCheck` · `NoLongerReproduces` · `RuleUnknown` ·
 `RunFailedCheck`. Exit codes unchanged: 0 success; 2 `DOC-TYPE` / usage / store invariant (`DOC-DISCREPANCY-*`,
 `DOC-REFERENCE`); 3 version / unsupported field; 5 I/O; 130 cancelled (Verified in `Program.ExitForCode`).
 
@@ -401,10 +428,10 @@ The build is **two serial nodes** (leader decision): **A3d-1** the estimator tie
 
 | Surface | File | What reaches it |
 |---|---|---|
-| Store | `src/CfdWorkbench.Core/DiscrepancyRecord.cs` (new, Ruling 250 Q4) | `DiscrepancyRecord`, `DiscrepancyLine`, `CompareRule`, content hash, `DiscrepancyRecords.Check`, `CompareEvent` |
+| Store | `src/CfdWorkbench.Core/DiscrepancyRecord.cs` (new, Ruling 250 Q4) | `DiscrepancyRecord`, `DiscrepancyLine`, `CompareRule`, content hash, **the one definition of canonical orientation and the key** (`DiscrepancyRecords.Orient`, `.Key`), `DiscrepancyRecords.Check` (enforces both, with the `acceptedOrdinal` lookup), `CompareEvent` |
 | Store | `src/CfdWorkbench.Core/RunRecord.cs` | `AnalysisRecords.Discrepancies`; one `CheckStore` call (with A3d-1's `CheckRow` rule, the three changes Ruling 250 allows) |
-| Session | `src/CfdWorkbench.Core/AuthoringSession.cs` | **line 2254** `Exact(analysisElement, …)` gains `discrepancies` as an optional member; `SessionEvent` gains an optional `Compare` (`CompareEvent`) beside `Analysis`; `RecordDiscrepancy` (orient, look up, append under the lock; a hit returns the stored record and writes nothing); `ReadDiscrepancies`; `AnalysisCore` / `LoadRuns` carry the list; `PruneRunsAtSave` keeps referenced runs (C1) |
-| Domain | `src/CfdWorkbench.Analysis/Compare.cs` (new) | `Compare.Lines`, `Compare.Orient`, `Compare.Compatibility`, `Compare.Key`, `Compare.Verify`, the rule constants and floors |
+| Session | `src/CfdWorkbench.Core/AuthoringSession.cs` | **line 2254** `Exact(analysisElement, …)` gains `discrepancies` as an optional member; `SessionEvent` gains an optional `Compare` (`CompareEvent`) beside `Analysis`; `RecordDiscrepancy` (orient, look up, append under the lock; a hit returns the stored record and writes nothing); `ReadDiscrepancies`; `AnalysisCore` / `LoadRuns` carry the list; `PruneRunsAtSave` keeps referenced runs by id, and its C1 doc comment is rewritten to say so (confirmation condition 5); both `CheckStore` callers pass `acceptedOrdinal` |
+| Domain | `src/CfdWorkbench.Analysis/Compare.cs` (new) | `Compare.Lines` (dispatch on the stored rule version, §1.7), `Compare.Orient` and `Compare.Key` (call the Core definitions; define nothing of their own), `Compare.Compatibility`, `Compare.Verify`, the rule constants and floors |
 | Projection | `src/CfdWorkbench.Analysis/AnalysisProjection.cs`, `AnalysisViewModel.cs` | `CompareViewModel` and the Compare group: every rendered string, the δ format, blocked / Undefined / Not-compared cells, the reversed view |
 | Copy | `src/CfdWorkbench.Analysis/Labels.cs`; `DESIGN.md` §7 | A3D-COPY rows (§6), mapped to final ids after W2 |
 | CLI | `src/CfdWorkbench.Cli/Program.cs` | `InspectRunsAsync` adds `discrepancies` |
@@ -507,16 +534,19 @@ Each column header carries the tier chip (COPY-213 / -214), method + version and
 | A3D-COPY-26 | includes the estimator's elliptic loading assumption (e = 1) | CDi δ cell, after the value, when either run is the estimator |
 | A3D-COPY-27 | estimator, not validated | estimator method label (A3d-1) |
 | A3D-COPY-28 | Undefined — e is ill-conditioned here (CL or CDi undefined or below its floor) | e δ cell |
+| A3D-COPY-29 | Unavailable — Discrepancy record uses a compare rule this version does not know (<rule id> <version>) | record, `ANA-CMP-RULE-UNKNOWN` |
 
 δ format: signed percentage, two decimals, `+2.25 %` / `−0.90 %` (U+2212), invariant culture.
 
 ### 6.1 Telemetry
 
+**Per save (Ruling 251).** Every save emits the pinned-run count and the save image's byte size (on the existing `analysis.prune` save-time event, through `CompareEvent` fields `pinnedRuns` and `documentBytes`); a value not measured reads "not recorded", never zero. A `DOC-SIZE` refusal in a document that holds records is emitted with its `pinnedRuns` count, so it can be told apart from an ordinary size refusal.
+
 `analysis.compare` through the session's event queue. The event's outcome string is `recorded` · `read` ·
 `blocked-reference` · `blocked-point` · `blocked-water` · `refused`; its fields are a `CompareEvent` record in the new
 Core file (Ruling 250 Q4 keeps `AnalysisEvent` in `RunRecord.cs` unchanged): `baseTier`, `comparedTier`, `records`
-(count after), `pinnedRuns` (runs kept only because a record references them), carried on `SessionEvent.Compare`;
-duration as today. Null reads "not recorded" (IO8). `pinnedRuns` is the measurement DR-A3D-6 needs.
+(count after), `pinnedRuns` (runs kept only because a record references them), `documentBytes` (the size of the save image at the event), carried on `SessionEvent.Compare`;
+duration as today. Null reads "not recorded" (IO8). `pinnedRuns`, `documentBytes` and a `refused` outcome with code `DOC-SIZE` are the measurements the DR-A3D-6 trigger reads (§10).
 
 ## 7. Test plan — red first
 
@@ -568,10 +598,12 @@ The tier test builds its estimator row **from stated fixture values** (tier `est
 | `Discrepancy_SaveReopen_RoundTripByteEqual` | save, reopen, save | today the reader refuses the member (`DOC-UNSUPPORTED-FIELD`, line 2254) → red; mutant: `discrepancies` dropped on load (second image differs) |
 | `Discrepancy_OmittedWhenEmpty_OlderDocumentBytesUnchanged` | a `-2` fixture with runs and no record, opened and saved | bytes and every run content hash unchanged; mutant: member written as `[]` |
 | `Retention_RunReferencedByDiscrepancy_NeverPruned` | 22 runs on unreachable surfaces in one tier, the oldest referenced by a record | the referenced run survives save, no tombstone; mutant: the keep line removed |
-| `Discrepancy_PinnedRuns_ReachDocSize_RefusedNotCorrupted` (ring 0, est. < 2 s) | runs with 128 strips pinned by records until the next record or run would pass `MaxBytes` | records the measured bytes per run and per record (the §1.8 numbers become Verified); the next `RecordDiscrepancy` raises `DOC-SIZE`, the pane state is Error, the saved image is unchanged; mutant: preflight skipped → an oversize image |
-| `Discrepancy_StoreInvariants_Refused` (theory) | duplicate key; base = compared; non-canonical orientation; unknown run id; tombstoned id; Failed run | codes `DOC-DISCREPANCY-KEY`, `DOC-SCHEMA`, `DOC-REFERENCE` on read and on record; mutant: the orientation check removed |
+| `Discrepancy_PinnedRuns_ReachDocSize_RefusedNotCorrupted` (ring 0, est. < 2 s; Ruling 251) | runs with 128 strips pinned by records until the next record, run or save would pass `MaxBytes`; its measured bytes per pinned run and per record replace the Inferred ≈ 60 kB and ≈ 55-pair figures of §1.8 and §10; the refusal event carries `pinnedRuns` | records the measured bytes per run and per record (the §1.8 numbers become Verified); the next `RecordDiscrepancy` raises `DOC-SIZE`, the pane state is Error, the saved image is unchanged; mutant: preflight skipped → an oversize image |
+| `Discrepancy_StoreInvariants_Refused` (theory) | duplicate key; base = compared; non-canonical orientation (tier pair stored higher → lower); **a same-tier, same-revision pair stored against document order** (the later run as base); unknown run id; tombstoned id; Failed run | codes `DOC-DISCREPANCY-KEY`, `DOC-SCHEMA`, `DOC-REFERENCE` on read and on record; mutant: the orientation check removed |
 | `Discrepancy_TamperedLine_ReadsNoLongerReproduces` | flip the last digit of a stored δ and fix the content hash | integrity `NoLongerReproduces`; record kept |
 | `Discrepancy_TamperedHash_ReadsPayloadFailedCheck` | change one stored byte, keep the hash | integrity `PayloadFailedCheck`; mutant: the stored hash trusted (reads Intact) |
+| `Discrepancy_UnknownRuleVersion_ReadsUnavailable` | a stored record with `rule.version` `9.9.9` (and fixed content hash) | integrity `RuleUnknown`, pane A3D-COPY-29, record kept; mutant: verified under the current rule (reads `NoLongerReproduces`) |
+| `Discrepancy_OldRuleVersion_StillReproduces` | a record written by rule `1.0.0` read by a build whose current rule is a fixture `1.1.0` | Intact (dispatched to the `1.0.0` function); mutant: dispatch to the current rule only |
 | `Discrepancy_OlderReader_Receipt` + `NativeReader_AnalysisMember_ClosedSet` | **receipt** (P-9 shape, `area3-analysis.md` line 1320): at `176c9540`, `AuthoringSession.cs` line 2254 reads `Exact(analysisElement, "runs", "polarSamples", "pruned")` and `Exact` refuses other members (lines 2233–2234), recorded in the build's proof note. **Forward guard:** a document with an unknown `analysis` member (`discrepanciesX`) is refused with `DOC-UNSUPPORTED-FIELD` by the new reader | mutant: line 2254 made open (any member allowed) → the guard goes green-on-unknown → red |
 
 ### 7.4 CLI (Cli.Tests, ring 0)
@@ -609,7 +641,7 @@ One theme row (light, dark, contrast) in `ShellWindowTests.cs` only after D1 joi
 `tests/CfdWorkbench.Analysis.Tests/WingEstimatorTests.cs` (new). Ruling 250 Q1.
 
 **A3d-2 (Compare), after A3d-1 joins:** `src/CfdWorkbench.Core/DiscrepancyRecord.cs` (new; Ruling 250 Q4),
-`src/CfdWorkbench.Core/RunRecord.cs` (the member, one `CheckStore` call, `AnalysisEvent` fields),
+`src/CfdWorkbench.Core/RunRecord.cs` (the `Discrepancies` member and the one `CheckStore` call with its `acceptedOrdinal` argument; `CompareEvent` lives in `DiscrepancyRecord.cs`),
 `src/CfdWorkbench.Core/AuthoringSession.cs` (line 2254, `RecordDiscrepancy`, `ReadDiscrepancies`, `AnalysisCore`,
 `LoadRuns`, `PruneRunsAtSave`), `src/CfdWorkbench.Analysis/Compare.cs` (new),
 `src/CfdWorkbench.Analysis/AnalysisProjection.cs`, `src/CfdWorkbench.Analysis/AnalysisViewModel.cs`,
@@ -650,6 +682,20 @@ commands; S1 builds after A3 joins. A3 → D1: a theme row in `ShellWindowTests.
 | Q4 new Core file | §1.8, §4.2, §8 |
 | Build split A3d-1 / A3d-2 | §4, §7.0, §8 |
 
+### 9.1b What changed in cycle 2 (Data & Persistence confirmation conditions)
+
+| Condition | Where |
+|---|---|
+| 1 orientation and key defined once in Core | §1.8 Store invariants, §4.2 `DiscrepancyRecord.cs` and `Compare.cs` rows |
+| 2 `acceptedOrdinal` lookup for the orientation check; same-revision refused row | §1.8, §4.2 Session row, §7.3 `Discrepancy_StoreInvariants_Refused` |
+| 3 dispatch on the stored rule version; `ANA-CMP-RULE-UNKNOWN`, A3D-COPY-29 | §1.7, §3, §6, §7.3, §11 |
+| 4 DR-A3D-6 trigger, document byte size, residual risk; settled by Ruling 251 | §6.1, §7.3, §10; decision note |
+| 5 the C1 doc comment rewritten | §1.8 Retention, §4.2 Session row |
+| 6 stored roles named; "A blocked pair stores no record." | `docs/specs/amendments/spec-1.7.7.md` AM-1; §10 settled text |
+| 7 "not a second record"; Analysis runs only | `spec-1.7.7.md` AM-2 |
+| 8 no `AnalysisEvent` fields in `RunRecord.cs` | §8 |
+| 9 linked decision note | `docs/notes/discrepancy-records.md`, linked from §1.8 |
+
 ### 9.2 Questions for a second pass
 
 - Hydrodynamicist: is the Helmbold–Diederich citation and the ᾱ_L0 rule (§2.6) acceptable for "estimator, not
@@ -666,18 +712,18 @@ commands; S1 builds after A3 joins. A3 → D1: a theme row in `ShellWindowTests.
 | **DR-A3D-3** | Reconcile incompatible references | (a) block every numeric δ (the spec clause); every planform-changing revision compare is blocked · (b) re-express CL and CDi on the base reference · (c, from the verdict) δ on dimensional L and D_i at an equal point and water (the same arithmetic as (b)) | A5.7 "until reconciled"; e is not re-expressible | **(a)** for A3d; (c) a recorded follow-up, not built | **settled — Ruling 250 Q3 (a); (c) is a next step outside this wave for the operator** |
 | **DR-A3D-4** | Where the record's types and checks live | (a) in `RunRecord.cs` under a header exception · (b) a seam request to the finished STO track · (c, from the verdict) a new Core file with its own header; `RunRecord.cs` gains only the member and one call | `RunRecord.cs` header lines 8–12 | **(c)** | **settled — Ruling 250 Q4 (c)** |
 | **DR-A3D-5** | Different operating points | (a) block δ, with water as its own reason · (b) allow δ with a note | spec line 259 grain has one operating point; `WaterRecord` ≠ `OperatingPoint` | **(a)** | **not ruled** (outside Ruling 250's request); the reading stands |
-| **DR-A3D-6** | Records pin runs with no unpin path; ≈ 55 disjoint revision pairs reach `MaxBytes` (§1.8, Inferred until the size test measures it) | (a) an explicit **Record** action: viewing never stores; the user records a pair (changes "each compared pair stores" to "each recorded pair") · (b) a record-retention rule: keep the latest N records per tier pair kind, tombstone the rest and release their pins · (c) accept: no cap; `DOC-SIZE` refuses, the `pinnedRuns` event measures real use | §1.8 bound; `RetainedOthersPerTier` = 20; spec line 259 "materialised because it is COMMIT-01 promotion evidence" | **(c)** for A3d with the measurement, revisit at the first `pinnedRuns` reading above 20; (b) would delete promotion evidence, (a) changes the spec clause | **open — new in cycle 1** |
+| **DR-A3D-6** | Records pin runs with no unpin path; ≈ 55 disjoint revision pairs reach `MaxBytes` (§1.8, Inferred until the size test measures it) | (a) an explicit **Record** action: viewing never stores; the user records a pair (changes "each compared pair stores" to "each recorded pair") · (b) a record-retention rule: keep the latest N records per tier pair kind, tombstone the rest and release their pins · (c) accept: no cap; `DOC-SIZE` refuses, the `pinnedRuns` event measures real use | §1.8 bound; `RetainedOthersPerTier` = 20; spec line 259 "materialised because it is COMMIT-01 promotion evidence" | **(c)** for A3d ; revisit at **the first `pinnedRuns` reading above 20 or the first `DOC-SIZE` refusal in a document that holds records, whichever comes first** (the §6.1 event carries the document byte size). Residual risk (Inferred, the Data & Persistence confirmation): with no unpin and no record pruning, a document that reaches `DOC-SIZE` through pinned runs can never record a run or a comparison again, which is why the trigger fires on that event. (b) is refused by the Data & Persistence lens (it deletes COMMIT-01 evidence); (a) is the preferred escape if the trigger fires | **settled — Ruling 251 (c)**: accept and measure; every compatible compared pair stores its record, a blocked pair stores nothing; referenced runs kept by identity on top of the 20 per tier, never pruned or tombstoned; (b) refused as a contract change; (a) adopted only by the operator on the leader's request after the trigger fires. **Residual risk accepted for A3d** |
 
-Blocked pairs store nothing: `assume:` "each compared pair stores a record" means each pair compared numerically.
-Ruling 250 Q2 does not address it. Confirms: the Data & Persistence lens at its §1.0 confirmation. Breaks if false: a
-blocked record with no lines is added — an additive change.
+**Blocked pairs store nothing — settled** by the Data & Persistence confirmation (cycle 2): Compatible / blocked is derived and never stored, a blocked pair has no δ and is no COMMIT-01 evidence, and it would pin two runs for nothing. Spec note AM-1.7.7-1 says so.
+A later blocked-record shape would be additive (runs are immutable, so a blocked pair stays blocked).
 
 ## 11. Failure modes
 
 | Mode | Disposition |
 |---|---|
 | a referenced run fails its check | record reads A3D-COPY-18; nothing rewritten |
-| derivation code changes CL by an ulp | record reads A3D-COPY-19; a deliberate change bumps the rule version |
+| derivation code changes CL by an ulp | record reads A3D-COPY-19; a deliberate change bumps the rule version and keeps the old version's function (§1.7) |
+| a record names a rule version this build does not know | reads A3D-COPY-29 (`ANA-CMP-RULE-UNKNOWN`); never re-verified under another rule, never rewritten |
 | `RecordDiscrepancy` hits `DOC-SIZE` | error card A3D-COPY-23, no δ shown (§1.8) |
 | two compares of the same pair race, in either order | orient, look up and append are one step under the session lock |
 | retention prunes a referenced run | prevented by the keep line; §7.3 |
@@ -690,4 +736,4 @@ reproduction check. LINDDUN-lite: no personal data; the event carries tiers and 
 
 Cycle-1 revision written with Ruling 250 folded in; the mockup and its note updated; spec note 1.7.7 proposed. Next:
 the Data & Persistence lens confirms §1.0 (the build is held until it does); the leader runs the second Adversary pass;
-then the build brief for node A3d-1, and A3d-2 after it joins. DR-A3D-6 is open.
+then the build brief for node A3d-1, and A3d-2 after it joins. DR-A3D-6 is settled by Ruling 251.
