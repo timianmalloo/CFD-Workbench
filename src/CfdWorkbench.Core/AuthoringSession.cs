@@ -1387,6 +1387,8 @@ public sealed class AuthoringSession : IDisposable
     // samples 2 x 258 of them), so the last plan is kept for the accepted revision, slice and command it was made for.
     // simplify: one entry; a second slice or a new revision replaces it. Upgrade trigger: a caller that alternates two slices.
     private (string Revision, string Key, object Plan)? stationMemo;
+    /// <summary>The measurement grid of Add and Remove station. Production is 129 eta per interval x 2001 x; a test may set a coarser one before the first plan.</summary>
+    internal StationGrid StationGrid { get; set; } = StationGrid.Production;
 
     private T StationPlan<T>(string revision, string key, Func<T> make) where T : class
     {
@@ -1402,13 +1404,13 @@ public sealed class AuthoringSession : IDisposable
     private PromotionPlan PlanPromote(double eta, string etaText)
     {
         var (id, bytes) = StationBase();
-        return StationPlan(id, PromoteKey(eta, etaText), () => StationEdits.Promote(bytes, eta, etaText, parsed => AssessOwned(parsed)));
+        return StationPlan(id, PromoteKey(eta, etaText), () => StationEdits.Promote(bytes, eta, etaText, parsed => AssessOwned(parsed), StationGrid));
     }
 
     private RemovalPlan PlanRemove(int index)
     {
         var (id, bytes) = StationBase();
-        return StationPlan(id, "remove\u001f" + index.ToString(CultureInfo.InvariantCulture), () => StationEdits.Remove(bytes, index));
+        return StationPlan(id, "remove\u001f" + index.ToString(CultureInfo.InvariantCulture), () => StationEdits.Remove(bytes, index, StationGrid));
     }
 
     private PromotionOutcome AddStationCore(string operationId, double eta, string etaText, bool approximate)
@@ -1425,8 +1427,8 @@ public sealed class AuthoringSession : IDisposable
             PromotionPlan plan;
             try
             {
-                plan = replay ? StationEdits.Promote(BaseBytes(parent!), eta, etaText, parsed => AssessOwned(parsed))
-                    : StationPlan(current!, PromoteKey(eta, etaText), () => StationEdits.Promote(CurrentBytes, eta, etaText, parsed => AssessOwned(parsed)));
+                plan = replay ? StationEdits.Promote(BaseBytes(parent!), eta, etaText, parsed => AssessOwned(parsed), StationGrid)
+                    : StationPlan(current!, PromoteKey(eta, etaText), () => StationEdits.Promote(CurrentBytes, eta, etaText, parsed => AssessOwned(parsed), StationGrid));
             }
             catch (ContractError) when (replay) { throw new ContractError("DOC-OPERATION-CONFLICT"); }
             var report = plan.Preview;
@@ -1472,8 +1474,8 @@ public sealed class AuthoringSession : IDisposable
             RemovalPlan plan;
             try
             {
-                plan = replay ? StationEdits.Remove(BaseBytes(parent!), index)
-                    : StationPlan(current!, "remove\u001f" + index.ToString(CultureInfo.InvariantCulture), () => StationEdits.Remove(CurrentBytes, index));
+                plan = replay ? StationEdits.Remove(BaseBytes(parent!), index, StationGrid)
+                    : StationPlan(current!, "remove\u001f" + index.ToString(CultureInfo.InvariantCulture), () => StationEdits.Remove(CurrentBytes, index, StationGrid));
             }
             catch (ContractError) when (replay) { throw new ContractError("DOC-OPERATION-CONFLICT"); }
             var report = plan.Preview;
@@ -2729,20 +2731,25 @@ internal sealed record RemovalPlan(RemovalPreview Preview, byte[]? Candidate, So
 /// <see cref="PlacementRule"/>, the one rule-A definition, so there is no second evaluator; the deviation is measured through
 /// <see cref="Placement.Sections"/> on the document before against the document after, never predicted. Nothing here touches the session.
 /// </summary>
+internal readonly record struct StationGrid(int EtaSamples, int XSamples)
+{
+    /// <summary>The product's grid, named in the preview and in the copy (Ruling 252).</summary>
+    internal static readonly StationGrid Production = new(129, 2001);
+}
+
 internal static class StationEdits
 {
     internal const double ExactRelative = 1e-12;
     internal const double LimitMeters = 10e-6;
-    private const int EtaSamples = 129;
-    private const int XSamples = 2001;
 
     /// <summary>
     /// Plans the promotion of the slice at <paramref name="eta"/> written as <paramref name="etaText"/>. A domain refusal is returned in the
     /// preview (its <c>RefusalCode</c>); only an out-of-range eta throws. <paramref name="assess"/> certifies the candidate and is not
     /// called when a refusal comes first or when the measured change already rules the promotion out.
     /// </summary>
-    internal static PromotionPlan Promote(byte[] source, double eta, string etaText, Func<SourceParse, GeometryAssessment> assess)
+    internal static PromotionPlan Promote(byte[] source, double eta, string etaText, Func<SourceParse, GeometryAssessment> assess, StationGrid? gridOverride = null)
     {
+        var grid = gridOverride ?? StationGrid.Production;
         Guard.Require(double.IsFinite(eta) && eta >= 0 && eta <= 1, "DSL-RANGE");
         var definition = FoilSource.Parse(source).Definition ?? throw new ContractError("DSL-PATCH");
         Guard.Require(definition.Kind == "foil", "DSL-TARGET");
@@ -2775,7 +2782,7 @@ internal static class StationEdits
         }
         byte[] candidate = FoilSource.AddAssignment(source, eta, etaText, name, block);
         var parsed = FoilSource.Parse(candidate);
-        var (relative, meters, at) = Measure(source, candidate, Grid((stations[left].Eta, eta), (eta, stations[left + 1].Eta)));
+        var (relative, meters, at) = Measure(source, candidate, Grid(grid, (stations[left].Eta, eta), (eta, stations[left + 1].Eta)), grid.XSamples);
         string regime = same ? "R0" : relative <= ExactRelative ? "R1" : "R2";
         PromotionPreview Report(bool admitted, string? code, string? reason) =>
             new(eta, etaText, left, left + 1, regime, relative, meters, at, admitted, code, reason);
@@ -2797,17 +2804,18 @@ internal static class StationEdits
     }
 
     /// <summary>Plans the removal of interior station <paramref name="index"/>: the gap is re-blended by rule A, nothing is fitted (§2.9).</summary>
-    internal static RemovalPlan Remove(byte[] source, int index)
+    internal static RemovalPlan Remove(byte[] source, int index, StationGrid? gridOverride = null)
     {
+        var grid = gridOverride ?? StationGrid.Production;
         var definition = FoilSource.Parse(source).Definition ?? throw new ContractError("DSL-PATCH");
         Guard.Require(definition.Kind == "foil" && index >= 0 && index < definition.Assignments.Length, "DSL-TARGET");
         if (index == 0 || index == definition.Assignments.Length - 1)
             throw new ContractError("STATION-ENDPOINT", "Root and tip stations cannot be removed.");
         var (candidate, removed, profile) = FoilSource.RemoveAssignment(source, index);
         var stations = definition.Assignments;
-        var etas = Grid((stations[index - 1].Eta, stations[index + 1].Eta));
+        var etas = Grid(grid, (stations[index - 1].Eta, stations[index + 1].Eta));
         etas.Add(stations[index].Eta);
-        var (relative, meters, at) = Measure(source, candidate, etas);
+        var (relative, meters, at) = Measure(source, candidate, etas, grid.XSamples);
         var preview = new RemovalPreview(index, relative, meters, at, LimitMeters, meters <= LimitMeters, removed);
         return new(preview, candidate, FoilSource.Parse(candidate), profile);
     }
@@ -2849,9 +2857,9 @@ internal static class StationEdits
     };
 
     /// <summary>Camber, thickness and their sum differences, 129 eta per interval plus the interval ends, 2001 x: sampled, not a bound.</summary>
-    private static (double Relative, double Meters, double AtEta) Measure(byte[] before, byte[] after, IReadOnlyList<double> etas)
+    private static (double Relative, double Meters, double AtEta) Measure(byte[] before, byte[] after, IReadOnlyList<double> etas, int xSamples)
     {
-        var xs = Enumerable.Range(0, XSamples).Select(i => i / (double)(XSamples - 1)).ToArray();
+        var xs = Enumerable.Range(0, xSamples).Select(i => i / (double)(xSamples - 1)).ToArray();
         var a = SectionsParallel(before, etas, xs);
         var b = SectionsParallel(after, etas, xs);
         double relative = 0, meters = 0, at = etas[0];
@@ -2885,12 +2893,12 @@ internal static class StationEdits
         return samples;
     }
 
-    private static List<double> Grid(params (double From, double To)[] intervals)
+    private static List<double> Grid(StationGrid grid, params (double From, double To)[] intervals)
     {
         var etas = new List<double>();
         foreach (var (from, to) in intervals)
         {
-            for (int i = 0; i < EtaSamples - 1; i++) etas.Add(from + (to - from) * i / (EtaSamples - 1));
+            for (int i = 0; i < grid.EtaSamples - 1; i++) etas.Add(from + (to - from) * i / (grid.EtaSamples - 1));
             etas.Add(to);
         }
         return etas;

@@ -106,7 +106,7 @@ internal static class StationTests
         {
             foreach (var (doc, label) in new[] { (Peak(), "F-PEAK"), (Real(), "F-REAL") })
             {
-                using var session = Open(doc);
+                using var session = Open(doc, production: true);
                 var preview = session.PreviewPromote(0.5, "50 %");
                 Equal("R2", preview.Regime);
                 True(preview.DeviationRelative > Tolerance, label + " deviation " + preview.DeviationRelative.ToString("G17", CultureInfo.InvariantCulture));
@@ -354,7 +354,7 @@ internal static class StationTests
         });
         Check("Station_PreviewPromote_RecordsDuration", () =>
         {
-            using var session = Open(Camber());
+            using var session = Open(Camber(), production: true);
             session.PreviewPromote(Pct("35"), "35 %");
             // A different slice, so the add is a plan of its own and its event carries the whole cost (the press reuses its preview's plan).
             var outcome = session.AddStation(Id(), Pct("36"), "36 %", false);
@@ -466,9 +466,17 @@ internal static class StationTests
 
     // ---- helpers ----------------------------------------------------------------------------------------------------
 
-    private static AuthoringSession Open(byte[] source)
+    /// <summary>
+    /// The measurement grid of the checks that do not read a sampled number: 17 eta per interval x 201 x. Their assertions are exactness
+    /// (a deviation of 0 or about 1e-16 at every sample), a refusal that does not depend on where the maximum falls (the Remove check's
+    /// deviation is over 10000 times the limit), bytes, undo, closure and the budget, so a coarser sample cannot change them. T4 and T-perf
+    /// measure the sampled number and the real cost, so they run on <see cref="StationGrid.Production"/> (129 x 2001).
+    /// </summary>
+    private static readonly StationGrid Coarse = new(17, 201);
+
+    private static AuthoringSession Open(byte[] source, bool production = false)
     {
-        var session = new AuthoringSession();
+        var session = new AuthoringSession { StationGrid = production ? StationGrid.Production : Coarse };
         session.Open(source, Id(), true);
         return session;
     }
