@@ -13180,7 +13180,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2027-01-31",
       "reviewSuggested": [],
-      "summary": "The observed red and green lines of the Add station build, by node. Node S1-a (Core and CLI visibility) is recorded: 21 checks red on the stubs and green after, mutants M1 to M6, M8 and M9 red, the measured deviations and k of the real pairs, the plan cost. The S1-b sections (Desktop, copy id mapping, xaml-token-lint) are filled by that node.",
+      "summary": "The observed red and green lines of the Add station build, by node. Node S1-a (Core and CLI visibility) is recorded: 21 checks red on the stubs and green after, mutants M1 to M6, M8 and M9 red, the measured deviations and k of the real pairs, the plan cost. Node S1-b (Desktop: the slice, Promote, Remove, the flyouts, the promotion-cost checks, M7, the copy id mapping) is recorded.",
       "tags": [
         "add-station",
         "remove-station",
@@ -13198,7 +13198,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e805074a5c55ef7bfca580aad34b31f4758e479003b7cf997ac83973d11e40f2"
+      "sourceSha256": "d67689cd9f80b7cb936af530f095a43ce94e4cd8f26d05229018338b477267da"
     },
     {
       "id": "proof-app-shell-test-inventory",
@@ -23713,5 +23713,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "4a0c65c13208f32a721273ba4f22844b3bf4883d8358fbeb01a566587c7b12e2"
+  "graphSha256": "68abd06f9a232965add6ce02d3217fceaae4de1832320fdc53ffad2275b36ac9"
 };

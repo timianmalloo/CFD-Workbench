@@ -12,7 +12,7 @@ review-by: "2027-01-31"
 summary: >-
   The observed red and green lines of the Add station build, by node. Node S1-a (Core and CLI visibility) is recorded: 21
   checks red on the stubs and green after, mutants M1 to M6, M8 and M9 red, the measured deviations and k of the real
-  pairs, the plan cost. The S1-b sections (Desktop, copy id mapping, xaml-token-lint) are filled by that node.
+  pairs, the plan cost. Node S1-b (Desktop: the slice, Promote, Remove, the flyouts, the promotion-cost checks, M7, the copy id mapping) is recorded.
 ---
 
 # Add station build proof
@@ -163,3 +163,55 @@ Placement predicates: under Ruling 256, `Placement.SameRecord` and `Placement.Sa
 The check-side k for F-SAMEPEAK prints 1.0000000000000002; only k(P) is exactly 1. The red lines for T12, T16 and T-perf were
 recorded on the `b17df80e` versions; the final versions are red by reading. T19 now asserts root and tip are unchanged after the
 Replace. The dead `True(mutantName.Length > 0, ...)` is gone.
+
+## Node S1-b: Desktop
+
+Documents are the committed 8-point basic foil with profiles written in `tests/CfdWorkbench.Desktop.Tests/StationDesktopTests.cs`
+(`Doc`). The Desktop checks use the coarse 17 x 201 grid through the session's internal setter, except the two promotion-cost
+checks, which run on the production 129 x 2001 grid. The red lines were observed on a stub build (the controller verbs returned
+the document unchanged, `PlanCanvas` drew no chip); the stub was not committed as its own commit.
+
+### Red and green (design 7)
+
+| Check | Red (last line) | Green |
+|---|---|---|
+| D2 `Controller_StationVerbs_TableMenuAndReasons` | `Edit has no 'Add station.' row (station.add)` | PASS |
+| D3 `Controller_TypedCoincidentEta_SelectsExisting` | `A typed 60 % did not select the station there: Foil { }` | PASS |
+| D9 `Controller_ApproximatePromotion_FlyoutAndApply` | `An R2 promotion opened no approximate-promotion flyout` | PASS |
+| D6 `Controller_RemoveFlyout_ApplyDisabledWithReason` | `Remove opened no flyout` | PASS |
+| D6 focus `Controller_RemoveFlyout_FocusEscapeAndReturn` (window) | `No visible link 'Remove station'` | PASS |
+| D1 `PlanCanvas_SliceChip_LabelPromoteInStrip` | `The slice drew no chip with Promote and x` | PASS |
+| D5 `PlanCanvas_SliceVisibleAtReflow` | `No Promote at 1280 x 800`; then at 640 x 400 `Promote ... is outside the canvas 0, 0, 244.5, 245` (chip shortened) | PASS |
+| D4 `Controller_Promote_SelectedEverywhereAndRenumbered` | `Timed out waiting for the promotion and its surface`; after the verbs, `Side chips: ` (Layout Four), then `Plan chip of Station 2 ... chips 0,2 of 4` (the selected station now keeps its chip) | PASS |
+| D7 `Controller_PromotedStation_ThumbnailAndEditSection` | `Timed out waiting for the promotion` | PASS |
+| D8 `BrowserRow_SelectedFromOtherView_BroughtIntoView_AtScales` | none: **green on today's product** at 1.0, 1.5, 2.0 (the precondition that the last row is below the fold held at each scale); no fix commit | PASS |
+| promotion cost, responsiveness `Controller_PromoteSlice_PreviewOffUiThread_WindowStaysResponsive` | stub: `The press shows no Checking state`; naive synchronous preview: `PromoteSliceAsync held the calling thread for 9756 ms: the preview ran on it` | PASS: returned in 0 ms, 508 dispatcher ticks during a 9.5 s plan, worst gap 41 ms |
+| promotion cost, plan reuse `Controller_PromoteApply_ReusesStoredPlan_NoSecondMeasurement` | the check passes with a correct build, so its red is a mutant: Apply passes the position text with a doubled space (a memo miss): `Apply measured again: add-station 9486 ms against the preview's 9625 ms` | PASS: preview 9513 ms, add-station 1 ms |
+
+D1 and D5 are `--plan-canvas`; D2, D3, D9, D6 and the two cost checks are `--controller-shell`; D4, D6 focus and D7 are window checks
+hosted by `--plan-canvas` (the `--controller-shell` mode opens no window, so D4 cannot run there); D8 is `--shell-window`.
+
+### Mutant M7
+
+The stale label in a Desktop view: `ElevationView.StationName` returning a name cached per index. D4 fails `Side chips: Station 2, Root, Tip, Tip`
+(no `Station 3`). Reverted; `git diff -- src/CfdWorkbench.Desktop/ElevationView.cs` is empty.
+
+### Copy id mapping (DESIGN.md section 7, after COPY-552)
+
+S1-COPY-1 to COPY-553, 2 to 554, 3 to 555, 4 to 556, 5 to 557, 6 to 558, 7 to 559, 8 to 560, 9 to 561, 10 to 562, 11 to 563, 12 to 564,
+13 to 565, 14 to 566, 15 to 567, 16 to 568, 17 to 569, 18 to 570, 19 to 571, 20 to 572, 21 to 573, 22 to 574, 23 to 575, 24 to 576.
+
+### Departures and open items (S1-b)
+
+- **The flyouts are inline in the Properties pane**, not popups: the pane shows a group (title, the measured line, Apply, Cancel) under the slice
+  or the station. `ModelArea` and `RebuildPopover` are not S1-b files. Escape on Apply or Cancel closes it and returns focus to Remove station.
+- **`PropertiesPane.axaml.cs` was edited** (not in the S1-b list; seam request raised): the Action row click calls
+  `WorkbenchController.RunStationAction`, a row in `RowState.Unavailable` is disabled with its reason as help text, the flyout's Escape key,
+  and `StationPanel` is passed in the context.
+- **Not built:** the typed position entry control (the controller verb `PlaceSliceTyped` is tested; no entry field is drawn, because the
+  options strip is `ModelArea`), the slice line in Front and the slice outline in Side (`ElevationView` draws the selected promoted station
+  through the existing path, which D4 proves), the slice chip's automation child peer (the name is the property `PlanCanvas.SliceChipName`).
+- **Chip strip:** the selected station keeps its chip when neighbours collide (needed for D4); the slice chip drops its distance, then its
+  label, when the canvas is narrow, so Promote and x stay on screen.
+- **Fixtures:** the Desktop checks cannot reach Core's internal fixtures, so `StationDesktopTests.Doc` writes the foil text.
+- **ui-craft-gate:** not run: no arm64 binary.

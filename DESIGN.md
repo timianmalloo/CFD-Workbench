@@ -887,6 +887,30 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-550 | estimator, not validated — proposed — A3d Compare (A3D-COPY-27: the estimator method label; design a3d-compare.md section 6) |
 | COPY-551 | Undefined — e is ill-conditioned here (CL or CDi undefined or below its floor) — proposed — A3d Compare (A3D-COPY-28: the e delta cell; design a3d-compare.md section 6) |
 | COPY-552 | Unavailable — Discrepancy record uses a compare rule this version does not know (<rule id> <version>) — proposed — A3d Compare (A3D-COPY-29: the record, ANA-CMP-RULE-UNKNOWN; design a3d-compare.md section 6) |
+| COPY-553 | Inspection slice at η <η> · <d> mm. Not saved. Promote makes it a station. — proposed — S1 Add station (S1-COPY-1: the status line when a slice is placed; design add-station.md section 6) |
+| COPY-554 | Slice · η <η> · <d> mm — proposed — S1 Add station (S1-COPY-2: the slice chip label in the Plan strip) |
+| COPY-555 | Added <name> at η <η>. Shape unchanged: deviation 0. Thickness: keep current. — proposed — S1 Add station (S1-COPY-3: the receipt of a regime R0 promotion) |
+| COPY-556 | Added <name> at η <η>. Largest change <rel> of chord (<µm> µm) at η <at>, sampled; limit 10⁻¹². Thickness: keep current. — proposed — S1 Add station (S1-COPY-4: the receipt of a regime R1 promotion) |
+| COPY-557 | Stations after it are renumbered: <old> is now <new>. — proposed — S1 Add station (S1-COPY-5: appended to the promotion receipts) |
+| COPY-558 | <name> is already at <d> mm (within the 10 µm join tolerance). Selected it. — proposed — S1 Add station (S1-COPY-6: a coincident position selects the existing station) |
+| COPY-559 | A station must lie strictly between root and tip (0 % < η < 100 %). — proposed — S1 Add station (S1-COPY-7: DSL-RANGE) |
+| COPY-560 | Promote refused: <count> stations would have different sections, more than the blend certificate can carry. Make one of them match a neighbour first. Nothing changed. — proposed — S1 Add station (S1-COPY-8: STATION-BUDGET) |
+| COPY-561 | Promote is not available: <left> and <right> have different point spacing, so this loft is not assessed. — proposed — S1 Add station (S1-COPY-9: STATION-SPACING) |
+| COPY-562 | Promote is not available: the loft is not assessed (<reason>). — proposed — S1 Add station (S1-COPY-10: STATION-NOT-ASSESSED) |
+| COPY-563 | Promote refused: the new station would change the loft by <µm> µm (<rel> of chord) at η <at>, above the 10 µm limit. Nothing changed. — proposed — S1 Add station (S1-COPY-11: STATION-INEXACT) |
+| COPY-564 | Root and tip stations cannot be removed. — proposed — S1 Add station (S1-COPY-12: STATION-ENDPOINT) |
+| COPY-565 | Apply or cancel the open draft on <target> first. — proposed — S1 Add station (S1-COPY-13: DSL-DRAFT-OWNED) |
+| COPY-566 | The shape between <left> and <right> is re-blended. Largest change <µm> µm (<rel> of chord) at η <at>, sampled. Limit 10 µm. — proposed — S1 Add station (S1-COPY-14: the Remove flyout line) |
+| COPY-567 | Apply is disabled: the change is above the 10 µm limit. — proposed — S1 Add station (S1-COPY-15: the Remove flyout's disabled Apply reason; STATION-REMOVE-ACCEPTANCE) |
+| COPY-568 | Removed <name>. Largest change <µm> µm at η <at>. Thickness: keep current. — proposed — S1 Add station (S1-COPY-16: the Remove receipt) |
+| COPY-569 | Add station… — proposed — S1 Add station (S1-COPY-17: the station.add command) |
+| COPY-570 | Remove station — proposed — S1 Add station (S1-COPY-18: the station.remove command and the station panel's button) |
+| COPY-571 | Derived view — not saved — proposed — S1 Add station (S1-COPY-19: the slice panel's note) |
+| COPY-572 | Checking… — proposed — S1 Add station (S1-COPY-20: the state while the preview is measured off the UI thread) |
+| COPY-573 | Approximate promotion at η <η> · <d> mm — proposed — S1 Add station (S1-COPY-21: the approximate-promotion flyout title) |
+| COPY-574 | A station here changes the loft. Largest change <µm> µm (<rel> of chord) at η <at>, sampled on <n> η × <m> x, not a bound. Limit 10 µm at the local chord. — proposed — S1 Add station (S1-COPY-22: the flyout line; the grid is the one the preview names, 129 × 2001 in production) |
+| COPY-575 | Apply is disabled: the change is above the 10 µm limit. — proposed — S1 Add station (S1-COPY-23: the approximate flyout's disabled Apply reason; the same words as COPY-567) |
+| COPY-576 | Added <name> at η <η> as an approximate promotion. Largest change <µm> µm (<rel> of chord) at η <at>. Thickness: keep current. — proposed — S1 Add station (S1-COPY-24: the receipt of an approximate promotion) |
 
 <!-- COPY-479 to COPY-519 are Ruling 196's COPY-EX ids; no Export id is reserved any more (COPY-480 EX07, the 3MF format row, landed with the 3MF slice). An id with a suffix (EX10a, EX13a, EX14a, EX23a, EX25a, EX45a) shares its numeric id's row. -->
 
