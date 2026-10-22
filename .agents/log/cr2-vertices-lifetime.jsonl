@@ -1,1 +1,2 @@
 {"agent": "cr2-vertices-lifetime", "at": 1792699748.4513903, "kind": "session-start", "path": "-", "seq": 1, "session": "cr2-vertices-lifetime", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-cr2-vertices-lifetime"}
+{"agent": "cr2-vertices-lifetime", "at": 1792708350.2968414, "kind": "session-end", "path": "-", "seq": 2, "session": "cr2-vertices-lifetime", "wi": "WI-0", "worktree": "CFD-Workbench-cr2-vertices-lifetime"}
