@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T22:32:08Z",
+  "generated": "2026-10-22T23:03:44Z",
   "audit": [
     {
       "actor": null,
@@ -42683,12 +42683,58 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M5JVWF4CKN6H1VFPM8NX0KT4",
-      "shortname": "join-cr2-vertices-lifetime",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-22T22:32:08Z",
-      "session": "pc-laptop-leader",
+      "done_when": "cr2-vertices-lifetime merged on main with the integrated full ring green under the leader's crash-and-124 rule and the ten verify gates green",
+      "duration_seconds": 287.0,
+      "fan_out": 0,
+      "goal": "fix the intermittent Desktop native crash at its verified cause",
+      "id": "al-01M5JVWF4CKN6H1VFPM8NX0KT4",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of cr2-vertices-lifetime into main",
+      "session": "pc-laptop-leader",
+      "shortname": "join-cr2-vertices-lifetime",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-22T22:27:21Z",
       "summary": "CR2 joined after its native-desktop plus Test Architect review and repair cycle 1: MeshFrame.Draw builds the SKVertices explicitly and holds it through the draw (using plus GC.KeepAlive), which ends the intermittent 0xC0000374 and 0xC0000005 crashes of Desktop harness children (sixteen paired runs on the fixed build, eight GPU and eight software, zero fatal exits, where each path crashed on its first pair before); the GC-pressure probe mode (--vertices-lifetime-probe under CFD_VERTICES_GC_PROBE=1) with the array helper as the positive control crashing today's code in about 8 s and the held arm surviving 60 s and more than 500,000 collections through the shipped MeshFrame.Draw; the sweep found no other unheld SkiaSharp temporary; the register gains NATIVE-TEMPORARY-FINALIZED-MID-CALL and HARNESS-CRASH-AS-VERDICT instance 3 recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-22T22:20:00Z",
+      "duration_seconds": 7006.0,
+      "id": "al-01M5JV67SZ6EH3RWFYTW3TYYPS",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "wave 2 WF: Open refusal by cause, off-Windows and conflict sentences, Finder on Windows, Save-section dialog, cloud-folder wording, export default, COPY-615",
+      "session": "w2b-wf",
+      "shortname": "w2b-wf",
+      "skill": "implement",
+      "started_at": "2026-10-22T20:23:14Z",
+      "summary": "Wave 2 WF: Open refusals by cause (COPY-641 to 645), Save-section Windows sentence (COPY-646), export default for a read-only OneDrive document, COPY-615 left as is with the reason; seven mutants seen red; store unchanged.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M5JXPAQJWSQAMD5P10CK7MDG",
+      "shortname": "join-w2b-wf",
+      "datetime": "2026-10-22T23:03:44Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of w2b-wf into main",
+      "summary": "WF joined after its UX and Accessibility plus Test Architect review and two repair cycles: every DOC-UNSUPPORTED-PERSISTENCE cause on Open mapped to its store site and covered by one truthful sentence COPY-641 (approved under Rulings 265 and 266, COPY-590 retired), COPY-642 off Windows, COPY-643 for a changed or in-use file with a Try again button, COPY-644 for a missing file, COPY-645 the File Explorer permission sentence (macOS keeps COPY-126), COPY-646 the Windows Save-section sentence after measuring that the section library saves on Windows, the export default at the local folder for a read-only OneDrive document, COPY-615 left with its reason recorded; the stale Open-copy check made host-aware with cases for the new rows, a pure Labels check in the Analysis harness for both CI runners recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -42697,8 +42743,8 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "fix the intermittent Desktop native crash at its verified cause",
-      "done_when": "cr2-vertices-lifetime merged on main with the integrated full ring green under the leader's crash-and-124 rule and the ten verify gates green",
+      "goal": "finish the W2-Q2 follow-up: truthful Windows refusal and permission copy",
+      "done_when": "w2b-wf merged on main with the integrated full ring green under the leader's crash-and-124 rule and the ten verify gates green",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -42706,8 +42752,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-22T22:27:21Z",
-      "duration_seconds": 287.0
+      "started_at": "2026-10-22T22:59:03Z",
+      "duration_seconds": 281.0
     }
   ],
   "changes": [
@@ -46444,6 +46490,24 @@ window.AUDIT_DATA = {
       "to": "opus-leader",
       "kind": "ruling",
       "ref": "req-01M5JVG6KAQQX1CJV3DRP92JPX",
+      "session": "opus-owner"
+    },
+    {
+      "id": "mail-01M5JW9A0D6A0FWNKBETW8JK8P",
+      "ts": "2026-10-22T22:39:09Z",
+      "from": "opus-leader",
+      "to": "opus-owner",
+      "kind": "decision-request",
+      "ref": "req-01M5JW9A013EY80XRB7WJNAYY7",
+      "session": "opus-leader"
+    },
+    {
+      "id": "mail-01M5JWA9981PNZ5CE663CA192H",
+      "ts": "2026-10-22T22:39:41Z",
+      "from": "opus-owner",
+      "to": "opus-leader",
+      "kind": "ruling",
+      "ref": "req-01M5JW9A013EY80XRB7WJNAYY7",
       "session": "opus-owner"
     }
   ]
