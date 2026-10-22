@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T02:10:59Z",
+  "generated": "2026-10-22T02:29:30Z",
   "audit": [
     {
       "actor": null,
@@ -41287,12 +41287,96 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M5GP0ETF27E4V39688M2219S",
-      "shortname": "join-a3-compare-design",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-22T02:10:59Z",
-      "session": "pc-laptop-leader",
+      "done_when": "design, mockup, spec amendment note and decision note on main with check-docs 0; the Owner rulings cited; the build may dispatch",
+      "duration_seconds": 22.0,
+      "fan_out": 0,
+      "goal": "design A3d Compare (ANA-06) before its build",
+      "id": "al-01M5GP0ETF27E4V39688M2219S",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of a3-compare-design into main",
+      "session": "pc-laptop-leader",
+      "shortname": "join-a3-compare-design",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-22T02:10:37Z",
       "summary": "docs-only join of the A3d Compare design after one Adversary pass (accept with conditions), Rulings 250 and 251, and the Data and Persistence confirmation; two repair cycles folded; the build brief is ready recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-22T01:58:59Z",
+      "duration_seconds": 1146.0,
+      "id": "al-01M5GNAFT3GRA0BV2J7E5EC6WW",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "track S1 brief: the Add station design and mockup",
+      "session": "s1-add-station-design",
+      "shortname": "s1-add-station-design",
+      "skill": "implement",
+      "started_at": "2026-10-22T01:39:53Z",
+      "summary": "Track S1 design half: docs/design/add-station.md (data model, central answer, commands and codes, E7 list, UI states, copy S1-COPY-1..20, red-first tests T1-T18 and D1-D5 with mutants, owned paths and seams, review packet, DR-S1-1..6), docs/mockups/add-station.html and .md (eight states, harness), docs/specs/amendments/spec-add-station.md (A-S1-1..3, proposed). Finding: rule A renormalises the blended unit thickness, so promotion is exact only when the neighbours share spacing and peak thickness location (R0/R1); with different peaks (R2) both adjacent intervals move by a measured amount (scratch model 0.8e-6 to 3.1e-5 chord). check-docs exit 0; ui-craft-gate not run (no windows-arm64 detector binary).",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-22T02:21:04Z",
+      "duration_seconds": 443.0,
+      "id": "al-01M5GPJXZPZ5NXH73YZ8E0FRHZ",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Add station design revision cycle 1: fold the Adversary conditions and the Browser addendum",
+      "session": "s1-add-station-design",
+      "shortname": "s1-add-station-design-r1",
+      "skill": "implement",
+      "started_at": "2026-10-22T02:13:41Z",
+      "summary": "Repair cycle 1 of the S1 Add station design: folded every Adversary condition (CG1-CG5, UX1-UX4, TA1-TA6, F14, F17), the Browser cross-view scroll addendum (D8, E7 row 12), and the leader's DR settlements (DR-S1-2, -3, -4, -6). S1-Q1 (option d, approximate promotion with preview) and S1-Q2 (keep current thickness) written as recommended with pending markers. R2 measured on a committed real pair with a model of Placement.cs rule A (not the product): foil-basic.foil section-a vs naca-0012.dat at eta 0.5 gives 5.1e-7 of chord, 0.08 um at 150 mm; naca-0012/naca-4412 gives 3.4e-10. Mockup gains state 9 (approximate promotion) and a corrected budget state (seven differing refused). New DR-S1-7 (minimum station spacing). check-docs exit 0.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-22T02:27:27Z",
+      "duration_seconds": 142.0,
+      "id": "al-01M5GPYM7H6ZWDQH3EW2XWNPTQ",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Add station design revision cycle 2: fold Ruling 252 (S1-Q1 d, S1-Q2 a, S1-Q3 b)",
+      "session": "s1-add-station-design",
+      "shortname": "s1-add-station-design-r2",
+      "skill": "implement",
+      "started_at": "2026-10-22T02:25:05Z",
+      "summary": "Repair cycle 2 of the S1 Add station design: folded Ruling 252 (S1-Q1 d, S1-Q2 a, S1-Q3 b). Every pending marker in the design, the mockup, its note and the amendment note is now settled text citing Ruling 252. The S1-Q1 rule is carried verbatim (design 2.4, amendment note). The deviation is labelled sampled with its grid. T4 is written for (d). T15 asserts the channel bytes. STATION-COINCIDENT and T5 now use resolved span positions in metres, with bitwise, just-inside and just-outside 10 um rows. Amendment row A-S1-4 is added. check-docs exit 0.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "id": "al-01M5GQ2C9GBZYWN3DWE4ST61J6",
+      "shortname": "join-s1-add-station-design",
+      "datetime": "2026-10-22T02:29:30Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of s1-add-station-design into main",
+      "summary": "docs-only join of the Add station design after one Adversary pass (accept with conditions, no veto), the real-pair R2 measurement and Ruling 252; two repair cycles folded; the build waits for the A3 join recount_seconds=0 (docs_only=True).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -41301,8 +41385,8 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "design A3d Compare (ANA-06) before its build",
-      "done_when": "design, mockup, spec amendment note and decision note on main with check-docs 0; the Owner rulings cited; the build may dispatch",
+      "goal": "design Add station before its build",
+      "done_when": "design, mockup, note and amendment note on main with check-docs 0; Ruling 252 cited; the build may dispatch after A3 joins",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -41310,8 +41394,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-22T02:10:37Z",
-      "duration_seconds": 22.0
+      "started_at": "2026-10-22T02:29:09Z",
+      "duration_seconds": 21.0
     }
   ],
   "changes": [
@@ -44796,6 +44880,24 @@ window.AUDIT_DATA = {
       "to": "opus-leader",
       "kind": "ruling",
       "ref": "req-01M5GNQYCC4QE5NT18S9HT7RWC",
+      "session": "opus-owner"
+    },
+    {
+      "id": "mail-01M5GPPSAZSR4B9587PA381J29",
+      "ts": "2026-10-22T02:23:10Z",
+      "from": "opus-leader",
+      "to": "opus-owner",
+      "kind": "decision-request",
+      "ref": "req-01M5GPPSADJVK0MSXDPQ04X2YK",
+      "session": "opus-leader"
+    },
+    {
+      "id": "mail-01M5GPRJY8VFGEQ40D1YR4MEGP",
+      "ts": "2026-10-22T02:24:09Z",
+      "from": "opus-owner",
+      "to": "opus-leader",
+      "kind": "ruling",
+      "ref": "req-01M5GPPSADJVK0MSXDPQ04X2YK",
       "session": "opus-owner"
     }
   ]
