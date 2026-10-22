@@ -369,7 +369,7 @@ Provisional, proposed for the operator (new copy is the operator's to approve):
 | File dehydrated or changed mid-read | O6 refuses DOC-CONFLICT; no partial document | `…RecalledOrChangedDuringRead_RefusedNoPartial`, `…RecallBitAfterDataHandle_RefusedConflict` |
 | The data handle opened by `ReOpenFile` with NO_RECALL | error 87 on every file (the reviewer's measurement); replaced by the empty-name `NtCreateFile` | `…DataHandleFromHeldHandle_NoRecall_LocalAndOneDrive` |
 | OneDrive variable names a drive root, or an untagged root | no exception; today's walk refuses any tagged ancestor | `…UnqualifiedOneDriveRoot_NoException` |
-| A Clear candidate's open fails with access denied or delete pending | Failed with its code, nothing deleted | `…NonSharingOpenError_FailedNothingRemoved` |
+| A Clear candidate's open fails (delete pending) or its delete fails (read-only, C5) | Failed with its code, nothing deleted | `…DeletePendingCandidate_C2OpenError_FailedNothingRemoved`, `…ReadOnlyCandidate_FailsAtC5Delete_DocIo_NothingRemoved` |
 | A case-variant `.cfd-writer.claim` | selected, held, refused by P3 (or removed when provenance-matched); Cleared only if no claim name answers afterwards | `…CaseVariantClaim_NotReportedCleared` |
 | Junction / symlink / mount point under OneDrive | refused (I-12, O1) | `…JunctionUnderOneDrive_Refused` |
 | The exception leaks into the save walk | I-12; mutant test | `…SaveWalks_PlaceholderExceptionNotApplied` |
@@ -407,7 +407,7 @@ tests print `SKIP <name> macos-not-run-here` on Windows and are never reported P
 | `SaveBlockedDialog_ClearFailed_ShowsCopy455WithCode` | Windows-run (Desktop) | no Clear | code omitted |
 | `MainWindow_ClearThenSave_NoRecoveryWording_DocumentSaved` (a real crash-left claim from the measured inventory; Clear; the retried save; every status and dialog string searched for "recover", "restor", "cleared") | Windows-run (Desktop) | no Clear | a success announcement |
 | **D2** `WindowsStore_Clear_CaseVariantClaim_NotReportedCleared` (a leftover named `.CFD-Writer.Claim`, made once with the private descriptor and once by `File.Create`) | Windows-run | no API | exact-name (ordinal) selection → "Cleared, 0 removed" while the folder stays blocked; C7 returning Cleared without the final lookup |
-| **D3** `WindowsStore_Clear_NonSharingOpenError_FailedNothingRemoved` (a candidate whose DACL denies DELETE to the user → access denied; a second case delete-pending through a held handle with delete disposition set) | Windows-run | no API | every non-sharing error mapped to InUse, or to dropped-as-gone, so the rest is deleted |
+| **D3** `WindowsStore_Clear_DeletePendingCandidate_C2OpenError_FailedNothingRemoved` (a candidate delete-pending through a held handle with delete disposition set; a deny-DELETE ACE does not fail the open where the folder grants FILE_DELETE_CHILD, as in an ordinary user folder, so it is not a C2 case; a read-only candidate opens and fails at C5, `…ReadOnlyCandidate_FailsAtC5Delete_DocIo_NothingRemoved`) | Windows-run | no API | every non-sharing error mapped to InUse, or to dropped-as-gone, so the rest is deleted |
 | **D-advisory** `WindowsStore_Clear_ReaderOnTemp_NotInUse` (a plain `FileShare.ReadWrite \| FileShare.Delete` read handle on a leftover temp; Clear succeeds) | Windows-run | no API | share mode 0 on the exclusive open → false COPY-449 |
 | **U1** `SaveBlockedDialog_Clearing_FocusInsideDialog_ThenCancelOnRefusal` (while busy: the focused element is the dialog's heading, inside the dialog, not a disabled button; after InUse and after Failed: focus is Cancel) | Windows-run (Desktop) | no Clear | focus left on the disabled Cancel, or on the window behind |
 | **U2** `SaveBlockedDialog_EscapeOrCancelFromConfirm_FocusReturnsToClear` (Escape and Cancel from A2, A4 and A5) | Windows-run (Desktop) | no Clear | focus returned to Save As (the S3 default) |
@@ -555,3 +555,8 @@ Questions an operator will ask, each with its source: how often Clear is refused
 how much it removed (`candidates`, `removed`); how long it took (`ms`); how often Open meets a cloud-only file
 (`store.read` DOC-CLOUD-ONLY); how often a read-only OneDrive document is opened (`store.read-origin`). Every event
 degrades to "not recorded"; none carries a path.
+
+**Known reuse (follow-up, no schema change now).** `store.clear` puts the candidate count in `InputBytes` and the removed count
+in `OutputBytes` (counts, not bytes; for this action only), and `RecordPersistence` logs it under the `document.save`
+operation, so a reader that counts saves by `Operation` also counts Clears; `Action` stays `store.clear`. The follow-up gives
+Clear its own `Operation` value and its own count fields (the `PointsBefore`/`PointsAfter` pattern).

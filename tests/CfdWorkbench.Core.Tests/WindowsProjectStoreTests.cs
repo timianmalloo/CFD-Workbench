@@ -13,6 +13,7 @@ internal static class WindowsProjectStoreTests
     internal static void Run()
     {
         if (Environment.GetEnvironmentVariable("CFD_WIN_CRASH_STAGE") is { } crashStage) { CrashChild(crashStage); return; }
+        if (Environment.GetEnvironmentVariable("CFD_WIN_CLEAR_STAGE") is { } clearStage) { ClearCrashChild(clearStage); return; }
         Check("WindowsNative_ProductCode_UnqualifiedWin32Error_IsUnmapped", () =>
         {
             var failure = new WindowsNative.NativeFailure(null, 183);
@@ -64,6 +65,7 @@ internal static class WindowsProjectStoreTests
             Layout<WindowsNative.FileStandard>(24, ("AllocationSize", 0), ("EndOfFile", 8), ("NumberOfLinks", 16), ("DeletePending", 20), ("Directory", 21));
             Layout<WindowsNative.CaseSensitiveInfo>(4, ("Flags", 0));
             Layout<WindowsNative.SecurityAttributes>(24, ("Length", 0), ("SecurityDescriptor", 8), ("InheritHandle", 16));
+            Layout<WindowsNative.FileNamesHeader>(12, ("NextEntryOffset", 0), ("FileIndex", 4), ("FileNameLength", 8)); // ntifs.h FILE_NAMES_INFORMATION before the name
         });
         Check("WindowsNative_RelativeCreate_PrivateAclBeforeAnyBytes", () => Fixture((root, parent) =>
         {
@@ -237,6 +239,21 @@ internal static class WindowsProjectStoreTests
         Check("WindowsStore_OwnedTempRenameWriteDeleteRefusedWhileHeld", OwnedTempProtected);
         Check("WindowsStore_IoEvents_NoDirectoryFlushClaimed", EventsWithoutDirectoryFlush);
         Check("WindowsStore_CrashInjection_LeftoverInventoryMeasured", CrashInjection);
+        // Windows store recovery, node A (docs/design/windows-store-recovery.md 2.2 to 2.4, section 7): Clear unfinished save.
+        Check("WindowsStore_Clear_RemovesCrashLeftovers_ClaimLast", ClearRemovesCrashLeftovers);
+        Check("WindowsStore_Clear_ForeignClaim_Kept_NothingRemoved", ClearForeignClaim);
+        Check("WindowsStore_Clear_LiveWriterClaimHeld_RefusedInUse", ClearLiveWriterClaim);
+        Check("WindowsStore_Clear_LiveCreateOnlyTemp_RefusedInUse", ClearLiveCreateOnlyTemp);
+        Check("WindowsStore_Clear_NewEntryBetweenChecks_RefusedNothingRemoved", ClearNewEntryBetweenChecks);
+        Check("WindowsStore_Clear_CrashDuringClear_ClaimLastAndRetryConverges", ClearCrashDuringClear);
+        Check("WindowsStore_Clear_HardLinkOrReparseCandidate_Kept", ClearHardLinkOrReparse);
+        Check("WindowsStore_Clear_UnderOneDrive_RefusedNothingRemoved", ClearUnderOneDrive);
+        Check("WindowsStore_Clear_TelemetryEventCodeAndCounts", ClearTelemetry);
+        Check("WindowsStore_Clear_CaseVariantClaim_NotReportedCleared", ClearCaseVariantClaim);
+        Check("WindowsStore_Clear_ReadOnlyCandidate_FailsAtC5Delete_DocIo_NothingRemoved", ClearReadOnlyCandidateFailsAtDelete);
+        Check("WindowsStore_Clear_DeletePendingCandidate_C2OpenError_FailedNothingRemoved", ClearNonSharingOpenError);
+        Check("WindowsStore_Clear_ReaderOnTemp_NotInUse", ClearReaderOnTemp);
+        Check("WindowsNative_ListNames_ManyEntriesAcrossBuffers_ExactSet", ClearListsEntries);
         // Ruling 160 (1) and (5): the OneDrive refusal and its fail-closed form, decided in Persistence so no window is needed.
         Check("WindowsStore_CloudFolder_OneDriveEnvironmentPathRefused", CloudEnvironmentPath);
         Check("WindowsStore_CloudFolder_CloudAttributeOrReparseTagOnFolderOrAncestorRefused", CloudAttributes);
@@ -637,18 +654,7 @@ internal static class WindowsProjectStoreTests
         {
             string root = NewRoot(), path = Path.Combine(root, "project.cfdw"); using var store = new ProjectStore();
             var seeded = Save(store, path, new([1, 2, 3], null, Id())); Equal("OK", seeded.Code);
-            string host = Path.Combine(AppContext.BaseDirectory, System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + ".exe"); // the apphost, as HarnessRun starts it
-            var start = new System.Diagnostics.ProcessStartInfo(host) { UseShellExecute = false, RedirectStandardOutput = true };
-            start.ArgumentList.Add("--harness");
-            start.Environment["CFD_TEST_ONLY"] = "WindowsStore_CrashChild_NeverMatches";
-            start.Environment["CFD_WIN_CRASH_STAGE"] = stage; start.Environment["CFD_WIN_CRASH_PATH"] = path;
-            start.Environment["CFD_WIN_CRASH_HASH"] = seeded.PublishedSha256;
-            using var child = System.Diagnostics.Process.Start(start)!;
-            string output = child.StandardOutput.ReadToEnd();
-            if (!child.WaitForExit(120_000)) { child.Kill(); throw new TimeoutException("crash child"); }
-            Equal(true, output.Contains("CRASH-AT " + stage, StringComparison.Ordinal));
-            Equal(false, output.Contains("CRASH-CHILD-NOT-KILLED", StringComparison.Ordinal));
-            Equal(true, child.ExitCode != 0);
+            var child = RunChild(stage, ("CFD_WIN_CRASH_STAGE", stage), ("CFD_WIN_CRASH_PATH", path), ("CFD_WIN_CRASH_HASH", seeded.PublishedSha256!));
             var entries = new DirectoryInfo(root).GetFileSystemInfos().OrderBy(e => e.Name, StringComparer.Ordinal).ToArray();
             string inventory = string.Join("; ", entries.Select(e => $"{(e.Name.StartsWith(".cfd-", StringComparison.Ordinal) && e.Name.EndsWith(".tmp", StringComparison.Ordinal) ? ".cfd-<operation>.tmp" : e.Name)} {((FileInfo)e).Length} bytes {e.Attributes}"));
             Console.WriteLine($"CRASH-INVENTORY stage={stage} child_exit={child.ExitCode} entries={entries.Length}: {inventory}");
@@ -666,6 +672,265 @@ internal static class WindowsProjectStoreTests
             foreach (var entry in entries.Where(e => e.Name.StartsWith(".cfd-", StringComparison.Ordinal))) entry.Delete();
             Equal("OK", Save(store, path, new([5], current, Id())).Code);
         }
+    }
+
+    // ---- Clear unfinished save (design windows-store-recovery section 7, node A) ----
+
+    /// <summary>Runs this harness as a child with the named environment and returns when it was killed at <paramref name="stage"/> (the crash-child mechanism).</summary>
+    private static (int ExitCode, string Output) RunChild(string stage, params (string Name, string Value)[] environment)
+    {
+        string host = Path.Combine(AppContext.BaseDirectory, System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + ".exe"); // the apphost, as HarnessRun starts it
+        var start = new System.Diagnostics.ProcessStartInfo(host) { UseShellExecute = false, RedirectStandardOutput = true };
+        start.ArgumentList.Add("--harness");
+        start.Environment["CFD_TEST_ONLY"] = "WindowsStore_CrashChild_NeverMatches";
+        foreach (var (name, value) in environment) start.Environment[name] = value;
+        using var child = System.Diagnostics.Process.Start(start)!;
+        string output = child.StandardOutput.ReadToEnd();
+        if (!child.WaitForExit(120_000)) { child.Kill(); throw new TimeoutException("crash child"); }
+        Equal(true, output.Contains("CRASH-AT " + stage, StringComparison.Ordinal));
+        Equal(false, output.Contains("CRASH-CHILD-NOT-KILLED", StringComparison.Ordinal));
+        Equal(true, child.ExitCode != 0);
+        return (child.ExitCode, output);
+    }
+
+    private static ClearResult Clear(ProjectStore store, string path) => store.ClearUnfinishedSaveAsync(path).GetAwaiter().GetResult();
+    private static string Listing(string root) => string.Join(",", Directory.GetFileSystemEntries(root).Select(entry => Path.GetFileName(entry)!).Order(StringComparer.Ordinal));
+    private static string Seed(string root)
+    {
+        string path = Path.Combine(root, "project.cfdw"); using var store = new ProjectStore();
+        Equal("OK", Save(store, path, new([1, 2, 3], null, Id())).Code);
+        return path;
+    }
+    /// <summary>A leftover the way the store makes one: the private descriptor, created and closed.</summary>
+    private static void Leftover(string root, string name, byte[]? bytes = null)
+    {
+        using var parent = WindowsNative.OpenFixtureDirectory(root);
+        using var file = WindowsNative.CreatePrivate(parent, name);
+        if (bytes is not null) RandomAccess.Write(file, bytes, 0);
+    }
+    private static string LeftoverTemp(string root) { string name = ProjectStore.TempName(Id()); Leftover(root, name, [1, 2]); return name; }
+
+    /// <summary>A save paused at <paramref name="stage"/> on the store's own thread: its handles are open until <c>Release</c>.</summary>
+    private static (Task<SaveResult> Saving, Action Release) PausedSave(string path, SaveRequest request, StoreStage stage)
+    {
+        var reached = new ManualResetEventSlim(); var release = new ManualResetEventSlim();
+        var store = new ProjectStore(new StoreHooks { OnStage = visited => { if (visited == stage) { reached.Set(); release.Wait(60_000); } } });
+        var saving = store.SaveAsync(path, request);
+        Equal(true, reached.Wait(30_000));
+        return (saving, release.Set);
+    }
+
+    private static void ClearRemovesCrashLeftovers()
+    {
+        foreach (string stage in new[] { "Writing", "BeforePublish", "Published" })
+        {
+            string root = NewRoot(), path = Seed(root), hash = Identity.Sha256(File.ReadAllBytes(path));
+            RunChild(stage, ("CFD_WIN_CRASH_STAGE", stage), ("CFD_WIN_CRASH_PATH", path), ("CFD_WIN_CRASH_HASH", hash));
+            int leftovers = stage == "Published" ? 1 : 2;
+            Equal(1 + leftovers, Directory.GetFileSystemEntries(root).Length);
+            Equal(true, UnfinishedSave.BlocksFolder(path));
+            byte[] project = File.ReadAllBytes(path);
+            string atTempsDisposed = "";
+            using var store = new ProjectStore(new StoreHooks { OnStage = visited => { if (visited == StoreStage.ClearTempsDisposed) atTempsDisposed = Listing(root); } });
+            var result = Clear(store, path);
+            Equal(new ClearResult(ClearOutcome.Cleared, "OK", leftovers), result);
+            Equal("project.cfdw", Listing(root));
+            Equal(true, File.ReadAllBytes(path).AsSpan().SequenceEqual(project));
+            Equal(".cfd-writer.claim,project.cfdw", atTempsDisposed); // the claim is deleted last: at that stage the temps are gone and the claim remains
+            Equal(false, UnfinishedSave.BlocksFolder(path));
+            Equal("OK", Save(store, path, new([5], Identity.Sha256(project), Id())).Code);
+            Console.WriteLine($"CLEAR-CRASH-LEFTOVERS stage={stage} outcome={result.Outcome} removed={result.Removed} claim_last=true then_save=OK");
+        }
+    }
+
+    private static void ClearForeignClaim()
+    {
+        string root = NewRoot(), path = Seed(root);
+        File.WriteAllBytes(Path.Combine(root, ".cfd-writer.claim"), []); // inherits the folder's DACL: not this store's private descriptor
+        LeftoverTemp(root);
+        string before = Listing(root);
+        using var store = new ProjectStore();
+        Equal(new ClearResult(ClearOutcome.Failed, "DOC-CONFLICT", 0), Clear(store, path));
+        Equal(before, Listing(root));
+        Equal(true, UnfinishedSave.BlocksFolder(path));
+    }
+
+    private static void ClearLiveWriterClaim()
+    {
+        string root = NewRoot(), path = Seed(root), hash = Identity.Sha256(File.ReadAllBytes(path));
+        var (saving, release) = PausedSave(path, new([9], hash, Id()), StoreStage.ClaimCreated);
+        try
+        {
+            using var store = new ProjectStore();
+            var result = Clear(store, path);
+            Equal(new ClearResult(ClearOutcome.InUse, "DOC-CONFLICT", 0), result);
+            Equal(true, File.Exists(Path.Combine(root, ".cfd-writer.claim")));
+        }
+        finally { release(); }
+        Equal("OK", saving.GetAwaiter().GetResult().Code);
+        Equal("project.cfdw", Listing(root));
+    }
+
+    private static void ClearLiveCreateOnlyTemp()
+    {
+        string root = NewRoot(), path = Seed(root); Leftover(root, ".cfd-writer.claim");
+        var (saving, release) = PausedSave(Path.Combine(root, "new.cfdw"), new([9], null, Id()), StoreStage.TempCreated);
+        try
+        {
+            using var store = new ProjectStore();
+            var result = Clear(store, path);
+            Equal(new ClearResult(ClearOutcome.InUse, "DOC-CONFLICT", 0), result);
+            Equal(true, File.Exists(Path.Combine(root, ".cfd-writer.claim"))); // nothing removed, not even the leftover claim
+        }
+        finally { release(); }
+        Equal("OK", saving.GetAwaiter().GetResult().Code);
+    }
+
+    private static void ClearNewEntryBetweenChecks()
+    {
+        string root = NewRoot(), path = Seed(root); Leftover(root, ".cfd-writer.claim"); LeftoverTemp(root);
+        int before = Directory.GetFileSystemEntries(root).Length;
+        using var store = new ProjectStore(new StoreHooks { OnStage = visited =>
+        {
+            if (visited == StoreStage.ClearHeld) Leftover(root, ProjectStore.TempName(Id()), [7]); // a writer starts after check 1
+        } });
+        var result = Clear(store, path);
+        Equal(new ClearResult(ClearOutcome.InUse, "DOC-CONFLICT", 0), result);
+        Equal(before + 1, Directory.GetFileSystemEntries(root).Length); // nothing removed
+        Equal(true, File.Exists(Path.Combine(root, ".cfd-writer.claim")));
+    }
+
+    private static void ClearCrashDuringClear()
+    {
+        foreach (string stage in new[] { "ClearHeld", "ClearTempsDisposed" })
+        {
+            string root = NewRoot(), path = Seed(root); Leftover(root, ".cfd-writer.claim"); string temp = LeftoverTemp(root);
+            RunChild(stage, ("CFD_WIN_CLEAR_STAGE", stage), ("CFD_WIN_CRASH_PATH", path));
+            bool tempsGone = stage == "ClearTempsDisposed";
+            Equal(tempsGone, !File.Exists(Path.Combine(root, temp)));
+            Equal(true, File.Exists(Path.Combine(root, ".cfd-writer.claim"))); // the claim is last: every partial state still blocks the folder
+            Equal(true, UnfinishedSave.BlocksFolder(path));
+            using var store = new ProjectStore();
+            var retry = Clear(store, path);
+            Equal(new ClearResult(ClearOutcome.Cleared, "OK", tempsGone ? 1 : 2), retry);
+            Equal("project.cfdw", Listing(root));
+            Equal("OK", Save(store, path, new([5], Identity.Sha256(File.ReadAllBytes(path)), Id())).Code);
+            Console.WriteLine($"CLEAR-CRASH-DURING stage={stage} killed=true folder_blocked=true retry={retry.Outcome} removed={retry.Removed}");
+        }
+    }
+
+    private static void ClearHardLinkOrReparse()
+    {
+        string root = NewRoot(), path = Seed(root); Leftover(root, ".cfd-writer.claim"); string temp = LeftoverTemp(root);
+        RunProcess("cmd.exe", "/c", "mklink", "/H", Path.Combine(root, ProjectStore.TempName(Id())), Path.Combine(root, temp));
+        string before = Listing(root);
+        using var store = new ProjectStore();
+        Equal(new ClearResult(ClearOutcome.Failed, "DOC-CONFLICT", 0), Clear(store, path)); // two links: P2 fails
+        Equal(before, Listing(root));
+        string other = NewRoot(), otherPath = Seed(other); Leftover(other, ".cfd-writer.claim");
+        Equal(true, TestLinks.TryDirectoryLink(Path.Combine(other, ProjectStore.TempName(Id())), root)); // a junction named like a temp
+        string beforeOther = Listing(other);
+        var reparse = Clear(store, otherPath);
+        Equal(ClearOutcome.Failed, reparse.Outcome); Equal(0, reparse.Removed);
+        Equal(beforeOther, Listing(other));
+        Equal(before, Listing(root)); // the junction's target was not touched
+        Console.WriteLine($"CLEAR-HARDLINK-REPARSE hardlink=Failed:DOC-CONFLICT junction={reparse.Outcome}:{reparse.Code} removed=0");
+    }
+
+    private static void ClearUnderOneDrive()
+    {
+        string root = NewRoot(), oneDrive = Path.Combine(root, "OneDrive"); Directory.CreateDirectory(oneDrive);
+        string path = Seed(oneDrive); Leftover(oneDrive, ".cfd-writer.claim"); LeftoverTemp(oneDrive);
+        string before = Listing(oneDrive);
+        WithEnvironment("OneDrive", oneDrive, () =>
+        {
+            using var store = new ProjectStore();
+            Equal(new ClearResult(ClearOutcome.Failed, "DOC-UNSUPPORTED-PERSISTENCE", 0), Clear(store, path));
+        });
+        Equal(before, Listing(oneDrive));
+    }
+
+    private static void ClearTelemetry()
+    {
+        string root = NewRoot(), path = Seed(root), claim = Path.Combine(root, ".cfd-writer.claim");
+        File.WriteAllBytes(claim, []); // foreign
+        using var store = new ProjectStore();
+        Clear(store, path);
+        File.Delete(claim); Leftover(root, ".cfd-writer.claim"); LeftoverTemp(root);
+        Clear(store, path);
+        var events = store.ReadLocalEvents().Where(entry => entry.Action == "store.clear").ToArray();
+        Equal(2, events.Length);
+        Equal("DOC-CONFLICT", events[0].Outcome); Equal(1, events[0].InputBytes); Equal(0, events[0].OutputBytes); // code, candidates, removed
+        Equal("OK", events[1].Outcome); Equal(2, events[1].InputBytes); Equal(2, events[1].OutputBytes);
+        Equal(true, events.All(entry => entry.DurationMilliseconds is >= 0));
+        Equal(false, System.Text.Json.JsonSerializer.Serialize(events).Contains(root, StringComparison.Ordinal)); // no path
+    }
+
+    private static void ClearCaseVariantClaim()
+    {
+        string root = NewRoot(), path = Seed(root); Leftover(root, ".CFD-Writer.Claim"); // private descriptor, case variant
+        using var store = new ProjectStore();
+        Equal(new ClearResult(ClearOutcome.Cleared, "OK", 1), Clear(store, path));
+        Equal("project.cfdw", Listing(root));
+        string other = NewRoot(), otherPath = Seed(other);
+        File.WriteAllBytes(Path.Combine(other, ".CFD-Writer.Claim"), []); // inherited DACL, case variant: selected, held, refused by P3, kept
+        Equal(new ClearResult(ClearOutcome.Failed, "DOC-CONFLICT", 0), Clear(store, otherPath));
+        Equal(true, UnfinishedSave.BlocksFolder(otherPath)); // never "Cleared" while a claim name still answers
+    }
+
+    // C5: a read-only candidate opens for DELETE (the open succeeds, probed) and the delete itself fails with Win32 5: Failed DOC-IO, claim kept.
+    private static void ClearReadOnlyCandidateFailsAtDelete()
+    {
+        string root = NewRoot(), path = Seed(root); Leftover(root, ".cfd-writer.claim"); string temp = LeftoverTemp(root), tempPath = Path.Combine(root, temp);
+        using var store = new ProjectStore();
+        File.SetAttributes(tempPath, FileAttributes.ReadOnly);
+        var denied = Clear(store, path);
+        File.SetAttributes(tempPath, FileAttributes.Normal);
+        Equal(new ClearResult(ClearOutcome.Failed, "DOC-IO", 0), denied);
+        Equal(true, File.Exists(Path.Combine(root, ".cfd-writer.claim")) && File.Exists(tempPath)); // nothing removed
+        Console.WriteLine($"CLEAR-C5-DELETE readonly={denied.Outcome}:{denied.Code} removed={denied.Removed}");
+    }
+
+    // C2: the open of a delete-pending candidate fails before the share check; any other open error is Failed, not InUse, and drops nothing.
+    private static void ClearNonSharingOpenError()
+    {
+        string root = NewRoot(), path = Seed(root); Leftover(root, ".cfd-writer.claim"); string temp = LeftoverTemp(root), tempPath = Path.Combine(root, temp);
+        using var store = new ProjectStore();
+        // delete pending: the legacy disposition on a handle that stays open (FileDispositionInfo = 4)
+        using var holder = CreateFileW(tempPath, 0x00010000, 7, 0, 3, 0x80, 0); // DELETE, share all, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL
+        Equal(false, holder.IsInvalid);
+        uint one = 1; Equal(true, SetFileInformationByHandle(holder, 4, ref one, 1));
+        var pending = Clear(store, path);
+        Equal(ClearOutcome.Failed, pending.Outcome); Equal(0, pending.Removed);
+        Equal(true, File.Exists(Path.Combine(root, ".cfd-writer.claim")));
+        holder.Dispose();
+        Console.WriteLine($"CLEAR-NONSHARING-OPEN delete_pending={pending.Outcome}:{pending.Code} removed=0");
+    }
+
+    private static void ClearReaderOnTemp()
+    {
+        string root = NewRoot(), path = Seed(root); Leftover(root, ".cfd-writer.claim"); string temp = LeftoverTemp(root);
+        using var reader = new FileStream(Path.Combine(root, temp), FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete); // an indexer or scanner
+        using var store = new ProjectStore();
+        Equal(new ClearResult(ClearOutcome.Cleared, "OK", 2), Clear(store, path)); // a reader is not a writer: no false COPY-449
+    }
+
+    private static void ClearListsEntries()
+    {
+        string root = NewRoot();
+        for (int i = 0; i < 2000; i++) File.WriteAllBytes(Path.Combine(root, "entry-" + i.ToString("D5") + "-with-a-long-enough-name-to-cross-the-buffer.txt"), []);
+        using var directory = WindowsNative.OpenRoot(root, WindowsNative.DirectoryAccess | WindowsNative.ListDirectoryAccess);
+        var names = WindowsNative.ListNames(directory);
+        Equal(2000, names.Count); Equal(2000, names.Distinct().Count());
+        Equal(false, names.Contains(".") || names.Contains(".."));
+    }
+
+    private static void ClearCrashChild(string stage)
+    {
+        string path = Environment.GetEnvironmentVariable("CFD_WIN_CRASH_PATH")!;
+        var hooks = new StoreHooks { OnStage = visited => { if (visited.ToString() == stage) Die(stage); } };
+        Clear(new ProjectStore(hooks), path);
+        Console.WriteLine("CRASH-CHILD-NOT-KILLED");
     }
 
     private static void CrashChild(string stage)

@@ -18,12 +18,49 @@ internal static class DiscrepancyCliTests
         failures += Check("InspectRuns_ListsDiscrepancies_RecomputedLines", ListsRecomputed);
         failures += Check("InspectRuns_NoDiscrepancies_OutputUnchanged", NoneUnchanged);
         // A3 review condition 11: the CLI binary itself, on a project saved through the Windows store (the native store runs there now).
+        failures += Check("InspectRuns_ChildHarness_SkipLineText", SkipLineText);
+        failures += Check("InspectRuns_ChildHarness_TimeoutIsNamedAndBounded", ChildTimeout);
+        failures += Check("InspectRuns_ChildHarness_FailureCarriesStderr", ChildFailureText);
+        failures += Check("InspectRuns_ChildHarness_SleepingChild_KilledAtTheLimit", SleepingChildIsKilled);
         if (OperatingSystem.IsWindows())
         {
-            failures += Check("InspectRuns_WindowsStore_BinaryNoRecords_OutputUnchanged", () => BinaryRuns(withRecord: false));
-            failures += Check("InspectRuns_WindowsStore_BinaryOneRecord_ListsDiscrepancies", () => BinaryRuns(withRecord: true));
+            failures += Check(BinaryNoRecords, () => BinaryRuns(withRecord: false));
+            failures += Check(BinaryOneRecord, () => BinaryRuns(withRecord: true));
+        }
+        else
+        {
+            // The native store runs on Windows only; elsewhere the two checks print a SKIP line, so a run that skipped them says so.
+            Console.WriteLine(SkipLine(BinaryNoRecords));
+            Console.WriteLine(SkipLine(BinaryOneRecord));
         }
         return failures;
+    }
+
+    private const string BinaryNoRecords = "InspectRuns_WindowsStore_BinaryNoRecords_OutputUnchanged";
+    private const string BinaryOneRecord = "InspectRuns_WindowsStore_BinaryOneRecord_ListsDiscrepancies";
+
+    private static void SkipLineText()
+    {
+        Require(SkipLine(BinaryNoRecords) == "SKIP InspectRuns_WindowsStore_BinaryNoRecords_OutputUnchanged windows-only", "the SKIP line is 'SKIP <name> windows-only'");
+        Require(SkipLine(BinaryOneRecord).StartsWith("SKIP " + BinaryOneRecord + " ", StringComparison.Ordinal), "the second check has its own line");
+    }
+
+    private static void ChildTimeout()
+    {
+        Require(ChildTimeoutVariable == "CFD_TEST_CHILD_TIMEOUT_SECONDS", "the variable is the one the Desktop harness reads");
+        Require(ChildLimitSeconds(null) == 120 && ChildLimitSeconds("") == 120 && ChildLimitSeconds("abc") == 120 && ChildLimitSeconds("0") == 120 && ChildLimitSeconds("-5") == 120,
+            "an unset, empty, non-numeric or non-positive value gives the default 120 s");
+        Require(ChildLimitSeconds("7") == 7, "a positive value is the limit");
+        string line = ChildFailure("inspect --runs", exit: -1, timedOut: true, limit: 7, stderr: "");
+        Require(line == "TIMEOUT inspect --runs after 7 s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed", "the timeout line names the limit and the variable: " + line);
+    }
+
+    private static void ChildFailureText()
+    {
+        string line = ChildFailure("inspect --runs", exit: 3, timedOut: false, limit: 120, stderr: "first\r\nsecond\n");
+        Require(line == "inspect --runs exited 3; stderr: first | second", "the failure line carries stderr on one line: " + line);
+        Require(ChildFailure("inspect --runs", 3, false, 120, "").EndsWith("exited 3; stderr: (empty)", StringComparison.Ordinal), "an empty stderr is said to be empty");
+        Require(ChildFailure("inspect --runs", 3, false, 120, new string('x', 2000)).Length < 600, "a long stderr is cut");
     }
 
     private static void BinaryRuns(bool withRecord)
@@ -39,12 +76,11 @@ internal static class DiscrepancyCliTests
                 Require(saved.Code == "OK", "saved through the store: " + saved.Code);
             }
             var info = new System.Diagnostics.ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "CfdWorkbench.Cli.exe"))
-                { RedirectStandardOutput = true, UseShellExecute = false, CreateNoWindow = true };
+                { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, CreateNoWindow = true };
             info.ArgumentList.Add("inspect"); info.ArgumentList.Add(path); info.ArgumentList.Add("--runs");
-            using var child = System.Diagnostics.Process.Start(info)!;
-            string stdout = child.StandardOutput.ReadToEnd();
-            child.WaitForExit();
-            Require(child.ExitCode == 0, "binary exit " + child.ExitCode + ": " + stdout);
+            int limit = ChildLimitSeconds(Environment.GetEnvironmentVariable(ChildTimeoutVariable));
+            var (finished, exit, stdout, stderr) = RunChild(info, limit);
+            Require(finished && exit == 0, ChildFailure("binary inspect --runs", exit, !finished, limit, stderr) + "; stdout: " + stdout);
             using var json = JsonDocument.Parse(stdout);
             Require(json.RootElement.GetProperty("runs").GetArrayLength() == 2, "both runs listed");
             Require(json.RootElement.TryGetProperty("discrepancies", out var listed) == withRecord, "discrepancies member present only with a record");
@@ -56,6 +92,53 @@ internal static class DiscrepancyCliTests
             }
         }
         finally { File.Delete(path); }
+    }
+
+    // ---- the child-process harness lines (wave 2 AF): the Desktop harness's names, kept for the one child this project starts ----
+
+    /// <summary>The environment variable that bounds a child, in seconds; the Desktop harness reads the same one.</summary>
+    internal const string ChildTimeoutVariable = "CFD_TEST_CHILD_TIMEOUT_SECONDS";
+
+    /// <summary>The child limit: a positive whole number of seconds from the variable, else 120.</summary>
+    internal static int ChildLimitSeconds(string? value) => int.TryParse(value, out int seconds) && seconds > 0 ? seconds : 120;
+
+    /// <summary>Starts the child, drains both pipes while it runs (a full stderr pipe cannot stall it), waits at most <paramref name="limit"/> seconds and kills its process tree on the limit.</summary>
+    internal static (bool Finished, int Exit, string Stdout, string Stderr) RunChild(System.Diagnostics.ProcessStartInfo info, int limit)
+    {
+        using var child = System.Diagnostics.Process.Start(info)!;
+        var stdoutTask = child.StandardOutput.ReadToEndAsync();
+        var stderrTask = child.StandardError.ReadToEndAsync();
+        bool finished = child.WaitForExit(limit * 1000);
+        if (!finished) child.Kill(entireProcessTree: true);
+        child.WaitForExit();
+        return (finished, child.ExitCode, stdoutTask.GetAwaiter().GetResult(), stderrTask.GetAwaiter().GetResult());
+    }
+
+    // Review N5: a real child that outlives a 2 s limit; the wait returns near the limit (not at the child's 30 s) and the line names the timeout.
+    private static void SleepingChildIsKilled()
+    {
+        var info = OperatingSystem.IsWindows()
+            ? new System.Diagnostics.ProcessStartInfo("cmd.exe", "/c ping -n 30 127.0.0.1")
+            : new System.Diagnostics.ProcessStartInfo("sleep", "30");
+        info.RedirectStandardOutput = true; info.RedirectStandardError = true; info.UseShellExecute = false; info.CreateNoWindow = true;
+        var clock = System.Diagnostics.Stopwatch.StartNew();
+        var (finished, exit, _, stderr) = RunChild(info, 2);
+        double seconds = clock.Elapsed.TotalSeconds;
+        Require(!finished, "the sleeping child did not finish inside the 2 s limit");
+        Require(seconds < 15, $"the wait ended near the limit, not at the child's end: {seconds:F1} s");
+        Require(ChildFailure("sleeping child", exit, !finished, 2, stderr).StartsWith("TIMEOUT sleeping child after 2 s", StringComparison.Ordinal), "the line names the timeout");
+    }
+
+    /// <summary>The line a Windows-only check prints elsewhere.</summary>
+    internal static string SkipLine(string name) => "SKIP " + name + " windows-only";
+
+    /// <summary>The failure text of a child: a timeout names the limit and the variable; an exit carries stderr on one line, cut at 400 characters.</summary>
+    internal static string ChildFailure(string what, int exit, bool timedOut, int limit, string stderr)
+    {
+        if (timedOut) return $"TIMEOUT {what} after {limit} s ({ChildTimeoutVariable}); its process tree was killed";
+        string flat = string.Join(" | ", stderr.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+        if (flat.Length > 400) flat = flat[..400] + "…";
+        return $"{what} exited {exit}; stderr: {(flat.Length == 0 ? "(empty)" : flat)}";
     }
 
     private static int Check(string name, Action check)

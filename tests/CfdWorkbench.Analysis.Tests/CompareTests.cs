@@ -29,6 +29,18 @@ internal static class CompareTests
         Check("Compare_ELine_UndefinedWhenClOrCdiUndefined", ELineUndefined);
         Check("Compare_IncompatibleReference_BlocksDelta", IncompatibleReference);
         Check("Compare_DifferentPointOrWater_BlocksDelta", PointOrWater);
+        // Wave 2 AF (design a3d-compare.md section 12.5): dimensional delta L and delta D_i when only the reference differs.
+        Check("Compare_ReferenceOnly_DimensionalDeltas", ReferenceOnlyDeltas);
+        Check("Compare_ReferenceOnly_CoefficientsStillBlocked", ReferenceOnlyCoefficientsBlocked);
+        Check("Compare_ReferenceOnly_StoresNothing", ReferenceOnlyStoresNothing);
+        Check("Compare_ReferenceOnly_ReversedRecomputed", ReferenceOnlyReversed);
+        Check("Compare_ReferenceAndPoint_NoDimensionalDelta", ReferenceAndPointNoDelta);
+        Check("Compare_Dimensional_BaseBelowFloor_Undefined", DimensionalFloor);
+        Check("Compare_ReferenceOnly_AdmissionFieldsAlone", AdmissionFieldsAlone);
+        Check("Compare_Dimensional_NegativeBase_SignByAbs", DimensionalNegativeBase);
+        Check("Compare_Dimensional_OneDefinition", DimensionalOneDefinition);
+        Check("Dimensional_RoundTrip_EqualsStripLift", DimensionalRoundTrip);
+        Check("Compare_ReferenceOnly_EventFlag", ReferenceOnlyEventFlag);
         Check("Compare_CompatiblePair_StoresOneRecord", CompatibleStoresOne);
         Check("Compare_NoAveraging_NoPreferredValueWithoutUncertainty", NoAveraging);
         Check("Discrepancy_SaveReopen_RoundTripByteEqual", RoundTrip);
@@ -38,6 +50,7 @@ internal static class CompareTests
         Check("Discrepancy_CompareEvent_CarriesDocumentBytes", CompareEventBytes);
         Check("Compare_TierHeadline_OnlyWhenBothRunsShareARevision", TierHeadlineNeedsOneRevision);
         Check("Discrepancy_PinnedRuns_ReachDocSize_RefusedNotCorrupted", ReachDocSize);
+        Check("Discrepancy_CompareFields_EncodeCost_Measured", CompareFieldsEncodeCost);
         Check("Discrepancy_StoreInvariants_Refused", StoreInvariants);
         Check("Discrepancy_TamperedLine_ReadsNoLongerReproduces", TamperedLine);
         Check("Discrepancy_TamperedHash_ReadsPayloadFailedCheck", TamperedHash);
@@ -183,9 +196,228 @@ internal static class CompareTests
         Equal(true, result.Record is null && result.Blocks.Count == 1, "blocked, no record;");
         Equal(0, session.ReadDiscrepancies().Count, "nothing stored");
         var view = Project(session, a, b, Values((a, 0.4, 0.0076, 0.9), (b, 0.4, 0.0075, 1.0)));
-        Equal(CompareState.Blocked, view.State, "pane state");
-        Equal(0, view.Outputs.Count, "no output row, so no delta cell;");
-        Equal(Labels.DeltaBlockedReference("S_ref"), view.Notices[0], "the block copy names exactly the differing field");
+        // Wave 2 AF narrows this assertion (design 12.5): an S_ref difference alone leaves the coefficient lines blocked, not every line.
+        Equal(CompareState.ReferenceDiffers, view.State, "pane state");
+        Equal(true, view.Outputs.Where(row => row.Quantity is "CL" or "CDi" or "e").All(row => row.DeltaValue is null), "no coefficient line has a delta;");
+        Equal(Labels.DeltaBlockedReferenceDimensional("S_ref"), view.Notices[0], "the block copy names exactly the differing field");
+    }
+
+    // ---- wave 2 AF: the dimensional deltas (design 12.5). F-PLANFORM is the mockup's r3 against r5: S_ref 0.100 against 0.108 at one point. ----
+
+    private static readonly RunReference BaseReference = DefaultReference with { SRef = 0.100 };
+
+    // The base run (S_ref 0.100) and the compared run (S_ref 0.108) with their coefficients.
+    private static (AnalysisRun Base, AnalysisRun Compared, Func<AnalysisRun, Coefficients> Values) Planform(double baseCl = 0.4035, double baseCdi = 0.00731,
+        double comparedCl = 0.4120, double comparedCdi = 0.0076)
+    {
+        var first = Plain(reference: BaseReference); var second = Plain(reference: DefaultReference);
+        return (first, second, Values((first, baseCl, baseCdi, 0.9), (second, comparedCl, comparedCdi, 0.9)));
+    }
+
+    private static DiscrepancyLine Dim(IReadOnlyList<DiscrepancyLine>? lines, string quantity)
+    {
+        Equal(true, lines is not null, "the dimensional lines exist;");
+        return lines!.Single(line => line.Quantity == quantity);
+    }
+
+    private static void ReferenceOnlyDeltas()
+    {
+        var (a, b, values) = Planform();
+        var lines = Compare.DimensionalLines(a, b, values);
+        Equal(2, lines?.Count, "two lines: L and D_i");
+        Near(0.1027509294, Dim(lines, "L").Delta!.Value, "dL: each run's own S_ref");
+        Near(0.1228454172, Dim(lines, "D_i").Delta!.Value, "dD_i");
+        var (l1, d1) = Compare.Dimensional(a, values(a)); var (l2, d2) = Compare.Dimensional(b, values(b));
+        Equal(l1, Dim(lines, "L").Base, "the base L is Compare.Dimensional's"); Equal(l2, Dim(lines, "L").Compared, "the compared L");
+        Equal(d1, Dim(lines, "D_i").Base, "the base D_i"); Equal(d2, Dim(lines, "D_i").Compared, "the compared D_i");
+        using var session = Fixture.Opened();
+        var view = Project(session, a, b, values);
+        Equal(CompareState.ReferenceDiffers, view.State, "the pane state");
+        Near(0.1027509294, view.Outputs.Single(row => row.Quantity == "L").DeltaValue!.Value, "the pane's dL");
+        Near(0.1228454172, view.Outputs.Single(row => row.Quantity == "D_i").DeltaValue!.Value, "the pane's dD_i");
+        Equal(Labels.DimensionalHeadline("+10.28 %"), view.Headline, "the headline quotes dL");
+        Equal(Labels.DimensionalNotRecorded, view.RecordStatus, "the status line says nothing is recorded");
+    }
+
+    private static void ReferenceOnlyCoefficientsBlocked()
+    {
+        var (a, b, values) = Planform();
+        using var session = Fixture.Opened();
+        var view = Project(session, a, b, values);
+        Equal("CL,CDi,e,L,D_i", string.Join(",", view.Outputs.Select(row => row.Quantity)), "the five rows in order;");
+        foreach (var row in view.Outputs.Where(row => row.Quantity is "CL" or "CDi"))
+        {
+            Equal(true, row.DeltaValue is null, row.Quantity + " has no numeric delta;");
+            Equal(Labels.ReferenceDiffersCell, row.Delta, row.Quantity + " reads AF-COPY-2");
+        }
+        var e = view.Outputs.Single(row => row.Quantity == "e");
+        Equal(true, e.DeltaValue is null, "e has no delta;");
+        Equal(Labels.ENotComparedSpan, e.Delta, "e reads AF-COPY-3");
+        Equal(Labels.DeltaBlockedReferenceDimensional("S_ref"), view.Notices[0], "the notice names the differing field");
+        Equal("0.4035", view.Outputs[0].Base, "the coefficient values show side by side");
+        Equal("0.4120", view.Outputs[0].Compared, "the coefficient values show side by side");
+        Equal(Labels.DimensionalNote, view.Outputs.Single(row => row.Quantity == "L").Note, "AF-COPY-4 under L");
+    }
+
+    private static void ReferenceOnlyStoresNothing()
+    {
+        using var session = Fixture.Opened();
+        // A revision pair (design 12.2): two VLM runs on two revisions, the geometry edit between them changing S_ref. A VLM and an
+        // estimator run on one revision with different S_ref cannot occur, because a tier pair runs at the base's inputs.
+        var a = Row(session, "vlm-strip", reference: BaseReference);
+        Fixture.TwistEdit(session, 1.0);
+        var b = Row(session, "vlm-strip", reference: DefaultReference);
+        var values = Values((a, 0.4035, 0.00731, 0.9), (b, 0.4120, 0.0076, 0.9));
+        byte[] before = session.SaveImage();
+        var result = Compare.Record(session, a, b, values);
+        Equal(true, result.Record is null && result.Blocks.Count == 1, "blocked, no record;");
+        Equal(0, session.ReadDiscrepancies().Count, "record count 0");
+        Equal(true, before.AsSpan().SequenceEqual(session.SaveImage()), "the document bytes are unchanged;");
+        Equal(0, session.ReadRuns().Pruned.Count, "no run pinned or pruned by the view");
+    }
+
+    // Review N2: each admitted field alone enters the dimensional branch (a mutant dropping one from DimensionalApplies is red here).
+    private static void AdmissionFieldsAlone()
+    {
+        using var session = Fixture.Opened();
+        (string Field, Func<RunReference, RunReference> Change)[] rows =
+        [
+            ("S_ref", r => r with { SRef = 0.100 }),
+            ("b_ref", r => r with { BRef = 0.91 }),
+            ("c_ref", r => r with { CRef = 0.121 }),
+            ("moment datum", r => r with { MomentDatum = "tip" })
+        ];
+        foreach (var (field, change) in rows)
+        {
+            var a = Plain(); var b = Plain(reference: change(DefaultReference));
+            var values = Values((a, 0.4035, 0.00731, 0.9), (b, 0.4120, 0.0076, 0.9));
+            Equal(true, Compare.DimensionalLines(a, b, values) is { Count: 2 }, field + " alone: dL and dD_i exist;");
+            var view = Project(session, a, b, values);
+            Equal(CompareState.ReferenceDiffers, view.State, field + " alone: the pane state");
+            Equal("L,D_i", string.Join(",", view.Outputs.Where(row => row.DeltaValue is not null || row.Quantity is "L" or "D_i").Select(row => row.Quantity)), field + " alone: the dimensional rows;");
+        }
+    }
+
+    private static void ReferenceOnlyReversed()
+    {
+        var (a, b, values) = Planform();
+        // row 1: the same pair viewed with r5 as the base.
+        var reversed = Compare.DimensionalLines(b, a, values);
+        Near(-0.0931769148, Dim(reversed, "L").Delta!.Value, "row 1: dL from the runs, not -d");
+        Near(-0.1094054581, Dim(reversed, "D_i").Delta!.Value, "row 1: dD_i");
+        // row 2 (T1, negative base): forward +0.46, reversed -0.8518518519; -d is -0.46 and -d/(1+d) is -0.3150684932.
+        var (c, d, negative) = Planform(baseCl: -0.2, comparedCl: -0.1);
+        Near(0.46, Dim(Compare.DimensionalLines(c, d, negative), "L").Delta!.Value, "row 2 forward");
+        Near(-0.8518518519, Dim(Compare.DimensionalLines(d, c, negative), "L").Delta!.Value, "row 2 reversed on a negative base");
+    }
+
+    private static void ReferenceAndPointNoDelta()
+    {
+        var (a, b, values) = Planform();
+        using var session = Fixture.Opened();
+        (string Name, AnalysisRun Changed)[] rows =
+        [
+            ("alpha and S_ref", b with { Op = b.Op with { AlphaDeg = 3 } }),
+            ("rho and S_ref", b with { Water = b.Water with { Rho = 999 } }),
+            ("axes and S_ref", b with { Reference = b.Reference with { Axes = "body" } }),
+            ("axes alone", Plain(reference: BaseReference with { Axes = "body" }))
+        ];
+        foreach (var (name, changed) in rows)
+        {
+            var table = Values((a, 0.4035, 0.00731, 0.9), (changed, 0.4120, 0.0076, 0.9));
+            Equal(true, Compare.DimensionalLines(a, changed, table) is null, name + ": no dimensional lines;");
+            var view = Project(session, a, changed, table);
+            Equal(CompareState.Blocked, view.State, name + ": the Blocked state");
+            Equal(0, view.Outputs.Count, name + ": no output row, so no delta cell;");
+        }
+        var axes = Project(session, a, rows[3].Changed, Values((a, 0.4035, 0.00731, 0.9), (rows[3].Changed, 0.4120, 0.0076, 0.9)));
+        Equal(Labels.DeltaBlockedReference("axes"), axes.Notices[0], "axes keeps A3D-COPY-7");
+        var both = Project(session, a, rows[0].Changed, Values((a, 0.4035, 0.00731, 0.9), (rows[0].Changed, 0.4120, 0.0076, 0.9)));
+        Equal(2, both.Notices.Count(text => text.StartsWith("Δ blocked", StringComparison.Ordinal)), "every reason listed");
+    }
+
+    private static void DimensionalFloor()
+    {
+        double Delta(IReadOnlyList<DiscrepancyLine>? lines, string quantity) => Dim(lines, quantity).Delta!.Value;
+        void Undefined(string code, double baseCl, double baseCdi, string quantity, string what)
+        {
+            var (a, b, values) = Planform(baseCl: baseCl, baseCdi: baseCdi, comparedCl: 0.4, comparedCdi: 0.0076);
+            var line = Dim(Compare.DimensionalLines(a, b, values), quantity);
+            Equal(code, line.Undefined, what);
+            Equal(true, line.Delta is null, what + ": no delta;");
+        }
+        Undefined(Compare.BaseFloor, 5e-5, 0.00731, "L", "base CL 5e-5");
+        Undefined(Compare.BaseZero, 0.0, 0.00731, "L", "base CL 0");
+        Undefined(Compare.BaseFloor, Math.BitDecrement(1e-4), 0.00731, "L", "base CL one ulp below 1e-4");
+        var (a, b, values) = Planform(baseCl: 1e-4, comparedCl: 1e-4);
+        Near(0.08, Delta(Compare.DimensionalLines(a, b, values), "L"), "base CL exactly 1e-4 has a delta (< not <=)");
+        // The D_i line is floored on CDi (1e-6), not on CL: with L defined it is still Undefined.
+        var (c, d, low) = Planform(baseCdi: 5e-7);
+        var lines = Compare.DimensionalLines(c, d, low);
+        Equal(true, Dim(lines, "L").Delta is not null, "L has a delta while;");
+        Equal(Compare.BaseFloor, Dim(lines, "D_i").Undefined, "base CDi 5e-7 floors the D_i line");
+        var (e, f, exact) = Planform(baseCdi: 1e-6, comparedCdi: 1e-6);
+        Near(0.08, Delta(Compare.DimensionalLines(e, f, exact), "D_i"), "base CDi exactly 1e-6 has a delta");
+        var (g, h, below) = Planform(baseCdi: Math.BitDecrement(1e-6));
+        Equal(Compare.BaseFloor, Dim(Compare.DimensionalLines(g, h, below), "D_i").Undefined, "base CDi one ulp below 1e-6");
+        var (i, j, zero) = Planform(baseCdi: 0.0);
+        Equal(Compare.BaseZero, Dim(Compare.DimensionalLines(i, j, zero), "D_i").Undefined, "base CDi 0");
+        // A value Unavailable in one run: that line has no delta, the other line is unaffected.
+        var (k, l, _) = Planform();
+        var unavailable = Compare.DimensionalLines(k, l,
+            run => run.RunId == k.RunId ? new Coefficients(null, 0.00731, 0.9) : new Coefficients(0.4120, 0.0076, 0.9));
+        Equal(Compare.ValueUnavailable, Dim(unavailable, "L").Undefined, "an Unavailable CL leaves the L line Undefined");
+        Equal(true, Dim(unavailable, "D_i").Delta is not null, "D_i is unaffected");
+    }
+
+    private static void DimensionalNegativeBase()
+    {
+        var (a, b, values) = Planform(baseCl: -0.2, comparedCl: -0.1);
+        Near(0.46, Dim(Compare.DimensionalLines(a, b, values), "L").Delta!.Value, "divided by the absolute base, not the signed one (-0.46)");
+    }
+
+    private static void DimensionalOneDefinition()
+    {
+        using var session = Fixture.Opened();
+        var a = Plain(); var b = Plain(alpha: 2.0);
+        var values = Values((a, 0.4035, 0.00731, 0.9), (b, 0.4120, 0.0076, 0.9));
+        var view = Project(session, a, b, values);
+        Equal(CompareState.Compatible, view.State, "a compatible pair;");
+        foreach (var (name, pick) in new (string, Func<(double? L, double? Di), double?>)[] { ("L", x => x.L), ("D_i", x => x.Di) })
+        {
+            var row = view.Outputs.Single(item => item.Quantity == name);
+            Equal(BitConverter.DoubleToInt64Bits(pick(Compare.Dimensional(a, values(a)))!.Value), BitConverter.DoubleToInt64Bits(row.BaseValue!.Value), name + " base equals Compare.Dimensional bit for bit");
+            Equal(BitConverter.DoubleToInt64Bits(pick(Compare.Dimensional(b, values(b)))!.Value), BitConverter.DoubleToInt64Bits(row.ComparedValue!.Value), name + " compared");
+            Equal(true, row.DeltaValue is null && row.Delta == "—", name + ": no delta at a compatible pair (A3D-COPY-16);");
+        }
+    }
+
+    private static void DimensionalRoundTrip()
+    {
+        using var session = Fixture.Opened();
+        var run = Row(session, "vlm-strip", strips: 6);
+        var coefficients = Compare.Derivation(_ => null)(run);
+        double L = Compare.Dimensional(run, coefficients).L!.Value;
+        double a = VortexLattice.ToRadians(run.Op.AlphaDeg);
+        double strips = run.Strips.Sum(s => -s.Fx * Math.Sin(a) + s.Fz * Math.Cos(a));
+        Equal(true, Math.Abs(L - strips) <= 1e-12 * Math.Abs(L), $"|L - strip lift| <= 1e-12 |L|: L {L:R}, strips {strips:R};");
+    }
+
+    private static void ReferenceOnlyEventFlag()
+    {
+        using var session = Fixture.Opened();
+        var a = Row(session, "vlm-strip", reference: BaseReference);
+        var b = Row(session, "estimator", reference: DefaultReference);
+        var values = Values((a, 0.4035, 0.00731, 0.9), (b, 0.4120, 0.0076, 1.0));
+        Compare.Record(session, a, b, values);
+        var reference = session.ReadLocalEvents().Last(item => item.Operation == "analysis.compare");
+        Equal("blocked-reference", reference.Outcome, "outcome");
+        Equal(true, reference.Compare?.Dimensional, "dimensional = true;");
+        var moved = Row(session, "vlm-strip", alpha: 3.0, reference: DefaultReference);
+        Compare.Record(session, a, moved, Values((a, 0.4035, 0.00731, 0.9), (moved, 0.4120, 0.0076, 0.9)));
+        var point = session.ReadLocalEvents().Last(item => item.Operation == "analysis.compare");
+        Equal("blocked-reference", point.Outcome, "a reference and point block reports its first reason");
+        Equal(false, point.Compare?.Dimensional, "dimensional = false when the point also differs;");
     }
 
     private static void PointOrWater()
@@ -418,6 +650,37 @@ internal static class CompareTests
         Equal(true, tightImage.AsSpan().SequenceEqual(tight.SaveImage()), "the image is unchanged by the refusal;");
         Equal(1, tight.ReadLocalEvents().Count(item => item.Operation == "analysis.size"), "the size refusal is reported;");
         Console.WriteLine($"MEASURED bytesPerRun128Strips={perRun} (lower bound: 10-digit synthetic strips) bytesPerRecord={perRecord} recordsAtCap={pairs}");
+    }
+
+    // Wave 2 AF item 4: the cost of the whole-document encode that CompareFields does per compare, measured at the cap. A key hit
+    // is a read: its event duration is the lock, the lookup and CompareFields, so the median of three reads is the encode cost.
+    private static void CompareFieldsEncodeCost()
+    {
+        using var session = new AuthoringSession();
+        session.Open(FoilSource.NewDefault(), Fixture.Id(), true);
+        var values = new Dictionary<string, Coefficients>();
+        Func<AnalysisRun, Coefficients> lookup = run => values[run.RunId];
+        AnalysisRun? previous = null; DiscrepancyRecord? stored = null;
+        int length = 0;
+        for (int step = 0; step < 400 && length < 7_800_000; step++)
+        {
+            var run = Row(session, "vlm-strip", alpha: 1.0 + step * 0.01, strips: 128);
+            values[run.RunId] = new Coefficients(0.4 + step * 1e-3, 0.0076, 0.9);
+            if (previous is not null && step % 2 == 1) { stored = Compare.Build(previous, run, lookup); session.RecordDiscrepancy(stored); }
+            previous = run;
+            if (step % 4 == 3) length = session.SaveImage().Length;
+        }
+        Equal(true, stored is not null && length >= 7_800_000, "the document reached the cap region;");
+        var milliseconds = new List<double>();
+        for (int i = 0; i < 3; i++)
+        {
+            session.RecordDiscrepancy(stored!);
+            milliseconds.Add(session.ReadLocalEvents().Last(item => item.Operation == "analysis.compare").DurationMilliseconds!.Value);
+        }
+        milliseconds.Sort();
+        var last = session.ReadLocalEvents().Last(item => item.Operation == "analysis.compare");
+        Equal(session.SaveImage().Length, last.Compare?.DocumentBytes, "the compare event's size equals the save image;");
+        Console.WriteLine($"MEASURED compareFieldsMedianMs={milliseconds[1]:F1} reads={string.Join(",", milliseconds.Select(m => m.ToString("F1")))} documentBytes={last.Compare?.DocumentBytes} cap={NativeProject.MaxBytes}");
     }
 
     // Four 128-strip runs, each on its own revision, and the records (0,1) and (2,3).

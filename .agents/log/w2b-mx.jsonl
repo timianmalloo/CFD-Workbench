@@ -1,0 +1,6 @@
+{"agent": "w2b-mx", "at": 1792688641.8082163, "kind": "session-start", "path": "-", "seq": 1, "session": "w2b-mx", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-w2b-mx"}
+{"agent": "w2b-mx", "at": 1792688992.0392115, "kind": "claim", "path": "src/CfdWorkbench.Core/AuthoringSession.cs", "seq": 2, "session": "w2b-mx", "ttl": 300.0, "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792688992.347652, "kind": "release", "path": "src/CfdWorkbench.Core/AuthoringSession.cs", "seq": 3, "session": "w2b-mx", "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792690664.2854416, "kind": "claim", "path": "src/CfdWorkbench.Core/AuthoringSession.cs", "seq": 4, "session": "w2b-mx", "ttl": 300.0, "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792690669.1141121, "kind": "release", "path": "src/CfdWorkbench.Core/AuthoringSession.cs", "seq": 5, "session": "w2b-mx", "wi": "w2b-mx"}
+{"action": "add", "agent": "w2b-mx", "at": 1792691022.9775412, "deadline_at": 1792691922.9775412, "id": "req-01M5JBCB48KAX11FH59SVJPPCD", "kind": "request", "path": "-", "seq": 6, "session": "w2b-mx", "to": "opus-leader", "type": "request", "wi": "WI-0"}

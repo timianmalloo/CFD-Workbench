@@ -3689,6 +3689,10 @@ public sealed class WorkbenchController : IDisposable
         finally { Volatile.Write(ref saving, 0); }
     }
 
+    /// <summary>Clear unfinished save beside <paramref name="path"/> (Ruling 259): a pass-through to the store. The document stays dirty and its expected-disk hash is untouched.</summary>
+    public Task<ClearResult> ClearUnfinishedSaveAsync(string path, CancellationToken cancellation = default) =>
+        store.ClearUnfinishedSaveAsync(path, cancellation);
+
     public async Task<bool> ResolveUncertainSaveAsync(CancellationToken cancellation = default)
     {
         if (uncertainImage is null || uncertainPath is null) throw new ContractError("DOC-SAVE-UNCERTAIN");
