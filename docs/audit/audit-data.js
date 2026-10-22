@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T20:20:37Z",
+  "generated": "2026-10-22T22:21:35Z",
   "audit": [
     {
       "actor": null,
@@ -42628,6 +42628,21 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T20:20:14Z",
       "duration_seconds": 23.0
+    },
+    {
+      "id": "al-01M5JV953TD6BXYZ4HVZ89744R",
+      "shortname": "keep going and close out the wave when CR2 and WF land",
+      "datetime": "2026-10-22T22:21:35Z",
+      "session": "prompt-log",
+      "prompt": "keep going and close out the wave when CR2 and WF land",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
     }
   ],
   "changes": [

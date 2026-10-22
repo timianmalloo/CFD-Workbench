@@ -1,0 +1,3 @@
+{"agent": "w2b-wf", "at": 1792700571.8672128, "kind": "session-start", "path": "-", "seq": 1, "session": "w2b-wf", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-w2b-wf"}
+{"agent": "w2b-wf", "at": 1792700862.9525733, "kind": "claim", "path": "src/CfdWorkbench.Desktop/OpenOutcome.cs", "seq": 2, "session": "w2b-wf", "ttl": 300.0, "wi": "w2b-wf"}
+{"agent": "w2b-wf", "at": 1792701376.8784688, "kind": "release", "path": "src/CfdWorkbench.Desktop/OpenOutcome.cs", "seq": 3, "session": "w2b-wf", "wi": "w2b-wf"}
