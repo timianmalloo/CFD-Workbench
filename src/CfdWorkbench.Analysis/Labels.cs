@@ -11,6 +11,7 @@ public static class Labels
     public const string PayloadFailed = "Unavailable — run payload failed its check"; // COPY-211
     public const string VlmChip = "VLM + strip · local calculation"; // COPY-213
     public const string EstimatorChip = "Estimator · local calculation"; // COPY-214
+    public const string EstimatorNotValidated = "estimator, not validated"; // A3D-COPY-27, the wing estimator method label
     public const string PolarChip = "Polar · local calculation"; // COPY-215
     public const string OutsideLattice = "outside the verified lattice family"; // COPY-216, operator proposal
     public const string VerifiedLattice = "Verified fixture family: rectangular and elliptic planforms; ±20° dihedral at 32 × 4 cosine span, uniform chord (F-8); 45° sweep, AR 5, at 4 × 1 uniform (F-16); 4% camber at 32/64/128 × 4 cosine/cosine (F-18); 1° washin at 32/64/128 × 4 cosine/cosine (F-19); F-6 order at 32/64/128 × 4 cosine span, uniform chord; F-21 at 16 × 4 cosine/cosine per half"; // COPY-217, operator proposal

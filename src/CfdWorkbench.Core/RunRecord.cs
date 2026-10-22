@@ -10,6 +10,8 @@ namespace CfdWorkbench.Core;
 // its run key and its content hash. PRE lands the shape; STO owns the bodies (seam S-A3). VLM, STP, SVC and PRJ read
 // these records and never add members: a missing field is a seam request to STO. Exception, granted to STP-3:
 // StripLoad.Provisional and ProvisionalReason (Ruling 77(5)), omitted when unset so older documents keep their hash.
+// Exception, granted to A3d (Ruling 250): the tier-keyed diagnostics rule in CheckRow (A3d-1); the build node A3d-2 adds
+// the member, the CheckStore call into DiscrepancyRecords.Check with its acceptedOrdinal argument, and this sentence names them.
 
 /// <summary>The optional top-level <c>analysis</c> member of a <c>cfdw-project-2</c> document. Append-only facts.</summary>
 public sealed record AnalysisRecords(IReadOnlyList<AnalysisRun> Runs, IReadOnlyList<PolarSample> PolarSamples,
@@ -289,8 +291,15 @@ public static class RunRecord
     {
         Guard.Require(Present(run) && Present(run.Outcome, run.Tier, run.Method, run.Settings, run.Inputs, run.Water, run.Op,
             run.Reference, run.Strips, run.Platform), "DOC-SCHEMA");
-        // A Completed row carries the solver's diagnostics; a Failed row has none to carry (IO8: absent, never zero).
-        Guard.Require((run.Outcome is RunOutcome.Completed) == (run.Diagnostics is not null), "DOC-SCHEMA");
+        // Keyed on the stored tier id, a closed set (Ruling 250 Q1). A vlm-strip row carries the solver's diagnostics if and
+        // only if it is Completed; an estimator row never does, Completed or Failed (a closed form has no solver residual);
+        // any other tier id is refused. Absent, never zero (IO8).
+        Guard.Require(run.Tier switch
+        {
+            "vlm-strip" => (run.Outcome is RunOutcome.Completed) == (run.Diagnostics is not null),
+            "estimator" => run.Diagnostics is null,
+            _ => false
+        }, "DOC-SCHEMA");
         NativeProject.Uuid(run.RunId);
         RequireHash(run.RunKey); RequireHash(run.ContentHash); RequireHash(run.SettingsHash);
         RequireHash(run.Inputs.SurfaceHash); RequireHash(run.Water.TableHash);

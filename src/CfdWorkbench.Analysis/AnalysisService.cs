@@ -85,10 +85,20 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
         CancellationTokenSource? generation = null;
         try
         {
-            if (tier != Tier.VlmStrip) throw new ContractError("ANA-INPUT-TIER", "A3a evaluates the VLM + strip tier only");
-            if (scope is not Scope.Wing) throw new ContractError("ANA-INPUT-SCOPE", "the VLM + strip tier evaluates the wing");
+            if (tier is not (Tier.VlmStrip or Tier.Estimator))
+                throw new ContractError("ANA-INPUT-TIER", "the service evaluates the VLM + strip and wing estimator tiers only");
+            if (scope is not Scope.Wing) throw new ContractError("ANA-INPUT-SCOPE", "the VLM + strip and estimator tiers evaluate the wing");
             OperatingPoints.Validate(op);
             OperatingPoints.Validate(water);
+            if (tier == Tier.Estimator)
+            {
+                trace.Estimator = true;
+                if (session.InspectAccepted().Geometry.Status != GeometryStatus.Certified)
+                    throw new ContractError("DSL-NOT-ASSESSED", "the accepted geometry is not certified");
+                var estimated = EvaluateEstimator(op, water, trace, cancellation);
+                outcome = estimated.Outcome is RunOutcome.Failed estimatorFailed ? estimatorFailed.Code : "OK";
+                return estimated;
+            }
             // Ruling 88: the VLM runs on certified geometry only (a closing tip is never certified), so the service does not
             // trust its caller's gate. Refused before any compute, nothing recorded.
             if (session.InspectAccepted().Geometry.Status != GeometryStatus.Certified)
@@ -207,6 +217,48 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
         return row;
     }
 
+    // The wing estimator (design a3d-compare.md §2.6): closed form and quick, so it takes no latest-wins slot and never
+    // supersedes a VLM evaluation in flight on the same scope. It records through RecordRun like any run: the run key,
+    // idempotency and integrity are the existing ones. Outputs are derived on read (WingEstimator.Derive), never stored.
+    private AnalysisRun EvaluateEstimator(OperatingPoint op, WaterRecord water, Trace trace, CancellationToken cancellation)
+    {
+        long started = time.GetTimestamp();
+        var settings = WingEstimator.Settings(method.Settings);
+        Stations(settings);
+        var view = session.Snapshot();
+        var inputs = Freshness.Inputs(view);
+        string settingsHash = RunRecord.SettingsHash(settings);
+        string key = RunRecord.Key(inputs, water, op, WingEstimator.Method, settingsHash);
+        trace.RunKey12 = key[..12];
+        if (StoredCompleted(key) is { } existing)
+        {
+            trace.IdempotentHit = true;
+            return existing;
+        }
+        cancellation.ThrowIfCancellationRequested();
+        trace.IdempotentHit = false;
+        RunOutcome outcome = new RunOutcome.Completed();
+        var row = new AnalysisRun(Guid.NewGuid().ToString("D"), key, "", outcome, WingEstimator.TierId, WingEstimator.Method, settings,
+            settingsHash, inputs, water, op, ReferenceQuantities.From(view.Source), method.ReconciliationTolerance, [], 0, Platform);
+        try { WingEstimator.Derive(row, view.Source, cancellation); }
+        catch (ContractError error) when (error.Code.StartsWith("ANA-", StringComparison.Ordinal))
+        {
+            row = row with { Outcome = new RunOutcome.Failed(error.Code, error.Reason ?? error.Message) };
+        }
+        row = row with { WallMs = time.GetElapsedTime(started).TotalMilliseconds };
+        row = row with { ContentHash = RunRecord.ContentHash(row) };
+        lock (sync)
+        {
+            if (row.Outcome is RunOutcome.Completed && StoredCompleted(key) is { } recorded)
+            {
+                trace.IdempotentHit = true;
+                return recorded;
+            }
+            session.RecordRun(row);
+        }
+        return row;
+    }
+
     /// <summary>The refusal for a placed tip below the Core minimum (<see cref="TipChord"/>, Rulings 91 and 93). Not a Failed row: nothing is recorded.</summary>
     internal const string TipBelowFloorCode = "ANA-TIP-BELOW-FLOOR";
 
@@ -260,6 +312,7 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
     private sealed class Trace(string scope)
     {
         public string Scope { get; } = scope;
+        public bool Estimator { get; set; }
         public string? RunKey12 { get; set; }
         public bool? IdempotentHit { get; set; }
         public int? Strips { get; set; }
@@ -274,8 +327,9 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
 
         public AnalysisEvent Event(IWingMethod method) => new()
         {
-            Tier = TierId, MethodId = method.Method.Id, MethodVersion = method.Method.Version, RunKey12 = RunKey12,
-            Scope = Scope, Unknowns = 2 * method.Settings.NSpanPerHalf * method.Settings.NChord, Strips = Strips,
+            Tier = Estimator ? WingEstimator.TierId : TierId, MethodId = Estimator ? WingEstimator.Method.Id : method.Method.Id,
+            MethodVersion = Estimator ? WingEstimator.Method.Version : method.Method.Version, RunKey12 = RunKey12,
+            Scope = Scope, Unknowns = Estimator ? 0 : 2 * method.Settings.NSpanPerHalf * method.Settings.NChord, Strips = Strips,
             Residual = Diagnostics?.ResidualInf, Kappa1 = Diagnostics?.Kappa1, IdempotentHit = IdempotentHit,
             SnapshotMs = SnapshotMs, SectionsMs = SectionsMs, SolveMs = SolveMs, StripMs = StripMs, RecordMs = RecordMs,
             PanelUnderreadFraction = PanelUnderreadFraction, PanelCandidates = PanelCandidates
