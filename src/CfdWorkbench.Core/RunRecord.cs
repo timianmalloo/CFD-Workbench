@@ -10,12 +10,13 @@ namespace CfdWorkbench.Core;
 // its run key and its content hash. PRE lands the shape; STO owns the bodies (seam S-A3). VLM, STP, SVC and PRJ read
 // these records and never add members: a missing field is a seam request to STO. Exception, granted to STP-3:
 // StripLoad.Provisional and ProvisionalReason (Ruling 77(5)), omitted when unset so older documents keep their hash.
-// Exception, granted to A3d (Ruling 250): the tier-keyed diagnostics rule in CheckRow (A3d-1); the build node A3d-2 adds
-// the member, the CheckStore call into DiscrepancyRecords.Check with its acceptedOrdinal argument, and this sentence names them.
+// Exception, granted to A3d (Ruling 250): AnalysisRecords.Discrepancies (omitted when empty), the one CheckStore call into
+// DiscrepancyRecords.Check, and the tier-keyed diagnostics rule in CheckRow.
 
 /// <summary>The optional top-level <c>analysis</c> member of a <c>cfdw-project-2</c> document. Append-only facts.</summary>
 public sealed record AnalysisRecords(IReadOnlyList<AnalysisRun> Runs, IReadOnlyList<PolarSample> PolarSamples,
-    IReadOnlyList<PrunedRun> Pruned);
+    IReadOnlyList<PrunedRun> Pruned,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<DiscrepancyRecord>? Discrepancies = null);
 
 /// <summary>
 /// One evaluation attempt of one Surface revision (with its Profile revisions) at one operating point by one method
@@ -252,7 +253,7 @@ public static class RunRecord
     /// <c>AuthoringSession.RecordRun</c> so both refuse the same rows with the same codes. Per-run integrity is not
     /// structural: a run that fails <see cref="Verify"/> stays in the document, Unavailable.
     /// </summary>
-    internal static void CheckStore(AnalysisRecords records, Func<string, bool> acceptedExists)
+    internal static void CheckStore(AnalysisRecords records, Func<string, bool> acceptedExists, Func<string, int?> acceptedOrdinal)
     {
         Guard.Require(Present(records.Runs, records.PolarSamples, records.Pruned), "DOC-SCHEMA");
         var ids = new HashSet<string>(StringComparer.Ordinal);
@@ -285,6 +286,7 @@ public static class RunRecord
             NativeProject.Uuid(tombstone.RunId); RequireHash(tombstone.RunKey);
             Guard.Require(!ids.Contains(tombstone.RunId), "DOC-RUN-ID");
         }
+        DiscrepancyRecords.Check(records, acceptedOrdinal);
     }
 
     private static void CheckRow(AnalysisRun run, Func<string, bool> acceptedExists)

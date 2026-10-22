@@ -12,6 +12,171 @@ public sealed record ProjectionContext(IReadOnlyList<StripVerdict>? Verdicts = n
     byte[]? Source = null, SectionTierResult? SectionTier = null,
     RevisionLabel? Revision = null, string? HistoricalText = null, string? SectionFailureCode = null);
 
+/// <summary>What the Compare projection reads besides the two runs: freshness, units, the coefficient source, the outcome of recording.</summary>
+public sealed record CompareContext(CurrentInputs Current, Units Units, Func<AnalysisRun, Coefficients> Values, Func<string, int?> Ordinal)
+{
+    /// <summary>The recorded or read record, when the pair was compared (null before, or when blocked).</summary>
+    public Compare.CompareResult? Result { get; init; }
+    /// <summary>How the stored record re-verified, when there is one.</summary>
+    public DiscrepancyIntegrity? Integrity { get; init; }
+    /// <summary>Recording was refused (for example <c>DOC-SIZE</c>): the reason and the stable code. No delta is shown.</summary>
+    public string? ErrorReason { get; init; }
+    public string? ErrorCode { get; init; }
+    public RunIntegrity BaseIntegrity { get; init; } = RunIntegrity.Intact;
+    public RunIntegrity ComparedIntegrity { get; init; } = RunIntegrity.Intact;
+    /// <summary>The run's envelope verdict sentence (for example <c>MethodRecord.JudgeRun</c>), or null when it cannot be derived.</summary>
+    public Func<AnalysisRun, string?>? EnvelopeVerdict { get; init; }
+}
+
+/// <summary>
+/// Pure projection of a shown pair into the Compare pane (design a3d-compare.md 2, 5). The deltas are always recomputed from the
+/// two runs in the shown orientation with <see cref="Compare.Lines"/>; a stored record only supplies the status and the integrity.
+/// </summary>
+public static class CompareProjection
+{
+    private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
+    private const double LbfPerNewton = 0.224808943099711;
+
+    public static CompareViewModel Build(AnalysisRun? a, AnalysisRun? b, CompareContext context)
+    {
+        if (a is null || b is null)
+            return new(CompareState.NoSecondRun, "", null, [Labels.NeedsTwoRuns], null, null, [], [], null);
+        var columns = (Column(a, context), Column(b, context));
+        if (a.Outcome is RunOutcome.Failed || b.Outcome is RunOutcome.Failed)
+            return new(CompareState.FailedRun, "", null, [Labels.FailedRunCompare], columns.Item1, columns.Item2, [], [], null);
+        if (context.BaseIntegrity != RunIntegrity.Intact || context.ComparedIntegrity != RunIntegrity.Intact)
+            return new(CompareState.Unavailable, "", null, [Labels.RunFailedCheck], columns.Item1, columns.Item2, [], [], null);
+        var inputs = Inputs(a, b, context);
+        var notices = new List<string>();
+        if (columns.Item1.Historical || columns.Item2.Historical) notices.Add(Labels.HistoricalCompareNote);
+        if (context.ErrorReason is { } reason)
+            return new(CompareState.Error, "", null, [Labels.NotRecorded(reason, context.ErrorCode ?? "ANA-UNEXPECTED")], columns.Item1, columns.Item2, inputs, [], null);
+        var blocks = Compare.Compatibility(a, b);
+        if (blocks.Count > 0)
+        {
+            notices.InsertRange(0, blocks.Select(block => block.Reason switch
+            {
+                BlockReason.Reference => Labels.DeltaBlockedReference(string.Join(", ", block.Fields)),
+                BlockReason.Point => Labels.DeltaBlockedPoint(string.Join(", ", block.Fields)),
+                _ => Labels.DeltaBlockedWater(string.Join(", ", block.Fields))
+            }));
+            return new(CompareState.Blocked, "", null, notices, columns.Item1, columns.Item2, inputs, [], Labels.CompareFootnote);
+        }
+        IReadOnlyList<DiscrepancyLine> lines;
+        try { lines = Compare.Lines(a, b, CompareRule.Current, context.Values); }
+        catch (ContractError)
+        {
+            notices.Insert(0, Labels.QuantityUnavailable("CL, CDi or e", columns.Item1.Title + " or " + columns.Item2.Title));
+            return new(CompareState.Unavailable, "", null, notices, columns.Item1, columns.Item2, inputs, [], null);
+        }
+        bool estimator = a.Tier == WingEstimator.TierId || b.Tier == WingEstimator.TierId;
+        var outputs = lines.Select(line => Output(line, estimator)).ToList();
+        outputs.AddRange(Loads(a, b, context));
+        var cl = lines[0];
+        string headlineDelta = cl.Delta is { } delta ? Percent(delta) : DeltaText(cl, false);
+        string headline = a.Tier != b.Tier ? Labels.TiersHeadline(headlineDelta) : Labels.RevisionsHeadline(headlineDelta);
+        string? status = context.Result is { Record: not null } result ? result.Created ? Labels.RecordStored : Labels.RecordRead : null;
+        switch (context.Integrity)
+        {
+            case DiscrepancyIntegrity.NoLongerReproduces or DiscrepancyIntegrity.PayloadFailedCheck: notices.Insert(0, Labels.RecordNoLongerReproduces); break;
+            case DiscrepancyIntegrity.RunFailedCheck: notices.Insert(0, Labels.RunFailedCheck); break;
+            case DiscrepancyIntegrity.RuleUnknown:
+                var rule = context.Result?.Record?.Rule;
+                notices.Insert(0, Labels.RuleUnknown(rule?.Id ?? "", rule?.Version ?? ""));
+                break;
+        }
+        return new(CompareState.Compatible, headline, status, notices, columns.Item1, columns.Item2, inputs, outputs, Labels.CompareFootnote);
+    }
+
+    private static CompareColumn Column(AnalysisRun run, CompareContext context)
+    {
+        bool current = RunRecord.RecomputedKey(run) == Freshness.CurrentKey(context.Current);
+        string chip = TierChip(run);
+        string title = $"r{context.Ordinal(run.Inputs.AcceptedId)?.ToString(Inv) ?? "?"} · {chip}";
+        return new CompareColumn(run.RunId, title, chip, run.Method.Id + " " + run.Method.Version, current ? "Current" : "Historical", !current);
+    }
+
+    private static string TierChip(AnalysisRun run) => run.Tier == WingEstimator.TierId ? Labels.EstimatorChip : Labels.VlmChip;
+
+    private static IReadOnlyList<CompareInputRow> Inputs(AnalysisRun a, AnalysisRun b, CompareContext context)
+    {
+        var rows = new List<CompareInputRow>();
+        void Add(string field, Func<AnalysisRun, string> value) => rows.Add(new CompareInputRow(field, value(a), value(b), value(a) != value(b)));
+        Add("Revision", run => "r" + (context.Ordinal(run.Inputs.AcceptedId)?.ToString(Inv) ?? "?"));
+        Add("Tier", TierChip);
+        Add("Method", run => run.Method.Id + " " + run.Method.Version + (run.Tier == WingEstimator.TierId ? " · " + Labels.EstimatorNotValidated : ""));
+        Add("Envelope", run => run.Settings.Envelope + (context.EnvelopeVerdict?.Invoke(run) is { } verdict ? " · " + verdict : ""));
+        Add("Settings", run => run.SettingsHash[..12]);
+        Add("Lattice", run => run.Tier == WingEstimator.TierId ? "none" : run.Settings.NSpanPerHalf + " × " + run.Settings.NChord);
+        Add("Speed", run => Num(run.Op.Speed, "0.###") + " m/s");
+        Add("α", run => Num(run.Op.AlphaDeg, "0.##") + "°");
+        Add("Depth h_ref", run => run.Op.HRef is { } h ? Num(h, "0.###") + " m" : "not set");
+        Add("Datum", run => run.Op.Datum);
+        Add("Water", run => Num(run.Water.TemperatureC, "0.##") + " °C · " + Num(run.Water.SalinityGPerKg, "0.###") + " g/kg");
+        Add("ρ", run => Num(run.Water.Rho, "0.###") + " kg/m³");
+        Add("ν", run => Num(run.Water.Nu, "0.#####E+0") + " m²/s");
+        Add("S_ref", run => Num(run.Reference.SRef, "0.####") + " m²");
+        Add("b_ref", run => Num(run.Reference.BRef, "0.###") + " m");
+        Add("c_ref", run => Num(run.Reference.CRef, "0.###") + " m");
+        Add("Moment datum", run => run.Reference.MomentDatum);
+        Add("Axes", run => run.Reference.Axes);
+        Add("Omissions", run => run.Tier == WingEstimator.TierId
+            ? "elliptic loading assumed (e = 1); no viscous drag" : Labels.NotModelled(run.Op.HRef.HasValue));
+        Add("Freshness", run => RunRecord.RecomputedKey(run) == Freshness.CurrentKey(context.Current) ? "Current" : "Historical");
+        return rows;
+    }
+
+    private static CompareOutputRow Output(DiscrepancyLine line, bool estimator)
+    {
+        string quantity = line.Quantity;
+        string delta = DeltaText(line, estimator && quantity == "CDi");
+        string spoken = line.Delta is { } value
+            ? $"{quantity}, delta {(value < 0 ? "minus" : "plus")} {Math.Abs(value * 100).ToString("0.00", Inv)} percent of base"
+            : $"{quantity}, {delta}";
+        return new CompareOutputRow(quantity, Num(line.Base, quantity == "CDi" ? "0.00000" : "0.0000"),
+            Num(line.Compared, quantity == "CDi" ? "0.00000" : "0.0000"), delta,
+            estimator && quantity == "CDi" ? Labels.EstimatorCdiNote : null, spoken, line.Base, line.Compared, line.Delta);
+    }
+
+    private static string DeltaText(DiscrepancyLine line, bool estimatorCdi)
+    {
+        if (line.Delta is { } delta) return Percent(delta) + (estimatorCdi ? " " + Labels.EstimatorCdiNote : "");
+        return line.Undefined switch
+        {
+            Compare.BaseZero => Labels.UndefinedBaseZero,
+            Compare.BaseFloor => Labels.UndefinedBelowFloor(line.Quantity switch
+            {
+                "CL" => Num(Compare.ClFloor, "0.#####E+0"), "CDi" => Num(Compare.CdiFloor, "0.#####E+0"), _ => Num(Compare.EFloor, "0.#####E+0")
+            }),
+            Compare.EIllConditioned => Labels.UndefinedE,
+            _ => line.NotCompared is not null ? Labels.EstimatorENotCompared : "—"
+        };
+    }
+
+    // L and D_i side by side with no delta: at a compatible pair they differ by the same fraction as CL and CDi (design 1.4).
+    private static IEnumerable<CompareOutputRow> Loads(AnalysisRun a, AnalysisRun b, CompareContext context)
+    {
+        string unit = context.Units == Units.Imperial ? "lbf" : "N";
+        double scale = context.Units == Units.Imperial ? LbfPerNewton : 1;
+        double Q(AnalysisRun run) => 0.5 * run.Water.Rho * run.Op.Speed * run.Op.Speed * run.Reference.SRef * scale;
+        var values = (a: context.Values(a), b: context.Values(b));
+        foreach (var (name, pick) in new (string, Func<Coefficients, double?>)[] { ("L", c => c.Cl), ("D_i", c => c.Cdi) })
+        {
+            double? first = pick(values.a) * Q(a), second = pick(values.b) * Q(b);
+            yield return new CompareOutputRow(name, Num(first, "0.##") + " " + unit, Num(second, "0.##") + " " + unit, "—", Labels.LoadNote,
+                name + ", no delta", first, second, null);
+        }
+    }
+
+    private static string Percent(double fraction)
+    {
+        string text = Math.Abs(fraction * 100).ToString("0.00", Inv);
+        return (fraction < 0 ? "−" : "+") + text + " %";
+    }
+
+    private static string Num(double? value, string format) => value is { } v ? v.ToString(format, Inv) : "—";
+}
+
 /// <summary>Pure projection of the selected run into rows, chart points and layer data.</summary>
 public static class AnalysisProjection
 {
@@ -56,19 +221,15 @@ public static class AnalysisProjection
         int missingCd = run.Strips.Count(strip => strip.CdNcrit2.Value is null || strip.CdNcrit4.Value is null);
         double a = VortexLattice.ToRadians(run.Op.AlphaDeg);
         double lift = run.Strips.Sum(s => -s.Fx * Math.Sin(a) + s.Fz * Math.Cos(a));
-        double? cl = q > 0 && run.Reference.SRef > 0 ? lift / (q * run.Reference.SRef) : null;
+        var coefficients = WingCoefficients.Of(run);
+        double? cl = coefficients.Cl;
         StripValue induced = Loads.InducedDrag(run);
         double? drag = induced.Value;
         string inducedReason = induced.UnavailableReason ?? "ANA-INDUCED-DRAG-MISSING-AREA";
         StripValue profile2 = Loads.ProfileDrag(run, 2), profile4 = Loads.ProfileDrag(run, 4);
         StripValue wing2 = Loads.WingDrag(run, 2), wing4 = Loads.WingDrag(run, 4);
-        double? cdi = drag.HasValue && q > 0 && run.Reference.SRef > 0 ? drag / (q * run.Reference.SRef) : null;
-        double? trefftzLift = run.Strips.Count > 0 && run.Strips.All(s => Width(run, s) > 0)
-            ? run.Water.Rho * run.Op.Speed * run.Strips.Sum(s => s.Gamma * Width(run, s)) : null;
-        double? clTrefftz = trefftzLift.HasValue && q > 0 && run.Reference.SRef > 0
-            ? trefftzLift / (q * run.Reference.SRef) : null;
-        double ar = run.Reference.SRef > 0 ? run.Reference.BRef * run.Reference.BRef / run.Reference.SRef : 0;
-        double? e = clTrefftz.HasValue && cdi > 0 && ar > 0 ? Trefftz.Oswald(clTrefftz.Value, ar, cdi.Value) : null;
+        double? cdi = coefficients.Cdi;
+        double? e = coefficients.E;
         var derived = OperatingPoints.Derive(run.Op, run.Water, run.Reference.CRef);
         SectionTierResult? section = context.SectionTier;
         string? sectionFailure = context.SectionFailureCode;
