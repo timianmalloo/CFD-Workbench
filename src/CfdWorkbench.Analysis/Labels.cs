@@ -11,6 +11,7 @@ public static class Labels
     public const string PayloadFailed = "Unavailable — run payload failed its check"; // COPY-211
     public const string VlmChip = "VLM + strip · local calculation"; // COPY-213
     public const string EstimatorChip = "Estimator · local calculation"; // COPY-214
+    public const string EstimatorNotValidated = "estimator, not validated"; // A3D-COPY-27, COPY-550, the wing estimator method label
     public const string PolarChip = "Polar · local calculation"; // COPY-215
     public const string OutsideLattice = "outside the verified lattice family"; // COPY-216, operator proposal
     public const string VerifiedLattice = "Verified fixture family: rectangular and elliptic planforms; ±20° dihedral at 32 × 4 cosine span, uniform chord (F-8); 45° sweep, AR 5, at 4 × 1 uniform (F-16); 4% camber at 32/64/128 × 4 cosine/cosine (F-18); 1° washin at 32/64/128 × 4 cosine/cosine (F-19); F-6 order at 32/64/128 × 4 cosine span, uniform chord; F-21 at 16 × 4 cosine/cosine per half"; // COPY-217, operator proposal
@@ -40,6 +41,50 @@ public static class Labels
     public const string RootMoment = "Root bending moment about the root plane; positive sense about +x"; // COPY-237
     public const string ChartBasis = "Spanwise loading Cl·c/c̄ vs η; dashed elliptic reference at the same CL"; // COPY-238
     public const string StripHeader = "Strip of wing run (α_eff) · η"; // COPY-239
+
+    // A3d Compare copy (design a3d-compare.md 6). Each constant carries its A3D-COPY id and the DESIGN.md section 7 id it maps to.
+    public const string CompareTab = "Compare"; // A3D-COPY-1, COPY-522
+    public const string CompareRunsCommand = "Compare runs…"; // A3D-COPY-2, COPY-523
+    public const string CompareTiersCommand = "Compare with estimator"; // A3D-COPY-3, COPY-524; also the empty-state button
+    public const string BaseRunLabel = "Base run"; // A3D-COPY-4, COPY-525
+    public const string ComparedRunLabel = "Compared run"; // A3D-COPY-4, COPY-526
+    public const string NeedsTwoRuns = "Compare needs two Completed runs. Evaluate another revision, or compare with the estimator."; // A3D-COPY-6, COPY-528
+    public const string NoUncertainty = "none — no tier reports its uncertainty"; // A3D-COPY-11, COPY-533
+    public const string EstimatorENotCompared = "Not compared — the estimator assumes elliptic loading (e = 1)"; // A3D-COPY-11b, COPY-534
+    public const string CompareFootnote = "Each value is its own run's result. Nothing is averaged or ranked."; // A3D-COPY-12, COPY-535
+    public const string RecordStored = "Comparison recorded"; // A3D-COPY-13, COPY-536
+    public const string RecordRead = "Comparison read — recorded earlier"; // A3D-COPY-14, COPY-537
+    public const string HistoricalCompareNote = "Historical runs compare as recorded: δ is between the two stored results."; // A3D-COPY-15, COPY-538
+    public const string LoadNote = "Same q · S_ref: L and D_i differ by the same fraction as CL and CDi."; // A3D-COPY-16, COPY-539
+    public const string FailedRunCompare = "A failed run has no values to compare. Choose a Completed run."; // A3D-COPY-17, COPY-540
+    public const string RunFailedCheck = "Unavailable — a compared run failed its check"; // A3D-COPY-18, COPY-541
+    public const string RecordNoLongerReproduces = "Unavailable — Discrepancy record no longer reproduces from its runs"; // A3D-COPY-19, COPY-542
+    public const string EvaluatingEstimator = "Evaluating the estimator…"; // A3D-COPY-20, COPY-543
+    public const string UndefinedBaseZero = "Undefined — base value is 0"; // A3D-COPY-21, COPY-544
+    public const string UndefinedE = "Undefined — e is ill-conditioned here (CL or CDi undefined or below its floor)"; // A3D-COPY-28, COPY-551
+    public const string EstimatorCdiNote = "includes the estimator's elliptic loading assumption (e = 1)"; // A3D-COPY-26, COPY-549
+
+    /// <summary>A3D-COPY-5 (COPY-527): "r&lt;n&gt; · &lt;tier&gt; · α &lt;a&gt;° · V &lt;v&gt; &lt;unit&gt; · &lt;Current | Historical&gt;".</summary>
+    public static string PickerOption(int ordinal, string tier, double alphaDeg, double speed, string unit, bool current) =>
+        $"r{ordinal} · {tier} · α {alphaDeg.ToString("0.##", CultureInfo.InvariantCulture)}° · V {speed.ToString("0.##", CultureInfo.InvariantCulture)} {unit} · {(current ? "Current" : "Historical")}";
+    /// <summary>A3D-COPY-7 (COPY-529).</summary>
+    public static string DeltaBlockedReference(string fields) => $"Δ blocked — reference quantities differ: {fields}. Inputs are shown side by side; no difference is computed.";
+    /// <summary>A3D-COPY-8 (COPY-530): fields from the operating point only.</summary>
+    public static string DeltaBlockedPoint(string fields) => $"Δ blocked — the runs are at different operating points: {fields}. Inputs are shown side by side; no difference is computed.";
+    /// <summary>A3D-COPY-25 (COPY-548).</summary>
+    public static string DeltaBlockedWater(string fields) => $"Δ blocked — the runs use different water: {fields}. Inputs are shown side by side; no difference is computed.";
+    /// <summary>A3D-COPY-9 (COPY-531), the spec's tier headline; δ is CL's, in the shown orientation.</summary>
+    public static string TiersHeadline(string delta) => $"Tiers disagree: δ = {delta} — Discrepancy record stored · value preferred by reported uncertainty: {NoUncertainty}";
+    /// <summary>A3D-COPY-10 (COPY-532a: the revision headline).</summary>
+    public static string RevisionsHeadline(string delta) => $"Revisions compared: δ CL = {delta} — Discrepancy record stored";
+    /// <summary>A3D-COPY-22 (COPY-545).</summary>
+    public static string UndefinedBelowFloor(string floor) => $"Undefined — base value below the comparison floor ({floor})";
+    /// <summary>A3D-COPY-23 (COPY-546).</summary>
+    public static string NotRecorded(string reason, string code) => $"Comparison not recorded — {reason} ({code}). No difference is shown.";
+    /// <summary>A3D-COPY-24 (COPY-547).</summary>
+    public static string QuantityUnavailable(string quantity, string runLabel) => $"Unavailable — {quantity} not computed in {runLabel}";
+    /// <summary>A3D-COPY-29 (COPY-552).</summary>
+    public static string RuleUnknown(string id, string version) => $"Unavailable — Discrepancy record uses a compare rule this version does not know ({id} {version})";
 
     public static string Chip(Tier tier) => tier switch
     {

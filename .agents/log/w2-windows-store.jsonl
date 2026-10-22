@@ -1,0 +1,2 @@
+{"agent": "w2-windows-store", "at": 1792634544.2268338, "kind": "session-start", "path": "-", "seq": 1, "session": "w2-windows-store", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-w2-windows-store"}
+{"action": "add", "agent": "w2-windows-store", "at": 1792635680.750958, "deadline_at": 1792636580.750958, "id": "req-01M5GPKDZG8PW3RY27ATEBAM48", "kind": "request", "path": "-", "seq": 2, "session": "w2-windows-store", "to": "opus-leader", "type": "request", "wi": "WI-0"}

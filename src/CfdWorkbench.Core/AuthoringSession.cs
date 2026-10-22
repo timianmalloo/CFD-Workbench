@@ -41,6 +41,8 @@ public sealed record SessionEvent(long Sequence, string Operation, string Outcom
     public int? Members { get; init; }
     /// <summary>The Analysis fields of <c>analysis.*</c> events (design §11); null on every other event.</summary>
     public AnalysisEvent? Analysis { get; init; }
+    /// <summary>The Compare fields of <c>analysis.compare</c> and of the save-time pinned-run report (design a3d-compare.md 6.1); null elsewhere.</summary>
+    public CompareEvent? Compare { get; init; }
     /// <summary>The Replace fields of <c>catalog.preview</c> and of a <c>section.step</c> whose kind is replace (m12d §10); null otherwise.</summary>
     public ReplaceEvent? Replace { get; init; }
     /// <summary>Named fields of <c>catalog.open</c>, <c>library.save</c> and <c>library.scan</c> (m12d §10); null otherwise.</summary>
@@ -1930,9 +1932,12 @@ public sealed class AuthoringSession : IDisposable
     private byte[] SaveImageCore()
     {
         lock (sync) { Guard.Require(!closed, "DOC-CLOSED");
-            PruneRunsAtSave();
-            NativeProject.Preflight(EnvelopeCore(), envelopeCap);
+            int pinned = PruneRunsAtSave();
+            PreflightWithPinReport("save-image", EnvelopeCore());
             byte[] image = NativeProject.Encode(EnvelopeCore()); string hash = Identity.Sha256(image);
+            // Ruling 251: every save of a document with runs emits the pinned-run count and the image's byte size.
+            // "captured": the image exists, whether it is written is the store.save event.
+            if (runs.Count > 0) RecordCompareEvent("captured", null, new CompareEvent { Records = discrepancies.Count, PinnedRuns = pinned, DocumentBytes = image.Length }, "analysis.save");
             Guard.Require(capturedSaveHashes.Contains(hash) || capturedSaveHashes.Count < 256, "DOC-SAVE-PENDING");
             capturedSaveHashes.Add(hash); return image;
         }
@@ -1987,6 +1992,7 @@ public sealed class AuthoringSession : IDisposable
     // ADR-0011: runs are append-only facts beside the accepted revisions. Recording one is not an edit: it never touches
     // the cursor or the redo stack, and it makes the document dirty only because the saved image now differs.
     readonly List<AnalysisRun> runs = [];
+    readonly List<DiscrepancyRecord> discrepancies = [];
     readonly List<PolarSample> polarSamples = [];
     readonly List<PrunedRun> prunedRuns = [];
     // simplify: the system clock stamps tombstones only (prunedAt is never compared or keyed). Upgrade trigger: a test
@@ -2053,10 +2059,10 @@ public sealed class AuthoringSession : IDisposable
         lock (sync)
         {
             Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(current is not null, "DOC-EMPTY");
-            var prospective = new AnalysisRecords([.. runs, run], polarSamples.ToArray(), prunedRuns.ToArray());
-            RunRecord.CheckStore(prospective, AcceptedExists);
+            var prospective = new AnalysisRecords([.. runs, run], polarSamples.ToArray(), prunedRuns.ToArray(), DiscrepanciesOrNull());
+            RunRecord.CheckStore(prospective, AcceptedExists, AcceptedOrdinal);
             Guard.Require(RunRecord.Verify(run) && SurfaceMatches(run), "DOC-INTEGRITY");
-            NativeProject.Preflight(EnvelopeCore() with { Format = RunRecord.Format(runs.Count + 1), Analysis = prospective }, envelopeCap);
+            PreflightWithPinReport("record-run", EnvelopeCore() with { Format = RunRecord.Format(runs.Count + 1), Analysis = prospective });
             runs.Add(run);
         }
     }
@@ -2082,12 +2088,119 @@ public sealed class AuthoringSession : IDisposable
     }
 
     private AnalysisRecords? AnalysisCore() =>
-        runs.Count == 0 ? null : new AnalysisRecords(runs.ToArray(), polarSamples.ToArray(), prunedRuns.ToArray());
+        runs.Count == 0 ? null : new AnalysisRecords(runs.ToArray(), polarSamples.ToArray(), prunedRuns.ToArray(), DiscrepanciesOrNull());
+
+    // Omitted from the document when empty, so a document with no record keeps its bytes (design a3d-compare.md 1.8).
+    private IReadOnlyList<DiscrepancyRecord>? DiscrepanciesOrNull() => discrepancies.Count == 0 ? null : discrepancies.ToArray();
+
+    // The 1-based accepted-row ordinal (r1 is the open), null when the id names no accepted row.
+    private int? AcceptedOrdinal(string acceptedId)
+    {
+        int index = accepted.FindIndex(row => row.Id == acceptedId);
+        return index < 0 ? null : index + 1;
+    }
 
     private void LoadRuns(AnalysisRecords? records)
     {
         if (records is null) return;
         runs.AddRange(records.Runs); polarSamples.AddRange(records.PolarSamples); prunedRuns.AddRange(records.Pruned);
+        if (records.Discrepancies is { } loaded) discrepancies.AddRange(loaded);
+    }
+
+    /// <summary>The Discrepancy records in document order (canonical orientation), as stored. Integrity is the reader's to judge (Compare.Verify).</summary>
+    public IReadOnlyList<DiscrepancyRecord> ReadDiscrepancies() => Run("read-discrepancies", () =>
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            return (IReadOnlyList<DiscrepancyRecord>)discrepancies.ToArray();
+        }
+    });
+
+    /// <summary>
+    /// Records one comparison, or reads the earlier one. The record arrives in canonical orientation (the caller orients with
+    /// <see cref="DiscrepancyRecords.AFirst"/> and builds the lines with Compare). Under the lock: the key is looked up and a hit
+    /// returns the stored record and writes nothing, so the document is not made dirty; a miss is checked against the store
+    /// invariants and the size cap and appended. Every call emits <c>analysis.compare</c> with its outcome.
+    /// </summary>
+    public DiscrepancyOutcome RecordDiscrepancy(DiscrepancyRecord record) => Run("record-discrepancy", () =>
+    {
+        long started = System.Diagnostics.Stopwatch.GetTimestamp();
+        string outcome = "refused";
+        CompareEvent? fields = null;
+        try
+        {
+            lock (sync)
+            {
+                Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(current is not null, "DOC-EMPTY");
+                string key = DiscrepancyRecords.Key(record);
+                var hit = discrepancies.FirstOrDefault(stored => DiscrepancyRecords.Key(stored) == key);
+                if (hit is not null)
+                {
+                    outcome = "read";
+                    fields = CompareFields(hit, discrepancies.Count);
+                    return new DiscrepancyOutcome(hit, false);
+                }
+                var prospective = new AnalysisRecords(runs.ToArray(), polarSamples.ToArray(), prunedRuns.ToArray(), [.. discrepancies, record]);
+                RunRecord.CheckStore(prospective, AcceptedExists, AcceptedOrdinal);
+                PreflightWithPinReport("record-discrepancy", EnvelopeCore() with { Analysis = prospective });
+                discrepancies.Add(record);
+                outcome = "recorded";
+                fields = CompareFields(record, discrepancies.Count);
+                return new DiscrepancyOutcome(record, true);
+            }
+        }
+        catch (ContractError error) { outcome = error.Code; throw; }
+        finally
+        {
+            RecordCompareEvent(outcome == "recorded" || outcome == "read" ? outcome : "refused",
+                System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds,
+                (fields ?? new CompareEvent()) with { Records = fields?.Records ?? discrepancies.Count });
+        }
+    });
+
+    // The document size is measured by encoding the image the next save would capture; a failed encode stays null ("not recorded").
+    private CompareEvent CompareFields(DiscrepancyRecord record, int count)
+    {
+        int? bytes = null;
+        try { bytes = NativeProject.Encode(EnvelopeCore()).Length; } catch (ContractError) { }
+        return new()
+        {
+            BaseTier = runs.FirstOrDefault(run => run.RunId == record.BaseRunId)?.Tier,
+            ComparedTier = runs.FirstOrDefault(run => run.RunId == record.ComparedRunId)?.Tier,
+            Records = count,
+            PinnedRuns = KeepPlan().Pinned,
+            DocumentBytes = bytes
+        };
+    }
+
+    /// <summary>
+    /// The Compare entry to the session's event queue (design a3d-compare.md 6.1): <c>analysis.compare</c> and the save-time
+    /// report arrive here because <c>Record</c> is private. Outcome: recorded, read, blocked-reference, blocked-point,
+    /// blocked-water or refused. A closed session drops the event.
+    /// </summary>
+    public void RecordCompareEvent(string outcome, double? durationMilliseconds, CompareEvent fields, string operation = "analysis.compare")
+    {
+        Guard.Require(operation.StartsWith("analysis.", StringComparison.Ordinal), "DSL-RANGE");
+        lock (sync)
+        {
+            if (closed) return;
+            if (events.Count == 256) events.Dequeue();
+            events.Enqueue(new SessionEvent(eventSequence++, operation, outcome, durationMilliseconds, null, null, trace.Value,
+                null, null, sources.Count, accepted.Count, operation) { Compare = fields });
+        }
+    }
+
+    // The size preflight. A DOC-SIZE refusal in a document that holds records is emitted with its pinned-run count, so it can
+    // be told apart from an ordinary size refusal (Ruling 251).
+    private void PreflightWithPinReport(string operation, Envelope prospective)
+    {
+        try { NativeProject.Preflight(prospective, envelopeCap); }
+        catch (ContractError error) when (error.Code == "DOC-SIZE" && discrepancies.Count > 0)
+        {
+            RecordCompareEvent("DOC-SIZE", null, new CompareEvent { Records = discrepancies.Count, PinnedRuns = KeepPlan().Pinned }, "analysis.size");
+            throw;
+        }
     }
 
     /// <summary>
@@ -2099,22 +2212,16 @@ public sealed class AuthoringSession : IDisposable
     /// are the only revisions a session can return to: Undo walks parents (<c>Move</c>), reopen rebuilds the redo stack
     /// from the cursors (<c>ReopenCore</c>, <see cref="NativeProject.Replay"/>), and a recovery resumes only on the
     /// current revision (<c>ResumeRecoveryCore</c>). Condition C1: a later feature that opens a revision outside
-    /// Undo/Redo (a history jump, A3d Compare) widens <see cref="ReachableSurfaces"/> in the same change. No Discrepancy
-    /// record exists before A3d.
+    /// Undo/Redo (a history jump) widens <see cref="ReachableSurfaces"/> in the same change. A3d Compare meets C1 without
+    /// widening it: Compare reads the stored runs and opens no revision outside Undo/Redo, and a run a Discrepancy record
+    /// references is kept by its run id, on top of the quota (the record names the run, never the surface). Records are
+    /// never pruned in A3d and nothing unpins a run (Ruling 251).
     /// </summary>
-    private void PruneRunsAtSave()
+    private int PruneRunsAtSave()
     {
-        if (runs.Count == 0) return;
-        var reachable = ReachableSurfaces();
-        var keys = runs.Select(RunRecord.RecomputedKey).ToArray();
-        var keep = new bool[runs.Count];
-        for (int i = 0; i < runs.Count; i++) keep[i] = reachable.Contains(runs[i].Inputs.SurfaceHash);
-        foreach (var tier in runs.Select((run, index) => (run, index)).Where(item => !keep[item.index]).GroupBy(item => item.run.Tier))
-            foreach (var (_, index) in tier.TakeLast(RetainedOthersPerTier)) keep[index] = true;
-        var latestFailed = new Dictionary<string, int>(StringComparer.Ordinal);
-        for (int i = 0; i < runs.Count; i++) if (runs[i].Outcome is RunOutcome.Failed) latestFailed[keys[i]] = i;
-        foreach (int index in latestFailed.Values) keep[index] = true;
-        if (keep.All(kept => kept)) return;
+        if (runs.Count == 0) return 0;
+        var (keep, pinned, keys) = KeepPlan();
+        if (keep.All(kept => kept)) return pinned;
         var now = pruneClock.GetUtcNow();
         var kept = new List<AnalysisRun>();
         int pruned = 0;
@@ -2127,6 +2234,28 @@ public sealed class AuthoringSession : IDisposable
         // "planned": the prune is part of the captured image; whether that image was saved is the store.save event's
         // outcome, so this event never claims a completed save.
         RecordAnalysisEvent("analysis.prune", "planned", null, new AnalysisEvent { Pruned = pruned });
+        return pinned;
+    }
+
+    // Which runs a save keeps, and how many are kept only because a Discrepancy record references them (Ruling 251's
+    // pinnedRuns). Pure: nothing is changed here. The record names a run by id, so its surface need not be reachable.
+    private (bool[] Keep, int Pinned, string[] Keys) KeepPlan()
+    {
+        var reachable = ReachableSurfaces();
+        var keys = runs.Select(RunRecord.RecomputedKey).ToArray();
+        var keep = new bool[runs.Count];
+        for (int i = 0; i < runs.Count; i++) keep[i] = reachable.Contains(runs[i].Inputs.SurfaceHash);
+        // Referenced runs are marked before the per-tier quota, so they never take a quota slot (Ruling 251: on top of it).
+        var referenced = discrepancies.SelectMany(record => new[] { record.BaseRunId, record.ComparedRunId }).ToHashSet(StringComparer.Ordinal);
+        int pinned = 0;
+        for (int i = 0; i < runs.Count; i++)
+            if (!keep[i] && referenced.Contains(runs[i].RunId)) { keep[i] = true; pinned++; }
+        foreach (var tier in runs.Select((run, index) => (run, index)).Where(item => !keep[item.index]).GroupBy(item => item.run.Tier))
+            foreach (var (_, index) in tier.TakeLast(RetainedOthersPerTier)) keep[index] = true;
+        var latestFailed = new Dictionary<string, int>(StringComparer.Ordinal);
+        for (int i = 0; i < runs.Count; i++) if (runs[i].Outcome is RunOutcome.Failed) latestFailed[keys[i]] = i;
+        foreach (int index in latestFailed.Values) keep[index] = true;
+        return (keep, pinned, keys);
     }
 
     private HashSet<string> ReachableSurfaces()
@@ -2251,7 +2380,7 @@ public static class NativeProject
             bool hasAnalysis = root.TryGetProperty("analysis", out var analysisElement);
             if (hasAnalysis)
             {
-                Exact(analysisElement, "runs", "polarSamples", "pruned");
+                Exact(analysisElement, ["runs", "polarSamples", "pruned"], ["discrepancies"]);
                 Guard.Require(analysisElement.GetProperty("runs").ValueKind == JsonValueKind.Array, "DOC-SCHEMA");
                 Guard.Require(format == RunRecord.Format(analysisElement.GetProperty("runs").GetArrayLength()), "DOC-SCHEMA");
             }
@@ -2356,7 +2485,11 @@ public static class NativeProject
         }
         Guard.Require(e.Sources.All(s => e.Accepted.Any(a => a.SourceId == s.Id)) && e.Designs.All(d => e.Accepted.Any(a => a.DesignId == d.Id)), "DOC-REFERENCE");
         _ = Replay(e);
-        if (e.Analysis is not null) RunRecord.CheckStore(e.Analysis, accepted.ContainsKey);
+        if (e.Analysis is not null)
+        {
+            var ordinals = e.Accepted.Select((row, index) => (row.Id, Ordinal: index + 1)).ToDictionary(item => item.Id, item => item.Ordinal, StringComparer.Ordinal);
+            RunRecord.CheckStore(e.Analysis, accepted.ContainsKey, id => ordinals.TryGetValue(id, out int ordinal) ? ordinal : null);
+        }
         if (e.Recovery is not null)
         {
             var r = e.Recovery; Uuid(r.DraftId);

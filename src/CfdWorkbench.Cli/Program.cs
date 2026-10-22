@@ -230,13 +230,51 @@ public static class Cli
                 water = new { stored.Run.Water.TemperatureC, stored.Run.Water.SalinityGPerKg },
                 strips = stored.Run.Strips.Count
             }).ToArray();
-            await WriteAsync(output, new { schemaVersion = 1, runs, pruned = ledger.Pruned.Select(tombstone => new { tombstone.RunId, tombstone.RunKey }) });
+            var pruned = ledger.Pruned.Select(tombstone => new { tombstone.RunId, tombstone.RunKey });
+            // The member is omitted when the document has no record, so the output for every existing document is byte-identical.
+            if (DiscrepancyListing(session) is { } discrepancies)
+                await WriteAsync(output, new { schemaVersion = 1, runs, pruned, discrepancies });
+            else
+                await WriteAsync(output, new { schemaVersion = 1, runs, pruned });
             return 0;
         }
         catch (OperationCanceledException) { await output.WriteLineAsync("{\"code\":\"DOC-CANCELLED\"}"); return 130; }
         catch (ContractError error) { await WriteAsync(output, new { code = error.Code }); return ExitForCode(error.Code); }
         catch (IOException) { await output.WriteLineAsync("{\"code\":\"DOC-IO\"}"); return 5; }
         catch (UnauthorizedAccessException) { await output.WriteLineAsync("{\"code\":\"DOC-IO\"}"); return 5; }
+    }
+
+    /// <summary>
+    /// The Discrepancy records in canonical orientation, each with its integrity and its lines as stored; null when the document
+    /// holds none (design a3d-compare.md 3). The integrity is recomputed from the two runs with the rule the record names
+    /// (<see cref="Compare.Verify"/>), never read from the file.
+    /// </summary>
+    internal static IReadOnlyList<object>? DiscrepancyListing(AuthoringSession session)
+    {
+        var records = session.ReadDiscrepancies();
+        if (records.Count == 0) return null;
+        var runs = session.ReadRuns().Runs;
+        var values = Compare.Derivation(session.AcceptedSourceOf);
+        return records.Select(record =>
+        {
+            var first = runs.FirstOrDefault(stored => stored.Run.RunId == record.BaseRunId);
+            var second = runs.FirstOrDefault(stored => stored.Run.RunId == record.ComparedRunId);
+            var integrity = first?.Integrity == RunIntegrity.Intact && second?.Integrity == RunIntegrity.Intact
+                ? Compare.Verify(record, first.Run, second.Run, values) : DiscrepancyIntegrity.RunFailedCheck;
+            return (object)new
+            {
+                record.Id, record.BaseRunId, record.ComparedRunId, rule = new { id = record.Rule.Id, version = record.Rule.Version },
+                integrity = integrity.ToString(),
+                lines = record.Lines.Select(line =>
+                {
+                    var member = new Dictionary<string, object?> { ["quantity"] = line.Quantity, ["base"] = line.Base, ["compared"] = line.Compared };
+                    if (line.Delta is not null) member["delta"] = line.Delta;
+                    if (line.Undefined is not null) member["undefined"] = line.Undefined;
+                    if (line.NotCompared is not null) member["notCompared"] = line.NotCompared;
+                    return member;
+                }).ToArray()
+            };
+        }).ToArray();
     }
 
     // The session's own label for the revision a run was made on: the ordinal and the rail of the edit that made it.

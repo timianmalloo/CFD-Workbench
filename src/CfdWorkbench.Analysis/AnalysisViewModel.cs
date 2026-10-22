@@ -76,3 +76,24 @@ public sealed record LoadingPoint(double Eta, double? ClChordOverMeanChord, doub
 
 /// <summary>Station selection reads this complete strip result from one projected run.</summary>
 public sealed record StripDetail(double Eta, IReadOnlyList<ResultRow> Rows);
+
+/// <summary>What the Compare pane shows (design a3d-compare.md 5.4). Blocked, Failed, Unavailable and Error show no delta at all.</summary>
+public enum CompareState { NoSecondRun, Compatible, Blocked, FailedRun, Unavailable, Error }
+
+/// <summary>One column of the Compare pane: the run's title, tier chip, method + version and freshness chip.</summary>
+public sealed record CompareColumn(string RunId, string Title, string TierChip, string Method, string Freshness, bool Historical);
+
+/// <summary>One input field of both runs; a differing value is marked (bold with a "≠" glyph in the pane, never colour alone).</summary>
+public sealed record CompareInputRow(string Field, string Base, string Compared, bool Differs);
+
+/// <summary>
+/// One compared quantity, already worded. The numeric members trace to exactly one run's value or one Compare.Lines delta;
+/// nothing here combines two values (no mean, blend, winner or rank).
+/// </summary>
+public sealed record CompareOutputRow(string Quantity, string Base, string Compared, string Delta, string? Note, string AccessibleName,
+    double? BaseValue, double? ComparedValue, double? DeltaValue);
+
+/// <summary>Everything the Compare pane renders for one shown pair, already worded.</summary>
+public sealed record CompareViewModel(CompareState State, string Headline, string? RecordStatus, IReadOnlyList<string> Notices,
+    CompareColumn? Base, CompareColumn? Compared, IReadOnlyList<CompareInputRow> Inputs, IReadOnlyList<CompareOutputRow> Outputs,
+    string? Footnote);

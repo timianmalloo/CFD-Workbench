@@ -306,7 +306,7 @@ internal static class CliHarness
             }
             finally { Environment.SetEnvironmentVariable("OneDrive", previousOneDrive); }
         }
-
+        cliFailures += DiscrepancyCliTests.Run();
         cliFailures += await ExportCliTests.RunAsync();
 
         // A check that fails reports its own FAIL line and the harness goes on (WRT-HARNESS-ABORT); the exit says whether any failed.
