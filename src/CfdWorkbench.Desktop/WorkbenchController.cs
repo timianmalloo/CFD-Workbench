@@ -760,7 +760,7 @@ public sealed class WorkbenchController : IDisposable
     public void PlaceSlice(double eta)
     {
         string unit = SliceUnit();
-        PlaceSliceNumber(NumberIn(eta, unit, 1), unit);
+        PlaceSliceNumber(NumberIn(eta, unit, unit switch { "cm" => 2, "m" => 4, _ => 1 }), unit);   // 0.1 % in a percent document, 0.1 mm of distance in a length one
     }
 
     /// <summary>Places the slice at a typed position in the document unit (or with its own unit): "60", "35.5 %", "270 mm".</summary>
@@ -787,7 +787,7 @@ public sealed class WorkbenchController : IDisposable
         if (Selection is not Selection.Slice slice || HalfSpanMetres <= 0) return;
         double step = modifier switch { NudgeModifier.Command => 0.00001, NudgeModifier.Shift => 0.001, _ => 0.0001 };
         string unit = SliceUnit();
-        PlaceSliceNumber(NumberIn(slice.Eta + direction * step / HalfSpanMetres, unit, unit == "%" ? 6 : 4), unit);
+        PlaceSliceNumber(NumberIn(slice.Eta + direction * step / HalfSpanMetres, unit, unit switch { "%" => 6, "cm" => 5, "m" => 7, _ => 4 }), unit);   // finer than 0.001 mm in every unit
     }
 
     /// <summary>Why Add station is unavailable right now, or null.</summary>
@@ -3600,6 +3600,7 @@ public sealed class WorkbenchController : IDisposable
         UpdateEstimates();
         Frame = acceptedFrame = null;
         Provenance = "accepted";
+        flyout = null;
         Status = "Undo selected the preceding accepted source revision.";
         Notify();
         _ = RefreshAcceptedAsync(preserveStatus: true);
@@ -3616,6 +3617,7 @@ public sealed class WorkbenchController : IDisposable
         UpdateEstimates();
         Frame = acceptedFrame = null;
         Provenance = "accepted";
+        flyout = null;
         Status = "Redo selected the next accepted source revision.";
         Notify();
         _ = RefreshAcceptedAsync(preserveStatus: true);
@@ -3892,6 +3894,7 @@ public sealed class WorkbenchController : IDisposable
         UpdateEstimates();
         var prevSelection = Selection;
         Selection = new Selection.Foil();
+        flyout = null;   // a flyout belongs to the revision it measured
         Provenance = "empty";
         Status = "Opening…";
         if (!Equals(prevSelection, Selection))

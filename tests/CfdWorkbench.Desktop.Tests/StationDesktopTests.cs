@@ -99,6 +99,54 @@ public static class StationDesktopTests
             Require(controller.RemoveStationReason(1) == "Apply or cancel the open draft on Station 2 first.", "Draft reason for Remove: " + controller.RemoveStationReason(1));
         });
 
+        // Design 5.2 (review MC-2): the pointer snap is 0.1 mm of distance and the nudge steps are 0.01 / 0.1 / 1 mm in every length unit.
+        DesktopChecks.Check("Controller_SliceSnapAndNudge_AreMillimetreSteps_InEveryUnit", () =>
+        {
+            foreach (var (label, sections, tolerance) in new[]
+            {
+                ("percent", "at root profile \"a\" at 60 % profile \"a\" at tip profile \"a\"", 1e-7),
+                ("mm", "at root profile \"a\" at 270 mm profile \"a\" at tip profile \"a\"", 1e-7),
+                ("cm", "at root profile \"a\" at 27 cm profile \"a\" at tip profile \"a\"", 1e-7),
+                ("m", "at root profile \"a\" at 0.27 m profile \"a\" at tip profile \"a\"", 1e-7)
+            })
+            {
+                using var controller = Open(Doc(sections, 120, ("a", A)));
+                double half = controller.Inspection!.Authored.HalfSpanMeters ?? throw new Exception("no half span");
+                double Metres() => ((Selection.Slice)controller.Selection).Eta * half;
+                controller.PlaceSlice(0.35123);
+                double snapped = Metres();
+                double expectedMillimetres = label == "percent" ? 0.351 * half * 1000 : 158.1;   // 0.1 % in a percent document, 0.1 mm of distance in a length document
+                Require(Math.Abs(snapped * 1000 - expectedMillimetres) < tolerance * 1000, label + " snap: the slice is at " + snapped * 1000 + " mm, expected " + expectedMillimetres);
+                foreach (var (modifier, step) in new[] { (NudgeModifier.Command, 0.00001), (NudgeModifier.Plain, 0.0001), (NudgeModifier.Shift, 0.001) })
+                {
+                    double before = Metres();
+                    controller.NudgeSlice(1, modifier);
+                    Require(Math.Abs(Metres() - before - step) < 1e-8, label + " nudge " + modifier + ": moved " + (Metres() - before) * 1000 + " mm, expected " + step * 1000);
+                    controller.NudgeSlice(-1, modifier);
+                    Require(Math.Abs(Metres() - before) < 1e-8, label + " nudge back " + modifier + ": at " + Metres() * 1000 + " mm, expected " + before * 1000);
+                }
+            }
+        });
+
+        // Review UA-4: a flyout belongs to the revision it measured; opening another document or an Undo closes it.
+        DesktopChecks.Check("Controller_Flyout_ClosesOnOpenAndOnUndo", () =>
+        {
+            using var controller = Open(Three());
+            controller.BeginRemoveStationAsync(1).GetAwaiter().GetResult();
+            Require(controller.Flyout is not null, "Remove opened no flyout");
+            controller.OpenFoilAsync(ThreeSame(), "Another fixture").GetAwaiter().GetResult();
+            Require(controller.Flyout is null, "The Remove flyout survived opening another document");
+
+            using var edited = Open(ThreeSame());
+            edited.PlaceSliceTyped("35");
+            edited.PromoteSliceAsync().GetAwaiter().GetResult();
+            Require(StationCount(edited) == 4, "The promotion did not add a station");
+            edited.BeginRemoveStationAsync(1).GetAwaiter().GetResult();
+            Require(edited.Flyout is not null, "Remove opened no flyout after the promotion");
+            edited.Undo();
+            Require(edited.Flyout is null, "The Remove flyout survived Undo");
+        });
+
         DesktopChecks.Check("Controller_TypedCoincidentEta_SelectsExisting", () =>
         {
             using var controller = Open(ThreeSame());

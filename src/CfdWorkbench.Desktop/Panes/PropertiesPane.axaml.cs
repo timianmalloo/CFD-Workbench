@@ -851,14 +851,15 @@ public partial class PropertiesPane : UserControl
                     else if (row.Key == "r:rebuild" && row.Target is { } target) RebuildRequested?.Invoke(target.Curve);
                     else if (row.Key is "sl:promote" or "stn:remove" or "fly:apply" or "fly:cancel") boundController?.RunStationAction(row.Key);
                 };
-                // The flyout's keys: Escape cancels and returns focus to the Remove button; Return on a focused Apply applies (Button's own key).
+                // The flyout's keys: Escape cancels and returns focus to the button that opened it (Promote or Remove station); Return on a focused Apply applies (Button's own key).
                 link.KeyDown += (_, args) =>
                 {
                     if (args.Key != Key.Escape || row.Key is not ("fly:apply" or "fly:cancel") || boundController is null) return;
+                    string returnTo = boundController.Flyout?.Kind == WorkbenchController.StationFlyoutKind.Promote ? PropertiesView.PromoteLabel : PropertiesView.RemoveLabel;
                     boundController.CancelFlyout();
                     args.Handled = true;
                     Avalonia.Threading.Dispatcher.UIThread.Post(() => ContentPanel.GetVisualDescendants().OfType<HyperlinkButton>()
-                        .FirstOrDefault(item => item.IsVisible && item.Content as string == PropertiesView.RemoveLabel)?.Focus());
+                        .FirstOrDefault(item => item.IsVisible && item.Content as string == returnTo)?.Focus());
                 };
                 view.Link = link;
                 value = link;

@@ -261,6 +261,30 @@ public static partial class PlanCanvasTests
             if (thumbnails.Length != 1 || !thumbnails[0].IsVisible) throw new Exception("The section editor's strip has no 'Station 2 section thumbnail'");
         });
 
+        DesktopChecks.Check("Controller_PromoteFlyout_EscapeReturnsFocusToPromote", () =>
+        {
+            using var fixture = StationFixture(StationDesktopTests.NearPair());
+            var controller = fixture.Controller;
+            controller.PlaceSliceTyped("50");
+            fixture.Host.RefreshPanes();
+            fixture.Settle();
+            HyperlinkButton Link(string text) => fixture.Window.GetVisualDescendants().OfType<HyperlinkButton>().FirstOrDefault(link => link.Content as string == text && link.IsVisible)
+                ?? throw new Exception("No visible link '" + text + "'");
+            var promote = Link("Promote");
+            promote.Focus();
+            promote.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            StationWait(fixture, () => controller.Flyout is { Checking: false }, "the approximate-promotion preview");
+            fixture.Host.RefreshPanes();
+            fixture.Settle();
+            var cancel = Link("Cancel");
+            cancel.Focus();
+            cancel.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = Key.Escape, Source = cancel });
+            fixture.Settle();
+            if (controller.Flyout is not null) throw new Exception("Escape left the flyout open");
+            if (fixture.Window.FocusManager?.GetFocusedElement() is not HyperlinkButton { Content: "Promote" })
+                throw new Exception("Escape did not return focus to Promote: " + fixture.Window.FocusManager?.GetFocusedElement());
+        });
+
         DesktopChecks.Check("Controller_RemoveFlyout_FocusEscapeAndReturn", () =>
         {
             using var fixture = StationFixture(StationDesktopTests.Three());
