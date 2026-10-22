@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T16:10:18Z",
+  "generated": "2026-10-22T18:59:54Z",
   "audit": [
     {
       "actor": null,
@@ -41762,6 +41762,25 @@ window.AUDIT_DATA = {
       "tier": "T1",
       "started_at": "2026-10-22T15:53:56Z",
       "duration_seconds": 982.0
+    },
+    {
+      "id": "al-01M5JFQV7S2Y053CHNENAXTFXP",
+      "shortname": "cr1-r1",
+      "datetime": "2026-10-22T18:59:54Z",
+      "session": "cr1-crash-capture",
+      "prompt": "R0 repair: unset the probe variables, gate the forced-crash probe, read the wrapped child's real exit code, wrapper scope, NUL strip, proof corrections",
+      "summary": "CR1 repair 1: B1 unset list, B2 gated probe, B3 wrapped child exit read from ProcDump's Process Exit line (named failure when missing), N1-N6 done; pure checks red-first, mutants red, one real wrapped forced failure surfaced as exit 1.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "started_at": "2026-10-22T18:52:21Z",
+      "duration_seconds": 453.0
     }
   ],
   "changes": [
