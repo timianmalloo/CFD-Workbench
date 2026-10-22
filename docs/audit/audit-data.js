@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T07:43:46Z",
+  "generated": "2026-10-22T07:47:04Z",
   "audit": [
     {
       "actor": null,
@@ -41599,6 +41599,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T07:40:37Z",
       "duration_seconds": 189.0
+    },
+    {
+      "id": "al-01M5H97VXYBSK416AYYYN8BPP5",
+      "shortname": "join-next-best-six-close",
+      "datetime": "2026-10-22T07:47:04Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of coord/next-best-six-close into main",
+      "summary": "docs-only join: the plan's planned-vs-actual section (leader seat), status complete, html re-rendered, index derived recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "close the next-best-six plan",
+      "done_when": "planned-vs-actual on main; check-docs 0",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-22T07:46:31Z",
+      "duration_seconds": 33.0
     }
   ],
   "changes": [
