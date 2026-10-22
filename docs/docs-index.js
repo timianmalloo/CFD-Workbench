@@ -2202,6 +2202,43 @@ window.DOCS_INDEX = {
       "sourceSha256": "da2a659e45dffc501e47f21e2a6725fec8bdd3826b3da9d73fc20796d7d8f265"
     },
     {
+      "id": "design-a3d-compare",
+      "path": "docs/design/a3d-compare.md",
+      "title": "A3d Compare — two runs side by side and the Discrepancy record",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "The A3d slice of Area 3: compare two Completed Analysis runs (two revisions, or a wing run against the wing estimator at the same inputs), show their inputs side by side, give per-point deltas normalised to the base value, block every numeric delta when reference quantities or the operating point differ, and store one append-only Discrepancy record per compared ordered pair beside the runs in cfdw-project-2. Data model first, then semantics, the CLI (an inspect --runs extension), the E7 surface list, the pane and its hard states, the copy rows, a red-first test plan and the review packet for the Adversary pass.",
+      "tags": [
+        "area-3",
+        "analysis",
+        "compare",
+        "discrepancy-record",
+        "ana-06",
+        "persistence",
+        "estimator"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "mockup-a3d-compare",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "044cdeb651c8d1a0afd55bde25138fec78e4c9d1f96c0c6ae90ee0efb3c53da9"
+    },
+    {
       "id": "design-app-shell",
       "path": "docs/design/app-shell.md",
       "title": "Design: the CAD-first app shell — Start, workspaces, docks and floats, selection and Properties, menus and commands",
@@ -3902,6 +3939,46 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "b834c7381e6b2ed57ee0f816caa417d98f3f753d69af48a832a2eb92bfaba945"
+    },
+    {
+      "id": "mockup-a3d-compare",
+      "path": "docs/mockups/a3d-compare.md",
+      "title": "A3d Compare — the Compare tab of the Analysis panel",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "Seven states of the Compare tab of the Analysis bottom panel: a wing VLM run against the wing estimator, two revisions, no second run, incompatible reference quantities, a Historical base, loading and an error. Every delta is computed in the page from the fixture numbers below with the design's one formula; a contrast audit prints the measured token ratios per theme. For the operator's review before any build.",
+      "tags": [
+        "mockup",
+        "area-3",
+        "analysis",
+        "compare",
+        "discrepancy-record",
+        "hard-states"
+      ],
+      "links": [
+        {
+          "to": "design-a3d-compare",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-area3-analysis",
+          "rel": "refines"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f23c02665e20c19b3ef2882bc03fba47e81654245039e7254a8339d1e669326f"
     },
     {
       "id": "mockup-area3-analysis",
@@ -11132,7 +11209,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "210f28a9719a8d10c64ec75ec5c57b6738ab591efbecbba329f0de8602fe200f"
+      "sourceSha256": "3f3bc4617908b112f42ab01b1055d033da374513fa1446ad28940034a1f38069"
     },
     {
       "id": "coordination-pc-kickoff",
@@ -22918,6 +22995,14 @@ window.DOCS_INDEX = {
       "description": "Open an interactive knowledge artifact."
     },
     {
+      "id": "surface-mockups-a3d-compare",
+      "path": "docs/mockups/a3d-compare.html",
+      "title": "A3d Compare mockup",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-a3d-compare"
+    },
+    {
       "id": "surface-mockups-area3-analysis",
       "path": "docs/mockups/area3-analysis.html",
       "title": "Area 3 analysis",
@@ -23253,5 +23338,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "2e29207f4f13ca5f602f100860be4d75ed9bae9a1894e2000db68a0878b03d57"
+  "graphSha256": "0657c04ec4f1b9e4e2aa8747aa8e6c364741a2c55d98adf70944093d7841787d"
 };

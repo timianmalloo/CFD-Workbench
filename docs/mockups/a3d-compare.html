@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A3d Compare mockup</title>
+<style>
+:root {
+  --primary: #006c67; --on-primary: #ffffff; --canvas: #f0f2f1; --surface: #fbfcfb; --soft: #e8edeb;
+  --ink: #1b2929; --mute: #526362; --line: #c9d3cf; --control: #788d87; --selection: #d8eeea;
+  --warning: #895900; --danger: #a92e37; --focus: #006c67;
+  --font: system-ui, sans-serif; --mono: ui-monospace, monospace;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --r-sm: 4px;
+  --fast: 120ms; --ease: cubic-bezier(0.2,0,0,1);
+}
+:root[data-theme="dark"] {
+  --primary: #88d8c6; --on-primary: #172326; --canvas: #172326; --surface: #1e2d31; --soft: #2a3d40;
+  --ink: #ebf3f0; --mute: #b2c4bf; --line: #49605b; --control: #79928c; --selection: #274c47;
+  --warning: #efc576; --danger: #ffaeb5; --focus: #88d8c6;
+}
+:root[data-theme="contrast"] {
+  --primary: #ffee58; --on-primary: #000000; --canvas: #000000; --surface: #000000; --soft: #000000;
+  --ink: #ffffff; --mute: #ffffff; --line: #ffffff; --control: #ffffff; --selection: #000000;
+  --warning: #ffee58; --danger: #ffee58; --focus: #ffee58;
+}
+:root[data-motion="reduced"] * { transition: none !important; animation: none !important; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--canvas); color: var(--ink); font: 400 14px/1.5 var(--font); }
+.harness { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); align-items: center; padding: var(--s2) var(--s4);
+  background: var(--surface); border-bottom: 1px solid var(--line); }
+.harness h1 { font-size: 18px; font-weight: 600; line-height: 1.3; margin: 0 var(--s4) 0 0; }
+.harness fieldset { border: 0; margin: 0; padding: 0; display: flex; gap: var(--s1); align-items: center; flex-wrap: wrap; }
+.harness legend { float: left; font-size: 12px; color: var(--mute); margin-right: var(--s1); }
+button, select { font: 500 13px/1.4 var(--font); color: var(--ink); background: var(--surface); border: 1px solid var(--control);
+  border-radius: var(--r-sm); padding: var(--s1) var(--s2); min-height: 28px; }
+button[aria-pressed="true"] { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
+button:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+button:disabled, select:disabled { opacity: 0.55; }
+.stage { padding: var(--s4); display: flex; justify-content: center; }
+.shell { width: 100%; max-width: 1280px; background: var(--surface); border: 1px solid var(--line); }
+.shell[data-vp="1024"] { max-width: 1024px; }
+.shell[data-vp="390"] { max-width: 390px; }
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs span { padding: var(--s2) var(--s3); font-size: 11px; color: var(--mute); white-space: nowrap; }
+.tabs span[aria-selected="true"] { color: var(--ink); font-weight: 600; border-bottom: 2px solid var(--primary); }
+.pane { padding: var(--s3); display: grid; gap: var(--s3); }
+.pickers { display: flex; flex-wrap: wrap; gap: var(--s3); align-items: end; }
+.pickers label { display: grid; gap: 2px; font-size: 12px; color: var(--mute); }
+.pickers select { min-width: 260px; max-width: 100%; }
+.headline { font: 600 13px/18px var(--font); }
+.status { font-size: 12px; color: var(--mute); }
+table { border-collapse: collapse; width: 100%; font-size: 12px; }
+caption { text-align: left; font: 600 13px/18px var(--font); padding-bottom: var(--s1); }
+th, td { padding: 3px var(--s2); border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+th { font-weight: 600; color: var(--ink); }
+td.num, th.num { text-align: right; font: 400 12px/1.4 var(--mono); font-variant-numeric: tabular-nums; }
+td.diff { font-weight: 700; }
+.chip { display: inline-block; font-size: 11px; padding: 0 var(--s1); border: 1px solid var(--control); border-radius: var(--r-sm); }
+.chip.hist { color: var(--warning); border-color: var(--warning); }
+.note { font-size: 12px; color: var(--mute); }
+.blocked { color: var(--ink); font-weight: 600; }
+.errcard { border: 1px solid var(--danger); padding: var(--s2); border-radius: var(--r-sm); }
+.skeleton { display: flex; gap: var(--s2); }
+.skeleton i { display: block; height: 10px; border-radius: 2px; background: var(--soft); width: 180px; animation: pulse 1.2s var(--ease) infinite alternate; }
+.skeleton i + i { width: 90px; }
+@keyframes pulse { from { opacity: 0.5; } to { opacity: 1; } }
+.scroll { overflow-x: auto; }
+.audit { margin: 0 var(--s4) var(--s4); font-size: 12px; color: var(--mute); }
+.audit table { max-width: 720px; }
+@media (max-width: 600px) { .pickers select { min-width: 0; width: 100%; } .pickers label { width: 100%; } }
+</style>
+</head>
+<body>
+<div class="harness" role="region" aria-label="Review harness">
+  <h1>A3d Compare</h1>
+  <fieldset><legend>State</legend><span id="states"></span></fieldset>
+  <fieldset><legend>Theme</legend><span id="themes"></span></fieldset>
+  <fieldset><legend>Viewport</legend><span id="vps"></span></fieldset>
+  <fieldset><legend>Motion</legend><button type="button" id="motion" aria-pressed="false">Reduced motion</button></fieldset>
+</div>
+<div class="stage">
+  <div class="shell" id="shell" data-vp="1280">
+    <div class="tabs" role="tablist" aria-label="Analysis result tabs">
+      <span role="tab" aria-selected="false">Spanwise loading</span><span role="tab" aria-selected="false">Section</span>
+      <span role="tab" aria-selected="false">Loads</span><span role="tab" aria-selected="false">Provenance</span>
+      <span role="tab" aria-selected="true">Compare</span>
+    </div>
+    <div class="pane" id="pane" role="tabpanel" aria-label="Compare"></div>
+  </div>
+</div>
+<div class="audit" id="audit"></div>
+<script>
+"use strict";
+// Fixture: the Example foil, water 15 °C / 35.165 g/kg (rho 1026.02 kg/m3), V = 5.14444 m/s (10 kn), alpha 3.0 deg.
+const RHO = 1026.02, V = 5.14444, Q = 0.5 * RHO * V * V;
+const HELMBOLD = ar => 2 * Math.PI * ar / (2 + Math.sqrt(ar * ar + 4));
+function wing(id, rev, tier, S, b, CL, CDi, state, changed) {
+  const AR = b * b / S;
+  return { id, rev, tier, S, b, c: S / b, CL, CDi, AR, e: CL * CL / (Math.PI * AR * CDi), L: Q * S * CL, Di: Q * S * CDi,
+    state, changed, alpha: 3.0, method: "cfdw.vlm-strip 1.1.0", lattice: "64 × 4", settings: "3f9a1c07b2de" };
+}
+function estimator(S, b, alphaL0) {
+  const AR = b * b / S, CL = HELMBOLD(AR) * (3.0 - alphaL0) * Math.PI / 180, CDi = CL * CL / (Math.PI * AR);
+  return { id: "est", rev: 5, tier: "Estimator · local calculation", S, b, c: S / b, CL, CDi, AR, e: 1, L: Q * S * CL, Di: Q * S * CDi,
+    state: "Current", changed: null, alpha: 3.0, method: "cfdw.estimator.wing 1.0.0", lattice: "—", settings: "a17e5d90c3f1", estimator: true };
+}
+const VLM = "VLM + strip · local calculation";
+const R5 = wing("r5", 5, VLM, 0.108, 0.9, 0.4120, 0.00760, "Current", null);
+const R4 = wing("r4", 4, VLM, 0.108, 0.9, 0.4035, 0.00731, "Historical", "surface (a twist point moved)");
+const R3 = wing("r3", 3, VLM, 0.100, 0.85, 0.4210, 0.00812, "Historical", "surface (root chord)");
+const EST = estimator(0.108, 0.9, -2.0);
+const FLOOR = { CL: 1e-4, CDi: 1e-6, e: 1e-3 };
+// The one delta definition: (compared - base) / |base|; Undefined at 0 or below the floor; estimator e never enters.
+function line(q, base, cmp) {
+  if (q === "e" && (base.estimator || cmp.estimator)) return { q, b: base.estimator ? null : base.e, c: cmp.estimator ? null : cmp.e, nc: true };
+  const b = base[q], c = cmp[q];
+  if (b === 0) return { q, b, c, undef: "Undefined — base value is 0" };
+  if (Math.abs(b) < FLOOR[q]) return { q, b, c, undef: "Undefined — base value below the comparison floor (" + FLOOR[q] + ")" };
+  return { q, b, c, d: (c - b) / Math.abs(b) };
+}
+const pct = d => (d >= 0 ? "+" : "−") + Math.abs(d * 100).toFixed(2) + " %";
+const f = (x, n) => x === null ? "—" : x.toFixed(n);
+const label = r => `r${r.rev} · ${r.tier.split(" · ")[0]} · α ${r.alpha.toFixed(1)}° · V 10.0 kn · ${r.state}`;
+function chip(r) { return r.state === "Current" ? `<span class="chip">Current</span>` : `<span class="chip hist">Historical — ${r.changed}</span>`; }
+function compatibility(a, b) {
+  const diff = [];
+  if (a.S !== b.S) diff.push("S_ref"); if (a.b !== b.b) diff.push("b_ref"); if (a.c !== b.c) diff.push("c_ref");
+  return diff;
+}
+function pickers(base, cmp, disabled) {
+  const opt = r => `<option${r ? "" : " disabled"}>${r ? label(r) : "—"}</option>`;
+  return `<div class="pickers"><label>Base run<select aria-label="Base run"${disabled ? " disabled" : ""}>${opt(base)}</select></label>
+  <label>Compared run<select aria-label="Compared run"${disabled ? " disabled" : ""}>${opt(cmp)}</select></label></div>`;
+}
+function inputs(a, b) {
+  const rows = [
+    ["Revision", "r" + a.rev, "r" + b.rev], ["Tier", a.tier, b.tier], ["Method", a.method, b.method],
+    ["Settings hash · lattice", a.settings + " · " + a.lattice, b.settings + " · " + b.lattice],
+    ["Speed V", "5.144 m/s", "5.144 m/s"], ["α", "3.0°", "3.0°"], ["h_ref · datum", "0.500 m · root LE", "0.500 m · root LE"],
+    ["Water", "15 °C · 35.165 g/kg · ρ 1026.02 kg/m³", "15 °C · 35.165 g/kg · ρ 1026.02 kg/m³"],
+    ["S_ref", a.S.toFixed(3) + " m²", b.S.toFixed(3) + " m²"], ["b_ref", a.b.toFixed(3) + " m", b.b.toFixed(3) + " m"],
+    ["c_ref", a.c.toFixed(4) + " m", b.c.toFixed(4) + " m"], ["Moment datum · axes", "frame origin · body; wind for lift and drag", "frame origin · body; wind for lift and drag"],
+    ["Freshness", chip(a), chip(b)]];
+  return `<div class="scroll"><table aria-label="Compared inputs"><caption>Inputs</caption><thead><tr><th scope="col">Field</th><th scope="col">Base</th><th scope="col">Compared</th></tr></thead><tbody>` +
+    rows.map(([k, x, y]) => { const d = x !== y && k !== "Freshness"; return `<tr><th scope="row">${k}</th><td${d ? ' class="diff"' : ""}>${x}</td><td${d ? ' class="diff"' : ""}>${y}${d ? " ≠" : ""}</td></tr>`; }).join("") +
+    `</tbody></table></div>`;
+}
+function outputs(a, b, blocked) {
+  const names = { CL: "CL", CDi: "CDi", e: "e (computed)" };
+  let body = "";
+  ["CL", "CDi", "e"].forEach((q, i) => {
+    const l = line(q, a, b), dp = q === "CL" ? 4 : q === "CDi" ? 6 : 4;
+    let cell;
+    if (blocked) cell = i === 0 ? `<td rowspan="5" class="blocked">${blocked}</td>` : "";
+    else if (l.nc) cell = `<td>Not compared — the estimator assumes elliptic loading (e = 1)</td>`;
+    else if (l.undef) cell = `<td>${l.undef}</td>`;
+    else cell = `<td class="num" aria-label="${q}, delta ${l.d >= 0 ? "plus" : "minus"} ${Math.abs(l.d * 100).toFixed(2)} percent of base">${pct(l.d)}</td>`;
+    body += `<tr><th scope="row">${names[q]}</th><td class="num">${f(l.b, dp)}</td><td class="num">${f(l.c, dp)}</td>${cell}</tr>`;
+  });
+  body += `<tr><th scope="row">L</th><td class="num">${a.L.toFixed(1)} N</td><td class="num">${b.L.toFixed(1)} N</td>${blocked ? "" : "<td class='num'>—</td>"}</tr>`;
+  body += `<tr><th scope="row">D_i</th><td class="num">${a.Di.toFixed(2)} N</td><td class="num">${b.Di.toFixed(2)} N</td>${blocked ? "" : "<td class='num'>—</td>"}</tr>`;
+  return `<div class="scroll"><table aria-label="Compared outputs"><caption>Outputs at this point</caption><thead><tr><th scope="col">Quantity</th><th scope="col" class="num">Base</th><th scope="col" class="num">Compared</th><th scope="col" class="num">δ vs base</th></tr></thead><tbody>${body}</tbody></table></div>
+  <p class="note">Same q · S_ref: L and D_i differ by the same fraction as CL and CDi.</p>`;
+}
+const FOOT = `<p class="note">Each value is its own run's result. Nothing is averaged or ranked.</p>`;
+const STATES = {
+  "Tiers": () => {
+    const dCL = line("CL", R5, EST).d;
+    return pickers(R5, EST) + `<p class="headline" role="status" aria-live="polite">Tiers disagree: δ = ${pct(dCL)} — Discrepancy record stored · value preferred by reported uncertainty: none — no tier reports its uncertainty</p>
+    <p class="status">Comparison recorded</p>` + inputs(R5, EST) + outputs(R5, EST) + `<p class="note">Estimator CDi: elliptic loading assumed; planar lower bound on induced drag.</p>` + FOOT;
+  },
+  "Revisions": () => pickers(R5, R4) + `<p class="headline" role="status" aria-live="polite">Revisions compared: δ CL = ${pct(line("CL", R5, R4).d)} — Discrepancy record stored</p>
+    <p class="status">Comparison read — recorded earlier</p>` + inputs(R5, R4) + outputs(R5, R4) + FOOT,
+  "No second run": () => pickers(R5, null) + `<p class="headline">Compare needs two Completed runs. Evaluate another revision, or compare with the estimator.</p>
+    <p><button type="button">Compare with estimator</button></p>`,
+  "Incompatible reference": () => {
+    const msg = "Δ blocked — reference quantities differ: " + compatibility(R5, R3).join(", ") + ". Inputs are shown side by side; no difference is computed.";
+    return pickers(R5, R3) + `<p class="headline" role="status" aria-live="polite">${msg}</p>` + inputs(R5, R3) + outputs(R5, R3, msg) + FOOT;
+  },
+  "Historical base": () => pickers(R4, R5) + `<p class="headline" role="status" aria-live="polite">Revisions compared: δ CL = ${pct(line("CL", R4, R5).d)} — Discrepancy record stored</p>
+    <p class="status">Comparison recorded</p><p class="note">Historical runs compare as recorded: δ is between the two stored results.</p>` + inputs(R4, R5) + outputs(R4, R5) + FOOT,
+  "Loading": () => pickers(R5, null, true) + `<div class="skeleton" aria-label="Evaluating"><i></i><i></i></div><p class="status" role="status">Evaluating the estimator…</p>`,
+  "Error": () => pickers(R5, R4, false) + `<div class="errcard"><p role="alert" style="margin:0">Comparison not recorded — the document is at its size limit (DOC-SIZE). No difference is shown.</p></div>` + inputs(R5, R4)
+};
+const THEMES = ["light", "dark", "contrast"], VPS = ["1280", "1024", "390"];
+let state = "Tiers";
+function group(id, items, current, onPick) {
+  const el = document.getElementById(id);
+  el.innerHTML = items.map(x => `<button type="button" aria-pressed="${x === current}">${x}</button>`).join(" ");
+  el.querySelectorAll("button").forEach(b => b.addEventListener("click", () => { onPick(b.textContent); group(id, items, b.textContent, onPick); }));
+}
+function render() { document.getElementById("pane").innerHTML = STATES[state](); audit(); }
+group("states", Object.keys(STATES), state, s => { state = s; render(); });
+group("themes", THEMES, "light", t => { document.documentElement.dataset.theme = t; audit(); });
+group("vps", VPS, "1280", v => { document.getElementById("shell").dataset.vp = v; });
+document.getElementById("motion").addEventListener("click", e => {
+  const on = e.currentTarget.getAttribute("aria-pressed") !== "true";
+  e.currentTarget.setAttribute("aria-pressed", String(on)); document.documentElement.dataset.motion = on ? "reduced" : "";
+});
+// In-artifact audit: contrast from the rendered token values.
+function lum(hex) { const c = hex.trim().replace("#", ""); const v = [0, 2, 4].map(i => parseInt(c.substr(i, 2), 16) / 255).map(x => x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4)); return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]; }
+function ratio(a, b) { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+function audit() {
+  const s = getComputedStyle(document.documentElement), t = n => s.getPropertyValue(n);
+  const pairs = [["ink on surface", "--ink", "--surface", 4.5], ["mute on surface", "--mute", "--surface", 4.5], ["warning on surface", "--warning", "--surface", 4.5],
+    ["danger border on surface", "--danger", "--surface", 3], ["control line on surface", "--control", "--surface", 3], ["focus on surface", "--focus", "--surface", 3],
+    ["on-primary on primary", "--on-primary", "--primary", 4.5], ["mute on canvas", "--mute", "--canvas", 4.5]];
+  const dCL = line("CL", R5, EST).d, dCDi = line("CDi", R5, EST).d, dE = line("e", R4, R5).d, mut = (EST.e - R5.e) / Math.abs(R5.e);
+  document.getElementById("audit").innerHTML = `<table aria-label="Contrast audit"><caption>Audit — theme ${document.documentElement.dataset.theme || "light"}</caption><tbody>` +
+    pairs.map(([n, a, b, min]) => { const r = ratio(t(a), t(b)); return `<tr><th scope="row">${n}</th><td class="num">${r.toFixed(2)}:1</td><td>${r >= min ? "pass" : "FAIL"} (≥ ${min})</td></tr>`; }).join("") +
+    `</tbody></table><p>Fixture check: q = ${Q.toFixed(1)} Pa; Helmbold CLα (AR 7.5) = ${HELMBOLD(7.5).toFixed(5)} /rad; estimator CL = ${EST.CL.toFixed(6)}; δCL(VLM→est) = ${(dCL).toFixed(6)}; δCDi = ${(dCDi).toFixed(6)}; δe(r4→r5) = ${dE.toFixed(6)}; the mutant "estimator e = 1 enters" would print ${pct(mut)}.</p>`;
+}
+render();
+</script>
+</body>
+</html>

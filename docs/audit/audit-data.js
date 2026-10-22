@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T01:11:58Z",
+  "generated": "2026-10-22T01:42:50Z",
   "audit": [
     {
       "actor": null,
@@ -41136,6 +41136,25 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T01:10:10Z",
       "duration_seconds": 107.0
+    },
+    {
+      "id": "al-01M5GMCXATRN2M5D2W3CK1D7S4",
+      "shortname": "a3-compare-design",
+      "datetime": "2026-10-22T01:42:49Z",
+      "session": "a3-compare-design",
+      "prompt": "Write the A3d Compare design and its mockup (track A3, design half, no code).",
+      "summary": "A3d Compare design half: docs/design/a3d-compare.md (data model first: grain one record per ordered pair of distinct Completed runs under one compare-rule version; delta = (compared - base)/|base|, Undefined at 0 or below a floor; exact-equality compatibility blocks delta and record; witness values verified on read; omitted-when-empty member keeps older bytes; referenced runs never pruned; CLI = inspect --runs extension; E7 list; copy A3D-COPY-1..24; red-first tests incl. the three 13.5 tests plus one per ANA-06 clause; review packet; DR-A3D-1..5, notably the wing estimator does not exist yet). Mockup docs/mockups/a3d-compare.html with seven states and a contrast audit, and its note. ui-craft-gate not run: no impeccable binary for windows-arm64.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T01:29:11Z",
+      "duration_seconds": 818.0
     }
   ],
   "changes": [
