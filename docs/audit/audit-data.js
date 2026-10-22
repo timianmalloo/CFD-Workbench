@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T15:56:38Z",
+  "generated": "2026-10-22T16:27:07Z",
   "audit": [
     {
       "actor": null,
@@ -41760,6 +41760,25 @@ window.AUDIT_DATA = {
       "tier": "T1",
       "started_at": "2026-10-22T15:26:40Z",
       "duration_seconds": 1798.0
+    },
+    {
+      "id": "al-01M5J703N8WMYZ34MBFW9ZXF2G",
+      "shortname": "w2b-sf1-c1",
+      "datetime": "2026-10-22T16:27:07Z",
+      "session": "w2b-sf1",
+      "prompt": "wave 2 SF1 conditions: Invoke refusal, chip descriptions, Origin and Analysis assertions, curvature measurement",
+      "summary": "SF1 repair cycle 1: six review conditions closed; Invoke refusal reported, chip help text names stations, Origin/Analysis/removal asserted, F-CURVED outline 0.0338 px so blend kept.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "started_at": "2026-10-22T16:11:51Z",
+      "duration_seconds": 916.0
     }
   ],
   "changes": [
