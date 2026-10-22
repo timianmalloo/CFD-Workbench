@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T16:14:26Z",
+  "generated": "2026-10-22T16:49:11Z",
   "audit": [
     {
       "actor": null,
@@ -41806,6 +41806,25 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T16:13:53Z",
       "duration_seconds": 33.0
+    },
+    {
+      "id": "al-01M5J88GMD7WFTF5AVMG9KK2Y6",
+      "shortname": "w2b-bs-a",
+      "datetime": "2026-10-22T16:49:11Z",
+      "session": "w2b-bs",
+      "prompt": "wave 2 BS node A",
+      "summary": "Wave 2 BS node A: Clear unfinished save on the Windows store (macOS compiled), the Save is blocked dialog with Clear, one retry after Clear. Core and Desktop checks red (compile) then green; 14 mutants run, 10 killed, survivors named in docs/proof/win-store-recovery/README.md.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T16:15:50Z",
+      "duration_seconds": 2001.0
     }
   ],
   "changes": [
