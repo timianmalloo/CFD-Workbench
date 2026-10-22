@@ -4,3 +4,19 @@
 {"agent": "w2b-mx", "at": 1792690664.2854416, "kind": "claim", "path": "src/CfdWorkbench.Core/AuthoringSession.cs", "seq": 4, "session": "w2b-mx", "ttl": 300.0, "wi": "w2b-mx"}
 {"agent": "w2b-mx", "at": 1792690669.1141121, "kind": "release", "path": "src/CfdWorkbench.Core/AuthoringSession.cs", "seq": 5, "session": "w2b-mx", "wi": "w2b-mx"}
 {"action": "add", "agent": "w2b-mx", "at": 1792691022.9775412, "deadline_at": 1792691922.9775412, "id": "req-01M5JBCB48KAX11FH59SVJPPCD", "kind": "request", "path": "-", "seq": 6, "session": "w2b-mx", "to": "opus-leader", "type": "request", "wi": "WI-0"}
+{"agent": "w2b-mx", "at": 1792693154.2234986, "kind": "claim", "path": "tests/CfdWorkbench.Core.Tests/ProjectStoreTests.cs", "seq": 7, "session": "w2b-mx", "ttl": 300.0, "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792693154.451841, "kind": "claim", "path": "src/CfdWorkbench.Core/AuthoringSession.cs", "seq": 8, "session": "w2b-mx", "ttl": 300.0, "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792693154.6915607, "kind": "claim", "path": "src/CfdWorkbench.Desktop/Panes/StartView.axaml.cs", "seq": 9, "session": "w2b-mx", "ttl": 300.0, "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792693211.2778845, "kind": "claim", "path": "tests/CfdWorkbench.Desktop.Tests/ShellWindowTests.cs", "seq": 10, "session": "w2b-mx", "ttl": 300.0, "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792693663.7970877, "kind": "claim", "path": "tests/CfdWorkbench.Analysis.Tests/CompareTests.cs", "seq": 11, "session": "w2b-mx", "ttl": 300.0, "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792694329.988404, "kind": "release", "path": "tests/CfdWorkbench.Core.Tests/ProjectStoreTests.cs", "seq": 12, "session": "w2b-mx", "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792694330.1789656, "kind": "release", "path": "src/CfdWorkbench.Core/AuthoringSession.cs", "seq": 13, "session": "w2b-mx", "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792694330.3726861, "kind": "release", "path": "src/CfdWorkbench.Desktop/Panes/StartView.axaml.cs", "seq": 14, "session": "w2b-mx", "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792694330.5607708, "kind": "release", "path": "tests/CfdWorkbench.Desktop.Tests/ShellWindowTests.cs", "seq": 15, "session": "w2b-mx", "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792694330.7240453, "kind": "release", "path": "tests/CfdWorkbench.Analysis.Tests/CompareTests.cs", "seq": 16, "session": "w2b-mx", "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792695665.5829606, "kind": "claim", "path": "docs/design/application-contracts.md", "seq": 17, "session": "w2b-mx", "ttl": 300.0, "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792695665.798069, "kind": "claim", "path": "docs/design/application-foundation.md", "seq": 18, "session": "w2b-mx", "ttl": 300.0, "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792695666.0236945, "kind": "claim", "path": "docs/design/area3-analysis.md", "seq": 19, "session": "w2b-mx", "ttl": 300.0, "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792695666.2335446, "kind": "claim", "path": "docs/design/a3d-compare.md", "seq": 20, "session": "w2b-mx", "ttl": 300.0, "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792695666.4565806, "kind": "claim", "path": "docs/design/windows-native-store.md", "seq": 21, "session": "w2b-mx", "ttl": 300.0, "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792695666.6794746, "kind": "claim", "path": "docs/notes/adr-0011-size-cap.md", "seq": 22, "session": "w2b-mx", "ttl": 300.0, "wi": "w2b-mx"}

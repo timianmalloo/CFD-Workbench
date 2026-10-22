@@ -32,3 +32,4 @@
 {"action": "resolve", "agent": "opus-leader", "at": 1792691430.99298, "id": "req-01M5JBCB48KAX11FH59SVJPPCD", "kind": "request", "outcome": "resolution", "path": "-", "seq": 32, "session": "opus-leader", "type": "request", "wi": "WI-0"}
 {"action": "add", "agent": "opus-leader", "at": 1792692912.492751, "deadline_at": 1792693812.492751, "id": "req-01M5JD60BK73TRNY4QCD3JB61Z", "kind": "request", "path": "-", "seq": 33, "session": "opus-leader", "to": "opus-owner", "type": "request", "wi": "WI-0"}
 {"at": 1792692912.5172765, "from": "opus-leader", "kind": "decision-request", "mail_id": "mail-01M5JD60C5TXA3QYBKCAW029X1", "ref": "req-01M5JD60BK73TRNY4QCD3JB61Z", "session": "opus-leader", "to": "opus-owner", "type": "mail"}
+{"action": "resolve", "agent": "opus-leader", "at": 1792694460.3797853, "id": "req-01M5JDFP0C75JZJWQ3XXP028JN", "kind": "request", "outcome": "resolution", "path": "-", "seq": 35, "session": "opus-leader", "type": "request", "wi": "WI-0"}

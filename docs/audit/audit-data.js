@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T18:04:09Z",
+  "generated": "2026-10-22T19:05:54Z",
   "audit": [
     {
       "actor": null,
@@ -42102,12 +42102,79 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M5JCHREDF8YXWNSMFWA3VT12",
-      "shortname": "join-w2b-af-r1",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-22T18:04:09Z",
-      "session": "pc-laptop-leader",
+      "done_when": "w2b-af merged on main with the integrated full ring green under the leader's crash-and-124 rule and the ten verify gates green",
+      "duration_seconds": 231.0,
+      "fan_out": 0,
+      "goal": "land the A3d Compare follow-ups on main",
+      "id": "al-01M5JCHREDF8YXWNSMFWA3VT12",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of w2b-af into main",
+      "session": "pc-laptop-leader",
+      "shortname": "join-w2b-af-r1",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-22T18:00:18Z",
       "summary": "AF joined after review and repair cycle 1: the runtime repo-root walk removed and the text-scan check dropped (the bit-equality one-definition check is the guard of record), the m14b mutant recorded with a revision-pair fixture, admission rows for b_ref, c_ref and the moment datum alone with the moment-datum mutant red, the Cli sleeping-child timeout check red with the Kill line deleted then green; the first join's ring red (SelfLaunchTests guard) answered recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-22T16:10:18Z",
+      "done_when": "check red then green, wrapped run green, probe dump analysed, run-tests TESTS-GREEN, check-docs 0",
+      "duration_seconds": 982.0,
+      "goal": "A wrapped Desktop child that dies with 0xC0000374 leaves a full dump",
+      "id": "al-01M5J61A7RHQY37KWMS1TKMYNT",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Track CR1: out-of-process crash capture for the Desktop harness children (CFD_TEST_CHILD_WRAPPER, NUL-tolerant parsing, forced-crash probe, proof)",
+      "session": "cr1-crash-capture",
+      "shortname": "cr1-crash-capture",
+      "skill": "implement",
+      "started_at": "2026-10-22T15:53:56Z",
+      "summary": "SelfLaunch wrapper variable, red-first check and mutant, NUL stripping in SpawnWith, heap-corruption probe, proof section with a 556 MB dump captured",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-22T18:59:54Z",
+      "duration_seconds": 453.0,
+      "id": "al-01M5JFQV7S2Y053CHNENAXTFXP",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "R0 repair: unset the probe variables, gate the forced-crash probe, read the wrapped child's real exit code, wrapper scope, NUL strip, proof corrections",
+      "session": "cr1-crash-capture",
+      "shortname": "cr1-r1",
+      "skill": "implement",
+      "started_at": "2026-10-22T18:52:21Z",
+      "summary": "CR1 repair 1: B1 unset list, B2 gated probe, B3 wrapped child exit read from ProcDump's Process Exit line (named failure when missing), N1-N6 done; pure checks red-first, mutants red, one real wrapped forced failure surfaced as exit 1.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M5JG2VATD8YCZ0Y75DF3K39P",
+      "shortname": "join-cr1-crash-capture",
+      "datetime": "2026-10-22T19:05:54Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of cr1-crash-capture into main",
+      "summary": "CR1 joined after its Test Architect plus SRE review and repair cycle 1: an opt-in CFD_TEST_CHILD_WRAPPER env hook in SelfLaunch.StartInfo prefixes each suite-mode child with a debugger wrapper (ProcDump, for a full dump on 0xC0000374), the wrapper's child exit is read from ProcDump's Process Exit line and the run fails by name when it is missing, NULs are stripped only when wrapped, the forced-crash probe is registered only under CFD_FORCE_HEAP_CORRUPTION, probe modes run bare, run-tests.sh unsets both variables; proof in docs/proof/pvh/README.md recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -42116,8 +42183,8 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "land the A3d Compare follow-ups on main",
-      "done_when": "w2b-af merged on main with the integrated full ring green under the leader's crash-and-124 rule and the ten verify gates green",
+      "goal": "land the capture control that turned the intermittent 0xC0000374 harness crash into three readable dumps (investigation phase R0)",
+      "done_when": "cr1-crash-capture merged on main with the integrated full ring green bare under the leader's crash-and-124 rule and the ten verify gates green",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -42125,8 +42192,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-22T18:00:18Z",
-      "duration_seconds": 231.0
+      "started_at": "2026-10-22T19:02:11Z",
+      "duration_seconds": 223.0
     }
   ],
   "changes": [
@@ -45809,6 +45876,24 @@ window.AUDIT_DATA = {
       "to": "opus-leader",
       "kind": "ruling",
       "ref": "req-01M5J7DB9Z9XT1CGN3YGV1DCA5",
+      "session": "opus-owner"
+    },
+    {
+      "id": "mail-01M5JD60C5TXA3QYBKCAW029X1",
+      "ts": "2026-10-22T18:15:12Z",
+      "from": "opus-leader",
+      "to": "opus-owner",
+      "kind": "decision-request",
+      "ref": "req-01M5JD60BK73TRNY4QCD3JB61Z",
+      "session": "opus-leader"
+    },
+    {
+      "id": "mail-01M5JD6ZENBSR1X29J6HN308SF",
+      "ts": "2026-10-22T18:15:44Z",
+      "from": "opus-owner",
+      "to": "opus-leader",
+      "kind": "ruling",
+      "ref": "req-01M5JD60BK73TRNY4QCD3JB61Z",
       "session": "opus-owner"
     }
   ]

@@ -1,1 +1,2 @@
 {"agent": "w2b-bs-b", "at": 1792692378.9324877, "kind": "session-start", "path": "-", "seq": 1, "session": "w2b-bs-b", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-w2b-bs-b"}
+{"action": "add", "agent": "w2b-bs-b", "at": 1792693229.5801275, "deadline_at": 1792694129.5801275, "id": "req-01M5JDFP0C75JZJWQ3XXP028JN", "kind": "request", "path": "-", "seq": 2, "session": "w2b-bs-b", "to": "opus-leader", "type": "request", "wi": "WI-0"}

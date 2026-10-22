@@ -1,1 +1,7 @@
 {"agent": "cr1-crash-capture", "at": 1792684364.9712074, "kind": "session-start", "path": "-", "seq": 1, "session": "cr1-crash-capture", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-cr1-crash-capture"}
+{"agent": "cr1-crash-capture", "at": 1792695192.5246928, "kind": "claim", "path": "tools/run-tests.sh", "seq": 2, "session": "cr1-crash-capture", "ttl": 300.0, "wi": "cr1-crash-capture"}
+{"agent": "cr1-crash-capture", "at": 1792695192.78342, "kind": "claim", "path": "tests/CfdWorkbench.Desktop.Tests", "seq": 3, "session": "cr1-crash-capture", "ttl": 300.0, "wi": "cr1-crash-capture"}
+{"agent": "cr1-crash-capture", "at": 1792695193.043771, "kind": "claim", "path": "docs/proof/pvh/README.md", "seq": 4, "session": "cr1-crash-capture", "ttl": 300.0, "wi": "cr1-crash-capture"}
+{"agent": "cr1-crash-capture", "at": 1792695593.6728988, "kind": "release", "path": "tools/run-tests.sh", "seq": 5, "session": "cr1-crash-capture", "wi": "cr1-crash-capture"}
+{"agent": "cr1-crash-capture", "at": 1792695593.8521063, "kind": "release", "path": "tests/CfdWorkbench.Desktop.Tests", "seq": 6, "session": "cr1-crash-capture", "wi": "cr1-crash-capture"}
+{"agent": "cr1-crash-capture", "at": 1792695594.0489066, "kind": "release", "path": "docs/proof/pvh/README.md", "seq": 7, "session": "cr1-crash-capture", "wi": "cr1-crash-capture"}
