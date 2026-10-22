@@ -45,6 +45,53 @@ public static partial class PlanCanvasTests
 
     public static void RunStations()
     {
+        DesktopChecks.Check("AddStationEntry_AccessibleNameContainsVisibleLabel", () =>
+        {
+            using var fixture = StationFixture(StationDesktopTests.ThreeSame());
+            var input = fixture.Host.ModelView.AddStationInput;
+            var name = Avalonia.Automation.AutomationProperties.GetName(input) ?? "";
+            var heading = fixture.Host.ModelView.FindControl<Border>("AddStationPanel")!.GetVisualDescendants().OfType<TextBlock>().First().Text;
+            if (heading != WorkbenchController.AddStationHeading) throw new Exception("The heading is '" + heading + "', not the Labels constant");
+            if (!name.Contains(heading!, StringComparison.Ordinal)) throw new Exception("The entry's accessible name '" + name + "' does not contain its visible label '" + heading + "' (WCAG 2.5.3)");
+        });
+
+        DesktopChecks.Check("PlanCanvas_SliceChip_PromotePeerDisabledWithReason", () =>
+        {
+            using var fixture = StationFixture(StationDesktopTests.ThreeSame());
+            var controller = fixture.Controller;
+            var peer = Avalonia.Automation.Peers.ControlAutomationPeer.CreatePeerForElement(fixture.Canvas)!;
+            controller.PlaceSliceTyped("35");
+            fixture.Settle();
+            Avalonia.Automation.Peers.AutomationPeer Promote() => peer.GetChildren().First(child => child.GetName().StartsWith("Inspection slice", StringComparison.Ordinal))
+                .GetChildren().First(child => child.GetName() == "Promote");
+            if (!Promote().IsEnabled() || Promote().GetHelpText() != "") throw new Exception("Promote reads disabled with no reason to be: " + Promote().IsEnabled() + " '" + Promote().GetHelpText() + "'");
+            controller.EnterSectionAsync(1, EntryOrigin.Properties).GetAwaiter().GetResult();
+            controller.PlaceSliceTyped("35");
+            fixture.Settle();
+            var reason = controller.AddStationReason ?? throw new Exception("No draft reason to observe");
+            if (controller.Selection is not Selection.Slice) throw new Exception("The slice did not survive the draft: " + controller.Selection);
+            if (Promote().IsEnabled() || Promote().GetHelpText() != reason) throw new Exception("Promote reads enabled or lacks its reason during a draft: " + Promote().IsEnabled() + " '" + Promote().GetHelpText() + "'");
+        });
+
+        // D2 extension (S1-b review veto): the menu and palette read ShellHost.CanRun, so the station rows' enablement is checked there.
+        DesktopChecks.Check("ShellHost_StationCommands_CanRunFollowsReasons", () =>
+        {
+            using var fixture = StationFixture(StationDesktopTests.ThreeSame());
+            var controller = fixture.Controller;
+            var host = fixture.Host;
+            controller.Select(new Selection.Station(0, 0));
+            if (host.CanRun("station.remove")) throw new Exception("CanRun(station.remove) is true on Root");
+            controller.Select(new Selection.Station(2, 1));
+            if (host.CanRun("station.remove")) throw new Exception("CanRun(station.remove) is true on Tip");
+            controller.Select(new Selection.Station(1, 0.6));
+            if (!host.CanRun("station.remove") || !host.CanRun("station.add")) throw new Exception("CanRun refuses an interior station with no draft");
+            if (!host.CanRun("file.open")) throw new Exception("An unrelated command's CanRun changed");
+            controller.EnterSectionAsync(1, EntryOrigin.Properties).GetAwaiter().GetResult();
+            fixture.Settle();
+            controller.Select(new Selection.Station(1, 0.6));
+            if (host.CanRun("station.add") || host.CanRun("station.remove")) throw new Exception("CanRun is true for a station command during an open draft");
+        });
+
         DesktopChecks.Check("PlanCanvas_SliceChip_AutomationPeerNamesChipAndInvokesPromoteAndClear", () =>
         {
             using var fixture = StationFixture(StationDesktopTests.ThreeSame());

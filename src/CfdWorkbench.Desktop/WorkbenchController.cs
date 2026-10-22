@@ -671,6 +671,16 @@ public sealed class WorkbenchController : IDisposable
     public const string StationEndpointRefusal = "Root and tip stations cannot be removed.";          // S1-COPY-12
     public const string SliceOutOfRange = "A station must lie strictly between root and tip (0 % < η < 100 %).";   // S1-COPY-7
     public const string CheckingCopy = "Checking…";                                                   // S1-COPY-20
+    public const string AddStationHeading = "Add station · from root";                                // COPY-577
+    public const string AddStationEntryName = "Add station · from root. Return promotes, Escape clears.";   // COPY-578 (WCAG 2.5.3: contains the visible heading)
+    public const string ClearSliceLabel = "Clear slice";                                              // COPY-579
+    public const string CheckLabel = "Check";                                                         // COPY-581
+    public const string WithinLimit = "Within the limit";                                             // COPY-582
+    public const string AboveLimit = "Above the limit";                                               // COPY-583
+    public const string AddNeedsFoil = "Open a certified foil in the views to add a station.";        // COPY-584
+    public const string RemoveNeedsFoil = "Open a certified foil in the views to remove a station.";  // COPY-585
+    public const string SelectStationFirst = "Select a station first.";                               // COPY-586
+    public const string FinishChangeFirst = "Finish the current change first.";                       // COPY-587
 
     private StationFlyout? flyout;
     private bool sliceChecking;

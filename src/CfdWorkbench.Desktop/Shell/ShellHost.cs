@@ -1079,10 +1079,10 @@ public sealed class ShellHost : Grid
             return Controller.Inspection is not null;
         if (ViewCommands.Handles(id)) return ViewCommands.CanRun(id, Controller);
         if (id is "analysis.compare" or "analysis.compare-tiers") return Controller.CanCompare;
-        if (!id.StartsWith("point.", StringComparison.Ordinal)) return true;
-        if (id is "point.add" or "point.remove" or "point.rebuild") return PointCommandReason(id) is null;
         if (id == "station.add") return Controller.AddStationReason is null;
         if (id == "station.remove") return Controller.Selection is Selection.Station removable && Controller.RemoveStationReason(removable.Index) is null;
+        if (!id.StartsWith("point.", StringComparison.Ordinal)) return true;
+        if (id is "point.add" or "point.remove" or "point.rebuild") return PointCommandReason(id) is null;
         var point = SelectedPoint();
         if (point is null) return false;
         return id switch

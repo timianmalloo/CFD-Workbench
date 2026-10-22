@@ -127,9 +127,9 @@
                     Margin="{StaticResource Space4}" Padding="{StaticResource Space2}"
                     Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1">
               <StackPanel Spacing="4">
-                <TextBlock Text="Add station · from root" />
+                <TextBlock Text="{x:Static local:WorkbenchController.AddStationHeading}" />
                 <TextBox x:Name="AddStationTextBox" MinWidth="{StaticResource PropValueMinWidth}"
-                         AutomationProperties.Name="Station position from root. Return promotes, Escape clears." />
+                         AutomationProperties.Name="{x:Static local:WorkbenchController.AddStationEntryName}" />
               </StackPanel>
             </Border>
             <Border x:Name="PlanRenderErrorBand" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"

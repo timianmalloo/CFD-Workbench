@@ -1106,7 +1106,7 @@ public sealed class PlanCanvas : Control
             bool ready = Controller.AddStationReason is null && !Controller.SliceChecking;
             var button = new Pen(ready ? SelectionBrush ?? Brushes.White : MuteBrush ?? Brushes.White, 1);
             context.DrawRectangle(null, button, slice.Promote.Deflate(1), 3, 3);
-            DrawLabel(context, Controller.SliceChecking ? WorkbenchController.CheckingCopy : "Promote", slice.Promote.Position + new Vector(8, 5));
+            DrawLabel(context, Controller.SliceChecking ? WorkbenchController.CheckingCopy : PropertiesView.PromoteLabel, slice.Promote.Position + new Vector(8, 5));
             DrawLabel(context, "×", slice.Clear.Position + new Vector(8, 4));
         }
         if (changePlate is var (plate, reading))
@@ -1402,15 +1402,18 @@ public sealed class PlanCanvas : Control
         public void Invoke() => _ = owner.Controller?.PromoteSliceAsync();
         protected override List<AutomationPeer>? GetChildrenCore() =>
         [
-            new SliceActionPeer(owner, "Promote", () => owner.SlicePromoteBounds, () => _ = owner.Controller?.PromoteSliceAsync()),
-            new SliceActionPeer(owner, "Clear slice", () => owner.SliceClearBounds, () => owner.Controller?.ClearSlice())
+            new SliceActionPeer(owner, PropertiesView.PromoteLabel, () => owner.SlicePromoteBounds, () => _ = owner.Controller?.PromoteSliceAsync(),
+                () => owner.Controller is { } controller ? controller.SliceChecking ? WorkbenchController.CheckingCopy : controller.AddStationReason : null),
+            new SliceActionPeer(owner, WorkbenchController.ClearSliceLabel, () => owner.SliceClearBounds, () => owner.Controller?.ClearSlice())
         ];
     }
 
-    private sealed class SliceActionPeer(PlanCanvas owner, string name, Func<Rect?> bounds, Action invoke) : ControlAutomationPeer(owner), IInvokeProvider
+    private sealed class SliceActionPeer(PlanCanvas owner, string name, Func<Rect?> bounds, Action invoke, Func<string?>? unavailable = null) : ControlAutomationPeer(owner), IInvokeProvider
     {
         protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.Button;
         protected override string GetNameCore() => name;
+        protected override bool IsEnabledCore() => unavailable?.Invoke() is null;
+        protected override string? GetHelpTextCore() => unavailable?.Invoke();
         protected override Rect GetBoundingRectangleCore() => ScreenRect(owner, bounds());
         public void Invoke() => invoke();
     }
