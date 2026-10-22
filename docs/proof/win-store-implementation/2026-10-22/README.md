@@ -29,7 +29,7 @@ the measured lines. The whole suite is `bash tools/run-tests.sh`.
 | File system | NTFS (the harness line `NATIVE-ENV os=10.0.28000.0 arch=Arm64 filesystem=NTFS`) |
 | CPU | NVIDIA RTX Spark N1X, 20-core CPU |
 | SDK | .NET SDK 10.0.402 |
-| Account | a non-elevated account with Developer Mode on (file symbolic links can be created; a case-sensitive directory cannot) |
+| Account | a non-elevated account with Developer Mode on (file symbolic links can be created; a case-sensitive directory can be created on C: and not on D:) |
 
 The Windows CI runner is x64. Nothing in the adapter assumes ARM64 (`PlatformAdmitted()` admits both); CI is read after the join.
 
@@ -70,7 +70,7 @@ lists `b08f329a`, `65fd226b` and `105c515b`; the commit message says "the one Wi
 | POSIX-semantics rename and disposition | `WindowsNative_Replace_*`, `WindowsNative_ClaimDispose_HeldObserverNamespaceRemoved`, and every store save | existed (native); store form new |
 | Held-reader overwrite, red then green on NTFS | the pair above, red on the closed store, green on the adapter | native pair existed; store pair new |
 | NFC/NFD duplicate refusal | `Library_DuplicateIgnoringCaseNfc_Refused` evidences the **SectionLibrary name level only** (it normalises to NFC and compares ignoring case). The store-level qualification of composed/decomposed spellings and 8.3 aliases by handle identity (design section 4) is **open**; no project-store NFC/NFD check was added | existed; it was a skip, now PASS on Windows |
-| Case-sensitive-directory detection | `WindowsStore_CaseSensitiveDirectory_QueryReadsFlag` (PASS: the flag reads false on a normal directory) and, split from it, `WindowsStore_CaseSensitiveDirectory_RefusalBranch`, which is registered only when the fixture can be made. Here it prints `NOT ASSESSED WindowsStore_CaseSensitiveDirectory_RefusalBranch needs-elevation Win32=5` and **no PASS**; the Ruling 135 condition stays open until an elevated run observes the refusal | new; refusal **not observed on this laptop** |
+| Case-sensitive-directory detection | `WindowsStore_CaseSensitiveDirectory_QueryReadsFlag` (PASS: the flag reads false on a normal directory) and, split from it, `WindowsStore_CaseSensitiveDirectory_RefusalBranch`, which is registered only when the fixture can be made. Here it prints `NOT ASSESSED WindowsStore_CaseSensitiveDirectory_RefusalBranch volume-refuses-case-sensitive-flag Win32=5` and **no PASS**; the refusal was observed unelevated on this laptop with the temporary folder on C: (Windows 11 Pro 10.0.28000 ARM64, NTFS): `PASS WindowsStore_CaseSensitiveDirectory_RefusalBranch`, the Ruling 135 case-sensitive-directory observation | new; refusal **observed on C:, not assessable on D:** |
 | Crash-recovery steps the user sees | the steps are Ruling 146 (2); the dialog is the S3 follow-up (not built). The leftover inventory below is the basis | new inventory |
 | Long path | `WindowsStore_LongPath_Over260_SaveOpenRoundTrip`: 536 UTF-16 units, 10 components, save, open, overwrite | new |
 | Layout tests for every new structure | `WindowsNative_Layouts_SdkX64` gains `FileAttributeTag` (8), `FileStandard` (24), `CaseSensitiveInfo` (4) | extended |
@@ -127,8 +127,8 @@ Desktop checks. The native Windows picker cannot be driven from the harness, so 
    ("the Windows store flushes the temporary file (FlushFileBuffers) and then atomically renames it over the target ... Windows Save ships with it,
    closing D-B1-DUR"), Verified by the reviewer in the code; the controller acknowledges a save only on it.
 3. The volume-GUID binding of design section 4 is not built (a residual).
-4. The case-sensitive positive branch ran nowhere here; CI (an elevated runner account) may exercise it.
-5. Not built: Clear unfinished save (Ruling 160 (4)); the volume-GUID binding; observing the case-sensitive refusal with elevation. COPY-31W
+4. The case-sensitive positive branch depends on the volume, not on elevation: unelevated (`IsInRole(Administrator) = False`) with the temporary folder on C: it prints `PASS WindowsStore_CaseSensitiveDirectory_RefusalBranch`; with it on D: (the USB fixed disk, as `run-tests.sh` sets it) it prints `NOT ASSESSED WindowsStore_CaseSensitiveDirectory_RefusalBranch volume-refuses-case-sensitive-flag Win32=5`.
+5. Not built: Clear unfinished save (Ruling 160 (4)); the volume-GUID binding. (The case-sensitive refusal is observed, see item 4.) COPY-31W
    (`Labels.SaveUnavailable`, "Saving isn't available on this system yet") is **known to be false on Windows** for `DOC-UNSUPPORTED-PERSISTENCE`, which a
    refused path or file now also produces; Ruling 253 (W2-Q2) approves the replacement wording, which lands after the A3 join.
 6. Ruling 145 (6) and 146 (3) called the picker default, OneDrive placement and copy ids Mac-owned; this track did them under the plan assignment (Inferred reading).
@@ -158,7 +158,7 @@ read from the held root handle (`NtQueryVolumeInformationFile`, class 4): `FILE_
 (0x4), `FILE_REMOTE_DEVICE` (0x10), `FILE_CHARACTERISTIC_TS_DEVICE` (0x1000) or `FILE_CHARACTERISTIC_WEBDAV_DEVICE` (0x2000). Red: the function did not exist
 (`error CS0117: 'WindowsNative' does not contain a definition for 'IsFixedLocalVolume'`; run on the old code with the body stubbed: `FAIL ... no WindowsNative.IsFixedLocalVolume on the old code`).
 Green: `VOLUME-DEVICE local_ntfs type=0x7 characteristics=0x260020 admitted=true`, remote (0x14, 0x10), network type alone, remote flag alone, removable, floppy, TS and
-WebDAV refused. **Real remote and removable volumes: Not assessed** (no SMB share or USB stick here).
+WebDAV refused. **USB-attached fixed disks are admitted:** this laptop's D: is BusType USB, DriveType Fixed, characteristics 0x260020 (no 0x1), and every store fixture ran on it. Removable media (0x1) are refused. **Real SMB shares and removable USB sticks: Not assessed.**
 
 **Overwrite of a target without the private DACL (Ruling 253, W2-Q1 b).** `WindowsStore_ForeignDaclTarget_Overwrite` expects success and a private DACL on the result:
 `PASS`. Red first, both refused before the claim with `DOC-UNSUPPORTED-PERSISTENCE`: `WindowsStore_ReadOnlyTarget_OverwriteRefused` (`FAIL ... actual DOC-SAVE-UNCERTAIN`) and
@@ -173,7 +173,7 @@ dialog from the window's owned windows: red with the wiring removed (`FAIL ... T
 status line (the generic COPY-414 sentence) is still set by `WorkbenchController` behind the dialog; that file is outside this track.
 
 **Test Architect conditions.** T1: the case-sensitive check is split (above); the output holds `PASS WindowsStore_CaseSensitiveDirectory_QueryReadsFlag` and
-`NOT ASSESSED WindowsStore_CaseSensitiveDirectory_RefusalBranch needs-elevation Win32=5`, and no PASS for the refusal. T3: the NFC/NFD row, the D-B1-DUR citation and these run lines are fixed.
+`NOT ASSESSED WindowsStore_CaseSensitiveDirectory_RefusalBranch volume-refuses-case-sensitive-flag Win32=5`, and no PASS for the refusal. T3: the NFC/NFD row, the D-B1-DUR citation and these run lines are fixed.
 The 25 non-Core former skips: the final `run-tests.sh` below reports Desktop 809 passed / 0 skipped and Cli 22 passed / 0 skipped; the baseline skip counts were 23 and 2.
 
 **Directory privacy, a gap for the Owner (not fixed here; `PreferenceStore.cs` unchanged).** The preference store makes its directory with `System.IO`

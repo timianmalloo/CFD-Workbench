@@ -1746,6 +1746,45 @@ window.DOCS_INDEX = {
       "sourceSha256": "a751c211ad65b84b206fabe0105424dfa8788ed278cc51c49e54e437f4ef869c"
     },
     {
+      "id": "note-discrepancy-records",
+      "path": "docs/notes/discrepancy-records.md",
+      "title": "Discrepancy records in the analysis member of cfdw-project-2",
+      "type": "decision-note",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "The A3d Compare slice adds an optional discrepancies member to the analysis object of cfdw-project-2, one record per unordered pair of Completed runs in canonical orientation; it refines ADR-0011 (expand only, older readers refuse the file, referenced runs are never pruned) without editing it.",
+      "tags": [
+        "analysis",
+        "persistence",
+        "compare",
+        "discrepancy-record",
+        "adr-0011"
+      ],
+      "links": [
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "refines"
+        },
+        {
+          "to": "design-a3d-compare",
+          "rel": "relates-to"
+        },
+        {
+          "to": "spec-amendments-1-7-7",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ec8d3646543d56f1114556cd11137b95e87c8bc313140c0ddf5099c985179d18"
+    },
+    {
       "id": "note-m1-scope-decision",
       "path": "docs/notes/m1-scope-decision.md",
       "title": "User decision — section editing in M1.1; on-screen timing removed as a gate; Windows deferred",
@@ -2200,6 +2239,108 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "da2a659e45dffc501e47f21e2a6725fec8bdd3826b3da9d73fc20796d7d8f265"
+    },
+    {
+      "id": "design-a3d-compare",
+      "path": "docs/design/a3d-compare.md",
+      "title": "A3d Compare — two runs side by side and the Discrepancy record",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "The A3d slice of Area 3, revised after Adversary cycle 1: compare two Completed Analysis runs (two revisions, or the wing estimator against a VLM + strip run at the same inputs), show inputs and envelopes side by side, give per-point deltas normalised to the base value, block every numeric delta when reference quantities, the operating point or the water differ, and store one append-only Discrepancy record per unordered pair in a canonical orientation beside the runs in cfdw-project-2. Built as two serial nodes: A3d-1 the estimator tier, A3d-2 Compare.",
+      "tags": [
+        "area-3",
+        "analysis",
+        "compare",
+        "discrepancy-record",
+        "ana-06",
+        "persistence",
+        "estimator"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "mockup-a3d-compare",
+          "rel": "relates-to"
+        },
+        {
+          "to": "spec-amendments-1-7-7",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c8988e20d50890d65d3b3a7dd7eca0b3a01b3044f165f554a95471fa81726aa6"
+    },
+    {
+      "id": "design-add-station",
+      "path": "docs/design/add-station.md",
+      "title": "Design: Add station, Remove station and the inspection slice with Promote (CAD-02, CAD-09, GEO-06)",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design — track S1 of next-best-six; documents only; repair cycle 1 folded the Adversary conditions; cycle 2 folded Ruling 252 (S1-Q1 d, S1-Q2 a, S1-Q3 b); ready for the build after the join",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "The inspection slice is a selection (never syntax); Promote writes one new profile block and one assignment whose section is the as-built rule-A blend at η, built in control-point space by the one PlacementRule definition. Rule A renormalises the blended unit thickness, so a promotion is exact (measured ≤ 1e-12) only in regimes R0/R1; in R2 both adjacent intervals move by a shape-dependent measured amount (5.1e-7 of chord on the committed section-a / NACA 0012 pair, in a model). Ruling 252: one press and exact at a measured ≤ 1e-12, otherwise a previewed approximate promotion applied only at ≤ 10 µm; a station within 10 µm in span of another is coincident. Remove re-blends across the gap with the measured deviation and Apply gated at 10 µm.",
+      "tags": [
+        "cad",
+        "station",
+        "inspection-slice",
+        "promote",
+        "rule-a",
+        "blend",
+        "certificate",
+        "foildsl",
+        "cad-02",
+        "cad-09",
+        "geo-06"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "design-next-cad-increment",
+          "rel": "refines"
+        },
+        {
+          "to": "mockup-add-station",
+          "rel": "relates-to"
+        },
+        {
+          "to": "decision-loft-rule-a",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-cross-profile-abscissa",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-planform-point-verbs",
+          "rel": "relates-to"
+        },
+        {
+          "to": "spec-amendments-add-station",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e34b5c3791cb64d4caad7fd9fc559f30833352c1296a09559fd4ca4d34dbb5d0"
     },
     {
       "id": "design-app-shell",
@@ -3841,7 +3982,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "60e5439cccccc33adc3fdc20ff17c36421a3414f3a772e74dcc81c660da629f5"
+      "sourceSha256": "2bccea4d210a781ebcd9922c6a6ded7c60af02fb9e1ba3f1b9907930c2772556"
     },
     {
       "id": "design-windows-runtime",
@@ -3902,6 +4043,90 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "b834c7381e6b2ed57ee0f816caa417d98f3f753d69af48a832a2eb92bfaba945"
+    },
+    {
+      "id": "mockup-a3d-compare",
+      "path": "docs/mockups/a3d-compare.md",
+      "title": "A3d Compare — the Compare tab of the Analysis panel",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "Eight states of the Compare tab of the Analysis bottom panel: a wing VLM run against the wing estimator, two revisions, no second run, incompatible reference quantities, different water, a Historical base, loading and an error. Every delta is computed in the page from the fixture numbers below with the design's one formula; a contrast audit prints the measured token ratios per theme. For the operator's review before any build.",
+      "tags": [
+        "mockup",
+        "area-3",
+        "analysis",
+        "compare",
+        "discrepancy-record",
+        "hard-states"
+      ],
+      "links": [
+        {
+          "to": "design-a3d-compare",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-area3-analysis",
+          "rel": "refines"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "79ce42655a340bd8e61beaf77b61ca7e51923a9136d859e40380a03affba39d5"
+    },
+    {
+      "id": "mockup-add-station",
+      "path": "docs/mockups/add-station.md",
+      "title": "Add station — the inspection slice, Promote and Remove station in today's shell",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "Nine states of the 1280 × 800 shell (and the 640 × 400 reflow) on stated fixture wings: no slice, a slice placed with its η and mm readout and Promote, the promoted station selected in the Plan chip strip, Front, Side, Browser and Properties, a coincident η refused, Remove above 10 µm (Apply disabled with its reason), Root remove refused, the certificate budget refused at seven differing stations, a competing draft, and the approximate promotion preview for R2 (Ruling 252). For the operator's review.",
+      "tags": [
+        "mockup",
+        "cad",
+        "station",
+        "inspection-slice",
+        "promote",
+        "remove-station",
+        "hard-states",
+        "cad-02",
+        "cad-09",
+        "geo-06"
+      ],
+      "links": [
+        {
+          "to": "design-add-station",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-planform-point-verbs",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ce199ea803ceda2af94548f79e1150c9ca86169581f71cdc7cefecd3d3fae31c"
     },
     {
       "id": "mockup-area3-analysis",
@@ -9426,7 +9651,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "85fc4342179b7fe5972b41a9f5ef7187f584b3070d431b22bd3817328ca3b813"
+      "sourceSha256": "57709579aff769c777cc48fb03743457ed7f08f1fe2ea9a35612f8eaa0aedf1c"
     },
     {
       "id": "kb-hw-glossary",
@@ -12864,6 +13089,33 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "b0673fdb6f2871565c8fc0f5b1be74a6148438f314dab6e8a27e7c4ac00effe4"
+    },
+    {
+      "id": "proof-a3d-compare",
+      "path": "docs/proof/a3d-compare/README.md",
+      "title": "A3d Compare build proof: red and green lines, mutants, receipts",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@track-a3-compare-build",
+      "phase": "implementation",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "The observed red and green lines of the A3d Compare build, by node. Node A3d-1 (the wing estimator tier) is recorded; the A3d-2 sections (older-reader receipt, measured bytes, copy id mapping) are filled by that node.",
+      "tags": [
+        "a3d",
+        "compare",
+        "estimator",
+        "analysis",
+        "discrepancy-record"
+      ],
+      "links": [
+        {
+          "to": "design-a3d-compare",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b2762a6efbfb771503f506998bd8ca1f8780b5760980b7b0b87bfc2a9c984796"
     },
     {
       "id": "proof-abl-measure",
@@ -20462,7 +20714,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "53e66bb6cee8ca7c8f1a3f4108f6061ed7d99219ce36ccac05ae600115061729"
+      "sourceSha256": "9f6ab7590080bdba20dcebea1eebe3923210479290cdc0fe0793d2032bd30271"
     },
     {
       "id": "proof-win-trig-bits-20261008",
@@ -22566,6 +22818,89 @@ window.DOCS_INDEX = {
       "sourceSha256": "1afdf5caae6c73a1e908605c4b662c192f19dc4a1d08b8fbfd4247d825d5f567"
     },
     {
+      "id": "spec-amendments-1-7-7",
+      "path": "docs/specs/amendments/spec-1.7.7.md",
+      "title": "Spec 1.7.7 amendment note — the Discrepancy record grain, ρ derived, dimensional loads not stored (ANA-06, A3d)",
+      "type": "spec",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "Three proposed amendments to cfd-workbench-v1 lines 259 and 329, from Ruling 250 Q2 and Q5 and the A3d Compare design: one Discrepancy record per unordered pair of evaluations in canonical orientation with one line per quantity, rho derived on read and never stored, and dimensional loads kept out of the stored lines. Proposed; the Data & Persistence lens confirms the text before the A3d build.",
+      "tags": [
+        "spec",
+        "amendments",
+        "analysis",
+        "compare",
+        "discrepancy-record",
+        "ana-06"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-amendments-1-7-6",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-a3d-compare",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "cb8d874199c0d3cf65d518c8f900f2c1af150b9129e8b5d2859740b8bf299044"
+    },
+    {
+      "id": "spec-amendments-add-station",
+      "path": "docs/specs/amendments/spec-add-station.md",
+      "title": "Spec amendments for Add station and Promote (GEO-06, CAD-02, A4.6) — Ruling 252",
+      "type": "spec",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "Four amendments from the Add station design (track S1), accepted by Ruling 252. A promotion is exact and one press when its measured deviation is ≤ 1e-12; otherwise it is a separately labelled, previewed approximate promotion applied only with Apply at ≤ 10 µm (S1-Q1 d). Promote and Remove keep current thickness (S1-Q2 a). A station within the 10 µm join tolerance in span of another is coincident (S1-Q3 b). The operator may revisit any of them.",
+      "tags": [
+        "spec",
+        "amendments",
+        "station",
+        "promote",
+        "rule-a",
+        "blend",
+        "geo-06",
+        "cad-02",
+        "ruling-252"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "design-add-station",
+          "rel": "depends-on"
+        },
+        {
+          "to": "decision-loft-rule-a",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "69f69af1bb2bccd372973e1739ea4504f505de2e04ceeb709792849b0052aad3"
+    },
+    {
       "id": "spec-cfd-workbench",
       "path": "docs/specs/cfd-workbench.md",
       "title": "CFD-Workbench — product specification",
@@ -23033,6 +23368,22 @@ window.DOCS_INDEX = {
       "description": "Open an interactive knowledge artifact."
     },
     {
+      "id": "surface-mockups-a3d-compare",
+      "path": "docs/mockups/a3d-compare.html",
+      "title": "A3d Compare mockup",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-a3d-compare"
+    },
+    {
+      "id": "surface-mockups-add-station",
+      "path": "docs/mockups/add-station.html",
+      "title": "Add station",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-add-station"
+    },
+    {
       "id": "surface-mockups-area3-analysis",
       "path": "docs/mockups/area3-analysis.html",
       "title": "Area 3 analysis",
@@ -23368,5 +23719,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "f089988221bc2a627c43ed3c1116aa75cd503ac233e5c61a864fc962b3597374"
+  "graphSha256": "d396116e9b11d1b44c4bb73c84aa8a2d16a4b7f1ee01bd2a1b79664310ccc3fa"
 };

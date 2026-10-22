@@ -226,6 +226,7 @@ public sealed partial class MainWindow : Window
             // Ruling 253 (W2-Q3 c): a save refused because a claim file is in the folder is the "Save is blocked" dialog, not the generic line.
             if (OperatingSystem.IsWindows() && result.Code == "DOC-CONFLICT" && UnfinishedSave.BlocksFolder(destination))
             {
+                shellHost.Report(new StatusReport("")); // the dialog replaces the generic COPY-414 line the controller set (Ruling 253)
                 var blocked = new SaveBlockedDialog();
                 await blocked.ShowDialog(this);
                 if (blocked.SaveAs && await PickSavePathAsync() is { } other) await SaveToAsync(other);

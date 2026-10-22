@@ -446,7 +446,7 @@ internal static class WindowsProjectStoreTests
         using (var directory = WindowsNative.OpenFixtureDirectory(normal)) Equal(false, WindowsNative.IsCaseSensitive(directory));
     }
 
-    // The refusal branch needs a case-sensitive directory, which an unelevated account cannot create (Win32 5). Then it is NOT ASSESSED
+    // The refusal branch needs a case-sensitive directory, which some volumes refuse to create (Win32 5, observed on D: and not on C:, unelevated). Then it is NOT ASSESSED
     // and prints no PASS; the query above is the only thing observed here. winbase.h FileCaseSensitiveInfo = 23, FILE_CS_FLAG_CASE_SENSITIVE_DIR = 1.
     private static void CaseSensitiveRefusal()
     {
@@ -457,7 +457,7 @@ internal static class WindowsProjectStoreTests
         }
         if (enableError != 0)
         {
-            Console.WriteLine($"NOT ASSESSED WindowsStore_CaseSensitiveDirectory_RefusalBranch needs-elevation Win32={enableError}");
+            Console.WriteLine($"NOT ASSESSED WindowsStore_CaseSensitiveDirectory_RefusalBranch volume-refuses-case-sensitive-flag Win32={enableError}");
             return;
         }
         Check("WindowsStore_CaseSensitiveDirectory_RefusalBranch", () =>

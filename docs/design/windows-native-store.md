@@ -337,7 +337,7 @@ metadata rather than borrowing a path-only check.
   every component is opened relative to the retained parent with `NtCreateFile`; each directory is checked for the directory
   attribute, no reparse tag and a case-insensitive directory (`FileCaseSensitiveInfo`, class 23); the volume must report NTFS. A leaf must
   be a regular, single-link file that is not pending deletion. Parent identity is re-read before publication and after the read-back.
-  The case-sensitive refusal's positive branch needs an elevated account to create the fixture; where the account cannot, the check
+  The case-sensitive refusal's positive branch needs a volume that accepts the flag (observed unelevated: C: accepts it, the USB fixed disk D: gives Win32 5); where it does not, the check
   prints `NOT ASSESSED` and asserts the query on a normal directory.
 - *Not built: the volume-GUID binding.* The drive root is held by handle for the operation, but the drive letter is not bound to a
   volume GUID and rechecked (the paragraph "Bind a drive root once to an OS-returned volume GUID"). A drive-map swap during one save is
@@ -360,13 +360,15 @@ metadata rather than borrowing a path-only check.
 - *Fixed local volumes only.* The root handle's `FileFsDeviceInformation` (class 4, `NtQueryVolumeInformationFile`) must be
   `FILE_DEVICE_DISK` (0x7) without `FILE_REMOVABLE_MEDIA` (0x1), `FILE_FLOPPY_DISKETTE` (0x4), `FILE_REMOTE_DEVICE` (0x10),
   `FILE_CHARACTERISTIC_TS_DEVICE` (0x1000) or `FILE_CHARACTERISTIC_WEBDAV_DEVICE` (0x2000). The decision is a pure function
-  (`WindowsNative.IsFixedLocalVolume`); real SMB shares and USB sticks are Not assessed on the laptop.
+  (`WindowsNative.IsFixedLocalVolume`); USB-attached fixed disks (BusType USB, DriveType Fixed, characteristics 0x260020 on this laptop's D:, where every store fixture ran) are admitted; removable media are refused. Real SMB shares and removable USB sticks are Not assessed on the laptop.
 - *Crash-left claim.* A save refused because `.cfd-writer.claim` is in the folder shows the "Save is blocked" dialog (Ruling 253, W2-Q3 c,
   COPY-441), Save As and Cancel only; Clear unfinished save and its no-live-writer rule are deferred for both stores.
 
 ## 5. Publication, security, cleanup and durability
 
 ### Operation sequence and atomic replacement contract
+
+The overwrite admission of a non-private target amends this section: see the Ruling 253 amendment in section 4 ('Overwrite admission amends section 5').
 
 1. Snapshot bytes already supplied by `SaveRequest`; validate size/path and capability
    before mutation. Acquire/verify parent chain. For overwrite acquire the fixed

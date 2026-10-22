@@ -81,6 +81,10 @@ public static class FolderRefusalDialogTests
             Await(window.SaveToAsync(path));
             Need(File.Exists(path) && Directory.GetFileSystemEntries(folder).Length == 1, "the first save did not leave exactly the project");
             byte[] saved = File.ReadAllBytes(path);
+            var controller = ((ShellHost)window.Content!).Controller;
+            Await(controller.ApplySpanAsync("1400"));
+            Need(controller.IsDirty, "the span edit did not dirty the document");
+            string inUseLine = CfdWorkbench.Analysis.Labels.SaveRefusal("DOC-CONFLICT"); // COPY-414
             File.WriteAllBytes(Path.Combine(folder, ".cfd-writer.claim"), []);
             File.WriteAllBytes(Path.Combine(folder, ".cfd-" + Guid.NewGuid().ToString("D") + ".tmp"), [1, 2, 3]);
             var pending = window.SaveToAsync(path);
@@ -92,6 +96,7 @@ public static class FolderRefusalDialogTests
                 Dispatcher.UIThread.RunJobs(); Thread.Sleep(5);
             }
             Need(dialog!.Title == "Save is blocked", $"title '{dialog.Title}'");
+            Need(((ShellHost)window.Content!).StatusStrip.Text != inUseLine, "COPY-414 is shown behind the Save is blocked dialog");
             var panel = (StackPanel)dialog.Content!;
             var texts = panel.Children.OfType<TextBlock>().Select(text => text.Text ?? "").ToArray();
             Need(texts[0] == "An earlier save of this project didn't finish (the app may have closed unexpectedly). Your saved file is unchanged.", $"lead '{texts[0]}'");
@@ -104,6 +109,8 @@ public static class FolderRefusalDialogTests
             panel.Children.OfType<StackPanel>().Last().Children.OfType<Button>().Last().RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
             Await(pending);
             Need(!dialog.SaveAs, "Cancel answered Save As");
+            Need(((ShellHost)window.Content!).StatusStrip.Text != inUseLine, "COPY-414 is shown after the Save is blocked dialog closed");
+            Need(controller.IsDirty, "Cancel on the Save is blocked dialog cleaned the document");
             Need(File.ReadAllBytes(path).AsSpan().SequenceEqual(saved) && File.Exists(Path.Combine(folder, ".cfd-writer.claim")), "the refused save changed the folder");
             Need(UnfinishedSave.BlocksFolder(path), "BlocksFolder did not see the claim");
         }
