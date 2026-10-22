@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T17:45:15Z",
+  "generated": "2026-10-22T18:13:25Z",
   "audit": [
     {
       "actor": null,
@@ -42016,6 +42016,25 @@ window.AUDIT_DATA = {
       "tier": "T1",
       "started_at": "2026-10-22T17:06:19Z",
       "duration_seconds": 2336.0
+    },
+    {
+      "id": "al-01M5JD2QZB982C6T3Z84BFW1GM",
+      "shortname": "w2b-mx-idle",
+      "datetime": "2026-10-22T18:13:25Z",
+      "session": "w2b-mx",
+      "prompt": "wave 2 MX: idle re-measure of the size cap at 64 and 32 MB",
+      "summary": "Idle re-measure of the document size cap. 64 MB: open median 4,097 ms (over 3,000), save 1,298 ms, peak 1,812,115,456 bytes (over 1.5 GB). 32 MB: open 2,208 ms, save 732 ms, peak 1,012,297,728 bytes, all within budget. Constant stays 8,000,000; only the test-only CFD_MEASURE_CAP_BYTES and the proof were committed.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "started_at": "2026-10-22T18:07:43Z",
+      "duration_seconds": 342.0
     }
   ],
   "changes": [
