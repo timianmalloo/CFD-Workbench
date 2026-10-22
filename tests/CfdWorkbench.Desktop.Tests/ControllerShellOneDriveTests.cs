@@ -69,6 +69,9 @@ public static class ControllerShellOneDriveTests
         Need(!StartView.FailureMessage(failure, "x.cfdw.json").Contains("damaged", StringComparison.OrdinalIgnoreCase), "the cloud-only message says damaged");
     }
 
+    // Pure sentence mappings: they call no operating-system API, so they run on every host and need no host guard (TEST-FOREIGN-OS-BRANCH concerns OS calls).
+    private const bool ForWindows = true, ForOtherSystem = false;
+
     private static string Message(string code, string path, bool windows) =>
         StartView.FailureMessage(OpenFailure.ClassifyCode(code, path), Path.GetFileName(path), windows);
 
@@ -77,7 +80,7 @@ public static class ControllerShellOneDriveTests
     // Items 1 and 7: the Windows location sentence names every cause the store reports under one code, none of them "damaged".
     private static void RefusalWindows()
     {
-        string message = Message("DOC-UNSUPPORTED-PERSISTENCE", "x.cfdw.json", windows: true);
+        string message = Message("DOC-UNSUPPORTED-PERSISTENCE", "x.cfdw.json", windows: ForWindows);
         Need(!Has(message, "damaged"), "says damaged: " + message);
         Need(Has(message, "name or path") && Has(message, "cloud-synced") && Has(message, "network"), "a store cause is missing: " + message);
         Need(Has(message, "copy the project to a local folder"), "no remedy: " + message);
@@ -87,7 +90,7 @@ public static class ControllerShellOneDriveTests
     // Item 2: off Windows the same code is a truthful sentence about the location and system, with no Windows or OneDrive cause and no "damaged".
     private static void RefusalOffWindows()
     {
-        string message = Message("DOC-UNSUPPORTED-PERSISTENCE", "x.cfdw.json", windows: false);
+        string message = Message("DOC-UNSUPPORTED-PERSISTENCE", "x.cfdw.json", windows: ForOtherSystem);
         Need(!Has(message, "damaged") && !Has(message, "onedrive") && !Has(message, "windows"), "wrong cause: " + message);
         Need(Has(message, "can't open") && Has(message, "local folder"), "no statement and remedy: " + message);
     }
@@ -121,7 +124,7 @@ public static class ControllerShellOneDriveTests
     // Item 5: File Explorer on Windows, Finder on macOS (COPY-126 keeps its row).
     private static void RefusalAccessDenied()
     {
-        string windows = Message("DOC-ACCESS", "x.cfdw.json", windows: true), mac = Message("DOC-ACCESS", "x.cfdw.json", windows: false);
+        string windows = Message("DOC-ACCESS", "x.cfdw.json", windows: ForWindows), mac = Message("DOC-ACCESS", "x.cfdw.json", windows: ForOtherSystem);
         Need(!Has(windows, "finder") && Has(windows, "File Explorer") && Has(windows, "Properties") && Has(windows, "Security"), windows);
         Need(Has(mac, "in Finder") && !Has(mac, "File Explorer"), mac);
     }
