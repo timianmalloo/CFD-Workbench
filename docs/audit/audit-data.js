@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T07:47:41Z",
+  "generated": "2026-10-22T16:19:01Z",
   "audit": [
     {
       "actor": null,
@@ -41741,6 +41741,25 @@ window.AUDIT_DATA = {
         "speedup": 1.59,
         "peak_concurrency": 4
       }
+    },
+    {
+      "id": "al-01M5J6H8J63M5HKJKQ2EEAT8XE",
+      "shortname": "w2b-df",
+      "datetime": "2026-10-22T16:19:01Z",
+      "session": "w2b-df",
+      "prompt": "wave 2 DF: dimensional deltas, Match the blend, compatible fit designs",
+      "summary": "Track DF wave 2: three design notes committed on w2b-df. (1) a3d-compare.md section 12 + spec-1.7.8.md: dimensional dL and dD_i shown when the reference is the only block reason, coefficient deltas stay blocked, e not compared, nothing stored (derived on read). (2) add-station.md section 13 + spec-1.7.9.md: Match the blend, previewed change and residual on the Remove grid, no gate of its own; Remove after Match exact only with a common thickness peak, else the residual is the R2 promotion deviation. (3) compatible-fit.md: Ruling 73 fit refined to the as-built tree, sized at about 440 calls and 1.23M tokens planned (about 690 calls at the S1 overrun ratio); recommendation next wave. Open: DR-DF-1..9. check-docs exit 0 on each commit.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T15:58:46Z",
+      "duration_seconds": 1215.0
     }
   ],
   "changes": [
@@ -45333,6 +45352,60 @@ window.AUDIT_DATA = {
       "to": "opus-leader",
       "kind": "ruling",
       "ref": "req-01M5H7ZFWTNVV2KN609GRCSN30",
+      "session": "opus-owner"
+    },
+    {
+      "id": "mail-01M5J3BW6Q0YRAWP76KG3VD7QT",
+      "ts": "2026-10-22T15:23:39Z",
+      "from": "opus-leader",
+      "to": "opus-owner",
+      "kind": "decision-request",
+      "ref": "req-01M5J3BW6AST0H8GZA10M2QPBM",
+      "session": "opus-leader"
+    },
+    {
+      "id": "mail-01M5J3BWHFR00JY12M3J27KYTN",
+      "ts": "2026-10-22T15:23:39Z",
+      "from": "opus-leader",
+      "to": "opus-owner",
+      "kind": "decision-request",
+      "ref": "req-01M5J3BWGY15T8VXJRVR4X716F",
+      "session": "opus-leader"
+    },
+    {
+      "id": "mail-01M5J3F1FQ86AFXPVDCKSR36KQ",
+      "ts": "2026-10-22T15:25:22Z",
+      "from": "opus-owner",
+      "to": "opus-leader",
+      "kind": "ruling",
+      "ref": "req-01M5J3BW6AST0H8GZA10M2QPBM",
+      "session": "opus-owner"
+    },
+    {
+      "id": "mail-01M5J3FX69GQZBDBZRRK876BK4",
+      "ts": "2026-10-22T15:25:51Z",
+      "from": "opus-owner",
+      "to": "opus-leader",
+      "kind": "ruling",
+      "ref": "req-01M5J3BWGY15T8VXJRVR4X716F",
+      "session": "opus-owner"
+    },
+    {
+      "id": "mail-01M5J55Y4E317JY1X9XTGYM7JZ",
+      "ts": "2026-10-22T15:55:21Z",
+      "from": "opus-leader",
+      "to": "opus-owner",
+      "kind": "decision-request",
+      "ref": "req-01M5J55WS7WZWA8A3PX6647M4N",
+      "session": "opus-leader"
+    },
+    {
+      "id": "mail-01M5J57C7JJ59KQA7SPW5Q4MQD",
+      "ts": "2026-10-22T15:56:08Z",
+      "from": "opus-owner",
+      "to": "opus-leader",
+      "kind": "ruling",
+      "ref": "req-01M5J55WS7WZWA8A3PX6647M4N",
       "session": "opus-owner"
     }
   ]
