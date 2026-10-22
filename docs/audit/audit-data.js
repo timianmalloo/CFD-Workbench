@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T16:47:01Z",
+  "generated": "2026-10-22T16:55:47Z",
   "audit": [
     {
       "actor": null,
@@ -41861,12 +41861,58 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M5J84HMF9J6P96JX24GNNK68",
-      "shortname": "join-w2b-df",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-22T16:47:01Z",
-      "session": "pc-laptop-leader",
+      "done_when": "w2b-df merged on main with check-docs and verify-ruling-citations green, no pending marker in the five documents",
+      "duration_seconds": 27.0,
+      "fan_out": 0,
+      "goal": "land the DF design notes and amendments so AF and SF2 can dispatch from a design on main",
+      "id": "al-01M5J84HMF9J6P96JX24GNNK68",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of w2b-df into main",
+      "session": "pc-laptop-leader",
+      "shortname": "join-w2b-df",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-22T16:46:34Z",
       "summary": "DF revision 1 joined docs-only: a3d-compare section 12 (dimensional deltas, H1 axes limit, T1-T4 rows), add-station section 13 (Match the blend, whole-block ReplaceProfileBlock, four-station fixture, SF2 node list with the Sections speed-up under Ruling 262), compatible-fit deferred to the next wave; AM-1.7.8 and AM-1.7.9 accepted recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-22T15:59:56Z",
+      "duration_seconds": 149.0,
+      "id": "al-01M5J5EAW9JZZAGZ81HMBG7ATZ",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "wave 2 C1: approve copy rows 522-588; private preference folder on Windows; review conditions T1, T2, S1",
+      "session": "w2b-c1-copy-acl",
+      "shortname": "w2b-c1-copy-acl",
+      "skill": "implement",
+      "started_at": "2026-10-22T15:57:27Z",
+      "summary": "Wave 2 C1 closed over two dispatches. Part A approved copy rows COPY-522 to COPY-588 in DESIGN.md (status only, 67 rows). Part B made the Windows preference folder private (new folder private at creation; existing user-owned folder tightened in place; foreign-owned folder left unchanged, session-only). Review conditions: T1 AssertPrivateDirectory also asserts the allow ACE, mask 0x1F01FF and OI|CI flags; two descriptor mutants red, reverted. T2 the store-level session-only fallback (three call sites) is NOT ASSESSED in the proof, with the reason. S1 the Security confirmation replaces the open assumption, plus the elevated-owner advisory (Inferred).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M5J8MK2Y0NDHMWJGMC08C6XF",
+      "shortname": "join-w2b-c1",
+      "datetime": "2026-10-22T16:55:47Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of w2b-c1-copy-acl into main",
+      "summary": "C1 joined after its Adversary review and the hold's release (leader decision after crash loop C): the proposed copy rows COPY-522..588 approved by the operator (accept 4), PreferenceStore creates its folder with the owner-only descriptor D:P(A;OICI;FA;;;<sid>) and its red-first test, WindowsProjectStoreTests gains the ACL check recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -41875,8 +41921,8 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "land the DF design notes and amendments so AF and SF2 can dispatch from a design on main",
-      "done_when": "w2b-df merged on main with check-docs and verify-ruling-citations green, no pending marker in the five documents",
+      "goal": "land the approved copy rows and the preference-folder permissions fix on main",
+      "done_when": "w2b-c1-copy-acl merged on main with the integrated full ring green (a crashed Desktop child rerun alone per the leader's join rule) and the ten verify gates green",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -41884,8 +41930,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-22T16:46:34Z",
-      "duration_seconds": 27.0
+      "started_at": "2026-10-22T16:51:29Z",
+      "duration_seconds": 258.0
     }
   ],
   "changes": [
