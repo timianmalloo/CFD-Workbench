@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T01:11:58Z",
+  "generated": "2026-10-22T01:32:54Z",
   "audit": [
     {
       "actor": null,
@@ -41136,6 +41136,25 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T01:10:10Z",
       "duration_seconds": 107.0
+    },
+    {
+      "id": "al-01M5GKTQFMKWHFTGMBCMP0CK4C",
+      "shortname": "v1-verify-gates",
+      "datetime": "2026-10-22T01:32:54Z",
+      "session": "v1-verify-gates",
+      "prompt": "Track V1: run both verify gates on Windows ARM64 and write the receipt",
+      "summary": "Ran tools/verify-application-core.py and tools/verify-application-adapters.py on Windows ARM64 at 176c9540: both exit 4 (Not assessed, no dotnet launched).\nReceipt at docs/proof/verify-gates-2026-10-22/README.md; check-docs exit 0 after regenerating docs/docs-index.js.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T0",
+      "started_at": "2026-10-22T01:28:52Z",
+      "duration_seconds": 242.0
     }
   ],
   "changes": [
