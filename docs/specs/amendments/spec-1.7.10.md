@@ -2,7 +2,7 @@
 id: spec-amendments-1-7-10
 title: "Spec 1.7.10 amendment note — the 32 MB document cap (A8.5 parser caps, native-document boundary row)"
 type: spec
-status: proposed
+status: accepted
 owner: "@timianmalloo"
 phase: specification
 tags: [spec, amendments, security, size-cap, native-document, ruling-258, ruling-263]
@@ -14,7 +14,7 @@ review-by: 2027-01-31
 summary: >-
   Two proposed amendments to cfd-workbench-v1 that restate the 8 MB native-document limit as 32 MB (32,000,000 bytes),
   the value Ruling 263 set when it amended Ruling 258: the parser-caps line of the Security row and the "8 MB+ file"
-  fixture of the native-document boundary row. Proposed; the spec owner applies them.
+  fixture of the native-document boundary row. Accepted by Ruling 264 and applied to the spec in the same change.
 ---
 
 # Spec 1.7.10 amendment note — the 32 MB document cap

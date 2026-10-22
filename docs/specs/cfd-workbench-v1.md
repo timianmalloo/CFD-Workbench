@@ -1312,7 +1312,7 @@ RANS backend (tripped data for fully turbulent, untripped for a transition model
 | Usability | keyboard-only New → edit → save → inspect; UX-05 protocol; the persona falsifier |
 | Nav preset scope | `simplify:` two navigation presets ship (Workbench, Rhino) plus trackpad mode; Fusion, Onshape and Blender schemes are deferred — upgrade trigger: a UX-05 participant asks for their tool's scheme |
 | Accessibility | WCAG 2.2 AA for HTML; native proof = recorded VoiceOver and Narrator traces of harness check 6 (a station in the 3D viewport read as name, role and evaluated chord) on both OSes in `docs/proof/`; a toolkit VPAT is not accepted |
-| Security | boundary table A8.5 with negative tests; parser caps published (file ≤ 8 MB, line ≤ 4 kB, points ≤ 10⁵; assistant excerpts ≤ 4 kB each and ≤ 32 kB per prompt); fuzz corpus for DAT and native files; export and recovery writes never leave their chosen directory nor follow symlinks |
+| Security | boundary table A8.5 with negative tests; parser caps published (file ≤ 32 MB = 32,000,000 bytes, line ≤ 4 kB, points ≤ 10⁵; assistant excerpts ≤ 4 kB each and ≤ 32 kB per prompt); fuzz corpus for DAT and native files; export and recovery writes never leave their chosen directory nor follow symlinks |
 | Privacy | local by default; no telemetry egress — fixture: with a network monitor attached, a full F1–F5 walk with no key opens zero outbound connections; AI context opt-in and inspectable; rider mass is personal data with a stated purpose and no third-party egress |
 | Maintainability | testing floors A8.4; regression controls for signs, units, freshness, conversions |
 | Portability | macOS Apple silicon and Windows x64; Intel Mac and Windows ARM are open support-matrix decisions · *1.6: Windows x64 runtime qualification is deferred (M1 scope decision D2, 2026-09-25); Windows x64 stays a target platform, and M1 is not two-platform-complete until it resumes* |
@@ -1362,7 +1362,7 @@ the Proof Pack.
 
 | Boundary | What crosses | Validated where | Threat (STRIDE-lite) | Disposition | Negative test |
 |---|---|---|---|---|---|
-| Native document | JSON with history | parser with caps and schema | tampering, DoS | fail closed; original kept | tampered hash; 8 MB+ file |
+| Native document | JSON with history | parser with caps and schema | tampering, DoS | fail closed; original kept | tampered hash; file one byte over 32,000,000 bytes (refused, original kept) |
 | DAT import | text | two-layout detector | plausible wrong shape; injection via name line | quoted data; caps | Lednicer-as-Selig; instruction in name line |
 | Export writer | paths | path policy (Ruling 198): the folder chosen in the native save panel, followed as chosen; the app builds no path component | traversal, symlink | refuse a symlink at the target; temp created exclusive with a random name in that folder, flushed, published by rename | `../` name; symlink target; forced extension never overwrites |
 | Assistant | prompt out, JSON in | byte preview; redaction; schema + T0 validator | leakage, injection, over-spend | read-only tools; human Accept; caps | instruction in knowledge snippet; out-of-range field; a solver log containing "apply this repair and run" → disposition pending, no Run |

@@ -9801,7 +9801,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "caf68851c0a676fb4aa94ef22cfba51c7f7c5c7d427007a2055fd8c2b02a30a4"
+      "sourceSha256": "6f691e1b5927e651fc271d0fc5b45f87bcee8a3b4ff03b02bb673a0da7ad3ee2"
     },
     {
       "id": "kb-hw-glossary",
@@ -22973,12 +22973,12 @@ window.DOCS_INDEX = {
       "path": "docs/specs/amendments/spec-1.7.10.md",
       "title": "Spec 1.7.10 amendment note — the 32 MB document cap (A8.5 parser caps, native-document boundary row)",
       "type": "spec",
-      "status": "proposed",
+      "status": "accepted",
       "owner": "@timianmalloo",
       "phase": "specification",
       "reviewBy": "2027-01-31",
       "reviewSuggested": [],
-      "summary": "Two proposed amendments to cfd-workbench-v1 that restate the 8 MB native-document limit as 32 MB (32,000,000 bytes), the value Ruling 263 set when it amended Ruling 258: the parser-caps line of the Security row and the \"8 MB+ file\" fixture of the native-document boundary row. Proposed; the spec owner applies them.",
+      "summary": "Two proposed amendments to cfd-workbench-v1 that restate the 8 MB native-document limit as 32 MB (32,000,000 bytes), the value Ruling 263 set when it amended Ruling 258: the parser-caps line of the Security row and the \"8 MB+ file\" fixture of the native-document boundary row. Accepted by Ruling 264 and applied to the spec in the same change.",
       "tags": [
         "spec",
         "amendments",
@@ -23003,7 +23003,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "191acd3e8635d2199db31a92e394e35a0ef6c0651e0d5a8fc60a756ebf53ecfa"
+      "sourceSha256": "1dedda168518b603eae36db1d0b537b9b98bb6dd8b5f135e4026a22f64f10638"
     },
     {
       "id": "spec-amendments-1-7-2",
@@ -23662,7 +23662,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]\nA -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]\nL --> F\nB -->|Maximize| X[Pane fills the window; the rest inert]\nX -->|Escape or restore| B\nB -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]\nJ2 --> B\nB -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]\nB -->|Float| F[Float over the model area]\nC --> B\nF -->|Escape or dock back| B\nF -->|Alt and arrows or Position menu| F\nF -->|A control under the float takes focus| G{A corner of the model area clears it?}\nG -->|Yes| H[Float moves to the nearest clear corner and says so]\nG -->|No| I[Float docks back where it came from and says so]\nH --> F\nI --> B\nB -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]\nJ --> B\nB -->|Switch workspace| K[That workspace's remembered layout]\nK --> B\nB -->|Reset layout| A"
         }
       ],
-      "sourceSha256": "816ea3e6d375974b107d73d28836a4fab11a5b6d19266e3e1db44d3a27c5cae6"
+      "sourceSha256": "b4bee8fd45891dedd5e6f8864090ab7623b54dd4e870f81229ce7b660d7f93d5"
     },
     {
       "id": "spec-foildsl",
@@ -24180,5 +24180,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "6cf556bd24faee3f50c488d354bc2a9b0bf82c3b31ce5b525c102476befb873a"
+  "graphSha256": "4f3c102467128695a03e5208c7359b4d2024252b5a7e33ad4fe300bf5c09a232"
 };
