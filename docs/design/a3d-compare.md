@@ -283,16 +283,15 @@ The bound, against `NativeProject.MaxBytes` = 8,000,000 bytes (Verified, line 21
 
 | Item | Bytes | Basis |
 |---|---|---|
-| one record (three lines) | ≈ 530 | the §1.4 JSON: a 290-byte shell (id, hash, rule, two ids, measured on the literal) + 3 × ≈ 78-byte lines |
+| one record (three lines) | 859 (measured) | the §1.4 JSON in the indented document, measured by the size test (`Discrepancy_PinnedRuns_ReachDocSize_RefusedNotCorrupted`, the `MEASURED` line) |
 | one estimator run | ≈ 1,500 | a manifest with no strips (Inferred from the §5.6 manifest of `area3-analysis.md`) |
-| one VLM + strip run, 64 × 2 strips | ≈ 60,000 | 128 strips × ≈ 450 bytes (about 20 numbers, member names and shortest round-trip digits) + manifest. **Inferred** from the `StripLoad` shape (`RunRecord.cs`); the size test measures it |
+| one VLM + strip run, 64 × 2 strips | 109,991 (measured, a **lower bound**) | 128 strips in the indented document, measured by the size test. The test strips carry 10-digit values; a solver prints up to 17 digits, which gives about 127 kB per run and about 63 runs in `MaxBytes` (**Inferred**, a digit-count model) |
 
-Records alone would need ≈ 15,000 to reach `MaxBytes`; they are not the constraint. **Pinned runs are.** About
-133 VLM runs fit in 8 MB. Retention already keeps the reachable runs and 20 others per tier; each recorded revision
-pair can pin up to two more VLM runs that retention would otherwise prune. So **≈ 55 revision pairs with disjoint runs**
-(≈ (133 − 20 − reachable) / 2; Inferred) bring a document to `DOC-SIZE` — fewer than 200, so this design does not
+Records alone would need ≈ 15,000 to reach `MaxBytes`; they are not the constraint. **Pinned runs are.** About 72 VLM runs fit in 8 MB at the measured 109,991 bytes (8,000,000 / 109,991; about 63 at solver precision, Inferred). Retention already keeps the reachable runs and 20 others per tier; each recorded revision
+pair can pin up to two more VLM runs that retention would otherwise prune. So a few tens of revision pairs with disjoint runs
+(about (72 − 20 − reachable) / 2 at the lower bound; Inferred) bring a document to `DOC-SIZE` — fewer than 200, so this design does not
 invent a cap: **DR-A3D-6** (§10). A tier pair pins one VLM run and one ≈ 1.5 kB estimator run, so it costs at most
-≈ 61 kB.
+about 111 kB (lower bound).
 
 **At `DOC-SIZE` the user sees:** a refused record — the panel's error card with A3D-COPY-23 (*"Comparison not
 recorded — the document is at its size limit (DOC-SIZE). No difference is shown."*). Evaluate is refused the same
@@ -376,8 +375,13 @@ A3 where no tier reports one, always reads **"none — no tier reports its uncer
   sweep extension, as given in DATCOM §4.1.3.2 and in Raymer, *Aircraft Design: A Conceptual Approach*, eq. 12.6 (with
   β = 1 and the section-efficiency factor η = 1). At Λ = 0 it equals the Helmbold slope: **4.827235 /rad at A = 7.5**.
   Its behaviour on a swept hydrofoil is **Inferred** (no swept fixture has been compared against it in this repo).
-- **CL** = CLα (α − ᾱ_L0), with ᾱ_L0 the chord-weighted mean of the section estimator's zero-lift angles at the run's
-  `sectionEtas` (`SectionEstimator.Estimate(...).AlphaL0Deg`, the call `MethodRecord.cs` line 84 already makes; Verified).
+- **CL** = CLα (α − (ᾱ_L0 − ε̄)), with ᾱ_L0 the chord-weighted mean of the section estimator's zero-lift angles at the run's
+  `sectionEtas` (`SectionEstimator.Estimate(...).AlphaL0Deg`, the call `MethodRecord.cs` line 84 already makes; Verified)
+  and ε̄ the chord-weighted mean geometric twist at the same stations, nose-up positive as the lattice reads it (strip
+  α_eff = α + twist − α_i). Chord and twist are the placed frame's (`Placement.Sections`, the lattice's own source), never a
+  second definition (A3d-1 repair, review condition 1). The Λ_c/2 form is DATCOM 4.1.3.2 at β = 1, κ = 1 (Raymer's eq. 12.6
+  is the same form on the maximum-thickness-line sweep); Λ_c/2 is the straight root-to-tip mid-chord line, an approximation on
+  a curved planform.
 - **CDi** = CL² / (π A) — elliptic loading assumed; planar lower bound on induced drag (DR-ANA-11 (a)). **e = 1**, labelled.
 - Λ_c/2 is read from the accepted planform. `assume:` Core's `WingEstimates` (or the planform it reads) can give the
   mid-chord sweep. Confirms: the A3d-1 build opens `WingEstimates`; if it cannot, A3d-1 computes it from the planform
@@ -540,7 +544,7 @@ Each column header carries the tier chip (COPY-213 / -214), method + version and
 
 ### 6.1 Telemetry
 
-**Per save (Ruling 251).** Every save emits the pinned-run count and the save image's byte size (on the existing `analysis.prune` save-time event, through `CompareEvent` fields `pinnedRuns` and `documentBytes`); a value not measured reads "not recorded", never zero. A `DOC-SIZE` refusal in a document that holds records is emitted with its `pinnedRuns` count, so it can be told apart from an ordinary size refusal.
+**Per save (Ruling 251).** Every save emits the pinned-run count and the save image's byte size (on the `analysis.save` event, emitted on every save of a document that holds runs, and on `analysis.compare`; a `DOC-SIZE` refusal is `analysis.size`; through `CompareEvent` fields `pinnedRuns` and `documentBytes`); a value not measured reads "not recorded", never zero. A `DOC-SIZE` refusal in a document that holds records is emitted with its `pinnedRuns` count, so it can be told apart from an ordinary size refusal.
 
 `analysis.compare` through the session's event queue. The event's outcome string is `recorded` · `read` ·
 `blocked-reference` · `blocked-point` · `blocked-water` · `refused`; its fields are a `CompareEvent` record in the new
@@ -712,7 +716,7 @@ commands; S1 builds after A3 joins. A3 → D1: a theme row in `ShellWindowTests.
 | **DR-A3D-3** | Reconcile incompatible references | (a) block every numeric δ (the spec clause); every planform-changing revision compare is blocked · (b) re-express CL and CDi on the base reference · (c, from the verdict) δ on dimensional L and D_i at an equal point and water (the same arithmetic as (b)) | A5.7 "until reconciled"; e is not re-expressible | **(a)** for A3d; (c) a recorded follow-up, not built | **settled — Ruling 250 Q3 (a); (c) is a next step outside this wave for the operator** |
 | **DR-A3D-4** | Where the record's types and checks live | (a) in `RunRecord.cs` under a header exception · (b) a seam request to the finished STO track · (c, from the verdict) a new Core file with its own header; `RunRecord.cs` gains only the member and one call | `RunRecord.cs` header lines 8–12 | **(c)** | **settled — Ruling 250 Q4 (c)** |
 | **DR-A3D-5** | Different operating points | (a) block δ, with water as its own reason · (b) allow δ with a note | spec line 259 grain has one operating point; `WaterRecord` ≠ `OperatingPoint` | **(a)** | **not ruled** (outside Ruling 250's request); the reading stands |
-| **DR-A3D-6** | Records pin runs with no unpin path; ≈ 55 disjoint revision pairs reach `MaxBytes` (§1.8, Inferred until the size test measures it) | (a) an explicit **Record** action: viewing never stores; the user records a pair (changes "each compared pair stores" to "each recorded pair") · (b) a record-retention rule: keep the latest N records per tier pair kind, tombstone the rest and release their pins · (c) accept: no cap; `DOC-SIZE` refuses, the `pinnedRuns` event measures real use | §1.8 bound; `RetainedOthersPerTier` = 20; spec line 259 "materialised because it is COMMIT-01 promotion evidence" | **(c)** for A3d ; revisit at **the first `pinnedRuns` reading above 20 or the first `DOC-SIZE` refusal in a document that holds records, whichever comes first** (the §6.1 event carries the document byte size). Residual risk (Inferred, the Data & Persistence confirmation): with no unpin and no record pruning, a document that reaches `DOC-SIZE` through pinned runs can never record a run or a comparison again, which is why the trigger fires on that event. (b) is refused by the Data & Persistence lens (it deletes COMMIT-01 evidence); (a) is the preferred escape if the trigger fires | **settled — Ruling 251 (c)**: accept and measure; every compatible compared pair stores its record, a blocked pair stores nothing; referenced runs kept by identity on top of the 20 per tier, never pruned or tombstoned; (b) refused as a contract change; (a) adopted only by the operator on the leader's request after the trigger fires. **Residual risk accepted for A3d** |
+| **DR-A3D-6** | Records pin runs with no unpin path; a few tens of disjoint revision pairs reach `MaxBytes` (§1.8: 109,991 bytes per run measured, a lower bound; about 72 runs) | (a) an explicit **Record** action: viewing never stores; the user records a pair (changes "each compared pair stores" to "each recorded pair") · (b) a record-retention rule: keep the latest N records per tier pair kind, tombstone the rest and release their pins · (c) accept: no cap; `DOC-SIZE` refuses, the `pinnedRuns` event measures real use | §1.8 bound; `RetainedOthersPerTier` = 20; spec line 259 "materialised because it is COMMIT-01 promotion evidence" | **(c)** for A3d ; revisit at **the first `pinnedRuns` reading above 20 or the first `DOC-SIZE` refusal in a document that holds records, whichever comes first** (the §6.1 event carries the document byte size). Residual risk (Inferred, the Data & Persistence confirmation): with no unpin and no record pruning, a document that reaches `DOC-SIZE` through pinned runs can never record a run or a comparison again, which is why the trigger fires on that event. (b) is refused by the Data & Persistence lens (it deletes COMMIT-01 evidence); (a) is the preferred escape if the trigger fires | **settled — Ruling 251 (c)**: accept and measure; every compatible compared pair stores its record, a blocked pair stores nothing; referenced runs kept by identity on top of the 20 per tier, never pruned or tombstoned; (b) refused as a contract change; (a) adopted only by the operator on the leader's request after the trigger fires. **Residual risk accepted for A3d** |
 
 **Blocked pairs store nothing — settled** by the Data & Persistence confirmation (cycle 2): Compatible / blocked is derived and never stored, a blocked pair has no δ and is no COMMIT-01 evidence, and it would pin two runs for nothing. Spec note AM-1.7.7-1 says so.
 A later blocked-record shape would be additive (runs are immutable, so a blocked pair stays blocked).

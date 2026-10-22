@@ -22,6 +22,7 @@ public partial class AnalysisPanel : UserControl
         OpenInMainAreaButton.Content = Labels.OpenInMainArea;
         AutomationProperties.SetName(OpenInMainAreaButton, Labels.OpenInMainArea);
         OpenInMainAreaButton.Click += (_, _) => OpenSectionRequested?.Invoke();
+        CompareTab.Header = Labels.CompareTab;
         PanelTabs.SelectionChanged += (_, _) => UpdateHeight();
         // The slot height is the Bottom region's preset size (LayoutCodec Chrome: 190), 150 in a short window (HeightFor);
         // the skeleton bars are static placeholders.
@@ -87,6 +88,9 @@ public partial class AnalysisPanel : UserControl
 
     public LoadingChart LoadingView => loading;
 
+    /// <summary>The Compare tab's pane (A3d).</summary>
+    public ComparePane ComparePaneView => ComparePaneHost;
+
     /// <summary>The run key of the view last bound (null before a result), for the tests and the shell.</summary>
     public string? BoundRunKey { get; private set; }
 
@@ -113,6 +117,15 @@ public partial class AnalysisPanel : UserControl
         UpdateHeight();
         Fill(LoadsBody, view, ("Loads", "loads-table"), ("Strips", "strips-table"));
         Fill(ProvenanceBody, view, ("Conditions", "conditions-table"), ("Labels", "labels-table"), ("Provenance", "provenance-table"));
+        // The Compare pane is bound only while its tab is shown or requested: its derivations are not free.
+        bool compareRequested = controller.CompareTabRequested;
+        if (compareRequested) PanelTabs.SelectedItem = CompareTab;
+        if (ReferenceEquals(PanelTabs.SelectedItem, CompareTab)) ComparePaneHost.Bind(controller);
+        if (compareRequested)
+        {
+            ComparePaneHost.FocusBase();
+            controller.ConsumeCompareRequest();
+        }
     }
 
     // One line: the shown station, cl (panel) and -Cp_min of the Section document's content, then the action that opens it.

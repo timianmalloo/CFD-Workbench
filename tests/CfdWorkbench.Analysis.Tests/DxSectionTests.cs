@@ -740,7 +740,7 @@ internal static class DxSectionTests
 
     // Codes that are thrown, refused or kept in the run store and never become a cell's text.
     private static readonly string[] NotACell = ["ANA-INPUT-", "ANA-FIND-", "ANA-FREE-SURFACE-", "ANA-PANEL-", "ANA-SOLVE-", "ANA-TIP-", "ANA-UNEXPECTED",
-        "ANA-CANCELLED", "ANA-NONFINITE", "ANA-PROFILE-DRAG-MISSING-CD", "ANA-CAV-INPUT", "ANA-EDIT-INERT", "ANA-POLAR-CONSISTENCY-", "ANA-POLAR-", "ANA-SECTION-", "ANA-CAV-DEPTH-NOT-SET-"];
+        "ANA-CANCELLED", "ANA-NONFINITE", "ANA-PROFILE-DRAG-MISSING-CD", "ANA-CAV-INPUT", "ANA-EDIT-INERT", "ANA-POLAR-CONSISTENCY-", "ANA-POLAR-", "ANA-SECTION-", "ANA-CAV-DEPTH-NOT-SET-", "ANA-CMP-"]; // ANA-CMP-*: Discrepancy line codes (A3d); the Compare pane words them through Labels, a cell never shows the raw code
 
     private static void ReasonCodesComplete()
     {

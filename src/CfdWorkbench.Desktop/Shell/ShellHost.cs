@@ -1078,6 +1078,7 @@ public sealed class ShellHost : Grid
         if (id.StartsWith("view.comb", StringComparison.Ordinal))
             return Controller.Inspection is not null;
         if (ViewCommands.Handles(id)) return ViewCommands.CanRun(id, Controller);
+        if (id is "analysis.compare" or "analysis.compare-tiers") return Controller.CanCompare;
         if (!id.StartsWith("point.", StringComparison.Ordinal)) return true;
         if (id is "point.add" or "point.remove" or "point.rebuild") return PointCommandReason(id) is null;
         var point = SelectedPoint();
@@ -1183,6 +1184,12 @@ public sealed class ShellHost : Grid
                 }
                 Controller.CombVisible = !Controller.CombVisible;
                 Report(new StatusReport(Controller.CombVisible ? "Curvature comb on." : "Curvature comb off."));
+                return;
+            case "analysis.compare":
+                if (Controller.CanCompare) Controller.OpenCompare();
+                return;
+            case "analysis.compare-tiers":
+                if (Controller.CanCompare) await Controller.CompareWithEstimatorAsync();
                 return;
             case "view.comb-larger" or "view.comb-smaller" or "view.comb-auto" or "view.comb-denser" or "view.comb-sparser":
                 RunCombVerb(id);

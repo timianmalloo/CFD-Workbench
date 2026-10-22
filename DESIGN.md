@@ -856,6 +856,37 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-519 | Manufacturing: not assessed (no process chosen) — approved — Ruling 196 (EX46: the second line of the trailing-edge row) |
 | COPY-520 | mm, unscaled (in the file name) — approved — Ruling 204 (the STL Unit row) |
 | COPY-521 | mm, unscaled (the unit is set in the file) — approved — Ruling 204 (the 3MF Unit row) |
+| COPY-522 | Compare — proposed — A3d Compare (A3D-COPY-1: the Analysis panel tab header; design a3d-compare.md section 6) |
+| COPY-523 | Compare runs… — proposed — A3d Compare (A3D-COPY-2: the command analysis.compare; design a3d-compare.md section 6) |
+| COPY-524 | Compare with estimator — proposed — A3d Compare (A3D-COPY-3: the command analysis.compare-tiers and the empty-state button; design a3d-compare.md section 6) |
+| COPY-525 | Base run — proposed — A3d Compare (A3D-COPY-4: the first picker label; design a3d-compare.md section 6) |
+| COPY-526 | Compared run — proposed — A3d Compare (A3D-COPY-4: the second picker label; design a3d-compare.md section 6) |
+| COPY-527 | r<n> · <tier> · α <a>° · V <v> <unit> · <Current | Historical> — proposed — A3d Compare (A3D-COPY-5: a picker option; design a3d-compare.md section 6) |
+| COPY-528 | Compare needs two Completed runs. Evaluate another revision, or compare with the estimator. — proposed — A3d Compare (A3D-COPY-6: the no-second-run state; design a3d-compare.md section 6) |
+| COPY-529 | Δ blocked — reference quantities differ: <fields>. Inputs are shown side by side; no difference is computed. — proposed — A3d Compare (A3D-COPY-7: the reference block; design a3d-compare.md section 6) |
+| COPY-530 | Δ blocked — the runs are at different operating points: <fields>. Inputs are shown side by side; no difference is computed. — proposed — A3d Compare (A3D-COPY-8: the operating-point block; design a3d-compare.md section 6) |
+| COPY-531 | Tiers disagree: δ = <v> — Discrepancy record stored · value preferred by reported uncertainty: <tier> — proposed — A3d Compare (A3D-COPY-9: the tier headline, spec line 2306 verbatim; design a3d-compare.md section 6) |
+| COPY-532 | Revisions compared: δ CL = <v> — Discrepancy record stored — proposed — A3d Compare (A3D-COPY-10: the revision headline; design a3d-compare.md section 6) |
+| COPY-533 | none — no tier reports its uncertainty — proposed — A3d Compare (A3D-COPY-11: the <tier> slot of the tier headline in A3; design a3d-compare.md section 6) |
+| COPY-534 | Not compared — the estimator assumes elliptic loading (e = 1) — proposed — A3d Compare (A3D-COPY-11b: the e delta cell; design a3d-compare.md section 6) |
+| COPY-535 | Each value is its own run's result. Nothing is averaged or ranked. — proposed — A3d Compare (A3D-COPY-12: the footnote; design a3d-compare.md section 6) |
+| COPY-536 | Comparison recorded — proposed — A3d Compare (A3D-COPY-13: the status of a new record; design a3d-compare.md section 6) |
+| COPY-537 | Comparison read — recorded earlier — proposed — A3d Compare (A3D-COPY-14: the status of a key hit, either order; design a3d-compare.md section 6) |
+| COPY-538 | Historical runs compare as recorded: δ is between the two stored results. — proposed — A3d Compare (A3D-COPY-15: the Historical note; design a3d-compare.md section 6) |
+| COPY-539 | Same q · S_ref: L and D_i differ by the same fraction as CL and CDi. — proposed — A3d Compare (A3D-COPY-16: under L and D_i; design a3d-compare.md section 6) |
+| COPY-540 | A failed run has no values to compare. Choose a Completed run. — proposed — A3d Compare (A3D-COPY-17: a Failed run selected; design a3d-compare.md section 6) |
+| COPY-541 | Unavailable — a compared run failed its check — proposed — A3d Compare (A3D-COPY-18: integrity, run; design a3d-compare.md section 6) |
+| COPY-542 | Unavailable — Discrepancy record no longer reproduces from its runs — proposed — A3d Compare (A3D-COPY-19: integrity, record; design a3d-compare.md section 6) |
+| COPY-543 | Evaluating the estimator… — proposed — A3d Compare (A3D-COPY-20: loading; design a3d-compare.md section 6) |
+| COPY-544 | Undefined — base value is 0 — proposed — A3d Compare (A3D-COPY-21: a delta cell; design a3d-compare.md section 6) |
+| COPY-545 | Undefined — base value below the comparison floor (<floor>) — proposed — A3d Compare (A3D-COPY-22: a delta cell; design a3d-compare.md section 6) |
+| COPY-546 | Comparison not recorded — <reason> (<code>). No difference is shown. — proposed — A3d Compare (A3D-COPY-23: the error card; design a3d-compare.md section 6) |
+| COPY-547 | Unavailable — <quantity> not computed in <run label> — proposed — A3d Compare (A3D-COPY-24: a value cell; design a3d-compare.md section 6) |
+| COPY-548 | Δ blocked — the runs use different water: <fields>. Inputs are shown side by side; no difference is computed. — proposed — A3d Compare (A3D-COPY-25: the water block; design a3d-compare.md section 6) |
+| COPY-549 | includes the estimator's elliptic loading assumption (e = 1) — proposed — A3d Compare (A3D-COPY-26: the CDi delta cell when either run is the estimator; design a3d-compare.md section 6) |
+| COPY-550 | estimator, not validated — proposed — A3d Compare (A3D-COPY-27: the estimator method label; design a3d-compare.md section 6) |
+| COPY-551 | Undefined — e is ill-conditioned here (CL or CDi undefined or below its floor) — proposed — A3d Compare (A3D-COPY-28: the e delta cell; design a3d-compare.md section 6) |
+| COPY-552 | Unavailable — Discrepancy record uses a compare rule this version does not know (<rule id> <version>) — proposed — A3d Compare (A3D-COPY-29: the record, ANA-CMP-RULE-UNKNOWN; design a3d-compare.md section 6) |
 
 <!-- COPY-479 to COPY-519 are Ruling 196's COPY-EX ids; no Export id is reserved any more (COPY-480 EX07, the 3MF format row, landed with the 3MF slice). An id with a suffix (EX10a, EX13a, EX14a, EX23a, EX25a, EX45a) shares its numeric id's row. -->
 
