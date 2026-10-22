@@ -81,7 +81,7 @@ public static class ControllerShellOneDriveTests
     private static void RefusalWindows()
     {
         string message = Message("DOC-UNSUPPORTED-PERSISTENCE", "x.cfdw.json", windows: ForWindows);
-        Need(!Has(message, "damaged"), "says damaged: " + message);
+        Need(!Has(message, "damaged") && !Has(message, "windows can't use"), "blames damage or Windows: " + message);
         Need(Has(message, "name or path") && Has(message, "cloud-synced") && Has(message, "network"), "a store cause is missing: " + message);
         Need(Has(message, "copy the project to a local folder"), "no remedy: " + message);
         Need(message.EndsWith("\nCode: DOC-UNSUPPORTED-PERSISTENCE", StringComparison.Ordinal), "no code line: " + message);
