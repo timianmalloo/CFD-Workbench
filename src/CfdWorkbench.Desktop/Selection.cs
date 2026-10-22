@@ -6,6 +6,7 @@ public abstract record Selection
     public sealed record None : Selection;                                   // no foil open
     public sealed record Foil : Selection;                                   // foil open, nothing picked
     public sealed record Station(int Index, double Eta) : Selection;         // an assignment, by index + exact η
+    public sealed record Slice(double Eta) : Selection;                      // an inspection slice: derived, not saved, not undoable (S1)
     public sealed record Points(IReadOnlyList<PointRef> Items) : Selection;  // 1..n points
 }
 

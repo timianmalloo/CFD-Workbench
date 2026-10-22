@@ -75,6 +75,8 @@ public static class NativeMenuBuilder
                 "Redo" => "edit.redo",
                 "Add point…" => "point.add",
                 "Remove point" => "point.remove",
+                "Add station…" => "station.add",
+                "Remove station" => "station.remove",
                 var title when title?.StartsWith("Rebuild ", StringComparison.Ordinal) == true => "point.rebuild",
                 _ => null
             };
@@ -86,7 +88,7 @@ public static class NativeMenuBuilder
                 item.Header = curve is not null && PropertiesView.Curves.TryGetValue(curve, out var rows)
                     ? $"Rebuild {rows.Name.ToLowerInvariant()}…" : "Rebuild curve…";
             }
-            item.IsEnabled = id.StartsWith("point.", StringComparison.Ordinal) ? host?.CanRun(id) == true : canExecute(id);
+            item.IsEnabled = id.StartsWith("point.", StringComparison.Ordinal) || id.StartsWith("station.", StringComparison.Ordinal) ? host?.CanRun(id) == true : canExecute(id);
             (item.Command as DelegateCommand)?.RaiseCanExecuteChanged();
         }
     }
@@ -144,7 +146,7 @@ public static class NativeMenuBuilder
     }
 
     private static bool IsPaneCommand(string id) =>
-        id.StartsWith("point.", StringComparison.Ordinal) || id.StartsWith("view.text-", StringComparison.Ordinal) ||
+        id.StartsWith("point.", StringComparison.Ordinal) || id.StartsWith("station.", StringComparison.Ordinal) || id.StartsWith("view.text-", StringComparison.Ordinal) ||
         id.StartsWith("view.comb", StringComparison.Ordinal) || CommandTable.UnitsOf(id) is not null || ViewCommands.Handles(id) || ShellHost.IsShellCommand(id);
 
     /// <summary>The View submenus built from the table after Fit Selection (M1.2b2 §5.2), in this order.</summary>

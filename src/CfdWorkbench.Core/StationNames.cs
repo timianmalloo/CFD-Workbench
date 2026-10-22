@@ -5,6 +5,8 @@ namespace CfdWorkbench.Core;
 /// <summary>
 /// The one rule that names an authored station: Root at eta 0, Tip at eta 1, otherwise "Station n" where n is the 1-based position
 /// among the authored stations. The app's views, the section edits and the CLI's <c>--station</c> all read it here.
+/// Adding or removing a station renumbers the labels after it. Add station names the new profile by this rule at the new index (a profile
+/// name is an identity and does not renumber later), with a <c>-k</c> suffix on a collision.
 /// </summary>
 public static class StationNames
 {

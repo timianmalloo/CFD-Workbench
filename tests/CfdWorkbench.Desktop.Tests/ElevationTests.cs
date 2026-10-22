@@ -283,6 +283,80 @@ public static class ElevationTests
             if (!DevicePixel.HoldsHalfOf(f.NearestAt(f.Side, new Point(chip.Bounds.Left + 0.5, chip.Bounds.Center.Y), station, 1), station, f.Brush("ViewportBrush"))) throw new Exception("The chip has no station border");
         });
 
+        DesktopChecks.Check("Elevation_Slice_FrontDashedLine_SideDashedOutlineAndChip", () =>
+        {
+            using var f = new Fixture();
+            StationDesktopTests.UseCoarseGrid(f.Controller);
+            Pump(() => !f.Controller.SurfaceUpdating, "the mesh");
+            f.Controller.PlaceSliceTyped("35 %");
+            f.Settle();
+            var station = f.Brush("PlanSelectionBrush");
+            (int Hit, int Miss) Along(ElevationView view, Point a, Point b)
+            {
+                int hit = 0, miss = 0;
+                int steps = (int)Math.Ceiling(Point.Distance(a, b));
+                for (int i = 0; i <= steps; i++)
+                {
+                    var at = a + (b - a) * (steps == 0 ? 0 : (double)i / steps);
+                    if (Distance(f.NearestAt(view, at, station, 1), station) <= 60) hit++; else miss++;
+                }
+                return (hit, miss);
+            }
+            f.Shoot();
+            var lines = f.Front.SliceLines();
+            if (lines.Count != 2) throw new Exception("Front has no slice line on both halves: " + lines.Count);
+            // The line crosses the foil's fill, so it is told from the fill by the same column 6 px aside.
+            (int Dash, int Gap) Front(Point a, Point b)
+            {
+                int dash = 0, gap = 0, steps = (int)Math.Ceiling(Point.Distance(a, b));
+                for (int i = 0; i <= steps; i++)
+                {
+                    var at = a + (b - a) * (steps == 0 ? 0 : (double)i / steps);
+                    bool on = Distance(f.NearestAt(f.Front, at, station, 1), station) <= 60;
+                    bool aside = Distance(f.NearestAt(f.Front, at + new Vector(6, 0), station, 1), station) <= 60;
+                    if (aside) continue;
+                    if (on) dash++; else gap++;
+                }
+                return (dash, gap);
+            }
+            var front = Front(lines[0].Top, lines[0].Bottom);
+            if (front.Dash < 3 || front.Gap < 1) throw new Exception($"Front slice line is not dashed: {front.Dash} station px, {front.Gap} gaps");
+            if (f.Side.SliceOutline() is not { } outline) throw new Exception("Side has no slice outline");
+            int outlineHit = 0, outlineMiss = 0;
+            for (int k = 1; k < outline.Length; k++)
+            {
+                var run = Along(f.Side, outline[k - 1], outline[k]);
+                outlineHit += run.Hit;
+                outlineMiss += run.Miss;
+            }
+            if (outlineHit < 20 || outlineMiss < 5) throw new Exception($"Side slice outline is not dashed: {outlineHit} station px, {outlineMiss} gaps");
+            if (f.Side.SliceChip() is not { } chip || !chip.Text.StartsWith("Slice · η 35.0 % · ", StringComparison.Ordinal)) throw new Exception("Side has no slice chip");
+            var top = Along(f.Side, new Point(chip.Bounds.Left + 4, chip.Bounds.Top + .5), new Point(chip.Bounds.Right - 4, chip.Bounds.Top + .5));
+            if (top.Hit < 6) throw new Exception($"The Side chip's dashed border is not drawn ({top.Hit} px)");
+            f.Controller.ClearSlice();
+            f.Shoot();
+            if (f.Front.SliceLines().Count != 0 || f.Side.SliceOutline() is not null || f.Side.SliceChip() is not null) throw new Exception("A cleared slice is still described");
+            var gone = Front(lines[0].Top, lines[0].Bottom);
+            if (gone.Dash > 0) throw new Exception($"A cleared slice is still drawn in Front ({gone.Dash} px)");
+            var goneSide = Along(f.Side, outline[0], outline[outline.Length / 2]);
+            if (goneSide.Hit > 1) throw new Exception($"A cleared slice is still drawn in Side ({goneSide.Hit} px)");
+        });
+
+        DesktopChecks.Check("Elevation_SlicePlaceFront_PressDragOnSpanAxis", () =>
+        {
+            using var f = new Fixture();
+            StationDesktopTests.UseCoarseGrid(f.Controller);
+            Pump(() => !f.Controller.SurfaceUpdating, "the mesh");
+            var axis = f.Front.SliceAxisRect;
+            double y = axis.Center.Y;
+            var pointer = f.Press(f.Front, new Point(f.Front.LaneX(.35)!.Value, y));
+            if (f.Controller.Selection is not Selection.Slice first || Math.Abs(first.Eta - .35) > .005) throw new Exception("Press on the span axis: " + f.Controller.Selection);
+            f.Move(f.Front, pointer, new Point(f.Front.LaneX(.6)!.Value, y));
+            if (f.Controller.Selection is not Selection.Slice moved || Math.Abs(moved.Eta - .6) > .005) throw new Exception("Drag on the span axis: " + f.Controller.Selection);
+            f.Release(f.Front, pointer, new Point(f.Front.LaneX(.6)!.Value, y));
+            if (f.Controller.Selection is not Selection.Slice) throw new Exception("Release dropped the slice");
+        });
+
         DesktopChecks.Check("Elevation_SideClickSection_SelectsStation", () =>
         {
             var f = Example.Reset();

@@ -128,6 +128,32 @@ internal static class CliHarness
             Console.WriteLine("FAIL Cli_Inspect_ListsSectionPointTypesAndKinds " + error.GetType().Name + ": " + error.Message);
             cliFailures++;
         }
+        // S1-a: the CLI binary path of "a promoted station is visible". The .foil is a promoted session's bytes (three stations); the
+        // command prints Sections.Points, so every assignment index, the new station's 1 among them, must appear in sectionPoints.
+        string promoted = TestTemp.Combine(Guid.NewGuid().ToString("N") + ".foil");
+        try
+        {
+            using (var session = new AuthoringSession())
+            {
+                session.Open(FoilSource.NewDefault(), Guid.NewGuid().ToString("D"), true);
+                session.AddStation(Guid.NewGuid().ToString("D"), 0.5, "50 %", false);
+                await File.WriteAllBytesAsync(promoted, session.Snapshot().Source);
+            }
+            output.GetStringBuilder().Clear();
+            exit = await Cli.RunAsync(["inspect", promoted, "--json"], output);
+            if (exit != 0) throw new Exception($"Promoted inspect returned {exit}: {output}");
+            using var promotedJson = JsonDocument.Parse(output.ToString());
+            var assignments = promotedJson.RootElement.GetProperty("sectionPoints").EnumerateArray()
+                .Select(point => point.GetProperty("assignment").GetInt32()).Distinct().OrderBy(index => index).ToArray();
+            if (!assignments.SequenceEqual([0, 1, 2])) throw new Exception("assignments " + string.Join(",", assignments));
+            Console.WriteLine("PASS Cli_Inspect_PromotedStationHasSectionPoints");
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine("FAIL Cli_Inspect_PromotedStationHasSectionPoints " + error.GetType().Name + ": " + error.Message);
+            cliFailures++;
+        }
+        finally { File.Delete(promoted); }
         // CLI-01 (design area3-analysis.md §13.3, track SVC): `analyse --op <json>` and the service on OperatingPoints.Custom (the
         // one builder the conditions band also calls) give one run key for one operating point and the default water; and
         // `inspect --runs` lists that stored run under the key recomputed from its manifest. In process, never a binary. What it

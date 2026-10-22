@@ -114,7 +114,11 @@ public sealed record PropertiesContext(
     GestureLimit? Limit = null,
     string? ConditionsSummary = null,    // COPY-280: the collapsed Conditions group's line, from the band's live values
     GroupValueMode GroupMode = GroupValueMode.SetTo,   // design group-move §3.6: the value row's entry mode, kept while the selection is kept
-    string? GroupHold = null);           // design group-move §3.3: the applied move and binding point of a group drag in progress
+    string? GroupHold = null,            // design group-move §3.3: the applied move and binding point of a group drag in progress
+    StationPanelState? Stations = null); // S1: the slice and station verbs' reasons, the Checking state and the open flyout
+
+/// <summary>What the controller knows about the slice and station verbs: why they are unavailable, the Checking state and the open flyout.</summary>
+public sealed record StationPanelState(string? AddReason, string? RemoveReason, bool Checking, WorkbenchController.StationFlyout? Flyout);
 
 /// <summary>
 /// The open section draft as the Properties pane shows it (design §11.4): both surfaces of the cursor bytes, the section's
@@ -598,7 +602,8 @@ public static class PropertiesView
         var identity = selection switch
         {
             Selection.Station station when station.Index >= 0 && station.Index < projection.Assignments.Count =>
-                StationRows(station, projection, plan, context.Frame, context.StationSource, groups),
+                StationRows(station, projection, plan, context.Frame, context.StationSource, groups, context.Stations),
+            Selection.Slice slice when plan is not null => SliceRows(slice, plan, context.Frame, context.Stations, groups),
             Selection.Points { Items.Count: > 1 } points when curves is not null => SeveralRows(points, curves, groups, context.GroupMode, context.GroupHold),
             Selection.Points { Items.Count: 1 } points when curves is not null && Find(curves, points.Items[0]) is { } point =>
                 PointRows(point, curves(point.Curve)!, context.NotChecked, groups),
@@ -727,8 +732,56 @@ public static class PropertiesView
         return new SelectionIdentity(IdentityGlyph.Foil, name, "Foil · nothing selected");
     }
 
+    public const string PromoteLabel = "Promote";                       // the slice's verb
+    public const string RemoveLabel = "Remove station";                 // S1-COPY-18
+    public const string DerivedViewNote = "Derived view — not saved";    // S1-COPY-19
+    public const string FlyoutApply = "Apply";
+    public const string FlyoutCancel = "Cancel";
+
+    private static PropertyRow Action(string key, string label, string? disabledReason) => new()
+    {
+        Key = key, Label = "", Kind = RowKind.Action, Value = label, AutomationName = label,
+        State = disabledReason is null ? RowState.Normal : RowState.Unavailable,
+        Description = disabledReason, DescriptionAlwaysVisible = disabledReason is not null
+    };
+
+    /// <summary>The open flyout as a group: the measured line under the title, then Apply (disabled above 10 µm, with its reason) and Cancel.</summary>
+    private static PropertyGroup FlyoutGroup(WorkbenchController.StationFlyout flyout)
+    {
+        var line = Prose("fly:line", WorkbenchController.CheckLabel, flyout.Checking ? WorkbenchController.CheckingCopy : flyout.ApplyEnabled ? WorkbenchController.WithinLimit : WorkbenchController.AboveLimit) with
+        {
+            Description = flyout.Line, DescriptionAlwaysVisible = true
+        };
+        return new PropertyGroup("fly", flyout.Title, "", true,
+            [line, Action("fly:apply", FlyoutApply, flyout.Checking ? WorkbenchController.CheckingCopy : flyout.ApplyReason), Action("fly:cancel", FlyoutCancel, null)], []);
+    }
+
+    /// <summary>The inspection slice (S1-COPY-1, -19): a derived view, with Promote; the approximate-promotion flyout when one is open.</summary>
+    private static SelectionIdentity SliceRows(Selection.Slice slice, PlanformView plan, Func<double, StationFrame?>? frame,
+        StationPanelState? state, List<PropertyGroup> groups)
+    {
+        double span = slice.Eta * plan.HalfSpanMeters;
+        var rows = new List<PropertyRow>
+        {
+            Prose("sl:eta", "η", string.Create(CultureInfo.InvariantCulture, $"{slice.Eta * 100:F1} %")),
+            Prose("sl:from", "From root", string.Create(CultureInfo.InvariantCulture, $"{span * 1000:F1} mm"))
+        };
+        if (frame?.Invoke(slice.Eta) is { } placed)
+        {
+            rows.Add(Prose("sl:chord", "Chord", string.Create(CultureInfo.InvariantCulture, $"{placed.ChordMeters * 1000:F1} mm")));
+            rows.Add(Prose("sl:tc", "t/c", string.Create(CultureInfo.InvariantCulture, $"{placed.ThicknessRatio * 100:F1} %")));
+            rows.Add(Prose("sl:twist", "Twist", string.Create(CultureInfo.InvariantCulture, $"{placed.TwistDegrees:F2}°")));
+        }
+        rows.Add(Prose("sl:note", "", DerivedViewNote));
+        string? reason = state?.Checking == true ? WorkbenchController.CheckingCopy : state?.AddReason;
+        rows.Add(Action("sl:promote", state?.Checking == true ? WorkbenchController.CheckingCopy : PromoteLabel, reason));
+        groups.Add(new PropertyGroup("slice", "Inspection slice", "", true, rows, []));
+        if (state?.Flyout is { Kind: WorkbenchController.StationFlyoutKind.Promote } flyout) groups.Add(FlyoutGroup(flyout));
+        return new SelectionIdentity(IdentityGlyph.Station, "Inspection slice", DerivedViewNote);
+    }
+
     private static SelectionIdentity StationRows(Selection.Station station, AuthoredProjection projection, PlanformView? plan,
-        Func<double, StationFrame?>? frame, Func<int, string>? stationSource, List<PropertyGroup> groups)
+        Func<double, StationFrame?>? frame, Func<int, string>? stationSource, List<PropertyGroup> groups, StationPanelState? state = null)
     {
         var assignment = projection.Assignments[station.Index];
         var rows = new List<PropertyRow>
@@ -754,8 +807,11 @@ public static class PropertiesView
         rows.Add(Prose("s:section", "Section", assignment.ProfileName));
         if (stationSource is not null) rows.Add(Prose("s:source", "Source", stationSource(station.Index)));
         // CAD-20 / COPY-172: the Station group ends with the link that opens the section editor.
+        // CAD-02 / CAD-09: Remove station sits in the station's panel (DESIGN.md:299), disabled with its reason (root, tip, a draft).
+        if (state is not null) rows.Add(Action("stn:remove", RemoveLabel, state.RemoveReason));
         rows.Add(new PropertyRow { Key = "s:edit", Label = "", Kind = RowKind.Action, Value = EditSection, AutomationName = EditSection });
         groups.Add(new PropertyGroup("stn", "Station", assignment.ProfileName, true, rows, []));
+        if (state?.Flyout is { Kind: WorkbenchController.StationFlyoutKind.Remove } flyout && flyout.Index == station.Index) groups.Add(FlyoutGroup(flyout));
         string title = StationNames.Heading(station.Index, station.Eta);
         return new SelectionIdentity(IdentityGlyph.Station, title, $"Station {station.Index + 1} of {projection.Assignments.Count}");
     }

@@ -619,6 +619,59 @@ public static class ShellWindowTests
 
     public static void Run()
     {
+        // S1 (add-station D8, SC 2.4.11): a station selected from another view (here through the controller, no focus and no fixture
+        // scroll) is scrolled fully into view in the Browser at every scale. The forced scales are Inferred-equivalent to a real display.
+        DesktopChecks.Check("BrowserRow_SelectedFromOtherView_BroughtIntoView_AtScales", () =>
+        {
+            var failures = new List<string>();
+            var reveal = Dock.Controls.DeferredContentControl.DeferredContentPresentationSettings.RevealDuration;
+            Dock.Controls.DeferredContentControl.DeferredContentPresentationSettings.RevealDuration = TimeSpan.Zero;
+            try
+            {
+                foreach (double scale in new[] { 1.0, 1.5, 2.0 })
+                {
+                    var window = new MainWindow() { Width = 1024, Height = 700 };
+                    try
+                    {
+                        var controller = typeof(MainWindow).GetField("workbench", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)?.GetValue(window) as WorkbenchController
+                            ?? throw new InvalidOperationException("Controller field unreadable");
+                        window.Show();
+                        ForceScale(window, scale);
+                        Settle(window);
+                        Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+                        var host = window.Content as ShellHost ?? throw new InvalidOperationException("Shell host did not load");
+                        host.RefreshPanes();
+                        Settle(window);
+                        host.ShowPane("browser");
+                        Settle(window);
+                        var stations = host.Browser.FindControl<ListBox>("StationList") ?? throw new InvalidOperationException("Browser rows did not load");
+                        var rows = stations.Items.OfType<ListBoxItem>().ToArray();
+                        if (rows.Length < 2) throw new InvalidOperationException("Example Browser rows did not bind");
+                        var row = rows[^1];
+                        var viewers = row.GetVisualAncestors().OfType<ScrollViewer>().ToArray();
+                        var outer = viewers.LastOrDefault() ?? throw new InvalidOperationException("Browser row has no ScrollViewer ancestor");
+                        controller.Select(new Selection.Station(0, 0));
+                        Settle(window);
+                        double before = (row.TranslatePoint(default, outer)?.Y ?? throw new InvalidOperationException("Browser row has no position")) + row.Bounds.Height;
+                        if (before <= outer.Viewport.Height + .01)
+                            throw new InvalidOperationException(FormattableString.Invariant($"Precondition: the last row is not below the fold at scale {window.RenderScaling}"));
+                        int last = rows.Length - 1;
+                        controller.Select(new Selection.Station(last, controller.Inspection!.Authored.Assignments[last].Eta));
+                        Settle(window);
+                        foreach (var viewer in viewers)
+                        {
+                            double top = row.TranslatePoint(default, viewer)?.Y ?? double.NaN;
+                            if (!(top >= -.01 && top + row.Bounds.Height <= viewer.Viewport.Height + .01))
+                                failures.Add(FormattableString.Invariant($"scale {window.RenderScaling}: row top {top:F2} height {row.Bounds.Height:F2} viewport {viewer.Viewport.Height:F2} offset {viewer.Offset.Y:F2}"));
+                        }
+                    }
+                    finally { window.Close(); Settle(window); }
+                }
+            }
+            finally { Dock.Controls.DeferredContentControl.DeferredContentPresentationSettings.RevealDuration = reveal; }
+            if (failures.Count > 0) throw new Exception("A station selected from another view is not fully in view in the Browser: " + string.Join(" | ", failures));
+        });
+
         // Ruling 221, product path: a keyboard user focuses a Browser row below the fold; no fixture scroll. The scales other
         // than the display's own are forced (Inferred-equivalent to a real display; docs/proof/tmx/windows-2.0.md).
         DesktopChecks.Check("BrowserRow_BelowFold_FocusBringsIntoView_AtScales", () =>

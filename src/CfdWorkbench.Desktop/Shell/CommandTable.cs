@@ -95,6 +95,8 @@ public static class CommandTable
         new("point.add", "Add point…", "Edit", null, false, NoOp),
         new("point.remove", "Remove point", "Edit", "⌫", false, NoOp),
         new("point.rebuild", "Rebuild curve…", "Edit", null, false, NoOp),
+        new("station.add", "Add station…", "Edit", null, false, NoOp),
+        new("station.remove", "Remove station", "Edit", null, false, NoOp),
 
         // View
         new("view.analysis", "Analysis", "View", "⇧⌘A", false, NoOp),

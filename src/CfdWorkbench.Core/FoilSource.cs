@@ -519,6 +519,77 @@ public static class FoilSource
         return (candidate, newName);
     }
 
+    /// <summary>
+    /// The block of <paramref name="profile"/> copied byte for byte under <paramref name="newName"/> (the R0 promotion: the neighbours share one
+    /// geometry, so the new station's section is a copy). Ids are renumbered as <see cref="MakeIndependent"/> does.
+    /// </summary>
+    internal static string CopyProfileBlock(byte[] source, string profile, string newName)
+    {
+        var parsed = Parse(source);
+        var found = parsed.Definition?.Profiles.FirstOrDefault(item => item.Name == profile) ?? throw new ContractError("DSL-PROFILE-TARGET");
+        return RewriteProfile(Utf8.GetString(parsed.Source), found, newName);
+    }
+
+    /// <summary>
+    /// Adds one authored station at <paramref name="eta"/>, written as <paramref name="etaText"/> (number and unit, for example <c>35 %</c>),
+    /// referencing a new profile whose block is <paramref name="profileBlock"/>. The block goes after the last profile block with its indent;
+    /// the assignment goes right after the profile name of the station on its left. The candidate is re-parsed and the new assignment must
+    /// hold <paramref name="eta"/> bitwise, or the patch is refused (<c>DSL-PATCH</c>): the station lands exactly where it was evaluated.
+    /// </summary>
+    internal static byte[] AddAssignment(byte[] source, double eta, string etaText, string profileName, string profileBlock)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        var parsed = Parse(source);
+        var definition = parsed.Definition ?? throw new ContractError("DSL-PATCH");
+        Guard.Require(definition.Kind == "foil" && double.IsFinite(eta), "DSL-PATCH");
+        int left = -1;
+        for (int index = 0; index < definition.Assignments.Length && definition.Assignments[index].Eta < eta; index++) left = index;
+        Guard.Require(left >= 0 && left + 1 < definition.Assignments.Length && eta < definition.Assignments[left + 1].Eta, "DSL-RANGE");
+        string text = Utf8.GetString(parsed.Source);
+        var last = definition.Profiles[^1];
+        var token = definition.AssignmentProfiles[left];
+        Guard.Require(last.BlockEnd > last.BlockStart && token.Start >= last.BlockEnd, "DSL-PATCH");
+        int newline = text.LastIndexOf('\n', last.BlockStart);
+        string indent = newline < 0 ? "" : text[(newline + 1)..last.BlockStart];
+        string result = text[..last.BlockEnd] + "\n" + indent + profileBlock.Trim() + text[last.BlockEnd..token.End] +
+            " at " + etaText + " profile " + Jcs.Quote(profileName) + text[token.End..];
+        byte[] candidate = Utf8.GetBytes(result);
+        var after = Parse(candidate).Definition;
+        Guard.Require(after is not null && after.Assignments.Length == definition.Assignments.Length + 1 &&
+            SameBits(after.Assignments[left + 1].Eta, eta) && after.Profiles[after.Assignments[left + 1].Profile].Name == profileName, "DSL-PATCH");
+        return candidate;
+    }
+
+    /// <summary>
+    /// Removes the interior authored station <paramref name="assignmentIndex"/> and, when no other station uses it, its profile block. Add then
+    /// Remove restores the source bytes. Root and tip are the caller's refusal; here they are <c>DSL-TARGET</c>.
+    /// </summary>
+    internal static (byte[] Source, bool ProfileRemoved, string ProfileName) RemoveAssignment(byte[] source, int assignmentIndex)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        var parsed = Parse(source);
+        var definition = parsed.Definition ?? throw new ContractError("DSL-PATCH");
+        Guard.Require(assignmentIndex > 0 && assignmentIndex + 1 < definition.Assignments.Length, "DSL-TARGET");
+        int profileIndex = definition.Assignments[assignmentIndex].Profile;
+        var profile = definition.Profiles[profileIndex];
+        string text = Utf8.GetString(parsed.Source);
+        var before = definition.AssignmentProfiles[assignmentIndex - 1];
+        var token = definition.AssignmentProfiles[assignmentIndex];
+        text = text[..before.End] + text[token.End..];
+        bool orphan = definition.Assignments.Where((item, index) => index != assignmentIndex).All(item => item.Profile != profileIndex);
+        if (orphan)
+        {
+            int newline = text.LastIndexOf('\n', profile.BlockStart);
+            Guard.Require(profile.BlockEnd > profile.BlockStart && profile.BlockEnd <= before.End, "DSL-PATCH");
+            text = text[..(newline < 0 ? profile.BlockStart : newline)] + text[profile.BlockEnd..];
+        }
+        byte[] candidate = Utf8.GetBytes(text);
+        var after = Parse(candidate).Definition;
+        Guard.Require(after is not null && after.Assignments.Length == definition.Assignments.Length - 1 &&
+            after.Profiles.Length == definition.Profiles.Length - (orphan ? 1 : 0), "DSL-PATCH");
+        return (candidate, orphan, profile.Name);
+    }
+
     public static ImportedProfile ImportDat(byte[] bytes, string name) => DatImport.Fit(DatImport.Parse(bytes), name);
 
     /// <summary>

@@ -887,6 +887,42 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-550 | estimator, not validated — proposed — A3d Compare (A3D-COPY-27: the estimator method label; design a3d-compare.md section 6) |
 | COPY-551 | Undefined — e is ill-conditioned here (CL or CDi undefined or below its floor) — proposed — A3d Compare (A3D-COPY-28: the e delta cell; design a3d-compare.md section 6) |
 | COPY-552 | Unavailable — Discrepancy record uses a compare rule this version does not know (<rule id> <version>) — proposed — A3d Compare (A3D-COPY-29: the record, ANA-CMP-RULE-UNKNOWN; design a3d-compare.md section 6) |
+| COPY-553 | Inspection slice at η <η> · <d> mm. Not saved. Promote makes it a station. — proposed — S1 Add station (S1-COPY-1: the status line when a slice is placed; design add-station.md section 6) |
+| COPY-554 | Slice · η <η> · <d> mm — proposed — S1 Add station (S1-COPY-2: the slice chip label in the Plan strip) |
+| COPY-555 | Added <name> at η <η>. Shape unchanged: deviation 0. Thickness: keep current. — proposed — S1 Add station (S1-COPY-3: the receipt of a regime R0 promotion) |
+| COPY-556 | Added <name> at η <η>. Largest change <rel> of chord (<µm> µm) at η <at>, sampled; limit 10⁻¹². Thickness: keep current. — proposed — S1 Add station (S1-COPY-4: the receipt of a regime R1 promotion) |
+| COPY-557 | Stations after it are renumbered: <old> is now <new>. — proposed — S1 Add station (S1-COPY-5: appended to the promotion receipts) |
+| COPY-558 | <name> is already at <d> mm (within the 10 µm join tolerance). Selected it. — proposed — S1 Add station (S1-COPY-6: a coincident position selects the existing station) |
+| COPY-559 | A station must lie strictly between root and tip (0 % < η < 100 %). — proposed — S1 Add station (S1-COPY-7: DSL-RANGE) |
+| COPY-560 | Promote refused: <count> stations would have different sections, more than the blend certificate can carry. Make one of them match a neighbour first. Nothing changed. — proposed — S1 Add station (S1-COPY-8: STATION-BUDGET) |
+| COPY-561 | Promote is not available: <left> and <right> have different point spacing, so this loft is not assessed. — proposed — S1 Add station (S1-COPY-9: STATION-SPACING) |
+| COPY-562 | Promote is not available: the loft is not assessed (<reason>). — proposed — S1 Add station (S1-COPY-10: STATION-NOT-ASSESSED) |
+| COPY-563 | Promote refused: the new station would change the loft by <µm> µm (<rel> of chord) at η <at>, above the 10 µm limit. Nothing changed. — proposed — S1 Add station (S1-COPY-11: STATION-INEXACT) |
+| COPY-564 | Root and tip stations cannot be removed. — proposed — S1 Add station (S1-COPY-12: STATION-ENDPOINT) |
+| COPY-565 | Apply or cancel the open draft on <target> first. — proposed — S1 Add station (S1-COPY-13: DSL-DRAFT-OWNED) |
+| COPY-566 | The shape between <left> and <right> is re-blended. Largest change <µm> µm (<rel> of chord) at η <at>, sampled. Limit 10 µm. — proposed — S1 Add station (S1-COPY-14: the Remove flyout line) |
+| COPY-567 | Apply is disabled: the change is above the 10 µm limit. — proposed — S1 Add station (S1-COPY-15: the Remove flyout's disabled Apply reason; STATION-REMOVE-ACCEPTANCE) |
+| COPY-568 | Removed <name>. Largest change <µm> µm at η <at>. Thickness: keep current. — proposed — S1 Add station (S1-COPY-16: the Remove receipt) |
+| COPY-569 | Add station… — proposed — S1 Add station (S1-COPY-17: the station.add command) |
+| COPY-570 | Remove station — proposed — S1 Add station (S1-COPY-18: the station.remove command and the station panel's button) |
+| COPY-571 | Derived view — not saved — proposed — S1 Add station (S1-COPY-19: the slice panel's note) |
+| COPY-572 | Checking… — proposed — S1 Add station (S1-COPY-20: the state while the preview is measured off the UI thread) |
+| COPY-573 | Approximate promotion at η <η> · <d> mm — proposed — S1 Add station (S1-COPY-21: the approximate-promotion flyout title) |
+| COPY-574 | A station here changes the loft. Largest change <µm> µm (<rel> of chord) at η <at>, sampled on <n> η × <m> x, not a bound. Limit 10 µm at the local chord. — proposed — S1 Add station (S1-COPY-22: the flyout line; the grid is the one the preview names, 129 × 2001 in production) |
+| COPY-575 | Apply is disabled: the change is above the 10 µm limit. — proposed — S1 Add station (S1-COPY-23: the approximate flyout's disabled Apply reason; the same words as COPY-567) |
+| COPY-576 | Added <name> at η <η> as an approximate promotion. Largest change <µm> µm (<rel> of chord) at η <at>. Thickness: keep current. — proposed — S1 Add station (S1-COPY-24: the receipt of an approximate promotion) |
+| COPY-577 | Add station · from root — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the heading of the η entry panel; `WorkbenchController.AddStationHeading`) |
+| COPY-578 | Add station · from root. Return promotes, Escape clears. — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the entry's accessible name; it starts with the visible heading, WCAG 2.5.3; `AddStationEntryName`) |
+| COPY-579 | Clear slice — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the accessible name of the slice chip's × action; `ClearSliceLabel`) |
+| COPY-580 | Inspection slice, η <η> percent, <d> millimetres — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the slice chip's accessible name, design 5.6; `SliceChipName`) |
+| COPY-581 | Check — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the label of the flyout's result row; `CheckLabel`) |
+| COPY-582 | Within the limit — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the flyout's result row when Apply is allowed; `WithinLimit`) |
+| COPY-583 | Above the limit — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the flyout's result row when Apply is disabled; `AboveLimit`) |
+| COPY-584 | Open a certified foil in the views to add a station. — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the reason Add station is unavailable with no certified foil; `AddNeedsFoil`) |
+| COPY-585 | Open a certified foil in the views to remove a station. — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the reason Remove station is unavailable with no certified foil; `RemoveNeedsFoil`) |
+| COPY-586 | Select a station first. — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the status when Remove station runs with no station selected; `SelectStationFirst`) |
+| COPY-587 | Finish the current change first. — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the station commands' reason while a gesture or draft is open; the same words as the point commands' reason; `FinishChangeFirst`) |
+| COPY-588 | Station <n> is now Station <n+1> — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: one line of the add receipt per renumbered station; `ShiftedCopy`) |
 | COPY-440 | Can't save to OneDrive — the dialog title. Body (Ruling 146 (1), verbatim): "This folder is synced by OneDrive. CFD Workbench saves only to local folders, so a sync can't damage a save. Choose a folder outside OneDrive." — approved — Rulings 146 (1), 160 (1) (the Windows Save dialog after a pick in a OneDrive folder; `FolderRefusalDialog`, W-2 B2) |
 | COPY-441 | Save is blocked — the dialog title. Body: "An earlier save of this project didn't finish (the app may have closed unexpectedly). Your saved file is unchanged." then the steps as an ordered list: "1. Close any other CFD Workbench window using this project." "2. Check the project shows your last saved work." "3. Use Save As to keep your current work in a different folder." then "This folder stays blocked until the leftover files from the save that didn't finish are removed: the file .cfd-writer.claim and any file named .cfd-….tmp in this folder." — approved — Rulings 146 (2), 160, 253 (W2-Q3 c: step 3 is reworded because the claim blocks every save in the folder, including a Save As there; the dialog has Save As and Cancel only, no Clear action; shown when a save is refused because a claim file is in the folder; the operator may revisit the reword) |
 | COPY-442 | Choose another folder… — approved — Ruling 160 (1) (the primary button of the OneDrive and the check-failed dialogs; it reopens the picker at the default folder) |

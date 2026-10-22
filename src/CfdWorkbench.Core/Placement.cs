@@ -696,7 +696,7 @@ public static class Placement
         return (d1, d2);
     }
 
-    private static bool SameAbscissa(Curve left, Curve right)
+    internal static bool SameAbscissa(Curve left, Curve right)
     {
         if (left.Degree != right.Degree || left.Knots.Length != right.Knots.Length || left.Points.Length != right.Points.Length) return false;
         for (int index = 0; index < left.Knots.Length; index++) if (left.Knots[index] != right.Knots[index]) return false;
@@ -714,7 +714,7 @@ public static class Placement
         }
     }
 
-    private static bool SameRecord(ProfileDefinition left, ProfileDefinition right) =>
+    internal static bool SameRecord(ProfileDefinition left, ProfileDefinition right) =>
         ReferenceEquals(left, right) || SameCurve(left.Upper, right.Upper) && SameCurve(left.Lower, right.Lower);
 
     // Curve records, not certificate spans: identical control data selects one profile.

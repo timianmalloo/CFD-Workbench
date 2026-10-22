@@ -123,6 +123,15 @@
                 </StackPanel>
               </StackPanel>
             </Border>
+            <Border x:Name="AddStationPanel" IsVisible="False" HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Margin="{StaticResource Space4}" Padding="{StaticResource Space2}"
+                    Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1">
+              <StackPanel Spacing="4">
+                <TextBlock Text="{x:Static local:WorkbenchController.AddStationHeading}" />
+                <TextBox x:Name="AddStationTextBox" MinWidth="{StaticResource PropValueMinWidth}"
+                         AutomationProperties.Name="{x:Static local:WorkbenchController.AddStationEntryName}" />
+              </StackPanel>
+            </Border>
             <Border x:Name="PlanRenderErrorBand" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
                     BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
                     Padding="{StaticResource Space2}" HorizontalAlignment="Right" VerticalAlignment="Top">

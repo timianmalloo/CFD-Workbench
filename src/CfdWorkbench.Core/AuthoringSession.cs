@@ -109,6 +109,31 @@ public sealed record RebuildPreview(int Count, CurveView Curve, double MaxChange
 }
 public sealed record SessionPreview(SessionBinding Binding, PlacedPointEnclosure Point, double UniformWidthUpper);
 
+/// <summary>
+/// What promoting the inspection slice at <paramref name="Eta"/> would do (design add-station §3.1). <paramref name="Regime"/> is
+/// R0 (same geometry), R1 (measured deviation at or below 1e-12 relative) or R2 (above); null when refused before a measurement.
+/// The deviation is the largest sampled ordinate change over both adjacent intervals on <see cref="Grid"/>, never a bound.
+/// <paramref name="Admitted"/> is true when Apply may proceed: R0/R1 always, R2 at or below 10 micrometres at the local chord.
+/// </summary>
+public sealed record PromotionPreview(double Eta, string EtaText, int Left, int Right, string? Regime, double DeviationRelative,
+    double DeviationMeters, double AtEta, bool Admitted, string? RefusalCode, string? Reason)
+{
+    /// <summary>The station index a coincident refusal selects; null otherwise.</summary>
+    public int? ExistingIndex { get; init; }
+    /// <summary>The sampling grid the deviation was measured on (Ruling 252: the number is labelled sampled and names its grid).</summary>
+    public string Grid { get; init; } = StationGrid.Production.Label;
+    /// <summary>How many eta were sampled (both adjacent intervals, each end included).</summary>
+    public int EtaCount { get; init; }
+}
+public sealed record PromotionOutcome(string AcceptedId, int Index, string ProfileName, PromotionPreview Report, ThicknessIntent Thickness);
+public sealed record RemovalPreview(int Index, double DeviationRelative, double DeviationMeters, double AtEta, double LimitMeters,
+    bool Admitted, bool ProfileRemoved)
+{
+    public string Grid { get; init; } = StationGrid.Production.Label;
+    public int EtaCount { get; init; }
+}
+public sealed record RemovalOutcome(string AcceptedId, RemovalPreview Report);
+
 public sealed class SessionAssessment
 {
     internal SessionAssessment(Guid owner, GeometryStatus status, string code, SessionBinding? key, GeometryCertificate? certificate,
@@ -213,7 +238,7 @@ public sealed class AuthoringSession : IDisposable
     {
         lock (sync)
         {
-            closed = true; events.Clear(); capturedSaveHashes.Clear(); retiredDraftIds.Clear();
+            closed = true; events.Clear(); capturedSaveHashes.Clear(); retiredDraftIds.Clear(); stationMemo = null;
             sources.Clear(); designs.Clear(); accepted.Clear(); cursors.Clear(); redo.Clear(); operations.Clear();
             draft = null; recovery = null; current = null; activeImportReport = null;
             section = null;
@@ -311,6 +336,23 @@ public sealed class AuthoringSession : IDisposable
         Run("apply", () => ApplyGroupValueCore(operationId, command), editKind: command?.Mode == GroupValueMode.SetTo ? "group-set" : "group-move");
     public PointOutcome ApplyPointCommand(string operationId, PointCommand command) =>
         Run("apply", () => ApplyPointCommandCore(operationId, command), editKind: PointEditKind(command));
+    /// <summary>
+    /// What promoting the inspection slice at <paramref name="eta"/> (written <paramref name="etaText"/>, for example <c>35 %</c>) would do.
+    /// Adds no row. A domain refusal is in the result (<see cref="PromotionPreview.RefusalCode"/>); an eta outside [0, 1] or a draft in the
+    /// way throws.
+    /// </summary>
+    public PromotionPreview PreviewPromote(double eta, string etaText) => Run("preview-promote", () => PlanPromote(eta, etaText).Preview);
+    /// <summary>
+    /// Promotes the slice: one new profile block, one assignment, one accepted row (one undo step). R0 and R1 are exact and take one press;
+    /// an R2 promotion is refused with <c>STATION-INEXACT</c> unless <paramref name="approximate"/> is true and the measured change is at
+    /// most 10 micrometres at the local chord (Ruling 252). Thickness is kept: the t/c record is byte for byte unchanged.
+    /// </summary>
+    public PromotionOutcome AddStation(string operationId, double eta, string etaText, bool approximate) =>
+        Run("add-station", () => AddStationCore(operationId, eta, etaText, approximate));
+    /// <summary>The change removing interior station <paramref name="index"/> would make; adds no row.</summary>
+    public RemovalPreview PreviewRemove(int index) => Run("preview-remove", () => PlanRemove(index).Preview);
+    /// <summary>Removes an interior station and re-blends the gap; refused with <c>STATION-REMOVE-ACCEPTANCE</c> above 10 micrometres.</summary>
+    public RemovalOutcome RemoveStation(string operationId, int index) => Run("remove-station", () => RemoveStationCore(operationId, index));
     /// <summary>Seven rebuild previews, counts 4 through 10. Does not certify and does not add a row.</summary>
     public IReadOnlyList<RebuildPreview> PreviewRebuilds(string curve)
     {
@@ -521,6 +563,11 @@ public sealed class AuthoringSession : IDisposable
     {
         var assessment = AssessOwned(p);
         if (toleratesBudget && assessment.Status == GeometryStatus.NotAssessed && assessment.Code == "GEOMETRY-BUDGET") return;
+        RequireCertified(key, assessment);
+    }
+    // The admission test on an assessment already in hand (Add station assesses once, to map its refusal codes, and commits on that result).
+    void RequireCertified(SessionBinding key, GeometryAssessment assessment)
+    {
         Guard.Require(assessment.Status == GeometryStatus.Certified && assessment.Certificate is not null &&
             assessment.Certificate.SourceHash == key.SourceHash && assessment.Certificate.SurfaceHash == key.SurfaceHash, "DSL-NOT-ASSESSED");
     }
@@ -1329,6 +1376,137 @@ public sealed class AuthoringSession : IDisposable
         }
     }
 
+    private (string Id, byte[] Bytes) StationBase()
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            Guard.Require(current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
+            return (current!, CurrentBytes);
+        }
+    }
+
+    // The press is a preview and then the command on the same slice, and a plan costs seconds (one blended eta is about 30 ms and a plan
+    // samples 2 x 258 of them), so the last plan is kept for the accepted revision, slice and command it was made for.
+    // simplify: one entry; a second slice or a new revision replaces it. Upgrade trigger: a caller that alternates two slices.
+    private (string Revision, string Key, object Plan)? stationMemo;
+    /// <summary>The measurement grid of Add and Remove station. Production is 129 eta per interval x 2001 x; a test may set a coarser one before the first plan.</summary>
+    internal StationGrid StationGrid { get; set; } = StationGrid.Production;
+
+    private T StationPlan<T>(string revision, string key, Func<T> make) where T : class
+    {
+        lock (sync) if (stationMemo is { } memo && memo.Revision == revision && memo.Key == key && memo.Plan is T hit) return hit;
+        var plan = make();
+        lock (sync) stationMemo = (revision, key, plan);
+        return plan;
+    }
+
+    private static string PromoteKey(double eta, string etaText) => "promote\u001f" + BitConverter.DoubleToInt64Bits(eta).ToString(CultureInfo.InvariantCulture) + "\u001f" + etaText;
+
+    // The preview runs off the lock on the accepted bytes it read; the candidate is certified once, by the session's own assessment.
+    private PromotionPlan PlanPromote(double eta, string etaText)
+    {
+        var (id, bytes) = StationBase();
+        return StationPlan(id, PromoteKey(eta, etaText), () => StationEdits.Promote(bytes, eta, etaText, parsed => AssessOwned(parsed), StationGrid));
+    }
+
+    private RemovalPlan PlanRemove(int index)
+    {
+        var (id, bytes) = StationBase();
+        return StationPlan(id, "remove\u001f" + index.ToString(CultureInfo.InvariantCulture), () => StationEdits.Remove(bytes, index, StationGrid));
+    }
+
+    private PromotionOutcome AddStationCore(string operationId, double eta, string etaText, bool approximate)
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            NativeProject.Uuid(operationId);
+            bool replay = operations.ContainsKey(operationId);
+            var prior = replay ? accepted.SingleOrDefault(row => row.OperationId == operationId && row.Edit?.Rail == "station-add") : null;
+            if (replay && prior is null) throw new ContractError("DOC-OPERATION-CONFLICT");
+            Guard.Require(replay || current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
+            string? parent = replay ? prior!.Parent : current;
+            PromotionPlan plan;
+            try
+            {
+                plan = replay ? StationEdits.Promote(BaseBytes(parent!), eta, etaText, parsed => AssessOwned(parsed), StationGrid)
+                    : StationPlan(current!, PromoteKey(eta, etaText), () => StationEdits.Promote(CurrentBytes, eta, etaText, parsed => AssessOwned(parsed), StationGrid));
+            }
+            catch (ContractError) when (replay) { throw new ContractError("DOC-OPERATION-CONFLICT"); }
+            var report = plan.Preview;
+            if (!report.Admitted) throw new ContractError(report.RefusalCode!, report.Reason!);
+            if (report.Regime == "R2" && !approximate)
+                throw new ContractError("STATION-INEXACT", "Promote needs a preview: the new station would change the loft by " +
+                    (report.DeviationMeters * 1e6).ToString("F1", CultureInfo.InvariantCulture) + " µm (" + report.DeviationRelative.ToString("E2", CultureInfo.InvariantCulture) +
+                    " of chord) at eta " + report.AtEta.ToString("F4", CultureInfo.InvariantCulture) + ", so it is an approximate promotion. Nothing changed.");
+            var receipt = new EditReceipt(operationId, 0, "station-add", plan.ProfileName!);
+            string payload = Fingerprint(receipt, parent, plan.Parsed!.SourceHash);
+            PromotionOutcome Done(string id) => new(id, report.Left + 1, plan.ProfileName!, report, ThicknessIntent.KeepCurrent);
+            if (Retry(operationId, payload, out string existing)) return Done(existing);
+            Guard.Require(!retiredDraftIds.Contains(operationId), "DSL-DRAFT-REUSED");
+            retiredDraftIds.Add(operationId);
+            draft = new(operationId, current!, 0, "station-add", plan.ProfileName!, plan.Candidate!);
+            try
+            {
+                RequireCertified(Key(plan.Parsed, draft), plan.Assessment!);
+                string id = Commit(plan.Parsed, operationId, "apply");
+                operations.Add(operationId, (payload, id));
+                draft = null; recovery = null;
+                pendingDeviationUm = report.DeviationMeters * 1e6;
+                return Done(id);
+            }
+            catch
+            {
+                draft = null; retiredDraftIds.Remove(operationId); throw;
+            }
+        }
+    }
+
+    private RemovalOutcome RemoveStationCore(string operationId, int index)
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            NativeProject.Uuid(operationId);
+            bool replay = operations.ContainsKey(operationId);
+            var prior = replay ? accepted.SingleOrDefault(row => row.OperationId == operationId && row.Edit?.Rail == "station-remove") : null;
+            if (replay && prior is null) throw new ContractError("DOC-OPERATION-CONFLICT");
+            Guard.Require(replay || current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
+            string? parent = replay ? prior!.Parent : current;
+            RemovalPlan plan;
+            try
+            {
+                plan = replay ? StationEdits.Remove(BaseBytes(parent!), index, StationGrid)
+                    : StationPlan(current!, "remove\u001f" + index.ToString(CultureInfo.InvariantCulture), () => StationEdits.Remove(CurrentBytes, index, StationGrid));
+            }
+            catch (ContractError) when (replay) { throw new ContractError("DOC-OPERATION-CONFLICT"); }
+            var report = plan.Preview;
+            if (!report.Admitted)
+                throw new ContractError("STATION-REMOVE-ACCEPTANCE", "Apply is disabled: the change is " + (report.DeviationMeters * 1e6).ToString("F1", CultureInfo.InvariantCulture) +
+                    " µm at eta " + report.AtEta.ToString("F4", CultureInfo.InvariantCulture) + ", above the 10 µm limit. Nothing changed.");
+            var receipt = new EditReceipt(operationId, 0, "station-remove", plan.ProfileName);
+            string payload = Fingerprint(receipt, parent, plan.Parsed!.SourceHash);
+            if (Retry(operationId, payload, out string existing)) return new(existing, report);
+            Guard.Require(!retiredDraftIds.Contains(operationId), "DSL-DRAFT-REUSED");
+            retiredDraftIds.Add(operationId);
+            draft = new(operationId, current!, 0, "station-remove", plan.ProfileName, plan.Candidate!);
+            try
+            {
+                RequireCertified(Key(plan.Parsed, draft), AssessOwned(plan.Parsed));
+                string id = Commit(plan.Parsed, operationId, "apply");
+                operations.Add(operationId, (payload, id));
+                draft = null; recovery = null;
+                pendingDeviationUm = report.DeviationMeters * 1e6;
+                return new(id, report);
+            }
+            catch
+            {
+                draft = null; retiredDraftIds.Remove(operationId); throw;
+            }
+        }
+    }
+
     private readonly record struct PointPatch(byte[] Bytes, string? SelectId, string? Notice, double AtEta, bool Identity);
 
     private PointOutcome FinishPoint(string kind, string id, double deviation, int before, int after, PointPatch patch)
@@ -1975,7 +2153,7 @@ public sealed class AuthoringSession : IDisposable
                     var d = env.Designs.Single(d => d.Id == a.DesignId);
                     string payload = c.Reason == "open"
                         ? "open:" + a.SourceId
-                        : a.Edit?.Rail == "dimension"
+                        : a.Edit?.Rail is "dimension" or "station-add" or "station-remove"
                             ? Fingerprint(a.Edit, a.Parent, a.SourceId)
                             : a.Edit?.Rail is "point-type" or "tangent-kind"
                                 ? Fingerprint(a.Edit, a.Parent, a.SourceId, a.Edit.Curve ?? "")
@@ -2436,6 +2614,10 @@ public static class NativeProject
         "point-remove" => edit.Rule is null && edit.Curve is not null &&
             PointModel.EditableCurves.Contains(edit.Curve) &&
             EditTarget(parent, edit.Curve, edit.VertexId) && !EditTarget(child, edit.Curve, edit.VertexId),
+        // Add station names the profile it created (the child has it, the parent does not, an assignment uses it); Remove names the one it dropped.
+        "station-add" => edit.Curve is null && edit.Rule is null && ProfileNamed(child, edit.VertexId) && !ProfileNamed(parent, edit.VertexId) &&
+            child.Assignments.Any(item => child.Profiles[item.Profile].Name == edit.VertexId),
+        "station-remove" => edit.Curve is null && edit.Rule is null && ProfileNamed(parent, edit.VertexId),
         "curve-rebuild" => edit.Rule is null && edit.Curve is not null &&
             PointModel.EditableCurves.Contains(edit.Curve) && edit.VertexId == edit.Curve,
         // A section receipt names the profile at Finish (§3.3): the parent has it, or the child newly assigns it (Make unique, Import).
@@ -2541,6 +2723,220 @@ public static class NativeProject
         Guard.Require(e.Accepted.Select(a => a.OperationId).Distinct().Count() == e.Accepted.Length, "DOC-REFERENCE");
         return (current!, redo.ToArray());
     }
+}
+
+internal sealed record PromotionPlan(PromotionPreview Preview, byte[]? Candidate, string? ProfileName, SourceParse? Parsed, GeometryAssessment? Assessment);
+
+internal sealed record RemovalPlan(RemovalPreview Preview, byte[]? Candidate, SourceParse? Parsed, string ProfileName);
+
+/// <summary>
+/// Promote and Remove over source bytes (design add-station §2, Ruling 252). The promoted profile is built in control-point space by
+/// <see cref="PlacementRule"/>, the one rule-A definition, so there is no second evaluator; the deviation is measured through
+/// <see cref="Placement.Sections"/> on the document before against the document after, never predicted. Nothing here touches the session.
+/// </summary>
+internal readonly record struct StationGrid(int EtaSamples, int XSamples)
+{
+    /// <summary>The product's grid, named in the preview and in the copy (Ruling 252).</summary>
+    internal static readonly StationGrid Production = new(129, 2001);
+    internal string Label => $"sampled on {EtaSamples} eta per interval x {XSamples} x";
+}
+
+internal static class StationEdits
+{
+    internal const double ExactRelative = 1e-12;
+    internal const double LimitMeters = 10e-6;
+
+    /// <summary>
+    /// Plans the promotion of the slice at <paramref name="eta"/> written as <paramref name="etaText"/>. A domain refusal is returned in the
+    /// preview (its <c>RefusalCode</c>); only an out-of-range eta throws. <paramref name="assess"/> certifies the candidate and is not
+    /// called when a refusal comes first or when the measured change already rules the promotion out.
+    /// </summary>
+    /// <summary>
+    /// The regime follows the measurement (Ruling 252): R0 only when the neighbours are one record and the measured change is exactly 0,
+    /// R1 at or below 1e-12 of chord, R2 above. The record predicate alone never decides.
+    /// </summary>
+    internal static string Regime(bool sameRecord, double worstRelative) =>
+        sameRecord && worstRelative == 0 ? "R0" : worstRelative <= ExactRelative ? "R1" : "R2";
+
+    internal static PromotionPlan Promote(byte[] source, double eta, string etaText, Func<SourceParse, GeometryAssessment> assess, StationGrid? gridOverride = null)
+    {
+        var grid = gridOverride ?? StationGrid.Production;
+        Guard.Require(double.IsFinite(eta) && eta >= 0 && eta <= 1, "DSL-RANGE");
+        var definition = FoilSource.Parse(source).Definition ?? throw new ContractError("DSL-PATCH");
+        Guard.Require(definition.Kind == "foil", "DSL-TARGET");
+        var stations = definition.Assignments;
+        double half = definition.HalfSpan;
+        // Ruling 252 (S1-Q3): coincident is decided on resolved span positions in metres, not on eta.
+        for (int index = 0; index < stations.Length; index++)
+            if (Math.Abs(eta * half - stations[index].Eta * half) <= LimitMeters)
+                return Refused(eta, etaText, -1, -1, "STATION-COINCIDENT", StationNames.Of(index, stations[index].Eta) + " is already at " +
+                    Millimetres(stations[index].Eta * half) + " mm (within the 10 µm join tolerance). Selected it.", index);
+        int left = PlacementRule.Bracket(stations.Select(item => item.Eta).ToArray(), eta);
+        var l = definition.Profiles[stations[left].Profile];
+        var r = definition.Profiles[stations[left + 1].Profile];
+        bool same = Placement.SameRecord(l, r);
+        if (!same && !FourCurvesShareSpacing(l, r))
+            return Refused(eta, etaText, left, left + 1, "STATION-SPACING", "Promote is not available: " + StationNames.Of(left, stations[left].Eta) +
+                " and " + StationNames.Of(left + 1, stations[left + 1].Eta) + " have different point spacing, so this loft is not assessed.");
+        var names = definition.Profiles.Select(item => item.Name).ToHashSet(StringComparer.Ordinal);
+        string name = StationNames.Of(left + 1, eta);
+        for (int k = 2; names.Contains(name); k++) name = StationNames.Of(left + 1, eta) + "-" + k.ToString(CultureInfo.InvariantCulture);
+        string block;
+        if (same) block = FoilSource.CopyProfileBlock(source, l.Name, name);
+        else
+        {
+            double thickness = ChannelEvaluator.At(definition.Curves["thickness"], eta);
+            Guard.Require(thickness > 0, "DSL-PATCH");
+            double weight = Binary64.BlendWeight(eta, stations[left].Eta, stations[left + 1].Eta).Value;
+            string provenance = "promoted from the blend of " + l.Name + " and " + r.Name + " at " + etaText;
+            block = FoilSource.Utf8.GetString(FoilSource.ProfileBlock(Blend(l, r, weight, thickness, name, provenance)));
+        }
+        byte[] candidate = FoilSource.AddAssignment(source, eta, etaText, name, block);
+        var parsed = FoilSource.Parse(candidate);
+        var measured = Grid(grid, (stations[left].Eta, eta), (eta, stations[left + 1].Eta));
+        int etasMeasured = measured.Count;
+        var (relative, meters, at, worstRelative) = Measure(source, candidate, measured, grid.XSamples);
+        string regime = Regime(same, worstRelative);
+        PromotionPreview Report(bool admitted, string? code, string? reason) =>
+            new(eta, etaText, left, left + 1, regime, relative, meters, at, admitted, code, reason) { EtaCount = etasMeasured, Grid = grid.Label };
+        if (regime == "R2" && meters > LimitMeters)
+            return new(Report(false, "STATION-INEXACT", "Promote refused: the new station would change the loft by " + Micrometres(meters) + " µm (" +
+                relative.ToString("E2", CultureInfo.InvariantCulture) + " of chord) at eta " + at.ToString("F4", CultureInfo.InvariantCulture) +
+                ", above the 10 µm limit. Nothing changed."), candidate, name, parsed, null);
+        var assessment = assess(parsed);
+        if (assessment.Status == GeometryStatus.NotAssessed && assessment.Code == Geometry.OperationBoundCode)
+        {
+            int differing = DifferingStations(parsed.Definition!);
+            return new(Report(false, "STATION-BUDGET", "Promote refused: " + differing.ToString(CultureInfo.InvariantCulture) +
+                " stations would have different sections, more than the blend certificate can carry. Make one of them match a neighbour first. Nothing changed."),
+                candidate, name, parsed, assessment);
+        }
+        if (assessment.Status != GeometryStatus.Certified)
+            return new(Report(false, "STATION-NOT-ASSESSED", "Promote is not available: the loft is not assessed (" + assessment.Reason + ")."), candidate, name, parsed, assessment);
+        return new(Report(true, null, null), candidate, name, parsed, assessment);
+    }
+
+    /// <summary>Plans the removal of interior station <paramref name="index"/>: the gap is re-blended by rule A, nothing is fitted (§2.9).</summary>
+    internal static RemovalPlan Remove(byte[] source, int index, StationGrid? gridOverride = null)
+    {
+        var grid = gridOverride ?? StationGrid.Production;
+        var definition = FoilSource.Parse(source).Definition ?? throw new ContractError("DSL-PATCH");
+        Guard.Require(definition.Kind == "foil" && index >= 0 && index < definition.Assignments.Length, "DSL-TARGET");
+        if (index == 0 || index == definition.Assignments.Length - 1)
+            throw new ContractError("STATION-ENDPOINT", "Root and tip stations cannot be removed.");
+        var (candidate, removed, profile) = FoilSource.RemoveAssignment(source, index);
+        var stations = definition.Assignments;
+        // Both intervals that join into the gap, each sampled as Promote samples one; the removed station's eta is their shared end.
+        var etas = Grid(grid, (stations[index - 1].Eta, stations[index].Eta), (stations[index].Eta, stations[index + 1].Eta));
+        var (relative, meters, at, _) = Measure(source, candidate, etas, grid.XSamples);
+        var preview = new RemovalPreview(index, relative, meters, at, LimitMeters, meters <= LimitMeters, removed) { EtaCount = etas.Count, Grid = grid.Label };
+        return new(preview, candidate, FoilSource.Parse(candidate), profile);
+    }
+
+    /// <summary>
+    /// The profile at the promoted station. Per control index the neighbours' components (camber, unit thickness) are blended with the one
+    /// <see cref="PlacementRule.Blend"/>, then P is rescaled about its camber by 1/k so that P, opened alone, has the thickness the slice shows
+    /// (k is P's own maximum over the station thickness). Neither scalar changes the loft: the certificate renormalises P by its own maximum.
+    /// </summary>
+    private static ProfileDefinition Blend(ProfileDefinition l, ProfileDefinition r, double weight, double thickness, string name, string provenance)
+    {
+        int count = l.Upper.Points.Length;
+        double reciprocalL = 1 / Placement.ProfileDifferenceMaximum(l.Upper, l.Lower), reciprocalR = 1 / Placement.ProfileDifferenceMaximum(r.Upper, r.Lower);
+        var upper = new double[count];
+        var lower = new double[count];
+        for (int i = 0; i < count; i++)
+        {
+            var a = PlacementRule.Components(Binary64.Point(l.Upper.Points[i][1]), Binary64.Point(l.Lower.Points[i][1]), Binary64.Point(reciprocalL));
+            var b = PlacementRule.Components(Binary64.Point(r.Upper.Points[i][1]), Binary64.Point(r.Lower.Points[i][1]), Binary64.Point(reciprocalR));
+            var (u, d) = PlacementRule.Blend(a, b, Binary64.Point(weight), Binary64.Point(1), Binary64.Point(thickness));
+            (upper[i], lower[i]) = (u.Value, d.Value);
+        }
+        double k = Placement.ProfileDifferenceMaximum(With(l.Upper, upper), With(l.Lower, lower)) / thickness;
+        for (int i = 0; i < count; i++)
+        {
+            double camber = (upper[i] + lower[i]) / 2, halfWidth = (upper[i] - lower[i]) / 2 / k;
+            (upper[i], lower[i]) = (camber + halfWidth, camber - halfWidth);
+        }
+        string closure = l.Closure == "closed" && r.Closure == "closed" ? "closed" : "open";
+        return new ProfileDefinition(name, With(l.Upper, upper), With(l.Lower, lower), closure, 0, 0) { Provenance = provenance };
+    }
+
+    // Spacing, degree and ids stay the left neighbour's; tangent rows are dropped (they name the neighbour's points).
+    private static Curve With(Curve curve, double[] ordinates) => curve with
+    {
+        Points = curve.Points.Select((point, i) => new[] { point[0], ordinates[i] }).ToArray(),
+        Ids = Enumerable.Range(0, curve.Points.Length).Select(i => "cv-" + i.ToString(CultureInfo.InvariantCulture)).ToArray(),
+        Tangents = []
+    };
+
+    /// <summary>Camber, thickness and their sum differences, 129 eta per interval plus the interval ends, 2001 x: sampled, not a bound.</summary>
+    private static (double Relative, double Meters, double AtEta, double WorstRelative) Measure(byte[] before, byte[] after, IReadOnlyList<double> etas, int xSamples)
+    {
+        var xs = Enumerable.Range(0, xSamples).Select(i => i / (double)(xSamples - 1)).ToArray();
+        var a = SectionsParallel(before, etas, xs);
+        var b = SectionsParallel(after, etas, xs);
+        double relative = 0, meters = 0, at = etas[0], worstRelative = 0;
+        for (int i = 0; i < etas.Count; i++)
+        {
+            double worst = 0;
+            for (int j = 0; j < xs.Length; j++)
+            {
+                double camber = b[i].Camber[j] - a[i].Camber[j], width = (b[i].Thickness[j] - a[i].Thickness[j]) / 2;
+                worst = Math.Max(worst, Math.Max(Math.Abs(camber + width), Math.Abs(camber - width)));
+            }
+            worstRelative = Math.Max(worstRelative, worst);
+            double placed = worst * a[i].Frame.ChordMeters;
+            // The relative figure is the one measured at the eta of the metres maximum, so the copy's pair "<rel> of chord (<um>) at eta" has one owner.
+            if (placed > meters) (meters, at, relative) = (placed, etas[i], worst);
+        }
+        return (relative, meters, at, worstRelative);
+    }
+
+    // Each eta is independent, so the etas split across cores; the result is the same samples in the same order. One blended eta costs about
+    // 30 ms on the reference laptop (the maximum of the blended unit thickness is searched per eta), so 258 etas on one core is seconds.
+    private static SectionSample[] SectionsParallel(byte[] source, IReadOnlyList<double> etas, IReadOnlyList<double> xs)
+    {
+        var samples = new SectionSample[etas.Count];
+        int chunks = Math.Min(etas.Count, Environment.ProcessorCount);
+        Parallel.For(0, chunks, chunk =>
+        {
+            int from = (int)((long)etas.Count * chunk / chunks), to = (int)((long)etas.Count * (chunk + 1) / chunks);
+            var part = Placement.Sections(source, [.. etas.Skip(from).Take(to - from)], xs, CancellationToken.None);
+            for (int i = 0; i < part.Count; i++) samples[from + i] = part[i];
+        });
+        return samples;
+    }
+
+    private static List<double> Grid(StationGrid grid, params (double From, double To)[] intervals)
+    {
+        var etas = new List<double>();
+        foreach (var (from, to) in intervals)
+        {
+            for (int i = 0; i < grid.EtaSamples - 1; i++) etas.Add(from + (to - from) * i / (grid.EtaSamples - 1));
+            etas.Add(to);
+        }
+        return etas;
+    }
+
+    private static int DifferingStations(Definition definition)
+    {
+        var watch = new ProofBudget();
+        int count = 0;
+        for (int i = 0; i < definition.Assignments.Length; i++)
+            if (i > 0 && !Geometry.SameGeometry(definition.Profiles[definition.Assignments[i - 1].Profile], definition.Profiles[definition.Assignments[i].Profile], watch) ||
+                i + 1 < definition.Assignments.Length && !Geometry.SameGeometry(definition.Profiles[definition.Assignments[i].Profile], definition.Profiles[definition.Assignments[i + 1].Profile], watch))
+                count++;
+        return count;
+    }
+
+    private static bool FourCurvesShareSpacing(ProfileDefinition l, ProfileDefinition r) =>
+        Placement.SameAbscissa(l.Upper, l.Lower) && Placement.SameAbscissa(l.Upper, r.Upper) && Placement.SameAbscissa(l.Upper, r.Lower);
+
+    private static PromotionPlan Refused(double eta, string etaText, int left, int right, string code, string reason, int? existing = null) =>
+        new(new PromotionPreview(eta, etaText, left, right, null, 0, 0, 0, false, code, reason) { ExistingIndex = existing }, null, null, null, null);
+
+    private static string Millimetres(double metres) => (metres * 1000).ToString("F1", CultureInfo.InvariantCulture);
+    private static string Micrometres(double metres) => (metres * 1e6).ToString("F1", CultureInfo.InvariantCulture);
 }
 
 internal static class SessionSource
