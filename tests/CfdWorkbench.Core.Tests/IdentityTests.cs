@@ -21,6 +21,8 @@ internal static class IdentityTests
     private static int registered, ran;
     // CFD_CORE_COST=1 prints `COST <name> <ms>` after each passing check: the input to Fixtures/core-costs.tsv.
     private static readonly bool costs = Environment.GetEnvironmentVariable("CFD_CORE_COST") == "1";
+    // CFD_SF2_TIMING=1 enables the measure-path timing check (StationTests); read here because the store subset allows environment reads only in this file.
+    internal static readonly bool Sf2Timing = Environment.GetEnvironmentVariable("CFD_SF2_TIMING") == "1";
     internal static int Run(string[] args)
     {
         try { part = ParsePart(args); }

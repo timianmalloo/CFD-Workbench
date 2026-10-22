@@ -2732,7 +2732,7 @@ internal sealed record RemovalPlan(RemovalPreview Preview, byte[]? Candidate, So
 /// <summary>
 /// Promote and Remove over source bytes (design add-station §2, Ruling 252). The promoted profile is built in control-point space by
 /// <see cref="PlacementRule"/>, the one rule-A definition, so there is no second evaluator; the deviation is measured through
-/// <see cref="Placement.Sections"/> on the document before against the document after, never predicted. Nothing here touches the session.
+/// <see cref="Placement.Sections"/> (its measure path, <c>SectionsForMeasure</c>, same bits) on the document before against the document after, never predicted. Nothing here touches the session.
 /// </summary>
 internal readonly record struct StationGrid(int EtaSamples, int XSamples)
 {
@@ -2894,14 +2894,14 @@ internal static class StationEdits
 
     // Each eta is independent, so the etas split across cores; the result is the same samples in the same order. One blended eta costs about
     // 30 ms on the reference laptop (the maximum of the blended unit thickness is searched per eta), so 258 etas on one core is seconds.
-    private static SectionSample[] SectionsParallel(byte[] source, IReadOnlyList<double> etas, IReadOnlyList<double> xs)
+    private static SectionMeasure[] SectionsParallel(byte[] source, IReadOnlyList<double> etas, IReadOnlyList<double> xs)
     {
-        var samples = new SectionSample[etas.Count];
+        var samples = new SectionMeasure[etas.Count];
         int chunks = Math.Min(etas.Count, Environment.ProcessorCount);
         Parallel.For(0, chunks, chunk =>
         {
             int from = (int)((long)etas.Count * chunk / chunks), to = (int)((long)etas.Count * (chunk + 1) / chunks);
-            var part = Placement.Sections(source, [.. etas.Skip(from).Take(to - from)], xs, CancellationToken.None);
+            var part = Placement.SectionsForMeasure(source, [.. etas.Skip(from).Take(to - from)], xs, CancellationToken.None);
             for (int i = 0; i < part.Count; i++) samples[from + i] = part[i];
         });
         return samples;

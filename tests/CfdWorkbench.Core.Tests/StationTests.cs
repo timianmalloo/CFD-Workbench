@@ -435,6 +435,97 @@ internal static class StationTests
             True(add.DeviationMicrometres is not null, "the add event carries the measured deviation");
             Console.WriteLine($"INFO T-perf preview-promote {preview.DurationMilliseconds:F0} ms, add-station {add.DurationMilliseconds:F0} ms");
         });
+        // Ruling 262 DF-Q3: the station measure's cheaper path returns the bits of Placement.Sections, nothing else.
+        Check("Station_MeasurePath_BitIdenticalToSections_EveryStationAndPlacementFixture", MeasurePathBitIdentical);
+        Check("Station_MeasurePath_Timing_GatedByEnvironment", MeasurePathTiming);
+    }
+
+    // ---- the measure path's bit guard (SF2-1) ------------------------------------------------------------------------
+
+    /// <summary>
+    /// Every document the Station checks build, the Placement golden sources, the committed m12b2 fixtures and the FoilDSL examples, each at
+    /// 23 etas (the ends, the authored stations, 0.2461 and a spread) and two chord grids. <c>Placement.SectionsForMeasure</c> must equal
+    /// <c>Placement.Sections</c> in Frame, Camber and Thickness, compared by the bits of every double.
+    /// </summary>
+    private static void MeasurePathBitIdentical()
+    {
+        var documents = new List<(string Name, byte[] Source)>
+        {
+            ("F-CAMBER", Camber()), ("F-CAMBER3", Camber3()), ("F-PEAK", Peak()), ("F-THREE", Three()), ("F-SAMEPEAK", SamePeak()),
+            ("F-REAL", Real()), ("F-SIX", Six()), ("F-SEVEN", Seven()), ("F-SPACING", Spacing()), ("F-PEAK-x10", Chord(Peak(), _ => 10)),
+        };
+        string root = PlacementTests.RepoRoot();
+        using (var golden = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "docs", "proof", "m12b2-golden", "certificate-bits.json"))))
+            foreach (var fixture in golden.RootElement.GetProperty("fixtures").EnumerateArray())
+                documents.Add(("golden-" + fixture.GetProperty("name").GetString(), Encoding.UTF8.GetBytes(fixture.GetProperty("source").GetString()!)));
+        foreach (string folder in new[] { Path.Combine("tests", "CfdWorkbench.Core.Tests", "Fixtures", "m12b2"), Path.Combine("docs", "examples", "foildsl") })
+            foreach (string path in Directory.EnumerateFiles(Path.Combine(root, folder), "*.foil").Order(StringComparer.Ordinal))
+                documents.Add((Path.GetFileName(path), File.ReadAllBytes(path)));
+
+        double[] etas = [0, 0.05, 0.1, 0.2, 0.2461, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.99, 1, 1d / 3, 2d / 3];
+        int compared = 0, doubles = 0;
+        foreach (var (name, source) in documents)
+            foreach (var xs in new[] { Xs(65), Xs(201), Placement.ChordGrid(33).ToArray() })
+            {
+                IReadOnlyList<SectionSample> today;
+                try { today = Placement.Sections(source, etas, xs, CancellationToken.None); }
+                catch (ContractError refusal)
+                {
+                    // A document the product refuses is refused with the same code on the measure path.
+                    string again = "none";
+                    try { _ = Placement.SectionsForMeasure(source, etas, xs, CancellationToken.None); }
+                    catch (ContractError second) { again = second.Code; }
+                    True(again == refusal.Code, name + ": refusal " + refusal.Code + " against " + again);
+                    continue;
+                }
+                var measure = Placement.SectionsForMeasure(source, etas, xs, CancellationToken.None);
+                Equal(today.Count, measure.Count);
+                for (int i = 0; i < today.Count; i++)
+                {
+                    var a = today[i].Frame;
+                    var b = measure[i].Frame;
+                    double[] fa = [a.Eta, a.SpanMeters, a.LeadingMeters, a.TrailingMeters, a.ElevationMeters, a.TwistDegrees, a.ThicknessRatio];
+                    double[] fb = [b.Eta, b.SpanMeters, b.LeadingMeters, b.TrailingMeters, b.ElevationMeters, b.TwistDegrees, b.ThicknessRatio];
+                    SameBits(name + " eta " + etas[i] + " frame", fa, fb);
+                    SameBits(name + " eta " + etas[i] + " camber", [.. today[i].Camber], measure[i].Camber);
+                    SameBits(name + " eta " + etas[i] + " thickness", [.. today[i].Thickness], measure[i].Thickness);
+                    doubles += fa.Length + xs.Length * 2;
+                }
+                compared++;
+            }
+        True(compared >= 30, "only " + compared + " document/grid pairs were compared");
+        Console.WriteLine($"INFO SF2-1 bit guard: {compared} document x grid pairs, {doubles} doubles compared by bits");
+    }
+
+    private static void SameBits(string what, double[] expected, double[] actual)
+    {
+        Equal(expected.Length, actual.Length);
+        for (int i = 0; i < expected.Length; i++)
+            if (BitConverter.DoubleToInt64Bits(expected[i]) != BitConverter.DoubleToInt64Bits(actual[i]))
+                throw new InvalidOperationException($"{what}[{i}]: {BitConverter.DoubleToInt64Bits(expected[i]):X16} against {BitConverter.DoubleToInt64Bits(actual[i]):X16}");
+    }
+
+    /// <summary>
+    /// Time of one 258 eta x 2001 x call on F-CAMBER and of one promotion plan on F-PEAK at the production grid, median of three each.
+    /// Off in the normal ring: it prints SKIP unless CFD_SF2_TIMING=1.
+    /// </summary>
+    private static void MeasurePathTiming()
+    {
+        if (!Sf2Timing) { Console.WriteLine("SKIP Station_MeasurePath_Timing_GatedByEnvironment set CFD_SF2_TIMING=1 to measure"); return; }
+        var etas = Enumerable.Range(0, 258).Select(i => i / 257d).ToArray();
+        var xs = Xs(2001);
+        byte[] source = Camber();
+        double Median(Func<double> run) { var times = new[] { run(), run(), run() }; Array.Sort(times); return times[1]; }
+        double Time(Action work) { var watch = System.Diagnostics.Stopwatch.StartNew(); work(); return watch.Elapsed.TotalMilliseconds; }
+        _ = Placement.Sections(source, [0.5], xs, CancellationToken.None);
+        double call = Median(() => Time(() => Placement.Sections(source, etas, xs, CancellationToken.None)));
+        double callMeasure = Median(() => Time(() => Placement.SectionsForMeasure(source, etas, xs, CancellationToken.None)));
+        double plan = Median(() => Time(() =>
+        {
+            using var session = Open(Peak(), production: true);
+            session.PreviewPromote(Pct("50"), "50 %");
+        }));
+        Console.WriteLine($"MEASURE sf2 sections_call_258x2001_ms={call:F0} measure_path_call_ms={callMeasure:F0} promotion_plan_ms={plan:F0}");
     }
 
     // ---- fixtures ---------------------------------------------------------------------------------------------------

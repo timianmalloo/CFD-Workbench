@@ -13351,6 +13351,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "8639878a3c165a483a9ed3e74e11bef32d76076c39b0019a1ab32520bbda94cc"
     },
     {
+      "id": "proof-add-station-sf2",
+      "path": "docs/proof/add-station/sf2.md",
+      "title": "Add station follow-ups proof (SF2): the measure-path speed-up and Match the blend",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@track-sf2",
+      "phase": "implementation",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "The observed lines of wave-2 track SF2. Node SF2-1 (the Placement.Sections speed-up under Ruling 262 DF-Q3) is recorded: a bit-for-bit guard over every Station fixture and the Placement fixtures, its one-ulp mutant red, the timings before and after. Node SF2-2 (Match the blend) is not yet recorded.",
+      "tags": [
+        "add-station",
+        "promote",
+        "rule-a",
+        "ruling-262",
+        "bit-identity"
+      ],
+      "links": [
+        {
+          "to": "design-add-station",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "caf8c76f10466a9e31697332335b876a0b912b0e2b3b25b6f2f98ce4688757c6"
+    },
+    {
       "id": "proof-app-shell-test-inventory",
       "path": "docs/proof/app-shell-test-inventory.md",
       "title": "App-shell test inventory — WorkbenchTests.cs assertions bound to controls the shell removes or changes",
@@ -23989,5 +24016,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "809f23dc6b56baaa13c8a6c6ca7824b62abb154223da15630fc6cc0a72eb0500"
+  "graphSha256": "b4c579234a5a3c90aee40838c0739f2cdb16978960b5fda14da1d939d4fcadad"
 };
