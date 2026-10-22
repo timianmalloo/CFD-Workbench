@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T23:39:35Z",
+  "generated": "2026-10-22T23:41:46Z",
   "audit": [
     {
       "actor": null,
@@ -42729,177 +42729,241 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M5JXPAQJWSQAMD5P10CK7MDG",
-      "shortname": "join-w2b-wf",
-      "datetime": "2026-10-22T23:03:44Z",
-      "session": "pc-laptop-leader",
-      "prompt": "the join of w2b-wf into main",
-      "summary": "WF joined after its UX and Accessibility plus Test Architect review and two repair cycles: every DOC-UNSUPPORTED-PERSISTENCE cause on Open mapped to its store site and covered by one truthful sentence COPY-641 (approved under Rulings 265 and 266, COPY-590 retired), COPY-642 off Windows, COPY-643 for a changed or in-use file with a Try again button, COPY-644 for a missing file, COPY-645 the File Explorer permission sentence (macOS keeps COPY-126), COPY-646 the Windows Save-section sentence after measuring that the section library saves on Windows, the export default at the local folder for a read-only OneDrive document, COPY-615 left with its reason recorded; the stale Open-copy check made host-aware with cases for the new rows, a pure Labels check in the Analysis harness for both CI runners recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "finish the W2-Q2 follow-up: truthful Windows refusal and permission copy",
+      "datetime": "2026-10-22T23:03:44Z",
       "done_when": "w2b-wf merged on main with the integrated full ring green under the leader's crash-and-124 rule and the ten verify gates green",
-      "tier": "T1",
+      "duration_seconds": 281.0,
       "fan_out": 0,
+      "goal": "finish the W2-Q2 follow-up: truthful Windows refusal and permission copy",
+      "id": "al-01M5JXPAQJWSQAMD5P10CK7MDG",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of w2b-wf into main",
+      "session": "pc-laptop-leader",
+      "shortname": "join-w2b-wf",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-22T22:59:03Z",
-      "duration_seconds": 281.0
+      "summary": "WF joined after its UX and Accessibility plus Test Architect review and two repair cycles: every DOC-UNSUPPORTED-PERSISTENCE cause on Open mapped to its store site and covered by one truthful sentence COPY-641 (approved under Rulings 265 and 266, COPY-590 retired), COPY-642 off Windows, COPY-643 for a changed or in-use file with a Try again button, COPY-644 for a missing file, COPY-645 the File Explorer permission sentence (macOS keeps COPY-126), COPY-646 the Windows Save-section sentence after measuring that the section library saves on Windows, the export default at the local folder for a read-only OneDrive document, COPY-615 left with its reason recorded; the stale Open-copy check made host-aware with cases for the new rows, a pure Labels check in the Analysis harness for both CI runners recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M5JXW261TWX0RDBNTQN2JKCD",
-      "shortname": "coordinate-next-best-six-wave2",
-      "datetime": "2026-10-22T23:06:52Z",
-      "session": "pc-laptop-leader",
-      "prompt": "/investigate the intermittendt desktop native crash skip the macos run ... we are pivoting to focus on windows accept 4 do 3 increase the VLM run budget so it works keep going  and lets get a3d compare, add station and w2-q2 follow up implemented and complete",
-      "summary": "Wave 2 closed: every track joined or dropped. Joined on main: DF designs (855bf4c6), C1 copy rows and the owner-only preference folder ACL (68919b3f), SF1 slice-chip peers (67ae5143), BS node A Clear unfinished save (417557da) and node B read-only Open from OneDrive with the recorded real-file run (3ca6422b), AF dimensional deltas display-only (f955bbca), MX the 32,000,000-byte cap under Ruling 263 with spec amendment 1.7.10 under Ruling 264 (145f11d9, fa4dcff0), SF2 the bit-identical station measure path and Match the blend (b31668b6), CR1 the crash-capture hook (48ea4297), the investigation report and its correction (26ff9bcb, b51d01f3), CR2 the fix for the Desktop native crash (28e23de0), WF the Windows refusal copy under Rulings 265 and 266 (5de36f84). Dropped: R1 (harness software rendering). Rulings 262 to 266. The crash: root cause verified as SkiaSharp 2.88.9's array helper DrawVertices creating an SKVertices nothing keeps reachable during the draw; sixteen paired runs on the fixed build with zero fatal exits where each path crashed on its first pair before. Planned vs actual appended to the plan; the operator's list: a yes or no on the dimensional deltas (Ruling 262 DF-Q1), the copy review of COPY-642 to 646 (with COPY-644 duplicating COPY-125), the two Ruling 266 residuals, the follow-ups in the record's section 4.",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
-      "artifacts": [
-        "docs/coordination/next-best-six-wave2.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "work autonomously through the operator's decisions of 2026-10-22: the crash investigation, the three store items, the VLM run budget, and A3d Compare, Add station and the W2-Q2 follow-up complete",
-      "done_when": "every wave-2 track joined on main with its ring and gates green or dropped with its reason recorded, the crash's root cause verified and fixed, the record appended to the plan, the operator's decisions listed",
-      "tier": "T2",
-      "fan_out": 3,
       "agent_runs": [
         {
           "agent": "w2b-df",
-          "started_at": "2026-10-22T16:19:01Z",
-          "ended_at": "2026-10-22T16:42:23Z",
-          "duration_seconds": 1402.0,
-          "calls": 82,
           "budget_calls": 90,
-          "over_budget": false
+          "calls": 82,
+          "duration_seconds": 1402.0,
+          "ended_at": "2026-10-22T16:42:23Z",
+          "over_budget": false,
+          "started_at": "2026-10-22T16:19:01Z"
         },
         {
           "agent": "w2b-c1-copy-acl",
-          "started_at": "2026-10-22T15:59:56Z",
+          "duration_seconds": 0.0,
           "ended_at": "2026-10-22T15:59:56Z",
-          "duration_seconds": 0.0
+          "started_at": "2026-10-22T15:59:56Z"
         },
         {
           "agent": "w2b-sf1",
-          "started_at": "2026-10-22T15:56:38Z",
+          "duration_seconds": 1829.0,
           "ended_at": "2026-10-22T16:27:07Z",
-          "duration_seconds": 1829.0
+          "started_at": "2026-10-22T15:56:38Z"
         },
         {
           "agent": "w2b-ds-store-design",
-          "started_at": "2026-10-22T15:46:31Z",
+          "duration_seconds": 1438.0,
           "ended_at": "2026-10-22T16:10:29Z",
-          "duration_seconds": 1438.0
+          "started_at": "2026-10-22T15:46:31Z"
         },
         {
           "agent": "w2b-bs",
-          "started_at": "2026-10-22T16:49:11Z",
-          "ended_at": "2026-10-22T17:34:02Z",
-          "duration_seconds": 2691.0,
-          "calls": 123,
           "budget_calls": 115,
-          "over_budget": true
+          "calls": 123,
+          "duration_seconds": 2691.0,
+          "ended_at": "2026-10-22T17:34:02Z",
+          "over_budget": true,
+          "started_at": "2026-10-22T16:49:11Z"
         },
         {
           "agent": "w2b-bs-b",
-          "started_at": "2026-10-22T18:37:38Z",
-          "ended_at": "2026-10-22T19:08:37Z",
-          "duration_seconds": 1859.0,
-          "calls": 133,
           "budget_calls": 130,
-          "over_budget": true
+          "calls": 133,
+          "duration_seconds": 1859.0,
+          "ended_at": "2026-10-22T19:08:37Z",
+          "over_budget": true,
+          "started_at": "2026-10-22T18:37:38Z"
         },
         {
           "agent": "w2b-af",
-          "started_at": "2026-10-22T17:32:44Z",
-          "ended_at": "2026-10-22T17:59:22Z",
-          "duration_seconds": 1598.0,
-          "calls": 108,
           "budget_calls": 150,
-          "over_budget": false
+          "calls": 108,
+          "duration_seconds": 1598.0,
+          "ended_at": "2026-10-22T17:59:22Z",
+          "over_budget": false,
+          "started_at": "2026-10-22T17:32:44Z"
         },
         {
           "agent": "w2b-sf2",
-          "started_at": "2026-10-22T17:14:30Z",
-          "ended_at": "2026-10-22T19:32:09Z",
-          "duration_seconds": 8259.0,
-          "calls": 287,
           "budget_calls": 275,
-          "over_budget": true
+          "calls": 287,
+          "duration_seconds": 8259.0,
+          "ended_at": "2026-10-22T19:32:09Z",
+          "over_budget": true,
+          "started_at": "2026-10-22T17:14:30Z"
         },
         {
           "agent": "w2b-mx",
-          "started_at": "2026-10-22T17:45:15Z",
-          "ended_at": "2026-10-22T19:11:10Z",
-          "duration_seconds": 5155.0,
-          "calls": 132,
           "budget_calls": 150,
-          "over_budget": false
+          "calls": 132,
+          "duration_seconds": 5155.0,
+          "ended_at": "2026-10-22T19:11:10Z",
+          "over_budget": false,
+          "started_at": "2026-10-22T17:45:15Z"
         },
         {
           "agent": "w2b-spec-1710",
-          "started_at": "2026-10-22T19:18:28Z",
-          "ended_at": "2026-10-22T19:18:28Z",
-          "duration_seconds": 0.0,
-          "calls": 8,
           "budget_calls": 15,
-          "over_budget": false
+          "calls": 8,
+          "duration_seconds": 0.0,
+          "ended_at": "2026-10-22T19:18:28Z",
+          "over_budget": false,
+          "started_at": "2026-10-22T19:18:28Z"
         },
         {
           "agent": "cr1-crash-capture",
-          "started_at": "2026-10-22T16:10:18Z",
-          "ended_at": "2026-10-22T18:59:54Z",
-          "duration_seconds": 10176.0,
-          "calls": 31,
           "budget_calls": 45,
-          "over_budget": false
+          "calls": 31,
+          "duration_seconds": 10176.0,
+          "ended_at": "2026-10-22T18:59:54Z",
+          "over_budget": false,
+          "started_at": "2026-10-22T16:10:18Z"
         },
         {
           "agent": "cr2-vertices-lifetime",
-          "started_at": "2026-10-22T20:37:41Z",
-          "ended_at": "2026-10-22T22:24:37Z",
-          "duration_seconds": 6416.0,
-          "calls": 47,
           "budget_calls": 85,
-          "over_budget": false
+          "calls": 47,
+          "duration_seconds": 6416.0,
+          "ended_at": "2026-10-22T22:24:37Z",
+          "over_budget": false,
+          "started_at": "2026-10-22T20:37:41Z"
         },
         {
           "agent": "w2b-wf",
-          "started_at": "2026-10-22T22:20:00Z",
-          "ended_at": "2026-10-22T22:20:00Z",
-          "duration_seconds": 0.0,
-          "calls": 108,
           "budget_calls": 135,
-          "over_budget": false
+          "calls": 108,
+          "duration_seconds": 0.0,
+          "ended_at": "2026-10-22T22:20:00Z",
+          "over_budget": false,
+          "started_at": "2026-10-22T22:20:00Z"
         }
       ],
+      "artifacts": [
+        "docs/coordination/next-best-six-wave2.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-22T23:06:52Z",
+      "done_when": "every wave-2 track joined on main with its ring and gates green or dropped with its reason recorded, the crash's root cause verified and fixed, the record appended to the plan, the operator's decisions listed",
+      "fan_out": 3,
+      "goal": "work autonomously through the operator's decisions of 2026-10-22: the crash investigation, the three store items, the VLM run budget, and A3d Compare, Add station and the W2-Q2 follow-up complete",
+      "id": "al-01M5JXW261TWX0RDBNTQN2JKCD",
+      "kind": "skill",
+      "outcome": "success",
       "parallelism": {
         "agent_seconds": 40823.0,
+        "peak_concurrency": 4,
         "span_seconds": 19954.0,
-        "speedup": 2.05,
-        "peak_concurrency": 4
-      }
+        "speedup": 2.05
+      },
+      "prompt": "/investigate the intermittendt desktop native crash skip the macos run ... we are pivoting to focus on windows accept 4 do 3 increase the VLM run budget so it works keep going  and lets get a3d compare, add station and w2-q2 follow up implemented and complete",
+      "session": "pc-laptop-leader",
+      "shortname": "coordinate-next-best-six-wave2",
+      "skill": "execute-with-coordination",
+      "summary": "Wave 2 closed: every track joined or dropped. Joined on main: DF designs (855bf4c6), C1 copy rows and the owner-only preference folder ACL (68919b3f), SF1 slice-chip peers (67ae5143), BS node A Clear unfinished save (417557da) and node B read-only Open from OneDrive with the recorded real-file run (3ca6422b), AF dimensional deltas display-only (f955bbca), MX the 32,000,000-byte cap under Ruling 263 with spec amendment 1.7.10 under Ruling 264 (145f11d9, fa4dcff0), SF2 the bit-identical station measure path and Match the blend (b31668b6), CR1 the crash-capture hook (48ea4297), the investigation report and its correction (26ff9bcb, b51d01f3), CR2 the fix for the Desktop native crash (28e23de0), WF the Windows refusal copy under Rulings 265 and 266 (5de36f84). Dropped: R1 (harness software rendering). Rulings 262 to 266. The crash: root cause verified as SkiaSharp 2.88.9's array helper DrawVertices creating an SKVertices nothing keeps reachable during the draw; sixteen paired runs on the fixed build with zero fatal exits where each path crashed on its first pair before. Planned vs actual appended to the plan; the operator's list: a yes or no on the dimensional deltas (Ruling 262 DF-Q1), the copy review of COPY-642 to 646 (with COPY-644 duplicating COPY-125), the two Ruling 266 residuals, the follow-ups in the record's section 4.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
     },
     {
-      "id": "al-01M5JXXV27HV42V3E6KXVHYXFY",
-      "shortname": "join-wave2-close",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-22T23:07:50Z",
-      "session": "pc-laptop-leader",
+      "done_when": "wave2-close merged on main with check-docs and the ten gates green",
+      "duration_seconds": 21.0,
+      "fan_out": 0,
+      "goal": "close wave 2 with its record on main",
+      "id": "al-01M5JXXV27HV42V3E6KXVHYXFY",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of wave2-close into main",
+      "session": "pc-laptop-leader",
+      "shortname": "join-wave2-close",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-22T23:07:29Z",
       "summary": "docs-only join of the wave-2 close: the record appended to docs/coordination/next-best-six-wave2.md (status complete), the investigation report R2 cell at 28e23de0, the closing execute-with-coordination entry with thirteen measured agent runs recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "datetime": "2026-10-22T23:39:35Z",
+      "id": "al-01M5JZQYZZDDTWNM84924BHMAK",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "yes to the deltas, approve 642-646, update the memory",
+      "session": "prompt-log",
+      "shortname": "yes to the deltas, approve 642-646, update the memory",
+      "skill": null,
+      "summary": "prompt logged for reuse",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "DESIGN.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-22T23:40:49Z",
+      "done_when": "the five rows read approved by the operator and the plan record carries the yes",
+      "fan_out": 0,
+      "goal": "record the operator's decisions on the wave-2 close",
+      "id": "al-01M5JZT74WBHXCKJCW54TMRD1P",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "yes to the deltas, approve 642-646, update the memory",
+      "session": "pc-laptop-leader",
+      "shortname": "wave2-operator-decisions",
+      "skill": "execute-with-coordination",
+      "summary": "The operator's answers to the wave-2 close: yes, the dimensional deltas stay (Ruling 262 DF-Q1 confirmed by the operator); COPY-642 to 646 approved by the operator; recorded on the rows and in the plan record. COPY-644 still duplicates the approved COPY-125 (a copy follow-up).",
+      "tags": [],
+      "tier": "T0",
+      "tool": null
+    },
+    {
+      "id": "al-01M5JZVZE171DJQ2BAG4RRWEQ5",
+      "shortname": "join-wave2-operator-decisions",
+      "datetime": "2026-10-22T23:41:46Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of wave2-operator-decisions into main",
+      "summary": "docs-only join: COPY-642 to 646 approved by the operator, the yes on the dimensional deltas recorded in the plan record recount_seconds=0 (docs_only=True).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -42908,8 +42972,8 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "close wave 2 with its record on main",
-      "done_when": "wave2-close merged on main with check-docs and the ten gates green",
+      "goal": "record the operator's decisions on the wave-2 close",
+      "done_when": "merged on main with check-docs and the ten gates green",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -42917,23 +42981,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-22T23:07:29Z",
+      "started_at": "2026-10-22T23:41:25Z",
       "duration_seconds": 21.0
-    },
-    {
-      "id": "al-01M5JZQYZZDDTWNM84924BHMAK",
-      "shortname": "yes to the deltas, approve 642-646, update the memory",
-      "datetime": "2026-10-22T23:39:35Z",
-      "session": "prompt-log",
-      "prompt": "yes to the deltas, approve 642-646, update the memory",
-      "summary": "prompt logged for reuse",
-      "kind": "prompt",
-      "skill": null,
-      "tool": null,
-      "actor": null,
-      "artifacts": [],
-      "tags": [],
-      "outcome": "success"
     }
   ],
   "changes": [
