@@ -513,7 +513,7 @@ public sealed class SaveBlockedDialog : Window
         ShowStep(ConfirmBody, isBusy: true, confirm, cancel); // A3: no text, both buttons disabled, focus on the heading
         ClearResult result;
         try { result = await clear!(); }
-        catch (Exception error) when (error is ContractError or IOException or UnauthorizedAccessException)
+        catch (Exception error) // any exception ends in A5, never a dialog stuck busy (U1); a store that cannot say why is DOC-IO
         { result = new ClearResult(ClearOutcome.Failed, (error as ContractError)?.Code ?? "DOC-IO", 0); }
         busy = false;
         switch (result.Outcome)

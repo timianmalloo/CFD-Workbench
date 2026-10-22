@@ -4089,7 +4089,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "649bbf542844093fd2f4b34c9c35312dae2cf7de759870be48d4f7ef7042d837"
+      "sourceSha256": "0c9c50bc34953f9836b5799a7d265d18d9a7330bee5718e075b32362917c43b0"
     },
     {
       "id": "mockup-a3d-compare",
@@ -9740,7 +9740,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "39ee2b867e981e64b5f4c4dbc480aea72ba411f6a2b0a33a0b36f70bd89aa84c"
+      "sourceSha256": "b22d4ddebded55d66fd993f2ce1f833220b25c012826c9aa0ccc6fe34fcc05ac"
     },
     {
       "id": "kb-hw-glossary",
@@ -20836,6 +20836,37 @@ window.DOCS_INDEX = {
       "sourceSha256": "9c8b88b6935564b85c10c9ae92c98a031cef25cc41c9d61f20bb0979729e4798"
     },
     {
+      "id": "proof-win-store-recovery",
+      "path": "docs/proof/win-store-recovery/README.md",
+      "title": "Windows store recovery, node A: Clear unfinished save, red then green and mutants",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@pc-laptop-leader",
+      "phase": "windows-w-2-build",
+      "reviewBy": "",
+      "reviewSuggested": [],
+      "summary": "Node A of the Windows store recovery build: every Clear check was red (compile) on main, then green; mutants were run in two rounds; the survivors are equivalent or defence in depth and are named.",
+      "tags": [
+        "windows",
+        "persistence",
+        "clear-unfinished-save",
+        "ruling-259",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-windows-store-recovery",
+          "rel": "implements"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "96ed53b3d2f47ad9327cbd113647b2a53567bb1c94c82d16efcd5a2a307ef181"
+    },
+    {
       "id": "proof-win-trig-bits-20261008",
       "path": "docs/proof/win-trig-bits/receipt.md",
       "title": "Windows .NET 10 trigonometric bit dump",
@@ -23846,5 +23877,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "11d5ec867cda3b099f6e2142ca446d7ef1752d2acb400cc295fb823460e5120c"
+  "graphSha256": "217b171fff1948338c0c1375d41ea60633d22d4dd6f79ec3fd870a7d1d48119d"
 };

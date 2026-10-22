@@ -25,6 +25,7 @@ public static class SaveBlockedDialogTests
         DesktopChecks.Check("SaveBlockedDialog_ClearInUse_ShowsCopy449_TryAgain", ClearInUse);
         DesktopChecks.Check("SaveBlockedDialog_ClearFailed_ShowsCopy455WithCode", ClearFailed);
         DesktopChecks.Check("SaveBlockedDialog_Clearing_FocusInsideDialog_ThenCancelOnRefusal", ClearingFocus);
+        DesktopChecks.Check("SaveBlockedDialog_UnexpectedException_ShowsA5Copy455_NotStuckBusy", UnexpectedException);
         DesktopChecks.Check("SaveBlockedDialog_EscapeOrCancelFromConfirm_FocusReturnsToClear", CancelReturnsToClear);
         if (!OperatingSystem.IsWindows())
         {
@@ -159,18 +160,39 @@ public static class SaveBlockedDialogTests
         finally { dialog.Close(); }
     }
 
-    // U2: Cancel (Escape is the IsCancel button) from A2, A4 and A5 returns to S3 with focus on the control that opened S4.
+    private static void PressEscape(Window dialog)
+    {
+        dialog.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = Key.Escape, Source = dialog });
+        Dispatcher.UIThread.RunJobs();
+    }
+
+    // A5 for an exception the store seam does not map (U1): the dialog is not stuck busy; COPY-455 with DOC-IO, buttons enabled, focus on Cancel.
+    private static void UnexpectedException()
+    {
+        var dialog = Shown(() => throw new InvalidOperationException("injected"));
+        try
+        {
+            Click(Find(dialog, "Clear unfinished save…")); Click(Find(dialog, "Clear unfinished save"));
+            Pump(() => Labels(dialog).Contains("Try again"), "an unexpected exception left the dialog busy");
+            Need(Texts(dialog).Contains("Couldn't clear the unfinished save (DOC-IO). Your saved file and your current work are unchanged."), "COPY-455: " + string.Join(" | ", Texts(dialog)));
+            Need(Buttons(dialog).All(button => button.IsEnabled) && Focused(dialog) == Find(dialog, "Cancel"), "A5 buttons are disabled or focus is not Cancel");
+        }
+        finally { dialog.Close(); }
+    }
+
+    // U2: Cancel and Escape from A2, A4 and A5 return to S3 with focus on the control that opened S4.
     private static void CancelReturnsToClear()
     {
         foreach (string state in new[] { "confirm", "in-use", "failed" })
+        foreach (bool escape in new[] { false, true })
         {
             var dialog = Shown(() => Task.FromResult(state == "in-use" ? new ClearResult(ClearOutcome.InUse, "DOC-CONFLICT", 0) : new ClearResult(ClearOutcome.Failed, "DOC-IO", 0)));
             try
             {
                 Click(Find(dialog, "Clear unfinished save…"));
                 if (state != "confirm") { Click(Find(dialog, "Clear unfinished save")); Pump(() => Labels(dialog).Contains("Try again"), state + " did not appear"); }
-                Click(Find(dialog, "Cancel"));
-                Need(dialog.IsVisible && dialog.Title == "Save is blocked", $"{state}: Cancel did not return to S3 (title '{dialog.Title}')");
+                if (escape) PressEscape(dialog); else Click(Find(dialog, "Cancel"));
+                Need(dialog.IsVisible && dialog.Title == "Save is blocked", $"{state}: {(escape ? "Escape" : "Cancel")} did not return to S3 (title '{dialog.Title}')");
                 Need(Labels(dialog).SequenceEqual(["Save As…", "Clear unfinished save…", "Cancel"]), $"{state}: S3 buttons " + string.Join(" | ", Labels(dialog)));
                 Need(Focused(dialog) == Find(dialog, "Clear unfinished save…"), $"{state}: focus did not return to Clear unfinished save…");
             }
@@ -228,7 +250,7 @@ public static class SaveBlockedDialogTests
         string folder = TestTemp.NewDirectory("retry-once-"), path = Path.Combine(folder, "project.cfdw.json");
         var saves = new List<(string Path, string? Hash)>();
         var controller = new WorkbenchController(session => new RecordingStore(new ProjectStore(session), (target, request) => saves.Add((target, request.ExpectedDiskSha256)),
-            () => CrashLeft(folder))); // the leftover is created again after Clear, so the retry is blocked again
+            () => { File.AppendAllText(path, "\n"); CrashLeft(folder); })); // another writer changes the file during the Clear, and the leftover is created again, so the retry is blocked again
         var window = new MainWindow(new PreferenceStore(TestTemp.NewDirectory("retry-once-prefs-"), () => new ProjectStore()), null, controller);
         try
         {
@@ -246,6 +268,8 @@ public static class SaveBlockedDialogTests
             Await(pending);
             Need(saves.Count == before + 2, $"expected the blocked save and one retry, saw {saves.Count - before} store saves");
             Need(saves[^1] == blockedSave && blockedSave.Path == path && blockedSave.Hash is not null, "the retry changed the destination or the expected-disk hash");
+            string foreignHash = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(path)));
+            Need(blockedSave.Hash != foreignHash, "the file did not change between the blocked save and the retry, so the held and a recomputed hash cannot be told apart"); // I-8: the retry carries the original hash, so the changed file is a stale write
             Need(Blocked(window) is null, "Save is blocked reopened by itself after the retry was blocked again");
             Need(host.StatusStrip.Text == CfdWorkbench.Analysis.Labels.SaveRefusal("DOC-CONFLICT"), "the ordinary save status is not shown: " + host.StatusStrip.Text);
             Need(host.Controller.IsDirty, "the blocked retry cleaned the document");

@@ -30,6 +30,11 @@ public sealed record SessionDraft(string Id, string Base, long Generation, strin
 public sealed record SessionBinding(string SourceHash, string Base, string DraftId, long Generation, string Evaluator, string SurfaceHash, string Rail, string VertexId);
 
 public sealed record SessionView(string AcceptedId, string SourceHash, string SurfaceHash, byte[] Source, SessionDraft? Draft, RecoveryRow? Recovery, bool Dirty);
+/// <remarks>
+/// Known reuse: <c>store.clear</c> puts the candidate count in <see cref="InputBytes"/> and the removed count in <see cref="OutputBytes"/>
+/// (counts, not bytes) and is recorded under the <c>document.save</c> operation; <see cref="Action"/> stays <c>store.clear</c>.
+/// A follow-up gives Clear its own <see cref="Operation"/> value and count fields (docs/design/windows-store-recovery.md section 11).
+/// </remarks>
 public sealed record SessionEvent(long Sequence, string Operation, string Outcome, double? DurationMilliseconds, int? InputBytes,
     int? OutputBytes, string? TraceId, long? Generation, string? Evaluator, int RetainedSources, int AcceptedFacts, string Action,
     bool? PublicationKnown = null, bool? DurabilityConfirmed = null, string? EditKind = null,

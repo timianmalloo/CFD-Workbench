@@ -249,7 +249,8 @@ internal static class WindowsProjectStoreTests
         Check("WindowsStore_Clear_UnderOneDrive_RefusedNothingRemoved", ClearUnderOneDrive);
         Check("WindowsStore_Clear_TelemetryEventCodeAndCounts", ClearTelemetry);
         Check("WindowsStore_Clear_CaseVariantClaim_NotReportedCleared", ClearCaseVariantClaim);
-        Check("WindowsStore_Clear_NonSharingOpenError_FailedNothingRemoved", ClearNonSharingOpenError);
+        Check("WindowsStore_Clear_ReadOnlyCandidate_FailsAtC5Delete_DocIo_NothingRemoved", ClearReadOnlyCandidateFailsAtDelete);
+        Check("WindowsStore_Clear_DeletePendingCandidate_C2OpenError_FailedNothingRemoved", ClearNonSharingOpenError);
         Check("WindowsStore_Clear_ReaderOnTemp_NotInUse", ClearReaderOnTemp);
         Check("WindowsNative_ListNames_ManyEntriesAcrossBuffers_ExactSet", ClearListsEntries);
         // Ruling 160 (1) and (5): the OneDrive refusal and its fail-closed form, decided in Persistence so no window is needed.
@@ -876,15 +877,24 @@ internal static class WindowsProjectStoreTests
         Equal(true, UnfinishedSave.BlocksFolder(otherPath)); // never "Cleared" while a claim name still answers
     }
 
+    // C5: a read-only candidate opens for DELETE (the open succeeds, probed) and the delete itself fails with Win32 5: Failed DOC-IO, claim kept.
+    private static void ClearReadOnlyCandidateFailsAtDelete()
+    {
+        string root = NewRoot(), path = Seed(root); Leftover(root, ".cfd-writer.claim"); string temp = LeftoverTemp(root), tempPath = Path.Combine(root, temp);
+        using var store = new ProjectStore();
+        File.SetAttributes(tempPath, FileAttributes.ReadOnly);
+        var denied = Clear(store, path);
+        File.SetAttributes(tempPath, FileAttributes.Normal);
+        Equal(new ClearResult(ClearOutcome.Failed, "DOC-IO", 0), denied);
+        Equal(true, File.Exists(Path.Combine(root, ".cfd-writer.claim")) && File.Exists(tempPath)); // nothing removed
+        Console.WriteLine($"CLEAR-C5-DELETE readonly={denied.Outcome}:{denied.Code} removed={denied.Removed}");
+    }
+
+    // C2: the open of a delete-pending candidate fails before the share check; any other open error is Failed, not InUse, and drops nothing.
     private static void ClearNonSharingOpenError()
     {
         string root = NewRoot(), path = Seed(root); Leftover(root, ".cfd-writer.claim"); string temp = LeftoverTemp(root), tempPath = Path.Combine(root, temp);
         using var store = new ProjectStore();
-        File.SetAttributes(tempPath, FileAttributes.ReadOnly); // a read-only file cannot be opened for DELETE: access denied
-        var denied = Clear(store, path);
-        File.SetAttributes(tempPath, FileAttributes.Normal);
-        Equal(ClearOutcome.Failed, denied.Outcome); Equal(0, denied.Removed);
-        Equal(true, File.Exists(Path.Combine(root, ".cfd-writer.claim")) && File.Exists(tempPath)); // nothing removed
         // delete pending: the legacy disposition on a handle that stays open (FileDispositionInfo = 4)
         using var holder = CreateFileW(tempPath, 0x00010000, 7, 0, 3, 0x80, 0); // DELETE, share all, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL
         Equal(false, holder.IsInvalid);
@@ -893,7 +903,7 @@ internal static class WindowsProjectStoreTests
         Equal(ClearOutcome.Failed, pending.Outcome); Equal(0, pending.Removed);
         Equal(true, File.Exists(Path.Combine(root, ".cfd-writer.claim")));
         holder.Dispose();
-        Console.WriteLine($"CLEAR-NONSHARING-OPEN readonly={denied.Outcome}:{denied.Code} delete_pending={pending.Outcome}:{pending.Code} removed=0");
+        Console.WriteLine($"CLEAR-NONSHARING-OPEN delete_pending={pending.Outcome}:{pending.Code} removed=0");
     }
 
     private static void ClearReaderOnTemp()
