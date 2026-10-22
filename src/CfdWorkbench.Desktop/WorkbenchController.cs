@@ -3123,6 +3123,11 @@ public sealed class WorkbenchController : IDisposable
     public byte[]? PendingOriginal { get; private set; }
     public byte[]? PendingCandidate { get; private set; }
     public string? NativePath { get; private set; }
+    /// <summary>
+    /// Where the open document lives (design windows-store-recovery 2.1, 2.7): set at Open from the store's answer, back to Local only after a
+    /// successful Save As, never persisted. A OneDriveReadOnly document is never saved over its own path (I-13).
+    /// </summary>
+    public DocumentOrigin Origin { get; private set; }
     public string? OpenedPath { get; private set; }
     // STATUS-CLOBBER: every write counts, so a background report replaces only the placeholder it wrote, never a newer message.
     public string Status { get => statusSlot.Text; private set => statusSlot.Write(value); }
@@ -3324,6 +3329,7 @@ public sealed class WorkbenchController : IDisposable
             return new OpenOutcome.Superseded();
         expectedDiskSha = nativeRead?.DiskSha256;
         NativePath = path;
+        Origin = nativeRead?.Origin ?? DocumentOrigin.Local;
         OpenedPath = path;
         UpdateEstimates();
 
@@ -3652,6 +3658,13 @@ public sealed class WorkbenchController : IDisposable
         if (Interlocked.CompareExchange(ref saving, 1, 0) != 0) throw new ContractError("DOC-SAVE-PENDING");
         try
         {
+            if (Origin == DocumentOrigin.OneDriveReadOnly && string.Equals(path, NativePath, StringComparison.OrdinalIgnoreCase))
+            {
+                // I-13 (defence in depth: the window refuses first, with the OneDrive dialog): no store call over the OneDrive file.
+                SetStatus(Labels.SaveRefusal("DOC-UNSUPPORTED-PERSISTENCE"), ReportKind.Warning);
+                Notify();
+                return new SaveResult("DOC-UNSUPPORTED-PERSISTENCE", null, false, false);
+            }
             var capturedSession = session;
             var capturedStore = store;
             if (capturedSession.Snapshot().Draft is not null) capturedSession.CaptureRecovery();
@@ -3665,6 +3678,7 @@ public sealed class WorkbenchController : IDisposable
             {
                 capturedSession.AcknowledgeSaved(image);
                 NativePath = path;
+                Origin = DocumentOrigin.Local; // a successful Save As to a local folder makes the document an ordinary local one
                 expectedDiskSha = hash;
                 MarkSavedDraft(capturedView);
                 Status = "Saved and durability confirmed.";
@@ -3884,6 +3898,7 @@ public sealed class WorkbenchController : IDisposable
         Inspection = session.InspectAccepted();
         ClearPendingImport();
         NativePath = null;
+        Origin = DocumentOrigin.Local;
         OpenedPath = null;
         expectedDiskSha = null;
         uncertainImage = null;

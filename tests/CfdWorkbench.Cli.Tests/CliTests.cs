@@ -309,6 +309,53 @@ internal static class CliHarness
                 System.Diagnostics.Stopwatch.GetElapsedTime(revisionStarted).TotalMilliseconds.ToString("F3", System.Globalization.CultureInfo.InvariantCulture));
         }
 
+        // Wave 2 BS node B (DR-DS-6): a OneDrive file that is not on this PC exits 3, like every other refusal of the location.
+        try
+        {
+            if (Cli.ExitForCode("DOC-CLOUD-ONLY") != 3 || Cli.ExitForCode("DOC-CLOUD-ONLY") != Cli.ExitForCode("DOC-UNSUPPORTED-PERSISTENCE"))
+                throw new Exception($"DOC-CLOUD-ONLY exits {Cli.ExitForCode("DOC-CLOUD-ONLY")}");
+            Console.WriteLine("PASS Cli_ExitForCode_CloudOnly_Is3");
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine("FAIL Cli_ExitForCode_CloudOnly_Is3 " + error.GetType().Name + ": " + error.Message);
+            cliFailures++;
+        }
+        if (OperatingSystem.IsWindows())
+        {
+            string? previousDrive = Environment.GetEnvironmentVariable("OneDrive");
+            try
+            {
+                // A junction inside the OneDrive folder stays refused: exit 3 with DOC-UNSUPPORTED-PERSISTENCE (no exception for any tag but the cloud family).
+                string oneDrive = TestTemp.NewDirectory("onedrive-junction-"), target = TestTemp.NewDirectory("onedrive-junction-target-");
+                string junction = Path.Combine(oneDrive, "junction");
+                using (var link = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("cmd.exe", ["/c", "mklink", "/J", junction, target]) { UseShellExecute = false, RedirectStandardOutput = true })!)
+                { link.StandardOutput.ReadToEnd(); link.WaitForExit(); if (link.ExitCode != 0) throw new Exception("mklink /J failed"); }
+                Environment.SetEnvironmentVariable("OneDrive", oneDrive);
+                output.GetStringBuilder().Clear();
+                exit = await Cli.RunAsync(["inspect", Path.Combine(junction, "wing.cfdw.json"), "--json"], output);
+                if (exit != 3 || !output.ToString().Contains("DOC-UNSUPPORTED-PERSISTENCE", StringComparison.Ordinal))
+                    throw new Exception($"inspect through a junction under OneDrive returned {exit}: {output}");
+                Console.WriteLine("PASS Cli_Inspect_JunctionUnderOneDrive_Refused");
+                // A fully local file of a real OneDrive folder (CFD_LOCAL_ONEDRIVE_FILE) reads through the same store; without it the check is SKIP.
+                if (Environment.GetEnvironmentVariable("CFD_LOCAL_ONEDRIVE_FILE") is { Length: > 0 } real)
+                {
+                    Environment.SetEnvironmentVariable("OneDrive", previousDrive);
+                    output.GetStringBuilder().Clear();
+                    exit = await Cli.RunAsync(["inspect", real, "--json"], output);
+                    if (exit != 0) throw new Exception($"inspect of a fully local OneDrive file returned {exit}: {output}");
+                    Console.WriteLine("PASS Cli_Inspect_OneDriveFullyLocal_Succeeds");
+                }
+                else Console.WriteLine("SKIP Cli_Inspect_OneDriveFullyLocal_Succeeds no-local-onedrive-file");
+            }
+            catch (Exception error)
+            {
+                Console.WriteLine("FAIL Cli_Inspect_OneDriveFullyLocal_SucceedsAndJunctionRefused " + error.GetType().Name + ": " + error.Message);
+                cliFailures++;
+            }
+            finally { Environment.SetEnvironmentVariable("OneDrive", previousDrive); }
+        }
+
         // Repair cycle 2 (Security veto): a missing project under a OneDrive folder was read as DOC-CONFLICT because the ancestor walk could not
         // see the cloud placeholder; the store now refuses the location first. The folder is designated through the OneDrive variable.
         if (OperatingSystem.IsWindows())

@@ -65,7 +65,8 @@ internal static class WindowsProjectStoreTests
             Layout<WindowsNative.FileStandard>(24, ("AllocationSize", 0), ("EndOfFile", 8), ("NumberOfLinks", 16), ("DeletePending", 20), ("Directory", 21));
             Layout<WindowsNative.CaseSensitiveInfo>(4, ("Flags", 0));
             Layout<WindowsNative.SecurityAttributes>(24, ("Length", 0), ("SecurityDescriptor", 8), ("InheritHandle", 16));
-            Layout<WindowsNative.FileNamesHeader>(12, ("NextEntryOffset", 0), ("FileIndex", 4), ("FileNameLength", 8)); // ntifs.h FILE_NAMES_INFORMATION before the name
+            Layout<WindowsNative.FileBasic>(40, ("CreationTime", 0), ("LastAccessTime", 8), ("LastWriteTime", 16), ("ChangeTime", 24), ("FileAttributes", 32)); // minwinbase.h FILE_BASIC_INFO
+            Layout<WindowsNative.FileNamesHeader>(12,("NextEntryOffset", 0), ("FileIndex", 4), ("FileNameLength", 8)); // ntifs.h FILE_NAMES_INFORMATION before the name
         });
         Check("WindowsNative_RelativeCreate_PrivateAclBeforeAnyBytes", () => Fixture((root, parent) =>
         {
@@ -259,6 +260,297 @@ internal static class WindowsProjectStoreTests
         Check("WindowsStore_CloudFolder_CloudAttributeOrReparseTagOnFolderOrAncestorRefused", CloudAttributes);
         Check("WindowsStore_CloudFolder_CheckFailureRefusedFailClosed", CloudCheckFailure);
         Check("WindowsStore_CloudFolder_LocalFolderAdmitted_RealAttributeQuery", CloudLocalFolder);
+        // Windows store recovery, node B (docs/design/windows-store-recovery.md 2.5, 2.6, section 7): read-only Open of a fully local OneDrive file.
+        Check("WindowsStore_Open_OneDriveFullyLocal_ReadOnlyOrigin_NothingWritten", OpenOneDriveFullyLocal);
+        Check("WindowsStore_Open_CloudOnlyAttribute_RefusedBeforeAnyRead", OpenCloudOnlyRefused);
+        Check("WindowsStore_Open_JunctionUnderOneDrive_Refused", OpenJunctionUnderOneDrive);
+        Check("WindowsStore_Open_ReparseTagsUnderOneDrive_OnlyCloudFamilyAdmitted", OpenAncestorTags);
+        Check("WindowsStore_Open_Ruling260LeafPredicate_Rows", OpenRuling260Rows);
+        Check("WindowsStore_Open_DataHandleFromHeldHandle_NoRecall_LocalAndOneDrive", OpenDataHandleFromHeld);
+        Check("WindowsStore_Open_UnqualifiedOneDriveRoot_NoException", OpenUnqualifiedRoot);
+        Check("WindowsStore_Open_LeafCloudTagOnlyForOneDriveOrigin", OpenLeafTagOnlyForOneDrive);
+        Check("WindowsStore_Open_RecallBitAfterDataHandle_RefusedConflict", OpenRecallBitAfterDataHandle);
+        Check("WindowsStore_Open_RecalledOrChangedDuringRead_RefusedNoPartial", OpenChangedDuringRead);
+        Check("WindowsStore_SaveWalks_PlaceholderExceptionNotApplied", SaveWalksNoPlaceholderException);
+        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("CFD_ONLINE_ONLY_FILE")))
+            Console.WriteLine("SKIP WindowsStore_Open_RealOnlineOnlyFile_RefusedLeftCloudOnly no-online-only-file");
+        else Check("WindowsStore_Open_RealOnlineOnlyFile_RefusedLeftCloudOnly", OpenRealOnlineOnly);
+        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("CFD_LOCAL_ONEDRIVE_FILE")))
+            Console.WriteLine("SKIP WindowsStore_Open_RealFullyLocalOneDriveFile_AdmittedTagRecorded no-local-onedrive-file");
+        else Check("WindowsStore_Open_RealFullyLocalOneDriveFile_AdmittedTagRecorded", OpenRealFullyLocal);
+    }
+
+    // ---- node B fixtures: a folder named as the OneDrive root by the environment, with the cloud tags the attribute override gives it ----
+    private const uint ReparseAttribute = 0x400, RecallOnDataAccessBit = 0x400000, RecallOnOpenBit = 0x40000, OfflineBit = 0x1000, PinnedBit = 0x80000;
+    private const uint RootTag = 0x9000701A, FullyLocalTag = 0x9000601A, CloudOnlyTag = 0x9000401A; // measured on the developer laptop (design 2.5)
+
+    /// <summary>The synthetic attributes of an Open: the ancestor named OneDrive carries the root tag, others by name, and the leaf by site.</summary>
+    private sealed class Synthetic
+    {
+        internal uint? Root = RootTag;
+        internal readonly Dictionary<string, uint> Ancestors = new(StringComparer.OrdinalIgnoreCase);
+        internal Func<string, (uint Attributes, uint Tag)?>? Leaf;
+        internal Action<StoreStage>? OnStage;
+        private readonly List<StoreStage> stages = [];
+        internal StoreHooks Hooks() => new() { OnStage = stage => { lock (stages) stages.Add(stage); OnStage?.Invoke(stage); }, AttributeOverride = Override };
+        internal int Count(StoreStage stage) { lock (stages) return stages.Count(visited => visited == stage); }
+        internal bool Visited(StoreStage stage) => Count(stage) > 0;
+        private (uint Attributes, uint Tag) Override(string site, string name, (uint Attributes, uint Tag) real)
+        {
+            if (site != "ancestor") return Leaf?.Invoke(site) ?? real;
+            if (name == "OneDrive" && Root is uint root) return (real.Attributes | ReparseAttribute, root);
+            return Ancestors.TryGetValue(name, out uint tag) ? (real.Attributes | ReparseAttribute, tag) : real;
+        }
+    }
+
+    private static (string Folder, string Path) OneDriveFixture()
+    {
+        string folder = Path.Combine(NewRoot(), "OneDrive"); Directory.CreateDirectory(folder);
+        return (folder, Seed(folder));
+    }
+
+    /// <summary>The Open of <paramref name="path"/> with the environment naming <paramref name="folder"/> as the OneDrive root: the result, or null with the refusal code.</summary>
+    private static (ReadResult? Result, string Code) OpenUnder(string folder, Synthetic synth, string path, Action<ProjectStore>? inspect = null)
+    {
+        ReadResult? result = null; string code = "OK";
+        WithEnvironment("OneDrive", folder, () =>
+        {
+            using var store = new ProjectStore(synth.Hooks());
+            try { result = store.ReadAsync(path).GetAwaiter().GetResult(); }
+            catch (ContractError error) { code = error.Code; }
+            inspect?.Invoke(store);
+        });
+        return (result, code);
+    }
+
+    private static string Snapshot(string folder) => string.Join(";", Directory.GetFileSystemEntries(folder).Order(StringComparer.Ordinal).Select(entry =>
+    {
+        using var file = File.OpenHandle(entry, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+        return $"{Path.GetFileName(entry)}:{new FileInfo(entry).Length}:{WindowsNative.Identity(file).Low}:{File.GetLastWriteTimeUtc(entry).Ticks}";
+    }));
+
+    private static void OpenOneDriveFullyLocal()
+    {
+        var leaves = new (string Label, (uint, uint)? Leaf)[]
+        {
+            ("no-tag", null), ("tag-9000601A", (0x20u | ReparseAttribute, FullyLocalTag)), ("pinned-tag-9000601A", (0x20u | ReparseAttribute | PinnedBit, FullyLocalTag))
+        };
+        foreach (var (label, leaf) in leaves)
+        {
+            var (folder, path) = OneDriveFixture(); string before = Snapshot(folder);
+            var synth = new Synthetic { Leaf = _ => leaf };
+            var (read, code) = OpenUnder(folder, synth, path);
+            Equal("OK", code);
+            Equal(DocumentOrigin.OneDriveReadOnly, read!.Origin);
+            Equal(true, read.Image.AsSpan().SequenceEqual(new byte[] { 1, 2, 3 }));
+            Equal(before, Snapshot(folder)); // nothing written: same names, sizes, file ids and last-write times
+            Equal(false, synth.Visited(StoreStage.ClaimCreated) || synth.Visited(StoreStage.TempCreated) || synth.Visited(StoreStage.Writing));
+            Equal(true, synth.Visited(StoreStage.DataHandleOpened) && synth.Count(StoreStage.Reading) == 1);
+            Console.WriteLine($"OPEN-ONEDRIVE-FULLY-LOCAL leaf={label} origin={read.Origin} bytes=3 written=none");
+        }
+    }
+
+    private static void OpenCloudOnlyRefused()
+    {
+        foreach (uint bit in new[] { RecallOnDataAccessBit, RecallOnOpenBit, OfflineBit })
+        {
+            var (folder, path) = OneDriveFixture(); string before = Snapshot(folder);
+            var synth = new Synthetic { Leaf = _ => (0x20u | ReparseAttribute | bit, CloudOnlyTag) };
+            var (read, code) = OpenUnder(folder, synth, path, store =>
+                Equal(true, store.ReadLocalEvents().Any(entry => entry.Action == "store.read" && entry.Outcome == "DOC-CLOUD-ONLY")));
+            Equal("DOC-CLOUD-ONLY", code); Equal(true, read is null);
+            // No data handle exists and no byte was requested: the later stages are never visited and the read counter is 0.
+            Equal(false, synth.Visited(StoreStage.AttributeHandleOpened) || synth.Visited(StoreStage.DataHandleOpened));
+            Equal(0, synth.Count(StoreStage.Reading));
+            Equal(before, Snapshot(folder));
+            Console.WriteLine($"OPEN-CLOUD-ONLY bit=0x{bit:X} code={code} data_handle_stage_visited=false reads=0");
+        }
+    }
+
+    private static void OpenJunctionUnderOneDrive()
+    {
+        var (folder, _) = OneDriveFixture(); string real = Path.Combine(NewRoot(), "real"); Directory.CreateDirectory(real);
+        string target = Seed(real), junction = Path.Combine(folder, "junction");
+        Equal(true, TestLinks.TryDirectoryLink(junction, real));
+        var (read, code) = OpenUnder(folder, new Synthetic(), Path.Combine(junction, Path.GetFileName(target)));
+        Equal("DOC-UNSUPPORTED-PERSISTENCE", code); Equal(true, read is null); // the root is tagged, yet a junction (0xA0000003) stays refused
+    }
+
+    private static void OpenAncestorTags()
+    {
+        foreach (uint tag in new[] { 0xA0000003u, 0xA000000Cu, 0x80000021u, 0x12345678u })
+        {
+            var (folder, _) = OneDriveFixture(); string sub = Path.Combine(folder, "sub"); Directory.CreateDirectory(sub);
+            var synth = new Synthetic(); synth.Ancestors["sub"] = tag;
+            Equal("DOC-UNSUPPORTED-PERSISTENCE", OpenUnder(folder, synth, Seed(sub)).Code);
+        }
+        var (okFolder, _) = OneDriveFixture(); string inside = Path.Combine(okFolder, "sub"); Directory.CreateDirectory(inside);
+        var admitted = new Synthetic(); admitted.Ancestors["sub"] = 0x9000101A; // a cloud-family tag under the tagged root
+        var (read, code) = OpenUnder(okFolder, admitted, Seed(inside));
+        Equal("OK", code); Equal(DocumentOrigin.OneDriveReadOnly, read!.Origin);
+        // A cloud tag above the root is not admitted: the walk is today's for every ancestor above the OneDrive folder.
+        string outer = Path.Combine(NewRoot(), "outer"), onedrive = Path.Combine(outer, "OneDrive"); Directory.CreateDirectory(onedrive);
+        var above = new Synthetic(); above.Ancestors["outer"] = 0x9000601A;
+        Equal("DOC-UNSUPPORTED-PERSISTENCE", OpenUnder(onedrive, above, Seed(onedrive)).Code);
+        Console.WriteLine("OPEN-ANCESTOR-TAGS refused=A0000003,A000000C,80000021,12345678 admitted=9000101A above_root=refused");
+    }
+
+    private static void OpenRuling260Rows()
+    {
+        // (label, attributes, tag, expected code) for a leaf of origin OneDriveReadOnly; a data handle exists only for an admitted row.
+        var rows = new (string Label, uint Attributes, uint Tag, string Expected)[]
+        {
+            ("no-tag-local", 0x20, 0, "OK"),
+            ("tag-9000601A-local", 0x20 | ReparseAttribute, FullyLocalTag, "OK"),
+            ("recall-on-data-access-alone", 0x20 | ReparseAttribute | RecallOnDataAccessBit, FullyLocalTag, "DOC-CLOUD-ONLY"),
+            ("recall-on-open-alone", 0x20 | ReparseAttribute | RecallOnOpenBit, FullyLocalTag, "DOC-CLOUD-ONLY"),
+            ("offline-alone", 0x20 | ReparseAttribute | OfflineBit, FullyLocalTag, "DOC-CLOUD-ONLY"),
+            ("cloud-only-9000401A", 0x20 | ReparseAttribute | RecallOnDataAccessBit | OfflineBit, CloudOnlyTag, "DOC-CLOUD-ONLY"),
+            ("junction-tag", 0x20 | ReparseAttribute, 0xA0000003, "DOC-UNSUPPORTED-PERSISTENCE"),
+            ("symlink-tag", 0x20 | ReparseAttribute, 0xA000000C, "DOC-UNSUPPORTED-PERSISTENCE"),
+            ("legacy-onedrive-tag", 0x20 | ReparseAttribute, 0x80000021, "DOC-UNSUPPORTED-PERSISTENCE"),
+            ("unknown-tag", 0x20 | ReparseAttribute, 0x12345678, "DOC-UNSUPPORTED-PERSISTENCE"),
+        };
+        foreach (var (label, attributes, tag, expected) in rows)
+        {
+            var (folder, path) = OneDriveFixture();
+            var synth = new Synthetic { Leaf = _ => (attributes, tag) };
+            var (_, code) = OpenUnder(folder, synth, path);
+            if (code != expected) throw new InvalidOperationException($"row {label}: expected {expected}, got {code}");
+            if (expected != "OK") Equal(false, synth.Visited(StoreStage.DataHandleOpened)); // refused before any data handle exists
+            Console.WriteLine($"OPEN-R260-ROW {label} -> {code}");
+        }
+        // The same measured tag on a leaf in a local folder is today's rule: any reparse point is refused.
+        string root = NewRoot(), local = Seed(root);
+        using var store = new ProjectStore(new StoreHooks { AttributeOverride = (site, _, real) => site == "ancestor" ? real : (0x20u | ReparseAttribute, FullyLocalTag) });
+        Refuses("DOC-UNSUPPORTED-PERSISTENCE", () => store.ReadAsync(local).GetAwaiter().GetResult());
+    }
+
+    private static void OpenDataHandleFromHeld()
+    {
+        // The primitive: D opens from A with an empty name, so renaming the entry after A was opened changes nothing D reads.
+        string root = NewRoot(), file = Path.Combine(root, "a.bin"); File.WriteAllBytes(file, [1, 2, 3, 4]);
+        using (var parent = WindowsNative.OpenFixtureDirectory(root))
+        using (var attribute = WindowsNative.OpenAttributes(parent, "a.bin"))
+        {
+            File.Move(file, Path.Combine(root, "moved.bin")); File.WriteAllBytes(file, [9, 9, 9, 9, 9]);
+            using var data = WindowsNative.OpenDataFromHeld(attribute);
+            Equal(WindowsNative.Identity(attribute), WindowsNative.Identity(data));
+            Equal(true, Read(data).AsSpan().SequenceEqual(new byte[] { 1, 2, 3, 4 }));
+        }
+        // A plain local file opens through the same path.
+        string local = Seed(NewRoot());
+        using (var store = new ProjectStore()) Equal(3, store.ReadAsync(local).GetAwaiter().GetResult().Image.Length);
+        // A OneDrive fixture file replaced between O3 and O4: never the other file's bytes, and no partial document.
+        var (folder, path) = OneDriveFixture();
+        var synth = new Synthetic { OnStage = stage => { if (stage == StoreStage.AttributeHandleOpened) ExternalReplace(path, [9, 9]); } };
+        var (read, code) = OpenUnder(folder, synth, path);
+        Equal("DOC-CONFLICT", code); Equal(true, read is null); Equal(true, synth.Visited(StoreStage.DataHandleOpened));
+        Console.WriteLine("OPEN-DATA-HANDLE from_held=A empty_name=true identity_equal=true rename_between=no_lookup replaced_between=DOC-CONFLICT");
+    }
+
+    private static void OpenUnqualifiedRoot()
+    {
+        // The root qualification itself: a drive root in any form is not one folder below the drive root.
+        foreach (string root in new[] { @"C:\", @"D:\", @"\\?\C:\" }) Equal(false, CloudFolder.RootQualifies(root));
+        Equal(true, CloudFolder.RootQualifies(@"C:\Work\OneDrive")); Equal(true, CloudFolder.RootQualifies(@"D:\OneDrive"));
+        // The fixture root names itself by the environment but the root directory carries no tag while a subfolder carries 0x9000601A: refused.
+        var (folder, _) = OneDriveFixture(); string sub = Path.Combine(folder, "sub"); Directory.CreateDirectory(sub);
+        var synth = new Synthetic { Root = null }; synth.Ancestors["sub"] = FullyLocalTag;
+        Equal("DOC-UNSUPPORTED-PERSISTENCE", OpenUnder(folder, synth, Seed(sub)).Code);
+        // And an untagged root with an untagged folder is refused too: a OneDrive folder is admitted only through the exception.
+        var (plain, path) = OneDriveFixture();
+        Equal("DOC-UNSUPPORTED-PERSISTENCE", OpenUnder(plain, new Synthetic { Root = null }, path).Code);
+        Console.WriteLine("OPEN-S2 drive_roots=C:\\,D:\\,\\\\?\\C:\\ qualify=false untagged_root=refused");
+    }
+
+    private static void OpenLeafTagOnlyForOneDrive()
+    {
+        // A cloud-tagged leaf under a cloud folder that is not a OneDrive folder (no OneDrive variable names it): refused, not admitted.
+        string root = NewRoot(), other = Path.Combine(root, "other"); Directory.CreateDirectory(other); string path = Seed(other);
+        using var store = new ProjectStore(new StoreHooks { AttributeOverride = (site, name, real) =>
+            site == "ancestor" ? (name == "other" ? (real.Attributes | ReparseAttribute, RootTag) : real) : (0x20u | ReparseAttribute, FullyLocalTag) });
+        Refuses("DOC-UNSUPPORTED-PERSISTENCE", () => store.ReadAsync(path).GetAwaiter().GetResult());
+    }
+
+    private static void OpenRecallBitAfterDataHandle()
+    {
+        foreach (var (stage, suffix) in new[] { (StoreStage.DataHandleOpened, "data"), (StoreStage.Reading, "-after") })
+        {
+            var (folder, path) = OneDriveFixture(); bool set = false;
+            var synth = new Synthetic
+            {
+                OnStage = visited => { if (visited == stage) set = true; },
+                Leaf = site => set && (suffix == "-after" ? site.EndsWith("-after") : site == "data") ? (0x20u | ReparseAttribute | RecallOnDataAccessBit, FullyLocalTag) : null
+            };
+            var (read, code) = OpenUnder(folder, synth, path);
+            Equal("DOC-CONFLICT", code); Equal(true, read is null); // never DOC-CLOUD-ONLY, never DOC-IO, never an image
+            Console.WriteLine($"OPEN-RECALL-AFTER-DATA-HANDLE at={stage} code={code} image=none");
+        }
+    }
+
+    private static void OpenChangedDuringRead()
+    {
+        var (folder, path) = OneDriveFixture();
+        Thread.Sleep(100); // the change time has the system clock's granularity (a few ms): let it move past the seed's before the change
+        var changed = new Synthetic { OnStage = stage => { if (stage == StoreStage.Reading) File.SetLastWriteTimeUtc(path, DateTime.UtcNow.AddHours(1)); } };
+        var (read, code) = OpenUnder(folder, changed, path);
+        if (code != "DOC-CONFLICT" || read is not null) throw new InvalidOperationException("change time case: " + code);
+        var (folder2, path2) = OneDriveFixture();
+        var (read2, code2) = OpenUnder(folder2, new Synthetic { OnStage = stage => { if (stage == StoreStage.Reading) ExternalReplace(path2, [7]); } }, path2);
+        if (code2 != "DOC-CONFLICT" || read2 is not null) throw new InvalidOperationException("replaced case: " + code2);
+        Console.WriteLine("OPEN-CHANGED-DURING-READ change_time=DOC-CONFLICT replaced=DOC-CONFLICT image=none");
+    }
+
+    private static void SaveWalksNoPlaceholderException()
+    {
+        var (folder, path) = OneDriveFixture(); string before = Listing(folder);
+        var synth = new Synthetic(); byte[] bytes = [1, 2]; string library = Identity.Sha256(bytes) + ".foil";
+        WithEnvironment("OneDrive", folder, () =>
+        {
+            using var store = new ProjectStore(synth.Hooks());
+            Equal("DOC-UNSUPPORTED-PERSISTENCE", Save(store, path, new([9], Identity.Sha256([1, 2, 3]), Id())).Code);
+            Equal("DOC-UNSUPPORTED-PERSISTENCE", Save(store, Path.Combine(folder, "new.cfdw"), new([9], null, Id())).Code);
+            Equal("DOC-UNSUPPORTED-PERSISTENCE", store.PublishUnderClaim(folder, library, bytes, () => true).Code);
+            Equal(new ClearResult(ClearOutcome.Failed, "DOC-UNSUPPORTED-PERSISTENCE", 0), Clear(store, path));
+        });
+        Equal(before, Listing(folder)); // nothing written
+        Equal(false, synth.Visited(StoreStage.PlaceholderExceptionApplied)); // none of the four walks applied the Open path's exception
+        var (read, code) = OpenUnder(folder, synth, path); // the control: Open applies it
+        Equal("OK", code); Equal(true, synth.Visited(StoreStage.PlaceholderExceptionApplied));
+        Console.WriteLine("SAVE-WALKS-NO-EXCEPTION save=refused create=refused publish=refused clear=refused exception_stage_visited=false open=applied");
+    }
+
+    private static (uint Attributes, uint Tag, long Allocation, long Length) RealState(string path)
+    {
+        using var exposure = WindowsNative.ExposePlaceholders();
+        using var parent = WindowsNative.OpenRoot(Path.GetDirectoryName(path)!);
+        using var attribute = WindowsNative.OpenAttributes(parent, Path.GetFileName(path)); // the Open path's own attribute-only, no-recall handle
+        var tag = WindowsNative.AttributeTag(attribute); var standard = WindowsNative.Standard(attribute);
+        return (tag.Attributes, tag.ReparseTag, standard.AllocationSize, standard.EndOfFile);
+    }
+
+    private static void OpenRealOnlineOnly()
+    {
+        string path = Environment.GetEnvironmentVariable("CFD_ONLINE_ONLY_FILE")!;
+        var before = RealState(path);
+        Equal(true, (before.Attributes & RecallOnDataAccessBit) != 0); Equal(0L, before.Allocation);
+        using (var store = new ProjectStore()) Refuses("DOC-CLOUD-ONLY", () => store.ReadAsync(path).GetAwaiter().GetResult());
+        var after = RealState(path);
+        Equal(before, after); // still online-only: the recall bit set, nothing allocated, nothing downloaded
+        Console.WriteLine($"REAL-ONLINE-ONLY before: attributes=0x{before.Attributes:X} tag=0x{before.Tag:X} allocation={before.Allocation} length={before.Length}; refused=DOC-CLOUD-ONLY; after: attributes=0x{after.Attributes:X} tag=0x{after.Tag:X} allocation={after.Allocation}");
+    }
+
+    private static void OpenRealFullyLocal()
+    {
+        string path = Environment.GetEnvironmentVariable("CFD_LOCAL_ONEDRIVE_FILE")!;
+        var state = RealState(path);
+        Equal(0u, state.Attributes & (RecallOnDataAccessBit | RecallOnOpenBit | OfflineBit));
+        using var store = new ProjectStore();
+        var read = store.ReadAsync(path).GetAwaiter().GetResult();
+        Equal(DocumentOrigin.OneDriveReadOnly, read.Origin); Equal((long)read.Image.Length, state.Length);
+        Equal(state, RealState(path)); // reading changed nothing
+        Console.WriteLine($"REAL-LOCAL-ONEDRIVE attributes=0x{state.Attributes:X} tag=0x{state.Tag:X} allocation={state.Allocation} length={state.Length} origin={read.Origin}");
     }
 
     private static (uint, uint) Plain(string path) => (0x10u, 0u); // FILE_ATTRIBUTE_DIRECTORY, no reparse tag

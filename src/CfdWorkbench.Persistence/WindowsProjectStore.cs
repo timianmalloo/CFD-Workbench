@@ -36,15 +36,81 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
         try
         {
             ProjectStore.Supported(); cancellation.ThrowIfCancellationRequested();
-            using var parent = Parent.Open(path); RequireLocalFolder(path); using var target = OpenRegular(parent, parent.Name);
-            byte[] bytes = ReadAll(target, cancellation);
-            parent.Verify(); Require(SameEntry(parent, parent.Name, target), "DOC-CONFLICT"); count = bytes.Length;
-            return new ReadResult(bytes, Identity.Sha256(bytes));
+            using var parent = Parent.Open(path, ParentMode.OpenRead, hooks);                       // O1
+            var origin = OriginOf(path, parent);                                                    // O2
+            using var attribute = WindowsNative.OpenAttributes(parent.Handle, parent.Name);         // O3: attribute handle A, no data access
+            AdmitLeaf(attribute, parent.Name, origin);                                              // O3: the only DOC-CLOUD-ONLY point (I-14)
+            hooks?.Visit(StoreStage.AttributeHandleOpened);
+            byte[] bytes;
+            try
+            {
+                using var data = WindowsNative.OpenDataFromHeld(attribute);                         // O4: data handle D from A, empty name (S1)
+                hooks?.Visit(StoreStage.DataHandleOpened);
+                Require(WindowsNative.Identity(data) == WindowsNative.Identity(attribute), "DOC-CONFLICT");
+                RequireStillLocal(data, "data", parent.Name);
+                long length = WindowsNative.Standard(data).EndOfFile, changed = WindowsNative.ChangeTime(data);
+                hooks?.Visit(StoreStage.Reading);
+                bytes = ReadAll(data, cancellation);                                                // O5
+                RequireStillLocal(attribute, "attribute-after", parent.Name); RequireStillLocal(data, "data-after", parent.Name); // O6
+                Require(WindowsNative.Standard(data).EndOfFile == length && WindowsNative.ChangeTime(data) == changed, "DOC-CONFLICT");
+                parent.Verify(); Require(SameEntryNoData(parent, parent.Name, attribute), "DOC-CONFLICT");
+            }
+            // After D exists every failure is a conflict, never DOC-CLOUD-ONLY and never a partial document (Ruling 261, I-11, I-14).
+            catch (Exception failure) when (failure is IOException or UnauthorizedAccessException) { throw new ContractError("DOC-CONFLICT"); }
+            count = bytes.Length;
+            return new ReadResult(bytes, Identity.Sha256(bytes), origin);
         }
         catch (OperationCanceledException) { code = "DOC-CANCELLED"; throw new ContractError(code); }
         catch (ContractError error) { code = error.Code; throw; }
         catch (Exception error) when (IsStoreFailure(error)) { code = CodeOf(error); throw new ContractError(code); }
         finally { emit("store.read", code, timer.Elapsed.TotalMilliseconds, count, count, traceId, null, null); }
+    }
+
+    // winnt.h FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS 0x400000, RECALL_ON_OPEN 0x40000, OFFLINE 0x1000 (values on WindowsNative): Ruling 260's three bits.
+    private const uint CloudOnlyBits = WindowsNative.AttributeRecallOnDataAccess | WindowsNative.AttributeRecallOnOpen | WindowsNative.AttributeOffline;
+
+    /// <summary>The attributes and reparse tag of a handle, or what the test seam says they are at <paramref name="site"/> (design 2.6).</summary>
+    private (uint Attributes, uint Tag) Observe(SafeFileHandle handle, string site, string name)
+    {
+        var real = WindowsNative.AttributeTag(handle);
+        (uint Attributes, uint Tag) seen = (real.Attributes, real.ReparseTag);
+        return hooks?.AttributeOverride is { } replace ? replace(site, name, seen) : seen;
+    }
+
+    /// <summary>O2: Local, or OneDriveReadOnly when the folder is under a OneDrive root and O1 applied the exception for it; anything else is refused.</summary>
+    private static DocumentOrigin OriginOf(string path, Parent parent) => CloudFolder.ClassifyForOpen(Path.GetDirectoryName(path)!) switch
+    {
+        OpenLocation.Local => DocumentOrigin.Local,
+        OpenLocation.OneDrive when parent.ExceptionApplied => DocumentOrigin.OneDriveReadOnly,
+        _ => throw new ContractError("DOC-UNSUPPORTED-PERSISTENCE")
+    };
+
+    /// <summary>
+    /// O3: the leaf on Open. Origin Local keeps today's rule (no reparse point at all). Origin OneDriveReadOnly is Ruling 260's predicate: not a
+    /// directory, one link, not delete-pending, none of the three recall bits (DOC-CLOUD-ONLY, before any data handle), and either no reparse
+    /// point or a cloud-family tag; any other tag is DOC-UNSUPPORTED-PERSISTENCE.
+    /// </summary>
+    private void AdmitLeaf(SafeFileHandle attribute, string name, DocumentOrigin origin)
+    {
+        var (attributes, tag) = Observe(attribute, "attribute", name);
+        var standard = WindowsNative.Standard(attribute);
+        Require((attributes & WindowsNative.AttributeDirectory) == 0 && standard.Directory == 0, "DOC-UNSUPPORTED-PERSISTENCE");
+        Require(standard.DeletePending == 0, "DOC-CONFLICT");
+        Require(standard.NumberOfLinks == 1, "DOC-UNSUPPORTED-PERSISTENCE");
+        if (origin == DocumentOrigin.Local) { Require((attributes & WindowsNative.AttributeReparsePoint) == 0, "DOC-UNSUPPORTED-PERSISTENCE"); return; }
+        Require((attributes & CloudOnlyBits) == 0, "DOC-CLOUD-ONLY");
+        Require((attributes & WindowsNative.AttributeReparsePoint) == 0 || CloudFolder.IsCloudFamily(tag), "DOC-UNSUPPORTED-PERSISTENCE");
+    }
+
+    /// <summary>O4 and O6: the handle still shows a fully local file. A recall or offline bit seen once D exists is a conflict (S4, Ruling 261).</summary>
+    private void RequireStillLocal(SafeFileHandle handle, string site, string name) =>
+        Require((Observe(handle, site, name).Attributes & CloudOnlyBits) == 0, "DOC-CONFLICT");
+
+    /// <summary>The name still denotes the held file, asked through an attribute-only open (no data access, no recall).</summary>
+    private static bool SameEntryNoData(Parent parent, string name, SafeFileHandle held)
+    {
+        try { using var current = WindowsNative.OpenAttributes(parent.Handle, name, ShareAll); return WindowsNative.Identity(current) == WindowsNative.Identity(held); }
+        catch (WindowsNative.NativeFailure failure) when (failure.Win32Error is 2 or 3) { return false; }
     }
 
     /// <summary>
@@ -63,7 +129,7 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
         try
         {
             ProjectStore.Supported(); cancellation.ThrowIfCancellationRequested();
-            parent = Parent.Open(path); RequireLocalFolder(path);                                  // C0
+            parent = Parent.Open(path, ParentMode.Save, hooks); RequireLocalFolder(path);       // C0
             var first = Candidates(parent); candidates = first.Count;                             // C1, check 1
             ClearResult? refused = null;
             foreach (string name in first)                                                        // C2
@@ -156,7 +222,7 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
         string code = "OK"; bool durable = false;
         try
         {
-            ProjectStore.Supported(); cancellation.ThrowIfCancellationRequested(); parent = Parent.Open(path);
+            ProjectStore.Supported(); cancellation.ThrowIfCancellationRequested(); parent = Parent.Open(path, ParentMode.Save, hooks);
             RequireLocalFolder(path);
             hooks?.Visit(StoreStage.ParentOpened);
             _ = Exists(parent, parent.Name);
@@ -249,7 +315,7 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
             ProjectStore.Supported();
             Require(bytes.Length <= 1_048_576 &&
                 Regex.IsMatch(fileName, @"\A[0-9a-f]{64}\.foil\z") && fileName == hash + ".foil", "DOC-HASH");
-            parent = Parent.Open(Path.Combine(dir, fileName)); RequireLocalFolder(Path.Combine(dir, fileName));
+            parent = Parent.Open(Path.Combine(dir, fileName), ParentMode.Save, hooks); RequireLocalFolder(Path.Combine(dir, fileName));
             hooks?.Visit(StoreStage.ParentOpened);
             claim = Owned.Create(parent, ProjectStore.ClaimName());
             hooks?.Visit(StoreStage.ClaimCreated);
@@ -431,6 +497,9 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
         return (path[..3], parts);
     }
 
+    /// <summary>Which walk this is. Save (Save, PublishUnderClaim, Clear) is today's, byte for byte; OpenRead (Read only) may apply the placeholder exception (I-12).</summary>
+    private enum ParentMode { Save, OpenRead }
+
     /// <summary>The retained chain of directory handles from the drive root to the leaf's parent.</summary>
     private sealed class Parent : IDisposable
     {
@@ -446,34 +515,50 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
             if (WindowsNative.Identity(listing) != WindowsNative.Identity(Handle)) { listing.Dispose(); throw new ContractError("DOC-CONFLICT"); }
             return listing;
         }
-        internal static Parent Open(string path)
+        /// <summary>True when the walk applied the placeholder exception (design 2.6 O1): only for <see cref="ParentMode.OpenRead"/>, S2 met.</summary>
+        internal bool ExceptionApplied { get; private set; }
+
+        internal static Parent Open(string path, ParentMode mode = ParentMode.Save, StoreHooks? hooks = null)
         {
             var (root, parts) = ParsePath(path);
             var result = new Parent { Name = parts[^1], rootPath = root };
+            // O1 (S2): the exception can only apply when the environment-named OneDrive root is at least one folder below the drive root.
+            // Its directory depth in this path is the index (plus one) of the root directory; zero means no exception can apply.
+            string[] ancestors = parts.SkipLast(1).ToArray();
+            string? oneDrive = mode == ParentMode.OpenRead ? CloudFolder.OneDriveRootOf(Path.GetDirectoryName(path)!, Environment.GetEnvironmentVariable) : null;
+            string[] rootParts = oneDrive is not null && CloudFolder.RootQualifies(oneDrive) ? oneDrive[3..].Split('\\') : [];
+            int rootDepth = rootParts.Length > 0 && rootParts.Length <= ancestors.Length &&
+                ancestors.Take(rootParts.Length).SequenceEqual(rootParts, StringComparer.OrdinalIgnoreCase) ? rootParts.Length : 0;
             try
             {
                 var rootHandle = WindowsNative.OpenRoot(root); result.chain.Add((rootHandle, ""));
                 // The qualified candidate is a local NTFS volume (design section 4); ReFS, SMB and removable media stay closed.
                 Require(WindowsNative.VolumeFileSystem(rootHandle) == "NTFS", "DOC-UNSUPPORTED-PERSISTENCE");
-                RequireDirectory(rootHandle);
+                var driveRoot = WindowsNative.AttributeTag(rootHandle);
+                RequireDirectory(rootHandle, (driveRoot.Attributes, driveRoot.ReparseTag), false);
                 // A mapped network drive reports the server's file system name, so the device itself is asked (design section 4).
                 var (deviceType, characteristics) = WindowsNative.VolumeDevice(rootHandle);
                 Require(WindowsNative.IsFixedLocalVolume(deviceType, characteristics), "DOC-UNSUPPORTED-PERSISTENCE");
-                foreach (string part in parts.SkipLast(1))
+                for (int i = 0; i < ancestors.Length; i++)
                 {
-                    var handle = WindowsNative.OpenDirectory(result.Handle, part); result.chain.Add((handle, part));
-                    RequireDirectory(handle);
+                    var handle = WindowsNative.OpenDirectory(result.Handle, ancestors[i]); result.chain.Add((handle, ancestors[i]));
+                    var real = WindowsNative.AttributeTag(handle); (uint Attributes, uint Tag) seen = (real.Attributes, real.ReparseTag);
+                    (uint Attributes, uint Tag) tag = hooks?.AttributeOverride is { } replace ? replace("ancestor", ancestors[i], seen) : seen;
+                    // The exception: the root directory itself carries a cloud-family tag (S2), and then it and every ancestor under it may.
+                    if (rootDepth > 0 && i == rootDepth - 1 && (tag.Attributes & WindowsNative.AttributeReparsePoint) != 0 && CloudFolder.IsCloudFamily(tag.Tag))
+                    { result.ExceptionApplied = true; hooks?.Visit(StoreStage.PlaceholderExceptionApplied); }
+                    RequireDirectory(handle, tag, result.ExceptionApplied && i >= rootDepth - 1);
                 }
                 return result;
             }
             catch { result.Dispose(); throw; }
         }
         // Every ancestor is a real directory (no symlink, junction, mount point or cloud tag) in a case-insensitive directory.
-        private static void RequireDirectory(SafeFileHandle directory)
+        // Under the placeholder exception a directory with a cloud-family tag (and no other reparse point) is admitted too.
+        private static void RequireDirectory(SafeFileHandle directory, (uint Attributes, uint Tag) tag, bool allowCloud)
         {
-            var tag = WindowsNative.AttributeTag(directory);
-            Require((tag.Attributes & WindowsNative.AttributeDirectory) != 0 && (tag.Attributes & WindowsNative.AttributeReparsePoint) == 0,
-                "DOC-UNSUPPORTED-PERSISTENCE");
+            Require((tag.Attributes & WindowsNative.AttributeDirectory) != 0, "DOC-UNSUPPORTED-PERSISTENCE");
+            Require((tag.Attributes & WindowsNative.AttributeReparsePoint) == 0 || allowCloud && CloudFolder.IsCloudFamily(tag.Tag), "DOC-UNSUPPORTED-PERSISTENCE");
             Require(!WindowsNative.IsCaseSensitive(directory), "DOC-UNSUPPORTED-PERSISTENCE");
         }
         internal void Verify()
