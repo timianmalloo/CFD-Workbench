@@ -7,3 +7,4 @@
 {"agent": "w2b-wf", "at": 1792709894.5169003, "kind": "release", "path": "src/CfdWorkbench.Analysis/Labels.cs", "seq": 7, "session": "w2b-wf", "wi": "w2b-wf"}
 {"agent": "w2b-wf", "at": 1792709894.6645775, "kind": "release", "path": "DESIGN.md", "seq": 8, "session": "w2b-wf", "wi": "w2b-wf"}
 {"agent": "w2b-wf", "at": 1792709894.823275, "kind": "release", "path": "tests/CfdWorkbench.Desktop.Tests/ControllerShellOneDriveTests.cs", "seq": 9, "session": "w2b-wf", "wi": "w2b-wf"}
+{"agent": "w2b-wf", "at": 1792710244.7208018, "kind": "session-end", "path": "-", "seq": 10, "session": "w2b-wf", "wi": "WI-0", "worktree": "CFD-Workbench-w2b-wf"}
