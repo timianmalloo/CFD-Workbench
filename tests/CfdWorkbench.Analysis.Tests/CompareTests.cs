@@ -36,7 +36,7 @@ internal static class CompareTests
         Check("Compare_ReferenceOnly_ReversedRecomputed", ReferenceOnlyReversed);
         Check("Compare_ReferenceAndPoint_NoDimensionalDelta", ReferenceAndPointNoDelta);
         Check("Compare_Dimensional_BaseBelowFloor_Undefined", DimensionalFloor);
-        Check("Compare_Dimensional_NoSecondFormula", NoSecondFormula);
+        Check("Compare_ReferenceOnly_AdmissionFieldsAlone", AdmissionFieldsAlone);
         Check("Compare_Dimensional_NegativeBase_SignByAbs", DimensionalNegativeBase);
         Check("Compare_Dimensional_OneDefinition", DimensionalOneDefinition);
         Check("Dimensional_RoundTrip_EqualsStripLift", DimensionalRoundTrip);
@@ -262,15 +262,40 @@ internal static class CompareTests
     private static void ReferenceOnlyStoresNothing()
     {
         using var session = Fixture.Opened();
+        // A revision pair (design 12.2): two VLM runs on two revisions, the geometry edit between them changing S_ref. A VLM and an
+        // estimator run on one revision with different S_ref cannot occur, because a tier pair runs at the base's inputs.
         var a = Row(session, "vlm-strip", reference: BaseReference);
-        var b = Row(session, "estimator", reference: DefaultReference);
-        var values = Values((a, 0.4035, 0.00731, 0.9), (b, 0.4120, 0.0076, 1.0));
+        Fixture.TwistEdit(session, 1.0);
+        var b = Row(session, "vlm-strip", reference: DefaultReference);
+        var values = Values((a, 0.4035, 0.00731, 0.9), (b, 0.4120, 0.0076, 0.9));
         byte[] before = session.SaveImage();
         var result = Compare.Record(session, a, b, values);
         Equal(true, result.Record is null && result.Blocks.Count == 1, "blocked, no record;");
         Equal(0, session.ReadDiscrepancies().Count, "record count 0");
         Equal(true, before.AsSpan().SequenceEqual(session.SaveImage()), "the document bytes are unchanged;");
         Equal(0, session.ReadRuns().Pruned.Count, "no run pinned or pruned by the view");
+    }
+
+    // Review N2: each admitted field alone enters the dimensional branch (a mutant dropping one from DimensionalApplies is red here).
+    private static void AdmissionFieldsAlone()
+    {
+        using var session = Fixture.Opened();
+        (string Field, Func<RunReference, RunReference> Change)[] rows =
+        [
+            ("S_ref", r => r with { SRef = 0.100 }),
+            ("b_ref", r => r with { BRef = 0.91 }),
+            ("c_ref", r => r with { CRef = 0.121 }),
+            ("moment datum", r => r with { MomentDatum = "tip" })
+        ];
+        foreach (var (field, change) in rows)
+        {
+            var a = Plain(); var b = Plain(reference: change(DefaultReference));
+            var values = Values((a, 0.4035, 0.00731, 0.9), (b, 0.4120, 0.0076, 0.9));
+            Equal(true, Compare.DimensionalLines(a, b, values) is { Count: 2 }, field + " alone: dL and dD_i exist;");
+            var view = Project(session, a, b, values);
+            Equal(CompareState.ReferenceDiffers, view.State, field + " alone: the pane state");
+            Equal("L,D_i", string.Join(",", view.Outputs.Where(row => row.DeltaValue is not null || row.Quantity is "L" or "D_i").Select(row => row.Quantity)), field + " alone: the dimensional rows;");
+        }
     }
 
     private static void ReferenceOnlyReversed()
@@ -343,40 +368,6 @@ internal static class CompareTests
             run => run.RunId == k.RunId ? new Coefficients(null, 0.00731, 0.9) : new Coefficients(0.4120, 0.0076, 0.9));
         Equal(Compare.ValueUnavailable, Dim(unavailable, "L").Undefined, "an Unavailable CL leaves the L line Undefined");
         Equal(true, Dim(unavailable, "D_i").Delta is not null, "D_i is unaffected");
-    }
-
-    // T3: the one expression that multiplies a coefficient by q and S_ref lives in Compare.Dimensional. A scan matches text, so a
-    // formula spelled another way can pass; the pattern is a multiplication of rho, speed or q by SRef with no division in the statement.
-    private static void NoSecondFormula()
-    {
-        var pattern = new System.Text.RegularExpressions.Regex(@"(Rho|Speed|\bq\b|\bQ\b)[^;/]*\*[^;/]*SRef|SRef[^;/]*\*[^;/]*(Rho|Speed|\bq\b|\bQ\()");
-        var hits = new List<(string File, int Line)>();
-        string root = FindRoot();
-        foreach (string file in Directory.GetFiles(Path.Combine(root, "src", "CfdWorkbench.Analysis"), "*.cs").Concat(
-                     Directory.GetFiles(Path.Combine(root, "src", "CfdWorkbench.Desktop", "Analysis"), "*.cs")))
-        {
-            var lines = File.ReadAllLines(file);
-            for (int n = 0; n < lines.Length; n++)
-            {
-                // A division by (q * S_ref) is how a coefficient is made from a load, the inverse of the formula this scan guards.
-                string code = System.Text.RegularExpressions.Regex.Replace(lines[n].Split("//")[0], @"/\s*\([^()]*\)", "");
-                if (pattern.IsMatch(code)) hits.Add((Path.GetFileName(file), n));
-            }
-        }
-        string[] compare = File.ReadAllLines(Path.Combine(root, "src", "CfdWorkbench.Analysis", "Compare.cs"));
-        int declaration = Array.FindIndex(compare, text => text.Contains("Dimensional(AnalysisRun", StringComparison.Ordinal));
-        Equal(true, declaration >= 0, "Compare.Dimensional exists;");
-        Equal(1, hits.Count, "exactly one q * S_ref expression for L and D_i in the Analysis and pane sources: " + string.Join(", ", hits));
-        Equal(true, hits[0].File == "Compare.cs" && hits[0].Line >= declaration && hits[0].Line <= declaration + 12, "and it is inside Compare.Dimensional;");
-        string projection = File.ReadAllText(Path.Combine(root, "src", "CfdWorkbench.Analysis", "AnalysisProjection.cs"));
-        Equal(true, projection.Contains("Compare.Dimensional", StringComparison.Ordinal), "CompareProjection calls it;");
-    }
-
-    private static string FindRoot()
-    {
-        string? directory = Directory.GetCurrentDirectory();
-        while (directory is not null && !File.Exists(Path.Combine(directory, "CFDWorkbench.slnx"))) directory = Path.GetDirectoryName(directory);
-        return directory ?? throw new InvalidOperationException("the repository root was not found");
     }
 
     private static void DimensionalNegativeBase()
