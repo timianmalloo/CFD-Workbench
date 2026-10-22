@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T16:49:11Z",
+  "generated": "2026-10-22T17:34:02Z",
   "audit": [
     {
       "actor": null,
@@ -41825,6 +41825,25 @@ window.AUDIT_DATA = {
       "tier": "T2",
       "started_at": "2026-10-22T16:15:50Z",
       "duration_seconds": 2001.0
+    },
+    {
+      "id": "al-01M5JATKWWW7WZ87B8KEF3WCGJ",
+      "shortname": "w2b-bs-a-r1",
+      "datetime": "2026-10-22T17:34:02Z",
+      "session": "w2b-bs",
+      "prompt": "wave 2 BS node A repair 1: B1 relabel, B2 retry-hash mutant, A5 catch-all, COPY-441, Escape path, telemetry mapping, D3 note",
+      "summary": "Repair cycle 1 of node A: B1 and B2 (join blockers) fixed with the recomputed-hash and catch-removed mutants seen red then reverted; N4 A5 catch-all, N5 COPY-441 row, N7 Escape path, N1 telemetry mapping, N2 D3 note, N3 residual; check-docs exit 0 after derive.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T17:18:42Z",
+      "duration_seconds": 920.0
     }
   ],
   "changes": [
