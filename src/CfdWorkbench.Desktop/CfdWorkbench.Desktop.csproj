@@ -20,4 +20,5 @@
     <ProjectReference Include="../CfdWorkbench.Analysis/CfdWorkbench.Analysis.csproj" />
   </ItemGroup>
   <ItemGroup><AvaloniaResource Include="Assets/example.foil" /></ItemGroup>
+  <ItemGroup><InternalsVisibleTo Include="CfdWorkbench.Desktop.Tests" /></ItemGroup>
 </Project>

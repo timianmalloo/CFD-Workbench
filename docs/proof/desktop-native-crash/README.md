@@ -76,7 +76,7 @@ Observed 2026-10-22, SkiaSharp 2.88.9, Windows ARM64 laptop, Release build, noth
 
 **Cause.** `SKCanvas.DrawVertices(mode, points, texs, colors, paint)` is `var vert = SKVertices.CreateCopy(...)` followed by
 `DrawVertices(vert, SKBlendMode.Modulate, paint)` (SkiaSharp v2.88.9 `binding/Binding/SKCanvas.cs`, lines 975 to 979). The inner
-call reads `vertices.Handle` and calls `sk_canvas_draw_vertices` (line 998). After the handle is read nothing keeps `vert`
+call reads `vertices.Handle` and calls `sk_canvas_draw_vertices` (line 999). After the handle is read nothing keeps `vert`
 reachable, so a collection during the native draw runs the finalizer and frees the vertex data the draw is still using. The
 product's only call site was `MeshFrame.Draw` in `src/CfdWorkbench.Desktop/SurfaceRenderer.cs`.
 
@@ -86,20 +86,19 @@ product's only call site was `MeshFrame.Draw` in `src/CfdWorkbench.Desktop/Surfa
 
 **The probe.** `CFD_VERTICES_GC_PROBE=1 CfdWorkbench.Desktop.Tests.exe --harness --vertices-lifetime-probe` spawns two
 children one after the other (`=array`, `=held`); each draws 3,000 per-vertex-coloured vertices on a raster surface for 60 s while
-a second thread runs `GC.Collect()` plus `GC.WaitForPendingFinalizers()` continuously. Without the variable the parent prints one
-SKIP line and no arm runs. `tools/run-tests.sh` unsets the variable. The `held` arm carries a copy of the shipped pattern
-(`MeshFrame` is internal to the Desktop assembly), in its own non-inlined method so the JIT tracks the local's lifetime as it does in
-`MeshFrame.Draw`; a copy inlined in the probe's loop stays alive in unoptimised code and could not be made red.
+a second thread runs `GC.Collect()` plus `GC.WaitForPendingFinalizers()` continuously. Called explicitly without the variable, the parent prints one
+SKIP line and no arm runs; the full `--harness` run never spawns the probe, so it prints no SKIP line. `tools/run-tests.sh` unsets the variable. The `held` arm draws through the shipped `MeshFrame.Draw` (Desktop grants the test assembly `InternalsVisibleTo`)
+in its own non-inlined method so the JIT tiers it up as in the app; the `array` arm is the positive control and must crash. The parent exit is the verdict: 0 only when held survived and the control crashed (`PASS VerticesLifetime: held survived ...`); held crashed or a control that does not crash is a FAIL. Release only: a Debug build prints a SKIP for the held verdict. The three pure verdict checks run first.
 
 | Run | Result |
 |---|---|
 | `array` (the helper, unchanged by the fix) | `FAIL ... exited -1073741819 (0xC0000005): native crash, not a check verdict` after 8.0 s (two parent runs: 8.1 s and 8.0 s of child time) |
 | `held`, before the fix to `MeshFrame` | `PASS VerticesLifetime_held: 551 draws under 544403 collections in 60 s`, exit 0 |
 | `array`, after the fix | 0xC0000005 again (the arm is the defect, kept as the probe's red) |
-| `held`, after the fix | `PASS VerticesLifetime_held: 521 draws under 615433 collections in 60 s`, exit 0 (also 531 under 555037) |
+| `held`, after the fix, through the shipped `MeshFrame.Draw` | `PASS VerticesLifetime_held: 547 draws under 535571 collections in 60 s`; parent: `PASS VerticesLifetime: held survived 547 draws under 535571 collections; the array control crashed (0xC0000005)` |
 | Mutant: `held` without `using` and without `GC.KeepAlive` | `Fatal error. 0xC0000005`, child killed natively (bash shows 139) |
 | Mutant: `held` with `using`, without `GC.KeepAlive` | survived: 546 draws under 626755 collections. `using` alone holds it (`Dispose` is a use); `GC.KeepAlive` is the explicit statement of the intent |
-| Mutant: the helper restored in `MeshFrame.Draw` | the `array` arm is this mutant (same call); no Desktop mode renders enough frames to hit it, which is why the probe, not the modes, is the test |
+| Mutant: the helper restored in `MeshFrame.Draw` (the shipped site), `held` arm, Release | `Fatal error. 0xC0000005`, child killed natively (bash shows 139); reverted, `MeshFrame.Draw` diff empty |
 
 The surface modes stay green with no pixel check changed, each run alone: `--views` 111 PASS, `--analysis` 64,
 `--properties-cells` 26, `--shell-window` 121, `--plan-canvas` 112, all with 0 FAIL, exit 0; `--harness --theme-evidence` exit 0.
@@ -108,7 +107,7 @@ The surface modes stay green with no pixel check changed, each run alone: `--vie
 
 | Where | What | Verdict |
 |---|---|---|
-| `SurfaceRenderer.cs:178` `MeshFrame.Draw`, the `DrawVertices` call | helper made an unheld `SKVertices` | fixed |
+| `SurfaceRenderer.cs:189` `MeshFrame.Draw` (begins at 178), the `DrawVertices` call | helper made an unheld `SKVertices` | fixed |
 | `SurfaceRenderer.cs:180-181` `fill`, `stroke` | `SKPaint` | safe: `using var`, in scope through every draw |
 | `SurfaceRenderer.cs:160` `lease` | `ISkiaSharpApiLease` | safe: `using var`, the draw runs inside it |
 | `SurfaceRenderer.cs:195` `DrawPoints` | array overload | safe: the binding pins the array for the call |

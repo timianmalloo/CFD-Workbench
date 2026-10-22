@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T20:37:41Z",
+  "generated": "2026-10-22T22:24:37Z",
   "audit": [
     {
       "actor": null,
@@ -42598,6 +42598,25 @@ window.AUDIT_DATA = {
       "tier": "T2",
       "started_at": "2026-10-22T20:10:03Z",
       "duration_seconds": 1658.0
+    },
+    {
+      "id": "al-01M5JVEPVKM8F82JDSFD656HMD",
+      "shortname": "cr2-r1",
+      "datetime": "2026-10-22T22:24:37Z",
+      "session": "cr2-vertices-lifetime",
+      "prompt": "CR2 repair 1: the probe draws through MeshFrame.Draw, the array arm is the positive control, Release check, unknown arm, proof lines",
+      "summary": "CR2 repair 1 done: C1-C5, mutant red at shipped site, probe PASS.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T22:24:37Z",
+      "duration_seconds": 0.0
     }
   ],
   "changes": [

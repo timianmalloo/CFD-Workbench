@@ -932,7 +932,7 @@ namespace CfdWorkbench.Desktop.Tests
             return exitCode;
         }
 
-        private static (List<(bool Error, string Text)> Lines, int ExitCode, double Seconds) RunBuffered(string mode) =>
+        internal static (List<(bool Error, string Text)> Lines, int ExitCode, double Seconds) RunBuffered(string mode) =>
             RunBufferedWithin(mode, int.TryParse(Environment.GetEnvironmentVariable("CFD_TEST_CHILD_TIMEOUT_SECONDS"), out int seconds) && seconds > 0 ? seconds : 120);
 
         /// <summary>The environment variable that carries a child's in-flight sidecar path (PVH, WAIT-UNBOUNDED-A).</summary>
