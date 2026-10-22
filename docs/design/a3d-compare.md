@@ -741,14 +741,18 @@ reproduction check. LINDDUN-lite: no personal data; the event carries tiers and 
 
 Track DF of `next-best-six` wave 2 designs this; the AF build implements it. It takes up DR-A3D-3 (c), which Ruling 250
 Q3 left to the operator. The main session reads the operator's 2026-10-22 instruction ("get a3d compare … follow up
-implemented and complete") as taking it up; **DR-DF-1** asks the leader to confirm that reading before the build. The
+implemented and complete"; logged prompt `al-01M5J79V9SGNNMS8GY2555V04Q`) as taking it up; **DR-DF-1** is pending
+an Owner ruling (DF-Q1) that cites that prompt, before the build. The
 spec text changes in [`spec-1.7.8.md`](../specs/amendments/spec-1.7.8.md) (proposed). Labels as in §1.0: **Verified** =
 opened at `main` `b51315c4`; **Inferred** = reasoned.
 
 ### 12.1 What changes, in five lines
 
-1. When the **only** block reason is **reference** (§2.2 item 1) — the operating point and the water are equal — the
-   pane shows δL and δD_i, normalised to the base value, and the values of both runs.
+1. When the **only** block reason is **reference** (§2.2 item 1) — the operating point and the water are equal — and
+   **every differing reference field is one of S_ref, b_ref, c_ref or the moment datum**, the pane shows δL and δD_i,
+   normalised to the base value, and the values of both runs. A difference in `axes` keeps the full block (cycle 1, H1):
+   an axes change alters the frame or sign of L, which q · S_ref cannot reconcile. `Compare.cs` line 102 lists `axes`
+   as a reference field; every run carries one constant today (`ReferenceQuantities.cs` line 9), so the case is latent.
 2. CL and CDi still have **no δ**. Their cells give today's reason (reference quantities differ). The coefficient
    values show side by side.
 3. e stays **Not compared**: it depends on each wing's own b_ref and cannot be put on a common reference (A3 Adversary).
@@ -810,7 +814,7 @@ ruling (DR-DF-2).
 | Surface | File | What reaches it |
 |---|---|---|
 | Store | `src/CfdWorkbench.Core/DiscrepancyRecord.cs`, `RunRecord.cs` | **none** (no stored change; the build proves the document bytes are unchanged) |
-| Domain | `src/CfdWorkbench.Analysis/Compare.cs` | `Compare.Dimensional`; `Compare.DimensionalLines(base, compared, values)` returns two `DiscrepancyLine`-shaped values (not records) when `Compatibility` returns exactly one block with reason Reference; `Record` emits outcome `blocked-reference` with `dimensional = true` in the event |
+| Domain | `src/CfdWorkbench.Analysis/Compare.cs` | `Compare.Dimensional`; `Compare.DimensionalLines(base, compared, values)` returns two `DiscrepancyLine`-shaped values (not records) when `Compatibility` returns exactly one block, with reason Reference, whose fields are all in {`sRef`, `bRef`, `cRef`, `momentDatum`} (H1); `Record` emits outcome `blocked-reference` with `dimensional = true` in the event |
 | Projection | `src/CfdWorkbench.Analysis/AnalysisProjection.cs` (`CompareProjection`) | the reference-only branch (today lines 55-65 return no outputs): CL / CDi rows with values and AF-COPY-2, the e row AF-COPY-3, L / D_i rows with δ and AF-COPY-4; the existing compatible-pair `Loads` rows call `Compare.Dimensional` |
 | View model | `src/CfdWorkbench.Analysis/AnalysisViewModel.cs` | new `CompareState.ReferenceDiffers` (Blocked stays "no δ at all"); its doc comment |
 | Copy | `src/CfdWorkbench.Analysis/Labels.cs`; `DESIGN.md` §7 (mapped at build) | AF-COPY-1..7 |
@@ -845,7 +849,8 @@ A3D-COPY-26 when either run is the estimator (§2.4). δ format as §6.
 
 **Hard states.** Value Unavailable in one run → A3D-COPY-24 in that cell, no δ in that row, the other row unaffected.
 Historical run → its chip and A3D-COPY-15, δ shown (as §5.4). Failed run → unchanged (A3D-COPY-17). Reference and point
-(or water) both differ → today's Blocked state with both reasons, no δ (mutant guard below).
+(or water) both differ → today's Blocked state with both reasons, no δ (mutant guard below). Axes differ (alone or with
+other reference fields) → today's Blocked state, A3D-COPY-7, no δ (H1).
 
 ### 12.5 Red-first tests (AF build)
 
@@ -860,9 +865,10 @@ branch returns no outputs (`AnalysisProjection.cs` line 65, Verified), so every 
 | `Compare_ReferenceOnly_DimensionalDeltas` | F-PLANFORM, base r3 | δL = 0.1027509294, δD_i = 0.1228454172 | **δL from coefficients with the base S_ref on both** (gives δCL 0.0210656753); compared S_ref on both (same); δ normalised to the compared value (0.0931769148); δ of S_ref alone (0.0800000000) |
 | `Compare_ReferenceOnly_CoefficientsStillBlocked` | F-PLANFORM | CL and CDi rows have `DeltaValue == null` and Delta = AF-COPY-2; e = AF-COPY-3 | coefficient δ unblocked under a reference block; e re-expressed on the base b_ref |
 | `Compare_ReferenceOnly_StoresNothing` | F-PLANFORM through `Compare.Record` | record count 0; document not dirty; bytes equal | a record written for the reference-blocked pair (pins two runs) |
-| `Compare_ReferenceOnly_ReversedRecomputed` | F-PLANFORM, base r5 | δL = −0.0931769148, δD_i = −0.1094054581 | reversed view as −δ (−0.1027…); as −δ/(1+δ) |
-| `Compare_ReferenceAndPoint_NoDimensionalDelta` (theory) | F-PLANFORM with α differing; with ρ differing | state Blocked, no output has a δ, both reasons listed | dimensional δ shown whenever reference is *a* reason, not the only one |
-| `Compare_Dimensional_BaseBelowFloor_Undefined` | base CL 5 × 10⁻⁵ (L 0.0640625 N); base CL 0 | L line `ANA-CMP-BASE-FLOOR`; `ANA-CMP-BASE-ZERO` | an absolute newton floor (δ printed for 0.064 N); naive division (∞) |
+| `Compare_ReferenceOnly_ReversedRecomputed` (theory) | row 1: F-PLANFORM, base r5. **Row 2 (T1, negative base):** canonical base CL −0.2, S_ref 0.100; compared CL −0.1, S_ref 0.108 (forward δL = +0.4600000000), viewed reversed | row 1: δL = −0.0931769148, δD_i = −0.1094054581; row 2: δL = **−0.8518518519** | row 1: reversed view as −δ (−0.1027…). **Row 2: reversed view as −δ/(1+δ) gives −0.3150684932; as −δ gives −0.46.** On a positive base −δ/(1+δ) equals the true value, so row 1 alone cannot kill that mutant |
+| `Compare_ReferenceAndPoint_NoDimensionalDelta` (theory) | F-PLANFORM with α differing; with ρ differing; **(T4) with `axes` differing, alone and together with S_ref** | state Blocked, no output has a δ, every reason listed (axes under reference, A3D-COPY-7) | dimensional δ shown whenever reference is *a* reason, not the only one; **an axes difference admitted to the dimensional branch** |
+| `Compare_Dimensional_BaseBelowFloor_Undefined` (theory) | base CL 5 × 10⁻⁵ (L 0.0640625 N); base CL 0; **(T2) base CL exactly 1 × 10⁻⁴; base CL `Math.BitDecrement(1e-4)`; base CDi 5 × 10⁻⁷ with CL 0.4035** | L line `ANA-CMP-BASE-FLOOR`; `ANA-CMP-BASE-ZERO`; **at exactly 1e-4 the L line has a δ (compared CL 1e-4, S 0.108 → δL 0.0800000000); one ulp below is `ANA-CMP-BASE-FLOOR`; the D_i line is `ANA-CMP-BASE-FLOOR` while L has a δ** | an absolute newton floor (δ printed for 0.064 N); naive division (∞); **`≤` in place of `<` (the 1e-4 row); the D_i line floored on CL's floor or not floored** |
+| `Compare_Dimensional_NoSecondFormula` (T3, structural) | a source scan in the test over `src/CfdWorkbench.Analysis/*.cs` and `src/CfdWorkbench.Desktop/Analysis/*.cs` | the only expression that multiplies a coefficient by q and `SRef` for L or D_i is inside `Compare.Dimensional`; `CompareProjection` and `ComparePane` call it | a second L formula with the same association (bit equality alone cannot see it). **Residual risk:** a scan matches text, so a formula spelled another way can pass; the proof note records the pattern used |
 | `Compare_Dimensional_NegativeBase_SignByAbs` | base CL −0.2, S 0.100; compared CL −0.1, S 0.108 | δL = +0.4600000000 | division by the signed base (−0.46) |
 | `Compare_Dimensional_OneDefinition` | F-PLANFORM at a **compatible** pair (r5 vs r5′, equal reference) | the side-by-side L, D_i values equal `Compare.Dimensional` bit for bit; still no δ (A3D-COPY-16) | a second L formula in the projection; δ shown at a compatible pair |
 | `Dimensional_RoundTrip_EqualsStripLift` | a VLM fixture run with strips | \|L − Σ strip lift\| ≤ 1e-12 · \|L\| | L from the Trefftz lift instead of the near-field CL |
@@ -884,10 +890,10 @@ assertion narrows to "no coefficient line has a δ" (the build edits that one as
 
 ### 12.7 Review packet (hydrodynamicist; Test Architect)
 
-1. **Hydrodynamicist.** Is δL at equal α and V, different S_ref, the comparison a designer means? At equal α it answers
-   "how much more lift does the bigger wing make"; at a **trimmed** point (equal load) L is equal by construction and
-   only δD_i carries information. Does `op.load` make the latter case detectable, and should AF-COPY-5 then headline
-   D_i instead of L? (Inferred: the headline quantity matters only for that case.)
+1. **Hydrodynamicist — settled in cycle 1.** At equal α and V, δL answers "how much more lift does the revised wing
+   make". The trimmed case cannot reach this branch: `op.load` is always null in A3a (`OperatingPoint.cs` line 61,
+   ANA-INPUT-LOAD), and a trimmed pair differs in α, which is a Point block. So "δL always" holds until DR-ANA-9 admits
+   target loads; reopen DR-DF-3 then.
 2. **Hydrodynamicist.** The estimator's D_i assumes e = 1; is A3D-COPY-26 on the D_i cell enough when the reference also
    differs?
 3. **Test Architect.** Does F-PLANFORM's S_ref ratio (1.08) separate the "base S on both" mutant from tolerance noise?
@@ -895,13 +901,25 @@ assertion narrows to "no coefficient line has a δ" (the build edits that one as
 4. **Test Architect.** The narrowed §7.2 assertion: is editing an existing test's assertion acceptable, or should the
    build add the new test and leave the old one byte-identical with a new reference-only row excluded?
 
+### 12.7b What changed in cycle 1 (Adversary: ACCEPT WITH CONDITIONS)
+
+| Condition | Change | Section |
+|---|---|---|
+| H1 (hydrodynamicist 1) | dimensional δ only when the differing reference fields are among S_ref, b_ref, c_ref, moment datum; axes keeps the full block | §12.1 item 1, §12.3 Domain row, §12.4 hard states; AM-1.7.8-1..3 |
+| H2 (hydrodynamicist 2) | trimmed case unreachable; DR-DF-3 reading recorded | §12.7 Q1, §12.8 |
+| T1 | negative-base reversed row (−0.8518518519 vs mutant −0.3150684932) | §12.5 `Compare_ReferenceOnly_ReversedRecomputed` |
+| T2 | floor rows at exactly 1e-4, one ulp below, and a D_i floor row | §12.5 `Compare_Dimensional_BaseBelowFloor_Undefined` |
+| T3 | structural check for one dimensional formula, residual risk stated | §12.5 `Compare_Dimensional_NoSecondFormula` |
+| T4 | axes rows in the reference-and-point theory | §12.5 `Compare_ReferenceAndPoint_NoDimensionalDelta` |
+| F17 / DR-DF-1 | the operator's prompt cited by its audit id; Owner ruling pending | §12.8 |
+
 ### 12.8 Decision requests (not raised by this note)
 
-| Id | Question | Options | Recommendation |
-|---|---|---|---|
-| **DR-DF-1** | Is Ruling 250 Q3 (c) taken up by the operator's 2026-10-22 instruction? | (a) yes, build AF on AM-1.7.8 · (b) no, keep §2.2 as is | (a) is the main session's reading; the leader confirms |
-| **DR-DF-2** | Store the dimensional lines? | (a) no — derived on read (§12.2) · (b) a rule 1.1.0 with L / D_i line kinds and a record for reference-only pairs | (a) |
-| **DR-DF-3** | Headline at a trimmed point | (a) δ L always · (b) δ D_i when `op.load` is a target load | (a) for AF; (b) if the hydrodynamicist lens asks |
+| Id | Question | Options | Recommendation | Status |
+|---|---|---|---|---|
+| **DR-DF-1** | Is Ruling 250 Q3 (c) taken up by the operator's 2026-10-22 instruction (logged prompt `al-01M5J79V9SGNNMS8GY2555V04Q`)? | (a) yes, build AF on AM-1.7.8 · (b) no, keep §2.2 as is | (a), recorded as a ruling that cites the logged prompt (the decision is the operator's, Ruling 250 Q3) | **pending Owner ruling (DF-Q1)**; AF does not dispatch before it |
+| **DR-DF-2** | Store the dimensional lines? | (a) no — derived on read (§12.2) · (b) a rule 1.1.0 with L / D_i line kinds and a record for reference-only pairs | (a) | **settled by the leader: (a)** |
+| **DR-DF-3** | Headline at a trimmed point | (a) δ L always · (b) δ D_i when `op.load` is a target load | (a); the trimmed case is unreachable today (§12.7 Q1) | **settled by the leader: (a)**; reopen when DR-ANA-9 admits loads |
 
 ## Status & next action
 
