@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T01:32:54Z",
+  "generated": "2026-10-22T01:34:05Z",
   "audit": [
     {
       "actor": null,
@@ -41155,6 +41155,33 @@ window.AUDIT_DATA = {
       "tier": "T0",
       "started_at": "2026-10-22T01:28:52Z",
       "duration_seconds": 242.0
+    },
+    {
+      "id": "al-01M5GKWWQ2DNQW6GZYXVBZJRWS",
+      "shortname": "join-v1-verify-gates",
+      "datetime": "2026-10-22T01:34:05Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of v1-verify-gates into main",
+      "summary": "docs-only join of the V1 receipt: verify-application-core and verify-application-adapters each exit 4 (Not assessed, no dotnet launched) on Windows ARM64 at 176c9540; a real run needs macOS recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "record the two application verify gates' result after the --harness change",
+      "done_when": "receipt on main with both exit codes and stderr lines; check-docs 0",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-22T01:33:43Z",
+      "duration_seconds": 22.0
     }
   ],
   "changes": [
@@ -44577,6 +44604,15 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M5FMJ5TWY494P61QB7PFBJTJ",
       "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M5GK441GMDWHV8VKC8CKTJ54",
+      "ts": "2026-10-22T01:20:33Z",
+      "from": "opus-owner",
+      "to": "pc-laptop-leader",
+      "kind": "ruling",
+      "ref": "req-01M5DXHY5QN4YJCAF1MD5K60GT",
+      "session": "opus-owner"
     }
   ]
 };
