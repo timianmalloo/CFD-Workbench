@@ -72,6 +72,51 @@ repeat. That is the intended second guard (two services on one session); the che
 - The estimator takes no latest-wins slot, so an estimator evaluation never cancels a VLM evaluation in flight on the
   same scope.
 
+## A3d-1 repair (cycle 1)
+
+Review conditions 1, 4, 5 and 6 of the A3d-1 verdict (condition 2 and 3 are A3d-2 work).
+
+- **Condition 1, twist.** Added. The zero-lift term is `alpha - (alphaL0 - twist)`, both chord-weighted means over the
+  run's stations. Chord and twist are the placed frame's (`Placement.Sections`, `StationFrame.ChordMeters` and
+  `TwistDegrees`), the source the lattice reads (`VortexLattice` line 124: `mid.Frame.TwistDegrees`). Sign convention:
+  nose-up positive; the lattice rotates the section tangent by +twist (`SlopeNormal`) and the strip alpha_eff is
+  `alpha + twist - alpha_i` (`MethodRecord`), so a positive twist raises CL. No second twist definition, no seam request.
+  Method id and version stay `cfdw.estimator.wing` 1.0.0. Design 2.6 states the term (one paragraph edited).
+- **Condition 4, citation.** The class comment cites DATCOM 4.1.3.2 for the mid-chord form, notes that Raymer 12.6 is on
+  the maximum-thickness-line sweep, and states the straight root-to-tip mid-chord line is an approximation.
+- **Condition 5, the value check** `WingEstimator_Derive_SweptCamberedTwisted_HandValues`. Fixture: rails linear in eta
+  (leading 200 eta mm, trailing 120 + 300 eta mm, half span 450 mm), twist -4 eta degrees, one cambered profile. By hand:
+  tan(mid-chord sweep) = 250/450 = 5/9 (leading-edge line 4/9); chords 120, 170, 220 mm and twists 0, -2, -4 degrees at
+  eta 0, 0.5, 1 give a chord-weighted mean twist of -1220/510 = -2.3921568627 degrees (unweighted -2); A = 0.81/0.153;
+  alpha_L0 is the section estimator's (asserted equal at the three stations, negative for positive camber); at alpha 4
+  degrees the check's CL is 0.2516076147. The example foil gets `WingEstimator_Derive_ExampleFoilWashout_LowersCl`.
+- **Condition 6**: `Service_EvaluateEstimator_UncertifiedGeometry_RefusedNothingRecorded`,
+  `Service_EvaluateEstimator_FailedPath_RecordsFailedRowNoDiagnostics` and
+  `Service_EvaluateEstimator_DoesNotCancelVlmInFlight`. No certified wing makes the derivation fail, so the Failed-row
+  check replaces the derivation through one internal property (`AnalysisService.EstimatorDerivation`, visible to the
+  Analysis tests only). 6(c) was done as a check, not by inspection.
+
+Red on the old code (the commit before the repair): `WingEstimator_Derive_SweptCamberedTwisted_HandValues` ->
+`expected 0.2516076147; actual 0.4173764551` (twist ignored); `WingEstimator_Derive_ExampleFoilWashout_LowersCl` ->
+`washout lowers CL; expected True; actual False`; `Service_EvaluateEstimator_FailedPath_...` -> compile red
+(`EstimatorDerivation` did not exist) and, before the seam, `the row failed; expected True; actual False`. The
+uncertified check and the no-cancel check pass on old and new code; their mutants below kill them.
+
+Green: `CFD_TEST_ONLY=WingEstimator_,EstimatorRun_,VlmRun_,UnknownTier_,Service_EvaluateEstimator_` -> eleven `PASS`,
+`RESULT failures=0`.
+
+| Mutant | Red line |
+|---|---|
+| sweep forced to 0 | `expected 0.2516076147; actual 0.2752150970` |
+| leading-edge sweep | `expected 0.2516076147; actual 0.2593146003` |
+| zero-lift sign flipped | `expected 0.2516076147; actual -0.0287708129` |
+| unweighted mean | `expected 0.2516076147; actual 0.2787828345` |
+| twist dropped | `expected 0.2516076147; actual 0.4173764551`; the washout check also red |
+| twist sign wrong | `expected 0.2516076147; actual 0.5831452955`; the washout check also red |
+| estimator certification check removed | `Service_EvaluateEstimator_UncertifiedGeometry_...: expected ContractError; the evaluation returned` |
+| Failed-row catch removed | `Service_EvaluateEstimator_FailedPath_...: ContractError: forced` |
+| estimator takes the latest-wins slot | `the VLM compute token was cancelled by the estimator; expected False; actual True` |
+
 ## Node A3d-2: Compare
 
 Not started. The older-reader receipt (7.3), the measured bytes per pinned run and per record, and the copy id mapping

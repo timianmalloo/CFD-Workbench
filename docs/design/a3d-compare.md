@@ -376,8 +376,13 @@ A3 where no tier reports one, always reads **"none — no tier reports its uncer
   sweep extension, as given in DATCOM §4.1.3.2 and in Raymer, *Aircraft Design: A Conceptual Approach*, eq. 12.6 (with
   β = 1 and the section-efficiency factor η = 1). At Λ = 0 it equals the Helmbold slope: **4.827235 /rad at A = 7.5**.
   Its behaviour on a swept hydrofoil is **Inferred** (no swept fixture has been compared against it in this repo).
-- **CL** = CLα (α − ᾱ_L0), with ᾱ_L0 the chord-weighted mean of the section estimator's zero-lift angles at the run's
-  `sectionEtas` (`SectionEstimator.Estimate(...).AlphaL0Deg`, the call `MethodRecord.cs` line 84 already makes; Verified).
+- **CL** = CLα (α − (ᾱ_L0 − ε̄)), with ᾱ_L0 the chord-weighted mean of the section estimator's zero-lift angles at the run's
+  `sectionEtas` (`SectionEstimator.Estimate(...).AlphaL0Deg`, the call `MethodRecord.cs` line 84 already makes; Verified)
+  and ε̄ the chord-weighted mean geometric twist at the same stations, nose-up positive as the lattice reads it (strip
+  α_eff = α + twist − α_i). Chord and twist are the placed frame's (`Placement.Sections`, the lattice's own source), never a
+  second definition (A3d-1 repair, review condition 1). The Λ_c/2 form is DATCOM 4.1.3.2 at β = 1, κ = 1 (Raymer's eq. 12.6
+  is the same form on the maximum-thickness-line sweep); Λ_c/2 is the straight root-to-tip mid-chord line, an approximation on
+  a curved planform.
 - **CDi** = CL² / (π A) — elliptic loading assumed; planar lower bound on induced drag (DR-ANA-11 (a)). **e = 1**, labelled.
 - Λ_c/2 is read from the accepted planform. `assume:` Core's `WingEstimates` (or the planform it reads) can give the
   mid-chord sweep. Confirms: the A3d-1 build opens `WingEstimates`; if it cannot, A3d-1 computes it from the planform

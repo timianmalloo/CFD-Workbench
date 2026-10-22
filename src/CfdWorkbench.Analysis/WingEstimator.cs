@@ -8,10 +8,15 @@ public sealed record EstimatorOutputs(double Cl, double Cdi, double E);
 /// <summary>
 /// The wing estimator tier <c>cfdw.estimator.wing</c> 1.0.0 (design a3d-compare.md §2.6; Ruling 250 Q1), labelled
 /// <see cref="Labels.EstimatorNotValidated"/>. Closed form: the Helmbold lift slope with Diederich's sweep extension at
-/// the mid-chord sweep (DATCOM 4.1.3.2; Raymer eq. 12.6 with beta = 1 and eta = 1), CL = CL_alpha (alpha - alpha_L0), and
-/// CDi = CL^2 / (pi A) with elliptic loading assumed, so e = 1 by construction. Its behaviour on a swept hydrofoil is
-/// Inferred: no swept fixture has been compared against it. A stored run keeps only its inputs; the outputs are derived
-/// on read by <see cref="Derive"/> (DM7).
+/// the mid-chord sweep, the form of DATCOM 4.1.3.2 at beta = 1 and kappa = 1 (Raymer eq. 12.6 is the same form written
+/// on the sweep of the maximum-thickness line, so it is not the source of the mid-chord sweep used here).
+/// CL = CL_alpha (alpha - (alpha_L0 - twist)): <c>alpha_L0</c> is the chord-weighted mean of the section estimator's
+/// zero-lift angles and <c>twist</c> the chord-weighted mean geometric twist at the run's stations, both weighted by the
+/// placed chord. Twist is positive nose-up, as in the lattice (<c>VortexLattice</c> rotates the section tangent by
+/// +twist, and the strip's alpha_eff is alpha + twist - alpha_i). CDi = CL^2 / (pi A) with elliptic loading assumed, so
+/// e = 1 by construction. The sweep is the straight root-to-tip mid-chord line, an approximation on a curved planform.
+/// Its behaviour on a swept hydrofoil is Inferred: no swept fixture has been compared against another method. A stored
+/// run keeps only its inputs; the outputs are derived on read by <see cref="Derive"/> (DM7).
 /// </summary>
 public static class WingEstimator
 {
@@ -53,8 +58,8 @@ public static class WingEstimator
         if (!double.IsFinite(aspect) || aspect <= 0)
             throw new ContractError("ANA-INPUT-ESTIMATOR", "the accepted planform has no finite aspect ratio");
         double tanSweep = MidChordTan(source, cancellation);
-        double alphaL0 = MeanZeroLiftDeg(source, etas, cancellation);
-        return FromTan(aspect, tanSweep, run.Op.AlphaDeg - alphaL0);
+        double zeroLift = MeanZeroLiftDeg(source, etas, cancellation);
+        return FromTan(aspect, tanSweep, run.Op.AlphaDeg - zeroLift);
     }
 
     // tan of the mid-chord sweep: the mid-chord line from the root station to the tip station, dx_mid / dy. Read from the
@@ -70,16 +75,18 @@ public static class WingEstimator
         return dx / dy;
     }
 
-    // The chord-weighted mean of the section estimator's zero-lift angles at the run's stations (the call MethodRecord
-    // makes: Re does not enter the zero-lift angle).
+    // The wing zero-lift angle alpha_L0 - twist: the chord-weighted mean, over the run's stations, of the section estimator's
+    // zero-lift angle (the call MethodRecord makes: Re does not enter it) less the station's geometric twist (nose-up
+    // positive, as the lattice reads it). Chord and twist are the placed frame's, the lattice's own source (ADR-0010).
     internal static double MeanZeroLiftDeg(byte[] source, IReadOnlyList<double> etas, CancellationToken cancellation)
     {
+        var frames = Placement.Sections(source, etas, [0, 1], cancellation);
         double weighted = 0, chords = 0;
-        foreach (double eta in etas)
+        foreach (var section in frames)
         {
-            double chord = WingEstimates.ChordMeters(source, eta);
-            weighted += chord * SectionEstimator.Estimate(source, eta, 0, 1e6, PanelMethod.DefaultPanelCount, cancellation).AlphaL0Deg;
-            chords += chord;
+            double alphaL0 = SectionEstimator.Estimate(source, section.Frame.Eta, 0, 1e6, PanelMethod.DefaultPanelCount, cancellation).AlphaL0Deg;
+            weighted += section.Frame.ChordMeters * (alphaL0 - section.Frame.TwistDegrees);
+            chords += section.Frame.ChordMeters;
         }
         return weighted / chords;
     }

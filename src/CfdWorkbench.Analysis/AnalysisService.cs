@@ -217,6 +217,10 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
         return row;
     }
 
+    /// <summary>The estimator derivation: a check replaces it to reach the Failed-row path, which no certified wing reaches.</summary>
+    internal Func<AnalysisRun, byte[], CancellationToken, EstimatorOutputs> EstimatorDerivation { get; init; } =
+        (run, source, cancellation) => WingEstimator.Derive(run, source, cancellation);
+
     // The wing estimator (design a3d-compare.md §2.6): closed form and quick, so it takes no latest-wins slot and never
     // supersedes a VLM evaluation in flight on the same scope. It records through RecordRun like any run: the run key,
     // idempotency and integrity are the existing ones. Outputs are derived on read (WingEstimator.Derive), never stored.
@@ -240,7 +244,7 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
         RunOutcome outcome = new RunOutcome.Completed();
         var row = new AnalysisRun(Guid.NewGuid().ToString("D"), key, "", outcome, WingEstimator.TierId, WingEstimator.Method, settings,
             settingsHash, inputs, water, op, ReferenceQuantities.From(view.Source), method.ReconciliationTolerance, [], 0, Platform);
-        try { WingEstimator.Derive(row, view.Source, cancellation); }
+        try { EstimatorDerivation(row, view.Source, cancellation); }
         catch (ContractError error) when (error.Code.StartsWith("ANA-", StringComparison.Ordinal))
         {
             row = row with { Outcome = new RunOutcome.Failed(error.Code, error.Reason ?? error.Message) };
