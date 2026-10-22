@@ -448,7 +448,7 @@ public static class ShellWindowTests
                     // DR-STATUS-1: the status strip takes 24 px of the 700 px window, so the second row can sit under the
                     // Browser's fold; scroll it into view, and prove it is on screen, before measuring what paints behind
                     // its text (docs/proof/tmx/diagnosis.md: below the fold it is clipped, and the enclose check refuses it).
-                    ScrollRowIntoView(window, rowItems[1]);
+                    Probe(theme, "browser.scrollIntoView", () => ScrollRowIntoView(theme, window, rowItems[1]));
                     PrintScrollDiagnostic(theme, window, rowItems[1]);
                     Probe(theme, "browser.selected", () => TextRow(theme, "browser.selected", rowItems[0]));
                     Probe(theme, "browser.unselected", () => TextRow(theme, "browser.unselected", rowItems[1]));
@@ -457,11 +457,17 @@ public static class ShellWindowTests
                         HoverRow(theme, $"browser.{state}.hover", item, window);
                         PressRows(theme, $"browser.{state}", item, window);
                     }
-                    if (!rowItems[1].Focus(NavigationMethod.Tab))
-                        throw new InvalidOperationException("Browser row refused keyboard focus");
+                    Probe(theme, "focus.browser.reach", () =>
+                    {
+                        if (!rowItems[1].Focus(NavigationMethod.Tab))
+                            throw new InvalidOperationException("Browser row refused keyboard focus");
+                    });
                     Probe(theme, "focus.browser", () => RingRow(theme, "focus.browser", rowItems[1], window));
-                    if (!rowItems[0].Focus(NavigationMethod.Tab))
-                        throw new InvalidOperationException("Selected Browser row refused keyboard focus");
+                    Probe(theme, "focus.browser.selected.reach", () =>
+                    {
+                        if (!rowItems[0].Focus(NavigationMethod.Tab))
+                            throw new InvalidOperationException("Selected Browser row refused keyboard focus");
+                    });
                     Probe(theme, "focus.browser.selected", () => RingRow(theme, "focus.browser.selected", rowItems[0], window));
 
                     host.ShowPane("properties");
@@ -613,6 +619,76 @@ public static class ShellWindowTests
 
     public static void Run()
     {
+        // Ruling 221, product path: a keyboard user focuses a Browser row below the fold; no fixture scroll. The scales other
+        // than the display's own are forced (Inferred-equivalent to a real display; docs/proof/tmx/windows-2.0.md).
+        DesktopChecks.Check("BrowserRow_BelowFold_FocusBringsIntoView_AtScales", () =>
+        {
+            var failures = new List<string>();
+            // The matrix's own setting: Dock's pane fade is off so the probe reads settled layout.
+            var reveal = Dock.Controls.DeferredContentControl.DeferredContentPresentationSettings.RevealDuration;
+            Dock.Controls.DeferredContentControl.DeferredContentPresentationSettings.RevealDuration = TimeSpan.Zero;
+            try
+            {
+            foreach (double scale in new[] { 1.0, 1.5, 2.0 })
+            {
+                var window = new MainWindow() { Width = 1024, Height = 700 };
+                try
+                {
+                    var controller = typeof(MainWindow).GetField("workbench", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)?.GetValue(window) as WorkbenchController
+                        ?? throw new InvalidOperationException("Controller field unreadable");
+                    window.Show();
+                    ForceScale(window, scale);
+                    Settle(window);
+                    Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+                    var host = window.Content as ShellHost ?? throw new InvalidOperationException("Shell host did not load");
+                    host.RefreshPanes();
+                    Settle(window);
+                    host.ShowPane("browser");
+                    Settle(window);
+                    var stations = host.Browser.FindControl<ListBox>("StationList")
+                        ?? throw new InvalidOperationException("Browser rows did not load");
+                    var rowItems = stations.Items.OfType<ListBoxItem>().ToArray();
+                    if (rowItems.Length < 2) throw new InvalidOperationException("Example Browser rows did not bind");
+                    var row = rowItems[^1];
+                    var viewers = row.GetVisualAncestors().OfType<ScrollViewer>().ToArray();
+                    if (viewers.Length == 0) throw new InvalidOperationException("Browser row has no ScrollViewer ancestor");
+                    stations.SelectedIndex = 0;
+                    Settle(window);
+                    var outer = viewers[^1];
+                    double before = (row.TranslatePoint(default, outer)?.Y ?? throw new InvalidOperationException("Browser row has no position")) + row.Bounds.Height;
+                    if (before <= outer.Viewport.Height + .01)
+                        throw new InvalidOperationException(FormattableString.Invariant(
+                            $"Precondition: the last Browser row is not below the fold at scale {window.RenderScaling} (bottom {before:F2}, viewport {outer.Viewport.Height:F2})"));
+
+                    void InView(string stage, Control target)
+                    {
+                        foreach (var viewer in viewers)
+                        {
+                            double top = target.TranslatePoint(default, viewer)?.Y ?? double.NaN;
+                            if (!(top >= -.01 && top + target.Bounds.Height <= viewer.Viewport.Height + .01))
+                                failures.Add(FormattableString.Invariant(
+                                    $"{stage} at scale {window.RenderScaling}: top {top:F2}, height {target.Bounds.Height:F2}, viewport {viewer.Viewport.Height:F2}, offset {viewer.Offset.Y:F2}"));
+                        }
+                    }
+                    // Tab into the list lands on the selected (first) row, which starts below the fold too.
+                    if (!rowItems[0].Focus(NavigationMethod.Tab))
+                        throw new InvalidOperationException(FormattableString.Invariant($"Browser row refused keyboard focus at scale {window.RenderScaling}"));
+                    Settle(window);
+                    InView("Tab to the selected row", rowItems[0]);
+                    // Then the arrow key a keyboard user presses to reach the next row (the row is unrealized until the list moves).
+                    rowItems[0].RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = Key.Down, Source = rowItems[0] });
+                    Settle(window);
+                    if (!row.IsFocused)
+                        failures.Add(FormattableString.Invariant($"Down arrow did not focus the last row at scale {window.RenderScaling}"));
+                    InView("Down arrow to the last row", row);
+                }
+                finally { window.Close(); }
+            }
+            }
+            finally { Dock.Controls.DeferredContentControl.DeferredContentPresentationSettings.RevealDuration = reveal; }
+            if (failures.Count > 0)
+                throw new InvalidOperationException("Focused Browser row not fully in view: " + string.Join(" | ", failures));
+        });
 
         DesktopChecks.Check("Shell_F6_ModelArea_OnlyDockDocumentTabs", () =>
         {
@@ -3568,20 +3644,40 @@ public static class ShellWindowTests
         if (!double.TryParse(Environment.GetEnvironmentVariable("CFD_DIAG_FORCE_SCALE"),
                 System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var scale))
             return;
-        var handle = typeof(TopLevel).GetMethod("HandleScalingChanged", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public)
-            ?? throw new InvalidOperationException("HandleScalingChanged absent");
-        handle.Invoke(window, [scale]);
+        ForceScale(window, scale);
         Console.WriteLine(FormattableString.Invariant($"DIAG-SCALE forced={scale} RenderScaling={window.RenderScaling}"));
     }
 
+    // Emulates a display scale by Avalonia's non-public TopLevel.HandleScalingChanged (Inferred-equivalent to a real display).
+    private static void ForceScale(Window window, double scale)
+    {
+        var handle = typeof(TopLevel).GetMethod("HandleScalingChanged", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public)
+            ?? throw new InvalidOperationException("HandleScalingChanged absent");
+        handle.Invoke(window, [scale]);
+    }
+
+    // Ruling 221 raw print, CFD_DIAG_SCROLL=1 only: the state after BringIntoView and before the fixture corrects it.
+    private static void PrintRawScrollDiagnostic(string theme, Window window, Control row)
+    {
+        if (!DiagScroll) return;
+        var outer = row.GetVisualAncestors().OfType<ScrollViewer>().LastOrDefault();
+        double overflow = outer is null ? double.NaN : (row.TranslatePoint(default, outer)?.Y ?? double.NaN) + row.Bounds.Height - outer.Viewport.Height;
+        foreach (var viewer in row.GetVisualAncestors().OfType<ScrollViewer>())
+            Console.WriteLine(FormattableString.Invariant(
+                $"DIAG-SCROLL-RAW theme={theme} scale={window.RenderScaling} offset={viewer.Offset} extent={viewer.Extent} viewport={viewer.Viewport} rowTop={row.TranslatePoint(default, viewer)?.Y} rowHeight={row.Bounds.Height} overflow={overflow:F2}"));
+    }
+
     // BringIntoView, then the precondition the enclose check relies on: the row lies inside its outer ScrollViewer's viewport.
-    // At scale 1.5 (Mac emulation) and 2 (Windows, 2026-10-18) BringIntoView left the row one row below the fold.
-    private static void ScrollRowIntoView(Window window, Control row)
+    // BringIntoView on the second row, still unrealized under the nested scroller, stops one row (40 px) short at every
+    // scale, 1.0 and 1.5 forced and 2.0 native (CFD_DIAG_SCROLL=1 prints DIAG-SCROLL-RAW; docs/proof/tmx/windows-2.0.md).
+    // The keyboard path (BrowserRow_BelowFold_FocusBringsIntoView_AtScales) is correct, so the fixture scrolls the rest.
+    private static void ScrollRowIntoView(string theme, Window window, Control row)
     {
         var viewer = row.GetVisualAncestors().OfType<ScrollViewer>().LastOrDefault()
             ?? throw new InvalidOperationException("Browser row has no ScrollViewer ancestor");
         row.BringIntoView();
         Settle(window);
+        PrintRawScrollDiagnostic(theme, window, row);
         double Top() => row.TranslatePoint(default, viewer)?.Y ?? throw new InvalidOperationException("Browser row has no position in its viewer");
         double top = Top();
         double overflow = top + row.Bounds.Height - viewer.Viewport.Height;
