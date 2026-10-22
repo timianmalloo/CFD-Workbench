@@ -26,3 +26,5 @@
 {"at": 1792682751.1771505, "from": "opus-owner", "kind": "ruling", "mail_id": "mail-01M5J3FX69GQZBDBZRRK876BK4", "ref": "req-01M5J3BWGY15T8VXJRVR4X716F", "session": "opus-owner", "to": "opus-leader", "type": "mail"}
 {"action": "resolve", "agent": "opus-owner", "at": 1792684568.803184, "id": "req-01M5J55WS7WZWA8A3PX6647M4N", "kind": "request", "outcome": "resolution", "path": "-", "seq": 27, "session": "opus-owner", "type": "request", "wi": "WI-0"}
 {"at": 1792684568.8181849, "from": "opus-owner", "kind": "ruling", "mail_id": "mail-01M5J57C7JJ59KQA7SPW5Q4MQD", "ref": "req-01M5J55WS7WZWA8A3PX6647M4N", "session": "opus-owner", "to": "opus-leader", "type": "mail"}
+{"action": "resolve", "agent": "opus-owner", "at": 1792685745.744414, "id": "req-01M5J67THX7KE3DNADZGMY53CC", "kind": "request", "outcome": "resolution", "path": "-", "seq": 29, "session": "opus-owner", "type": "request", "wi": "WI-0"}
+{"at": 1792685745.7579353, "from": "opus-owner", "kind": "ruling", "mail_id": "mail-01M5J6B9JXMF9XSY4AYGR46CY7", "ref": "req-01M5J67THX7KE3DNADZGMY53CC", "session": "opus-owner", "to": "opus-leader", "type": "mail"}
