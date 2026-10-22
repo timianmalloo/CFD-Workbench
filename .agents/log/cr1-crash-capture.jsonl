@@ -5,3 +5,4 @@
 {"agent": "cr1-crash-capture", "at": 1792695593.6728988, "kind": "release", "path": "tools/run-tests.sh", "seq": 5, "session": "cr1-crash-capture", "wi": "cr1-crash-capture"}
 {"agent": "cr1-crash-capture", "at": 1792695593.8521063, "kind": "release", "path": "tests/CfdWorkbench.Desktop.Tests", "seq": 6, "session": "cr1-crash-capture", "wi": "cr1-crash-capture"}
 {"agent": "cr1-crash-capture", "at": 1792695594.0489066, "kind": "release", "path": "docs/proof/pvh/README.md", "seq": 7, "session": "cr1-crash-capture", "wi": "cr1-crash-capture"}
+{"agent": "cr1-crash-capture", "at": 1792695990.5725832, "kind": "session-end", "path": "-", "seq": 8, "session": "cr1-crash-capture", "wi": "WI-0", "worktree": "CFD-Workbench-cr1-crash-capture"}
