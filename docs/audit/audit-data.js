@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T18:05:58Z",
+  "generated": "2026-10-22T18:40:57Z",
   "audit": [
     {
       "actor": null,
@@ -41924,6 +41924,25 @@ window.AUDIT_DATA = {
       "tier": "T2",
       "started_at": "2026-10-22T17:35:15Z",
       "duration_seconds": 1843.0
+    },
+    {
+      "id": "al-01M5JEN55RHQ2A7PPGYPM96ENJ",
+      "shortname": "w2b-sf2-r1a",
+      "datetime": "2026-10-22T18:40:57Z",
+      "session": "w2b-sf2",
+      "prompt": "wave 2 SF2 repair R-1: guard coverage, prefix drift test, timing gate, design 13.8, idle timings",
+      "summary": "SF2 repair R-1: bit guard widened to the Placement test set (40 distinct documents, 99 pairs), refusal-input drift check with mutant, timing check registered only under CFD_SF2_TIMING and unset by run-tests.sh, design 13.8 corrected, timings re-measured under load.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T18:25:54Z",
+      "duration_seconds": 903.0
     }
   ],
   "changes": [
