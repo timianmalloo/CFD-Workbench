@@ -100,3 +100,5 @@
 {"agent": "pc-laptop-leader", "at": 1792618566.7077966, "kind": "session-end", "path": "-", "seq": 100, "session": "pc-laptop-leader", "wi": "WI-0", "worktree": "CFD-Workbench-ci-summary-parse"}
 {"agent": "pc-laptop-leader", "at": 1792631058.9891267, "kind": "session-start", "path": "-", "seq": 101, "session": "pc-laptop-leader", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-coord-next-best-six-plan"}
 {"agent": "pc-laptop-leader", "at": 1792631532.5833492, "kind": "session-end", "path": "-", "seq": 102, "session": "pc-laptop-leader", "wi": "WI-0", "worktree": "CFD-Workbench-coord-next-best-six-plan"}
+{"action": "add", "agent": "pc-laptop-leader", "at": 1792633199.2768626, "deadline_at": 1792634099.2768626, "id": "req-01M5GM7PNDNBK9B3QKJ3JXC6KN", "kind": "request", "path": "-", "seq": 103, "session": "pc-laptop-leader", "to": "opus-owner", "type": "request", "wi": "WI-0"}
+{"at": 1792633199.2949686, "from": "pc-laptop-leader", "kind": "decision-request", "mail_id": "mail-01M5GM7PNYDAQJB9YEZXKH0ZRJ", "ref": "req-01M5GM7PNDNBK9B3QKJ3JXC6KN", "session": "pc-laptop-leader", "to": "opus-owner", "type": "mail"}
