@@ -5989,7 +5989,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8efecf04285c8824395f27d6931266cf9bef747ded1d83439dbf4fb8bc15a885"
+      "sourceSha256": "c7e5746956329be16172ec3c9c36bd245531a7dc3ea8776cc4822242a399da1e"
     },
     {
       "id": "domain-experts",
@@ -9889,6 +9889,43 @@ window.DOCS_INDEX = {
       "sourceSha256": "bb7a76a43874f5de8954a1969d7552808a657ae73c7437f5141e1eec4952a448"
     },
     {
+      "id": "investigation-desktop-native-crash",
+      "path": "docs/investigations/desktop-native-crash.md",
+      "title": "Investigation: the intermittent native crash (0xC0000374) of Desktop harness children under load",
+      "type": "investigation",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "investigate",
+      "reviewBy": "2026-11-22",
+      "reviewSuggested": [],
+      "summary": "Desktop harness children die with STATUS_HEAP_CORRUPTION about once in eight full runs on the Windows ARM64 laptop and within a run or two when two runners overlap. Three captured dumps show a heap buffer overrun found by the segment heap's timer, next to a vertex stream, on the GPU rendering path (ANGLE on D3D11 on the NVIDIA driver); seven paired software-rendered runs never crashed. The writer inside that path is not yet named. First repair: the test harness renders in software; then a rendering-mode switch and page heap name the module.",
+      "tags": [
+        "desktop-tests",
+        "native-crash",
+        "heap-corruption",
+        "windows",
+        "arm64",
+        "harness",
+        "rendering"
+      ],
+      "links": [
+        {
+          "to": "proof-pvh-crash-loop",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-next-best-six",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "6be708fc4bab87fcc50411b704056c230b716146c6266e3c5adba6234198edf2"
+    },
+    {
       "id": "investigation-ezf-zoompanfit",
       "path": "docs/proof/ezf/investigation.md",
       "title": "Investigation EZF - the flaky Elevation_ZoomPanFit check is a stale fit baseline, not CPU starvation",
@@ -11508,6 +11545,52 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "46ebe9cd92f2526bdfa8376d50cee27c0832cdbd8e983c00595bcd8c54c51486"
+    },
+    {
+      "id": "coordination-next-best-six-wave2",
+      "path": "docs/coordination/next-best-six-wave2.md",
+      "title": "Coordination plan - next-best-six wave 2: the operator's decisions of 2026-10-22",
+      "type": "plan",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2026-11-22",
+      "reviewSuggested": [],
+      "summary": "Wave 2 of next-best-six, from the operator's decisions after the wave-1 close: Windows is the platform of record; the proposed copy rows are approved; Clear unfinished save, read-only Open from OneDrive and the preference-folder ACL are built; the document size cap is raised so pinned VLM runs are not the practical limit; and every follow-up the A3d Compare, Add station and W2-Q2 tracks left is closed. Two Owner rulings first, then nine tracks at width 3.",
+      "tags": [
+        "coordination",
+        "worktrees",
+        "parallelism",
+        "windows"
+      ],
+      "links": [
+        {
+          "to": "coordination-next-best-six",
+          "rel": "refines"
+        },
+        {
+          "to": "design-windows-native-store",
+          "rel": "implements"
+        },
+        {
+          "to": "design-a3d-compare",
+          "rel": "implements"
+        },
+        {
+          "to": "design-add-station",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "170d3dc2236b6df73603585a8230e3a952d9b009324044ad155ee43028e42f96"
     },
     {
       "id": "coordination-pc-kickoff",
@@ -14971,6 +15054,38 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "23933d3927ec249c9ce90551b39a6dce7c72781cec6162a9c978495009f52ebc"
+    },
+    {
+      "id": "proof-desktop-native-crash",
+      "path": "docs/proof/desktop-native-crash/README.md",
+      "title": "Proof: the Desktop harness native crash (0xC0000374) captured and read",
+      "type": "proof-pack",
+      "status": "accepted",
+      "owner": "@timianmalloo",
+      "phase": "investigate",
+      "reviewBy": "2026-11-22",
+      "reviewSuggested": [],
+      "summary": "The loop scripts and the stdlib dump readers behind the investigation of the intermittent 0xC0000374 crash: how three dumps were captured under load with the ProcDump wrapper, how each was read without a debugger, and the seven software-rendered paired runs that never crashed. The dumps themselves (0.9 to 1.3 GB each) stay out of git.",
+      "tags": [
+        "desktop-tests",
+        "native-crash",
+        "heap-corruption",
+        "windows",
+        "arm64",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "investigation-desktop-native-crash",
+          "rel": "documents"
+        },
+        {
+          "to": "proof-pvh-crash-loop",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "61f7dcd841967a011a80150d59dedac4d7f2ac61f9d94e8b9689932e6b2d48cc"
     },
     {
       "id": "proof-doc-oct06",
@@ -23860,6 +23975,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-workbench-v7"
     },
     {
+      "id": "surface-coordination-next-best-six-wave2",
+      "path": "docs/coordination/next-best-six-wave2.html",
+      "title": "Coordination plan - next-best-six wave 2: the operator's decisions of 2026-10-22",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "coordination-next-best-six-wave2"
+    },
+    {
       "id": "surface-coordination-next-best-six",
       "path": "docs/coordination/next-best-six.html",
       "title": "Coordination plan - the six next-best items of the 2026-10-21 stock-take",
@@ -24020,5 +24143,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "7859cffd4b167863cd7aecbbf2d204b66a2c335f9a80ee7effce7fa2ffcaaf49"
+  "graphSha256": "d722ab267370da7bb3282b3bcb3964217575a7eea3bfd4c7279556fd60393112"
 };

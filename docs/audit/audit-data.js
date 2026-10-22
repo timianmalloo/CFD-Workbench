@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T19:05:54Z",
+  "generated": "2026-10-22T19:10:37Z",
   "audit": [
     {
       "actor": null,
@@ -42194,6 +42194,28 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T19:02:11Z",
       "duration_seconds": 223.0
+    },
+    {
+      "id": "al-01M5JGBFFG9WEW9RYPWN6F9BCW",
+      "shortname": "investigate-desktop-native-crash",
+      "datetime": "2026-10-22T19:10:37Z",
+      "session": "pc-laptop-leader",
+      "prompt": "/investigate the intermittendt desktop native crash skip the macos run ... we are pivoting to focus on windows accept 4 do 3 increase the VLM run budget so it works keep going and lets get a3d compare, add station and w2-q2 follow up implemented and complete",
+      "summary": "Root cause verified to the rendering path: 0xC0000374 in Desktop harness children is a heap buffer overrun found by the segment heap's GC timer next to a 12-byte (x, y, ARGB) vertex stream; three dumps captured under paired load with the CR1 ProcDump wrapper and read with stdlib readers (exception stream, ARM64 frame chain, HEAP_FAILURE_INFORMATION, dbghelp with PDBs by RSDS key); seven software-rendered paired runs never crashed against three dumps in about seven GPU-path pairs, so ANGLE on D3D11 on the NVIDIA ARM64 driver is necessary; the writer's module is open (page heap or a rendering-mode switch names it). Phased repair R0 capture hook (joined 48ea4297), R1 harness renders in software behind CFD_TEST_RENDERING=gpu, R2 name the module, R3 the product decision with an Owner ruling, R4 the register. Register: HARNESS-CRASH-AS-VERDICT instance 2, NATIVE-FAULT-REPORTED-NOWHERE, WRAPPER-MASKS-CHILD-EXIT. The wave-2 plan lands with the report.",
+      "kind": "skill",
+      "skill": "investigate",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/investigations/desktop-native-crash.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "find the verified root cause of the intermittent Desktop native crash, generalise it, and produce the phased repair plan",
+      "done_when": "the cause is verified necessary and sufficient against dumps, the class is registered with its control observed failing on the unfixed harness, and the report with its phased plan is on main",
+      "tier": "T2",
+      "fan_out": 3
     }
   ],
   "changes": [
