@@ -9,3 +9,5 @@
 {"at": 1792634823.284863, "from": "opus-owner", "kind": "ruling", "mail_id": "mail-01M5GNS8KMEH2E2Y87GBNNWEJN", "ref": "req-01M5GNQYCC4QE5NT18S9HT7RWC", "session": "opus-owner", "to": "opus-leader", "type": "mail"}
 {"action": "resolve", "agent": "opus-owner", "at": 1792635849.6561563, "id": "req-01M5GPPSADJVK0MSXDPQ04X2YK", "kind": "request", "outcome": "resolution", "path": "-", "seq": 10, "session": "opus-owner", "type": "request", "wi": "WI-0"}
 {"at": 1792635849.672225, "from": "opus-owner", "kind": "ruling", "mail_id": "mail-01M5GPRJY8VFGEQ40D1YR4MEGP", "ref": "req-01M5GPPSADJVK0MSXDPQ04X2YK", "session": "opus-owner", "to": "opus-leader", "type": "mail"}
+{"action": "resolve", "agent": "opus-owner", "at": 1792638146.639758, "id": "req-01M5GRVJ5V6FBV4JP9RCSKFT39", "kind": "request", "outcome": "resolution", "path": "-", "seq": 12, "session": "opus-owner", "type": "request", "wi": "WI-0"}
+{"at": 1792638146.6512103, "from": "opus-owner", "kind": "ruling", "mail_id": "mail-01M5GRYP2VCEK6CC8BDPY8665G", "ref": "req-01M5GRVJ5V6FBV4JP9RCSKFT39", "session": "opus-owner", "to": "opus-leader", "type": "mail"}
