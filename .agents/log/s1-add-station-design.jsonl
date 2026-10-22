@@ -1,1 +1,5 @@
 {"agent": "s1-add-station-design", "at": 1792632875.818031, "kind": "session-start", "path": "-", "seq": 1, "session": "s1-add-station-design", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-s1-add-station-design"}
+{"agent": "s1-add-station-design", "at": 1792633885.5768895, "kind": "claim", "path": "docs/design/add-station.md", "seq": 2, "session": "s1-add-station-design", "ttl": 300.0, "wi": "s1-add-station-design"}
+{"agent": "s1-add-station-design", "at": 1792633886.1171649, "kind": "claim", "path": "docs/mockups/add-station.html", "seq": 3, "session": "s1-add-station-design", "ttl": 300.0, "wi": "s1-add-station-design"}
+{"agent": "s1-add-station-design", "at": 1792633886.628965, "kind": "claim", "path": "docs/mockups/add-station.md", "seq": 4, "session": "s1-add-station-design", "ttl": 300.0, "wi": "s1-add-station-design"}
+{"agent": "s1-add-station-design", "at": 1792633887.2384167, "kind": "claim", "path": "docs/specs/amendments/spec-add-station.md", "seq": 5, "session": "s1-add-station-design", "ttl": 300.0, "wi": "s1-add-station-design"}

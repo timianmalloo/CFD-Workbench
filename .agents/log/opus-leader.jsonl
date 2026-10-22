@@ -1,0 +1,2 @@
+{"action": "add", "agent": "opus-leader", "at": 1792633873.6478937, "deadline_at": 1792634773.6478937, "id": "req-01M5GMW97HRGQ8YG634050P5CS", "kind": "request", "path": "-", "seq": 1, "session": "opus-leader", "to": "opus-owner", "type": "request", "wi": "WI-0"}
+{"at": 1792633873.671561, "from": "opus-leader", "kind": "decision-request", "mail_id": "mail-01M5GMW987MVZG58HZ196Q8962", "ref": "req-01M5GMW97HRGQ8YG634050P5CS", "session": "opus-leader", "to": "opus-owner", "type": "mail"}
