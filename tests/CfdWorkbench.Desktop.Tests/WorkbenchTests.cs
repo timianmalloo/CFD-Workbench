@@ -160,6 +160,7 @@ internal static class DesktopHarness
             CfdWorkbench.Desktop.Tests.AnalysisHistoricalFeedTests.Run();
             CfdWorkbench.Desktop.Tests.AnalysisLayerTests.Run();
             CfdWorkbench.Desktop.Tests.AnalysisPanelTests.Run();
+            CfdWorkbench.Desktop.Tests.ComparePaneTests.Run();
             CfdWorkbench.Desktop.Tests.StaleConditionsTests.Run();
             CfdWorkbench.Desktop.Tests.NotResolvedViewTests.Run();
             Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
