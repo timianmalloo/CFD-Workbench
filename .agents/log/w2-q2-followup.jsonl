@@ -1,1 +1,13 @@
 {"agent": "w2-q2-followup", "at": 1792652552.0399015, "kind": "session-start", "path": "-", "seq": 1, "session": "w2-q2-followup", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-w2-q2-followup"}
+{"agent": "w2-q2-followup", "at": 1792654249.215999, "kind": "claim", "path": "src/CfdWorkbench.Desktop/OpenOutcome.cs", "seq": 2, "session": "w2-q2-followup", "ttl": 300.0, "wi": "w2-q2-followup"}
+{"agent": "w2-q2-followup", "at": 1792654249.413082, "kind": "claim", "path": "src/CfdWorkbench.Desktop/Panes/StartView.axaml.cs", "seq": 3, "session": "w2-q2-followup", "ttl": 300.0, "wi": "w2-q2-followup"}
+{"agent": "w2-q2-followup", "at": 1792654249.6447864, "kind": "claim", "path": "src/CfdWorkbench.Analysis/Labels.cs", "seq": 4, "session": "w2-q2-followup", "ttl": 300.0, "wi": "w2-q2-followup"}
+{"agent": "w2-q2-followup", "at": 1792654249.861431, "kind": "claim", "path": "DESIGN.md", "seq": 5, "session": "w2-q2-followup", "ttl": 300.0, "wi": "w2-q2-followup"}
+{"agent": "w2-q2-followup", "at": 1792654250.0935507, "kind": "claim", "path": "docs/proof/win-store-implementation/2026-10-22/README.md", "seq": 6, "session": "w2-q2-followup", "ttl": 300.0, "wi": "w2-q2-followup"}
+{"agent": "w2-q2-followup", "at": 1792654250.3219397, "kind": "claim", "path": "tests/CfdWorkbench.Desktop.Tests/ControllerShellTests.cs", "seq": 7, "session": "w2-q2-followup", "ttl": 300.0, "wi": "w2-q2-followup"}
+{"agent": "w2-q2-followup", "at": 1792654507.732309, "kind": "release", "path": "src/CfdWorkbench.Desktop/OpenOutcome.cs", "seq": 8, "session": "w2-q2-followup", "wi": "w2-q2-followup"}
+{"agent": "w2-q2-followup", "at": 1792654507.920102, "kind": "release", "path": "src/CfdWorkbench.Desktop/Panes/StartView.axaml.cs", "seq": 9, "session": "w2-q2-followup", "wi": "w2-q2-followup"}
+{"agent": "w2-q2-followup", "at": 1792654508.106047, "kind": "release", "path": "src/CfdWorkbench.Analysis/Labels.cs", "seq": 10, "session": "w2-q2-followup", "wi": "w2-q2-followup"}
+{"agent": "w2-q2-followup", "at": 1792654508.259432, "kind": "release", "path": "DESIGN.md", "seq": 11, "session": "w2-q2-followup", "wi": "w2-q2-followup"}
+{"agent": "w2-q2-followup", "at": 1792654508.4378312, "kind": "release", "path": "docs/proof/win-store-implementation/2026-10-22/README.md", "seq": 12, "session": "w2-q2-followup", "wi": "w2-q2-followup"}
+{"agent": "w2-q2-followup", "at": 1792654508.61802, "kind": "release", "path": "tests/CfdWorkbench.Desktop.Tests/ControllerShellTests.cs", "seq": 13, "session": "w2-q2-followup", "wi": "w2-q2-followup"}

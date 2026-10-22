@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T07:35:07Z",
+  "generated": "2026-10-22T07:43:46Z",
   "audit": [
     {
       "actor": null,
@@ -41572,6 +41572,33 @@ window.AUDIT_DATA = {
       "tier": "T1",
       "started_at": "2026-10-22T07:29:01Z",
       "duration_seconds": 366.0
+    },
+    {
+      "id": "al-01M5H91T9HE8M6EQ3G0TFCP8FW",
+      "shortname": "join-w2-q2-followup",
+      "datetime": "2026-10-22T07:43:46Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "the leader's W2-Q2 follow-up joins: COPY-589 (Ruling 253) and COPY-590 (Ruling 257) with their red-first checks, two end-to-end inspect --runs lines through the Windows store; the first ring pass hit the intermittent 0xC0000374 native crash in --plan-canvas part 2/2 (803 PASS, recorded), rerun recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "close the W2 copy follow-ups and A3 review condition 11",
+      "done_when": "run-tests green on main with 0 skips; check-docs 0; CI green after the push",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-22T07:40:37Z",
+      "duration_seconds": 189.0
     }
   ],
   "changes": [
@@ -45146,6 +45173,24 @@ window.AUDIT_DATA = {
       "to": "opus-leader",
       "kind": "ruling",
       "ref": "req-01M5GZX9NKWESEDP86VX3SCKNW",
+      "session": "opus-owner"
+    },
+    {
+      "id": "mail-01M5H7ZFXA8Z6EGE7BMX9W18DQ",
+      "ts": "2026-10-22T07:25:01Z",
+      "from": "opus-leader",
+      "to": "opus-owner",
+      "kind": "decision-request",
+      "ref": "req-01M5H7ZFWTNVV2KN609GRCSN30",
+      "session": "opus-leader"
+    },
+    {
+      "id": "mail-01M5H80N21EAT05HTAFRCNQHDG",
+      "ts": "2026-10-22T07:25:39Z",
+      "from": "opus-owner",
+      "to": "opus-leader",
+      "kind": "ruling",
+      "ref": "req-01M5H7ZFWTNVV2KN609GRCSN30",
       "session": "opus-owner"
     }
   ]
