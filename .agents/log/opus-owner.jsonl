@@ -19,3 +19,4 @@
 {"at": 1792645494.5218499, "from": "opus-owner", "kind": "ruling", "mail_id": "mail-01M5GZYXQS2GG3R9HAPCXTS01R", "ref": "req-01M5GZX9NKWESEDP86VX3SCKNW", "session": "opus-owner", "to": "opus-leader", "type": "mail"}
 {"action": "resolve", "agent": "opus-owner", "at": 1792653939.7657616, "id": "req-01M5H7ZFWTNVV2KN609GRCSN30", "kind": "request", "outcome": "resolution", "path": "-", "seq": 20, "session": "opus-owner", "type": "request", "wi": "WI-0"}
 {"at": 1792653939.7773619, "from": "opus-owner", "kind": "ruling", "mail_id": "mail-01M5H80N21EAT05HTAFRCNQHDG", "ref": "req-01M5H7ZFWTNVV2KN609GRCSN30", "session": "opus-owner", "to": "opus-leader", "type": "mail"}
+{"agent": "opus-owner", "at": 1792655278.7700777, "kind": "session-end", "path": "-", "seq": 22, "session": "opus-owner", "wi": "WI-0", "worktree": "CFD-Workbench"}
