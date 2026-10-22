@@ -26,3 +26,4 @@
 {"agent": "w2b-mx", "at": 1792696270.1137962, "kind": "release", "path": "docs/design/a3d-compare.md", "seq": 26, "session": "w2b-mx", "wi": "w2b-mx"}
 {"agent": "w2b-mx", "at": 1792696270.2709355, "kind": "release", "path": "docs/design/windows-native-store.md", "seq": 27, "session": "w2b-mx", "wi": "w2b-mx"}
 {"agent": "w2b-mx", "at": 1792696270.4329581, "kind": "release", "path": "docs/notes/adr-0011-size-cap.md", "seq": 28, "session": "w2b-mx", "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792697319.4385333, "kind": "session-end", "path": "-", "seq": 29, "session": "w2b-mx", "wi": "WI-0", "worktree": "CFD-Workbench-w2b-mx"}
