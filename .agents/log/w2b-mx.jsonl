@@ -20,3 +20,9 @@
 {"agent": "w2b-mx", "at": 1792695666.2335446, "kind": "claim", "path": "docs/design/a3d-compare.md", "seq": 20, "session": "w2b-mx", "ttl": 300.0, "wi": "w2b-mx"}
 {"agent": "w2b-mx", "at": 1792695666.4565806, "kind": "claim", "path": "docs/design/windows-native-store.md", "seq": 21, "session": "w2b-mx", "ttl": 300.0, "wi": "w2b-mx"}
 {"agent": "w2b-mx", "at": 1792695666.6794746, "kind": "claim", "path": "docs/notes/adr-0011-size-cap.md", "seq": 22, "session": "w2b-mx", "ttl": 300.0, "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792696269.640811, "kind": "release", "path": "docs/design/application-contracts.md", "seq": 23, "session": "w2b-mx", "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792696269.7964017, "kind": "release", "path": "docs/design/application-foundation.md", "seq": 24, "session": "w2b-mx", "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792696269.956188, "kind": "release", "path": "docs/design/area3-analysis.md", "seq": 25, "session": "w2b-mx", "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792696270.1137962, "kind": "release", "path": "docs/design/a3d-compare.md", "seq": 26, "session": "w2b-mx", "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792696270.2709355, "kind": "release", "path": "docs/design/windows-native-store.md", "seq": 27, "session": "w2b-mx", "wi": "w2b-mx"}
+{"agent": "w2b-mx", "at": 1792696270.4329581, "kind": "release", "path": "docs/notes/adr-0011-size-cap.md", "seq": 28, "session": "w2b-mx", "wi": "w2b-mx"}

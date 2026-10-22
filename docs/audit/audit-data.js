@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T19:10:37Z",
+  "generated": "2026-10-22T19:11:48Z",
   "audit": [
     {
       "actor": null,
@@ -42216,6 +42216,33 @@ window.AUDIT_DATA = {
       "done_when": "the cause is verified necessary and sufficient against dumps, the class is registered with its control observed failing on the unfixed harness, and the report with its phased plan is on main",
       "tier": "T2",
       "fan_out": 3
+    },
+    {
+      "id": "al-01M5JGDN6D3NMVW3VMMJK5MK5K",
+      "shortname": "join-inv-desktop-crash",
+      "datetime": "2026-10-22T19:11:48Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of inv-desktop-crash into main",
+      "summary": "docs-only join of the /investigate report docs/investigations/desktop-native-crash.md (root cause verified to the GPU rendering path, phased repair plan R0 to R4), docs/proof/desktop-native-crash/ (loop scripts and stdlib dump readers), the 2026-10-22 defect-class round, and docs/coordination/next-best-six-wave2.md recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "land the investigation report at its review gate and the wave-2 plan on main",
+      "done_when": "inv-desktop-crash merged on main with check-docs and the ten verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-22T19:11:27Z",
+      "duration_seconds": 21.0
     }
   ],
   "changes": [
