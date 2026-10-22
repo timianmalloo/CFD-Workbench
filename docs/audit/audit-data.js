@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T01:05:10Z",
+  "generated": "2026-10-22T01:11:58Z",
   "audit": [
     {
       "actor": null,
@@ -41109,6 +41109,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T01:04:49Z",
       "duration_seconds": 21.0
+    },
+    {
+      "id": "al-01M5GJMCRNB5H9GXW7YZ6XE0YF",
+      "shortname": "join-next-best-six-plan",
+      "datetime": "2026-10-22T01:11:57Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "docs-only join of the coordination plan next-best-six (six tracks, width 3) plus the compile and prepare audit entries; first pass stopped on an unborn ruling citation (fixed on main); second pass stopped on an intermittent Desktop child crash 0xC0000374 in --properties-view part 2/2 (evidence kept for track D1) recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "land the next-best-six coordination plan on main",
+      "done_when": "plan md and html on main, check-docs green, docs index derived",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-22T01:10:10Z",
+      "duration_seconds": 107.0
     }
   ],
   "changes": [
