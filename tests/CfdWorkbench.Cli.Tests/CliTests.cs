@@ -326,8 +326,8 @@ internal static class CliHarness
             string? previousDrive = Environment.GetEnvironmentVariable("OneDrive");
             try
             {
-                // A junction inside the OneDrive folder stays refused: exit 3 with DOC-UNSUPPORTED-PERSISTENCE (no exception for any tag but the cloud family).
-                string oneDrive = TestTemp.NewDirectory("onedrive-junction-"), target = TestTemp.NewDirectory("onedrive-junction-target-");
+                // An untagged folder that the OneDrive variable names is refused: exit 3, DOC-UNSUPPORTED-PERSISTENCE. The CLI cannot inject a cloud tag, so this is NOT a junction guard (the Core check WindowsStore_Open_JunctionUnderOneDrive_Refused is); the junction only gives the path a subfolder.
+                string oneDrive = TestTemp.NewDirectory("onedrive-untagged-"), target = TestTemp.NewDirectory("onedrive-untagged-target-");
                 string junction = Path.Combine(oneDrive, "junction");
                 using (var link = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("cmd.exe", ["/c", "mklink", "/J", junction, target]) { UseShellExecute = false, RedirectStandardOutput = true })!)
                 { link.StandardOutput.ReadToEnd(); link.WaitForExit(); if (link.ExitCode != 0) throw new Exception("mklink /J failed"); }
@@ -336,7 +336,7 @@ internal static class CliHarness
                 exit = await Cli.RunAsync(["inspect", Path.Combine(junction, "wing.cfdw.json"), "--json"], output);
                 if (exit != 3 || !output.ToString().Contains("DOC-UNSUPPORTED-PERSISTENCE", StringComparison.Ordinal))
                     throw new Exception($"inspect through a junction under OneDrive returned {exit}: {output}");
-                Console.WriteLine("PASS Cli_Inspect_JunctionUnderOneDrive_Refused");
+                Console.WriteLine("PASS Cli_Inspect_UntaggedFolderNamedByOneDrive_RefusedExit3");
                 // A fully local file of a real OneDrive folder (CFD_LOCAL_ONEDRIVE_FILE) reads through the same store; without it the check is SKIP.
                 if (Environment.GetEnvironmentVariable("CFD_LOCAL_ONEDRIVE_FILE") is { Length: > 0 } real)
                 {
@@ -350,7 +350,7 @@ internal static class CliHarness
             }
             catch (Exception error)
             {
-                Console.WriteLine("FAIL Cli_Inspect_OneDriveFullyLocal_SucceedsAndJunctionRefused " + error.GetType().Name + ": " + error.Message);
+                Console.WriteLine("FAIL Cli_Inspect_UntaggedFolderNamedByOneDrive_RefusedExit3_Or_OneDriveFullyLocal_Succeeds " + error.GetType().Name + ": " + error.Message);
                 cliFailures++;
             }
             finally { Environment.SetEnvironmentVariable("OneDrive", previousDrive); }

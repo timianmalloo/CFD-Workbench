@@ -271,6 +271,7 @@ internal static class WindowsProjectStoreTests
         Check("WindowsStore_Open_LeafCloudTagOnlyForOneDriveOrigin", OpenLeafTagOnlyForOneDrive);
         Check("WindowsStore_Open_RecallBitAfterDataHandle_RefusedConflict", OpenRecallBitAfterDataHandle);
         Check("WindowsStore_Open_RecalledOrChangedDuringRead_RefusedNoPartial", OpenChangedDuringRead);
+        Check("WindowsStore_Open_ErrorAfterDataHandle_LocalKeepsIo_OneDriveConflict", OpenErrorAfterDataHandle_LocalKeepsIo);
         Check("WindowsStore_SaveWalks_PlaceholderExceptionNotApplied", SaveWalksNoPlaceholderException);
         if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("CFD_ONLINE_ONLY_FILE")))
             Console.WriteLine("SKIP WindowsStore_Open_RealOnlineOnlyFile_RefusedLeftCloudOnly no-online-only-file");
@@ -493,13 +494,37 @@ internal static class WindowsProjectStoreTests
     {
         var (folder, path) = OneDriveFixture();
         Thread.Sleep(100); // the change time has the system clock's granularity (a few ms): let it move past the seed's before the change
-        var changed = new Synthetic { OnStage = stage => { if (stage == StoreStage.Reading) File.SetLastWriteTimeUtc(path, DateTime.UtcNow.AddHours(1)); } };
+        long timeBefore = 0, timeAfter = 0;
+        var changed = new Synthetic
+        {
+            OnStage = stage =>
+            {
+                if (stage != StoreStage.Reading) return;
+                using (var probe = File.OpenHandle(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete)) timeBefore = WindowsNative.ChangeTime(probe);
+                File.SetLastWriteTimeUtc(path, DateTime.UtcNow.AddHours(1));
+                using (var probe = File.OpenHandle(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete)) timeAfter = WindowsNative.ChangeTime(probe);
+            }
+        };
         var (read, code) = OpenUnder(folder, changed, path);
+        if (timeAfter == timeBefore) throw new InvalidOperationException("precondition: the change time did not move (clock too coarse), so this check proves nothing");
         if (code != "DOC-CONFLICT" || read is not null) throw new InvalidOperationException("change time case: " + code);
         var (folder2, path2) = OneDriveFixture();
         var (read2, code2) = OpenUnder(folder2, new Synthetic { OnStage = stage => { if (stage == StoreStage.Reading) ExternalReplace(path2, [7]); } }, path2);
         if (code2 != "DOC-CONFLICT" || read2 is not null) throw new InvalidOperationException("replaced case: " + code2);
         Console.WriteLine("OPEN-CHANGED-DURING-READ change_time=DOC-CONFLICT replaced=DOC-CONFLICT image=none");
+    }
+
+    // F3 (review): Ruling 261's DOC-CONFLICT mapping of a failure after the data handle is about OneDrive; a local file keeps DOC-IO.
+    private static void OpenErrorAfterDataHandle_LocalKeepsIo()
+    {
+        var (folder, oneDrivePath) = OneDriveFixture();
+        string localPath = Seed(NewRoot());
+        static Synthetic Failing() => new() { OnStage = stage => { if (stage == StoreStage.Reading) throw new IOException("simulated read error after the data handle"); } };
+        var (localRead, localCode) = OpenUnder(folder, Failing(), localPath);
+        Equal("DOC-IO", localCode); Equal(true, localRead is null);
+        var (cloudRead, cloudCode) = OpenUnder(folder, Failing(), oneDrivePath);
+        Equal("DOC-CONFLICT", cloudCode); Equal(true, cloudRead is null);
+        Console.WriteLine($"OPEN-ERROR-AFTER-DATA-HANDLE local={localCode} onedrive={cloudCode}");
     }
 
     private static void SaveWalksNoPlaceholderException()

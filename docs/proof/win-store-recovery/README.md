@@ -130,8 +130,25 @@ time to have left the clock tick of the seed (the check waits 100 ms).
 | O DOC-CLOUD-ONLY unmapped | `OpenOutcome_ClassifyCode_CloudOnly_And_StartViewSentence: DOC-CLOUD-ONLY is not CloudOnly: NotRecognised` |
 | R CLI arm omitted | `Cli_ExitForCode_CloudOnly_Is3 Exception: DOC-CLOUD-ONLY exits 2` |
 
-Survivor Q (the controller's own in-place guard removed): green, because the store refuses the same save with the same code
-(`RequireLocalFolder`, unchanged). The window refuses first with the OneDrive dialog (checked), so the guard is defence in depth.
+Survivor Q (the controller's own in-place guard removed): green at first, because the store refuses the same save with the same code
+(`RequireLocalFolder`, unchanged). Killed in repair 1 (below).
+
+## Repair 1 (review verdict C2, F3, F4, F7, F10, F6)
+
+| item | red / mutant line |
+|---|---|
+| C2 notice row | red on the insertion-order placement: `ControllerShell_OneDriveOpen_NoticeRow_DirectlyAboveStatusStrip: the notice row 2 is not directly above the status strip row 4 (menu bar added after the notice)`. The notice's row now follows the status strip's row (a property-change handler), so the old placement is the mutant and that line is its red. |
+| F3 local keeps DOC-IO | red: `WindowsStore_Open_ErrorAfterDataHandle_LocalKeepsIo_OneDriveConflict: Expected DOC-IO; actual DOC-CONFLICT`. Mutant (origin test removed from the post-data-handle catch): the same line. A OneDrive document still reports DOC-CONFLICT. |
+| F4 stage recorder | the in-place direct save must visit no store stage and read no attribute. Mutant Q (controller guard removed): `InPlaceSaveWritesNothing: the direct in-place save called the store (stages and attribute reads seen): attribute ancestor,...`. (The store refuses before `ParentOpened`, so the recorder also counts the attribute reads of the parent walk.) |
+| F7 change time | the hook reads `ChangeTime` before and after the write and the check fails with "precondition: the change time did not move" if it did not. |
+| F10 CLI junction | renamed `Cli_Inspect_UntaggedFolderNamedByOneDrive_RefusedExit3`: the CLI cannot inject a cloud tag, so it is not a junction guard; the Core check `WindowsStore_Open_JunctionUnderOneDrive_Refused` is the junction guard. |
+
+## Residuals held by review
+
+- Dropping `FILE_OPEN_NO_RECALL` from the data handle (mutant S1) survives every check, including a real fully local file; only a
+  free-up (dehydrate) race between the O3 bit check and the O4 open could show it. Held by review of `OpenDataFromHeld`.
+- A metadata-only change inside the same clock tick as an earlier change during the read is not seen by the change-time compare.
+  Content writes are excluded (the data handle shares read and delete only) and a replace is caught by the identity re-check.
 
 ## Real files
 

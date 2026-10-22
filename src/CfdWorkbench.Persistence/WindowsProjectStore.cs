@@ -55,8 +55,9 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
                 Require(WindowsNative.Standard(data).EndOfFile == length && WindowsNative.ChangeTime(data) == changed, "DOC-CONFLICT");
                 parent.Verify(); Require(SameEntryNoData(parent, parent.Name, attribute), "DOC-CONFLICT");
             }
-            // After D exists every failure is a conflict, never DOC-CLOUD-ONLY and never a partial document (Ruling 261, I-11, I-14).
-            catch (Exception failure) when (failure is IOException or UnauthorizedAccessException) { throw new ContractError("DOC-CONFLICT"); }
+            // After D exists every failure of a OneDrive document is a conflict, never DOC-CLOUD-ONLY and never a partial document (Ruling 261, I-11, I-14).
+            // A local file keeps the ordinary mapping below (a read error is DOC-IO).
+            catch (Exception failure) when (origin == DocumentOrigin.OneDriveReadOnly && failure is IOException or UnauthorizedAccessException) { throw new ContractError("DOC-CONFLICT"); }
             count = bytes.Length;
             return new ReadResult(bytes, Identity.Sha256(bytes), origin);
         }

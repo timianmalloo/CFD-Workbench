@@ -41,13 +41,19 @@ public sealed partial class MainWindow : Window
         return notice;
     }
 
-    /// <summary>Puts <paramref name="notice"/> in a new row of the shell directly above the status strip (the strip moves down one row).</summary>
+    /// <summary>
+    /// Puts <paramref name="notice"/> in a new row of the shell directly above the status strip (the strip moves down one row). The notice's row
+    /// is always the strip's row minus one: it follows the strip, so a menu bar shown later cannot leave it on another child's row.
+    /// </summary>
     private void PlaceAboveStatusStrip(Control notice)
     {
         int row = Grid.GetRow(shellHost.StatusStrip);
         shellHost.RowDefinitions.Insert(row, new RowDefinition(GridLength.Auto));
+        shellHost.StatusStrip.PropertyChanged += (_, e) =>
+        {
+            if (e.Property == Grid.RowProperty) Grid.SetRow(notice, Grid.GetRow(shellHost.StatusStrip) - 1);
+        };
         Grid.SetRow(shellHost.StatusStrip, row + 1);
-        Grid.SetRow(notice, row);
         shellHost.Children.Add(notice);
     }
 

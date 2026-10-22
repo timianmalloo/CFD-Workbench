@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T18:37:38Z",
+  "generated": "2026-10-22T19:08:37Z",
   "audit": [
     {
       "actor": null,
@@ -42146,6 +42146,25 @@ window.AUDIT_DATA = {
       "tier": "T2",
       "started_at": "2026-10-22T18:14:07Z",
       "duration_seconds": 1411.0
+    },
+    {
+      "id": "al-01M5JG7T1Y548G5TQ4H0B6TSRY",
+      "shortname": "w2b-bs-b-r1",
+      "datetime": "2026-10-22T19:08:37Z",
+      "session": "w2b-bs-b",
+      "prompt": "wave 2 BS node B repair 1: notice row placement, local DOC-IO kept, stage-recorder assertion, change-time assert, CLI junction check, no-recall residual",
+      "summary": "Repair 1 of BS node B: C2 notice row held by a layout check (red first, mutant = old placement); F3 local keeps DOC-IO (red, mutant); F4 stage recorder kills mutant Q; F7 change-time precondition; F10 CLI check renamed; F6 residual recorded. Core, Cli, Desktop section-editor and guard prefix green; check-docs exit 0.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T18:51:27Z",
+      "duration_seconds": 1030.0
     }
   ],
   "changes": [

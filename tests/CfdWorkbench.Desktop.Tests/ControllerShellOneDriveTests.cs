@@ -25,7 +25,7 @@ public static class ControllerShellOneDriveTests
         if (!OperatingSystem.IsWindows())
         {
             foreach (string name in new[] { "ControllerShell_OneDriveOpen_InPlaceSaveWritesNothing", "ControllerShell_OneDriveOpen_SaveAsAtLocalDefault_OriginBecomesLocal",
-                "ControllerShell_OneDriveOpen_TitleAndNotice_NoModal", "ControllerShell_OneDriveOpen_NoticeStaysAcrossStatusReports", "ControllerShell_CloudOnlyRefusal_SentenceAndCodeLine" })
+                "ControllerShell_OneDriveOpen_TitleAndNotice_NoModal", "ControllerShell_OneDriveOpen_NoticeStaysAcrossStatusReports", "ControllerShell_OneDriveOpen_NoticeRow_DirectlyAboveStatusStrip", "ControllerShell_CloudOnlyRefusal_SentenceAndCodeLine" })
                 Console.WriteLine("SKIP " + name + " windows-only");
             return;
         }
@@ -33,6 +33,7 @@ public static class ControllerShellOneDriveTests
         DesktopChecks.Check("ControllerShell_OneDriveOpen_SaveAsAtLocalDefault_OriginBecomesLocal", SaveAsBecomesLocal);
         DesktopChecks.Check("ControllerShell_OneDriveOpen_TitleAndNotice_NoModal", TitleAndNotice);
         DesktopChecks.Check("ControllerShell_OneDriveOpen_NoticeStaysAcrossStatusReports", NoticeStays);
+        DesktopChecks.Check("ControllerShell_OneDriveOpen_NoticeRow_DirectlyAboveStatusStrip", NoticeRow);
         DesktopChecks.Check("ControllerShell_CloudOnlyRefusal_SentenceAndCodeLine", CloudOnlyRefusal);
     }
 
@@ -61,11 +62,16 @@ public static class ControllerShellOneDriveTests
         Need(!StartView.FailureMessage(failure, "x.cfdw.json").Contains("damaged", StringComparison.OrdinalIgnoreCase), "the cloud-only message says damaged");
     }
 
-    private static StoreHooks Hooks(Func<string, (uint, uint)?>? leaf = null) => new()
+    private static StoreHooks Hooks(Func<string, (uint, uint)?>? leaf = null, List<string>? stages = null) => new()
     {
-        AttributeOverride = (site, name, real) => site == "ancestor"
-            ? (name == "OneDrive" ? (real.Attributes | Reparse, RootTag) : real)
-            : leaf?.Invoke(site) ?? real
+        OnStage = stage => { if (stages is not null) lock (stages) stages.Add("stage " + stage); },
+        AttributeOverride = (site, name, real) =>
+        {
+            if (stages is not null) lock (stages) stages.Add("attribute " + site);
+            return site == "ancestor"
+                ? (name == "OneDrive" ? (real.Attributes | Reparse, RootTag) : real)
+                : leaf?.Invoke(site) ?? real;
+        }
     };
 
     /// <summary>A project file in a folder named OneDrive, made before the environment names that folder.</summary>
@@ -88,21 +94,21 @@ public static class ControllerShellOneDriveTests
         finally { Environment.SetEnvironmentVariable("OneDrive", old); }
     }
 
-    private static (MainWindow Window, ShellHost Host, WorkbenchController Controller) Show(StoreHooks hooks)
+    private static (MainWindow Window, ShellHost Host, WorkbenchController Controller) Show(StoreHooks hooks, bool? macOS = null)
     {
         var controller = new WorkbenchController(_ => new ProjectStore(hooks));
-        var window = new MainWindow(new PreferenceStore(TestTemp.NewDirectory("onedrive-open-prefs-"), () => new ProjectStore()), null, controller);
+        var window = new MainWindow(new PreferenceStore(TestTemp.NewDirectory("onedrive-open-prefs-"), () => new ProjectStore()), macOS, controller);
         window.Show();
         return (window, (ShellHost)window.Content!, controller);
     }
 
     private static Border Notice(MainWindow window) => window.GetVisualDescendants().OfType<Border>().Single(border => border.Name == "ReadOnlyNotice");
 
-    private static void OpenReadOnly(string path, Action<MainWindow, ShellHost, WorkbenchController> check, string folder)
+    private static void OpenReadOnly(string path, Action<MainWindow, ShellHost, WorkbenchController> check, string folder, List<string>? stages = null)
     {
         WithOneDrive(folder, () =>
         {
-            var (window, host, controller) = Show(Hooks());
+            var (window, host, controller) = Show(Hooks(null, stages));
             try
             {
                 Await(host.OpenFileAsync(path));
@@ -115,7 +121,7 @@ public static class ControllerShellOneDriveTests
 
     private static void InPlaceSaveWritesNothing()
     {
-        var (folder, path) = Fixture(); string before = Snapshot(folder);
+        var (folder, path) = Fixture(); string before = Snapshot(folder); var stages = new List<string>();
         OpenReadOnly(path, (window, host, controller) =>
         {
             Await(controller.ApplySpanAsync("1400")); Need(controller.IsDirty, "the span edit did not dirty the document");
@@ -126,10 +132,12 @@ public static class ControllerShellOneDriveTests
             dialog.Close(); Await(save);
             Need(Snapshot(folder) == before, "the OneDrive folder changed");
             Need(controller.IsDirty, "the refused save cleaned the document");
-            // Defence in depth: the controller never calls the store over the OneDrive path (I-13).
+            // Defence in depth: the controller never calls the store over the OneDrive path (I-13): no store stage is visited by the direct save.
+            lock (stages) stages.Clear();
             var direct = Await(controller.SaveAsync(path));
             Need(direct.Code == "DOC-UNSUPPORTED-PERSISTENCE" && !direct.PublicationKnown && Snapshot(folder) == before, "a direct in-place save reached the store: " + direct.Code);
-        }, folder);
+            lock (stages) Need(stages.Count == 0, "the direct in-place save called the store (stages and attribute reads seen): " + string.Join(",", stages));
+        }, folder, stages);
     }
 
     private static void SaveAsBecomesLocal()
@@ -174,6 +182,28 @@ public static class ControllerShellOneDriveTests
                 Need(Notice(window).IsVisible && ((TextBlock)Notice(window).Child!).Text == Labels.ReadOnlyNotice, "a report replaced or hid the notice: " + report.Text);
             }
         }, folder);
+    }
+
+    // U3 / DS-COPY-2: the notice row is directly above the status strip and shares its grid row with no other shell child, also when the
+    // menu bar arrives after the notice was placed (a window built without the bar, then ShowMenuBar).
+    private static void NoticeRow()
+    {
+        foreach (bool lateBar in new[] { false, true })
+        {
+            var (window, host, _) = Show(Hooks(), lateBar ? true : null);
+            try
+            {
+                if (lateBar) host.ShowMenuBar();
+                Dispatcher.UIThread.RunJobs();
+                var notice = Notice(window); int row = Grid.GetRow(notice);
+                string where = lateBar ? " (menu bar added after the notice)" : "";
+                Need(row == Grid.GetRow(host.StatusStrip) - 1, "the notice row " + row + " is not directly above the status strip row " + Grid.GetRow(host.StatusStrip) + where);
+                Need(host.Children.Count(child => Grid.GetRow(child) == row) == 1, "another shell child shares the notice row" + where);
+                var named = new Control?[] { host.MenuBar, host.DockHost, host.AnalysisPanel, notice, host.StatusStrip }.OfType<Control>().Select(Grid.GetRow).ToList();
+                Need(named.Distinct().Count() == named.Count && named.Count == host.RowDefinitions.Count, "the shell rows are not distinct or do not match the row definitions" + where);
+            }
+            finally { window.Close(); }
+        }
     }
 
     private static void CloudOnlyRefusal()
