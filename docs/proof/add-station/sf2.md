@@ -43,6 +43,33 @@ documents (F-CAMBER, F-CAMBER3, F-PEAK, F-THREE, F-SAMEPEAK, F-REAL, F-SIX, F-SE
 golden sources in `docs/proof/m12b2-golden/certificate-bits.json`, the m12b2 fixtures and the FoilDSL examples; 23 etas, three
 chord grids each. A document the product refuses must be refused with the same code on both paths.
 
+**Repair R-1 (SF2-1 review B1): the input families.** The first guard (87 pairs, 412,873 doubles) left out part of the Placement test
+set that Ruling 262 names and counted the five golden sources twice (the m12b2 folder holds the same five documents, asserted by
+`FoilFixturesMatchGolden`). The guard now takes, each at 23 etas and three chord grids, and compares each distinct source once (a
+SHA-256 of the bytes drops a source met twice):
+
+1. the ten Station documents above;
+2. the Placement golden sources, the m12b2 folder (the same five, dropped as duplicates) and the FoilDSL examples;
+3. the two-hump documents `two-hump-2m` and `two-hump-blend-2m` (humps crossing between grid samples, the inputs that stress the blended maximum);
+4. the first random `TwoProfiles` document of seed 20261001;
+5. `WithStations(Example())`, `Twist(Example(), 4)` and `Dihedral(Example(), 60)`;
+6. `curved-rails`: the rails of the Desktop `F-CURVED` fixture (leading, trailing, twist, dihedral) on the Example, because the Desktop fixture is not in the Core tree;
+7. the three after-promotion documents `Measure` sees: a station added at 35 % on F-CAMBER, at 80 % on F-CAMBER3, at 50 % on F-PEAK (approximate promotion).
+
+Recount (R-1): `INFO SF2-1 bit guard: 40 distinct documents, 99 document x grid pairs compared, 469821 doubles compared by bits, 21 pairs refused identically (invalid-evaluator.foil=DSL-VERSION invalid-legacy-draft.foil=DSL-LEGACY invalid-reference.foil=DSL-REFERENCE invalid-syntax.foil=DSL-SYNTAX invalid-units.foil=DSL-UNIT invalid-version.foil=DSL-VERSION section-basic.foil=DSL-PATCH)`.
+The 87 and 412,873 of the first guard are superseded by 99 and 469,821; its 15 duplicate pairs are gone. The refused documents are
+the FoilDSL "invalid" examples and `section-basic.foil`; every document added in R-1 is accepted.
+
+R-1 mutants (each reverted after the red):
+- one bit on the measure path, `Thickness` of sample 7 at the fourth eta `Math.BitIncrement`: `FAIL Station_MeasurePath_BitIdenticalToSections_EveryStationAndPlacementFixture InvalidOperationException: F-CAMBER eta 0.2 thickness[7]: 3FB8BEB150B67930 against 3FB8BEB150B67931`
+
+**Refusal inputs (review N1).** `SectionsForMeasure` repeats `Sections`' check-and-prepare prefix so that `Sections`' source stays
+unchanged (Ruling 252). `Station_MeasurePath_RefusesLikeSections_SameCodeForTheSectionsTestsInputs` runs nine refusal inputs
+(`SectionsTests`' three, plus eta below 0, eta NaN, x above 1, x NaN, empty xs, and `section-basic.foil`) through both paths and wants
+the same code from each. Mutant: the x-range code in the measure path's prefix changed to `DSL-PATCH`:
+`FAIL Station_MeasurePath_RefusesLikeSections_SameCodeForTheSectionsTestsInputs InvalidOperationException: x below 0: the measure path gave DSL-PATCH where Sections gave DSL-RANGE`; reverted.
+
+First-guard history (SF2-1 as first built):
 - guard on a first `SectionsForMeasure` that only wrapped `Sections` (today's output): `PASS`, `INFO SF2-1 bit guard: 87 document x grid pairs, 412873 doubles compared by bits`
 - one-ulp mutant (`Math.BitIncrement` on Camber[1] of every section of the measure path): `FAIL Station_MeasurePath_BitIdenticalToSections_EveryStationAndPlacementFixture InvalidOperationException: F-CAMBER eta 0 camber[1]: 0000000000000000 against 0000000000000001`; reverted
 - guard on the real fast path: `PASS`, the same 87 pairs and 412873 doubles
@@ -61,10 +88,27 @@ The "before" row is the repo with the guard and a wrapper only (the same work as
 about 8.2 s (8177 ms measured again in the same run as the after row). Reproduce:
 `CFD_SF2_TIMING=1 CFD_TEST_ONLY=Station_MeasurePath CfdWorkbench.Core.Tests --harness` from the repo root.
 
+**Repair R-1 re-measure (review N5).** The check is now registered only when `CFD_SF2_TIMING=1`; an ungated run prints one `SKIP`
+line and no `PASS` (review N2), and `tools/run-tests.sh` unsets `CFD_SF2_TIMING` (review N3). The machine was **not idle**: two
+other coders ran test subsets throughout (a `tasklist` before each run showed other test executables, named in the last column).
+These numbers are therefore **under load**, each the median of three inside the
+check, on the repair tree at `ea33939b` plus the R-1 edits; the load did not clear, so none was taken idle.
+
+| run (commit, code) | one 258 x 2001 call, `Sections` | same call, `SectionsForMeasure` | one promotion plan (F-PEAK, 50 %) | other test processes at start |
+|---|---|---|---|---|
+| after 1 (measure path in `Measure`) | 8897 ms | 4127 ms | 4930 ms | Core, Analysis |
+| after 2 (same code) | 8414 ms | 3699 ms | 4818 ms | Analysis, Desktop x2 |
+| before 1 (`SectionsParallel` temporarily calling `Placement.Sections`, same tree, reverted) | 8426 ms | 3743 ms (not used) | 9763 ms | Analysis x2 |
+
+So the plan, before (the old path in the same tree, the way `b0da43bc` ran it) to after, is 9763 ms to 4818 to 4930 ms, a ratio of
+about 2.0, which matches the first measurement (9741 to 4682 ms); the single call is 8426 to 8897 ms (`Sections`) against 3699 to
+4127 ms (`SectionsForMeasure`), about 2.1. The reviewer's 14.6 and 16.9 s plan under nine other processes did not recur at this
+load. The first-measurement table above is kept as taken, with its own conditions.
+
 ### Harnesses
 
 Core 858 PASS before, 860 after (the two new checks; the timing check prints `SKIP` and `PASS`), Analysis 296 and Cli 26 PASS both
-times, every exit 0.
+times, every exit 0. Repair R-1: Core 876 PASS, 0 FAIL, 1 SKIP (the timing check, now a SKIP line only); the new refusal-input check replaces the timing PASS in the count; Analysis 296 and Cli 26 PASS; Desktop `--harness --theme-evidence` exit 0.
 
 ## Node SF2-2: Match the blend (Ruling 262 DF-Q2)
 

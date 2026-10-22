@@ -437,7 +437,9 @@ internal static class StationTests
         });
         // Ruling 262 DF-Q3: the station measure's cheaper path returns the bits of Placement.Sections, nothing else.
         Check("Station_MeasurePath_BitIdenticalToSections_EveryStationAndPlacementFixture", MeasurePathBitIdentical);
-        Check("Station_MeasurePath_Timing_GatedByEnvironment", MeasurePathTiming);
+        Check("Station_MeasurePath_RefusesLikeSections_SameCodeForTheSectionsTestsInputs", MeasurePathRefusals);
+        if (Sf2Timing) Check("Station_MeasurePath_Timing_GatedByEnvironment", MeasurePathTiming);
+        else Console.WriteLine("SKIP Station_MeasurePath_Timing_GatedByEnvironment set CFD_SF2_TIMING=1 to measure");
         MatchBlendChecks();
     }
 
@@ -702,8 +704,42 @@ internal static class StationTests
             foreach (string path in Directory.EnumerateFiles(Path.Combine(root, folder), "*.foil").Order(StringComparer.Ordinal))
                 documents.Add((Path.GetFileName(path), File.ReadAllBytes(path)));
 
+        // The Placement checks' generated sources (PlacementTests): the two-hump pair that stresses the blended maximum, the first random
+        // TwoProfiles document of seed 20261001, the four-station Example, and the Twist and Dihedral variants.
+        foreach (var (name, source) in PlacementTests.TwoHumpFixtures()) documents.Add((name, Encoding.UTF8.GetBytes(source)));
+        string example = PlacementTests.Example();
+        var rng = new Random(20261001);
+        decimal randomTwist = decimal.Round((decimal)(rng.NextDouble() * 80 - 40), 4, MidpointRounding.ToZero);
+        decimal randomDihedral = decimal.Round((decimal)(rng.NextDouble() * 400 - 200), 3, MidpointRounding.ToZero);
+        decimal randomChord = decimal.Round(50m + (decimal)rng.NextDouble() * 1950m, 3, MidpointRounding.ToZero);
+        documents.Add(("random-0", Encoding.UTF8.GetBytes(PlacementTests.TwoProfiles(example, randomTwist, randomDihedral, randomChord))));
+        documents.Add(("with-stations", Encoding.UTF8.GetBytes(PlacementTests.WithStations(example))));
+        documents.Add(("twist-4", Encoding.UTF8.GetBytes(PlacementTests.Twist(example, 4))));
+        documents.Add(("dihedral-60", Encoding.UTF8.GetBytes(PlacementTests.Dihedral(example, 60))));
+
+        // F-CURVED's rails (SF1, Desktop ElevationTests): the Core tree has no Desktop fixture, so the same rails go on the Example.
+        string[] railEtas = ["0", "0.1", "0.3", "0.5", "0.7", "0.9", "1"];
+        string Rail(string text, string channel, params double[] y) => PlacementTests.ReplaceCurve(text, channel,
+            string.Join(", ", railEtas.Select((value, i) => FormattableString.Invariant($"({value}, {y[i]})"))));
+        string curved = Rail(Rail(Rail(Rail(example, "leading", 0, 0, -8, -12, -10, 0, 5), "trailing", 140, 140, 120, 100, 90, 80, 65),
+            "dihedral", 0, 0, 15, 30, 50, 70, 100), "twist", 0, 0, 3, 6, 8, 6, 4);
+        documents.Add(("curved-rails", Encoding.UTF8.GetBytes(curved)));
+
+        // The documents Measure sees after a promotion: a station added at 35 % on F-CAMBER, at 80 % on F-CAMBER3, at 50 % on F-PEAK.
+        foreach (var (name, source, at, label) in new[] { ("after-promote-camber-35", Camber(), "35", "35 %"), ("after-promote-camber3-80", Camber3(), "80", "80 %"), ("after-promote-peak-50", Peak(), "50", "50 %") })
+        {
+            using var session = Open(source);
+            session.AddStation(Id(), Pct(at), label, true);
+            documents.Add((name, session.Snapshot().Source));
+        }
+
+        // A source met twice is compared once (the golden sources and the m12b2 fixtures are the same five documents).
+        var seen = new HashSet<string>();
+        documents = documents.Where(item => seen.Add(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(item.Source)))).ToList();
+
         double[] etas = [0, 0.05, 0.1, 0.2, 0.2461, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.99, 1, 1d / 3, 2d / 3];
-        int compared = 0, doubles = 0;
+        int compared = 0, doubles = 0, refused = 0;
+        var refusedNames = new SortedSet<string>();
         foreach (var (name, source) in documents)
             foreach (var xs in new[] { Xs(65), Xs(201), Placement.ChordGrid(33).ToArray() })
             {
@@ -715,6 +751,8 @@ internal static class StationTests
                     string again = "none";
                     try { _ = Placement.SectionsForMeasure(source, etas, xs, CancellationToken.None); }
                     catch (ContractError second) { again = second.Code; }
+                    refused++;
+                    refusedNames.Add(name + "=" + refusal.Code);
                     True(again == refusal.Code, name + ": refusal " + refusal.Code + " against " + again);
                     continue;
                 }
@@ -733,8 +771,39 @@ internal static class StationTests
                 }
                 compared++;
             }
-        True(compared >= 30, "only " + compared + " document/grid pairs were compared");
-        Console.WriteLine($"INFO SF2-1 bit guard: {compared} document x grid pairs, {doubles} doubles compared by bits");
+        True(compared >= 60, "only " + compared + " document/grid pairs were compared");
+        Console.WriteLine($"INFO SF2-1 bit guard: {documents.Count} distinct documents, {compared} document x grid pairs compared, {doubles} doubles compared by bits, {refused} pairs refused identically ({string.Join(" ", refusedNames)})");
+    }
+
+    /// <summary>
+    /// <c>SectionsForMeasure</c> repeats <c>Sections</c>' check-and-prepare prefix (so <c>Sections</c>' source stays untouched). The bit guard feeds
+    /// it only valid grids, so this check feeds both paths the refusal inputs of <c>SectionsTests</c> and wants the same code from each.
+    /// </summary>
+    private static void MeasurePathRefusals()
+    {
+        string root = PlacementTests.RepoRoot();
+        byte[] foil = File.ReadAllBytes(Path.Combine(root, "tests", "CfdWorkbench.Core.Tests", "Fixtures", "m12b2", "example.foil"));
+        byte[] section = File.ReadAllBytes(Path.Combine(root, "docs", "examples", "foildsl", "section-basic.foil"));
+        var cases = new (string Name, byte[] Source, double[] Etas, double[] Xs, string Code)[]
+        {
+            ("empty etas", foil, [], [0d], "DSL-RANGE"),
+            ("empty xs", foil, [0.5], [], "DSL-RANGE"),
+            ("eta above 1", foil, [1.1], [0.5], "DSL-RANGE"),
+            ("eta below 0", foil, [-0.1], [0.5], "DSL-RANGE"),
+            ("eta NaN", foil, [double.NaN], [0.5], "DSL-RANGE"),
+            ("x below 0", foil, [0.5], [-0.01], "DSL-RANGE"),
+            ("x above 1", foil, [0.5], [1.01], "DSL-RANGE"),
+            ("x NaN", foil, [0.5], [double.NaN], "DSL-RANGE"),
+            ("not a foil", section, [0d], [0d], "DSL-PATCH"),
+        };
+        foreach (var (name, source, etas, xs, code) in cases)
+        {
+            Refuses(code, () => Placement.Sections(source, etas, xs, CancellationToken.None));
+            string measure = "none";
+            try { _ = Placement.SectionsForMeasure(source, etas, xs, CancellationToken.None); }
+            catch (ContractError refusal) { measure = refusal.Code; }
+            True(measure == code, name + ": the measure path gave " + measure + " where Sections gave " + code);
+        }
     }
 
     private static void SameBits(string what, double[] expected, double[] actual)
@@ -747,11 +816,10 @@ internal static class StationTests
 
     /// <summary>
     /// Time of one 258 eta x 2001 x call on F-CAMBER and of one promotion plan on F-PEAK at the production grid, median of three each.
-    /// Off in the normal ring: it prints SKIP unless CFD_SF2_TIMING=1.
+    /// Registered only when CFD_SF2_TIMING=1; otherwise the run prints one SKIP line and no PASS.
     /// </summary>
     private static void MeasurePathTiming()
     {
-        if (!Sf2Timing) { Console.WriteLine("SKIP Station_MeasurePath_Timing_GatedByEnvironment set CFD_SF2_TIMING=1 to measure"); return; }
         var etas = Enumerable.Range(0, 258).Select(i => i / 257d).ToArray();
         var xs = Xs(2001);
         byte[] source = Camber();
