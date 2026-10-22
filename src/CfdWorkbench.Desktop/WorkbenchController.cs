@@ -661,13 +661,18 @@ public sealed class WorkbenchController : IDisposable
     // ---- Stations (S1; design add-station.md 5): the inspection slice, Promote, and Remove. One contiguous block, beside Compare.
     // The slice is a selection (not a mode): derived, not saved, not undoable. Promote and Remove always preview first, off the UI thread
     // ("Checking…"), and Apply reuses the plan Core stored for that preview, so no second measurement and no session lock held for one.
-    public enum StationFlyoutKind { Promote, Remove }
+    public enum StationFlyoutKind { Promote, Remove, Match }
 
     /// <summary>The flyout of an approximate promotion or a Remove: the measured line, and whether Apply is allowed.</summary>
     public sealed record StationFlyout(StationFlyoutKind Kind, string Title, string Line, bool Checking, bool ApplyEnabled,
-        string? ApplyReason, int Index);
+        string? ApplyReason, int Index, bool MatchOffered = false);
 
-    public const string ApplyAboveLimit = "Apply is disabled: the change is above the 10 µm limit.";   // S1-COPY-15 / -23
+    public const string MatchLabel = "Match the blend…";                                              // SF2-COPY-1 (COPY-621)
+    public const string MatchNeedsFoil = "Open a certified foil in the views to match a station.";    // COPY-630
+    public const string MeasuredLabel = "Measured";                                                   // COPY-632: the Match flyout's result row (Match has no limit to be within)
+    private bool matchFromRemove;
+
+    public const string ApplyAboveLimit ="Apply is disabled: the change is above the 10 µm limit.";   // S1-COPY-15 / -23
     public const string StationEndpointRefusal = "Root and tip stations cannot be removed.";          // S1-COPY-12
     public const string SliceOutOfRange = "A station must lie strictly between root and tip (0 % < η < 100 %).";   // S1-COPY-7
     public const string CheckingCopy = "Checking…";                                                   // S1-COPY-20
@@ -694,7 +699,8 @@ public sealed class WorkbenchController : IDisposable
     /// <summary>The slice's position as the η entry shows it ("35.0 %" or "175.0 mm", in the document unit).</summary>
     public string SliceEntryText => sliceText;
     /// <summary>What the Properties pane shows for the slice and the station verbs.</summary>
-    public StationPanelState StationPanel => new(AddStationReason, Selection is Selection.Station station ? RemoveStationReason(station.Index) : null, sliceChecking, flyout);
+    public StationPanelState StationPanel => new(AddStationReason, Selection is Selection.Station station ? RemoveStationReason(station.Index) : null, sliceChecking, flyout,
+        Selection is Selection.Station matching ? MatchBlendReason(matching.Index) : null);
 
     /// <summary>"Slice · η 35.0 % · 175.0 mm" (S1-COPY-2).</summary>
     public static string SliceChipText(double eta, double distanceMillimetres) =>
@@ -817,6 +823,16 @@ public sealed class WorkbenchController : IDisposable
         return StationDraftReason();
     }
 
+    /// <summary>Why Match the blend is unavailable for <paramref name="index"/>, or null (the preconditions of Remove, in Match's words where they name the verb).</summary>
+    public string? MatchBlendReason(int index)
+    {
+        if (Inspection is null) return MatchNeedsFoil;
+        var assignments = Inspection.Authored.Assignments;
+        if (index < 0 || index >= assignments.Count) return SelectStationFirst;
+        if (index == 0 || index == assignments.Count - 1) return StationEndpointRefusal;
+        return StationDraftReason();
+    }
+
     private string? StationDraftReason()
     {
         if (IsAnalysis) return AnalysisPointRefusal;
@@ -878,8 +894,7 @@ public sealed class WorkbenchController : IDisposable
             flyoutEta = eta;
             flyoutText = text;
             double distance = eta * HalfSpanMetres * 1000;
-            var grid = System.Text.RegularExpressions.Regex.Match(preview.Grid, @"(\d+) eta per interval x (\d+) x");
-            string sampled = grid.Success ? $"sampled on {grid.Groups[1].Value} η × {grid.Groups[2].Value} x, not a bound" : "sampled, not a bound";
+            string sampled = SampledText(preview.Grid);
             flyout = new StationFlyout(StationFlyoutKind.Promote,
                 string.Create(CultureInfo.InvariantCulture, $"Approximate promotion at η {eta * 100:F1} % · {distance:F1} mm"),   // S1-COPY-21
                 string.Create(CultureInfo.InvariantCulture, $"A station here changes the loft. Largest change {preview.DeviationMeters * 1e6:F2} µm " +
@@ -951,13 +966,100 @@ public sealed class WorkbenchController : IDisposable
         {
             Line = string.Create(CultureInfo.InvariantCulture, $"The shape between {left} and {right} is re-blended. Largest change {preview.DeviationMeters * 1e6:F2} µm " +
                 $"({RelativeText(preview.DeviationRelative)} of chord) at η {preview.AtEta * 100:F1} %, sampled. Limit 10 µm."),   // S1-COPY-14
-            Checking = false, ApplyEnabled = preview.Admitted, ApplyReason = preview.Admitted ? null : ApplyAboveLimit
+            Checking = false, ApplyEnabled = preview.Admitted, ApplyReason = preview.Admitted ? null : ApplyAboveLimit,
+            MatchOffered = preview.DeviationRelative > 1e-12   // a Remove that is not exact can be made exact by matching first (design §13.5)
         };
         SetStatus(flyout.Line, preview.Admitted ? ReportKind.Info : ReportKind.Warning);
         Notify();
     }
 
-    /// <summary>Apply in the open flyout: the approximate promotion or the removal, on the plan the preview stored.</summary>
+    /// <summary>"Sampled on 129 η × 2001 x, not a bound" from the Core grid label.</summary>
+    private static string SampledText(string grid)
+    {
+        var match = System.Text.RegularExpressions.Regex.Match(grid, @"(\d+) eta per interval x (\d+) x");
+        return match.Success ? $"sampled on {match.Groups[1].Value} η × {match.Groups[2].Value} x, not a bound" : "sampled, not a bound";
+    }
+
+    /// <summary>
+    /// Match the blend (design add-station §13.5): the flyout opens at once in Checking; the preview, off the UI thread, fills in the change Match makes now
+    /// and what a later Remove would still change. Apply is available whenever the measure ran: Match has no limit of its own (Ruling 262 DF-Q2).
+    /// </summary>
+    public async Task BeginMatchBlendAsync(int index)
+    {
+        if (MatchBlendReason(index) is { } reason)
+        {
+            SetStatus(reason, ReportKind.Warning);
+            Notify();
+            return;
+        }
+        var assignments = Inspection!.Authored.Assignments;
+        string name = StationNames.Of(index, assignments[index].Eta);
+        string left = StationNames.Of(index - 1, assignments[index - 1].Eta), right = StationNames.Of(index + 1, assignments[index + 1].Eta);
+        var captured = session;
+        long version = stateVersion;
+        matchFromRemove = flyout is { Kind: StationFlyoutKind.Remove };
+        flyout = new StationFlyout(StationFlyoutKind.Match, "Match " + name + " to the blend", CheckingCopy, true, false, null, index);   // COPY-631
+        SetStatus(CheckingCopy, ReportKind.Info);
+        Notify();
+        MatchPreview preview;
+        try { preview = await Task.Run(() => captured.PreviewMatchBlend(index)); }
+        catch (ContractError error)
+        {
+            flyout = null;
+            SetStatus(error.Reason ?? Labels.Refusal(error.Code), ReportKind.Warning);
+            Notify();
+            return;
+        }
+        if (!ReferenceEquals(session, captured) || stateVersion != version || flyout is not { Kind: StationFlyoutKind.Match } open || open.Index != index)
+        {
+            Notify();
+            return;
+        }
+        string line;
+        if (preview.RefusalCode is not null) line = preview.Reason ?? Labels.Refusal(preview.RefusalCode);
+        else
+        {
+            string at(double eta) => (eta * 100).ToString("F1", CultureInfo.InvariantCulture);
+            var parts = new List<string>
+            {
+                string.Create(CultureInfo.InvariantCulture, $"Replace {name}'s profile with the blend of {left} and {right} at η {assignments[index].Eta * 100:F1} %. " +   // SF2-COPY-2 (COPY-622)
+                    $"Largest change {preview.ChangeMeters * 1e6:F2} µm ({RelativeText(preview.ChangeRelative)} of chord) at η {at(preview.ChangeAtEta)} %, {SampledText(preview.Grid)}.")
+            };
+            string residual = string.Create(CultureInfo.InvariantCulture, $"{preview.ResidualMeters * 1e6:F2} µm ({RelativeText(preview.ResidualRelative)} of chord) at η {at(preview.ResidualAtEta)} %");
+            parts.Add(preview.ResidualRegime is "R0" or "R1"
+                ? $"Then Remove {name} is exact."                                                                                                             // SF2-COPY-3 (COPY-623)
+                : preview.RemoveAdmittedAfter
+                    ? $"Then Remove {name} still changes the loft by {residual}: {left} and {right} have their thickest point at different chord positions. Remove's limit is 10 µm."   // SF2-COPY-4 (COPY-624)
+                    : $"Then Remove {name} still changes the loft by {residual}, above the 10 µm limit: Remove stays unavailable after this match.");           // SF2-COPY-4b (COPY-625)
+            if (preview.SharedWith.Count > 0)
+                parts.Add($"{assignments[index].ProfileName} is shared with {string.Join(", ", preview.SharedWith.Select(i => StationNames.Of(i, assignments[i].Eta)))}. Only {name} gets the new profile.");   // SF2-COPY-5 (COPY-626)
+            if (preview.TangentsDropped > 0) parts.Add($"{preview.TangentsDropped} tangent constraints on {name} are removed.");                           // SF2-COPY-6 (COPY-627)
+            line = string.Join(" ", parts);
+        }
+        flyout = open with { Line = line, Checking = false, ApplyEnabled = preview.Admitted, ApplyReason = preview.Admitted ? null : line };
+        SetStatus(line, preview.Admitted ? ReportKind.Info : ReportKind.Warning);
+        Notify();
+    }
+
+    private async Task ApplyMatchAsync(int index)
+    {
+        var assignments = Inspection!.Authored.Assignments;
+        double eta = assignments[index].Eta;
+        string name = StationNames.Of(index, eta);
+        string left = StationNames.Of(index - 1, assignments[index - 1].Eta), right = StationNames.Of(index + 1, assignments[index + 1].Eta);
+        bool reopenRemove = matchFromRemove;
+        matchFromRemove = false;
+        var outcome = await RunDirectCommandAsync(() =>
+        {
+            var result = session.MatchBlend(Guid.NewGuid().ToString("D"), index);
+            return new CommitOutcome.Committed(result.AcceptedId, string.Create(CultureInfo.InvariantCulture,
+                $"Matched {name} to the blend of {left} and {right}. Largest change {result.Report.ChangeMeters * 1e6:F2} µm at η {result.Report.ChangeAtEta * 100:F1} %. Thickness: keep current."))   // SF2-COPY-7 (COPY-628)
+            { SelectItem = new Selection.Station(index, eta) };
+        }, warningOnRefusal: true, preserveStatusAfterCommit: true);
+        if (reopenRemove && outcome is CommitOutcome.Committed) await BeginRemoveStationAsync(index);
+    }
+
+    /// <summary>Apply in the open flyout: the approximate promotion, the removal or the match, on the plan the preview stored.</summary>
     public async Task ApplyFlyoutAsync()
     {
         if (flyout is not { Checking: false } open) return;
@@ -971,6 +1073,11 @@ public sealed class WorkbenchController : IDisposable
         if (open.Kind == StationFlyoutKind.Promote)
         {
             await AddAsync(flyoutEta, flyoutText, approximate: true);
+            return;
+        }
+        if (open.Kind == StationFlyoutKind.Match)
+        {
+            await ApplyMatchAsync(open.Index);
             return;
         }
         var assignments = Inspection!.Authored.Assignments;
@@ -990,6 +1097,7 @@ public sealed class WorkbenchController : IDisposable
     {
         if (flyout is null) return;
         flyout = null;
+        matchFromRemove = false;
         Notify();
     }
 
@@ -1001,6 +1109,8 @@ public sealed class WorkbenchController : IDisposable
             case "sl:promote": _ = PromoteSliceAsync(); break;
             case "sl:clear": ClearSlice(); break;
             case "stn:remove" when Selection is Selection.Station station: _ = BeginRemoveStationAsync(station.Index); break;
+            case "stn:match" when Selection is Selection.Station station: _ = BeginMatchBlendAsync(station.Index); break;
+            case "fly:match" when flyout is { Kind: StationFlyoutKind.Remove } open: _ = BeginMatchBlendAsync(open.Index); break;
             case "fly:apply": _ = ApplyFlyoutAsync(); break;
             case "fly:cancel": CancelFlyout(); break;
         }

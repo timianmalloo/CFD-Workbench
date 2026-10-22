@@ -561,6 +561,30 @@ public static class FoilSource
     }
 
     /// <summary>
+    /// Replaces the whole block of profile <paramref name="name"/> (from its <c>profile</c> keyword to its closing brace) with <paramref name="block"/>, which
+    /// must declare the same name (Match the blend, design add-station §13.2 G1). Nothing of the old block survives: not its tangent rows, closure,
+    /// provenance, knots or ids. The candidate is re-parsed and everything outside the block must be unchanged, or the patch is refused (<c>DSL-PATCH</c>).
+    /// </summary>
+    internal static byte[] ReplaceProfileBlock(byte[] source, string name, string block)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(block);
+        var parsed = Parse(source);
+        var definition = parsed.Definition ?? throw new ContractError("DSL-PATCH");
+        var found = definition.Profiles.FirstOrDefault(item => item.Name == name) ?? throw new ContractError("DSL-PROFILE-TARGET");
+        Guard.Require(found.BlockEnd > found.BlockStart, "DSL-PATCH");
+        string text = Utf8.GetString(parsed.Source);
+        string trimmed = block.Trim();
+        byte[] candidate = Utf8.GetBytes(text[..found.BlockStart] + trimmed + text[found.BlockEnd..]);
+        var after = Parse(candidate).Definition;
+        Guard.Require(after is not null && after.Profiles.Length == definition.Profiles.Length && after.Assignments.Length == definition.Assignments.Length &&
+            after.Assignments.Zip(definition.Assignments).All(pair => SameBits(pair.First.Eta, pair.Second.Eta) &&
+                after.Profiles[pair.First.Profile].Name == definition.Profiles[pair.Second.Profile].Name) &&
+            after.Profiles.Any(item => item.Name == name), "DSL-PATCH");
+        return candidate;
+    }
+
+    /// <summary>
     /// Removes the interior authored station <paramref name="assignmentIndex"/> and, when no other station uses it, its profile block. Add then
     /// Remove restores the source bytes. Root and tip are the caller's refusal; here they are <c>DSL-TARGET</c>.
     /// </summary>

@@ -65,3 +65,64 @@ about 8.2 s (8177 ms measured again in the same run as the after row). Reproduce
 
 Core 858 PASS before, 860 after (the two new checks; the timing check prints `SKIP` and `PASS`), Analysis 296 and Cli 26 PASS both
 times, every exit 0.
+
+## Node SF2-2: Match the blend (Ruling 262 DF-Q2)
+
+Design section 13. Match replaces an interior station's profile with the rule-A blend of its neighbours at the station's eta, built by
+the same `StationEdits.Blend` that Promote uses, and writes it as a whole-block replacement.
+
+### What changed
+
+- `FoilSource.ReplaceProfileBlock(source, name, block)` (new, internal): replaces the block from the `profile` keyword to its closing
+  brace, re-parses, and refuses with `DSL-PATCH` unless the profile count, every assignment eta (by bits) and every assignment's profile
+  name are unchanged. `FoilSource.WriteSurfaces` is not used, so no tangent row, closure, knot or provenance of the old block survives.
+- `StationEdits.Match` (plan), `AuthoringSession.PreviewMatchBlend` and `MatchBlend` (one accepted row, rail `station-match`, one undo
+  step; the envelope validator and the replay fingerprint learn the rail). A profile another station also names is first made
+  independent for this station (`MakeIndependent`). R3 (spacing) is a preview refusal `STATION-SPACING`; a change at or below 1e-12 is
+  `STATION-MATCHED`; the budget and not-assessed refusals are Promote's. There is no `STATION-CLOSURE` (DR-DF-6 b) and no gate on the change.
+- Two measures per preview, both on the Remove grid with `StationEdits.Measure`: the change (accepted against candidate) and the residual
+  (candidate against `RemoveAssignment(candidate)`); the residual regime is `Regime(sameRecord(L, R), worst)`, decided by the measurement.
+- Desktop: the Match flyout (title, measured line, Apply always enabled when the measure ran, Cancel), the Remove flyout's secondary action
+  "Match the blend…" when the Remove deviation is above 1e-12, the station panel button, `station.match-blend` in the palette and the Edit
+  menu. After Apply from the Remove flyout the Remove flyout reopens. Remove's 10 um gate is unchanged and the copy says so (COPY-625).
+- Fixtures: `tests/fixtures/stations/f-peak3.foil` and `f-four.foil` (written once from the hand-built `Doc` documents: F-PEAK3 is F-PEAK with a
+  station at 50 % carrying F-CAMBER's tip; F-FOUR has stations at 0, 30, 60, 100 % so the matched station has eta_L 0.3 and w = 0.4286).
+  The tangent check builds its own 11-point foildsl 4.1 document in code (a profile tangent row needs a multiplicity-5 knot anchor and the
+  whole loft one spacing).
+- Copy: COPY-621 to COPY-632 in `DESIGN.md` (SF2-COPY-1 to 8 and 4b, plus the needs-foil reason, the flyout title and the "Measured" row).
+
+### Red first
+
+Core checks written before the types existed; the compile was red:
+`StationTests.cs(625,20): error CS0246: The type or namespace name 'MatchPreview' could not be found`.
+After the implementation `CFD_TEST_ONLY=MatchBlend_` ran 16 checks: 16 PASS. The Desktop checks were added with the controller code and
+their red is the mutants below.
+
+### Mutants (each built, the Match checks run, then reverted)
+
+| mutant | red lines |
+|---|---|
+| weight w = eta_M instead of (eta_M - eta_L)/(eta_R - eta_L) | `FAIL MatchBlend_InteriorNeighbours_WeightFromNeighbours ... Remove after Match 0.0060729687801029386` (only this check) |
+| blend of (L, M) instead of (L, R) | 8 FAIL, among them `MatchBlend_CommonPeak_ThenRemoveExact ... Remove after Match 0.021707620349042882` |
+| no 1/k rescale in `Blend` | `FAIL MatchBlend_ChannelsAndEtaUnchanged ... F-PEAK3: P maximum 0.11938469116640175 against t(eta_M) 0.12` (F-THREE passes, as designed) |
+| tangent rows kept on the written block | `FAIL MatchBlend_TangentsDropped_Counted ... the loft is not assessed (Tangent row 'cv-5' does not satisfy smooth.)` |
+| closure left as M's | `FAIL MatchBlend_Closure_FromNeighbours ... the loft is not assessed (Open trailing endpoints are not separated.)` |
+| shared block rewritten in place | `FAIL MatchBlend_SharedProfile_OnlyThisStation` (root's block bytes changed) |
+| Desktop: Match not offered from the Remove flyout | `FAIL RemoveFlyout_AboveLimit_OffersMatchBlend Exception: Apply False, Match offered False` |
+| Desktop: Apply gated by the residual | `FAIL MatchBlend_Flyout_ResidualAboveLimit_SaysRemoveStaysUnavailable Exception: Match is gated above 10 um` |
+
+### Sampled numbers (grids as labelled; sampled, not bounds)
+
+- F-PEAK3 station 1 (regime R2): the preview's residual equals `PreviewPromote` of F-PEAK at 50 % bit for bit (relative and metres), Remove
+  after Match reports the same bits, and M's matched upper and lower control ordinates equal the P that Promote builds, bit for bit
+  (`MatchBlend_DifferingPeaks_ResidualEqualsPromotionDeviation`; the `assume:` of design 13.4 held, no 1e-15 fallback was needed).
+- F-THREE station 1 (common peak, R1): Remove before Match changes the loft by 0.0244 of chord (`MatchBlend_Change_EqualsRemoveBefore_WhenCommonPeak`
+  asserts Match's change equals it); after Match, Remove is within 1e-12.
+- Desktop, 8-point fixture with differing peaks on a 2400 mm chord (17 eta x 201 x grid): Match changes the loft by 43.94 um, and Remove
+  afterwards would still change it by 166.02 um at eta 25.0 %, above the limit; Apply stays enabled, and Remove after Match stays refused.
+
+### Harnesses (Release, exit codes read on their own lines)
+
+Core 876 PASS, 0 FAIL, 1 SKIP (the SF2-1 timing check); Analysis 296 PASS; Cli 26 PASS; Desktop `--controller-shell` 150 PASS and
+`--shell-model` 17 PASS (the station.match-blend row joins the no-gesture list). Not run: the windowed focus path (Escape on the Match
+flyout returns focus to the invoking control) has no check; the Remove flyout's focus check is the only window check and was not extended.

@@ -229,6 +229,65 @@ public static class StationDesktopTests
             Require(same.Status.StartsWith("Removed Station 2. Largest change ", StringComparison.Ordinal) && same.Status.EndsWith(". Thickness: keep current.", StringComparison.Ordinal), "Receipt: " + same.Status);
         });
 
+        // Match the blend (SF2-2, design add-station 13.5; Ruling 262 DF-Q2): offered where Remove is not exact, ungated, and it says what Remove still does.
+        DesktopChecks.Check("RemoveFlyout_AboveLimit_OffersMatchBlend", () =>
+        {
+            using var controller = Open(Three());
+            controller.BeginRemoveStationAsync(1).GetAwaiter().GetResult();
+            var remove = controller.Flyout ?? throw new Exception("Remove opened no flyout; status: " + controller.Status);
+            Require(!remove.ApplyEnabled && remove.MatchOffered, "Apply " + remove.ApplyEnabled + ", Match offered " + remove.MatchOffered);
+            Require(controller.MatchBlendReason(1) is null && controller.StationPanel.MatchReason is null, "Match is unavailable on an interior station");
+            Require(controller.MatchBlendReason(0) == WorkbenchController.StationEndpointRefusal && controller.MatchBlendReason(2) == WorkbenchController.StationEndpointRefusal, "Match on root or tip");
+            using var exact = Open(ThreeSame());
+            exact.BeginRemoveStationAsync(1).GetAwaiter().GetResult();
+            Require(exact.Flyout is { MatchOffered: false, ApplyEnabled: true }, "Match is offered for a removal that changes nothing");
+        });
+
+        DesktopChecks.Check("MatchBlend_Flyout_PreviewApplyAndReopenRemove", () =>
+        {
+            using var controller = Open(Three());
+            controller.Select(new Selection.Station(1, 0.6));
+            controller.BeginRemoveStationAsync(1).GetAwaiter().GetResult();
+            controller.BeginMatchBlendAsync(1).GetAwaiter().GetResult();
+            var flyout = controller.Flyout ?? throw new Exception("Match opened no flyout; status: " + controller.Status);
+            Require(flyout.Kind == WorkbenchController.StationFlyoutKind.Match && flyout.Title == "Match Station 2 to the blend", "Title: " + flyout.Title);
+            Require(flyout.Line.StartsWith("Replace Station 2's profile with the blend of Root and Tip at η 60.0 %. Largest change ", StringComparison.Ordinal) &&
+                    flyout.Line.Contains("sampled on 17 η × 201 x, not a bound.", StringComparison.Ordinal) && flyout.Line.EndsWith(" Then Remove Station 2 is exact.", StringComparison.Ordinal), "Line: " + flyout.Line);
+            Require(flyout.ApplyEnabled && flyout.ApplyReason is null && !flyout.Checking, "Apply is gated: " + flyout.ApplyReason);
+            Require(StationCount(controller) == 3, "The preview added a row");
+            controller.ApplyFlyoutAsync().GetAwaiter().GetResult();
+            Require(StationCount(controller) == 3 && controller.Selection is Selection.Station { Index: 1 }, "Apply changed the station count or lost the selection: " + controller.Selection);
+            Require(controller.Flyout is { Kind: WorkbenchController.StationFlyoutKind.Remove, ApplyEnabled: true, MatchOffered: false }, "The Remove flyout did not reopen exact: " + controller.Flyout);
+            controller.CancelFlyout();
+            controller.Undo();
+            controller.BeginRemoveStationAsync(1).GetAwaiter().GetResult();
+            Require(controller.Flyout is { ApplyEnabled: false }, "Undo did not restore the far shape");
+            controller.CancelFlyout();
+            controller.BeginMatchBlendAsync(1).GetAwaiter().GetResult();
+            controller.CancelFlyout();
+            Require(controller.Flyout is null && StationCount(controller) == 3, "Cancel left the flyout or changed the document");
+            controller.Select(new Selection.Station(0, 0));
+            controller.BeginMatchBlendAsync(0).GetAwaiter().GetResult();
+            Require(controller.Flyout is null && controller.Status == WorkbenchController.StationEndpointRefusal, "Root status: " + controller.Status);
+        });
+
+        DesktopChecks.Check("MatchBlend_Flyout_ResidualAboveLimit_SaysRemoveStaysUnavailable", () =>
+        {
+            byte[] doc = Doc("at root profile \"a\" at 50 % profile \"n\" at tip profile \"f\"", 2400, ("a", A), ("n", Near), ("f", Far));
+            using var controller = Open(doc);
+            controller.BeginMatchBlendAsync(1).GetAwaiter().GetResult();
+            var flyout = controller.Flyout ?? throw new Exception("Match opened no flyout; status: " + controller.Status);
+            Console.WriteLine("INFO SF2-2 match, differing peaks, 2400 mm chord: " + flyout.Line);
+            Require(flyout.ApplyEnabled, "Match is gated above 10 µm");
+            Require(flyout.Line.Contains("Then Remove Station 2 still changes the loft by ", StringComparison.Ordinal) &&
+                    flyout.Line.Contains(", above the 10 µm limit: Remove stays unavailable after this match.", StringComparison.Ordinal), "Line: " + flyout.Line);
+            controller.ApplyFlyoutAsync().GetAwaiter().GetResult();
+            Require(controller.Status.StartsWith("Matched Station 2 to the blend of Root and Tip. Largest change ", StringComparison.Ordinal) &&
+                    controller.Status.EndsWith(". Thickness: keep current.", StringComparison.Ordinal), "Receipt: " + controller.Status);
+            controller.BeginRemoveStationAsync(1).GetAwaiter().GetResult();
+            Require(controller.Flyout is { ApplyEnabled: false }, "Remove after Match is available above 10 µm, against the preview");
+        });
+
         // Promotion cost (S1-a: about 10 s a plan on the production grid). Red first: a preview run on the caller's thread blocks it.
         DesktopChecks.Check("Controller_PromoteSlice_PreviewOffUiThread_WindowStaysResponsive", () =>
         {

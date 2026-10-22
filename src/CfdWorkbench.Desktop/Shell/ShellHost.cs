@@ -1081,6 +1081,7 @@ public sealed class ShellHost : Grid
         if (id is "analysis.compare" or "analysis.compare-tiers") return Controller.CanCompare;
         if (id == "station.add") return Controller.AddStationReason is null;
         if (id == "station.remove") return Controller.Selection is Selection.Station removable && Controller.RemoveStationReason(removable.Index) is null;
+        if (id == "station.match-blend") return Controller.Selection is Selection.Station matching && Controller.MatchBlendReason(matching.Index) is null;
         if (!id.StartsWith("point.", StringComparison.Ordinal)) return true;
         if (id is "point.add" or "point.remove" or "point.rebuild") return PointCommandReason(id) is null;
         var point = SelectedPoint();
@@ -1201,6 +1202,10 @@ public sealed class ShellHost : Grid
                 return;
             case "station.remove":
                 if (Controller.Selection is Selection.Station doomed) await Controller.BeginRemoveStationAsync(doomed.Index);
+                else Report(new StatusReport(WorkbenchController.SelectStationFirst));
+                return;
+            case "station.match-blend":
+                if (Controller.Selection is Selection.Station matching) await Controller.BeginMatchBlendAsync(matching.Index);
                 else Report(new StatusReport(WorkbenchController.SelectStationFirst));
                 return;
             case "point.make-anchor":

@@ -118,7 +118,7 @@ public sealed record PropertiesContext(
     StationPanelState? Stations = null); // S1: the slice and station verbs' reasons, the Checking state and the open flyout
 
 /// <summary>What the controller knows about the slice and station verbs: why they are unavailable, the Checking state and the open flyout.</summary>
-public sealed record StationPanelState(string? AddReason, string? RemoveReason, bool Checking, WorkbenchController.StationFlyout? Flyout);
+public sealed record StationPanelState(string? AddReason, string? RemoveReason, bool Checking, WorkbenchController.StationFlyout? Flyout, string? MatchReason = null);
 
 /// <summary>
 /// The open section draft as the Properties pane shows it (design §11.4): both surfaces of the cursor bytes, the section's
@@ -748,12 +748,18 @@ public static class PropertiesView
     /// <summary>The open flyout as a group: the measured line under the title, then Apply (disabled above 10 µm, with its reason) and Cancel.</summary>
     private static PropertyGroup FlyoutGroup(WorkbenchController.StationFlyout flyout)
     {
-        var line = Prose("fly:line", WorkbenchController.CheckLabel, flyout.Checking ? WorkbenchController.CheckingCopy : flyout.ApplyEnabled ? WorkbenchController.WithinLimit : WorkbenchController.AboveLimit) with
+        // Match has no limit to be within or above (Ruling 262 DF-Q2): its result row says it is a measurement.
+        string result = flyout.Checking ? WorkbenchController.CheckingCopy
+            : flyout.Kind == WorkbenchController.StationFlyoutKind.Match ? WorkbenchController.MeasuredLabel
+            : flyout.ApplyEnabled ? WorkbenchController.WithinLimit : WorkbenchController.AboveLimit;
+        var line = Prose("fly:line", WorkbenchController.CheckLabel, result) with
         {
             Description = flyout.Line, DescriptionAlwaysVisible = true
         };
-        return new PropertyGroup("fly", flyout.Title, "", true,
-            [line, Action("fly:apply", FlyoutApply, flyout.Checking ? WorkbenchController.CheckingCopy : flyout.ApplyReason), Action("fly:cancel", FlyoutCancel, null)], []);
+        var rows = new List<PropertyRow> { line, Action("fly:apply", FlyoutApply, flyout.Checking ? WorkbenchController.CheckingCopy : flyout.ApplyReason) };
+        if (flyout.MatchOffered && !flyout.Checking) rows.Add(Action("fly:match", WorkbenchController.MatchLabel, null));   // the Remove flyout's secondary action
+        rows.Add(Action("fly:cancel", FlyoutCancel, null));
+        return new PropertyGroup("fly", flyout.Title, "", true, rows, []);
     }
 
     /// <summary>The inspection slice (S1-COPY-1, -19): a derived view, with Promote; the approximate-promotion flyout when one is open.</summary>
@@ -809,9 +815,10 @@ public static class PropertiesView
         // CAD-20 / COPY-172: the Station group ends with the link that opens the section editor.
         // CAD-02 / CAD-09: Remove station sits in the station's panel (DESIGN.md:299), disabled with its reason (root, tip, a draft).
         if (state is not null) rows.Add(Action("stn:remove", RemoveLabel, state.RemoveReason));
+        if (state is not null) rows.Add(Action("stn:match", WorkbenchController.MatchLabel, state.MatchReason));
         rows.Add(new PropertyRow { Key = "s:edit", Label = "", Kind = RowKind.Action, Value = EditSection, AutomationName = EditSection });
         groups.Add(new PropertyGroup("stn", "Station", assignment.ProfileName, true, rows, []));
-        if (state?.Flyout is { Kind: WorkbenchController.StationFlyoutKind.Remove } flyout && flyout.Index == station.Index) groups.Add(FlyoutGroup(flyout));
+        if (state?.Flyout is { Kind: WorkbenchController.StationFlyoutKind.Remove or WorkbenchController.StationFlyoutKind.Match } flyout && flyout.Index == station.Index) groups.Add(FlyoutGroup(flyout));
         string title = StationNames.Heading(station.Index, station.Eta);
         return new SelectionIdentity(IdentityGlyph.Station, title, $"Station {station.Index + 1} of {projection.Assignments.Count}");
     }

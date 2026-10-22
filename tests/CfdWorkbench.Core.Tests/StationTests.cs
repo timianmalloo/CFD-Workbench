@@ -438,6 +438,246 @@ internal static class StationTests
         // Ruling 262 DF-Q3: the station measure's cheaper path returns the bits of Placement.Sections, nothing else.
         Check("Station_MeasurePath_BitIdenticalToSections_EveryStationAndPlacementFixture", MeasurePathBitIdentical);
         Check("Station_MeasurePath_Timing_GatedByEnvironment", MeasurePathTiming);
+        MatchBlendChecks();
+    }
+
+    // ---- Match the blend (SF2-2, design add-station §13, Ruling 262 DF-Q2) ---------------------------------------------
+
+    private static void MatchBlendChecks()
+    {
+        Check("MatchBlend_CommonPeak_ThenRemoveExact", () =>
+        {
+            using var session = Open(Three());
+            var preview = session.PreviewMatchBlend(1);
+            Equal(null, preview.RefusalCode);
+            Equal(true, preview.Admitted);
+            session.MatchBlend(Id(), 1);
+            var removal = session.PreviewRemove(1);
+            True(removal.DeviationRelative <= Tolerance, "Remove after Match " + removal.DeviationRelative.ToString("G17", CultureInfo.InvariantCulture));
+            Equal(true, removal.Admitted);
+            True(preview.ResidualRelative <= Tolerance && preview.ResidualMeters <= 10e-6, "the preview's residual");
+            Equal("R1", preview.ResidualRegime);
+        });
+        Check("MatchBlend_InteriorNeighbours_WeightFromNeighbours", () =>
+        {
+            using var session = Open(Four());
+            Equal(4, Assignments(session.Snapshot().Source).Length);
+            session.MatchBlend(Id(), 2);
+            var removal = session.PreviewRemove(2);
+            True(removal.DeviationRelative <= Tolerance, "Remove after Match " + removal.DeviationRelative.ToString("G17", CultureInfo.InvariantCulture));
+        });
+        Check("MatchBlend_DifferingPeaks_ResidualEqualsPromotionDeviation", () =>
+        {
+            byte[] doc = PeakThree();
+            using var session = Open(doc);
+            var preview = session.MatchPreviewOrThrow(1);
+            Equal("R2", preview.ResidualRegime);
+            using var bare = Open(Peak());
+            var promotion = bare.PreviewPromote(Pct("50"), "50 %");
+            Equal("R2", promotion.Regime);
+            Equal(BitConverter.DoubleToInt64Bits(promotion.DeviationRelative), BitConverter.DoubleToInt64Bits(preview.ResidualRelative));
+            Equal(BitConverter.DoubleToInt64Bits(promotion.DeviationMeters), BitConverter.DoubleToInt64Bits(preview.ResidualMeters));
+            session.MatchBlend(Id(), 1);
+            byte[] after = session.Snapshot().Source;
+            var removal = session.PreviewRemove(1);
+            Equal(BitConverter.DoubleToInt64Bits(promotion.DeviationRelative), BitConverter.DoubleToInt64Bits(removal.DeviationRelative));
+            // T4: M's matched ordinates are the P that Promote builds, bit for bit (the premise on its own, so a failure is localised).
+            var plan = StationEdits.Promote(Peak(), Pct("50"), "50 %", parsed => Geometry.Assess(parsed));
+            var promoted = plan.Parsed!.Definition!.Profiles.Single(profile => profile.Name == plan.ProfileName);
+            var matched = Definition(after).Profiles[Definition(after).Assignments[1].Profile];
+            SameBits("upper", promoted.Upper.Points.Select(point => point[1]).ToArray(), matched.Upper.Points.Select(point => point[1]).ToArray());
+            SameBits("lower", promoted.Lower.Points.Select(point => point[1]).ToArray(), matched.Lower.Points.Select(point => point[1]).ToArray());
+        });
+        Check("MatchBlend_Change_EqualsRemoveBefore_WhenCommonPeak", () =>
+        {
+            using var session = Open(Three());
+            var removal = session.PreviewRemove(1);
+            var preview = session.PreviewMatchBlend(1);
+            True(removal.DeviationRelative > 1e-3, "fixture: Remove before Match is large");
+            True(Math.Abs(preview.ChangeRelative - removal.DeviationRelative) <= Tolerance * Math.Max(1, removal.DeviationRelative), $"change {preview.ChangeRelative:G17} against Remove {removal.DeviationRelative:G17}");
+        });
+        Check("MatchBlend_Grid_SameAsRemove", () =>
+        {
+            using var session = Open(Three());
+            var removal = session.PreviewRemove(1);
+            var preview = session.PreviewMatchBlend(1);
+            Equal(removal.Grid, preview.Grid);
+            Equal(removal.EtaCount, preview.EtaCount);
+        });
+        Check("MatchBlend_ChannelsAndEtaUnchanged", () =>
+        {
+            foreach (var (doc, label) in new[] { (Three(), "F-THREE"), (PeakThree(), "F-PEAK3") })
+            {
+                using var session = Open(doc);
+                session.MatchBlend(Id(), 1);
+                byte[] after = session.Snapshot().Source;
+                foreach (string channel in new[] { "leading", "trailing", "dihedral", "twist", "thickness" })
+                    Equal(Channel(doc, channel), Channel(after, channel));
+                Equal(Definition(doc).Assignments[1].Eta, Definition(after).Assignments[1].Eta);
+                Equal(AssignmentText(doc), AssignmentText(after));
+                var p = Definition(after).Profiles[Definition(after).Assignments[1].Profile];
+                double own = Placement.ProfileDifferenceMaximum(p.Upper, p.Lower), slice = ThicknessAt(after, Definition(after).Assignments[1].Eta);
+                True(Math.Abs(own - slice) <= 1e-12 * slice, label + $": P maximum {own:G17} against t(eta_M) {slice:G17}");
+            }
+        });
+        Check("MatchBlend_SharedProfile_OnlyThisStation", () =>
+        {
+            var shared = Prof("shared", Root, Lower(Root));
+            byte[] doc = Doc(("root", shared), ("60 %", shared), ("tip", Prof("tip", Add(Root, Bend(0.04)), Add(Lower(Root), Bend(0.04)))));
+            using var session = Open(doc);
+            var preview = session.PreviewMatchBlend(1);
+            Equal(true, preview.SharedWith.SequenceEqual([0]));
+            session.MatchBlend(Id(), 1);
+            byte[] after = session.Snapshot().Source;
+            var was = Definition(doc);
+            var now = Definition(after);
+            string text = Encoding.UTF8.GetString(after), before = Encoding.UTF8.GetString(doc);
+            var rootBefore = was.Profiles[was.Assignments[0].Profile];
+            var rootAfter = now.Profiles.Single(profile => profile.Name == rootBefore.Name);
+            Equal(before[rootBefore.BlockStart..rootBefore.BlockEnd], text[rootAfter.BlockStart..rootAfter.BlockEnd]);
+            Equal(now.Profiles[now.Assignments[0].Profile].Name, "shared");
+            True(now.Profiles[now.Assignments[1].Profile].Name != "shared", "station 1 still names the shared profile");
+            Equal(3, now.Profiles.Length);
+        });
+        Check("MatchBlend_Endpoint_Refused", () =>
+        {
+            byte[] doc = Three();
+            using var session = Open(doc);
+            Refuses("STATION-ENDPOINT", () => session.PreviewMatchBlend(0));
+            Refuses("STATION-ENDPOINT", () => session.MatchBlend(Id(), 2));
+            Refuses("DSL-TARGET", () => session.MatchBlend(Id(), 3));
+            Equal(true, doc.AsSpan().SequenceEqual(session.Snapshot().Source));
+        });
+        Check("MatchBlend_AlreadyMatched_Refused", () =>
+        {
+            using var session = Open(Three());
+            session.MatchBlend(Id(), 1);
+            int depth = session.Envelope().Accepted.Length;
+            byte[] matched = session.Snapshot().Source;
+            Equal("STATION-MATCHED", session.PreviewMatchBlend(1).RefusalCode);
+            Refuses("STATION-MATCHED", () => session.MatchBlend(Id(), 1));
+            Equal(depth, session.Envelope().Accepted.Length);
+            Equal(true, matched.AsSpan().SequenceEqual(session.Snapshot().Source));
+        });
+        Check("MatchBlend_Budget_Refused", () =>
+        {
+            byte[] doc = Three();
+            var bound = new GeometryAssessment(null, "bound", GeometryStatus.NotAssessed, Geometry.OperationBoundCode);
+            var plan = StationEdits.Match(doc, 1, _ => bound);
+            Equal("STATION-BUDGET", plan.Preview.RefusalCode);
+            Equal(false, plan.Preview.Admitted);
+        });
+        Check("MatchBlend_Spacing_Refused", () =>
+        {
+            var plan = StationEdits.Match(Spacing3(), 1, _ => throw new InvalidOperationException("assessed"));
+            Equal("STATION-SPACING", plan.Preview.RefusalCode);
+            Equal(false, plan.Preview.Admitted);
+        });
+        Check("MatchBlend_Closure_FromNeighbours", () =>
+        {
+            double[] openUpper = [.. Root], openLower = Lower(Root);
+            (openUpper[^1], openLower[^1]) = (0.003, -0.003);
+            byte[] doc = Doc(("root", Prof("a", Root, Lower(Root))), ("60 %", Prof("m", openUpper, openLower, "open")), ("tip", Prof("b", Add(Root, Bend(0.04)), Add(Lower(Root), Bend(0.04)))));
+            using var session = Open(doc);
+            Equal("open", Definition(doc).Profiles[1].Closure);
+            session.MatchBlend(Id(), 1);
+            var after = Definition(session.Snapshot().Source);
+            Equal("closed", after.Profiles[after.Assignments[1].Profile].Closure);
+            Equal(GeometryStatus.Certified, Geometry.Assess(FoilSource.Parse(session.Snapshot().Source)).Status);
+        });
+        Check("MatchBlend_Undo_RestoresBytes", () =>
+        {
+            byte[] doc = Three();
+            using var session = Open(doc);
+            int depth = session.Envelope().Accepted.Length;
+            session.MatchBlend(Id(), 1);
+            Equal(depth + 1, session.Envelope().Accepted.Length);
+            session.Undo(Id());
+            Equal(true, doc.AsSpan().SequenceEqual(session.Snapshot().Source));
+        });
+        Check("MatchBlend_EvaluatorIdUnchanged", () =>
+        {
+            using var session = Open(Three());
+            session.MatchBlend(Id(), 1);
+            string text = Encoding.UTF8.GetString(session.Snapshot().Source);
+            True(text.Contains("evaluator \"cfdw-cv\" \"2\"", StringComparison.Ordinal), "evaluator line");
+        });
+        Check("MatchBlend_TangentsDropped_Counted", () =>
+        {
+            byte[] doc = ThreeWithTangent();
+            True(Encoding.UTF8.GetString(doc).Contains("tangents {", StringComparison.Ordinal), "fixture carries a tangent row");
+            using var session = Open(doc);
+            Equal(1, session.PreviewMatchBlend(1).TangentsDropped);
+            session.MatchBlend(Id(), 1);
+            string after = Encoding.UTF8.GetString(session.Snapshot().Source);
+            True(!after.Contains("tangent", StringComparison.Ordinal), "tangent bytes survive Match");
+        });
+        Check("MatchBlend_DraftOpen_Refused", () =>
+        {
+            using var session = Open(Camber3());
+            var curve = Definition(session.Snapshot().Source).Curves["leading"];
+            session.BeginPointGesture(Id(), "leading", curve.Ids[2]);
+            Refuses("DSL-DRAFT-OWNED", () => session.PreviewMatchBlend(1));
+            Refuses("DSL-DRAFT-OWNED", () => session.MatchBlend(Id(), 1));
+        });
+    }
+
+    private static MatchPreview MatchPreviewOrThrow(this AuthoringSession session, int index)
+    {
+        var preview = session.PreviewMatchBlend(index);
+        if (preview.RefusalCode is not null) throw new InvalidOperationException(preview.RefusalCode + ": " + preview.Reason);
+        return preview;
+    }
+
+    private static string AssignmentText(byte[] source)
+    {
+        string text = Encoding.UTF8.GetString(source);
+        int at = text.IndexOf("  sections {", StringComparison.Ordinal);
+        return text[at..text.IndexOf('}', at)];
+    }
+
+    /// <summary>
+    /// F-THREE with station 1 on an 11-point profile (the matched station's own spacing is not tested, design G4) whose upper side carries one smooth
+    /// tangent row on the multiplicity-5 knot anchor cv-5; a tangent row needs foildsl 4.1.
+    /// </summary>
+    private static byte[] ThreeWithTangent()
+    {
+        double[] knots = [0, 0, 0, 0, 0, 0, 0.5, 0.5, 0.5, 0.5, 0.5, 1, 1, 1, 1, 1, 1];
+        double[] x = [0, 0, 0.2, 0.35, 0.45, 0.5, 0.55, 0.7, 0.85, 1, 1], y = [0, 0.02, 0.04, 0.04, 0.04, 0.04, 0.04, 0.03, 0.015, 0.005, 0];
+        string[] ids = [.. Enumerable.Range(0, 11).Select(i => "cv-" + i.ToString(CultureInfo.InvariantCulture))];
+        Curve Side(Curve basis, double scale, double sign, double camber, TangentRow[] rows) => basis with
+        {
+            Knots = knots, Points = x.Select((value, i) => new[] { value, sign * scale * y[i] + (i is 0 or 10 ? 0 : camber * 4 * value * (1 - value)) }).ToArray(), Ids = ids, Tangents = rows
+        };
+        var lowerBasis = Definition(FoilSource.NewDefault()).Profiles[0].Lower;
+        ProfileDefinition Prof11(string name, double scale, double camber, TangentRow[] rows) =>
+            new(name, Side(BaseUpper, scale, 1, camber, rows), Side(lowerBasis, scale, -1, camber, []), "closed", 0, 0);
+        byte[] doc = Doc(("root", Prof11("root", 0.8, 0, [])), ("60 %", Prof11("m", 1, 0, [new TangentRow("cv-5", "smooth", null)])), ("tip", Prof11("tip", 0.8, 0.03, [])));
+        return Encoding.UTF8.GetBytes(Encoding.UTF8.GetString(doc).Replace("foildsl \"4.0\"", "foildsl \"4.1\"", StringComparison.Ordinal));
+    }
+
+    /// <summary>F-PEAK3: F-PEAK (root NACA 0012, tip peaking at 40 percent) with a station at 50 percent carrying F-CAMBER's tip (L and R differ in peak).</summary>
+    private static byte[] PeakThree() => StationFixture("f-peak3.foil");
+
+    /// <summary>The committed fixture <c>tests/fixtures/stations/&lt;name&gt;</c>, written once from the hand-built <see cref="Doc"/> documents named in the summaries.</summary>
+    private static byte[] StationFixture(string name) => File.ReadAllBytes(Path.Combine(PlacementTests.RepoRoot(), "tests", "fixtures", "stations", name));
+
+    /// <summary>
+    /// F-FOUR: stations at 0, 30, 60 and 100 percent. Root NACA 0012, 30 percent F-CAMBER's tip, 60 percent F-PEAK's tip, tip F-CAMBER's tip with twice the
+    /// camber, so station 2 has eta_L 0.3 and w = (0.6 - 0.3) / (1 - 0.3) = 0.4286 which is not eta_M.
+    /// </summary>
+    private static byte[] Four() => StationFixture("f-four.foil");
+
+    /// <summary>A three-station document whose neighbours have different point spacing (the 6-point tip of <see cref="Spacing"/>).</summary>
+    private static byte[] Spacing3()
+    {
+        var mid = Prof("mid", Root, Lower(Root));
+        var text = new StringBuilder(Encoding.UTF8.GetString(Spacing()));
+        string block = Encoding.UTF8.GetString(FoilSource.ProfileBlock(mid));
+        int tipAt = text.ToString().IndexOf("    profile \"tip\"", StringComparison.Ordinal);
+        text.Insert(tipAt, block);
+        string result = text.ToString().Replace("  sections { at root profile \"root\"", "  sections { at root profile \"root\" at 50 % profile \"mid\"", StringComparison.Ordinal);
+        return Encoding.UTF8.GetBytes(result);
     }
 
     // ---- the measure path's bit guard (SF2-1) ------------------------------------------------------------------------
