@@ -183,10 +183,10 @@ actual 89d1a3f...` (the panel showed the estimator row). With the controller fil
 
 ### Measured (Verified; replaces the Inferred figures of design 1.8 and 10)
 
-From `Discrepancy_PinnedRuns_ReachDocSize_RefusedNotCorrupted` (`MEASURED` line, 128 strips per run with realistic digits):
+From `Discrepancy_PinnedRuns_ReachDocSize_RefusedNotCorrupted` (`MEASURED` line, 128 strips per run; the strips are synthetic with 10-digit values):
 
-- **bytes per pinned VLM + strip run (128 strips): 109,991** in the indented document (the design's Inferred figure was
-  about 60,000). About **72 such runs** fit in `NativeProject.MaxBytes` (8,000,000), not 133.
+- **bytes per VLM + strip run (128 strips): 109,991, a lower bound**, in the indented document (the design's Inferred figure was
+  about 60,000). A solver prints up to 17 digits, which gives about 127 kB per run and about 63 runs (Inferred, a digit-count model). About **72 such runs** fit in `NativeProject.MaxBytes` (8,000,000), not 133.
 - **bytes per record (three lines): 859** (Inferred: about 530). Records are still not the constraint.
 - On that basis a document reaches `DOC-SIZE` through pinned runs sooner than design 1.8 said: about 72 VLM runs in all, so the
   DR-A3D-6 trigger (`pinnedRuns` above 20, or the first `DOC-SIZE` refusal in a document that holds records) can fire at
@@ -220,7 +220,7 @@ A3d-1); -28 -> 551; -29 -> 552. The rows sit at the end of the numeric run, afte
 
 `CheckStore` gained one parameter, `acceptedOrdinal`, because the orientation check cannot run without the accepted-row ordinal.
 The leader read it as part of Ruling 250 Q4's "one `CheckStore` call", and the Owner replied "no objection" to that reading
-(Ruling 250 Q4; the leader's relay). The `RunRecord.cs` header carries the design 1.8 sentence word for word.
+(Ruling 250 Q4; recorded as coord mail `mail-01M5GTCYMMJAWYW0ZSGEYAKSRW`, kind note, opus-owner to opus-leader, 2026-10-22). The `RunRecord.cs` header carries the design 1.8 sentence word for word.
 
 ### Deviations, each for the leader
 
@@ -240,3 +240,24 @@ The leader read it as part of Ruling 250 Q4's "one `CheckStore` call", and the O
 - "Compare with estimator" evaluates the estimator on the current accepted revision at the base run's operating point and water. For
   a Historical base run on an older revision the planform may differ, and Compare then blocks on the reference quantities.
 - `WingEstimator.Settings` became public (the controller computes the Current key of an estimator run).
+
+## A3d-2 repair (cycle 1)
+
+Review conditions 1, 2 and 6 (must fix) and 3, 4, 5, 7, 8, 9, 10 (folds). Each code change has a check observed red on the old code, then green.
+
+| Condition | Check | Red line (old code) |
+|---|---|---|
+| 1 KeepPlan order | `Retention_ReferencedRunInLatestTwenty_TakesNoQuotaSlot` | `the latest quota of unreferenced runs all survive; expected 20; actual 19` |
+| 2 compare event bytes | `Discrepancy_CompareEvent_CarriesDocumentBytes` | `documentBytes on the compare event is the image size expected 16855; actual ` (not recorded) |
+| 5 save outcome word | `Discrepancy_SaveEvent_CarriesPinnedRunsAndBytes` | `the save report claims a capture, not a completed save expected captured; actual saved` |
+| 6 (b) tier headline | `Compare_TierHeadline_OnlyWhenBothRunsShareARevision` | `the revision headline, not the tier headline: Tiers disagree: ...` |
+| 6 (a) estimator at the base revision | `ComparePane_EstimatorAfterTwistEdit_RunsOnTheBasesRevision` | `the estimator run is on the base run revision; expected 6909a82c-...; actual 96b385f8-...` |
+
+Green: Analysis `Retention_,Discrepancy_,Compare_` `RESULT failures=0`; Desktop `ComparePane_` 12 `PASS`.
+
+- Condition 6: `CompareWithEstimatorAsync` passes the base run to `AnalysisService.EvaluateAsync` (optional `atRun`, estimator only); the service reads the revision source through `AuthoringSession.AcceptedSourceOf` (`AnalysisService.RevisionView`). A base whose revision source is not held refuses before any evaluation with A3D-COPY-23 and the feed's revision-not-held reason, and stores nothing. The projection shows the tier headline only when the two runs share one accepted revision. `AnalysisService.cs` is outside the instruction's file list; seam request `req-01M5GTKD3CE94Y7P3EBXYBYFK4`. `ComparePane_IncompatibleReference_BlockedNoDelta` now pairs two VLM runs across the span edit, because the estimator command can no longer cross a planform change.
+- Condition 8: the retention check asserts `pinnedRuns == 1` on `analysis.save`, with the estimator run on a reachable revision so only the VLM run is pinned. The size test's runs are reachable, not pinned: its figure is bytes per run, not a pin count.
+- Condition 9: the size test's second phase fits four runs and two records under a cap just above their image; the next `RecordDiscrepancy` raises `DOC-SIZE` and the check asserts the call. (The first phase still ends in `RecordRun`, which is why a separate phase was needed.)
+- Condition 10 (labelled): the pane's error path is checked with an injected error; the controller path is untested.
+- Condition 11 is the leader's (needs W2 joined); `inspect --runs` is still not run end to end.
+- Mutant rows: 7 (A3d-1) + 9 (A3d-1 repair) + 37 (Compare) = 53 before this cycle; this cycle adds the 5 red rows above, 58 in all. The reviewer's 46 counts the 37 Compare and 9 repair rows only.

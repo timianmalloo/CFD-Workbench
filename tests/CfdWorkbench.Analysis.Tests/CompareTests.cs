@@ -34,6 +34,9 @@ internal static class CompareTests
         Check("Discrepancy_SaveReopen_RoundTripByteEqual", RoundTrip);
         Check("Discrepancy_OmittedWhenEmpty_OlderDocumentBytesUnchanged", OmittedWhenEmpty);
         Check("Retention_RunReferencedByDiscrepancy_NeverPruned", ReferencedNeverPruned);
+        Check("Retention_ReferencedRunInLatestTwenty_TakesNoQuotaSlot", ReferencedTakesNoQuota);
+        Check("Discrepancy_CompareEvent_CarriesDocumentBytes", CompareEventBytes);
+        Check("Compare_TierHeadline_OnlyWhenBothRunsShareARevision", TierHeadlineNeedsOneRevision);
         Check("Discrepancy_PinnedRuns_ReachDocSize_RefusedNotCorrupted", ReachDocSize);
         Check("Discrepancy_StoreInvariants_Refused", StoreInvariants);
         Check("Discrepancy_TamperedLine_ReadsNoLongerReproduces", TamperedLine);
@@ -313,8 +316,52 @@ internal static class CompareTests
         Equal(false, ledger.Runs.Any(stored => stored.Run.RunId == onB[1].RunId), "an unreferenced old run is still pruned;");
     }
 
+    private static void ReferencedTakesNoQuota()
+    {
+        using var session = Fixture.Opened();
+        Fixture.TwistEdit(session, 1.0);
+        int total = AuthoringSession.RetainedOthersPerTier + 2;
+        var onB = Enumerable.Range(0, total).Select(step => Row(session, "vlm-strip", alpha: step)).ToArray();
+        int referencedIndex = total / 2; // inside the latest RetainedOthersPerTier runs
+        session.Undo(Fixture.Id());
+        Fixture.TwistEdit(session, 2.0);
+        var estimator = Row(session, "estimator", alpha: referencedIndex);
+        Compare.Record(session, onB[referencedIndex], estimator, Values((onB[referencedIndex], 0.4, 0.0076, 0.9), (estimator, 0.41, 0.0075, 1.0)));
+        _ = session.SaveImage();
+        var ledger = session.ReadRuns();
+        var survivors = ledger.Runs.Select(stored => stored.Run.RunId).ToHashSet();
+        int unreferencedKept = onB.Where((run, index) => index != referencedIndex && survivors.Contains(run.RunId)).Count();
+        Equal(AuthoringSession.RetainedOthersPerTier, unreferencedKept, "the latest quota of unreferenced runs all survive;");
+        Equal(true, survivors.Contains(onB[referencedIndex].RunId), "the referenced run survives on top of the quota;");
+        Equal(1, ledger.Pruned.Count, "exactly one run is pruned;");
+        Equal(1, session.ReadLocalEvents().Last(item => item.Operation == "analysis.save").Compare?.PinnedRuns, "pinnedRuns on the save");
+    }
+
+    private static void TierHeadlineNeedsOneRevision()
+    {
+        using var session = Fixture.Opened();
+        var vlm = Row(session, "vlm-strip");
+        Fixture.TwistEdit(session, 1.0);
+        var estimator = Row(session, "estimator");
+        Equal(false, vlm.Inputs.AcceptedId == estimator.Inputs.AcceptedId, "the pair is on two revisions;");
+        var view = Project(session, vlm, estimator, Values((vlm, 0.4120, 0.00760, 0.9479157), (estimator, 0.4212557233, EstimatorCdi, 1.0)));
+        Equal(CompareState.Compatible, view.State, "state");
+        Equal(true, view.Headline.StartsWith(Labels.RevisionsHeadline("").Split('=')[0], StringComparison.Ordinal), "the revision headline, not the tier headline: " + view.Headline);
+        Equal(false, view.Headline.StartsWith("Tiers disagree", StringComparison.Ordinal), "no tier headline across revisions;");
+    }
+
+    private static void CompareEventBytes()
+    {
+        using var session = Fixture.Opened();
+        var vlm = Row(session, "vlm-strip"); var estimator = Row(session, "estimator");
+        Compare.Record(session, vlm, estimator, Values((vlm, 0.4120, 0.00760, 0.9479157), (estimator, 0.4212557233, EstimatorCdi, 1.0)));
+        byte[] image = session.SaveImage();
+        var compared = session.ReadLocalEvents().Last(item => item.Operation == "analysis.compare");
+        Equal(image.Length, compared.Compare?.DocumentBytes, "documentBytes on the compare event is the image size");
+    }
+
     // Ruling 251 and design 1.8: records pin runs with no cap. The cap is small here so the refusal comes fast; the bytes per
-    // run (128 strips, as a real run) and per record are measured, and the proof note takes them from this line.
+    // run (128 strips, 10-digit synthetic values: a lower bound, a solver prints up to 17 digits) and per record are measured, and the proof note takes them from this line.
     private static void ReachDocSize()
     {
         using var session = new AuthoringSession(700_000);
@@ -352,7 +399,42 @@ internal static class CompareTests
         Equal(true, pairs > 0 && lastGood is not null, "records were stored before the cap;");
         Equal(true, lastGood!.AsSpan().SequenceEqual(session.SaveImage()), "the saved image is unchanged by the refusal;");
         Equal(1, session.ReadLocalEvents().Count(item => item.Operation == "analysis.size" && item.Compare?.PinnedRuns is not null && item.Compare.Records > 0), "the refusal event carries its pinned-run count;");
-        Console.WriteLine($"MEASURED bytesPerRun128Strips={perRun} bytesPerRecord={perRecord} recordsAtCap={pairs}");
+        // Phase B: the same four runs and two records fit a cap set just above their image; the next record is the call that
+        // pushes the document over, and it is the call that refuses (design 7.3).
+        using var roomy = new AuthoringSession();
+        roomy.Open(FoilSource.NewDefault(), Fixture.Id(), true);
+        FillFour(roomy);
+        int fitted = roomy.SaveImage().Length;
+        using var tight = new AuthoringSession(fitted + (int)perRecord / 2);
+        tight.Open(FoilSource.NewDefault(), Fixture.Id(), true);
+        var (four, tightValues) = FillFour(tight);
+        byte[] tightImage = tight.SaveImage();
+        string call = "none";
+        ContractError? over = null;
+        try { call = "RecordDiscrepancy"; Compare.Record(tight, four[1], four[2], tightValues); }
+        catch (ContractError error) { over = error; }
+        Equal("DOC-SIZE", over?.Code, "the next record pushes the document over the cap;");
+        Equal("RecordDiscrepancy", call, "the refusing call is RecordDiscrepancy;");
+        Equal(true, tightImage.AsSpan().SequenceEqual(tight.SaveImage()), "the image is unchanged by the refusal;");
+        Equal(1, tight.ReadLocalEvents().Count(item => item.Operation == "analysis.size"), "the size refusal is reported;");
+        Console.WriteLine($"MEASURED bytesPerRun128Strips={perRun} (lower bound: 10-digit synthetic strips) bytesPerRecord={perRecord} recordsAtCap={pairs}");
+    }
+
+    // Four 128-strip runs, each on its own revision, and the records (0,1) and (2,3).
+    private static (AnalysisRun[] Runs, Func<AnalysisRun, Coefficients> Values) FillFour(AuthoringSession session)
+    {
+        var values = new Dictionary<string, Coefficients>();
+        var runs = new AnalysisRun[4];
+        for (int i = 0; i < 4; i++)
+        {
+            Fixture.TwistEdit(session, 1.0);
+            runs[i] = Row(session, "vlm-strip", strips: 128);
+            values[runs[i].RunId] = new Coefficients(0.4 + i * 1e-3, 0.0076, 0.9);
+        }
+        Func<AnalysisRun, Coefficients> lookup = run => values[run.RunId];
+        Compare.Record(session, runs[0], runs[1], lookup);
+        Compare.Record(session, runs[2], runs[3], lookup);
+        return (runs, lookup);
     }
 
     private static void StoreInvariants()
@@ -441,6 +523,7 @@ internal static class CompareTests
         byte[] image = session.SaveImage();
         var saved = session.ReadLocalEvents().Last(item => item.Operation == "analysis.save");
         Equal(0, saved.Compare?.PinnedRuns, "pinnedRuns on a save");
+        Equal("captured", saved.Outcome, "the save report claims a capture, not a completed save");
         Equal(image.Length, saved.Compare?.DocumentBytes, "documentBytes is the save image's size");
         Equal(1, saved.Compare?.Records, "records");
         using var plain = Fixture.Opened();

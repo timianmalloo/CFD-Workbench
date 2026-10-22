@@ -71,9 +71,11 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
     /// nothing recorded), and accepted geometry that is not certified (<c>DSL-NOT-ASSESSED</c>, nothing recorded). Throws
     /// <see cref="OperationCanceledException"/> when cancelled or superseded, and the session's <see cref="ContractError"/>
     /// when it closed mid-compute.
+    /// <paramref name="atRun"/> (estimator only): evaluate at that run's accepted revision instead of the current one; a revision
+    /// whose source this session does not hold is refused (<c>DOC-REFERENCE</c>) before any evaluation, nothing recorded.
     /// </summary>
     public async Task<AnalysisRun> EvaluateAsync(OperatingPoint op, WaterRecord water, Tier tier, Scope scope,
-        CancellationToken cancellation)
+        CancellationToken cancellation, AnalysisRun? atRun = null)
     {
         ArgumentNullException.ThrowIfNull(op);
         ArgumentNullException.ThrowIfNull(water);
@@ -95,7 +97,7 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
                 trace.Estimator = true;
                 if (session.InspectAccepted().Geometry.Status != GeometryStatus.Certified)
                     throw new ContractError("DSL-NOT-ASSESSED", "the accepted geometry is not certified");
-                var estimated = EvaluateEstimator(op, water, trace, cancellation);
+                var estimated = EvaluateEstimator(op, water, trace, cancellation, atRun);
                 outcome = estimated.Outcome is RunOutcome.Failed estimatorFailed ? estimatorFailed.Code : "OK";
                 return estimated;
             }
@@ -224,12 +226,18 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
     // The wing estimator (design a3d-compare.md §2.6): closed form and quick, so it takes no latest-wins slot and never
     // supersedes a VLM evaluation in flight on the same scope. It records through RecordRun like any run: the run key,
     // idempotency and integrity are the existing ones. Outputs are derived on read (WingEstimator.Derive), never stored.
-    private AnalysisRun EvaluateEstimator(OperatingPoint op, WaterRecord water, Trace trace, CancellationToken cancellation)
+    // The accepted revision of a stored run, read from the append-only accepted list (never another revision's bytes).
+    private SessionView RevisionView(AnalysisRun run) =>
+        new(run.Inputs.AcceptedId, "", run.Inputs.SurfaceHash,
+            session.AcceptedSourceOf(run.Inputs.AcceptedId) ?? throw new ContractError("DOC-REFERENCE", "the base run's revision is not held by this session"),
+            null, null, false);
+
+    private AnalysisRun EvaluateEstimator(OperatingPoint op, WaterRecord water, Trace trace, CancellationToken cancellation, AnalysisRun? atRun)
     {
         long started = time.GetTimestamp();
         var settings = WingEstimator.Settings(method.Settings);
         Stations(settings);
-        var view = session.Snapshot();
+        var view = atRun is null ? session.Snapshot() : RevisionView(atRun);
         var inputs = Freshness.Inputs(view);
         string settingsHash = RunRecord.SettingsHash(settings);
         string key = RunRecord.Key(inputs, water, op, WingEstimator.Method, settingsHash);

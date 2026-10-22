@@ -1936,7 +1936,8 @@ public sealed class AuthoringSession : IDisposable
             PreflightWithPinReport("save-image", EnvelopeCore());
             byte[] image = NativeProject.Encode(EnvelopeCore()); string hash = Identity.Sha256(image);
             // Ruling 251: every save of a document with runs emits the pinned-run count and the image's byte size.
-            if (runs.Count > 0) RecordCompareEvent("saved", null, new CompareEvent { Records = discrepancies.Count, PinnedRuns = pinned, DocumentBytes = image.Length }, "analysis.save");
+            // "captured": the image exists, whether it is written is the store.save event.
+            if (runs.Count > 0) RecordCompareEvent("captured", null, new CompareEvent { Records = discrepancies.Count, PinnedRuns = pinned, DocumentBytes = image.Length }, "analysis.save");
             Guard.Require(capturedSaveHashes.Contains(hash) || capturedSaveHashes.Count < 256, "DOC-SAVE-PENDING");
             capturedSaveHashes.Add(hash); return image;
         }
@@ -2158,12 +2159,20 @@ public sealed class AuthoringSession : IDisposable
         }
     });
 
-    private CompareEvent CompareFields(DiscrepancyRecord record, int count) => new()
+    // The document size is measured by encoding the image the next save would capture; a failed encode stays null ("not recorded").
+    private CompareEvent CompareFields(DiscrepancyRecord record, int count)
     {
-        BaseTier = runs.FirstOrDefault(run => run.RunId == record.BaseRunId)?.Tier,
-        ComparedTier = runs.FirstOrDefault(run => run.RunId == record.ComparedRunId)?.Tier,
-        Records = count
-    };
+        int? bytes = null;
+        try { bytes = NativeProject.Encode(EnvelopeCore()).Length; } catch (ContractError) { }
+        return new()
+        {
+            BaseTier = runs.FirstOrDefault(run => run.RunId == record.BaseRunId)?.Tier,
+            ComparedTier = runs.FirstOrDefault(run => run.RunId == record.ComparedRunId)?.Tier,
+            Records = count,
+            PinnedRuns = KeepPlan().Pinned,
+            DocumentBytes = bytes
+        };
+    }
 
     /// <summary>
     /// The Compare entry to the session's event queue (design a3d-compare.md 6.1): <c>analysis.compare</c> and the save-time
@@ -2236,15 +2245,16 @@ public sealed class AuthoringSession : IDisposable
         var keys = runs.Select(RunRecord.RecomputedKey).ToArray();
         var keep = new bool[runs.Count];
         for (int i = 0; i < runs.Count; i++) keep[i] = reachable.Contains(runs[i].Inputs.SurfaceHash);
+        // Referenced runs are marked before the per-tier quota, so they never take a quota slot (Ruling 251: on top of it).
+        var referenced = discrepancies.SelectMany(record => new[] { record.BaseRunId, record.ComparedRunId }).ToHashSet(StringComparer.Ordinal);
+        int pinned = 0;
+        for (int i = 0; i < runs.Count; i++)
+            if (!keep[i] && referenced.Contains(runs[i].RunId)) { keep[i] = true; pinned++; }
         foreach (var tier in runs.Select((run, index) => (run, index)).Where(item => !keep[item.index]).GroupBy(item => item.run.Tier))
             foreach (var (_, index) in tier.TakeLast(RetainedOthersPerTier)) keep[index] = true;
         var latestFailed = new Dictionary<string, int>(StringComparer.Ordinal);
         for (int i = 0; i < runs.Count; i++) if (runs[i].Outcome is RunOutcome.Failed) latestFailed[keys[i]] = i;
         foreach (int index in latestFailed.Values) keep[index] = true;
-        var referenced = discrepancies.SelectMany(record => new[] { record.BaseRunId, record.ComparedRunId }).ToHashSet(StringComparer.Ordinal);
-        int pinned = 0;
-        for (int i = 0; i < runs.Count; i++)
-            if (!keep[i] && referenced.Contains(runs[i].RunId)) { keep[i] = true; pinned++; }
         return (keep, pinned, keys);
     }
 

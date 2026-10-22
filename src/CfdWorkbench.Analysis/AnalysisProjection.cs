@@ -76,7 +76,7 @@ public static class CompareProjection
         outputs.AddRange(Loads(a, b, context));
         var cl = lines[0];
         string headlineDelta = cl.Delta is { } delta ? Percent(delta) : DeltaText(cl, false);
-        string headline = a.Tier != b.Tier ? Labels.TiersHeadline(headlineDelta) : Labels.RevisionsHeadline(headlineDelta);
+        string headline = a.Tier != b.Tier && a.Inputs.AcceptedId == b.Inputs.AcceptedId ? Labels.TiersHeadline(headlineDelta) : Labels.RevisionsHeadline(headlineDelta);
         string? status = context.Result is { Record: not null } result ? result.Created ? Labels.RecordStored : Labels.RecordRead : null;
         switch (context.Integrity)
         {

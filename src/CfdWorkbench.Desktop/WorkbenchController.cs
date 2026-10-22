@@ -535,11 +535,18 @@ public sealed class WorkbenchController : IDisposable
     {
         var basis = DefaultCompareBase();
         if (basis is null || compareEvaluating) return;
+        // The estimator is evaluated at the base run's accepted revision, so the pair differs by tier only. A revision this
+        // session does not hold refuses before any evaluation and stores nothing (A3D-COPY-23 with the feed's revision-not-held reason).
+        if (session.AcceptedSourceOf(basis.Inputs.AcceptedId) is null)
+        {
+            SetStatus(Labels.NotRecorded("this run's geometry revision is not held by this session", "DOC-REFERENCE"), ReportKind.Warning);
+            return;
+        }
         compareEvaluating = true;
         CompareTabRequested = true;
         Notify();
         AnalysisRun? estimator = null;
-        try { estimator = await analysisService.EvaluateAsync(basis.Op, basis.Water, Tier.Estimator, new Scope.Wing(), cancellation); }
+        try { estimator = await analysisService.EvaluateAsync(basis.Op, basis.Water, Tier.Estimator, new Scope.Wing(), cancellation, basis); }
         catch (OperationCanceledException) { SetStatus("Estimator evaluation cancelled.", ReportKind.Info); }
         catch (ContractError error) { SetStatus(error.Code + ": " + (error.Reason ?? error.Message), ReportKind.Warning); }
         finally { compareEvaluating = false; }

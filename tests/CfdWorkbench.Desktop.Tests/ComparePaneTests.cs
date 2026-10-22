@@ -60,6 +60,19 @@ public static class ComparePaneTests
             var row = Row(pane.InputsTable, "Envelope");
             Equal(true, row[1].Contains("vlm-envelope", StringComparison.Ordinal) && row[2].Contains("estimator-envelope", StringComparison.Ordinal), "both envelopes are shown: " + string.Join(" | ", row));
         });
+        DesktopChecks.Check("ComparePane_EstimatorAfterTwistEdit_RunsOnTheBasesRevision", () =>
+        {
+            using var controller = Open();
+            var vlm = Evaluate(controller, 2);
+            controller.ToggleAnalysis();   // points are edited in CAD
+            var added = Task.Run(() => controller.ApplyPointCommandAsync(new PointCommand.AddPoint("twist", 0.45))).WaitAsync(TimeSpan.FromSeconds(20)).GetAwaiter().GetResult();
+            if (added is not CommitOutcome.Committed) throw new Exception("Fixture twist edit was refused.");
+            controller.ToggleAnalysis();
+            var pane = TierPane(controller);
+            var estimator = controller.CompareRuns.Runs.Single(stored => stored.Run.Tier == WingEstimator.TierId).Run;
+            Equal(vlm.Inputs.AcceptedId, estimator.Inputs.AcceptedId, "the estimator run is on the base run's revision;");
+            Equal(true, AllText(pane).Any(t => t.StartsWith("Tiers disagree", StringComparison.Ordinal)), "the tier headline, as the pair shares one revision;");
+        });
         DesktopChecks.Check("ComparePane_NoSecondRun_EmptyState", () =>
         {
             using var controller = Open();
@@ -75,12 +88,16 @@ public static class ComparePaneTests
         DesktopChecks.Check("ComparePane_IncompatibleReference_BlockedNoDelta", () =>
         {
             using var controller = Open();
-            _ = Evaluate(controller, 2);
+            var first = Evaluate(controller, 2);
             controller.ToggleAnalysis();   // points and dimensions are edited in CAD
             var edited = Task.Run(() => controller.ApplySpanAsync("1400")).WaitAsync(TimeSpan.FromSeconds(20)).GetAwaiter().GetResult();
             if (edited is not CommitOutcome.Committed) throw new Exception("Fixture geometry edit was refused.");
             controller.ToggleAnalysis();
-            var pane = TierPane(controller);
+            // The estimator command now evaluates at the base's revision, so a pair across a span edit is two VLM runs.
+            var second = Evaluate(controller, 2);
+            controller.SetCompareRuns(first.RunId, second.RunId);
+            var pane = new ComparePane();
+            pane.Bind(controller);
             var text = AllText(pane);
             Equal(true, text.Any(t => t.StartsWith("Δ blocked — reference quantities differ: ", StringComparison.Ordinal)), "the block copy;");
             Equal(0, pane.OutputsTable.Children.Count, "no output row, so no delta cell;");

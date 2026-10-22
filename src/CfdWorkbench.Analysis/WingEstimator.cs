@@ -15,6 +15,8 @@ public sealed record EstimatorOutputs(double Cl, double Cdi, double E);
 /// placed chord. Twist is positive nose-up, as in the lattice (<c>VortexLattice</c> rotates the section tangent by
 /// +twist, and the strip's alpha_eff is alpha + twist - alpha_i). CDi = CL^2 / (pi A) with elliptic loading assumed, so
 /// e = 1 by construction. The sweep is the straight root-to-tip mid-chord line, an approximation on a curved planform.
+/// The chord-weighted station mean of (zero-lift minus twist) is an approximation of the wing zero-lift angle (not a cited
+/// span-integral or twist-factor method); its accuracy is Inferred, not measured.
 /// Its behaviour on a swept hydrofoil is Inferred: no swept fixture has been compared against another method. A stored
 /// run keeps only its inputs; the outputs are derived on read by <see cref="Derive"/> (DM7).
 /// </summary>
