@@ -856,73 +856,73 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-519 | Manufacturing: not assessed (no process chosen) — approved — Ruling 196 (EX46: the second line of the trailing-edge row) |
 | COPY-520 | mm, unscaled (in the file name) — approved — Ruling 204 (the STL Unit row) |
 | COPY-521 | mm, unscaled (the unit is set in the file) — approved — Ruling 204 (the 3MF Unit row) |
-| COPY-522 | Compare — proposed — A3d Compare (A3D-COPY-1: the Analysis panel tab header; design a3d-compare.md section 6) |
-| COPY-523 | Compare runs… — proposed — A3d Compare (A3D-COPY-2: the command analysis.compare; design a3d-compare.md section 6) |
-| COPY-524 | Compare with estimator — proposed — A3d Compare (A3D-COPY-3: the command analysis.compare-tiers and the empty-state button; design a3d-compare.md section 6) |
-| COPY-525 | Base run — proposed — A3d Compare (A3D-COPY-4: the first picker label; design a3d-compare.md section 6) |
-| COPY-526 | Compared run — proposed — A3d Compare (A3D-COPY-4: the second picker label; design a3d-compare.md section 6) |
-| COPY-527 | r<n> · <tier> · α <a>° · V <v> <unit> · <Current | Historical> — proposed — A3d Compare (A3D-COPY-5: a picker option; design a3d-compare.md section 6) |
-| COPY-528 | Compare needs two Completed runs. Evaluate another revision, or compare with the estimator. — proposed — A3d Compare (A3D-COPY-6: the no-second-run state; design a3d-compare.md section 6) |
-| COPY-529 | Δ blocked — reference quantities differ: <fields>. Inputs are shown side by side; no difference is computed. — proposed — A3d Compare (A3D-COPY-7: the reference block; design a3d-compare.md section 6) |
-| COPY-530 | Δ blocked — the runs are at different operating points: <fields>. Inputs are shown side by side; no difference is computed. — proposed — A3d Compare (A3D-COPY-8: the operating-point block; design a3d-compare.md section 6) |
-| COPY-531 | Tiers disagree: δ = <v> — Discrepancy record stored · value preferred by reported uncertainty: <tier> — proposed — A3d Compare (A3D-COPY-9: the tier headline, spec line 2306 verbatim; design a3d-compare.md section 6) |
-| COPY-532 | Revisions compared: δ CL = <v> — Discrepancy record stored — proposed — A3d Compare (A3D-COPY-10: the revision headline; design a3d-compare.md section 6) |
-| COPY-533 | none — no tier reports its uncertainty — proposed — A3d Compare (A3D-COPY-11: the <tier> slot of the tier headline in A3; design a3d-compare.md section 6) |
-| COPY-534 | Not compared — the estimator assumes elliptic loading (e = 1) — proposed — A3d Compare (A3D-COPY-11b: the e delta cell; design a3d-compare.md section 6) |
-| COPY-535 | Each value is its own run's result. Nothing is averaged or ranked. — proposed — A3d Compare (A3D-COPY-12: the footnote; design a3d-compare.md section 6) |
-| COPY-536 | Comparison recorded — proposed — A3d Compare (A3D-COPY-13: the status of a new record; design a3d-compare.md section 6) |
-| COPY-537 | Comparison read — recorded earlier — proposed — A3d Compare (A3D-COPY-14: the status of a key hit, either order; design a3d-compare.md section 6) |
-| COPY-538 | Historical runs compare as recorded: δ is between the two stored results. — proposed — A3d Compare (A3D-COPY-15: the Historical note; design a3d-compare.md section 6) |
-| COPY-539 | Same q · S_ref: L and D_i differ by the same fraction as CL and CDi. — proposed — A3d Compare (A3D-COPY-16: under L and D_i; design a3d-compare.md section 6) |
-| COPY-540 | A failed run has no values to compare. Choose a Completed run. — proposed — A3d Compare (A3D-COPY-17: a Failed run selected; design a3d-compare.md section 6) |
-| COPY-541 | Unavailable — a compared run failed its check — proposed — A3d Compare (A3D-COPY-18: integrity, run; design a3d-compare.md section 6) |
-| COPY-542 | Unavailable — Discrepancy record no longer reproduces from its runs — proposed — A3d Compare (A3D-COPY-19: integrity, record; design a3d-compare.md section 6) |
-| COPY-543 | Evaluating the estimator… — proposed — A3d Compare (A3D-COPY-20: loading; design a3d-compare.md section 6) |
-| COPY-544 | Undefined — base value is 0 — proposed — A3d Compare (A3D-COPY-21: a delta cell; design a3d-compare.md section 6) |
-| COPY-545 | Undefined — base value below the comparison floor (<floor>) — proposed — A3d Compare (A3D-COPY-22: a delta cell; design a3d-compare.md section 6) |
-| COPY-546 | Comparison not recorded — <reason> (<code>). No difference is shown. — proposed — A3d Compare (A3D-COPY-23: the error card; design a3d-compare.md section 6) |
-| COPY-547 | Unavailable — <quantity> not computed in <run label> — proposed — A3d Compare (A3D-COPY-24: a value cell; design a3d-compare.md section 6) |
-| COPY-548 | Δ blocked — the runs use different water: <fields>. Inputs are shown side by side; no difference is computed. — proposed — A3d Compare (A3D-COPY-25: the water block; design a3d-compare.md section 6) |
-| COPY-549 | includes the estimator's elliptic loading assumption (e = 1) — proposed — A3d Compare (A3D-COPY-26: the CDi delta cell when either run is the estimator; design a3d-compare.md section 6) |
-| COPY-550 | estimator, not validated — proposed — A3d Compare (A3D-COPY-27: the estimator method label; design a3d-compare.md section 6) |
-| COPY-551 | Undefined — e is ill-conditioned here (CL or CDi undefined or below its floor) — proposed — A3d Compare (A3D-COPY-28: the e delta cell; design a3d-compare.md section 6) |
-| COPY-552 | Unavailable — Discrepancy record uses a compare rule this version does not know (<rule id> <version>) — proposed — A3d Compare (A3D-COPY-29: the record, ANA-CMP-RULE-UNKNOWN; design a3d-compare.md section 6) |
-| COPY-553 | Inspection slice at η <η> · <d> mm. Not saved. Promote makes it a station. — proposed — S1 Add station (S1-COPY-1: the status line when a slice is placed; design add-station.md section 6) |
-| COPY-554 | Slice · η <η> · <d> mm — proposed — S1 Add station (S1-COPY-2: the slice chip label in the Plan strip) |
-| COPY-555 | Added <name> at η <η>. Shape unchanged: deviation 0. Thickness: keep current. — proposed — S1 Add station (S1-COPY-3: the receipt of a regime R0 promotion) |
-| COPY-556 | Added <name> at η <η>. Largest change <rel> of chord (<µm> µm) at η <at>, sampled; limit 10⁻¹². Thickness: keep current. — proposed — S1 Add station (S1-COPY-4: the receipt of a regime R1 promotion) |
-| COPY-557 | Stations after it are renumbered: <old> is now <new>. — proposed — S1 Add station (S1-COPY-5: appended to the promotion receipts) |
-| COPY-558 | <name> is already at <d> mm (within the 10 µm join tolerance). Selected it. — proposed — S1 Add station (S1-COPY-6: a coincident position selects the existing station) |
-| COPY-559 | A station must lie strictly between root and tip (0 % < η < 100 %). — proposed — S1 Add station (S1-COPY-7: DSL-RANGE) |
-| COPY-560 | Promote refused: <count> stations would have different sections, more than the blend certificate can carry. Make one of them match a neighbour first. Nothing changed. — proposed — S1 Add station (S1-COPY-8: STATION-BUDGET) |
-| COPY-561 | Promote is not available: <left> and <right> have different point spacing, so this loft is not assessed. — proposed — S1 Add station (S1-COPY-9: STATION-SPACING) |
-| COPY-562 | Promote is not available: the loft is not assessed (<reason>). — proposed — S1 Add station (S1-COPY-10: STATION-NOT-ASSESSED) |
-| COPY-563 | Promote refused: the new station would change the loft by <µm> µm (<rel> of chord) at η <at>, above the 10 µm limit. Nothing changed. — proposed — S1 Add station (S1-COPY-11: STATION-INEXACT) |
-| COPY-564 | Root and tip stations cannot be removed. — proposed — S1 Add station (S1-COPY-12: STATION-ENDPOINT) |
-| COPY-565 | Apply or cancel the open draft on <target> first. — proposed — S1 Add station (S1-COPY-13: DSL-DRAFT-OWNED) |
-| COPY-566 | The shape between <left> and <right> is re-blended. Largest change <µm> µm (<rel> of chord) at η <at>, sampled. Limit 10 µm. — proposed — S1 Add station (S1-COPY-14: the Remove flyout line) |
-| COPY-567 | Apply is disabled: the change is above the 10 µm limit. — proposed — S1 Add station (S1-COPY-15: the Remove flyout's disabled Apply reason; STATION-REMOVE-ACCEPTANCE) |
-| COPY-568 | Removed <name>. Largest change <µm> µm at η <at>. Thickness: keep current. — proposed — S1 Add station (S1-COPY-16: the Remove receipt) |
-| COPY-569 | Add station… — proposed — S1 Add station (S1-COPY-17: the station.add command) |
-| COPY-570 | Remove station — proposed — S1 Add station (S1-COPY-18: the station.remove command and the station panel's button) |
-| COPY-571 | Derived view — not saved — proposed — S1 Add station (S1-COPY-19: the slice panel's note) |
-| COPY-572 | Checking… — proposed — S1 Add station (S1-COPY-20: the state while the preview is measured off the UI thread) |
-| COPY-573 | Approximate promotion at η <η> · <d> mm — proposed — S1 Add station (S1-COPY-21: the approximate-promotion flyout title) |
-| COPY-574 | A station here changes the loft. Largest change <µm> µm (<rel> of chord) at η <at>, sampled on <n> η × <m> x, not a bound. Limit 10 µm at the local chord. — proposed — S1 Add station (S1-COPY-22: the flyout line; the grid is the one the preview names, 129 × 2001 in production) |
-| COPY-575 | Apply is disabled: the change is above the 10 µm limit. — proposed — S1 Add station (S1-COPY-23: the approximate flyout's disabled Apply reason; the same words as COPY-567) |
-| COPY-576 | Added <name> at η <η> as an approximate promotion. Largest change <µm> µm (<rel> of chord) at η <at>. Thickness: keep current. — proposed — S1 Add station (S1-COPY-24: the receipt of an approximate promotion) |
-| COPY-577 | Add station · from root — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the heading of the η entry panel; `WorkbenchController.AddStationHeading`) |
-| COPY-578 | Add station · from root. Return promotes, Escape clears. — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the entry's accessible name; it starts with the visible heading, WCAG 2.5.3; `AddStationEntryName`) |
-| COPY-579 | Clear slice — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the accessible name of the slice chip's × action; `ClearSliceLabel`) |
-| COPY-580 | Inspection slice, η <η> percent, <d> millimetres — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the slice chip's accessible name, design 5.6; `SliceChipName`) |
-| COPY-581 | Check — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the label of the flyout's result row; `CheckLabel`) |
-| COPY-582 | Within the limit — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the flyout's result row when Apply is allowed; `WithinLimit`) |
-| COPY-583 | Above the limit — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the flyout's result row when Apply is disabled; `AboveLimit`) |
-| COPY-584 | Open a certified foil in the views to add a station. — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the reason Add station is unavailable with no certified foil; `AddNeedsFoil`) |
-| COPY-585 | Open a certified foil in the views to remove a station. — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the reason Remove station is unavailable with no certified foil; `RemoveNeedsFoil`) |
-| COPY-586 | Select a station first. — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the status when Remove station runs with no station selected; `SelectStationFirst`) |
-| COPY-587 | Finish the current change first. — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the station commands' reason while a gesture or draft is open; the same words as the point commands' reason; `FinishChangeFirst`) |
-| COPY-588 | Station <n> is now Station <n+1> — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: one line of the add receipt per renumbered station; `ShiftedCopy`) |
+| COPY-522 | Compare — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-1: the Analysis panel tab header; design a3d-compare.md section 6) |
+| COPY-523 | Compare runs… — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-2: the command analysis.compare; design a3d-compare.md section 6) |
+| COPY-524 | Compare with estimator — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-3: the command analysis.compare-tiers and the empty-state button; design a3d-compare.md section 6) |
+| COPY-525 | Base run — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-4: the first picker label; design a3d-compare.md section 6) |
+| COPY-526 | Compared run — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-4: the second picker label; design a3d-compare.md section 6) |
+| COPY-527 | r<n> · <tier> · α <a>° · V <v> <unit> · <Current | Historical> — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-5: a picker option; design a3d-compare.md section 6) |
+| COPY-528 | Compare needs two Completed runs. Evaluate another revision, or compare with the estimator. — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-6: the no-second-run state; design a3d-compare.md section 6) |
+| COPY-529 | Δ blocked — reference quantities differ: <fields>. Inputs are shown side by side; no difference is computed. — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-7: the reference block; design a3d-compare.md section 6) |
+| COPY-530 | Δ blocked — the runs are at different operating points: <fields>. Inputs are shown side by side; no difference is computed. — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-8: the operating-point block; design a3d-compare.md section 6) |
+| COPY-531 | Tiers disagree: δ = <v> — Discrepancy record stored · value preferred by reported uncertainty: <tier> — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-9: the tier headline, spec line 2306 verbatim; design a3d-compare.md section 6) |
+| COPY-532 | Revisions compared: δ CL = <v> — Discrepancy record stored — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-10: the revision headline; design a3d-compare.md section 6) |
+| COPY-533 | none — no tier reports its uncertainty — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-11: the <tier> slot of the tier headline in A3; design a3d-compare.md section 6) |
+| COPY-534 | Not compared — the estimator assumes elliptic loading (e = 1) — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-11b: the e delta cell; design a3d-compare.md section 6) |
+| COPY-535 | Each value is its own run's result. Nothing is averaged or ranked. — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-12: the footnote; design a3d-compare.md section 6) |
+| COPY-536 | Comparison recorded — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-13: the status of a new record; design a3d-compare.md section 6) |
+| COPY-537 | Comparison read — recorded earlier — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-14: the status of a key hit, either order; design a3d-compare.md section 6) |
+| COPY-538 | Historical runs compare as recorded: δ is between the two stored results. — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-15: the Historical note; design a3d-compare.md section 6) |
+| COPY-539 | Same q · S_ref: L and D_i differ by the same fraction as CL and CDi. — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-16: under L and D_i; design a3d-compare.md section 6) |
+| COPY-540 | A failed run has no values to compare. Choose a Completed run. — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-17: a Failed run selected; design a3d-compare.md section 6) |
+| COPY-541 | Unavailable — a compared run failed its check — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-18: integrity, run; design a3d-compare.md section 6) |
+| COPY-542 | Unavailable — Discrepancy record no longer reproduces from its runs — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-19: integrity, record; design a3d-compare.md section 6) |
+| COPY-543 | Evaluating the estimator… — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-20: loading; design a3d-compare.md section 6) |
+| COPY-544 | Undefined — base value is 0 — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-21: a delta cell; design a3d-compare.md section 6) |
+| COPY-545 | Undefined — base value below the comparison floor (<floor>) — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-22: a delta cell; design a3d-compare.md section 6) |
+| COPY-546 | Comparison not recorded — <reason> (<code>). No difference is shown. — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-23: the error card; design a3d-compare.md section 6) |
+| COPY-547 | Unavailable — <quantity> not computed in <run label> — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-24: a value cell; design a3d-compare.md section 6) |
+| COPY-548 | Δ blocked — the runs use different water: <fields>. Inputs are shown side by side; no difference is computed. — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-25: the water block; design a3d-compare.md section 6) |
+| COPY-549 | includes the estimator's elliptic loading assumption (e = 1) — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-26: the CDi delta cell when either run is the estimator; design a3d-compare.md section 6) |
+| COPY-550 | estimator, not validated — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-27: the estimator method label; design a3d-compare.md section 6) |
+| COPY-551 | Undefined — e is ill-conditioned here (CL or CDi undefined or below its floor) — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-28: the e delta cell; design a3d-compare.md section 6) |
+| COPY-552 | Unavailable — Discrepancy record uses a compare rule this version does not know (<rule id> <version>) — approved — operator 2026-10-22 — A3d Compare (A3D-COPY-29: the record, ANA-CMP-RULE-UNKNOWN; design a3d-compare.md section 6) |
+| COPY-553 | Inspection slice at η <η> · <d> mm. Not saved. Promote makes it a station. — approved — operator 2026-10-22 — S1 Add station (S1-COPY-1: the status line when a slice is placed; design add-station.md section 6) |
+| COPY-554 | Slice · η <η> · <d> mm — approved — operator 2026-10-22 — S1 Add station (S1-COPY-2: the slice chip label in the Plan strip) |
+| COPY-555 | Added <name> at η <η>. Shape unchanged: deviation 0. Thickness: keep current. — approved — operator 2026-10-22 — S1 Add station (S1-COPY-3: the receipt of a regime R0 promotion) |
+| COPY-556 | Added <name> at η <η>. Largest change <rel> of chord (<µm> µm) at η <at>, sampled; limit 10⁻¹². Thickness: keep current. — approved — operator 2026-10-22 — S1 Add station (S1-COPY-4: the receipt of a regime R1 promotion) |
+| COPY-557 | Stations after it are renumbered: <old> is now <new>. — approved — operator 2026-10-22 — S1 Add station (S1-COPY-5: appended to the promotion receipts) |
+| COPY-558 | <name> is already at <d> mm (within the 10 µm join tolerance). Selected it. — approved — operator 2026-10-22 — S1 Add station (S1-COPY-6: a coincident position selects the existing station) |
+| COPY-559 | A station must lie strictly between root and tip (0 % < η < 100 %). — approved — operator 2026-10-22 — S1 Add station (S1-COPY-7: DSL-RANGE) |
+| COPY-560 | Promote refused: <count> stations would have different sections, more than the blend certificate can carry. Make one of them match a neighbour first. Nothing changed. — approved — operator 2026-10-22 — S1 Add station (S1-COPY-8: STATION-BUDGET) |
+| COPY-561 | Promote is not available: <left> and <right> have different point spacing, so this loft is not assessed. — approved — operator 2026-10-22 — S1 Add station (S1-COPY-9: STATION-SPACING) |
+| COPY-562 | Promote is not available: the loft is not assessed (<reason>). — approved — operator 2026-10-22 — S1 Add station (S1-COPY-10: STATION-NOT-ASSESSED) |
+| COPY-563 | Promote refused: the new station would change the loft by <µm> µm (<rel> of chord) at η <at>, above the 10 µm limit. Nothing changed. — approved — operator 2026-10-22 — S1 Add station (S1-COPY-11: STATION-INEXACT) |
+| COPY-564 | Root and tip stations cannot be removed. — approved — operator 2026-10-22 — S1 Add station (S1-COPY-12: STATION-ENDPOINT) |
+| COPY-565 | Apply or cancel the open draft on <target> first. — approved — operator 2026-10-22 — S1 Add station (S1-COPY-13: DSL-DRAFT-OWNED) |
+| COPY-566 | The shape between <left> and <right> is re-blended. Largest change <µm> µm (<rel> of chord) at η <at>, sampled. Limit 10 µm. — approved — operator 2026-10-22 — S1 Add station (S1-COPY-14: the Remove flyout line) |
+| COPY-567 | Apply is disabled: the change is above the 10 µm limit. — approved — operator 2026-10-22 — S1 Add station (S1-COPY-15: the Remove flyout's disabled Apply reason; STATION-REMOVE-ACCEPTANCE) |
+| COPY-568 | Removed <name>. Largest change <µm> µm at η <at>. Thickness: keep current. — approved — operator 2026-10-22 — S1 Add station (S1-COPY-16: the Remove receipt) |
+| COPY-569 | Add station… — approved — operator 2026-10-22 — S1 Add station (S1-COPY-17: the station.add command) |
+| COPY-570 | Remove station — approved — operator 2026-10-22 — S1 Add station (S1-COPY-18: the station.remove command and the station panel's button) |
+| COPY-571 | Derived view — not saved — approved — operator 2026-10-22 — S1 Add station (S1-COPY-19: the slice panel's note) |
+| COPY-572 | Checking… — approved — operator 2026-10-22 — S1 Add station (S1-COPY-20: the state while the preview is measured off the UI thread) |
+| COPY-573 | Approximate promotion at η <η> · <d> mm — approved — operator 2026-10-22 — S1 Add station (S1-COPY-21: the approximate-promotion flyout title) |
+| COPY-574 | A station here changes the loft. Largest change <µm> µm (<rel> of chord) at η <at>, sampled on <n> η × <m> x, not a bound. Limit 10 µm at the local chord. — approved — operator 2026-10-22 — S1 Add station (S1-COPY-22: the flyout line; the grid is the one the preview names, 129 × 2001 in production) |
+| COPY-575 | Apply is disabled: the change is above the 10 µm limit. — approved — operator 2026-10-22 — S1 Add station (S1-COPY-23: the approximate flyout's disabled Apply reason; the same words as COPY-567) |
+| COPY-576 | Added <name> at η <η> as an approximate promotion. Largest change <µm> µm (<rel> of chord) at η <at>. Thickness: keep current. — approved — operator 2026-10-22 — S1 Add station (S1-COPY-24: the receipt of an approximate promotion) |
+| COPY-577 | Add station · from root — approved — operator 2026-10-22 — S1 Add station (added at build, no design row; leader 2026-10-22: the heading of the η entry panel; `WorkbenchController.AddStationHeading`) |
+| COPY-578 | Add station · from root. Return promotes, Escape clears. — approved — operator 2026-10-22 — S1 Add station (added at build, no design row; leader 2026-10-22: the entry's accessible name; it starts with the visible heading, WCAG 2.5.3; `AddStationEntryName`) |
+| COPY-579 | Clear slice — approved — operator 2026-10-22 — S1 Add station (added at build, no design row; leader 2026-10-22: the accessible name of the slice chip's × action; `ClearSliceLabel`) |
+| COPY-580 | Inspection slice, η <η> percent, <d> millimetres — approved — operator 2026-10-22 — S1 Add station (added at build, no design row; leader 2026-10-22: the slice chip's accessible name, design 5.6; `SliceChipName`) |
+| COPY-581 | Check — approved — operator 2026-10-22 — S1 Add station (added at build, no design row; leader 2026-10-22: the label of the flyout's result row; `CheckLabel`) |
+| COPY-582 | Within the limit — approved — operator 2026-10-22 — S1 Add station (added at build, no design row; leader 2026-10-22: the flyout's result row when Apply is allowed; `WithinLimit`) |
+| COPY-583 | Above the limit — approved — operator 2026-10-22 — S1 Add station (added at build, no design row; leader 2026-10-22: the flyout's result row when Apply is disabled; `AboveLimit`) |
+| COPY-584 | Open a certified foil in the views to add a station. — approved — operator 2026-10-22 — S1 Add station (added at build, no design row; leader 2026-10-22: the reason Add station is unavailable with no certified foil; `AddNeedsFoil`) |
+| COPY-585 | Open a certified foil in the views to remove a station. — approved — operator 2026-10-22 — S1 Add station (added at build, no design row; leader 2026-10-22: the reason Remove station is unavailable with no certified foil; `RemoveNeedsFoil`) |
+| COPY-586 | Select a station first. — approved — operator 2026-10-22 — S1 Add station (added at build, no design row; leader 2026-10-22: the status when Remove station runs with no station selected; `SelectStationFirst`) |
+| COPY-587 | Finish the current change first. — approved — operator 2026-10-22 — S1 Add station (added at build, no design row; leader 2026-10-22: the station commands' reason while a gesture or draft is open; the same words as the point commands' reason; `FinishChangeFirst`) |
+| COPY-588 | Station <n> is now Station <n+1> — approved — operator 2026-10-22 — S1 Add station (added at build, no design row; leader 2026-10-22: one line of the add receipt per renumbered station; `ShiftedCopy`) |
 | COPY-589 | CFD Workbench can't save to this location or over this file. Your changes are kept in this session. Use Save As to choose a local folder. — approved — Ruling 253 (W2-Q2 a) (the strip sentence, warning kind, when the store refuses a save with DOC-UNSUPPORTED-PERSISTENCE on Windows; `Labels.SaveUnavailableWindows`; COPY-31W stays for the other systems) |
 | COPY-590 | CFD Workbench can't open a project from this location (a OneDrive, network or removable folder, or a linked folder). The file hasn't been changed. Copy the project to a local folder and open it from there. — approved — Ruling 257 (the Open failure message on Windows, first line, when the store refuses an Open with DOC-UNSUPPORTED-PERSISTENCE; the second line "Code: DOC-UNSUPPORTED-PERSISTENCE" stays; `Labels.OpenUnavailableWindows`; the other systems keep the not-recognised sentence) |
 | COPY-440 | Can't save to OneDrive — the dialog title. Body (Ruling 146 (1), verbatim): "This folder is synced by OneDrive. CFD Workbench saves only to local folders, so a sync can't damage a save. Choose a folder outside OneDrive." — approved — Rulings 146 (1), 160 (1) (the Windows Save dialog after a pick in a OneDrive folder; `FolderRefusalDialog`, W-2 B2) |
