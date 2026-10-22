@@ -933,7 +933,8 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-626 | <profile> is shared with <stations>. Only <name> gets the new profile. — proposed — SF2 (wave 2) (SF2-COPY-5: the Match preview, shared profile) |
 | COPY-627 | <n> tangent constraints on <name> are removed. — proposed — SF2 (wave 2) (SF2-COPY-6: the Match preview, tangent rows dropped) |
 | COPY-628 | Matched <name> to the blend of <left> and <right>. Largest change <µm> µm at η <at> %. Thickness: keep current. — proposed — SF2 (wave 2) (SF2-COPY-7: the status receipt) |
-| COPY-629 | <name> already matches the blend of its neighbours. Remove is exact. — proposed — SF2 (wave 2) (SF2-COPY-8: the disabled reason, `STATION-MATCHED`; the Core refusal reason) |
+| COPY-629 | <name> already matches the blend of its neighbours. Remove is exact. — proposed — SF2 (wave 2) (SF2-COPY-8: the disabled reason, `STATION-MATCHED`; the Core refusal reason; shown only when the measured Remove residual is at or below 1e-12 of chord, otherwise COPY-633) |
+| COPY-633 | <name> already matches the blend of its neighbours. Removing it would still change the loft by <µm> µm at η <at> % (sampled). — proposed — SF2 (wave 2) (SF2 repair, SF2-2 review B1: the `STATION-MATCHED` reason when the matched station's Remove residual is above 1e-12; the leader's wording; the µm and η are the sampled measure and grid of Remove) |
 | COPY-630 | Open a certified foil in the views to match a station. — proposed — SF2 (wave 2) (added at build, no design row: the reason Match the blend is unavailable with no certified foil; `MatchNeedsFoil`) |
 | COPY-631 | Match <name> to the blend — proposed — SF2 (wave 2) (added at build: the Match flyout's title, design §13.5 prose) |
 | COPY-632 | Measured — proposed — SF2 (wave 2) (added at build, no design row: the Match flyout's result row, which has no limit to be within or above; `MeasuredLabel`) |

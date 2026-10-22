@@ -541,6 +541,16 @@ internal static class StationTests
             True(now.Profiles[now.Assignments[1].Profile].Name != "shared", "station 1 still names the shared profile");
             Equal(3, now.Profiles.Length);
         });
+        // SF2 repair N1: the splice itself refuses a profile two stations name, before any byte changes (the caller's MakeIndependent is not the only guard).
+        Check("MatchBlend_ReplaceProfileBlock_SharedProfile_RefusedBeforeSplice", () =>
+        {
+            var shared = Prof("shared", Root, Lower(Root));
+            byte[] doc = Doc(("root", shared), ("60 %", shared), ("tip", Prof("tip", Add(Root, Bend(0.04)), Add(Lower(Root), Bend(0.04)))));
+            byte[] copy = [.. doc];
+            string block = Encoding.UTF8.GetString(FoilSource.ProfileBlock(Prof("shared", PeakTip, Lower(PeakTip))));
+            Refuses("DSL-PATCH", () => FoilSource.ReplaceProfileBlock(doc, "shared", block));
+            Equal(true, copy.AsSpan().SequenceEqual(doc));
+        });
         Check("MatchBlend_Endpoint_Refused", () =>
         {
             byte[] doc = Three();
@@ -560,6 +570,21 @@ internal static class StationTests
             Refuses("STATION-MATCHED", () => session.MatchBlend(Id(), 1));
             Equal(depth, session.Envelope().Accepted.Length);
             Equal(true, matched.AsSpan().SequenceEqual(session.Snapshot().Source));
+        });
+        // SF2 repair B1: F-PEAK3 is regime R2, so a second Match states the measured Remove residual and never says "exact".
+        Check("MatchBlend_AlreadyMatched_R2_StatesResidualNotExact", () =>
+        {
+            using var session = Open(PeakThree());
+            session.MatchBlend(Id(), 1);
+            var again = session.PreviewMatchBlend(1);
+            Equal("STATION-MATCHED", again.RefusalCode);
+            var removal = session.PreviewRemove(1);
+            True(removal.DeviationRelative > StationEdits.ExactRelative, "F-PEAK3 Remove is not exact after one Match");
+            True(!again.Reason!.Contains("exact", StringComparison.Ordinal), "the refusal says exact: " + again.Reason);
+            True(again.Reason.Contains((removal.DeviationMeters * 1e6).ToString("F1", CultureInfo.InvariantCulture) + " µm", StringComparison.Ordinal), "the refusal does not state the residual: " + again.Reason);
+            Equal(removal.DeviationRelative, again.ResidualRelative);
+            Equal(removal.DeviationMeters, again.ResidualMeters);
+            Equal("R2", again.ResidualRegime);
         });
         Check("MatchBlend_Budget_Refused", () =>
         {

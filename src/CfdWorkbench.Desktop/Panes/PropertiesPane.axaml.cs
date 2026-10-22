@@ -849,13 +849,13 @@ public partial class PropertiesPane : UserControl
                 {
                     if (row.Key == "s:edit") EditSectionRequested?.Invoke();
                     else if (row.Key == "r:rebuild" && row.Target is { } target) RebuildRequested?.Invoke(target.Curve);
-                    else if (row.Key is "sl:promote" or "stn:remove" or "fly:apply" or "fly:cancel") boundController?.RunStationAction(row.Key);
+                    else if (row.Key is "sl:promote" or "stn:remove" or "stn:match" or "fly:apply" or "fly:cancel" or "fly:match") boundController?.RunStationAction(row.Key);
                 };
-                // The flyout's keys: Escape cancels and returns focus to the button that opened it (Promote or Remove station); Return on a focused Apply applies (Button's own key).
+                // The flyout's keys: Escape cancels and returns focus to the control that opened it (Promote, Remove station or Match the blend…); Return on a focused Apply applies (Button's own key).
                 link.KeyDown += (_, args) =>
                 {
-                    if (args.Key != Key.Escape || row.Key is not ("fly:apply" or "fly:cancel") || boundController is null) return;
-                    string returnTo = boundController.Flyout?.Kind == WorkbenchController.StationFlyoutKind.Promote ? PropertiesView.PromoteLabel : PropertiesView.RemoveLabel;
+                    if (args.Key != Key.Escape || row.Key is not ("fly:apply" or "fly:cancel" or "fly:match") || boundController is null) return;
+                    string returnTo = boundController.FlyoutInvoker;
                     boundController.CancelFlyout();
                     args.Handled = true;
                     Avalonia.Threading.Dispatcher.UIThread.Post(() => ContentPanel.GetVisualDescendants().OfType<HyperlinkButton>()

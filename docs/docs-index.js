@@ -2348,7 +2348,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4479e4b8729eddd43cee7a387165a1c2ad6ecc3ad69e6cadfd2a538641a24570"
+      "sourceSha256": "5cdd825ff61934edc1136f41f7bdc2789cbdcf3005ce5249616448ec113b93b5"
     },
     {
       "id": "design-app-shell",
@@ -13360,7 +13360,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2027-01-31",
       "reviewSuggested": [],
-      "summary": "The observed lines of wave-2 track SF2. Node SF2-1 (the Placement.Sections speed-up under Ruling 262 DF-Q3) is recorded: a bit-for-bit guard over every Station fixture and the Placement fixtures, its one-ulp mutant red, the timings before and after. Node SF2-2 (Match the blend) is not yet recorded.",
+      "summary": "The observed lines of wave-2 track SF2. Node SF2-1 (the Placement.Sections speed-up under Ruling 262 DF-Q3) is recorded: a bit-for-bit guard over the Placement test set, its one-ulp mutant red, the timings before and after. Node SF2-2 (Match the blend, Ruling 262 DF-Q2) is recorded: the whole-block profile write, the shared Blend and Measure, its red-first checks and mutants, the sampled residuals, and the repair that followed its review (a matched station states the measured Remove residual and never says exact above 1e-12, the Match links answer a click and Escape returns focus to the invoker, a shared profile is refused by the splice, the Measured row only when something was measured).",
       "tags": [
         "add-station",
         "promote",
@@ -13375,7 +13375,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "caf8c76f10466a9e31697332335b876a0b912b0e2b3b25b6f2f98ce4688757c6"
+      "sourceSha256": "5bbd18957259828d19547e52236cc57602f3980fd210138c79be11272a4172ab"
     },
     {
       "id": "proof-app-shell-test-inventory",
@@ -24016,5 +24016,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "b4c579234a5a3c90aee40838c0739f2cdb16978960b5fda14da1d939d4fcadad"
+  "graphSha256": "8b3c253dd9241384913deb8e2b4cfe78d6f7c1b966165ebf3f93705f0e2a2a2d"
 };

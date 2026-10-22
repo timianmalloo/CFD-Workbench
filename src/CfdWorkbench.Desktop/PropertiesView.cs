@@ -756,7 +756,10 @@ public static class PropertiesView
         {
             Description = flyout.Line, DescriptionAlwaysVisible = true
         };
-        var rows = new List<PropertyRow> { line, Action("fly:apply", FlyoutApply, flyout.Checking ? WorkbenchController.CheckingCopy : flyout.ApplyReason) };
+        // A Match refusal that measured nothing (SF2 repair N3) has no result row: Apply's disabled reason carries the refusal wording.
+        var rows = new List<PropertyRow>();
+        if (flyout.Measured || flyout.Checking) rows.Add(line);
+        rows.Add(Action("fly:apply", FlyoutApply, flyout.Checking ? WorkbenchController.CheckingCopy : flyout.ApplyReason));
         if (flyout.MatchOffered && !flyout.Checking) rows.Add(Action("fly:match", WorkbenchController.MatchLabel, null));   // the Remove flyout's secondary action
         rows.Add(Action("fly:cancel", FlyoutCancel, null));
         return new PropertyGroup("fly", flyout.Title, "", true, rows, []);

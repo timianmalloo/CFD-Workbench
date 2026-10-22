@@ -271,10 +271,31 @@ public static class StationDesktopTests
             Require(controller.Flyout is null && controller.Status == WorkbenchController.StationEndpointRefusal, "Root status: " + controller.Status);
         });
 
+        // SF2 repair N3 (COPY-632): the Measured row appears only where something was measured; a refusal that measured nothing shows no such row.
+        DesktopChecks.Check("MatchBlend_Flyout_MeasuredRow_OnlyWhenMeasured", () =>
+        {
+            using var controller = Open(Three());
+            var projection = controller.Inspection?.Authored ?? throw new Exception("No inspection");
+            string? Result(bool measured)
+            {
+                var flyout = new WorkbenchController.StationFlyout(WorkbenchController.StationFlyoutKind.Match, "Match Station 2 to the blend", "line", false, measured, measured ? null : "line", 1, false, measured);
+                var model = PropertiesView.Build(new Selection.Station(1, 0.6), projection, null, ShellMode.Workspace,
+                    new PropertiesContext { Stations = new StationPanelState(null, null, false, flyout) });
+                var group = model.Groups.Single(item => item.Id == "fly");
+                return group.Rows.FirstOrDefault(row => row.Key == "fly:line")?.Value;
+            }
+            Require(Result(true) == WorkbenchController.MeasuredLabel, "A measured Match flyout has no Measured row: " + Result(true));
+            Require(Result(false) is null, "A refusal that measured nothing shows the row: " + Result(false));
+        });
+
         DesktopChecks.Check("MatchBlend_Flyout_ResidualAboveLimit_SaysRemoveStaysUnavailable", () =>
         {
             byte[] doc = Doc("at root profile \"a\" at 50 % profile \"n\" at tip profile \"f\"", 2400, ("a", A), ("n", Near), ("f", Far));
             using var controller = Open(doc);
+            // SF2 repair N2: the Remove change before any Match, to set beside the change after it.
+            controller.BeginRemoveStationAsync(1).GetAwaiter().GetResult();
+            Console.WriteLine("INFO SF2-2 Remove before Match, differing peaks, 2400 mm chord: " + controller.Flyout?.Line);
+            controller.CancelFlyout();
             controller.BeginMatchBlendAsync(1).GetAwaiter().GetResult();
             var flyout = controller.Flyout ?? throw new Exception("Match opened no flyout; status: " + controller.Status);
             Console.WriteLine("INFO SF2-2 match, differing peaks, 2400 mm chord: " + flyout.Line);
@@ -286,6 +307,12 @@ public static class StationDesktopTests
                     controller.Status.EndsWith(". Thickness: keep current.", StringComparison.Ordinal), "Receipt: " + controller.Status);
             controller.BeginRemoveStationAsync(1).GetAwaiter().GetResult();
             Require(controller.Flyout is { ApplyEnabled: false }, "Remove after Match is available above 10 µm, against the preview");
+            // SF2 repair B1: the station already matches, so the reopened Remove flyout does not offer Match, and Match, if asked, states the residual.
+            Require(controller.Flyout is { MatchOffered: false } && controller.Flyout.Line.Contains(" µm (", StringComparison.Ordinal), "Remove flyout after Match: offered " + controller.Flyout?.MatchOffered + ", line " + controller.Flyout?.Line);
+            controller.CancelFlyout();
+            controller.BeginMatchBlendAsync(1).GetAwaiter().GetResult();
+            var again = controller.Flyout ?? throw new Exception("Match opened no flyout; status: " + controller.Status);
+            Require(!again.ApplyEnabled && !again.Line.Contains("exact", StringComparison.Ordinal) && again.Line.Contains("would still change the loft by ", StringComparison.Ordinal), "Second Match: " + again.Line);
         });
 
         // Promotion cost (S1-a: about 10 s a plan on the production grid). Red first: a preview run on the caller's thread blocks it.

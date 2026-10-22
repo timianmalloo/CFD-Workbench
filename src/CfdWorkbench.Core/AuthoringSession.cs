@@ -2956,7 +2956,16 @@ internal static class StationEdits
         MatchPreview Report(string? code, string? reason, string? regime = null, double[]? residual = null) =>
             new(index, relative, meters, at, residual?[0] ?? 0, residual?[1] ?? 0, residual?[2] ?? 0, regime, shared, tangents, code, reason) { EtaCount = etas.Count, Grid = grid.Label };
         if (worstRelative <= ExactRelative)
-            return new(Report("STATION-MATCHED", StationNames.Of(index, eta) + " already matches the blend of its neighbours. Remove is exact."), candidate, name, parsed, null);
+        {
+            // The station already matches, but what a later Remove changes is still measured: only a residual at or below 1e-12 says "exact".
+            var (alreadyRelative, alreadyMeters, alreadyAt, alreadyWorst) = RemoveResidual(candidate, index, etas, grid.XSamples);
+            string stationName = StationNames.Of(index, eta);
+            string reason = alreadyWorst <= ExactRelative
+                ? stationName + " already matches the blend of its neighbours. Remove is exact."
+                : stationName + " already matches the blend of its neighbours. Removing it would still change the loft by " + Micrometres(alreadyMeters) + " µm at η " +
+                    (alreadyAt * 100).ToString("F1", CultureInfo.InvariantCulture) + " % (sampled).";
+            return new(Report("STATION-MATCHED", reason, Regime(same, alreadyWorst), [alreadyRelative, alreadyMeters, alreadyAt]), candidate, name, parsed, null);
+        }
         var assessment = assess(parsed);
         if (assessment.Status == GeometryStatus.NotAssessed && assessment.Code == Geometry.OperationBoundCode)
         {
@@ -2968,9 +2977,14 @@ internal static class StationEdits
         if (assessment.Status != GeometryStatus.Certified)
             return new(Report("STATION-NOT-ASSESSED", "Match is not available: the loft is not assessed (" + assessment.Reason + ")."), candidate, name, parsed, assessment);
         // What a later Remove would still change: the loft with the matched station against the loft without it, on the same grid.
-        var (afterRemove, _, _) = FoilSource.RemoveAssignment(candidate, index);
-        var (residualRelative, residualMeters, residualAt, residualWorst) = Measure(candidate, afterRemove, etas, grid.XSamples);
+        var (residualRelative, residualMeters, residualAt, residualWorst) = RemoveResidual(candidate, index, etas, grid.XSamples);
         return new(Report(null, null, Regime(same, residualWorst), [residualRelative, residualMeters, residualAt]), candidate, name, parsed, assessment);
+    }
+
+    private static (double Relative, double Meters, double AtEta, double WorstRelative) RemoveResidual(byte[] matched, int index, IReadOnlyList<double> etas, int xSamples)
+    {
+        var (afterRemove, _, _) = FoilSource.RemoveAssignment(matched, index);
+        return Measure(matched, afterRemove, etas, xSamples);
     }
 
     /// <summary>

@@ -11,8 +11,11 @@ links:
 review-by: "2027-01-31"
 summary: >-
   The observed lines of wave-2 track SF2. Node SF2-1 (the Placement.Sections speed-up under Ruling 262 DF-Q3) is recorded: a
-  bit-for-bit guard over every Station fixture and the Placement fixtures, its one-ulp mutant red, the timings before and after.
-  Node SF2-2 (Match the blend) is not yet recorded.
+  bit-for-bit guard over the Placement test set, its one-ulp mutant red, the timings before and after. Node SF2-2 (Match the
+  blend, Ruling 262 DF-Q2) is recorded: the whole-block profile write, the shared Blend and Measure, its red-first checks and
+  mutants, the sampled residuals, and the repair that followed its review (a matched station states the measured Remove
+  residual and never says exact above 1e-12, the Match links answer a click and Escape returns focus to the invoker, a shared
+  profile is refused by the splice, the Measured row only when something was measured).
 ---
 
 # Add station follow-ups proof (SF2)
@@ -165,8 +168,35 @@ their red is the mutants below.
 - Desktop, 8-point fixture with differing peaks on a 2400 mm chord (17 eta x 201 x grid): Match changes the loft by 43.94 um, and Remove
   afterwards would still change it by 166.02 um at eta 25.0 %, above the limit; Apply stays enabled, and Remove after Match stays refused.
 
+### Remove before and after Match, 2,400 mm differing-peaks case (SF2-2 review N2; measured, sampled on 17 eta x 201 x)
+
+Remove before any Match: 190.94 um (0.0080 % of chord) at eta 25.0 %. Remove after Match: 166.02 um (0.0069 % of chord) at eta 25.0 %.
+Match left Remove closer to its 10 um gate on this case, not further (INFO lines of `MatchBlend_Flyout_ResidualAboveLimit_SaysRemoveStaysUnavailable`).
+One case is not a bound: by the triangle inequality on the max norm, Remove-after lies within 43.94 um of Remove-before, so another R2 case could
+end further away. Behaviour is unchanged for this; the Remove flyout does not offer Match once the station already matches (B1 below).
+
+### Repair after the SF2-2 review (change set on `w2b-sf2`)
+
+- B1: `StationEdits.Match` now measures the Remove residual on the `STATION-MATCHED` path. At or below 1e-12 the reason is COPY-629 ("Remove is
+  exact", narrowed to that case); above it, the new proposed row COPY-633 states the sampled residual and eta. The preview carries the residual
+  and its regime. The Remove flyout offers Match only when the station does not already match.
+  Red first: `FAIL MatchBlend_AlreadyMatched_R2_StatesResidualNotExact ... the refusal says exact: Station 2 already matches the blend of its neighbours. Remove is exact.`
+  and Desktop `FAIL MatchBlend_Flyout_ResidualAboveLimit_SaysRemoveStaysUnavailable Exception: Remove flyout after Match: offered True`; both green after.
+  Mutant (old wording restored): the same two checks red (the Desktop line `Second Match: Station 2 already matches the blend of its neighbours. Remove is exact.`).
+- B2: `PropertiesPane` click dispatch handles `stn:match` and `fly:match`; Escape returns focus to the control that opened the flyout
+  (`WorkbenchController.FlyoutInvoker`). Windowed check `MatchBlend_Flyout_KeyboardPath` (`--plan-canvas`). Red first: `Timed out waiting for the Match
+  preview after a click on stn:match`. Mutants: the `stn:match` case removed, same red line; the invoker always Remove, `Escape did not return focus to the Match link`.
+- N1: `FoilSource.ReplaceProfileBlock` refuses a profile two stations name (`DSL-PATCH`) before any byte changes; its comment now says what is checked.
+  Red first: `FAIL MatchBlend_ReplaceProfileBlock_SharedProfile_RefusedBeforeSplice ... Expected refusal DSL-PATCH`.
+- N3: the "Measured" row (COPY-632) is shown only when something was measured; the `STATION-SPACING` refusal measures nothing and shows no such row.
+  Red first: `FAIL MatchBlend_Flyout_MeasuredRow_OnlyWhenMeasured ... A refusal that measured nothing shows the row: Measured`; mutant (row always added): the same line.
+- N5 (the retry fingerprint carries no station index, as Remove) stays a recorded follow-up.
+
+After the repair (exit codes read on their own lines): Core 878 PASS, Analysis 296 PASS, Cli 26 PASS, Desktop `--controller-shell` 151 PASS,
+`--plan-canvas --part=2/2` 52 PASS (it hosts `MatchBlend_Flyout_KeyboardPath`), the guard prefix `--harness --theme-evidence` exit 0.
+
 ### Harnesses (Release, exit codes read on their own lines)
 
 Core 876 PASS, 0 FAIL, 1 SKIP (the SF2-1 timing check); Analysis 296 PASS; Cli 26 PASS; Desktop `--controller-shell` 150 PASS and
-`--shell-model` 17 PASS (the station.match-blend row joins the no-gesture list). Not run: the windowed focus path (Escape on the Match
-flyout returns focus to the invoking control) has no check; the Remove flyout's focus check is the only window check and was not extended.
+`--shell-model` 17 PASS (the station.match-blend row joins the no-gesture list). The windowed focus path had no check at that point; the
+repair above adds `MatchBlend_Flyout_KeyboardPath`.

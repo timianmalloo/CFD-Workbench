@@ -563,7 +563,10 @@ public static class FoilSource
     /// <summary>
     /// Replaces the whole block of profile <paramref name="name"/> (from its <c>profile</c> keyword to its closing brace) with <paramref name="block"/>, which
     /// must declare the same name (Match the blend, design add-station §13.2 G1). Nothing of the old block survives: not its tangent rows, closure,
-    /// provenance, knots or ids. The candidate is re-parsed and everything outside the block must be unchanged, or the patch is refused (<c>DSL-PATCH</c>).
+    /// provenance, knots or ids. A profile that two or more stations name is refused (<c>DSL-PATCH</c>) before any byte changes: the caller makes it independent
+    /// first. The splice touches only the parsed extent of the named block; the re-parsed candidate must keep the same profile count, the same assignment etas
+    /// (bit for bit) and the same profile name at each assignment, and still contain the name, or the patch is refused (<c>DSL-PATCH</c>). The bytes outside
+    /// the block are not otherwise compared.
     /// </summary>
     internal static byte[] ReplaceProfileBlock(byte[] source, string name, string block)
     {
@@ -572,7 +575,7 @@ public static class FoilSource
         var parsed = Parse(source);
         var definition = parsed.Definition ?? throw new ContractError("DSL-PATCH");
         var found = definition.Profiles.FirstOrDefault(item => item.Name == name) ?? throw new ContractError("DSL-PROFILE-TARGET");
-        Guard.Require(found.BlockEnd > found.BlockStart, "DSL-PATCH");
+        Guard.Require(found.BlockEnd > found.BlockStart && definition.Assignments.Count(item => definition.Profiles[item.Profile].Name == name) <= 1, "DSL-PATCH");
         string text = Utf8.GetString(parsed.Source);
         string trimmed = block.Trim();
         byte[] candidate = Utf8.GetBytes(text[..found.BlockStart] + trimmed + text[found.BlockEnd..]);

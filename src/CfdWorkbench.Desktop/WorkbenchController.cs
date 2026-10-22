@@ -665,12 +665,20 @@ public sealed class WorkbenchController : IDisposable
 
     /// <summary>The flyout of an approximate promotion or a Remove: the measured line, and whether Apply is allowed.</summary>
     public sealed record StationFlyout(StationFlyoutKind Kind, string Title, string Line, bool Checking, bool ApplyEnabled,
-        string? ApplyReason, int Index, bool MatchOffered = false);
+        string? ApplyReason, int Index, bool MatchOffered = false, bool Measured = true);
 
     public const string MatchLabel = "Match the blend…";                                              // SF2-COPY-1 (COPY-621)
     public const string MatchNeedsFoil = "Open a certified foil in the views to match a station.";    // COPY-630
     public const string MeasuredLabel = "Measured";                                                   // COPY-632: the Match flyout's result row (Match has no limit to be within)
     private bool matchFromRemove;
+
+    /// <summary>The label of the control that opened the open flyout; Escape returns focus to it (the Match flyout opened from the Remove flyout returns to Remove, which it closes).</summary>
+    public string FlyoutInvoker => flyout?.Kind switch
+    {
+        StationFlyoutKind.Promote => PropertiesView.PromoteLabel,
+        StationFlyoutKind.Match when !matchFromRemove => MatchLabel,
+        _ => PropertiesView.RemoveLabel
+    };
 
     public const string ApplyAboveLimit ="Apply is disabled: the change is above the 10 µm limit.";   // S1-COPY-15 / -23
     public const string StationEndpointRefusal = "Root and tip stations cannot be removed.";          // S1-COPY-12
@@ -949,7 +957,16 @@ public sealed class WorkbenchController : IDisposable
         SetStatus(CheckingCopy, ReportKind.Info);
         Notify();
         RemovalPreview preview;
-        try { preview = await Task.Run(() => captured.PreviewRemove(index)); }
+        bool alreadyMatched = false;
+        try
+        {
+            (preview, alreadyMatched) = await Task.Run(() =>
+            {
+                var removal = captured.PreviewRemove(index);
+                // Match is offered only where it can change the shape (SF2 repair B1): a station that already matches is not sent to Match again.
+                return (removal, removal.DeviationRelative > 1e-12 && captured.PreviewMatchBlend(index).RefusalCode == "STATION-MATCHED");
+            });
+        }
         catch (ContractError error)
         {
             flyout = null;
@@ -967,7 +984,7 @@ public sealed class WorkbenchController : IDisposable
             Line = string.Create(CultureInfo.InvariantCulture, $"The shape between {left} and {right} is re-blended. Largest change {preview.DeviationMeters * 1e6:F2} µm " +
                 $"({RelativeText(preview.DeviationRelative)} of chord) at η {preview.AtEta * 100:F1} %, sampled. Limit 10 µm."),   // S1-COPY-14
             Checking = false, ApplyEnabled = preview.Admitted, ApplyReason = preview.Admitted ? null : ApplyAboveLimit,
-            MatchOffered = preview.DeviationRelative > 1e-12   // a Remove that is not exact can be made exact by matching first (design §13.5)
+            MatchOffered = preview.DeviationRelative > 1e-12 && !alreadyMatched   // a Remove that is not exact can be made exact by matching first (design §13.5)
         };
         SetStatus(flyout.Line, preview.Admitted ? ReportKind.Info : ReportKind.Warning);
         Notify();
@@ -1036,7 +1053,7 @@ public sealed class WorkbenchController : IDisposable
             if (preview.TangentsDropped > 0) parts.Add($"{preview.TangentsDropped} tangent constraints on {name} are removed.");                           // SF2-COPY-6 (COPY-627)
             line = string.Join(" ", parts);
         }
-        flyout = open with { Line = line, Checking = false, ApplyEnabled = preview.Admitted, ApplyReason = preview.Admitted ? null : line };
+        flyout = open with { Line = line, Checking = false, ApplyEnabled = preview.Admitted, ApplyReason = preview.Admitted ? null : line, Measured = preview.RefusalCode != "STATION-SPACING" };
         SetStatus(line, preview.Admitted ? ReportKind.Info : ReportKind.Warning);
         Notify();
     }
