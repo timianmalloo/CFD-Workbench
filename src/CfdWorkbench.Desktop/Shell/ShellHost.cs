@@ -1081,6 +1081,8 @@ public sealed class ShellHost : Grid
         if (id is "analysis.compare" or "analysis.compare-tiers") return Controller.CanCompare;
         if (!id.StartsWith("point.", StringComparison.Ordinal)) return true;
         if (id is "point.add" or "point.remove" or "point.rebuild") return PointCommandReason(id) is null;
+        if (id == "station.add") return Controller.AddStationReason is null;
+        if (id == "station.remove") return Controller.Selection is Selection.Station removable && Controller.RemoveStationReason(removable.Index) is null;
         var point = SelectedPoint();
         if (point is null) return false;
         return id switch
@@ -1193,6 +1195,13 @@ public sealed class ShellHost : Grid
                 return;
             case "view.comb-larger" or "view.comb-smaller" or "view.comb-auto" or "view.comb-denser" or "view.comb-sparser":
                 RunCombVerb(id);
+                return;
+            case "station.add":
+                Controller.BeginAddStation();
+                return;
+            case "station.remove":
+                if (Controller.Selection is Selection.Station doomed) await Controller.BeginRemoveStationAsync(doomed.Index);
+                else Report(new StatusReport("Select a station first."));
                 return;
             case "point.make-anchor":
                 await RunPoint(point => new PointCommand.MakeAnchor(point.Curve, point.Id));

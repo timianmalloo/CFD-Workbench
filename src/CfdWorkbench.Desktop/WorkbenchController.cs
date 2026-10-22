@@ -79,6 +79,8 @@ public abstract record CommitOutcome
     {
         public PointRef? SelectPoint { get; init; }
         public bool ClearPointSelection { get; init; }
+        /// <summary>A selection the command leaves behind that is not a point: the promoted station, the left neighbour of a removal (S1).</summary>
+        public Selection? SelectItem { get; init; }
     }
     public sealed record Refused(string Code, string Copy) : CommitOutcome;
 }
@@ -656,6 +658,345 @@ public sealed class WorkbenchController : IDisposable
             compareErrorCode = error.Code;
         }
     }
+    // ---- Stations (S1; design add-station.md 5): the inspection slice, Promote, and Remove. One contiguous block, beside Compare.
+    // The slice is a selection (not a mode): derived, not saved, not undoable. Promote and Remove always preview first, off the UI thread
+    // ("Checking…"), and Apply reuses the plan Core stored for that preview, so no second measurement and no session lock held for one.
+    public enum StationFlyoutKind { Promote, Remove }
+
+    /// <summary>The flyout of an approximate promotion or a Remove: the measured line, and whether Apply is allowed.</summary>
+    public sealed record StationFlyout(StationFlyoutKind Kind, string Title, string Line, bool Checking, bool ApplyEnabled,
+        string? ApplyReason, int Index);
+
+    public const string ApplyAboveLimit = "Apply is disabled: the change is above the 10 µm limit.";   // S1-COPY-15 / -23
+    public const string StationEndpointRefusal = "Root and tip stations cannot be removed.";          // S1-COPY-12
+    public const string SliceOutOfRange = "A station must lie strictly between root and tip (0 % < η < 100 %).";   // S1-COPY-7
+    public const string CheckingCopy = "Checking…";                                                   // S1-COPY-20
+
+    private StationFlyout? flyout;
+    private bool sliceChecking;
+    private string sliceText = "";
+    private double flyoutEta;
+    private string flyoutText = "";
+
+    public StationFlyout? Flyout => flyout;
+    public bool SliceChecking => sliceChecking;
+    /// <summary>What the Properties pane shows for the slice and the station verbs.</summary>
+    public StationPanelState StationPanel => new(AddStationReason, Selection is Selection.Station station ? RemoveStationReason(station.Index) : null, sliceChecking, flyout);
+
+    /// <summary>"Slice · η 35.0 % · 175.0 mm" (S1-COPY-2).</summary>
+    public static string SliceChipText(double eta, double distanceMillimetres) =>
+        string.Create(CultureInfo.InvariantCulture, $"Slice · η {eta * 100:F1} % · {distanceMillimetres:F1} mm");
+
+    /// <summary>The slice chip's accessible name (design 5.6).</summary>
+    public static string SliceChipName(double eta, double distanceMillimetres) =>
+        string.Create(CultureInfo.InvariantCulture, $"Inspection slice, η {eta * 100:F1} percent, {distanceMillimetres:F1} millimetres");
+
+    private double HalfSpanMetres => Inspection?.Authored.HalfSpanMeters ?? 0;
+
+    /// <summary>The unit the document writes its interior stations in (DR-S1-4), else "%".</summary>
+    private string SliceUnit()
+    {
+        var sections = System.Text.RegularExpressions.Regex.Match(AcceptedSource, @"\bsections\s*\{([^}]*)\}");
+        var first = System.Text.RegularExpressions.Regex.Match(sections.Groups[1].Value, @"\bat\s+[0-9][0-9.eE+\-]*\s*(%|mm|cm|m)(?![A-Za-z])");
+        return first.Success ? first.Groups[1].Value : "%";
+    }
+
+    /// <summary>The eta that the document's parser maps <paramref name="number"/> + unit to (decimal-exact, then one division by the half span for a length).</summary>
+    private double? EtaOf(string number, string unit)
+    {
+        double half = HalfSpanMetres;
+        if (!double.TryParse(number, NumberStyles.Float, CultureInfo.InvariantCulture, out _) || half <= 0) return null;
+        double Si(string exponent) => double.Parse(number + "e" + exponent, NumberStyles.Float, CultureInfo.InvariantCulture);
+        return unit switch { "%" => Si("-2"), "mm" => Si("-3") / half, "cm" => Si("-2") / half, "m" => Si("0") / half, _ => null };
+    }
+
+    private string NumberIn(double rawEta, string unit, int decimals)
+    {
+        double half = HalfSpanMetres;
+        double value = unit switch { "%" => rawEta * 100, "mm" => rawEta * half * 1000, "cm" => rawEta * half * 100, _ => rawEta * half };
+        return Math.Round(value, decimals).ToString("R", CultureInfo.InvariantCulture);
+    }
+
+    private void PlaceSliceNumber(string number, string unit)
+    {
+        if (Inspection is null) return;
+        if (EtaOf(number, unit) is not { } eta || !(eta > 0 && eta < 1))
+        {
+            SetStatus(SliceOutOfRange, ReportKind.Warning);
+            Notify();
+            return;
+        }
+        var assignments = Inspection.Authored.Assignments;
+        double half = HalfSpanMetres;
+        for (int i = 0; i < assignments.Count; i++)
+        {
+            if (Math.Abs(assignments[i].Eta * half - eta * half) > 10e-6) continue;
+            SetStatus(CoincidentCopy(i, assignments[i].Eta), ReportKind.Info);
+            Select(new Selection.Station(i, assignments[i].Eta));
+            return;
+        }
+        sliceText = number + " " + unit;
+        double distance = eta * half * 1000;
+        SetStatus(string.Create(CultureInfo.InvariantCulture, $"Inspection slice at η {eta * 100:F1} % · {distance:F1} mm. Not saved. Promote makes it a station."), ReportKind.Info);
+        Select(new Selection.Slice(eta));
+    }
+
+    private string CoincidentCopy(int index, double eta) => string.Create(CultureInfo.InvariantCulture,
+        $"{StationNames.Of(index, eta)} is already at {eta * HalfSpanMetres * 1000:F1} mm (within the 10 µm join tolerance). Selected it.");   // S1-COPY-6
+
+    /// <summary>Places the slice at <paramref name="eta"/>, snapped to the document unit's grid (0.1 % or 0.1 mm); within 10 µm of a station it selects that station.</summary>
+    public void PlaceSlice(double eta)
+    {
+        string unit = SliceUnit();
+        PlaceSliceNumber(NumberIn(eta, unit, 1), unit);
+    }
+
+    /// <summary>Places the slice at a typed position in the document unit (or with its own unit): "60", "35.5 %", "270 mm".</summary>
+    public void PlaceSliceTyped(string text)
+    {
+        var match = System.Text.RegularExpressions.Regex.Match(text ?? "", @"^\s*([0-9]*\.?[0-9]+)\s*(%|mm|cm|m)?\s*$");
+        if (!match.Success)
+        {
+            SetStatus(SliceOutOfRange, ReportKind.Warning);
+            Notify();
+            return;
+        }
+        PlaceSliceNumber(match.Groups[1].Value, match.Groups[2].Success ? match.Groups[2].Value : SliceUnit());
+    }
+
+    public void ClearSlice()
+    {
+        if (Selection is Selection.Slice) Select(new Selection.Foil());
+    }
+
+    /// <summary>Moves the slice by 0.01 · 0.1 · 1 mm (Command · plain · Shift), the shell's three steps (DESIGN.md nudge convention).</summary>
+    public void NudgeSlice(int direction, NudgeModifier modifier)
+    {
+        if (Selection is not Selection.Slice slice || HalfSpanMetres <= 0) return;
+        double step = modifier switch { NudgeModifier.Command => 0.00001, NudgeModifier.Shift => 0.001, _ => 0.0001 };
+        string unit = SliceUnit();
+        PlaceSliceNumber(NumberIn(slice.Eta + direction * step / HalfSpanMetres, unit, unit == "%" ? 6 : 4), unit);
+    }
+
+    /// <summary>Why Add station is unavailable right now, or null.</summary>
+    public string? AddStationReason => StationDraftReason() ?? (Inspection is null ? "Open a certified foil in the views to add a station." : null);
+
+    /// <summary>Why Remove station is unavailable for <paramref name="index"/>, or null.</summary>
+    public string? RemoveStationReason(int index)
+    {
+        if (Inspection is null) return "Open a certified foil in the views to remove a station.";
+        var assignments = Inspection.Authored.Assignments;
+        if (index < 0 || index >= assignments.Count) return "Select a station first.";
+        if (index == 0 || index == assignments.Count - 1) return StationEndpointRefusal;
+        return StationDraftReason();
+    }
+
+    private string? StationDraftReason()
+    {
+        if (IsAnalysis) return AnalysisPointRefusal;
+        if (Section is { } mode)
+        {
+            var assignments = Inspection!.Authored.Assignments;
+            int target = mode.Draft.Assignment;
+            return target >= 0 && target < assignments.Count
+                ? $"Apply or cancel the open draft on {StationNames.Of(target, assignments[target].Eta)} first."   // S1-COPY-13
+                : "Finish the current change first.";
+        }
+        return draft is not null || Gesture != GestureState.Idle ? "Finish the current change first." : null;
+    }
+
+    /// <summary>
+    /// Promote: preview off the UI thread ("Checking…"), then R0 and R1 apply in one press on the stored plan, and R2 opens the approximate-promotion
+    /// flyout (Ruling 252). A refusal leaves the slice and says why.
+    /// </summary>
+    public async Task PromoteSliceAsync()
+    {
+        if (Selection is not Selection.Slice slice || sliceChecking) return;
+        if (AddStationReason is { } reason)
+        {
+            SetStatus(reason, ReportKind.Warning);
+            Notify();
+            return;
+        }
+        string text = sliceText;
+        double eta = slice.Eta;
+        var captured = session;
+        long version = stateVersion;
+        flyout = null;
+        sliceChecking = true;
+        SetStatus(CheckingCopy, ReportKind.Info);
+        Notify();
+        PromotionPreview preview;
+        try { preview = await Task.Run(() => captured.PreviewPromote(eta, text)); }
+        catch (ContractError error)
+        {
+            sliceChecking = false;
+            SetStatus(error.Reason ?? Labels.Refusal(error.Code), ReportKind.Warning);
+            Notify();
+            return;
+        }
+        sliceChecking = false;
+        if (!ReferenceEquals(session, captured) || stateVersion != version || Selection is not Selection.Slice { } still || still.Eta != eta)
+        {
+            Notify();
+            return;
+        }
+        if (preview.RefusalCode == "STATION-COINCIDENT" && preview.ExistingIndex is { } existing)
+        {
+            SetStatus(CoincidentCopy(existing, Inspection!.Authored.Assignments[existing].Eta), ReportKind.Info);
+            Select(new Selection.Station(existing, Inspection.Authored.Assignments[existing].Eta));
+            return;
+        }
+        if (preview.Regime == "R2")
+        {
+            flyoutEta = eta;
+            flyoutText = text;
+            double distance = eta * HalfSpanMetres * 1000;
+            var grid = System.Text.RegularExpressions.Regex.Match(preview.Grid, @"(\d+) eta per interval x (\d+) x");
+            string sampled = grid.Success ? $"sampled on {grid.Groups[1].Value} η × {grid.Groups[2].Value} x, not a bound" : "sampled, not a bound";
+            flyout = new StationFlyout(StationFlyoutKind.Promote,
+                string.Create(CultureInfo.InvariantCulture, $"Approximate promotion at η {eta * 100:F1} % · {distance:F1} mm"),   // S1-COPY-21
+                string.Create(CultureInfo.InvariantCulture, $"A station here changes the loft. Largest change {preview.DeviationMeters * 1e6:F2} µm " +
+                    $"({preview.DeviationRelative:E2} of chord) at η {preview.AtEta:F4}, {sampled}. Limit 10 µm at the local chord."),   // S1-COPY-22
+                false, preview.Admitted, preview.Admitted ? null : ApplyAboveLimit, -1);
+            SetStatus(flyout.Line, preview.Admitted ? ReportKind.Info : ReportKind.Warning);
+            Notify();
+            return;
+        }
+        if (preview.RefusalCode is not null)
+        {
+            SetStatus(preview.Reason ?? Labels.Refusal(preview.RefusalCode), ReportKind.Warning);
+            Notify();
+            return;
+        }
+        await AddAsync(eta, text, approximate: false);
+    }
+
+    private Task<CommitOutcome> AddAsync(double eta, string text, bool approximate) => RunDirectCommandAsync(() =>
+    {
+        var result = session.AddStation(Guid.NewGuid().ToString("D"), eta, text, approximate);
+        var report = result.Report;
+        string name = StationNames.Of(result.Index, eta);
+        string at = string.Create(CultureInfo.InvariantCulture, $"{eta * 100:F1}");
+        string receipt = approximate
+            ? string.Create(CultureInfo.InvariantCulture, $"Added {name} at η {at} % as an approximate promotion. Largest change {report.DeviationMeters * 1e6:F2} µm ({report.DeviationRelative:E2} of chord) at η {report.AtEta:F4}. Thickness: keep current.")   // S1-COPY-24
+            : report.Regime == "R0"
+                ? $"Added {name} at η {at} %. Shape unchanged: deviation 0. Thickness: keep current."                                                                  // S1-COPY-3
+                : string.Create(CultureInfo.InvariantCulture, $"Added {name} at η {at} %. Largest change {report.DeviationRelative:E2} of chord ({report.DeviationMeters * 1e6:F4} µm) at η {report.AtEta:F4}, sampled; limit 10⁻¹². Thickness: keep current.");   // S1-COPY-4
+        // The interior stations after the new one take the next number (the tip keeps its name): "Station 2 is now Station 3".
+        int lastInterior = session.InspectAccepted().Authored.Assignments.Count - 2;
+        var shifted = Enumerable.Range(result.Index + 1, Math.Max(0, lastInterior - result.Index)).Select(number => $"Station {number} is now Station {number + 1}").ToArray();
+        if (shifted.Length > 0) receipt += " Stations after it are renumbered: " + string.Join(", ", shifted) + ".";   // S1-COPY-5
+        return new CommitOutcome.Committed(result.AcceptedId, receipt) { SelectItem = new Selection.Station(result.Index, eta) };
+    }, warningOnRefusal: true, preserveStatusAfterCommit: true);
+
+    /// <summary>Remove: the flyout opens at once in its Checking state; the preview runs off the UI thread and fills it in.</summary>
+    public async Task BeginRemoveStationAsync(int index)
+    {
+        if (RemoveStationReason(index) is { } reason)
+        {
+            SetStatus(reason, ReportKind.Warning);
+            Notify();
+            return;
+        }
+        var assignments = Inspection!.Authored.Assignments;
+        string title = "Remove " + StationNames.Of(index, assignments[index].Eta);
+        string left = StationNames.Of(index - 1, assignments[index - 1].Eta), right = StationNames.Of(index + 1, assignments[index + 1].Eta);
+        var captured = session;
+        long version = stateVersion;
+        flyout = new StationFlyout(StationFlyoutKind.Remove, title, CheckingCopy, true, false, null, index);
+        SetStatus(CheckingCopy, ReportKind.Info);
+        Notify();
+        RemovalPreview preview;
+        try { preview = await Task.Run(() => captured.PreviewRemove(index)); }
+        catch (ContractError error)
+        {
+            flyout = null;
+            SetStatus(error.Reason ?? Labels.Refusal(error.Code), ReportKind.Warning);
+            Notify();
+            return;
+        }
+        if (!ReferenceEquals(session, captured) || stateVersion != version || flyout is not { Kind: StationFlyoutKind.Remove } open || open.Index != index)
+        {
+            Notify();
+            return;
+        }
+        flyout = open with
+        {
+            Line = string.Create(CultureInfo.InvariantCulture, $"The shape between {left} and {right} is re-blended. Largest change {preview.DeviationMeters * 1e6:F2} µm " +
+                $"({preview.DeviationRelative:E2} of chord) at η {preview.AtEta:F4}, sampled. Limit 10 µm."),   // S1-COPY-14
+            Checking = false, ApplyEnabled = preview.Admitted, ApplyReason = preview.Admitted ? null : ApplyAboveLimit
+        };
+        SetStatus(flyout.Line, preview.Admitted ? ReportKind.Info : ReportKind.Warning);
+        Notify();
+    }
+
+    /// <summary>Apply in the open flyout: the approximate promotion or the removal, on the plan the preview stored.</summary>
+    public async Task ApplyFlyoutAsync()
+    {
+        if (flyout is not { Checking: false } open) return;
+        if (!open.ApplyEnabled)
+        {
+            SetStatus(open.ApplyReason ?? ApplyAboveLimit, ReportKind.Warning);
+            Notify();
+            return;
+        }
+        flyout = null;
+        if (open.Kind == StationFlyoutKind.Promote)
+        {
+            await AddAsync(flyoutEta, flyoutText, approximate: true);
+            return;
+        }
+        var assignments = Inspection!.Authored.Assignments;
+        int index = open.Index;
+        string name = StationNames.Of(index, assignments[index].Eta);
+        var left = new Selection.Station(index - 1, assignments[index - 1].Eta);
+        await RunDirectCommandAsync(() =>
+        {
+            var result = session.RemoveStation(Guid.NewGuid().ToString("D"), index);
+            return new CommitOutcome.Committed(result.AcceptedId, string.Create(CultureInfo.InvariantCulture,
+                $"Removed {name}. Largest change {result.Report.DeviationMeters * 1e6:F2} µm at η {result.Report.AtEta:F4}. Thickness: keep current."))   // S1-COPY-16
+            { SelectItem = left };
+        }, warningOnRefusal: true, preserveStatusAfterCommit: true);
+    }
+
+    public void CancelFlyout()
+    {
+        if (flyout is null) return;
+        flyout = null;
+        Notify();
+    }
+
+    /// <summary>Runs a Properties action row's key (the pane calls this; the controller owns what each does).</summary>
+    public void RunStationAction(string key)
+    {
+        switch (key)
+        {
+            case "sl:promote": _ = PromoteSliceAsync(); break;
+            case "sl:clear": ClearSlice(); break;
+            case "stn:remove" when Selection is Selection.Station station: _ = BeginRemoveStationAsync(station.Index); break;
+            case "fly:apply": _ = ApplyFlyoutAsync(); break;
+            case "fly:cancel": CancelFlyout(); break;
+        }
+    }
+
+    /// <summary><c>station.add</c>: with no slice, places one in the middle of the widest interval (typed positions go through <see cref="PlaceSliceTyped"/>).</summary>
+    public void BeginAddStation()
+    {
+        if (AddStationReason is { } reason)
+        {
+            SetStatus(reason, ReportKind.Warning);
+            Notify();
+            return;
+        }
+        if (Selection is not Selection.Slice)
+        {
+            var etas = Inspection!.Authored.Assignments.Select(item => item.Eta).ToArray();
+            int widest = Enumerable.Range(0, etas.Length - 1).MaxBy(i => etas[i + 1] - etas[i]);
+            PlaceSlice((etas[widest] + etas[widest + 1]) / 2);
+        }
+    }
+
     public const string AnalysisPointRefusal = "Points are edited in CAD. Switch with the CAD | Analysis toggle.";
 
     /// <summary>A shared refusal at every controller edit boundary, including the Points pane's typed gesture.</summary>
@@ -1237,6 +1578,10 @@ public sealed class WorkbenchController : IDisposable
     {
         ArgumentNullException.ThrowIfNull(selection);
         if (selection is not Selection.Points { Items: [var only] } || only != RefusedPoint) RefusedPoint = null;
+        // A flyout belongs to its slice or to its station's panel; selecting anything else closes it.
+        if (flyout is { } open && !(open.Kind == StationFlyoutKind.Promote && selection is Selection.Slice ||
+                                    open.Kind == StationFlyoutKind.Remove && selection is Selection.Station { } at && at.Index == open.Index))
+            flyout = null;
         if (isNotifying)
         {
             queuedSelection = selection;
@@ -1258,7 +1603,7 @@ public sealed class WorkbenchController : IDisposable
     {
         if (projection is null) return new Selection.None();
         if (current is Selection.None) return new Selection.Foil();
-        if (current is Selection.Foil) return current;
+        if (current is Selection.Foil or Selection.Slice) return current;
 
         if (current is Selection.Station station)
         {
@@ -2716,6 +3061,7 @@ public sealed class WorkbenchController : IDisposable
             Status = committed.Report;
             if (committed.ClearPointSelection) queuedSelection = new Selection.Foil();
             else if (committed.SelectPoint is { } point) queuedSelection = new Selection.Points([point]);
+            else if (committed.SelectItem is { } item) queuedSelection = item;
             Notify();
             _ = RefreshAcceptedAsync(preserveStatus: preserveStatusAfterCommit);
             return outcome;

@@ -111,6 +111,64 @@ public sealed class PlanCanvas : Control
     public PointRef? FocusedTarget => focusedPoint;
     public sealed record StationChip(int Index, Rect Bounds);
 
+    // The inspection slice (S1, Ruling 124): a dashed station line on both halves and a hollow dashed chip in the margin strip with
+    // Promote and ×. The chip sits in the strip row, or in the row below it when a station chip is in the way; it is clamped inside the canvas.
+    private sealed record SliceGeometry(Rect Chip, Rect Promote, Rect Clear, string Label, string Shown, double Eta);
+
+    private const double SlicePromoteWidth = 72;
+    private const double SliceClearWidth = 24;
+
+    private SliceGeometry? SliceLayout()
+    {
+        if (Controller?.Selection is not Selection.Slice slice || Controller.Planform is not { } plan || Bounds.Width <= 0 || Bounds.Height <= 0) return null;
+        var map = Layer(plan);
+        string label = WorkbenchController.SliceChipText(slice.Eta, slice.Eta * plan.HalfSpanMeters * 1000);
+        double buttons = 8 + SlicePromoteWidth + SliceClearWidth;
+        // A narrow canvas (a small window, a docked pane) drops the distance, then the label: Promote and × stay on screen.
+        string shown = label;
+        if (8 + label.Length * 6.8 + buttons > Bounds.Width - 8) shown = label[..label.LastIndexOf(" · ", StringComparison.Ordinal)];
+        if (8 + shown.Length * 6.8 + buttons > Bounds.Width - 8) shown = "";
+        double width = (shown.Length == 0 ? 0 : 8 + shown.Length * 6.8) + buttons;
+        double x = Math.Clamp(map.ToScreen(slice.Eta * plan.HalfSpanMeters, 0).X - width / 2, 4, Math.Max(4, Bounds.Width - 4 - width));
+        double top = PlanformRect(map, plan).Bottom + ChipGap;
+        var chips = VisibleStationChips;
+        var row = new Rect(x, top, width, ChipHeight);
+        if (chips.Any(chip => chip.Bounds.Intersects(row))) row = row.WithY(top + ChipHeight + 4);
+        row = row.WithY(Math.Min(row.Y, Math.Max(0, Bounds.Height - ChipHeight - 4)));
+        var promote = new Rect(row.Right - SliceClearWidth - SlicePromoteWidth, row.Y, SlicePromoteWidth, ChipHeight);
+        var clear = new Rect(row.Right - SliceClearWidth, row.Y, SliceClearWidth, ChipHeight);
+        return new SliceGeometry(row, promote, clear, label, shown, slice.Eta);
+    }
+
+    public Rect? SliceChipBounds => SliceLayout()?.Chip;
+    public Rect? SlicePromoteBounds => SliceLayout()?.Promote;
+    public Rect? SliceClearBounds => SliceLayout()?.Clear;
+    public string? SliceChipLabel => SliceLayout()?.Label;
+    /// <summary>"Inspection slice, η 35.0 percent, 175.0 millimetres" (design 5.6).</summary>
+    public string? SliceChipName => Controller?.Selection is Selection.Slice slice && Controller.Planform is { } plan
+        ? WorkbenchController.SliceChipName(slice.Eta, slice.Eta * plan.HalfSpanMeters * 1000) : null;
+
+    private bool sliceDrag;
+
+    /// <summary>The strip the slice is placed in: the band under the planform that carries the station chips (Ruling 124: the strip is the span ruler).</summary>
+    private bool InChipStrip(Point position)
+    {
+        if (Controller?.Planform is not { } plan) return false;
+        var planform = PlanformRect(Layer(plan), plan);
+        return position.Y >= planform.Bottom + ChipGap / 2 && position.Y <= planform.Bottom + ChipGap + ChipHeight + ChipGap / 2 &&
+               position.X >= planform.Left && position.X <= planform.Right;
+    }
+
+    private void PlaceSliceAt(Point position)
+    {
+        if (Controller?.Planform is not { } plan) return;
+        // Within 4 px of a station's line the pointer picks that station (GEO-06: the existing station is selected).
+        for (int i = 0; i < plan.Stations.Count; i++)
+            if (Math.Abs(StationLineX(i) - position.X) <= 4) { Controller.Select(new Selection.Station(i, plan.Stations[i].Eta)); return; }
+        double eta = Math.Clamp(Math.Abs(Layer(plan).FromScreen(position).Span) / plan.HalfSpanMeters, 0, 1);
+        Controller.PlaceSlice(eta);
+    }
+
     /// <summary>The planform's screen rectangle, both halves and every point (the chip strip sits below it).</summary>
     public Rect PlanformBounds => Controller?.Planform is { } plan && Bounds.Width > 0 && Bounds.Height > 0
         ? PlanformRect(Layer(plan), plan) : default;
@@ -138,13 +196,15 @@ public sealed class PlanCanvas : Control
             var map = Layer(plan);
             double top = PlanformRect(map, plan).Bottom + ChipGap;
             var result = new List<StationChip>();
-            foreach (var (station, index) in plan.Stations.Select((station, index) => (station, index)))
+            // The selected station keeps its chip when neighbours collide (S1: a promoted station is selected in Plan); the rest are first come.
+            int selected = Controller?.Selection is Selection.Station chosen ? chosen.Index : -1;
+            foreach (var (station, index) in plan.Stations.Select((station, index) => (station, index)).OrderBy(item => item.index == selected ? 0 : 1))
             {
                 var rect = new Rect(map.ToScreen(station.SpanMeters, 0).X - ChipHalfWidth, top, 2 * ChipHalfWidth, ChipHeight);
                 if (result.Any(chip => chip.Bounds.Intersects(rect))) continue;
                 result.Add(new StationChip(index, rect));
             }
-            return result;
+            return [.. result.OrderBy(chip => chip.Index)];
         }
     }
     public IReadOnlyList<string> KeyboardTargets
@@ -482,10 +542,27 @@ public sealed class PlanCanvas : Control
                 e.Handled = true;
                 return;
             }
+            if (SliceLayout() is { } slice && slice.Chip.Contains(position))
+            {
+                if (slice.Promote.Contains(position)) _ = Controller.PromoteSliceAsync();
+                else if (slice.Clear.Contains(position)) Controller.ClearSlice();
+                else Focus();
+                e.Handled = true;
+                return;
+            }
             var chip = VisibleStationChips.FirstOrDefault(item => item.Bounds.Contains(position));
             if (chip is not null)
             {
                 Controller.Select(new Selection.Station(chip.Index, Controller.Planform.Stations[chip.Index].Eta));
+                e.Handled = true;
+                return;
+            }
+            if (InChipStrip(position) && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed && !Controller.IsAnalysis)
+            {
+                PlaceSliceAt(position);
+                sliceDrag = Controller.Selection is Selection.Slice;
+                if (sliceDrag) e.Pointer.Capture(this);
+                Focus();
                 e.Handled = true;
                 return;
             }
@@ -557,6 +634,13 @@ public sealed class PlanCanvas : Control
     {
         base.OnPointerMoved(e);
         var position = e.GetPosition(this);
+        if (sliceDrag)
+        {
+            PlaceSliceAt(new Point(position.X, position.Y));
+            if (Controller?.Selection is not Selection.Slice) { sliceDrag = false; e.Pointer.Capture(null); }
+            e.Handled = true;
+            return;
+        }
         if (panOrigin is not null)
         {
             if (!panning && Point.Distance(position, panPress) <= 3) return;
@@ -651,6 +735,13 @@ public sealed class PlanCanvas : Control
         // The point menu is opened on press; keep Avalonia's right-release context request from opening it twice.
         if (e.InitialPressMouseButton == MouseButton.Right) e.Handled = true;
         base.OnPointerReleased(e);
+        if (sliceDrag)
+        {
+            sliceDrag = false;
+            e.Pointer.Capture(null);
+            e.Handled = true;
+            return;
+        }
         if (panOrigin is not null)
         {
             if (!panning && panClicks && Controller is not null)
@@ -728,6 +819,18 @@ public sealed class PlanCanvas : Control
         bool shift = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
         bool command = e.KeyModifiers.HasFlag(KeyModifiers.Meta) || e.KeyModifiers.HasFlag(KeyModifiers.Control);
         bool option = e.KeyModifiers.HasFlag(KeyModifiers.Alt);
+        if (Controller.Selection is Selection.Slice && !option)
+        {
+            // The slice chip's keys: ← → nudge 0.01 · 0.1 · 1 mm (Command · plain · Shift), Return promotes, Escape clears.
+            if (e.Key is Key.Left or Key.Right && !(command && shift))
+            {
+                Controller.NudgeSlice(e.Key == Key.Right ? 1 : -1, command ? NudgeModifier.Command : shift ? NudgeModifier.Shift : NudgeModifier.Plain);
+                e.Handled = true;
+                return;
+            }
+            if (e.Key == Key.Return) { _ = Controller.PromoteSliceAsync(); e.Handled = true; return; }
+            if (e.Key == Key.Escape) { Controller.ClearSlice(); e.Handled = true; return; }
+        }
         if (e.Key == Key.Tab) { e.Handled = !shift && TabToProperties(); return; }
         if (e.Key is Key.OemCloseBrackets or Key.OemOpenBrackets && !command && !option)
         {
@@ -983,6 +1086,23 @@ public sealed class PlanCanvas : Control
             context.DrawRectangle(SoftBrush ?? BackgroundBrush,
                 selected ? new Pen(SelectionBrush ?? Brushes.White, 2) : new Pen(MuteBrush ?? Brushes.White, 1), chip.Bounds, 4, 4);
             DrawLabel(context, station.ProfileName, chip.Bounds.Position + new Vector(8, 5));
+        }
+        if (SliceLayout() is { } slice)
+        {
+            var dash = new Pen(SelectionBrush ?? Brushes.White, 2, new DashStyle([5, 4], 0));
+            var sliceReading = CfdWorkbench.Core.Planform.Probe(plan, slice.Eta);
+            double span = slice.Eta * plan.HalfSpanMeters;
+            foreach (double side in new[] { 1d, -1d })
+                context.DrawLine(dash, map.ToScreen(side * span, sliceReading.LeadingAftMeters), map.ToScreen(side * span, sliceReading.TrailingAftMeters));
+            var leader = new Pen(SelectionBrush ?? Brushes.White, 1, new DashStyle([3, 3], 0));
+            context.DrawLine(leader, map.ToScreen(span, sliceReading.TrailingAftMeters), new Point(slice.Chip.Left + 8, slice.Chip.Top));
+            context.DrawRectangle(null, dash, slice.Chip, 4, 4);
+            if (slice.Shown.Length > 0) DrawLabel(context, slice.Shown, slice.Chip.Position + new Vector(8, 5));
+            bool ready = Controller.AddStationReason is null && !Controller.SliceChecking;
+            var button = new Pen(ready ? SelectionBrush ?? Brushes.White : MuteBrush ?? Brushes.White, 1);
+            context.DrawRectangle(null, button, slice.Promote.Deflate(1), 3, 3);
+            DrawLabel(context, Controller.SliceChecking ? WorkbenchController.CheckingCopy : "Promote", slice.Promote.Position + new Vector(8, 5));
+            DrawLabel(context, "×", slice.Clear.Position + new Vector(8, 4));
         }
         if (changePlate is var (plate, reading))
         {

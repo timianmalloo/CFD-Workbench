@@ -22,6 +22,7 @@ public static partial class PlanCanvasTests
     {
         RunComb();
         RunCombView();
+        RunStations();
         DesktopChecks.Check("RebuildPopover_CrossingDisablesRebuildWithReason", () =>
         {
             string source = File.ReadAllText("docs/examples/foildsl/foil-basic.foil");
@@ -1627,6 +1628,14 @@ public static partial class PlanCanvasTests
             // two Settle calls (Settle resets this), so it is asked once per point (B5, DESKTOP-HARNESS-GROWTH).
             if (!screenMemo.TryGetValue(point, out var position)) screenMemo[point] = position = Canvas.ScreenPoint(point);
             return RgbAtCanvas(position.X + dx, position.Y + dy);
+        }
+
+        public (byte R, byte G, byte B) RgbAtWindow(double x, double y)
+        {
+            if (frameBytes is null) Capture();
+            int column = Math.Clamp((int)Math.Round(x), 0, frameWidth - 1), row = Math.Clamp((int)Math.Round(y), 0, frameHeight - 1);
+            int offset = row * frameStride + column * 4;
+            return (frameBytes![offset + 2], frameBytes[offset + 1], frameBytes[offset]);
         }
 
         public (byte R, byte G, byte B) RgbAtCanvas(double canvasX, double canvasY)

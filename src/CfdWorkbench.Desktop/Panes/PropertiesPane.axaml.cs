@@ -289,6 +289,7 @@ public partial class PropertiesPane : UserControl
                 Limit: controller.GestureLimit,
                 GroupMode: groupMode,
                 GroupHold: controller.GroupHold,
+                Stations: controller.StationPanel,
                 ConditionsSummary: controller.IsAnalysis ? CfdWorkbench.Analysis.Labels.ConditionsSummary(
                     controller.AnalysisOperatingPoint.Speed, controller.AnalysisWater, controller.AnalysisUnits) : null);
             string key = SelectionKey(controller.Selection);
@@ -618,6 +619,9 @@ public partial class PropertiesPane : UserControl
             case RowKind.Action:
                 view.Link!.Content = row.Value;
                 AutomationProperties.SetName(view.Link, row.AutomationName ?? row.Value);
+                // S1: a station verb that cannot run is disabled and carries its reason as the accessible description.
+                view.Link.IsEnabled = row.State != RowState.Unavailable;
+                AutomationProperties.SetHelpText(view.Link, row.Description);
                 break;
             case RowKind.KindList:
                 used.Add(KindControl);
@@ -845,6 +849,16 @@ public partial class PropertiesPane : UserControl
                 {
                     if (row.Key == "s:edit") EditSectionRequested?.Invoke();
                     else if (row.Key == "r:rebuild" && row.Target is { } target) RebuildRequested?.Invoke(target.Curve);
+                    else if (row.Key is "sl:promote" or "stn:remove" or "fly:apply" or "fly:cancel") boundController?.RunStationAction(row.Key);
+                };
+                // The flyout's keys: Escape cancels and returns focus to the Remove button; Return on a focused Apply applies (Button's own key).
+                link.KeyDown += (_, args) =>
+                {
+                    if (args.Key != Key.Escape || row.Key is not ("fly:apply" or "fly:cancel") || boundController is null) return;
+                    boundController.CancelFlyout();
+                    args.Handled = true;
+                    Avalonia.Threading.Dispatcher.UIThread.Post(() => ContentPanel.GetVisualDescendants().OfType<HyperlinkButton>()
+                        .FirstOrDefault(item => item.IsVisible && item.Content as string == PropertiesView.RemoveLabel)?.Focus());
                 };
                 view.Link = link;
                 value = link;
