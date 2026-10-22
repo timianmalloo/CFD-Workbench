@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T07:47:41Z",
+  "generated": "2026-10-22T15:59:56Z",
   "audit": [
     {
       "actor": null,
@@ -41741,6 +41741,25 @@ window.AUDIT_DATA = {
         "speedup": 1.59,
         "peak_concurrency": 4
       }
+    },
+    {
+      "id": "al-01M5J5EAW9JZZAGZ81HMBG7ATZ",
+      "shortname": "w2b-c1-copy-acl",
+      "datetime": "2026-10-22T15:59:56Z",
+      "session": "w2b-c1-copy-acl",
+      "prompt": "wave 2 C1: approve copy rows 522-588; private preference folder on Windows; review conditions T1, T2, S1",
+      "summary": "Wave 2 C1 closed over two dispatches. Part A approved copy rows COPY-522 to COPY-588 in DESIGN.md (status only, 67 rows). Part B made the Windows preference folder private (new folder private at creation; existing user-owned folder tightened in place; foreign-owned folder left unchanged, session-only). Review conditions: T1 AssertPrivateDirectory also asserts the allow ACE, mask 0x1F01FF and OI|CI flags; two descriptor mutants red, reverted. T2 the store-level session-only fallback (three call sites) is NOT ASSESSED in the proof, with the reason. S1 the Security confirmation replaces the open assumption, plus the elevated-owner advisory (Inferred).",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "started_at": "2026-10-22T15:57:27Z",
+      "duration_seconds": 149.0
     }
   ],
   "changes": [
