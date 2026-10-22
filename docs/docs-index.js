@@ -9943,7 +9943,7 @@ window.DOCS_INDEX = {
       "phase": "investigate",
       "reviewBy": "2026-11-22",
       "reviewSuggested": [],
-      "summary": "Desktop harness children die with STATUS_HEAP_CORRUPTION about once in eight full runs on the Windows ARM64 laptop and within a run or two when two runners overlap. Three captured dumps show a heap buffer overrun found by the segment heap's timer, next to a vertex stream, on the GPU rendering path (ANGLE on D3D11 on the NVIDIA driver); seven paired software-rendered runs never crashed. The writer inside that path is not yet named. First repair: the test harness renders in software; then a rendering-mode switch and page heap name the module.",
+      "summary": "Desktop harness children die with STATUS_HEAP_CORRUPTION about once in eight full runs on the Windows ARM64 laptop and within a run or two when two runners overlap. Root cause, verified necessary and sufficient: SkiaSharp 2.88.9's array helper SKCanvas.DrawVertices creates a native vertices object that nothing keeps reachable during the draw, so a garbage collection mid-draw frees the vertex data; the product's one call site is MeshFrame.Draw. On the raster path that is an immediate access violation, on the GPU path a use-after-free the segment heap's timer reports later as heap corruption. The fix (CR2) holds the vertices object through the draw at that one site, proven by a GC-pressure probe and the paired loop on both rendering paths.",
       "tags": [
         "desktop-tests",
         "native-crash",
@@ -9965,10 +9965,14 @@ window.DOCS_INDEX = {
         {
           "to": "coordination-next-best-six",
           "rel": "relates-to"
+        },
+        {
+          "to": "adr-0003-application-stack",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6be708fc4bab87fcc50411b704056c230b716146c6266e3c5adba6234198edf2"
+      "sourceSha256": "51e9ae13523b68ee9a32f52b1fbb1edf6bfc87d6f850eac7829c51f186b97c01"
     },
     {
       "id": "investigation-ezf-zoompanfit",
@@ -24289,5 +24293,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "64e99a3b92dd2752615f8b329e3f6880ec210ddf23b6c7e0b8be0705f2f2d76f"
+  "graphSha256": "d6c6103e6c346833224a2442791eb23f11023aae85a334a36080e5168d4a2ed6"
 };
