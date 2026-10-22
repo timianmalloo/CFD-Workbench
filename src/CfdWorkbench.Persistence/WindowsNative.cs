@@ -44,6 +44,12 @@ internal static unsafe partial class WindowsNative
     // winnt.h: SYNCHRONIZE=0x00100000, READ_CONTROL=0x00020000, FILE_LIST_DIRECTORY=0x1 (a directory handle's enumeration right).
     internal const uint ListDirectoryAccess = 0x1;
     private const uint Synchronize = 0x00100000, ReadControl = 0x00020000;
+    // Read-only Open (design windows-store-recovery 2.5, 2.6; Ruling 260). winnt.h: FILE_ATTRIBUTE_OFFLINE = 0x1000, GENERIC_READ = 0x80000000.
+    // wdm.h: FILE_OPEN_NO_RECALL = 0x00400000 (an NtCreateFile CreateOptions bit; the Win32 FILE_FLAG_OPEN_NO_RECALL is 0x00100000 and is not used).
+    // minwinbase.h FILE_INFO_BY_HANDLE_CLASS: FileBasicInfo = 0 (FILE_BASIC_INFO: four LARGE_INTEGER times, then the attributes).
+    internal const uint AttributeOffline = 0x1000;
+    private const uint GenericRead = 0x80000000, NoRecall = 0x00400000;
+    private const int FileBasicInfo = 0;
     // wdm.h FILE_INFORMATION_CLASS: FileNamesInformation = 12 (NtQueryDirectoryFile). ntstatus.h: STATUS_NO_MORE_FILES 0x80000006 and
     // STATUS_NO_SUCH_FILE 0xC000000F end an enumeration. Win32 ERROR_SHARING_VIOLATION = 32 (winerror.h).
     // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-ntquerydirectoryfile
@@ -126,6 +132,10 @@ internal static unsafe partial class WindowsNative
     // https://learn.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-file_case_sensitive_info
     [StructLayout(LayoutKind.Sequential)]
     internal struct CaseSensitiveInfo { internal uint Flags; }
+    // https://learn.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-file_basic_info
+    // Four 8-byte times, then FileAttributes; the trailing 4 bytes are the struct's alignment padding (40 bytes).
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct FileBasic { internal long CreationTime, LastAccessTime, LastWriteTime, ChangeTime; internal uint FileAttributes; }
     // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/wdm/ns-wdm-_file_fs_device_information
     [StructLayout(LayoutKind.Sequential)]
     internal struct FileFsDevice { internal uint DeviceType, Characteristics; }
@@ -210,6 +220,14 @@ internal static unsafe partial class WindowsNative
             OpenExisting, BackupSemantics | OpenReparsePoint, 0);
         if (handle.IsInvalid) throw new NativeFailure(null, Marshal.GetLastPInvokeError());
         return AttributeTag(handle);
+    }
+
+    /// <summary>The change time of the handle's file (FILE_BASIC_INFO), for the before-and-after comparison of a read.</summary>
+    internal static long ChangeTime(SafeFileHandle handle)
+    {
+        FileBasic basic = default;
+        Check(GetFileInformationByHandleEx(handle, FileBasicInfo, &basic, (uint)sizeof(FileBasic)));
+        return basic.ChangeTime;
     }
 
     internal static FileStandard Standard(SafeFileHandle handle)
@@ -336,10 +354,26 @@ internal static unsafe partial class WindowsNative
     internal static SafeFileHandle OpenReader(SafeFileHandle parent, string child, uint share = ShareRead | ShareDelete) =>
         OpenRelative(parent, child, ReadAccess, share, NtOpen, 0);
 
+    /// <summary>
+    /// Attribute handle A of a read-only Open (design 2.6 O3): FILE_READ_ATTRIBUTES | SYNCHRONIZE only, so no data is requested; share read and
+    /// delete; the entry itself (FILE_OPEN_REPARSE_POINT) and FILE_OPEN_NO_RECALL, so a cloud file is neither followed nor fetched.
+    /// </summary>
+    internal static SafeFileHandle OpenAttributes(SafeFileHandle parent, string child, uint share = ShareRead | ShareDelete) =>
+        OpenRelative(parent, child, ReadAttributes | Synchronize, share, NtOpen, 0, extraOptions: NoRecall);
+
+    /// <summary>
+    /// Data handle D of a read-only Open (design 2.6 O4, S1): an NtCreateFile whose RootDirectory is the held attribute handle and whose name is
+    /// empty (a zero-length UNICODE_STRING), so it opens the same file and no name lookup happens. GENERIC_READ | SYNCHRONIZE, share read and
+    /// delete, FILE_OPEN, FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT | FILE_OPEN_REPARSE_POINT | FILE_OPEN_NO_RECALL, with
+    /// OBJ_CASE_INSENSITIVE | OBJ_DONT_REPARSE. ReOpenFile cannot carry the no-recall flag here (it fails with error 87).
+    /// </summary>
+    internal static SafeFileHandle OpenDataFromHeld(SafeFileHandle held) =>
+        OpenRelative(held, "", GenericRead | Synchronize, ShareRead | ShareDelete, NtOpen, 0, extraOptions: NoRecall, sameFile: true);
+
     private static SafeFileHandle OpenRelative(SafeFileHandle parent, string child, uint access, uint share,
-        uint disposition, nint securityDescriptor, bool directory = false)
+        uint disposition, nint securityDescriptor, bool directory = false, uint extraOptions = 0, bool sameFile = false)
     {
-        RequireChild(child);
+        if (!sameFile) RequireChild(child);
         bool retained = false;
         try
         {
@@ -353,7 +387,7 @@ internal static unsafe partial class WindowsNative
                     Attributes = CaseInsensitive | DontReparse, SecurityDescriptor = securityDescriptor };
                 int status = NtCreateFile(out nint raw, access, &attributes, out IoStatusBlock io, 0,
                     NormalAttributes, share, disposition,
-                    SynchronousNonalert | (directory ? DirectoryFile : NonDirectory) | OpenReparsePoint, 0, 0);
+                    SynchronousNonalert | (directory ? DirectoryFile : NonDirectory) | OpenReparsePoint | extraOptions, 0, 0);
                 if (status == 0 && (int)io.Status == 0) return new SafeFileHandle(raw, true);
                 if (raw != 0 && raw != -1) new SafeFileHandle(raw, true).Dispose();
                 int completion = status == 0 ? (int)io.Status : status;

@@ -28,11 +28,15 @@ public sealed class SaveRequest
 /// on Windows it means the temp-file FlushFileBuffers, the atomic rename and owned cleanup succeeded (Ruling 135).
 /// It is not a hardware power-loss guarantee. An uncertain result requires reopen/compare before retry.</summary>
 public sealed record SaveResult(string Code, string? PublishedSha256, bool PublicationKnown, bool DurabilityConfirmed);
-public sealed class ReadResult(byte[] image, string diskSha256)
+/// <summary>Where an opened document lives (design windows-store-recovery 2.1): a read-only OneDrive document is never saved in place.</summary>
+public enum DocumentOrigin { Local, OneDriveReadOnly }
+
+public sealed class ReadResult(byte[] image, string diskSha256, DocumentOrigin origin = DocumentOrigin.Local)
 {
     private readonly byte[] image = image.ToArray();
     public byte[] Image => image.ToArray();
     public string DiskSha256 { get; } = diskSha256;
+    public DocumentOrigin Origin { get; } = origin;
 }
 public interface IProjectStore : IDisposable
 {
@@ -537,9 +541,18 @@ public sealed class ProjectStore : IProjectStore, IDisposable
     }
 }
 
-internal enum StoreStage { ParentOpened, ClaimCreated, TempCreated, Writing, FileFlushed, BeforePublish, Published, BeforeDirectoryFlush, ClearHeld, ClearTempsDisposed }
+internal enum StoreStage { ParentOpened, ClaimCreated, TempCreated, Writing, FileFlushed, BeforePublish, Published, BeforeDirectoryFlush, ClearHeld, ClearTempsDisposed,
+    /// <summary>Read-only Open (design 2.6): the attribute handle passed admission (O3), the data handle exists (O4), the read is about to start (O5).</summary>
+    AttributeHandleOpened, DataHandleOpened, Reading,
+    /// <summary>The Open walk applied the placeholder exception (design 2.6 O1, I-12): visited by no other walk.</summary>
+    PlaceholderExceptionApplied }
 internal sealed class StoreHooks
 {
+    /// <summary>
+    /// Test seam for the Open path (design 2.6): the attributes and reparse tag the store reads at a <c>site</c> (<c>ancestor</c>, <c>attribute</c>,
+    /// <c>data</c>, <c>attribute-after</c>, <c>data-after</c>) for the entry <c>name</c>, replaced by the returned pair. Null: the real values.
+    /// </summary>
+    internal Func<string, string, (uint Attributes, uint Tag), (uint Attributes, uint Tag)>? AttributeOverride { get; init; }
     internal Action<StoreStage>? OnStage { get; init; }
     internal int? WriteFragment { get; init; }
     internal int? FailWriteAfter { get; init; }

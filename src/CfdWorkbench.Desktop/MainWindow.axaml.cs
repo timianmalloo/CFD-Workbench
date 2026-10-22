@@ -24,6 +24,47 @@ public sealed partial class MainWindow : Window
     private readonly ShellHost shellHost;
     private bool closeApproved;
     private bool closed;
+    private readonly string baseTitle;
+    private readonly Border readOnlyNotice;
+
+    /// <summary>
+    /// DS-COPY-2 (design windows-store-recovery 2.7, U3): the persistent notice of a project opened read-only from OneDrive, its own element and
+    /// not the status strip's message slot, so no other report can replace or hide it. A polite live region whose text never changes.
+    /// </summary>
+    private static Border BuildReadOnlyNotice()
+    {
+        var text = new TextBlock { Text = Labels.ReadOnlyNotice, TextWrapping = Avalonia.Media.TextWrapping.Wrap };
+        var notice = new Border { Name = "ReadOnlyNotice", IsVisible = false, Padding = new Thickness(12, 6), Child = text };
+        notice.Bind(Border.BackgroundProperty, notice.GetResourceObservable("SurfaceSoftBrush"));
+        AutomationProperties.SetLiveSetting(notice, AutomationLiveSetting.Polite);
+        AutomationProperties.SetName(notice, "Read-only project notice");
+        return notice;
+    }
+
+    /// <summary>
+    /// Puts <paramref name="notice"/> in a new row of the shell directly above the status strip (the strip moves down one row). The notice's row
+    /// is always the strip's row minus one: it follows the strip, so a menu bar shown later cannot leave it on another child's row.
+    /// </summary>
+    private void PlaceAboveStatusStrip(Control notice)
+    {
+        int row = Grid.GetRow(shellHost.StatusStrip);
+        shellHost.RowDefinitions.Insert(row, new RowDefinition(GridLength.Auto));
+        shellHost.StatusStrip.PropertyChanged += (_, e) =>
+        {
+            if (e.Property == Grid.RowProperty) Grid.SetRow(notice, Grid.GetRow(shellHost.StatusStrip) - 1);
+        };
+        Grid.SetRow(shellHost.StatusStrip, row + 1);
+        shellHost.Children.Add(notice);
+    }
+
+    /// <summary>The title suffix (DS-COPY-1) and the notice row follow the document's origin; both go when a Save As makes it local.</summary>
+    private void RefreshReadOnlyChrome()
+    {
+        bool readOnly = workbench.Origin == DocumentOrigin.OneDriveReadOnly;
+        string title = readOnly ? baseTitle + " " + Labels.ReadOnlyTitleSuffix : baseTitle;
+        if (Title != title) Title = title;
+        readOnlyNotice.IsVisible = readOnly;
+    }
 
     public MainWindow() : this(null)
     {
@@ -51,6 +92,7 @@ public sealed partial class MainWindow : Window
                 _ => ThemeVariant.Default
             };
         }
+        baseTitle = Title ?? "";
         shellHost = new ShellHost(workbench, preferences);
         Content = shellHost;
         ShellHost.BindF6(this, shellHost);
@@ -63,6 +105,8 @@ public sealed partial class MainWindow : Window
             canExecute: CanExecuteShellEdit,
             macOS: mac);
         if (!mac) NativeMenuBuilder.ShowInWindow(this, shellHost, menu);
+        readOnlyNotice = BuildReadOnlyNotice();
+        PlaceAboveStatusStrip(readOnlyNotice);
         AddHandler(InputElement.GotFocusEvent, (_, _) => RefreshShellEditMenu(), RoutingStrategies.Bubble);
         RefreshShellEditMenu();
         shellHost.RecentLoaded += entries => NativeMenuBuilder.RefreshRecentMenu(this, entries,
@@ -141,7 +185,9 @@ public sealed partial class MainWindow : Window
 
     private void OnWorkbenchChanged() => Dispatcher.UIThread.Post(() =>
     {
-        if (!closed) RefreshShellEditMenu();
+        if (closed) return;
+        RefreshShellEditMenu();
+        RefreshReadOnlyChrome();
     });
 
     private void RefreshShellEditMenu() => NativeMenuBuilder.RefreshEditMenu(this, CanExecuteShellEdit);
@@ -160,7 +206,9 @@ public sealed partial class MainWindow : Window
         if (destination is not null && OperatingSystem.IsWindows())
         {
             // A project opened from a OneDrive folder is saved in place: the same refusal as after a pick (Security veto, repair cycle 2).
-            var location = CloudFolder.Classify(Path.GetDirectoryName(destination) ?? destination);
+            // A read-only OneDrive document is refused here before any store call (I-13), whatever the folder check says now.
+            var location = workbench.Origin == DocumentOrigin.OneDriveReadOnly ? FolderLocation.Cloud
+                : CloudFolder.Classify(Path.GetDirectoryName(destination) ?? destination);
             if (location != FolderLocation.Local)
             {
                 var refusal = new FolderRefusalDialog(location);

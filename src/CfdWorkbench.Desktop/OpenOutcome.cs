@@ -22,7 +22,8 @@ public enum OpenFailureKind
     Newer,
     UnknownContent,
     NotRecognised,
-    UnsupportedLocation
+    UnsupportedLocation,
+    CloudOnly
 }
 
 public abstract record OpenFailure(string Code, string Path)
@@ -69,6 +70,12 @@ public abstract record OpenFailure(string Code, string Path)
         public override OpenFailureKind Kind => OpenFailureKind.UnsupportedLocation;
     }
 
+    /// <summary>A OneDrive file that is not on this PC (DOC-CLOUD-ONLY, refused before any data handle: design windows-store-recovery 2.6 O3, DR-DS-6).</summary>
+    public sealed record CloudOnly(string Code, string Path) : OpenFailure(Code, Path)
+    {
+        public override OpenFailureKind Kind => OpenFailureKind.CloudOnly;
+    }
+
     public static OpenFailure Classify(Exception exception, string path)
     {
         ArgumentNullException.ThrowIfNull(exception);
@@ -102,6 +109,8 @@ public abstract record OpenFailure(string Code, string Path)
             return new Newer(code, path);
         if (code is "DOC-UNSUPPORTED-PERSISTENCE" && OperatingSystem.IsWindows())
             return new UnsupportedLocation(code, path);
+        if (code is "DOC-CLOUD-ONLY")
+            return new CloudOnly(code, path);
         if (code is "DOC-UNSUPPORTED-FIELD")
             return new UnknownContent(code, path);
         if (code is "DOC-SCHEMA" or "DOC-TYPE" or "DOC-REFERENCE" || code.StartsWith("DSL-", StringComparison.OrdinalIgnoreCase))
