@@ -2276,10 +2276,14 @@ window.DOCS_INDEX = {
         {
           "to": "spec-amendments-1-7-7",
           "rel": "relates-to"
+        },
+        {
+          "to": "spec-amendments-1-7-8",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c8988e20d50890d65d3b3a7dd7eca0b3a01b3044f165f554a95471fa81726aa6"
+      "sourceSha256": "8288f1cd3ca5eeb82ab858195075580633e303d87712844a3fa56b73a8c55b93"
     },
     {
       "id": "design-add-station",
@@ -2335,12 +2339,16 @@ window.DOCS_INDEX = {
           "rel": "relates-to"
         },
         {
+          "to": "spec-amendments-1-7-9",
+          "rel": "relates-to"
+        },
+        {
           "to": "design-language",
           "rel": "depends-on"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e34b5c3791cb64d4caad7fd9fc559f30833352c1296a09559fd4ca4d34dbb5d0"
+      "sourceSha256": "4479e4b8729eddd43cee7a387165a1c2ad6ecc3ad69e6cadfd2a538641a24570"
     },
     {
       "id": "design-app-shell",
@@ -2767,6 +2775,59 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "e8a4436a4e96122828f90787c0e14342ea630f7085d06136b47b364441896bca"
+    },
+    {
+      "id": "design-compatible-fit",
+      "path": "docs/design/compatible-fit.md",
+      "title": "Design: the Ruling 73 compatible fit, sized for a build (mixed spacing, cfdw-cv/3, R3 promotion)",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design — track DF of next-best-six wave 2; documents only; NEXT WAVE (leader, revision cycle 1); revision 1 folded the Adversary conditions C1-C4 and TL1",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "Ruling 73's compatible fit brought to the as-built tree after Rulings 74, 252 and 256 and the S1 build: each station section stays as drawn; a derived, never-stored compatible copy of each on one shared spacing feeds the certificate and the placed surface through one entry in Geometry and Placement; each copy is admitted at 10 um on the placed surface; cfdw-cv/3 is written per design row only when station sections differ in spacing, and older rows are never rewritten. R3 promotion, Match and Remove run on the copies, with the measure widened to every interval when the shared spacing changes. Size for a Sonnet build about 440 calls and 1.2M tokens planned (about 690 calls and 2.2M at the S1 overrun ratios); recommendation next wave.",
+      "tags": [
+        "core",
+        "geometry",
+        "compatible-fit",
+        "cross-profile",
+        "abscissa",
+        "evaluator-id",
+        "cfdw-cv-3",
+        "station",
+        "promote",
+        "ruling-73",
+        "size-estimate"
+      ],
+      "links": [
+        {
+          "to": "design-cross-profile-abscissa",
+          "rel": "refines"
+        },
+        {
+          "to": "rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "design-add-station",
+          "rel": "relates-to"
+        },
+        {
+          "to": "decision-loft-rule-a",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0010-one-placement-rule",
+          "rel": "relates-to"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "8ec3f38aa3b36387b3f98b1d457166a9bd39d618bb90e2e0c17cfb42a395ed3f"
     },
     {
       "id": "design-cross-profile-abscissa",
@@ -9740,7 +9801,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "39ee2b867e981e64b5f4c4dbc480aea72ba411f6a2b0a33a0b36f70bd89aa84c"
+      "sourceSha256": "610b7b2bfa748fc001346c4282694c3ef9e2c218b892285cb1d82a70be1c2098"
     },
     {
       "id": "kb-hw-glossary",
@@ -22977,6 +23038,88 @@ window.DOCS_INDEX = {
       "sourceSha256": "cb8d874199c0d3cf65d518c8f900f2c1af150b9129e8b5d2859740b8bf299044"
     },
     {
+      "id": "spec-amendments-1-7-8",
+      "path": "docs/specs/amendments/spec-1.7.8.md",
+      "title": "Spec 1.7.8 amendment note — dimensional L and D_i deltas when only the reference quantities differ (ANA-06, AF)",
+      "type": "spec",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "Three proposed amendments to cfd-workbench-v1 lines 172, 259 and 1217, from Ruling 250 Q3 (c) and section 12 of the A3d Compare design: when two runs differ only in their reference quantities (same operating point and water), the dimensional loads L and D_i are compared with deltas normalised to the base value; coefficient deltas stay blocked; e is not compared; nothing new is stored. Proposed; the operator's take-up of Q3 (c) is confirmed by the leader (DR-DF-1).",
+      "tags": [
+        "spec",
+        "amendments",
+        "analysis",
+        "compare",
+        "ana-06",
+        "dimensional-delta"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-amendments-1-7-7",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-a3d-compare",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7905b54a65d187f77fd7682a6ec2a82f46464272e91ed4cd8445b690821957f4"
+    },
+    {
+      "id": "spec-amendments-1-7-9",
+      "path": "docs/specs/amendments/spec-1.7.9.md",
+      "title": "Spec 1.7.9 amendment note — Match the blend before Remove station (CAD-02, A4.6, SF2)",
+      "type": "spec",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "Two proposed amendments to cfd-workbench-v1 CAD-02 and the A4.6 1.7 note, from section 13 of the Add station design (DR-S1-2 option c, the S1 Adversary's missed option): an interior station can be matched to the blend of its neighbours, previewed with the measured change and the residual a later Remove would still make, with no gate of its own; Remove keeps its 10 um acceptance. Proposed; DR-DF-4 and DR-DF-5 decide the gate and the differing-peaks offer.",
+      "tags": [
+        "spec",
+        "amendments",
+        "cad",
+        "station",
+        "remove",
+        "match-the-blend",
+        "cad-02",
+        "a4-6"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-amendments-add-station",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-add-station",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e04bece4fd1deeeb5c5eb4d9e709f87a0df7912e4c40f50de2db25f89f4c137e"
+    },
+    {
       "id": "spec-amendments-add-station",
       "path": "docs/specs/amendments/spec-add-station.md",
       "title": "Spec amendments for Add station and Promote (GEO-06, CAD-02, A4.6) — Ruling 252",
@@ -23846,5 +23989,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "11d5ec867cda3b099f6e2142ca446d7ef1752d2acb400cc295fb823460e5120c"
+  "graphSha256": "809f23dc6b56baaa13c8a6c6ca7824b62abb154223da15630fc6cc0a72eb0500"
 };
