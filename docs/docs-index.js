@@ -2783,7 +2783,7 @@ window.DOCS_INDEX = {
       "type": "design",
       "status": "in-review",
       "owner": "@timianmalloo",
-      "phase": "design — track DF of next-best-six wave 2; documents only; design and size estimate, not built in this wave unless the leader says so",
+      "phase": "design — track DF of next-best-six wave 2; documents only; NEXT WAVE (leader, revision cycle 1); revision 1 folded the Adversary conditions C1-C4 and TL1",
       "reviewBy": "2027-01-31",
       "reviewSuggested": [],
       "summary": "Ruling 73's compatible fit brought to the as-built tree after Rulings 74, 252 and 256 and the S1 build: each station section stays as drawn; a derived, never-stored compatible copy of each on one shared spacing feeds the certificate and the placed surface through one entry in Geometry and Placement; each copy is admitted at 10 um on the placed surface; cfdw-cv/3 is written per design row only when station sections differ in spacing, and older rows are never rewritten. R3 promotion, Match and Remove run on the copies, with the measure widened to every interval when the shared spacing changes. Size for a Sonnet build about 440 calls and 1.2M tokens planned (about 690 calls and 2.2M at the S1 overrun ratios); recommendation next wave.",
@@ -2827,7 +2827,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ab2bfb34f7d09eea15cba6c88ed8a3eea1d7e6b7871ffccc3a48ec43dc55d1cf"
+      "sourceSha256": "8ec3f38aa3b36387b3f98b1d457166a9bd39d618bb90e2e0c17cfb42a395ed3f"
     },
     {
       "id": "design-cross-profile-abscissa",
@@ -23892,5 +23892,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "6f36698fa012a363415d8f5271479de48ca39052852202868da8838b4e97e0ab"
+  "graphSha256": "6800854983ade24e4982732287a5ff09ea819d4f1a581badbb338db383da2fc9"
 };

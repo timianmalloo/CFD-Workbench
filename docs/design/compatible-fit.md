@@ -4,7 +4,7 @@ title: "Design: the Ruling 73 compatible fit, sized for a build (mixed spacing, 
 type: design
 status: in-review
 owner: "@timianmalloo"
-phase: design — track DF of next-best-six wave 2; documents only; design and size estimate, not built in this wave unless the leader says so
+phase: design — track DF of next-best-six wave 2; documents only; NEXT WAVE (leader, revision cycle 1); revision 1 folded the Adversary conditions C1-C4 and TL1
 tags: [core, geometry, compatible-fit, cross-profile, abscissa, evaluator-id, cfdw-cv-3, station, promote, ruling-73, size-estimate]
 links:
   - {to: design-cross-profile-abscissa, rel: refines}
@@ -26,7 +26,7 @@ summary: >-
 
 # Design: the compatible fit (Ruling 73), sized
 
-Status: **design and size estimate** (track DF, note 3). No code. It refines
+Status: **next wave** — design and size estimate, revision 1 (track DF, note 3; the leader settled DR-DF-7..9 as next wave and rejected CF-1 alone). No code. It refines
 [`cross-profile-abscissa.md`](cross-profile-abscissa.md) (the full CF design, cycle-reviewed in October), says what the
 tree has changed since, closes the parts it left open for promotion and the evaluator id, and sizes the build. Labels:
 **Verified** = opened at `main` `b51315c4`; **Inferred** = reasoned; `assume:` lines carry a belief, what confirms it,
@@ -43,9 +43,9 @@ and what breaks if false.
 | Stored | nothing new except the evaluator id on the design row (`DesignRow.Evaluator`, `AuthoringSession.cs` line 14, Verified) |
 | `cfdw-cv/3` | written on a new design row exactly when its station sections do not all share one spacing; existing rows keep `cfdw-cv/2` |
 | Migration | none of bytes: append-only rows, a reader that accepts both ids, a writer that chooses per row |
-| R3 promotion | Promote, Match and Remove run on the compatible copies; when an edit changes S\*, the deviation is measured over **every** interval, not only the adjacent ones (§6) |
+| R3 promotion | Promote, Match and Remove run on the compatible copies when L and R differ in spacing; when an edit changes any copy bitwise, the deviation is measured over every interval that touches a changed copy (§6) |
 | Size | ≈ 440 calls · 1.2M tokens planned in 6 nodes; ≈ 690 calls · 2.2M at the wave-1 S1 overrun ratios (§9) |
-| Recommendation | **Next wave** (§10) |
+| Recommendation | **Next wave** (§10); settled by the leader |
 
 ## 1. What changed since `cross-profile-abscissa.md`
 
@@ -82,6 +82,9 @@ and what breaks if false.
    **on the copies**, on the Ruling 252 grid (129 η per interval × 2001 x, all intervals that touch a non-identity
    copy). The "as authored" side is today's `Placement` evaluation of the record, kept as a named internal mode
    (`Placement` evaluates profiles by chord fraction, so mixed spacing places today; it is the certificate that refuses).
+   **One caller only (cycle 1, C1):** that mode is a reader that blends authored sections, which §2 calls a second
+   definition, so it is reachable only from the residual inside `Compatible`.
+   Test `Compatible_AuthoredMode_SingleCaller` (a source and reflection scan: no other caller reaches it).
    `assume:` today's `Placement.Sections` places a mixed-spacing document without throwing. Confirms: the first build
    node runs it on the L-P2 fixture. Breaks if false: the residual's reference must be computed per station section by
    `FoilSource.MaxOrdinateDeviation` × chord plus a Rule-A model, and the CG lens re-reviews DR-XPA-4.
@@ -101,10 +104,16 @@ compatible definition; else the step is refused with the section, the number and
 - **Geometry:** `AssessWithin` certifies `Compatible.Of(definition)` — one line at its entry (`Geometry.cs` line 330
   area, Verified that `Assess` → `AssessWithin` is the only path); `SharedAbscissa` untouched.
 - **Placement:** every public entry (`Surface`, `Sections`, `Frame`, `StationEta`, `ChordGrid`, `OwnProfile`; 28 call
-  sites, in the 18 files that call Placement; Verified by count) parses the source and prepares profiles; the one change is that profile
-  preparation reads the compatible copies. That is one entry inside `Placement.cs`, so the 18 caller files do not change
-  and none can bypass it (DR-DF-7 (a)). The alternative — feeding every caller pre-compatible bytes — touches 18 files
-  and leaves a bypass possible (DR-DF-7 (b), not recommended).
+  sites, in the 18 files that call those six entries; Verified by count) parses the source and prepares profiles; the one
+  change is that profile preparation reads the compatible copies. That is one entry inside `Placement.cs`, so the caller
+  files do not change and none can bypass it (DR-DF-7 (a)). The alternative — feeding every caller pre-compatible bytes —
+  touches those files and leaves a bypass possible (DR-DF-7 (b), not recommended).
+- **Readers of profile ordinates outside the six entries (cycle 1, C2).** 21 files outside `Placement.cs` reference a
+  `Placement.<Member>` (re-counted with `grep -rlP "(?<![A-Za-z])Placement\.[A-Z]" src --include=*.cs`; the
+  Adversary's looser pattern gave 22). Besides the six entries they reach `ProfileDifferenceMaximum`, `SameRecord` and
+  `SameAbscissa`, and `StationEdits.Blend` reads authored control points directly. Each of these must read the copies
+  (or, for the two predicates, compare the authored records on purpose and say so in a comment); the single-entry test
+  enumerates them by reflection over `Placement`'s members, not by this count.
 - **Station commands:** `StationEdits` reads neighbours' copies (§6).
 - **Section editor:** draws the authored section (`ProfileView`), and its strip says how far the placed station is
   (COPY-C3).
@@ -127,15 +136,20 @@ compatible definition; else the step is refused with the section, the number and
 
 ## 6. What R3 promotion becomes (and Match and Remove)
 
-- **Promote at η between L and R on different spacings:** L\* and R\* (their copies on S\*) are blended in control-point
-  space exactly as R1/R2 (`add-station.md` §2.2 step 2) to give P on S\*. P is written as an authored section **on S\***
-  (it has no other spacing). The regime follows the measured deviation (Ruling 252); R3 becomes "R1 or R2 on the
-  copies". The certificate budget check (§2.7 there) runs as built.
-- **Match the blend** (SF2): the same, with M's new profile on S\*.
-- **Remove:** removing a station can change S\* (the basis, or the anchors it contributed). Then **every** copy may
-  change, and the loft moves outside [η_L, η_R]. So under CF, Promote, Match and Remove measure on **every interval**
-  whenever S\* before ≠ S\* after, and on the adjacent intervals only when S\* is unchanged. The preview names which.
-  Cost: up to (stations − 1) × 129 η × 2001 x per preview (Inferred ≈ 10 s per two intervals today).
+- **Promote when L and R share their own spacing (cycle 1, C4):** unchanged from S1 — P is built from L and R as
+  authored and keeps L's spacing (today's bytes), even inside a mixed document. Only an R3 pair takes the next path.
+- **Promote at η between L and R on different spacings (R3):** L\* and R\* (their copies on S\*) are blended in
+  control-point space exactly as R1/R2 (`add-station.md` §2.2 step 2) to give P on S\*. P is written as an authored
+  section **on S\*** (it has no other spacing). The regime follows the measured deviation (Ruling 252); R3 becomes "R1
+  or R2 on the copies". The certificate budget check (§2.7 there) runs as built.
+- **Match the blend** (SF2): the same rule — L's spacing when L and R share it, S\* only for an R3 pair.
+- **Remove:** removing a station can change S\* (the basis, or the anchors it contributed), and then copies far from
+  the gap can change. **Trigger (cycle 1, C3):** under CF, Promote, Match and Remove compare every compatible copy before
+  and after; when any copy changes **bitwise**, they also measure every interval that touches a changed copy, besides
+  the adjacent ones. This is exact (a copy that did not change cannot move its intervals), cheaper than keying on S\*,
+  and still necessary: a far copy refit can move by up to the sum of its two 10 µm admissions, which Remove's 10 µm gate
+  must see. The preview names the intervals measured. Cost: up to (stations − 1) × 129 η × 2001 x per preview
+  (Inferred ≈ 10 s per two intervals today).
 - **Evaluator id after the step:** `IdFor` of the candidate — a Remove that leaves one spacing returns the next row to
   `cfdw-cv/2`.
 
@@ -167,8 +181,10 @@ built. Added by this note:
 | `Evaluator_V2RowWithMixedSpacing_Refused` | a hand-built `cfdw-cv/2` row whose source needs CF | `DOC-VERSION` on read | reader trusts the stored id |
 | `Evaluator_RemoveBackToOneSpacing_V2Again` | mixed document, remove the odd station | new row `cfdw-cv/2` | sticky `cfdw-cv/3` |
 | `Promote_R3_OnCopies_RegimeMeasured` | L-P2 pair (8-point on 10-point), η 0.5 | no `STATION-SPACING`; P on S\*; regime from the measure; deviation ≤ 10 µm | `STATION-SPACING` still returned; P on L's own spacing |
-| `Remove_SharedSpacingChanges_MeasuresWholeSpan` | three stations where the removed one is the basis | measured η count = all intervals; the largest change may lie outside [η_L, η_R] and is found | measure on adjacent intervals only (misses the far change) |
-| `Placement_SingleEntry_NoAuthoredBlendReader` | reflection/grep over Core: every `Placement` public entry reaches the compatible preparation | all do | one entry bypasses it (second definition) |
+| `Remove_CopyChanges_MeasuresTouchedIntervals` (C3) | three stations where the removed one is the basis, so a far copy is refitted | the measured intervals are exactly the adjacent ones plus every interval touching a bitwise-changed copy; the far change is found | measure on adjacent intervals only (misses the far change); trigger keyed on S\* (measures when no copy changed) |
+| `Promote_SharedSpacingInMixedDoc_KeepsLSpacing` (C4) | a mixed document; promote between two stations that share their own spacing | P's knots and control x equal L's bitwise; bytes equal the S1 path's | P written on S\* |
+| `Placement_SingleEntry_NoAuthoredBlendReader` (C2) | reflection over every `Placement` member that reads profile ordinates (the six entries, `ProfileDifferenceMaximum`, `SameRecord`, `SameAbscissa`) and over `StationEdits.Blend` | each reaches the compatible preparation, or is listed as an intentional authored-record comparison with its reason | one member bypasses it (second definition) |
+| `Compatible_AuthoredMode_SingleCaller` (C1) | source and reflection scan | the "as authored" mode has exactly one caller, the residual in `Compatible` | a second caller of the authored mode |
 | `Compatible_SurfaceResidual_SameMeasureAsStations` | L-P2 | residual equals `StationEdits.Measure` of authored vs copies on the same grid, bit for bit | a private second measure |
 
 ## 9. Size estimate (Sonnet build, by node)
@@ -203,8 +219,9 @@ so CF-3 and CF-4 are serial on that file). Wall time ≈ 10-14 h of agent time a
 4. **No regression waits on it.** Today mixed spacing is refused cleanly (`STATION-SPACING`, Unsupported with its
    reason); nothing is silently wrong.
 
-What would make it fit this wave: the leader cuts it to CF-1 alone (the derived stage and its tests, no reader
-switched), ≈ 120 calls, which changes no behaviour and de-risks the rest.
+**CF-1 alone is rejected (cycle 1, TL1; settled by the leader).** It would land `Compatible.cs` with no product caller:
+dead code under CT18a / HYG-A, and CF-0's ruling may change its shape. Spare calls in this wave, if any, go to CF-0 (the
+DR-DF-7..9 ruling and the computational-geometry pass on §3-§6).
 
 ## 11. Owned paths (CF build, when dispatched)
 
@@ -222,15 +239,23 @@ switched), ≈ 120 calls, which changes no behaviour and de-risks the rest.
    authority or a measurement?
 2. Is measuring the copy's residual with `StationEdits.Measure` (one measure for stations and copies) sound, given that
    Measure samples on a grid and the residual is admitted at 10 µm (a sampled lower bound, never a bound)?
-3. Whole-span measure when S\* changes (§6): necessary and sufficient? Could S\* change while every copy stays bitwise
-   equal (then the adjacent measure suffices)?
-4. P written on S\* (§6): P's spacing then depends on the other sections at the time of the promotion. Acceptable, or
-   should P keep L's own spacing when L is the basis?
+3. Answered in cycle 1 (C3): the trigger is "a copy changed bitwise", measuring the intervals it touches.
+4. Answered in cycle 1 (C4): P keeps L's spacing when L and R share it; only an R3 pair writes P on S\*.
+
+### 12b. What changed in cycle 1 (Adversary: ACCEPT WITH CONDITIONS)
+
+| Condition | Change | Section |
+|---|---|---|
+| C1 | the "as authored" mode has one caller, the residual in `Compatible`; test `Compatible_AuthoredMode_SingleCaller` | §3 item 1; §8 |
+| C2 | the single-entry test covers `ProfileDifferenceMaximum`, `SameRecord`, `SameAbscissa` and `StationEdits.Blend`; 21 files re-counted with the grep cited | §4; §8 |
+| C3 | measure every interval touching a bitwise-changed copy | §0; §6; §8 `Remove_CopyChanges_MeasuresTouchedIntervals` |
+| C4 | P keeps L's spacing when L and R share it | §6; §8 `Promote_SharedSpacingInMixedDoc_KeepsLSpacing` |
+| TL1 | next wave; CF-1 alone rejected as dead code; spare calls to CF-0; status marked | frontmatter phase; status line; §10; §13 |
 
 ## 13. Decision requests (not raised by this note)
 
-| Id | Question | Options | Recommendation |
-|---|---|---|---|
-| **DR-DF-7** | How the readers reach the copies | (a) one preparation entry inside `Placement.cs` and one in `Geometry.AssessWithin` (needs a ruling past Rulings 252/256's read-only clause) · (b) every caller passes pre-compatible bytes (18 files; bypass possible) | (a) |
-| **DR-DF-8** | Fit this wave? | (a) next wave, whole build · (b) CF-1 only this wave · (c) whole build this wave | (a); (b) if the leader has ≈ 120 calls spare |
-| **DR-DF-9** | A `cfdw-cv/2` row whose source needs CF | (a) refuse with `DOC-VERSION` · (b) open read-only with the reason | (a), on the `assume:` that no such row exists |
+| Id | Question | Options | Recommendation | Status |
+|---|---|---|---|---|
+| **DR-DF-7** | How the readers reach the copies | (a) one preparation entry inside `Placement.cs` and one in `Geometry.AssessWithin` (needs a ruling past Rulings 252/256's read-only clause) · (b) every caller passes pre-compatible bytes (bypass possible) | (a), with C1-C2 | **next wave** (CF-0 rules it) |
+| **DR-DF-8** | Fit this wave? | (a) next wave, whole build · (b) CF-1 only this wave · (c) whole build this wave | (a); (b) rejected (TL1) | **settled by the leader: (a) next wave** |
+| **DR-DF-9** | A `cfdw-cv/2` row whose source needs CF | (a) refuse with `DOC-VERSION` · (b) open read-only with the reason | (a); the `assume:` is backed by code (Adversary: new rows require Certified, reopen tolerates only GEOMETRY-BUDGET) | **next wave** (CF-0 rules it) |
