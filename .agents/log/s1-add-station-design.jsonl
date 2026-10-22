@@ -3,3 +3,7 @@
 {"agent": "s1-add-station-design", "at": 1792633886.1171649, "kind": "claim", "path": "docs/mockups/add-station.html", "seq": 3, "session": "s1-add-station-design", "ttl": 300.0, "wi": "s1-add-station-design"}
 {"agent": "s1-add-station-design", "at": 1792633886.628965, "kind": "claim", "path": "docs/mockups/add-station.md", "seq": 4, "session": "s1-add-station-design", "ttl": 300.0, "wi": "s1-add-station-design"}
 {"agent": "s1-add-station-design", "at": 1792633887.2384167, "kind": "claim", "path": "docs/specs/amendments/spec-add-station.md", "seq": 5, "session": "s1-add-station-design", "ttl": 300.0, "wi": "s1-add-station-design"}
+{"agent": "s1-add-station-design", "at": 1792634366.409594, "kind": "release", "path": "docs/design/add-station.md", "seq": 6, "session": "s1-add-station-design", "wi": "s1-add-station-design"}
+{"agent": "s1-add-station-design", "at": 1792634366.564893, "kind": "release", "path": "docs/mockups/add-station.html", "seq": 7, "session": "s1-add-station-design", "wi": "s1-add-station-design"}
+{"agent": "s1-add-station-design", "at": 1792634366.7343998, "kind": "release", "path": "docs/mockups/add-station.md", "seq": 8, "session": "s1-add-station-design", "wi": "s1-add-station-design"}
+{"agent": "s1-add-station-design", "at": 1792634366.8869135, "kind": "release", "path": "docs/specs/amendments/spec-add-station.md", "seq": 9, "session": "s1-add-station-design", "wi": "s1-add-station-design"}
