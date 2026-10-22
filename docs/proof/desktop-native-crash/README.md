@@ -69,3 +69,52 @@ the ProcDump filter writes on the fault whatever the harness prints.
 The writer's module is not named by the dumps (the detector runs later, elsewhere). Page heap with allocation stacks
 (an elevated IFEO entry) or a harness rendering-mode switch under the paired loop would name it; both are phases of the
 investigation's repair plan.
+
+## CR2: the cause and the fix
+
+Observed 2026-10-22, SkiaSharp 2.88.9, Windows ARM64 laptop, Release build, nothing else of ours running.
+
+**Cause.** `SKCanvas.DrawVertices(mode, points, texs, colors, paint)` is `var vert = SKVertices.CreateCopy(...)` followed by
+`DrawVertices(vert, SKBlendMode.Modulate, paint)` (SkiaSharp v2.88.9 `binding/Binding/SKCanvas.cs`, lines 975 to 979). The inner
+call reads `vertices.Handle` and calls `sk_canvas_draw_vertices` (line 999). After the handle is read nothing keeps `vert`
+reachable, so a collection during the native draw runs the finalizer and frees the vertex data the draw is still using. The
+product's only call site was `MeshFrame.Draw` in `src/CfdWorkbench.Desktop/SurfaceRenderer.cs`.
+
+**Fix.** `MeshFrame.Draw` builds the vertices itself and holds them: `using var vertices = SKVertices.CreateCopy(...)`,
+`canvas.DrawVertices(vertices, SKBlendMode.Modulate, fill)`, `GC.KeepAlive(vertices)`. The blend mode is the helper's own
+(Modulate, line 978), so no pixel changes.
+
+**The probe.** `CFD_VERTICES_GC_PROBE=1 CfdWorkbench.Desktop.Tests.exe --harness --vertices-lifetime-probe` spawns two
+children one after the other (`=array`, `=held`); each draws 3,000 per-vertex-coloured vertices on a raster surface for 60 s while
+a second thread runs `GC.Collect()` plus `GC.WaitForPendingFinalizers()` continuously. Called explicitly without the variable, the parent prints one
+SKIP line and no arm runs; the full `--harness` run never spawns the probe, so it prints no SKIP line. `tools/run-tests.sh` unsets the variable. The `held` arm draws through the shipped `MeshFrame.Draw` (Desktop grants the test assembly `InternalsVisibleTo`)
+in its own non-inlined method so the JIT tiers it up as in the app; the `array` arm is the positive control and must crash. The parent exit is the verdict: 0 only when held survived and the control crashed (`PASS VerticesLifetime: held survived ...`); held crashed or a control that does not crash is a FAIL. Release only: a Debug build prints a SKIP for the held verdict. The three pure verdict checks run first.
+
+| Run | Result |
+|---|---|
+| `array` (the helper, unchanged by the fix) | `FAIL ... exited -1073741819 (0xC0000005): native crash, not a check verdict` after 8.0 s (two parent runs: 8.1 s and 8.0 s of child time) |
+| `held`, before the fix to `MeshFrame` | `PASS VerticesLifetime_held: 551 draws under 544403 collections in 60 s`, exit 0 |
+| `array`, after the fix | 0xC0000005 again (the arm is the defect, kept as the probe's red) |
+| `held`, after the fix, through the shipped `MeshFrame.Draw` | `PASS VerticesLifetime_held: 547 draws under 535571 collections in 60 s`; parent: `PASS VerticesLifetime: held survived 547 draws under 535571 collections; the array control crashed (0xC0000005)` |
+| Mutant: `held` without `using` and without `GC.KeepAlive` | `Fatal error. 0xC0000005`, child killed natively (bash shows 139) |
+| Mutant: `held` with `using`, without `GC.KeepAlive` | survived: 546 draws under 626755 collections. `using` alone holds it (`Dispose` is a use); `GC.KeepAlive` is the explicit statement of the intent |
+| Mutant: the helper restored in `MeshFrame.Draw` (the shipped site), `held` arm, Release | `Fatal error. 0xC0000005`, child killed natively (bash shows 139); reverted, `MeshFrame.Draw` diff empty |
+
+The surface modes stay green with no pixel check changed, each run alone: `--views` 111 PASS, `--analysis` 64,
+`--properties-cells` 26, `--shell-window` 121, `--plan-canvas` 112, all with 0 FAIL, exit 0; `--harness --theme-evidence` exit 0.
+
+**Sweep** (every SkiaSharp use in `src/` and `tests/`; `SurfaceRenderer.cs` is the only source file with `using SkiaSharp`):
+
+| Where | What | Verdict |
+|---|---|---|
+| `SurfaceRenderer.cs:189` `MeshFrame.Draw` (begins at 178), the `DrawVertices` call | helper made an unheld `SKVertices` | fixed |
+| `SurfaceRenderer.cs:180-181` `fill`, `stroke` | `SKPaint` | safe: `using var`, in scope through every draw |
+| `SurfaceRenderer.cs:160` `lease` | `ISkiaSharpApiLease` | safe: `using var`, the draw runs inside it |
+| `SurfaceRenderer.cs:195` `DrawPoints` | array overload | safe: the binding pins the array for the call |
+| `SurfaceRenderer.cs:207-213, 278-279, 322-329` | `SKPoint`, `SKColor` arrays and lists | safe: managed value types |
+| `VerticesLifetimeProbe.cs` `array` arm | the helper, on purpose | the defect under test, spawned only under the variable |
+| `VerticesLifetimeProbe.cs` `surface`, `fill`, `DrawHeld` | `SKSurface`, `SKPaint`, `SKVertices` | safe: `using var` |
+| `src/` outside `SurfaceRenderer.cs`, `tests/` outside the probe | Avalonia drawing (`DrawingContext`, `RenderTargetBitmap`) only | no SkiaSharp native temporary; Avalonia owns those lifetimes |
+
+No fix outside `SurfaceRenderer.cs`, so no seam request. The claim that the defect is gone rests on the paired loop on both
+rendering paths, run by the main session after this change.

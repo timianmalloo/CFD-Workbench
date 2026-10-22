@@ -30,6 +30,7 @@ export TMPDIR="$scratch/tmp" TMP="$scratch/tmp" TEMP="$scratch/tmp"   # .NET on 
 export DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_NOLOGO=1 DOTNET_TieredPGO=0
 # Clear any inherited test-subset or probe selectors so a prior shell cannot narrow or redirect a harness.
 unset CFD_TEST_ONLY CFD_NATIVE_CAPABILITY_PROBE CFD_DESKTOP_SLOTS_BASELINE CFD_TEST_CHILD_WRAPPER CFD_FORCE_HEAP_CORRUPTION CFD_COMPARE_ENCODE_TIMING CFD_SF2_TIMING 2>/dev/null || true
+unset CFD_VERTICES_GC_PROBE
 for v in $(compgen -e | grep '^CFD_OWNER_STRIPPING_'); do unset "$v"; done
 
 started=$SECONDS

@@ -183,7 +183,11 @@ internal sealed class MeshFrame
         {
             if (batch.Colors is { } colors)
             {
-                canvas.DrawVertices(SKVertexMode.Triangles, batch.Points, null, colors, fill);
+                // The array helper's SKVertices is unreachable once its handle is read, so a collection during the native draw
+                // finalized it mid-call (NATIVE-TEMPORARY-FINALIZED-MID-CALL). Hold it; Modulate is the helper's own blend mode.
+                using var vertices = SKVertices.CreateCopy(SKVertexMode.Triangles, batch.Points, null, colors);
+                canvas.DrawVertices(vertices, SKBlendMode.Modulate, fill);
+                GC.KeepAlive(vertices);
                 continue;
             }
             stroke.Color = batch.StrokeColor;
