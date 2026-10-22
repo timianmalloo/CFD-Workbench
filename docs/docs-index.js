@@ -1746,6 +1746,45 @@ window.DOCS_INDEX = {
       "sourceSha256": "a751c211ad65b84b206fabe0105424dfa8788ed278cc51c49e54e437f4ef869c"
     },
     {
+      "id": "note-discrepancy-records",
+      "path": "docs/notes/discrepancy-records.md",
+      "title": "Discrepancy records in the analysis member of cfdw-project-2",
+      "type": "decision-note",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "The A3d Compare slice adds an optional discrepancies member to the analysis object of cfdw-project-2, one record per unordered pair of Completed runs in canonical orientation; it refines ADR-0011 (expand only, older readers refuse the file, referenced runs are never pruned) without editing it.",
+      "tags": [
+        "analysis",
+        "persistence",
+        "compare",
+        "discrepancy-record",
+        "adr-0011"
+      ],
+      "links": [
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "refines"
+        },
+        {
+          "to": "design-a3d-compare",
+          "rel": "relates-to"
+        },
+        {
+          "to": "spec-amendments-1-7-7",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ec8d3646543d56f1114556cd11137b95e87c8bc313140c0ddf5099c985179d18"
+    },
+    {
       "id": "note-m1-scope-decision",
       "path": "docs/notes/m1-scope-decision.md",
       "title": "User decision — section editing in M1.1; on-screen timing removed as a gate; Windows deferred",
@@ -2200,6 +2239,47 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "da2a659e45dffc501e47f21e2a6725fec8bdd3826b3da9d73fc20796d7d8f265"
+    },
+    {
+      "id": "design-a3d-compare",
+      "path": "docs/design/a3d-compare.md",
+      "title": "A3d Compare — two runs side by side and the Discrepancy record",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "The A3d slice of Area 3, revised after Adversary cycle 1: compare two Completed Analysis runs (two revisions, or the wing estimator against a VLM + strip run at the same inputs), show inputs and envelopes side by side, give per-point deltas normalised to the base value, block every numeric delta when reference quantities, the operating point or the water differ, and store one append-only Discrepancy record per unordered pair in a canonical orientation beside the runs in cfdw-project-2. Built as two serial nodes: A3d-1 the estimator tier, A3d-2 Compare.",
+      "tags": [
+        "area-3",
+        "analysis",
+        "compare",
+        "discrepancy-record",
+        "ana-06",
+        "persistence",
+        "estimator"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "mockup-a3d-compare",
+          "rel": "relates-to"
+        },
+        {
+          "to": "spec-amendments-1-7-7",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a76f96027dd22fa4c8c9c03ee0b88cedea8ecd973783a673998aacf9bf51f681"
     },
     {
       "id": "design-app-shell",
@@ -3902,6 +3982,46 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "b834c7381e6b2ed57ee0f816caa417d98f3f753d69af48a832a2eb92bfaba945"
+    },
+    {
+      "id": "mockup-a3d-compare",
+      "path": "docs/mockups/a3d-compare.md",
+      "title": "A3d Compare — the Compare tab of the Analysis panel",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "Eight states of the Compare tab of the Analysis bottom panel: a wing VLM run against the wing estimator, two revisions, no second run, incompatible reference quantities, different water, a Historical base, loading and an error. Every delta is computed in the page from the fixture numbers below with the design's one formula; a contrast audit prints the measured token ratios per theme. For the operator's review before any build.",
+      "tags": [
+        "mockup",
+        "area-3",
+        "analysis",
+        "compare",
+        "discrepancy-record",
+        "hard-states"
+      ],
+      "links": [
+        {
+          "to": "design-a3d-compare",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-area3-analysis",
+          "rel": "refines"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "79ce42655a340bd8e61beaf77b61ca7e51923a9136d859e40380a03affba39d5"
     },
     {
       "id": "mockup-area3-analysis",
@@ -9426,7 +9546,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "85fc4342179b7fe5972b41a9f5ef7187f584b3070d431b22bd3817328ca3b813"
+      "sourceSha256": "f86afc9fb15ebbeb8db70d6f51595091491efd2c652ae408bc0ccc1514352b1b"
     },
     {
       "id": "kb-hw-glossary",
@@ -22530,6 +22650,46 @@ window.DOCS_INDEX = {
       "sourceSha256": "1afdf5caae6c73a1e908605c4b662c192f19dc4a1d08b8fbfd4247d825d5f567"
     },
     {
+      "id": "spec-amendments-1-7-7",
+      "path": "docs/specs/amendments/spec-1.7.7.md",
+      "title": "Spec 1.7.7 amendment note — the Discrepancy record grain, ρ derived, dimensional loads not stored (ANA-06, A3d)",
+      "type": "spec",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "Three proposed amendments to cfd-workbench-v1 lines 259 and 329, from Ruling 250 Q2 and Q5 and the A3d Compare design: one Discrepancy record per unordered pair of evaluations in canonical orientation with one line per quantity, rho derived on read and never stored, and dimensional loads kept out of the stored lines. Proposed; the Data & Persistence lens confirms the text before the A3d build.",
+      "tags": [
+        "spec",
+        "amendments",
+        "analysis",
+        "compare",
+        "discrepancy-record",
+        "ana-06"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-amendments-1-7-6",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-a3d-compare",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "cb8d874199c0d3cf65d518c8f900f2c1af150b9129e8b5d2859740b8bf299044"
+    },
+    {
       "id": "spec-cfd-workbench",
       "path": "docs/specs/cfd-workbench.md",
       "title": "CFD-Workbench — product specification",
@@ -22997,6 +23157,14 @@ window.DOCS_INDEX = {
       "description": "Open an interactive knowledge artifact."
     },
     {
+      "id": "surface-mockups-a3d-compare",
+      "path": "docs/mockups/a3d-compare.html",
+      "title": "A3d Compare mockup",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-a3d-compare"
+    },
+    {
       "id": "surface-mockups-area3-analysis",
       "path": "docs/mockups/area3-analysis.html",
       "title": "Area 3 analysis",
@@ -23332,5 +23500,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "b32bc4497da262634686363a4134c67feec3f376bfcca613b5ad2e91bb1795c2"
+  "graphSha256": "e37378939c8c6f1e6f757a0968c0b034fe597377cb20e051c8a155510487ea4f"
 };
