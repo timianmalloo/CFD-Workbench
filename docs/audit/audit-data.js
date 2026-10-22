@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T04:00:31Z",
+  "generated": "2026-10-22T07:02:04Z",
   "audit": [
     {
       "actor": null,
@@ -41507,6 +41507,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T03:58:34Z",
       "duration_seconds": 117.0
+    },
+    {
+      "id": "al-01M5H6NF6EE4F8VRZTHJAVNHBZ",
+      "shortname": "join-s1-add-station-build",
+      "datetime": "2026-10-22T07:02:04Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "S1 build joins: AddStation and RemoveStation in Core under rule A with the measured sampled deviation (Ruling 252; Ruling 256 Placement predicates internal), the inspection slice in Plan, Front and Side, Promote and Remove flyouts, keyboard placement, the slice chip automation peer, copy rows COPY-553..588; 21 Core checks, Desktop D1-D9 and the cost checks red first; two Adversary passes, one veto cleared, four repair dispatches; the DESIGN.md copy-table conflict with W2's rows resolved by keeping both recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "build Add station after its design",
+      "done_when": "the design's named tests green under run-tests on main; check-docs 0; xaml-token-lint clean; CI green after the push",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-22T06:58:45Z",
+      "duration_seconds": 199.0
     }
   ],
   "changes": [
@@ -45063,6 +45090,24 @@ window.AUDIT_DATA = {
       "to": "opus-leader",
       "kind": "ruling",
       "ref": "req-01M5GT90RSCDKCJHBZ8XSXRNE3",
+      "session": "opus-owner"
+    },
+    {
+      "id": "mail-01M5GZXAR42WZVQAFZR61D2YS5",
+      "ts": "2026-10-22T05:04:02Z",
+      "from": "opus-leader",
+      "to": "opus-owner",
+      "kind": "decision-request",
+      "ref": "req-01M5GZX9NKWESEDP86VX3SCKNW",
+      "session": "opus-leader"
+    },
+    {
+      "id": "mail-01M5GZYXQS2GG3R9HAPCXTS01R",
+      "ts": "2026-10-22T05:04:54Z",
+      "from": "opus-owner",
+      "to": "opus-leader",
+      "kind": "ruling",
+      "ref": "req-01M5GZX9NKWESEDP86VX3SCKNW",
       "session": "opus-owner"
     }
   ]

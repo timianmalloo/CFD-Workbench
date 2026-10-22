@@ -9651,7 +9651,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "57709579aff769c777cc48fb03743457ed7f08f1fe2ea9a35612f8eaa0aedf1c"
+      "sourceSha256": "453a3f2b136c7c3e408fbe7cf7439cf511053573517486ec8a734afcd27df54d"
     },
     {
       "id": "kb-hw-glossary",
@@ -13169,6 +13169,36 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "be62c92d1e79c12675dbcfee5dff1495b50e66dee36b69e451fee95cbf04af60"
+    },
+    {
+      "id": "proof-add-station",
+      "path": "docs/proof/add-station/README.md",
+      "title": "Add station build proof: red and green lines, mutants, measured deviations",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@track-s1-add-station-build",
+      "phase": "implementation",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "The observed red and green lines of the Add station build, by node. Node S1-a (Core and CLI visibility) is recorded: 21 checks red on the stubs and green after, mutants M1 to M6, M8 and M9 red, the measured deviations and k of the real pairs, the plan cost. Node S1-b (Desktop: the slice, Promote, Remove, the flyouts, the promotion-cost checks, M7, the copy id mapping) is recorded.",
+      "tags": [
+        "add-station",
+        "remove-station",
+        "inspection-slice",
+        "promote",
+        "rule-a",
+        "cad-02",
+        "cad-09",
+        "geo-06"
+      ],
+      "links": [
+        {
+          "to": "design-add-station",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "8639878a3c165a483a9ed3e74e11bef32d76076c39b0019a1ab32520bbda94cc"
     },
     {
       "id": "proof-app-shell-test-inventory",
@@ -23719,5 +23749,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d396116e9b11d1b44c4bb73c84aa8a2d16a4b7f1ee01bd2a1b79664310ccc3fa"
+  "graphSha256": "6ec67196d22c54084c3095fde5a678bbbc6289ea3b4b51d3e023f3be33f44c73"
 };
