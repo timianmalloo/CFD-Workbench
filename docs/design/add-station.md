@@ -14,6 +14,7 @@ links:
   - {to: design-cross-profile-abscissa, rel: relates-to}
   - {to: design-planform-point-verbs, rel: relates-to}
   - {to: spec-amendments-add-station, rel: relates-to}
+  - {to: spec-amendments-1-7-9, rel: relates-to}
   - {to: design-language, rel: depends-on}
 review-by: 2027-01-31
 summary: >-
@@ -639,3 +640,255 @@ Seams:
 (models, not the product), the CLI serialisation, the 3D selected-station path, the status live region. Residual risk:
 the F-SAMEPEAK plateau fixture constrains six of ten thickness ordinates; if the build cannot make it pass `Assess` it
 records why and substitutes a fitted common-peak pair with its measured regime.
+
+## 13. Follow-up SF2 — "Match the blend" before Remove
+
+Track DF of `next-best-six` wave 2 designs this; the SF2 build implements it. It is DR-S1-2 option (c), the S1
+Adversary's missed option, recorded in §5.4 as "not built". Labels: **Verified** = opened at `main` `b51315c4`;
+**Inferred** = reasoned; **Verified by derivation** = §2.4's algebra applied here.
+
+### 13.1 The answer in five lines
+
+1. **Match the blend** is a previewed command on an interior station M. It replaces M's profile with the rule-A blend
+   of M's two neighbours L and R at η_M, built exactly as Promote builds P (§2.2 step 2, `StationEdits.Blend`), and
+   leaves η_M, the assignment and the t/c channel unchanged.
+2. The preview shows two measured numbers on the Remove grid: the **change** Match makes now, and the **residual** a
+   later Remove would still make.
+3. **Remove after Match is exact (measured ≤ 10⁻¹²) only when L and R share a thickness peak.** When their peaks differ,
+   Remove after Match changes the loft by exactly the R2 promotion deviation of (L, R) at η_M (§13.3). This narrows the
+   brief's "after which Remove is exact": the uniqueness argument of §2.4 shows that no profile at η_M makes Remove
+   exact under rule A. It does not show that the blend minimises the residual (cycle 1, G2; in the Adversary's model the
+   blend is the minimum along the blend-weight family, with no general proof).
+4. Match has **no 10 µm gate**: it is a deliberate authored edit, like Rebuild to N (A4.6 1.7 note). Its change is shown
+   before Apply. The later Remove keeps its own 10 µm gate (DR-S1-2 (a)). Settled by **Ruling 262** (DF-Q2 (a)) (DR-DF-4): Apply is always available.
+5. One undo step. One geometry authority: the blend is `PlacementRule.Components` / `PlacementRule.Blend` through the
+   existing `StationEdits.Blend`; the measure is the existing `StationEdits.Measure`; `Placement.cs` stays read-only.
+
+### 13.2 Data rule (first)
+
+**Authored vs derived.** M's profile ordinates are **authored** data; Match rewrites them, so it is an edit of record,
+never a view. The matched profile P is a **derived value at the moment of the command** (the blend of L and R at η_M),
+then stored as authored ordinates. Nothing records "this station is matched": if L or R is edited later, M keeps its
+ordinates and the next Remove measures the new deviation (no hidden link, no second definition; DM7). The only stored
+trace is the profile's `provenance` line (§2.2 step 6 grammar): `"matched to the blend of <L name> and <R name> at
+<η text>"`.
+
+The provenance, closure, degree, knots, points and (empty) tangents are all written by one whole-block replacement
+(step 3, cycle 1 G1), so none of M's old attributes survive. `FoilSource.WriteSurfaces` / `RewriteCurves`
+(`FoilSource.cs` line 317 and lines 944-974) rewrite only knots, points and ids, so they are **not** used: they would
+keep M's tangents, closure and provenance and throw `DSL-PATCH` on a degree difference.
+
+**Invariants.** ST-I1..ST-I3 (§1.3) hold. Added: **SF2-I1** η_M, the assignment order and every channel are byte-equal
+before and after; **SF2-I2** only M's profile changes (a profile shared with another station is first made independent
+for M by `FoilSource.MakeIndependent`, Verified at line 494, so the other station's bytes are unchanged); **SF2-I3** P's
+spacing (degree, knots, control x) is L's, bitwise.
+
+**What it writes (text path, all existing functions).**
+1. If M's profile is referenced by another assignment: `FoilSource.MakeIndependent(source, profile, index)` → a new
+   profile name for M (its own naming loop).
+2. P = `StationEdits.Blend(l, r, w_M, t(η_M), name, provenance)` with `w_M = Binary64.BlendWeight(η_M, η_L, η_R)` and
+   `t(η_M) = ChannelEvaluator.At(thickness, η_M)` — the Promote path (`AuthoringSession.cs` lines 2783-2789, Verified).
+   R0 (L and R one record): P's ordinates are L's.
+3. **Whole-block replacement (G1):** M's profile block, from its `BlockStart` to its `BlockEnd`, is replaced by
+   `FoilSource.ProfileBlock(P)` under M's (possibly new) profile name — the same bytes Promote writes for P
+   (`StationEdits.Promote`, the `ProfileBlock(Blend(...))` line, Verified): degree, knots and control x from L, P's ordinates, closure (closed iff L
+   and R are closed), provenance, ids `cv-0..n-1` from `StationEdits.With`, and no tangent rows. The splice is a new
+   internal `FoilSource.ReplaceProfileBlock(source, name, block)` beside `AddAssignment` (Inferred: no existing function
+   replaces a whole block; the build checks), re-parsed, Guard `DSL-PATCH`. **Ids (G4):** always `cv-0..n-1`; M's own
+   point count does not matter, because P takes L's spacing, so there is no point-count refusal.
+4. Re-parse; Guard `DSL-PATCH`; `Geometry.Assess` on the candidate with the §2.7 mapping (`STATION-BUDGET`,
+   `STATION-NOT-ASSESSED`): if M was the same record as a neighbour, Match adds a differing station.
+
+**Preconditions (refusals; nothing changes).**
+
+| Condition | Code | Note |
+|---|---|---|
+| M is root or tip | `STATION-ENDPOINT` | as Remove |
+| L.upper, L.lower, R.upper, R.lower fail the four-curve spacing identity (L and R not one record) | `STATION-SPACING` | R3; unreachable in an accepted source today (§2.1: blended neighbours share abscissae); after Ruling 73's fit, see `compatible-fit.md`. M's own spacing is not tested (G4) |
+| the measured change is ≤ 10⁻¹² relative | `STATION-MATCHED` (new) | M already is the blend; Remove is already exact; nothing to apply |
+
+A closure difference between M and P is not a refusal: the block write sets P's closure (DR-DF-6 settled (b); the
+`STATION-CLOSURE` code proposed in cycle 0 is removed).
+| a draft is open | `DSL-DRAFT-OWNED` | as Promote and Remove |
+
+### 13.3 Regimes, and what Remove does afterwards (Verified by derivation; model-checked)
+
+After Match, the stations are L, P, R with P the blend of L and R at η_M. Removing M then compares loft{L, P, R}
+against loft{L, R} on [η_L, η_R]. That is **the same pair of lofts** Promote compares when it promotes the slice η_M
+between L and R (§2.4). So the residual **is** the promotion deviation of (L, R, η_M), and §2.4 gives its regimes:
+
+| Regime of (L, R) at η_M | Match change | Remove after Match | Note |
+|---|---|---|---|
+| **R0** L and R one record | M's old profile vs L's (any size) | **0** (exact) | P is L's ordinates |
+| **R1** shared spacing, common peak (k = 1) | as measured | **≤ 10⁻¹²** (exact) | the brief's case |
+| **R2** shared spacing, differing peaks (k < 1) | as measured | **= the R2 promotion deviation** of (L, R, η_M), > 10⁻¹²; Remove keeps its 10 µm gate | no profile at η_M makes Remove exact (§2.4); minimality of the blend not proven (G2) |
+| **R3** differing spacing | — | — | refused, `STATION-SPACING` |
+
+Model check (scratch, a unit-thickness power-remap model of rule A, **Inferred** for the product): peaks 30 % / 50 % /
+40 % at η 0 / 0.5 / 1 — Remove before Match 3.35 × 10⁻¹ of unit thickness, Match change 3.35 × 10⁻¹, Remove after
+Match 3.23 × 10⁻⁴, and the promotion deviation of (L, R) at 0.5 is the same 3.23 × 10⁻⁴; with a common peak, Remove after
+Match is 1.1 × 10⁻¹⁶. So Match turns a large refused Remove into a deliberate previewed edit plus a Remove whose change is
+the (usually small, §2.5) R2 residual. The total change from the original loft to the final one is the same either way
+(the final loft is loft{L, R}); Match only splits it into a step the user sees and approves.
+
+### 13.4 Deviation definition (the same measure and grid as Promote and Remove)
+
+Both numbers use `StationEdits.Measure` (`AuthoringSession.cs` line 2873, Verified) through `Placement.Sections`, on the
+Remove grid: `Grid(grid, (η_L, η_M), (η_M, η_R))` — 129 η per interval plus the station η values — × 2001 x
+(`StationGrid.Production`, line 2740, Verified); norm max(|Δupper|, |Δlower|); δ_rel per local chord, δ_m = max c(η)·δ(η);
+labelled sampled with its grid, never a bound (Ruling 252).
+
+- **Change** = Measure(accepted, candidate).
+- **Residual** = Measure(candidate, RemoveAssignment(candidate, index)). Its regime label (R0 / R1 / R2) is
+  `StationEdits.Regime(sameRecord(L, R), worstRelative)` — the measurement decides, never a peak prediction (Ruling 256 G1).
+
+`assume:` the residual equals `PreviewPromote` of (L, R) at η_M bit for bit, because `Measure` takes absolute differences
+(symmetric in binary64) and P is built by the same call with the same arguments. Confirms:
+`MatchBlend_DifferingPeaks_ResidualEqualsPromotionDeviation`. Breaks if false: the two numbers differ in the last bits;
+the test then asserts ≤ 1e-15 relative and the proof note records why.
+
+**Cost.** Two measures per preview. Ruling 256 Q2 measured one at about 10 s on this laptop, so the preview is about
+20 s (Inferred), off the UI thread with S1-COPY-20 "Checking…" and Cancel. The `Placement.Sections` speed-up is out of
+scope (Ruling 256 Q2 (b)); the residual is not skipped to save time, because it is the number the user decides on.
+
+### 13.5 Commands, undo, UI and copy (provisional SF2-COPY ids)
+
+**Core API** (`AuthoringSession.cs`, beside Remove): `PreviewMatchBlend(int index) → MatchPreview(Index,
+ChangeRelative, ChangeMeters, ChangeAtEta, ResidualRelative, ResidualMeters, ResidualAtEta, ResidualRegime,
+SharedWith, TangentsDropped, RefusalCode, Reason) { Grid }` and `MatchBlend(string operationId, int index) →
+MatchOutcome(AcceptedId, MatchPreview)`. Both through the `Run` wrapper (events `preview-match-blend`, `match-blend`
+with regime, change and residual in the outcome; §11 telemetry).
+
+**Undo.** One accepted revision, one undo step; Undo restores the source bytes (SF2-I1 and SF2-I2 make that a byte
+check). Match then Remove are two steps; undoing both restores the original.
+
+**Where it is offered.** (1) In the Remove flyout, when the Remove deviation is above 10⁻¹² (the button is the
+flyout's secondary action; when Remove is above 10 µm it is the only enabled action besides Cancel). (2) `station.match-
+blend` in the palette and the Edit menu, and a button in the station's Properties next to Remove. The flyout title is
+"Match <name> to the blend"; Apply / Cancel; Return applies; Escape cancels and returns focus to the invoking control.
+After Apply, M stays selected and the Remove flyout reopens if Match was invoked from it.
+
+| Id | Exact string | Where |
+|---|---|---|
+| SF2-COPY-1 | Match the blend… | command, Properties button, Remove flyout button |
+| SF2-COPY-2 | Replace <name>'s profile with the blend of <left> and <right> at η <η>. Largest change <µm> µm (<rel> of chord) at η <at>, sampled on 129 η × 2001 x, not a bound. | preview, change |
+| SF2-COPY-3 | Then Remove <name> is exact. | preview, residual R0/R1 |
+| SF2-COPY-4 | Then Remove <name> still changes the loft by <µm> µm (<rel> of chord) at η <at>: <left> and <right> have their thickest point at different chord positions. Remove's limit is 10 µm. | preview, residual R2 at or below 10 µm |
+| SF2-COPY-4b | Then Remove <name> still changes the loft by <µm> µm (<rel> of chord) at η <at>, above the 10 µm limit: Remove stays unavailable after this match. | preview, residual R2 above 10 µm (G5) |
+| SF2-COPY-5 | <profile> is shared with <stations>. Only <name> gets the new profile. | preview, shared profile |
+| SF2-COPY-6 | <n> tangent constraints on <name> are removed. | preview, tangents dropped |
+| SF2-COPY-7 | Matched <name> to the blend of <left> and <right>. Largest change <µm> µm at η <at>. Thickness: keep current. | status receipt |
+| SF2-COPY-8 | <name> already matches the blend of its neighbours. Remove is exact. | disabled reason, `STATION-MATCHED` |
+
+Root/tip, draft and spacing reasons reuse S1-COPY-12, S1-COPY-13 and S1-COPY-9. No colour carries meaning alone; the two
+numbers are text. WCAG 2.2 AA as §5.6.
+
+**Hard states.** Checking (S1-COPY-20, Cancel enabled); refused (reason as description, Apply disabled); stale accepted
+revision while the preview was open (the preview is discarded and re-run, as Promote; T10 pattern); budget refusal
+(`STATION-BUDGET` text of Promote); measure failure (the session's `ContractError` reason in the flyout, nothing applied).
+
+### 13.6 E7 surface list (SF2 build)
+
+| # | Surface | Change | File |
+|---|---|---|---|
+| 1 | Source | `ReplaceProfileBlock` (new, internal; the whole-block splice, G1); `MakeIndependent`, `ProfileBlock`, `RemoveAssignment` (measure only) reused | `src/CfdWorkbench.Core/FoilSource.cs` |
+| 2 | Blend + measure | `StationEdits.Match` (plan), reusing `Blend`, `Measure`, `Grid`, `Regime` | `src/CfdWorkbench.Core/AuthoringSession.cs` |
+| 3 | Session | `PreviewMatchBlend`, `MatchBlend`, `MatchPreview`, `MatchOutcome` | `AuthoringSession.cs` |
+| 4 | Geometry authority | none — read only | `Placement.cs`, `Geometry.cs`, `SectionEdits.cs` |
+| 5 | Controller | `PreviewMatchBlend`, `MatchBlend`, enablement and reasons; the Remove flyout's secondary action | `src/CfdWorkbench.Desktop/WorkbenchController.cs` |
+| 6 | Properties | the station panel button | `src/CfdWorkbench.Desktop/PropertiesView.cs` |
+| 7 | Commands and menu | `station.match-blend` | `Shell/CommandTable.cs`, `Shell/NativeMenuBuilder.cs` |
+| 8 | Views | none new: the accepted-changed rebuild redraws Plan, Elevation, 3D, Browser and the section thumbnail (Inferred; D-M1 checks one) | read |
+| 9 | CLI `inspect --json` | none: the profile ordinates already print | read |
+| 10 | Save / reopen | none (a profile edit) | — |
+| 11 | Copy | SF2-COPY-1..8 and SF2-COPY-4b | `DESIGN.md` §7 (mapped at build) |
+
+### 13.7 Red-first tests (SF2 build)
+
+Red discipline as §7 (stubs return the base unchanged). Fixtures in `tests/fixtures/stations/` (§7): **F-THREE**
+(F-CAMBER with a station at η 60 % carrying F-PEAK's tip; Remove above acceptance; L and R share a peak) and a new
+**F-PEAK3**: F-PEAK (root NACA 0012 basis, tip peaking at 40 %) with a station at η 50 % carrying F-CAMBER's tip (L and R
+differ in peak), and (cycle 1, T1) **F-FOUR**: four stations at η 0, 0.3, 0.6, 1 — root NACA 0012 basis, η 0.3
+F-CAMBER's tip, η 0.6 F-PEAK's tip, tip = F-CAMBER's tip with twice the camber — so the matched station (index 2, η 0.6)
+has η_L = 0.3 > 0 and w_M = (0.6 − 0.3)/(1 − 0.3) = 0.428571… ≠ η_M. Ring 0, Core.Tests, coarse grid where §7 allows,
+production grid in one test.
+
+| Test | Input | Expected | Mutant it kills |
+|---|---|---|---|
+| `MatchBlend_CommonPeak_ThenRemoveExact` | F-THREE, station 1 | after `MatchBlend`, `PreviewRemove(1)`: DeviationRelative ≤ 1e-12, Admitted | P blended from (L, M) instead of (L, R) |
+| `MatchBlend_InteriorNeighbours_WeightFromNeighbours` (T1) | F-FOUR, station 2 (L = η 0.3, R = η 1; both share the camber-only thickness shape, so the regime is R1) | after `MatchBlend`, `PreviewRemove(2)`: DeviationRelative ≤ 1e-12 | **P blended with w = η_M (0.6) instead of (η_M − η_L)/(η_R − η_L) (0.4286)** — survives on F-THREE and F-PEAK3, where L is at η 0 and R at η 1 |
+| `MatchBlend_DifferingPeaks_ResidualEqualsPromotionDeviation` | F-PEAK3, station 1 | `ResidualRelative` equals `PreviewPromote` of F-PEAK at η 0.5 bit for bit; regime R2; after Match, `PreviewRemove(1)` reports the same number; **(T4) M's matched upper and lower control ordinates equal the P that `PreviewPromote` of F-PEAK at η 0.5 builds, bit for bit** (the premise, checked on its own so a failure is localised) | a residual predicted from k (peak positions) instead of measured; residual reported as 0 ("exact"); a second blend construction for Match |
+| `MatchBlend_Change_EqualsRemoveBefore_WhenCommonPeak` | F-THREE | Change within 1e-12 relative of the `PreviewRemove(1)` deviation before Match | change measured on one interval only |
+| `MatchBlend_Grid_SameAsRemove` | F-THREE | `Grid` label and η count equal `PreviewRemove`'s | a private grid |
+| `MatchBlend_ChannelsAndEtaUnchanged` | F-THREE; **(T2) F-PEAK3, where k < 1** | every channel block and the assignment line byte-equal; on F-PEAK3, `ProfileDifferenceMaximum` of M's new profile = t(η_M) within 1e-12 | **P not rescaled by 1/k** (survives on F-THREE, where k = 1); η text rewritten |
+| `MatchBlend_SharedProfile_OnlyThisStation` | F-THREE variant where root and station 1 share a profile | root's profile bytes unchanged; station 1 names a new profile; SharedWith lists root | the shared block rewritten in place (root changes) |
+| `MatchBlend_Endpoint_Refused` | root, tip | `STATION-ENDPOINT`, bytes unchanged | endpoint matched to a one-sided blend |
+| `MatchBlend_AlreadyMatched_Refused` | Match twice | second call `STATION-MATCHED`, no new revision | a second identical revision appended |
+| `MatchBlend_Budget_Refused` | injected `assess` returning the operation bound (as Promote's tests) | `STATION-BUDGET`, bytes unchanged | budget check skipped when M was a copy of L |
+| `MatchBlend_Closure_FromNeighbours` | open M between closed L and R | M's block reads `closed` after Match; Assess certifies | closure keyword left stale (the `WriteSurfaces` path, G1) |
+| `MatchBlend_Undo_RestoresBytes` | Match then Undo | source bytes equal the original | two undo steps |
+| `MatchBlend_EvaluatorIdUnchanged` | F-THREE | `cfdw-cv/2` before and after | evaluator id bumped |
+| `MatchBlend_TangentsDropped_Counted` | M with one tangent row | `TangentsDropped` = 1 and SF2-COPY-6; **(T3) M's block after Match contains no tangent row (its bytes have no `tangent` token)** | tangents silently dropped; **tangents kept while the count says dropped (the `WriteSurfaces` path)** |
+| Desktop `RemoveFlyout_AboveLimit_OffersMatchBlend` (`--controller-shell`) | F-THREE, Remove station 1 | Apply disabled (S1-COPY-15), Match the blend enabled and focusable | button missing when Remove is refused |
+| Desktop `MatchBlend_Flyout_KeyboardPath` | open by command | focus on Apply when enabled; names announced; Escape returns focus | focus lost on Escape |
+
+### 13.8 Owned paths (SF2 build) and seams
+
+`src/CfdWorkbench.Core/AuthoringSession.cs` (StationEdits.Match and the public pair); `src/CfdWorkbench.Core/FoilSource.cs`
+(`ReplaceProfileBlock`); `src/CfdWorkbench.Desktop/WorkbenchController.cs`, `PropertiesView.cs`,
+`Shell/CommandTable.cs`, `Shell/NativeMenuBuilder.cs`; `tests/CfdWorkbench.Core.Tests/StationTests.cs`;
+`tests/fixtures/stations/f-peak3.foil`, `tests/fixtures/stations/f-four.foil` (new); the Desktop `--controller-shell`
+harness file; `DESIGN.md` §7 rows. **Read only:** `Placement.cs` except SF2-1's one change under Ruling 262 (Ruling 252, Ruling 256: otherwise only the two
+predicates' modifiers ever changed), `Geometry.cs`, `SectionEdits.cs`.
+
+**SF2 node list (G3).** The `Placement.Sections` speed-up is a `Placement.cs` entry, which Rulings 252 and 256 keep
+read-only (Ruling 256 Q2 (b): the operator's follow-up). **Ruling 262 (DF-Q3 (a)) takes it up**, relaxing Ruling 252's read-only clause for this one change only:
+
+| Node | Scope | Depends on |
+|---|---|---|
+| SF2-1 (Ruling 262, DF-Q3 (a)) | the `Placement.Sections` speed-up inside `Placement.cs`: it skips only the blended-maximum search and CamberSlope at every x, through a path only the station measure uses; every other caller of `Placement.Sections` gets today's output bit for bit; a bit-for-bit test over every Station fixture and the Placement test set, red under a one-bit mutant; the time of one 258-η × 2001-x call and one promotion plan recorded before and after; no rename, no change to any rule-A formula; the computational-geometry lens reviews the diff at Return | Ruling 262 |
+| SF2-2 Match the blend | §13.2-§13.7; calls `StationEdits.Measure` as built | none (does **not** depend on SF2-1; it gains from it without change if SF2-1 lands) |
+
+Fallback (Ruling 262): if the bit-for-bit test cannot hold, `Placement.cs` stays read-only and SF2 builds SF2-2 (Match) only.
+
+### 13.9 Spec
+
+CAD-02 names Remove's acceptance but no Match step, and A4.6's 1.7 note lists the ungated deliberate edits (Rebuild to
+N). Match is a new deliberate edit with a shown change and no gate, so both need a row:
+[`spec-1.7.9.md`](../specs/amendments/spec-1.7.9.md) (AM-1.7.9-1, AM-1.7.9-2; proposed).
+
+### 13.10 Review packet (computational geometry)
+
+1. Is "Remove after Match = the promotion deviation of (L, R, η_M)" right for the **binary64** path and the certificate,
+   not only the real-number algebra? (The certificate renormalises P by its own maximum, `Geometry.cs` lines 388-389.)
+2. Is an ungated Match (DR-DF-4) one geometry authority still? P is built by the same `Blend`; the change is measured by
+   the same `Measure`; no new evaluator. Does the veto read the absence of a gate as an unreported residual? (It is
+   reported, both numbers.)
+3. Should Match be offered in R2 at all when the residual alone exceeds 10 µm (so Remove stays refused after it)? The
+   design offers it with SF2-COPY-4; the alternative is to disable it with that number.
+4. Tangent rows dropped (SF2-I3 keeps L's spacing, not M's constraints): acceptable, or refuse when M has tangents?
+
+### 13.10b What changed in cycle 1 (Adversary: ACCEPT WITH CONDITIONS)
+
+| Condition | Change | Section |
+|---|---|---|
+| G1 | whole-block replacement with `ProfileBlock(P)`; `WriteSurfaces` not used; new `ReplaceProfileBlock` | §13.2 step 3 and the paragraph after the invariants; §13.6 row 1; §13.8 |
+| G2 | "no profile does better" reworded to "no profile makes Remove exact; minimality not proven" | §13.1 item 3; §13.3 R2 row |
+| G3 | the speed-up is node SF2-1, taken up by Ruling 262 (DF-Q3 (a)); Match (SF2-2) does not depend on it | §13.8 node list |
+| G4 | the point-count refusal removed; ids always `cv-0..n-1` | §13.2 step 3 and the preconditions table |
+| G5 | SF2-COPY-4b: Remove stays unavailable above 10 µm | §13.5 copy table |
+| G6 | "reported sampled amount" | `spec-1.7.9.md` AM-1.7.9-1 |
+| T1 | four-station fixture F-FOUR; `MatchBlend_InteriorNeighbours_WeightFromNeighbours` | §13.7 |
+| T2 | t(η_M) asserted on F-PEAK3 (k < 1) | §13.7 `MatchBlend_ChannelsAndEtaUnchanged` |
+| T3 | tangent bytes gone | §13.7 `MatchBlend_TangentsDropped_Counted` |
+| T4 | M's ordinates equal Promote's P bit for bit | §13.7 `MatchBlend_DifferingPeaks_ResidualEqualsPromotionDeviation` |
+| DR-DF-6 | settled (b): `STATION-CLOSURE` and SF2-COPY-9 removed; `MatchBlend_Closure_FromNeighbours` | §13.2; §13.5; §13.7 |
+
+### 13.11 Decision requests (not raised by this note)
+
+| Id | Question | Options | Recommendation | Status |
+|---|---|---|---|---|
+| **DR-DF-4** | Gate on Match's own change | (a) none — a deliberate previewed edit, like Rebuild to N (AM-1.7.9-2) · (b) 10 µm (makes Match useless exactly where Remove is refused, since in R1 the change equals Remove's deviation) | (a) | **settled — Ruling 262 (DF-Q2 (a))** |
+| **DR-DF-5** | Differing peaks: Remove after Match is not exact | (a) offer Match with the residual shown (SF2-COPY-4, and SF2-COPY-4b above 10 µm) · (b) offer Match only when the residual is ≤ 10⁻¹² · (c) change the blend rule (out of scope: geometry authority) | (a) | **settled by the leader: (a) with G5** |
+| **DR-DF-6** | Closure mismatch | (a) refuse (`STATION-CLOSURE`) · (b) the whole-block write sets P's closure | (b) | **settled by the leader: (b)**; `STATION-CLOSURE` removed |
+| **DF-Q3** | the `Placement.Sections` speed-up inside SF2 | yes: node SF2-1 · no: SF2-2 alone | yes | **settled — Ruling 262 (DF-Q3 (a))**, with its constraints and fallback (§13.8) |
