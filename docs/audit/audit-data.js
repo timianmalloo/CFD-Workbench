@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T17:32:44Z",
+  "generated": "2026-10-22T17:59:22Z",
   "audit": [
     {
       "actor": null,
@@ -41905,6 +41905,25 @@ window.AUDIT_DATA = {
       "tier": "T2",
       "started_at": "2026-10-22T16:49:17Z",
       "duration_seconds": 2607.0
+    },
+    {
+      "id": "al-01M5JC90QN2AW5AJ57FG09ACSF",
+      "shortname": "w2b-af-r1",
+      "datetime": "2026-10-22T17:59:22Z",
+      "session": "w2b-af",
+      "prompt": "wave 2 AF repair 1: self-launch repo-root guard, text scan dropped, review N1 N2 N4 N5",
+      "summary": "AF repair 1: the Desktop self-launch repo-root guard was red on CompareTests.cs; the runtime walk and the NoSecondFormula text scan are deleted (OneDefinition is the guard of record), green after. Review N1 (StoresNothing on a revision pair, m14b red in three checks), N2 (AdmissionFieldsAlone, moment-datum mutant red), N4 (dropped inputs-count assertion recorded), N5 (RunChild helper and a real sleeping-child check, Kill-deleted mutant red). Proof updated; check-docs exit 0.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T17:50:56Z",
+      "duration_seconds": 506.0
     }
   ],
   "changes": [

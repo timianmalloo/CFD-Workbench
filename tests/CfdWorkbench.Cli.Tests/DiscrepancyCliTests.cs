@@ -21,6 +21,7 @@ internal static class DiscrepancyCliTests
         failures += Check("InspectRuns_ChildHarness_SkipLineText", SkipLineText);
         failures += Check("InspectRuns_ChildHarness_TimeoutIsNamedAndBounded", ChildTimeout);
         failures += Check("InspectRuns_ChildHarness_FailureCarriesStderr", ChildFailureText);
+        failures += Check("InspectRuns_ChildHarness_SleepingChild_KilledAtTheLimit", SleepingChildIsKilled);
         if (OperatingSystem.IsWindows())
         {
             failures += Check(BinaryNoRecords, () => BinaryRuns(withRecord: false));
@@ -78,15 +79,8 @@ internal static class DiscrepancyCliTests
                 { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, CreateNoWindow = true };
             info.ArgumentList.Add("inspect"); info.ArgumentList.Add(path); info.ArgumentList.Add("--runs");
             int limit = ChildLimitSeconds(Environment.GetEnvironmentVariable(ChildTimeoutVariable));
-            using var child = System.Diagnostics.Process.Start(info)!;
-            // Both pipes are drained while the child runs, so a full stderr pipe cannot stall it; the wait is bounded.
-            var stdoutTask = child.StandardOutput.ReadToEndAsync();
-            var stderrTask = child.StandardError.ReadToEndAsync();
-            bool finished = child.WaitForExit(limit * 1000);
-            if (!finished) child.Kill(entireProcessTree: true);
-            child.WaitForExit();
-            string stdout = stdoutTask.GetAwaiter().GetResult(), stderr = stderrTask.GetAwaiter().GetResult();
-            Require(finished && child.ExitCode == 0, ChildFailure("binary inspect --runs", child.ExitCode, !finished, limit, stderr) + "; stdout: " + stdout);
+            var (finished, exit, stdout, stderr) = RunChild(info, limit);
+            Require(finished && exit == 0, ChildFailure("binary inspect --runs", exit, !finished, limit, stderr) + "; stdout: " + stdout);
             using var json = JsonDocument.Parse(stdout);
             Require(json.RootElement.GetProperty("runs").GetArrayLength() == 2, "both runs listed");
             Require(json.RootElement.TryGetProperty("discrepancies", out var listed) == withRecord, "discrepancies member present only with a record");
@@ -107,6 +101,33 @@ internal static class DiscrepancyCliTests
 
     /// <summary>The child limit: a positive whole number of seconds from the variable, else 120.</summary>
     internal static int ChildLimitSeconds(string? value) => int.TryParse(value, out int seconds) && seconds > 0 ? seconds : 120;
+
+    /// <summary>Starts the child, drains both pipes while it runs (a full stderr pipe cannot stall it), waits at most <paramref name="limit"/> seconds and kills its process tree on the limit.</summary>
+    internal static (bool Finished, int Exit, string Stdout, string Stderr) RunChild(System.Diagnostics.ProcessStartInfo info, int limit)
+    {
+        using var child = System.Diagnostics.Process.Start(info)!;
+        var stdoutTask = child.StandardOutput.ReadToEndAsync();
+        var stderrTask = child.StandardError.ReadToEndAsync();
+        bool finished = child.WaitForExit(limit * 1000);
+        if (!finished) child.Kill(entireProcessTree: true);
+        child.WaitForExit();
+        return (finished, child.ExitCode, stdoutTask.GetAwaiter().GetResult(), stderrTask.GetAwaiter().GetResult());
+    }
+
+    // Review N5: a real child that outlives a 2 s limit; the wait returns near the limit (not at the child's 30 s) and the line names the timeout.
+    private static void SleepingChildIsKilled()
+    {
+        var info = OperatingSystem.IsWindows()
+            ? new System.Diagnostics.ProcessStartInfo("cmd.exe", "/c ping -n 30 127.0.0.1")
+            : new System.Diagnostics.ProcessStartInfo("sleep", "30");
+        info.RedirectStandardOutput = true; info.RedirectStandardError = true; info.UseShellExecute = false; info.CreateNoWindow = true;
+        var clock = System.Diagnostics.Stopwatch.StartNew();
+        var (finished, exit, _, stderr) = RunChild(info, 2);
+        double seconds = clock.Elapsed.TotalSeconds;
+        Require(!finished, "the sleeping child did not finish inside the 2 s limit");
+        Require(seconds < 15, $"the wait ended near the limit, not at the child's end: {seconds:F1} s");
+        Require(ChildFailure("sleeping child", exit, !finished, 2, stderr).StartsWith("TIMEOUT sleeping child after 2 s", StringComparison.Ordinal), "the line names the timeout");
+    }
 
     /// <summary>The line a Windows-only check prints elsewhere.</summary>
     internal static string SkipLine(string name) => "SKIP " + name + " windows-only";

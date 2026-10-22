@@ -355,9 +355,7 @@ the nearest function-level mutants.
 
 ### Residual risks
 
-- `Compare_Dimensional_NoSecondFormula` is a text scan. Pattern: after removing `// ...` comments and any `/ (...)` division operand, a statement with `Rho`,
-  `Speed`, `q` or `Q(` and `SRef` joined by `*` and no `/`. One hit is allowed, in `Compare.cs` within 12 lines of the `Dimensional(AnalysisRun` declaration.
-  A formula spelled another way, or split over lines, passes.
+- `Compare_Dimensional_NoSecondFormula` (a text scan of the sources) was dropped in repair 1: it walked to `CFDWorkbench.slnx` at runtime, which the Desktop `--self-launch` guard forbids. The guard of record for one definition of L and D_i is `Compare_Dimensional_OneDefinition` (the pane rows equal `Compare.Dimensional` bit for bit). A second formula that the pane does not use is no longer caught by a test.
 - The narrowed assertion in `Compare_IncompatibleReference_BlocksDelta` edits an existing test (design 12.7 Q4); its seven reference rows are unchanged.
 - No pixel check: the Desktop test reads the rendered text of the pane (logical tree), not a screenshot.
 
@@ -386,10 +384,45 @@ already says `analysis.save`; the stale `analysis.prune` wording is gone, so the
 `tests/CfdWorkbench.Cli.Tests/DiscrepancyCliTests.cs`: off Windows the two `InspectRuns_WindowsStore_Binary*` checks print `SKIP <name> windows-only`
 (Windows: both run, `PASS`); the child process has a limit from `CFD_TEST_CHILD_TIMEOUT_SECONDS` (default 120 s, the Desktop harness's variable) and is killed with its
 process tree at the limit; stdout and stderr are drained while it runs and stderr goes into the failure line (one line, cut at 400 characters). The three
-pure checks are `InspectRuns_ChildHarness_SkipLineText`, `_TimeoutIsNamedAndBounded` and `_FailureCarriesStderr`. The timeout path itself (a real hung child) is not
-exercised; the line it prints and the limit parse are.
+pure checks are `InspectRuns_ChildHarness_SkipLineText`, `_TimeoutIsNamedAndBounded` and `_FailureCarriesStderr`. Repair 1 added the real hung child (see "Repair 1" below).
 
 ### Not changed
 
 `RunRecord.cs`, `AuthoringSession.cs` (the claim was taken and released: nothing to change), the stored shape (the document bytes are equal before and after a
 reference-only compare: `Compare_ReferenceOnly_StoresNothing`), `ComparePane.axaml(.cs)`, the CLI verbs.
+
+### Repair 1 (review verdict conditions; session `w2b-af`)
+
+Item 1, the guard. Red, on the branch as reviewed (Release build; `CfdWorkbench.Desktop.Tests.exe --harness --theme-evidence`, the mode that runs the `SelfLaunchTests` prefix and stops):
+`System.Exception: SelfLaunchTests failed:  no test resolves the repo root at runtime: runtime repo-root walk toward CFDWorkbench.slnx outside CallerFilePath in tests\CfdWorkbench.Analysis.Tests\CompareTests.cs`
+(exit 70). The walk (`FindRoot`) existed only for `Compare_Dimensional_NoSecondFormula`; both are deleted (leader decision on review N3). No other AF test needs the repo root.
+Green after: `SelfLaunchTests: all 10 cases passed.` (exit 0). The guard of record for one definition is `Compare_Dimensional_OneDefinition`.
+(Note: a bare `--harness --self-launch` is not a mode; the guard runs in the no-argument prefix, reached alone by `--theme-evidence`.)
+
+Item 2, N1. `Compare_ReferenceOnly_StoresNothing` now uses a revision pair: two VLM runs on two revisions with a geometry edit between them, S_ref 0.100 then 0.108
+(an estimator run beside a VLM run on one revision with a different S_ref cannot occur, design 12.2). The reviewer's realistic mutant m14b, a reference-only pair
+through the normal store path in canonical orientation (`Compare.Record`, `if (blocks.Count > 0)` becomes `if (blocks.Count > 0 && !DimensionalApplies(blocks))`), is
+red against it, caught by three checks:
+
+| Mutant | Red lines |
+|---|---|
+| m14b | `FAIL Compare_ReferenceOnly_StoresNothing InvalidOperationException: blocked, no record; expected True; actual False`; `FAIL Compare_ReferenceOnly_EventFlag ... outcome expected blocked-reference; actual recorded`; `FAIL Compare_IncompatibleReference_BlocksDelta ... blocked, no record; expected True; actual False` (`RESULT failures=3`) |
+
+Item 3, N2. New theory `Compare_ReferenceOnly_AdmissionFieldsAlone`: rows S_ref alone, b_ref alone, c_ref alone, moment datum alone; each shows two dimensional lines and
+the `ReferenceDiffers` state with the L and D_i rows. Mutant n2, `"moment datum"` dropped from `DimensionalApplies`: `FAIL Compare_ReferenceOnly_AdmissionFieldsAlone
+InvalidOperationException: moment datum alone: dL and dD_i exist; expected True; actual False` (`RESULT failures=1`; before this row it survived every check).
+
+Item 4, N4. The replaced Desktop check `ComparePane_ReferenceAndWater_BlockedNoDelta` dropped the assertion `Equal(true, pane.InputsTable.Children.Count > 15, "the inputs
+still show side by side;")`. It was dropped with the check it sat in; it is NOT restored. Why it is not needed: the inputs table is built from the view model's `Inputs` rows,
+and `Compare_Inputs_SideBySide_AllFieldsBothRuns` pins that every section 2.1 field shows for both runs; a child count above 15 is a rendering detail of the same list,
+not a separate contract. Residual: no Desktop check counts the rendered input rows of a two-reason block.
+
+Item 5, N5. `DiscrepancyCliTests.RunChild(info, limit)` is the one start, drain, bounded wait and tree kill (used by `BinaryRuns`). New check
+`InspectRuns_ChildHarness_SleepingChild_KilledAtTheLimit`: a child that sleeps 30 s (`cmd /c ping -n 30` on Windows, `sleep 30` elsewhere) under a 2 s limit; it asserts
+not finished, a wait under 15 s, and the `TIMEOUT sleeping child after 2 s` line. Mutant kill (the `if (!finished) child.Kill(entireProcessTree: true);` line deleted):
+`FAIL InspectRuns_ChildHarness_SleepingChild_KilledAtTheLimit InvalidOperationException: the wait ended near the limit, not at the child's end: 29.4 s`. Not asserted: that the
+grandchild `ping` process is gone by name (the wait returning near the limit shows the pipes closed, because `ping` holds them).
+
+Green after repair 1 (Release): Analysis `Compare_`, `Dimensional_RoundTrip` and `Discrepancy_` subset 35 PASS, `RESULT failures=0`; Cli 30 PASS, exit 0 (29 before); Desktop
+`--analysis` 64 PASS, exit 0; `SelfLaunchTests` all 10 cases. Net Analysis check count in AF: one removed (NoSecondFormula), one added (AdmissionFieldsAlone).
+Not in this repair (recorded follow-ups): N6 (`RecordDiscrepancy` accepts a reference-blocked record; a Data and Persistence next step) and the AF-COPY-5 wording (copy owner).
