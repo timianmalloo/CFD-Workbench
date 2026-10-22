@@ -856,6 +856,14 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-519 | Manufacturing: not assessed (no process chosen) — approved — Ruling 196 (EX46: the second line of the trailing-edge row) |
 | COPY-520 | mm, unscaled (in the file name) — approved — Ruling 204 (the STL Unit row) |
 | COPY-521 | mm, unscaled (the unit is set in the file) — approved — Ruling 204 (the 3MF Unit row) |
+| COPY-440 | Can't save to OneDrive — the dialog title. Body (Ruling 146 (1), verbatim): "This folder is synced by OneDrive. CFD Workbench saves only to local folders, so a sync can't damage a save. Choose a folder outside OneDrive." — approved — Rulings 146 (1), 160 (1) (the Windows Save dialog after a pick in a OneDrive folder; `FolderRefusalDialog`, W-2 B2) |
+| COPY-442 | Choose another folder… — approved — Ruling 160 (1) (the primary button of the OneDrive and the check-failed dialogs; it reopens the picker at the default folder) |
+| COPY-445 | Cancel — approved — Ruling 160 (the Cancel button of the same dialogs) |
+| COPY-447 | This removes the files the unfinished save left in this folder (`.cfd-writer.claim` and any `.cfd-….tmp`). Your saved file and your current work are not touched. It works only if no other CFD Workbench window is using this project. — wording refined from the measured inventory, for the operator to confirm when the S3 dialog is built (Ruling 190: `WindowsStore_CrashInjection_LeftoverInventoryMeasured`: an unfinished save leaves `.cfd-writer.claim`, 0 bytes, and, when it stopped before the rename, one `.cfd-<operation>.tmp` holding the unwritten or full image; the project file keeps its last saved image); HELD for the S3 "Save is blocked" dialog, which is not built (Ruling 160 (2) and (4), a follow-up on both platforms) |
+| COPY-454 | Couldn't check whether this folder is synced by OneDrive (<code>). Nothing was saved. Choose another folder. — approved — Ruling 160 (5) (`<code>` is `DOC-IO`) |
+| COPY-457 | Can't check this folder — approved — Ruling 160 (5) (the check-failed dialog title) |
+
+<!-- COPY-440 to COPY-457 are the ids Ruling 160 reserved for the Windows save-picker dialogs (`docs/mockups/w2-save-picker.md`). W-2 B2 built S2 (440, 442, 445), the fail-closed dialog (454, 457) and the silent default folder `%USERPROFILE%\CFD Workbench`; 441, 443, 444, 446, 448 to 453, 455, 456 belong to the S3 "Save is blocked" dialog, Clear unfinished save and the picker-status lines, which are not built. -->
 
 <!-- COPY-479 to COPY-519 are Ruling 196's COPY-EX ids; no Export id is reserved any more (COPY-480 EX07, the 3MF format row, landed with the 3MF slice). An id with a suffix (EX10a, EX13a, EX14a, EX23a, EX25a, EX45a) shares its numeric id's row. -->
 

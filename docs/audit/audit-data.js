@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T02:01:58Z",
+  "generated": "2026-10-22T02:44:53Z",
   "audit": [
     {
       "actor": null,
@@ -41228,6 +41228,25 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T02:00:01Z",
       "duration_seconds": 117.0
+    },
+    {
+      "id": "al-01M5GQYHWQZJ8S5A23QMJCNCP9",
+      "shortname": "w2-windows-store",
+      "datetime": "2026-10-22T02:44:53Z",
+      "session": "w2-windows-store",
+      "prompt": "track W2 brief: W-2 B2, admit the Windows project store",
+      "summary": "Track W2 (W-2 B2): ProjectStore.Supported() admits Windows x64 and ARM64 through the new managed WindowsProjectStore adapter on NTFS. Admission check red on the old code, green on the adapter. The 51 macos-only-store skips are deleted and every former skip passes (Core 827, Analysis 260, Desktop 807, Cli 21; 0 skipped). Ruling 145 cases pass; the historical probe was removed under Ruling 247 (b08f329a). Crash-injection inventory measured (COPY-447 basis). OneDrive refusal (CloudFolder), default folder and FolderRefusalDialog built; DESIGN.md rows and the design erratum written. Darwin bodies unchanged (5 dispatch hunks). Open: overwrite admission deviates from design section 5 (seam request), volume-GUID binding not built, case-sensitive positive branch not assessed here, CI x64 read after the join.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T02:02:58Z",
+      "duration_seconds": 2515.0
     }
   ],
   "changes": [

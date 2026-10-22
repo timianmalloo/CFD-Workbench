@@ -170,6 +170,22 @@ and an independently approved identity-based per-file lock design. Create-only
 publication still relies on native no-replace, so competing creators cannot win by
 omitting the cooperative claim.
 
+**W-2 B2 erratum to section 3 (track W2, 2026-10-22; Rulings 135, 136, 145, 247):**
+
+- *Managed P/Invoke, no C helper (Ruling 136).* The frozen paths above are now authored: `WindowsNative.cs` (declarations) and
+  `WindowsProjectStore.cs` (the adapter). `native/cfd_store_windows.c`, a C toolchain and a Windows native build target do not
+  exist and are not proposed; the csproj keeps `AllowUnsafeBlocks` only.
+- *The verifier is gone (Ruling 247).* Every mention of `tools/verify-windows-store.py` in this document is obsolete: Ruling 247
+  removed the verifier and the known-expected-failure manifest of Ruling 152 (2) (commit `b08f329a`). The qualification evidence is
+  the test projects under `dotnet test` plus CI, as Ruling 189 records for the earlier verifier-bound PASS.
+- *Entry points.* `ProjectStore` dispatches `Read`, `Save` and `PublishUnderClaim` to `WindowsProjectStore` on Windows and keeps
+  every Darwin body unchanged; `ProjectStore.Supported()` admits Windows x64 and ARM64 (Ruling 238) at build 10.0.14393 or later, and
+  the adapter admits NTFS per path. Linux and every other platform stay fail-closed with no `System.IO` fallback.
+- *Durability (Ruling 135, closed).* A Windows `OK` has `DurabilityConfirmed = true` after the temp-file `FlushFileBuffers`, the
+  atomic POSIX-semantics rename and owned cleanup. No directory flush is made, no `store.flush` event is emitted, and a power loss in
+  the instant after Save may lose that save. The controller acknowledges a save only on this combination
+  (`WorkbenchController.SaveAsync`), so a lower flag would leave every Windows document dirty.
+
 ## 4. Native API, handles, paths and sharing contract
 
 The managed native boundary exposes owned handles, fixed-width identities/statuses
@@ -304,6 +320,31 @@ after handles close. Hash identifies image content; it does not substitute for I
 `GetFileType` must also establish a disk handle. Refuse pending deletion or unavailable
 metadata rather than borrowing a path-only check.
 [Microsoft FILE_STANDARD_INFO](https://learn.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-file_standard_info).
+
+**W-2 B2 erratum to section 4 (track W2, 2026-10-22; Rulings 145, 152, 238):**
+
+- *Sharing violation (Ruling 145 (3)).* Win32 32 and NTSTATUS `0xC0000043` from the class 65 replacement map to `DOC-CONFLICT`
+  through `NativeFailure.ProductCode`, which stays null for every other value (Ruling 152 (4)). The adapter's own table for the rest
+  (winerror.h): 2, 3, 80, 183 `DOC-CONFLICT`; 39, 112 `DOC-DISK-FULL`; 1, 50, 123, 161, 206, 267, 4390 and NTSTATUS
+  `STATUS_FILE_IS_A_DIRECTORY` (`0xC00000BA`, which reaches Win32 as 5) `DOC-UNSUPPORTED-PERSISTENCE`; anything else `DOC-IO`.
+- *Held-reader replacement is measured, no longer Not assessed.* A reader that shares read and delete keeps the old image while a
+  fresh open reads the new one (`WindowsNative_Replace_ShareReadDeleteReaderKeepsOldImage`, and through the store
+  `WindowsStore_Overwrite_ShareReadDeleteReaderKeepsOldImage`); a read-only-share reader is refused with `DOC-CONFLICT`, the incumbent
+  and the owned entries intact (`WindowsNative_Replace_ShareReadOnlyReaderRefused`,
+  `WindowsStore_Overwrite_ShareReadOnlyReaderRefused_IncumbentKept`). The probe `WindowsNative_Replace_HeldReaderKeepsOldImage` no
+  longer exists: Ruling 247 removed it with the expected-failure manifest, and it is not restored.
+- *Supported subset as built.* Windows ARM64 counts with x64 (Ruling 238). Drive-letter absolute paths only; the root is bound once and
+  every component is opened relative to the retained parent with `NtCreateFile`; each directory is checked for the directory
+  attribute, no reparse tag and a case-insensitive directory (`FileCaseSensitiveInfo`, class 23); the volume must report NTFS. A leaf must
+  be a regular, single-link file that is not pending deletion. Parent identity is re-read before publication and after the read-back.
+  The case-sensitive refusal's positive branch needs an elevated account to create the fixture; where the account cannot, the check
+  prints `NOT ASSESSED` and asserts the query on a normal directory.
+- *Not built: the volume-GUID binding.* The drive root is held by handle for the operation, but the drive letter is not bound to a
+  volume GUID and rechecked (the paragraph "Bind a drive root once to an OS-returned volume GUID"). A drive-map swap during one save is
+  inside the accepted cooperative-writer posture; it is a residual, not a guarantee.
+- *Overwrite admission deviates from section 5.* An overwrite of a file whose DACL is not the private one is admitted: the
+  replacement is always the private temp, and a file written by another tool is a routine target. Decision request raised
+  to the leader; the Adversary and Security passes may overturn it.
 
 ## 5. Publication, security, cleanup and durability
 
@@ -474,6 +515,25 @@ mapping, open/flush/backup algorithms and MSBuild condition unchanged. Windows h
 must never enter an `int` file-descriptor path. Windows build failures are stable
 unsupported capability, with no `System.IO` fallback. Linux/other architectures remain
 fail-closed. Mac leader independently runs readiness on the joined HEAD.
+
+**W-2 B2 erratum to section 6 (track W2, 2026-10-22; Rulings 136, 137, 145, 160, 247):** the table above lists the prospective
+paths; the authored set is below. `tools/verify-windows-store.py` was never authored and is struck (Ruling 247). Ruling 145 (6)
+named the picker default, the OneDrive placement and the copy ids "Mac-owned"; Ruling 247 retired the two-machine layer and the
+plan `next-best-six` assigns them to W2 (an Inferred reading, checked in the Adversary pass).
+
+| Authored path | Change |
+|---|---|
+| `src/CfdWorkbench.Persistence/WindowsNative.cs` | adds the root and relative directory opens, attribute-tag, standard-info, case-sensitive and volume queries, with layout tests |
+| `src/CfdWorkbench.Persistence/WindowsProjectStore.cs` | the adapter: read, save, backup, claim-scoped publish, owned cleanup |
+| `src/CfdWorkbench.Persistence/ProjectStore.cs` | three Windows dispatch lines, `Supported()`, one doc sentence; Darwin bodies byte-unchanged |
+| `src/CfdWorkbench.Persistence/CloudFolder.cs` | the OneDrive and cloud-files decision (Ruling 160 (1), (5)), testable without a window |
+| `src/CfdWorkbench.Persistence/RecentList.cs` | `Accepts` takes drive-letter paths on Windows (the recent list refused every Windows path) |
+| `src/CfdWorkbench.Desktop/MainWindow.axaml.cs` | the default folder, the post-pick check and `FolderRefusalDialog` (COPY-440, 442, 445, 454, 457) |
+| `tests/CfdWorkbench.Core.Tests/WindowsProjectStoreTests.cs`, `ProjectStoreTests.cs` | the Windows cases below; the portable Mac cases now run on Windows, the POSIX-only ones stay behind `IsMacOS` |
+| `tests/CfdWorkbench.Desktop.Tests/FolderRefusalDialogTests.cs` | the dialog copy and answers |
+
+Out of scope and recorded as follow-ups on both platforms: the S3 "Save is blocked" dialog and Clear unfinished save (Ruling 160 (2),
+(4)). A save in place over a file that was opened from a OneDrive folder is not checked: the check runs after a pick.
 
 ## 7. Failure-mode analysis
 

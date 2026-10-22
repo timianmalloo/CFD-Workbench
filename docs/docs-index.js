@@ -3841,7 +3841,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "119e8cee21810429ef43a77205a653225a1efe1e2fab6cc8660ec9e853f8321e"
+      "sourceSha256": "e04d8c47146c55ef0b184ea6a8ad6a876dcdb83e04da26b414d6ace603e74a37"
     },
     {
       "id": "design-windows-runtime",
@@ -20429,6 +20429,42 @@ window.DOCS_INDEX = {
       "sourceSha256": "601f4fd859e5580aaf8de1577958eba8caafd537e0e8031553013a7319f4bd8f"
     },
     {
+      "id": "proof-win-store-implementation-20261022",
+      "path": "docs/proof/win-store-implementation/2026-10-22/README.md",
+      "title": "Windows project store admitted (W-2 B2): the evidence from the laptop",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@w2-windows-store",
+      "phase": "implementation",
+      "reviewBy": "",
+      "reviewSuggested": [],
+      "summary": "ProjectStore.Supported() admits Windows x64 and ARM64 through WindowsProjectStore on NTFS. The 51 macos-only-store skips are gone and every former skip passes; the Ruling 145 cases pass; a killed save leaves a measured inventory; the OneDrive refusal and the default folder are built. CI on the x64 runner and the Opus Adversary pass are still to come.",
+      "tags": [
+        "windows",
+        "persistence",
+        "ntfs",
+        "store",
+        "w-2",
+        "b2"
+      ],
+      "links": [
+        {
+          "to": "design-windows-native-store",
+          "rel": "implements"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-store-design",
+          "rel": "supersedes"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "18a9b66e105e70bc93ca24c1d14e01aae6d96822bba8b322d47d78fa434bd790"
+    },
+    {
       "id": "proof-win-trig-bits-20261008",
       "path": "docs/proof/win-trig-bits/receipt.md",
       "title": "Windows .NET 10 trigonometric bit dump",
@@ -23332,5 +23368,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "b32bc4497da262634686363a4134c67feec3f376bfcca613b5ad2e91bb1795c2"
+  "graphSha256": "58075d5f1d8551f9bddec854b0cd11e61bd4cdf601f090e5c3fde30ca6836dd9"
 };
