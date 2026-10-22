@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T16:14:26Z",
+  "generated": "2026-10-22T16:32:26Z",
   "audit": [
     {
       "actor": null,
@@ -41806,6 +41806,21 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T16:13:53Z",
       "duration_seconds": 33.0
+    },
+    {
+      "id": "al-01M5J79V9SGNNMS8GY2555V04Q",
+      "shortname": "/investigate the intermittendt desktop native crash",
+      "datetime": "2026-10-22T16:32:26Z",
+      "session": "prompt-log",
+      "prompt": "/investigate the intermittendt desktop native crash\nskip the macos run ... we are pivoting to focus on windows\naccept 4\ndo 3\nincrease the VLM run budget so it works\nkeep going  and lets get a3d compare, add station and w2-q2 follow up implemented and complete",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
     }
   ],
   "changes": [
@@ -45462,6 +45477,15 @@ window.AUDIT_DATA = {
       "kind": "decision-request",
       "ref": "req-01M5J67THX7KE3DNADZGMY53CC",
       "session": "opus-leader"
+    },
+    {
+      "id": "mail-01M5J6B9JXMF9XSY4AYGR46CY7",
+      "ts": "2026-10-22T16:15:45Z",
+      "from": "opus-owner",
+      "to": "opus-leader",
+      "kind": "ruling",
+      "ref": "req-01M5J67THX7KE3DNADZGMY53CC",
+      "session": "opus-owner"
     }
   ]
 };
