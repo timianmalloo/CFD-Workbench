@@ -90,6 +90,7 @@ public partial class StartView : UserControl
         OpenFailure.AccessDenied => "CFD Workbench isn't allowed to read it. The file hasn't been changed. Check its permissions in Finder, or open another file.",
         OpenFailure.Unreadable => "It couldn't be read from the disk. The file hasn't been changed.",
         OpenFailure.NotRecognised => "It isn't a foil or project file that CFD Workbench can read, or it is damaged. The file hasn't been changed.",
+        OpenFailure.UnsupportedLocation => CfdWorkbench.Analysis.Labels.OpenUnavailableWindows,
         OpenFailure.TooLarge => $"It is larger than CFD Workbench can open ({(fileName.EndsWith(".foil", StringComparison.Ordinal) ? "1 MiB" : "8 MB")}). The file hasn't been changed.",
         OpenFailure.UnknownContent => "It contains parts this version doesn't understand. The file hasn't been changed. A newer version of CFD Workbench may open it.",
         OpenFailure.Newer => "It was saved by a newer version of CFD Workbench. The file hasn't been changed.",

@@ -184,10 +184,10 @@ public static class ControllerShellTests
         });
 
         // Ruling 254 (W2-Q2 follow-up): the message the Open path shows for a project in an environment-designated OneDrive folder.
-        // The refusal is asserted; whether the text states cause and remedy is printed, not asserted: today's text has neither (a finding for the leader).
-        DesktopChecks.Check("OpenRefusal_OneDriveFolder_StoreRefuses_MessageRecorded", () =>
+        // Ruling 257: on Windows the message names the location cause and the copy-to-a-local-folder remedy, and never says "damaged". Off Windows the check prints SKIP, not PASS.
+        if (!OperatingSystem.IsWindows()) Console.WriteLine("SKIP OpenRefusal_OneDriveFolder_StoreRefuses_MessageRecorded windows-only");
+        else DesktopChecks.Check("OpenRefusal_OneDriveFolder_StoreRefuses_MessageRecorded", () =>
         {
-            if (!OperatingSystem.IsWindows()) return;
             string? previous = Environment.GetEnvironmentVariable("OneDrive");
             string oneDrive = TestTemp.NewDirectory("onedrive-open-"), path = Path.Combine(oneDrive, "wing.cfdw.json");
             try
@@ -202,9 +202,11 @@ public static class ControllerShellTests
                     throw new InvalidOperationException("expected DOC-UNSUPPORTED-PERSISTENCE, got " + error);
                 var failure = OpenFailure.Classify(error, path);
                 string message = CfdWorkbench.Desktop.Panes.StartView.FailureMessage(failure, "wing.cfdw.json");
-                bool cause = message.Contains("OneDrive", StringComparison.OrdinalIgnoreCase) || message.Contains("synced", StringComparison.OrdinalIgnoreCase);
-                bool remedy = message.Contains("local folder", StringComparison.OrdinalIgnoreCase) || message.Contains("another", StringComparison.OrdinalIgnoreCase);
-                Console.WriteLine("NOTE OpenRefusal_OneDrive cause=" + cause + " remedy=" + remedy + " message=" + message.Replace("\n", " | "));
+                bool cause = message.Contains("OneDrive", StringComparison.OrdinalIgnoreCase);
+                bool remedy = message.Contains("copy the project to a local folder", StringComparison.OrdinalIgnoreCase);
+                bool damaged = message.Contains("damaged", StringComparison.OrdinalIgnoreCase);
+                if (!cause || !remedy || damaged)
+                    throw new InvalidOperationException("cause=" + cause + " remedy=" + remedy + " damaged=" + damaged + " message=" + message.Replace("\n", " | "));
             }
             finally { Environment.SetEnvironmentVariable("OneDrive", previous); }
         });
