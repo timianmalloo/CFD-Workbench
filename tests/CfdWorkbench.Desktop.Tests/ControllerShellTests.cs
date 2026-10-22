@@ -11,6 +11,7 @@ public static class ControllerShellTests
         GestureLimitTests.RunController();
         GroupDragTests.RunController();
         StationDesktopTests.Run();
+        MeasureDocumentAtCap();
         DesktopChecks.Check("StatusStrip_VerbReport_NotClobberedBySampling", () =>
         {
             using var controller = new WorkbenchController();
@@ -525,6 +526,42 @@ public static class ControllerShellTests
 
         RunPointControllerChecks();
         RunGestureCellChecks();
+    }
+
+    // Ruling 258 measurement, never part of the ring or CI: open and save time and the peak working set of this process with
+    // a document of exactly NativeProject.MaxBytes open and one save done. The document is the Core check's image
+    // (CFD_MEASURE_CAP_WRITE=<file> on that check writes it once); this check copies it to a fresh folder first.
+    private static void MeasureDocumentAtCap()
+    {
+        const string name = "Measure_DocumentAtCap_OpenSavePeak";
+        string? source = Environment.GetEnvironmentVariable("CFD_MEASURE_CAP_DOC");
+        if (Environment.GetEnvironmentVariable("CFD_MEASURE_CAP") != "1" || source is null)
+        {
+            Console.WriteLine("SKIP " + name + " measurement-only");
+            return;
+        }
+        DesktopChecks.Check(name, () =>
+        {
+            string folder = TestTemp.NewDirectory("cap-measure-"), path = Path.Combine(folder, "cap.cfdw.json");
+            try
+            {
+                File.Copy(source, path);
+                if (new FileInfo(path).Length != NativeProject.MaxBytes) throw new Exception("The document is not exactly MaxBytes");
+                using var controller = new WorkbenchController();
+                var clock = System.Diagnostics.Stopwatch.StartNew();
+                var outcome = controller.OpenAsync(path).GetAwaiter().GetResult();
+                if (outcome is not OpenOutcome.Opened) throw new Exception("Open gave " + outcome.GetType().Name);
+                if (!controller.WhenSurfaceSettledAsync().Wait(TimeSpan.FromSeconds(60))) throw new Exception("The views did not settle");
+                Console.WriteLine("MEASURE open_ms=" + clock.ElapsedMilliseconds);
+                // The document is already at the cap, so an edit would be refused: the save writes the opened document as it is.
+                clock.Restart();
+                var saved = controller.SaveAsync(path).GetAwaiter().GetResult();
+                if (saved.Code != "OK") throw new Exception("Save gave " + saved.Code);
+                Console.WriteLine("MEASURE save_ms=" + clock.ElapsedMilliseconds);
+                Console.WriteLine("MEASURE peak_working_set_bytes=" + System.Diagnostics.Process.GetCurrentProcess().PeakWorkingSet64);
+            }
+            finally { Directory.Delete(folder, true); }
+        });
     }
 
     private static object GestureEnum(string type, string member) => Enum.Parse(

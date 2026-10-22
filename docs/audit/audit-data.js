@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T17:00:15Z",
+  "generated": "2026-10-22T17:45:15Z",
   "audit": [
     {
       "actor": null,
@@ -41997,6 +41997,25 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T16:56:30Z",
       "duration_seconds": 225.0
+    },
+    {
+      "id": "al-01M5JBF5T3CWSCN83EEGJTA2ED",
+      "shortname": "w2b-mx",
+      "datetime": "2026-10-22T17:45:15Z",
+      "session": "w2b-mx",
+      "prompt": "wave 2 MX: NativeProject.MaxBytes to 64,000,000 under Ruling 258",
+      "summary": "Wave 2 MX stopped on Ruling 258's budget. A document of exactly 64,000,000 bytes opened in a median 4,470 ms (budget 3,000) and the Desktop peak working set was a median 1,811,509,248 bytes (budget 1,500,000,000); save was 1,377 ms (within). NativeProject.MaxBytes stays at 8,000,000. Added the constant-driven at-cap size test (red on 8 MB with the ruled number as a literal, green at 64 MB, two mutants red), the measurement-only Desktop check, and the proof. The amendment note and design lines were not written because the raise did not happen.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "tier": "T1",
+      "started_at": "2026-10-22T17:06:19Z",
+      "duration_seconds": 2336.0
     }
   ],
   "changes": [

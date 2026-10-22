@@ -341,7 +341,7 @@ internal static class ProjectStoreTests
             Equal(true, File.ReadAllBytes(otherBackup).AsSpan().SequenceEqual(new byte[] { 9 }));
             Equal(4, Directory.GetFiles(root).Length);
         });
-        // FM-11: a run at the strip cap stays inside the 8 MB document, and one strip past the cap is refused. The cap is
+        // FM-11: a run at the strip cap stays inside the document limit (NativeProject.MaxBytes), and one strip past the cap is refused. The cap is
         // the spec's 2,048 written as a literal, so raising RunRecord.MaxStrips turns this red.
         Check("Store_SizeAtStripCap_UnderDocLimit", () =>
         {
@@ -358,7 +358,75 @@ internal static class ProjectStoreTests
             reader.Reopen(store.ReadAsync(path).GetAwaiter().GetResult().Image);
             Equal(2048, reader.ReadRuns().Runs.Single().Run.Strips.Count);
         });
+        // Ruling 258: a document of exactly NativeProject.MaxBytes saves and reopens byte for byte; one byte over is refused
+        // with DOC-SIZE on save and on open and the file on disk keeps its bytes. The body reads the constant only.
+        if (OperatingSystem.IsWindows()) Check("Store_DocumentAtCap_OpensAndSaves_OneByteOverRefusedIntact", DocumentAtCap);
+        else if (OperatingSystem.IsMacOS()) Console.WriteLine("SKIP Store_DocumentAtCap_OpensAndSaves_OneByteOverRefusedIntact macos-not-run-here");
         Check("Store_OldBuildFixtures_TodaysReaderOutcomesPinned", OldBuildFixturesThroughTodaysReader);
+    }
+
+    // Method: n full 2,048-strip runs (each a distinct operating point), then one last run with the largest strip count that
+    // fits, and a free-text pad (the unavailable reason of its first strip, one byte per character) that lands the canonical
+    // image on exactly MaxBytes. The pad is measured, never guessed: the image length is asserted before use.
+    // The build reads the one constant (Ruling 258 rules 64,000,000; the track observed this check red on 8,000,000 with the ruled number as a literal).
+    private static int RuledCap => NativeProject.MaxBytes;
+    internal static byte[] BuildAtCapImage(out int fullRuns, out int lastStrips, out int pad, out Func<int, AuthoringSession> withPad)
+    {
+        int cap = RuledCap;
+        int Length(int runs, int strips, int padding)
+        {
+            using var probe = RunSession();
+            for (int i = 0; i < runs; i++) probe.RecordRun(SampleRun(probe, 1.0 + i, 2048));
+            if (strips > 0) probe.RecordRun(SampleRun(probe, 1.0 + runs, strips, true, padding));
+            return probe.SaveImage().Length;
+        }
+        int empty = Length(0, 0, 0), one = Length(1, 0, 0), perFull = one - empty;
+        int small = Length(0, 1, 0), twenty = Length(0, 21, 0), perStrip = (twenty - small) / 20;
+        int runs = (cap - empty) / perFull; // full runs that fit with room left for the last, partial run
+        int strips = Math.Min(2048, (cap - empty - runs * perFull) / perStrip - 3);
+        int len0 = Length(runs, strips, 0);
+        while (len0 > cap) { strips -= 3; len0 = Length(runs, strips, 0); }
+        int slack = cap - len0;
+        fullRuns = runs; lastStrips = strips; pad = slack;
+        withPad = padding =>
+        {
+            var session = RunSession();
+            try
+            {
+                for (int i = 0; i < runs; i++) session.RecordRun(SampleRun(session, 1.0 + i, 2048));
+                session.RecordRun(SampleRun(session, 1.0 + runs, strips, true, padding));
+                return session;
+            }
+            catch { session.Dispose(); throw; }
+        };
+        using var built = withPad(slack);
+        return built.SaveImage();
+    }
+
+    private static void DocumentAtCap()
+    {
+        byte[] image = BuildAtCapImage(out int fullRuns, out int lastStrips, out int pad, out var withPad);
+        Equal(NativeProject.MaxBytes, image.Length);
+        if (Environment.GetEnvironmentVariable("CFD_MEASURE_CAP_WRITE") is { } measureFile) File.WriteAllBytes(measureFile, image);
+        Console.WriteLine($"STORE-CAP-DOC bytes={image.Length} fullRuns={fullRuns} lastRunStrips={lastStrips} pad={pad}");
+        // One free-text byte more is refused at the session's size preflight, and the session keeps its image.
+        Refuses("DOC-SIZE", () => withPad(pad + 1).Dispose());
+        string root = Root(), path = Path.Combine(root, "cap.cfdw");
+        using var store = new ProjectStore();
+        var saved = Save(store, path, new(image, null, Id())); Equal("OK", saved.Code);
+        var read = store.ReadAsync(path).GetAwaiter().GetResult();
+        Equal(true, read.Image.AsSpan().SequenceEqual(image)); Equal(saved.PublishedSha256, read.DiskSha256);
+        using (var reader = new AuthoringSession()) { reader.Reopen(read.Image); Equal(true, reader.SaveImage().AsSpan().SequenceEqual(image)); }
+        string before = Identity.Sha256(File.ReadAllBytes(path));
+        byte[] overImage = [.. image, (byte)'\n'];
+        Equal(NativeProject.MaxBytes + 1, overImage.Length);
+        Refuses("DOC-SIZE", () => _ = new SaveRequest(overImage, before, Id()));
+        Refuses("DOC-SIZE", () => NativeProject.Read(overImage));
+        string overPath = Path.Combine(root, "over.cfdw"); File.WriteAllBytes(overPath, overImage);
+        Refuses("DOC-SIZE", () => store.ReadAsync(overPath).GetAwaiter().GetResult());
+        Equal(before, Identity.Sha256(File.ReadAllBytes(path))); Equal(NativeProject.MaxBytes, (int)new FileInfo(path).Length);
+        Equal(true, File.ReadAllBytes(overPath).AsSpan().SequenceEqual(overImage));
+        Equal(2, Directory.GetFiles(root).Length);
     }
 
     // Every committed old-build project fixture through today's native reader (A3a STO, Data & Persistence condition C2):
@@ -426,7 +494,7 @@ internal static class ProjectStoreTests
     }
 
     // A run row on the session's accepted revision with full-precision strip values (the document-size worst case).
-    private static AnalysisRun SampleRun(AuthoringSession session, double alphaDeg, int strips, bool seal = true)
+    private static AnalysisRun SampleRun(AuthoringSession session, double alphaDeg, int strips, bool seal = true, int pad = 0)
     {
         var snapshot = session.Snapshot();
         var profiles = FoilSource.Parse(snapshot.Source).Authored().Assignments.Select(a => a.ProfileIdentity).ToArray();
@@ -441,6 +509,9 @@ internal static class ProjectStoreTests
             Math.Sqrt(j + 2.0), -Math.Sin(j + 0.3) / 7, Math.Cos(j + 0.4) / 9, 421_337.123456789 + j, Math.Tanh(j + 0.5), unavailable,
             unavailable, -Math.Sin(j + 0.6), Math.Cos(j + 0.7) / 3, 41.987654321012345 + j, Math.Sin(j + 0.8) / 11, -Math.Cos(j + 0.9) / 13,
             Math.Sin(j + 1.1) / 17, -Math.Exp(-j - 1.3))).ToArray();
+        // The pad is spread over the first strips, 2,000 characters each, so no line nears the 4 kB line cap.
+        for (int row = 0, left = pad; left > 0; row++, left -= 2000)
+            rows[row] = rows[row] with { CdNcrit2 = new StripValue(null, "no polar method installed" + new string('x', Math.Min(left, 2000))) };
         var run = new AnalysisRun(Id(), RunRecord.Key(inputs, water, op, method, settingsHash), new string('0', 64), new RunOutcome.Completed(),
             "vlm-strip", method, settings, settingsHash, inputs, water, op, new RunReference(0.12, 1.0, 0.12, "frame-origin", "body"), 0.01,
             rows, 123.456789, new RunPlatform("osx", "arm64", "10.0"), new RunDiagnostics(1.2345678901234567e-13, 42.123456789012345));
