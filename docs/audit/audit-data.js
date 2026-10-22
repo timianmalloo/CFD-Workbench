@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T16:47:01Z",
+  "generated": "2026-10-22T17:32:44Z",
   "audit": [
     {
       "actor": null,
@@ -41886,6 +41886,25 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T16:46:34Z",
       "duration_seconds": 27.0
+    },
+    {
+      "id": "al-01M5JAR85MD0YV6NQW3BJYC8A8",
+      "shortname": "w2b-af",
+      "datetime": "2026-10-22T17:32:44Z",
+      "session": "w2b-af",
+      "prompt": "wave 2 AF: dimensional deltas (display only), compare encode cost, Cli harness gaps",
+      "summary": "Wave 2 AF built on main b0da43bc. Dimensional L and D_i deltas for reference-only pairs (S_ref, b_ref, c_ref, moment datum), display only, one Compare.Dimensional formula, state ReferenceDiffers, copy COPY-611 to COPY-617, CompareEvent.Dimensional (session events are in memory only). 11 Analysis checks and 1 Desktop check red then green; 15 mutants red and reverted. Encode cost measured at today's 8 MB cap (median 15-16 ms), left; 64 MB cap not on main (Inferred about 120 ms, flagged for MX). Cli harness: SKIP lines off Windows, named child timeout, stderr in the failure line, 3 pure checks and 3 mutants. Harnesses: Core 857, Analysis 308, Cli 29, Desktop --analysis 64, all pass. check-docs 0. Proof: docs/proof/a3d-compare/README.md section AF (wave 2).",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T16:49:17Z",
+      "duration_seconds": 2607.0
     }
   ],
   "changes": [
