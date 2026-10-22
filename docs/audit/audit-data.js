@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T19:01:56Z",
+  "generated": "2026-10-22T19:32:09Z",
   "audit": [
     {
       "actor": null,
@@ -41962,6 +41962,25 @@ window.AUDIT_DATA = {
       "tier": "T2",
       "started_at": "2026-10-22T18:41:52Z",
       "duration_seconds": 1204.0
+    },
+    {
+      "id": "al-01M5JHJWQS8S0WMEGZ2EQ1HG33",
+      "shortname": "w2b-sf2-r2",
+      "datetime": "2026-10-22T19:32:09Z",
+      "session": "w2b-sf2",
+      "prompt": "wave 2 SF2 repair 2: fly:match click and its mutant, Remove result first with Match failures caught and the plan kept, fly:apply status assertion",
+      "summary": "SF2 repair cycle 2: MatchBlend_Flyout_KeyboardPath clicks the flyout's own fly:match link (mutant red); Remove result shown before the Match preview, a failed Match preview keeps it, Remove plan in its own cache slot (two checks red first, two mutants red); fly:apply asserted from the document (no-op mutant red). F2, F4 and outside-the-guard items recorded as follow-ups.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T19:18:29Z",
+      "duration_seconds": 820.0
     }
   ],
   "changes": [
