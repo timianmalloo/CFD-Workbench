@@ -136,6 +136,7 @@ public static class ControllerShellOneDriveTests
         Need(Message("DOC-UNSUPPORTED-PERSISTENCE", path, true) == Labels.OpenUnavailableWindows + "\nCode: DOC-UNSUPPORTED-PERSISTENCE", "COPY-641 is not the Windows sentence");
         Need(Message("DOC-UNSUPPORTED-PERSISTENCE", path, false) == Labels.OpenUnavailableOther + "\nCode: DOC-UNSUPPORTED-PERSISTENCE", "COPY-642 is not the other sentence");
         Need(Message("DOC-CONFLICT", path, true) == Labels.OpenChanged + "\nCode: DOC-CONFLICT", "COPY-643 is not the conflict sentence");
+        Need(!Labels.OpenChanged.Contains("hasn't been changed", StringComparison.Ordinal), "COPY-643 says the file hasn't been changed, but its cause is that the file changed");
         Need(Message("DOC-CONFLICT", absent, true) == Labels.OpenGone + "\nCode: DOC-CONFLICT", "COPY-644 is not the absent-file sentence");
         Need(Message("DOC-ACCESS", path, true) == Labels.OpenAccessDeniedWindows + "\nCode: DOC-ACCESS", "COPY-645 is not the Windows permission sentence");
         Need(Message("DOC-ACCESS", path, false) == Labels.OpenAccessDeniedMac + "\nCode: DOC-ACCESS", "COPY-126 changed on macOS");
