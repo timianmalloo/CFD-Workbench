@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T01:42:50Z",
+  "generated": "2026-10-22T01:58:31Z",
   "audit": [
     {
       "actor": null,
@@ -41155,6 +41155,25 @@ window.AUDIT_DATA = {
       "tier": "T2",
       "started_at": "2026-10-22T01:29:11Z",
       "duration_seconds": 818.0
+    },
+    {
+      "id": "al-01M5GN9MT9MRN3WPBJX5EMKXXK",
+      "shortname": "a3-compare-design-r1",
+      "datetime": "2026-10-22T01:58:31Z",
+      "session": "a3-compare-design",
+      "prompt": "A3d design revision cycle 1: fold the Adversary conditions",
+      "summary": "A3d design revision cycle 1: folded the Adversary conditions D2 D4 H1-H6 T1-T7 and Ruling 250 (Q1 a, Q2 c with the reversed view recomputed from the runs, Q3 a with option c as an operator next step, Q4 c with exactly three RunRecord.cs changes, Q5 a). Added a section 1.0 confirmation block (grain and spec-note text) for the Data and Persistence lens, the build split A3d-1 estimator / A3d-2 Compare, the retention bound (about 55 disjoint revision pairs to MaxBytes, Inferred) and DR-A3D-6. New spec note docs/specs/amendments/spec-1.7.7.md (proposed). Mockup gains Envelope and Omissions rows, the CDi estimator label and a Different water state.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T01:50:59Z",
+      "duration_seconds": 452.0
     }
   ],
   "changes": [

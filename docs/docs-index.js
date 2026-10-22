@@ -2211,7 +2211,7 @@ window.DOCS_INDEX = {
       "phase": "design",
       "reviewBy": "2027-01-31",
       "reviewSuggested": [],
-      "summary": "The A3d slice of Area 3: compare two Completed Analysis runs (two revisions, or a wing run against the wing estimator at the same inputs), show their inputs side by side, give per-point deltas normalised to the base value, block every numeric delta when reference quantities or the operating point differ, and store one append-only Discrepancy record per compared ordered pair beside the runs in cfdw-project-2. Data model first, then semantics, the CLI (an inspect --runs extension), the E7 surface list, the pane and its hard states, the copy rows, a red-first test plan and the review packet for the Adversary pass.",
+      "summary": "The A3d slice of Area 3, revised after Adversary cycle 1: compare two Completed Analysis runs (two revisions, or the wing estimator against a VLM + strip run at the same inputs), show inputs and envelopes side by side, give per-point deltas normalised to the base value, block every numeric delta when reference quantities, the operating point or the water differ, and store one append-only Discrepancy record per unordered pair in a canonical orientation beside the runs in cfdw-project-2. Built as two serial nodes: A3d-1 the estimator tier, A3d-2 Compare.",
       "tags": [
         "area-3",
         "analysis",
@@ -2233,10 +2233,14 @@ window.DOCS_INDEX = {
         {
           "to": "mockup-a3d-compare",
           "rel": "relates-to"
+        },
+        {
+          "to": "spec-amendments-1-7-7",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "044cdeb651c8d1a0afd55bde25138fec78e4c9d1f96c0c6ae90ee0efb3c53da9"
+      "sourceSha256": "2d8be3a4ce0f5659990440834b2bdb5c7eb5f1059c53cfb7b441d69f677797f7"
     },
     {
       "id": "design-app-shell",
@@ -3950,7 +3954,7 @@ window.DOCS_INDEX = {
       "phase": "ui-design",
       "reviewBy": "2027-01-31",
       "reviewSuggested": [],
-      "summary": "Seven states of the Compare tab of the Analysis bottom panel: a wing VLM run against the wing estimator, two revisions, no second run, incompatible reference quantities, a Historical base, loading and an error. Every delta is computed in the page from the fixture numbers below with the design's one formula; a contrast audit prints the measured token ratios per theme. For the operator's review before any build.",
+      "summary": "Eight states of the Compare tab of the Analysis bottom panel: a wing VLM run against the wing estimator, two revisions, no second run, incompatible reference quantities, different water, a Historical base, loading and an error. Every delta is computed in the page from the fixture numbers below with the design's one formula; a contrast audit prints the measured token ratios per theme. For the operator's review before any build.",
       "tags": [
         "mockup",
         "area-3",
@@ -3978,7 +3982,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f23c02665e20c19b3ef2882bc03fba47e81654245039e7254a8339d1e669326f"
+      "sourceSha256": "79ce42655a340bd8e61beaf77b61ca7e51923a9136d859e40380a03affba39d5"
     },
     {
       "id": "mockup-area3-analysis",
@@ -22528,6 +22532,46 @@ window.DOCS_INDEX = {
       "sourceSha256": "1afdf5caae6c73a1e908605c4b662c192f19dc4a1d08b8fbfd4247d825d5f567"
     },
     {
+      "id": "spec-amendments-1-7-7",
+      "path": "docs/specs/amendments/spec-1.7.7.md",
+      "title": "Spec 1.7.7 amendment note — the Discrepancy record grain, ρ derived, dimensional loads not stored (ANA-06, A3d)",
+      "type": "spec",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "Three proposed amendments to cfd-workbench-v1 lines 259 and 329, from Ruling 250 Q2 and Q5 and the A3d Compare design: one Discrepancy record per unordered pair of evaluations in canonical orientation with one line per quantity, rho derived on read and never stored, and dimensional loads kept out of the stored lines. Proposed; the Data & Persistence lens confirms the text before the A3d build.",
+      "tags": [
+        "spec",
+        "amendments",
+        "analysis",
+        "compare",
+        "discrepancy-record",
+        "ana-06"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-amendments-1-7-6",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-a3d-compare",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "537bedc47e42dfb12bff62ec5039df20a2d4d1d160242239bb6670296453d537"
+    },
+    {
       "id": "spec-cfd-workbench",
       "path": "docs/specs/cfd-workbench.md",
       "title": "CFD-Workbench — product specification",
@@ -23338,5 +23382,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "0657c04ec4f1b9e4e2aa8747aa8e6c364741a2c55d98adf70944093d7841787d"
+  "graphSha256": "4ffb8b4d33a158d81700b5a3852f610771abaa5e08b52a7215a5d41e0e4b737e"
 };

@@ -97,18 +97,26 @@ const HELMBOLD = ar => 2 * Math.PI * ar / (2 + Math.sqrt(ar * ar + 4));
 function wing(id, rev, tier, S, b, CL, CDi, state, changed) {
   const AR = b * b / S;
   return { id, rev, tier, S, b, c: S / b, CL, CDi, AR, e: CL * CL / (Math.PI * AR * CDi), L: Q * S * CL, Di: Q * S * CDi,
-    state, changed, alpha: 3.0, method: "cfdw.vlm-strip 1.1.0", lattice: "64 × 4", settings: "3f9a1c07b2de" };
+    state, changed, alpha: 3.0, method: "cfdw.vlm-strip 1.1.0", lattice: "64 × 4", settings: "3f9a1c07b2de",
+    envelope: "vlm-envelope/1 · inside the method envelope", omissions: "attached flow; no stall; no ventilation; deep water",
+    water: WATER15 };
 }
 function estimator(S, b, alphaL0) {
   const AR = b * b / S, CL = HELMBOLD(AR) * (3.0 - alphaL0) * Math.PI / 180, CDi = CL * CL / (Math.PI * AR);
   return { id: "est", rev: 5, tier: "Estimator · local calculation", S, b, c: S / b, CL, CDi, AR, e: 1, L: Q * S * CL, Di: Q * S * CDi,
-    state: "Current", changed: null, alpha: 3.0, method: "cfdw.estimator.wing 1.0.0", lattice: "—", settings: "a17e5d90c3f1", estimator: true };
+    state: "Current", changed: null, alpha: 3.0, method: "cfdw.estimator.wing 1.0.0 · estimator, not validated", lattice: "—", settings: "a17e5d90c3f1", estimator: true,
+    envelope: "estimator-envelope/1 · inside the method envelope", omissions: "elliptic loading assumed; planar lower bound on induced drag; deep water",
+    water: WATER15 };
 }
+const WATER15 = "15 °C · 35.165 g/kg · ρ 1026.02 kg/m³ · ν 1.1892e-6 m²/s";
+const WATER20 = "20 °C · 35.165 g/kg · ρ 1024.76 kg/m³ · ν 1.0498e-6 m²/s";
 const VLM = "VLM + strip · local calculation";
 const R5 = wing("r5", 5, VLM, 0.108, 0.9, 0.4120, 0.00760, "Current", null);
 const R4 = wing("r4", 4, VLM, 0.108, 0.9, 0.4035, 0.00731, "Historical", "surface (a twist point moved)");
 const R3 = wing("r3", 3, VLM, 0.100, 0.85, 0.4210, 0.00812, "Historical", "surface (root chord)");
 const EST = estimator(0.108, 0.9, -2.0);
+// The same r5 inputs re-evaluated in 20 degC water: only the water record differs (CL and CDi kept equal for the fixture).
+const R5W = Object.assign({}, R5, { id: "r5w", water: WATER20, settings: "3f9a1c07b2de", L: R5.L * 1024.76 / 1026.02, Di: R5.Di * 1024.76 / 1026.02 });
 const FLOOR = { CL: 1e-4, CDi: 1e-6, e: 1e-3 };
 // The one delta definition: (compared - base) / |base|; Undefined at 0 or below the floor; estimator e never enters.
 function line(q, base, cmp) {
@@ -137,7 +145,8 @@ function inputs(a, b) {
     ["Revision", "r" + a.rev, "r" + b.rev], ["Tier", a.tier, b.tier], ["Method", a.method, b.method],
     ["Settings hash · lattice", a.settings + " · " + a.lattice, b.settings + " · " + b.lattice],
     ["Speed V", "5.144 m/s", "5.144 m/s"], ["α", "3.0°", "3.0°"], ["h_ref · datum", "0.500 m · root LE", "0.500 m · root LE"],
-    ["Water", "15 °C · 35.165 g/kg · ρ 1026.02 kg/m³", "15 °C · 35.165 g/kg · ρ 1026.02 kg/m³"],
+    ["Envelope", a.envelope, b.envelope], ["Omissions", a.omissions, b.omissions],
+    ["Water", a.water, b.water],
     ["S_ref", a.S.toFixed(3) + " m²", b.S.toFixed(3) + " m²"], ["b_ref", a.b.toFixed(3) + " m", b.b.toFixed(3) + " m"],
     ["c_ref", a.c.toFixed(4) + " m", b.c.toFixed(4) + " m"], ["Moment datum · axes", "frame origin · body; wind for lift and drag", "frame origin · body; wind for lift and drag"],
     ["Freshness", chip(a), chip(b)]];
@@ -154,6 +163,7 @@ function outputs(a, b, blocked) {
     if (blocked) cell = i === 0 ? `<td rowspan="5" class="blocked">${blocked}</td>` : "";
     else if (l.nc) cell = `<td>Not compared — the estimator assumes elliptic loading (e = 1)</td>`;
     else if (l.undef) cell = `<td>${l.undef}</td>`;
+    else if (q === "CDi" && (a.estimator || b.estimator)) cell = `<td class="num" aria-label="CDi, delta ${l.d >= 0 ? "plus" : "minus"} ${Math.abs(l.d * 100).toFixed(2)} percent of base, includes the estimator's elliptic loading assumption">${pct(l.d)} <span class="note">includes the estimator's elliptic loading assumption (e = 1)</span></td>`;
     else cell = `<td class="num" aria-label="${q}, delta ${l.d >= 0 ? "plus" : "minus"} ${Math.abs(l.d * 100).toFixed(2)} percent of base">${pct(l.d)}</td>`;
     body += `<tr><th scope="row">${names[q]}</th><td class="num">${f(l.b, dp)}</td><td class="num">${f(l.c, dp)}</td>${cell}</tr>`;
   });
@@ -176,6 +186,10 @@ const STATES = {
   "Incompatible reference": () => {
     const msg = "Δ blocked — reference quantities differ: " + compatibility(R5, R3).join(", ") + ". Inputs are shown side by side; no difference is computed.";
     return pickers(R5, R3) + `<p class="headline" role="status" aria-live="polite">${msg}</p>` + inputs(R5, R3) + outputs(R5, R3, msg) + FOOT;
+  },
+  "Different water": () => {
+    const msg = "Δ blocked — the runs use different water: temperatureC, rho, nu. Inputs are shown side by side; no difference is computed.";
+    return pickers(R5, R5W) + `<p class="headline" role="status" aria-live="polite">${msg}</p>` + inputs(R5, R5W) + outputs(R5, R5W, msg) + FOOT;
   },
   "Historical base": () => pickers(R4, R5) + `<p class="headline" role="status" aria-live="polite">Revisions compared: δ CL = ${pct(line("CL", R4, R5).d)} — Discrepancy record stored</p>
     <p class="status">Comparison recorded</p><p class="note">Historical runs compare as recorded: δ is between the two stored results.</p>` + inputs(R4, R5) + outputs(R4, R5) + FOOT,
