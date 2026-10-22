@@ -28,3 +28,4 @@
 {"agent": "s1-add-station-build", "at": 1792650352.677735, "kind": "release", "path": "src/CfdWorkbench.Desktop/ModelArea.axaml.cs", "seq": 28, "session": "s1-add-station-build", "wi": "s1-add-station-build"}
 {"agent": "s1-add-station-build", "at": 1792650352.8560572, "kind": "release", "path": "src/CfdWorkbench.Desktop/Shell/ShellHost.cs", "seq": 29, "session": "s1-add-station-build", "wi": "s1-add-station-build"}
 {"agent": "s1-add-station-build", "at": 1792650353.023307, "kind": "release", "path": "docs/proof/add-station/README.md", "seq": 30, "session": "s1-add-station-build", "wi": "s1-add-station-build"}
+{"agent": "s1-add-station-build", "at": 1792652543.0883348, "kind": "session-end", "path": "-", "seq": 31, "session": "s1-add-station-build", "wi": "WI-0", "worktree": "CFD-Workbench-s1-add-station-build"}
