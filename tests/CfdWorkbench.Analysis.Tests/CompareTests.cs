@@ -50,7 +50,8 @@ internal static class CompareTests
         Check("Discrepancy_CompareEvent_CarriesDocumentBytes", CompareEventBytes);
         Check("Compare_TierHeadline_OnlyWhenBothRunsShareARevision", TierHeadlineNeedsOneRevision);
         Check("Discrepancy_PinnedRuns_ReachDocSize_RefusedNotCorrupted", ReachDocSize);
-        Check("Discrepancy_CompareFields_EncodeCost_Measured", CompareFieldsEncodeCost);
+        if (EncodeTiming) Check("Discrepancy_CompareFields_EncodeCost_Measured", CompareFieldsEncodeCost);
+        else Console.WriteLine("SKIP Discrepancy_CompareFields_EncodeCost_Measured measurement-only (set CFD_COMPARE_ENCODE_TIMING=1)");
         Check("Discrepancy_StoreInvariants_Refused", StoreInvariants);
         Check("Discrepancy_TamperedLine_ReadsNoLongerReproduces", TamperedLine);
         Check("Discrepancy_TamperedHash_ReadsPayloadFailedCheck", TamperedHash);

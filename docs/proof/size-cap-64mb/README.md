@@ -63,6 +63,8 @@ record time. The check now also asserts the literal `32_000_000 == NativeProject
 
 - Red with the constant at 8,000,000: `FAIL Store_DocumentAtCap_OpensAndSaves_OneByteOverRefusedIntact InvalidOperationException: Expected 32000000; actual 8000000`.
 - Green with 32,000,000: `STORE-CAP-DOC bytes=32000000 fullRuns=17 lastRunStrips=406 pad=5639`, `PASS Store_DocumentAtCap_OpensAndSaves_OneByteOverRefusedIntact`.
+- Cost (review N2): the at-cap test takes about 34 s on the Windows store, locally and on the CI runner; it is the ruled size test and stays in the ring.
+- Boundary (review N3): the `MaxBytes + 1` image is refused in the `SaveRequest` constructor, before the store is reached, so the store is never handed it. The before and after SHA-256 of the file on disk therefore proves the boundary and the contract (refused before the store, file intact), not a store-side refusal path. No overwrite of an existing at-cap file with an expected token is exercised here; `ReadAll` is shared with the read-back test, so that path is covered.
 
 ## One constant everywhere
 
@@ -108,6 +110,12 @@ cost is quadratic (Ruling 258's proof noted about 45 minutes at 64 MB).
 
 `CompareFields` encodes the whole document per compare. At a 31,826,151-byte document the median of three is 65.8 ms (runs 64.5, 69.1, 65.8),
 under the 100 ms rule, so it is left as it is. See `docs/proof/a3d-compare/README.md`, "Re-measured at the 32,000,000-byte cap".
+
+## The encode check is measurement-only (review N1)
+
+`Discrepancy_CompareFields_EncodeCost_Measured` asserts no cost bound, and filling to the cap costs minutes (16 s at 8 MB; 164 and 174 s at 32 MB in the review). It now runs only when `CFD_COMPARE_ENCODE_TIMING=1`; otherwise the harness prints `SKIP Discrepancy_CompareFields_EncodeCost_Measured measurement-only (set CFD_COMPARE_ENCODE_TIMING=1)` and no PASS. `tools/run-tests.sh` unsets the variable. The environment read sits in `AnalysisChecks.cs` beside the existing `CFD_TEST_ONLY` read; no repo rule confines environment reads in the Analysis project (STORE-SUBSET is the Core umask partition rule).
+
+Analysis harness wall time, Release, one process, `--harness` from the repo root: ungated (before) 226 s, one run (the check itself 213.0 s); gated (after) 12.2, 12.3 and 12.7 s, median 12.3 s, 307 PASS and the one SKIP. With the variable set: 168.6 s, 308 PASS. The machine was not quiet (other coders shared it). The encode medians at 32 MB stay as the measurement: the coder 65.8 ms, the reviewer 69.3 and 65.0 ms, and 74.0 ms in the gated-on run here (61.5, 74.0, 78.0 at 31,826,151 bytes, under the 100 ms rule).
 
 ## Harness results (no full run; the ring runs at the join)
 

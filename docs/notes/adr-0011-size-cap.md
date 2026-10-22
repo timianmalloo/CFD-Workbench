@@ -7,6 +7,8 @@ owner: "@timianmalloo"
 tags: [persistence, document-size, doc-size, adr-0011, ruling-258, ruling-263, measurement]
 links:
   - { to: adr-0011-analysis-run-storage, rel: refines }
+  - { to: adr-application-project-contract, rel: refines }
+  - { to: architecture-application, rel: refines }
   - { to: rulings, rel: depends-on }
 review-by: 2027-01-31
 summary: >-
@@ -20,6 +22,8 @@ summary: >-
 **Decision.** `NativeProject.MaxBytes` is **32,000,000 bytes** (decimal), up from 8,000,000. ADR-0011 stays as accepted; this
 note records the change beside it (DM13). Sources: Ruling 258 (the raise, conditional on a budget), Ruling 263 (the cap that the
 measurements support), and the proof `docs/proof/size-cap-64mb/README.md` (the folder keeps its first name).
+
+**Where 8,000,000 was set.** It was ruled in `docs/adr/0004-application-project-contract.md` (line 47, "must satisfy 8,000,000 bytes") and restated in `docs/architecture/application.md` (lines 110 and 205) and `docs/adr/0003-application-stack.md` (line 81, "8 MB M1 envelope"). Those records are accepted and stay as written (DM13); where they say 8 MB or 8,000,000, this note and Ruling 263 govern: the cap is 32,000,000.
 
 **Why.** The operator asked on 2026-10-22 to "increase the VLM run budget so it works". At the measured 109,991 bytes per pinned
 128-strip run, 8 MB holds about 72 such runs, which sits close to Ruling 251's trigger of 20 in normal use. 32 MB holds about 290,

@@ -250,7 +250,7 @@ hashes canonical UTF-8 and matches Python 1.0.8 and the official empty vector. S
 
 ## Growth, retention and recovery
 
-Native encoded cap: 8,000,000 bytes; each decoded source/recovery: 1,048,576 bytes. Before Open/Apply/Undo/Redo
+Native encoded cap: 32,000,000 bytes (Rulings 258, 263; it was 8,000,000); each decoded source/recovery: 1,048,576 bytes. Before Open/Apply/Undo/Redo
 or recovery replacement, serialize the prospective exact image and check cap **and every reader line limit**.
 The session fixture supports a smaller injected cap to prove boundary refusal cheaply; production cap is fixed.
 Only after success may facts append. Refusal retains accepted state, complete prior recovery, draft/generation,
@@ -385,7 +385,7 @@ full language/certificate/native runtime/telemetry/accessibility/distribution ar
 Patterns: Ports/Adapters to isolate filesystem/UI; immutable snapshots and Command/Memento history to preserve
 source; one owned transaction for edits; idempotent action receipt for retry. Each earns its boundary; no ORM,
 bus or extra service dependency. `simplify:` one session lock and bounded full-image preflight until measured
-8 MB cost fails the UI budget; then redesign under an ADR rather than weakening atomic admission.
+A 32 MB (Rulings 258, 263) cost fails the UI budget; then redesign under an ADR rather than weakening atomic admission.
 
 Design-slice checklist: responsibility/model/grain/history/surface/phase/contracts/patterns/ladder/failure/
 STRIDE/LINDDUN/telemetry/testing are specified and trace to fixtures or explicit product gates. Existing UI

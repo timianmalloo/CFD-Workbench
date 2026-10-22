@@ -1655,12 +1655,20 @@ window.DOCS_INDEX = {
           "rel": "refines"
         },
         {
+          "to": "adr-application-project-contract",
+          "rel": "refines"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "refines"
+        },
+        {
           "to": "rulings",
           "rel": "depends-on"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6cf7133060a62453a3961fd7673a800a86ea1c2184875a088c57ad92bfe5cdf3"
+      "sourceSha256": "234326abbaa57d61a765abcf0f8cfff729f5679187a46593d33b554e7f5f346a"
     },
     {
       "id": "note-area3-analysis-reading-contract",
@@ -2320,7 +2328,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8288f1cd3ca5eeb82ab858195075580633e303d87712844a3fa56b73a8c55b93"
+      "sourceSha256": "e702d6e65f66ef0126e5a07b31aabe6bd04e0a437782757ddbb4c1355cd88649"
     },
     {
       "id": "design-add-station",
@@ -2568,7 +2576,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e4aef2c723f005e573eee85742a6a4881c85290d43f04ff63f8ed9848938b354"
+      "sourceSha256": "5ae1dabac26fcc843f8aa84b76b8c2d7a37335d0775382f190651e9a9796f1a5"
     },
     {
       "id": "design-application-foundation",
@@ -2641,7 +2649,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "59c5acc2f57489994a5574fae8dbddc2c2ff696b106151fda09470babb3330f4"
+      "sourceSha256": "f67fb3084fe73d426fad880c9dcb6fad57131967175e27195f787d98d6edc8c1"
     },
     {
       "id": "design-area3-analysis",
@@ -2752,7 +2760,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e57d06f72bf228134b8c906fc1e288107ba013ffbe86253518699ed374953e65"
+      "sourceSha256": "9338decd6b814249a2730ec74666ff8572f48e993f54616639274dd93c7339b7"
     },
     {
       "id": "design-authoring-decisions",
@@ -4080,7 +4088,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2bccea4d210a781ebcd9922c6a6ded7c60af02fb9e1ba3f1b9907930c2772556"
+      "sourceSha256": "7d244da0e1e37f166fb611bc5388f696588c379dea6318d1d18efd2b5e7b904b"
     },
     {
       "id": "design-windows-runtime",
@@ -18163,7 +18171,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "334be11bffa998e63668a4889e75bff7d961c087ccff71873a09ffc2b5107209"
+      "sourceSha256": "516da86b1c76cec41679f50465b996627c1c5787edf01a66f38077315a09ce36"
     },
     {
       "id": "proof-sma-captures",
@@ -24094,5 +24102,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "3f99fe1d2dc28b2e6f2b86acf8b384d5e21dc01020d7d646a34a85182d1cc3cc"
+  "graphSha256": "ce60fc7c88140f34c862d37e19100813cd8080c608559e6bafe7066f4d12dc02"
 };

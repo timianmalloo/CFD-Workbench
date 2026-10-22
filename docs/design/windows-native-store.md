@@ -112,7 +112,7 @@ image, plus reserved transient claim/temp entries. There is no database, sidecar
 history, snowflake, Windows-specific persisted field or data backfill. Core writers
 and `NativeProject.Read/Replay`, session reopen and Analysis readers remain the
 producers/consumers; Windows transports their bytes unchanged. Read-size admission
-uses `NativeProject.MaxBytes` (observed 8,000,000), not a duplicated native constant.
+uses `NativeProject.MaxBytes` (32,000,000 since Ruling 263; it was 8,000,000), not a duplicated native constant.
 
 [Ruling 121](../notes/rulings.md#ruling-121--units-remembered-by-a-shared-preference-key-added-on-the-mac-analysis-only-one-status-item)
 and the Mac xmsg handoff of 2026-10-06 require using the existing optional `units`

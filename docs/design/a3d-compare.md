@@ -75,7 +75,7 @@ observed. `assume:` lines carry a belief, what confirms it, and what breaks if i
   (line 51), `WaterRecord` (line 64), `OperatingPoint` (line 73), `RunRecord.Format` (lines 222–225), and the diagnostics
   rule in `CheckRow` (line 293): `(run.Outcome is RunOutcome.Completed) == (run.Diagnostics is not null)`.
   `AuthoringSession.cs`: `PruneRunsAtSave` carries condition C1 (lines 2101–2104); `RetainedOthersPerTier = 20`
-  (line 1996); `NativeProject.MaxBytes = 8_000_000` (line 2182); the native reader's `Exact` raises
+  (line 1996); `NativeProject.MaxBytes = 32_000_000` (Rulings 258, 263; it was 8_000_000); the native reader's `Exact` raises
   `DOC-UNSUPPORTED-FIELD` on any member outside its list (lines 2233–2234) and reads the `analysis` member with
   `Exact(analysisElement, "runs", "polarSamples", "pruned")` (line 2254). `AnalysisService.EvaluateAsync` refuses every
   tier but `VlmStrip` (`ANA-INPUT-TIER`); `Tier.cs` says *"the estimator wing tier waits for A3d (P-8)"*.
@@ -280,7 +280,7 @@ referenced run is never pruned and never tombstoned (condition C1). The build **
 referenced runs by id: Compare reads runs and opens no revision outside Undo/Redo (confirmation condition 5). Records are never pruned in A3d, and **there is no
 unpin path**: every recorded pair pins its two runs for the life of the document.
 
-The bound, against `NativeProject.MaxBytes` = 8,000,000 bytes (Verified, line 2182):
+The bound, against `NativeProject.MaxBytes` = 32,000,000 bytes (Rulings 258, 263; it was 8,000,000):
 
 | Item | Bytes | Basis |
 |---|---|---|
@@ -288,7 +288,7 @@ The bound, against `NativeProject.MaxBytes` = 8,000,000 bytes (Verified, line 21
 | one estimator run | ≈ 1,500 | a manifest with no strips (Inferred from the §5.6 manifest of `area3-analysis.md`) |
 | one VLM + strip run, 64 × 2 strips | 109,991 (measured, a **lower bound**) | 128 strips in the indented document, measured by the size test. The test strips carry 10-digit values; a solver prints up to 17 digits, which gives about 127 kB per run and about 63 runs in `MaxBytes` (**Inferred**, a digit-count model) |
 
-Records alone would need ≈ 15,000 to reach `MaxBytes`; they are not the constraint. **Pinned runs are.** About 72 VLM runs fit in 8 MB at the measured 109,991 bytes (8,000,000 / 109,991; about 63 at solver precision, Inferred). Retention already keeps the reachable runs and 20 others per tier; each recorded revision
+Records alone would need ≈ 15,000 to reach `MaxBytes`; they are not the constraint. **Pinned runs are.** About 290 VLM runs fit in 32 MB (Rulings 258, 263) at the measured 109,991 bytes (32,000,000 / 109,991, computed; about 63 at solver precision, Inferred). Retention already keeps the reachable runs and 20 others per tier; each recorded revision
 pair can pin up to two more VLM runs that retention would otherwise prune. So a few tens of revision pairs with disjoint runs
 (about (72 − 20 − reachable) / 2 at the lower bound; Inferred) bring a document to `DOC-SIZE` — fewer than 200, so this design does not
 invent a cap: **DR-A3D-6** (§10). A tier pair pins one VLM run and one ≈ 1.5 kB estimator run, so it costs at most
