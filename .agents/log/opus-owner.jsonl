@@ -1,0 +1,3 @@
+{"agent": "opus-owner", "at": 1792631752.6514752, "kind": "session-start", "path": "-", "seq": 1, "session": "opus-owner", "tree": "primary", "wi": "WI-0", "worktree": "CFD-Workbench"}
+{"action": "resolve", "agent": "opus-owner", "at": 1792632033.313487, "id": "req-01M5DXHY5QN4YJCAF1MD5K60GT", "kind": "request", "outcome": "resolution", "path": "-", "seq": 2, "session": "opus-owner", "type": "request", "wi": "WI-0"}
+{"at": 1792632033.3281872, "from": "opus-owner", "kind": "ruling", "mail_id": "mail-01M5GK441GMDWHV8VKC8CKTJ54", "ref": "req-01M5DXHY5QN4YJCAF1MD5K60GT", "session": "opus-owner", "to": "pc-laptop-leader", "type": "mail"}
