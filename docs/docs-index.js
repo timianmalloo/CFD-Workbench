@@ -13171,6 +13171,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "be62c92d1e79c12675dbcfee5dff1495b50e66dee36b69e451fee95cbf04af60"
     },
     {
+      "id": "proof-add-station",
+      "path": "docs/proof/add-station/README.md",
+      "title": "Add station build proof: red and green lines, mutants, measured deviations",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@track-s1-add-station-build",
+      "phase": "implementation",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "The observed red and green lines of the Add station build, by node. Node S1-a (Core and CLI visibility) is recorded: 21 checks red on the stubs and green after, mutants M1 to M6, M8 and M9 red, the measured deviations and k of the real pairs, the plan cost. The S1-b sections (Desktop, copy id mapping, xaml-token-lint) are filled by that node.",
+      "tags": [
+        "add-station",
+        "remove-station",
+        "inspection-slice",
+        "promote",
+        "rule-a",
+        "cad-02",
+        "cad-09",
+        "geo-06"
+      ],
+      "links": [
+        {
+          "to": "design-add-station",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e805074a5c55ef7bfca580aad34b31f4758e479003b7cf997ac83973d11e40f2"
+    },
+    {
       "id": "proof-app-shell-test-inventory",
       "path": "docs/proof/app-shell-test-inventory.md",
       "title": "App-shell test inventory — WorkbenchTests.cs assertions bound to controls the shell removes or changes",
@@ -23683,5 +23713,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "f0d585234a203fdf00daacf9316f6979dbc1a533f5483aaa2f84c72c3e428edd"
+  "graphSha256": "4a0c65c13208f32a721273ba4f22844b3bf4883d8358fbeb01a566587c7b12e2"
 };

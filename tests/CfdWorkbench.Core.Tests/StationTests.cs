@@ -302,15 +302,14 @@ internal static class StationTests
                 Equal(false, Definition(session.Snapshot().Source).Profiles.Any(profile => profile.Name == "Station 2"));
             }
             // A shared profile survives the removal of one of its stations.
-            using var shared = Open(FoilSource.NewDefault());
-            shared.AddStation(Id(), 0.5, "50 %", false);
-            shared.AddStation(Id(), 0.75, "75 %", false);
-            byte[] both = shared.Snapshot().Source;
-            shared.RemoveStation(Id(), 2);
+            // All three stations name "a"; removing the middle one keeps the block the others still use.
+            var a = Prof("a", Root, Lower(Root));
+            using var shared = Open(Doc(("root", a), ("40 %", a), ("tip", a)));
+            Equal(1, Definition(shared.Snapshot().Source).Profiles.Length);
+            shared.RemoveStation(Id(), 1);
             var kept = Definition(shared.Snapshot().Source);
-            Equal(3, kept.Assignments.Length);
-            Equal(2, kept.Profiles.Length);
-            Equal(false, Definition(both).Profiles.Length == kept.Profiles.Length);
+            Equal(2, kept.Assignments.Length);
+            Equal("a", kept.Profiles.Single().Name);
         });
         Check("Station_EditPromotedProfile_NeighbourBlendUpdates", () =>
         {
@@ -367,6 +366,7 @@ internal static class StationTests
             True(preview.DurationMilliseconds is > 0, "preview duration");
             True(add.DurationMilliseconds is > 0, "add duration");
             Equal("OK", add.Outcome);
+            True(add.DeviationMicrometres is not null, "the add event carries the measured deviation");
             Console.WriteLine($"INFO T-perf preview-promote {preview.DurationMilliseconds:F0} ms, add-station {add.DurationMilliseconds:F0} ms");
         });
     }
@@ -392,7 +392,7 @@ internal static class StationTests
         int start = text.IndexOf("  profiles {\n", StringComparison.Ordinal);
         int end = text.IndexOf("  tip open", StringComparison.Ordinal);
         var middle = new StringBuilder("  profiles {\n");
-        foreach (var (_, profile) in stations) FoilSource.AppendProfile(middle, profile);
+        foreach (var profile in stations.Select(item => item.Profile).DistinctBy(item => item.Name)) FoilSource.AppendProfile(middle, profile);
         middle.Append("  }\n  sections {");
         foreach (var (at, profile) in stations)
             middle.Append(" at ").Append(at).Append(" profile ").Append(Jcs.Quote(profile.Name));
