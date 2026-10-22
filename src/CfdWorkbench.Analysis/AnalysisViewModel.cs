@@ -77,8 +77,11 @@ public sealed record LoadingPoint(double Eta, double? ClChordOverMeanChord, doub
 /// <summary>Station selection reads this complete strip result from one projected run.</summary>
 public sealed record StripDetail(double Eta, IReadOnlyList<ResultRow> Rows);
 
-/// <summary>What the Compare pane shows (design a3d-compare.md 5.4). Blocked, Failed, Unavailable and Error show no delta at all.</summary>
-public enum CompareState { NoSecondRun, Compatible, Blocked, FailedRun, Unavailable, Error }
+/// <summary>
+/// What the Compare pane shows (design a3d-compare.md 5.4, 12). Blocked, Failed, Unavailable and Error show no delta at all.
+/// ReferenceDiffers: only S_ref, b_ref, c_ref or the moment datum differ, so L and D_i carry a delta and the coefficients do not.
+/// </summary>
+public enum CompareState { NoSecondRun, Compatible, Blocked, FailedRun, Unavailable, Error, ReferenceDiffers }
 
 /// <summary>One column of the Compare pane: the run's title, tier chip, method + version and freshness chip.</summary>
 public sealed record CompareColumn(string RunId, string Title, string TierChip, string Method, string Freshness, bool Historical);

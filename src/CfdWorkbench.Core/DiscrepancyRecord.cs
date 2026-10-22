@@ -51,6 +51,11 @@ public sealed record CompareEvent
     public int? PinnedRuns { get; init; }
     /// <summary>The size in bytes of the save image at the event.</summary>
     public int? DocumentBytes { get; init; }
+    /// <summary>
+    /// On a <c>blocked-*</c> event: whether the pane showed the dimensional L and D_i deltas (a reference-only block, design 12.3).
+    /// Session events live in the in-memory queue and never reach a project image, so this is not a stored-shape change.
+    /// </summary>
+    public bool? Dimensional { get; init; }
 }
 
 /// <summary>Canonical orientation, the comparison key, the content hash and the store checks of the Discrepancy records.</summary>

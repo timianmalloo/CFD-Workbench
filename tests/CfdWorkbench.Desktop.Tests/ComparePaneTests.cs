@@ -85,7 +85,42 @@ public static class ComparePaneTests
             Equal(true, pane.EstimatorButton.IsVisible && pane.EstimatorButton.IsEnabled && Equals(pane.EstimatorButton.Content, Labels.CompareTiersCommand), "the estimator button, enabled for a VLM run;");
             Equal(0, pane.OutputsTable.Children.Count, "no table twin of an empty table;");
         });
-        DesktopChecks.Check("ComparePane_IncompatibleReference_BlockedNoDelta", () =>
+        DesktopChecks.Check("ComparePane_ReferenceDiffers_DimensionalDeltasOnly", () =>
+        {
+            using var controller = Open();
+            var first = Evaluate(controller, 2);
+            var second = SpanEditedRun(controller, 2);
+            controller.SetCompareRuns(first.RunId, second.RunId);
+            var pane = new ComparePane();
+            pane.Bind(controller);
+            var text = AllText(pane);
+            Equal(true, text.Any(t => t.StartsWith("Coefficient Δ blocked — reference quantities differ: ", StringComparison.Ordinal)), "AF-COPY-1;");
+            Equal(true, text.Any(t => t.StartsWith("Revisions compared: δ L = ", StringComparison.Ordinal) && t.EndsWith("reference quantities differ", StringComparison.Ordinal)), "AF-COPY-5;");
+            Equal(true, text.Contains(Labels.DimensionalNotRecorded), "the not-recorded status line;");
+            Equal(false, text.Contains(Labels.RecordStored) || text.Contains(Labels.RecordRead), "no 'recorded' status;");
+            string[] Cells(string quantity) => pane.OutputsTable.Children.OfType<Grid>()
+                .Select(grid => grid.Children.OfType<TextBlock>().Select(block => block.Text ?? "").ToArray()).First(cells => cells[0] == quantity);
+            foreach (string coefficient in new[] { "CL", "CDi" }) Equal(Labels.ReferenceDiffersCell, Cells(coefficient)[3], coefficient + " delta cell (AF-COPY-2)");
+            Equal(Labels.ENotComparedSpan, Cells("e")[3], "e delta cell (AF-COPY-3)");
+            foreach (string load in new[] { "L", "D_i" })
+            {
+                Equal(true, Cells(load)[3].EndsWith(" %", StringComparison.Ordinal) && !Cells(load)[3].StartsWith("Blocked", StringComparison.Ordinal), load + " carries a percentage delta;");
+                Equal(Labels.DimensionalNote, Cells(load)[4], load + " note (AF-COPY-4)");
+            }
+            Equal(false, pane.OutputsTable.Children.OfType<Grid>().Where(grid => ((TextBlock)grid.Children[0]).Text is "CL" or "CDi" or "e")
+                .Any(grid => ((TextBlock)grid.Children[3]).Text!.Contains(" %", StringComparison.Ordinal)), "no percentage in a coefficient cell;");
+            Equal(true, Row(pane.InputsTable, "S_ref")[1].StartsWith("≠ ", StringComparison.Ordinal), "the differing field is marked;");
+            // assume: L from CL * q * S_ref is the near-field strip lift to rounding, on a real VLM run (design 12.2).
+            foreach (var run in new[] { first, second })
+            {
+                double lift = Compare.Dimensional(run, Compare.Derivation(_ => null)(run)).L!.Value;
+                double alpha = run.Op.AlphaDeg * Math.PI / 180;
+                double strips = run.Strips.Sum(strip => -strip.Fx * Math.Sin(alpha) + strip.Fz * Math.Cos(alpha));
+                Console.WriteLine($"INFO assume L from CL q S_ref: L {lift:R} N, strip lift {strips:R} N, relative difference {Math.Abs(lift - strips) / Math.Abs(strips):E2}");
+                Equal(true, Math.Abs(lift - strips) <= 1e-12 * Math.Abs(strips), "L equals the strip lift to rounding;");
+            }
+        });
+        DesktopChecks.Check("ComparePane_ReferenceAndWater_BlockedNoDelta", () =>
         {
             using var controller = Open();
             var first = Evaluate(controller, 2);
@@ -93,16 +128,15 @@ public static class ComparePaneTests
             var edited = Task.Run(() => controller.ApplySpanAsync("1400")).WaitAsync(TimeSpan.FromSeconds(20)).GetAwaiter().GetResult();
             if (edited is not CommitOutcome.Committed) throw new Exception("Fixture geometry edit was refused.");
             controller.ToggleAnalysis();
-            // The estimator command now evaluates at the base's revision, so a pair across a span edit is two VLM runs.
-            var second = Evaluate(controller, 2);
-            controller.SetCompareRuns(first.RunId, second.RunId);
+            var warm = Task.Run(() => controller.EvaluateAnalysisAsync(OperatingPoints.Custom(5.14, 2, null), WaterTable.At(25, 0))).WaitAsync(TimeSpan.FromSeconds(60)).GetAwaiter().GetResult()!;
+            controller.SetCompareRuns(first.RunId, warm.RunId);
             var pane = new ComparePane();
             pane.Bind(controller);
             var text = AllText(pane);
-            Equal(true, text.Any(t => t.StartsWith("Δ blocked — reference quantities differ: ", StringComparison.Ordinal)), "the block copy;");
+            Equal(true, text.Any(t => t.StartsWith("Δ blocked — reference quantities differ: ", StringComparison.Ordinal)), "the reference block copy;");
+            Equal(true, text.Any(t => t.StartsWith("Δ blocked — the runs use different water: ", StringComparison.Ordinal)), "the water block copy;");
             Equal(0, pane.OutputsTable.Children.Count, "no output row, so no delta cell;");
             Equal(false, text.Any(t => t.Contains(" %", StringComparison.Ordinal)), "no percentage anywhere;");
-            Equal(true, pane.InputsTable.Children.Count > 15, "the inputs still show side by side;");
         });
         DesktopChecks.Check("ComparePane_DifferentWater_OwnReason", () =>
         {
@@ -208,6 +242,16 @@ public static class ComparePaneTests
     private static AnalysisRun Evaluate(WorkbenchController controller, double alpha) =>
         Task.Run(() => controller.EvaluateAnalysisAsync(OperatingPoints.Custom(5.14, alpha, null), controller.AnalysisWater))
             .WaitAsync(TimeSpan.FromSeconds(60)).GetAwaiter().GetResult() ?? throw new Exception("Fixture Evaluate returned no run.");
+
+    // A VLM run after a span edit: S_ref, b_ref and c_ref differ from the run before it; the point and the water do not.
+    private static AnalysisRun SpanEditedRun(WorkbenchController controller, double alpha)
+    {
+        controller.ToggleAnalysis();   // points and dimensions are edited in CAD
+        var edited = Task.Run(() => controller.ApplySpanAsync("1400")).WaitAsync(TimeSpan.FromSeconds(20)).GetAwaiter().GetResult();
+        if (edited is not CommitOutcome.Committed) throw new Exception("Fixture geometry edit was refused.");
+        controller.ToggleAnalysis();
+        return Evaluate(controller, alpha);
+    }
 
     // The pane after "Compare with estimator" on the latest VLM run.
     private static ComparePane TierPane(WorkbenchController controller)
