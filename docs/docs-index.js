@@ -11132,7 +11132,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "210f28a9719a8d10c64ec75ec5c57b6738ab591efbecbba329f0de8602fe200f"
+      "sourceSha256": "3f3bc4617908b112f42ab01b1055d033da374513fa1446ad28940034a1f38069"
     },
     {
       "id": "coordination-pc-kickoff",
@@ -18682,6 +18682,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "115a7236c89a9c9f3e191189307da771c630bc110d8b4f8ad217354fcfc53abe"
     },
     {
+      "id": "proof-verify-gates-2026-10-22",
+      "path": "docs/proof/verify-gates-2026-10-22/README.md",
+      "title": "Verify gates on Windows ARM64: both exit 4, Not assessed",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Both macOS verify gates were run on Windows ARM64 at 176c9540. Each exits 4 with a Not-assessed line and launches no dotnet process, so the run is not evidence that the gates pass after the --harness change.",
+      "tags": [
+        "verify-gates",
+        "windows",
+        "arm64",
+        "not-assessed"
+      ],
+      "links": [
+        {
+          "to": "coordination-next-best-six",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d66ccd2ae6c8b521ad8ecfc2d10b6eda961c028f2180f8eea4b8804e4bdee845"
+    },
+    {
       "id": "proof-visible-presentation",
       "path": "docs/proof/visible-presentation.md",
       "title": "Visible presentation feasibility proof packet",
@@ -23253,5 +23279,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "2e29207f4f13ca5f602f100860be4d75ed9bae9a1894e2000db68a0878b03d57"
+  "graphSha256": "044ab0e41845b6dd2d92f7ff1b776a1d2b5baa302847490f608d647adb3b0b66"
 };
