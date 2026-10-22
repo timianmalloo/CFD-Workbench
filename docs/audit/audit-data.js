@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T20:16:38Z",
+  "generated": "2026-10-22T20:20:37Z",
   "audit": [
     {
       "actor": null,
@@ -42601,6 +42601,33 @@ window.AUDIT_DATA = {
       "done_when": "the corrected report is on main with the gates green and the CR2 phase named",
       "tier": "T2",
       "fan_out": 3
+    },
+    {
+      "id": "al-01M5JMBMYNKX8R33VNK42Y93K3",
+      "shortname": "join-inv-desktop-crash-2",
+      "datetime": "2026-10-22T20:20:37Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of inv-desktop-crash-2 into main",
+      "summary": "docs-only join of the corrected investigation report: root cause verified as the unheld SkiaSharp vertices object freed mid-draw at MeshFrame.Draw, the GPU-path reading withdrawn, R1 dropped, CR2 the fix recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "put the verified root cause on main before the fix joins",
+      "done_when": "inv-desktop-crash-2 merged on main with check-docs and the ten gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-22T20:20:14Z",
+      "duration_seconds": 23.0
     }
   ],
   "changes": [
