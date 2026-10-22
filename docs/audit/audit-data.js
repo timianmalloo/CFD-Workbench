@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T23:03:44Z",
+  "generated": "2026-10-22T23:06:52Z",
   "audit": [
     {
       "actor": null,
@@ -42754,6 +42754,144 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T22:59:03Z",
       "duration_seconds": 281.0
+    },
+    {
+      "id": "al-01M5JXW261TWX0RDBNTQN2JKCD",
+      "shortname": "coordinate-next-best-six-wave2",
+      "datetime": "2026-10-22T23:06:52Z",
+      "session": "pc-laptop-leader",
+      "prompt": "/investigate the intermittendt desktop native crash skip the macos run ... we are pivoting to focus on windows accept 4 do 3 increase the VLM run budget so it works keep going  and lets get a3d compare, add station and w2-q2 follow up implemented and complete",
+      "summary": "Wave 2 closed: every track joined or dropped. Joined on main: DF designs (855bf4c6), C1 copy rows and the owner-only preference folder ACL (68919b3f), SF1 slice-chip peers (67ae5143), BS node A Clear unfinished save (417557da) and node B read-only Open from OneDrive with the recorded real-file run (3ca6422b), AF dimensional deltas display-only (f955bbca), MX the 32,000,000-byte cap under Ruling 263 with spec amendment 1.7.10 under Ruling 264 (145f11d9, fa4dcff0), SF2 the bit-identical station measure path and Match the blend (b31668b6), CR1 the crash-capture hook (48ea4297), the investigation report and its correction (26ff9bcb, b51d01f3), CR2 the fix for the Desktop native crash (28e23de0), WF the Windows refusal copy under Rulings 265 and 266 (5de36f84). Dropped: R1 (harness software rendering). Rulings 262 to 266. The crash: root cause verified as SkiaSharp 2.88.9's array helper DrawVertices creating an SKVertices nothing keeps reachable during the draw; sixteen paired runs on the fixed build with zero fatal exits where each path crashed on its first pair before. Planned vs actual appended to the plan; the operator's list: a yes or no on the dimensional deltas (Ruling 262 DF-Q1), the copy review of COPY-642 to 646 (with COPY-644 duplicating COPY-125), the two Ruling 266 residuals, the follow-ups in the record's section 4.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/next-best-six-wave2.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "work autonomously through the operator's decisions of 2026-10-22: the crash investigation, the three store items, the VLM run budget, and A3d Compare, Add station and the W2-Q2 follow-up complete",
+      "done_when": "every wave-2 track joined on main with its ring and gates green or dropped with its reason recorded, the crash's root cause verified and fixed, the record appended to the plan, the operator's decisions listed",
+      "tier": "T2",
+      "fan_out": 3,
+      "agent_runs": [
+        {
+          "agent": "w2b-df",
+          "started_at": "2026-10-22T16:19:01Z",
+          "ended_at": "2026-10-22T16:42:23Z",
+          "duration_seconds": 1402.0,
+          "calls": 82,
+          "budget_calls": 90,
+          "over_budget": false
+        },
+        {
+          "agent": "w2b-c1-copy-acl",
+          "started_at": "2026-10-22T15:59:56Z",
+          "ended_at": "2026-10-22T15:59:56Z",
+          "duration_seconds": 0.0
+        },
+        {
+          "agent": "w2b-sf1",
+          "started_at": "2026-10-22T15:56:38Z",
+          "ended_at": "2026-10-22T16:27:07Z",
+          "duration_seconds": 1829.0
+        },
+        {
+          "agent": "w2b-ds-store-design",
+          "started_at": "2026-10-22T15:46:31Z",
+          "ended_at": "2026-10-22T16:10:29Z",
+          "duration_seconds": 1438.0
+        },
+        {
+          "agent": "w2b-bs",
+          "started_at": "2026-10-22T16:49:11Z",
+          "ended_at": "2026-10-22T17:34:02Z",
+          "duration_seconds": 2691.0,
+          "calls": 123,
+          "budget_calls": 115,
+          "over_budget": true
+        },
+        {
+          "agent": "w2b-bs-b",
+          "started_at": "2026-10-22T18:37:38Z",
+          "ended_at": "2026-10-22T19:08:37Z",
+          "duration_seconds": 1859.0,
+          "calls": 133,
+          "budget_calls": 130,
+          "over_budget": true
+        },
+        {
+          "agent": "w2b-af",
+          "started_at": "2026-10-22T17:32:44Z",
+          "ended_at": "2026-10-22T17:59:22Z",
+          "duration_seconds": 1598.0,
+          "calls": 108,
+          "budget_calls": 150,
+          "over_budget": false
+        },
+        {
+          "agent": "w2b-sf2",
+          "started_at": "2026-10-22T17:14:30Z",
+          "ended_at": "2026-10-22T19:32:09Z",
+          "duration_seconds": 8259.0,
+          "calls": 287,
+          "budget_calls": 275,
+          "over_budget": true
+        },
+        {
+          "agent": "w2b-mx",
+          "started_at": "2026-10-22T17:45:15Z",
+          "ended_at": "2026-10-22T19:11:10Z",
+          "duration_seconds": 5155.0,
+          "calls": 132,
+          "budget_calls": 150,
+          "over_budget": false
+        },
+        {
+          "agent": "w2b-spec-1710",
+          "started_at": "2026-10-22T19:18:28Z",
+          "ended_at": "2026-10-22T19:18:28Z",
+          "duration_seconds": 0.0,
+          "calls": 8,
+          "budget_calls": 15,
+          "over_budget": false
+        },
+        {
+          "agent": "cr1-crash-capture",
+          "started_at": "2026-10-22T16:10:18Z",
+          "ended_at": "2026-10-22T18:59:54Z",
+          "duration_seconds": 10176.0,
+          "calls": 31,
+          "budget_calls": 45,
+          "over_budget": false
+        },
+        {
+          "agent": "cr2-vertices-lifetime",
+          "started_at": "2026-10-22T20:37:41Z",
+          "ended_at": "2026-10-22T22:24:37Z",
+          "duration_seconds": 6416.0,
+          "calls": 47,
+          "budget_calls": 85,
+          "over_budget": false
+        },
+        {
+          "agent": "w2b-wf",
+          "started_at": "2026-10-22T22:20:00Z",
+          "ended_at": "2026-10-22T22:20:00Z",
+          "duration_seconds": 0.0,
+          "calls": 108,
+          "budget_calls": 135,
+          "over_budget": false
+        }
+      ],
+      "parallelism": {
+        "agent_seconds": 40823.0,
+        "span_seconds": 19954.0,
+        "speedup": 2.05,
+        "peak_concurrency": 4
+      }
     }
   ],
   "changes": [
