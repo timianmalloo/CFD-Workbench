@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T16:47:01Z",
+  "generated": "2026-10-22T17:14:30Z",
   "audit": [
     {
       "actor": null,
@@ -41886,6 +41886,25 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T16:46:34Z",
       "duration_seconds": 27.0
+    },
+    {
+      "id": "al-01M5J9PVM76GC15T31QSWDHRNW",
+      "shortname": "w2b-sf2-sf2-1",
+      "datetime": "2026-10-22T17:14:30Z",
+      "session": "w2b-sf2",
+      "prompt": "wave 2 SF2 node SF2-1 speed-up",
+      "summary": "SF2-1 done. Placement.SectionsForMeasure (internal, additive) skips CamberSlope and Place; StationEdits.Measure uses it. Guard Station_MeasurePath_BitIdenticalToSections_* compares 412873 doubles by bits over 87 document x grid pairs, red under a one-ulp mutant. Timings (median of three): 258x2001 call 8121 -> 3813 ms, promotion plan 9741 -> 4682 ms. Blended-maximum search not skippable (feeds Camber/Thickness). Core 860 PASS, Analysis 296, Cli 26, check-docs 0. Proof: docs/proof/add-station/sf2.md.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T16:49:28Z",
+      "duration_seconds": 1502.0
     }
   ],
   "changes": [
