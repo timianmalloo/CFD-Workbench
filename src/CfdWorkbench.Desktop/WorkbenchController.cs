@@ -680,6 +680,8 @@ public sealed class WorkbenchController : IDisposable
 
     public StationFlyout? Flyout => flyout;
     public bool SliceChecking => sliceChecking;
+    /// <summary>The slice's position as the η entry shows it ("35.0 %" or "175.0 mm", in the document unit).</summary>
+    public string SliceEntryText => sliceText;
     /// <summary>What the Properties pane shows for the slice and the station verbs.</summary>
     public StationPanelState StationPanel => new(AddStationReason, Selection is Selection.Station station ? RemoveStationReason(station.Index) : null, sliceChecking, flyout);
 

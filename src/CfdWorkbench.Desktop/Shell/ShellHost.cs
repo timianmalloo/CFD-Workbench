@@ -1197,7 +1197,7 @@ public sealed class ShellHost : Grid
                 RunCombVerb(id);
                 return;
             case "station.add":
-                Controller.BeginAddStation();
+                ModelView.BeginAddStation();
                 return;
             case "station.remove":
                 if (Controller.Selection is Selection.Station doomed) await Controller.BeginRemoveStationAsync(doomed.Index);

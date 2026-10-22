@@ -81,6 +81,24 @@ public partial class ModelArea : UserControl
                 CancelAddPoint();
             }
         };
+        AddStationTextBox.TextChanged += (_, _) =>
+        {
+            if (!settingStationText && controller is not null && !string.IsNullOrWhiteSpace(AddStationTextBox.Text)) controller.PlaceSliceTyped(AddStationTextBox.Text);
+        };
+        AddStationTextBox.KeyDown += (_, args) =>
+        {
+            if (args.Key is Key.Enter or Key.Return)
+            {
+                args.Handled = true;
+                PromoteFromEntry();
+            }
+            else if (args.Key == Key.Escape)
+            {
+                args.Handled = true;
+                controller?.ClearSlice();
+                CloseAddStation();
+            }
+        };
         RebuildPopoverView.PreviewChanged += preview => PlanCanvas.RebuildPreview = preview;
         Gutter = ViewArrangementGrid.ColumnSpacing;
 
@@ -209,6 +227,39 @@ public partial class ModelArea : UserControl
         AddPointPanel.IsVisible = true;
         AddPointTextBox.Focus();
         AddPointTextBox.SelectAll();
+    }
+
+    private bool settingStationText;
+    private Control? stationFocusReturn;
+
+    public TextBox AddStationInput => AddStationTextBox;
+
+    /// <summary><c>station.add</c> (design 5.2, Place (keyboard)): the η entry opens focused on the slice; typing moves the slice live.</summary>
+    public void BeginAddStation(Control? focusReturn = null)
+    {
+        if (controller is null) return;
+        controller.BeginAddStation();
+        if (controller.Selection is not Selection.Slice) return;
+        stationFocusReturn = focusReturn ?? PlanCanvas;
+        settingStationText = true;
+        AddStationTextBox.Text = controller.SliceEntryText;
+        settingStationText = false;
+        AddStationPanel.IsVisible = true;
+        AddStationTextBox.Focus();
+        AddStationTextBox.SelectAll();
+    }
+
+    private void PromoteFromEntry()
+    {
+        if (controller is null) return;
+        CloseAddStation();
+        _ = controller.PromoteSliceAsync();
+    }
+
+    private void CloseAddStation()
+    {
+        AddStationPanel.IsVisible = false;
+        stationFocusReturn?.Focus();
     }
 
     public async Task ApplyAddPointAsync()
@@ -448,6 +499,7 @@ public partial class ModelArea : UserControl
     {
         // Fitting a first camera writes it back to the controller, which raises Changed into this method again.
         if (controller is null || refreshing) return;
+        if (AddStationPanel.IsVisible && controller.Selection is not Selection.Slice) AddStationPanel.IsVisible = false;   // × or another selection ends the entry
         refreshing = true;
         try { RefreshViews(controller); }
         finally { refreshing = false; }

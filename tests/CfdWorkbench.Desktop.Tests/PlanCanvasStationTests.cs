@@ -45,6 +45,36 @@ public static partial class PlanCanvasTests
 
     public static void RunStations()
     {
+        DesktopChecks.Check("Station_KeyboardPlacement_EntryTypesPromotesAndEscapes", () =>
+        {
+            using var fixture = StationFixture(StationDesktopTests.ThreeSame());
+            var controller = fixture.Controller;
+            dynamic area = fixture.Host.ModelView;
+            fixture.Host.RunCommand("station.add").GetAwaiter().GetResult();
+            fixture.Settle();
+            TextBox input = area.AddStationInput;
+            if (!input.IsEffectivelyVisible || !input.IsFocused) throw new Exception($"station.add did not focus the η entry (visible {input.IsEffectivelyVisible}, focused {input.IsFocused})");
+            input.Text = "35";
+            fixture.Settle();
+            if (controller.Selection is not Selection.Slice { Eta: var typed } || Math.Abs(typed - .35) > 1e-6) throw new Exception("Typing 35 did not move the slice: " + controller.Selection);
+            input.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = Key.Return, Source = input });
+            StationWait(fixture, () => StationDesktopTests.StationCount(controller) == 4 && !controller.SurfaceUpdating, "the promotion from the entry");
+            if (controller.Selection is not Selection.Station { Index: 1 }) throw new Exception("Return did not promote: " + controller.Selection);
+            if (input.IsEffectivelyVisible) throw new Exception("The entry stays open after Return");
+
+            fixture.Host.RunCommand("station.add").GetAwaiter().GetResult();
+            fixture.Settle();
+            input = area.AddStationInput;
+            input.Text = "80";
+            fixture.Settle();
+            if (controller.Selection is not Selection.Slice) throw new Exception("The second slice was not placed");
+            input.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = Key.Escape, Source = input });
+            fixture.Settle();
+            if (controller.Selection is Selection.Slice || input.IsEffectivelyVisible) throw new Exception("Escape did not clear the slice and close the entry: " + controller.Selection);
+            if (!fixture.Canvas.IsFocused) throw new Exception("Escape did not return focus to the Plan");
+            if (StationDesktopTests.StationCount(controller) != 4) throw new Exception("Escape changed the stations");
+        });
+
         DesktopChecks.Check("PlanCanvas_SliceChip_LabelPromoteInStrip", () =>
         {
             using var fixture = StationFixture(StationDesktopTests.ThreeSame());
