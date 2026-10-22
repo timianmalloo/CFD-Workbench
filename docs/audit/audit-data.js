@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T01:34:05Z",
+  "generated": "2026-10-22T01:58:59Z",
   "audit": [
     {
       "actor": null,
@@ -41182,6 +41182,25 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T01:33:43Z",
       "duration_seconds": 22.0
+    },
+    {
+      "id": "al-01M5GNAFT3GRA0BV2J7E5EC6WW",
+      "shortname": "s1-add-station-design",
+      "datetime": "2026-10-22T01:58:59Z",
+      "session": "s1-add-station-design",
+      "prompt": "track S1 brief: the Add station design and mockup",
+      "summary": "Track S1 design half: docs/design/add-station.md (data model, central answer, commands and codes, E7 list, UI states, copy S1-COPY-1..20, red-first tests T1-T18 and D1-D5 with mutants, owned paths and seams, review packet, DR-S1-1..6), docs/mockups/add-station.html and .md (eight states, harness), docs/specs/amendments/spec-add-station.md (A-S1-1..3, proposed). Finding: rule A renormalises the blended unit thickness, so promotion is exact only when the neighbours share spacing and peak thickness location (R0/R1); with different peaks (R2) both adjacent intervals move by a measured amount (scratch model 0.8e-6 to 3.1e-5 chord). check-docs exit 0; ui-craft-gate not run (no windows-arm64 detector binary).",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T01:39:53Z",
+      "duration_seconds": 1146.0
     }
   ],
   "changes": [

@@ -2202,6 +2202,67 @@ window.DOCS_INDEX = {
       "sourceSha256": "da2a659e45dffc501e47f21e2a6725fec8bdd3826b3da9d73fc20796d7d8f265"
     },
     {
+      "id": "design-add-station",
+      "path": "docs/design/add-station.md",
+      "title": "Design: Add station, Remove station and the inspection slice with Promote (CAD-02, CAD-09, GEO-06)",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design — track S1 of next-best-six; documents only; build after the leader's Adversary pass and the Owner's rulings on DR-S1-1..6",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "The inspection slice is a selection (never syntax); Promote writes one new profile block and one `at <η> %` assignment whose section is the as-built rule-A blend at η, built in control-point space by the one PlacementRule definition. Promotion is exact (≤ 1e-12 relative) only when the two neighbours share spacing and their unit thickness shapes peak at the same chord fraction; when the peaks differ the renormalising blend moves both adjacent intervals by a measured amount (a scratch model gives 0.8 to 31 µm per metre of chord), which this design reports and puts to the Owner (DR-S1-1, amendment note). Remove re-blends across the gap with the measured deviation and Apply gated at 10 µm.",
+      "tags": [
+        "cad",
+        "station",
+        "inspection-slice",
+        "promote",
+        "rule-a",
+        "blend",
+        "certificate",
+        "foildsl",
+        "cad-02",
+        "cad-09",
+        "geo-06"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "design-next-cad-increment",
+          "rel": "refines"
+        },
+        {
+          "to": "mockup-add-station",
+          "rel": "relates-to"
+        },
+        {
+          "to": "decision-loft-rule-a",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-cross-profile-abscissa",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-planform-point-verbs",
+          "rel": "relates-to"
+        },
+        {
+          "to": "spec-amendments-add-station",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3b283bf9db1c3e2035c476587bcbddbbcb572123adb90475963e7ae941a081c0"
+    },
+    {
       "id": "design-app-shell",
       "path": "docs/design/app-shell.md",
       "title": "Design: the CAD-first app shell — Start, workspaces, docks and floats, selection and Properties, menus and commands",
@@ -3902,6 +3963,50 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "b834c7381e6b2ed57ee0f816caa417d98f3f753d69af48a832a2eb92bfaba945"
+    },
+    {
+      "id": "mockup-add-station",
+      "path": "docs/mockups/add-station.md",
+      "title": "Add station — the inspection slice, Promote and Remove station in today's shell",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "Eight states of the 1280 × 800 shell (and the 640 × 400 reflow) on a stated two-station fixture wing: no slice, a slice placed with its label and Promote, the promoted station selected in the Plan chip strip, Front, Side, Browser and Properties, a coincident η refused with the existing station selected, Remove with the change above 10 µm (Apply disabled with its reason), Root remove refused, the certificate budget refused, and a competing draft. For the operator's review after the Adversary pass.",
+      "tags": [
+        "mockup",
+        "cad",
+        "station",
+        "inspection-slice",
+        "promote",
+        "remove-station",
+        "hard-states",
+        "cad-02",
+        "cad-09",
+        "geo-06"
+      ],
+      "links": [
+        {
+          "to": "design-add-station",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-planform-point-verbs",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "991e049bd34ab6b5247aa416aca27564341a3bd17feedb003f6ceb2d10cbc26e"
     },
     {
       "id": "mockup-area3-analysis",
@@ -9426,7 +9531,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "14839ed052f3a4153536c578fe2b524d6cb22db5ffeb00135bc86e1406fe5e9c"
+      "sourceSha256": "f3d0d1615a6aeffa259c7be91546d54f3fdf9639162ad704e6f5e4c8a1dc42a4"
     },
     {
       "id": "kb-hw-glossary",
@@ -22477,6 +22582,44 @@ window.DOCS_INDEX = {
       "sourceSha256": "1afdf5caae6c73a1e908605c4b662c192f19dc4a1d08b8fbfd4247d825d5f567"
     },
     {
+      "id": "spec-amendments-add-station",
+      "path": "docs/specs/amendments/spec-add-station.md",
+      "title": "Proposed spec amendments for Add station and Promote (GEO-06, CAD-02, A4.6) — for the Owner's ruling",
+      "type": "spec",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "Three proposed amendments from the Add station design (track S1). Promotion of an inspection slice is exact only when the two neighbouring sections share spacing and peak thickness location; otherwise it is an approximate path with a measured deviation (DR-S1-1). The thickness policy for Promote and Remove is Keep current thickness (DR-S1-5). Not approved; the Owner rules before any build.",
+      "tags": [
+        "spec",
+        "amendments",
+        "station",
+        "promote",
+        "rule-a",
+        "blend",
+        "geo-06",
+        "cad-02"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "design-add-station",
+          "rel": "depends-on"
+        },
+        {
+          "to": "decision-loft-rule-a",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4016682aaa8b4776da981ea5a9a1d565152f050369e42d7284d6a922b1f6c8a7"
+    },
+    {
       "id": "spec-cfd-workbench",
       "path": "docs/specs/cfd-workbench.md",
       "title": "CFD-Workbench — product specification",
@@ -22944,6 +23087,14 @@ window.DOCS_INDEX = {
       "description": "Open an interactive knowledge artifact."
     },
     {
+      "id": "surface-mockups-add-station",
+      "path": "docs/mockups/add-station.html",
+      "title": "Add station",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-add-station"
+    },
+    {
       "id": "surface-mockups-area3-analysis",
       "path": "docs/mockups/area3-analysis.html",
       "title": "Area 3 analysis",
@@ -23279,5 +23430,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "044ab0e41845b6dd2d92f7ff1b776a1d2b5baa302847490f608d647adb3b0b66"
+  "graphSha256": "b195c12b27bd8963b86122c036e1c01fe65e0129f74bb2b2826f7a1aba5b70f6"
 };
