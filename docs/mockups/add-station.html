@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add station</title>
+<!--
+  Review page for the Add station design (docs/design/add-station.md, track S1). Eight states of the 1280 x 800 shell
+  (and the 640 x 400 reflow preset): no slice, slice placed with Promote, promoted, coincident eta refused, Remove above
+  the acceptance, Root remove refused, certificate budget refused, competing draft. Geometry is computed in the page from
+  the stated fixture (see FIX below). Cycle 1 adds state 9, the approximate promotion preview (R2, Ruling 252
+  S1-Q1 d), and re-bases state 7 on the as-built capacity (seven differing stations refused). Deviation numbers are
+  illustrative, not computed: the product measures them (design section 2.6). Display only; no network, no external
+  fonts or scripts.
+-->
+<style>
+:root{ --font: system-ui, -apple-system, "Segoe UI", sans-serif; --mono: ui-monospace, monospace;
+  --viewport:#17272c; --viewport-soft:#243a40; --viewport-ink:#edf4f2; --viewport-mute:#afc6c7; --viewport-grid:#344b50;
+  --foil:#85c9c4; --foil-edge:#c4e7df; --station:#66ddc8; --vfocus:#66ddc8; --vdanger:#ffaeb5; --vwarn:#efc576; }
+:root[data-theme="light"]{ --canvas:#f0f2f1; --surface:#fbfcfb; --soft:#e8edeb; --ink:#1b2929; --mute:#526362; --line:#c9d3cf; --control:#788d87; --accent:#006c67; --on-accent:#ffffff; --sel:#d8eeea; --warn:#895900; --danger:#a92e37; --success:#24653f; }
+:root[data-theme="dark"]{ --canvas:#172326; --surface:#1e2d31; --soft:#2a3d40; --ink:#ebf3f0; --mute:#b2c4bf; --line:#49605b; --control:#79928c; --accent:#88d8c6; --on-accent:#172326; --sel:#274c47; --warn:#efc576; --danger:#ffaeb5; --success:#92d1a5; }
+:root[data-theme="contrast"]{ --canvas:#000000; --surface:#000000; --soft:#000000; --ink:#ffffff; --mute:#ffffff; --line:#ffffff; --control:#ffffff; --accent:#ffee58; --on-accent:#000000; --sel:#000000; --warn:#ffee58; --danger:#ffee58; --success:#ffffff;
+  --viewport:#000000; --viewport-soft:#000000; --viewport-ink:#ffffff; --viewport-mute:#ffffff; --viewport-grid:#5a5a5a; --foil:#ffffff; --foil-edge:#ffffff; --station:#ffee58; --vfocus:#ffee58; --vdanger:#ffee58; --vwarn:#ffee58; }
+*{ box-sizing:border-box; }
+html, body{ margin:0; background:var(--canvas); color:var(--ink); font:13px/1.45 var(--font); }
+button, select, input{ font:inherit; color:inherit; }
+.top{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; padding:10px 16px; border-bottom:1px solid var(--line); }
+.top h1{ margin:0; font-size:15px; }
+.top label{ font-size:12px; color:var(--mute); display:flex; gap:6px; align-items:center; }
+.top select{ min-height:28px; padding:0 8px; border:1px solid var(--control); border-radius:4px; background:var(--surface); }
+main{ padding:16px; overflow-x:auto; }
+.what{ margin:0 0 10px; max-width:1280px; font-size:12px; color:var(--mute); }
+.what b{ color:var(--ink); }
+.shell{ width:1280px; height:800px; display:flex; flex-direction:column; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--canvas); font-size:11px; line-height:14px; position:relative; }
+.shell.reflow{ width:640px; height:400px; }
+.titlebar{ flex:0 0 28px; display:flex; align-items:center; padding:0 12px; background:var(--surface); border-bottom:1px solid var(--line); color:var(--mute); font-size:12px; }
+.titlebar b{ margin:0 auto; color:var(--ink); font-weight:600; }
+.options{ flex:0 0 36px; display:flex; align-items:center; gap:8px; padding:0 10px; background:var(--surface); border-bottom:1px solid var(--line); }
+.options .lbl{ color:var(--mute); }
+.options input{ width:84px; min-height:24px; padding:0 6px; border:1px solid var(--control); border-radius:4px; background:var(--surface); font-family:var(--mono); }
+.options .draft{ margin-left:auto; padding:2px 8px; border-radius:9999px; background:var(--soft); color:var(--warn); font-weight:600; }
+.work{ flex:1; min-height:0; display:flex; }
+.dock{ flex:0 0 220px; background:var(--surface); border-right:1px solid var(--line); display:flex; flex-direction:column; min-height:0; }
+.dock.right{ flex-basis:280px; border-right:0; border-left:1px solid var(--line); }
+.reflow .dock.left{ display:none; }
+.reflow .dock.right{ flex-basis:200px; }
+.tabs{ flex:0 0 28px; display:flex; align-items:center; padding:0 10px; font-weight:600; border-bottom:1px solid var(--line); }
+.rows{ list-style:none; margin:0; padding:4px 0; }
+.rows li{ min-height:24px; display:flex; align-items:center; padding:0 10px; font-family:var(--mono); }
+.rows li.on{ background:var(--sel); box-shadow:inset 3px 0 0 var(--accent); font-weight:600; }
+.views{ flex:1; min-width:0; display:grid; grid-template-rows:1fr 150px; grid-template-columns:1fr 1fr; gap:4px; padding:4px; }
+.reflow .views{ grid-template-rows:1fr; grid-template-columns:1fr; }
+.reflow .view.front, .reflow .view.side{ display:none; }
+.view{ position:relative; background:var(--viewport); border:1px solid var(--line); overflow:hidden; min-height:0; }
+.view.plan{ grid-column:1 / span 2; }
+.view svg{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+.vlabel{ position:absolute; left:6px; top:6px; padding:3px 8px; background:var(--viewport-soft); color:var(--viewport-ink); border-radius:3px; font-weight:600; box-shadow:inset 0 -2px 0 var(--station); }
+.props{ padding:8px 10px; overflow:auto; }
+.props h3{ margin:0 0 6px; font-size:13px; line-height:18px; }
+.props dl{ display:grid; grid-template-columns:auto 1fr; gap:2px 10px; margin:0 0 8px; }
+.props dt{ color:var(--mute); } .props dd{ margin:0; font-family:var(--mono); text-align:right; }
+.props .note{ color:var(--mute); margin:0 0 8px; }
+.btn{ min-height:32px; min-width:32px; padding:0 12px; border:1px solid var(--control); border-radius:4px; background:var(--surface); cursor:pointer; }
+.btn.primary{ background:var(--accent); color:var(--on-accent); border-color:var(--accent); font-weight:600; }
+.btn[disabled]{ opacity:1; background:var(--soft); color:var(--mute); border-style:dashed; cursor:not-allowed; }
+.btn:focus-visible, .chipbtn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+.reason{ margin:4px 0 8px; color:var(--warn); }
+.status{ flex:0 0 28px; display:flex; align-items:center; gap:8px; padding:0 10px; background:var(--surface); border-top:1px solid var(--line); }
+.status .ok{ color:var(--success); font-weight:600; } .status .no{ color:var(--danger); font-weight:600; }
+.flyout{ position:absolute; right:292px; top:150px; width:340px; padding:12px; background:var(--surface); border:1px solid var(--control); border-radius:8px; box-shadow:0 6px 20px rgba(0,0,0,.25); z-index:3; }
+.reflow .flyout{ right:8px; top:60px; width:300px; }
+.flyout h4{ margin:0 0 6px; font-size:13px; }
+.flyout .row{ display:flex; gap:8px; justify-content:flex-end; margin-top:8px; }
+.chipbtn{ cursor:pointer; }
+.notes{ max-width:1280px; margin:14px 0 0; font-size:12px; color:var(--mute); }
+.reduced *{ transition:none !important; animation:none !important; }
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>Add station · inspection slice · Promote · Remove</h1>
+  <label>State <select id="state">
+    <option value="none">1 · No slice</option>
+    <option value="slice" selected>2 · Slice placed, Promote offered</option>
+    <option value="promoted">3 · Promoted, selected in every view</option>
+    <option value="coincident">4 · Coincident η refused, existing selected</option>
+    <option value="removeAbove">5 · Remove above the acceptance</option>
+    <option value="rootRemove">6 · Root remove refused</option>
+    <option value="budget">7 · Certificate budget refused</option>
+    <option value="draft">8 · Competing draft</option>
+    <option value="approx">9 · Approximate promotion preview (R2, Ruling 252)</option>
+  </select></label>
+  <label>Viewport <select id="viewport"><option value="full">1280 × 800</option><option value="reflow">640 × 400 reflow</option></select></label>
+  <label>Theme <select id="theme"><option value="light">Light</option><option value="dark">Dark</option><option value="contrast">High contrast</option></select></label>
+  <label><input type="checkbox" id="reduced"> Reduced motion</label>
+</div>
+<main>
+  <p class="what" id="what"></p>
+  <div class="shell" id="shell">
+    <div class="titlebar"><b>Fixture wing · 1.00 m span</b></div>
+    <div class="options" id="options"></div>
+    <div class="work">
+      <aside class="dock left"><div class="tabs">Browser · Stations</div><ul class="rows" id="rows"></ul></aside>
+      <div class="views">
+        <div class="view plan"><svg id="plan" role="img" aria-label="Plan view"></svg><span class="vlabel">Plan · from above</span></div>
+        <div class="view front"><svg id="front" role="img" aria-label="Front view, t/c lane"></svg><span class="vlabel">Front · t/c lane</span></div>
+        <div class="view side"><svg id="side" role="img" aria-label="Side view, body plan"></svg><span class="vlabel">Side · from starboard</span></div>
+      </div>
+      <aside class="dock right"><div class="tabs">Properties</div><div class="props" id="props"></div></aside>
+    </div>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+    <div class="flyout" id="flyout" hidden></div>
+  </div>
+  <p class="notes">Fixture: half-span 0.50 m; chord c(η) = 0.130 − 0.080 η² m; leading edge aft offset 0.030 η² m; no twist,
+  no dihedral; t/c(η) = 0.12 − 0.04 η. Root “NACA 0012”, Tip “NACA 0008”, both closed, one 10-point spacing; the promoted
+  profile “Station 2” shares it. State 7 uses six differing stations (profiles A to D between root and tip); state 9 a
+  tip whose thickness peaks at 40 %. Sections are drawn as NACA 4-digit thickness at the local t/c. Deviation numbers are illustrative;
+  the product measures them (design §2.6).</p>
+</main>
+<script>
+"use strict";
+const NS = "http://www.w3.org/2000/svg";
+const FIX = { half: 0.5, chord: e => 0.130 - 0.080 * e * e, le: e => 0.030 * e * e, tc: e => 0.12 - 0.04 * e };
+const base = [ { eta: 0, name: "Root", profile: "NACA 0012" }, { eta: 1, name: "Tip", profile: "NACA 0008" } ];
+const promoted = [ { eta: 0, name: "Root", profile: "NACA 0012" }, { eta: 0.35, name: "Station 2", profile: "Station 2" }, { eta: 1, name: "Tip", profile: "NACA 0008" } ];
+const six = [ { eta: 0, name: "Root", profile: "NACA 0012" }, { eta: 0.2, name: "Station 2", profile: "A" }, { eta: 0.4, name: "Station 3", profile: "B" },
+  { eta: 0.6, name: "Station 4", profile: "C" }, { eta: 0.8, name: "Station 5", profile: "D" }, { eta: 1, name: "Tip", profile: "NACA 0008" } ];
+const peaks = [ { eta: 0, name: "Root", profile: "NACA 0012" }, { eta: 1, name: "Tip", profile: "Peak 40 %" } ];
+const pct = e => (e * 100).toFixed(1) + " %";
+const mm = e => (e * FIX.half * 1000).toFixed(1) + " mm";
+
+const STATES = {
+  none: { what: "<b>No slice.</b> Two authored stations. Press empty space in the chip strip (or Edit ▸ Add station…) to place a slice.",
+    stations: base, sel: { kind: "station", i: 0 }, slice: null, status: "" },
+  slice: { what: "<b>Slice placed at η 35.0 %.</b> Dashed, hollow chip in the strip with Promote and ×; dashed line in Front; dashed outline in Side; the Slice panel in Properties. Nothing saved, nothing on the undo stack.",
+    stations: base, sel: { kind: "slice" }, slice: 0.35, entry: "35", status: "Inspection slice at η 35.0 %. Not saved. Promote makes it a station." },
+  promoted: { what: "<b>Promoted.</b> Station 2 is an authored station, selected in the Plan chip strip, Side, Browser and Properties. Root and Tip share one thickness shape, so the loft is unchanged (exact regime R1).",
+    stations: promoted, sel: { kind: "station", i: 1 }, slice: null,
+    status: "<span class=ok>Added Station 2 at η 35.0 %.</span> Largest change 2.2 × 10⁻¹⁶ of chord (0.00 µm) at η 61.0 %, sampled; limit 10⁻¹². Thickness: keep current." },
+  coincident: { what: "<b>Coincident η.</b> “35” typed in the η entry and Return: refused; Station 2 (already at η 35.0 %) is selected. Nothing changed.",
+    stations: promoted, sel: { kind: "station", i: 1 }, slice: null, entry: "35",
+    status: "<span class=no>Station 2 is already at 175.0 mm (within the 10 µm join tolerance). Selected it.</span>" },
+  removeAbove: { what: "<b>Remove above the acceptance.</b> Station 2 after a section edit (thickened). Remove station previews the re-blend between Root and Tip; Apply is disabled with its reason.",
+    stations: promoted, sel: { kind: "station", i: 1 }, slice: null, flyout: "removeAbove", status: "" },
+  rootRemove: { what: "<b>Root remove refused.</b> Root selected: Remove station is disabled with its reason (also in Edit ▸ Remove station).",
+    stations: promoted, sel: { kind: "station", i: 0 }, slice: null, status: "" },
+  budget: { what: "<b>Certificate budget refused.</b> A wing with six stations whose sections all differ (10 points each; six certify up to 5 spans). A slice at η 70.0 % would make a seventh differing section, which the operation bound refuses at any span count. The slice stays; nothing changed.",
+    stations: six, sel: { kind: "slice" }, slice: 0.70, entry: "70", budget: true,
+    status: "<span class=no>Promote refused: 7 stations would have different sections, more than the blend certificate can carry. Make one of them match a neighbour first. Nothing changed.</span>" },
+  approx: { what: "<b>Approximate promotion (R2), Ruling 252.</b> Root and Tip peak at different chord positions, so a station at η 50.0 % changes the loft. The flyout previews the measured change; Apply is enabled because it is under 10 µm. Exact (R0/R1) promotions stay one press.",
+    stations: peaks, sel: { kind: "slice" }, slice: 0.50, entry: "50", flyout: "approx", status: "" },
+  draft: { what: "<b>Competing draft.</b> A point draft is open on the leading edge. The slice can still be placed and read (CAD-11); Promote is disabled with the reason.",
+    stations: base, sel: { kind: "slice" }, slice: 0.35, entry: "35", draft: "Leading edge · point 4", status: "" }
+};
+
+function el(name, attrs, parent) { const n = document.createElementNS(NS, name); for (const k in attrs) n.setAttribute(k, attrs[k]); if (parent) parent.appendChild(n); return n; }
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+function drawPlan(s) {
+  const svg = document.getElementById("plan"); clear(svg);
+  const W = svg.clientWidth || 900, H = svg.clientHeight || 420;
+  const stripH = 40, top = 50, bottom = H - stripH - 24;
+  const scale = Math.min((W - 80) / (2 * FIX.half), (bottom - top) / 0.15);
+  const cx = W / 2, X = y => cx + y * scale, Y = x => top + x * scale;
+  const pts = [];
+  for (let i = 0; i <= 100; i++) { const e = i / 100; pts.push([X(e * FIX.half), Y(FIX.le(e))]); }
+  for (let i = 100; i >= 0; i--) { const e = i / 100; pts.push([X(e * FIX.half), Y(FIX.le(e) + FIX.chord(e))]); }
+  for (let i = 0; i <= 100; i++) { const e = i / 100; pts.push([X(-e * FIX.half), Y(FIX.le(e) + FIX.chord(e))]); }
+  for (let i = 100; i >= 0; i--) { const e = i / 100; pts.push([X(-e * FIX.half), Y(FIX.le(e))]); }
+  el("polygon", { points: pts.map(p => p.join(",")).join(" "), fill: css("--foil"), "fill-opacity": "0.25", stroke: css("--foil-edge"), "stroke-width": "1.5" }, svg);
+  const strip = bottom + 16;
+  el("line", { x1: X(0), y1: strip - 6, x2: X(FIX.half), y2: strip - 6, stroke: css("--viewport-grid") }, svg);
+  s.stations.forEach((st, i) => {
+    const on = s.sel.kind === "station" && s.sel.i === i;
+    [1, -1].forEach(side => el("line", { x1: X(side * st.eta * FIX.half), y1: Y(FIX.le(st.eta)) - 4, x2: X(side * st.eta * FIX.half), y2: Y(FIX.le(st.eta) + FIX.chord(st.eta)) + 4,
+      stroke: css("--station"), "stroke-width": on ? 3 : 1.5, "stroke-opacity": on ? 1 : 0.7 }, svg));
+    const label = st.name, w = label.length * 6.4 + 16, x = Math.min(Math.max(X(st.eta * FIX.half) - w / 2, X(0) - 10), W - w - 8);
+    const g = el("g", { class: "chipbtn", tabindex: "0", role: "button", "aria-label": label + ", η " + pct(st.eta) + (on ? ", selected" : "") }, svg);
+    el("rect", { x, y: strip, width: w, height: 24, rx: 4, fill: on ? css("--station") : css("--viewport-soft"), stroke: css("--station") }, g);
+    el("text", { x: x + w / 2, y: strip + 16, "text-anchor": "middle", fill: on ? css("--viewport") : css("--viewport-ink"), "font-size": 11, "font-weight": on ? 700 : 500 }, g).textContent = label;
+  });
+  if (s.slice != null) {
+    const e = s.slice;
+    [1, -1].forEach(side => el("line", { x1: X(side * e * FIX.half), y1: Y(FIX.le(e)) - 10, x2: X(side * e * FIX.half), y2: Y(FIX.le(e) + FIX.chord(e)) + 10,
+      stroke: css("--station"), "stroke-width": 2, "stroke-dasharray": "6 4" }, svg));
+    const text = "Slice · η " + pct(e) + " · " + mm(e), w = 300, x = Math.min(X(e * FIX.half) - w / 2, W - w - 8), y = strip + 28 > H - 26 ? strip : strip + 28;
+    const g = el("g", { role: "group", "aria-label": "Inspection slice, η " + pct(e) }, svg);
+    el("rect", { x, y: y, width: w, height: 28, rx: 4, fill: "none", stroke: css("--station"), "stroke-width": 2, "stroke-dasharray": "5 3" }, g);
+    el("text", { x: x + 10, y: y + 18, fill: css("--viewport-ink"), "font-size": 11, "font-weight": 600 }, g).textContent = text;
+    const promoteOff = !!(s.draft || s.budget);
+    const b = el("g", { class: "chipbtn", tabindex: "0", role: "button", "aria-label": "Promote" + (promoteOff ? ", unavailable" : "") }, g);
+    el("rect", { x: x + 180, y: y + 2, width: 80, height: 24, rx: 4, fill: promoteOff ? css("--viewport") : css("--station"), stroke: css("--station"), "stroke-dasharray": promoteOff ? "3 2" : "none" }, b);
+    el("text", { x: x + 220, y: y + 18, "text-anchor": "middle", fill: promoteOff ? css("--viewport-mute") : css("--viewport"), "font-size": 11, "font-weight": 700 }, b).textContent = "Promote";
+    const c = el("g", { class: "chipbtn", tabindex: "0", role: "button", "aria-label": "Clear slice" }, g);
+    el("rect", { x: x + 266, y: y + 2, width: 28, height: 24, rx: 4, fill: css("--viewport-soft"), stroke: css("--viewport-mute") }, c);
+    el("text", { x: x + 280, y: y + 18, "text-anchor": "middle", fill: css("--viewport-ink"), "font-size": 12 }, c).textContent = "×";
+  }
+}
+
+function drawFront(s) {
+  const svg = document.getElementById("front"); clear(svg);
+  const W = svg.clientWidth || 600, H = svg.clientHeight || 140, l = 40, r = W - 16, t = 34, b = H - 18;
+  const X = e => r - e * (r - l), Y = v => b - (v - 0.06) / 0.08 * (b - t);
+  el("line", { x1: l, y1: b, x2: r, y2: b, stroke: css("--viewport-grid") }, svg);
+  const p = []; for (let i = 0; i <= 50; i++) { const e = i / 50; p.push(X(e) + "," + Y(FIX.tc(e))); }
+  el("polyline", { points: p.join(" "), fill: "none", stroke: css("--foil-edge"), "stroke-width": 2 }, svg);
+  el("text", { x: l, y: b + 13, fill: css("--viewport-mute"), "font-size": 10 }, svg).textContent = "tip ←";
+  el("text", { x: r, y: b + 13, "text-anchor": "end", fill: css("--viewport-mute"), "font-size": 10 }, svg).textContent = "→ root";
+  s.stations.forEach((st, i) => { const on = s.sel.kind === "station" && s.sel.i === i;
+    el("line", { x1: X(st.eta), y1: t, x2: X(st.eta), y2: b, stroke: css("--station"), "stroke-width": on ? 3 : 1, "stroke-opacity": on ? 1 : 0.6 }, svg); });
+  if (s.slice != null) {
+    el("line", { x1: X(s.slice), y1: t - 6, x2: X(s.slice), y2: b, stroke: css("--station"), "stroke-width": 2, "stroke-dasharray": "6 4" }, svg);
+    el("text", { x: X(s.slice) + 6, y: t + 4, fill: css("--viewport-ink"), "font-size": 11 }, svg).textContent = "Slice · η " + pct(s.slice) + " · t/c " + (FIX.tc(s.slice) * 100).toFixed(2) + " %";
+  }
+}
+
+function naca(x, t) { return 5 * t * (0.2969 * Math.sqrt(x) - 0.1260 * x - 0.3516 * x * x + 0.2843 * x ** 3 - 0.1036 * x ** 4); }
+function drawSide(s) {
+  const svg = document.getElementById("side"); clear(svg);
+  const W = svg.clientWidth || 600, H = svg.clientHeight || 140, mid = H / 2 + 8, sc = (W - 120) / 0.14;
+  const outline = (eta, attrs) => { const c = FIX.chord(eta), t = FIX.tc(eta), lx = FIX.le(eta), up = [], lo = [];
+    for (let i = 0; i <= 60; i++) { const x = (1 - Math.cos(Math.PI * i / 60)) / 2; const px = W - 60 - (lx + x * c) * sc; up.push(px + "," + (mid - naca(x, t) * c * sc)); lo.push(px + "," + (mid + naca(x, t) * c * sc)); }
+    el("polygon", Object.assign({ points: up.concat(lo.reverse()).join(" "), fill: "none" }, attrs), svg); };
+  s.stations.forEach((st, i) => { const on = s.sel.kind === "station" && s.sel.i === i;
+    outline(st.eta, { stroke: on ? css("--station") : css("--foil-edge"), "stroke-width": on ? 2.5 : 1, "stroke-opacity": on || s.sel.kind !== "station" ? 1 : 0.5 }); });
+  if (s.slice != null) {
+    outline(s.slice, { stroke: css("--station"), "stroke-width": 2, "stroke-dasharray": "5 3" });
+    el("text", { x: W - 56, y: mid - 14, fill: css("--viewport-ink"), "font-size": 11 }, svg).textContent = "Slice · η " + pct(s.slice);
+  } else if (s.sel.kind === "station") {
+    el("text", { x: W - 56, y: mid - 14, fill: css("--viewport-ink"), "font-size": 11, "font-weight": 700 }, svg).textContent = s.stations[s.sel.i].name;
+  }
+}
+
+function render() {
+  const key = document.getElementById("state").value, s = STATES[key];
+  document.getElementById("shell").classList.toggle("reflow", document.getElementById("viewport").value === "reflow");
+  document.getElementById("what").innerHTML = s.what;
+  const opt = document.getElementById("options");
+  opt.innerHTML = '<span class="lbl">Add station at η</span><input aria-label="Add station at η, percent" value="' + (s.entry || "") + '" placeholder="e.g. 35"><span class="lbl">%</span>' +
+    (s.draft ? '<span class="draft">Draft · ' + s.draft + ' · Apply · Cancel</span>' : "");
+  document.getElementById("rows").innerHTML = s.stations.map((st, i) =>
+    '<li class="' + (s.sel.kind === "station" && s.sel.i === i ? "on" : "") + '">' + st.name + " · η " + (st.eta === 0 ? "0" : st.eta === 1 ? "1" : st.eta) + " · " + st.profile + "</li>").join("");
+  const props = document.getElementById("props");
+  if (s.sel.kind === "slice") {
+    const e = s.slice, off = s.draft ? "Apply or cancel the open draft on " + s.draft + " first." : s.budget ? "Refused: a fourth differing section is past the certificate's capacity." : "";
+    props.innerHTML = "<h3>Inspection slice</h3><p class=note>Derived view — not saved</p><dl><dt>η</dt><dd>" + pct(e) + "</dd><dt>From root</dt><dd>" + mm(e) + "</dd><dt>Chord</dt><dd>" + (FIX.chord(e) * 1000).toFixed(1) +
+      " mm</dd><dt>t/c</dt><dd>" + (FIX.tc(e) * 100).toFixed(2) + " %</dd><dt>Twist</dt><dd>0.00°</dd></dl>" +
+      '<button class="btn primary"' + (off ? " disabled aria-describedby=pr" : "") + ">Promote</button>" + (off ? '<p class=reason id=pr>' + off + "</p>" : "");
+  } else {
+    const st = s.stations[s.sel.i], end = st.eta === 0 || st.eta === 1;
+    props.innerHTML = "<h3>" + (st.eta === 0 ? "Root station" : st.eta === 1 ? "Tip station" : st.name) + "</h3><dl><dt>η</dt><dd>" + pct(st.eta) + "</dd><dt>Chord</dt><dd>" + (FIX.chord(st.eta) * 1000).toFixed(1) +
+      " mm</dd><dt>Profile</dt><dd>" + st.profile + "</dd><dt>Thickness</dt><dd>keep current</dd></dl>" +
+      '<button class="btn">Edit section</button> <button class="btn"' + (end ? " disabled aria-describedby=rr" : "") + ">Remove station</button>" +
+      (end ? '<p class=reason id=rr>Root and tip stations cannot be removed.</p>' : "");
+  }
+  document.getElementById("status").innerHTML = s.status;
+  const fly = document.getElementById("flyout");
+  fly.hidden = !s.flyout;
+  if (s.flyout === "approx") fly.innerHTML = '<h4>Approximate promotion at η 50.0 % · 250.0 mm</h4><p>A station here changes the loft. Largest change 0.83 µm (0.0009 % of chord) at η 74.0 %, sampled on 129 η × 2001 x, not a bound. Limit 10 µm at the local chord.</p>' +
+    '<div class=row><button class="btn">Cancel</button><button class="btn primary">Apply</button></div>';
+  else if (s.flyout === "removeAbove") fly.innerHTML = '<h4>Remove Station 2</h4><p>The shape between Root and Tip is re-blended. Largest change 412 µm (0.41 % of chord) at η 33.0 %, sampled. Limit 10 µm.</p>' +
+    '<p class=reason id=ap>Apply is disabled: the change is above the 10 µm limit.</p><div class=row><button class="btn">Cancel</button><button class="btn primary" disabled aria-describedby=ap>Apply</button></div>';
+  drawPlan(s); drawFront(s); drawSide(s);
+}
+document.getElementById("theme").addEventListener("change", e => { document.documentElement.dataset.theme = e.target.value; render(); });
+document.getElementById("reduced").addEventListener("change", e => document.body.classList.toggle("reduced", e.target.checked));
+["state", "viewport"].forEach(id => document.getElementById(id).addEventListener("change", render));
+window.addEventListener("resize", render);
+render();
+</script>
+</body>
+</html>
