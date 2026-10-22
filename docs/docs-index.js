@@ -11635,7 +11635,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e970937cd92a9f42c320ce159c4486080a1efcc391513cc485549850bc44c0a2"
+      "sourceSha256": "5f215cb8df67d59b001da2d744c982503da9a339aa039f433c433dc631264e8b"
     },
     {
       "id": "coordination-pc-kickoff",
@@ -24289,5 +24289,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "ca1ffd108bd44f63b75ee5790b8017ad5f2e99969893c656f3f79c6caa5efd6c"
+  "graphSha256": "2a7229af232f7d49eca642127db74984d255adab12fc5ba31d31ca6b45ff11e7"
 };
