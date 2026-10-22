@@ -41,6 +41,14 @@ internal static unsafe partial class WindowsNative
     internal const uint AttributeDirectory = 0x10, AttributeReparsePoint = 0x400, AttributeRecallOnOpen = 0x40000,
         AttributePinned = 0x80000, AttributeUnpinned = 0x100000, AttributeRecallOnDataAccess = 0x400000;
     private const uint ReadAttributes = 0x80;
+    // winnt.h: SYNCHRONIZE=0x00100000, READ_CONTROL=0x00020000, FILE_LIST_DIRECTORY=0x1 (a directory handle's enumeration right).
+    internal const uint ListDirectoryAccess = 0x1;
+    private const uint Synchronize = 0x00100000, ReadControl = 0x00020000;
+    // wdm.h FILE_INFORMATION_CLASS: FileNamesInformation = 12 (NtQueryDirectoryFile). ntstatus.h: STATUS_NO_MORE_FILES 0x80000006 and
+    // STATUS_NO_SUCH_FILE 0xC000000F end an enumeration. Win32 ERROR_SHARING_VIOLATION = 32 (winerror.h).
+    // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-ntquerydirectoryfile
+    private const int FileNamesInformation = 12;
+    private const int StatusNoMoreFiles = unchecked((int)0x80000006), StatusNoSuchFile = unchecked((int)0xC000000F);
     // winnt.h: FILE_ATTRIBUTE_READONLY = 0x1, FILE_ATTRIBUTE_ENCRYPTED = 0x4000.
     internal const uint AttributeReadOnly = 0x1, AttributeEncrypted = 0x4000;
     // wdm.h FS_INFORMATION_CLASS: FileFsDeviceInformation = 4 (NtQueryVolumeInformationFile).
@@ -122,12 +130,17 @@ internal static unsafe partial class WindowsNative
     [StructLayout(LayoutKind.Sequential)]
     internal struct FileFsDevice { internal uint DeviceType, Characteristics; }
 
+    // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/ns-ntifs-_file_names_information
+    // The fixed header; the WCHAR name follows it (FileNameLength bytes), without padding.
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct FileNamesHeader { internal uint NextEntryOffset, FileIndex, FileNameLength; }
+
     internal readonly record struct FileIdentity(ulong Volume, ulong Low, ulong High);
 
     /// <summary>Opens a drive root (or a trusted fixture directory) by path; every later component is opened relative to it.</summary>
-    internal static SafeFileHandle OpenRoot(string absolutePath)
+    internal static SafeFileHandle OpenRoot(string absolutePath, uint access = DirectoryAccess)
     {
-        var handle = CreateFileW(absolutePath, DirectoryAccess, ShareRead | ShareWrite, 0,
+        var handle = CreateFileW(absolutePath, access, ShareRead | ShareWrite, 0,
             OpenExisting, BackupSemantics | OpenReparsePoint, 0);
         if (!handle.IsInvalid) return handle;
         int error = Marshal.GetLastPInvokeError(); handle.Dispose(); throw new NativeFailure(null, error);
@@ -136,8 +149,51 @@ internal static unsafe partial class WindowsNative
     internal static SafeFileHandle OpenFixtureDirectory(string absolutePath) => OpenRoot(absolutePath);
 
     /// <summary>One directory component opened relative to a retained parent; share read and write, never delete.</summary>
-    internal static SafeFileHandle OpenDirectory(SafeFileHandle parent, string child) =>
-        OpenRelative(parent, child, DirectoryAccess, ShareRead | ShareWrite, NtOpen, 0, directory: true);
+    internal static SafeFileHandle OpenDirectory(SafeFileHandle parent, string child, uint access = DirectoryAccess) =>
+        OpenRelative(parent, child, access, ShareRead | ShareWrite, NtOpen, 0, directory: true);
+
+    /// <summary>
+    /// Clear's open of a leftover (design 2.3): DELETE | READ_CONTROL | FILE_READ_ATTRIBUTES | SYNCHRONIZE, share mode FILE_SHARE_READ only,
+    /// the entry itself (FILE_OPEN_REPARSE_POINT, no reparse followed). A live writer holds write and DELETE access and shares read only,
+    /// so this open fails with ERROR_SHARING_VIOLATION (32) while any writer holds the entry; a reader that shares write and delete
+    /// does not block it.
+    /// </summary>
+    internal static SafeFileHandle OpenExclusiveForDelete(SafeFileHandle parent, string child) =>
+        OpenRelative(parent, child, DeleteAccess | ReadControl | ReadAttributes | Synchronize, ShareRead, NtOpen, 0);
+
+    /// <summary>True when the name answers (case-insensitively) in the directory: an attribute-only open, any share mode. Not found is false; any other error throws.</summary>
+    internal static bool EntryExists(SafeFileHandle parent, string child)
+    {
+        try { using var entry = OpenRelative(parent, child, ReadAttributes | Synchronize, ShareRead | ShareWrite | ShareDelete, NtOpen, 0); return true; }
+        catch (NativeFailure failure) when (failure.Win32Error is 2 or 3) { return false; } // ERROR_FILE_NOT_FOUND, ERROR_PATH_NOT_FOUND
+    }
+
+    /// <summary>The entry names of a directory handle opened with FILE_LIST_DIRECTORY (NtQueryDirectoryFile, FileNamesInformation), without "." and "..".</summary>
+    internal static List<string> ListNames(SafeFileHandle directory)
+    {
+        var names = new List<string>();
+        byte[] buffer = new byte[65536];
+        bool restart = true;
+        fixed (byte* data = buffer)
+        {
+            while (true)
+            {
+                int status = NtQueryDirectoryFile(directory, 0, 0, 0, out IoStatusBlock io, data, (uint)buffer.Length, FileNamesInformation,
+                    0, 0, restart ? (byte)1 : (byte)0);
+                restart = false;
+                if (status is StatusNoMoreFiles or StatusNoSuchFile) return names;
+                if (status != 0) throw new NativeFailure(status, checked((int)RtlNtStatusToDosError(status)));
+                for (int offset = 0; ;)
+                {
+                    var header = (FileNamesHeader*)(data + offset);
+                    string name = new((char*)(data + offset + sizeof(FileNamesHeader)), 0, checked((int)header->FileNameLength) / sizeof(char));
+                    if (name is not "." and not "..") names.Add(name);
+                    if (header->NextEntryOffset == 0) break;
+                    offset += checked((int)header->NextEntryOffset);
+                }
+            }
+        }
+    }
 
     internal static FileAttributeTag AttributeTag(SafeFileHandle handle)
     {
@@ -459,6 +515,12 @@ internal static unsafe partial class WindowsNative
     [LibraryImport("ntdll.dll")]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
     private static partial sbyte RtlSetThreadPlaceholderCompatibilityMode(sbyte mode);
+    // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-ntquerydirectoryfile
+    // Event, ApcRoutine, ApcContext and FileName are null (0); ReturnSingleEntry = FALSE; RestartScan is a BOOLEAN (1 byte).
+    [LibraryImport("ntdll.dll")]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    private static partial int NtQueryDirectoryFile(SafeFileHandle handle, nint evt, nint apcRoutine, nint apcContext,
+        out IoStatusBlock status, void* information, uint length, int informationClass, byte returnSingleEntry, nint fileName, byte restartScan);
     // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-ntqueryvolumeinformationfile
     [LibraryImport("ntdll.dll")]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]

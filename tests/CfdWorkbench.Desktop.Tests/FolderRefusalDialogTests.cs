@@ -102,10 +102,10 @@ public static class FolderRefusalDialogTests
             Need(texts[0] == "An earlier save of this project didn't finish (the app may have closed unexpectedly). Your saved file is unchanged.", $"lead '{texts[0]}'");
             var steps = panel.Children.OfType<StackPanel>().First().Children.OfType<TextBlock>().Select(text => text.Text ?? "").ToArray();
             Need(steps.SequenceEqual(["1. Close any other CFD Workbench window using this project.", "2. Check the project shows your last saved work.",
-                "3. Use Save As to keep your current work in a different folder."]), "steps: " + string.Join(" | ", steps));
-            Need(texts[1].Contains("stays blocked", StringComparison.Ordinal) && texts[1].Contains(".cfd-writer.claim", StringComparison.Ordinal), $"blocked sentence '{texts[1]}'");
+                "3. Use Save As to keep your current work in a different folder, or choose Clear unfinished save, then Save."]), "steps: " + string.Join(" | ", steps));
+            Need(texts[1] == "This folder stays blocked until the unfinished save is cleared.", $"blocked sentence '{texts[1]}'");
             var buttons = panel.Children.OfType<StackPanel>().Last().Children.OfType<Button>().Select(button => (string?)button.Content).ToArray();
-            Need(buttons.SequenceEqual(["Save As…", "Cancel"]), "buttons: " + string.Join(" | ", buttons));
+            Need(buttons.SequenceEqual(["Save As…", "Clear unfinished save…", "Cancel"]), "buttons: " + string.Join(" | ", buttons));
             panel.Children.OfType<StackPanel>().Last().Children.OfType<Button>().Last().RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
             Await(pending);
             Need(!dialog.SaveAs, "Cancel answered Save As");

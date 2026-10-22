@@ -19,7 +19,7 @@ namespace CfdWorkbench.Desktop;
 /// <summary>The application window. Its only content is the shell (<see cref="ShellHost"/>); there is no pre-shell path.</summary>
 public sealed partial class MainWindow : Window
 {
-    private readonly WorkbenchController workbench = new();
+    private readonly WorkbenchController workbench;
     private readonly NativeReviewOptions? review = NativeReviewOptions.Current;
     private readonly ShellHost shellHost;
     private bool closeApproved;
@@ -33,8 +33,9 @@ public sealed partial class MainWindow : Window
     /// <paramref name="macOS"/> null reads the running system. A test passes false to build the Windows and Linux shell on a Mac:
     /// ADR-0009 S1 renders the one menu table in the window there, and the table's gestures bind with Ctrl for ⌘.
     /// </summary>
-    public MainWindow(PreferenceStore? preferences, bool? macOS = null)
+    public MainWindow(PreferenceStore? preferences, bool? macOS = null, WorkbenchController? controller = null)
     {
+        workbench = controller ?? new WorkbenchController();
         bool mac = macOS ?? OperatingSystem.IsMacOS();
         AvaloniaXamlLoader.Load(this);
         if (review is not null)
@@ -216,7 +217,11 @@ public sealed partial class MainWindow : Window
     /// <see cref="Guarded"/> still writes it to stderr: the strip alone left a user who saw nothing happen (W-1, Windows, where
     /// the store refuses a drive path with DOC-UNSUPPORTED-PERSISTENCE).
     /// </summary>
-    public async Task SaveToAsync(string destination)
+    public Task SaveToAsync(string destination) => SaveToAsync(destination, offerBlockedDialog: true);
+
+    /// <param name="offerBlockedDialog">False for the one automatic retry after Clear (design windows-store-recovery A6, U4): a save blocked again
+    /// reports through the ordinary save status and does not reopen the dialog by itself.</param>
+    private async Task SaveToAsync(string destination, bool offerBlockedDialog)
     {
         try
         {
@@ -224,12 +229,17 @@ public sealed partial class MainWindow : Window
                 throw new ContractError("DOC-TYPE");
             var result = await workbench.SaveAsync(destination);
             // Ruling 253 (W2-Q3 c): a save refused because a claim file is in the folder is the "Save is blocked" dialog, not the generic line.
-            if (OperatingSystem.IsWindows() && result.Code == "DOC-CONFLICT" && UnfinishedSave.BlocksFolder(destination))
+            if (offerBlockedDialog && OperatingSystem.IsWindows() && result.Code == "DOC-CONFLICT" && UnfinishedSave.BlocksFolder(destination))
             {
                 shellHost.Report(new StatusReport("")); // the dialog replaces the generic COPY-414 line the controller set (Ruling 253)
-                var blocked = new SaveBlockedDialog();
+                var blocked = new SaveBlockedDialog(() => workbench.ClearUnfinishedSaveAsync(destination));
                 await blocked.ShowDialog(this);
-                if (blocked.SaveAs && await PickSavePathAsync() is { } other) await SaveToAsync(other);
+                if (blocked.SaveAs && await PickSavePathAsync() is { } other) await SaveToAsync(other, offerBlockedDialog: true);
+                else if (blocked.Cleared)
+                {
+                    shellHost.Report(new StatusReport("Saving…")); // COPY-452; no sentence says anything was cleared or recovered (Rulings 146, 160)
+                    await SaveToAsync(destination, offerBlockedDialog: false);
+                }
             }
         }
         catch (Exception error) when (error is ContractError or IOException or UnauthorizedAccessException)
@@ -353,9 +363,12 @@ public sealed class FolderRefusalDialog : Window
 }
 
 /// <summary>
-/// "Save is blocked" (Ruling 253 W2-Q3 c; Rulings 146 (2), 160): shown when a save is refused because a claim file (.cfd-writer.claim) is in
-/// the folder, which an unfinished save leaves behind. Save As and Cancel only: there is no Clear action, and the dialog never says anything
-/// was recovered. The document stays dirty.
+/// "Save is blocked" (Ruling 253 W2-Q3 c; Rulings 146 (2), 160, 259; docs/design/windows-store-recovery.md section 4): shown when a save is refused
+/// because a claim file (.cfd-writer.claim) is in the folder, which an unfinished save leaves behind. Save As…, Clear unfinished save… and Cancel.
+/// Clear swaps the content in place: a confirm (A2, first focus and Enter on Cancel), a busy state with focus on the dialog heading (A3, U1), then
+/// either the dialog closes (<see cref="Cleared"/>) or an in-use / failed message with Try again and Cancel (A4, A5, focus on Cancel). Cancel and
+/// Escape from those states return to the first state with focus on Clear unfinished save… (U2). The dialog never says anything was recovered.
+/// The document stays dirty.
 /// </summary>
 public sealed class SaveBlockedDialog : Window
 {
@@ -363,46 +376,151 @@ public sealed class SaveBlockedDialog : Window
     public const string TitleText = "Save is blocked";
     /// <summary>Ruling 146 (2), the lead sentences.</summary>
     public const string Lead = "An earlier save of this project didn't finish (the app may have closed unexpectedly). Your saved file is unchanged.";
-    /// <summary>Ruling 146 (2) steps 1 and 2; step 3 is reworded by Ruling 253 because the claim blocks every save in the folder.</summary>
+    /// <summary>Ruling 146 (2) steps 1 and 2; step 3 per Ruling 259 (Save As, or Clear unfinished save then Save).</summary>
     public static readonly string[] Steps =
     [
         "Close any other CFD Workbench window using this project.",
         "Check the project shows your last saved work.",
-        "Use Save As to keep your current work in a different folder."
+        "Use Save As to keep your current work in a different folder, or choose Clear unfinished save, then Save."
     ];
-    /// <summary>Ruling 253: said plainly; the files are the ones COPY-447 names.</summary>
-    public const string StaysBlocked = "This folder stays blocked until the leftover files from the save that didn't finish are removed: the file .cfd-writer.claim and any file named .cfd-….tmp in this folder.";
+    /// <summary>DS-COPY-5 (proposed): replaces the W2 stays-blocked sentence.</summary>
+    public const string StaysBlocked = "This folder stays blocked until the unfinished save is cleared.";
     /// <summary>COPY-443.</summary>
     public const string SaveAsLabel = "Save As…";
+    /// <summary>COPY-444.</summary>
+    public const string ClearLabel = "Clear unfinished save…";
     /// <summary>COPY-445.</summary>
     public const string CancelLabel = "Cancel";
+    /// <summary>COPY-446.</summary>
+    public const string ConfirmTitle = "Clear the unfinished save?";
+    /// <summary>COPY-447 (the refined W2 text; shown for the operator to confirm).</summary>
+    public const string ConfirmBody = "This removes the files the unfinished save left in this folder (.cfd-writer.claim and any .cfd-….tmp). Your saved file and your current work are not touched. It works only if no other CFD Workbench window is using this project.";
+    /// <summary>COPY-448.</summary>
+    public const string ConfirmLabel = "Clear unfinished save";
+    /// <summary>COPY-449.</summary>
+    public const string InUseText = "Can't clear it yet: another CFD Workbench window is still using this project. Close that window, then try again. Your saved file and your current work are unchanged.";
+    /// <summary>COPY-450.</summary>
+    public const string TryAgainLabel = "Try again";
+    /// <summary>COPY-455.</summary>
+    public static string FailedText(string code) => $"Couldn't clear the unfinished save ({code}). Your saved file and your current work are unchanged.";
+
+    private readonly Func<Task<ClearResult>>? clear;
+    private bool busy;
+    private Control? pendingFocus;
 
     /// <summary>True when the user chose Save As…; false for Cancel, Escape or closing the dialog.</summary>
     public bool SaveAs { get; private set; }
+    /// <summary>True when Clear removed the leftovers: the caller retries the blocked save once.</summary>
+    public bool Cleared { get; private set; }
 
-    public SaveBlockedDialog()
+    /// <param name="clear">Runs Clear for the blocked folder; null offers no Clear button.</param>
+    public SaveBlockedDialog(Func<Task<ClearResult>>? clear = null)
     {
-        Title = TitleText;
-        Width = 480; Height = 330; CanResize = false; WindowStartupLocation = WindowStartupLocation.CenterOwner;
-        var saveAs = new Button { Content = SaveAsLabel, IsDefault = true };
-        var cancel = new Button { Content = CancelLabel, IsCancel = true };
-        AutomationProperties.SetName(saveAs, SaveAsLabel);
-        AutomationProperties.SetName(cancel, CancelLabel);
+        this.clear = clear;
+        Width = 480; Height = 360; CanResize = false; WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        ShowBlocked(focusClear: false);
+        Opened += (_, _) => pendingFocus?.Focus();
+        Closing += (_, e) => { if (busy) e.Cancel = true; };
+    }
+
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        if (busy && e.Key == Key.Escape) { e.Handled = true; return; } // A3: Escape is ignored while clearing
+        base.OnKeyDown(e);
+    }
+
+    private static Button MakeButton(string label, bool isDefault = false, bool isCancel = false)
+    {
+        var button = new Button { Content = label, IsDefault = isDefault, IsCancel = isCancel };
+        AutomationProperties.SetName(button, label);
+        return button;
+    }
+
+    private static StackPanel Row(params Button[] buttons)
+    {
+        var row = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 8, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right };
+        foreach (var button in buttons) row.Children.Add(button);
+        return row;
+    }
+
+    private static TextBlock Wrapped(string text) => new() { Text = text, TextWrapping = Avalonia.Media.TextWrapping.Wrap };
+
+    /// <summary>Swaps the content; focus goes to <paramref name="focus"/> now when the dialog is open, else when it opens.</summary>
+    private void Present(string title, Control content, Control focus)
+    {
+        Title = title; Content = content; pendingFocus = focus;
+        if (!IsVisible) return;
+        UpdateLayout();
+        focus.Focus();
+    }
+
+    private void ShowBlocked(bool focusClear)
+    {
+        var saveAs = MakeButton(SaveAsLabel, isDefault: true);
+        var cancel = MakeButton(CancelLabel, isCancel: true);
         saveAs.Click += (_, _) => { SaveAs = true; Close(); };
         cancel.Click += (_, _) => Close();
+        var buttons = new List<Button> { saveAs };
+        Button? clearButton = null;
+        if (clear is not null)
+        {
+            clearButton = MakeButton(ClearLabel);
+            clearButton.Click += (_, _) => ShowConfirm();
+            buttons.Add(clearButton);
+        }
+        buttons.Add(cancel);
         var steps = new StackPanel { Spacing = 4, Margin = new Thickness(12, 0, 0, 0) };
         AutomationProperties.SetName(steps, "Steps");
-        for (int i = 0; i < Steps.Length; i++)
-            steps.Children.Add(new TextBlock { Text = $"{i + 1}. {Steps[i]}", TextWrapping = Avalonia.Media.TextWrapping.Wrap });
-        var buttons = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 8,
-            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right, Children = { saveAs, cancel } };
-        Content = new StackPanel { Margin = new Thickness(20), Spacing = 12, Children =
+        for (int i = 0; i < Steps.Length; i++) steps.Children.Add(Wrapped($"{i + 1}. {Steps[i]}"));
+        Present(TitleText, new StackPanel { Margin = new Thickness(20), Spacing = 12, Children = { Wrapped(Lead), steps, Wrapped(StaysBlocked), Row(buttons.ToArray()) } },
+            focusClear && clearButton is not null ? clearButton : saveAs);
+    }
+
+    /// <summary>A heading that can hold focus while the dialog is busy (U1), the message, and the buttons.</summary>
+    private void ShowStep(string message, bool isBusy, params Button[] buttons)
+    {
+        var heading = new TextBlock { Text = ConfirmTitle, Focusable = true, FontWeight = Avalonia.Media.FontWeight.SemiBold, TextWrapping = Avalonia.Media.TextWrapping.Wrap };
+        AutomationProperties.SetName(heading, ConfirmTitle);
+        var text = Wrapped(message);
+        if (message != ConfirmBody) AutomationProperties.SetLiveSetting(text, AutomationLiveSetting.Assertive); // an alert, not a silent swap
+        Control focus = isBusy ? heading : buttons.Last(button => button.IsCancel);
+        busy = isBusy;
+        Present(ConfirmTitle, new StackPanel { Margin = new Thickness(20), Spacing = 12, Children = { heading, text, Row(buttons) } }, focus);
+    }
+
+    private void ShowConfirm()
+    {
+        var confirm = MakeButton(ConfirmLabel);
+        var cancel = MakeButton(CancelLabel, isDefault: true, isCancel: true);
+        confirm.Click += (_, _) => _ = RunClearAsync();
+        cancel.Click += (_, _) => ShowBlocked(focusClear: true);
+        ShowStep(ConfirmBody, isBusy: false, confirm, cancel);
+    }
+
+    private void ShowRefusal(string message)
+    {
+        var again = MakeButton(TryAgainLabel);
+        var cancel = MakeButton(CancelLabel, isDefault: true, isCancel: true);
+        again.Click += (_, _) => _ = RunClearAsync();
+        cancel.Click += (_, _) => ShowBlocked(focusClear: true);
+        ShowStep(message, isBusy: false, again, cancel);
+    }
+
+    private async Task RunClearAsync()
+    {
+        var confirm = MakeButton(ConfirmLabel); var cancel = MakeButton(CancelLabel, isCancel: true);
+        confirm.IsEnabled = false; cancel.IsEnabled = false;
+        ShowStep(ConfirmBody, isBusy: true, confirm, cancel); // A3: no text, both buttons disabled, focus on the heading
+        ClearResult result;
+        try { result = await clear!(); }
+        catch (Exception error) // any exception ends in A5, never a dialog stuck busy (U1); a store that cannot say why is DOC-IO
+        { result = new ClearResult(ClearOutcome.Failed, (error as ContractError)?.Code ?? "DOC-IO", 0); }
+        busy = false;
+        switch (result.Outcome)
         {
-            new TextBlock { Text = Lead, TextWrapping = Avalonia.Media.TextWrapping.Wrap },
-            steps,
-            new TextBlock { Text = StaysBlocked, TextWrapping = Avalonia.Media.TextWrapping.Wrap },
-            buttons
-        } };
-        Opened += (_, _) => saveAs.Focus();
+            case ClearOutcome.Cleared: Cleared = true; Close(); break;
+            case ClearOutcome.InUse: ShowRefusal(InUseText); break;
+            default: ShowRefusal(FailedText(result.Code)); break;
+        }
     }
 }

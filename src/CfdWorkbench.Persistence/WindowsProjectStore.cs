@@ -47,6 +47,104 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
         finally { emit("store.read", code, timer.Elapsed.TotalMilliseconds, count, count, traceId, null, null); }
     }
 
+    /// <summary>
+    /// Clear unfinished save (design windows-store-recovery 2.2 to 2.4). Removes only provenance-matched leftovers (the claim and the temps
+    /// this store created), only when no live writer holds any of them (an exclusive open for delete, share read), all or nothing, the
+    /// claim last. Returns Cleared only when no entry answers the claim name afterwards.
+    /// </summary>
+    internal ClearResult Clear(string path, CancellationToken cancellation, string traceId)
+    {
+        // Placeholders are exposed for this whole synchronous call (thread-scoped; no await in this class).
+        using var exposure = WindowsNative.ExposePlaceholders();
+        var timer = System.Diagnostics.Stopwatch.StartNew();
+        int candidates = 0, removed = 0;
+        var held = new List<(string Name, SafeFileHandle Handle)>();
+        Parent? parent = null; ClearResult result;
+        try
+        {
+            ProjectStore.Supported(); cancellation.ThrowIfCancellationRequested();
+            parent = Parent.Open(path); RequireLocalFolder(path);                                  // C0
+            var first = Candidates(parent); candidates = first.Count;                             // C1, check 1
+            ClearResult? refused = null;
+            foreach (string name in first)                                                        // C2
+            {
+                try { held.Add((name, WindowsNative.OpenExclusiveForDelete(parent.Handle, name))); }
+                catch (WindowsNative.NativeFailure failure) when (failure.Win32Error is 2 or 3) { } // gone since C1: the writer finished
+                catch (WindowsNative.NativeFailure failure) when (failure.Win32Error == 32) { refused = new(ClearOutcome.InUse, "DOC-CONFLICT", 0); break; }
+                // D3: any other open error (access denied, delete pending, ...) is a failure with its code, never "in use", never skipped.
+                catch (Exception failure) when (IsStoreFailure(failure)) { refused = new(ClearOutcome.Failed, CodeOf(failure), 0); break; }
+            }
+            if (refused is null)
+            {
+                hooks?.Visit(StoreStage.ClearHeld);
+                foreach (var (name, handle) in held)                                              // C3, provenance P1 to P5
+                    if (!ProvenanceMatches(handle, UnfinishedSave.IsClaim(name))) { refused = new(ClearOutcome.Failed, "DOC-CONFLICT", 0); break; }
+            }
+            if (refused is null)                                                                  // C4, check 2
+            {
+                parent.Verify();
+                foreach (var (name, handle) in held)
+                    if (!SameEntry(parent, name, handle)) { refused = new(ClearOutcome.Failed, "DOC-CONFLICT", 0); break; }
+                if (refused is null)
+                {
+                    var heldNames = held.Select(entry => entry.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                    var second = Candidates(parent);
+                    if (second.Any(name => !heldNames.Contains(name))) refused = new(ClearOutcome.InUse, "DOC-CONFLICT", 0); // a new entry: a writer started
+                    else if (heldNames.Any(name => !second.Contains(name, StringComparer.OrdinalIgnoreCase))) refused = new(ClearOutcome.Failed, "DOC-CONFLICT", 0);
+                }
+            }
+            if (refused is null)
+            {
+                try
+                {
+                    foreach (var entry in held.Where(entry => !UnfinishedSave.IsClaim(entry.Name))) { DeleteHeld(parent, entry); removed++; } // C5, temps
+                    hooks?.Visit(StoreStage.ClearTempsDisposed);
+                    foreach (var entry in held.Where(entry => UnfinishedSave.IsClaim(entry.Name))) { DeleteHeld(parent, entry); removed++; }   // C6, the claim last
+                }
+                catch (Exception failure) when (failure is ContractError or WindowsNative.NativeFailure || IsStoreFailure(failure)) { refused = new(ClearOutcome.Failed, "DOC-IO", removed); }
+            }
+            // C7: Cleared only when no entry still answers the claim name (case-insensitively); also when C1 found nothing.
+            refused ??= WindowsNative.EntryExists(parent.Handle, ProjectStore.ClaimName())
+                ? new(ClearOutcome.Failed, "DOC-CONFLICT", removed) : new ClearResult(ClearOutcome.Cleared, "OK", removed);
+            result = refused;
+        }
+        catch (OperationCanceledException) { result = new(ClearOutcome.Failed, "DOC-CANCELLED", removed); }
+        catch (ContractError error) { result = new(ClearOutcome.Failed, error.Code, removed); }
+        catch (Exception error) when (IsStoreFailure(error)) { result = new(ClearOutcome.Failed, CodeOf(error), removed); }
+        finally
+        {
+            foreach (var (_, handle) in held) handle.Dispose();
+            parent?.Dispose();
+        }
+        emit("store.clear", result.Outcome == ClearOutcome.Cleared ? "OK" : result.Code, timer.Elapsed.TotalMilliseconds, candidates, removed, traceId, null, null);
+        return result;
+    }
+
+    /// <summary>The candidate names of the retained folder, listed through a listing handle on it.</summary>
+    private static List<string> Candidates(Parent parent)
+    {
+        using var listing = parent.OpenListing();
+        return UnfinishedSave.Candidates(WindowsNative.ListNames(listing));
+    }
+
+    /// <summary>P1 to P4 (design 2.2) on the handle Clear holds: a regular, single-link, not-pending-delete file with the store's private descriptor; a claim is empty.</summary>
+    private static bool ProvenanceMatches(SafeFileHandle handle, bool claim)
+    {
+        if ((WindowsNative.AttributeTag(handle).Attributes & (WindowsNative.AttributeDirectory | WindowsNative.AttributeReparsePoint)) != 0) return false;
+        var standard = WindowsNative.Standard(handle);
+        if (standard.Directory != 0 || standard.DeletePending != 0 || standard.NumberOfLinks != 1) return false;
+        if (!Owned.HasPrivateDescriptor(handle)) return false;
+        return claim ? standard.EndOfFile == 0 : standard.EndOfFile <= NativeProject.MaxBytes;
+    }
+
+    /// <summary>POSIX delete disposition on the held handle, close it, and confirm the name is gone.</summary>
+    private static void DeleteHeld(Parent parent, (string Name, SafeFileHandle Handle) entry)
+    {
+        WindowsNative.DisposeEntry(entry.Handle);
+        entry.Handle.Dispose();
+        Require(!WindowsNative.EntryExists(parent.Handle, entry.Name), "DOC-IO");
+    }
+
     internal SaveResult Save(string path, SaveRequest request, CancellationToken cancellation, string traceId)
     {
         // Placeholders are exposed for this whole synchronous call (thread-scoped; no await in this class).
@@ -339,10 +437,19 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
         private readonly List<(SafeFileHandle Handle, string Name)> chain = [];
         internal SafeFileHandle Handle => chain[^1].Handle;
         internal string Name { get; private set; } = "";
+        private string rootPath = "";
+        /// <summary>A second handle on the same folder with the right to list it (the walk's handles have traverse only); its identity must equal the retained one.</summary>
+        internal SafeFileHandle OpenListing()
+        {
+            uint access = WindowsNative.DirectoryAccess | WindowsNative.ListDirectoryAccess;
+            var listing = chain.Count == 1 ? WindowsNative.OpenRoot(rootPath, access) : WindowsNative.OpenDirectory(chain[^2].Handle, chain[^1].Name, access);
+            if (WindowsNative.Identity(listing) != WindowsNative.Identity(Handle)) { listing.Dispose(); throw new ContractError("DOC-CONFLICT"); }
+            return listing;
+        }
         internal static Parent Open(string path)
         {
             var (root, parts) = ParsePath(path);
-            var result = new Parent { Name = parts[^1] };
+            var result = new Parent { Name = parts[^1], rootPath = root };
             try
             {
                 var rootHandle = WindowsNative.OpenRoot(root); result.chain.Add((rootHandle, ""));

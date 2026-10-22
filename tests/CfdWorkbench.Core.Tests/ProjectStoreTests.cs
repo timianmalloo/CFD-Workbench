@@ -13,6 +13,11 @@ internal static class ProjectStoreTests
         // semantics (mode bits, symlink spelling, in-place rename of a held file) and have a Windows form in WindowsProjectStoreTests.
         if (OperatingSystem.IsWindows()) WindowsProjectStoreTests.Run();
         else if (!OperatingSystem.IsMacOS()) { Console.WriteLine("NOT ASSESSED native persistence primitives on this platform"); return; }
+        // Windows store recovery, node A: the macOS half of Clear is compiled (ProjectStore.Clear, OwnedEntry.Create's O_EXLOCK) and runs on the Mac only.
+        MacOrSkip("MacStore_Clear_RemovesCrashLeftovers_ClaimLast", MacClearRemovesLeftovers);
+        MacOrSkip("MacStore_Clear_LiveWriterLockHeld_RefusedInUse", MacClearLiveWriter);
+        MacOrSkip("MacStore_Clear_ForeignOwnerOrMode_Kept", MacClearForeignMode);
+        MacOrSkip("MacStore_Save_ClaimAndTempLockedFromCreate", MacLockedFromCreate);
         if (Environment.GetEnvironmentVariable("CFD_OWNER_STRIPPING_MASK") is not null)
         {
             Check("Store_OwnerStrippingUmask_FailsClosedWithoutRepair", () =>
@@ -473,6 +478,81 @@ internal static class ProjectStoreTests
             Equal(0, MacProbe.UnlinkAt(parent, "temp", 0)); Equal(false, File.Exists(Path.Combine(root, "temp")));
         }
         finally { Equal(0, MacProbe.Close(parent)); }
+    }
+
+    /// <summary>Runs <paramref name="body"/> on macOS; elsewhere prints SKIP with the reason, never PASS.</summary>
+    private static void MacOrSkip(string name, Action body)
+    {
+        if (OperatingSystem.IsMacOS()) { Action<string, Action> run = Check; run(name, body); } // a delegate, not a literal call: STORE-SUBSET (tools/store_subset.py) counts the literal ones
+        else Console.WriteLine("SKIP " + name + " macos-not-run-here");
+    }
+
+    private static void MacLeftover(string root, string name, byte[] bytes, UnixFileMode mode = UnixFileMode.UserRead | UnixFileMode.UserWrite)
+    {
+        string file = Path.Combine(root, name); File.WriteAllBytes(file, bytes);
+        if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(file, mode);
+    }
+
+    private static void MacClearRemovesLeftovers()
+    {
+        string root = Root(), path = Path.Combine(root, "project");
+        using var seed = new ProjectStore(); Equal("OK", Save(seed, path, new([1, 2, 3], null, Id())).Code);
+        MacLeftover(root, ProjectStore.ClaimName(), []); MacLeftover(root, ProjectStore.TempName(Id()), [1, 2]);
+        string atTempsDisposed = "";
+        using var store = new ProjectStore(new StoreHooks { OnStage = stage =>
+        {
+            if (stage == StoreStage.ClearTempsDisposed) atTempsDisposed = string.Join(",", Directory.GetFiles(root).Select(Path.GetFileName).Order(StringComparer.Ordinal));
+        } });
+        Equal(new ClearResult(ClearOutcome.Cleared, "OK", 2), store.ClearUnfinishedSaveAsync(path).GetAwaiter().GetResult());
+        Equal(".cfd-writer.claim,project", atTempsDisposed);
+        Equal(1, Directory.GetFiles(root).Length);
+    }
+
+    private static void MacClearLiveWriter()
+    {
+        string root = Root(), path = Path.Combine(root, "project");
+        using var seed = new ProjectStore(); var created = Save(seed, path, new([1, 2, 3], null, Id())); Equal("OK", created.Code);
+        using var reached = new ManualResetEventSlim(); using var release = new ManualResetEventSlim();
+        using var writer = new ProjectStore(new StoreHooks { OnStage = stage => { if (stage == StoreStage.ClaimCreated) { reached.Set(); release.Wait(60_000); } } });
+        var saving = writer.SaveAsync(path, new SaveRequest([9], created.PublishedSha256, Id()));
+        try
+        {
+            Equal(true, reached.Wait(30_000));
+            using var store = new ProjectStore();
+            Equal(new ClearResult(ClearOutcome.InUse, "DOC-CONFLICT", 0), store.ClearUnfinishedSaveAsync(path).GetAwaiter().GetResult());
+            Equal(true, File.Exists(Path.Combine(root, ProjectStore.ClaimName())));
+        }
+        finally { release.Set(); }
+        Equal("OK", saving.GetAwaiter().GetResult().Code);
+    }
+
+    private static void MacClearForeignMode()
+    {
+        string root = Root(), path = Path.Combine(root, "project");
+        using var seed = new ProjectStore(); Equal("OK", Save(seed, path, new([1, 2, 3], null, Id())).Code);
+        MacLeftover(root, ProjectStore.ClaimName(), [], UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.GroupRead); // mode 0640, not the store's 0600
+        using var store = new ProjectStore();
+        Equal(new ClearResult(ClearOutcome.Failed, "DOC-CONFLICT", 0), store.ClearUnfinishedSaveAsync(path).GetAwaiter().GetResult());
+        Equal(true, File.Exists(Path.Combine(root, ProjectStore.ClaimName())));
+    }
+
+    [DllImport("libSystem.B.dylib", EntryPoint = "open", SetLastError = true)]
+    private static extern int OpenForLock(string path, int flags);
+
+    private static void MacLockedFromCreate()
+    {
+        // Darwin <sys/fcntl.h>: O_RDONLY 0, O_NONBLOCK 0x4, O_EXLOCK 0x20; <sys/errno.h> EAGAIN = EWOULDBLOCK = 35.
+        string root = Root(), path = Path.Combine(root, "project"), operation = Id(); var seen = new List<string>();
+        using var seed = new ProjectStore(); var created = Save(seed, path, new([1, 2, 3], null, Id())); Equal("OK", created.Code);
+        using var store = new ProjectStore(new StoreHooks { OnStage = stage =>
+        {
+            if (stage is not (StoreStage.ClaimCreated or StoreStage.TempCreated)) return;
+            string entry = Path.Combine(root, stage == StoreStage.ClaimCreated ? ProjectStore.ClaimName() : ProjectStore.TempName(operation));
+            int fd = OpenForLock(entry, 0x20 | 0x4);
+            Equal(-1, fd); Equal(35, Marshal.GetLastPInvokeError()); seen.Add(stage.ToString());
+        } });
+        Equal("OK", Save(store, path, new([9], created.PublishedSha256, operation)).Code);
+        Equal(2, seen.Count);
     }
 
     private static void PermissionBoundary()
