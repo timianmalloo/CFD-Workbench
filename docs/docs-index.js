@@ -4054,7 +4054,7 @@ window.DOCS_INDEX = {
       "phase": "windows-w-2-design",
       "reviewBy": "2026-11-30",
       "reviewSuggested": [],
-      "summary": "The store design for Ruling 259. Clear unfinished save removes only the crash leftovers this store created (claim and .cfd- temps with the store's private descriptor), only when no live writer holds them (an exclusive DELETE open on Windows, an flock on the shared claim code on macOS, compiled and SKIP), claim last, checked twice, never silently and never announcing a recovery. Read-only Open admits a fully local file in a OneDrive folder through a narrow placeholder exception on Open's walk only, refuses a cloud-only file before any byte is read, and makes the document read-only for its location (in-place Save refused with the OneDrive refusal, Save As at the local default folder, a window notice).",
+      "summary": "The store design for Ruling 259. Clear unfinished save removes only the crash leftovers this store created (claim and .cfd- temps with the store's private descriptor), only when no live writer holds them (an exclusive DELETE open on Windows, a lock taken in the create's own openat on macOS, compiled and SKIP), claim last, checked twice, never silently and never announcing a recovery. Read-only Open admits a fully local file in a OneDrive folder by Ruling 260's predicate on Open's walk only, refuses a cloud-only file before any data handle exists, reads through a second handle opened from the held attribute handle with no name and no recall, and makes the document read-only for its location (in-place Save refused with the OneDrive refusal, Save As at the local default folder, a window notice). Cycle 1 folds the Security, Data & Persistence and UX conditions.",
       "tags": [
         "windows",
         "persistence",
@@ -4089,7 +4089,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cfe28e56531dc302b58d98985c14c038222356cacb18213ae22fe74e83586327"
+      "sourceSha256": "649bbf542844093fd2f4b34c9c35312dae2cf7de759870be48d4f7ef7042d837"
     },
     {
       "id": "mockup-a3d-compare",
@@ -4958,7 +4958,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "64743944096fb5d51e12eeea6c37ad9b8426f406e07369a3a3ad38d255d4f76c"
+      "sourceSha256": "6c5fba13be60e8f193a61ceb953f21bf596333104bf5835908862aeafe9cd94a"
     },
     {
       "id": "mockup-w2-save-picker",
@@ -23846,5 +23846,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "a912a4dacae0781eb3176a1247ea3c20f7dcc66e397d34ca5204fa78a0ed03ab"
+  "graphSha256": "11d5ec867cda3b099f6e2142ca446d7ef1752d2acb400cc295fb823460e5120c"
 };

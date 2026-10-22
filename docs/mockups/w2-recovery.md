@@ -35,12 +35,12 @@ the state shows, with its id. The S3 and S4 dialogs keep the look of [`w2-save-p
 | State | What it shows | Design section |
 |---|---|---|
 | A1 | Save is blocked, now with Clear unfinished save…; step 3 per Ruling 259; DS-COPY-5 | 4, 5 |
-| A2 | The confirm (S4) swapped in place; focus and Enter on Cancel; Escape returns to A1 | 2.4, 4 |
-| A3 | Clearing: both buttons disabled, `aria-busy` | 2.4 |
+| A2 | The confirm (S4) swapped in place; focus and Enter on Cancel; Escape or Cancel returns to A1 with focus on Clear unfinished save… (U2) | 2.4, 4 |
+| A3 | Clearing: both buttons disabled, `aria-busy`; focus on the dialog heading, inside the dialog (U1); A4 and A5 focus Cancel | 2.4 |
 | A4 | Refused: a live writer holds a leftover (COPY-449, Try again) | 2.3 |
 | A5 | Failed: a foreign `.cfd-` entry, nothing removed (COPY-455 with DOC-CONFLICT) | 2.2 |
 | A6 | Cleared: the dialog is gone and the blocked save runs (COPY-452); no clear or recovery sentence | 2.4 I-7, DR-DS-3 |
-| B1 | Read-only Open from OneDrive: title suffix DS-COPY-1, status DS-COPY-2 (info), no modal | 2.7 |
+| B1 | Read-only Open from OneDrive: title suffix DS-COPY-1, DS-COPY-2 in a persistent notice row above the status strip (U3), no modal | 2.7 |
 | B2 | A cloud-only file refused before any read: DS-COPY-3 and the code line DOC-CLOUD-ONLY | 2.5, 2.6 |
 | B3 | Save on the read-only document: the S2 OneDrive refusal (COPY-440, Ruling 146 (1)) | 2.7 |
 | B4 | Save As: the Windows picker at the local default folder | 2.7 |
@@ -58,8 +58,8 @@ the state shows, with its id. The S3 and S4 dialogs keep the look of [`w2-save-p
 | COPY-455 | Couldn't clear the unfinished save (<code>). Your saved file and your current work are unchanged. | approved — Ruling 160 | A5 |
 | Step 3 | Use Save As to keep your current work in a different folder, or choose Clear unfinished save, then Save. | ruled — Ruling 259 | A1 |
 | DS-COPY-1 | (read-only: opened from OneDrive) | provisional | B1, B3 title suffix |
-| DS-COPY-2 | This project was opened from OneDrive, so it can't be saved there. Use Save As to save it in a local folder. | provisional | B1, B3 status strip |
-| DS-COPY-3 | This file is in OneDrive but isn't on this PC yet. The file hasn't been changed and wasn't downloaded. In OneDrive, choose "Always keep on this device" for it, or copy it to a local folder, then open it again. | provisional; seam to WF | B2 |
+| DS-COPY-2 | This project was opened from OneDrive, so it can't be saved there. Use Save As to save it in a local folder. | provisional | B1, B3 notice row (U3) |
+| DS-COPY-3 | This file is in OneDrive but isn't on this PC yet. The file hasn't been changed and wasn't downloaded. In OneDrive, choose "Always keep on this device" for it, or copy it to a local folder, then open it again. | proposed (only the O3 refusal, U5); the operator approves the wording; the label "Always keep on this device" is unconfirmed (Inferred to be the current Explorer label); seam to WF | B2 |
 | DS-COPY-4 | CFD Workbench can't open a project from this location (a network or removable folder, or a linked folder). The file hasn't been changed. Copy the project to a local folder and open it from there. | provisional (Ruling 259 drops "OneDrive"); WF owns the row | B5 |
 | DS-COPY-5 | This folder stays blocked until the unfinished save is cleared. | provisional wording of a Ruling 259 rule | A1 |
 
@@ -72,6 +72,7 @@ COPY-441, 443, 445, 450, 452, 440 and 442 are reused as built or approved. No ro
   Cancel as the focused default; the read-only title suffix and the info notice are legible in dark. Captures stay in
   the session scratch, not in git.
 - **Script:** `node --check` on the page script: exit 0. The page holds no `http` or `https` URL.
+- **Cycle 1:** U1, U2 and U3 changed the page script and the notice row; `node --check` on the revised script: exit 0. Not re-rendered in Edge in cycle 1 (budget).
 - **Not done:** the craft gate and a mockup oracle (no oracle exists for this page yet; the build's Desktop checks are
   the oracle for the strings, section 7 of the design); contrast measurement of the new `--info` token in the three
   themes (UX & Accessibility, Q-U4); a screen-reader pass; anything on the real native dialog.
