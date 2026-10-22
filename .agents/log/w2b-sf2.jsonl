@@ -1,1 +1,4 @@
 {"agent": "w2b-sf2", "at": 1792687700.9959521, "kind": "session-start", "path": "-", "seq": 1, "session": "w2b-sf2", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-w2b-sf2"}
+{"agent": "w2b-sf2", "at": 1792688253.9113805, "kind": "claim", "path": "src/CfdWorkbench.Core/Placement.cs", "seq": 2, "session": "w2b-sf2", "ttl": 300.0, "wi": "w2b-sf2"}
+{"agent": "w2b-sf2", "at": 1792688255.0211494, "kind": "claim", "path": "src/CfdWorkbench.Core/AuthoringSession.cs", "seq": 3, "session": "w2b-sf2", "ttl": 300.0, "wi": "w2b-sf2"}
+{"agent": "w2b-sf2", "at": 1792688256.3067176, "kind": "claim", "path": "tests/CfdWorkbench.Core.Tests/StationTests.cs", "seq": 4, "session": "w2b-sf2", "ttl": 300.0, "wi": "w2b-sf2"}

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T16:55:47Z",
+  "generated": "2026-10-22T17:00:15Z",
   "audit": [
     {
       "actor": null,
@@ -41907,12 +41907,77 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M5J8MK2Y0NDHMWJGMC08C6XF",
-      "shortname": "join-w2b-c1",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-22T16:55:47Z",
-      "session": "pc-laptop-leader",
+      "done_when": "w2b-c1-copy-acl merged on main with the integrated full ring green (a crashed Desktop child rerun alone per the leader's join rule) and the ten verify gates green",
+      "duration_seconds": 258.0,
+      "fan_out": 0,
+      "goal": "land the approved copy rows and the preference-folder permissions fix on main",
+      "id": "al-01M5J8MK2Y0NDHMWJGMC08C6XF",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of w2b-c1-copy-acl into main",
+      "session": "pc-laptop-leader",
+      "shortname": "join-w2b-c1",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-22T16:51:29Z",
       "summary": "C1 joined after its Adversary review and the hold's release (leader decision after crash loop C): the proposed copy rows COPY-522..588 approved by the operator (accept 4), PreferenceStore creates its folder with the owner-only descriptor D:P(A;OICI;FA;;;<sid>) and its red-first test, WindowsProjectStoreTests gains the ACL check recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-22T15:56:38Z",
+      "duration_seconds": 1798.0,
+      "id": "al-01M5J589B8HY13RQ8VSE8DTBK6",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "wave 2 SF1: Side outline exactness, Promote Checking peer, station chip peers",
+      "session": "w2b-sf1",
+      "shortname": "w2b-sf1",
+      "skill": "implement",
+      "started_at": "2026-10-22T15:26:40Z",
+      "summary": "SF1 wave 2: Side outline measured 0.0000 and 0.0002 device px (blend kept, marker updated, check added); Promote Checking peer check added (mutant red); Plan and Side station chip peers added (StationChipPeer, red then green, mutants red); full run TESTS-GREEN after two runs red on Desktop native crashes and load timeouts.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-22T16:27:07Z",
+      "duration_seconds": 916.0,
+      "id": "al-01M5J703N8WMYZ34MBFW9ZXF2G",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "wave 2 SF1 conditions: Invoke refusal, chip descriptions, Origin and Analysis assertions, curvature measurement",
+      "session": "w2b-sf1",
+      "shortname": "w2b-sf1-c1",
+      "skill": "implement",
+      "started_at": "2026-10-22T16:11:51Z",
+      "summary": "SF1 repair cycle 1: six review conditions closed; Invoke refusal reported, chip help text names stations, Origin/Analysis/removal asserted, F-CURVED outline 0.0338 px so blend kept.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M5J8WRTZ5J3Y1K3V58NQ9CXN",
+      "shortname": "join-w2b-sf1",
+      "datetime": "2026-10-22T17:00:15Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of w2b-sf1 into main",
+      "summary": "SF1 joined after its Adversary review and the hold's release: the slice chip's peers on PlanCanvas and ElevationView, EditSectionPeer wrapped so a peer failure never breaks the editor, the F-CURVED station fixture with its PlanCanvasStationTests recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -41921,8 +41986,8 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "land the approved copy rows and the preference-folder permissions fix on main",
-      "done_when": "w2b-c1-copy-acl merged on main with the integrated full ring green (a crashed Desktop child rerun alone per the leader's join rule) and the ten verify gates green",
+      "goal": "land the Add station canvas follow-ups on main",
+      "done_when": "w2b-sf1 merged on main with the integrated full ring green (a crashed Desktop child rerun alone per the leader's join rule) and the ten verify gates green",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -41930,8 +41995,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-22T16:51:29Z",
-      "duration_seconds": 258.0
+      "started_at": "2026-10-22T16:56:30Z",
+      "duration_seconds": 225.0
     }
   ],
   "changes": [
