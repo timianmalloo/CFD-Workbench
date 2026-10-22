@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T17:00:15Z",
+  "generated": "2026-10-22T17:44:19Z",
   "audit": [
     {
       "actor": null,
@@ -41972,12 +41972,77 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M5J8WRTZ5J3Y1K3V58NQ9CXN",
-      "shortname": "join-w2b-sf1",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-22T17:00:15Z",
-      "session": "pc-laptop-leader",
+      "done_when": "w2b-sf1 merged on main with the integrated full ring green (a crashed Desktop child rerun alone per the leader's join rule) and the ten verify gates green",
+      "duration_seconds": 225.0,
+      "fan_out": 0,
+      "goal": "land the Add station canvas follow-ups on main",
+      "id": "al-01M5J8WRTZ5J3Y1K3V58NQ9CXN",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of w2b-sf1 into main",
+      "session": "pc-laptop-leader",
+      "shortname": "join-w2b-sf1",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-22T16:56:30Z",
       "summary": "SF1 joined after its Adversary review and the hold's release: the slice chip's peers on PlanCanvas and ElevationView, EditSectionPeer wrapped so a peer failure never breaks the editor, the F-CURVED station fixture with its PlanCanvasStationTests recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-22T16:49:11Z",
+      "duration_seconds": 2001.0,
+      "id": "al-01M5J88GMD7WFTF5AVMG9KK2Y6",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "wave 2 BS node A",
+      "session": "w2b-bs",
+      "shortname": "w2b-bs-a",
+      "skill": "implement",
+      "started_at": "2026-10-22T16:15:50Z",
+      "summary": "Wave 2 BS node A: Clear unfinished save on the Windows store (macOS compiled), the Save is blocked dialog with Clear, one retry after Clear. Core and Desktop checks red (compile) then green; 14 mutants run, 10 killed, survivors named in docs/proof/win-store-recovery/README.md.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-22T17:34:02Z",
+      "duration_seconds": 920.0,
+      "id": "al-01M5JATKWWW7WZ87B8KEF3WCGJ",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "wave 2 BS node A repair 1: B1 relabel, B2 retry-hash mutant, A5 catch-all, COPY-441, Escape path, telemetry mapping, D3 note",
+      "session": "w2b-bs",
+      "shortname": "w2b-bs-a-r1",
+      "skill": "implement",
+      "started_at": "2026-10-22T17:18:42Z",
+      "summary": "Repair cycle 1 of node A: B1 and B2 (join blockers) fixed with the recomputed-hash and catch-removed mutants seen red then reverted; N4 A5 catch-all, N5 COPY-441 row, N7 Escape path, N1 telemetry mapping, N2 D3 note, N3 residual; check-docs exit 0 after derive.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "id": "al-01M5JBDEQ947QFNJ11QVGXH4Z2",
+      "shortname": "join-w2b-bs-a",
+      "datetime": "2026-10-22T17:44:19Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of w2b-bs into main",
+      "summary": "BS node A joined after its Data and Persistence plus UX and Accessibility review and repair cycle 1: Clear unfinished save on the Windows store (provenance-checked removal of crash leftovers, no-live-writer rule, macOS compiled with SKIP), the SaveBlocked dialog's Clear path with confirm, in-use and failed states, COPY-591, the C5 relabel, the retry-hash check, the A5 catch-all; one textual conflict in WindowsProjectStoreTests.cs resolved keeping both layout lines; one duplicate ReadControl constant from the C1 merge removed recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -41986,8 +42051,8 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "land the Add station canvas follow-ups on main",
-      "done_when": "w2b-sf1 merged on main with the integrated full ring green (a crashed Desktop child rerun alone per the leader's join rule) and the ten verify gates green",
+      "goal": "land Clear unfinished save on main before node B (read-only Open from OneDrive) dispatches from main",
+      "done_when": "w2b-bs merged on main with the integrated full ring green under the leader's crash-and-124 rule and the ten verify gates green",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -41995,8 +42060,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-22T16:56:30Z",
-      "duration_seconds": 225.0
+      "started_at": "2026-10-22T17:40:29Z",
+      "duration_seconds": 230.0
     }
   ],
   "changes": [
