@@ -54,6 +54,8 @@ public static class CompareProjection
         if (context.ErrorReason is { } reason)
             return new(CompareState.Error, "", null, [Labels.NotRecorded(reason, context.ErrorCode ?? "ANA-UNEXPECTED")], columns.Item1, columns.Item2, inputs, [], null);
         var blocks = Compare.Compatibility(a, b);
+        if (Compare.DimensionalApplies(blocks))
+            return ReferenceDiffers(a, b, context, columns, inputs, notices, string.Join(", ", blocks[0].Fields));
         if (blocks.Count > 0)
         {
             notices.InsertRange(0, blocks.Select(block => block.Reason switch
@@ -165,14 +167,63 @@ public static class CompareProjection
     {
         string unit = context.Units == Units.Imperial ? "lbf" : "N";
         double scale = context.Units == Units.Imperial ? LbfPerNewton : 1;
-        double Q(AnalysisRun run) => 0.5 * run.Water.Rho * run.Op.Speed * run.Op.Speed * run.Reference.SRef * scale;
-        var values = (a: context.Values(a), b: context.Values(b));
-        foreach (var (name, pick) in new (string, Func<Coefficients, double?>)[] { ("L", c => c.Cl), ("D_i", c => c.Cdi) })
+        var first = Compare.Dimensional(a, context.Values(a));
+        var second = Compare.Dimensional(b, context.Values(b));
+        foreach (var (name, x, y) in new (string, double?, double?)[] { ("L", first.L, second.L), ("D_i", first.Di, second.Di) })
         {
-            double? first = pick(values.a) * Q(a), second = pick(values.b) * Q(b);
-            yield return new CompareOutputRow(name, Num(first, "0.##") + " " + unit, Num(second, "0.##") + " " + unit, "—", Labels.LoadNote,
-                name + ", no delta", first, second, null);
+            double? shownFirst = x * scale, shownSecond = y * scale;
+            yield return new CompareOutputRow(name, Num(shownFirst, "0.##") + " " + unit, Num(shownSecond, "0.##") + " " + unit, "—", Labels.LoadNote,
+                name + ", no delta", shownFirst, shownSecond, null);
         }
+    }
+
+    // Only S_ref, b_ref, c_ref or the moment datum differ (design 12): the coefficient deltas stay blocked, e is not compared, and
+    // L and D_i carry a delta from each run's own q · S_ref. Derived on read; nothing is recorded.
+    private static CompareViewModel ReferenceDiffers(AnalysisRun a, AnalysisRun b, CompareContext context, (CompareColumn, CompareColumn) columns,
+        IReadOnlyList<CompareInputRow> inputs, List<string> notices, string fields)
+    {
+        notices.Insert(0, Labels.DeltaBlockedReferenceDimensional(fields));
+        bool estimator = a.Tier == WingEstimator.TierId || b.Tier == WingEstimator.TierId;
+        string unit = context.Units == Units.Imperial ? "lbf" : "N";
+        double scale = context.Units == Units.Imperial ? LbfPerNewton : 1;
+        Coefficients x = context.Values(a), y = context.Values(b);
+        CompareOutputRow Coefficient(string quantity, double? first, double? second, string format) => new(quantity, Num(first, format), Num(second, format),
+            Labels.ReferenceDiffersCell, estimator && quantity == "CDi" ? Labels.EstimatorCdiNote : null, quantity + ", blocked, reference differs", first, second, null);
+        double? E(AnalysisRun run, Coefficients c) => run.Tier == WingEstimator.TierId ? null : c.E;
+        var outputs = new List<CompareOutputRow>
+        {
+            Coefficient("CL", x.Cl, y.Cl, "0.0000"), Coefficient("CDi", x.Cdi, y.Cdi, "0.00000"),
+            new("e", Num(E(a, x), "0.000"), Num(E(b, y), "0.000"), Labels.ENotComparedSpan, null, "e, not compared", E(a, x), E(b, y), null)
+        };
+        // The floors in newtons are the coefficient floors through the same Compare.Dimensional (one formula).
+        var floor = Compare.Dimensional(a, new Coefficients(Compare.ClFloor, Compare.CdiFloor, null));
+        var lines = Compare.DimensionalLines(a, b, context.Values)!;
+        foreach (var line in lines)
+        {
+            bool drag = line.Quantity == "D_i";
+            string floorText = drag ? Labels.DimensionalFloorDrag(Num(floor.Di * scale, "G3"), unit) : Labels.DimensionalFloorLift(Num(floor.L * scale, "G3"), unit);
+            string delta = line.Delta is { } value ? Percent(value) + (estimator && drag ? " " + Labels.EstimatorCdiNote : "") : line.Undefined switch
+            {
+                Compare.BaseZero => Labels.UndefinedBaseZero,
+                Compare.BaseFloor => Labels.UndefinedBelowFloor(floorText),
+                _ => "—"
+            };
+            string Cell(double? number, CompareColumn column) => number is { } v
+                ? Num(v * scale, "0.##") + " " + unit : Labels.QuantityUnavailable(line.Quantity, column.Title);
+            string spoken = line.Delta is { } d
+                ? $"{line.Quantity}, delta {(d < 0 ? "minus" : "plus")} {Math.Abs(d * 100).ToString("0.00", Inv)} percent of base" : $"{line.Quantity}, {delta}";
+            outputs.Add(new CompareOutputRow(line.Quantity, Cell(line.Base, columns.Item1), Cell(line.Compared, columns.Item2), delta, Labels.DimensionalNote,
+                spoken, line.Base * scale, line.Compared * scale, line.Delta));
+        }
+        var lift = lines[0];
+        string headlineDelta = lift.Delta is { } delta0 ? Percent(delta0) : lift.Undefined switch
+        {
+            Compare.BaseZero => Labels.UndefinedBaseZero,
+            Compare.BaseFloor => Labels.UndefinedBelowFloor(Num(floor.L * scale, "G3") + " " + unit),
+            _ => "—"
+        };
+        return new(CompareState.ReferenceDiffers, Labels.DimensionalHeadline(headlineDelta), Labels.DimensionalNotRecorded, notices, columns.Item1, columns.Item2,
+            inputs, outputs, Labels.CompareFootnote);
     }
 
     private static string Percent(double fraction)

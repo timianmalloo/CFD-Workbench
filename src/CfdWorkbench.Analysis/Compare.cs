@@ -197,7 +197,8 @@ public static class Compare
         if (blocks.Count > 0)
         {
             session.RecordCompareEvent("blocked-" + blocks[0].Reason.ToString().ToLowerInvariant(), null,
-                new CompareEvent { BaseTier = shownBase.Tier, ComparedTier = shownCompared.Tier, Records = session.ReadDiscrepancies().Count });
+                new CompareEvent { BaseTier = shownBase.Tier, ComparedTier = shownCompared.Tier, Records = session.ReadDiscrepancies().Count,
+                    Dimensional = DimensionalApplies(blocks) });
             return new CompareResult(blocks, null, false);
         }
         var documentOrder = session.ReadRuns().Runs.Select(stored => stored.Run).ToList();
@@ -215,6 +216,47 @@ public static class Compare
         try { return session.RevisionOf(id).Ordinal; }
         catch (ContractError) { return null; }
     };
+
+    /// <summary>
+    /// The one definition of the dimensional lift and induced drag, in newtons (design 12.2): each coefficient times its own run's
+    /// q · S_ref. The side-by-side values and the dimensional deltas both come from here; a null is Unavailable, never a zero.
+    /// </summary>
+    public static (double? L, double? Di) Dimensional(AnalysisRun run, Coefficients c)
+    {
+        double qS = 0.5 * run.Water.Rho * run.Op.Speed * run.Op.Speed * run.Reference.SRef;
+        return (Load(c.Cl, qS), Load(c.Cdi, qS));
+    }
+
+    private static double? Load(double? coefficient, double qS) => coefficient is { } v && double.IsFinite(v) && double.IsFinite(qS) ? v * qS : null;
+
+    /// <summary>
+    /// True when a pair's block list is exactly one Reference block whose fields are all among S_ref, b_ref, c_ref and the moment
+    /// datum (design 12.1): the point and the water are equal and no axes differ, so L and D_i can be compared. Axes keep the full block.
+    /// </summary>
+    public static bool DimensionalApplies(IReadOnlyList<Block> blocks) => blocks.Count == 1 && blocks[0].Reason == BlockReason.Reference &&
+        blocks[0].Fields.All(field => field is "S_ref" or "b_ref" or "c_ref" or "moment datum");
+
+    /// <summary>
+    /// The L and D_i lines of a reference-only pair in the shown orientation, derived on read and never stored (design 12.2): the
+    /// delta of each run's <see cref="Dimensional"/> value, normalised to the base's absolute value. Null when the pair is not
+    /// reference-only. The floors are the coefficient floors of the base run, so L is Undefined exactly when the CL delta would be.
+    /// </summary>
+    public static IReadOnlyList<DiscrepancyLine>? DimensionalLines(AnalysisRun baseRun, AnalysisRun compared, Func<AnalysisRun, Coefficients> values)
+    {
+        if (!DimensionalApplies(Compatibility(baseRun, compared))) return null;
+        Coefficients b = values(baseRun), c = values(compared);
+        var (baseL, baseDi) = Dimensional(baseRun, b);
+        var (comparedL, comparedDi) = Dimensional(compared, c);
+        return [DimensionalLine("L", baseL, comparedL, b.Cl, ClFloor), DimensionalLine("D_i", baseDi, comparedDi, b.Cdi, CdiFloor)];
+    }
+
+    private static DiscrepancyLine DimensionalLine(string quantity, double? b, double? c, double? baseCoefficient, double floor)
+    {
+        if (b is not { } baseValue || c is not { } comparedValue) return new DiscrepancyLine(quantity, b, c, Undefined: ValueUnavailable);
+        if (baseValue == 0) return new DiscrepancyLine(quantity, b, c, Undefined: BaseZero);
+        if (Math.Abs(baseCoefficient!.Value) < floor) return new DiscrepancyLine(quantity, b, c, Undefined: BaseFloor);
+        return new DiscrepancyLine(quantity, b, c, Delta: (comparedValue - baseValue) / Math.Abs(baseValue));
+    }
 
     // Rule 1.0.0: CL, CDi and e, each normalised to the base run's value (design 1.5, 2.4).
     private static IReadOnlyList<DiscrepancyLine> Lines100(AnalysisRun first, AnalysisRun second, Func<AnalysisRun, Coefficients> values)

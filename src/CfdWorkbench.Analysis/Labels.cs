@@ -73,6 +73,19 @@ public static class Labels
     public static string DeltaBlockedPoint(string fields) => $"Δ blocked — the runs are at different operating points: {fields}. Inputs are shown side by side; no difference is computed.";
     /// <summary>A3D-COPY-25 (COPY-548).</summary>
     public static string DeltaBlockedWater(string fields) => $"Δ blocked — the runs use different water: {fields}. Inputs are shown side by side; no difference is computed.";
+    /// <summary>AF-COPY-1 (COPY-611): the notice of a reference-only block.</summary>
+    public static string DeltaBlockedReferenceDimensional(string fields) => $"Coefficient Δ blocked — reference quantities differ: {fields}. L and D_i are compared: same operating point and water.";
+    public const string ReferenceDiffersCell = "Blocked — reference differs"; // AF-COPY-2, COPY-612
+    public const string ENotComparedSpan = "Not compared — e depends on each wing's own span (b_ref)"; // AF-COPY-3, COPY-613
+    public const string DimensionalNote = "Each run's own q · S_ref. Derived, not stored."; // AF-COPY-4, COPY-614
+    /// <summary>AF-COPY-5 (COPY-615): the headline of a reference-only pair.</summary>
+    public static string DimensionalHeadline(string delta) => $"Revisions compared: δ L = {delta} at the same operating point — reference quantities differ";
+    /// <summary>
+    /// AF-COPY-6 (COPY-616): the &lt;floor&gt; slot of A3D-COPY-22 on an L or D_i cell. The L cell carries the first clause and the D_i cell the second.
+    /// </summary>
+    public static string DimensionalFloorLift(string newtons, string unit) => $"{newtons} {unit} (CL floor 1E-4 × q × S_ref of the base)";
+    public static string DimensionalFloorDrag(string newtons, string unit) => $"{newtons} {unit} (CDi floor 1E-6 × q × S_ref of the base)";
+    public const string DimensionalNotRecorded = "Comparison shown — not recorded: reference quantities differ"; // AF-COPY-7, COPY-617
     /// <summary>A3D-COPY-9 (COPY-531), the spec's tier headline; δ is CL's, in the shown orientation.</summary>
     public static string TiersHeadline(string delta) => $"Tiers disagree: δ = {delta} — Discrepancy record stored · value preferred by reported uncertainty: {NoUncertainty}";
     /// <summary>A3D-COPY-10 (COPY-532a: the revision headline).</summary>

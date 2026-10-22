@@ -261,3 +261,135 @@ Green: Analysis `Retention_,Discrepancy_,Compare_` `RESULT failures=0`; Desktop 
 - Condition 10 (labelled): the pane's error path is checked with an injected error; the controller path is untested.
 - Condition 11 is the leader's (needs W2 joined); `inspect --runs` is still not run end to end.
 - Mutant rows: 7 (A3d-1) + 9 (A3d-1 repair) + 37 (Compare) = 53 before this cycle; this cycle adds the 5 red rows above, 58 in all. The reviewer's 46 counts the 37 Compare and 9 repair rows only.
+
+## AF (wave 2): the dimensional deltas, the encode cost, the Cli harness gaps
+
+Session `w2b-af`, built on `main` b0da43bc (the DF designs, Ruling 262). Design: `docs/design/a3d-compare.md` section 12 and
+`docs/specs/amendments/spec-1.7.8.md`. Ruling 262 DF-Q1 settles the reading: the deltas are display-only, nothing is stored.
+The harnesses were run as `<assembly> --harness` from the worktree root (Release), each to its own log; the exit code is the
+line after the last check. Desktop ran only `--analysis`.
+
+### What was built
+
+| Surface | What |
+|---|---|
+| `Compare.Dimensional(run, coefficients)` | the one L and D_i formula, in newtons: coefficient times that run's own `0.5 rho V^2 S_ref` |
+| `Compare.DimensionalApplies(blocks)` / `Compare.DimensionalLines` | exactly one Reference block whose fields are all among `S_ref`, `b_ref`, `c_ref`, `moment datum`; the two lines (L, D_i) as `DiscrepancyLine` values, never records |
+| `CompareProjection` | the reference-only branch (state `ReferenceDiffers`): CL and CDi rows with values and AF-COPY-2, the e row with AF-COPY-3, L and D_i rows with the delta; the compatible-pair L and D_i rows now call `Compare.Dimensional` |
+| `Labels.cs`, `DESIGN.md` | AF-COPY-1..7 as COPY-611 to COPY-617 (proposed, AF wave 2) |
+| `CompareEvent.Dimensional` (Core) | one optional `bool?`, set on every `blocked-*` event |
+| Pane | no code change: `ComparePane` renders the view model verbatim (notices, status, tables, spoken names), so the new state needed no new control |
+
+Floors: the coefficient floors of the base run (`|CL| < 1e-4` for L, `|CDi| < 1e-6` for D_i; `<`, not `<=`), `ANA-CMP-BASE-ZERO` when
+the base load is exactly 0, `ANA-CMP-VALUE-UNAVAILABLE` (A3D-COPY-24 in the value cell, no delta) when a coefficient is not finite.
+The floor shown on an Undefined cell is the coefficient floor times the base run's q S_ref, computed by calling `Compare.Dimensional`
+on the floor values (no second formula). AF-COPY-6 holds two clauses; the L cell shows the CL clause and the D_i cell the CDi clause.
+
+### The `CompareEvent` member: added
+
+Session events never reach the project image. Opened: `AuthoringSession.cs` line 181 `private readonly Queue<SessionEvent> events`;
+lines 2360-2369 (`RecordCompareEvent`) enqueue into it; line 197 `ReadLocalEvents` reads it; the only other Core or
+Persistence reader is `ProjectStore.ReadLocalEvents`. `EnvelopeCore` (the image) does not reference `events`. The member is
+`CompareEvent.Dimensional` (`DiscrepancyRecord.cs`). Design 12.3 `assume:` held.
+
+### `assume:` L from CL q S_ref equals the near-field strip lift
+
+Verified on two real VLM runs (Desktop `--analysis`, 4 x 1 lattice, V 5.14 m/s, alpha 2 deg; the base run and the span-edited run), line
+`INFO assume L from CL q S_ref` in `ComparePane_ReferenceDiffers_DimensionalDeltasOnly`:
+
+| Run | L = Compare.Dimensional | strip lift (sum of -Fx sin a + Fz cos a) | relative difference |
+|---|---|---|---|
+| base | 174.48583978573973 N | 174.48583978573973 N | 0 |
+| span-edited | 293.03570076991736 N | 293.03570076991736 N | 0 |
+
+The check asserts `|L - strip lift| <= 1e-12 |L|`. The Analysis test `Dimensional_RoundTrip_EqualsStripLift` asserts the same on a 6-strip run.
+
+### Red, then green (Analysis; the stubs returned null, the Desktop red used a mutant that disabled the branch)
+
+| Test | Red (last line) |
+|---|---|
+| `Compare_ReferenceOnly_DimensionalDeltas` | `two lines: L and D_i expected 2; actual ` |
+| `Compare_ReferenceOnly_CoefficientsStillBlocked` | `the five rows in order; expected CL,CDi,e,L,D_i; actual ` |
+| `Compare_ReferenceOnly_ReversedRecomputed` (theory, both rows) | `the dimensional lines exist; expected True; actual False` |
+| `Compare_Dimensional_BaseBelowFloor_Undefined` (theory) | `the dimensional lines exist; expected True; actual False` |
+| `Compare_Dimensional_NoSecondFormula` | `and it is inside Compare.Dimensional; expected True; actual False` (the old `Q(run)` lambda was the one hit) |
+| `Compare_Dimensional_NegativeBase_SignByAbs` | `the dimensional lines exist; expected True; actual False` |
+| `Compare_Dimensional_OneDefinition` | `Nullable object must have a value.` |
+| `Dimensional_RoundTrip_EqualsStripLift` | `Nullable object must have a value.` |
+| `Compare_ReferenceOnly_EventFlag` | `dimensional = true; expected True; actual ` |
+| `Compare_IncompatibleReference_BlocksDelta` (narrowed assertion) | `pane state expected ReferenceDiffers; actual Blocked` |
+| `Compare_ReferenceOnly_StoresNothing`, `Compare_ReferenceAndPoint_NoDimensionalDelta` | green before the build (nothing was stored and no delta was shown); each is proved by its mutants below |
+| Desktop `ComparePane_ReferenceDiffers_DimensionalDeltasOnly` | with `DimensionalApplies` forced false: `AF-COPY-1; expected True; actual False` |
+| Cli (`InspectRuns_ChildHarness_*`) | compile red: `CS0103 The name 'ChildFailure' / 'ChildLimitSeconds' / 'ChildTimeoutVariable' / 'SkipLine' does not exist` |
+
+Green after the build: Analysis 308 PASS, 0 FAIL (296 before); Core 857 PASS; Cli 29 PASS (26 before); Desktop `--analysis` 64 PASS (63 before: one
+check replaced by two). Fixture values (F-PLANFORM): dL 0.1027509294, dD_i 0.1228454172, reversed -0.0931769148 and -0.1094054581, the negative-base rows +0.46 and -0.8518518519, the exact
+1e-4 row 0.08.
+
+### Mutants (each applied alone, built, run, reverted; last line is the first failing check)
+
+| Mutant | Red line |
+|---|---|
+| m1 compared run takes the base S_ref (the wrong-reference mutant) | `dL: each run's own S_ref expected 0.1027509294; actual 0.0210656753` |
+| m2 delta normalised to the compared value | `expected 0.1027509294; actual 0.0931769148` |
+| m3 garbled reversal (a sign-flipped, re-divided delta) | `expected 0.1027509294; actual -0.1027509294` |
+| m4 divide by the signed base | `row 2 forward expected 0.4600000000; actual -0.4600000000` |
+| m5 absolute floor of 0.1 N in place of the coefficient floor | `base CL one ulp below 1e-4 expected ANA-CMP-BASE-FLOOR; actual ` |
+| m6 `<=` in place of `<` | `Nullable object must have a value.` (the exact 1e-4 row has no delta) |
+| m7 D_i floored on CL's floor | `base CDi 5e-7 floors the D_i line expected ANA-CMP-BASE-FLOOR; actual ` |
+| m8 `axes` admitted to the dimensional branch | `axes and S_ref: no dimensional lines; expected True; actual False` |
+| m9 reference admitted although the point also differs | `alpha and S_ref: no dimensional lines; expected True; actual False` and `dimensional = false when the point also differs` |
+| m10 a coefficient delta unblocked in the projection | `CL has no numeric delta; expected True; actual False` |
+| m11 a second L formula in `Loads` | `exactly one q * S_ref expression ... (AnalysisProjection.cs, 173), (Compare.cs, 225)` and `L base equals Compare.Dimensional bit for bit` |
+| m12 event flag always true | `dimensional = false when the point also differs; expected False; actual True` |
+| m13 q factor 0.4 in place of 0.5 | `|L - strip lift| <= 1e-12 |L|: L 206.31..., strips 257.89...` |
+| m14 a record written for the reference-blocked pair | `Compare_ReferenceOnly_StoresNothing ContractError: DOC-SCHEMA` (the write is refused here for its orientation; any write that succeeded fails the record-count and byte checks) |
+| m15 (Desktop) a percentage in a coefficient cell | `CL delta cell (AF-COPY-2) expected Blocked - reference differs; actual +1.00 %` |
+| c1 Cli: `>= 0` in the limit | `an unset, empty, non-numeric or non-positive value gives the default 120 s` |
+| c2 Cli: `win-only` in the SKIP line | `the SKIP line is 'SKIP <name> windows-only'` |
+| c3 Cli: stderr dropped from the failure line | `the failure line carries stderr on one line: inspect --runs exited 3` |
+
+Not representable: the design's `-d / (1 + d)` reversal mutant lives in a view that flips a stored delta. This projection never flips a delta; it
+calls the function with the roles swapped. The negative-base row (-0.8518518519) is the check that the swapped call is the true value; m3 and m4 are
+the nearest function-level mutants.
+
+### Residual risks
+
+- `Compare_Dimensional_NoSecondFormula` is a text scan. Pattern: after removing `// ...` comments and any `/ (...)` division operand, a statement with `Rho`,
+  `Speed`, `q` or `Q(` and `SRef` joined by `*` and no `/`. One hit is allowed, in `Compare.cs` within 12 lines of the `Dimensional(AnalysisRun` declaration.
+  A formula spelled another way, or split over lines, passes.
+- The narrowed assertion in `Compare_IncompatibleReference_BlocksDelta` edits an existing test (design 12.7 Q4); its seven reference rows are unchanged.
+- No pixel check: the Desktop test reads the rendered text of the pane (logical tree), not a screenshot.
+
+### Encode cost (item 4): left in `CompareFields`
+
+Check `Discrepancy_CompareFields_EncodeCost_Measured` builds a document to the cap region (7,967,308 bytes; today's `NativeProject.MaxBytes` is
+8,000,000), then records the same pair three times. A repeat is a key hit, so its event duration is the lock, the lookup and `CompareFields`.
+
+| Run | reads (ms) | median (ms) |
+|---|---|---|
+| first measurement | 14.7, 14.8, 40.3 | 14.8 |
+| final run | 15.0, 16.0, 32.5 | 16.0 |
+
+Measured at **today's cap only**: MX's 64 MB cap is not on `main`, and a session cannot be built above 8,000,000 bytes (`AuthoringSession` refuses a larger
+cap). **Inferred**: the encode scales with size, so 64,000,000 bytes would cost about 8 times the 8 MB figure, roughly 120 to 130 ms, which is over the 100 ms
+rule. The gap that forced the model is the missing MX cap; re-measure with this check once MX joins, and take the size from the last save image if the
+median is over 100 ms. The check also asserts the event's `documentBytes` equals the save image length.
+
+### Event name (item 3)
+
+The save-time event is `analysis.save` (`AuthoringSession.cs` line 2118, `RecordCompareEvent("captured", ..., "analysis.save")`). Design section 6.1 on `main`
+already says `analysis.save`; the stale `analysis.prune` wording is gone, so the design text needed no change.
+
+### Cli harness (item 5)
+
+`tests/CfdWorkbench.Cli.Tests/DiscrepancyCliTests.cs`: off Windows the two `InspectRuns_WindowsStore_Binary*` checks print `SKIP <name> windows-only`
+(Windows: both run, `PASS`); the child process has a limit from `CFD_TEST_CHILD_TIMEOUT_SECONDS` (default 120 s, the Desktop harness's variable) and is killed with its
+process tree at the limit; stdout and stderr are drained while it runs and stderr goes into the failure line (one line, cut at 400 characters). The three
+pure checks are `InspectRuns_ChildHarness_SkipLineText`, `_TimeoutIsNamedAndBounded` and `_FailureCarriesStderr`. The timeout path itself (a real hung child) is not
+exercised; the line it prints and the limit parse are.
+
+### Not changed
+
+`RunRecord.cs`, `AuthoringSession.cs` (the claim was taken and released: nothing to change), the stored shape (the document bytes are equal before and after a
+reference-only compare: `Compare_ReferenceOnly_StoresNothing`), `ComparePane.axaml(.cs)`, the CLI verbs.
