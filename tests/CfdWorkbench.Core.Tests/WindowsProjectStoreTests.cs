@@ -63,6 +63,7 @@ internal static class WindowsProjectStoreTests
             Layout<WindowsNative.FileAttributeTag>(8, ("Attributes", 0), ("ReparseTag", 4));
             Layout<WindowsNative.FileStandard>(24, ("AllocationSize", 0), ("EndOfFile", 8), ("NumberOfLinks", 16), ("DeletePending", 20), ("Directory", 21));
             Layout<WindowsNative.CaseSensitiveInfo>(4, ("Flags", 0));
+            Layout<WindowsNative.SecurityAttributes>(24, ("Length", 0), ("SecurityDescriptor", 8), ("InheritHandle", 16));
         });
         Check("WindowsNative_RelativeCreate_PrivateAclBeforeAnyBytes", () => Fixture((root, parent) =>
         {

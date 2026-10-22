@@ -39,6 +39,9 @@ internal static class PreferenceStoreTests
         Check("PrefStore_TextSize_LoadAndSaveSerialized_NoStaleHash", TextSizeLoadSerialized);
         Check("PrefStore_TextSize_SerializeOutOfSet_Throws", TextSizeSerializeOutOfSet);
         Check("PrefStore_DirectoryLink_WindowsBranchUsesJunction", DirectoryLinkWindowsBranch);
+        Check("PrefStore_ExistingInheritedFolder_BecomesPrivateOnSave", ExistingFolderTightened);
+        Check("PrefStore_ForeignOwnedFolder_LeftUnchanged", ForeignOwnerLeftUnchanged);
+        Check("PrefStore_NewFolder_PrivateAtCreation", NewFolderPrivateAtCreation);
         RunView();
     }
 
@@ -638,9 +641,65 @@ internal static class PreferenceStoreTests
         if (!OperatingSystem.IsWindows()) Equal(Mode(path), directory ? UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute
             : UnixFileMode.UserRead | UnixFileMode.UserWrite);
         else if (!directory) WindowsProjectStoreTests.AssertPrivateFile(path);
-        // The preference store makes its directory with System.IO (EnsureDir), so it carries the parent's inherited DACL: recorded as a
-        // measured gap for the Owner, not asserted private (PreferenceStore.cs is not changed in this cycle).
-        else Console.WriteLine("PREF-DIR-ACL " + WindowsProjectStoreTests.DirectoryAclSummary(path));
+        else AssertPrivateDirectory(path);
+    }
+
+    /// <summary>The directory carries the store's private policy: protected DACL, owner the current user, one allow ACE for the
+    /// current user, no inherited ACE. Prints the measured summary first so a failure shows the numbers.</summary>
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    private static void AssertPrivateDirectory(string path)
+    {
+        Console.WriteLine("PREF-DIR-ACL " + WindowsProjectStoreTests.DirectoryAclSummary(path));
+        using var handle = WindowsNative.OpenFixtureDirectory(path);
+        var descriptor = new System.Security.AccessControl.RawSecurityDescriptor(WindowsNative.ReadOwnerAndDacl(handle));
+        var expected = new System.Security.AccessControl.RawSecurityDescriptor(WindowsNative.PrivateDescriptor());
+        Equal(true, (descriptor.ControlFlags & System.Security.AccessControl.ControlFlags.DiscretionaryAclProtected) != 0);
+        Equal(expected.Owner!.Value, descriptor.Owner!.Value);
+        Equal(1, descriptor.DiscretionaryAcl?.Count ?? 0);
+        var ace = (System.Security.AccessControl.CommonAce)descriptor.DiscretionaryAcl![0];
+        Equal(expected.Owner!.Value, ace.SecurityIdentifier.Value);
+        Equal(false, (ace.AceFlags & System.Security.AccessControl.AceFlags.Inherited) != 0);
+    }
+
+    /// <summary>A folder an earlier build made with System.IO carries the profile's inherited ACL; the next save makes it private.</summary>
+    private static void ExistingFolderTightened()
+    {
+        if (!OperatingSystem.IsWindows()) { Console.WriteLine("NOT ASSESSED existing-folder: the inherited DACL is a Windows fact"); return; }
+        string root = LayoutFileTests.Root(), directory = Path.Combine(root, "display");
+        Directory.CreateDirectory(directory);
+        Equal(false, WindowsProjectStoreTests.DirectoryAclSummary(directory).Contains("private_policy=True"));
+        var store = Prefs(root);
+        Wait(store.LoadTextSizeAsync(CancellationToken.None));
+        Equal("saved", Wait(store.SaveTextSizeAsync(150, CancellationToken.None)).Outcome);
+        AssertOwnerOnly(directory, true);
+        Equal(150, Wait(Prefs(root).LoadTextSizeAsync(CancellationToken.None)).Percent);
+    }
+
+    /// <summary>A new folder is private from the moment it exists: nothing runs after the create that could repair it.</summary>
+    private static void NewFolderPrivateAtCreation()
+    {
+        if (!OperatingSystem.IsWindows()) { Console.WriteLine("NOT ASSESSED new-folder: the creation-time descriptor is a Windows fact"); return; }
+        string root = LayoutFileTests.Root(), directory = Path.Combine(root, "display");
+        Directory.CreateDirectory(root);
+        Equal(true, WindowsNative.EnsurePrivateDirectory(directory));
+        AssertOwnerOnly(directory, true);
+    }
+
+    /// <summary>A folder owned by someone else is left as it is and reported (false); the system folder is owned by the OS, not the user.</summary>
+    private static void ForeignOwnerLeftUnchanged()
+    {
+        if (!OperatingSystem.IsWindows()) { Console.WriteLine("NOT ASSESSED foreign-owner: ownership by another account is a Windows fact"); return; }
+        string foreign = Environment.GetFolderPath(Environment.SpecialFolder.System);
+        string before = ForeignDacl(foreign);
+        Equal(false, WindowsNative.EnsurePrivateDirectory(foreign));
+        Equal(before, ForeignDacl(foreign));
+    }
+
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    private static string ForeignDacl(string path)
+    {
+        using var handle = WindowsNative.OpenFixtureDirectory(path);
+        return WindowsNative.ReadOwnerAndDacl(handle);
     }
 
     private static UnixFileMode Mode(string path)
