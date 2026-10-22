@@ -35,10 +35,13 @@ public static class RecentList
 
     public static bool Accepts(string? path)
     {
-        if (string.IsNullOrEmpty(path) || path.Contains('\0') || !path.StartsWith('/')) return false;
+        if (string.IsNullOrEmpty(path) || path.Contains('\0') || !(path.StartsWith('/') || OperatingSystem.IsWindows() && IsDriveAbsolute(path))) return false;
         if (Encoding.UTF8.GetByteCount(path) > MaxPathBytes) return false;
         return path.EndsWith(".cfdw.json", StringComparison.Ordinal) || path.EndsWith(".foil", StringComparison.Ordinal);
     }
+
+    // The Windows store admits drive-letter absolute paths only (WindowsProjectStore.ParsePath), so the list stores no other form there.
+    private static bool IsDriveAbsolute(string path) => path.Length >= 4 && char.IsAsciiLetter(path[0]) && path[1] == ':' && path[2] == '\\';
 
     public static IReadOnlyList<RecentEntry> Apply(IReadOnlyList<RecentEntry> current, RecentOp op)
     {

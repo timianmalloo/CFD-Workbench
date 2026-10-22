@@ -253,6 +253,23 @@ internal static class WindowsProjectStoreTests
     private static string CanonicalSddl(string sddl) =>
         new RawSecurityDescriptor(sddl).GetSddlForm(AccessControlSections.Owner | AccessControlSections.Access);
 
+    /// <summary>Another instance of the app publishes: a private temp renamed over the target by handle (never an in-place write).</summary>
+    internal static void ExternalReplace(string path, byte[] bytes)
+    {
+        using var parent = WindowsNative.OpenFixtureDirectory(Path.GetDirectoryName(path)!);
+        string temp = ".external-" + Guid.NewGuid().ToString("N") + ".tmp";
+        using var file = WindowsNative.CreatePrivate(parent, temp);
+        RandomAccess.Write(file, bytes, 0); WindowsNative.Flush(file);
+        WindowsNative.Rename(file, parent, Path.GetFileName(path), replace: true);
+    }
+
+    /// <summary>The file carries the store's private owner/DACL (Windows has no mode bits).</summary>
+    internal static void AssertPrivateFile(string path)
+    {
+        using var file = File.OpenHandle(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+        Equal(CanonicalSddl(WindowsNative.PrivateDescriptor()), CanonicalSddl(WindowsNative.ReadOwnerAndDacl(file)));
+    }
+
     private static byte[] Read(SafeFileHandle file)
     {
         byte[] bytes = new byte[checked((int)RandomAccess.GetLength(file))];

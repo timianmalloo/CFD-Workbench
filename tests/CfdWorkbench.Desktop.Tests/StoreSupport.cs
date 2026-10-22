@@ -3,7 +3,7 @@ using CfdWorkbench.Persistence;
 
 namespace CfdWorkbench.Desktop.Tests;
 
-/// <summary>Where <c>ProjectStore.Supported()</c> is false (Windows until the native store lands, ProjectStore.cs:266) the view settings
+/// <summary>Where <c>ProjectStore.Supported()</c> is false (a platform with no store, for example Linux) the view settings
 /// last the session only (Ruling 206 O2, Ruling 207). A check that expects a restart to restore Text size, units or the comb asserts
 /// that designed behaviour there instead. The host decides by asking the real store, never by an OS flag (TEST-FOREIGN-OS-BRANCH).</summary>
 internal static class StoreSupport

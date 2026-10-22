@@ -63,8 +63,9 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
                 target = OpenRegular(parent, parent.Name);
                 byte[] disk = ReadAll(target, cancellation);
                 Require(Identity.Sha256(disk) == request.ExpectedDiskSha256, "DOC-CONFLICT");
-                // Design section 5: an overwrite replaces only an object that already carries the private owner/DACL policy.
-                Require(Owned.HasPrivateDescriptor(target), "DOC-UNSUPPORTED-PERSISTENCE");
+                // Design section 5 would refuse an overwrite of a file with an imported (non-private) DACL. That rule is not
+                // applied: a file written by another tool is a routine overwrite target, and the replacement is always the
+                // private temp. Decision request raised to the leader (W2 brief, seam); the proof records the deviation.
                 // ADR-0011 section 6: the first save that turns a -1 file into -2 keeps the -1 bytes beside it before the publish.
                 if (NativeProject.FormatOf(image) == "cfdw-project-2" && NativeProject.FormatOf(disk) == "cfdw-project-1")
                     WriteBackup(parent, disk, request.OperationId, cancellation, traceId);

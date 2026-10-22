@@ -94,7 +94,7 @@ internal static class SectionLibraryTests
         Check("Library_UnprovedPlatform_RefusedNothingSaved", () =>
         {
             string root = NewRoot();
-            var library = new SectionLibrary(root, () => new ProjectStore(new StoreHooks { PublicationError = 45 }));
+            var library = new SectionLibrary(root, () => new ProjectStore(new StoreHooks { PublicationError = OperatingSystem.IsWindows() ? 50 : 45 }));   // ERROR_NOT_SUPPORTED / Darwin ENOTSUP
             Refuses("DOC-UNSUPPORTED-PERSISTENCE", () => library.Save("No file", Block(), Origin));
             Equal(0, Directory.GetFiles(root).Length);
         });

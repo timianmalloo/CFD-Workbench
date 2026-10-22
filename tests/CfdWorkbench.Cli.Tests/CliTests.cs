@@ -135,7 +135,6 @@ internal static class CliHarness
         long analyseStarted = System.Diagnostics.Stopwatch.GetTimestamp();
         try
         {
-            if (!OperatingSystem.IsMacOS()) Console.WriteLine("SKIP Cli_AnalyseRunKey_EqualsServiceOnCustomOp macos-only-store"); else
             {
             const string op = "{\"speed\":5.14444,\"alphaDeg\":3,\"hRef\":0.5}";
             var host = new AnalysisHost(new CliFakeWing(), CliFakeWing.Water);
@@ -223,7 +222,6 @@ internal static class CliHarness
         long revisionStarted = System.Diagnostics.Stopwatch.GetTimestamp();
         try
         {
-            if (!OperatingSystem.IsMacOS()) Console.WriteLine("SKIP Cli_InspectRuns_RevisionIsSessionLabel macos-only-store"); else
             {
             var revisionHost = new AnalysisHost(new CliFakeWing(), CliFakeWing.Water);
             using var revisionSession = new AuthoringSession();

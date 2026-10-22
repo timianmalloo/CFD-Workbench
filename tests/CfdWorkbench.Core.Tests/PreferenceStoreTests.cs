@@ -84,8 +84,8 @@ internal static class PreferenceStoreTests
         Equal(false, save.Retried);
         string directory = Path.Combine(root, "layout");
         string file = Path.Combine(directory, "layout.json");
-        Equal(Mode(directory), UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
-        Equal(Mode(file), UnixFileMode.UserRead | UnixFileMode.UserWrite);
+        AssertOwnerOnly(directory, true);
+        AssertOwnerOnly(file, false);
         var again = Wait(store.LoadLayoutAsync(LayoutFileTests.Panes(), CancellationToken.None));
         Equal("restored", again.Outcome);
         LayoutFileTests.AssertPresets(again.Layout);
@@ -486,8 +486,8 @@ internal static class PreferenceStoreTests
             Equal(0, again.Codes.Count);
         }
         string directory = Path.Combine(root, "display");
-        Equal(Mode(directory), UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
-        Equal(Mode(Path.Combine(directory, "display.json")), UnixFileMode.UserRead | UnixFileMode.UserWrite);
+        AssertOwnerOnly(directory, true);
+        AssertOwnerOnly(Path.Combine(directory, "display.json"), false);
         // Two instances on one root: the later choice wins after one conflict retry.
         var first = Prefs(root);
         var second = Prefs(root);
@@ -623,6 +623,23 @@ internal static class PreferenceStoreTests
         Equal(1, unsupported.Saves);
     }
 
+    /// <summary>Another writer changes the file while a save holds it. POSIX writes in place; on Windows the store's handle
+    /// refuses a new write open (sharing), so another instance changes the file the way it publishes: by a replacing rename.</summary>
+    private static void ExternalWrite(string path, byte[] bytes)
+    {
+        if (OperatingSystem.IsWindows()) WindowsProjectStoreTests.ExternalReplace(path, bytes);
+        else File.WriteAllBytes(path, bytes);
+    }
+
+    /// <summary>Owner-only: mode bits on POSIX; on Windows the private owner/DACL the store sets when it creates the file.
+    /// A directory made by System.IO carries no Windows claim.</summary>
+    private static void AssertOwnerOnly(string path, bool directory)
+    {
+        if (!OperatingSystem.IsWindows()) Equal(Mode(path), directory ? UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute
+            : UnixFileMode.UserRead | UnixFileMode.UserWrite);
+        else if (!directory) WindowsProjectStoreTests.AssertPrivateFile(path);
+    }
+
     private static UnixFileMode Mode(string path)
     {
         if (OperatingSystem.IsWindows()) return 0;
@@ -680,7 +697,7 @@ internal static class PreferenceStoreTests
                 return blocked;
             }
             StoreHooks? hooks = trap && mode == Trap.Replace
-                ? new StoreHooks { OnStage = stage => { if (stage == StoreStage.BeforePublish) File.WriteAllBytes(path, script.External); } }
+                ? new StoreHooks { OnStage = stage => { if (stage == StoreStage.BeforePublish) ExternalWrite(path, script.External); } }
                 : null;
             using var store = hooks is null ? new ProjectStore() : new ProjectStore(hooks);
             var result = await store.SaveAsync(path, request, cancellation);
@@ -824,7 +841,7 @@ internal static class PreferenceStoreTests
         });
     }
 
-    // Ruling 206 O2 / 207: where ProjectStore.Supported() is false (Windows until the native store lands, ProjectStore.cs:266) the view
+    // Ruling 206 O2 / 207: where ProjectStore.Supported() is false (a platform with no store, for example Linux) the view
     // settings last the session only. A check that expects a restart to restore them asserts that designed behaviour instead.
     // The host decides by asking the real store, never by an OS flag (TEST-FOREIGN-OS-BRANCH); a macOS arm64 host that reports
     // unsupported is a broken probe, so it throws rather than quietly taking the Windows branch.
