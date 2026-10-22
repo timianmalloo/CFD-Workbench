@@ -304,6 +304,13 @@ internal static class ProjectStoreTests
             using var store = new ProjectStore(); Refuses("DOC-UNSUPPORTED-PERSISTENCE", () => store.ReadAsync(path).GetAwaiter().GetResult());
             Equal("DOC-UNSUPPORTED-PERSISTENCE", Save(store, path, new([1], null, Id())).Code);
         });
+        Check("Store_ReadBack_DocumentBetweenOldAndNewCap_Opens", () =>
+        {
+            string path = Path.Combine(Root(), "mid"); byte[] mid = new byte[9_000_000]; mid[^1] = 7; // above Ruling 258's 8,000,000, below the cap
+            File.WriteAllBytes(path, mid);
+            using var store = new ProjectStore(); var read = store.ReadAsync(path).GetAwaiter().GetResult();
+            Equal(mid.Length, read.Image.Length); Equal((byte)7, read.Image[^1]);
+        });
         Check("Store_ReadCapAndRelativePaths_RefuseWithoutMutation", () =>
         {
             string root = Root(), path = Path.Combine(root, "large");
@@ -373,7 +380,7 @@ internal static class ProjectStoreTests
     // Method: n full 2,048-strip runs (each a distinct operating point), then one last run with the largest strip count that
     // fits, and a free-text pad (the unavailable reason of its first strip, one byte per character) that lands the canonical
     // image on exactly MaxBytes. The pad is measured, never guessed: the image length is asserted before use.
-    // The build reads the one constant (Ruling 258 rules 64,000,000; the track observed this check red on 8,000,000 with the ruled number as a literal).
+    // The build reads the one constant (Ruling 263 rules 32,000,000).
     // Measurement only: CFD_MEASURE_CAP_BYTES builds a document below the cap (see DocumentAtCap).
     private static int RuledCap => int.TryParse(Environment.GetEnvironmentVariable("CFD_MEASURE_CAP_BYTES"), out int bytes) ? bytes : NativeProject.MaxBytes;
     internal static byte[] BuildAtCapImage(out int fullRuns, out int lastStrips, out int pad, out Func<int, AuthoringSession> withPad)
@@ -411,6 +418,7 @@ internal static class ProjectStoreTests
 
     private static void DocumentAtCap()
     {
+        Equal(32_000_000, NativeProject.MaxBytes); // Ruling 263: the one number, pinned here once as a literal
         byte[] image = BuildAtCapImage(out int fullRuns, out int lastStrips, out int pad, out var withPad);
         Equal(RuledCap, image.Length);
         if (Environment.GetEnvironmentVariable("CFD_MEASURE_CAP_WRITE") is { } measureFile) File.WriteAllBytes(measureFile, image);

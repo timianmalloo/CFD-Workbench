@@ -374,6 +374,22 @@ cap). **Inferred**: the encode scales with size, so 64,000,000 bytes would cost 
 rule. The gap that forced the model is the missing MX cap; re-measure with this check once MX joins, and take the size from the last save image if the
 median is over 100 ms. The check also asserts the event's `documentBytes` equals the save image length.
 
+#### Re-measured at the 32,000,000-byte cap (wave 2 MX continuation, session `w2b-mx`)
+
+`NativeProject.MaxBytes` is 32,000,000 on this branch (Ruling 263), so the check now builds to `MaxBytes - 200,000` (it was a literal 7,800,000)
+and reached 31,826,151 bytes. Three runs of the check, each a fresh process, three reads each:
+
+| Run | reads (ms) | median (ms) |
+|---|---|---|
+| 1 | 63.2, 64.5, 71.7 | 64.5 |
+| 2 | 67.1, 69.1, 90.8 | 69.1 |
+| 3 | 62.1, 65.8, 70.6 | 65.8 |
+
+Median of the three medians: **65.8 ms**, under the 100 ms rule, so `CompareFields` is left as it is (it does not take the size from the save image).
+The machine was not strictly quiet: other agents' build servers were resident (8 `dotnet` processes in `tasklist`, no test host seen), and the
+spread of the last read in each run shows it. The earlier model (about 8 times the 8 MB figure) over-estimated: 4 times the size cost about 4 times
+the time (16.0 to 65.8 ms).
+
 ### Event name (item 3)
 
 The save-time event is `analysis.save` (`AuthoringSession.cs` line 2118, `RecordCompareEvent("captured", ..., "analysis.save")`). Design section 6.1 on `main`

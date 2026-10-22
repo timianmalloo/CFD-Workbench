@@ -1630,6 +1630,39 @@ window.DOCS_INDEX = {
       "sourceSha256": "e403ec1fa6749f66600021007d59dfa7500598d7dc70f5fca239831f1c7dc0dd"
     },
     {
+      "id": "note-adr-0011-size-cap",
+      "path": "docs/notes/adr-0011-size-cap.md",
+      "title": "ADR-0011 amendment note: the native document size cap is 32,000,000 bytes",
+      "type": "decision-note",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "Ruling 263 sets NativeProject.MaxBytes to 32,000,000 bytes (it was 8,000,000), because a document at 32 MB meets Ruling 258's unchanged budget as measured and a document at 64 MB does not. The format and its version do not change. An older build refuses a larger document with DOC-SIZE and never truncates or rewrites it. Lowering the cap later needs a migration note.",
+      "tags": [
+        "persistence",
+        "document-size",
+        "doc-size",
+        "adr-0011",
+        "ruling-258",
+        "ruling-263",
+        "measurement"
+      ],
+      "links": [
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "refines"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "6cf7133060a62453a3961fd7673a800a86ea1c2184875a088c57ad92bfe5cdf3"
+    },
+    {
       "id": "note-area3-analysis-reading-contract",
       "path": "docs/notes/area3-analysis-reading-contract.md",
       "title": "Analysis reads the accepted revision through the snapshot and one Core read, never ProfileAt",
@@ -1779,10 +1812,14 @@ window.DOCS_INDEX = {
         {
           "to": "rulings",
           "rel": "depends-on"
+        },
+        {
+          "to": "note-adr-0011-size-cap",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ec8d3646543d56f1114556cd11137b95e87c8bc313140c0ddf5099c985179d18"
+      "sourceSha256": "f35f346babeb0a4e27fe6d1df919675373f988854c3df463ab6d1b42ba202489"
     },
     {
       "id": "note-m1-scope-decision",
@@ -2715,7 +2752,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "04c3aa307ff7bb5311c1bba65f3a3c9140a14009fdde0279f685eff88e577be0"
+      "sourceSha256": "e57d06f72bf228134b8c906fc1e288107ba013ffbe86253518699ed374953e65"
     },
     {
       "id": "design-authoring-decisions",
@@ -4150,7 +4187,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "649bbf542844093fd2f4b34c9c35312dae2cf7de759870be48d4f7ef7042d837"
+      "sourceSha256": "0c9c50bc34953f9836b5799a7d265d18d9a7330bee5718e075b32362917c43b0"
     },
     {
       "id": "mockup-a3d-compare",
@@ -9801,7 +9838,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "610b7b2bfa748fc001346c4282694c3ef9e2c218b892285cb1d82a70be1c2098"
+      "sourceSha256": "caf68851c0a676fb4aa94ef22cfba51c7f7c5c7d427007a2055fd8c2b02a30a4"
     },
     {
       "id": "kb-hw-glossary",
@@ -13265,7 +13302,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b2762a6efbfb771503f506998bd8ca1f8780b5760980b7b0b87bfc2a9c984796"
+      "sourceSha256": "5c0fa3abd3ff28e121d275798f65c695cc0ac0e43cf23f748aaeb330671e6eed"
     },
     {
       "id": "proof-abl-measure",
@@ -18094,18 +18131,19 @@ window.DOCS_INDEX = {
     {
       "id": "proof-size-cap-64mb",
       "path": "docs/proof/size-cap-64mb/README.md",
-      "title": "Document size cap at 64,000,000 bytes: budget measured, exceeded, MaxBytes stays at 8,000,000",
+      "title": "Document size cap at 32,000,000 bytes: Ruling 258's budget measured, 64 MB refused, 32 MB adopted (Ruling 263)",
       "type": "proof-pack",
       "status": "active",
       "owner": "@track-w2b-mx",
       "phase": "implementation",
       "reviewBy": "2026-11-05",
       "reviewSuggested": [],
-      "summary": "Ruling 258 raises NativeProject.MaxBytes to 64,000,000 if a document at the cap opens within 3 s, saves within 3 s and peaks within 1.5 GB. Measured on a Windows ARM64 laptop, the open (4,470 ms) and the peak (1,811,509,248 bytes) exceed their budgets, so the constant stays at 8,000,000 and the track stopped. The save (1,377 ms) was within budget.",
+      "summary": "Ruling 258 raises NativeProject.MaxBytes if a document at the cap opens within 3 s, saves within 3 s and peaks within 1.5 GB. Measured idle on a Windows ARM64 laptop (medians of three), 64,000,000 bytes opens in 4,097 ms and peaks at 1,812,115,456 bytes, over budget, so it is refused. 32,000,000 bytes opens in 2,208 ms, saves in 732 ms and peaks at 1,012,297,728 bytes, within budget, so Ruling 263 sets MaxBytes to 32,000,000. The folder keeps its first name.",
       "tags": [
         "wave-2",
         "mx",
         "ruling-258",
+        "ruling-263",
         "document-size",
         "doc-size",
         "measurement"
@@ -18118,10 +18156,14 @@ window.DOCS_INDEX = {
         {
           "to": "rulings",
           "rel": "depends-on"
+        },
+        {
+          "to": "note-adr-0011-size-cap",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "076f07f49f4efde4307b119523d65a7e8a5a088e4eff03b7bb5386e1a19eec5e"
+      "sourceSha256": "334be11bffa998e63668a4889e75bff7d961c087ccff71873a09ffc2b5107209"
     },
     {
       "id": "proof-sma-captures",
@@ -20927,6 +20969,37 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "98ab728cb1506786b25b61cf48ef3e44f0805ce8637c2e47995d425fb99d96d3"
+    },
+    {
+      "id": "proof-win-store-recovery",
+      "path": "docs/proof/win-store-recovery/README.md",
+      "title": "Windows store recovery, node A: Clear unfinished save, red then green and mutants",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@pc-laptop-leader",
+      "phase": "windows-w-2-build",
+      "reviewBy": "",
+      "reviewSuggested": [],
+      "summary": "Node A of the Windows store recovery build: every Clear check was red (compile) on main, then green; mutants were run in two rounds; the survivors are equivalent or defence in depth and are named.",
+      "tags": [
+        "windows",
+        "persistence",
+        "clear-unfinished-save",
+        "ruling-259",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-windows-store-recovery",
+          "rel": "implements"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "96ed53b3d2f47ad9327cbd113647b2a53567bb1c94c82d16efcd5a2a307ef181"
     },
     {
       "id": "proof-win-trig-bits-20261008",
@@ -24021,5 +24094,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "feb52a9f7d8e539c76f3c84f9289ec1ae6c52a30b5efa0ebb02261f6adbe2c2c"
+  "graphSha256": "3f99fe1d2dc28b2e6f2b86acf8b384d5e21dc01020d7d646a34a85182d1cc3cc"
 };

@@ -10,6 +10,7 @@ links:
   - {to: design-a3d-compare, rel: relates-to}
   - {to: spec-amendments-1-7-7, rel: relates-to}
   - {to: rulings, rel: depends-on}
+  - {to: note-adr-0011-size-cap, rel: relates-to}
 review-by: 2027-01-31
 summary: The A3d Compare slice adds an optional discrepancies member to the analysis object of cfdw-project-2, one record per unordered pair of Completed runs in canonical orientation; it refines ADR-0011 (expand only, older readers refuse the file, referenced runs are never pruned) without editing it.
 ---
@@ -47,3 +48,5 @@ no contract step. The format string stays `cfdw-project-2`.
 **Older readers.** A build before A3d reads the `analysis` object with an exact member list
 (`AuthoringSession.cs` line 2254 at `176c9540`) and refuses any other member with `DOC-UNSUPPORTED-FIELD`, so it refuses
 a document with records rather than dropping them on save.
+
+**Size cap.** The document limit these records count against is now 32,000,000 bytes (Ruling 263); see [adr-0011-size-cap](adr-0011-size-cap.md).
