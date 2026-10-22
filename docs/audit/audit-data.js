@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T20:02:32Z",
+  "generated": "2026-10-22T20:37:41Z",
   "audit": [
     {
       "actor": null,
@@ -42579,6 +42579,25 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T19:57:46Z",
       "duration_seconds": 286.0
+    },
+    {
+      "id": "al-01M5JNAXBM3NYH52SHB6SHFVX7",
+      "shortname": "cr2",
+      "datetime": "2026-10-22T20:37:41Z",
+      "session": "cr2-vertices-lifetime",
+      "prompt": "crash repair CR2: hold SKVertices through DrawVertices; GC-pressure probe; SkiaSharp temporaries sweep; lesson",
+      "summary": "cr2: hold SKVertices through DrawVertices in MeshFrame.Draw (using + GC.KeepAlive, Modulate as the helper); GC-pressure probe mode (CFD_VERTICES_GC_PROBE=1); sweep found no other native temporary; lesson NATIVE-TEMPORARY-FINALIZED-MID-CALL; proof section CR2.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T20:10:03Z",
+      "duration_seconds": 1658.0
     }
   ],
   "changes": [

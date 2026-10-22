@@ -35,6 +35,12 @@ internal static class DesktopHarness
         bool themeEvidence = args is ["--theme-evidence"];
         if (args.Length == 0 || themeEvidence) { Stage("SelfLaunchTests"); CfdWorkbench.Desktop.Tests.SelfLaunchTests.Run(); }
 
+        // CR2: the SkiaSharp vertices-lifetime probe; never in Spawn's list or a ring, live only under CFD_VERTICES_GC_PROBE=1.
+        if (args is [CfdWorkbench.Desktop.Tests.VerticesLifetimeProbe.Mode])
+            Environment.Exit(CfdWorkbench.Desktop.Tests.VerticesLifetimeProbe.Spawn());
+        if (args is [var probeMode] && probeMode.StartsWith(CfdWorkbench.Desktop.Tests.VerticesLifetimeProbe.Mode + "=", StringComparison.Ordinal))
+            Environment.Exit(CfdWorkbench.Desktop.Tests.VerticesLifetimeProbe.RunArm(probeMode[(probeMode.IndexOf('=') + 1)..]));
+
         // Ruling 184: report the scale and nothing else (no check, no suite). Listed in no Spawn call and no ring.
         if (args is ["--scale-diagnostic"])
         {
