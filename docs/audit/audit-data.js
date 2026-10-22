@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T07:47:41Z",
+  "generated": "2026-10-22T15:56:38Z",
   "audit": [
     {
       "actor": null,
@@ -41741,6 +41741,25 @@ window.AUDIT_DATA = {
         "speedup": 1.59,
         "peak_concurrency": 4
       }
+    },
+    {
+      "id": "al-01M5J589B8HY13RQ8VSE8DTBK6",
+      "shortname": "w2b-sf1",
+      "datetime": "2026-10-22T15:56:38Z",
+      "session": "w2b-sf1",
+      "prompt": "wave 2 SF1: Side outline exactness, Promote Checking peer, station chip peers",
+      "summary": "SF1 wave 2: Side outline measured 0.0000 and 0.0002 device px (blend kept, marker updated, check added); Promote Checking peer check added (mutant red); Plan and Side station chip peers added (StationChipPeer, red then green, mutants red); full run TESTS-GREEN after two runs red on Desktop native crashes and load timeouts.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "started_at": "2026-10-22T15:26:40Z",
+      "duration_seconds": 1798.0
     }
   ],
   "changes": [

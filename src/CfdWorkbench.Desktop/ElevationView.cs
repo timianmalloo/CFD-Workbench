@@ -425,7 +425,7 @@ public sealed class ElevationView : Control
 
     // ---------------------------------------------------------------- the inspection slice (design 5.2: Front line, Side outline and chip)
 
-    /// <summary>The slice's section between the two mesh sections that bracket it (simplify: linear in η; ceiling the mesh pitch, upgrade when Core exposes a placed section at any η).</summary>
+    /// <summary>The slice's section between the two mesh sections that bracket it (simplify: linear in η; ceiling measured against Placement.Sections at 35 % and at mid-pitch 36.25 % on the Desktop F-CAMBER and F-PEAK fixtures, error 0.0000 and 0.0002 device px at scale 2; upgrade when a fixture's measured error exceeds 1 device px, the check Elevation_SliceSideOutline_MatchesExactSectionWithinOneDevicePixel).</summary>
     private (Point3[] Upper, Point3[] Lower)? SliceSection()
     {
         if (controller?.Selection is not Selection.Slice slice || controller.Surface is not { } surface) return null;
@@ -1089,6 +1089,7 @@ public sealed class ElevationView : Control
             return;
         }
         foreach (var peer in peers) peer.RefreshName();
+        RefreshChipPeer();
         // A hidden elevation (Plan + 3D) does no channel work per change; it rebuilds when next drawn or read.
         targetsStale = true;
         if (IsEffectivelyVisible) _ = CurrentTargets;
@@ -1419,8 +1420,31 @@ public sealed class ElevationView : Control
         {
             view.peers = view.CurrentTargets.Select(point => CurvePointLayer.Peer(view, () => view.PointName(point),
                 () => view.ScreenPoint(view.Live(point)), () => view.LastValueRequest = $"{point.Curve}:{point.Id}")).ToList();
-            return view.peers.Cast<AutomationPeer>().ToList();
+            var children = view.peers.Cast<AutomationPeer>().ToList();
+            if (!view.IsFront && view.controller is { } controller)
+                foreach (var (index, _, _) in view.Chips())
+                {
+                    int station = index;
+                    children.Add(new StationChipPeer(view, controller, station,
+                        () => view.Chips().FirstOrDefault(chip => chip.Index == station).Name ?? "",
+                        () => view.Chips().Where(chip => chip.Index == station).Select(chip => (Rect?)chip.Bounds).FirstOrDefault(), null));
+                }
+            return children;
         }
+
+        public void Refresh() => InvalidateChildren();
+    }
+
+    private string? announcedChips;
+
+    /// <summary>The Side peer lists one child per station chip, so a promotion, removal or rename must rebuild its children.</summary>
+    private void RefreshChipPeer()
+    {
+        if (IsFront) return;
+        string chips = string.Join("|", Chips().Select(chip => chip.Index + ":" + chip.Name));
+        if (chips == announcedChips) return;
+        announcedChips = chips;
+        (ControlAutomationPeer.CreatePeerForElement(this) as ElevationPeer)?.Refresh();
     }
 
     /// <summary>Peers handed out by the last child query; each is told when the model moves under its name.</summary>

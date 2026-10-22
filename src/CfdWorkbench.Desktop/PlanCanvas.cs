@@ -927,10 +927,11 @@ public sealed class PlanCanvas : Control
             return;
         }
         foreach (var peer in peers) peer.RefreshName();
-        if (SliceChipName != announcedSlice)
+        string chips = SliceChipName + "|" + string.Join("|", VisibleStationChips.Select(chip => chip.Index + ":" + Controller?.Planform?.Stations[chip.Index].ProfileName));
+        if (chips != announcedSlice)
         {
-            announcedSlice = SliceChipName;
-            (ControlAutomationPeer.CreatePeerForElement(this) as PlanCanvasPeer)?.Refresh();   // the slice chip appears, moves or goes
+            announcedSlice = chips;
+            (ControlAutomationPeer.CreatePeerForElement(this) as PlanCanvasPeer)?.Refresh();   // the slice chip or a station chip appears, is renamed or goes
         }
         var plan = Controller?.Planform;
         Controller?.RefreshComb(plan);
@@ -1385,14 +1386,22 @@ public sealed class PlanCanvas : Control
                 : [];
             var children = owner.peers.Cast<AutomationPeer>().ToList();
             if (owner.SliceChipName is not null) children.Add(new SliceChipPeer(owner));
+            if (owner.Controller is { Planform: not null } controller)
+                foreach (var chip in owner.VisibleStationChips)
+                {
+                    int index = chip.Index;
+                    children.Add(new StationChipPeer(owner, controller, index,
+                        () => controller.Planform is { } plan && index < plan.Stations.Count ? plan.Stations[index].ProfileName : "",
+                        () => owner.VisibleStationChips.FirstOrDefault(item => item.Index == index)?.Bounds, EntryOrigin.Plan));
+                }
             return children;
         }
     }
 
     /// <summary>
     /// The inspection slice chip for assistive technology (design 5.6): one object named "Inspection slice, η …", Invoke =
-    /// Promote, with Promote and × as its own invokable children. simplify: the station chips have no peer today (finding F-CHIP,
-    /// recorded in the S1-b proof); ceiling: the slice chip; upgrade when the station chips get theirs.
+    /// Promote, with Promote and × as its own invokable children. The station chips have their own
+    /// peers (<see cref="StationChipPeer"/>, finding F-CHIP).
     /// </summary>
     private sealed class SliceChipPeer(PlanCanvas owner) : ControlAutomationPeer(owner), IInvokeProvider
     {
@@ -1526,5 +1535,41 @@ public sealed class PlanCanvas : Control
         DrawRings(context, map);
         foreach (var rail in new[] { plan.Leading, plan.Trailing })
             map.DrawPoints(context, rail, brushes, selection, Controller?.IsAnalysis == true);
+    }
+}
+
+/// <summary>
+/// A station chip for assistive technology (finding F-CHIP): named by the chip's visible text (WCAG 2.5.3), selectable, and, in the Plan,
+/// carrying "Edit section…" as its invokable child. Shared by the Plan and the Side view; every read goes to the live model by station index.
+/// </summary>
+internal sealed class StationChipPeer(Control owner, WorkbenchController controller, int index, Func<string> name, Func<Rect?> bounds, EntryOrigin? editOrigin)
+    : ControlAutomationPeer(owner), ISelectionItemProvider
+{
+    protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.ListItem;
+    protected override string GetNameCore() => name();
+    protected override Rect GetBoundingRectangleCore() => ChipScreenRect(Owner, bounds());
+    protected override List<AutomationPeer>? GetChildrenCore() => editOrigin is { } origin ? [new EditSectionPeer(Owner, controller, index, bounds, origin)] : [];
+
+    public bool IsSelected => controller.Selection is Selection.Station chosen && chosen.Index == index;
+    public ISelectionProvider? SelectionContainer => null;
+    public void Select() { if (controller.Planform is { } plan && index < plan.Stations.Count) controller.Select(new Selection.Station(index, plan.Stations[index].Eta)); }
+    public void AddToSelection() => Select();
+    public void RemoveFromSelection() { }
+
+    internal static Rect ChipScreenRect(Control owner, Rect? local) =>
+        local is { } rect && owner.GetVisualRoot() is Visual root && owner.TranslatePoint(rect.TopLeft, root) is { } origin ? new Rect(origin, rect.Size) : default;
+
+    private sealed class EditSectionPeer(Control owner, WorkbenchController controller, int index, Func<Rect?> bounds, EntryOrigin origin) : ControlAutomationPeer(owner), IInvokeProvider
+    {
+        protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.Button;
+        protected override string GetNameCore() => PropertiesView.EditSection;
+        protected override Rect GetBoundingRectangleCore() => ChipScreenRect(Owner, bounds());
+        protected override bool IsEnabledCore() => !controller.IsAnalysis;
+        protected override string? GetHelpTextCore() => controller.IsAnalysis ? WorkbenchController.AnalysisPointRefusal : null;
+        public void Invoke()
+        {
+            if (controller.IsAnalysis) { controller.ReportPointWarning(WorkbenchController.AnalysisPointRefusal); return; }
+            _ = controller.EnterSectionAsync(index, origin);
+        }
     }
 }

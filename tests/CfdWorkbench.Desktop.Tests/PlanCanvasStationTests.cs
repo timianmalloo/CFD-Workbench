@@ -113,6 +113,63 @@ public static partial class PlanCanvasTests
             if (Promote().IsEnabled() || Promote().GetHelpText() != reason) throw new Exception("Promote reads enabled or lacks its reason during a draft: " + Promote().IsEnabled() + " '" + Promote().GetHelpText() + "'");
         });
 
+        // SF1 item 2: while the promotion preview runs, the Promote peer is disabled and says Checking…; afterwards it no longer does.
+        DesktopChecks.Check("PlanCanvas_SliceChip_PromotePeerDisabledCheckingWhilePreviewRuns", () =>
+        {
+            using var fixture = StationFixture(StationDesktopTests.NearPair());
+            var controller = fixture.Controller;
+            var peer = Avalonia.Automation.Peers.ControlAutomationPeer.CreatePeerForElement(fixture.Canvas)!;
+            controller.PlaceSliceTyped("50");
+            fixture.Settle();
+            Avalonia.Automation.Peers.AutomationPeer Promote() => peer.GetChildren().First(child => child.GetName().StartsWith("Inspection slice", StringComparison.Ordinal))
+                .GetChildren().First(child => child.GetName() == "Promote");
+            _ = controller.PromoteSliceAsync();   // not awaited: the continuation needs the UI thread, so the preview stays running until the next Settle
+            if (!controller.SliceChecking) throw new Exception("The preview is not running right after the press");
+            if (Promote().IsEnabled() || Promote().GetHelpText() != WorkbenchController.CheckingCopy)
+                throw new Exception("While the preview runs the Promote peer reads enabled or lacks the Checking copy: " + Promote().IsEnabled() + " '" + Promote().GetHelpText() + "'");
+            StationWait(fixture, () => controller.Flyout is { Checking: false }, "the approximate-promotion preview");
+            if (controller.SliceChecking) throw new Exception("The preview finished but SliceChecking is still set");
+            if (Promote().GetHelpText() == WorkbenchController.CheckingCopy) throw new Exception("The Promote peer still says Checking after the preview finished");
+        });
+
+        // SF1 item 3 (finding F-CHIP): each Plan station chip is an automation child named by its visible text, selectable, with Edit section….
+        DesktopChecks.Check("PlanCanvas_StationChips_AutomationPeerNamedSelectableWithEditSection", () =>
+        {
+            using var fixture = StationFixture(StationDesktopTests.Doc("at root profile \"a\" at 60 % profile \"f\" at tip profile \"n\"", 120,
+                ("a", [0, 0.025, 0.055, 0.065, 0.05, 0.03, 0.01, 0]), ("f", [0, 0.02, 0.04, 0.055, 0.065, 0.05, 0.02, 0]), ("n", [0, 0.0225, 0.0475, 0.060, 0.0575, 0.04, 0.015, 0])));
+            var controller = fixture.Controller;
+            var peer = Avalonia.Automation.Peers.ControlAutomationPeer.CreatePeerForElement(fixture.Canvas)!;
+            var plan = controller.Planform!;
+            string[] expected = fixture.Canvas.VisibleStationChips.Select(chip => plan.Stations[chip.Index].ProfileName).ToArray();
+            if (expected.Length != 3 || expected.Distinct().Count() != 3) throw new Exception("The fixture does not show three distinct chips: " + string.Join(", ", expected));
+            var names = peer.GetChildren().Select(child => child.GetName()).ToArray();
+            foreach (string name in expected)
+                if (!names.Contains(name)) throw new Exception($"The canvas peer has no child named '{name}' (its chip's visible text): " + string.Join(" | ", names));
+            Avalonia.Automation.Peers.AutomationPeer Chip(string name) => peer.GetChildren().First(child => child.GetName() == name);
+            if (Chip("f") is not Avalonia.Automation.Provider.ISelectionItemProvider middle) throw new Exception("The station chip peer is not selectable");
+            if (middle.IsSelected) throw new Exception("The chip reads selected before any selection");
+            middle.Select();
+            if (controller.Selection is not Selection.Station { Index: 1 } || !((Avalonia.Automation.Provider.ISelectionItemProvider)Chip("f")).IsSelected || ((Avalonia.Automation.Provider.ISelectionItemProvider)Chip("a")).IsSelected)
+                throw new Exception("Selecting the chip peer did not select the station: " + controller.Selection);
+            var edit = Chip("f").GetChildren().FirstOrDefault(child => child.GetName() == PropertiesView.EditSection) ?? throw new Exception("The station chip peer has no 'Edit section…' action");
+            if (edit is not Avalonia.Automation.Provider.IInvokeProvider invoke) throw new Exception("'Edit section…' is not invokable");
+            invoke.Invoke();
+            StationWait(fixture, () => controller.Section is not null, "the section editor from the chip peer");
+            if (controller.Section!.Draft is null) throw new Exception("Edit section… opened no draft");
+        });
+
+        DesktopChecks.Check("PlanCanvas_StationChips_PeerFollowsPromotion", () =>
+        {
+            using var fixture = StationFixture(StationDesktopTests.ThreeSame());
+            var controller = fixture.Controller;
+            var peer = Avalonia.Automation.Peers.ControlAutomationPeer.CreatePeerForElement(fixture.Canvas)!;
+            if (peer.GetChildren().Any(child => child.GetName() == "Station 2")) throw new Exception("A Station 2 chip peer exists before the promotion");
+            controller.PlaceSliceTyped("35");
+            _ = controller.PromoteSliceAsync();   // not awaited: the test thread is the UI thread, which the continuation needs
+            StationWait(fixture, () => StationDesktopTests.StationCount(controller) == 4 && !controller.SurfaceUpdating, "the promotion");
+            if (!peer.GetChildren().Any(child => child.GetName() == "Station 2")) throw new Exception("The canvas peer was not refreshed with the new station chip: " + string.Join(" | ", peer.GetChildren().Select(child => child.GetName())));
+        });
+
         // D2 extension (S1-b review veto): the menu and palette read ShellHost.CanRun, so the station rows' enablement is checked there.
         DesktopChecks.Check("ShellHost_StationCommands_CanRunFollowsReasons", () =>
         {

@@ -342,6 +342,70 @@ public static class ElevationTests
             if (goneSide.Hit > 1) throw new Exception($"A cleared slice is still drawn in Side ({goneSide.Hit} px)");
         });
 
+        // SF1 item 1: the Side outline of the slice against the exact section Placement.Sections evaluates at the same η (device pixels).
+        DesktopChecks.Check("Elevation_SliceSideOutline_MatchesExactSectionWithinOneDevicePixel", () =>
+        {
+            double[] root = [0, 0.025, 0.055, 0.065, 0.05, 0.03, 0.01, 0];
+            double[] bend = [0, 0.012, 0.028, 0.036, 0.034, 0.024, 0.01, 0];
+            double[] peakTip = [0, 0.03, 0.05, 0.062, 0.06, 0.045, 0.02, 0];
+            var fixtures = new (string Name, byte[] Source)[]
+            {
+                ("F-CAMBER", StationDesktopTests.Doc("at root profile \"a\" at tip profile \"c\"", 120, ("a", root), ("c", root.Zip(bend, (a, b) => a + b).ToArray()))),
+                ("F-PEAK", StationDesktopTests.Doc("at root profile \"a\" at tip profile \"p\"", 120, ("a", root), ("p", peakTip)))
+            };
+            foreach (var (name, source) in fixtures)
+            {
+                using var f = new Fixture(bytes: source);
+                Pump(() => !f.Controller.SurfaceUpdating, "the mesh");
+                var xs = Placement.ChordGrid(101);
+                foreach (string typed in new[] { "35 %", "36.25 %" })
+                {
+                    f.Controller.PlaceSliceTyped(typed);
+                    f.Settle();
+                    double eta = ((Selection.Slice)f.Controller.Selection).Eta;
+                    var sample = Placement.Sections(source, [eta], xs, CancellationToken.None)[0];
+                    var frame = sample.Frame;
+                    double angle = frame.TwistDegrees * Math.PI / 180, sin = Math.Sin(angle), cos = Math.Cos(angle), chord = frame.TrailingMeters - frame.LeadingMeters;
+                    Point3 PlaceAt(double x, double z) => new(frame.LeadingMeters + chord * (x * cos + z * sin), frame.SpanMeters, frame.ElevationMeters + chord * (z * cos - x * sin));
+                    var upper = Enumerable.Range(0, xs.Count).Select(i => PlaceAt(xs[i], sample.Camber[i] + sample.Thickness[i] / 2));
+                    var lower = Enumerable.Range(0, xs.Count).Select(i => PlaceAt(xs[i], sample.Camber[i] - sample.Thickness[i] / 2));
+                    var camera = f.Side.Camera!.Value;
+                    var exact = upper.Concat(lower.Reverse()).Select(p => camera.Project(p, f.Side.BandRect.Size)).ToArray();
+                    var drawn = f.Side.SliceOutline() ?? throw new Exception("Side has no slice outline");
+                    if (drawn.Length != exact.Length) throw new Exception($"{name}: outline has {drawn.Length} points, the exact section {exact.Length}");
+                    double devicePixels = Enumerable.Range(0, drawn.Length).Max(i => Point.Distance(drawn[i], exact[i])) / DevicePixel.Of(f.Side);
+                    Console.WriteLine($"INFO SF1 item 1 {name} at {typed}: eta {eta:R}, Side outline error {devicePixels:F4} device px (scale {1 / DevicePixel.Of(f.Side)})");
+                    if (devicePixels > 1) throw new Exception($"{name} at {typed}: the Side outline is {devicePixels:F3} device px from the exact section");
+                }
+            }
+        });
+
+        // SF1 item 4: each Side station chip is an automation child named by its visible text and selectable; the list follows a promotion.
+        DesktopChecks.Check("Elevation_SideStationChips_AutomationPeerNamedAndSelectable", () =>
+        {
+            double[] a = [0, 0.025, 0.055, 0.065, 0.05, 0.03, 0.01, 0];
+            using var f = new Fixture(bytes: StationDesktopTests.Doc("at root profile \"a\" at 60 % profile \"a\" at tip profile \"a\"", 120, ("a", a)));
+            Pump(() => !f.Controller.SurfaceUpdating, "the mesh");
+            var peer = ControlAutomationPeer.CreatePeerForElement(f.Side)!;
+            var front = ControlAutomationPeer.CreatePeerForElement(f.Front)!;
+            string[] visible = f.Side.Chips().Select(chip => chip.Name).ToArray();
+            if (visible.Length != 3) throw new Exception("Side shows " + visible.Length + " chips");
+            var names = peer.GetChildren().Select(child => child.GetName()).ToArray();
+            foreach (string name in visible)
+                if (!names.Contains(name)) throw new Exception($"The Side peer has no child named '{name}' (its chip's visible text): " + string.Join(" | ", names.Take(8)));
+            if (front.GetChildren().Any(child => visible.Contains(child.GetName()))) throw new Exception("The Front peer lists Side station chips");
+            AutomationPeer Chip(string name) => peer.GetChildren().First(child => child.GetName() == name);
+            if (Chip("Station 2") is not Avalonia.Automation.Provider.ISelectionItemProvider middle) throw new Exception("The Side station chip peer is not selectable");
+            middle.Select();
+            if (f.Controller.Selection is not Selection.Station { Index: 1 } || !((Avalonia.Automation.Provider.ISelectionItemProvider)Chip("Station 2")).IsSelected)
+                throw new Exception("Selecting the chip peer did not select the station: " + f.Controller.Selection);
+            f.Controller.PlaceSliceTyped("80");
+            _ = f.Controller.PromoteSliceAsync();
+            Pump(() => StationDesktopTests.StationCount(f.Controller) == 4 && !f.Controller.SurfaceUpdating, "the promotion");
+            f.Settle();
+            if (!peer.GetChildren().Any(child => child.GetName() == "Station 3")) throw new Exception("The Side peer was not refreshed with the new station chip: " + string.Join(" | ", peer.GetChildren().Select(child => child.GetName()).Take(10)));
+        });
+
         DesktopChecks.Check("Elevation_SlicePlaceFront_PressDragOnSpanAxis", () =>
         {
             using var f = new Fixture();

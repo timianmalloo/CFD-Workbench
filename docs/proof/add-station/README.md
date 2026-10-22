@@ -264,3 +264,18 @@ The pointer-snap step for a percent document stays 0.1 % of the half span (desig
 ### Left as a recorded follow-up
 
 - **Side outline error in pixels (review MC-5).** Not measured in this cycle (budget). `ElevationView.SliceSection` keeps its `simplify:` marker with the mesh-pitch ceiling; measure the largest distance between the linear blend and `Placement.Sections` at the slice eta on F-CAMBER and F-PEAK at eta 35 % and switch to the exact sections if it exceeds 1 device pixel.
+
+## SF1 (wave 2): station follow-ups
+
+Track SF1 of the coordination plan `next-best-six-wave2`, branch `w2b-sf1`, Release build, Windows ARM64 laptop at 200 % scale. Checks run by `--harness --views` (items 1 and 4) and `--harness --plan-canvas` (items 2 and 3) with `CFD_TEST_ONLY` set to the check name. This section closes the follow-up "Side outline error in pixels (review MC-5)" above, and finding F-CHIP.
+
+| Item | Check | Red on old code | Green | Mutant (red) |
+|---|---|---|---|---|
+| 1 Side outline exactness | `Elevation_SliceSideOutline_MatchesExactSectionWithinOneDevicePixel` | not red: the blend is within 0.0002 device px (numbers below), so the blend and its marker stay | `PASS` | blend plus 2 mm in Z: `F-CAMBER at 35 %: the Side outline is 14.767 device px from the exact section` |
+| 2 Promote Checking peer | `PlanCanvas_SliceChip_PromotePeerDisabledCheckingWhilePreviewRuns` | a guard over existing code, so not red | `PASS` | `SliceChecking` branch removed from the peer reason: `While the preview runs the Promote peer reads enabled or lacks the Checking copy: True ''` |
+| 3 Plan station chip peers | `PlanCanvas_StationChips_AutomationPeerNamedSelectableWithEditSection`, `PlanCanvas_StationChips_PeerFollowsPromotion` | `The canvas peer has no child named 'a' (its chip's visible text)`; `The canvas peer was not refreshed with the new station chip` | `PASS` both | station children not added: the same two messages |
+| 4 Side station chip peers | `Elevation_SideStationChips_AutomationPeerNamedAndSelectable` | `The Side peer has no child named 'Root' (its chip's visible text)` | `PASS` | station children not added: the same message |
+
+**Item 1 numbers.** Largest distance between the drawn Side outline (`SliceOutline`) and the exact section from `Placement.Sections` at the same eta, on the same 101-point chord grid, in device pixels at scale 2, default zoom. The fixtures are the Desktop 8-point equivalents of F-CAMBER (tip = root plus a camber line) and F-PEAK (tip thickness peaks aft); the Core fixtures are private to the Core tests. F-CAMBER: 0.0000 px at eta 35 % and 0.0000 px at mid-pitch 36.25 %. F-PEAK: 0.0000 px at 35 % and 0.0002 px at 36.25 %. 35 % is a mesh node (14 of 40), so mid-pitch is the worst case the mesh allows. Both are far below 1 device px, so `SliceSection` keeps the linear blend; its `simplify:` marker now carries these numbers and the upgrade trigger (a measured error above 1 device px).
+
+**Peers.** `StationChipPeer` (in `PlanCanvas.cs`) serves the Plan and the Side view: a list item named by the chip's visible text, `ISelectionItemProvider` (Select selects the station), and in the Plan an `Edit section…` child (the existing `PropertiesView.EditSection`; disabled with the analysis refusal in Analysis). The Plan and Side peers rebuild their children when a station chip appears, is renamed or goes. No new copy.
