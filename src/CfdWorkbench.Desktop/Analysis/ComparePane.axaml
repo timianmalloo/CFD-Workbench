@@ -1,0 +1,25 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="CfdWorkbench.Desktop.Analysis.ComparePane" AutomationProperties.Name="Compare runs"
+             FontFamily="{StaticResource PropFontFamily}">
+  <!-- The Compare tab of the Analysis panel (A3d, design a3d-compare.md 5). Tab order: Base picker, Compared picker, the Inputs table,
+       the Outputs table. The headline is a polite live region. Every string is the Compare projection's or a Labels constant. -->
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <StackPanel Margin="{StaticResource Space1}" Spacing="{StaticResource StackGap2}">
+      <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+        <TextBlock x:Name="BaseLabel" Classes="pnl-cell" VerticalAlignment="Center" />
+        <ComboBox x:Name="BasePicker" x:FieldModifier="public" />
+        <TextBlock x:Name="ComparedLabel" Classes="pnl-cell" VerticalAlignment="Center" />
+        <ComboBox x:Name="ComparedPicker" x:FieldModifier="public" />
+        <Button x:Name="EstimatorButton" x:FieldModifier="public" Classes="modebar outline" IsVisible="False" />
+      </StackPanel>
+      <TextBlock x:Name="HeadlineText" Classes="pnl-head" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
+      <TextBlock x:Name="StatusText" Classes="pnl-note" IsVisible="False" />
+      <StackPanel x:Name="NoticeHost" Spacing="2" />
+      <StackPanel x:Name="ColumnsHost" Spacing="2" />
+      <StackPanel x:Name="InputsTable" x:FieldModifier="public" AutomationProperties.Name="Compared inputs" />
+      <StackPanel x:Name="OutputsTable" x:FieldModifier="public" AutomationProperties.Name="Compared outputs" />
+      <TextBlock x:Name="FootnoteText" Classes="pnl-note" TextWrapping="Wrap" />
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

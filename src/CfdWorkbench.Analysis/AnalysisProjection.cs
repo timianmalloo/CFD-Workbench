@@ -26,6 +26,8 @@ public sealed record CompareContext(CurrentInputs Current, Units Units, Func<Ana
     public RunIntegrity ComparedIntegrity { get; init; } = RunIntegrity.Intact;
     /// <summary>The run's envelope verdict sentence (for example <c>MethodRecord.JudgeRun</c>), or null when it cannot be derived.</summary>
     public Func<AnalysisRun, string?>? EnvelopeVerdict { get; init; }
+    /// <summary>The key an estimator run at the current inputs would have (null: no estimator run is Current), for the estimator column's freshness.</summary>
+    public string? EstimatorCurrentKey { get; init; }
 }
 
 /// <summary>
@@ -90,11 +92,16 @@ public static class CompareProjection
 
     private static CompareColumn Column(AnalysisRun run, CompareContext context)
     {
-        bool current = RunRecord.RecomputedKey(run) == Freshness.CurrentKey(context.Current);
+        bool current = IsCurrent(run, context);
         string chip = TierChip(run);
         string title = $"r{context.Ordinal(run.Inputs.AcceptedId)?.ToString(Inv) ?? "?"} · {chip}";
         return new CompareColumn(run.RunId, title, chip, run.Method.Id + " " + run.Method.Version, current ? "Current" : "Historical", !current);
     }
+
+    // ANA-07: a run is Current when its recomputed key equals the key of the current inputs for its own method.
+    private static bool IsCurrent(AnalysisRun run, CompareContext context) => run.Tier == WingEstimator.TierId
+        ? context.EstimatorCurrentKey is { } key && RunRecord.RecomputedKey(run) == key
+        : RunRecord.RecomputedKey(run) == Freshness.CurrentKey(context.Current);
 
     private static string TierChip(AnalysisRun run) => run.Tier == WingEstimator.TierId ? Labels.EstimatorChip : Labels.VlmChip;
 
@@ -122,7 +129,7 @@ public static class CompareProjection
         Add("Axes", run => run.Reference.Axes);
         Add("Omissions", run => run.Tier == WingEstimator.TierId
             ? "elliptic loading assumed (e = 1); no viscous drag" : Labels.NotModelled(run.Op.HRef.HasValue));
-        Add("Freshness", run => RunRecord.RecomputedKey(run) == Freshness.CurrentKey(context.Current) ? "Current" : "Historical");
+        Add("Freshness", run => IsCurrent(run, context) ? "Current" : "Historical");
         return rows;
     }
 
@@ -192,6 +199,9 @@ public static class AnalysisProjection
     {
         ArgumentNullException.ThrowIfNull(current);
         context ??= new ProjectionContext();
+        // This projection words VLM + strip results (the tier chip, the strip tables). Another tier's run, an estimator run, has
+        // no strips: it reads as no result here and is shown by CompareProjection, never labelled as a VLM result.
+        if (run is not null && run.Tier != "vlm-strip") run = null;
         if (run is null) return new(RunState.NoResult, "Analysis: no result", null, null,
             [new ResultGroup("Wing result", [Row("Result", Labels.NoResult)])], [], null);
         if (context.Integrity != RunIntegrity.Intact || RunRecord.ContentHash(run) != run.ContentHash)

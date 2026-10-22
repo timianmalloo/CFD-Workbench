@@ -25,6 +25,19 @@ public static class ComparePaneTests
             Equal(true, view.Groups.First().Rows.First(row => row.Label == "Tier").Value == Labels.VlmChip, "labelled as the VLM tier;");
             Equal(false, view.Groups.First().Rows.First(row => row.Label == "CL").Value == "0.000", "its CL is the VLM's, not an estimator row's zero strips;");
         });
+        DesktopChecks.Check("ComparePane_Commands_RowsInViewMenuWithLabelsCopy", () =>
+        {
+            var rows = CfdWorkbench.Desktop.Shell.CommandTable.Rows;
+            var compare = rows.Single(row => row.Id == "analysis.compare");
+            var tiers = rows.Single(row => row.Id == "analysis.compare-tiers");
+            Equal(Labels.CompareRunsCommand, compare.Title, "Compare runs… title");
+            Equal(Labels.CompareTiersCommand, tiers.Title, "Compare with estimator title");
+            Equal(true, compare.Menu == "View" && tiers.Menu == "View" && compare.Gesture is null && tiers.Gesture is null, "View group, no keyboard gesture;");
+            using var controller = Open();
+            Equal(false, controller.CanCompare, "disabled with no Completed VLM run;");
+            _ = Evaluate(controller, 2);
+            Equal(true, controller.CanCompare, "enabled in Analysis with a selected Completed run;");
+        });
         DesktopChecks.Check("ComparePane_Compatible_RendersTablesAndHeadline", () =>
         {
             using var controller = Open();
@@ -36,7 +49,7 @@ public static class ComparePaneTests
             Equal(true, pane.InputsTable.Children.Count > 15 && pane.OutputsTable.Children.Count >= 4, "both tables are drawn;");
             Equal(true, text.Contains(Labels.CompareFootnote), "the footnote;");
             // The headline's delta is CL's: the same text the shown CL row carries.
-            string delta = pane.OutputsTable.Children.OfType<Grid>().First(row => ((TextBlock)row.Children[0]).Text == "CL").Children.OfType<TextBlock>().Last().Text!;
+            string delta = pane.OutputsTable.Children.OfType<Grid>().First(row => ((TextBlock)row.Children[0]).Text == "CL").Children.OfType<TextBlock>().ElementAt(3).Text!;
             Equal(true, text.Any(t => t.Contains(delta, StringComparison.Ordinal) && t.StartsWith("Tiers", StringComparison.Ordinal)), "the headline quotes the CL delta, not CDi's;");
         });
         DesktopChecks.Check("ComparePane_Envelope_SideBySide", () =>
@@ -63,8 +76,10 @@ public static class ComparePaneTests
         {
             using var controller = Open();
             _ = Evaluate(controller, 2);
+            controller.ToggleAnalysis();   // points and dimensions are edited in CAD
             var edited = Task.Run(() => controller.ApplySpanAsync("1400")).WaitAsync(TimeSpan.FromSeconds(20)).GetAwaiter().GetResult();
             if (edited is not CommitOutcome.Committed) throw new Exception("Fixture geometry edit was refused.");
+            controller.ToggleAnalysis();
             var pane = TierPane(controller);
             var text = AllText(pane);
             Equal(true, text.Any(t => t.StartsWith("Δ blocked — reference quantities differ: ", StringComparison.Ordinal)), "the block copy;");

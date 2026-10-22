@@ -92,6 +92,6 @@ public static class WingEstimator
     }
 
     /// <summary>The settings of an estimator row: no lattice, the stations the run reads, the estimator envelope.</summary>
-    internal static RunSettings Settings(RunSettings stations) => new(0, 0, "none", "none", 0, "none", 0, Envelope, null, [],
+    public static RunSettings Settings(RunSettings stations) => new(0, 0, "none", "none", 0, "none", 0, Envelope, null, [],
         stations.SurfaceState, stations.TeFloorMm, stations.SectionEtas, stations.SectionXs);
 }

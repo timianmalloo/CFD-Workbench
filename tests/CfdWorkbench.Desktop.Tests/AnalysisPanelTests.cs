@@ -139,7 +139,7 @@ public static class AnalysisPanelTests
                     Equal(true, !string.IsNullOrWhiteSpace(cells[2].Text), "numeric tier note visible for " + sectionRows[i].Label);
                 }
                 var tabs = panel.FindControl<TabControl>("PanelTabs") ?? throw new Exception("no tabs");
-                Equal("Spanwise loading,Section,Loads,Provenance",
+                Equal("Spanwise loading,Section,Loads,Provenance,Compare",
                     string.Join(",", tabs.Items.OfType<TabItem>().Select(tab => tab.Header)), "the tabs (Checks omitted, OD-4 a)");
                 string keyA = panel.BoundRunKey ?? throw new Exception("no run key");
                 int twin = panel.LoadingView.TwinRowCount, strips = TableRows(panel, "strips-table");

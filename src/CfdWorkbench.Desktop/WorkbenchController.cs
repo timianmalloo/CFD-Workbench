@@ -311,11 +311,13 @@ public sealed class WorkbenchController : IDisposable
             long started = time.GetTimestamp();
             var snapshot = session.Snapshot();
             var current = Freshness.Current(snapshot, analysisWater, ComparedOp, analysisMethod.Method, analysisMethod.Settings);
-            var selected = session.ReadRuns().Runs.LastOrDefault();
+            // The Analysis panel reads VLM + strip runs only: an estimator run (Compare) is shown in the Compare tab, never here as a VLM result.
+            var vlmRuns = session.ReadRuns().Runs.Where(row => row.Run.Tier == "vlm-strip").ToArray();
+            var selected = vlmRuns.LastOrDefault();
             string key = Freshness.CurrentKey(current) + ":" + selected?.Run.RunId + ":" + selected?.Integrity + ":" + AnalysisRunning + ":" + analysisUnits;
             if (analysisProjectionKey == key && analysisView is not null) return analysisView;
             var previous = selected?.Run.Outcome is RunOutcome.Failed
-                ? session.ReadRuns().Runs.Reverse().Skip(1).FirstOrDefault(row =>
+                ? vlmRuns.Reverse().Skip(1).FirstOrDefault(row =>
                     row.Integrity == RunIntegrity.Intact && row.Run.Outcome is RunOutcome.Completed)?.Run : null;
             // The feed is a function of the run and its own revision only, so a layer toggle or a new operating point does not
             // re-derive it (measured 0.9 s on the default lattice). A Failed latest attempt shows the previous Completed run
@@ -483,6 +485,170 @@ public sealed class WorkbenchController : IDisposable
     }
 
     public void CancelAnalysis() => analysisCancellation?.Cancel();
+
+    // ---- Compare (A3d-2; design a3d-compare.md 5): one contiguous block. The pair is recorded or read when it changes, never when
+    // the view is read, so the pane's pure projection does not write. ----
+    private string? compareBaseId, compareComparedId, compareErrorReason, compareErrorCode;
+    private Compare.CompareResult? compareResult;
+    private DiscrepancyIntegrity? compareIntegrity;
+    private bool compareEvaluating;
+    private readonly Dictionary<string, string?> envelopeVerdicts = new(StringComparer.Ordinal);
+
+    /// <summary>One run offered by a Compare picker; a Failed run or one that failed its check is listed disabled with its reason.</summary>
+    public sealed record CompareOption(string RunId, string Label, bool Enabled, string? Reason);
+
+    /// <summary>True while the estimator is evaluated for "Compare with estimator" (the pane shows the loading copy).</summary>
+    public bool CompareEvaluating => compareEvaluating;
+    /// <summary>Set by the Compare commands; the Analysis panel selects its Compare tab and focuses the Base picker, then clears it.</summary>
+    public bool CompareTabRequested { get; private set; }
+    public void ConsumeCompareRequest() => CompareTabRequested = false;
+    public string? CompareBaseId => compareBaseId;
+    public string? CompareComparedId => compareComparedId;
+    /// <summary>The stored runs, every tier, in document order (the Compare pane's source).</summary>
+    public RunLedger CompareRuns => session.ReadRuns();
+
+    /// <summary>Enabled in Analysis with a selected Completed VLM + strip run (design 5.1).</summary>
+    public bool CanCompare => IsAnalysis && Inspection is not null && !compareEvaluating &&
+        session.ReadRuns().Runs.LastOrDefault(row => row.Run.Tier == "vlm-strip") is { Integrity: RunIntegrity.Intact, Run.Outcome: RunOutcome.Completed };
+
+    /// <summary>Compare runs…: opens the tab with the defaults (the selected run against the latest earlier run of its tier with another key).</summary>
+    public void OpenCompare()
+    {
+        compareBaseId = null; compareComparedId = null;
+        RefreshCompare();
+        CompareTabRequested = true;
+        Notify();
+    }
+
+    public void SetCompareRuns(string? baseRunId, string? comparedRunId)
+    {
+        compareBaseId = baseRunId; compareComparedId = comparedRunId;
+        RefreshCompare();
+        Notify();
+    }
+
+    /// <summary>
+    /// Compare with estimator: evaluates the wing estimator at the base run's operating point and water (idempotent by run key:
+    /// an existing run is returned), then shows the pair. The estimator reads the current accepted revision.
+    /// </summary>
+    public async Task CompareWithEstimatorAsync(CancellationToken cancellation = default)
+    {
+        var basis = DefaultCompareBase();
+        if (basis is null || compareEvaluating) return;
+        compareEvaluating = true;
+        CompareTabRequested = true;
+        Notify();
+        AnalysisRun? estimator = null;
+        try { estimator = await analysisService.EvaluateAsync(basis.Op, basis.Water, Tier.Estimator, new Scope.Wing(), cancellation); }
+        catch (OperationCanceledException) { SetStatus("Estimator evaluation cancelled.", ReportKind.Info); }
+        catch (ContractError error) { SetStatus(error.Code + ": " + (error.Reason ?? error.Message), ReportKind.Warning); }
+        finally { compareEvaluating = false; }
+        if (estimator is not null) { compareBaseId = basis.RunId; compareComparedId = estimator.RunId; }
+        RefreshCompare();
+        Notify();
+    }
+
+    public IReadOnlyList<CompareOption> CompareOptions
+    {
+        get
+        {
+            var current = Inspection is null ? null : Freshness.Current(session.Snapshot(), analysisWater, ComparedOp, analysisMethod.Method, analysisMethod.Settings);
+            var ordinal = Compare.AcceptedOrdinal(session);
+            return [.. session.ReadRuns().Runs.Select(stored =>
+            {
+                var run = stored.Run;
+                if (run.Outcome is RunOutcome.Failed) return new CompareOption(run.RunId, $"r{ordinal(run.Inputs.AcceptedId)} · failed", false, Labels.FailedRunCompare);
+                if (stored.Integrity != RunIntegrity.Intact) return new CompareOption(run.RunId, $"r{ordinal(run.Inputs.AcceptedId)} · {run.Tier}", false, Labels.RunFailedCheck);
+                bool isCurrent = current is not null && (run.Tier == WingEstimator.TierId
+                    ? RunRecord.RecomputedKey(run) == EstimatorCurrentKey(current)
+                    : RunRecord.RecomputedKey(run) == Freshness.CurrentKey(current));
+                string tier = run.Tier == WingEstimator.TierId ? "estimator" : "VLM + strip";
+                return new CompareOption(run.RunId, Labels.PickerOption(ordinal(run.Inputs.AcceptedId) ?? 0, tier, run.Op.AlphaDeg, analysisUnits == Units.Imperial ? run.Op.Speed * 1.9438444924406 : run.Op.Speed,
+                    analysisUnits == Units.Imperial ? "kn" : "m/s", isCurrent), true, null);
+            })];
+        }
+    }
+
+    /// <summary>The Compare pane's view of the shown pair (pure: the pair was recorded or read by the command that set it).</summary>
+    public CompareViewModel CompareView
+    {
+        get
+        {
+            var runs = session.ReadRuns().Runs;
+            var first = FindCompareRun(runs, compareBaseId ?? DefaultCompareBase()?.RunId);
+            var second = FindCompareRun(runs, compareComparedId ?? DefaultCompareCompared(first?.Run)?.RunId);
+            return CompareProjection.Build(first?.Run, second?.Run, CompareContextFor() with
+            {
+                Result = compareResult, Integrity = compareIntegrity, ErrorReason = compareErrorReason, ErrorCode = compareErrorCode,
+                BaseIntegrity = first?.Integrity ?? RunIntegrity.Intact, ComparedIntegrity = second?.Integrity ?? RunIntegrity.Intact
+            });
+        }
+    }
+
+    /// <summary>What the Compare projection reads besides the two runs: freshness, units, the coefficient source and ordinals.</summary>
+    public CompareContext CompareContextFor()
+    {
+        var current = Freshness.Current(session.Snapshot(), analysisWater, ComparedOp, analysisMethod.Method, analysisMethod.Settings);
+        return new CompareContext(current, analysisUnits, Compare.Derivation(session.AcceptedSourceOf), Compare.AcceptedOrdinal(session))
+        {
+            EnvelopeVerdict = EnvelopeVerdictOf, EstimatorCurrentKey = EstimatorCurrentKey(current)
+        };
+    }
+
+    private string EstimatorCurrentKey(CurrentInputs current) => RunRecord.Key(current.Inputs, current.Water, current.Op, WingEstimator.Method,
+        RunRecord.SettingsHash(WingEstimator.Settings(analysisMethod.Settings)));
+
+    // The envelope verdict is a function of the run and its own revision, derived once per run (the feed costs about a second).
+    private string? EnvelopeVerdictOf(AnalysisRun run)
+    {
+        if (run.Tier != "vlm-strip") return null;
+        if (envelopeVerdicts.TryGetValue(run.RunId, out var known)) return known;
+        string? verdict = session.AcceptedSourceOf(run.Inputs.AcceptedId) is { } source && MethodRecord.DeriveVerdicts(run, source) is { } verdicts
+            ? MethodRecord.JudgeRun(verdicts) : null;
+        return envelopeVerdicts[run.RunId] = verdict;
+    }
+
+    private static StoredRun? FindCompareRun(IReadOnlyList<StoredRun> runs, string? runId) =>
+        runId is null ? null : runs.FirstOrDefault(stored => stored.Run.RunId == runId);
+
+    private AnalysisRun? DefaultCompareBase() =>
+        session.ReadRuns().Runs.LastOrDefault(stored => stored.Run.Tier == "vlm-strip" && stored.Integrity == RunIntegrity.Intact &&
+            stored.Run.Outcome is RunOutcome.Completed)?.Run;
+
+    // Revisions: the latest earlier Completed run of the same tier with a different key, in document order.
+    private AnalysisRun? DefaultCompareCompared(AnalysisRun? basis)
+    {
+        if (basis is null) return null;
+        var runs = session.ReadRuns().Runs;
+        int at = runs.ToList().FindIndex(stored => stored.Run.RunId == basis.RunId);
+        return runs.Take(Math.Max(at, 0)).LastOrDefault(stored => stored.Run.Tier == basis.Tier && stored.Integrity == RunIntegrity.Intact &&
+            stored.Run.Outcome is RunOutcome.Completed && stored.Run.RunKey != basis.RunKey)?.Run;
+    }
+
+    // Records (or reads) the shown pair: a blocked pair stores nothing, a refused record shows its error and no delta.
+    private void RefreshCompare()
+    {
+        compareResult = null; compareIntegrity = null; compareErrorReason = null; compareErrorCode = null;
+        var runs = session.ReadRuns().Runs;
+        var first = FindCompareRun(runs, compareBaseId ?? DefaultCompareBase()?.RunId);
+        var second = FindCompareRun(runs, compareComparedId ?? DefaultCompareCompared(first?.Run)?.RunId);
+        if (first is null || second is null || first.Run.RunId == second.Run.RunId) return;
+        if (first.Integrity != RunIntegrity.Intact || second.Integrity != RunIntegrity.Intact ||
+            first.Run.Outcome is not RunOutcome.Completed || second.Run.Outcome is not RunOutcome.Completed) return;
+        try
+        {
+            compareResult = Compare.Record(session, first.Run, second.Run);
+            if (compareResult.Record is { } record)
+                compareIntegrity = Compare.Verify(record, FindCompareRun(runs, record.BaseRunId)?.Run, FindCompareRun(runs, record.ComparedRunId)?.Run,
+                    Compare.Derivation(session.AcceptedSourceOf));
+        }
+        catch (ContractError error) when (error.Code == Compare.ValueUnavailable) { }
+        catch (ContractError error)
+        {
+            compareErrorReason = error.Code == "DOC-SIZE" ? "the document is at its size limit" : error.Reason ?? error.Message;
+            compareErrorCode = error.Code;
+        }
+    }
     public const string AnalysisPointRefusal = "Points are edited in CAD. Switch with the CAD | Analysis toggle.";
 
     /// <summary>A shared refusal at every controller edit boundary, including the Points pane's typed gesture.</summary>

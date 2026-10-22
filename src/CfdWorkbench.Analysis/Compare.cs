@@ -60,7 +60,18 @@ public static class Compare
     };
 
     /// <summary>The coefficients of a run as numbers: the VLM + strip projection's, or the estimator's derived from its inputs and its accepted source.</summary>
-    public static Func<AnalysisRun, Coefficients> Derivation(Func<string, byte[]?> acceptedSourceOf) => run =>
+    public static Func<AnalysisRun, Coefficients> Derivation(Func<string, byte[]?> acceptedSourceOf)
+    {
+        // A run is immutable, so its coefficients are derived once per derivation function.
+        var known = new Dictionary<string, Coefficients>(StringComparer.Ordinal);
+        return run =>
+        {
+            if (known.TryGetValue(run.RunId, out var cached)) return cached;
+            return known[run.RunId] = Derive(run, acceptedSourceOf);
+        };
+    }
+
+    private static Coefficients Derive(AnalysisRun run, Func<string, byte[]?> acceptedSourceOf)
     {
         if (run.Outcome is not RunOutcome.Completed) return new Coefficients(null, null, null);
         if (run.Tier == WingEstimator.TierId)
@@ -74,7 +85,7 @@ public static class Compare
             catch (ContractError) { return new Coefficients(null, null, null); }
         }
         return WingCoefficients.Of(run);
-    };
+    }
 
     /// <summary>
     /// The block reasons of a pair, in the order reference, point, water, each with the names of the fields that differ (design
