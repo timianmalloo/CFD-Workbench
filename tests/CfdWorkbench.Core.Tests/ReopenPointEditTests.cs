@@ -202,6 +202,7 @@ internal static class ReopenPointEditTests
             for (int index = 0; index < ids.Length; index++) Equal(ids[index], reopened[index]);
         });
         PointVerbTests.Run();
+        StationTests.Run();
     }
 
     private static void Forged(string rail, Action<AcceptedRow[], EditReceipt> mutate)

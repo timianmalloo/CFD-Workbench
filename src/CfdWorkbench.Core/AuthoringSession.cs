@@ -109,6 +109,28 @@ public sealed record RebuildPreview(int Count, CurveView Curve, double MaxChange
 }
 public sealed record SessionPreview(SessionBinding Binding, PlacedPointEnclosure Point, double UniformWidthUpper);
 
+/// <summary>
+/// What promoting the inspection slice at <paramref name="Eta"/> would do (design add-station §3.1). <paramref name="Regime"/> is
+/// R0 (same geometry), R1 (measured deviation at or below 1e-12 relative) or R2 (above); null when refused before a measurement.
+/// The deviation is the largest sampled ordinate change over both adjacent intervals on <see cref="Grid"/>, never a bound.
+/// <paramref name="Admitted"/> is true when Apply may proceed: R0/R1 always, R2 at or below 10 micrometres at the local chord.
+/// </summary>
+public sealed record PromotionPreview(double Eta, string EtaText, int Left, int Right, string? Regime, double DeviationRelative,
+    double DeviationMeters, double AtEta, bool Admitted, string? RefusalCode, string? Reason)
+{
+    /// <summary>The station index a coincident refusal selects; null otherwise.</summary>
+    public int? ExistingIndex { get; init; }
+    /// <summary>The sampling grid the deviation was measured on (Ruling 252: the number is labelled sampled and names its grid).</summary>
+    public string Grid => "sampled on 129 eta per interval x 2001 x";
+}
+public sealed record PromotionOutcome(string AcceptedId, int Index, string ProfileName, PromotionPreview Report, ThicknessIntent Thickness);
+public sealed record RemovalPreview(int Index, double DeviationRelative, double DeviationMeters, double AtEta, double LimitMeters,
+    bool Admitted, bool ProfileRemoved)
+{
+    public string Grid => "sampled on 129 eta x 2001 x";
+}
+public sealed record RemovalOutcome(string AcceptedId, RemovalPreview Report);
+
 public sealed class SessionAssessment
 {
     internal SessionAssessment(Guid owner, GeometryStatus status, string code, SessionBinding? key, GeometryCertificate? certificate,
@@ -311,6 +333,12 @@ public sealed class AuthoringSession : IDisposable
         Run("apply", () => ApplyGroupValueCore(operationId, command), editKind: command?.Mode == GroupValueMode.SetTo ? "group-set" : "group-move");
     public PointOutcome ApplyPointCommand(string operationId, PointCommand command) =>
         Run("apply", () => ApplyPointCommandCore(operationId, command), editKind: PointEditKind(command));
+    public PromotionPreview PreviewPromote(double eta, string etaText) => Run("preview-promote", () => new PromotionPreview(eta, etaText, -1, -1, null, 0, 0, 0, false, null, null));
+    public PromotionOutcome AddStation(string operationId, double eta, string etaText, bool approximate) =>
+        Run("add-station", () => new PromotionOutcome(Snapshot().AcceptedId, -1, "", new PromotionPreview(eta, etaText, -1, -1, null, 0, 0, 0, false, null, null), ThicknessIntent.KeepCurrent));
+    public RemovalPreview PreviewRemove(int index) => Run("preview-remove", () => new RemovalPreview(index, 0, 0, 0, 10e-6, false, false));
+    public RemovalOutcome RemoveStation(string operationId, int index) =>
+        Run("remove-station", () => new RemovalOutcome(Snapshot().AcceptedId, new RemovalPreview(index, 0, 0, 0, 10e-6, false, false)));
     /// <summary>Seven rebuild previews, counts 4 through 10. Does not certify and does not add a row.</summary>
     public IReadOnlyList<RebuildPreview> PreviewRebuilds(string curve)
     {
@@ -2541,6 +2569,14 @@ public static class NativeProject
         Guard.Require(e.Accepted.Select(a => a.OperationId).Distinct().Count() == e.Accepted.Length, "DOC-REFERENCE");
         return (current!, redo.ToArray());
     }
+}
+
+internal sealed record PromotionPlan(PromotionPreview Preview, byte[]? Candidate, string? ProfileName, SourceParse? Parsed, GeometryAssessment? Assessment);
+
+internal static class StationEdits
+{
+    internal static PromotionPlan Promote(byte[] source, double eta, string etaText, Func<SourceParse, GeometryAssessment> assess) =>
+        new(new PromotionPreview(eta, etaText, -1, -1, null, 0, 0, 0, false, null, null), null, null, null, null);
 }
 
 internal static class SessionSource
