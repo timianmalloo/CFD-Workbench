@@ -237,3 +237,30 @@ the chip's accessible name, "Check", "Within the limit", "Above the limit", the 
   label, when the canvas is narrow, so Promote and x stay on screen.
 - **Fixtures:** the Desktop checks cannot reach Core's internal fixtures, so `StationDesktopTests.Doc` writes the foil text.
 - **ui-craft-gate:** not run: no arm64 binary.
+
+### Repair cycle 2 (review verdict VETO on one defect; red lines observed on `3b086e53`, Windows ARM64 laptop, Release build)
+
+| Item | Check | Red (last line) | Green |
+|---|---|---|---|
+| Veto: `ShellHost.CanRun` returned true for every id outside `point.*`, so the `station.*` lines never ran | `ShellHost_StationCommands_CanRunFollowsReasons` (`--plan-canvas`; D2 itself runs where no renderer exists, so the `CanRun` clauses live in a window check) | `CanRun(station.remove) is true on Root` | PASS |
+| Label in name (WCAG 2.5.3) | `AddStationEntry_AccessibleNameContainsVisibleLabel` | `The entry's accessible name 'Station position from root. Return promotes, Escape clears.' does not contain its visible label` | PASS |
+| Promote peer disabled with its reason | `PlanCanvas_SliceChip_PromotePeerDisabledWithReason` | `Promote reads enabled or lacks its reason during a draft: True ''`; mutant `IsEnabledCore => true`: `... True 'Apply or cancel the open draft on Station 2 first.'` | PASS |
+| Units (snap 0.1 mm, nudge 0.01 / 0.1 / 1 mm in every unit) | `Controller_SliceSnapAndNudge_AreMillimetreSteps_InEveryUnit` | first run, metre: `m snap: the slice is at 200 mm, expected 158`; after the position was changed to separate cm from mm: `cm snap: the slice is at 158 mm, expected 158.1` (the nudge clauses were not reached on old code) | PASS |
+| Flyout closed on open, Undo and Redo | `Controller_Flyout_ClosesOnOpenAndOnUndo` | `The Remove flyout survived opening another document` | PASS |
+| Escape returns focus to Promote | `Controller_PromoteFlyout_EscapeReturnsFocusToPromote` | `Escape did not return focus to Promote:` | PASS |
+| Flyout text | `Controller_FlyoutText_EtaInPercent_RelativeInMockupForm` | `Promote flyout line: A station here changes the loft. Largest change 0.84 µm (7.04E-006 of chord) at η 0.2500, sampled on 17 η × 201 x ...` | PASS |
+| Place (Plan), 4 px snap, nudge steps, Escape (guards over built code) | `PlanCanvas_PlaceInChipStrip_SnapToStation_NudgeSteps_EscapeClears` | not red on old code (a guard); mutant snap radius 0: `A press 3 px from a station's line did not select it: Slice { Eta = 0.611 }`; mutant Command step 0.1 mm: `percent Right Control moved 0.09999899999998951 mm, expected 0.01` | PASS |
+| D8 mutant | `BrowserRow_SelectedFromOtherView_BroughtIntoView_AtScales` | with `BrowserPane` no longer setting `StationList.SelectedIndex` from the selection: `scale 1: row top 704.00 height 40.00 viewport 584.00 offset 0.00 | scale 1.5: ... | scale 2: ...`; reverted | PASS |
+
+The pointer-snap step for a percent document stays 0.1 % of the half span (design 5.2 names 0.1 % or 0.1 mm by the document's unit); in cm and m documents it is now 0.1 mm of distance.
+
+### The native crash of the S1-b continuation's first full run
+
+- **The run.** `bash tools/run-tests.sh` on 2026-10-21, commit `3b086e53`, Release build, Windows ARM64 laptop (Windows 11, 200 % scale): the Desktop project's `--shell-window --part=2/2` exited -1073740940 (0xC0000374, STATUS_HEAP_CORRUPTION) and `DesktopChecks.ExitLine` printed it as a native crash, not a check verdict.
+- **Where it died.** The Desktop log of that run was not kept (`.tmp-tests/` is deleted at the start of each run), so the last PASS line the part printed is not known, and the crash cannot be called unrelated to D8, which `--shell-window` hosts.
+- **Frequency.** 1 crash in 3 full runs on this branch that this record can count (the continuation's first run, its green rerun, and this cycle's final run, TESTS-GREEN in 170 s). The rerun command was the same `bash tools/run-tests.sh`; its last line was `TESTS-GREEN`.
+- **Cross-reference.** The second occurrence of `HARNESS-CRASH-AS-VERDICT` (`docs/lessons/defect-classes.md`; the first was `--properties-view` in track D1), in a second mode, so the cause is not in one mode's checks. No new defect-class entry: no control changed. WER LocalDumps capture for the Desktop harness is an operator item for the board.
+
+### Left as a recorded follow-up
+
+- **Side outline error in pixels (review MC-5).** Not measured in this cycle (budget). `ElevationView.SliceSection` keeps its `simplify:` marker with the mesh-pitch ceiling; measure the largest distance between the linear blend and `Placement.Sections` at the slice eta on F-CAMBER and F-PEAK at eta 35 % and switch to the exact sections if it exceeds 1 device pixel.

@@ -45,6 +45,46 @@ public static partial class PlanCanvasTests
 
     public static void RunStations()
     {
+        // Design 5.2, Place (Plan): a press in the chip strip places the slice, within 4 px of a station's line it selects that station,
+        // and the arrow keys nudge 0.01 / 0.1 / 1 mm (Command, plain, Shift) in a percent document and in a metre document; Escape clears.
+        DesktopChecks.Check("PlanCanvas_PlaceInChipStrip_SnapToStation_NudgeSteps_EscapeClears", () =>
+        {
+            using var fixture = StationFixture(StationDesktopTests.ThreeSame());
+            var controller = fixture.Controller;
+            var canvas = fixture.Canvas;
+            double y = canvas.VisibleStationChips[0].Bounds.Center.Y, below = canvas.VisibleStationChips[0].Bounds.Bottom + 1;   // below the chip, inside the strip, so a chip hit cannot answer for the snap
+            double x0 = canvas.StationLineX(0), x1 = canvas.StationLineX(1), x2 = canvas.StationLineX(2);
+            fixture.ClickAt(new Point(x0 + 0.35 * (x2 - x0), y));
+            if (controller.Selection is not Selection.Slice { Eta: var placed } || Math.Abs(placed - 0.35) > 0.01) throw new Exception("A press in the chip strip did not place the slice near 35 %: " + controller.Selection);
+            fixture.ClickAt(new Point(x1 + 3, below));
+            if (controller.Selection is not Selection.Station { Index: 1 }) throw new Exception("A press 3 px from a station's line did not select it: " + controller.Selection);
+            fixture.ClickAt(new Point(x1 + 9, below));
+            if (controller.Selection is not Selection.Slice) throw new Exception("A press 9 px from a station's line selected it: " + controller.Selection);
+
+            foreach (var (label, sections) in new[]
+            {
+                ("percent", "at root profile \"a\" at 60 % profile \"a\" at tip profile \"a\""),
+                ("metre", "at root profile \"a\" at 0.27 m profile \"a\" at tip profile \"a\"")
+            })
+            {
+                using var doc = StationFixture(StationDesktopTests.Doc(sections, 120, ("a", new[] { 0, 0.025, 0.055, 0.065, 0.05, 0.03, 0.01, 0 })));
+                double half = doc.Controller.Inspection!.Authored.HalfSpanMeters ?? throw new Exception("no half span");
+                doc.Controller.PlaceSliceTyped("157.5 mm");
+                doc.Settle();
+                double Metres() => ((Selection.Slice)doc.Controller.Selection).Eta * half;
+                foreach (var (modifier, step) in new[] { (KeyModifiers.Control, 0.00001), (KeyModifiers.None, 0.0001), (KeyModifiers.Shift, 0.001) })
+                {
+                    double before = Metres();
+                    doc.KeyDown(Key.Right, modifier);
+                    if (Math.Abs(Metres() - before - step) > 1e-8) throw new Exception(label + " Right " + modifier + " moved " + (Metres() - before) * 1000 + " mm, expected " + step * 1000);
+                    doc.KeyDown(Key.Left, modifier);
+                    if (Math.Abs(Metres() - before) > 1e-8) throw new Exception(label + " Left " + modifier + " did not return to " + before * 1000 + " mm: " + Metres() * 1000);
+                }
+                doc.KeyDown(Key.Escape);
+                if (doc.Controller.Selection is not Selection.Foil) throw new Exception(label + " Escape on the canvas left " + doc.Controller.Selection);
+            }
+        });
+
         DesktopChecks.Check("AddStationEntry_AccessibleNameContainsVisibleLabel", () =>
         {
             using var fixture = StationFixture(StationDesktopTests.ThreeSame());
