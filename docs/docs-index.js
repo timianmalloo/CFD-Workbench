@@ -2339,12 +2339,16 @@ window.DOCS_INDEX = {
           "rel": "relates-to"
         },
         {
+          "to": "spec-amendments-1-7-9",
+          "rel": "relates-to"
+        },
+        {
           "to": "design-language",
           "rel": "depends-on"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e34b5c3791cb64d4caad7fd9fc559f30833352c1296a09559fd4ca4d34dbb5d0"
+      "sourceSha256": "f75183380c58e8d12ac77eb7b6bb7a9f47539791b9bd80056ed6671efa0c281a"
     },
     {
       "id": "design-app-shell",
@@ -22932,6 +22936,48 @@ window.DOCS_INDEX = {
       "sourceSha256": "86f84ea4414206a57a2c2c6396a11e888208f91d51fe3090dc586368d43ed906"
     },
     {
+      "id": "spec-amendments-1-7-9",
+      "path": "docs/specs/amendments/spec-1.7.9.md",
+      "title": "Spec 1.7.9 amendment note — Match the blend before Remove station (CAD-02, A4.6, SF2)",
+      "type": "spec",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "Two proposed amendments to cfd-workbench-v1 CAD-02 and the A4.6 1.7 note, from section 13 of the Add station design (DR-S1-2 option c, the S1 Adversary's missed option): an interior station can be matched to the blend of its neighbours, previewed with the measured change and the residual a later Remove would still make, with no gate of its own; Remove keeps its 10 um acceptance. Proposed; DR-DF-4 and DR-DF-5 decide the gate and the differing-peaks offer.",
+      "tags": [
+        "spec",
+        "amendments",
+        "cad",
+        "station",
+        "remove",
+        "match-the-blend",
+        "cad-02",
+        "a4-6"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-amendments-add-station",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-add-station",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c1f28bc3c56a282309669bdc82429965592e78cfbf6ac43edc1c6b9bad96f48e"
+    },
+    {
       "id": "spec-amendments-add-station",
       "path": "docs/specs/amendments/spec-add-station.md",
       "title": "Spec amendments for Add station and Promote (GEO-06, CAD-02, A4.6) — Ruling 252",
@@ -23793,5 +23839,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d1751887d2f503dc417873e1de6d8a8417b3210a81fb50cb83bb2596116aa2d1"
+  "graphSha256": "a9b259e7fff973bfaccd3ea17138586808f944e0f17c8b4f6822117092b9e09d"
 };
