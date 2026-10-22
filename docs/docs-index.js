@@ -9965,14 +9965,10 @@ window.DOCS_INDEX = {
         {
           "to": "coordination-next-best-six",
           "rel": "relates-to"
-        },
-        {
-          "to": "adr-0003-application-stack",
-          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "51e9ae13523b68ee9a32f52b1fbb1edf6bfc87d6f850eac7829c51f186b97c01"
+      "sourceSha256": "0d4ee77c66a672948717d4157ec8107818cfc9eb8d9a6d1b6f25cf0a691c0215"
     },
     {
       "id": "investigation-ezf-zoompanfit",
@@ -24293,5 +24289,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d6c6103e6c346833224a2442791eb23f11023aae85a334a36080e5168d4a2ed6"
+  "graphSha256": "1cbd9b47c2896a9e44779f3887dd264eb638d27bbc849e76d43c2f970ea86dd9"
 };

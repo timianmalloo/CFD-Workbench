@@ -10,7 +10,6 @@ links:
   - { to: proof-pvh-crash-loop, rel: relates-to }
   - { to: defect-classes, rel: relates-to }
   - { to: coordination-next-best-six, rel: relates-to }
-  - { to: adr-0003-application-stack, rel: relates-to }
 review-by: "2026-11-22"
 summary: >-
   Desktop harness children die with STATUS_HEAP_CORRUPTION about once in eight full runs on the Windows ARM64 laptop and
