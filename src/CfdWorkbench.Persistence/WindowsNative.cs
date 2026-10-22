@@ -285,7 +285,7 @@ internal static unsafe partial class WindowsNative
     // PROTECTED_DACL_SECURITY_INFORMATION = 0x80000000 (SetSecurityInfo stops inheritance); winerror.h ERROR_ALREADY_EXISTS = 183.
     // https://learn.microsoft.com/en-us/windows/win32/api/aclapi/nf-aclapi-setsecurityinfo
     // https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createdirectoryw
-    private const uint ReadControl = 0x00020000, WriteDac = 0x00040000, DaclProtected = 0x80000004;
+    private const uint WriteDac = 0x00040000, DaclProtected = 0x80000004;
     private const int AlreadyExists = 183;
 
     // https://learn.microsoft.com/en-us/windows/win32/api/wtypesbase/ns-wtypesbase-security_attributes
