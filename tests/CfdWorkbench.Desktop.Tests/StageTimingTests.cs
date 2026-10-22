@@ -123,19 +123,56 @@ public static class StageTimingTests
             var output = new StringWriter();
             int exit = DesktopChecks.SpawnWith(output, TextWriter.Null, _ =>
                 ([(false, "P\0r\0o\0c\0e\0s\0s\0"), (false, "\0SCALE_CONTEXT mode=properties-view RenderScaling=2"), (false, "\0PARTITION 1/1 of 68 checks")], 0, 0.0),
-                ["--properties-view --part=1/1"], _ => null);
+                ["--properties-view --part=1/1"], k => k == SelfLaunch.WrapperVariable ? "W" : null);
             string text = output.ToString();
             if (exit != 0 || text.Contains("FAIL", StringComparison.Ordinal))
                 throw new Exception($"exit {exit}: " + string.Join(" | ", text.Split('\n').Where(l => l.Contains("FAIL", StringComparison.Ordinal))));
         });
-        // CR1 crash-capture probe: with CFD_FORCE_HEAP_CORRUPTION=1 it corrupts a native heap block so ntdll raises 0xC0000374, which a
-        // wrapped child (CFD_TEST_CHILD_WRAPPER) must leave a dump of. Unset, it does nothing and passes. Select it with CFD_TEST_ONLY.
-        DesktopChecks.Check("ExitLine_ForcedHeapCorruption_Probe", () =>
+        // CR1: ProcDump -x exits 0 whatever the child's code and prints the code as "Process Exit: PID n, Exit Code 0x...". A wrapped child's
+        // verdict is that code, and a missing line fails the child by name. Ring: fast (pure). Cost: under 1 ms.
+        DesktopChecks.Check("ChildWrapper_ReadsTheChildsExitFromProcDumpsLine", () =>
         {
-            if (Environment.GetEnvironmentVariable("CFD_FORCE_HEAP_CORRUPTION") != "1") return;
-            nint block = System.Runtime.InteropServices.Marshal.AllocHGlobal(16);
-            for (int offset = 16; offset < 80; offset += 8) System.Runtime.InteropServices.Marshal.WriteInt64(block, offset, -1L);
-            System.Runtime.InteropServices.Marshal.FreeHGlobal(block);
+            (string Transcript, int Expected)[] cases =
+            [
+                ("[09:00:01]Process Exit: PID 4242, Exit Code 0x00000001", 1),
+                ("\0[\009:00:01]\0P\0r\0o\0c\0e\0s\0s\0 \0E\0x\0i\0t\0:\0 \0P\0I\0D\0 \04\02\0,\0 \0E\0x\0i\0t\0 \0C\0o\0d\0e\0 \00\0x\00\00\00\00\00\00\04\06", 70),
+                ("[09:00:01]Process Exit: PID 4242, Exit Code 0xC0000374", -1073740940),
+                ("[09:00:01]Process Exit: PID 4242, Exit Code 0x00000000", 0),
+            ];
+            foreach (var (transcript, expected) in cases)
+            {
+                var (exit, failure) = ChildWrapper.Read("--m", ["ProcDump v12", transcript, "tail"], 0);
+                if (exit != expected || failure is not null) throw new Exception($"'{transcript.Replace("\0", "")}': exit {exit}, failure {failure}; expected {expected}");
+            }
+        });
+        DesktopChecks.Check("ChildWrapper_NoExitLine_FailsTheChildByName", () =>
+        {
+            var (exit, failure) = ChildWrapper.Read("--m", ["ProcDump v12", "no exit line here"], 0);
+            if (exit == 0 || failure is null || !failure.StartsWith("FAIL CHILD-WRAPPER --m:", StringComparison.Ordinal))
+                throw new Exception($"exit {exit}, failure {failure ?? "(none)"}");
+            var (wrapperExit, _) = ChildWrapper.Read("--m", [], 7);
+            if (wrapperExit != 7) throw new Exception($"the wrapper's own nonzero code was replaced: {wrapperExit}");
+        });
+        // CR1 crash-capture probe: registered only under CFD_FORCE_HEAP_CORRUPTION=1 (an ordinary run prints no line for it). It corrupts a
+        // native heap block so ntdll raises 0xC0000374, which a wrapped child (CFD_TEST_CHILD_WRAPPER) must leave a dump of. Select it with CFD_TEST_ONLY.
+        if (Environment.GetEnvironmentVariable("CFD_FORCE_HEAP_CORRUPTION") == "1")
+            DesktopChecks.Check("ExitLine_ForcedHeapCorruption_Probe", () =>
+            {
+                nint block = System.Runtime.InteropServices.Marshal.AllocHGlobal(16);
+                for (int offset = 16; offset < 80; offset += 8) System.Runtime.InteropServices.Marshal.WriteInt64(block, offset, -1L);
+                System.Runtime.InteropServices.Marshal.FreeHGlobal(block);
+            });
+        // CR1: the log names a wrapped run once; a bare run's child lines (NULs included) reach the parser unchanged.
+        DesktopChecks.Check("Spawn_WrapperSet_NamesItOnce_BareLeavesNulsAlone", () =>
+        {
+            var wrapped = new StringWriter();
+            DesktopChecks.SpawnWith(wrapped, TextWriter.Null, _ => ([], 0, 0.0), ["--a", "--b"], k => k == SelfLaunch.WrapperVariable ? "C:\\tools\\procdump64a.exe -ma" : null);
+            string[] named = wrapped.ToString().Split('\n').Where(l => l.StartsWith("CHILD-WRAPPER active: procdump64a.exe", StringComparison.Ordinal)).ToArray();
+            if (named.Length != 1) throw new Exception($"{named.Length} CHILD-WRAPPER lines: {wrapped}");
+            var bare = new StringWriter();
+            DesktopChecks.SpawnWith(bare, TextWriter.Null, _ => ([(false, "a\0b")], 0, 0.0), ["--a"], _ => null);
+            if (bare.ToString().Contains("CHILD-WRAPPER", StringComparison.Ordinal) || !bare.ToString().Contains("a\0b", StringComparison.Ordinal))
+                throw new Exception("a bare run changed a child line or named a wrapper: " + bare.ToString().Replace("\0", "<NUL>"));
         });
     }
 
