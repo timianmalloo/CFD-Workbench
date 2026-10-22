@@ -2777,6 +2777,59 @@ window.DOCS_INDEX = {
       "sourceSha256": "e8a4436a4e96122828f90787c0e14342ea630f7085d06136b47b364441896bca"
     },
     {
+      "id": "design-compatible-fit",
+      "path": "docs/design/compatible-fit.md",
+      "title": "Design: the Ruling 73 compatible fit, sized for a build (mixed spacing, cfdw-cv/3, R3 promotion)",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design — track DF of next-best-six wave 2; documents only; design and size estimate, not built in this wave unless the leader says so",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "Ruling 73's compatible fit brought to the as-built tree after Rulings 74, 252 and 256 and the S1 build: each station section stays as drawn; a derived, never-stored compatible copy of each on one shared spacing feeds the certificate and the placed surface through one entry in Geometry and Placement; each copy is admitted at 10 um on the placed surface; cfdw-cv/3 is written per design row only when station sections differ in spacing, and older rows are never rewritten. R3 promotion, Match and Remove run on the copies, with the measure widened to every interval when the shared spacing changes. Size for a Sonnet build about 440 calls and 1.2M tokens planned (about 690 calls and 2.2M at the S1 overrun ratios); recommendation next wave.",
+      "tags": [
+        "core",
+        "geometry",
+        "compatible-fit",
+        "cross-profile",
+        "abscissa",
+        "evaluator-id",
+        "cfdw-cv-3",
+        "station",
+        "promote",
+        "ruling-73",
+        "size-estimate"
+      ],
+      "links": [
+        {
+          "to": "design-cross-profile-abscissa",
+          "rel": "refines"
+        },
+        {
+          "to": "rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "design-add-station",
+          "rel": "relates-to"
+        },
+        {
+          "to": "decision-loft-rule-a",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0010-one-placement-rule",
+          "rel": "relates-to"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a1b94152b38652e29e0efbf7ab54f7cc04a14110d8344a05b25df7fbfaa319b9"
+    },
+    {
       "id": "design-cross-profile-abscissa",
       "path": "docs/design/cross-profile-abscissa.md",
       "title": "Design: cross-profile abscissa — certify a blend between sections with their own point counts (compatible fit; knot propagation as fallback; Ruling 71 option 1)",
@@ -23839,5 +23892,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "a9b259e7fff973bfaccd3ea17138586808f944e0f17c8b4f6822117092b9e09d"
+  "graphSha256": "4791b26cbd51874d3a7481f7de0fac846ce5385624f91860751e581001a937ca"
 };
