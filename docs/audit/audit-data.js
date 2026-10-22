@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T19:18:28Z",
+  "generated": "2026-10-22T19:21:50Z",
   "audit": [
     {
       "actor": null,
@@ -42327,6 +42327,33 @@ window.AUDIT_DATA = {
       "tier": "T0",
       "started_at": "2026-10-22T19:17:23Z",
       "duration_seconds": 65.0
+    },
+    {
+      "id": "al-01M5JH009RY0WF41CFYH8WH6M9",
+      "shortname": "join-w2b-spec-1710",
+      "datetime": "2026-10-22T19:21:50Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of w2b-spec-1710 into main",
+      "summary": "docs-only join: spec-1.7.10 accepted under Ruling 264 with its two rows applied to docs/specs/cfd-workbench-v1.md in the same change, so the spec, the design, the ADR-0011 note and the code all state the 32,000,000-byte cap recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "land the spec statement of the ruled cap before the MX code join",
+      "done_when": "w2b-spec-1710 merged on main with check-docs, verify-ruling-citations and the ten gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-22T19:21:27Z",
+      "duration_seconds": 23.0
     }
   ],
   "changes": [
@@ -46027,6 +46054,24 @@ window.AUDIT_DATA = {
       "to": "opus-leader",
       "kind": "ruling",
       "ref": "req-01M5JD60BK73TRNY4QCD3JB61Z",
+      "session": "opus-owner"
+    },
+    {
+      "id": "mail-01M5JGV43E0HTJJD7C1NKQK046",
+      "ts": "2026-10-22T19:19:10Z",
+      "from": "opus-leader",
+      "to": "opus-owner",
+      "kind": "decision-request",
+      "ref": "req-01M5JGV431WR5FCMN76PMZA5TA",
+      "session": "opus-leader"
+    },
+    {
+      "id": "mail-01M5JGVYWQ021BC4B0MVX0EB16",
+      "ts": "2026-10-22T19:19:37Z",
+      "from": "opus-owner",
+      "to": "opus-leader",
+      "kind": "ruling",
+      "ref": "req-01M5JGV431WR5FCMN76PMZA5TA",
       "session": "opus-owner"
     }
   ]
