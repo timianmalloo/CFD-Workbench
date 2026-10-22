@@ -45,6 +45,34 @@ public static partial class PlanCanvasTests
 
     public static void RunStations()
     {
+        DesktopChecks.Check("PlanCanvas_SliceChip_AutomationPeerNamesChipAndInvokesPromoteAndClear", () =>
+        {
+            using var fixture = StationFixture(StationDesktopTests.ThreeSame());
+            var controller = fixture.Controller;
+            var canvas = fixture.Canvas;
+            var peer = Avalonia.Automation.Peers.ControlAutomationPeer.CreatePeerForElement(canvas)!;
+            if (peer.GetChildren().Any(child => child.GetName().StartsWith("Inspection slice", StringComparison.Ordinal))) throw new Exception("A slice chip peer exists with no slice");
+            controller.PlaceSliceTyped("35");
+            fixture.Settle();
+            var chip = peer.GetChildren().FirstOrDefault(child => child.GetName() == "Inspection slice, η 35.0 percent, 157.5 millimetres")
+                ?? throw new Exception("The canvas peer has no slice chip child: " + string.Join(" | ", peer.GetChildren().Select(child => child.GetName())));
+            var actions = chip.GetChildren();
+            var promote = actions.FirstOrDefault(child => child.GetName() == "Promote") ?? throw new Exception("The chip peer has no Promote action");
+            var clear = actions.FirstOrDefault(child => child.GetName() == "Clear slice") ?? throw new Exception("The chip peer has no × action");
+            if (promote is not Avalonia.Automation.Provider.IInvokeProvider promoteInvoke || clear is not Avalonia.Automation.Provider.IInvokeProvider clearInvoke || chip is not Avalonia.Automation.Provider.IInvokeProvider)
+                throw new Exception("The chip, Promote or × is not invokable");
+            if (promote.GetBoundingRectangle().Width < 24 || clear.GetBoundingRectangle().Width < 24) throw new Exception("An action peer is under 24 px (WCAG 2.5.8)");
+            clearInvoke.Invoke();
+            fixture.Settle();
+            if (controller.Selection is not Selection.Foil) throw new Exception("The × peer did not clear the slice: " + controller.Selection);
+            controller.PlaceSliceTyped("35");
+            fixture.Settle();
+            var again = peer.GetChildren().First(child => child.GetName().StartsWith("Inspection slice", StringComparison.Ordinal)).GetChildren().First(child => child.GetName() == "Promote");
+            ((Avalonia.Automation.Provider.IInvokeProvider)again).Invoke();
+            StationWait(fixture, () => StationDesktopTests.StationCount(controller) == 4 && !controller.SurfaceUpdating, "the promotion from the peer");
+            if (peer.GetChildren().Any(child => child.GetName().StartsWith("Inspection slice", StringComparison.Ordinal))) throw new Exception("The slice chip peer outlives the slice");
+        });
+
         DesktopChecks.Check("Station_KeyboardPlacement_EntryTypesPromotesAndEscapes", () =>
         {
             using var fixture = StationFixture(StationDesktopTests.ThreeSame());

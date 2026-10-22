@@ -208,9 +208,25 @@ S1-COPY-1 to COPY-553, 2 to 554, 3 to 555, 4 to 556, 5 to 557, 6 to 558, 7 to 55
 - **`PropertiesPane.axaml.cs` was edited** (not in the S1-b list; seam request raised): the Action row click calls
   `WorkbenchController.RunStationAction`, a row in `RowState.Unavailable` is disabled with its reason as help text, the flyout's Escape key,
   and `StationPanel` is passed in the context.
-- **Not built:** the typed position entry control (the controller verb `PlaceSliceTyped` is tested; no entry field is drawn, because the
-  options strip is `ModelArea`), the slice line in Front and the slice outline in Side (`ElevationView` draws the selected promoted station
-  through the existing path, which D4 proves), the slice chip's automation child peer (the name is the property `PlanCanvas.SliceChipName`).
+- **Built in repair cycle 1** (the former "Not built" list; red lines on `58ed07eb` plus the pre-implementation state, mutants reverted):
+
+| Item | Check | Red (last line) | Mutant (red line) | Green |
+|---|---|---|---|---|
+| Front line, Side outline and chip | `Elevation_Slice_FrontDashedLine_SideDashedOutlineAndChip` (`--views`) | `Front slice line is not dashed: 5 station px, 1 gaps` (nothing drawn; first threshold set) | Side outline omitted: `Side slice outline is not dashed: 0 station px, 1193 gaps`; Front line omitted: `Front slice line is not dashed: 0 station px, 14 gaps` | PASS |
+| Place (Front), press-drag on the span axis | `Elevation_SlicePlaceFront_PressDragOnSpanAxis` (`--views`) | `Press on the span axis: Foil { }` | not run (the red is the missing handler) | PASS |
+| Keyboard placement | `Station_KeyboardPlacement_EntryTypesPromotesAndEscapes` (`--plan-canvas`) | `RuntimeBinderException: 'CfdWorkbench.Desktop.ModelArea' does not contain a definition for 'AddStationInput'` | Return not wired: `Timed out waiting for the promotion from the entry` | PASS |
+| Slice chip automation peer | `PlanCanvas_SliceChip_AutomationPeerNamesChipAndInvokesPromoteAndClear` (`--plan-canvas`) | `The canvas peer has no slice chip child: Leading edge, point 1 of 7, ...` | peer not created: `The canvas peer has no slice chip child` | PASS |
+
+  - The Front line and the Side outline are drawn from the two mesh sections that bracket the slice, blended linearly in eta (`simplify:` in
+    `ElevationView.SliceSection`; the ceiling is the mesh pitch). The Front line reads against the foil fill by comparing the column with the
+    column 6 px aside.
+  - The eta entry is a small panel in the Plan slot beside the Add point panel (`AddStationPanel` in `ModelArea`): CAD-07's options strip no
+    longer exists as a control (CAD-21 superseded it), so the Add point panel is the precedent. Its heading "Add station · from root" and the
+    accessible name have no S1-COPY row; the nearest wording is COPY-569. The approximate-promotion group is reached by the same Return path
+    (`PromoteSliceAsync`); the check promotes an R0 fixture, and D9 covers the flyout.
+  - The peer's action names are "Promote" and "Clear slice" ("Clear slice" has no copy row).
+  - **Finding F-CHIP (not fixed, out of scope):** the Plan station chips have no automation peer; the canvas peer's children are the curve
+    points and now the slice chip. `ElevationView` has the same gap for its Side chips.
 - **Chip strip:** the selected station keeps its chip when neighbours collide (needed for D4); the slice chip drops its distance, then its
   label, when the canvas is narrow, so Promote and x stay on screen.
 - **Fixtures:** the Desktop checks cannot reach Core's internal fixtures, so `StationDesktopTests.Doc` writes the foil text.

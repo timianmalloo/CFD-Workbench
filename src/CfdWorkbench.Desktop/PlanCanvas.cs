@@ -927,6 +927,11 @@ public sealed class PlanCanvas : Control
             return;
         }
         foreach (var peer in peers) peer.RefreshName();
+        if (SliceChipName != announcedSlice)
+        {
+            announcedSlice = SliceChipName;
+            (ControlAutomationPeer.CreatePeerForElement(this) as PlanCanvasPeer)?.Refresh();   // the slice chip appears, moves or goes
+        }
         var plan = Controller?.Planform;
         Controller?.RefreshComb(plan);
         if (plan is null || Bounds.Width <= 0 || Bounds.Height <= 0)
@@ -1370,6 +1375,7 @@ public sealed class PlanCanvas : Control
 
     private sealed class PlanCanvasPeer(PlanCanvas owner) : ControlAutomationPeer(owner)
     {
+        public void Refresh() => InvalidateChildren();
         protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.Group;
         protected override List<AutomationPeer>? GetChildrenCore()
         {
@@ -1377,12 +1383,44 @@ public sealed class PlanCanvas : Control
                 ? owner.targets.Select(point => CurvePointLayer.Peer(owner, () => owner.PointName(point),
                     () => owner.ScreenPoint(owner.Live(point)), () => owner.RequestValue(point))).ToList()
                 : [];
-            return owner.peers.Cast<AutomationPeer>().ToList();
+            var children = owner.peers.Cast<AutomationPeer>().ToList();
+            if (owner.SliceChipName is not null) children.Add(new SliceChipPeer(owner));
+            return children;
         }
     }
 
+    /// <summary>
+    /// The inspection slice chip for assistive technology (design 5.6): one object named "Inspection slice, η …", Invoke =
+    /// Promote, with Promote and × as its own invokable children. simplify: the station chips have no peer today (finding F-CHIP,
+    /// recorded in the S1-b proof); ceiling: the slice chip; upgrade when the station chips get theirs.
+    /// </summary>
+    private sealed class SliceChipPeer(PlanCanvas owner) : ControlAutomationPeer(owner), IInvokeProvider
+    {
+        protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.Group;
+        protected override string GetNameCore() => owner.SliceChipName ?? "";
+        protected override Rect GetBoundingRectangleCore() => ScreenRect(owner, owner.SliceChipBounds);
+        public void Invoke() => _ = owner.Controller?.PromoteSliceAsync();
+        protected override List<AutomationPeer>? GetChildrenCore() =>
+        [
+            new SliceActionPeer(owner, "Promote", () => owner.SlicePromoteBounds, () => _ = owner.Controller?.PromoteSliceAsync()),
+            new SliceActionPeer(owner, "Clear slice", () => owner.SliceClearBounds, () => owner.Controller?.ClearSlice())
+        ];
+    }
+
+    private sealed class SliceActionPeer(PlanCanvas owner, string name, Func<Rect?> bounds, Action invoke) : ControlAutomationPeer(owner), IInvokeProvider
+    {
+        protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.Button;
+        protected override string GetNameCore() => name;
+        protected override Rect GetBoundingRectangleCore() => ScreenRect(owner, bounds());
+        public void Invoke() => invoke();
+    }
+
+    private static Rect ScreenRect(PlanCanvas owner, Rect? local) =>
+        local is { } rect && owner.GetVisualRoot() is Visual root && owner.TranslatePoint(rect.TopLeft, root) is { } origin ? new Rect(origin, rect.Size) : default;
+
     /// <summary>Peers handed out by the last child query; each is told when the model moves under its name.</summary>
     private List<CurvePointLayer.PointPeer> peers = [];
+    private string? announcedSlice;
 
     /// <summary>
     /// The point as the model holds it now. A peer is created from a snapshot taken at the last layout and a client may keep
