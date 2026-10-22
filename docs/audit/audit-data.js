@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T18:40:57Z",
+  "generated": "2026-10-22T19:01:56Z",
   "audit": [
     {
       "actor": null,
@@ -41943,6 +41943,25 @@ window.AUDIT_DATA = {
       "tier": "T2",
       "started_at": "2026-10-22T18:25:54Z",
       "duration_seconds": 903.0
+    },
+    {
+      "id": "al-01M5JFVJBAT9YR19ERFCV630ZP",
+      "shortname": "w2b-sf2-r1b",
+      "datetime": "2026-10-22T19:01:56Z",
+      "session": "w2b-sf2",
+      "prompt": "wave 2 SF2 repair R-2: matched-station refusal by regime, Properties Match links and Escape, shared-profile guard, measured row, proof summary",
+      "summary": "SF2 repair R-2: a matched station states the measured Remove residual (COPY-633, COPY-629 narrowed) and the Remove flyout no longer offers Match for it; stn:match and fly:match answer a click and Escape returns focus to the invoker; ReplaceProfileBlock refuses a shared profile; the Measured row only when measured; proof records Remove before 190.94 um and after Match 166.02 um (closer to the gate) and the rewritten summary. Red first and mutants red for B1, B2, N3; N1 red first.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T18:41:52Z",
+      "duration_seconds": 1204.0
     }
   ],
   "changes": [
