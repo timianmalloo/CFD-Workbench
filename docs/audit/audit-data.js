@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T18:04:09Z",
+  "generated": "2026-10-22T18:37:38Z",
   "audit": [
     {
       "actor": null,
@@ -42127,6 +42127,25 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T18:00:18Z",
       "duration_seconds": 231.0
+    },
+    {
+      "id": "al-01M5JEF2F29PVFX78KMDQ6K5NA",
+      "shortname": "w2b-bs-b",
+      "datetime": "2026-10-22T18:37:38Z",
+      "session": "w2b-bs-b",
+      "prompt": "wave 2 BS node B",
+      "summary": "Node B read-only Open from OneDrive: attribute handle A, empty-name data handle D, Ruling 260 predicate, DOC-CLOUD-ONLY only at O3, DOC-CONFLICT after, read-only origin chrome, CLI exit 3, COPY-592 to 594 proposed. Core, Analysis, Cli harnesses green; 13 mutants red; real-file checks SKIP.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T18:14:07Z",
+      "duration_seconds": 1411.0
     }
   ],
   "changes": [
