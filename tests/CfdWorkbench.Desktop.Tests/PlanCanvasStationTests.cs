@@ -374,6 +374,9 @@ public static partial class PlanCanvasTests
             fixture.Settle();
             HyperlinkButton Link(string text) => fixture.Window.GetVisualDescendants().OfType<HyperlinkButton>().FirstOrDefault(link => link.Content as string == text && link.IsVisible)
                 ?? throw new Exception("No visible link '" + text + "'");
+            // The Remove flyout's own link (row fly:match), not the panel's stn:match link that stays visible beside it.
+            HyperlinkButton FlyoutMatchLink() => fixture.Window.GetVisualDescendants().OfType<HyperlinkButton>().FirstOrDefault(link => link.Name == "Link_fly_match" && link.IsVisible)
+                ?? throw new Exception("No visible fly:match link in the Remove flyout");
             // 1. stn:match opens the Match flyout; Escape returns focus to "Match the blend…".
             var match = Link(WorkbenchController.MatchLabel);
             match.Focus();
@@ -393,7 +396,10 @@ public static partial class PlanCanvasTests
             StationWait(fixture, () => controller.Flyout is { Kind: WorkbenchController.StationFlyoutKind.Remove, Checking: false, MatchOffered: true }, "the Remove preview");
             fixture.Host.RefreshPanes();
             fixture.Settle();
-            Link(WorkbenchController.MatchLabel).RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            string removeLine = controller.Flyout!.Line;
+            if (fixture.Window.GetVisualDescendants().OfType<HyperlinkButton>().Count(link => link.Content as string == WorkbenchController.MatchLabel && link.IsVisible) != 2)
+                throw new Exception("The panel and the Remove flyout should each show one visible Match link");
+            FlyoutMatchLink().RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
             StationWait(fixture, () => controller.Flyout is { Kind: WorkbenchController.StationFlyoutKind.Match, Checking: false }, "the Match preview after a click on fly:match");
             fixture.Host.RefreshPanes();
             fixture.Settle();
@@ -401,8 +407,9 @@ public static partial class PlanCanvasTests
             if (!apply.IsEnabled) throw new Exception("Apply is disabled on the Match flyout");
             apply.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
             StationWait(fixture, () => controller.Flyout is { Kind: WorkbenchController.StationFlyoutKind.Remove, Checking: false }, "the Remove flyout reopened after the match");
-            if (!controller.Status.StartsWith("Matched Station 2 to the blend", StringComparison.Ordinal) && controller.Flyout?.Line.Contains(" µm (", StringComparison.Ordinal) != true)
-                throw new Exception("fly:apply did not apply the match: " + controller.Status);
+            // The reopened Remove preview replaces the receipt in the status line, so the apply is read from the document: the station now matches (no Match offered) and Remove changes the loft less.
+            if (controller.Flyout is not { MatchOffered: false } || controller.Flyout.Line == removeLine)
+                throw new Exception("fly:apply did not apply the match: " + controller.Flyout?.Line + " (before: " + removeLine + ")");
             controller.CancelFlyout();
             // 3. Escape on a Match flyout opened from the Remove flyout leaves the panel on "Remove station" (the Remove flyout is closed by it).
             controller.Undo();
@@ -412,7 +419,7 @@ public static partial class PlanCanvasTests
             StationWait(fixture, () => controller.Flyout is { Kind: WorkbenchController.StationFlyoutKind.Remove, Checking: false, MatchOffered: true }, "the Remove preview after Undo");
             fixture.Host.RefreshPanes();
             fixture.Settle();
-            Link(WorkbenchController.MatchLabel).RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            FlyoutMatchLink().RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
             StationWait(fixture, () => controller.Flyout is { Kind: WorkbenchController.StationFlyoutKind.Match, Checking: false }, "the Match preview from the Remove flyout");
             fixture.Host.RefreshPanes();
             fixture.Settle();

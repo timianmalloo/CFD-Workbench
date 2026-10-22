@@ -939,6 +939,8 @@ public sealed class WorkbenchController : IDisposable
         return new CommitOutcome.Committed(result.AcceptedId, receipt) { SelectItem = new Selection.Station(result.Index, eta) };
     }, warningOnRefusal: true, preserveStatusAfterCommit: true);
 
+    private Func<AuthoringSession, int, MatchPreview> previewMatch = static (owner, index) => owner.PreviewMatchBlend(index);   // a field so a check can make the Match preview fail
+
     /// <summary>Remove: the flyout opens at once in its Checking state; the preview runs off the UI thread and fills it in.</summary>
     public async Task BeginRemoveStationAsync(int index)
     {
@@ -957,16 +959,7 @@ public sealed class WorkbenchController : IDisposable
         SetStatus(CheckingCopy, ReportKind.Info);
         Notify();
         RemovalPreview preview;
-        bool alreadyMatched = false;
-        try
-        {
-            (preview, alreadyMatched) = await Task.Run(() =>
-            {
-                var removal = captured.PreviewRemove(index);
-                // Match is offered only where it can change the shape (SF2 repair B1): a station that already matches is not sent to Match again.
-                return (removal, removal.DeviationRelative > 1e-12 && captured.PreviewMatchBlend(index).RefusalCode == "STATION-MATCHED");
-            });
-        }
+        try { preview = await Task.Run(() => captured.PreviewRemove(index)); }
         catch (ContractError error)
         {
             flyout = null;
@@ -983,11 +976,21 @@ public sealed class WorkbenchController : IDisposable
         {
             Line = string.Create(CultureInfo.InvariantCulture, $"The shape between {left} and {right} is re-blended. Largest change {preview.DeviationMeters * 1e6:F2} µm " +
                 $"({RelativeText(preview.DeviationRelative)} of chord) at η {preview.AtEta * 100:F1} %, sampled. Limit 10 µm."),   // S1-COPY-14
-            Checking = false, ApplyEnabled = preview.Admitted, ApplyReason = preview.Admitted ? null : ApplyAboveLimit,
-            MatchOffered = preview.DeviationRelative > 1e-12 && !alreadyMatched   // a Remove that is not exact can be made exact by matching first (design §13.5)
+            Checking = false, ApplyEnabled = preview.Admitted, ApplyReason = preview.Admitted ? null : ApplyAboveLimit
         };
         SetStatus(flyout.Line, preview.Admitted ? ReportKind.Info : ReportKind.Warning);
         Notify();
+        // The result is on screen; whether Match is offered follows (SF2 repair 2, F1). A Remove that is not exact can be made exact by matching first (design §13.5),
+        // but not a station that already matches (SF2 repair B1). A failed Match preview only leaves Match unoffered: the Remove preview stays.
+        if (preview.DeviationRelative <= 1e-12) return;
+        bool offered;
+        try { offered = await Task.Run(() => previewMatch(captured, index).RefusalCode != "STATION-MATCHED"); }
+        catch (ContractError) { return; }
+        if (ReferenceEquals(session, captured) && stateVersion == version && flyout is { Kind: StationFlyoutKind.Remove, Checking: false } shown && shown.Index == index)
+        {
+            flyout = shown with { MatchOffered = offered };
+            Notify();
+        }
     }
 
     /// <summary>"Sampled on 129 η × 2001 x, not a bound" from the Core grid label.</summary>

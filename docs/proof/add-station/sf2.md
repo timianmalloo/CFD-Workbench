@@ -15,7 +15,8 @@ summary: >-
   blend, Ruling 262 DF-Q2) is recorded: the whole-block profile write, the shared Blend and Measure, its red-first checks and
   mutants, the sampled residuals, and the repair that followed its review (a matched station states the measured Remove
   residual and never says exact above 1e-12, the Match links answer a click and Escape returns focus to the invoker, a shared
-  profile is refused by the splice, the Measured row only when something was measured).
+  profile is refused by the splice, the Measured row only when something was measured) and its second repair (the fly:match link
+  has its own red, the Remove result shows before the Match preview and survives its failure, the Remove plan keeps its own cache slot).
 ---
 
 # Add station follow-ups proof (SF2)
@@ -200,3 +201,28 @@ After the repair (exit codes read on their own lines): Core 878 PASS, Analysis 2
 Core 876 PASS, 0 FAIL, 1 SKIP (the SF2-1 timing check); Analysis 296 PASS; Cli 26 PASS; Desktop `--controller-shell` 150 PASS and
 `--shell-model` 17 PASS (the station.match-blend row joins the no-gesture list). The windowed focus path had no check at that point; the
 repair above adds `MatchBlend_Flyout_KeyboardPath`.
+
+### Repair 2 after the re-read (change set on `w2b-sf2`, SF2's last cycle)
+
+- B2's check: `MatchBlend_Flyout_KeyboardPath` steps 2 and 3 now click the link inside the Remove flyout (`Link_fly_match`, found by its name), after
+  asserting that two Match links are visible (the panel's `stn:match` and the flyout's `fly:match`). Green: `PASS MatchBlend_Flyout_KeyboardPath`.
+  Mutant (`fly:match` removed from the click dispatch in `PropertiesPane.axaml.cs`, `stn:match` kept): `FAIL MatchBlend_Flyout_KeyboardPath Exception: Timed out waiting for the Match preview after a click on fly:match`.
+- F1, behaviour. `BeginRemoveStationAsync` shows the Remove result first. Whether Match is offered follows from a second background step
+  (`previewMatch`, a private field a check can replace) that runs only when the Remove deviation is above 1e-12; a `ContractError` from it leaves
+  Match unoffered and the Remove preview in place. `AuthoringSession` keeps the Remove plan in its own slot (`removeMemo`), so the Match plan does not evict it.
+  The cheap already-matches test (no certification) would need a new Core entry point; it is not built, and the full Match preview now runs after the
+  result is on screen, off the UI thread (follow-up if the delay to the Match link matters).
+  - (a) Red first: `FAIL Controller_RemoveFlyout_MatchPreviewFails_RemoveResultStays Exception: A failed Match preview discarded the Remove preview; status: Something unexpected stopped this (DSL-PATCH). Nothing changed.` Green: `PASS Controller_RemoveFlyout_MatchPreviewFails_RemoveResultStays`.
+  - (b) Red first (old single slot): `INFO plan-reuse preview-remove 2669 ms, remove-station 2382 ms` / `FAIL Controller_RemoveApply_AfterFlyoutOpened_ReusesStoredPlan Exception: Apply planned the removal again: remove-station 2382 ms against the preview's 2669 ms`.
+    Green: `INFO plan-reuse preview-remove 2465 ms, remove-station 9 ms` / `PASS Controller_RemoveApply_AfterFlyoutOpened_ReusesStoredPlan`.
+  - Mutant, Match failure not caught (old discard restored): `FAIL Controller_RemoveFlyout_MatchPreviewFails_RemoveResultStays Exception: A failed Match preview discarded the Remove preview`.
+  - Mutant, Remove plan evicted (one slot again): `FAIL Controller_RemoveApply_AfterFlyoutOpened_ReusesStoredPlan Exception: Apply planned the removal again: remove-station 2443 ms against the preview's 2505 ms`.
+- F3: the receipt "Matched Station 2 ..." cannot be read after `fly:apply`, because the reopened Remove preview replaces the status line (and the receipt is
+  a literal in `ApplyMatchAsync`, not a Labels constant). The check reads the apply from the document instead: the reopened Remove flyout offers no
+  Match and its line differs from the line before the apply. Mutant (the Match apply replaced by a plain reopen of Remove, nothing committed):
+  `FAIL MatchBlend_Flyout_KeyboardPath Exception: fly:apply did not apply the match: The shape between Root and Tip is re-blended. Largest change 1913.12 µm ...`.
+- Recorded follow-ups, not built: F2 (open the flyout by command, focus on Apply, announced names), F4 (the timing SKIP line prints under `CFD_TEST_ONLY`),
+  random documents 1-3 and the two generated golden-refusal sources outside the guard.
+
+After repair 2 (exit codes read on their own lines): Core `MatchBlend_` 18 PASS, `Station_` 27 PASS, `--plan-canvas --part=1/2` 53 PASS,
+`--part=2/2` 52 PASS, `--controller-shell` 153 PASS, the guard prefix `--harness --theme-evidence` 10 PASS, all exit 0.

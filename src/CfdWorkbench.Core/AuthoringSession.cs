@@ -254,7 +254,7 @@ public sealed class AuthoringSession : IDisposable
     {
         lock (sync)
         {
-            closed = true; events.Clear(); capturedSaveHashes.Clear(); retiredDraftIds.Clear(); stationMemo = null;
+            closed = true; events.Clear(); capturedSaveHashes.Clear(); retiredDraftIds.Clear(); stationMemo = null; removeMemo = null;
             sources.Clear(); designs.Clear(); accepted.Clear(); cursors.Clear(); redo.Clear(); operations.Clear();
             draft = null; recovery = null; current = null; activeImportReport = null;
             section = null;
@@ -1412,15 +1412,17 @@ public sealed class AuthoringSession : IDisposable
     // The press is a preview and then the command on the same slice, and a plan costs seconds (one blended eta is about 30 ms and a plan
     // samples 2 x 258 of them), so the last plan is kept for the accepted revision, slice and command it was made for.
     // simplify: one entry; a second slice or a new revision replaces it. Upgrade trigger: a caller that alternates two slices.
-    private (string Revision, string Key, object Plan)? stationMemo;
+    // The Remove plan has its own slot: the Remove flyout also previews Match, and that plan must not evict the one Apply reuses.
+    private (string Revision, string Key, object Plan)? stationMemo, removeMemo;
     /// <summary>The measurement grid of Add and Remove station. Production is 129 eta per interval x 2001 x; a test may set a coarser one before the first plan.</summary>
     internal StationGrid StationGrid { get; set; } = StationGrid.Production;
 
     private T StationPlan<T>(string revision, string key, Func<T> make) where T : class
     {
-        lock (sync) if (stationMemo is { } memo && memo.Revision == revision && memo.Key == key && memo.Plan is T hit) return hit;
+        bool remove = key.StartsWith("remove\u001f", StringComparison.Ordinal);
+        lock (sync) if ((remove ? removeMemo : stationMemo) is { } memo && memo.Revision == revision && memo.Key == key && memo.Plan is T hit) return hit;
         var plan = make();
-        lock (sync) stationMemo = (revision, key, plan);
+        lock (sync) { if (remove) removeMemo = (revision, key, plan); else stationMemo = (revision, key, plan); }
         return plan;
     }
 

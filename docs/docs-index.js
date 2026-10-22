@@ -13360,7 +13360,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2027-01-31",
       "reviewSuggested": [],
-      "summary": "The observed lines of wave-2 track SF2. Node SF2-1 (the Placement.Sections speed-up under Ruling 262 DF-Q3) is recorded: a bit-for-bit guard over the Placement test set, its one-ulp mutant red, the timings before and after. Node SF2-2 (Match the blend, Ruling 262 DF-Q2) is recorded: the whole-block profile write, the shared Blend and Measure, its red-first checks and mutants, the sampled residuals, and the repair that followed its review (a matched station states the measured Remove residual and never says exact above 1e-12, the Match links answer a click and Escape returns focus to the invoker, a shared profile is refused by the splice, the Measured row only when something was measured).",
+      "summary": "The observed lines of wave-2 track SF2. Node SF2-1 (the Placement.Sections speed-up under Ruling 262 DF-Q3) is recorded: a bit-for-bit guard over the Placement test set, its one-ulp mutant red, the timings before and after. Node SF2-2 (Match the blend, Ruling 262 DF-Q2) is recorded: the whole-block profile write, the shared Blend and Measure, its red-first checks and mutants, the sampled residuals, and the repair that followed its review (a matched station states the measured Remove residual and never says exact above 1e-12, the Match links answer a click and Escape returns focus to the invoker, a shared profile is refused by the splice, the Measured row only when something was measured) and its second repair (the fly:match link has its own red, the Remove result shows before the Match preview and survives its failure, the Remove plan keeps its own cache slot).",
       "tags": [
         "add-station",
         "promote",
@@ -13375,7 +13375,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5bbd18957259828d19547e52236cc57602f3980fd210138c79be11272a4172ab"
+      "sourceSha256": "82e208083a759d23a61ff7ec7aceb37aa9314acbfab77f719f02bb127a189ed0"
     },
     {
       "id": "proof-app-shell-test-inventory",
@@ -24016,5 +24016,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "8b3c253dd9241384913deb8e2b4cfe78d6f7c1b966165ebf3f93705f0e2a2a2d"
+  "graphSha256": "38a77d1f615d9ec621c2a430c1607d9afd5d5bb3892ef0b3978cd5b3a3845205"
 };
