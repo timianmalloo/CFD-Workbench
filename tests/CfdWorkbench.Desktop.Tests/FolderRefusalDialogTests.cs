@@ -1,5 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Threading;
+using CfdWorkbench.Core;
+using CfdWorkbench.Desktop.Shell;
 using CfdWorkbench.Persistence;
 
 namespace CfdWorkbench.Desktop.Tests;
@@ -45,6 +47,87 @@ public static class FolderRefusalDialogTests
             }
             finally { dialog.Close(); }
         });
+    }
+
+    public static void RunWindowsStore()
+    {
+        if (!OperatingSystem.IsWindows()) return;
+        DesktopChecks.Check("SaveBlocked_CrashLeftClaim_DialogShownInsteadOfInUseLine", SaveBlockedOnCrashLeftClaim);
+        DesktopChecks.Check("SaveInPlace_UnderEnvironmentOneDrive_RefusedNothingWritten", InPlaceUnderOneDrive);
+    }
+
+    private static void Await(Task task)
+    {
+        var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(30);
+        while (!task.IsCompleted)
+        {
+            if (DateTime.UtcNow > deadline) throw new TimeoutException("task did not complete");
+            Dispatcher.UIThread.RunJobs(); Thread.Sleep(5);
+        }
+        task.GetAwaiter().GetResult();
+    }
+
+    // The measured inventory of an unfinished save (Core: WindowsStore_CrashInjection_LeftoverInventoryMeasured): a 0-byte .cfd-writer.claim and
+    // a .cfd-<operation>.tmp beside the project. The next save is refused DOC-CONFLICT; the app shows "Save is blocked" (Ruling 253 W2-Q3 c).
+    private static void SaveBlockedOnCrashLeftClaim()
+    {
+        string folder = TestTemp.NewDirectory("blocked-"), path = Path.Combine(folder, "project.cfdw.json");
+        var preferences = new PreferenceStore(TestTemp.NewDirectory("blocked-prefs-"), () => new ProjectStore());
+        var window = new MainWindow(preferences);
+        try
+        {
+            window.Show();
+            Await(((ShellHost)window.Content!).OpenExampleAsync());
+            Await(window.SaveToAsync(path));
+            Need(File.Exists(path) && Directory.GetFileSystemEntries(folder).Length == 1, "the first save did not leave exactly the project");
+            byte[] saved = File.ReadAllBytes(path);
+            File.WriteAllBytes(Path.Combine(folder, ".cfd-writer.claim"), []);
+            File.WriteAllBytes(Path.Combine(folder, ".cfd-" + Guid.NewGuid().ToString("D") + ".tmp"), [1, 2, 3]);
+            var pending = window.SaveToAsync(path);
+            var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(30);
+            SaveBlockedDialog? dialog = null;
+            while ((dialog = window.OwnedWindows.OfType<SaveBlockedDialog>().FirstOrDefault()) is null)
+            {
+                if (DateTime.UtcNow > deadline) throw new TimeoutException("the Save is blocked dialog did not appear");
+                Dispatcher.UIThread.RunJobs(); Thread.Sleep(5);
+            }
+            Need(dialog!.Title == "Save is blocked", $"title '{dialog.Title}'");
+            var panel = (StackPanel)dialog.Content!;
+            var texts = panel.Children.OfType<TextBlock>().Select(text => text.Text ?? "").ToArray();
+            Need(texts[0] == "An earlier save of this project didn't finish (the app may have closed unexpectedly). Your saved file is unchanged.", $"lead '{texts[0]}'");
+            var steps = panel.Children.OfType<StackPanel>().First().Children.OfType<TextBlock>().Select(text => text.Text ?? "").ToArray();
+            Need(steps.SequenceEqual(["1. Close any other CFD Workbench window using this project.", "2. Check the project shows your last saved work.",
+                "3. Use Save As to keep your current work in a different folder."]), "steps: " + string.Join(" | ", steps));
+            Need(texts[1].Contains("stays blocked", StringComparison.Ordinal) && texts[1].Contains(".cfd-writer.claim", StringComparison.Ordinal), $"blocked sentence '{texts[1]}'");
+            var buttons = panel.Children.OfType<StackPanel>().Last().Children.OfType<Button>().Select(button => (string?)button.Content).ToArray();
+            Need(buttons.SequenceEqual(["Save As…", "Cancel"]), "buttons: " + string.Join(" | ", buttons));
+            panel.Children.OfType<StackPanel>().Last().Children.OfType<Button>().Last().RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            Await(pending);
+            Need(!dialog.SaveAs, "Cancel answered Save As");
+            Need(File.ReadAllBytes(path).AsSpan().SequenceEqual(saved) && File.Exists(Path.Combine(folder, ".cfd-writer.claim")), "the refused save changed the folder");
+            Need(UnfinishedSave.BlocksFolder(path), "BlocksFolder did not see the claim");
+        }
+        finally { window.Close(); }
+    }
+
+    // Security veto (repair cycle 2): a project opened from a OneDrive folder and saved in place is refused before any write.
+    private static void InPlaceUnderOneDrive()
+    {
+        string folder = TestTemp.NewDirectory("inplace-"), path = Path.Combine(folder, "project.cfdw.json");
+        using var controller = new WorkbenchController();
+        Await(controller.OpenExampleAsync());
+        var first = controller.SaveAsync(path); Await(first);
+        Need(first.Result.Code == "OK" && controller.NativePath == path, "the first save: " + first.Result.Code);
+        byte[] saved = File.ReadAllBytes(path);
+        string? previous = Environment.GetEnvironmentVariable("OneDrive");
+        try
+        {
+            Environment.SetEnvironmentVariable("OneDrive", folder);
+            var second = controller.SaveAsync(controller.NativePath!); Await(second);
+            Need(second.Result.Code == "DOC-UNSUPPORTED-PERSISTENCE", "in-place save under OneDrive: " + second.Result.Code);
+        }
+        finally { Environment.SetEnvironmentVariable("OneDrive", previous); }
+        Need(Directory.GetFileSystemEntries(folder).Length == 1 && File.ReadAllBytes(path).AsSpan().SequenceEqual(saved), "the refused save wrote into the folder");
     }
 
     private static FolderRefusalDialog Shown(FolderLocation location, string code)

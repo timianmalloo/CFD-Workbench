@@ -41,6 +41,17 @@ internal static unsafe partial class WindowsNative
     internal const uint AttributeDirectory = 0x10, AttributeReparsePoint = 0x400, AttributeRecallOnOpen = 0x40000,
         AttributePinned = 0x80000, AttributeUnpinned = 0x100000, AttributeRecallOnDataAccess = 0x400000;
     private const uint ReadAttributes = 0x80;
+    // winnt.h: FILE_ATTRIBUTE_READONLY = 0x1, FILE_ATTRIBUTE_ENCRYPTED = 0x4000.
+    internal const uint AttributeReadOnly = 0x1, AttributeEncrypted = 0x4000;
+    // wdm.h FS_INFORMATION_CLASS: FileFsDeviceInformation = 4 (NtQueryVolumeInformationFile).
+    // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/wdm/ns-wdm-_file_fs_device_information
+    private const int FileFsDeviceInformation = 4;
+    // ntifs.h / wdm.h device type: FILE_DEVICE_DISK = 0x7 (a local disk volume; FILE_DEVICE_NETWORK_FILE_SYSTEM = 0x14 is a redirector).
+    // Characteristics: FILE_REMOVABLE_MEDIA 0x1, FILE_FLOPPY_DISKETTE 0x4, FILE_REMOTE_DEVICE 0x10,
+    // FILE_CHARACTERISTIC_TS_DEVICE 0x1000, FILE_CHARACTERISTIC_WEBDAV_DEVICE 0x2000.
+    private const uint DeviceDisk = 0x7, NotLocalFixedCharacteristics = 0x1 | 0x4 | 0x10 | 0x1000 | 0x2000;
+    // ntifs.h: PHCM_APPLICATION_DEFAULT 0, PHCM_DISGUISE_PLACEHOLDER 1, PHCM_EXPOSE_PLACEHOLDERS 2 (CHAR); negative values are errors.
+    private const sbyte PlaceholdersExposed = 2;
     // winnt.h FILE_CS_FLAG_CASE_SENSITIVE_DIR = 1 in FILE_CASE_SENSITIVE_INFO.Flags.
     // https://learn.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-file_case_sensitive_info
     private const uint CaseSensitiveDirectory = 1;
@@ -107,6 +118,9 @@ internal static unsafe partial class WindowsNative
     // https://learn.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-file_case_sensitive_info
     [StructLayout(LayoutKind.Sequential)]
     internal struct CaseSensitiveInfo { internal uint Flags; }
+    // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/wdm/ns-wdm-_file_fs_device_information
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct FileFsDevice { internal uint DeviceType, Characteristics; }
 
     internal readonly record struct FileIdentity(ulong Volume, ulong Low, ulong High);
 
@@ -135,7 +149,8 @@ internal static unsafe partial class WindowsNative
     /// <summary>Attributes and reparse tag of a path, opened without following a reparse point (cloud-folder detection only).</summary>
     internal static FileAttributeTag AttributeTag(string absolutePath)
     {
-        using var handle = CreateFileW(absolutePath, ReadAttributes, ShareRead | ShareWrite | ShareDelete, 0,
+        // The extended-length form lifts MAX_PATH; the caller passes a fully qualified drive path.
+        using var handle = CreateFileW(@"\\?\" + absolutePath, ReadAttributes, ShareRead | ShareWrite | ShareDelete, 0,
             OpenExisting, BackupSemantics | OpenReparsePoint, 0);
         if (handle.IsInvalid) throw new NativeFailure(null, Marshal.GetLastPInvokeError());
         return AttributeTag(handle);
@@ -147,6 +162,36 @@ internal static unsafe partial class WindowsNative
         Check(GetFileInformationByHandleEx(handle, FileStandardInfo, &standard, (uint)sizeof(FileStandard)));
         return standard;
     }
+
+    /// <summary>
+    /// A normal process runs with OneDrive placeholders disguised (mode 1): the reparse attribute and the cloud tag are hidden.
+    /// This exposes them (mode 2) for the calling thread until the scope is disposed, which restores the previous mode.
+    /// The mode is thread-scoped, so the set, the work and the restore must run synchronously on one thread, with no await between.
+    /// </summary>
+    internal static PlaceholderScope ExposePlaceholders()
+    {
+        sbyte previous = RtlSetThreadPlaceholderCompatibilityMode(PlaceholdersExposed);
+        if (previous < 0) throw new NativeFailure(null, 50); // ERROR_NOT_SUPPORTED: without exposure the cloud check is blind, so refuse
+        return new PlaceholderScope(previous);
+    }
+
+    internal readonly struct PlaceholderScope(sbyte previous) : IDisposable
+    {
+        public void Dispose() => RtlSetThreadPlaceholderCompatibilityMode(previous);
+    }
+
+    /// <summary>Device type and characteristics of the volume that holds the handle (FILE_FS_DEVICE_INFORMATION).</summary>
+    internal static (uint DeviceType, uint Characteristics) VolumeDevice(SafeFileHandle handle)
+    {
+        FileFsDevice device = default;
+        int status = NtQueryVolumeInformationFile(handle, out IoStatusBlock io, &device, (uint)sizeof(FileFsDevice), FileFsDeviceInformation);
+        if (status != 0) throw new NativeFailure(status, checked((int)RtlNtStatusToDosError(status)));
+        return (device.DeviceType, device.Characteristics);
+    }
+
+    /// <summary>A fixed local disk: a disk device that is not removable, remote, a floppy, terminal-services redirected or WebDAV.</summary>
+    internal static bool IsFixedLocalVolume(uint deviceType, uint characteristics) =>
+        deviceType == DeviceDisk && (characteristics & NotLocalFixedCharacteristics) == 0;
 
     internal static bool IsCaseSensitive(SafeFileHandle directory)
     {
@@ -350,6 +395,15 @@ internal static unsafe partial class WindowsNative
     [LibraryImport("ntdll.dll")]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
     private static partial int NtSetInformationFile(SafeFileHandle handle, out IoStatusBlock status,
+        void* information, uint length, int informationClass);
+    // ntifs.h RtlSetThreadPlaceholderCompatibilityMode (ntdll export): returns the previous mode, or a negative error.
+    [LibraryImport("ntdll.dll")]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    private static partial sbyte RtlSetThreadPlaceholderCompatibilityMode(sbyte mode);
+    // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-ntqueryvolumeinformationfile
+    [LibraryImport("ntdll.dll")]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    private static partial int NtQueryVolumeInformationFile(SafeFileHandle handle, out IoStatusBlock status,
         void* information, uint length, int informationClass);
     // https://learn.microsoft.com/en-us/windows/win32/api/winternl/nf-winternl-rtlntstatustodoserror
     [LibraryImport("ntdll.dll")]

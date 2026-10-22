@@ -155,7 +155,20 @@ public sealed partial class MainWindow : Window
 
     private async Task SaveWithPickerAsync()
     {
-        string? destination = workbench.NativePath ?? await PickSavePathAsync();
+        string? destination = workbench.NativePath;
+        if (destination is not null && OperatingSystem.IsWindows())
+        {
+            // A project opened from a OneDrive folder is saved in place: the same refusal as after a pick (Security veto, repair cycle 2).
+            var location = CloudFolder.Classify(Path.GetDirectoryName(destination) ?? destination);
+            if (location != FolderLocation.Local)
+            {
+                var refusal = new FolderRefusalDialog(location);
+                await refusal.ShowDialog(this);
+                if (!refusal.ChooseAnotherFolder) return;
+                destination = null;
+            }
+        }
+        destination ??= await PickSavePathAsync();
         if (destination is null) return;
         await SaveToAsync(destination);
     }
@@ -209,7 +222,14 @@ public sealed partial class MainWindow : Window
         {
             if (!destination.EndsWith(".cfdw.json", StringComparison.OrdinalIgnoreCase))
                 throw new ContractError("DOC-TYPE");
-            await workbench.SaveAsync(destination);
+            var result = await workbench.SaveAsync(destination);
+            // Ruling 253 (W2-Q3 c): a save refused because a claim file is in the folder is the "Save is blocked" dialog, not the generic line.
+            if (OperatingSystem.IsWindows() && result.Code == "DOC-CONFLICT" && UnfinishedSave.BlocksFolder(destination))
+            {
+                var blocked = new SaveBlockedDialog();
+                await blocked.ShowDialog(this);
+                if (blocked.SaveAs && await PickSavePathAsync() is { } other) await SaveToAsync(other);
+            }
         }
         catch (Exception error) when (error is ContractError or IOException or UnauthorizedAccessException)
         {
@@ -328,5 +348,60 @@ public sealed class FolderRefusalDialog : Window
             buttons
         } };
         Opened += (_, _) => choose.Focus();
+    }
+}
+
+/// <summary>
+/// "Save is blocked" (Ruling 253 W2-Q3 c; Rulings 146 (2), 160): shown when a save is refused because a claim file (.cfd-writer.claim) is in
+/// the folder, which an unfinished save leaves behind. Save As and Cancel only: there is no Clear action, and the dialog never says anything
+/// was recovered. The document stays dirty.
+/// </summary>
+public sealed class SaveBlockedDialog : Window
+{
+    /// <summary>COPY-441.</summary>
+    public const string TitleText = "Save is blocked";
+    /// <summary>Ruling 146 (2), the lead sentences.</summary>
+    public const string Lead = "An earlier save of this project didn't finish (the app may have closed unexpectedly). Your saved file is unchanged.";
+    /// <summary>Ruling 146 (2) steps 1 and 2; step 3 is reworded by Ruling 253 because the claim blocks every save in the folder.</summary>
+    public static readonly string[] Steps =
+    [
+        "Close any other CFD Workbench window using this project.",
+        "Check the project shows your last saved work.",
+        "Use Save As to keep your current work in a different folder."
+    ];
+    /// <summary>Ruling 253: said plainly; the files are the ones COPY-447 names.</summary>
+    public const string StaysBlocked = "This folder stays blocked until the leftover files from the save that didn't finish are removed: the file .cfd-writer.claim and any file named .cfd-….tmp in this folder.";
+    /// <summary>COPY-443.</summary>
+    public const string SaveAsLabel = "Save As…";
+    /// <summary>COPY-445.</summary>
+    public const string CancelLabel = "Cancel";
+
+    /// <summary>True when the user chose Save As…; false for Cancel, Escape or closing the dialog.</summary>
+    public bool SaveAs { get; private set; }
+
+    public SaveBlockedDialog()
+    {
+        Title = TitleText;
+        Width = 480; Height = 330; CanResize = false; WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        var saveAs = new Button { Content = SaveAsLabel, IsDefault = true };
+        var cancel = new Button { Content = CancelLabel, IsCancel = true };
+        AutomationProperties.SetName(saveAs, SaveAsLabel);
+        AutomationProperties.SetName(cancel, CancelLabel);
+        saveAs.Click += (_, _) => { SaveAs = true; Close(); };
+        cancel.Click += (_, _) => Close();
+        var steps = new StackPanel { Spacing = 4, Margin = new Thickness(12, 0, 0, 0) };
+        AutomationProperties.SetName(steps, "Steps");
+        for (int i = 0; i < Steps.Length; i++)
+            steps.Children.Add(new TextBlock { Text = $"{i + 1}. {Steps[i]}", TextWrapping = Avalonia.Media.TextWrapping.Wrap });
+        var buttons = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 8,
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right, Children = { saveAs, cancel } };
+        Content = new StackPanel { Margin = new Thickness(20), Spacing = 12, Children =
+        {
+            new TextBlock { Text = Lead, TextWrapping = Avalonia.Media.TextWrapping.Wrap },
+            steps,
+            new TextBlock { Text = StaysBlocked, TextWrapping = Avalonia.Media.TextWrapping.Wrap },
+            buttons
+        } };
+        Opened += (_, _) => saveAs.Focus();
     }
 }

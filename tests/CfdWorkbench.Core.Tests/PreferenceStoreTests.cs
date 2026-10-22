@@ -638,6 +638,9 @@ internal static class PreferenceStoreTests
         if (!OperatingSystem.IsWindows()) Equal(Mode(path), directory ? UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute
             : UnixFileMode.UserRead | UnixFileMode.UserWrite);
         else if (!directory) WindowsProjectStoreTests.AssertPrivateFile(path);
+        // The preference store makes its directory with System.IO (EnsureDir), so it carries the parent's inherited DACL: recorded as a
+        // measured gap for the Owner, not asserted private (PreferenceStore.cs is not changed in this cycle).
+        else Console.WriteLine("PREF-DIR-ACL " + WindowsProjectStoreTests.DirectoryAclSummary(path));
     }
 
     private static UnixFileMode Mode(string path)

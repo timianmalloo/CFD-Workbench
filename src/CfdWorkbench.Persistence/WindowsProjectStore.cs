@@ -30,11 +30,13 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
 
     internal ReadResult Read(string path, CancellationToken cancellation, string traceId)
     {
+        // Placeholders are exposed for this whole synchronous call (thread-scoped; no await in this class).
+        using var exposure = WindowsNative.ExposePlaceholders();
         var timer = System.Diagnostics.Stopwatch.StartNew(); string code = "OK"; int? count = null;
         try
         {
             ProjectStore.Supported(); cancellation.ThrowIfCancellationRequested();
-            using var parent = Parent.Open(path); using var target = OpenRegular(parent, parent.Name);
+            using var parent = Parent.Open(path); RequireLocalFolder(path); using var target = OpenRegular(parent, parent.Name);
             byte[] bytes = ReadAll(target, cancellation);
             parent.Verify(); Require(SameEntry(parent, parent.Name, target), "DOC-CONFLICT"); count = bytes.Length;
             return new ReadResult(bytes, Identity.Sha256(bytes));
@@ -47,6 +49,8 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
 
     internal SaveResult Save(string path, SaveRequest request, CancellationToken cancellation, string traceId)
     {
+        // Placeholders are exposed for this whole synchronous call (thread-scoped; no await in this class).
+        using var exposure = WindowsNative.ExposePlaceholders();
         var timer = System.Diagnostics.Stopwatch.StartNew();
         bool published = false;
         byte[] image = request.Image; string hash = Identity.Sha256(image);
@@ -55,10 +59,16 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
         try
         {
             ProjectStore.Supported(); cancellation.ThrowIfCancellationRequested(); parent = Parent.Open(path);
+            RequireLocalFolder(path);
             hooks?.Visit(StoreStage.ParentOpened);
             _ = Exists(parent, parent.Name);
             if (!request.CreateOnly)
             {
+                // Ruling 253: refuse, before the claim and with a definite code, an EFS-encrypted target (a plaintext replacement would
+                // downgrade it) and a read-only one (the rename would fail into DOC-SAVE-UNCERTAIN). Any other DACL is admitted.
+                using (var probe = OpenRegular(parent, parent.Name))
+                    Require((WindowsNative.AttributeTag(probe).Attributes & (WindowsNative.AttributeEncrypted | WindowsNative.AttributeReadOnly)) == 0,
+                        "DOC-UNSUPPORTED-PERSISTENCE");
                 claim = Owned.Create(parent, ProjectStore.ClaimName()); hooks?.Visit(StoreStage.ClaimCreated);
                 target = OpenRegular(parent, parent.Name);
                 byte[] disk = ReadAll(target, cancellation);
@@ -128,6 +138,8 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
     /// <summary>Claim-scoped create-only publication for an immutable, hash-named library entry.</summary>
     internal SaveResult PublishUnderClaim(string dir, string fileName, byte[] bytes, Func<bool> precondition)
     {
+        // Placeholders are exposed for this whole synchronous call (thread-scoped; no await in this class).
+        using var exposure = WindowsNative.ExposePlaceholders();
         string traceId = Guid.NewGuid().ToString("N");
         var timer = System.Diagnostics.Stopwatch.StartNew();
         string code = "OK", hash = Identity.Sha256(bytes);
@@ -139,7 +151,7 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
             ProjectStore.Supported();
             Require(bytes.Length <= 1_048_576 &&
                 Regex.IsMatch(fileName, @"\A[0-9a-f]{64}\.foil\z") && fileName == hash + ".foil", "DOC-HASH");
-            parent = Parent.Open(Path.Combine(dir, fileName));
+            parent = Parent.Open(Path.Combine(dir, fileName)); RequireLocalFolder(Path.Combine(dir, fileName));
             hooks?.Visit(StoreStage.ParentOpened);
             claim = Owned.Create(parent, ProjectStore.ClaimName());
             hooks?.Visit(StoreStage.ClaimCreated);
@@ -275,6 +287,10 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
         catch (WindowsNative.NativeFailure failure) when (failure.Win32Error is 2 or 3) { return false; }
     }
 
+    /// <summary>The folder is not OneDrive-rooted and carries no cloud attribute or tag on it or an ancestor; a check that cannot run refuses.</summary>
+    private static void RequireLocalFolder(string path) =>
+        Require(CloudFolder.Classify(Path.GetDirectoryName(path)!) == FolderLocation.Local, "DOC-UNSUPPORTED-PERSISTENCE");
+
     private static void Require(bool condition, string code) { if (!condition) throw new ContractError(code); }
 
     private static bool IsStoreFailure(Exception error) =>
@@ -333,6 +349,9 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
                 // The qualified candidate is a local NTFS volume (design section 4); ReFS, SMB and removable media stay closed.
                 Require(WindowsNative.VolumeFileSystem(rootHandle) == "NTFS", "DOC-UNSUPPORTED-PERSISTENCE");
                 RequireDirectory(rootHandle);
+                // A mapped network drive reports the server's file system name, so the device itself is asked (design section 4).
+                var (deviceType, characteristics) = WindowsNative.VolumeDevice(rootHandle);
+                Require(WindowsNative.IsFixedLocalVolume(deviceType, characteristics), "DOC-UNSUPPORTED-PERSISTENCE");
                 foreach (string part in parts.SkipLast(1))
                 {
                     var handle = WindowsNative.OpenDirectory(result.Handle, part); result.chain.Add((handle, part));

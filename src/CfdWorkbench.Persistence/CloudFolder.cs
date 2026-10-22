@@ -23,10 +23,14 @@ public static class CloudFolder
         return Classify(folder, Environment.GetEnvironmentVariable, ReadAttributes);
     }
 
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static FolderLocation Classify(string folder, Func<string, string?> environment, Func<string, (uint Attributes, uint ReparseTag)> read)
     {
         try
         {
+            // A normal process disguises OneDrive placeholders, which hides the cloud attribute and tag. Expose them for this walk
+            // (thread-scoped: the set, the reads and the restore run synchronously here, with no await between).
+            using var exposure = WindowsNative.ExposePlaceholders();
             string path = Full(folder);
             foreach (string variable in OneDriveVariables)
                 if (environment(variable) is { Length: > 0 } root && IsAtOrUnder(path, Full(root))) return FolderLocation.Cloud;
