@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 
 [assembly: InternalsVisibleTo("CfdWorkbench.Core.Tests")]
+[assembly: InternalsVisibleTo("CfdWorkbench.Desktop.Tests")]
 namespace CfdWorkbench.Persistence;
 
 public sealed class SaveRequest
@@ -37,6 +38,9 @@ public interface IProjectStore : IDisposable
 {
     Task<SaveResult> SaveAsync(string path, SaveRequest request, CancellationToken cancellation = default);
     Task<ReadResult> ReadAsync(string path, CancellationToken cancellation = default);
+    /// <summary>Removes the leftovers of an unfinished save beside <paramref name="path"/> (design windows-store-recovery 2.2 to 2.4). A store with no such recovery fails with DOC-UNSUPPORTED-PERSISTENCE.</summary>
+    Task<ClearResult> ClearUnfinishedSaveAsync(string path, CancellationToken cancellation = default) =>
+        Task.FromResult(new ClearResult(ClearOutcome.Failed, "DOC-UNSUPPORTED-PERSISTENCE", 0));
 }
 
 public sealed class ProjectStore : IProjectStore, IDisposable
@@ -68,6 +72,96 @@ public sealed class ProjectStore : IProjectStore, IDisposable
             string traceId = Guid.NewGuid().ToString("N");
             return Task.Run(() => Read(path, cancellation, traceId));
         }
+    }
+    public Task<ClearResult> ClearUnfinishedSaveAsync(string path, CancellationToken cancellation = default)
+    {
+        lock (lifecycle)
+        {
+            if (disposed) return Task.FromResult(new ClearResult(ClearOutcome.Failed, "DOC-CLOSED", 0));
+            string traceId = Guid.NewGuid().ToString("N");
+            return Task.Run(() => Clear(path, cancellation, traceId));
+        }
+    }
+    private ClearResult Clear(string path, CancellationToken cancellation, string traceId)
+    {
+        if (OperatingSystem.IsWindows()) return new WindowsProjectStore(hooks, Emit).Clear(path, cancellation, traceId);
+        // macOS (compiled here, not run on Windows). Candidates are listed by path (simplify: every open and delete below is relative to the
+        // retained, verified parent fd; upgrade to fdopendir if a listing race is ever measured). The same rules as the Windows Clear:
+        // provenance on the held fd, a live writer holds an O_EXLOCK lock (OwnedEntry.Create), all or nothing, the claim last.
+        var timer = System.Diagnostics.Stopwatch.StartNew();
+        int candidates = 0, removed = 0;
+        var held = new List<(string Name, NativeFd Fd)>();
+        ParentPath? parent = null; ClearResult result;
+        try
+        {
+            Supported(); cancellation.ThrowIfCancellationRequested(); parent = ParentPath.Open(path);
+            string folder = Path.GetDirectoryName(path)!;
+            var first = UnfinishedSave.Candidates(Directory.EnumerateFileSystemEntries(folder).Select(Path.GetFileName)!); candidates = first.Count;
+            ClearResult? refused = null;
+            foreach (string name in first)
+            {
+                int fd = Native.OpenAt(parent.Fd, name, Native.NoFollow | Native.ExLock | Native.NonBlock, 0);
+                if (fd < 0)
+                {
+                    int error = Marshal.GetLastPInvokeError();
+                    if (error == 2) continue; // ENOENT: the writer finished
+                    refused = error == 35 ? new(ClearOutcome.InUse, "DOC-CONFLICT", 0) : new(ClearOutcome.Failed, Failure(error).Code, 0); // EAGAIN / EWOULDBLOCK: a live lock
+                    break;
+                }
+                held.Add((name, new NativeFd(fd)));
+            }
+            if (refused is null)
+            {
+                hooks?.Visit(StoreStage.ClearHeld);
+                uint owner = Native.GetEuid();
+                foreach (var (name, fd) in held)
+                {
+                    Check(Native.Fstat(fd.Fd, out var stat));
+                    bool claim = UnfinishedSave.IsClaim(name);
+                    if (!(IsRegular(stat) && stat.Links == 1 && stat.User == owner && (stat.Mode & 0x0fff) == 0x180 &&
+                        (claim ? stat.Size == 0 : stat.Size <= NativeProject.MaxBytes))) { refused = new(ClearOutcome.Failed, "DOC-CONFLICT", 0); break; }
+                }
+            }
+            if (refused is null)
+            {
+                parent.Verify();
+                if (held.Any(entry => !SameEntry(parent.Fd, entry.Name, entry.Fd.Fd))) refused = new(ClearOutcome.Failed, "DOC-CONFLICT", 0);
+                else
+                {
+                    var heldNames = held.Select(entry => entry.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                    var second = UnfinishedSave.Candidates(Directory.EnumerateFileSystemEntries(folder).Select(Path.GetFileName)!);
+                    if (second.Any(name => !heldNames.Contains(name))) refused = new(ClearOutcome.InUse, "DOC-CONFLICT", 0);
+                    else if (heldNames.Any(name => !second.Contains(name, StringComparer.OrdinalIgnoreCase))) refused = new(ClearOutcome.Failed, "DOC-CONFLICT", 0);
+                }
+            }
+            if (refused is null)
+            {
+                bool Delete((string Name, NativeFd Fd) entry)
+                {
+                    if (!SameEntry(parent.Fd, entry.Name, entry.Fd.Fd) || Native.UnlinkAt(parent.Fd, entry.Name, 0) != 0 || Exists(parent.Fd, entry.Name, out _)) return false;
+                    removed++; return true;
+                }
+                if (!held.Where(entry => !UnfinishedSave.IsClaim(entry.Name)).All(Delete)) refused = new(ClearOutcome.Failed, "DOC-IO", removed);
+                else
+                {
+                    hooks?.Visit(StoreStage.ClearTempsDisposed);
+                    if (!held.Where(entry => UnfinishedSave.IsClaim(entry.Name)).All(Delete)) refused = new(ClearOutcome.Failed, "DOC-IO", removed);
+                }
+            }
+            refused ??= Exists(parent.Fd, ClaimName(), out _) ? new(ClearOutcome.Failed, "DOC-CONFLICT", removed) : new ClearResult(ClearOutcome.Cleared, "OK", removed);
+            result = refused;
+        }
+        catch (OperationCanceledException) { result = new(ClearOutcome.Failed, "DOC-CANCELLED", removed); }
+        catch (ContractError error) { result = new(ClearOutcome.Failed, error.Code, removed); }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or DllNotFoundException or EntryPointNotFoundException or BadImageFormatException)
+        { result = new(ClearOutcome.Failed, error is DllNotFoundException or EntryPointNotFoundException or BadImageFormatException ? "DOC-UNSUPPORTED-PERSISTENCE" : "DOC-IO", removed); }
+        finally
+        {
+            foreach (var (_, fd) in held) fd.Dispose();
+            parent?.Dispose();
+        }
+        Emit("store.clear", result.Outcome == ClearOutcome.Cleared ? "OK" : result.Code, timer.Elapsed.TotalMilliseconds, candidates, removed, traceId, null, null);
+        return result;
     }
     private ReadResult Read(string path, CancellationToken cancellation, string traceId)
     {
@@ -376,8 +470,10 @@ public sealed class ProjectStore : IProjectStore, IDisposable
         internal bool IsOwned => SameEntry(parent, name, Fd);
         internal static OwnedEntry Create(int parent, string name, uint mode)
         {
+            // D1: the lock is taken in the same openat that creates the entry (O_EXLOCK | O_NONBLOCK), so no instant exists in which the
+            // entry is visible and unlocked; Clear opens each candidate with the same flags and treats EAGAIN as a live writer.
             var entry = new OwnedEntry(parent, name,
-                new NativeFd(Native.OpenAt(parent, name, Native.NoFollow | 0x200 | 0x800 | 2, mode)));
+                new NativeFd(Native.OpenAt(parent, name, Native.NoFollow | 0x200 | 0x800 | 2 | Native.ExLock | Native.NonBlock, mode)));
             try
             {
                 Check(Native.Fstat(entry.Fd, out var stat));
@@ -411,6 +507,10 @@ public sealed class ProjectStore : IProjectStore, IDisposable
     private static class Native
     {
         internal const int NoFollow = 0x01000100, NonBlock = 4, DirectoryFlags = NoFollow | 0x00100000;
+        // Darwin <sys/fcntl.h>: O_NONBLOCK 0x00000004 (above), O_EXLOCK 0x00000020. assume: recalled, not read from the SDK on this Windows laptop;
+        // confirmed by reading sys/fcntl.h of the pinned macOS SDK on the Mac (MacStore_Save_ClaimAndTempLockedFromCreate is red there if wrong).
+        internal const int ExLock = 0x00000020;
+        [DllImport("libSystem.B.dylib", EntryPoint = "geteuid")] internal static extern uint GetEuid();
         [StructLayout(LayoutKind.Sequential)]
         internal struct Stat
         {
@@ -437,7 +537,7 @@ public sealed class ProjectStore : IProjectStore, IDisposable
     }
 }
 
-internal enum StoreStage { ParentOpened, ClaimCreated, TempCreated, Writing, FileFlushed, BeforePublish, Published, BeforeDirectoryFlush }
+internal enum StoreStage { ParentOpened, ClaimCreated, TempCreated, Writing, FileFlushed, BeforePublish, Published, BeforeDirectoryFlush, ClearHeld, ClearTempsDisposed }
 internal sealed class StoreHooks
 {
     internal Action<StoreStage>? OnStage { get; init; }
