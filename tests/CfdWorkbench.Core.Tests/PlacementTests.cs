@@ -167,7 +167,7 @@ internal static class PlacementTests
         return text.Replace("at tip profile \"section-a\"", "at tip profile \"section-" + (char)('a' + secondHumps.Length - 1) + "\"", StringComparison.Ordinal);
     }
 
-    private static IEnumerable<(string Name, string Source)> TwoHumpFixtures()
+    internal static IEnumerable<(string Name, string Source)> TwoHumpFixtures()
     {
         yield return ("two-hump-2m", TwoHumpFoil("0.06303158896"));
         yield return ("two-hump-blend-2m", TwoHumpFoil("0.06303158896", "0.0630318"));
@@ -395,18 +395,18 @@ internal static class PlacementTests
         return parsed.Definition!.Assignments.Single(assignment => assignment.Profile == 0 && assignment.Eta > 0 && assignment.Eta < 0.5).Eta;
     }
 
-    private static string WithStations(string text) => text.Replace(
+    internal static string WithStations(string text) => text.Replace(
         "sections { at root profile \"section-a\" at tip profile \"section-a\" }",
         "sections { at root profile \"section-a\" at 31 % profile \"section-a\" at 50 % profile \"section-a\" at tip profile \"section-a\" }",
         StringComparison.Ordinal);
 
-    private static string Example()
+    internal static string Example()
     {
         using var document = JsonDocument.Parse(File.ReadAllText(GoldenPath()));
         return document.RootElement.GetProperty("fixtures")[0].GetProperty("source").GetString()!;
     }
 
-    private static string TwoProfiles(string text, decimal twist, decimal dihedralMillimetres, decimal chordMillimetres)
+    internal static string TwoProfiles(string text, decimal twist, decimal dihedralMillimetres, decimal chordMillimetres)
     {
         text = Twist(text, twist);
         text = Dihedral(text, dihedralMillimetres);
@@ -422,9 +422,9 @@ internal static class PlacementTests
             .Replace("at tip profile \"section-a\"", "at tip profile \"section-b\"", StringComparison.Ordinal);
     }
 
-    private static string Twist(string text, decimal degrees) => ReplaceCurve(text, "twist", Ordinates(degrees));
+    internal static string Twist(string text, decimal degrees) => ReplaceCurve(text, "twist", Ordinates(degrees));
 
-    private static string Dihedral(string text, decimal tipMillimetres)
+    internal static string Dihedral(string text, decimal tipMillimetres)
     {
         string points = string.Join(", ", new[] { 0m, 0.1m, 0.3m, 0.5m, 0.7m, 0.9m, 1m }
             .Select((eta, index) => "(" + eta.ToString(CultureInfo.InvariantCulture) + ", " +
@@ -438,7 +438,7 @@ internal static class PlacementTests
         return string.Join(", ", new[] { "0", "0.1", "0.3", "0.5", "0.7", "0.9", "1" }.Select(eta => "(" + eta + ", " + spelled + ")"));
     }
 
-    private static string ReplaceCurve(string text, string channel, string points)
+    internal static string ReplaceCurve(string text, string channel, string points)
     {
         const string knots = "degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [";
         int at = text.IndexOf(channel + " cv { " + knots, StringComparison.Ordinal);

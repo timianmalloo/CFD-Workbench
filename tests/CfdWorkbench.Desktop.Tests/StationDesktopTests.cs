@@ -17,6 +17,7 @@ public static class StationDesktopTests
     // foil-basic's degree-5, 8-point upper side; a second shape peaking later; a third peaking much later (a large change).
     private static readonly double[] A = [0, 0.025, 0.055, 0.065, 0.05, 0.03, 0.01, 0];
     private static readonly double[] Near = [0, 0.0225, 0.0475, 0.060, 0.0575, 0.04, 0.015, 0];
+    private static readonly double[] Slight = [0, 0.025, 0.055, 0.06504, 0.05, 0.03, 0.01, 0];   // A with one point raised by 0.004 percent of chord
     private static readonly double[] Far = [0, 0.02, 0.04, 0.055, 0.065, 0.05, 0.02, 0];
 
     /// <summary>A two-or-three-station foil of the basic planform (450 mm half span, chord <paramref name="chord"/> mm).</summary>
@@ -51,6 +52,8 @@ public static class StationDesktopTests
     public static byte[] NearPair(double chord = 120) => Doc("at root profile \"a\" at tip profile \"n\"", chord, ("a", A), ("n", Near));
     /// <summary>F-SAME with a station at 60 percent on the same profile: removing it changes nothing.</summary>
     public static byte[] ThreeSame() => Doc("at root profile \"a\" at 60 % profile \"a\" at tip profile \"a\"", 120, ("a", A));
+    /// <summary>A station at 60 percent on a shape one point off the end shapes: removing it changes the loft by a few micrometres, inside the 10 µm limit, and Match is still offered.</summary>
+    public static byte[] NearMiddle() => Doc("at root profile \"a\" at 60 % profile \"s\" at tip profile \"a\"", 120, ("a", A), ("s", Slight));
     /// <summary>F-THREE: a station at 60 percent on a far shape; removing it moves the loft far above 10 micrometres.</summary>
     public static byte[] Three() => Doc("at root profile \"a\" at 60 % profile \"f\" at tip profile \"a\"", 120, ("a", A), ("f", Far));
 
@@ -229,6 +232,92 @@ public static class StationDesktopTests
             Require(same.Status.StartsWith("Removed Station 2. Largest change ", StringComparison.Ordinal) && same.Status.EndsWith(". Thickness: keep current.", StringComparison.Ordinal), "Receipt: " + same.Status);
         });
 
+        // Match the blend (SF2-2, design add-station 13.5; Ruling 262 DF-Q2): offered where Remove is not exact, ungated, and it says what Remove still does.
+        DesktopChecks.Check("RemoveFlyout_AboveLimit_OffersMatchBlend", () =>
+        {
+            using var controller = Open(Three());
+            controller.BeginRemoveStationAsync(1).GetAwaiter().GetResult();
+            var remove = controller.Flyout ?? throw new Exception("Remove opened no flyout; status: " + controller.Status);
+            Require(!remove.ApplyEnabled && remove.MatchOffered, "Apply " + remove.ApplyEnabled + ", Match offered " + remove.MatchOffered);
+            Require(controller.MatchBlendReason(1) is null && controller.StationPanel.MatchReason is null, "Match is unavailable on an interior station");
+            Require(controller.MatchBlendReason(0) == WorkbenchController.StationEndpointRefusal && controller.MatchBlendReason(2) == WorkbenchController.StationEndpointRefusal, "Match on root or tip");
+            using var exact = Open(ThreeSame());
+            exact.BeginRemoveStationAsync(1).GetAwaiter().GetResult();
+            Require(exact.Flyout is { MatchOffered: false, ApplyEnabled: true }, "Match is offered for a removal that changes nothing");
+        });
+
+        DesktopChecks.Check("MatchBlend_Flyout_PreviewApplyAndReopenRemove", () =>
+        {
+            using var controller = Open(Three());
+            controller.Select(new Selection.Station(1, 0.6));
+            controller.BeginRemoveStationAsync(1).GetAwaiter().GetResult();
+            controller.BeginMatchBlendAsync(1).GetAwaiter().GetResult();
+            var flyout = controller.Flyout ?? throw new Exception("Match opened no flyout; status: " + controller.Status);
+            Require(flyout.Kind == WorkbenchController.StationFlyoutKind.Match && flyout.Title == "Match Station 2 to the blend", "Title: " + flyout.Title);
+            Require(flyout.Line.StartsWith("Replace Station 2's profile with the blend of Root and Tip at η 60.0 %. Largest change ", StringComparison.Ordinal) &&
+                    flyout.Line.Contains("sampled on 17 η × 201 x, not a bound.", StringComparison.Ordinal) && flyout.Line.EndsWith(" Then Remove Station 2 is exact.", StringComparison.Ordinal), "Line: " + flyout.Line);
+            Require(flyout.ApplyEnabled && flyout.ApplyReason is null && !flyout.Checking, "Apply is gated: " + flyout.ApplyReason);
+            Require(StationCount(controller) == 3, "The preview added a row");
+            controller.ApplyFlyoutAsync().GetAwaiter().GetResult();
+            Require(StationCount(controller) == 3 && controller.Selection is Selection.Station { Index: 1 }, "Apply changed the station count or lost the selection: " + controller.Selection);
+            Require(controller.Flyout is { Kind: WorkbenchController.StationFlyoutKind.Remove, ApplyEnabled: true, MatchOffered: false }, "The Remove flyout did not reopen exact: " + controller.Flyout);
+            controller.CancelFlyout();
+            controller.Undo();
+            controller.BeginRemoveStationAsync(1).GetAwaiter().GetResult();
+            Require(controller.Flyout is { ApplyEnabled: false }, "Undo did not restore the far shape");
+            controller.CancelFlyout();
+            controller.BeginMatchBlendAsync(1).GetAwaiter().GetResult();
+            controller.CancelFlyout();
+            Require(controller.Flyout is null && StationCount(controller) == 3, "Cancel left the flyout or changed the document");
+            controller.Select(new Selection.Station(0, 0));
+            controller.BeginMatchBlendAsync(0).GetAwaiter().GetResult();
+            Require(controller.Flyout is null && controller.Status == WorkbenchController.StationEndpointRefusal, "Root status: " + controller.Status);
+        });
+
+        // SF2 repair N3 (COPY-632): the Measured row appears only where something was measured; a refusal that measured nothing shows no such row.
+        DesktopChecks.Check("MatchBlend_Flyout_MeasuredRow_OnlyWhenMeasured", () =>
+        {
+            using var controller = Open(Three());
+            var projection = controller.Inspection?.Authored ?? throw new Exception("No inspection");
+            string? Result(bool measured)
+            {
+                var flyout = new WorkbenchController.StationFlyout(WorkbenchController.StationFlyoutKind.Match, "Match Station 2 to the blend", "line", false, measured, measured ? null : "line", 1, false, measured);
+                var model = PropertiesView.Build(new Selection.Station(1, 0.6), projection, null, ShellMode.Workspace,
+                    new PropertiesContext { Stations = new StationPanelState(null, null, false, flyout) });
+                var group = model.Groups.Single(item => item.Id == "fly");
+                return group.Rows.FirstOrDefault(row => row.Key == "fly:line")?.Value;
+            }
+            Require(Result(true) == WorkbenchController.MeasuredLabel, "A measured Match flyout has no Measured row: " + Result(true));
+            Require(Result(false) is null, "A refusal that measured nothing shows the row: " + Result(false));
+        });
+
+        DesktopChecks.Check("MatchBlend_Flyout_ResidualAboveLimit_SaysRemoveStaysUnavailable", () =>
+        {
+            byte[] doc = Doc("at root profile \"a\" at 50 % profile \"n\" at tip profile \"f\"", 2400, ("a", A), ("n", Near), ("f", Far));
+            using var controller = Open(doc);
+            // SF2 repair N2: the Remove change before any Match, to set beside the change after it.
+            controller.BeginRemoveStationAsync(1).GetAwaiter().GetResult();
+            Console.WriteLine("INFO SF2-2 Remove before Match, differing peaks, 2400 mm chord: " + controller.Flyout?.Line);
+            controller.CancelFlyout();
+            controller.BeginMatchBlendAsync(1).GetAwaiter().GetResult();
+            var flyout = controller.Flyout ?? throw new Exception("Match opened no flyout; status: " + controller.Status);
+            Console.WriteLine("INFO SF2-2 match, differing peaks, 2400 mm chord: " + flyout.Line);
+            Require(flyout.ApplyEnabled, "Match is gated above 10 µm");
+            Require(flyout.Line.Contains("Then Remove Station 2 still changes the loft by ", StringComparison.Ordinal) &&
+                    flyout.Line.Contains(", above the 10 µm limit: Remove stays unavailable after this match.", StringComparison.Ordinal), "Line: " + flyout.Line);
+            controller.ApplyFlyoutAsync().GetAwaiter().GetResult();
+            Require(controller.Status.StartsWith("Matched Station 2 to the blend of Root and Tip. Largest change ", StringComparison.Ordinal) &&
+                    controller.Status.EndsWith(". Thickness: keep current.", StringComparison.Ordinal), "Receipt: " + controller.Status);
+            controller.BeginRemoveStationAsync(1).GetAwaiter().GetResult();
+            Require(controller.Flyout is { ApplyEnabled: false }, "Remove after Match is available above 10 µm, against the preview");
+            // SF2 repair B1: the station already matches, so the reopened Remove flyout does not offer Match, and Match, if asked, states the residual.
+            Require(controller.Flyout is { MatchOffered: false } && controller.Flyout.Line.Contains(" µm (", StringComparison.Ordinal), "Remove flyout after Match: offered " + controller.Flyout?.MatchOffered + ", line " + controller.Flyout?.Line);
+            controller.CancelFlyout();
+            controller.BeginMatchBlendAsync(1).GetAwaiter().GetResult();
+            var again = controller.Flyout ?? throw new Exception("Match opened no flyout; status: " + controller.Status);
+            Require(!again.ApplyEnabled && !again.Line.Contains("exact", StringComparison.Ordinal) && again.Line.Contains("would still change the loft by ", StringComparison.Ordinal), "Second Match: " + again.Line);
+        });
+
         // Promotion cost (S1-a: about 10 s a plan on the production grid). Red first: a preview run on the caller's thread blocks it.
         DesktopChecks.Check("Controller_PromoteSlice_PreviewOffUiThread_WindowStaysResponsive", () =>
         {
@@ -268,6 +357,33 @@ public static class StationDesktopTests
             Console.WriteLine($"INFO plan-reuse preview-promote {preview:F0} ms, add-station {add:F0} ms");
             Require(preview > 1000, $"The preview measured nothing ({preview:F0} ms)");
             Require(add < preview / 4, $"Apply measured again: add-station {add:F0} ms against the preview's {preview:F0} ms");
+        });
+
+        // SF2 repair 2, F1: the Remove result does not wait for, or depend on, the Match preview; and the Match preview does not evict the Remove plan.
+        DesktopChecks.Check("Controller_RemoveFlyout_MatchPreviewFails_RemoveResultStays", () =>
+        {
+            using var controller = Open(Three());
+            typeof(WorkbenchController).GetField("previewMatch", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                .SetValue(controller, new Func<AuthoringSession, int, MatchPreview>((_, _) => throw new ContractError("DSL-PATCH")));
+            controller.BeginRemoveStationAsync(1).GetAwaiter().GetResult();
+            var flyout = controller.Flyout ?? throw new Exception("A failed Match preview discarded the Remove preview; status: " + controller.Status);
+            Require(flyout.Kind == WorkbenchController.StationFlyoutKind.Remove && !flyout.Checking && flyout.Line.StartsWith("The shape between Root and Tip is re-blended.", StringComparison.Ordinal), "Line: " + flyout.Line);
+            Require(!flyout.MatchOffered && flyout.ApplyReason == "Apply is disabled: the change is above the 10 µm limit.", "Match offered " + flyout.MatchOffered + ", Apply: " + flyout.ApplyReason);
+        });
+
+        DesktopChecks.Check("Controller_RemoveApply_AfterFlyoutOpened_ReusesStoredPlan", () =>
+        {
+            using var controller = Open(NearMiddle(), production: true);
+            controller.BeginRemoveStationAsync(1).GetAwaiter().GetResult();
+            Require(controller.Flyout is { Checking: false, ApplyEnabled: true, MatchOffered: true }, "The Remove flyout is not ready with Match offered: " + controller.Flyout);
+            controller.ApplyFlyoutAsync().GetAwaiter().GetResult();
+            Require(StationCount(controller) == 2, "Apply did not remove the station: " + controller.Status);
+            var events = controller.LocalEvents;
+            double preview = events.Last(item => item.Operation == "document.preview-remove").DurationMilliseconds ?? 0;
+            double remove = events.Last(item => item.Operation == "document.remove-station").DurationMilliseconds ?? double.MaxValue;
+            Console.WriteLine($"INFO plan-reuse preview-remove {preview:F0} ms, remove-station {remove:F0} ms");
+            Require(preview > 500, $"The preview measured nothing ({preview:F0} ms)");
+            Require(remove < preview / 4, $"Apply planned the removal again: remove-station {remove:F0} ms against the preview's {preview:F0} ms");
         });
     }
 }

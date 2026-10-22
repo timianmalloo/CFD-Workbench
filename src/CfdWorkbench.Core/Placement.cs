@@ -26,6 +26,12 @@ public sealed record SurfaceView(string SourceHash, string Basis, long Generatio
 public sealed record SectionSample(StationFrame Frame, IReadOnlyList<double> X, IReadOnlyList<double> Camber,
     IReadOnlyList<double> Thickness, IReadOnlyList<double> CamberSlope, IReadOnlyList<Point3> PlacedCamber);
 
+/// <summary>
+/// The part of a <see cref="SectionSample"/> the station measure reads (Promote and Remove, Ruling 262 DF-Q3): the frame, and the Camber and
+/// Thickness the Section/Blend rule gives. Same bits as the sample's; the slope and the placed midline are not computed.
+/// </summary>
+internal sealed record SectionMeasure(StationFrame Frame, double[] Camber, double[] Thickness);
+
 public sealed record StationFrame(double Eta, double SpanMeters, double LeadingMeters, double TrailingMeters,
     double ElevationMeters, double TwistDegrees, double ThicknessRatio)
 {
@@ -359,6 +365,50 @@ public static class Placement
             samples[index] = SampleSection(definition, prepared, stationEtas, stationProfiles, etas[index], abscissa);
         }
         return samples;
+    }
+
+    /// <summary>
+    /// <see cref="Sections"/> for the station measure alone (Ruling 262 DF-Q3): the same checks, the same station read and the same
+    /// <see cref="OrdinatesAt"/> per sample, so Camber and Thickness carry the same bits; the camber slope and the placed midline, which the
+    /// measure never reads, are not computed. Only <c>StationEdits</c> calls it; every other caller keeps <see cref="Sections"/>.
+    /// </summary>
+    internal static IReadOnlyList<SectionMeasure> SectionsForMeasure(byte[] source, IReadOnlyList<double> etas, IReadOnlyList<double> xs,
+        CancellationToken cancellation)
+    {
+        cancellation.ThrowIfCancellationRequested();
+        var (_, definition) = RequireFoil(source);
+        Guard.Require(etas.Count > 0 && xs.Count > 0, "DSL-RANGE");
+        var abscissa = new double[xs.Count];
+        for (int index = 0; index < xs.Count; index++)
+        {
+            double x = xs[index];
+            Guard.Require(double.IsFinite(x) && x >= 0 && x <= 1, "DSL-RANGE");
+            abscissa[index] = x;
+        }
+        foreach (double eta in etas)
+            Guard.Require(double.IsFinite(eta) && eta >= 0 && eta <= 1, "DSL-RANGE");
+
+        var prepared = new PreparedProfile[definition.Profiles.Length];
+        for (int profile = 0; profile < prepared.Length; profile++)
+            prepared[profile] = Prepare(definition.Profiles[profile], abscissa);
+        double[] stationEtas = definition.Assignments.Select(item => item.Eta).ToArray();
+        int[] stationProfiles = definition.Assignments.Select(item => item.Profile).ToArray();
+        var measures = new SectionMeasure[etas.Count];
+        for (int index = 0; index < etas.Count; index++)
+        {
+            cancellation.ThrowIfCancellationRequested();
+            var station = ReadStation(definition, prepared, stationEtas, stationProfiles, etas[index]);
+            var camber = new double[abscissa.Length];
+            var thickness = new double[abscissa.Length];
+            for (int sample = 0; sample < abscissa.Length; sample++)
+            {
+                var (zu, zl) = OrdinatesAt(station, prepared, sample);
+                camber[sample] = ((zu + zl) * Binary64.Half).Value;
+                thickness[sample] = (zu - zl).Value;
+            }
+            measures[index] = new(station.Frame, camber, thickness);
+        }
+        return measures;
     }
 
     /// <summary>The authored upper and lower ordinates of the profile at one authored station, in chord units.</summary>

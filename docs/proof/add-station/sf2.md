@@ -1,0 +1,228 @@
+---
+id: proof-add-station-sf2
+title: "Add station follow-ups proof (SF2): the measure-path speed-up and Match the blend"
+type: proof-pack
+status: draft
+owner: "@track-sf2"
+phase: implementation
+tags: [add-station, promote, rule-a, ruling-262, bit-identity]
+links:
+  - { to: design-add-station, rel: implements }
+review-by: "2027-01-31"
+summary: >-
+  The observed lines of wave-2 track SF2. Node SF2-1 (the Placement.Sections speed-up under Ruling 262 DF-Q3) is recorded: a
+  bit-for-bit guard over the Placement test set, its one-ulp mutant red, the timings before and after. Node SF2-2 (Match the
+  blend, Ruling 262 DF-Q2) is recorded: the whole-block profile write, the shared Blend and Measure, its red-first checks and
+  mutants, the sampled residuals, and the repair that followed its review (a matched station states the measured Remove
+  residual and never says exact above 1e-12, the Match links answer a click and Escape returns focus to the invoker, a shared
+  profile is refused by the splice, the Measured row only when something was measured) and its second repair (the fly:match link
+  has its own red, the Remove result shows before the Match preview and survives its failure, the Remove plan keeps its own cache slot).
+---
+
+# Add station follow-ups proof (SF2)
+
+Design `docs/design/add-station.md` section 13 and `docs/specs/amendments/spec-1.7.9.md`; Ruling 262. Session `w2b-sf2`,
+base `main` at `b0da43bc`.
+
+## Node SF2-1: the Placement.Sections speed-up (Ruling 262 DF-Q3)
+
+### What changed
+
+`Placement.SectionsForMeasure` (internal, new) is called only by `StationEdits.Measure` through `SectionsParallel`. It does the
+same checks and the same `ReadStation` and `OrdinatesAt` as `Placement.Sections`, so Camber, Thickness and Frame carry the same
+bits, and it leaves out what the measure never reads: `CamberSlope` at every x and the two `Place` calls per sample for the placed
+midline. `Placement.Sections` and every other caller (Analysis, DatExport, the tests) are unchanged: the diff to existing code in
+`Placement.cs` is additions only.
+
+The brief expected the blended-maximum search to be skippable. It is not: `ReadStation` derives `Reciprocal` from `BlendedMaximum`
+and `PlacementRule.Blend` multiplies by it, so every Camber and Thickness bit depends on it. Skipping it would change the bits the
+measure reads, so it stays. The remaining cost (about 31 ms per blended eta, per S1-a) is that search; a cheaper maximum search
+that keeps the bits is a separate, larger change and is not attempted.
+
+### The guard, red first by its mutant
+
+`Station_MeasurePath_BitIdenticalToSections_EveryStationAndPlacementFixture` (in `StationTests.cs`, which owns the fixtures)
+compares `Placement.Sections` with `Placement.SectionsForMeasure` by `BitConverter.DoubleToInt64Bits` over: the ten Station
+documents (F-CAMBER, F-CAMBER3, F-PEAK, F-THREE, F-SAMEPEAK, F-REAL, F-SIX, F-SEVEN, F-SPACING, F-PEAK x10 chord), the Placement
+golden sources in `docs/proof/m12b2-golden/certificate-bits.json`, the m12b2 fixtures and the FoilDSL examples; 23 etas, three
+chord grids each. A document the product refuses must be refused with the same code on both paths.
+
+**Repair R-1 (SF2-1 review B1): the input families.** The first guard (87 pairs, 412,873 doubles) left out part of the Placement test
+set that Ruling 262 names and counted the five golden sources twice (the m12b2 folder holds the same five documents, asserted by
+`FoilFixturesMatchGolden`). The guard now takes, each at 23 etas and three chord grids, and compares each distinct source once (a
+SHA-256 of the bytes drops a source met twice):
+
+1. the ten Station documents above;
+2. the Placement golden sources, the m12b2 folder (the same five, dropped as duplicates) and the FoilDSL examples;
+3. the two-hump documents `two-hump-2m` and `two-hump-blend-2m` (humps crossing between grid samples, the inputs that stress the blended maximum);
+4. the first random `TwoProfiles` document of seed 20261001;
+5. `WithStations(Example())`, `Twist(Example(), 4)` and `Dihedral(Example(), 60)`;
+6. `curved-rails`: the rails of the Desktop `F-CURVED` fixture (leading, trailing, twist, dihedral) on the Example, because the Desktop fixture is not in the Core tree;
+7. the three after-promotion documents `Measure` sees: a station added at 35 % on F-CAMBER, at 80 % on F-CAMBER3, at 50 % on F-PEAK (approximate promotion).
+
+Recount (R-1): `INFO SF2-1 bit guard: 40 distinct documents, 99 document x grid pairs compared, 469821 doubles compared by bits, 21 pairs refused identically (invalid-evaluator.foil=DSL-VERSION invalid-legacy-draft.foil=DSL-LEGACY invalid-reference.foil=DSL-REFERENCE invalid-syntax.foil=DSL-SYNTAX invalid-units.foil=DSL-UNIT invalid-version.foil=DSL-VERSION section-basic.foil=DSL-PATCH)`.
+The 87 and 412,873 of the first guard are superseded by 99 and 469,821; its 15 duplicate pairs are gone. The refused documents are
+the FoilDSL "invalid" examples and `section-basic.foil`; every document added in R-1 is accepted.
+
+R-1 mutants (each reverted after the red):
+- one bit on the measure path, `Thickness` of sample 7 at the fourth eta `Math.BitIncrement`: `FAIL Station_MeasurePath_BitIdenticalToSections_EveryStationAndPlacementFixture InvalidOperationException: F-CAMBER eta 0.2 thickness[7]: 3FB8BEB150B67930 against 3FB8BEB150B67931`
+
+**Refusal inputs (review N1).** `SectionsForMeasure` repeats `Sections`' check-and-prepare prefix so that `Sections`' source stays
+unchanged (Ruling 252). `Station_MeasurePath_RefusesLikeSections_SameCodeForTheSectionsTestsInputs` runs nine refusal inputs
+(`SectionsTests`' three, plus eta below 0, eta NaN, x above 1, x NaN, empty xs, and `section-basic.foil`) through both paths and wants
+the same code from each. Mutant: the x-range code in the measure path's prefix changed to `DSL-PATCH`:
+`FAIL Station_MeasurePath_RefusesLikeSections_SameCodeForTheSectionsTestsInputs InvalidOperationException: x below 0: the measure path gave DSL-PATCH where Sections gave DSL-RANGE`; reverted.
+
+First-guard history (SF2-1 as first built):
+- guard on a first `SectionsForMeasure` that only wrapped `Sections` (today's output): `PASS`, `INFO SF2-1 bit guard: 87 document x grid pairs, 412873 doubles compared by bits`
+- one-ulp mutant (`Math.BitIncrement` on Camber[1] of every section of the measure path): `FAIL Station_MeasurePath_BitIdenticalToSections_EveryStationAndPlacementFixture InvalidOperationException: F-CAMBER eta 0 camber[1]: 0000000000000000 against 0000000000000001`; reverted
+- guard on the real fast path: `PASS`, the same 87 pairs and 412873 doubles
+
+### Timings (Release, 20-core ARM64 laptop, median of three)
+
+`CFD_SF2_TIMING=1` enables `Station_MeasurePath_Timing_GatedByEnvironment`; without it the check prints `SKIP`. The call is one
+258 eta x 2001 x call on F-CAMBER (a blended document); the plan is `PreviewPromote` of F-PEAK at 50 % on the production grid.
+
+| | before (today's path) | after (measure path) |
+|---|---|---|
+| one 258 x 2001 call | 8121 ms (`Placement.Sections`) | 3813 ms (`SectionsForMeasure`) |
+| one promotion plan (F-PEAK, 50 %) | 9741 ms | 4682 ms |
+
+The "before" row is the repo with the guard and a wrapper only (the same work as `Sections`); `Placement.Sections` itself stays at
+about 8.2 s (8177 ms measured again in the same run as the after row). Reproduce:
+`CFD_SF2_TIMING=1 CFD_TEST_ONLY=Station_MeasurePath CfdWorkbench.Core.Tests --harness` from the repo root.
+
+**Repair R-1 re-measure (review N5).** The check is now registered only when `CFD_SF2_TIMING=1`; an ungated run prints one `SKIP`
+line and no `PASS` (review N2), and `tools/run-tests.sh` unsets `CFD_SF2_TIMING` (review N3). The machine was **not idle**: two
+other coders ran test subsets throughout (a `tasklist` before each run showed other test executables, named in the last column).
+These numbers are therefore **under load**, each the median of three inside the
+check, on the repair tree at `ea33939b` plus the R-1 edits; the load did not clear, so none was taken idle.
+
+| run (commit, code) | one 258 x 2001 call, `Sections` | same call, `SectionsForMeasure` | one promotion plan (F-PEAK, 50 %) | other test processes at start |
+|---|---|---|---|---|
+| after 1 (measure path in `Measure`) | 8897 ms | 4127 ms | 4930 ms | Core, Analysis |
+| after 2 (same code) | 8414 ms | 3699 ms | 4818 ms | Analysis, Desktop x2 |
+| before 1 (`SectionsParallel` temporarily calling `Placement.Sections`, same tree, reverted) | 8426 ms | 3743 ms (not used) | 9763 ms | Analysis x2 |
+
+So the plan, before (the old path in the same tree, the way `b0da43bc` ran it) to after, is 9763 ms to 4818 to 4930 ms, a ratio of
+about 2.0, which matches the first measurement (9741 to 4682 ms); the single call is 8426 to 8897 ms (`Sections`) against 3699 to
+4127 ms (`SectionsForMeasure`), about 2.1. The reviewer's 14.6 and 16.9 s plan under nine other processes did not recur at this
+load. The first-measurement table above is kept as taken, with its own conditions.
+
+### Harnesses
+
+Core 858 PASS before, 860 after (the two new checks; the timing check prints `SKIP` and `PASS`), Analysis 296 and Cli 26 PASS both
+times, every exit 0. Repair R-1: Core 876 PASS, 0 FAIL, 1 SKIP (the timing check, now a SKIP line only); the new refusal-input check replaces the timing PASS in the count; Analysis 296 and Cli 26 PASS; Desktop `--harness --theme-evidence` exit 0.
+
+## Node SF2-2: Match the blend (Ruling 262 DF-Q2)
+
+Design section 13. Match replaces an interior station's profile with the rule-A blend of its neighbours at the station's eta, built by
+the same `StationEdits.Blend` that Promote uses, and writes it as a whole-block replacement.
+
+### What changed
+
+- `FoilSource.ReplaceProfileBlock(source, name, block)` (new, internal): replaces the block from the `profile` keyword to its closing
+  brace, re-parses, and refuses with `DSL-PATCH` unless the profile count, every assignment eta (by bits) and every assignment's profile
+  name are unchanged. `FoilSource.WriteSurfaces` is not used, so no tangent row, closure, knot or provenance of the old block survives.
+- `StationEdits.Match` (plan), `AuthoringSession.PreviewMatchBlend` and `MatchBlend` (one accepted row, rail `station-match`, one undo
+  step; the envelope validator and the replay fingerprint learn the rail). A profile another station also names is first made
+  independent for this station (`MakeIndependent`). R3 (spacing) is a preview refusal `STATION-SPACING`; a change at or below 1e-12 is
+  `STATION-MATCHED`; the budget and not-assessed refusals are Promote's. There is no `STATION-CLOSURE` (DR-DF-6 b) and no gate on the change.
+- Two measures per preview, both on the Remove grid with `StationEdits.Measure`: the change (accepted against candidate) and the residual
+  (candidate against `RemoveAssignment(candidate)`); the residual regime is `Regime(sameRecord(L, R), worst)`, decided by the measurement.
+- Desktop: the Match flyout (title, measured line, Apply always enabled when the measure ran, Cancel), the Remove flyout's secondary action
+  "Match the blend…" when the Remove deviation is above 1e-12, the station panel button, `station.match-blend` in the palette and the Edit
+  menu. After Apply from the Remove flyout the Remove flyout reopens. Remove's 10 um gate is unchanged and the copy says so (COPY-625).
+- Fixtures: `tests/fixtures/stations/f-peak3.foil` and `f-four.foil` (written once from the hand-built `Doc` documents: F-PEAK3 is F-PEAK with a
+  station at 50 % carrying F-CAMBER's tip; F-FOUR has stations at 0, 30, 60, 100 % so the matched station has eta_L 0.3 and w = 0.4286).
+  The tangent check builds its own 11-point foildsl 4.1 document in code (a profile tangent row needs a multiplicity-5 knot anchor and the
+  whole loft one spacing).
+- Copy: COPY-621 to COPY-632 in `DESIGN.md` (SF2-COPY-1 to 8 and 4b, plus the needs-foil reason, the flyout title and the "Measured" row).
+
+### Red first
+
+Core checks written before the types existed; the compile was red:
+`StationTests.cs(625,20): error CS0246: The type or namespace name 'MatchPreview' could not be found`.
+After the implementation `CFD_TEST_ONLY=MatchBlend_` ran 16 checks: 16 PASS. The Desktop checks were added with the controller code and
+their red is the mutants below.
+
+### Mutants (each built, the Match checks run, then reverted)
+
+| mutant | red lines |
+|---|---|
+| weight w = eta_M instead of (eta_M - eta_L)/(eta_R - eta_L) | `FAIL MatchBlend_InteriorNeighbours_WeightFromNeighbours ... Remove after Match 0.0060729687801029386` (only this check) |
+| blend of (L, M) instead of (L, R) | 8 FAIL, among them `MatchBlend_CommonPeak_ThenRemoveExact ... Remove after Match 0.021707620349042882` |
+| no 1/k rescale in `Blend` | `FAIL MatchBlend_ChannelsAndEtaUnchanged ... F-PEAK3: P maximum 0.11938469116640175 against t(eta_M) 0.12` (F-THREE passes, as designed) |
+| tangent rows kept on the written block | `FAIL MatchBlend_TangentsDropped_Counted ... the loft is not assessed (Tangent row 'cv-5' does not satisfy smooth.)` |
+| closure left as M's | `FAIL MatchBlend_Closure_FromNeighbours ... the loft is not assessed (Open trailing endpoints are not separated.)` |
+| shared block rewritten in place | `FAIL MatchBlend_SharedProfile_OnlyThisStation` (root's block bytes changed) |
+| Desktop: Match not offered from the Remove flyout | `FAIL RemoveFlyout_AboveLimit_OffersMatchBlend Exception: Apply False, Match offered False` |
+| Desktop: Apply gated by the residual | `FAIL MatchBlend_Flyout_ResidualAboveLimit_SaysRemoveStaysUnavailable Exception: Match is gated above 10 um` |
+
+### Sampled numbers (grids as labelled; sampled, not bounds)
+
+- F-PEAK3 station 1 (regime R2): the preview's residual equals `PreviewPromote` of F-PEAK at 50 % bit for bit (relative and metres), Remove
+  after Match reports the same bits, and M's matched upper and lower control ordinates equal the P that Promote builds, bit for bit
+  (`MatchBlend_DifferingPeaks_ResidualEqualsPromotionDeviation`; the `assume:` of design 13.4 held, no 1e-15 fallback was needed).
+- F-THREE station 1 (common peak, R1): Remove before Match changes the loft by 0.0244 of chord (`MatchBlend_Change_EqualsRemoveBefore_WhenCommonPeak`
+  asserts Match's change equals it); after Match, Remove is within 1e-12.
+- Desktop, 8-point fixture with differing peaks on a 2400 mm chord (17 eta x 201 x grid): Match changes the loft by 43.94 um, and Remove
+  afterwards would still change it by 166.02 um at eta 25.0 %, above the limit; Apply stays enabled, and Remove after Match stays refused.
+
+### Remove before and after Match, 2,400 mm differing-peaks case (SF2-2 review N2; measured, sampled on 17 eta x 201 x)
+
+Remove before any Match: 190.94 um (0.0080 % of chord) at eta 25.0 %. Remove after Match: 166.02 um (0.0069 % of chord) at eta 25.0 %.
+Match left Remove closer to its 10 um gate on this case, not further (INFO lines of `MatchBlend_Flyout_ResidualAboveLimit_SaysRemoveStaysUnavailable`).
+One case is not a bound: by the triangle inequality on the max norm, Remove-after lies within 43.94 um of Remove-before, so another R2 case could
+end further away. Behaviour is unchanged for this; the Remove flyout does not offer Match once the station already matches (B1 below).
+
+### Repair after the SF2-2 review (change set on `w2b-sf2`)
+
+- B1: `StationEdits.Match` now measures the Remove residual on the `STATION-MATCHED` path. At or below 1e-12 the reason is COPY-629 ("Remove is
+  exact", narrowed to that case); above it, the new proposed row COPY-633 states the sampled residual and eta. The preview carries the residual
+  and its regime. The Remove flyout offers Match only when the station does not already match.
+  Red first: `FAIL MatchBlend_AlreadyMatched_R2_StatesResidualNotExact ... the refusal says exact: Station 2 already matches the blend of its neighbours. Remove is exact.`
+  and Desktop `FAIL MatchBlend_Flyout_ResidualAboveLimit_SaysRemoveStaysUnavailable Exception: Remove flyout after Match: offered True`; both green after.
+  Mutant (old wording restored): the same two checks red (the Desktop line `Second Match: Station 2 already matches the blend of its neighbours. Remove is exact.`).
+- B2: `PropertiesPane` click dispatch handles `stn:match` and `fly:match`; Escape returns focus to the control that opened the flyout
+  (`WorkbenchController.FlyoutInvoker`). Windowed check `MatchBlend_Flyout_KeyboardPath` (`--plan-canvas`). Red first: `Timed out waiting for the Match
+  preview after a click on stn:match`. Mutants: the `stn:match` case removed, same red line; the invoker always Remove, `Escape did not return focus to the Match link`.
+- N1: `FoilSource.ReplaceProfileBlock` refuses a profile two stations name (`DSL-PATCH`) before any byte changes; its comment now says what is checked.
+  Red first: `FAIL MatchBlend_ReplaceProfileBlock_SharedProfile_RefusedBeforeSplice ... Expected refusal DSL-PATCH`.
+- N3: the "Measured" row (COPY-632) is shown only when something was measured; the `STATION-SPACING` refusal measures nothing and shows no such row.
+  Red first: `FAIL MatchBlend_Flyout_MeasuredRow_OnlyWhenMeasured ... A refusal that measured nothing shows the row: Measured`; mutant (row always added): the same line.
+- N5 (the retry fingerprint carries no station index, as Remove) stays a recorded follow-up.
+
+After the repair (exit codes read on their own lines): Core 878 PASS, Analysis 296 PASS, Cli 26 PASS, Desktop `--controller-shell` 151 PASS,
+`--plan-canvas --part=2/2` 52 PASS (it hosts `MatchBlend_Flyout_KeyboardPath`), the guard prefix `--harness --theme-evidence` exit 0.
+
+### Harnesses (Release, exit codes read on their own lines)
+
+Core 876 PASS, 0 FAIL, 1 SKIP (the SF2-1 timing check); Analysis 296 PASS; Cli 26 PASS; Desktop `--controller-shell` 150 PASS and
+`--shell-model` 17 PASS (the station.match-blend row joins the no-gesture list). The windowed focus path had no check at that point; the
+repair above adds `MatchBlend_Flyout_KeyboardPath`.
+
+### Repair 2 after the re-read (change set on `w2b-sf2`, SF2's last cycle)
+
+- B2's check: `MatchBlend_Flyout_KeyboardPath` steps 2 and 3 now click the link inside the Remove flyout (`Link_fly_match`, found by its name), after
+  asserting that two Match links are visible (the panel's `stn:match` and the flyout's `fly:match`). Green: `PASS MatchBlend_Flyout_KeyboardPath`.
+  Mutant (`fly:match` removed from the click dispatch in `PropertiesPane.axaml.cs`, `stn:match` kept): `FAIL MatchBlend_Flyout_KeyboardPath Exception: Timed out waiting for the Match preview after a click on fly:match`.
+- F1, behaviour. `BeginRemoveStationAsync` shows the Remove result first. Whether Match is offered follows from a second background step
+  (`previewMatch`, a private field a check can replace) that runs only when the Remove deviation is above 1e-12; a `ContractError` from it leaves
+  Match unoffered and the Remove preview in place. `AuthoringSession` keeps the Remove plan in its own slot (`removeMemo`), so the Match plan does not evict it.
+  The cheap already-matches test (no certification) would need a new Core entry point; it is not built, and the full Match preview now runs after the
+  result is on screen, off the UI thread (follow-up if the delay to the Match link matters).
+  - (a) Red first: `FAIL Controller_RemoveFlyout_MatchPreviewFails_RemoveResultStays Exception: A failed Match preview discarded the Remove preview; status: Something unexpected stopped this (DSL-PATCH). Nothing changed.` Green: `PASS Controller_RemoveFlyout_MatchPreviewFails_RemoveResultStays`.
+  - (b) Red first (old single slot): `INFO plan-reuse preview-remove 2669 ms, remove-station 2382 ms` / `FAIL Controller_RemoveApply_AfterFlyoutOpened_ReusesStoredPlan Exception: Apply planned the removal again: remove-station 2382 ms against the preview's 2669 ms`.
+    Green: `INFO plan-reuse preview-remove 2465 ms, remove-station 9 ms` / `PASS Controller_RemoveApply_AfterFlyoutOpened_ReusesStoredPlan`.
+  - Mutant, Match failure not caught (old discard restored): `FAIL Controller_RemoveFlyout_MatchPreviewFails_RemoveResultStays Exception: A failed Match preview discarded the Remove preview`.
+  - Mutant, Remove plan evicted (one slot again): `FAIL Controller_RemoveApply_AfterFlyoutOpened_ReusesStoredPlan Exception: Apply planned the removal again: remove-station 2443 ms against the preview's 2505 ms`.
+- F3: the receipt "Matched Station 2 ..." cannot be read after `fly:apply`, because the reopened Remove preview replaces the status line (and the receipt is
+  a literal in `ApplyMatchAsync`, not a Labels constant). The check reads the apply from the document instead: the reopened Remove flyout offers no
+  Match and its line differs from the line before the apply. Mutant (the Match apply replaced by a plain reopen of Remove, nothing committed):
+  `FAIL MatchBlend_Flyout_KeyboardPath Exception: fly:apply did not apply the match: The shape between Root and Tip is re-blended. Largest change 1913.12 µm ...`.
+- Recorded follow-ups, not built: F2 (open the flyout by command, focus on Apply, announced names), F4 (the timing SKIP line prints under `CFD_TEST_ONLY`),
+  random documents 1-3 and the two generated golden-refusal sources outside the guard.
+
+After repair 2 (exit codes read on their own lines): Core `MatchBlend_` 18 PASS, `Station_` 27 PASS, `--plan-canvas --part=1/2` 53 PASS,
+`--part=2/2` 52 PASS, `--controller-shell` 153 PASS, the guard prefix `--harness --theme-evidence` 10 PASS, all exit 0.

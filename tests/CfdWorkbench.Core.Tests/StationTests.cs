@@ -435,6 +435,430 @@ internal static class StationTests
             True(add.DeviationMicrometres is not null, "the add event carries the measured deviation");
             Console.WriteLine($"INFO T-perf preview-promote {preview.DurationMilliseconds:F0} ms, add-station {add.DurationMilliseconds:F0} ms");
         });
+        // Ruling 262 DF-Q3: the station measure's cheaper path returns the bits of Placement.Sections, nothing else.
+        Check("Station_MeasurePath_BitIdenticalToSections_EveryStationAndPlacementFixture", MeasurePathBitIdentical);
+        Check("Station_MeasurePath_RefusesLikeSections_SameCodeForTheSectionsTestsInputs", MeasurePathRefusals);
+        if (Sf2Timing) Check("Station_MeasurePath_Timing_GatedByEnvironment", MeasurePathTiming);
+        else Console.WriteLine("SKIP Station_MeasurePath_Timing_GatedByEnvironment set CFD_SF2_TIMING=1 to measure");
+        MatchBlendChecks();
+    }
+
+    // ---- Match the blend (SF2-2, design add-station §13, Ruling 262 DF-Q2) ---------------------------------------------
+
+    private static void MatchBlendChecks()
+    {
+        Check("MatchBlend_CommonPeak_ThenRemoveExact", () =>
+        {
+            using var session = Open(Three());
+            var preview = session.PreviewMatchBlend(1);
+            Equal(null, preview.RefusalCode);
+            Equal(true, preview.Admitted);
+            session.MatchBlend(Id(), 1);
+            var removal = session.PreviewRemove(1);
+            True(removal.DeviationRelative <= Tolerance, "Remove after Match " + removal.DeviationRelative.ToString("G17", CultureInfo.InvariantCulture));
+            Equal(true, removal.Admitted);
+            True(preview.ResidualRelative <= Tolerance && preview.ResidualMeters <= 10e-6, "the preview's residual");
+            Equal("R1", preview.ResidualRegime);
+        });
+        Check("MatchBlend_InteriorNeighbours_WeightFromNeighbours", () =>
+        {
+            using var session = Open(Four());
+            Equal(4, Assignments(session.Snapshot().Source).Length);
+            session.MatchBlend(Id(), 2);
+            var removal = session.PreviewRemove(2);
+            True(removal.DeviationRelative <= Tolerance, "Remove after Match " + removal.DeviationRelative.ToString("G17", CultureInfo.InvariantCulture));
+        });
+        Check("MatchBlend_DifferingPeaks_ResidualEqualsPromotionDeviation", () =>
+        {
+            byte[] doc = PeakThree();
+            using var session = Open(doc);
+            var preview = session.MatchPreviewOrThrow(1);
+            Equal("R2", preview.ResidualRegime);
+            using var bare = Open(Peak());
+            var promotion = bare.PreviewPromote(Pct("50"), "50 %");
+            Equal("R2", promotion.Regime);
+            Equal(BitConverter.DoubleToInt64Bits(promotion.DeviationRelative), BitConverter.DoubleToInt64Bits(preview.ResidualRelative));
+            Equal(BitConverter.DoubleToInt64Bits(promotion.DeviationMeters), BitConverter.DoubleToInt64Bits(preview.ResidualMeters));
+            session.MatchBlend(Id(), 1);
+            byte[] after = session.Snapshot().Source;
+            var removal = session.PreviewRemove(1);
+            Equal(BitConverter.DoubleToInt64Bits(promotion.DeviationRelative), BitConverter.DoubleToInt64Bits(removal.DeviationRelative));
+            // T4: M's matched ordinates are the P that Promote builds, bit for bit (the premise on its own, so a failure is localised).
+            var plan = StationEdits.Promote(Peak(), Pct("50"), "50 %", parsed => Geometry.Assess(parsed));
+            var promoted = plan.Parsed!.Definition!.Profiles.Single(profile => profile.Name == plan.ProfileName);
+            var matched = Definition(after).Profiles[Definition(after).Assignments[1].Profile];
+            SameBits("upper", promoted.Upper.Points.Select(point => point[1]).ToArray(), matched.Upper.Points.Select(point => point[1]).ToArray());
+            SameBits("lower", promoted.Lower.Points.Select(point => point[1]).ToArray(), matched.Lower.Points.Select(point => point[1]).ToArray());
+        });
+        Check("MatchBlend_Change_EqualsRemoveBefore_WhenCommonPeak", () =>
+        {
+            using var session = Open(Three());
+            var removal = session.PreviewRemove(1);
+            var preview = session.PreviewMatchBlend(1);
+            True(removal.DeviationRelative > 1e-3, "fixture: Remove before Match is large");
+            True(Math.Abs(preview.ChangeRelative - removal.DeviationRelative) <= Tolerance * Math.Max(1, removal.DeviationRelative), $"change {preview.ChangeRelative:G17} against Remove {removal.DeviationRelative:G17}");
+        });
+        Check("MatchBlend_Grid_SameAsRemove", () =>
+        {
+            using var session = Open(Three());
+            var removal = session.PreviewRemove(1);
+            var preview = session.PreviewMatchBlend(1);
+            Equal(removal.Grid, preview.Grid);
+            Equal(removal.EtaCount, preview.EtaCount);
+        });
+        Check("MatchBlend_ChannelsAndEtaUnchanged", () =>
+        {
+            foreach (var (doc, label) in new[] { (Three(), "F-THREE"), (PeakThree(), "F-PEAK3") })
+            {
+                using var session = Open(doc);
+                session.MatchBlend(Id(), 1);
+                byte[] after = session.Snapshot().Source;
+                foreach (string channel in new[] { "leading", "trailing", "dihedral", "twist", "thickness" })
+                    Equal(Channel(doc, channel), Channel(after, channel));
+                Equal(Definition(doc).Assignments[1].Eta, Definition(after).Assignments[1].Eta);
+                Equal(AssignmentText(doc), AssignmentText(after));
+                var p = Definition(after).Profiles[Definition(after).Assignments[1].Profile];
+                double own = Placement.ProfileDifferenceMaximum(p.Upper, p.Lower), slice = ThicknessAt(after, Definition(after).Assignments[1].Eta);
+                True(Math.Abs(own - slice) <= 1e-12 * slice, label + $": P maximum {own:G17} against t(eta_M) {slice:G17}");
+            }
+        });
+        Check("MatchBlend_SharedProfile_OnlyThisStation", () =>
+        {
+            var shared = Prof("shared", Root, Lower(Root));
+            byte[] doc = Doc(("root", shared), ("60 %", shared), ("tip", Prof("tip", Add(Root, Bend(0.04)), Add(Lower(Root), Bend(0.04)))));
+            using var session = Open(doc);
+            var preview = session.PreviewMatchBlend(1);
+            Equal(true, preview.SharedWith.SequenceEqual([0]));
+            session.MatchBlend(Id(), 1);
+            byte[] after = session.Snapshot().Source;
+            var was = Definition(doc);
+            var now = Definition(after);
+            string text = Encoding.UTF8.GetString(after), before = Encoding.UTF8.GetString(doc);
+            var rootBefore = was.Profiles[was.Assignments[0].Profile];
+            var rootAfter = now.Profiles.Single(profile => profile.Name == rootBefore.Name);
+            Equal(before[rootBefore.BlockStart..rootBefore.BlockEnd], text[rootAfter.BlockStart..rootAfter.BlockEnd]);
+            Equal(now.Profiles[now.Assignments[0].Profile].Name, "shared");
+            True(now.Profiles[now.Assignments[1].Profile].Name != "shared", "station 1 still names the shared profile");
+            Equal(3, now.Profiles.Length);
+        });
+        // SF2 repair N1: the splice itself refuses a profile two stations name, before any byte changes (the caller's MakeIndependent is not the only guard).
+        Check("MatchBlend_ReplaceProfileBlock_SharedProfile_RefusedBeforeSplice", () =>
+        {
+            var shared = Prof("shared", Root, Lower(Root));
+            byte[] doc = Doc(("root", shared), ("60 %", shared), ("tip", Prof("tip", Add(Root, Bend(0.04)), Add(Lower(Root), Bend(0.04)))));
+            byte[] copy = [.. doc];
+            string block = Encoding.UTF8.GetString(FoilSource.ProfileBlock(Prof("shared", PeakTip, Lower(PeakTip))));
+            Refuses("DSL-PATCH", () => FoilSource.ReplaceProfileBlock(doc, "shared", block));
+            Equal(true, copy.AsSpan().SequenceEqual(doc));
+        });
+        Check("MatchBlend_Endpoint_Refused", () =>
+        {
+            byte[] doc = Three();
+            using var session = Open(doc);
+            Refuses("STATION-ENDPOINT", () => session.PreviewMatchBlend(0));
+            Refuses("STATION-ENDPOINT", () => session.MatchBlend(Id(), 2));
+            Refuses("DSL-TARGET", () => session.MatchBlend(Id(), 3));
+            Equal(true, doc.AsSpan().SequenceEqual(session.Snapshot().Source));
+        });
+        Check("MatchBlend_AlreadyMatched_Refused", () =>
+        {
+            using var session = Open(Three());
+            session.MatchBlend(Id(), 1);
+            int depth = session.Envelope().Accepted.Length;
+            byte[] matched = session.Snapshot().Source;
+            Equal("STATION-MATCHED", session.PreviewMatchBlend(1).RefusalCode);
+            Refuses("STATION-MATCHED", () => session.MatchBlend(Id(), 1));
+            Equal(depth, session.Envelope().Accepted.Length);
+            Equal(true, matched.AsSpan().SequenceEqual(session.Snapshot().Source));
+        });
+        // SF2 repair B1: F-PEAK3 is regime R2, so a second Match states the measured Remove residual and never says "exact".
+        Check("MatchBlend_AlreadyMatched_R2_StatesResidualNotExact", () =>
+        {
+            using var session = Open(PeakThree());
+            session.MatchBlend(Id(), 1);
+            var again = session.PreviewMatchBlend(1);
+            Equal("STATION-MATCHED", again.RefusalCode);
+            var removal = session.PreviewRemove(1);
+            True(removal.DeviationRelative > StationEdits.ExactRelative, "F-PEAK3 Remove is not exact after one Match");
+            True(!again.Reason!.Contains("exact", StringComparison.Ordinal), "the refusal says exact: " + again.Reason);
+            True(again.Reason.Contains((removal.DeviationMeters * 1e6).ToString("F1", CultureInfo.InvariantCulture) + " µm", StringComparison.Ordinal), "the refusal does not state the residual: " + again.Reason);
+            Equal(removal.DeviationRelative, again.ResidualRelative);
+            Equal(removal.DeviationMeters, again.ResidualMeters);
+            Equal("R2", again.ResidualRegime);
+        });
+        Check("MatchBlend_Budget_Refused", () =>
+        {
+            byte[] doc = Three();
+            var bound = new GeometryAssessment(null, "bound", GeometryStatus.NotAssessed, Geometry.OperationBoundCode);
+            var plan = StationEdits.Match(doc, 1, _ => bound);
+            Equal("STATION-BUDGET", plan.Preview.RefusalCode);
+            Equal(false, plan.Preview.Admitted);
+        });
+        Check("MatchBlend_Spacing_Refused", () =>
+        {
+            var plan = StationEdits.Match(Spacing3(), 1, _ => throw new InvalidOperationException("assessed"));
+            Equal("STATION-SPACING", plan.Preview.RefusalCode);
+            Equal(false, plan.Preview.Admitted);
+        });
+        Check("MatchBlend_Closure_FromNeighbours", () =>
+        {
+            double[] openUpper = [.. Root], openLower = Lower(Root);
+            (openUpper[^1], openLower[^1]) = (0.003, -0.003);
+            byte[] doc = Doc(("root", Prof("a", Root, Lower(Root))), ("60 %", Prof("m", openUpper, openLower, "open")), ("tip", Prof("b", Add(Root, Bend(0.04)), Add(Lower(Root), Bend(0.04)))));
+            using var session = Open(doc);
+            Equal("open", Definition(doc).Profiles[1].Closure);
+            session.MatchBlend(Id(), 1);
+            var after = Definition(session.Snapshot().Source);
+            Equal("closed", after.Profiles[after.Assignments[1].Profile].Closure);
+            Equal(GeometryStatus.Certified, Geometry.Assess(FoilSource.Parse(session.Snapshot().Source)).Status);
+        });
+        Check("MatchBlend_Undo_RestoresBytes", () =>
+        {
+            byte[] doc = Three();
+            using var session = Open(doc);
+            int depth = session.Envelope().Accepted.Length;
+            session.MatchBlend(Id(), 1);
+            Equal(depth + 1, session.Envelope().Accepted.Length);
+            session.Undo(Id());
+            Equal(true, doc.AsSpan().SequenceEqual(session.Snapshot().Source));
+        });
+        Check("MatchBlend_EvaluatorIdUnchanged", () =>
+        {
+            using var session = Open(Three());
+            session.MatchBlend(Id(), 1);
+            string text = Encoding.UTF8.GetString(session.Snapshot().Source);
+            True(text.Contains("evaluator \"cfdw-cv\" \"2\"", StringComparison.Ordinal), "evaluator line");
+        });
+        Check("MatchBlend_TangentsDropped_Counted", () =>
+        {
+            byte[] doc = ThreeWithTangent();
+            True(Encoding.UTF8.GetString(doc).Contains("tangents {", StringComparison.Ordinal), "fixture carries a tangent row");
+            using var session = Open(doc);
+            Equal(1, session.PreviewMatchBlend(1).TangentsDropped);
+            session.MatchBlend(Id(), 1);
+            string after = Encoding.UTF8.GetString(session.Snapshot().Source);
+            True(!after.Contains("tangent", StringComparison.Ordinal), "tangent bytes survive Match");
+        });
+        Check("MatchBlend_DraftOpen_Refused", () =>
+        {
+            using var session = Open(Camber3());
+            var curve = Definition(session.Snapshot().Source).Curves["leading"];
+            session.BeginPointGesture(Id(), "leading", curve.Ids[2]);
+            Refuses("DSL-DRAFT-OWNED", () => session.PreviewMatchBlend(1));
+            Refuses("DSL-DRAFT-OWNED", () => session.MatchBlend(Id(), 1));
+        });
+    }
+
+    private static MatchPreview MatchPreviewOrThrow(this AuthoringSession session, int index)
+    {
+        var preview = session.PreviewMatchBlend(index);
+        if (preview.RefusalCode is not null) throw new InvalidOperationException(preview.RefusalCode + ": " + preview.Reason);
+        return preview;
+    }
+
+    private static string AssignmentText(byte[] source)
+    {
+        string text = Encoding.UTF8.GetString(source);
+        int at = text.IndexOf("  sections {", StringComparison.Ordinal);
+        return text[at..text.IndexOf('}', at)];
+    }
+
+    /// <summary>
+    /// F-THREE with station 1 on an 11-point profile (the matched station's own spacing is not tested, design G4) whose upper side carries one smooth
+    /// tangent row on the multiplicity-5 knot anchor cv-5; a tangent row needs foildsl 4.1.
+    /// </summary>
+    private static byte[] ThreeWithTangent()
+    {
+        double[] knots = [0, 0, 0, 0, 0, 0, 0.5, 0.5, 0.5, 0.5, 0.5, 1, 1, 1, 1, 1, 1];
+        double[] x = [0, 0, 0.2, 0.35, 0.45, 0.5, 0.55, 0.7, 0.85, 1, 1], y = [0, 0.02, 0.04, 0.04, 0.04, 0.04, 0.04, 0.03, 0.015, 0.005, 0];
+        string[] ids = [.. Enumerable.Range(0, 11).Select(i => "cv-" + i.ToString(CultureInfo.InvariantCulture))];
+        Curve Side(Curve basis, double scale, double sign, double camber, TangentRow[] rows) => basis with
+        {
+            Knots = knots, Points = x.Select((value, i) => new[] { value, sign * scale * y[i] + (i is 0 or 10 ? 0 : camber * 4 * value * (1 - value)) }).ToArray(), Ids = ids, Tangents = rows
+        };
+        var lowerBasis = Definition(FoilSource.NewDefault()).Profiles[0].Lower;
+        ProfileDefinition Prof11(string name, double scale, double camber, TangentRow[] rows) =>
+            new(name, Side(BaseUpper, scale, 1, camber, rows), Side(lowerBasis, scale, -1, camber, []), "closed", 0, 0);
+        byte[] doc = Doc(("root", Prof11("root", 0.8, 0, [])), ("60 %", Prof11("m", 1, 0, [new TangentRow("cv-5", "smooth", null)])), ("tip", Prof11("tip", 0.8, 0.03, [])));
+        return Encoding.UTF8.GetBytes(Encoding.UTF8.GetString(doc).Replace("foildsl \"4.0\"", "foildsl \"4.1\"", StringComparison.Ordinal));
+    }
+
+    /// <summary>F-PEAK3: F-PEAK (root NACA 0012, tip peaking at 40 percent) with a station at 50 percent carrying F-CAMBER's tip (L and R differ in peak).</summary>
+    private static byte[] PeakThree() => StationFixture("f-peak3.foil");
+
+    /// <summary>The committed fixture <c>tests/fixtures/stations/&lt;name&gt;</c>, written once from the hand-built <see cref="Doc"/> documents named in the summaries.</summary>
+    private static byte[] StationFixture(string name) => File.ReadAllBytes(Path.Combine(PlacementTests.RepoRoot(), "tests", "fixtures", "stations", name));
+
+    /// <summary>
+    /// F-FOUR: stations at 0, 30, 60 and 100 percent. Root NACA 0012, 30 percent F-CAMBER's tip, 60 percent F-PEAK's tip, tip F-CAMBER's tip with twice the
+    /// camber, so station 2 has eta_L 0.3 and w = (0.6 - 0.3) / (1 - 0.3) = 0.4286 which is not eta_M.
+    /// </summary>
+    private static byte[] Four() => StationFixture("f-four.foil");
+
+    /// <summary>A three-station document whose neighbours have different point spacing (the 6-point tip of <see cref="Spacing"/>).</summary>
+    private static byte[] Spacing3()
+    {
+        var mid = Prof("mid", Root, Lower(Root));
+        var text = new StringBuilder(Encoding.UTF8.GetString(Spacing()));
+        string block = Encoding.UTF8.GetString(FoilSource.ProfileBlock(mid));
+        int tipAt = text.ToString().IndexOf("    profile \"tip\"", StringComparison.Ordinal);
+        text.Insert(tipAt, block);
+        string result = text.ToString().Replace("  sections { at root profile \"root\"", "  sections { at root profile \"root\" at 50 % profile \"mid\"", StringComparison.Ordinal);
+        return Encoding.UTF8.GetBytes(result);
+    }
+
+    // ---- the measure path's bit guard (SF2-1) ------------------------------------------------------------------------
+
+    /// <summary>
+    /// Every document the Station checks build, the Placement golden sources, the committed m12b2 fixtures and the FoilDSL examples, each at
+    /// 23 etas (the ends, the authored stations, 0.2461 and a spread) and two chord grids. <c>Placement.SectionsForMeasure</c> must equal
+    /// <c>Placement.Sections</c> in Frame, Camber and Thickness, compared by the bits of every double.
+    /// </summary>
+    private static void MeasurePathBitIdentical()
+    {
+        var documents = new List<(string Name, byte[] Source)>
+        {
+            ("F-CAMBER", Camber()), ("F-CAMBER3", Camber3()), ("F-PEAK", Peak()), ("F-THREE", Three()), ("F-SAMEPEAK", SamePeak()),
+            ("F-REAL", Real()), ("F-SIX", Six()), ("F-SEVEN", Seven()), ("F-SPACING", Spacing()), ("F-PEAK-x10", Chord(Peak(), _ => 10)),
+        };
+        string root = PlacementTests.RepoRoot();
+        using (var golden = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "docs", "proof", "m12b2-golden", "certificate-bits.json"))))
+            foreach (var fixture in golden.RootElement.GetProperty("fixtures").EnumerateArray())
+                documents.Add(("golden-" + fixture.GetProperty("name").GetString(), Encoding.UTF8.GetBytes(fixture.GetProperty("source").GetString()!)));
+        foreach (string folder in new[] { Path.Combine("tests", "CfdWorkbench.Core.Tests", "Fixtures", "m12b2"), Path.Combine("docs", "examples", "foildsl") })
+            foreach (string path in Directory.EnumerateFiles(Path.Combine(root, folder), "*.foil").Order(StringComparer.Ordinal))
+                documents.Add((Path.GetFileName(path), File.ReadAllBytes(path)));
+
+        // The Placement checks' generated sources (PlacementTests): the two-hump pair that stresses the blended maximum, the first random
+        // TwoProfiles document of seed 20261001, the four-station Example, and the Twist and Dihedral variants.
+        foreach (var (name, source) in PlacementTests.TwoHumpFixtures()) documents.Add((name, Encoding.UTF8.GetBytes(source)));
+        string example = PlacementTests.Example();
+        var rng = new Random(20261001);
+        decimal randomTwist = decimal.Round((decimal)(rng.NextDouble() * 80 - 40), 4, MidpointRounding.ToZero);
+        decimal randomDihedral = decimal.Round((decimal)(rng.NextDouble() * 400 - 200), 3, MidpointRounding.ToZero);
+        decimal randomChord = decimal.Round(50m + (decimal)rng.NextDouble() * 1950m, 3, MidpointRounding.ToZero);
+        documents.Add(("random-0", Encoding.UTF8.GetBytes(PlacementTests.TwoProfiles(example, randomTwist, randomDihedral, randomChord))));
+        documents.Add(("with-stations", Encoding.UTF8.GetBytes(PlacementTests.WithStations(example))));
+        documents.Add(("twist-4", Encoding.UTF8.GetBytes(PlacementTests.Twist(example, 4))));
+        documents.Add(("dihedral-60", Encoding.UTF8.GetBytes(PlacementTests.Dihedral(example, 60))));
+
+        // F-CURVED's rails (SF1, Desktop ElevationTests): the Core tree has no Desktop fixture, so the same rails go on the Example.
+        string[] railEtas = ["0", "0.1", "0.3", "0.5", "0.7", "0.9", "1"];
+        string Rail(string text, string channel, params double[] y) => PlacementTests.ReplaceCurve(text, channel,
+            string.Join(", ", railEtas.Select((value, i) => FormattableString.Invariant($"({value}, {y[i]})"))));
+        string curved = Rail(Rail(Rail(Rail(example, "leading", 0, 0, -8, -12, -10, 0, 5), "trailing", 140, 140, 120, 100, 90, 80, 65),
+            "dihedral", 0, 0, 15, 30, 50, 70, 100), "twist", 0, 0, 3, 6, 8, 6, 4);
+        documents.Add(("curved-rails", Encoding.UTF8.GetBytes(curved)));
+
+        // The documents Measure sees after a promotion: a station added at 35 % on F-CAMBER, at 80 % on F-CAMBER3, at 50 % on F-PEAK.
+        foreach (var (name, source, at, label) in new[] { ("after-promote-camber-35", Camber(), "35", "35 %"), ("after-promote-camber3-80", Camber3(), "80", "80 %"), ("after-promote-peak-50", Peak(), "50", "50 %") })
+        {
+            using var session = Open(source);
+            session.AddStation(Id(), Pct(at), label, true);
+            documents.Add((name, session.Snapshot().Source));
+        }
+
+        // A source met twice is compared once (the golden sources and the m12b2 fixtures are the same five documents).
+        var seen = new HashSet<string>();
+        documents = documents.Where(item => seen.Add(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(item.Source)))).ToList();
+
+        double[] etas = [0, 0.05, 0.1, 0.2, 0.2461, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.99, 1, 1d / 3, 2d / 3];
+        int compared = 0, doubles = 0, refused = 0;
+        var refusedNames = new SortedSet<string>();
+        foreach (var (name, source) in documents)
+            foreach (var xs in new[] { Xs(65), Xs(201), Placement.ChordGrid(33).ToArray() })
+            {
+                IReadOnlyList<SectionSample> today;
+                try { today = Placement.Sections(source, etas, xs, CancellationToken.None); }
+                catch (ContractError refusal)
+                {
+                    // A document the product refuses is refused with the same code on the measure path.
+                    string again = "none";
+                    try { _ = Placement.SectionsForMeasure(source, etas, xs, CancellationToken.None); }
+                    catch (ContractError second) { again = second.Code; }
+                    refused++;
+                    refusedNames.Add(name + "=" + refusal.Code);
+                    True(again == refusal.Code, name + ": refusal " + refusal.Code + " against " + again);
+                    continue;
+                }
+                var measure = Placement.SectionsForMeasure(source, etas, xs, CancellationToken.None);
+                Equal(today.Count, measure.Count);
+                for (int i = 0; i < today.Count; i++)
+                {
+                    var a = today[i].Frame;
+                    var b = measure[i].Frame;
+                    double[] fa = [a.Eta, a.SpanMeters, a.LeadingMeters, a.TrailingMeters, a.ElevationMeters, a.TwistDegrees, a.ThicknessRatio];
+                    double[] fb = [b.Eta, b.SpanMeters, b.LeadingMeters, b.TrailingMeters, b.ElevationMeters, b.TwistDegrees, b.ThicknessRatio];
+                    SameBits(name + " eta " + etas[i] + " frame", fa, fb);
+                    SameBits(name + " eta " + etas[i] + " camber", [.. today[i].Camber], measure[i].Camber);
+                    SameBits(name + " eta " + etas[i] + " thickness", [.. today[i].Thickness], measure[i].Thickness);
+                    doubles += fa.Length + xs.Length * 2;
+                }
+                compared++;
+            }
+        True(compared >= 60, "only " + compared + " document/grid pairs were compared");
+        Console.WriteLine($"INFO SF2-1 bit guard: {documents.Count} distinct documents, {compared} document x grid pairs compared, {doubles} doubles compared by bits, {refused} pairs refused identically ({string.Join(" ", refusedNames)})");
+    }
+
+    /// <summary>
+    /// <c>SectionsForMeasure</c> repeats <c>Sections</c>' check-and-prepare prefix (so <c>Sections</c>' source stays untouched). The bit guard feeds
+    /// it only valid grids, so this check feeds both paths the refusal inputs of <c>SectionsTests</c> and wants the same code from each.
+    /// </summary>
+    private static void MeasurePathRefusals()
+    {
+        string root = PlacementTests.RepoRoot();
+        byte[] foil = File.ReadAllBytes(Path.Combine(root, "tests", "CfdWorkbench.Core.Tests", "Fixtures", "m12b2", "example.foil"));
+        byte[] section = File.ReadAllBytes(Path.Combine(root, "docs", "examples", "foildsl", "section-basic.foil"));
+        var cases = new (string Name, byte[] Source, double[] Etas, double[] Xs, string Code)[]
+        {
+            ("empty etas", foil, [], [0d], "DSL-RANGE"),
+            ("empty xs", foil, [0.5], [], "DSL-RANGE"),
+            ("eta above 1", foil, [1.1], [0.5], "DSL-RANGE"),
+            ("eta below 0", foil, [-0.1], [0.5], "DSL-RANGE"),
+            ("eta NaN", foil, [double.NaN], [0.5], "DSL-RANGE"),
+            ("x below 0", foil, [0.5], [-0.01], "DSL-RANGE"),
+            ("x above 1", foil, [0.5], [1.01], "DSL-RANGE"),
+            ("x NaN", foil, [0.5], [double.NaN], "DSL-RANGE"),
+            ("not a foil", section, [0d], [0d], "DSL-PATCH"),
+        };
+        foreach (var (name, source, etas, xs, code) in cases)
+        {
+            Refuses(code, () => Placement.Sections(source, etas, xs, CancellationToken.None));
+            string measure = "none";
+            try { _ = Placement.SectionsForMeasure(source, etas, xs, CancellationToken.None); }
+            catch (ContractError refusal) { measure = refusal.Code; }
+            True(measure == code, name + ": the measure path gave " + measure + " where Sections gave " + code);
+        }
+    }
+
+    private static void SameBits(string what, double[] expected, double[] actual)
+    {
+        Equal(expected.Length, actual.Length);
+        for (int i = 0; i < expected.Length; i++)
+            if (BitConverter.DoubleToInt64Bits(expected[i]) != BitConverter.DoubleToInt64Bits(actual[i]))
+                throw new InvalidOperationException($"{what}[{i}]: {BitConverter.DoubleToInt64Bits(expected[i]):X16} against {BitConverter.DoubleToInt64Bits(actual[i]):X16}");
+    }
+
+    /// <summary>
+    /// Time of one 258 eta x 2001 x call on F-CAMBER and of one promotion plan on F-PEAK at the production grid, median of three each.
+    /// Registered only when CFD_SF2_TIMING=1; otherwise the run prints one SKIP line and no PASS.
+    /// </summary>
+    private static void MeasurePathTiming()
+    {
+        var etas = Enumerable.Range(0, 258).Select(i => i / 257d).ToArray();
+        var xs = Xs(2001);
+        byte[] source = Camber();
+        double Median(Func<double> run) { var times = new[] { run(), run(), run() }; Array.Sort(times); return times[1]; }
+        double Time(Action work) { var watch = System.Diagnostics.Stopwatch.StartNew(); work(); return watch.Elapsed.TotalMilliseconds; }
+        _ = Placement.Sections(source, [0.5], xs, CancellationToken.None);
+        double call = Median(() => Time(() => Placement.Sections(source, etas, xs, CancellationToken.None)));
+        double callMeasure = Median(() => Time(() => Placement.SectionsForMeasure(source, etas, xs, CancellationToken.None)));
+        double plan = Median(() => Time(() =>
+        {
+            using var session = Open(Peak(), production: true);
+            session.PreviewPromote(Pct("50"), "50 %");
+        }));
+        Console.WriteLine($"MEASURE sf2 sections_call_258x2001_ms={call:F0} measure_path_call_ms={callMeasure:F0} promotion_plan_ms={plan:F0}");
     }
 
     // ---- fixtures ---------------------------------------------------------------------------------------------------

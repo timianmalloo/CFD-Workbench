@@ -77,6 +77,7 @@ public static class NativeMenuBuilder
                 "Remove point" => "point.remove",
                 "Add station…" => "station.add",
                 "Remove station" => "station.remove",
+                "Match the blend…" => "station.match-blend",
                 var title when title?.StartsWith("Rebuild ", StringComparison.Ordinal) == true => "point.rebuild",
                 _ => null
             };

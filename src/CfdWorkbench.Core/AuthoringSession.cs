@@ -139,6 +139,22 @@ public sealed record RemovalPreview(int Index, double DeviationRelative, double 
 }
 public sealed record RemovalOutcome(string AcceptedId, RemovalPreview Report);
 
+/// <summary>
+/// What matching interior station <paramref name="Index"/> to the blend of its neighbours would do (design add-station §13.5, Ruling 262 DF-Q2). Two
+/// sampled numbers on the Remove grid: the change Match makes now, and the residual a later Remove would still make (<paramref name="ResidualRegime"/>
+/// R0, R1 or R2). Match has no limit of its own: <see cref="Admitted"/> is true unless a refusal code is set.
+/// </summary>
+public sealed record MatchPreview(int Index, double ChangeRelative, double ChangeMeters, double ChangeAtEta, double ResidualRelative, double ResidualMeters,
+    double ResidualAtEta, string? ResidualRegime, IReadOnlyList<int> SharedWith, int TangentsDropped, string? RefusalCode, string? Reason)
+{
+    public bool Admitted => RefusalCode is null;
+    /// <summary>Whether a later Remove of the matched station stays within its own 10 micrometre limit.</summary>
+    public bool RemoveAdmittedAfter => ResidualMeters <= StationEdits.LimitMeters;
+    public string Grid { get; init; } = StationGrid.Production.Label;
+    public int EtaCount { get; init; }
+}
+public sealed record MatchOutcome(string AcceptedId, MatchPreview Report);
+
 public sealed class SessionAssessment
 {
     internal SessionAssessment(Guid owner, GeometryStatus status, string code, SessionBinding? key, GeometryCertificate? certificate,
@@ -243,7 +259,7 @@ public sealed class AuthoringSession : IDisposable
     {
         lock (sync)
         {
-            closed = true; events.Clear(); capturedSaveHashes.Clear(); retiredDraftIds.Clear(); stationMemo = null;
+            closed = true; events.Clear(); capturedSaveHashes.Clear(); retiredDraftIds.Clear(); stationMemo = null; removeMemo = null;
             sources.Clear(); designs.Clear(); accepted.Clear(); cursors.Clear(); redo.Clear(); operations.Clear();
             draft = null; recovery = null; current = null; activeImportReport = null;
             section = null;
@@ -358,6 +374,13 @@ public sealed class AuthoringSession : IDisposable
     public RemovalPreview PreviewRemove(int index) => Run("preview-remove", () => PlanRemove(index).Preview);
     /// <summary>Removes an interior station and re-blends the gap; refused with <c>STATION-REMOVE-ACCEPTANCE</c> above 10 micrometres.</summary>
     public RemovalOutcome RemoveStation(string operationId, int index) => Run("remove-station", () => RemoveStationCore(operationId, index));
+    /// <summary>What matching interior station <paramref name="index"/> to the blend of its neighbours changes now, and what a later Remove would still change; adds no row.</summary>
+    public MatchPreview PreviewMatchBlend(int index) => Run("preview-match-blend", () => PlanMatch(index).Preview);
+    /// <summary>
+    /// Replaces an interior station's profile with the rule-A blend of its neighbours' at its eta (one accepted row, one undo step). Ungated: the change
+    /// is a deliberate edit shown in the preview; a later Remove keeps its own 10 micrometre limit.
+    /// </summary>
+    public MatchOutcome MatchBlend(string operationId, int index) => Run("match-blend", () => MatchBlendCore(operationId, index));
     /// <summary>Seven rebuild previews, counts 4 through 10. Does not certify and does not add a row.</summary>
     public IReadOnlyList<RebuildPreview> PreviewRebuilds(string curve)
     {
@@ -1394,15 +1417,17 @@ public sealed class AuthoringSession : IDisposable
     // The press is a preview and then the command on the same slice, and a plan costs seconds (one blended eta is about 30 ms and a plan
     // samples 2 x 258 of them), so the last plan is kept for the accepted revision, slice and command it was made for.
     // simplify: one entry; a second slice or a new revision replaces it. Upgrade trigger: a caller that alternates two slices.
-    private (string Revision, string Key, object Plan)? stationMemo;
+    // The Remove plan has its own slot: the Remove flyout also previews Match, and that plan must not evict the one Apply reuses.
+    private (string Revision, string Key, object Plan)? stationMemo, removeMemo;
     /// <summary>The measurement grid of Add and Remove station. Production is 129 eta per interval x 2001 x; a test may set a coarser one before the first plan.</summary>
     internal StationGrid StationGrid { get; set; } = StationGrid.Production;
 
     private T StationPlan<T>(string revision, string key, Func<T> make) where T : class
     {
-        lock (sync) if (stationMemo is { } memo && memo.Revision == revision && memo.Key == key && memo.Plan is T hit) return hit;
+        bool remove = key.StartsWith("remove\u001f", StringComparison.Ordinal);
+        lock (sync) if ((remove ? removeMemo : stationMemo) is { } memo && memo.Revision == revision && memo.Key == key && memo.Plan is T hit) return hit;
         var plan = make();
-        lock (sync) stationMemo = (revision, key, plan);
+        lock (sync) { if (remove) removeMemo = (revision, key, plan); else stationMemo = (revision, key, plan); }
         return plan;
     }
 
@@ -1419,6 +1444,12 @@ public sealed class AuthoringSession : IDisposable
     {
         var (id, bytes) = StationBase();
         return StationPlan(id, "remove\u001f" + index.ToString(CultureInfo.InvariantCulture), () => StationEdits.Remove(bytes, index, StationGrid));
+    }
+
+    private MatchPlan PlanMatch(int index)
+    {
+        var (id, bytes) = StationBase();
+        return StationPlan(id, "match\u001f" + index.ToString(CultureInfo.InvariantCulture), () => StationEdits.Match(bytes, index, parsed => AssessOwned(parsed), StationGrid));
     }
 
     private PromotionOutcome AddStationCore(string operationId, double eta, string etaText, bool approximate)
@@ -1503,6 +1534,48 @@ public sealed class AuthoringSession : IDisposable
                 operations.Add(operationId, (payload, id));
                 draft = null; recovery = null;
                 pendingDeviationUm = report.DeviationMeters * 1e6;
+                return new(id, report);
+            }
+            catch
+            {
+                draft = null; retiredDraftIds.Remove(operationId); throw;
+            }
+        }
+    }
+
+    private MatchOutcome MatchBlendCore(string operationId, int index)
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            NativeProject.Uuid(operationId);
+            bool replay = operations.ContainsKey(operationId);
+            var prior = replay ? accepted.SingleOrDefault(row => row.OperationId == operationId && row.Edit?.Rail == "station-match") : null;
+            if (replay && prior is null) throw new ContractError("DOC-OPERATION-CONFLICT");
+            Guard.Require(replay || current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
+            string? parent = replay ? prior!.Parent : current;
+            MatchPlan plan;
+            try
+            {
+                plan = replay ? StationEdits.Match(BaseBytes(parent!), index, parsed => AssessOwned(parsed), StationGrid)
+                    : StationPlan(current!, "match\u001f" + index.ToString(CultureInfo.InvariantCulture), () => StationEdits.Match(CurrentBytes, index, parsed => AssessOwned(parsed), StationGrid));
+            }
+            catch (ContractError) when (replay) { throw new ContractError("DOC-OPERATION-CONFLICT"); }
+            var report = plan.Preview;
+            if (!report.Admitted) throw new ContractError(report.RefusalCode!, report.Reason!);
+            var receipt = new EditReceipt(operationId, 0, "station-match", plan.ProfileName!);
+            string payload = Fingerprint(receipt, parent, plan.Parsed!.SourceHash);
+            if (Retry(operationId, payload, out string existing)) return new(existing, report);
+            Guard.Require(!retiredDraftIds.Contains(operationId), "DSL-DRAFT-REUSED");
+            retiredDraftIds.Add(operationId);
+            draft = new(operationId, current!, 0, "station-match", plan.ProfileName!, plan.Candidate!);
+            try
+            {
+                RequireCertified(Key(plan.Parsed, draft), plan.Assessment!);
+                string id = Commit(plan.Parsed, operationId, "apply");
+                operations.Add(operationId, (payload, id));
+                draft = null; recovery = null;
+                pendingDeviationUm = report.ChangeMeters * 1e6;
                 return new(id, report);
             }
             catch
@@ -2158,7 +2231,7 @@ public sealed class AuthoringSession : IDisposable
                     var d = env.Designs.Single(d => d.Id == a.DesignId);
                     string payload = c.Reason == "open"
                         ? "open:" + a.SourceId
-                        : a.Edit?.Rail is "dimension" or "station-add" or "station-remove"
+                        : a.Edit?.Rail is "dimension" or "station-add" or "station-remove" or "station-match"
                             ? Fingerprint(a.Edit, a.Parent, a.SourceId)
                             : a.Edit?.Rail is "point-type" or "tangent-kind"
                                 ? Fingerprint(a.Edit, a.Parent, a.SourceId, a.Edit.Curve ?? "")
@@ -2623,6 +2696,9 @@ public static class NativeProject
         "station-add" => edit.Curve is null && edit.Rule is null && ProfileNamed(child, edit.VertexId) && !ProfileNamed(parent, edit.VertexId) &&
             child.Assignments.Any(item => child.Profiles[item.Profile].Name == edit.VertexId),
         "station-remove" => edit.Curve is null && edit.Rule is null && ProfileNamed(parent, edit.VertexId),
+        // Match names the profile the station now uses: the child has it and an assignment uses it (its own, or a fresh one when the old was shared).
+        "station-match" => edit.Curve is null && edit.Rule is null && ProfileNamed(child, edit.VertexId) &&
+            child.Assignments.Any(item => child.Profiles[item.Profile].Name == edit.VertexId),
         "curve-rebuild" => edit.Rule is null && edit.Curve is not null &&
             PointModel.EditableCurves.Contains(edit.Curve) && edit.VertexId == edit.Curve,
         // A section receipt names the profile at Finish (§3.3): the parent has it, or the child newly assigns it (Make unique, Import).
@@ -2734,10 +2810,12 @@ internal sealed record PromotionPlan(PromotionPreview Preview, byte[]? Candidate
 
 internal sealed record RemovalPlan(RemovalPreview Preview, byte[]? Candidate, SourceParse? Parsed, string ProfileName);
 
+internal sealed record MatchPlan(MatchPreview Preview, byte[]? Candidate, string? ProfileName, SourceParse? Parsed, GeometryAssessment? Assessment);
+
 /// <summary>
 /// Promote and Remove over source bytes (design add-station §2, Ruling 252). The promoted profile is built in control-point space by
 /// <see cref="PlacementRule"/>, the one rule-A definition, so there is no second evaluator; the deviation is measured through
-/// <see cref="Placement.Sections"/> on the document before against the document after, never predicted. Nothing here touches the session.
+/// <see cref="Placement.Sections"/> (its measure path, <c>SectionsForMeasure</c>, same bits) on the document before against the document after, never predicted. Nothing here touches the session.
 /// </summary>
 internal readonly record struct StationGrid(int EtaSamples, int XSamples)
 {
@@ -2839,6 +2917,84 @@ internal static class StationEdits
     }
 
     /// <summary>
+    /// Plans matching interior station <paramref name="index"/> to the blend of its neighbours (design add-station §13.2). The profile is the one
+    /// <see cref="Blend"/> builds for Promote at the station's eta, written over the station's whole profile block, so no old tangent row, closure, knot
+    /// or provenance survives. Two measurements on the Remove grid: the change now, and the change a later Remove would still make. A domain refusal is in
+    /// the preview (<c>RefusalCode</c>); only a bad index or a root/tip station throws.
+    /// </summary>
+    internal static MatchPlan Match(byte[] source, int index, Func<SourceParse, GeometryAssessment> assess, StationGrid? gridOverride = null)
+    {
+        var grid = gridOverride ?? StationGrid.Production;
+        var definition = FoilSource.Parse(source).Definition ?? throw new ContractError("DSL-PATCH");
+        Guard.Require(definition.Kind == "foil" && index >= 0 && index < definition.Assignments.Length, "DSL-TARGET");
+        if (index == 0 || index == definition.Assignments.Length - 1)
+            throw new ContractError("STATION-ENDPOINT", "Root and tip stations cannot be matched.");
+        var stations = definition.Assignments;
+        var l = definition.Profiles[stations[index - 1].Profile];
+        var r = definition.Profiles[stations[index + 1].Profile];
+        var m = definition.Profiles[stations[index].Profile];
+        var shared = Enumerable.Range(0, stations.Length).Where(i => i != index && stations[i].Profile == stations[index].Profile).ToArray();
+        int tangents = m.Upper.Tangents.Length + m.Lower.Tangents.Length;
+        bool same = Placement.SameRecord(l, r);
+        if (!same && !FourCurvesShareSpacing(l, r))
+            return new(new MatchPreview(index, 0, 0, 0, 0, 0, 0, null, shared, tangents, "STATION-SPACING", "Match is not available: " + StationNames.Of(index - 1, stations[index - 1].Eta) +
+                " and " + StationNames.Of(index + 1, stations[index + 1].Eta) + " have different point spacing, so this loft is not assessed."), null, null, null, null);
+        // A profile another station also names is first made independent for this one (SF2-I2).
+        byte[] work = source;
+        string name = m.Name;
+        if (shared.Length > 0) (work, name) = FoilSource.MakeIndependent(source, m.Name, index);
+        double eta = stations[index].Eta;
+        string provenance = "matched to the blend of " + l.Name + " and " + r.Name + " at " + (eta * 100).ToString("0.######", CultureInfo.InvariantCulture) + " %";
+        ProfileDefinition matched;
+        if (same)
+            matched = new ProfileDefinition(name, With(l.Upper, l.Upper.Points.Select(point => point[1]).ToArray()), With(l.Lower, l.Lower.Points.Select(point => point[1]).ToArray()),
+                l.Closure, 0, 0) { Provenance = provenance };
+        else
+        {
+            double thickness = ChannelEvaluator.At(definition.Curves["thickness"], eta);
+            Guard.Require(thickness > 0, "DSL-PATCH");
+            double weight = Binary64.BlendWeight(eta, stations[index - 1].Eta, stations[index + 1].Eta).Value;
+            matched = Blend(l, r, weight, thickness, name, provenance);
+        }
+        byte[] candidate = FoilSource.ReplaceProfileBlock(work, name, FoilSource.Utf8.GetString(FoilSource.ProfileBlock(matched)));
+        var parsed = FoilSource.Parse(candidate);
+        var etas = Grid(grid, (stations[index - 1].Eta, eta), (eta, stations[index + 1].Eta));
+        var (relative, meters, at, worstRelative) = Measure(source, candidate, etas, grid.XSamples);
+        MatchPreview Report(string? code, string? reason, string? regime = null, double[]? residual = null) =>
+            new(index, relative, meters, at, residual?[0] ?? 0, residual?[1] ?? 0, residual?[2] ?? 0, regime, shared, tangents, code, reason) { EtaCount = etas.Count, Grid = grid.Label };
+        if (worstRelative <= ExactRelative)
+        {
+            // The station already matches, but what a later Remove changes is still measured: only a residual at or below 1e-12 says "exact".
+            var (alreadyRelative, alreadyMeters, alreadyAt, alreadyWorst) = RemoveResidual(candidate, index, etas, grid.XSamples);
+            string stationName = StationNames.Of(index, eta);
+            string reason = alreadyWorst <= ExactRelative
+                ? stationName + " already matches the blend of its neighbours. Remove is exact."
+                : stationName + " already matches the blend of its neighbours. Removing it would still change the loft by " + Micrometres(alreadyMeters) + " µm at η " +
+                    (alreadyAt * 100).ToString("F1", CultureInfo.InvariantCulture) + " % (sampled).";
+            return new(Report("STATION-MATCHED", reason, Regime(same, alreadyWorst), [alreadyRelative, alreadyMeters, alreadyAt]), candidate, name, parsed, null);
+        }
+        var assessment = assess(parsed);
+        if (assessment.Status == GeometryStatus.NotAssessed && assessment.Code == Geometry.OperationBoundCode)
+        {
+            int differing = DifferingStations(parsed.Definition!);
+            return new(Report("STATION-BUDGET", "Match refused: " + differing.ToString(CultureInfo.InvariantCulture) +
+                " stations would have different sections, more than the blend certificate can carry. Make one of them match a neighbour first. Nothing changed."),
+                candidate, name, parsed, assessment);
+        }
+        if (assessment.Status != GeometryStatus.Certified)
+            return new(Report("STATION-NOT-ASSESSED", "Match is not available: the loft is not assessed (" + assessment.Reason + ")."), candidate, name, parsed, assessment);
+        // What a later Remove would still change: the loft with the matched station against the loft without it, on the same grid.
+        var (residualRelative, residualMeters, residualAt, residualWorst) = RemoveResidual(candidate, index, etas, grid.XSamples);
+        return new(Report(null, null, Regime(same, residualWorst), [residualRelative, residualMeters, residualAt]), candidate, name, parsed, assessment);
+    }
+
+    private static (double Relative, double Meters, double AtEta, double WorstRelative) RemoveResidual(byte[] matched, int index, IReadOnlyList<double> etas, int xSamples)
+    {
+        var (afterRemove, _, _) = FoilSource.RemoveAssignment(matched, index);
+        return Measure(matched, afterRemove, etas, xSamples);
+    }
+
+    /// <summary>
     /// The profile at the promoted station. Per control index the neighbours' components (camber, unit thickness) are blended with the one
     /// <see cref="PlacementRule.Blend"/>, then P is rescaled about its camber by 1/k so that P, opened alone, has the thickness the slice shows
     /// (k is P's own maximum over the station thickness). Neither scalar changes the loft: the certificate renormalises P by its own maximum.
@@ -2899,14 +3055,14 @@ internal static class StationEdits
 
     // Each eta is independent, so the etas split across cores; the result is the same samples in the same order. One blended eta costs about
     // 30 ms on the reference laptop (the maximum of the blended unit thickness is searched per eta), so 258 etas on one core is seconds.
-    private static SectionSample[] SectionsParallel(byte[] source, IReadOnlyList<double> etas, IReadOnlyList<double> xs)
+    private static SectionMeasure[] SectionsParallel(byte[] source, IReadOnlyList<double> etas, IReadOnlyList<double> xs)
     {
-        var samples = new SectionSample[etas.Count];
+        var samples = new SectionMeasure[etas.Count];
         int chunks = Math.Min(etas.Count, Environment.ProcessorCount);
         Parallel.For(0, chunks, chunk =>
         {
             int from = (int)((long)etas.Count * chunk / chunks), to = (int)((long)etas.Count * (chunk + 1) / chunks);
-            var part = Placement.Sections(source, [.. etas.Skip(from).Take(to - from)], xs, CancellationToken.None);
+            var part = Placement.SectionsForMeasure(source, [.. etas.Skip(from).Take(to - from)], xs, CancellationToken.None);
             for (int i = 0; i < part.Count; i++) samples[from + i] = part[i];
         });
         return samples;

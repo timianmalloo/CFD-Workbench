@@ -486,5 +486,73 @@ public static partial class PlanCanvasTests
             go.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = Key.Return, Source = go });
             StationWait(same, () => StationDesktopTests.StationCount(same.Controller) == 2, "Return on Apply");
         });
+
+        // SF2 repair B2 (design add-station 13.7): the Match links answer a click in the real window, and Escape returns focus to the control that opened the flyout.
+        DesktopChecks.Check("MatchBlend_Flyout_KeyboardPath", () =>
+        {
+            using var fixture = StationFixture(StationDesktopTests.Three());
+            var controller = fixture.Controller;
+            controller.Select(new Selection.Station(1, 0.6));
+            fixture.Host.RefreshPanes();
+            fixture.Settle();
+            HyperlinkButton Link(string text) => fixture.Window.GetVisualDescendants().OfType<HyperlinkButton>().FirstOrDefault(link => link.Content as string == text && link.IsVisible)
+                ?? throw new Exception("No visible link '" + text + "'");
+            // The Remove flyout's own link (row fly:match), not the panel's stn:match link that stays visible beside it.
+            HyperlinkButton FlyoutMatchLink() => fixture.Window.GetVisualDescendants().OfType<HyperlinkButton>().FirstOrDefault(link => link.Name == "Link_fly_match" && link.IsVisible)
+                ?? throw new Exception("No visible fly:match link in the Remove flyout");
+            // 1. stn:match opens the Match flyout; Escape returns focus to "Match the blend…".
+            var match = Link(WorkbenchController.MatchLabel);
+            match.Focus();
+            match.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            StationWait(fixture, () => controller.Flyout is { Kind: WorkbenchController.StationFlyoutKind.Match, Checking: false }, "the Match preview after a click on stn:match");
+            fixture.Host.RefreshPanes();
+            fixture.Settle();
+            var cancel = Link("Cancel");
+            cancel.Focus();
+            cancel.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = Key.Escape, Source = cancel });
+            fixture.Settle();
+            if (controller.Flyout is not null) throw new Exception("Escape left the Match flyout open");
+            if (fixture.Window.FocusManager?.GetFocusedElement() is not HyperlinkButton { Content: WorkbenchController.MatchLabel })
+                throw new Exception("Escape did not return focus to the Match link: " + fixture.Window.FocusManager?.GetFocusedElement());
+            // 2. fly:match in the refused Remove flyout opens the Match flyout; fly:apply applies it.
+            Link("Remove station").RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            StationWait(fixture, () => controller.Flyout is { Kind: WorkbenchController.StationFlyoutKind.Remove, Checking: false, MatchOffered: true }, "the Remove preview");
+            fixture.Host.RefreshPanes();
+            fixture.Settle();
+            string removeLine = controller.Flyout!.Line;
+            if (fixture.Window.GetVisualDescendants().OfType<HyperlinkButton>().Count(link => link.Content as string == WorkbenchController.MatchLabel && link.IsVisible) != 2)
+                throw new Exception("The panel and the Remove flyout should each show one visible Match link");
+            FlyoutMatchLink().RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            StationWait(fixture, () => controller.Flyout is { Kind: WorkbenchController.StationFlyoutKind.Match, Checking: false }, "the Match preview after a click on fly:match");
+            fixture.Host.RefreshPanes();
+            fixture.Settle();
+            var apply = Link("Apply");
+            if (!apply.IsEnabled) throw new Exception("Apply is disabled on the Match flyout");
+            apply.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            StationWait(fixture, () => controller.Flyout is { Kind: WorkbenchController.StationFlyoutKind.Remove, Checking: false }, "the Remove flyout reopened after the match");
+            // The reopened Remove preview replaces the receipt in the status line, so the apply is read from the document: the station now matches (no Match offered) and Remove changes the loft less.
+            if (controller.Flyout is not { MatchOffered: false } || controller.Flyout.Line == removeLine)
+                throw new Exception("fly:apply did not apply the match: " + controller.Flyout?.Line + " (before: " + removeLine + ")");
+            controller.CancelFlyout();
+            // 3. Escape on a Match flyout opened from the Remove flyout leaves the panel on "Remove station" (the Remove flyout is closed by it).
+            controller.Undo();
+            fixture.Host.RefreshPanes();
+            fixture.Settle();
+            Link("Remove station").RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            StationWait(fixture, () => controller.Flyout is { Kind: WorkbenchController.StationFlyoutKind.Remove, Checking: false, MatchOffered: true }, "the Remove preview after Undo");
+            fixture.Host.RefreshPanes();
+            fixture.Settle();
+            FlyoutMatchLink().RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            StationWait(fixture, () => controller.Flyout is { Kind: WorkbenchController.StationFlyoutKind.Match, Checking: false }, "the Match preview from the Remove flyout");
+            fixture.Host.RefreshPanes();
+            fixture.Settle();
+            var back = Link("Cancel");
+            back.Focus();
+            back.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = Key.Escape, Source = back });
+            fixture.Settle();
+            if (controller.Flyout is not null) throw new Exception("Escape left the Match flyout open (from Remove)");
+            if (fixture.Window.FocusManager?.GetFocusedElement() is not HyperlinkButton { Content: "Remove station" })
+                throw new Exception("Escape from a Match flyout opened by Remove did not return to Remove station: " + fixture.Window.FocusManager?.GetFocusedElement());
+        });
     }
 }
