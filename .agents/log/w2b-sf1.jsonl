@@ -1,1 +1,2 @@
 {"agent": "w2b-sf1", "at": 1792682778.3191638, "kind": "session-start", "path": "-", "seq": 1, "session": "w2b-sf1", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-w2b-sf1"}
+{"agent": "w2b-sf1", "at": 1792688463.9086125, "kind": "session-end", "path": "-", "seq": 2, "session": "w2b-sf1", "wi": "WI-0", "worktree": "CFD-Workbench-w2b-sf1"}

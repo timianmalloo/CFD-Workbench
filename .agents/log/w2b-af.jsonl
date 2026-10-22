@@ -1,1 +1,12 @@
 {"agent": "w2b-af", "at": 1792687687.2390454, "kind": "session-start", "path": "-", "seq": 1, "session": "w2b-af", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-w2b-af"}
+{"agent": "w2b-af", "at": 1792688429.9406, "kind": "claim", "path": "src/CfdWorkbench.Analysis/Compare.cs", "seq": 2, "session": "w2b-af", "ttl": 300.0, "wi": "w2b-af"}
+{"agent": "w2b-af", "at": 1792688430.1736841, "kind": "claim", "path": "src/CfdWorkbench.Analysis/AnalysisProjection.cs", "seq": 3, "session": "w2b-af", "ttl": 300.0, "wi": "w2b-af"}
+{"agent": "w2b-af", "at": 1792688430.4260921, "kind": "claim", "path": "src/CfdWorkbench.Analysis/AnalysisViewModel.cs", "seq": 4, "session": "w2b-af", "ttl": 300.0, "wi": "w2b-af"}
+{"agent": "w2b-af", "at": 1792688430.656756, "kind": "claim", "path": "src/CfdWorkbench.Analysis/Labels.cs", "seq": 5, "session": "w2b-af", "ttl": 300.0, "wi": "w2b-af"}
+{"agent": "w2b-af", "at": 1792688430.886392, "kind": "claim", "path": "src/CfdWorkbench.Desktop/Analysis/ComparePane.axaml.cs", "seq": 6, "session": "w2b-af", "ttl": 300.0, "wi": "w2b-af"}
+{"agent": "w2b-af", "at": 1792688431.1275988, "kind": "claim", "path": "src/CfdWorkbench.Core/DiscrepancyRecord.cs", "seq": 7, "session": "w2b-af", "ttl": 300.0, "wi": "w2b-af"}
+{"agent": "w2b-af", "at": 1792688431.3440912, "kind": "claim", "path": "tests/CfdWorkbench.Analysis.Tests/CompareTests.cs", "seq": 8, "session": "w2b-af", "ttl": 300.0, "wi": "w2b-af"}
+{"agent": "w2b-af", "at": 1792688431.5939722, "kind": "claim", "path": "tests/CfdWorkbench.Desktop.Tests/ComparePaneTests.cs", "seq": 9, "session": "w2b-af", "ttl": 300.0, "wi": "w2b-af"}
+{"agent": "w2b-af", "at": 1792688431.8281584, "kind": "claim", "path": "tests/CfdWorkbench.Cli.Tests/DiscrepancyCliTests.cs", "seq": 10, "session": "w2b-af", "ttl": 300.0, "wi": "w2b-af"}
+{"agent": "w2b-af", "at": 1792688432.0495129, "kind": "claim", "path": "DESIGN.md", "seq": 11, "session": "w2b-af", "ttl": 300.0, "wi": "w2b-af"}
+{"agent": "w2b-af", "at": 1792688432.296247, "kind": "claim", "path": "docs/proof/a3d-compare/README.md", "seq": 12, "session": "w2b-af", "ttl": 300.0, "wi": "w2b-af"}
