@@ -81,16 +81,21 @@ public partial class StartView : UserControl
     }
 
     /// <summary>The approved open sentence (COPY-103, 125 to 130) and, on a second line, the code that fired (COPY-424, Ruling 155).</summary>
-    public static string FailureMessage(OpenFailure failure, string fileName) =>
-        Sentence(failure, fileName) + "\n" + CfdWorkbench.Analysis.Labels.OpenCodeLine(failure.Code);
+    public static string FailureMessage(OpenFailure failure, string fileName) => FailureMessage(failure, fileName, OperatingSystem.IsWindows());
 
-    private static string Sentence(OpenFailure failure, string fileName) => failure switch
+    /// <summary>The same message for a named platform: a sentence that differs by system is a pure mapping, so a check can run both.</summary>
+    public static string FailureMessage(OpenFailure failure, string fileName, bool windows) =>
+        Sentence(failure, fileName, windows) + "\n" + CfdWorkbench.Analysis.Labels.OpenCodeLine(failure.Code);
+
+    private static string Sentence(OpenFailure failure, string fileName, bool windows) => failure switch
     {
+        OpenFailure.Missing { Code: "DOC-CONFLICT" } => CfdWorkbench.Analysis.Labels.OpenGone,
         OpenFailure.Missing => "It isn't where it was — it may have been moved, renamed or deleted. The file hasn't been changed.",
-        OpenFailure.AccessDenied => "CFD Workbench isn't allowed to read it. The file hasn't been changed. Check its permissions in Finder, or open another file.",
+        OpenFailure.AccessDenied => CfdWorkbench.Analysis.Labels.OpenAccessDenied(windows),
+        OpenFailure.Changed => CfdWorkbench.Analysis.Labels.OpenChanged,
         OpenFailure.Unreadable => "It couldn't be read from the disk. The file hasn't been changed.",
         OpenFailure.NotRecognised => "It isn't a foil or project file that CFD Workbench can read, or it is damaged. The file hasn't been changed.",
-        OpenFailure.UnsupportedLocation => CfdWorkbench.Analysis.Labels.OpenUnavailableWindows,
+        OpenFailure.UnsupportedLocation => CfdWorkbench.Analysis.Labels.OpenUnavailable(windows),
         OpenFailure.CloudOnly => CfdWorkbench.Analysis.Labels.OpenCloudOnly,
         OpenFailure.TooLarge => $"It is larger than CFD Workbench can open ({(fileName.EndsWith(".foil", StringComparison.Ordinal) ? "1 MiB" : CfdWorkbench.Core.NativeProject.MaxBytes / 1_000_000 + " MB")}). The file hasn't been changed.",
         OpenFailure.UnknownContent => "It contains parts this version doesn't understand. The file hasn't been changed. A newer version of CFD Workbench may open it.",
@@ -127,6 +132,7 @@ public partial class StartView : UserControl
                 if (fromRecent) AlertRemoveRecentButton.IsVisible = true;
                 break;
             case OpenFailure.Unreadable:
+            case OpenFailure.Changed:
                 AlertTryAgainButton.IsVisible = true;
                 AlertOpenAnotherButton.IsVisible = true;
                 break;

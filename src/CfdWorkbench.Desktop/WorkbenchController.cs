@@ -3321,6 +3321,18 @@ public sealed class WorkbenchController : IDisposable
     /// <summary>Appends an export event to the open session's ring (the dialog's sink; the CLI records on its own session).</summary>
     public void RecordExport(ExportTelemetry entry) => session.RecordExport(entry);
 
+    /// <summary>The Windows default save folder, named "CFD Workbench" (Ruling 146 (3)). Null when it cannot be created: the picker then uses its own default.</summary>
+    public static string? EnsureDefaultSaveFolder()
+    {
+        try
+        {
+            string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "CFD Workbench");
+            Directory.CreateDirectory(folder); // no-op when the folder exists
+            return folder;
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException) { return null; }
+    }
+
     /// <summary>
     /// What Export reads (Export design D3): the accepted revision's source, its geometry status and its stations, never an open
     /// draft; null with no foil open. The default station is the selected one, else Root.
@@ -3335,7 +3347,8 @@ public sealed class WorkbenchController : IDisposable
             var frame = Placement.Frame(view.Source, inspection.Authored.Assignments[index].Eta);
             stations.Add(new(SectionPoints.StationName(inspection.Authored, index), frame.ChordMeters * 1000, frame.ThicknessRatio * 100));
         }
-        string? folder = NativePath is null ? null : Path.GetDirectoryName(NativePath);
+        // A read-only OneDrive document starts the panel where Save As starts for it (Ruling 259), not in the folder a save would refuse.
+        string? folder = NativePath is null ? null : Origin == DocumentOrigin.OneDriveReadOnly ? EnsureDefaultSaveFolder() : Path.GetDirectoryName(NativePath);
         return new(view.Source, inspection.Authored.Name ?? "foil", session.RevisionOf(view.AcceptedId).Ordinal, inspection.Geometry.Status,
             Draft is not null || Section is not null, IsAnalysis, stations, Selection is Selection.Station station ? station.Index : 0, folder);
     }

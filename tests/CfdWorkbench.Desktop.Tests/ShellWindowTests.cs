@@ -2151,15 +2151,20 @@ public static class ShellWindowTests
                 .Select(line => line.Split('|', 4))
                 .Where(parts => parts.Length >= 3)
                 .ToDictionary(parts => parts[1].Trim(), parts => parts[2].Trim());
-            var cases = new (string Row, OpenFailure Failure, bool FromRecent)[]
+            // A row is the whole alert (title, sentence, actions) when it is one of COPY-103 and 125 to 130. The WF rows (COPY-643 to 645)
+            // are the sentence alone, so their title is not in the row and their actions are the stated ones (Actions != null).
+            var cases = new (string Row, OpenFailure Failure, bool FromRecent, string[]? Actions)[]
             {
-                ("COPY-125", new OpenFailure.Missing("FILE-NOT-FOUND", "sample.foil"), true),
-                ("COPY-126", new OpenFailure.AccessDenied("EACCES", "sample.foil"), false),
-                ("COPY-127", new OpenFailure.Unreadable("DOC-IO", "sample.foil"), false),
-                ("COPY-128", new OpenFailure.NotRecognised("DOC-TYPE", "sample.foil"), false),
-                ("COPY-129", new OpenFailure.TooLarge("DSL-LIMIT", "sample.foil"), false),
-                ("COPY-130", new OpenFailure.UnknownContent("DOC-UNSUPPORTED-FIELD", "sample.foil"), false),
-                ("COPY-103", new OpenFailure.Newer("DOC-VERSION", "sample.foil"), false)
+                ("COPY-125", new OpenFailure.Missing("FILE-NOT-FOUND", "sample.foil"), true, null),
+                (OperatingSystem.IsWindows() ? "COPY-645" : "COPY-126", new OpenFailure.AccessDenied("EACCES", "sample.foil"), false,
+                    OperatingSystem.IsWindows() ? ["Open another file…"] : null),
+                ("COPY-127", new OpenFailure.Unreadable("DOC-IO", "sample.foil"), false, null),
+                ("COPY-128", new OpenFailure.NotRecognised("DOC-TYPE", "sample.foil"), false, null),
+                ("COPY-129", new OpenFailure.TooLarge("DSL-LIMIT", "sample.foil"), false, null),
+                ("COPY-130", new OpenFailure.UnknownContent("DOC-UNSUPPORTED-FIELD", "sample.foil"), false, null),
+                ("COPY-103", new OpenFailure.Newer("DOC-VERSION", "sample.foil"), false, null),
+                ("COPY-643", new OpenFailure.Changed("DOC-CONFLICT", "sample.foil"), false, ["Try again", "Open another file…"]),
+                ("COPY-644", new OpenFailure.Missing("DOC-CONFLICT", "sample.foil"), false, ["Locate…", "Open another file…"])
             };
             foreach (var item in cases)
             {
@@ -2173,11 +2178,22 @@ public static class ShellWindowTests
                 string codeLine = "\nCode: " + item.Failure.Code;
                 if (!message.EndsWith(codeLine, StringComparison.Ordinal))
                     throw new InvalidOperationException($"{item.Row}: the alert has no second line '{codeLine.Trim()}': '{message}'");
-                string actual = StartControl<TextBlock>(start, "AlertTitle").Text + " " +
-                    message[..^codeLine.Length] +
-                    (item.Row == "COPY-103" || actions.Length == 0 ? "" : " · " + string.Join(" · ", actions));
-                string expected = rows[item.Row].Replace("<file>", "sample.foil", StringComparison.Ordinal)
+                string sentence = message[..^codeLine.Length];
+                string actual;
+                if (item.Actions is null)
+                    actual = StartControl<TextBlock>(start, "AlertTitle").Text + " " + sentence +
+                        (item.Row == "COPY-103" || actions.Length == 0 ? "" : " · " + string.Join(" · ", actions));
+                else
+                {
+                    if (!actions.SequenceEqual(item.Actions))
+                        throw new InvalidOperationException($"{item.Row}: actions '{string.Join(" · ", actions)}', expected '{string.Join(" · ", item.Actions)}'");
+                    actual = sentence + " · " + string.Join(" · ", actions);
+                }
+                // One parse for every row: the text is what precedes the status suffix " — proposed — …" or " — approved — …".
+                string text = System.Text.RegularExpressions.Regex.Replace(rows[item.Row], " — (proposed|approved) — .*$", "");
+                string expected = text.Replace("<file>", "sample.foil", StringComparison.Ordinal)
                     .Replace("<limit>", "1 MiB", StringComparison.Ordinal);
+                if (item.Actions is not null) expected += " · " + string.Join(" · ", item.Actions);
                 if (actual != expected)
                     throw new InvalidOperationException($"{item.Row}: expected '{expected}', built '{actual}'");
             }

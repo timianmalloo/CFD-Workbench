@@ -254,9 +254,14 @@ public static class CatalogDialogTests
 
     private static void CheckUnsupportedSave()
     {
+        // Item 6 as a pure mapping: Windows never says "this system" (the store is admitted there); the other systems keep the approved sentence.
+        Require(!CfdWorkbench.Analysis.Labels.SectionSaveUnavailableFor(true).Contains("This system", StringComparison.OrdinalIgnoreCase)
+            && CfdWorkbench.Analysis.Labels.SectionSaveUnavailableFor(true).Contains("My sections folder", StringComparison.Ordinal), "the Windows save-section sentence blames the system");
+        Require(CfdWorkbench.Analysis.Labels.SectionSaveUnavailableFor(false) == "This system can't save to My sections safely. Nothing was saved.", "the other systems lost the approved sentence");
         foreach (var (code, expected) in new[]
         {
-            ("DOC-UNSUPPORTED-PERSISTENCE", "This system can't save to My sections safely. Nothing was saved."),
+            // Item 6: the section library saves on Windows, so the store's refusal there names the folder, never "this system".
+            ("DOC-UNSUPPORTED-PERSISTENCE", CfdWorkbench.Analysis.Labels.SectionSaveUnavailableFor(OperatingSystem.IsWindows())),
             ("LIB-IO", "Couldn't save to My sections: the file couldn't be written. Nothing was saved."),
             ("DOC-SAVE-UNCERTAIN", "CFD Workbench couldn't confirm whether this section was saved. Check My sections before trying again."),
             ("LIB-UNKNOWN", "Couldn't finish saving this section (LIB-UNKNOWN). Check My sections before trying again.")

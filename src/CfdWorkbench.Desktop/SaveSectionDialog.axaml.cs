@@ -76,7 +76,7 @@ public partial class SaveSectionDialog : Window
                 "LIB-SECTION-INVALID" => "Fix the crossing before saving this section.",
                 "LIB-CLAIM-HELD" => "Another save is in progress. Try again in a moment.",
                 "LIB-IO" => "Couldn't save to My sections: the file couldn't be written. Nothing was saved.",
-                "DOC-UNSUPPORTED-PERSISTENCE" => "This system can't save to My sections safely. Nothing was saved.",
+                "DOC-UNSUPPORTED-PERSISTENCE" => CfdWorkbench.Analysis.Labels.SectionSaveUnavailableFor(OperatingSystem.IsWindows()),
                 "DOC-SAVE-UNCERTAIN" => "CFD Workbench couldn't confirm whether this section was saved. Check My sections before trying again.",
                 _ => $"Couldn't finish saving this section ({error.Code}). Check My sections before trying again."
             };

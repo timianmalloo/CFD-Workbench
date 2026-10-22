@@ -72,6 +72,21 @@ internal static class LabelsTests
             Equal(text, Labels.BracketOutsideFamily, "the Labels constant");
             Equal(true, design.Contains("| COPY-364 | " + text + " — approved — Ruling 119"), "the DESIGN.md row, marker approved — Ruling 119");
         });
+        // Track WF (N6): the off-Windows Open and Save-section mappings are pure, so this runs on both CI runners; rows are read, never retyped.
+        Check("Labels_OffWindowsRefusals_TruthfulAndOnTheApprovedRows", () => {
+            string design = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "DESIGN.md"));
+            string catalog = File.ReadAllText(Path.Combine(StripFixtureTests.RepoRoot(), "docs", "design", "m12d-catalog.md"));
+            static string Row(string text, string id) => text.Split('\n').Single(line => line.StartsWith("| " + id + " |", StringComparison.Ordinal));
+            string other = Labels.OpenUnavailable(false);
+            foreach (string cause in new[] { "damaged", "Windows", "OneDrive" })
+                Equal(false, other.Contains(cause, StringComparison.OrdinalIgnoreCase), "the off-Windows sentence names " + cause);
+            Equal(true, Row(design, "COPY-642").Contains(other), "COPY-642 row holds the off-Windows sentence");
+            Equal(true, Row(design, "COPY-126").Contains(Labels.OpenAccessDenied(false)), "COPY-126 row holds the off-Windows access sentence");
+            Equal(true, Row(catalog, "COPY-200").Contains(Labels.SectionSaveUnavailableFor(false)), "COPY-200 row holds the off-Windows Save-section sentence");
+            // Ruling 266: the Windows sentence is the ruled one, in the row, and names neither "damaged" nor "Windows can't use".
+            Equal(true, Row(design, "COPY-641").Contains(Labels.OpenUnavailableWindows), "COPY-641 row holds the Windows sentence");
+            Equal(false, Labels.OpenUnavailableWindows.Contains("damaged", StringComparison.OrdinalIgnoreCase) || Labels.OpenUnavailableWindows.Contains("Windows can't use"), "COPY-641 blames Windows or damage");
+        });
         Check("Labels_DepthUnset_FreeSurfaceNotModelled", () => {
             Equal(true, Labels.FixedVlm(false).EndsWith("free surface not modelled"));
             Equal(true, Labels.NotModelled(false).Contains("free surface"));

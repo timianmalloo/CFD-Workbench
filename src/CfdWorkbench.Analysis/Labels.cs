@@ -394,7 +394,19 @@ public static class Labels
     private static string SaveFailed(string cause, string code, string tail) => $"Save failed: {cause} ({code}) — the previous file is intact and your changes are kept. {tail}"; // COPY-31 (Ruling 134), cause per COPY-412 to 422 (Ruling 155)
     public const string SaveUnavailable = "Saving isn't available on this system yet — your changes are kept in this session."; // COPY-31W (Ruling 134)
     public const string SaveUnavailableWindows = "CFD Workbench can't save to this location or over this file. Your changes are kept in this session. Use Save As to choose a local folder."; // COPY-589 (Ruling 253 W2-Q2 a)
-    public const string OpenUnavailableWindows = "CFD Workbench can't open a project from this location (a OneDrive, network or removable folder, or a linked folder). The file hasn't been changed. Copy the project to a local folder and open it from there."; // COPY-590 (Ruling 257)
+    // Open refusals by cause (track WF, wave 2; COPY-641 approved by Rulings 265 and 266 and replaces the retired COPY-590; COPY-642 to 646 are proposed: the operator approves the wording).
+    // The store reports a location, a name or path, a linked file and an unsupported system under the one code DOC-UNSUPPORTED-PERSISTENCE, so one sentence names them all.
+    public const string OpenUnavailableWindows = "CFD Workbench can't open this file from here. It may be in a folder or on a drive that CFD Workbench can't use safely, such as a network, removable, linked or cloud-synced folder, or its name or path may be one CFD Workbench can't use. The file hasn't been changed. Copy the project to a local folder, give it a short plain name, and open it from there."; // COPY-641 (DR-DS-5)
+    public const string OpenUnavailableOther = "CFD Workbench can't open this file safely from here on this system. The file hasn't been changed. Copy the project to a local folder and open it from there."; // COPY-642
+    public const string OpenChanged = "The file changed, or another program was using it, while CFD Workbench was reading it. CFD Workbench didn't change it. Try opening it again."; // COPY-643
+    public const string OpenGone = "The file isn't there any more. It may have been moved, renamed or deleted. The file hasn't been changed."; // COPY-644
+    public const string OpenAccessDeniedMac = "CFD Workbench isn't allowed to read it. The file hasn't been changed. Check its permissions in Finder, or open another file."; // COPY-126 (approved)
+    public const string OpenAccessDeniedWindows = "CFD Workbench isn't allowed to read it. The file hasn't been changed. In File Explorer, right-click the file, choose Properties, then Security to check its permissions, or open another file."; // COPY-645
+    public const string SectionSaveUnavailable = "This system can't save to My sections safely. Nothing was saved."; // approved dialog sentence, off Windows
+    public const string SectionSaveUnavailableWindows = "CFD Workbench can't save to the My sections folder safely (it may be in a network, removable, linked or cloud-synced folder). Nothing was saved."; // COPY-646
+    public static string OpenUnavailable(bool windows) => windows ? OpenUnavailableWindows : OpenUnavailableOther;
+    public static string OpenAccessDenied(bool windows) => windows ? OpenAccessDeniedWindows : OpenAccessDeniedMac;
+    public static string SectionSaveUnavailableFor(bool windows) => windows ? SectionSaveUnavailableWindows : SectionSaveUnavailable;
     // Read-only Open from OneDrive (Ruling 259; design windows-store-recovery section 5). Proposed rows COPY-592 to 594: the operator approves the wording.
     public const string ReadOnlyTitleSuffix = "(read-only: opened from OneDrive)"; // COPY-592 (DS-COPY-1)
     public const string ReadOnlyNotice = "This project was opened from OneDrive, so it can't be saved there. Use Save As to save it in a local folder."; // COPY-593 (DS-COPY-2)

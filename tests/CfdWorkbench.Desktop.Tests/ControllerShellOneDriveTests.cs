@@ -22,13 +22,20 @@ public static class ControllerShellOneDriveTests
     public static void Run()
     {
         DesktopChecks.Check("OpenOutcome_ClassifyCode_CloudOnly_And_StartViewSentence", ClassifyCloudOnly);
+        DesktopChecks.Check("OpenRefusal_UnsupportedLocation_Windows_NamesLocationAndNameCauses", RefusalWindows);
+        DesktopChecks.Check("OpenRefusal_UnsupportedLocation_OffWindows_NoDamagedNoWindowsCause", RefusalOffWindows);
+        DesktopChecks.Check("OpenRefusal_Conflict_ChangedOrInUse_NotDamaged", RefusalConflict);
+        DesktopChecks.Check("OpenRefusal_ConflictOnAbsentFile_IsMissing", RefusalAbsentFile);
+        DesktopChecks.Check("OpenRefusal_AccessDenied_FinderOnMacOnly", RefusalAccessDenied);
+        DesktopChecks.Check("OpenRefusal_Sentences_AreTheLabelsConstants", RefusalConstants);
         if (!OperatingSystem.IsWindows())
         {
-            foreach (string name in new[] { "ControllerShell_OneDriveOpen_InPlaceSaveWritesNothing", "ControllerShell_OneDriveOpen_SaveAsAtLocalDefault_OriginBecomesLocal",
+            foreach (string name in new[] { "ControllerShell_OneDriveOpen_ExportStartsAtLocalDefault","ControllerShell_OneDriveOpen_InPlaceSaveWritesNothing", "ControllerShell_OneDriveOpen_SaveAsAtLocalDefault_OriginBecomesLocal",
                 "ControllerShell_OneDriveOpen_TitleAndNotice_NoModal", "ControllerShell_OneDriveOpen_NoticeStaysAcrossStatusReports", "ControllerShell_OneDriveOpen_NoticeRow_DirectlyAboveStatusStrip", "ControllerShell_CloudOnlyRefusal_SentenceAndCodeLine" })
                 Console.WriteLine("SKIP " + name + " windows-only");
             return;
         }
+        DesktopChecks.Check("ControllerShell_OneDriveOpen_ExportStartsAtLocalDefault", ExportStartsAtLocalDefault);
         DesktopChecks.Check("ControllerShell_OneDriveOpen_InPlaceSaveWritesNothing", InPlaceSaveWritesNothing);
         DesktopChecks.Check("ControllerShell_OneDriveOpen_SaveAsAtLocalDefault_OriginBecomesLocal", SaveAsBecomesLocal);
         DesktopChecks.Check("ControllerShell_OneDriveOpen_TitleAndNotice_NoModal", TitleAndNotice);
@@ -60,6 +67,96 @@ public static class ControllerShellOneDriveTests
         // U5: a refusal after the data handle exists is DOC-CONFLICT and never shows the "wasn't downloaded" sentence.
         Need(!StartView.FailureMessage(OpenFailure.ClassifyCode("DOC-CONFLICT", "x.cfdw.json"), "x.cfdw.json").Contains("wasn't downloaded"), "DOC-CONFLICT shows DS-COPY-3");
         Need(!StartView.FailureMessage(failure, "x.cfdw.json").Contains("damaged", StringComparison.OrdinalIgnoreCase), "the cloud-only message says damaged");
+    }
+
+    // Pure sentence mappings: they call no operating-system API, so they run on every host and need no host guard (TEST-FOREIGN-OS-BRANCH concerns OS calls).
+    private const bool ForWindows = true, ForOtherSystem = false;
+
+    private static string Message(string code, string path, bool windows) =>
+        StartView.FailureMessage(OpenFailure.ClassifyCode(code, path), Path.GetFileName(path), windows);
+
+    private static bool Has(string text, string part) => text.Contains(part, StringComparison.OrdinalIgnoreCase);
+
+    // Items 1 and 7: the Windows location sentence names every cause the store reports under one code, none of them "damaged".
+    private static void RefusalWindows()
+    {
+        string message = Message("DOC-UNSUPPORTED-PERSISTENCE", "x.cfdw.json", windows: ForWindows);
+        Need(!Has(message, "damaged") && !Has(message, "windows can't use"), "blames damage or Windows: " + message);
+        Need(Has(message, "name or path") && Has(message, "cloud-synced") && Has(message, "network"), "a store cause is missing: " + message);
+        Need(Has(message, "copy the project to a local folder"), "no remedy: " + message);
+        Need(message.EndsWith("\nCode: DOC-UNSUPPORTED-PERSISTENCE", StringComparison.Ordinal), "no code line: " + message);
+    }
+
+    // Item 2: off Windows the same code is a truthful sentence about the location and system, with no Windows or OneDrive cause and no "damaged".
+    private static void RefusalOffWindows()
+    {
+        string message = Message("DOC-UNSUPPORTED-PERSISTENCE", "x.cfdw.json", windows: ForOtherSystem);
+        Need(!Has(message, "damaged") && !Has(message, "onedrive") && !Has(message, "windows"), "wrong cause: " + message);
+        Need(Has(message, "can't open") && Has(message, "local folder"), "no statement and remedy: " + message);
+    }
+
+    private static string ExistingFile()
+    {
+        string path = Path.Combine(TestTemp.NewDirectory("open-cause-"), "wing.cfdw.json");
+        File.WriteAllBytes(path, "{}"u8.ToArray());
+        return path;
+    }
+
+    // Item 3: DOC-CONFLICT on Open is a file that changed or was in use while it was read (Ruling 261), not a damaged one.
+    private static void RefusalConflict()
+    {
+        string message = Message("DOC-CONFLICT", ExistingFile(), OperatingSystem.IsWindows());
+        Need(!Has(message, "damaged") && !Has(message, "wasn't downloaded"), "says damaged: " + message);
+        Need(Has(message, "changed") && Has(message, "was using it") && Has(message, "try opening it again"), "no cause and remedy: " + message);
+    }
+
+    // Item 4: the store reports a missing file as DOC-CONFLICT; the file system tells them apart without a store change.
+    private static void RefusalAbsentFile()
+    {
+        string absent = Path.Combine(TestTemp.NewDirectory("open-cause-"), "gone.cfdw.json");
+        var failure = OpenFailure.ClassifyCode("DOC-CONFLICT", absent);
+        Need(failure is OpenFailure.Missing, "an absent file is " + failure.GetType().Name);
+        string message = StartView.FailureMessage(failure, "gone.cfdw.json", OperatingSystem.IsWindows());
+        Need(Has(message, "isn't there any more") && !Has(message, "damaged") && !Has(message, "using it"), message);
+        Need(OpenFailure.ClassifyCode("DOC-CONFLICT", "") is not OpenFailure.Missing, "no path is a conflict, not a missing file");
+    }
+
+    // Item 5: File Explorer on Windows, Finder on macOS (COPY-126 keeps its row).
+    private static void RefusalAccessDenied()
+    {
+        string windows = Message("DOC-ACCESS", "x.cfdw.json", windows: ForWindows), mac = Message("DOC-ACCESS", "x.cfdw.json", windows: ForOtherSystem);
+        Need(!Has(windows, "finder") && Has(windows, "File Explorer") && Has(windows, "Properties") && Has(windows, "Security"), windows);
+        Need(Has(mac, "in Finder") && !Has(mac, "File Explorer"), mac);
+    }
+
+    // Every refusal sentence is the Labels constant, never a retyped literal (COPY-641 to 645).
+    private static void RefusalConstants()
+    {
+        string path = ExistingFile(), absent = Path.Combine(Path.GetDirectoryName(path)!, "gone.cfdw.json");
+        Need(Message("DOC-UNSUPPORTED-PERSISTENCE", path, true) == Labels.OpenUnavailableWindows + "\nCode: DOC-UNSUPPORTED-PERSISTENCE", "COPY-641 is not the Windows sentence");
+        Need(Message("DOC-UNSUPPORTED-PERSISTENCE", path, false) == Labels.OpenUnavailableOther + "\nCode: DOC-UNSUPPORTED-PERSISTENCE", "COPY-642 is not the other sentence");
+        Need(Message("DOC-CONFLICT", path, true) == Labels.OpenChanged + "\nCode: DOC-CONFLICT", "COPY-643 is not the conflict sentence");
+        Need(!Labels.OpenChanged.Contains("hasn't been changed", StringComparison.Ordinal), "COPY-643 says the file hasn't been changed, but its cause is that the file changed");
+        Need(Message("DOC-CONFLICT", absent, true) == Labels.OpenGone + "\nCode: DOC-CONFLICT", "COPY-644 is not the absent-file sentence");
+        Need(Message("DOC-ACCESS", path, true) == Labels.OpenAccessDeniedWindows + "\nCode: DOC-ACCESS", "COPY-645 is not the Windows permission sentence");
+        Need(Message("DOC-ACCESS", path, false) == Labels.OpenAccessDeniedMac + "\nCode: DOC-ACCESS", "COPY-126 changed on macOS");
+    }
+
+    // Item 8: a read-only OneDrive document must not start the export panel in the folder where its save would be refused.
+    private static void ExportStartsAtLocalDefault()
+    {
+        var (folder, path) = Fixture();
+        string expected = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "CFD Workbench");
+        OpenReadOnly(path, (window, host, controller) =>
+        {
+            string? start = controller.ExportSnapshot()!.ProjectFolder;
+            Need(start is not null && !string.Equals(start, folder, StringComparison.OrdinalIgnoreCase), "the export panel starts in the OneDrive folder: " + start);
+            Need(string.Equals(start, expected, StringComparison.OrdinalIgnoreCase), "the export start is not the Save As default: " + start);
+        }, folder);
+        string local = Path.Combine(TestTemp.NewDirectory("onedrive-local-"), "copy.cfdw.json");
+        using var controller2 = new WorkbenchController();
+        Await(controller2.OpenExampleAsync()); Await(controller2.SaveAsync(local));
+        Need(string.Equals(controller2.ExportSnapshot()!.ProjectFolder, Path.GetDirectoryName(local), StringComparison.OrdinalIgnoreCase), "a local project lost its own folder");
     }
 
     private static StoreHooks Hooks(Func<string, (uint, uint)?>? leaf = null, List<string>? stages = null) => new()

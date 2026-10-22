@@ -203,7 +203,7 @@ public static class ControllerShellTests
                     throw new InvalidOperationException("expected DOC-UNSUPPORTED-PERSISTENCE, got " + error);
                 var failure = OpenFailure.Classify(error, path);
                 string message = CfdWorkbench.Desktop.Panes.StartView.FailureMessage(failure, "wing.cfdw.json");
-                bool cause = message.Contains("OneDrive", StringComparison.OrdinalIgnoreCase);
+                bool cause = message.Contains("cloud-synced", StringComparison.OrdinalIgnoreCase);   // COPY-641 names the cloud-synced folder (DR-DS-5)
                 bool remedy = message.Contains("copy the project to a local folder", StringComparison.OrdinalIgnoreCase);
                 bool damaged = message.Contains("damaged", StringComparison.OrdinalIgnoreCase);
                 if (!cause || !remedy || damaged)
