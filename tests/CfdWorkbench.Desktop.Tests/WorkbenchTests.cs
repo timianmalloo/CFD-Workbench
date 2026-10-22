@@ -924,7 +924,7 @@ namespace CfdWorkbench.Desktop.Tests
                     if (exitCode == 0) exitCode = 1;
                 }
                 if (childExit == 0) continue;
-                output.WriteLine($"FAIL {modes[index]} exited {childExit}");
+                output.WriteLine(ExitLine(modes[index], childExit, OperatingSystem.IsWindows()));
                 if (exitCode == 0) exitCode = childExit;
             }
             // The parts run each check once only if the mode list holds parts 1..n of one n, and each part enumerated the
@@ -973,6 +973,20 @@ namespace CfdWorkbench.Desktop.Tests
             try { name = File.ReadAllText(sidecar).Trim(); }
             catch (Exception error) when (error is IOException or UnauthorizedAccessException) { }
             return $"FAIL TIMEOUT {mode} after {limit} s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed; in-flight check: {(name.Length == 0 ? "(unknown)" : name)}";
+        }
+
+        /// <summary>The FAIL line for a child that ended with a non-zero exit.</summary>
+        /// <remarks>
+        /// A native termination is named as one: on Windows any negative exit (an NTSTATUS, 0xC0000000 and up, e.g.
+        /// -1073740940 = 0xC0000374 heap corruption), on POSIX 129 to 255 (128 plus the signal). 124 and 125 keep their meaning.
+        /// </remarks>
+        public static string ExitLine(string mode, int exit, bool windows)
+        {
+            string plain = $"FAIL {mode} exited {exit}";
+            const string tail = ": native crash, not a check verdict";
+            if (windows && exit < 0) return plain + $" (0x{unchecked((uint)exit):X8})" + tail;
+            if (!windows && exit is >= 129 and <= 255) return plain + $" (signal {exit - 128})" + tail;
+            return plain;
         }
 
         /// <summary>Reads one redirected stream to end of file on its own thread, appending each line; <paramref name="onEof"/> marks the moment.</summary>

@@ -97,6 +97,25 @@ public static class StageTimingTests
             }
             finally { File.Delete(note); }
         });
+        // HARNESS-CRASH-AS-VERDICT: a native termination reads as one, not as a check verdict (2026-10-22: 0xC0000374).
+        // Ring: fast (pure, no child process). Cost: under 1 ms.
+        DesktopChecks.Check("ExitLine_NativeTermination_NamedNotAVerdict", () =>
+        {
+            const string tail = ": native crash, not a check verdict";
+            (int Exit, bool Windows, string Expected)[] cases =
+            [
+                (-1073740940, true, "FAIL m exited -1073740940 (0xC0000374)" + tail),
+                (-1073741819, true, "FAIL m exited -1073741819 (0xC0000005)" + tail),
+                (134, false, "FAIL m exited 134 (signal 6)" + tail),
+                (124, false, "FAIL m exited 124"),
+                (124, true, "FAIL m exited 124"),
+                (1, true, "FAIL m exited 1"),
+                (1, false, "FAIL m exited 1"),
+            ];
+            var wrong = cases.Select(c => (c, Got: DesktopChecks.ExitLine("m", c.Exit, c.Windows))).Where(r => r.Got != r.c.Expected)
+                .Select(r => $"{r.c.Exit}/{(r.c.Windows ? "win" : "posix")}: got '{r.Got}'").ToArray();
+            if (wrong.Length > 0) throw new Exception(string.Join(" | ", wrong));
+        });
     }
 
     // PVH: a real child that sleeps past a 3 s limit; the parent's TIMEOUT line must name the check it was running.
