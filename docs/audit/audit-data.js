@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T23:06:52Z",
+  "generated": "2026-10-22T23:07:50Z",
   "audit": [
     {
       "actor": null,
@@ -42892,6 +42892,33 @@ window.AUDIT_DATA = {
         "speedup": 2.05,
         "peak_concurrency": 4
       }
+    },
+    {
+      "id": "al-01M5JXXV27HV42V3E6KXVHYXFY",
+      "shortname": "join-wave2-close",
+      "datetime": "2026-10-22T23:07:50Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of wave2-close into main",
+      "summary": "docs-only join of the wave-2 close: the record appended to docs/coordination/next-best-six-wave2.md (status complete), the investigation report R2 cell at 28e23de0, the closing execute-with-coordination entry with thirteen measured agent runs recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "close wave 2 with its record on main",
+      "done_when": "wave2-close merged on main with check-docs and the ten gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-22T23:07:29Z",
+      "duration_seconds": 21.0
     }
   ],
   "changes": [
