@@ -112,7 +112,7 @@ internal static class StationTests
                 True(preview.DeviationRelative > Tolerance, label + " deviation " + preview.DeviationRelative.ToString("G17", CultureInfo.InvariantCulture));
                 True(preview.AtEta > 0 && preview.AtEta < 1, "AtEta recorded");
                 True(preview.Grid.Contains("sampled", StringComparison.Ordinal) && preview.Grid.Contains("129", StringComparison.Ordinal) && preview.Grid.Contains("2001", StringComparison.Ordinal), "grid named");
-                Console.WriteLine($"INFO T4 {label} deviation {preview.DeviationRelative:E3} of chord, {preview.DeviationMeters * 1e6:F4} um at eta {preview.AtEta:F4}, admitted {preview.Admitted}, k {K(doc, 0.5):F9}");
+                Console.WriteLine($"INFO T4 {label} deviation {preview.DeviationRelative:E3} of chord, {preview.DeviationMeters * 1e6:F4} um at eta {preview.AtEta:F4}, admitted {preview.Admitted}, k {K(doc, 0.5).ToString("G17", CultureInfo.InvariantCulture)}");
                 byte[] before = session.Snapshot().Source;
                 Refuses("STATION-INEXACT", () => session.AddStation(Id(), 0.5, "50 %", false));
                 Equal(true, before.AsSpan().SequenceEqual(session.Snapshot().Source));
@@ -129,7 +129,7 @@ internal static class StationTests
                     Equal(true, before.AsSpan().SequenceEqual(session.Snapshot().Source));
                 }
             }
-            Console.WriteLine($"INFO T4 F-SAMEPEAK k {K(SamePeak(), 0.35):F12}");
+            Console.WriteLine($"INFO T4 F-SAMEPEAK k {K(SamePeak(), 0.35).ToString("G17", CultureInfo.InvariantCulture)}");
         });
         Check("Station_CoincidentWithinJoinTolerance_RefusedExistingSelected", () =>
         {
@@ -235,6 +235,9 @@ internal static class StationTests
             Equal(eta, assignment.Eta);
             Equal(eta * HalfSpan, assignment.SpanMeters);
             Equal("Station 2", assignment.ProfileName);
+            // `inspect --json` prints Sections.Points (every assignment's section points) and not the projection, so this is the CLI's view of the station.
+            var points = Sections.Points(session.Snapshot().Source);
+            Equal(true, points.Select(point => point.Assignment).Distinct().OrderBy(index => index).SequenceEqual([0, 1, 2]));
         });
         Check("Station_SeventhDifferingSection_RefusedBudget", () =>
         {
@@ -280,7 +283,10 @@ internal static class StationTests
         {
             foreach (var (closureLeft, closureRight, expected, mutantName) in new[] { ("closed", "closed", "closed", "closed+closed"), ("closed", "open", "open", "closed+open") })
             {
-                byte[] doc = Doc([("root", Prof("a", Root, Lower(Root), closureLeft)), ("tip", Prof("b", Add(Root, Bend(0.04)), Add(Lower(Root), Bend(0.04)), closureRight))]);
+                // An open profile has a positive trailing-edge gap (the certificate requires it); a closed one has none.
+                double[] tipUpper = Add(Root, Bend(0.04)), tipLower = Add(Lower(Root), Bend(0.04));
+                if (closureRight == "open") (tipUpper[^1], tipLower[^1]) = (0.003, -0.003);
+                byte[] doc = Doc([("root", Prof("a", Root, Lower(Root), closureLeft)), ("tip", Prof("b", tipUpper, tipLower, closureRight))]);
                 using var session = Open(doc);
                 session.AddStation(Id(), Pct("35"), "35 %", false);
                 var definition = Definition(session.Snapshot().Source);
@@ -351,7 +357,8 @@ internal static class StationTests
         {
             using var session = Open(Camber());
             session.PreviewPromote(Pct("35"), "35 %");
-            var outcome = session.AddStation(Id(), Pct("35"), "35 %", false);
+            // A different slice, so the add is a plan of its own and its event carries the whole cost (the press reuses its preview's plan).
+            var outcome = session.AddStation(Id(), Pct("36"), "36 %", false);
             Equal("R1", outcome.Report.Regime);
             Equal(3, Assignments(session.Snapshot().Source).Length);
             var events = session.ReadLocalEvents();
