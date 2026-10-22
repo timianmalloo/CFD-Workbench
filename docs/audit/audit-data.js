@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T17:14:30Z",
+  "generated": "2026-10-22T18:05:58Z",
   "audit": [
     {
       "actor": null,
@@ -41905,6 +41905,25 @@ window.AUDIT_DATA = {
       "tier": "T2",
       "started_at": "2026-10-22T16:49:28Z",
       "duration_seconds": 1502.0
+    },
+    {
+      "id": "al-01M5JCN3MX7RBQVNF5MXZG7GFT",
+      "shortname": "w2b-sf2-sf2-2",
+      "datetime": "2026-10-22T18:05:58Z",
+      "session": "w2b-sf2",
+      "prompt": "wave 2 SF2 node SF2-2 Match the blend",
+      "summary": "Wave 2 SF2 node SF2-2 (Match the blend, Ruling 262 DF-Q2): StationEdits.Match, PreviewMatchBlend and MatchBlend with a whole-block profile write (FoilSource.ReplaceProfileBlock), ungated Apply, the preview's change and Remove residual, the Match flyout and the Remove flyout's secondary action, station.match-blend. 16 Core checks and 3 controller-shell checks; six Core and two Desktop mutants red then reverted; Core 876 PASS, Analysis 296, Cli 26, controller-shell 150, shell-model 17; check-docs exit 0. Commit 70a52825. Proof in docs/proof/add-station/sf2.md; DESIGN.md COPY-621 to COPY-632.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T17:35:15Z",
+      "duration_seconds": 1843.0
     }
   ],
   "changes": [
