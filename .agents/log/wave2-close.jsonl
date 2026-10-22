@@ -1,1 +1,2 @@
 {"agent": "wave2-close", "at": 1792710305.4385414, "kind": "session-start", "path": "-", "seq": 1, "session": "wave2-close", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-wave2-close"}
+{"agent": "wave2-close", "at": 1792710476.003314, "kind": "session-end", "path": "-", "seq": 2, "session": "wave2-close", "wi": "WI-0", "worktree": "CFD-Workbench-wave2-close"}
