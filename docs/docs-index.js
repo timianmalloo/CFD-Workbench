@@ -2393,7 +2393,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4479e4b8729eddd43cee7a387165a1c2ad6ecc3ad69e6cadfd2a538641a24570"
+      "sourceSha256": "5cdd825ff61934edc1136f41f7bdc2789cbdcf3005ce5249616448ec113b93b5"
     },
     {
       "id": "design-app-shell",
@@ -13479,6 +13479,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "2944be2476f888a1d1f83e3a2a0c71b2134e51112d72c8bdea7ba0a8b092ca6e"
     },
     {
+      "id": "proof-add-station-sf2",
+      "path": "docs/proof/add-station/sf2.md",
+      "title": "Add station follow-ups proof (SF2): the measure-path speed-up and Match the blend",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@track-sf2",
+      "phase": "implementation",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "The observed lines of wave-2 track SF2. Node SF2-1 (the Placement.Sections speed-up under Ruling 262 DF-Q3) is recorded: a bit-for-bit guard over the Placement test set, its one-ulp mutant red, the timings before and after. Node SF2-2 (Match the blend, Ruling 262 DF-Q2) is recorded: the whole-block profile write, the shared Blend and Measure, its red-first checks and mutants, the sampled residuals, and the repair that followed its review (a matched station states the measured Remove residual and never says exact above 1e-12, the Match links answer a click and Escape returns focus to the invoker, a shared profile is refused by the splice, the Measured row only when something was measured) and its second repair (the fly:match link has its own red, the Remove result shows before the Match preview and survives its failure, the Remove plan keeps its own cache slot).",
+      "tags": [
+        "add-station",
+        "promote",
+        "rule-a",
+        "ruling-262",
+        "bit-identity"
+      ],
+      "links": [
+        {
+          "to": "design-add-station",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "82e208083a759d23a61ff7ec7aceb37aa9314acbfab77f719f02bb127a189ed0"
+    },
+    {
       "id": "proof-app-shell-test-inventory",
       "path": "docs/proof/app-shell-test-inventory.md",
       "title": "App-shell test inventory — WorkbenchTests.cs assertions bound to controls the shell removes or changes",
@@ -24262,5 +24289,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "76457fc3fce50bf8761c8f5ff5fdb7f3f1d3dc1d70ac58e819be294ddd771e4f"
+  "graphSha256": "64e99a3b92dd2752615f8b329e3f6880ec210ddf23b6c7e0b8be0705f2f2d76f"
 };
