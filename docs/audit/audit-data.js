@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T02:29:30Z",
+  "generated": "2026-10-22T03:46:43Z",
   "audit": [
     {
       "actor": null,
@@ -41396,6 +41396,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-22T02:29:09Z",
       "duration_seconds": 21.0
+    },
+    {
+      "id": "al-01M5GVFRW752SVJMQM8E506X4X",
+      "shortname": "join-a3-compare-build",
+      "datetime": "2026-10-22T03:46:43Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of a3-compare-build into main",
+      "summary": "A3 build joins: wing estimator tier (Helmbold-Diederich with mid-chord sweep and chord-weighted twist, tier-keyed CheckRow), A3d Compare (Discrepancy record in its own Core file per Ruling 250, unordered canonical pair, recomputed reverse, blocks on reference, point and water, retention keeps referenced runs on top of the 20 per Ruling 251, analysis.save and analysis.size emissions), CLI inspect --runs discrepancies, Compare pane and VLM-only Analysis panel; 58 mutants red; two Adversary passes accept with conditions, three repair conditions folded recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "build A3d Compare (ANA-06) with its estimator tier",
+      "done_when": "the design's named tests green under run-tests on main; check-docs 0; xaml-token-lint clean; CI green after the push",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-22T03:44:49Z",
+      "duration_seconds": 114.0
     }
   ],
   "changes": [
@@ -44898,6 +44925,60 @@ window.AUDIT_DATA = {
       "to": "opus-leader",
       "kind": "ruling",
       "ref": "req-01M5GPPSADJVK0MSXDPQ04X2YK",
+      "session": "opus-owner"
+    },
+    {
+      "id": "mail-01M5GRVK8HJ89Q398VPAVWVVWB",
+      "ts": "2026-10-22T03:00:45Z",
+      "from": "opus-leader",
+      "to": "opus-owner",
+      "kind": "decision-request",
+      "ref": "req-01M5GRVJ5V6FBV4JP9RCSKFT39",
+      "session": "opus-leader"
+    },
+    {
+      "id": "mail-01M5GRYP2VCEK6CC8BDPY8665G",
+      "ts": "2026-10-22T03:02:26Z",
+      "from": "opus-owner",
+      "to": "opus-leader",
+      "kind": "ruling",
+      "ref": "req-01M5GRVJ5V6FBV4JP9RCSKFT39",
+      "session": "opus-owner"
+    },
+    {
+      "id": "mail-01M5GSTPHMN2NXFKC46NXRN183",
+      "ts": "2026-10-22T03:17:44Z",
+      "from": "opus-leader",
+      "to": "opus-owner",
+      "kind": "decision-request",
+      "ref": "req-01M5GSTPH4N0NVJEFATRS7ZKPP",
+      "session": "opus-leader"
+    },
+    {
+      "id": "mail-01M5GSVWAM2XR3X8MKBWFM4VXB",
+      "ts": "2026-10-22T03:18:23Z",
+      "from": "opus-owner",
+      "to": "opus-leader",
+      "kind": "ruling",
+      "ref": "req-01M5GSTPH4N0NVJEFATRS7ZKPP",
+      "session": "opus-owner"
+    },
+    {
+      "id": "mail-01M5GT90S84Y46J2WECKVC4VM2",
+      "ts": "2026-10-22T03:25:33Z",
+      "from": "opus-leader",
+      "to": "opus-owner",
+      "kind": "decision-request",
+      "ref": "req-01M5GT90RSCDKCJHBZ8XSXRNE3",
+      "session": "opus-leader"
+    },
+    {
+      "id": "mail-01M5GTACQTS1EK2X2CCN7RQ60Y",
+      "ts": "2026-10-22T03:26:18Z",
+      "from": "opus-owner",
+      "to": "opus-leader",
+      "kind": "ruling",
+      "ref": "req-01M5GT90RSCDKCJHBZ8XSXRNE3",
       "session": "opus-owner"
     }
   ]

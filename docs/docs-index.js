@@ -2279,7 +2279,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a76f96027dd22fa4c8c9c03ee0b88cedea8ecd973783a673998aacf9bf51f681"
+      "sourceSha256": "c8988e20d50890d65d3b3a7dd7eca0b3a01b3044f165f554a95471fa81726aa6"
     },
     {
       "id": "design-add-station",
@@ -9651,7 +9651,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "acb71bc795442a02a1909c449cbb03d65ba6bc1eb4325d8eeabe99ca09e59eab"
+      "sourceSha256": "57709579aff769c777cc48fb03743457ed7f08f1fe2ea9a35612f8eaa0aedf1c"
     },
     {
       "id": "kb-hw-glossary",
@@ -13089,6 +13089,33 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "b0673fdb6f2871565c8fc0f5b1be74a6148438f314dab6e8a27e7c4ac00effe4"
+    },
+    {
+      "id": "proof-a3d-compare",
+      "path": "docs/proof/a3d-compare/README.md",
+      "title": "A3d Compare build proof: red and green lines, mutants, receipts",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@track-a3-compare-build",
+      "phase": "implementation",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "The observed red and green lines of the A3d Compare build, by node. Node A3d-1 (the wing estimator tier) is recorded; the A3d-2 sections (older-reader receipt, measured bytes, copy id mapping) are filled by that node.",
+      "tags": [
+        "a3d",
+        "compare",
+        "estimator",
+        "analysis",
+        "discrepancy-record"
+      ],
+      "links": [
+        {
+          "to": "design-a3d-compare",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b2762a6efbfb771503f506998bd8ca1f8780b5760980b7b0b87bfc2a9c984796"
     },
     {
       "id": "proof-abl-measure",
@@ -23656,5 +23683,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "486a0e05e34393ebb6b1d0d6a5c7de8efe232a40270f04a43b1ce515955984be"
+  "graphSha256": "f0d585234a203fdf00daacf9316f6979dbc1a533f5483aaa2f84c72c3e428edd"
 };
