@@ -155,15 +155,47 @@ public sealed partial class MainWindow : Window
 
     private async Task SaveWithPickerAsync()
     {
-        string? destination = workbench.NativePath;
-        if (destination is null)
-        {
-            var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
-            { Title = "Save native CFD Workbench project", SuggestedFileName = "foil.cfdw.json" });
-            if (file is null) return;
-            using (file) destination = file.Path.LocalPath;
-        }
+        string? destination = workbench.NativePath ?? await PickSavePathAsync();
+        if (destination is null) return;
         await SaveToAsync(destination);
+    }
+
+    /// <summary>
+    /// The native save picker. On Windows it opens in <c>%USERPROFILE%\CFD Workbench</c>, created just before it opens and only when missing
+    /// (Rulings 146 (3), 160 (3)), and a folder synced by OneDrive, or one the check cannot read, is refused after the pick and before any
+    /// write (Rulings 135, 160 (1) and (5)); "Choose another folder…" reopens the picker, Cancel ends the save. The check is
+    /// <see cref="CloudFolder.Classify"/> in Persistence.
+    /// </summary>
+    private async Task<string?> PickSavePathAsync()
+    {
+        while (true)
+        {
+            var options = new FilePickerSaveOptions { Title = "Save native CFD Workbench project", SuggestedFileName = "foil.cfdw.json" };
+            if (OperatingSystem.IsWindows() && EnsureDefaultSaveFolder() is { } start)
+                options.SuggestedStartLocation = await StorageProvider.TryGetFolderFromPathAsync(new Uri(start));
+            var file = await StorageProvider.SaveFilePickerAsync(options);
+            if (file is null) return null;
+            string path;
+            using (file) path = file.Path.LocalPath;
+            if (!OperatingSystem.IsWindows()) return path;
+            var location = CloudFolder.Classify(Path.GetDirectoryName(path) ?? path);
+            if (location == FolderLocation.Local) return path;
+            var dialog = new FolderRefusalDialog(location);
+            await dialog.ShowDialog(this);
+            if (!dialog.ChooseAnotherFolder) return null;
+        }
+    }
+
+    /// <summary>The Windows default save folder, named "CFD Workbench" (Ruling 146 (3)). Null when it cannot be created: the picker then uses its own default.</summary>
+    private static string? EnsureDefaultSaveFolder()
+    {
+        try
+        {
+            string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "CFD Workbench");
+            Directory.CreateDirectory(folder); // no-op when the folder exists
+            return folder;
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException) { return null; }
     }
 
     /// <summary>
@@ -251,5 +283,50 @@ public sealed partial class MainWindow : Window
             Close();
         }
         catch (ContractError error) { Console.Error.WriteLine("WINDOW-ACTION-REFUSED " + Labels.SaveRefusal(error.Code)); }
+    }
+}
+
+/// <summary>
+/// The refusal after a save-folder pick (Ruling 160 (1) and (5), mockup S2-A and the S5 check-failed dialog): a modal dialog with the
+/// primary "Choose another folder…" and Cancel. Cancel is the Escape button, the primary is the Enter button. Nothing has been written.
+/// </summary>
+public sealed class FolderRefusalDialog : Window
+{
+    /// <summary>COPY-440, the S2 dialog title.</summary>
+    public const string CloudTitle = "Can't save to OneDrive";
+    /// <summary>Ruling 146 (1), the S2 dialog body, verbatim.</summary>
+    public const string CloudBody = "This folder is synced by OneDrive. CFD Workbench saves only to local folders, so a sync can't damage a save. Choose a folder outside OneDrive.";
+    /// <summary>COPY-457, the check-failed dialog title.</summary>
+    public const string CheckFailedTitle = "Can't check this folder";
+    /// <summary>COPY-442, the primary button.</summary>
+    public const string ChooseAnother = "Choose another folder…";
+    /// <summary>COPY-445, the Cancel button.</summary>
+    public const string CancelLabel = "Cancel";
+    /// <summary>COPY-454, the check-failed dialog body; <paramref name="code"/> is the stable code of the failed check.</summary>
+    public static string CheckFailedBody(string code) =>
+        $"Couldn't check whether this folder is synced by OneDrive ({code}). Nothing was saved. Choose another folder.";
+
+    /// <summary>True when the user chose "Choose another folder…"; false for Cancel, Escape or closing the dialog.</summary>
+    public bool ChooseAnotherFolder { get; private set; }
+
+    public FolderRefusalDialog(FolderLocation location, string code = "DOC-IO")
+    {
+        bool cloud = location == FolderLocation.Cloud;
+        Title = cloud ? CloudTitle : CheckFailedTitle;
+        Width = 440; Height = 210; CanResize = false; WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        var choose = new Button { Content = ChooseAnother, IsDefault = true };
+        var cancel = new Button { Content = CancelLabel, IsCancel = true };
+        AutomationProperties.SetName(choose, ChooseAnother);
+        AutomationProperties.SetName(cancel, CancelLabel);
+        choose.Click += (_, _) => { ChooseAnotherFolder = true; Close(); };
+        cancel.Click += (_, _) => Close();
+        var buttons = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 8,
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right, Children = { choose, cancel } };
+        Content = new StackPanel { Margin = new Thickness(20), Spacing = 18, Children =
+        {
+            new TextBlock { Text = cloud ? CloudBody : CheckFailedBody(code), TextWrapping = Avalonia.Media.TextWrapping.Wrap },
+            buttons
+        } };
+        Opened += (_, _) => choose.Focus();
     }
 }

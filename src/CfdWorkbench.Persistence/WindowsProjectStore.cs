@@ -285,6 +285,8 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
     private static string CodeOf(Exception error) => error switch
     {
         ContractError contract => contract.Code,
+        // ntstatus.h STATUS_FILE_IS_A_DIRECTORY (0xC00000BA) reaches Win32 as ERROR_ACCESS_DENIED, so it is read from the NTSTATUS.
+        WindowsNative.NativeFailure { NtStatus: unchecked((int)0xC00000BA) } => "DOC-UNSUPPORTED-PERSISTENCE",
         WindowsNative.NativeFailure failure => failure.ProductCode ?? failure.Win32Error switch
         {
             // ERROR_FILE_NOT_FOUND, ERROR_PATH_NOT_FOUND, ERROR_FILE_EXISTS, ERROR_ALREADY_EXISTS.

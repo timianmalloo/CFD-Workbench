@@ -135,6 +135,7 @@ internal static class DesktopHarness
             CfdWorkbench.Desktop.Tests.ControllerSectionTests.Run();
             CfdWorkbench.Desktop.Tests.SectionEditorTests.Run();
             CfdWorkbench.Desktop.Tests.CatalogDialogTests.Run();
+            CfdWorkbench.Desktop.Tests.FolderRefusalDialogTests.Run();
             CfdWorkbench.Desktop.Tests.ExportTests.Run();
             CfdWorkbench.Desktop.Tests.ExportStlTests.Run();
             CfdWorkbench.Desktop.Tests.ExportThreeMfTests.Run();

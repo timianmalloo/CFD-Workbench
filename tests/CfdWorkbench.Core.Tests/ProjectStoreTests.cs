@@ -9,8 +9,10 @@ internal static class ProjectStoreTests
 {
     internal static void Run()
     {
-        if (OperatingSystem.IsWindows()) { WindowsProjectStoreTests.Run(); return; }
-        if (!OperatingSystem.IsMacOS()) { Console.WriteLine("NOT ASSESSED native persistence primitives on this platform"); return; }
+        // Windows runs its own cases first, then every portable case below; the MacCheck cases assert Darwin primitives or POSIX
+        // semantics (mode bits, symlink spelling, in-place rename of a held file) and have a Windows form in WindowsProjectStoreTests.
+        if (OperatingSystem.IsWindows()) WindowsProjectStoreTests.Run();
+        else if (!OperatingSystem.IsMacOS()) { Console.WriteLine("NOT ASSESSED native persistence primitives on this platform"); return; }
         if (Environment.GetEnvironmentVariable("CFD_OWNER_STRIPPING_MASK") is not null)
         {
             Check("Store_OwnerStrippingUmask_FailsClosedWithoutRepair", () =>
@@ -36,8 +38,8 @@ internal static class ProjectStoreTests
             });
             return;
         }
-        Check("Store_CreationPermissions_BeforeWriteAndAfterPublication", PermissionBoundary);
-        Check("Store_UnsafeCreatedMode_RefusedBeforeBytesWithOwnedCleanup", () =>
+        MacCheck("Store_CreationPermissions_BeforeWriteAndAfterPublication", PermissionBoundary);
+        MacCheck("Store_UnsafeCreatedMode_RefusedBeforeBytesWithOwnedCleanup", () =>
         {
             foreach (bool overwrite in new[] { false, true })
             {
@@ -52,7 +54,7 @@ internal static class ProjectStoreTests
                 if (overwrite) Equal((byte)7, File.ReadAllBytes(path)[0]);
             }
         });
-        Check("Store_MissingOwnerPermissions_RefusedBeforeBytes", () =>
+        MacCheck("Store_MissingOwnerPermissions_RefusedBeforeBytes", () =>
         {
             foreach (uint mode in new uint[] { 0, 0x80, 0x100 })
             foreach (bool overwrite in new[] { false, true })
@@ -67,8 +69,8 @@ internal static class ProjectStoreTests
                 if (overwrite) Equal((byte)7, File.ReadAllBytes(path)[0]);
             }
         });
-        Check("NativePrimitive_MacHandleRelativeNoReplaceAndFlush", Probe);
-        Check("NativePrimitive_MacReadWriteUnlink", ReadWriteProbe);
+        MacCheck("NativePrimitive_MacHandleRelativeNoReplaceAndFlush", Probe);
+        MacCheck("NativePrimitive_MacReadWriteUnlink", ReadWriteProbe);
         Check("Store_CreateReadAndDefensiveImage", () =>
         {
             string path = Path.Combine(Root(), "project.cfdw"); byte[] image = [1, 2, 3];
@@ -94,7 +96,7 @@ internal static class ProjectStoreTests
             var result = Save(store, path, new([1, 2], hash, Id())); Equal("OK", result.Code);
             Equal(7, old.ReadByte()); Equal(true, File.ReadAllBytes(path).AsSpan().SequenceEqual(new byte[] { 1, 2 }));
         });
-        Check("Store_SymlinkAncestorAndTarget_Refused", () =>
+        MacCheck("Store_SymlinkAncestorAndTarget_Refused", () =>
         {
             string root = Root(), real = Path.Combine(root, "real"); Directory.CreateDirectory(real);
             Directory.CreateSymbolicLink(Path.Combine(root, "alias"), real);
@@ -142,7 +144,7 @@ internal static class ProjectStoreTests
             byte[] image = File.ReadAllBytes(path); Equal(2, image.Length); Equal(image[0], image[1]);
             Equal(1, Directory.GetFiles(Path.GetDirectoryName(path)!).Length);
         });
-        Check("Store_AncestorReplacement_PreservesBothTrees", () =>
+        MacCheck("Store_AncestorReplacement_PreservesBothTrees", () =>
         {
             string root = Root(), selected = Path.Combine(root, "selected"), moved = Path.Combine(root, "moved"); Directory.CreateDirectory(selected);
             string path = Path.Combine(selected, "project"); File.WriteAllBytes(path, [7]);
@@ -160,7 +162,7 @@ internal static class ProjectStoreTests
             Equal("DOC-CONFLICT", Save(new(), path, new([1], Identity.Sha256([7]), Id())).Code);
             Equal((byte)8, File.ReadAllBytes(claim)[0]); Equal((byte)7, File.ReadAllBytes(path)[0]);
         });
-        Check("Store_ReplacedOwnedTemp_IsPreservedAndRefused", () =>
+        MacCheck("Store_ReplacedOwnedTemp_IsPreservedAndRefused", () =>
         {
             string root = Root(), path = Path.Combine(root, "project"), operation = Id(); string temp = Path.Combine(root, ProjectStore.TempName(operation));
             var store = new ProjectStore(new StoreHooks { OnStage = stage => { if (stage == StoreStage.BeforePublish) { File.Move(temp, temp + ".moved"); File.WriteAllBytes(temp, [9]); } } });
@@ -267,7 +269,7 @@ internal static class ProjectStoreTests
             var result = pending.GetAwaiter().GetResult(); Equal("OK", result.Code); Equal(true, result.PublicationKnown); Equal(true, result.DurabilityConfirmed);
             Equal(0, store.ReadLocalEvents().Count); Equal(true, File.ReadAllBytes(path).AsSpan().SequenceEqual(new byte[] { 1, 2 }));
         });
-        Check("Store_IoEvents_CorrelateAndRetainFailureFacts", () =>
+        MacCheck("Store_IoEvents_CorrelateAndRetainFailureFacts", () =>
         {
             string root = Root(), path = Path.Combine(root, "project"); using var store = new ProjectStore();
             Equal("OK", Save(store, path, new([1, 2], null, Id())).Code);
@@ -288,7 +290,7 @@ internal static class ProjectStoreTests
             Equal("DOC-SAVE-UNCERTAIN", result.Code); Equal(false, result.PublicationKnown); Equal(false, result.DurabilityConfirmed);
             Equal((byte)7, File.ReadAllBytes(path)[0]);
         });
-        Check("NativePrimitive_NonblockingFifo_AndStoreRegularOnly", () =>
+        MacCheck("NativePrimitive_NonblockingFifo_AndStoreRegularOnly", () =>
         {
             string path = Path.Combine(Root(), "fifo"); Equal(0, MacProbe.MkFifo(path, 0x180));
             int fd = MacProbe.Open(path, MacProbe.NoFollow | 4, 0); Equal(true, fd >= 0);
@@ -305,7 +307,7 @@ internal static class ProjectStoreTests
             Equal("DOC-UNSUPPORTED-PERSISTENCE", Save(store, "relative", new([1], null, Id())).Code);
             Equal("DOC-UNSUPPORTED-PERSISTENCE", Save(store, root + "/../project", new([1], null, Id())).Code);
         });
-        Check("Store_ReadSymlink_UsesMacStableCapabilityRefusal", () =>
+        MacCheck("Store_ReadSymlink_UsesMacStableCapabilityRefusal", () =>
         {
             string root = Root(), target = Path.Combine(root, "original"), link = Path.Combine(root, "link");
             File.WriteAllBytes(target, [7]); File.CreateSymbolicLink(link, target);
@@ -358,6 +360,8 @@ internal static class ProjectStoreTests
         });
         Check("Store_OldBuildFixtures_TodaysReaderOutcomesPinned", OldBuildFixturesThroughTodaysReader);
     }
+
+    private static void MacCheck(string name, Action assertion) { if (OperatingSystem.IsMacOS()) Check(name, assertion); }
 
     // Every committed old-build project fixture through today's native reader (A3a STO, Data & Persistence condition C2):
     // RespectRequiredConstructorParameters now applies to every -1 document, so each must open or refuse exactly as pinned.
@@ -412,7 +416,7 @@ internal static class ProjectStoreTests
             Console.WriteLine("STORE-SIZE 100000 strips " + image.Length + " bytes");
             Refuses("DOC-SIZE", () => NativeProject.Read(image));
             Refuses("DOC-RUN-STRIPS", () => session.RecordRun(run));
-            if (!OperatingSystem.IsMacOS()) return;
+            if (!OperatingSystem.IsMacOS() && !OperatingSystem.IsWindows()) return;
             string path = Path.Combine(Root(), "huge.cfdw"); File.WriteAllBytes(path, image);
             using var store = new ProjectStore(); Refuses("DOC-SIZE", () => store.ReadAsync(path).GetAwaiter().GetResult());
         });
