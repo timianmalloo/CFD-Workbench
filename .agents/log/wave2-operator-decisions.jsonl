@@ -1,0 +1,2 @@
+{"agent": "wave2-operator-decisions", "at": 1792712404.5669098, "kind": "session-start", "path": "-", "seq": 1, "session": "wave2-operator-decisions", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-wave2-operator-decisions"}
+{"agent": "wave2-operator-decisions", "at": 1792712452.0578785, "kind": "session-end", "path": "-", "seq": 2, "session": "wave2-operator-decisions", "wi": "WI-0", "worktree": "CFD-Workbench-wave2-operator-decisions"}
