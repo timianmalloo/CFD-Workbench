@@ -2276,10 +2276,14 @@ window.DOCS_INDEX = {
         {
           "to": "spec-amendments-1-7-7",
           "rel": "relates-to"
+        },
+        {
+          "to": "spec-amendments-1-7-8",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c8988e20d50890d65d3b3a7dd7eca0b3a01b3044f165f554a95471fa81726aa6"
+      "sourceSha256": "ddc6ebe1bd9c9620d34d24884003beb3f1d3bdc5e6546cab19c9d03eca81baf9"
     },
     {
       "id": "design-add-station",
@@ -9651,7 +9655,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b5520e5809fb14c02de17eb0b1d8843ef68886d4d125182285543021215ad5ca"
+      "sourceSha256": "b22d4ddebded55d66fd993f2ce1f833220b25c012826c9aa0ccc6fe34fcc05ac"
     },
     {
       "id": "kb-hw-glossary",
@@ -22888,6 +22892,46 @@ window.DOCS_INDEX = {
       "sourceSha256": "cb8d874199c0d3cf65d518c8f900f2c1af150b9129e8b5d2859740b8bf299044"
     },
     {
+      "id": "spec-amendments-1-7-8",
+      "path": "docs/specs/amendments/spec-1.7.8.md",
+      "title": "Spec 1.7.8 amendment note — dimensional L and D_i deltas when only the reference quantities differ (ANA-06, AF)",
+      "type": "spec",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2027-01-31",
+      "reviewSuggested": [],
+      "summary": "Three proposed amendments to cfd-workbench-v1 lines 172, 259 and 1217, from Ruling 250 Q3 (c) and section 12 of the A3d Compare design: when two runs differ only in their reference quantities (same operating point and water), the dimensional loads L and D_i are compared with deltas normalised to the base value; coefficient deltas stay blocked; e is not compared; nothing new is stored. Proposed; the operator's take-up of Q3 (c) is confirmed by the leader (DR-DF-1).",
+      "tags": [
+        "spec",
+        "amendments",
+        "analysis",
+        "compare",
+        "ana-06",
+        "dimensional-delta"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-amendments-1-7-7",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-a3d-compare",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "86f84ea4414206a57a2c2c6396a11e888208f91d51fe3090dc586368d43ed906"
+    },
+    {
       "id": "spec-amendments-add-station",
       "path": "docs/specs/amendments/spec-add-station.md",
       "title": "Spec amendments for Add station and Promote (GEO-06, CAD-02, A4.6) — Ruling 252",
@@ -23749,5 +23793,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "bcf1cc030c5d0f938393b228d31655b8caca68e5b171df47607331b59263eb84"
+  "graphSha256": "d1751887d2f503dc417873e1de6d8a8417b3210a81fb50cb83bb2596116aa2d1"
 };
