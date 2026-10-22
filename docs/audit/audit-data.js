@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T02:21:04Z",
+  "generated": "2026-10-22T02:27:27Z",
   "audit": [
     {
       "actor": null,
@@ -41220,6 +41220,25 @@ window.AUDIT_DATA = {
       "tier": "T2",
       "started_at": "2026-10-22T02:13:41Z",
       "duration_seconds": 443.0
+    },
+    {
+      "id": "al-01M5GPYM7H6ZWDQH3EW2XWNPTQ",
+      "shortname": "s1-add-station-design-r2",
+      "datetime": "2026-10-22T02:27:27Z",
+      "session": "s1-add-station-design",
+      "prompt": "Add station design revision cycle 2: fold Ruling 252 (S1-Q1 d, S1-Q2 a, S1-Q3 b)",
+      "summary": "Repair cycle 2 of the S1 Add station design: folded Ruling 252 (S1-Q1 d, S1-Q2 a, S1-Q3 b). Every pending marker in the design, the mockup, its note and the amendment note is now settled text citing Ruling 252. The S1-Q1 rule is carried verbatim (design 2.4, amendment note). The deviation is labelled sampled with its grid. T4 is written for (d). T15 asserts the channel bytes. STATION-COINCIDENT and T5 now use resolved span positions in metres, with bitwise, just-inside and just-outside 10 um rows. Amendment row A-S1-4 is added. check-docs exit 0.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "started_at": "2026-10-22T02:25:05Z",
+      "duration_seconds": 142.0
     }
   ],
   "changes": [

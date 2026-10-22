@@ -4,7 +4,7 @@ title: "Design: Add station, Remove station and the inspection slice with Promot
 type: design
 status: in-review
 owner: "@timianmalloo"
-phase: design — track S1 of next-best-six; documents only; repair cycle 1 folded (Adversary ACCEPT WITH CONDITIONS); build after the Owner rules S1-Q1 and S1-Q2
+phase: design — track S1 of next-best-six; documents only; repair cycle 1 folded the Adversary conditions; cycle 2 folded Ruling 252 (S1-Q1 d, S1-Q2 a, S1-Q3 b); ready for the build after the join
 tags: [cad, station, inspection-slice, promote, rule-a, blend, certificate, foildsl, cad-02, cad-09, geo-06]
 links:
   - {to: spec-cfd-workbench-v1, rel: implements}
@@ -21,7 +21,7 @@ summary: >-
   section is the as-built rule-A blend at η, built in control-point space by the one PlacementRule definition. Rule A
   renormalises the blended unit thickness, so a promotion is exact (measured ≤ 1e-12) only in regimes R0/R1; in R2 both
   adjacent intervals move by a shape-dependent measured amount (5.1e-7 of chord on the committed section-a / NACA 0012
-  pair, in a model). Recommended (pending S1-Q1): R0/R1 one-press, R2 a previewed approximate promotion gated at 10 µm.
+  pair, in a model). Ruling 252: one press and exact at a measured ≤ 1e-12, otherwise a previewed approximate promotion applied only at ≤ 10 µm; a station within 10 µm in span of another is coincident.
   Remove re-blends across the gap with the measured deviation and Apply gated at 10 µm.
 ---
 
@@ -45,7 +45,7 @@ GEO-06 (`:1198`). **Base:** `main` at `a77bc8e1`. **Tier:** T2. **Cycle:** repai
    change is shape-dependent (§2.5).
 4. The **deviation** is the largest sampled ordinate difference over both adjacent intervals, relative to the local
    chord and in metres (§2.6). The regime is decided by that measurement, never predicted.
-5. **Recommended, pending Owner ruling (S1-Q1):** R0 and R1 promotions are one press and exact (measured ≤ 10⁻¹²); an R2
+5. **Ruling 252 (S1-Q1 (d)):** a promotion measured ≤ 10⁻¹² relative is one press and exact (R0/R1); an R2
    promotion is a separately labelled **approximate promotion** with a preview flyout and Apply, admitted at ≤ 10 µm.
 6. **Remove** deletes the assignment (and an orphaned block), re-blends across the gap, reports the deviation and
    disables Apply above 10 µm (settled by the leader). Root and tip are refused. Add and Remove are one undo step each.
@@ -61,7 +61,7 @@ GEO-06 (`:1198`). **Base:** `main` at `a77bc8e1`. **Tier:** T2. **Cycle:** repai
 | **Inspection slice** | A span position the user is looking at; shows the blended section there; moving it changes selection only. | derived view (selection) |
 | **Blend** | Rule A between two stations whose profiles differ: camber linear, unit thickness linear then renormalised to peak 1, scaled by the t/c channel (`Placement.cs:91-99`). | derived |
 | **Unit thickness shape** `U` | `(upper − lower) / M`, `M` the profile's own maximum of `upper − lower` (`Placement.cs:81-82`). Peaks at 1. | derived |
-| **Promotion** | The command that turns a slice into an authored station. **Exact promotion** (R0/R1) and **approximate promotion** (R2) are distinct, labelled operations (pending S1-Q1). | command |
+| **Promotion** | The command that turns a slice into an authored station. **Exact promotion** (R0/R1) and **approximate promotion** (R2) are distinct, labelled operations (Ruling 252). | command |
 | **Compatible copy** | Ruling 73's derived copy on a shared spacing. **Not built** (Verified: no `compatible` in `src/`; `Geometry.cs:402-403` refuses differing abscissae as Unsupported). | derived (future) |
 | **Deviation** | §2.6. | derived measure, non-additive (a maximum) |
 | **Neighbours** | The two stations that bracket η (`PlacementRule.Bracket`, `Placement.cs:73-79`). | — |
@@ -182,8 +182,10 @@ On [η_L, η_p] a point η has new weight `v = w / w_p` (exact; `RationalInterva
 |---|---|---|---|
 | **R0** | same geometry | identical (P is a copy) | deviation 0 |
 | **R1** | differ; identical spacing; measured deviation ≤ 10⁻¹² | identical up to rounding | exact promotion, one press |
-| **R2** | differ; identical spacing; measured deviation > 10⁻¹² | both intervals move; the section at η_p is exact | **pending S1-Q1**: approximate promotion, ≤ 10 µm with Apply |
+| **R2** | differ; identical spacing; measured deviation > 10⁻¹² | both intervals move; the section at η_p is exact | approximate promotion (Ruling 252): preview, Apply only at ≤ 10 µm |
 | **R3** | differ in spacing | not evaluable today | `STATION-SPACING`; after Ruling 73: compatible copies, 10 µm |
+
+**The rule (Ruling 252, S1-Q1 (d)), verbatim:** the regime is decided by the measured deviation over both adjacent intervals, never predicted from peak positions; a promotion measured at or below 1e-12 relative is one press and exact; any larger one is offered only as a separately labelled approximate promotion that opens a preview with the measured deviation, where it was found and the 10 µm limit at the local chord, and applies only with Apply at or below 10 µm, with Apply disabled and the number shown above it; a one-press call on such a pair is refused with STATION-INEXACT.
 
 The loft-rule-a note's "promotion is exact" holds for the channels (ST-I3), not for the renormalised profile blend.
 
@@ -228,7 +230,8 @@ refused** (a 30/50 % pair on a 150 mm chord exceeds 10 µm). The largest change 
 - **Norm:** max over the samples of `max(|Δupper|, |Δlower|)`.
 - **Relative to:** the local chord (sections are in chord fractions): `δ_rel`; in metres `δ_m = max c(η)·δ(η)`. Channels
   are unchanged, so the placed distance is `c(η)·δ(η)`.
-- **Reported:** `δ_rel`, `δ_m`, the η where it occurs, "sampled, not a bound".
+- **Reported:** `δ_rel`, `δ_m`, the η where it occurs. The number is labelled sampled and names its grid (129 η per
+  interval × 2001 x); it is never presented as a bound (Ruling 252).
 - **Acceptance:** exact ≤ 10⁻¹² relative; approximate `δ_m ≤ 10 µm` (A4.6).
 - **The regime is the measurement**, never a prediction from `k`.
 
@@ -283,7 +286,7 @@ record RemovalOutcome(string AcceptedId, RemovalPreview Report);
 ```
 
 `AddStation(…, approximate: false)` refuses an R2 result with `STATION-INEXACT`; `approximate: true` (the flyout's Apply,
-pending S1-Q1) admits R2 at ≤ 10 µm. Each mutating call runs in `Run("add-station" | "remove-station", …)` as
+Ruling 252) admits R2 at ≤ 10 µm and refuses above it with `STATION-INEXACT`. Each mutating call runs in `Run("add-station" | "remove-station", …)` as
 `ApplyPointCommand` (`AuthoringSession.cs:310-311`) and calls `Commit(…, "apply")` once (`:565`); `Undo` (`:459`) walks
 one parent. Preconditions copy `PreviewRebuilds` (`:319-321`): document open, no draft, no recovery, else `DSL-DRAFT-OWNED`.
 
@@ -291,7 +294,7 @@ one parent. Preconditions copy `PreviewRebuilds` (`:319-321`): document open, no
 
 | Code | When | Copy |
 |---|---|---|
-| `STATION-COINCIDENT` | η equals an existing station's η bitwise (root and tip included); carries the existing index. | S1-COPY-6 |
+| `STATION-COINCIDENT` | the resolved span position (η × half-span, metres) is within the 10 µm join tolerance of an existing station's, bitwise equality included, root and tip included (Ruling 252, S1-Q3 (b)); carries the existing index; the existing station is selected. | S1-COPY-6 |
 | `DSL-RANGE` | η not finite or outside (0, 1). | S1-COPY-7 |
 | `STATION-ENDPOINT` | Remove of root or tip. | S1-COPY-12 |
 | `STATION-BUDGET` | candidate `Assess` returns `GEOMETRY-QUERY-OPERATIONS` (§2.7). | S1-COPY-8 |
@@ -303,10 +306,10 @@ one parent. Preconditions copy `PreviewRebuilds` (`:319-321`): document open, no
 | `DSL-DRAFT-OWNED` | a draft is open (UX-23). | S1-COPY-13 |
 | `DSL-PATCH` | the candidate does not re-parse or the η text does not round-trip (a defect). | generic |
 
-### 3.3 Thickness policy — pending Owner ruling (S1-Q2)
+### 3.3 Thickness policy — settled by Ruling 252 (S1-Q2 (a))
 
-Recommended (a): Promote and Remove are **Keep current thickness**; the t/c record is byte-for-byte unchanged (CAD-10's
-definition); the outcome carries `ThicknessIntent.KeepCurrent` (`Contracts.cs:116`); the receipt says so. Amendment A-S1-2.
+Promote and Remove keep current thickness, the t/c channel stays byte-identical, and the receipt says so (Ruling 252). They are **Keep current thickness**; the t/c record is byte-for-byte unchanged (CAD-10's
+definition); the outcome carries `ThicknessIntent.KeepCurrent` (`Contracts.cs:116`); the receipt says so. T15 asserts the channel bytes. Amendment A-S1-2 stands.
 
 ### 3.4 Referenced profile closure
 
@@ -345,7 +348,7 @@ reads "Station 3" in all of them.
 Inherited: `ParametricWorkbench { Type:Configurator; Arch:SpatialBounded; Layout:ViewportWorkbench; Density:Compact;
 Nav:TaskTabs+CommandPalette }`. Reading is parallel (the slice in Plan, Front, Side, Properties); entering is serial and
 one value. The slice is a selection, not a mode. **Anything that changes shape previews before Apply** (Remove; the
-approximate promotion, pending S1-Q1); exact promotion is one press.
+approximate promotion, Ruling 252); exact promotion is one press.
 
 ### 5.2 The inspection slice
 
@@ -369,9 +372,12 @@ approximate promotion, pending S1-Q1); exact promotion is one press.
 - Enabled when a slice is selected, no draft is open, and the slice is strictly inside an interval.
 - Press: `PreviewPromote` off the UI thread ("Checking…"). Then:
   - **R0/R1:** `AddStation(approximate: false)`; receipt S1-COPY-3/-4.
-  - **R2 (pending S1-Q1, recommended (d)):** the **approximate promotion** flyout (the Remove flyout's shape): title
+  - **R2 (Ruling 252, S1-Q1 (d)):** the **approximate promotion** flyout (the Remove flyout's shape): title
     S1-COPY-21, the measured line S1-COPY-22, Apply enabled at ≤ 10 µm, disabled above with S1-COPY-23. Apply calls
     `AddStation(approximate: true)`; receipt S1-COPY-24.
+  - The flyout shows the measured deviation, where it was found (η) and the 10 µm limit at the local chord, labelled
+    sampled with its grid; above 10 µm Apply is disabled with the number shown above it. A one-press call on an R2 pair
+    is refused with `STATION-INEXACT` (Ruling 252).
   - Refusal: the slice stays; the reason on the chip and the status line.
 - Cost: one parse, one construction, one candidate `Assess`, 2 × 129 × 2001 samples; measured by T-perf (no number claimed).
 - Success: the new station selected in **every** view (Plan, Front, Side, 3D, Browser in view, Properties with its
@@ -425,7 +431,7 @@ Follow-up, **not built**: the Adversary's "Match the blend" step (a previewed re
 | S1-COPY-3 | Added <name> at η <η>. Shape unchanged: deviation 0. Thickness: keep current. |
 | S1-COPY-4 | Added <name> at η <η>. Largest change <rel> of chord (<µm> µm) at η <at>, sampled; limit 10⁻¹². Thickness: keep current. |
 | S1-COPY-5 | Stations after it are renumbered: <old> is now <new>. |
-| S1-COPY-6 | <name> is already at η <η>. Selected it. |
+| S1-COPY-6 | <name> is already at <d> mm (within the 10 µm join tolerance). Selected it. |
 | S1-COPY-7 | A station must lie strictly between root and tip (0 % < η < 100 %). |
 | S1-COPY-8 | Promote refused: <count> stations would have different sections, more than the blend certificate can carry. Make one of them match a neighbour first. Nothing changed. |
 | S1-COPY-9 | Promote is not available: <left> and <right> have different point spacing, so this loft is not assessed. |
@@ -440,13 +446,13 @@ Follow-up, **not built**: the Adversary's "Match the blend" step (a previewed re
 | S1-COPY-18 | Remove station |
 | S1-COPY-19 | Derived view — not saved |
 | S1-COPY-20 | Checking… |
-| S1-COPY-21 | Approximate promotion at η <η> · <d> mm *(pending S1-Q1)* |
-| S1-COPY-22 | <left> and <right> peak at different chord positions, so a station here changes the loft. Largest change <µm> µm (<rel> of chord) at η <at>, sampled. Limit 10 µm. *(pending S1-Q1)* |
-| S1-COPY-23 | Apply is disabled: the change is above the 10 µm limit. *(pending S1-Q1; same text as S1-COPY-15)* |
-| S1-COPY-24 | Added <name> at η <η> as an approximate promotion. Largest change <µm> µm (<rel> of chord) at η <at>. Thickness: keep current. *(pending S1-Q1)* |
+| S1-COPY-21 | Approximate promotion at η <η> · <d> mm |
+| S1-COPY-22 | A station here changes the loft. Largest change <µm> µm (<rel> of chord) at η <at>, sampled on 129 η × 2001 x, not a bound. Limit 10 µm at the local chord. |
+| S1-COPY-23 | Apply is disabled: the change is above the 10 µm limit. *(same text as S1-COPY-15)* |
+| S1-COPY-24 | Added <name> at η <η> as an approximate promotion. Largest change <µm> µm (<rel> of chord) at η <at>. Thickness: keep current. |
 
-If S1-Q1 is ruled (a) (exact only), S1-COPY-21..24 are dropped and S1-COPY-11 reads "…by <rel> of chord (<µm> µm) at η
-<at>; promotion must be exact (10⁻¹²). Nothing changed."
+S1-COPY-11 is the `STATION-INEXACT` refusal for both a one-press call on an R2 pair and an approximate promotion above
+10 µm (Ruling 252).
 
 ## 7. Test plan (red first)
 
@@ -481,8 +487,8 @@ against `SectionAt` on the after certificate (existing code, not under test).
 | T1b | `Station_PromoteLaterBracket_UsesRightNeighbours` (Core) | M1 | F-CAMBER3, η 0.8 (bracket 1) → deviation ≤ 1e-12, P's camber = 0.5·(midCamber + tipCamber) literals (stub: no P) | < 1 s |
 | T2 | `Station_PromoteR1_LoftUnchangedBothIntervals` (Core) | GEO-06 | F-CAMBER and **F-SAMEPEAK**, η 0.35 → `Regime == "R1"`, `DeviationRelative ≤ 1e-12`; 17 η per interval by `SectionAt` (stub: Regime null) | ~1 s |
 | T3 | `Station_PromoteR0_CopyIsBitIdentical` (Core) | GEO-06 exact | F-SAME, η 0.5 → deviation exactly 0; P's block = root's block after rename (stub: no block) | < 1 s |
-| T4 | `Station_PromoteR2_ReportsMeasuredDeviation` (Core) | GEO-06 reported deviation | F-PEAK and F-REAL, η 0.5 → `Regime == "R2"`, `DeviationRelative > 1e-12`, `AtEta` recorded; **outcome pending Owner ruling (S1-Q1):** under (d) `AddStation(approximate:false)` throws `STATION-INEXACT` and `approximate:true` is admitted iff `DeviationMeters ≤ 10e-6`; under (a) both refuse | ~1 s |
-| T5 | `Station_CoincidentEta_RefusedWithExistingIndex` (Core) | GEO-06 coincident; M4 | F-THREE, η = parse("60") → `STATION-COINCIDENT`, index 1, bytes unchanged; **and** F-SAME promote "50", then η = BitIncrement(0.5) → admitted, `Regime == "R0"`, deviation 0 (stub: no refusal / no row) | < 1 s |
+| T4 | `Station_PromoteR2_ReportsMeasuredDeviation` (Core) | GEO-06 reported deviation | F-PEAK and F-REAL, η 0.5 → `Regime == "R2"`, `DeviationRelative > 1e-12`, `AtEta` recorded; outcome for (d) (Ruling 252): `AddStation(approximate:false)` throws `STATION-INEXACT`; `approximate:true` is admitted iff `DeviationMeters ≤ 10e-6`, else `STATION-INEXACT` with bytes unchanged; the preview names its grid and is labelled sampled; the product's measured numbers for F-PEAK and F-REAL are written to the test output (the model's 3.4e-10 for NACA 0012/4412 is Inferred) | ~1 s |
+| T5 | `Station_CoincidentWithinJoinTolerance_RefusedExistingSelected` (Core) | GEO-06 coincident (A-S1-4, Ruling 252 S1-Q3); M4 | F-SAME (half-span 0.5 m) promote "50" (station at 0.25 m), then three rows compared on **resolved span positions in metres**, not η: bitwise-equal (η 0.5) → `STATION-COINCIDENT`, index 1; just inside (span 0.25 m + 9.9 µm) → `STATION-COINCIDENT`, index 1, bytes unchanged; just outside (0.25 m + 10.1 µm) → admitted, `Regime == "R0"`, deviation 0. Stub: no refusal, no row | < 1 s |
 | T6 | `Station_EtaAtRootOrTip_Refused` (Core) | CAD-02 | F-SAME, η 0 and 1 → `STATION-COINCIDENT`; −0.1, 1.2, NaN → `DSL-RANGE` | < 1 s |
 | T7 | `Station_RemoveRootOrTip_Refused` (Core) | CAD-02 | F-CAMBER3, index 0 and 2 → `STATION-ENDPOINT`, bytes unchanged | < 1 s |
 | T8 | `Station_RemoveAboveAcceptance_ReportsAndRefuses` (Core) | CAD-02 remove | F-THREE, index 1 → `Admitted == false`, `DeviationMeters > 10e-6`; `RemoveStation` → `STATION-REMOVE-ACCEPTANCE` | ~1 s |
@@ -492,7 +498,7 @@ against `SectionAt` on the after certificate (existing code, not under test).
 | T12 | `Station_InspectProjection_ShowsStation` (Core; Cli harness line if `Program.cs` serialises the projection) | CLI `inspect --json` | `Assignments[1]` = (0.35, span, "Station 2") | < 1 s |
 | T13 | `Station_SeventhDifferingSection_RefusedBudget` (Core) | Ruling 73 refuse early (CG1, TA1) | F-SIX, slice η 0.7 → base certifies; candidate `Assess` code is `GEOMETRY-QUERY-OPERATIONS`; `AddStation` throws `STATION-BUDGET` naming 7 stations; bytes unchanged. Control: F-CAMBER3 at η 0.8 (four differing) is admitted | ~2 s |
 | T14 | `Station_MixedSpacing_PromoteRefused` (Core) | R3 | F-SPACING → `STATION-SPACING` | < 1 s |
-| T15 | `Station_Promote_ThicknessKeepCurrent_ChannelsByteIdentical` (Core) | CAD-02 thickness policy (pending S1-Q2) | F-CAMBER → channel token text identical; `Thickness == KeepCurrent` | < 1 s |
+| T15 | `Station_Promote_ThicknessKeepCurrent_ChannelsByteIdentical` (Core) | CAD-02 thickness policy (Ruling 252 S1-Q2 (a)) | F-CAMBER → every channel's bytes identical before and after; `Thickness == KeepCurrent` | < 1 s |
 | T16 | `Station_ProfileClosure_ReferencedOnceAndClosedRule` (Core) | CAD-02 closure | new block referenced once; closed+closed → `closed`, closed+open → `open`; remove of sole user deletes block; shared profile kept | < 1 s |
 | T17 | `Station_EditPromotedProfile_NeighbourBlendUpdates` (Core) | CAD-02 "edit its profile" | F-CAMBER promote; `SectionStep.Move` on P → sections at η 0.2, 0.6 change; root/tip ≤ 1e-12 | ~1 s |
 | T18 | `Station_DraftOpen_PromoteAndRemoveRefused` (Core) | CAD-09 competing draft | open point draft → `DSL-DRAFT-OWNED` on both | < 1 s |
@@ -506,10 +512,10 @@ against `SectionAt` on the after certificate (existing code, not under test).
 | D6 | `--controller-shell` `Controller_RemoveFlyout_ApplyDisabledWithReason` (TA5) | CAD-02 Apply disabled | F-THREE, Remove Station 2 → flyout Apply disabled, accessible description S1-COPY-15; Escape returns focus to the Remove button; on F-CAMBER after promote, Return applies | ~1 s |
 | D7 | `--controller-shell` `Controller_PromotedStation_ThumbnailAndEditSection` (TA5) | CAD-09 first clause | after Promote: the station strip thumbnail for Station 2 and the "Edit section…" action (`PropertiesView.cs:1092`) visible without a menu | ~1 s |
 | D8 | `--shell-window` `BrowserRow_SelectedFromOtherView_BroughtIntoView_AtScales` (addendum) | GEO-06 every view; SC 2.4.11 | a below-the-fold station selected through the controller (no focus, no fixture scroll) → the row fully inside every ScrollViewer ancestor at RenderScaling 1.0, 1.5 and 2.0 (D1's `ForceScale` helper in `ShellWindowTests.cs`); red first if the product falls short; the fix is reviewed by the leader alone | ~3 s |
-| D9 | `--controller-shell` `Controller_ApproximatePromotion_FlyoutAndApply` | S1-Q1 (pending) | F-PEAK, slice 0.5 → flyout S1-COPY-21/22; Apply enabled iff ≤ 10 µm; Apply adds one row | ~1 s |
+| D9 | `--controller-shell` `Controller_ApproximatePromotion_FlyoutAndApply` | Ruling 252 S1-Q1 (d) | F-PEAK, slice 0.5 → flyout S1-COPY-21/22; Apply enabled iff ≤ 10 µm; Apply adds one row | ~1 s |
 
 **Mutants.** M1 wrong bracket → T1b. M2 camber normalised by M → T1. M3 closure always `closed` → T16. M4 coincidence
-by tolerance → T5's one-ulp row on F-SAME (admitted). M5 Remove deletes a referenced block → T16. M6 two commits per
+tested on η or bitwise only, not on span metres → T5's just-inside row (Ruling 252). M5 Remove deletes a referenced block → T16. M6 two commits per
 command → T10. M7 stale label in a view → D4. M8 deviation sampled only at η_p → T4 (its maximum is on the far interval).
 M9 regime predicted from `k`: killed by F-REAL (k ≈ 1 − 6 × 10⁻⁶ in the model, measured R2) for any tolerance ≥ 6 × 10⁻⁶,
 and by F-SAMEPEAK for the exact-equality form if P's `ProfileDifferenceMaximum`-derived `k` is not exactly 1; the build
@@ -574,7 +580,8 @@ Seams:
 | TA3 one-ulp case on F-SAME | §7 T5 |
 | TA4 F-SAMEPEAK | §7 fixtures, T2, M9 |
 | TA5 Remove flyout, D4 extended, Replace, thumbnail | §7 D6, D4, T19, D7 |
-| TA6 failing input per row; T4 pending | §7 red discipline, every row |
+| TA6 failing input per row; T4 written for (d) | §7 red discipline, every row |
+| Cycle 2: Ruling 252 (S1-Q1 d, S1-Q2 a, S1-Q3 b) | §0, §2.4, §2.6, §3.1–3.3, §5.3, §6 (S1-COPY-6, -11, -21..24), §7 T4, T5, T15, D9, §10, amendment A-S1-1..4 |
 | F14 exact path worded as a measurement | amendment A-S1-1, A-S1-3 |
 | F17 certificate maximum citation | §2.2 (`Geometry.cs:388-389`) |
 | Addendum Browser cross-view scroll | §4 row 12; §5.6; §8; D8 |
@@ -582,13 +589,13 @@ Seams:
 
 ## 10. Open decisions
 
-- **DR-S1-1 — R2 promotion. Pending Owner ruling (S1-Q1).** (a) exact only: refuse R2 (refuses NACA 4412 beside
+- **DR-S1-1 — R2 promotion. Settled by Ruling 252: (d).** (a) exact only: refuse R2 (refuses NACA 4412 beside
   NACA 0012, §2.5); (b) admit R2 at 10 µm on the one-press path; (c) change the blend rule (geometry-authority change,
   out of scope); **(d) (b) with R2 as a separately labelled, previewed approximate promotion (flyout + Apply), R0/R1 one
   press and exact** (the Adversary's missed option); (e) gate R2 on δ_rel instead of δ_m (not recommended: A4.6 is
   chord-local metres). Evidence: §2.4 proof; §2.5 measurement (5.1 × 10⁻⁷ of chord on `section-a`/NACA 0012; 3.4 × 10⁻¹⁰
   on NACA 0012/4412; up to 1.5 × 10⁻⁴ across families — so some real R2 pairs are refused under any gate).
-  **Recommendation: (d).** Written into this design with "pending S1-Q1" markers.
+  **Ruled (d)** (Ruling 252); the operator may revisit any amendment.
 - **DR-S1-2 — Remove gate. Settled by the leader: (a)** Apply disabled above 10 µm, as CAD-02 reads. Options were (a);
   (b) no gate, like Rebuild to N; (c) "Match the blend" then an exact Remove — recorded as a follow-up, not built.
 - **DR-S1-3 — Profile name. Settled by the leader:** no η in the name (it goes stale under Keep absolute station
@@ -596,14 +603,14 @@ Seams:
   "<left>–<right> <η> %", positional, and a name without η.
 - **DR-S1-4 — η unit. Settled by the leader:** the unit of the document's interior stations, else `%`; shortest
   round-trip binary64 (§2.3). Options were `%`, a length, follow the document.
-- **DR-S1-5 — Thickness policy. Pending Owner ruling (S1-Q2).** (a) Keep current thickness, stated in the receipt;
-  (b) offer Use source thickness. **Recommendation: (a).** No missed option (the Adversary).
+- **DR-S1-5 — Thickness policy. Settled by Ruling 252: (a).** (a) Keep current thickness, stated in the receipt;
+  (b) offer Use source thickness. **Ruled (a)** (Ruling 252). No missed option (the Adversary).
 - **DR-S1-6 — Slice in 3D. Settled by the leader: (a)** the slice is not drawn in 3D; the promoted station is shown
   selected in 3D (§4 row 11, D4).
-- **DR-S1-7 — Minimum station spacing (new, from F16, Flagged).** (a) bitwise coincidence only (as designed; a station
+- **DR-S1-7 — Minimum station spacing. Settled by Ruling 252 (S1-Q3): (b).** (a) bitwise coincidence only (as designed; a station
   one ulp away is admitted); (b) treat η within the 10 µm join tolerance in span as coincident and select the existing
   station. Evidence: no vendor-manual citation; a near-zero interval is valid for rule A but is not a useful design
-  station. **Recommendation: (b)**, for the leader to settle or raise.
+  station. **Ruled (b)** (Ruling 252); amendment A-S1-4.
 
 ## 11. Failure modes, threats, privacy, telemetry
 
@@ -626,7 +633,7 @@ Seams:
 
 | Completed | Remaining | Best next action |
 |---|---|---|
-| Cycle 0 design; cycle 1 fold of all Adversary conditions, the addendum and the leader's DR settlements; real-pair R2 measurement (model) | Owner rulings S1-Q1, S1-Q2 (cycle 2 folds them); DR-S1-7; threat-model and privacy rollups (paths not owned) | the leader files S1-Q1/S1-Q2 with §2.5's number |
+| Cycle 0 design; cycle 1 fold of all Adversary conditions, the addendum and the leader's DR settlements; real-pair R2 measurement (model) | threat-model and privacy rollups (paths not owned); the build | the leader joins the design and dispatches the S1 build |
 
 **Confidence.** Verified: every `file:line`, read at `a77bc8e1`. Verified by derivation: §2.4. Inferred: §2.5 magnitudes
 (models, not the product), the CLI serialisation, the 3D selected-station path, the status live region. Residual risk:

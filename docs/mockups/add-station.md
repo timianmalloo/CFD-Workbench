@@ -17,7 +17,7 @@ summary: >-
   its η and mm readout and Promote, the promoted station selected in the Plan chip strip, Front, Side, Browser and
   Properties, a coincident η refused, Remove above 10 µm (Apply disabled with its reason), Root remove refused, the
   certificate budget refused at seven differing stations, a competing draft, and the approximate promotion preview for
-  R2 (pending Owner ruling S1-Q1). For the operator's review.
+  R2 (Ruling 252). For the operator's review.
 ---
 
 # Mockup: Add station (`add-station.html`)
@@ -33,12 +33,12 @@ high contrast) and **reduced motion** (nothing animates; the switch proves no st
 | 1 | No slice | two station chips in the strip under the planform (Ruling 124); the η entry empty | 5.2 |
 | 2 | Slice placed | hollow dashed chip "Slice · η 35.0 % · 175.0 mm" with Promote and ×; dashed lines in Plan and Front; dashed outline in Side; the Slice panel with "From root" in mm and "Derived view — not saved" | 5.2, 5.3 |
 | 3 | Promoted | "Station 2" selected in the strip, Front, Side, the Browser row and the Properties heading; profile "Station 2"; the receipt with the deviation and "Thickness: keep current" | 5.3, E7 |
-| 4 | Coincident η refused | "35" typed again: Station 2 selected, the refusal in the status line, nothing changed | 3.2, GEO-06 |
+| 4 | Coincident η refused | "35" typed again (coincident means within 10 µm in span, Ruling 252 S1-Q3): Station 2 selected, the refusal in the status line, nothing changed | 3.2, GEO-06 |
 | 5 | Remove above the acceptance | the flyout: measured change 412 µm, limit 10 µm, Apply disabled with its reason | 2.9, 5.4 |
 | 6 | Root remove refused | Remove station disabled with "Root and tip stations cannot be removed." | 5.4 |
 | 7 | Certificate budget refused | six differing stations; a slice at η 70.0 % would make a seventh, which the operation bound refuses (as built: four certify, seven never) | 2.7 |
 | 8 | Competing draft | the draft chip on the options strip; the slice still placeable; Promote disabled with the draft named | 5.5, CAD-09 |
-| 9 | Approximate promotion (R2) | **pending Owner ruling S1-Q1.** Tip peaks at 40 %: Promote opens the flyout with the measured change; Apply enabled under 10 µm | 5.3, D9 |
+| 9 | Approximate promotion (R2) | **Ruling 252, S1-Q1 (d).** Tip peaks at 40 %: Promote opens the flyout with the measured change; Apply enabled under 10 µm | 5.3, D9 |
 
 ## The fixture
 

@@ -2208,10 +2208,10 @@ window.DOCS_INDEX = {
       "type": "design",
       "status": "in-review",
       "owner": "@timianmalloo",
-      "phase": "design — track S1 of next-best-six; documents only; repair cycle 1 folded (Adversary ACCEPT WITH CONDITIONS); build after the Owner rules S1-Q1 and S1-Q2",
+      "phase": "design — track S1 of next-best-six; documents only; repair cycle 1 folded the Adversary conditions; cycle 2 folded Ruling 252 (S1-Q1 d, S1-Q2 a, S1-Q3 b); ready for the build after the join",
       "reviewBy": "2027-01-31",
       "reviewSuggested": [],
-      "summary": "The inspection slice is a selection (never syntax); Promote writes one new profile block and one assignment whose section is the as-built rule-A blend at η, built in control-point space by the one PlacementRule definition. Rule A renormalises the blended unit thickness, so a promotion is exact (measured ≤ 1e-12) only in regimes R0/R1; in R2 both adjacent intervals move by a shape-dependent measured amount (5.1e-7 of chord on the committed section-a / NACA 0012 pair, in a model). Recommended (pending S1-Q1): R0/R1 one-press, R2 a previewed approximate promotion gated at 10 µm. Remove re-blends across the gap with the measured deviation and Apply gated at 10 µm.",
+      "summary": "The inspection slice is a selection (never syntax); Promote writes one new profile block and one assignment whose section is the as-built rule-A blend at η, built in control-point space by the one PlacementRule definition. Rule A renormalises the blended unit thickness, so a promotion is exact (measured ≤ 1e-12) only in regimes R0/R1; in R2 both adjacent intervals move by a shape-dependent measured amount (5.1e-7 of chord on the committed section-a / NACA 0012 pair, in a model). Ruling 252: one press and exact at a measured ≤ 1e-12, otherwise a previewed approximate promotion applied only at ≤ 10 µm; a station within 10 µm in span of another is coincident. Remove re-blends across the gap with the measured deviation and Apply gated at 10 µm.",
       "tags": [
         "cad",
         "station",
@@ -2260,7 +2260,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "11ae994d26df54b47c80659fb31e546a18eed6fa74f9641b6c6efb94ddd26596"
+      "sourceSha256": "e34b5c3791cb64d4caad7fd9fc559f30833352c1296a09559fd4ca4d34dbb5d0"
     },
     {
       "id": "design-app-shell",
@@ -3974,7 +3974,7 @@ window.DOCS_INDEX = {
       "phase": "ui-design",
       "reviewBy": "2027-01-31",
       "reviewSuggested": [],
-      "summary": "Nine states of the 1280 × 800 shell (and the 640 × 400 reflow) on stated fixture wings: no slice, a slice placed with its η and mm readout and Promote, the promoted station selected in the Plan chip strip, Front, Side, Browser and Properties, a coincident η refused, Remove above 10 µm (Apply disabled with its reason), Root remove refused, the certificate budget refused at seven differing stations, a competing draft, and the approximate promotion preview for R2 (pending Owner ruling S1-Q1). For the operator's review.",
+      "summary": "Nine states of the 1280 × 800 shell (and the 640 × 400 reflow) on stated fixture wings: no slice, a slice placed with its η and mm readout and Promote, the promoted station selected in the Plan chip strip, Front, Side, Browser and Properties, a coincident η refused, Remove above 10 µm (Apply disabled with its reason), Root remove refused, the certificate budget refused at seven differing stations, a competing draft, and the approximate promotion preview for R2 (Ruling 252). For the operator's review.",
       "tags": [
         "mockup",
         "cad",
@@ -4006,7 +4006,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7ee315cf8c0c3fd91618ff0f6bb568dd79502c9be6f3f67089a1b3e1c08e98ca"
+      "sourceSha256": "ce199ea803ceda2af94548f79e1150c9ca86169581f71cdc7cefecd3d3fae31c"
     },
     {
       "id": "mockup-area3-analysis",
@@ -22584,14 +22584,14 @@ window.DOCS_INDEX = {
     {
       "id": "spec-amendments-add-station",
       "path": "docs/specs/amendments/spec-add-station.md",
-      "title": "Proposed spec amendments for Add station and Promote (GEO-06, CAD-02, A4.6) — for the Owner's ruling",
+      "title": "Spec amendments for Add station and Promote (GEO-06, CAD-02, A4.6) — Ruling 252",
       "type": "spec",
       "status": "in-review",
       "owner": "@timianmalloo",
       "phase": "specification",
       "reviewBy": "2027-01-31",
       "reviewSuggested": [],
-      "summary": "Three proposed amendments from the Add station design (track S1), written for the recommended options. Promotion is an exact path when its measured deviation is ≤ 1e-12; otherwise it is a separately labelled, previewed approximate promotion admitted at 10 µm (S1-Q1, option d). Promote and Remove keep current thickness (S1-Q2). Pending the Owner's ruling; nothing applies before it.",
+      "summary": "Four amendments from the Add station design (track S1), accepted by Ruling 252. A promotion is exact and one press when its measured deviation is ≤ 1e-12; otherwise it is a separately labelled, previewed approximate promotion applied only with Apply at ≤ 10 µm (S1-Q1 d). Promote and Remove keep current thickness (S1-Q2 a). A station within the 10 µm join tolerance in span of another is coincident (S1-Q3 b). The operator may revisit any of them.",
       "tags": [
         "spec",
         "amendments",
@@ -22600,7 +22600,8 @@ window.DOCS_INDEX = {
         "rule-a",
         "blend",
         "geo-06",
-        "cad-02"
+        "cad-02",
+        "ruling-252"
       ],
       "links": [
         {
@@ -22614,10 +22615,14 @@ window.DOCS_INDEX = {
         {
           "to": "decision-loft-rule-a",
           "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "898f9a46d10ecd31bceb007c5d407cba199bb528d4db37e9f8cb0e5d929566ea"
+      "sourceSha256": "69f69af1bb2bccd372973e1739ea4504f505de2e04ceeb709792849b0052aad3"
     },
     {
       "id": "spec-cfd-workbench",
@@ -23430,5 +23435,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "9dcc31a2bf4859a35fa6407a2ae830e58ec8259cbba61c70fbe8479bd30c48a8"
+  "graphSha256": "3693512b9eb55e8a2038d544d94fde3ff06cfdbdfaf21408e46ef2868646314e"
 };

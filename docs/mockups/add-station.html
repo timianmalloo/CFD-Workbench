@@ -8,8 +8,8 @@
   Review page for the Add station design (docs/design/add-station.md, track S1). Eight states of the 1280 x 800 shell
   (and the 640 x 400 reflow preset): no slice, slice placed with Promote, promoted, coincident eta refused, Remove above
   the acceptance, Root remove refused, certificate budget refused, competing draft. Geometry is computed in the page from
-  the stated fixture (see FIX below). Cycle 1 adds state 9, the approximate promotion preview (R2, pending Owner ruling
-  S1-Q1), and re-bases state 7 on the as-built capacity (seven differing stations refused). Deviation numbers are
+  the stated fixture (see FIX below). Cycle 1 adds state 9, the approximate promotion preview (R2, Ruling 252
+  S1-Q1 d), and re-bases state 7 on the as-built capacity (seven differing stations refused). Deviation numbers are
   illustrative, not computed: the product measures them (design section 2.6). Display only; no network, no external
   fonts or scripts.
 -->
@@ -88,7 +88,7 @@ main{ padding:16px; overflow-x:auto; }
     <option value="rootRemove">6 · Root remove refused</option>
     <option value="budget">7 · Certificate budget refused</option>
     <option value="draft">8 · Competing draft</option>
-    <option value="approx">9 · Approximate promotion preview (R2, pending S1-Q1)</option>
+    <option value="approx">9 · Approximate promotion preview (R2, Ruling 252)</option>
   </select></label>
   <label>Viewport <select id="viewport"><option value="full">1280 × 800</option><option value="reflow">640 × 400 reflow</option></select></label>
   <label>Theme <select id="theme"><option value="light">Light</option><option value="dark">Dark</option><option value="contrast">High contrast</option></select></label>
@@ -139,7 +139,7 @@ const STATES = {
     status: "<span class=ok>Added Station 2 at η 35.0 %.</span> Largest change 2.2 × 10⁻¹⁶ of chord (0.00 µm) at η 61.0 %, sampled; limit 10⁻¹². Thickness: keep current." },
   coincident: { what: "<b>Coincident η.</b> “35” typed in the η entry and Return: refused; Station 2 (already at η 35.0 %) is selected. Nothing changed.",
     stations: promoted, sel: { kind: "station", i: 1 }, slice: null, entry: "35",
-    status: "<span class=no>Station 2 is already at η 35.0 %. Selected it.</span>" },
+    status: "<span class=no>Station 2 is already at 175.0 mm (within the 10 µm join tolerance). Selected it.</span>" },
   removeAbove: { what: "<b>Remove above the acceptance.</b> Station 2 after a section edit (thickened). Remove station previews the re-blend between Root and Tip; Apply is disabled with its reason.",
     stations: promoted, sel: { kind: "station", i: 1 }, slice: null, flyout: "removeAbove", status: "" },
   rootRemove: { what: "<b>Root remove refused.</b> Root selected: Remove station is disabled with its reason (also in Edit ▸ Remove station).",
@@ -147,7 +147,7 @@ const STATES = {
   budget: { what: "<b>Certificate budget refused.</b> A wing with six stations whose sections all differ (10 points each; six certify up to 5 spans). A slice at η 70.0 % would make a seventh differing section, which the operation bound refuses at any span count. The slice stays; nothing changed.",
     stations: six, sel: { kind: "slice" }, slice: 0.70, entry: "70", budget: true,
     status: "<span class=no>Promote refused: 7 stations would have different sections, more than the blend certificate can carry. Make one of them match a neighbour first. Nothing changed.</span>" },
-  approx: { what: "<b>Approximate promotion (R2), pending Owner ruling S1-Q1.</b> Root and Tip peak at different chord positions, so a station at η 50.0 % changes the loft. The flyout previews the measured change; Apply is enabled because it is under 10 µm. Exact (R0/R1) promotions stay one press.",
+  approx: { what: "<b>Approximate promotion (R2), Ruling 252.</b> Root and Tip peak at different chord positions, so a station at η 50.0 % changes the loft. The flyout previews the measured change; Apply is enabled because it is under 10 µm. Exact (R0/R1) promotions stay one press.",
     stations: peaks, sel: { kind: "slice" }, slice: 0.50, entry: "50", flyout: "approx", status: "" },
   draft: { what: "<b>Competing draft.</b> A point draft is open on the leading edge. The slice can still be placed and read (CAD-11); Promote is disabled with the reason.",
     stations: base, sel: { kind: "slice" }, slice: 0.35, entry: "35", draft: "Leading edge · point 4", status: "" }
@@ -257,7 +257,7 @@ function render() {
   document.getElementById("status").innerHTML = s.status;
   const fly = document.getElementById("flyout");
   fly.hidden = !s.flyout;
-  if (s.flyout === "approx") fly.innerHTML = '<h4>Approximate promotion at η 50.0 % · 250.0 mm <small>(pending S1-Q1)</small></h4><p>Root and Tip peak at different chord positions, so a station here changes the loft. Largest change 0.83 µm (0.0009 % of chord) at η 74.0 %, sampled. Limit 10 µm.</p>' +
+  if (s.flyout === "approx") fly.innerHTML = '<h4>Approximate promotion at η 50.0 % · 250.0 mm</h4><p>A station here changes the loft. Largest change 0.83 µm (0.0009 % of chord) at η 74.0 %, sampled on 129 η × 2001 x, not a bound. Limit 10 µm at the local chord.</p>' +
     '<div class=row><button class="btn">Cancel</button><button class="btn primary">Apply</button></div>';
   else if (s.flyout === "removeAbove") fly.innerHTML = '<h4>Remove Station 2</h4><p>The shape between Root and Tip is re-blended. Largest change 412 µm (0.41 % of chord) at η 33.0 %, sampled. Limit 10 µm.</p>' +
     '<p class=reason id=ap>Apply is disabled: the change is above the 10 µm limit.</p><div class=row><button class="btn">Cancel</button><button class="btn primary" disabled aria-describedby=ap>Apply</button></div>';
