@@ -201,7 +201,13 @@ The stale label in a Desktop view: `ElevationView.StationName` returning a name 
 S1-COPY-1 to COPY-553, 2 to 554, 3 to 555, 4 to 556, 5 to 557, 6 to 558, 7 to 559, 8 to 560, 9 to 561, 10 to 562, 11 to 563, 12 to 564,
 13 to 565, 14 to 566, 15 to 567, 16 to 568, 17 to 569, 18 to 570, 19 to 571, 20 to 572, 21 to 573, 22 to 574, 23 to 575, 24 to 576.
 
+Added at build with no design row (repair cycle 2): COPY-577 to COPY-588, proposed (the η entry's heading and accessible name, "Clear slice",
+the chip's accessible name, "Check", "Within the limit", "Above the limit", the two "Open a certified foil..." reasons, "Select a station first.",
+"Finish the current change first.", "Station <n> is now Station <n+1>"). Each is a constant on `WorkbenchController` that the checks read.
+
 ### Departures and open items (S1-b)
+
+- Leader 2026-10-22: accepted after the fact. The design's options strip (CAD-07) no longer exists (CAD-21 superseded it), so the η entry is an `AddStationPanel` in `ModelArea.axaml(.cs)` beside the Add point panel it copies, plus one `ShellHost.cs` call; that is the nearest existing surface and the minimum for design §5.2's keyboard placement. Added to S1's owned paths for this join. A file outside the brief without a seam request is a process miss, recorded in planned-vs-actual.
 
 - **The flyouts are inline in the Properties pane**, not popups: the pane shows a group (title, the measured line, Apply, Cancel) under the slice
   or the station. `ModelArea` and `RebuildPopover` are not S1-b files. Escape on Apply or Cancel closes it and returns focus to Remove station.

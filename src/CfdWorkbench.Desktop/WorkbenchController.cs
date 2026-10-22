@@ -681,6 +681,7 @@ public sealed class WorkbenchController : IDisposable
     public const string RemoveNeedsFoil = "Open a certified foil in the views to remove a station.";  // COPY-585
     public const string SelectStationFirst = "Select a station first.";                               // COPY-586
     public const string FinishChangeFirst = "Finish the current change first.";                       // COPY-587
+    public static string ShiftedCopy(int number) => $"Station {number} is now Station {number + 1}";   // COPY-588
 
     private StationFlyout? flyout;
     private bool sliceChecking;
@@ -700,6 +701,19 @@ public sealed class WorkbenchController : IDisposable
         string.Create(CultureInfo.InvariantCulture, $"Slice · η {eta * 100:F1} % · {distanceMillimetres:F1} mm");
 
     /// <summary>The slice chip's accessible name (design 5.6).</summary>
+    /// <summary>A change relative to the chord as the mockup shows it: "0.0009 %" down to 0.0001 %, below that "2.2 × 10⁻¹⁶", and "0" for none (COPY-574, -576).</summary>
+    public static string RelativeText(double relative)
+    {
+        if (relative <= 0) return "0";
+        if (relative * 100 >= 0.0001) return string.Create(CultureInfo.InvariantCulture, $"{relative * 100:F4} %");
+        int exponent = (int)Math.Floor(Math.Log10(relative));
+        double mantissa = Math.Round(relative / Math.Pow(10, exponent), 1);
+        if (mantissa >= 10) { mantissa /= 10; exponent++; }
+        const string digits = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+        string power = string.Concat(Math.Abs(exponent).ToString(CultureInfo.InvariantCulture).Select(digit => digits[digit - '0']));
+        return string.Create(CultureInfo.InvariantCulture, $"{mantissa:F1} × 10{(exponent < 0 ? "⁻" : "")}{power}");
+    }
+
     public static string SliceChipName(double eta, double distanceMillimetres) =>
         string.Create(CultureInfo.InvariantCulture, $"Inspection slice, η {eta * 100:F1} percent, {distanceMillimetres:F1} millimetres");
 
@@ -791,14 +805,14 @@ public sealed class WorkbenchController : IDisposable
     }
 
     /// <summary>Why Add station is unavailable right now, or null.</summary>
-    public string? AddStationReason => StationDraftReason() ?? (Inspection is null ? "Open a certified foil in the views to add a station." : null);
+    public string? AddStationReason => StationDraftReason() ?? (Inspection is null ? AddNeedsFoil : null);
 
     /// <summary>Why Remove station is unavailable for <paramref name="index"/>, or null.</summary>
     public string? RemoveStationReason(int index)
     {
-        if (Inspection is null) return "Open a certified foil in the views to remove a station.";
+        if (Inspection is null) return RemoveNeedsFoil;
         var assignments = Inspection.Authored.Assignments;
-        if (index < 0 || index >= assignments.Count) return "Select a station first.";
+        if (index < 0 || index >= assignments.Count) return SelectStationFirst;
         if (index == 0 || index == assignments.Count - 1) return StationEndpointRefusal;
         return StationDraftReason();
     }
@@ -812,9 +826,9 @@ public sealed class WorkbenchController : IDisposable
             int target = mode.Draft.Assignment;
             return target >= 0 && target < assignments.Count
                 ? $"Apply or cancel the open draft on {StationNames.Of(target, assignments[target].Eta)} first."   // S1-COPY-13
-                : "Finish the current change first.";
+                : FinishChangeFirst;
         }
-        return draft is not null || Gesture != GestureState.Idle ? "Finish the current change first." : null;
+        return draft is not null || Gesture != GestureState.Idle ? FinishChangeFirst : null;
     }
 
     /// <summary>
@@ -869,7 +883,7 @@ public sealed class WorkbenchController : IDisposable
             flyout = new StationFlyout(StationFlyoutKind.Promote,
                 string.Create(CultureInfo.InvariantCulture, $"Approximate promotion at η {eta * 100:F1} % · {distance:F1} mm"),   // S1-COPY-21
                 string.Create(CultureInfo.InvariantCulture, $"A station here changes the loft. Largest change {preview.DeviationMeters * 1e6:F2} µm " +
-                    $"({preview.DeviationRelative:E2} of chord) at η {preview.AtEta:F4}, {sampled}. Limit 10 µm at the local chord."),   // S1-COPY-22
+                    $"({RelativeText(preview.DeviationRelative)} of chord) at η {preview.AtEta * 100:F1} %, {sampled}. Limit 10 µm at the local chord."),   // S1-COPY-22
                 false, preview.Admitted, preview.Admitted ? null : ApplyAboveLimit, -1);
             SetStatus(flyout.Line, preview.Admitted ? ReportKind.Info : ReportKind.Warning);
             Notify();
@@ -891,13 +905,13 @@ public sealed class WorkbenchController : IDisposable
         string name = StationNames.Of(result.Index, eta);
         string at = string.Create(CultureInfo.InvariantCulture, $"{eta * 100:F1}");
         string receipt = approximate
-            ? string.Create(CultureInfo.InvariantCulture, $"Added {name} at η {at} % as an approximate promotion. Largest change {report.DeviationMeters * 1e6:F2} µm ({report.DeviationRelative:E2} of chord) at η {report.AtEta:F4}. Thickness: keep current.")   // S1-COPY-24
+            ? string.Create(CultureInfo.InvariantCulture, $"Added {name} at η {at} % as an approximate promotion. Largest change {report.DeviationMeters * 1e6:F2} µm ({RelativeText(report.DeviationRelative)} of chord) at η {report.AtEta * 100:F1} %. Thickness: keep current.")   // S1-COPY-24
             : report.Regime == "R0"
                 ? $"Added {name} at η {at} %. Shape unchanged: deviation 0. Thickness: keep current."                                                                  // S1-COPY-3
-                : string.Create(CultureInfo.InvariantCulture, $"Added {name} at η {at} %. Largest change {report.DeviationRelative:E2} of chord ({report.DeviationMeters * 1e6:F4} µm) at η {report.AtEta:F4}, sampled; limit 10⁻¹². Thickness: keep current.");   // S1-COPY-4
+                : string.Create(CultureInfo.InvariantCulture, $"Added {name} at η {at} %. Largest change {RelativeText(report.DeviationRelative)} of chord ({report.DeviationMeters * 1e6:F4} µm) at η {report.AtEta * 100:F1} %, sampled; limit 10⁻¹². Thickness: keep current.");   // S1-COPY-4
         // The interior stations after the new one take the next number (the tip keeps its name): "Station 2 is now Station 3".
         int lastInterior = session.InspectAccepted().Authored.Assignments.Count - 2;
-        var shifted = Enumerable.Range(result.Index + 1, Math.Max(0, lastInterior - result.Index)).Select(number => $"Station {number} is now Station {number + 1}").ToArray();
+        var shifted = Enumerable.Range(result.Index + 1, Math.Max(0, lastInterior - result.Index)).Select(number => ShiftedCopy(number)).ToArray();
         if (shifted.Length > 0) receipt += " Stations after it are renumbered: " + string.Join(", ", shifted) + ".";   // S1-COPY-5
         return new CommitOutcome.Committed(result.AcceptedId, receipt) { SelectItem = new Selection.Station(result.Index, eta) };
     }, warningOnRefusal: true, preserveStatusAfterCommit: true);
@@ -936,7 +950,7 @@ public sealed class WorkbenchController : IDisposable
         flyout = open with
         {
             Line = string.Create(CultureInfo.InvariantCulture, $"The shape between {left} and {right} is re-blended. Largest change {preview.DeviationMeters * 1e6:F2} µm " +
-                $"({preview.DeviationRelative:E2} of chord) at η {preview.AtEta:F4}, sampled. Limit 10 µm."),   // S1-COPY-14
+                $"({RelativeText(preview.DeviationRelative)} of chord) at η {preview.AtEta * 100:F1} %, sampled. Limit 10 µm."),   // S1-COPY-14
             Checking = false, ApplyEnabled = preview.Admitted, ApplyReason = preview.Admitted ? null : ApplyAboveLimit
         };
         SetStatus(flyout.Line, preview.Admitted ? ReportKind.Info : ReportKind.Warning);
@@ -967,7 +981,7 @@ public sealed class WorkbenchController : IDisposable
         {
             var result = session.RemoveStation(Guid.NewGuid().ToString("D"), index);
             return new CommitOutcome.Committed(result.AcceptedId, string.Create(CultureInfo.InvariantCulture,
-                $"Removed {name}. Largest change {result.Report.DeviationMeters * 1e6:F2} µm at η {result.Report.AtEta:F4}. Thickness: keep current."))   // S1-COPY-16
+                $"Removed {name}. Largest change {result.Report.DeviationMeters * 1e6:F2} µm at η {result.Report.AtEta * 100:F1} %. Thickness: keep current."))   // S1-COPY-16
             { SelectItem = left };
         }, warningOnRefusal: true, preserveStatusAfterCommit: true);
     }

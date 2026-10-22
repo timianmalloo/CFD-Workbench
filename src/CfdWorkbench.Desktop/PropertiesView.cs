@@ -748,7 +748,7 @@ public static class PropertiesView
     /// <summary>The open flyout as a group: the measured line under the title, then Apply (disabled above 10 µm, with its reason) and Cancel.</summary>
     private static PropertyGroup FlyoutGroup(WorkbenchController.StationFlyout flyout)
     {
-        var line = Prose("fly:line", "Check", flyout.Checking ? WorkbenchController.CheckingCopy : flyout.ApplyEnabled ? "Within the limit" : "Above the limit") with
+        var line = Prose("fly:line", WorkbenchController.CheckLabel, flyout.Checking ? WorkbenchController.CheckingCopy : flyout.ApplyEnabled ? WorkbenchController.WithinLimit : WorkbenchController.AboveLimit) with
         {
             Description = flyout.Line, DescriptionAlwaysVisible = true
         };

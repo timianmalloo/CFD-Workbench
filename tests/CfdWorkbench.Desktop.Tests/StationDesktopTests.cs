@@ -128,6 +128,22 @@ public static class StationDesktopTests
             }
         });
 
+        // Review MC-1: one form for the location (η in percent) and the relative change (percent of chord, or a power of ten), as the mockup shows.
+        DesktopChecks.Check("Controller_FlyoutText_EtaInPercent_RelativeInMockupForm", () =>
+        {
+            using var near = Open(NearPair());
+            near.PlaceSliceTyped("50");
+            near.PromoteSliceAsync().GetAwaiter().GetResult();
+            var line = near.Flyout?.Line ?? throw new Exception("No flyout; status: " + near.Status);
+            var shape = new System.Text.RegularExpressions.Regex(@"^A station here changes the loft\. Largest change \d+\.\d\d µm \(\d+\.\d{4} % of chord\) at η \d+\.\d %, sampled on 17 η × 201 x, not a bound\. Limit 10 µm at the local chord\.$");
+            Require(shape.IsMatch(line), "Promote flyout line: " + line);
+            near.ApplyFlyoutAsync().GetAwaiter().GetResult();
+            var receipt = new System.Text.RegularExpressions.Regex(@"^Added Station 2 at η 50\.0 % as an approximate promotion\. Largest change \d+\.\d\d µm \(\d+\.\d{4} % of chord\) at η \d+\.\d %\. Thickness: keep current\.$");
+            Require(receipt.IsMatch(near.Status), "Receipt: " + near.Status);
+            Require(WorkbenchController.RelativeText(7.04e-6) == "0.0007 %" && WorkbenchController.RelativeText(2.2e-16) == "2.2 × 10⁻¹⁶" && WorkbenchController.RelativeText(0) == "0",
+                "RelativeText: " + WorkbenchController.RelativeText(7.04e-6) + " | " + WorkbenchController.RelativeText(2.2e-16) + " | " + WorkbenchController.RelativeText(0));
+        });
+
         // Review UA-4: a flyout belongs to the revision it measured; opening another document or an Undo closes it.
         DesktopChecks.Check("Controller_Flyout_ClosesOnOpenAndOnUndo", () =>
         {

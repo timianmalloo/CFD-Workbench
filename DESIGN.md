@@ -911,6 +911,18 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-574 | A station here changes the loft. Largest change <µm> µm (<rel> of chord) at η <at>, sampled on <n> η × <m> x, not a bound. Limit 10 µm at the local chord. — proposed — S1 Add station (S1-COPY-22: the flyout line; the grid is the one the preview names, 129 × 2001 in production) |
 | COPY-575 | Apply is disabled: the change is above the 10 µm limit. — proposed — S1 Add station (S1-COPY-23: the approximate flyout's disabled Apply reason; the same words as COPY-567) |
 | COPY-576 | Added <name> at η <η> as an approximate promotion. Largest change <µm> µm (<rel> of chord) at η <at>. Thickness: keep current. — proposed — S1 Add station (S1-COPY-24: the receipt of an approximate promotion) |
+| COPY-577 | Add station · from root — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the heading of the η entry panel; `WorkbenchController.AddStationHeading`) |
+| COPY-578 | Add station · from root. Return promotes, Escape clears. — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the entry's accessible name; it starts with the visible heading, WCAG 2.5.3; `AddStationEntryName`) |
+| COPY-579 | Clear slice — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the accessible name of the slice chip's × action; `ClearSliceLabel`) |
+| COPY-580 | Inspection slice, η <η> percent, <d> millimetres — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the slice chip's accessible name, design 5.6; `SliceChipName`) |
+| COPY-581 | Check — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the label of the flyout's result row; `CheckLabel`) |
+| COPY-582 | Within the limit — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the flyout's result row when Apply is allowed; `WithinLimit`) |
+| COPY-583 | Above the limit — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the flyout's result row when Apply is disabled; `AboveLimit`) |
+| COPY-584 | Open a certified foil in the views to add a station. — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the reason Add station is unavailable with no certified foil; `AddNeedsFoil`) |
+| COPY-585 | Open a certified foil in the views to remove a station. — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the reason Remove station is unavailable with no certified foil; `RemoveNeedsFoil`) |
+| COPY-586 | Select a station first. — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the status when Remove station runs with no station selected; `SelectStationFirst`) |
+| COPY-587 | Finish the current change first. — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: the station commands' reason while a gesture or draft is open; the same words as the point commands' reason; `FinishChangeFirst`) |
+| COPY-588 | Station <n> is now Station <n+1> — proposed — S1 Add station (added at build, no design row; leader 2026-10-22: one line of the add receipt per renumbered station; `ShiftedCopy`) |
 
 <!-- COPY-479 to COPY-519 are Ruling 196's COPY-EX ids; no Export id is reserved any more (COPY-480 EX07, the 3MF format row, landed with the 3MF slice). An id with a suffix (EX10a, EX13a, EX14a, EX23a, EX25a, EX45a) shares its numeric id's row. -->
 

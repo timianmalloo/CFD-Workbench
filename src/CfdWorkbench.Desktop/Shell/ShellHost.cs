@@ -1201,7 +1201,7 @@ public sealed class ShellHost : Grid
                 return;
             case "station.remove":
                 if (Controller.Selection is Selection.Station doomed) await Controller.BeginRemoveStationAsync(doomed.Index);
-                else Report(new StatusReport("Select a station first."));
+                else Report(new StatusReport(WorkbenchController.SelectStationFirst));
                 return;
             case "point.make-anchor":
                 await RunPoint(point => new PointCommand.MakeAnchor(point.Curve, point.Id));
