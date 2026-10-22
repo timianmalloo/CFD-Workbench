@@ -119,5 +119,124 @@ Green: `CFD_TEST_ONLY=WingEstimator_,EstimatorRun_,VlmRun_,UnknownTier_,Service_
 
 ## Node A3d-2: Compare
 
-Not started. The older-reader receipt (7.3), the measured bytes per pinned run and per record, and the copy id mapping
-(each `A3D-COPY-n` to the next free `COPY-` id after COPY-521) are recorded here by that node.
+Order of the build: Core and Analysis, CLI, Desktop. Each half has its red commit (the checks, red on the old tree) and its
+green commit. Red on the old tree, as the compiler says it: `CompareTests.cs`: `CS0246 The type or namespace name
+'Coefficients' could not be found` and `'DiscrepancyRecord'` (8 errors); `DiscrepancyCliTests.cs`: `CS0117 'Cli' does not
+contain a definition for 'DiscrepancyListing'`; `ComparePaneTests.cs`: `CS0246 'ComparePane' could not be found`.
+
+Green: Analysis harness `CFD_TEST_ONLY=Compare_,Discrepancy_,Retention_RunReferenced,NativeReader_` -> 22 `PASS`,
+`RESULT failures=0`; Desktop `--analysis` Compare checks 12 `PASS`; full `bash tools/run-tests.sh` -> TESTS-GREEN (Core 762,
+Analysis 294, Desktop 794, Cli 21 passed).
+
+### Mutants (each applied, its checks run, red recorded, reverted)
+
+| Mutant | Red line (first failing check) |
+|---|---|
+| delta by the compared value | `shown dCL, base = VLM expected 0.0224653479; actual 0.0219717449` (also the delta and reversed-view checks) |
+| delta by the mean | `base 0.4035, compared 0.4120 expected 0.0210656753; actual 0.0208461067` |
+| delta by the signed base | `negative base: (c - b) / |b| expected 0.5; actual -0.5` (and `row 2 canonical ... actual 1.0`) |
+| record not appended | `records expected 1; actual 0` |
+| stored in the shown orientation, key not canonical | `ContractError: DOC-SCHEMA` in the tier, same-key and stores-one checks |
+| lookup skipped | `Compare_SameKeyTwice_ReadNotNewRecord ContractError: DOC-DISCREPANCY-ID` |
+| estimator e = 1 enters the delta | `not compared code expected ANA-CMP-ESTIMATOR-E; actual (none)` |
+| envelope row dropped | `every section 2.1 field; expected ... Envelope ...` and the pane check `Sequence contains no matching element` |
+| no Undefined at base 0 | `base 0 expected ANA-CMP-BASE-ZERO; actual ANA-CMP-BASE-FLOOR` |
+| e floor only | `CL Undefined makes e Undefined expected ANA-CMP-E-ILL-CONDITIONED; actual (none)` |
+| one percent tolerance | `S_ref near-equal: one block; expected 1; actual 0` |
+| epsilon compare | `S_ref last ulp: one block; expected 1; actual 0` |
+| a point field left out | `pAtm: one block; expected 1; actual 0` |
+| water reported as point | `temperatureC is a water reason expected Water; actual Point` |
+| a Preferred or mean member | `CompareOutputRow.Mean names a combined value; expected False; actual True` |
+| discrepancies dropped on load | `records after reopen expected 1; actual 0` |
+| member written as an empty list | `Discrepancy_OmittedWhenEmpty_...: ContractError: DOC-SCHEMA` |
+| keep line removed | `the referenced run survives the save; expected True; actual False` |
+| preflight skipped | `Discrepancy_PinnedRuns_...: ContractError: DOC-SIZE` (the cap is only reached by the unchecked record) |
+| orientation check removed | `expected DOC-SCHEMA for a tier pair stored higher to lower; none` |
+| stored hash trusted | `a changed line, the stored hash kept expected PayloadFailedCheck; actual NoLongerReproduces` |
+| verified under the current rule | `an unknown rule version ... expected RuleUnknown; actual Intact` |
+| dispatch to the newest rule only | `a 1.0.0 record under a build whose newest rule is 1.1.0 expected Intact; actual NoLongerReproduces` |
+| analysis member open | `an unknown analysis member is refused expected DOC-UNSUPPORTED-FIELD; actual DOC-SCHEMA` |
+| save report removed | `Discrepancy_SaveEvent_...: Sequence contains no matching element` |
+| CLI: stored lines printed without recompute | `a tampered line is recomputed, not printed as Intact` |
+| CLI: `discrepancies: []` for none | `no discrepancies member for a document with no record` |
+| Desktop: headline from CDi | `the headline quotes the CL delta, not CDi's; expected True; actual False` |
+| Desktop: empty state replaced | `the estimator button, enabled for a VLM run; expected True; actual False` |
+| Desktop: delta rendered under the block | `the block copy; expected True; actual False` |
+| Desktop: water shown with the point copy | `the water copy; expected True; actual False` |
+| Desktop: delta hidden for a Historical run | `the Historical note; expected True; actual False` |
+| Desktop: a Failed option enabled | `a Failed option is disabled; expected False; actual True` |
+| Desktop: CDi cell without A3D-COPY-26 | `the CDi cell carries the elliptic-loading label in the cell; expected True; actual False` |
+| Desktop: delta beside the error card | `the error card copy; expected True; actual False` |
+| Desktop: focus not on the Base picker | `focus lands on the Base picker; expected True; actual False` |
+| Desktop: a picker without a name | `Base picker name expected Base run; actual (empty)` |
+
+The reversed-view theory has no separate mutant: "reversed view shows -d" and "by -d/(1+d)" are not code paths (the reversed view is
+the same function called with the roles swapped), so the rows are killed by the divide-by-compared and divide-by-signed-base
+mutants, which the negative-base row (base -1, compared -2) separates. "Runs rewritten" has no mutant either: nothing writes a
+run; the check pins the runs untouched.
+
+### The Analysis panel reads VLM + strip runs only (review condition 2)
+
+`AnalysisPanel_ReadsOnlyVlmRuns_AfterEstimatorRunRecorded`. On today's behaviour (the controller's `Runs.LastOrDefault()` and
+no tier guard in the projection, both reverted for the run): `the panel still shows the VLM run expected 4e05821...;
+actual 89d1a3f...` (the panel showed the estimator row). With the controller filter and the projection guard it passes.
+
+### Measured (Verified; replaces the Inferred figures of design 1.8 and 10)
+
+From `Discrepancy_PinnedRuns_ReachDocSize_RefusedNotCorrupted` (`MEASURED` line, 128 strips per run with realistic digits):
+
+- **bytes per pinned VLM + strip run (128 strips): 109,991** in the indented document (the design's Inferred figure was
+  about 60,000). About **72 such runs** fit in `NativeProject.MaxBytes` (8,000,000), not 133.
+- **bytes per record (three lines): 859** (Inferred: about 530). Records are still not the constraint.
+- On that basis a document reaches `DOC-SIZE` through pinned runs sooner than design 1.8 said: about 72 VLM runs in all, so the
+  DR-A3D-6 trigger (`pinnedRuns` above 20, or the first `DOC-SIZE` refusal in a document that holds records) can fire at
+  a lower run count than the design said (Inferred, not measured end to end). The leader decides whether Ruling 251 still holds.
+
+- The refusal at the cap left the saved image byte-equal and emitted `analysis.size` with its pinned-run count.
+
+### Design digits, an observation
+
+Design 7.1 prints the shown dCDi -0.0090154117 and the stored dCDi 0.0090974287. Those come from the unrounded estimator CDi
+(`CL^2 / (pi A)` at CL 0.4212557233), not from its 10-digit print 0.0075314829 (which gives -0.0090154079). The check builds
+the fixture CDi unrounded; with it the checks hold at 1e-9 against the design's figures.
+
+### Older-reader receipt (design 7.3, P-9 shape)
+
+At the base of this branch (`93b5dfde`, which holds the A3d design) `AuthoringSession.cs` line 2254 reads the `analysis` member
+with `Exact(analysisElement, "runs", "polarSamples", "pruned")`, and `Exact` raises `DOC-UNSUPPORTED-FIELD` on any member outside
+its lists (line 2234, `Guard.Require(names.All(allowed.Contains), "DOC-UNSUPPORTED-FIELD")`); both read with `git show
+93b5dfde:src/CfdWorkbench.Core/AuthoringSession.cs`. So an older build refuses a document that carries `discrepancies` (CLI exit
+3) and cannot drop the records on a later save. This is a source receipt; no older binary was run. The forward guard is
+`NativeReader_AnalysisMember_ClosedSet`.
+
+### Copy id mapping (DESIGN.md section 7, rows appended after COPY-521, status proposed)
+
+A3D-COPY-1 -> COPY-522; -2 -> 523; -3 -> 524; -4 (Base run) -> 525; -4 (Compared run) -> 526; -5 -> 527; -6 -> 528; -7 -> 529;
+-8 -> 530; -9 -> 531; -10 -> 532; -11 -> 533; -11b -> 534; -12 -> 535; -13 -> 536; -14 -> 537; -15 -> 538; -16 -> 539; -17 -> 540;
+-18 -> 541; -19 -> 542; -20 -> 543; -21 -> 544; -22 -> 545; -23 -> 546; -24 -> 547; -25 -> 548; -26 -> 549; -27 -> 550 (built in
+A3d-1); -28 -> 551; -29 -> 552. The rows sit at the end of the numeric run, after COPY-521.
+
+### Owner's reading of the `CheckStore` parameter
+
+`CheckStore` gained one parameter, `acceptedOrdinal`, because the orientation check cannot run without the accepted-row ordinal.
+The leader read it as part of Ruling 250 Q4's "one `CheckStore` call", and the Owner replied "no objection" to that reading
+(Ruling 250 Q4; the leader's relay). The `RunRecord.cs` header carries the design 1.8 sentence word for word.
+
+### Deviations, each for the leader
+
+- The save-time report (Ruling 251) is its own event, `analysis.save`, emitted on every save of a document that holds runs. The
+  design says "on the existing `analysis.prune` event"; that event fires only when a prune happens and an existing check reads
+  its outcome `planned`, so the always-on report could not share it. The `DOC-SIZE` refusal in a document with records is
+  `analysis.size`, with `PinnedRuns` and `Records`.
+- The theme row in `ShellWindowTests.cs` (design 7.5 last line) was not added: the theme matrix row set is frozen by
+  `tools/verify-application-adapters.py`, which is not on this track's paths.
+- Four mechanical test-registration edits outside the owned list: the `ANA-CMP-` prefix in the reason-code scan's not-a-cell list
+  (`DxSectionTests.cs`); the Compare tab in the expected tab list (`AnalysisPanelTests.cs`); the two Compare rows in the
+  no-default-gesture exceptions (`ShellModelTests.cs`); the group registrations in `AnalysisChecks.cs` and `WorkbenchTests.cs`.
+- Two cases in `Shell/ShellHost.cs` (`RunCommand` and `CanRun`) run the two command rows; seam request
+  `req-01M5GRSHQ2TACMMFXR569JNTH2` asked for the path, and the stated fallback was taken.
+- `inspect --runs` against a `.cfdw.json` needs the native store, which is macOS-only here; the CLI checks call
+  `Cli.DiscrepancyListing` in process, so they ran on this Windows machine. The end-to-end `inspect` output was not run.
+- "Compare with estimator" evaluates the estimator on the current accepted revision at the base run's operating point and water. For
+  a Historical base run on an older revision the planform may differ, and Compare then blocks on the reference quantities.
+- `WingEstimator.Settings` became public (the controller computes the Current key of an estimator run).

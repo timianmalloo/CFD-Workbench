@@ -2279,7 +2279,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a76f96027dd22fa4c8c9c03ee0b88cedea8ecd973783a673998aacf9bf51f681"
+      "sourceSha256": "fa19d11071a137e6352751d117f313844847f996884ffa79e52a5d48f16b79a1"
     },
     {
       "id": "design-app-shell",
@@ -13010,7 +13010,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f7afe2ee4f36b9f9881ea9661b1b2c7e536c9a22b1998939785a411e738ad8d0"
+      "sourceSha256": "584212eb56fd58f94612e223357fcf87c1710c65bea9bdd2d84cb5fff4d09fa5"
     },
     {
       "id": "proof-abl-measure",
@@ -23527,5 +23527,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "280ccce021f5c0c51e8bb2408720fe4bbac34a5f11afdfa560c0348177c1fe96"
+  "graphSha256": "6803efc96106d6345d50a9b6f27ea487f2ddfc1af8914c69c21c691e329b762c"
 };
