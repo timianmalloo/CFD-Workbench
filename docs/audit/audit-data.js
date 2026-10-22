@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-22T18:38:30Z",
+  "generated": "2026-10-22T19:11:10Z",
   "audit": [
     {
       "actor": null,
@@ -42184,6 +42184,25 @@ window.AUDIT_DATA = {
       "tier": "T1",
       "started_at": "2026-10-22T18:18:29Z",
       "duration_seconds": 1201.0
+    },
+    {
+      "id": "al-01M5JGCFQH3T5THZW77NQECJKY",
+      "shortname": "w2b-mx-r2",
+      "datetime": "2026-10-22T19:11:10Z",
+      "session": "w2b-mx",
+      "prompt": "wave 2 MX repair 2: 32 MB restated in ten design lines, ADR-0011 note links, encode check gated, proof notes",
+      "summary": "B1/B2/N1/N2/N3 done; spec lines reported for amendment.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "started_at": "2026-10-22T19:00:47Z",
+      "duration_seconds": 623.0
     }
   ],
   "changes": [
