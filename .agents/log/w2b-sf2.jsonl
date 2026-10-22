@@ -51,3 +51,4 @@
 {"agent": "w2b-sf2", "at": 1792697529.853687, "kind": "release", "path": "tests/CfdWorkbench.Desktop.Tests/StationDesktopTests.cs", "seq": 51, "session": "w2b-sf2", "wi": "w2b-sf2"}
 {"agent": "w2b-sf2", "at": 1792697530.0139937, "kind": "release", "path": "tests/CfdWorkbench.Desktop.Tests/PlanCanvasStationTests.cs", "seq": 52, "session": "w2b-sf2", "wi": "w2b-sf2"}
 {"agent": "w2b-sf2", "at": 1792697530.172397, "kind": "release", "path": "docs/proof/add-station/sf2.md", "seq": 53, "session": "w2b-sf2", "wi": "w2b-sf2"}
+{"agent": "w2b-sf2", "at": 1792699374.490642, "kind": "session-end", "path": "-", "seq": 54, "session": "w2b-sf2", "wi": "WI-0", "worktree": "CFD-Workbench-w2b-sf2"}
