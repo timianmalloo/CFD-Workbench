@@ -1,0 +1,163 @@
+using CfdWorkbench.Desktop.Shell;
+using Avalonia.Controls;
+using Avalonia.Threading;
+using CfdWorkbench.Core;
+using CfdWorkbench.Desktop.Panes;
+
+namespace CfdWorkbench.Desktop.Tests;
+
+/// <summary>Investigation probe (inv-section-catalog-apply): the real shell route to Replace from catalog, and every source surface after an edit.</summary>
+public static class InvSectionCatalogProbe
+{
+    public static void Run()
+    {
+        DesktopChecks.Check("Probe_RealRoute_ReplaceFromCatalog_Applies", CheckRealRoute);
+        DesktopChecks.Check("Probe_SourceSurfaces_AfterEdit", CheckSourceSurfaces);
+        DesktopChecks.Check("Probe_DisabledRow_RenderedState", CheckDisabledRow);
+        DesktopChecks.Check("Probe_PreviewInternalFault_DialogState", CheckInternalFault);
+    }
+
+    private static void CheckInternalFault()
+    {
+        using var controller = new WorkbenchController(previewGate: _ => throw new InvalidOperationException("probe: fit crashed"));
+        Wait(controller.OpenExampleAsync());
+        Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+        var dialog = new CatalogDialog(controller, controller.OpenCatalog(), schedule: (_, _) => { });
+        dialog.Show();
+        Dispatcher.UIThread.RunJobs();
+        var detail = dialog.FindControl<TextBlock>("DetailLine")!;
+        var replace = dialog.FindControl<Button>("ReplaceButton")!;
+        WaitFor(() => !controller.PreviewPending && controller.PreviewLandings + controller.PreviewDrops > 0);
+        Dispatcher.UIThread.RunJobs();
+        Console.WriteLine($"FAULT after fit crash: detail=\"{detail.Text}\" replaceEnabled={replace.IsEnabled} currentPreview={controller.CurrentPreview is not null} refused={controller.RefusedPreview is not null} fault={controller.PreviewFault?.Code ?? "null"} status=\"{controller.Status}\"");
+        dialog.Close();
+        Dispatcher.UIThread.RunJobs();
+    }
+
+    private static void CheckDisabledRow()
+    {
+        using var controller = new WorkbenchController();
+        Wait(controller.OpenExampleAsync());
+        Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+        var dialog = new CatalogDialog(controller, controller.OpenCatalog(), schedule: (_, _) => { });
+        dialog.Show();
+        Dispatcher.UIThread.RunJobs();
+        var list = dialog.FindControl<ListBox>("SectionList")!;
+        var detail = dialog.FindControl<TextBlock>("DetailLine")!;
+        var replace = dialog.FindControl<Button>("ReplaceButton")!;
+        int total = 0, choosable = 0;
+        foreach (var item in list.Items.OfType<ListBoxItem>().Where(item => item.Tag is CatalogChoice))
+        {
+            total++;
+            bool canChoose = item.Tag is CatalogChoice.Catalog { Entry.DisabledReason: null } or CatalogChoice.Mine;
+            if (canChoose) choosable++;
+            string text = (item.Content as TextBlock)?.Text ?? item.Content?.ToString() ?? "";
+            Console.WriteLine($"ROW choosable={canChoose} enabled={item.IsEnabled} opacity={item.Opacity} classes=[{string.Join(' ', item.Classes)}] foreground={(item.Foreground is null ? "inherit" : item.Foreground.ToString())} text=\"{text}\"");
+        }
+        Console.WriteLine($"ROW TOTAL rows={total} choosable={choosable}");
+        var pending = list.Items.OfType<ListBoxItem>().First(item => item.Tag is CatalogChoice.Catalog { Entry.Designation: "NACA 63-412" });
+        list.SelectedItem = pending;
+        Dispatcher.UIThread.RunJobs();
+        Console.WriteLine($"ROW selected NACA 63-412: replaceEnabled={replace.IsEnabled} detail=\"{detail.Text}\" previewFault={controller.PreviewFault?.Code ?? "none"} status=\"{controller.Status}\"");
+        replace.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+        Dispatcher.UIThread.RunJobs();
+        Console.WriteLine($"ROW after Replace click on NACA 63-412: visible={dialog.IsVisible} cursor={controller.Section!.Draft.Cursor} detail=\"{detail.Text}\"");
+        dialog.Close();
+        Dispatcher.UIThread.RunJobs();
+    }
+
+    private static void CheckRealRoute()
+    {
+        using var controller = new WorkbenchController();
+        var host = new ShellHost(controller);
+        var window = new Window { Content = host, Width = 1024, Height = 700 };
+        window.Show();
+        Dispatcher.UIThread.RunJobs();
+        Wait(controller.OpenExampleAsync());
+        Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+        Dispatcher.UIThread.RunJobs();
+        var run = host.RunCommand("section.replace-catalog");
+        CatalogDialog? dialog = null;
+        WaitFor(() => (dialog = window.OwnedWindows.OfType<CatalogDialog>().FirstOrDefault()) is not null);
+        var sheet = dialog!;
+        var list = sheet.FindControl<ListBox>("SectionList")!;
+        var detail = sheet.FindControl<TextBlock>("DetailLine")!;
+        var replace = sheet.FindControl<Button>("ReplaceButton")!;
+        var row = list.Items.OfType<ListBoxItem>().First(item => item.Tag is CatalogChoice.Catalog { Entry.Designation: "NACA 0012" });
+        list.SelectedItem = row;
+        WaitFor(() => controller.CurrentPreview is not null || controller.PreviewFault is not null);
+        Dispatcher.UIThread.RunJobs();
+        Console.WriteLine($"PROBE after-select enabled={replace.IsEnabled} fault={controller.PreviewFault?.Code ?? "none"} detail={detail.Text}");
+        replace.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+        var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(10);
+        while (sheet.IsVisible && DateTime.UtcNow < deadline) { Dispatcher.UIThread.RunJobs(); Thread.Sleep(1); }
+        Dispatcher.UIThread.RunJobs();
+        var mode = controller.Section;
+        Console.WriteLine($"PROBE after-click visible={sheet.IsVisible} cursor={mode?.Draft.Cursor} steps={mode?.Draft.StepCount} chip={controller.SourceChip} status={host.StatusStrip.Text} detail={detail.Text} run={run.Status}");
+        if (sheet.IsVisible) sheet.Close();
+        Dispatcher.UIThread.RunJobs();
+        window.Close();
+        if (mode?.Draft.Cursor != 1) throw new InvalidOperationException("Replace did not apply through the real route");
+    }
+
+    private static void CheckSourceSurfaces()
+    {
+        using var controller = new WorkbenchController();
+        var host = new ShellHost(controller);
+        var window = new Window { Content = host, Width = 1024, Height = 700 };
+        window.Show();
+        Dispatcher.UIThread.RunJobs();
+        Wait(controller.OpenExampleAsync());
+        Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+        string profile = controller.Inspection!.Authored.Assignments[0].ProfileName;
+        Report("example", controller, host, profile);
+        var entry = Catalog.Load().Single(item => item.Id == "naca-0012" && item.Coordinates is not null);
+        controller.PreviewReplace(new CatalogChoice.Catalog(entry));
+        WaitFor(() => controller.CurrentPreview is not null);
+        Wait(controller.ApplyReplaceAsync(ReplaceScope.Draft));
+        Report("replaced", controller, host, profile);
+        var point = controller.SectionCurve(SurfaceSide.Upper)!.Points.Single(item => item.Id == "cv-3");
+        Wait(controller.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, point.Id, point.SpanMeters, point.Ordinate + .01)));
+        Report("edited", controller, host, profile);
+        window.Close();
+    }
+
+    private static void Report(string stage, WorkbenchController controller, ShellHost host, string profile)
+    {
+        Dispatcher.UIThread.RunJobs();
+        byte[] bytes = controller.Section!.Draft.Bytes.ToArray();
+        string raw = FoilSource.Parse(bytes).Profile(profile)?.Provenance ?? "<none>";
+        Console.WriteLine($"PROBE {stage} provenance=\"{raw}\"");
+        Console.WriteLine($"PROBE {stage} chip=\"{controller.SourceChip}\"");
+        Console.WriteLine($"PROBE {stage} stationSource=\"{controller.StationSource(0)}\"");
+        Console.WriteLine($"PROBE {stage} browserRow=\"{BrowserPane.StationSourceText(profile, bytes)}\"");
+        Console.WriteLine($"PROBE {stage} propertiesSourceDisplay=\"{PropertiesView.SourceDisplay(bytes, profile)}\"");
+        var browserList = host.Browser.FindControl<ListBox>("StationList");
+        string rows = browserList is null ? "<no StationList>" : string.Join(" | ", (browserList.ItemsSource ?? browserList.Items).OfType<ListBoxItem>().Select(item => item.Content?.ToString()));
+        Console.WriteLine($"PROBE {stage} browserPaneRows=\"{rows}\"");
+    }
+
+    private static void WaitFor(Func<bool> condition)
+    {
+        var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(20);
+        while (!condition())
+        {
+            if (DateTime.UtcNow >= deadline) throw new TimeoutException("probe state did not settle");
+            Dispatcher.UIThread.RunJobs();
+            Thread.Sleep(1);
+        }
+        Dispatcher.UIThread.RunJobs();
+    }
+
+    private static void Wait(Task task)
+    {
+        var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(20);
+        while (!task.IsCompleted)
+        {
+            if (DateTime.UtcNow >= deadline) throw new TimeoutException("probe wait timed out");
+            Dispatcher.UIThread.RunJobs();
+            Thread.Sleep(1);
+        }
+        task.GetAwaiter().GetResult();
+    }
+}

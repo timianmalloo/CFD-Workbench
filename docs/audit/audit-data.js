@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-23T11:55:08Z",
+  "generated": "2026-10-23T23:14:58Z",
   "audit": [
     {
       "actor": null,
@@ -43077,6 +43077,52 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M5NG0NKNN1R7HAMGTG653TB6",
+      "shortname": "i just did a smoke test of the app",
+      "datetime": "2026-10-23T23:02:26Z",
+      "session": "prompt-log",
+      "prompt": "i just did a smoke test of the app\n\n/investigate \n\nwhen i am in the section view and i attempt to change a section to one from the catalog, i can select a foil from the catalog but i cannot apply it\n\nalso... when i edit an existing section based on a given foil section (e.g. the default naca foil section) it should no longer be listed as the original foil section - it should be \"custom\"",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M5NGQKJ8JKAPNHXKTHF9QSZ2",
+      "shortname": "investigate-section-catalog-apply",
+      "datetime": "2026-10-23T23:14:58Z",
+      "session": "inv-section-catalog-apply",
+      "prompt": "i just did a smoke test of the app\n\n/investigate\n\nwhen i am in the section view and i attempt to change a section to one from the catalog, i can select a foil from the catalog but i cannot apply it\n\nalso... when i edit an existing section based on a given foil section (e.g. the default naca foil section) it should no longer be listed as the original foil section - it should be \"custom\"",
+      "summary": "Verified by Desktop-harness probes: the catalog sheet renders its 16 rows without coordinates exactly like the 3 choosable rows (automation state only; the mockup mutes the name); a non-contract fault in the fit leaves the sheet on Fitting... with no reason; Enter during the fit is dropped silently; the real route applies every choosable row. Defect 2: BrowserPane.StationSourceText and the Properties section title compose the source text from the origin alone and drop the modified flag the chip and station card carry. Classes STATE-IN-AUTOMATION-TREE-ONLY, DISPLAY-QUANTITY-COMPOSED-PER-SURFACE, LOADING-STATE-WITH-SILENT-BRANCHES registered. Four repair phases proposed; DR-INV-1 (wording: Modified from vs Custom) and DR-INV-2 (non-choosable row appearance) for the operator. Test Architect adversary: PASS-WITH-CONDITIONS, conditions folded in. Stopped at the report.",
+      "kind": "skill",
+      "skill": "investigate",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/investigations/section-catalog-apply.md",
+        "docs/proof/section-catalog-apply/README.md",
+        "docs/lessons/defect-classes.md",
+        "docs/notes/note-20261023-smoke-test-row-assumption.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Verified root causes for the two section-view defects from the smoke test (catalog row selectable but not applicable; edited catalog section still listed as the original), the failure classes, a phased repair plan; stop for review",
+      "done_when": "docs/investigations/section-catalog-apply.md written with frontmatter, three classes registered in docs/lessons/defect-classes.md, proof folder with the reproducing probes, decision note, index derived, audit entry appended, no implementation",
+      "tier": "T1",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      }
     }
   ],
   "changes": [

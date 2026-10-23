@@ -1,0 +1,74 @@
+using Avalonia.Threading;
+using CfdWorkbench.Core;
+using System.Globalization;
+
+namespace CfdWorkbench.Desktop.Tests;
+
+/// <summary>Investigation probe (inv-section-catalog-apply): what every choosable catalog entry does on the Example, shared and independent.</summary>
+public static class InvCatalogSweepProbe
+{
+    public static void Run()
+    {
+        DesktopChecks.Check("Probe_CatalogSweep_ExampleShared", () => Sweep(false));
+        DesktopChecks.Check("Probe_CatalogSweep_ExampleIndependent", () => Sweep(true));
+    }
+
+    private static void Sweep(bool makeUnique)
+    {
+        using var controller = new WorkbenchController();
+        Wait(controller.OpenExampleAsync());
+        Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+        if (makeUnique) Wait(controller.ApplySectionStepAsync(new SectionStep.MakeUnique()));
+        int landed = 0, refused = 0, stuck = 0, chain = 0;
+        foreach (var entry in Catalog.Load().Where(item => item.Coordinates is not null && item.DisabledReason is null))
+        {
+            int before = controller.PreviewLandings + controller.PreviewDrops;
+            controller.PreviewReplace(new CatalogChoice.Catalog(entry));
+            WaitFor(() => !controller.PreviewPending && controller.PreviewLandings + controller.PreviewDrops > before);
+            string outcome;
+            if (controller.CurrentPreview is { } preview)
+            {
+                landed++;
+                outcome = string.Create(CultureInfo.InvariantCulture, $"LANDED {preview.FitResidual * preview.AcceptanceChord * 1e6:F2} um");
+            }
+            else if (controller.PreviewFault is { } fault)
+            {
+                refused++;
+                bool offersChain = controller.RefusedPreview is { RefusalCode: "CAT-SPACING", BlendChain.Count: > 0 };
+                if (offersChain) chain++;
+                outcome = $"REFUSED {fault.Code} chain={offersChain} refusedPreview={(controller.RefusedPreview is not null)} :: {fault.Reason}";
+            }
+            else
+            {
+                stuck++;
+                outcome = "STUCK-FITTING (no preview, no refused preview, no fault)";
+            }
+            Console.WriteLine($"SWEEP {(makeUnique ? "independent" : "shared")} {entry.Id} [{entry.Designation}] {outcome}");
+        }
+        Console.WriteLine($"SWEEP {(makeUnique ? "independent" : "shared")} TOTAL landed={landed} refused={refused} chainOffered={chain} stuck={stuck}");
+    }
+
+    private static void WaitFor(Func<bool> condition)
+    {
+        var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(30);
+        while (!condition())
+        {
+            if (DateTime.UtcNow >= deadline) throw new TimeoutException("sweep state did not settle");
+            Dispatcher.UIThread.RunJobs();
+            Thread.Sleep(1);
+        }
+        Dispatcher.UIThread.RunJobs();
+    }
+
+    private static void Wait(Task task)
+    {
+        var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(20);
+        while (!task.IsCompleted)
+        {
+            if (DateTime.UtcNow >= deadline) throw new TimeoutException("sweep wait timed out");
+            Dispatcher.UIThread.RunJobs();
+            Thread.Sleep(1);
+        }
+        task.GetAwaiter().GetResult();
+    }
+}
