@@ -1,1 +1,2 @@
 {"agent": "inv-join-dirty-primary", "at": 1792714707.4575775, "kind": "session-start", "path": "-", "seq": 1, "session": "inv-join-dirty-primary", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-inv-join-dirty-primary"}
+{"agent": "inv-join-dirty-primary", "at": 1792715576.5875463, "kind": "session-end", "path": "-", "seq": 2, "session": "inv-join-dirty-primary", "wi": "WI-0", "worktree": "CFD-Workbench-inv-join-dirty-primary"}
