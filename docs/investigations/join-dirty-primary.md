@@ -46,7 +46,10 @@ and exits 1 with an empty conflict list. Nothing was merged. The message calls i
 | The same, after `git commit` of the local line | the write committed first | the merge proceeds to its content stage (a content conflict in the synthetic repo, which has no union driver; the real repo's driver resolves the register) |
 | main modifies `README.md` uncommitted; the branch does not touch it; `git merge --no-ff track` | an unrelated dirty path | no refusal; the merge proceeds, and the dirty path stays uncommitted until the join's step 7 `git add -A` sweeps it into the join commit |
 
-So the uncommitted write on a path the branch changes is **sufficient** for the refusal, committing it first is **necessary** for the merge to start, and the sweep is the other face of the same state.
+So the uncommitted write on a path the branch changes is **sufficient** for the refusal; clearing it from the working
+tree first (a commit, or a stash) is what lets the merge start; and the sweep is the other face of the same state. Git
+also refuses for a staged change on any path and for an untracked file at a path the branch adds (the review's probe),
+which the fence covers as well.
 
 ## 3. Timeline (Verified from the session's logs)
 
@@ -78,7 +81,7 @@ So the uncommitted write on a path the branch changes is **sufficient** for the 
 
 | Hypothesis | Mechanism | Status |
 |---|---|---|
-| H1 git's protection of uncommitted changes on a path the merge updates | the proximate mechanism | **Verified** (section 2), necessary and sufficient for the refusal |
+| H1 git's protection of uncommitted changes on a path the merge updates | the proximate mechanism | **Verified** (section 2): sufficient for the refusal, and the refusal lifts once the working tree is clear of it |
 | H2 the union merge driver should have resolved it | a driver acting on the working tree | **Refuted**: drivers act on committed trees; the refusal precedes any driver |
 | H3 the Owner wrote into the wrong checkout | a seat placement error | **Refuted**: the Owner wrote where the practice puts rulings (the primary, committed on main after the gates); the missing step is the commit before the join, not the place |
 | H4 the join has no fence for the tree (the structural cause) | a missing guard: a leader fence exists, a tree fence does not, and step 7 stages everything | **Verified**: the fence added at step 0b refuses the state, observed red on the unfenced join (section 7) |
@@ -93,14 +96,19 @@ lived only in the operator's sequencing, and a write made in the same turn as th
 
 ## 7. The fix (on branch `inv-join-dirty-primary`)
 
-- **`conductor-join.py` step 0b, `dirty_fence`:** before the merge, every modified or staged tracked path outside
-  `.agents/log/` refuses the join with `[COORD-JOIN-DIRTY-PRIMARY]`, the path list (marking which paths the branch also
-  changes), the remedy (commit under the session that wrote it, or stash), exit 12 (`EXIT_DIRTY`), and the change left
-  in place. `--continue` skips it: a hand-resolved merge is already in progress.
-- **Self-test cases (d) and (e):** an uncommitted change to `README.md` refuses at step 0b with the merge not run and
-  the change kept; a modified session log alone still joins. Observed **red** with the fence call disabled
-  ("an uncommitted change in the checkout did not stop at the dirty-primary fence (exit 0)") and **green** with it
-  restored (the self-test's last line names both cases).
+- **`conductor-join.py` step 0b, `dirty_fence`:** before the merge, every modified, staged or untracked path outside
+  `.agents/log/` refuses the join with `[COORD-JOIN-DIRTY-PRIMARY]`, the path list (each path's state and whether the
+  branch also changes it; paths read with `-z`, so a space or a non-ASCII name is one entry), the remedy (commit under
+  the session that wrote it, or stash), exit 12 (`EXIT_DIRTY`), and the change left in place. `--continue` skips it: a
+  hand-resolved merge is already in progress.
+- **Self-test cases (d), (f), (g) and (e):** a modified `README.md`, an untracked `docs/new note.md`, and a staged
+  change to a path the branch also changes each refuse at step 0b with the merge not run and the change kept, named
+  with their state; a modified session log alone still joins. Observed **red** with the fence call disabled (each
+  "did not stop at the dirty-primary fence (exit 0)") and **green** with it restored. The red run also showed the
+  sweep directly: the unfenced join committed case (d)'s modified file and case (f)'s untracked file under the join's
+  name, and that swept content then made the next merge conflict, which is why the fixture settles the index after
+  every case. The review's own probes also showed the exemption guarded (removing it turns (e) red) and the staged
+  case covered.
 - **The writers' note:** `coord-decide.py rule` and `prompt-log.py add` print one stderr line that the write is
   uncommitted and names the fence.
 - **Blast radius:** a join now refuses in a state where it previously either refused with a misleading message or
@@ -132,7 +140,12 @@ lived only in the operator's sequencing, and a write made in the same turn as th
 ## 10. Residual risk
 
 - The fence reads the tree once, before the merge. A write landing between step 0b and step 7 (another session acting
-  in the primary during the join) is still swept; R2 closes that.
+  in the primary during the join) is still swept; R2 closes that. A `--continue` run skips the fence, so an unrelated
+  change present at that point is swept too (Inferred, not run); R2 covers it the same way, and R2 should also check
+  after the join commit that `git status --porcelain` is empty outside `.agents/log/`.
+- Git's own refusal at step 1 is still reported by the join as "the merge has conflicts" with an empty list when it
+  happens; the fence makes that path unreachable from a dirty tree, but a refusal for another reason would still read
+  as a conflict. R2 tells the two apart at step 1.
 - The fence exempts `.agents/log/` because the join's chore commit carries session logs by design; a register that
   moves under that folder would lose the fence.
 

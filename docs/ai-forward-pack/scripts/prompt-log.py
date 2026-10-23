@@ -299,6 +299,8 @@ def cmd_add(args):
     append_entry(store, entry)
     if not args.quiet:
         print(f"logged: {entry['label']}  ·  {_fmt_time(entry['ts'])}  ({entry['id']})")
+        print("note: the store is written but not committed; a join refuses while it sits uncommitted in the "
+              "primary (COORD-JOIN-DIRTY-PRIMARY) - commit it before the next conductor-join", file=sys.stderr)
     return 0
 
 

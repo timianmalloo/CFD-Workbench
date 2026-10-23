@@ -238,17 +238,22 @@ def dirty_fence(j: Join, branch: str, log) -> None:
     because every session appends to its own file and the join's own chore commit carries them.
     The change is never stashed or committed here: whoever wrote it commits it under their name.
     """
-    unstaged = j.git("diff", "--name-only").stdout.split()
-    staged = j.git("diff", "--name-only", "--cached").stdout.split()
-    dirty = sorted({p for p in unstaged + staged if not p.startswith(".agents/log/")})
-    on_branch = set(j.git("diff", "--name-only", "HEAD..." + branch).stdout.split()) if branch else set()
+    def paths(*git_args) -> set:
+        # -z: one NUL per path, so a path with a space or a non-ASCII name is one entry, never quoted.
+        return {p for p in j.git(*git_args, "-z").stdout.split("\0") if p}
+    unstaged = paths("diff", "--name-only")
+    staged = paths("diff", "--name-only", "--cached")
+    untracked = paths("ls-files", "--others", "--exclude-standard")
+    dirty = sorted({p for p in unstaged | staged | untracked if not p.startswith(".agents/log/")})
+    on_branch = paths("diff", "--name-only", "HEAD..." + branch) if branch else set()
     log("\n== step 0b: dirty-primary fence")
     if not dirty:
-        log("   | no uncommitted change to a tracked path outside .agents/log/")
+        log("   | no uncommitted or untracked path outside .agents/log/")
         return
     for path in dirty:
-        log("   - {0}{1}".format(path, "  (the branch also changes it: the merge would refuse)"
-                                 if path in on_branch else "  (step 7 would sweep it into the join commit)"))
+        kind = "untracked" if path in untracked else "staged" if path in staged else "modified"
+        log("   - {0}  ({1}; {2})".format(path, kind, "the branch also changes it: the merge would refuse"
+                                           if path in on_branch else "step 7 would sweep it into the join commit"))
     log("\nconductor-join: step 0b (dirty-primary fence) refused - {0} uncommitted change(s) in this "
         "checkout [COORD-JOIN-DIRTY-PRIMARY]; commit them first under the session that wrote them "
         "(a ruling, a logged prompt or an audit append written into the primary is committed before "
@@ -471,6 +476,12 @@ def self_test() -> int:
             if "recount_seconds=" not in entry.get("summary", ""):
                 problems.append("the join entry does not record recount_seconds")
 
+        def settle():
+            # An unfenced join (the red state) sweeps the case's change into its commit or leaves a half-started
+            # merge; clear both so the next case starts from a clean index and the run reports instead of raising.
+            subprocess.run(["git", "merge", "--abort"], cwd=str(repo), capture_output=True)
+            git(repo, "reset", "-q", "--hard", "HEAD")
+
         # (d) the dirty-primary fence (investigation join-dirty-primary): an uncommitted change to a
         # tracked path in the checkout - refused at step 0b with EXIT_DIRTY, NO merge, the change kept.
         git(repo, "checkout", "-q", "-b", "feature/dirty")
@@ -494,11 +505,50 @@ def self_test() -> int:
                             "fence (exit {0})".format(status))
         if git(repo, "rev-parse", "HEAD").strip() != before:
             problems.append("the merge ran although the dirty-primary fence refused")
-        if not any("COORD-JOIN-DIRTY-PRIMARY" in line and "README.md" in "\n".join(lines) for line in lines):
-            problems.append("the dirty-primary refusal is not named with its path")
+        if not any("COORD-JOIN-DIRTY-PRIMARY" in line for line in lines):
+            problems.append("the dirty-primary refusal is not named")
+        if not any(line.startswith("   - README.md  (modified; step 7 would sweep") for line in lines):
+            problems.append("the dirty-primary fence did not list README.md as a modified path the join would sweep")
         if "an uncommitted register write" not in (repo / "README.md").read_text(encoding="utf-8"):
             problems.append("the dirty-primary fence changed or dropped the uncommitted change")
-        git(repo, "checkout", "--", "README.md")
+        settle()
+        # (f) an untracked file is refused too: step 7's `git add -A` would commit it under the join's name.
+        (repo / "docs" / "new note.md").write_text("an uncommitted note\n", encoding="utf-8", newline="\n")
+        lines = []
+        try:
+            status = join(args, repo, contract, log=lines.append)
+        except SystemExit as exc:
+            status = exc.code
+        if status != EXIT_DIRTY:
+            problems.append("an untracked file in the checkout did not stop at the dirty-primary fence (exit {0})".format(status))
+        if not any(line.startswith("   - docs/new note.md  (untracked;") for line in lines):
+            problems.append("the dirty-primary fence did not list the untracked path as one entry")
+        if (repo / "docs" / "new note.md").exists():
+            (repo / "docs" / "new note.md").unlink()
+        settle()
+        # (g) the incident's own shape: a staged change to a path the branch also changes - refused at step 0b,
+        # named as such, and the merge never ran (git would have refused it with a conflict-shaped message).
+        git(repo, "checkout", "-q", "feature/dirty")
+        (repo / "README.md").write_text("base\nchanged on the branch\n", encoding="utf-8", newline="\n")
+        git(repo, "add", "-A")
+        git(repo, "commit", "-qm", "the branch changes README")
+        git(repo, "checkout", "-q", "main")
+        (repo / "README.md").write_text("base\na staged register write\n", encoding="utf-8", newline="\n")
+        git(repo, "add", "README.md")
+        before = git(repo, "rev-parse", "HEAD").strip()
+        lines = []
+        try:
+            status = join(args, repo, contract, log=lines.append)
+        except SystemExit as exc:
+            status = exc.code
+        if status != EXIT_DIRTY:
+            problems.append("a staged change to a path the branch also changes did not stop at the dirty-primary "
+                            "fence (exit {0})".format(status))
+        if not any(line.startswith("   - README.md  (staged; the branch also changes it") for line in lines):
+            problems.append("the fence did not name the staged path as one the branch also changes")
+        if git(repo, "rev-parse", "HEAD").strip() != before:
+            problems.append("the merge ran although the dirty-primary fence refused the staged change")
+        settle()
         # (e) a session log is exempt: a modified .agents/log/ file alone passes the fence and the join lands.
         (repo / ".agents" / "log").mkdir(parents=True, exist_ok=True)
         (repo / ".agents" / "log" / "selftest.jsonl").write_text("{}\n", encoding="utf-8", newline="\n")
@@ -517,6 +567,7 @@ def self_test() -> int:
         if status != 0:
             problems.append("a modified session log alone stopped the join (exit {0}): {1}".format(
                 status, "\n".join(lines[-6:])))
+        settle()
 
         # (b) the hand-resolved file carrying a marker
         git(repo, "checkout", "-q", "-b", "feature/markers")
