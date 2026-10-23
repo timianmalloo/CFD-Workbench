@@ -81,6 +81,13 @@ SKILL = "execute-with-coordination"
 # spec-leader-designation US-7: the fence is a named step with its own exit code. Steps are
 # 1..10 and 0 is success, so the fence's refusal cannot be "step 0" as a status.
 EXIT_FENCE = 11
+# Step 0b (investigation join-dirty-primary): an uncommitted change to a tracked path outside
+# .agents/log/ in the checkout the join runs in. Git refuses the merge when the branch touches the
+# same path ("Your local changes ... would be overwritten by merge"), and step 7's `git add -A`
+# would sweep every other such change into the join commit under the join's name. Both are the
+# same defect: a register write (a ruling, a logged prompt, an audit append) left uncommitted in
+# the primary. The fence names it before step 1 and leaves the change in place.
+EXIT_DIRTY = 12
 
 
 def _sibling(name: str) -> str:
@@ -225,6 +232,30 @@ def leader_fence(j: Join, given: "int | None", log) -> None:
         raise SystemExit(EXIT_FENCE)
 
 
+def dirty_fence(j: Join, branch: str, log) -> None:
+    """Step 0b - a tracked path modified or staged in this checkout, outside .agents/log/, stops
+    the join before the merge with EXIT_DIRTY and the list of paths. Session logs are exempt
+    because every session appends to its own file and the join's own chore commit carries them.
+    The change is never stashed or committed here: whoever wrote it commits it under their name.
+    """
+    unstaged = j.git("diff", "--name-only").stdout.split()
+    staged = j.git("diff", "--name-only", "--cached").stdout.split()
+    dirty = sorted({p for p in unstaged + staged if not p.startswith(".agents/log/")})
+    on_branch = set(j.git("diff", "--name-only", "HEAD..." + branch).stdout.split()) if branch else set()
+    log("\n== step 0b: dirty-primary fence")
+    if not dirty:
+        log("   | no uncommitted change to a tracked path outside .agents/log/")
+        return
+    for path in dirty:
+        log("   - {0}{1}".format(path, "  (the branch also changes it: the merge would refuse)"
+                                 if path in on_branch else "  (step 7 would sweep it into the join commit)"))
+    log("\nconductor-join: step 0b (dirty-primary fence) refused - {0} uncommitted change(s) in this "
+        "checkout [COORD-JOIN-DIRTY-PRIMARY]; commit them first under the session that wrote them "
+        "(a ruling, a logged prompt or an audit append written into the primary is committed before "
+        "any join starts), or stash them; nothing was changed (exit {1}).".format(len(dirty), EXIT_DIRTY))
+    raise SystemExit(EXIT_DIRTY)
+
+
 def join(args, root: Path, contract: dict, log=print) -> int:
     env = dict(os.environ)
     env.setdefault("PYTHONIOENCODING", "utf-8")
@@ -239,6 +270,8 @@ def join(args, root: Path, contract: dict, log=print) -> int:
         return 2
 
     leader_fence(j, getattr(args, "epoch", None), log)
+    if not args.cont:
+        dirty_fence(j, args.branch, log)
 
     trailer = ""
     trailer_file = args.trailer_file or contract.get("trailer_file")
@@ -438,6 +471,53 @@ def self_test() -> int:
             if "recount_seconds=" not in entry.get("summary", ""):
                 problems.append("the join entry does not record recount_seconds")
 
+        # (d) the dirty-primary fence (investigation join-dirty-primary): an uncommitted change to a
+        # tracked path in the checkout - refused at step 0b with EXIT_DIRTY, NO merge, the change kept.
+        git(repo, "checkout", "-q", "-b", "feature/dirty")
+        (repo / "dirty.txt").write_text("branch work\n", encoding="utf-8", newline="\n")
+        git(repo, "add", "-A")
+        git(repo, "commit", "-qm", "work while the primary is dirty")
+        git(repo, "checkout", "-q", "main")
+        (repo / "README.md").write_text("base\nan uncommitted register write\n", encoding="utf-8", newline="\n")
+        before = git(repo, "rev-parse", "HEAD").strip()
+        lines = []
+        args = _parser().parse_args(["feature/dirty", "--title", "merge dirty", "--audit-shortname",
+                                     "join-dirty", "--audit-summary", "s", "--audit-goal", "g",
+                                     "--audit-done-when", "d", "--no-push", "--docs-only",
+                                     "--join", str(repo / "join.json"), "--session", "selftest"])
+        try:
+            status = join(args, repo, contract, log=lines.append)
+        except SystemExit as exc:
+            status = exc.code
+        if status != EXIT_DIRTY:
+            problems.append("an uncommitted change in the checkout did not stop at the dirty-primary "
+                            "fence (exit {0})".format(status))
+        if git(repo, "rev-parse", "HEAD").strip() != before:
+            problems.append("the merge ran although the dirty-primary fence refused")
+        if not any("COORD-JOIN-DIRTY-PRIMARY" in line and "README.md" in "\n".join(lines) for line in lines):
+            problems.append("the dirty-primary refusal is not named with its path")
+        if "an uncommitted register write" not in (repo / "README.md").read_text(encoding="utf-8"):
+            problems.append("the dirty-primary fence changed or dropped the uncommitted change")
+        git(repo, "checkout", "--", "README.md")
+        # (e) a session log is exempt: a modified .agents/log/ file alone passes the fence and the join lands.
+        (repo / ".agents" / "log").mkdir(parents=True, exist_ok=True)
+        (repo / ".agents" / "log" / "selftest.jsonl").write_text("{}\n", encoding="utf-8", newline="\n")
+        git(repo, "add", "-A")
+        git(repo, "commit", "-qm", "a session log")
+        (repo / ".agents" / "log" / "selftest.jsonl").write_text("{}\n{}\n", encoding="utf-8", newline="\n")
+        lines = []
+        args = _parser().parse_args(["feature/dirty", "--title", "merge dirty", "--audit-shortname",
+                                     "join-dirty", "--audit-summary", "s", "--audit-goal", "g",
+                                     "--audit-done-when", "d", "--no-push", "--docs-only",
+                                     "--join", str(repo / "join.json"), "--session", "selftest"])
+        try:
+            status = join(args, repo, contract, log=lines.append)
+        except SystemExit as exc:
+            status = exc.code
+        if status != 0:
+            problems.append("a modified session log alone stopped the join (exit {0}): {1}".format(
+                status, "\n".join(lines[-6:])))
+
         # (b) the hand-resolved file carrying a marker
         git(repo, "checkout", "-q", "-b", "feature/markers")
         (repo / "resolved-by-hand.md").write_text(
@@ -501,7 +581,8 @@ def self_test() -> int:
         return 1
     print("conductor-join --self-test: OK - Windows .sh command resolution rejects WindowsApps aliases; "
           "nonzero child status stops its join step; a clean join completes with a measured T1 entry; "
-          "conflict markers and stale epochs stop before the join commit")
+          "conflict markers and stale epochs stop before the join commit; an uncommitted change in the "
+          "checkout stops at the dirty-primary fence and a session log alone does not")
     return 0
 
 

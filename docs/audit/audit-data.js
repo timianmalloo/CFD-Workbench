@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-23T00:15:09Z",
+  "generated": "2026-10-23T00:22:31Z",
   "audit": [
     {
       "actor": null,
@@ -42998,6 +42998,28 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M5K26JPXB02VTMCW2AYXFEJR",
+      "shortname": "investigate-join-dirty-primary",
+      "datetime": "2026-10-23T00:22:31Z",
+      "session": "pc-laptop-leader",
+      "prompt": "commit and push all then /investigate  and fic the issue with the mechanic that bit twice today",
+      "summary": "Root cause verified: conductor-join assumes a clean primary and never checks it; a register write left uncommitted there (a ruling by coord-decide rule, a logged prompt by prompt-log add, an audit append) makes git refuse the merge when the branch touches the path (sufficient: a synthetic repo refused with exit 2; necessary: committing first lets the merge proceed) and would be swept into the join commit by step 7's git add -A when it does not. Fix: a step-0b dirty-primary fence in conductor-join (COORD-JOIN-DIRTY-PRIMARY, exit 12, the change left in place, session logs exempt), self-test cases (d) and (e) observed red with the fence disabled and green with it, a stderr note from coord-decide rule and prompt-log add; the class REGISTER-WRITE-UNCOMMITTED-BEFORE-JOIN registered; siblings ruled out by grep; follow-up R2: step 7 stages only what the join produced.",
+      "kind": "skill",
+      "skill": "investigate",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/investigations/join-dirty-primary.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "find and fix the cause of the two join refusals after register writes into the primary",
+      "done_when": "the fence on main with its self-test red then green, the class registered, the report at its gate",
+      "tier": "T1",
+      "fan_out": 1
     }
   ],
   "changes": [
