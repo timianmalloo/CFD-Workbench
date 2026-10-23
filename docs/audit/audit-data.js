@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-23T00:32:32Z",
+  "generated": "2026-10-23T11:55:08Z",
   "audit": [
     {
       "actor": null,
@@ -43062,6 +43062,21 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-23T00:32:08Z",
       "duration_seconds": 24.0
+    },
+    {
+      "id": "al-01M5M9TSEQMMS1XTPMX5ZC18G9",
+      "shortname": "i need to shut down... lets get to a clean slate and have a record of ne…",
+      "datetime": "2026-10-23T11:55:08Z",
+      "session": "prompt-log",
+      "prompt": "i need to shut down... lets get to a clean slate and have a record of next steps so when i restart we can continue",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
     }
   ],
   "changes": [
