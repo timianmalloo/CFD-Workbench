@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-23T00:23:38Z",
+  "generated": "2026-10-23T00:32:32Z",
   "audit": [
     {
       "actor": null,
@@ -42958,12 +42958,91 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M5JZVZE171DJQ2BAG4RRWEQ5",
-      "shortname": "join-wave2-operator-decisions",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-22T23:41:46Z",
-      "session": "pc-laptop-leader",
+      "done_when": "merged on main with check-docs and the ten gates green",
+      "duration_seconds": 21.0,
+      "fan_out": 0,
+      "goal": "record the operator's decisions on the wave-2 close",
+      "id": "al-01M5JZVZE171DJQ2BAG4RRWEQ5",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of wave2-operator-decisions into main",
+      "session": "pc-laptop-leader",
+      "shortname": "join-wave2-operator-decisions",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-22T23:41:25Z",
       "summary": "docs-only join: COPY-642 to 646 approved by the operator, the yes on the dimensional deltas recorded in the plan record recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "datetime": "2026-10-23T00:15:09Z",
+      "id": "al-01M5K1S3BVYTMHYY2MW95TVSMX",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "commit and push all then /investigate  and fic the issue with the mechanic that bit twice today",
+      "session": "prompt-log",
+      "shortname": "commit and push all then /investigate  and fic the issue with the mechan…",
+      "skill": null,
+      "summary": "prompt logged for reuse",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "datetime": "2026-10-23T00:23:38Z",
+      "id": "al-01M5K28MDMG0YEVQ2BSP223MCR",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "join it once the review clears and push",
+      "session": "prompt-log",
+      "shortname": "join it once the review clears and push",
+      "skill": null,
+      "summary": "prompt logged for reuse",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/investigations/join-dirty-primary.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-23T00:22:31Z",
+      "done_when": "the fence on main with its self-test red then green, the class registered, the report at its gate",
+      "fan_out": 1,
+      "goal": "find and fix the cause of the two join refusals after register writes into the primary",
+      "id": "al-01M5K26JPXB02VTMCW2AYXFEJR",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "commit and push all then /investigate  and fic the issue with the mechanic that bit twice today",
+      "session": "pc-laptop-leader",
+      "shortname": "investigate-join-dirty-primary",
+      "skill": "investigate",
+      "summary": "Root cause verified: conductor-join assumes a clean primary and never checks it; a register write left uncommitted there (a ruling by coord-decide rule, a logged prompt by prompt-log add, an audit append) makes git refuse the merge when the branch touches the path (sufficient: a synthetic repo refused with exit 2; necessary: committing first lets the merge proceed) and would be swept into the join commit by step 7's git add -A when it does not. Fix: a step-0b dirty-primary fence in conductor-join (COORD-JOIN-DIRTY-PRIMARY, exit 12, the change left in place, session logs exempt), self-test cases (d) and (e) observed red with the fence disabled and green with it, a stderr note from coord-decide rule and prompt-log add; the class REGISTER-WRITE-UNCOMMITTED-BEFORE-JOIN registered; siblings ruled out by grep; follow-up R2: step 7 stages only what the join produced.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M5K2RXJEQ11D1NV76A595VRJ",
+      "shortname": "join-inv-join-dirty-primary",
+      "datetime": "2026-10-23T00:32:32Z",
+      "session": "pc-laptop-leader",
+      "prompt": "the join of inv-join-dirty-primary into main",
+      "summary": "The join fence for a dirty primary: step 0b refuses any modified, staged or untracked path outside .agents/log/ by name with exit 12 and the change left in place; self-test cases (d), (f), (g) red on the unfenced join and green with it, (e) keeps session logs exempt; coord-decide rule and prompt-log add print a stderr note; the knowledge doc and its mirror document step 0b; the class REGISTER-WRITE-UNCOMMITTED-BEFORE-JOIN registered; the Test Architect review accepted with three conditions, all met recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -42972,8 +43051,8 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "record the operator's decisions on the wave-2 close",
-      "done_when": "merged on main with check-docs and the ten gates green",
+      "goal": "fix the mechanic that bit twice on 2026-10-22: a ruling or a logged prompt left uncommitted in the primary blocked the next join",
+      "done_when": "inv-join-dirty-primary merged on main with the integrated full ring green and the ten verify gates green",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -42981,38 +43060,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-22T23:41:25Z",
-      "duration_seconds": 21.0
-    },
-    {
-      "id": "al-01M5K1S3BVYTMHYY2MW95TVSMX",
-      "shortname": "commit and push all then /investigate  and fic the issue with the mechan…",
-      "datetime": "2026-10-23T00:15:09Z",
-      "session": "prompt-log",
-      "prompt": "commit and push all then /investigate  and fic the issue with the mechanic that bit twice today",
-      "summary": "prompt logged for reuse",
-      "kind": "prompt",
-      "skill": null,
-      "tool": null,
-      "actor": null,
-      "artifacts": [],
-      "tags": [],
-      "outcome": "success"
-    },
-    {
-      "id": "al-01M5K28MDMG0YEVQ2BSP223MCR",
-      "shortname": "join it once the review clears and push",
-      "datetime": "2026-10-23T00:23:38Z",
-      "session": "prompt-log",
-      "prompt": "join it once the review clears and push",
-      "summary": "prompt logged for reuse",
-      "kind": "prompt",
-      "skill": null,
-      "tool": null,
-      "actor": null,
-      "artifacts": [],
-      "tags": [],
-      "outcome": "success"
+      "started_at": "2026-10-23T00:32:08Z",
+      "duration_seconds": 24.0
     }
   ],
   "changes": [
