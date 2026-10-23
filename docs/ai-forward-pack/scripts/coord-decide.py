@@ -331,6 +331,9 @@ def cmd_rule(args: argparse.Namespace, core: Any, mail: Any, core_path: Path, ro
     if len(body.encode("utf-8")) > mail.BODY_MAX_BYTES:
         body = heading + "\n(the text is in {})".format(REGISTER_REL.as_posix())
     sent = _send(mail, root, session, {"to": requester, "kind": "ruling", "body": body, "ref": args.request})
+    print("note: the ruling is written but not committed; a join refuses while it sits uncommitted in "
+          "the primary (COORD-JOIN-DIRTY-PRIMARY) - commit it before the next conductor-join",
+          file=sys.stderr)
     print(json.dumps({"ruling": number, "title": title, "request": args.request, "resolution": resolution,
                       "mail": sent, "register": str(register)}, sort_keys=True))
     return EXIT_OK

@@ -6034,7 +6034,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c9b5f4fc851e2ab12e1866a9129fbcbe8cd4bac29f44b9055572d12ab29cd388"
+      "sourceSha256": "de972379d2a5606e26a203589ec2f0a0a8d40acb7f26d1b7d6c2cd9fe3a97912"
     },
     {
       "id": "domain-experts",
@@ -9997,6 +9997,42 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "3b23951897c1b6626e32c6748ba5c819e61d81afc9336648012ec6b01fd0581b"
+    },
+    {
+      "id": "investigation-join-dirty-primary",
+      "path": "docs/investigations/join-dirty-primary.md",
+      "title": "Investigation: a join refuses after a register write into the primary checkout",
+      "type": "investigation",
+      "status": "accepted",
+      "owner": "@timianmalloo",
+      "phase": "investigate",
+      "reviewBy": "2026-11-22",
+      "reviewSuggested": [],
+      "summary": "Twice on 2026-10-22 a conductor-join refused to start because a ruling or a logged prompt had been written into the primary checkout and not committed. Git protects an uncommitted change on a path the branch also changes; when the branch does not change it, the join's own staging would sweep the change into the join commit instead. The join fenced the leader epoch but never the tree. The fix is a step-0b dirty-primary fence in conductor-join with a self-test seen red on the unfenced join, plus a stderr note from the two register writers.",
+      "tags": [
+        "coordination",
+        "conductor-join",
+        "registers",
+        "rulings",
+        "audit-log",
+        "worktrees"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-next-best-six-wave2",
+          "rel": "relates-to"
+        },
+        {
+          "to": "investigation-desktop-native-crash",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4ef69178a7bad33634b8ddb8dc54d927f33048a483d9332b96ee8a42310a6d26"
     },
     {
       "id": "investigation-pce-escape-flake",
@@ -24289,5 +24325,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "2a7229af232f7d49eca642127db74984d255adab12fc5ba31d31ca6b45ff11e7"
+  "graphSha256": "9beb583176e6055e2bdddbf819620d4c61680626d7c043e1140105f849798ff4"
 };
