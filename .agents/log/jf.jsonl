@@ -36,3 +36,5 @@
 {"agent": "jf", "at": 1793033717.7689881, "kind": "release", "path": "docs/ai-forward-pack/scripts/conductor-join.py", "seq": 36, "session": "jf", "wi": "jf"}
 {"agent": "jf", "at": 1793033717.995266, "kind": "release", "path": "tests/test_dotnet_cli_home_env.py", "seq": 37, "session": "jf", "wi": "jf"}
 {"agent": "jf", "at": 1793033718.1855168, "kind": "release", "path": "docs/investigations/join-dirty-primary.md", "seq": 38, "session": "jf", "wi": "jf"}
+{"agent": "jf", "at": 1793034283.5739002, "kind": "claim", "path": "docs/ai-forward-pack/scripts/conductor-join.py", "seq": 39, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793034370.0862932, "kind": "release", "path": "docs/ai-forward-pack/scripts/conductor-join.py", "seq": 40, "session": "jf", "wi": "jf"}
