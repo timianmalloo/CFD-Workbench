@@ -483,4 +483,9 @@ public static class Labels
     /// <summary>The second line under an open failure's approved sentence (COPY-424, Ruling 155).</summary>
     public static string OpenCodeLine(string code) => "Code: " + code; // COPY-424
     public static readonly string[] VectorKey = ["V∞", "Local inflow", "Lift", "Drag, profile (cap: Ncrit 2–4 band)", "Drag, induced", "Pitching-moment couple"]; // COPY-SF16
+
+    // ---- SC1: catalog row states (wave 3, DR-INV-2 a) ----
+    public const string CatalogTagNotInBuild = "not in this build"; // COPY-647
+    public const string CatalogTagPending = "pending"; // COPY-648
+    public const string CatalogTagCiteOnly = "cite only"; // COPY-649
 }

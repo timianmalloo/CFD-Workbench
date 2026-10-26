@@ -6,6 +6,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
+using CfdWorkbench.Analysis;
 using CfdWorkbench.Core;
 using System.Globalization;
 
@@ -85,7 +86,7 @@ public partial class CatalogDialog : Window
                             Reason: (string?)problem.Reason, Tag: "damaged"))).ToArray()
                 : snapshot.Entries.Where(entry => entry.Family == family && entry.Designation.Contains(query, StringComparison.OrdinalIgnoreCase))
                     .Select(entry => (Name: entry.Designation, Choice: (CatalogChoice)new CatalogChoice.Catalog(entry), Reason: entry.DisabledReason,
-                        Tag: entry.Class.ToString().ToUpperInvariant())).ToArray();
+                        Tag: RowTag(entry))).ToArray();
             if (rows.Length == 0 && family != CatalogFamily.MySections) continue;
             SectionList.Items.Add(new ListBoxItem { Content = title, IsEnabled = false, FontWeight = Avalonia.Media.FontWeight.SemiBold });
             foreach (var row in rows)
@@ -96,6 +97,7 @@ public partial class CatalogDialog : Window
                 AutomationProperties.SetName(item, row.Name);
                 if (row.Reason is not null)
                 {
+                    item.Classes.Add("disabled");
                     AutomationProperties.SetItemStatus(item, "disabled");
                     AutomationProperties.SetHelpText(item, row.Reason);
                 }
@@ -128,6 +130,17 @@ public partial class CatalogDialog : Window
         }
         else SectionList.SelectedItem = options[0];
     }
+
+    // A row with a reason names its state; a choosable row names its admission class.
+    private static string RowTag(CatalogEntry entry) => entry.DisabledReason is null
+        ? entry.Class.ToString().ToUpperInvariant()
+        : entry.Class switch
+        {
+            AdmissionClass.Gen => Labels.CatalogTagNotInBuild,
+            AdmissionClass.Vend => Labels.CatalogTagPending,
+            AdmissionClass.Link => Labels.CatalogTagCiteOnly,
+            _ => throw new ArgumentOutOfRangeException(nameof(entry), entry.Class, "Unknown admission class")
+        };
 
     private void OnSearchKeyDown(object? sender, KeyEventArgs args)
     {
