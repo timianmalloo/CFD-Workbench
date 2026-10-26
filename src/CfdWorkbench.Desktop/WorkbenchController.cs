@@ -2152,6 +2152,12 @@ public sealed class WorkbenchController : IDisposable
 
     public void ClearCatalogPreview() => ClearReplacePreview();
 
+    public void RecordCatalogSelect(CatalogChoice choice) { }
+
+    public Task ApplyCatalogAsync(ReplaceScope scope) => ApplyReplaceAsync(scope);
+
+    public void RecordCatalogApplyDropped() { }
+
     /// <summary>
     /// One preview at a time, off the UI thread. A newer choice replaces the one waiting; the in-flight result is dropped
     /// when it is no longer the latest. The compute is the 140–240 ms catalog fit, so it never runs on the dispatcher.

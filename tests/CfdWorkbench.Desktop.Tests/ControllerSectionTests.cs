@@ -973,6 +973,72 @@ public static class ControllerSectionTests
                 throw new InvalidOperationException("a non-contract preview fault was dropped");
         });
 
+        DesktopChecks.Check("Controller_PreviewInternalFault_ReportsReason", () =>
+        {
+            const string copy = "The preview couldn't be computed. Nothing changed.";
+            using var controller = new WorkbenchController(previewGate: _ => throw new InvalidOperationException("boom"));
+            var host = new ShellHost(controller);
+            Wait(controller.OpenExampleAsync());
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+            controller.PreviewReplace(Naca("naca-0012"));
+            WaitFor(() => !controller.PreviewPending);
+            if (controller.PreviewFault is not { Code: "CAT-PREVIEW-FAULT" } fault || fault.Reason != copy)
+                throw new InvalidOperationException("a non-contract fit fault left PreviewFault " + (controller.PreviewFault?.Code ?? "null"));
+            if (host.StatusStrip.Text != copy)
+                throw new InvalidOperationException("status strip after a fit fault: " + host.StatusStrip.Text);
+            string[] outcomes = SessionOf(controller).ReadLocalEvents().Where(item => item.Operation == "catalog.preview")
+                .Select(item => item.Outcome).ToArray();
+            if (!outcomes.Contains("INTERNAL-ERROR"))
+                throw new InvalidOperationException("catalog.preview outcomes: " + string.Join(", ", outcomes));
+        });
+
+        DesktopChecks.Check("Controller_PreviewDraftChanged_ReportsReason", () =>
+        {
+            using var held = new ManualResetEventSlim(false);
+            using var release = new ManualResetEventSlim(false);
+            int entered = 0;
+            using var controller = new WorkbenchController(previewGate: _ =>
+            {
+                if (Interlocked.Increment(ref entered) == 1)
+                {
+                    held.Set();
+                    release.Wait(TimeSpan.FromSeconds(5));
+                }
+            });
+            Wait(controller.OpenExampleAsync());
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+            controller.PreviewReplace(Naca("naca-0012"));
+            if (!held.Wait(TimeSpan.FromSeconds(5)))
+                throw new InvalidOperationException("the preview never reached the gate");
+            Wait(controller.ApplySectionStepAsync(Raise(controller)));
+            release.Set();
+            WaitFor(() => !controller.PreviewPending);
+            if (controller.CurrentPreview is not null || controller.PreviewFault?.Code != "DSL-STALE")
+                throw new InvalidOperationException("a draft change during the fit left PreviewFault " + (controller.PreviewFault?.Code ?? "null"));
+        });
+
+        DesktopChecks.Check("Catalog_Select_RecordsOutcome", () =>
+        {
+            using var controller = new WorkbenchController();
+            Wait(controller.OpenExampleAsync());
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+            controller.RecordCatalogSelect(Naca("naca-0012"));
+            controller.RecordCatalogSelect(Disabled("naca-16-012"));
+            controller.RecordCatalogSelect(new CatalogChoice.Damaged("bad.foil", "“bad.foil” is damaged and was skipped."));
+            controller.PreviewReplace(Naca("naca-0012"));
+            WaitFor(() => controller.CurrentPreview is not null);
+            Wait(controller.ApplyCatalogAsync(ReplaceScope.Draft));
+            ExpectRefusal(controller.ApplyCatalogAsync(ReplaceScope.Draft), "CAT-NOT-ADMITTED");
+            controller.RecordCatalogApplyDropped();
+            var events = SessionOf(controller).ReadLocalEvents();
+            string Outcomes(string operation) =>
+                string.Join(", ", events.Where(item => item.Operation == operation).Select(item => item.Outcome));
+            if (Outcomes("catalog.select") != "choosable, disabled, damaged")
+                throw new InvalidOperationException("catalog.select outcomes: " + Outcomes("catalog.select"));
+            if (Outcomes("catalog.apply") != "applied, refused, dropped-fitting")
+                throw new InvalidOperationException("catalog.apply outcomes: " + Outcomes("catalog.apply"));
+        });
+
         DesktopChecks.Check("Controller_PreviewChangedThrow_ReleasesBusy", () =>
         {
             using var controller = new WorkbenchController();

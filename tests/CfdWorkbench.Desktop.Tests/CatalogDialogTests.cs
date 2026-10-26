@@ -23,7 +23,8 @@ public static class CatalogDialogTests
         "CatalogDialog_Escape_NothingChangedFocusToSectionMenu", "CatalogDialog_SpacingRefusal_ReasonAndChainOffered",
         "CatalogDialog_ChainButton_AppliesAllStations", "CatalogDialog_CatalogUnavailable_ShowsCauseAndCancel",
         "CatalogDialog_MySectionsEmpty_ShowsNextAction", "CatalogDialog_DoubleClickRow_Replaces",
-        "CatalogDialog_Preview_LargestChangeMarkerAtMeasuredX", "CatalogDialog_PendingGenRow_TagNamesState"
+        "CatalogDialog_Preview_LargestChangeMarkerAtMeasuredX", "CatalogDialog_PendingGenRow_TagNamesState",
+        "CatalogDialog_PreviewFault_LeavesFitting", "CatalogDialog_EnterDuringFit_AppliesOnLanding"
     ];
     private static readonly string[] SaveNames =
     [
@@ -49,7 +50,14 @@ public static class CatalogDialogTests
 
     private static void CheckCatalog(string name)
     {
-        using var controller = new WorkbenchController();
+        using var hold = new ManualResetEventSlim(false);
+        Action<int>? previewGate = name switch
+        {
+            "CatalogDialog_PreviewFault_LeavesFitting" => _ => throw new InvalidOperationException("fit fault"),
+            "CatalogDialog_EnterDuringFit_AppliesOnLanding" => _ => hold.Wait(TimeSpan.FromSeconds(20)),
+            _ => null
+        };
+        using var controller = new WorkbenchController(previewGate: previewGate);
         Wait(controller.OpenExampleAsync());
         Wait(controller.EnterSectionAsync(0, EntryOrigin.Palette));
         if (name is "CatalogDialog_SpacingRefusal_ReasonAndChainOffered" or "CatalogDialog_ChainButton_AppliesAllStations")
@@ -116,6 +124,41 @@ public static class CatalogDialogTests
                         detail.Text?.Contains("Pending admission", StringComparison.Ordinal) == true,
                         "Enter on a pending row changed the section or hid its reason");
                     break;
+                case "CatalogDialog_PreviewFault_LeavesFitting":
+                    SelectCatalog(list, "NACA 0012");
+                    WaitFor(() => !controller.PreviewPending);
+                    Require(detail.Text != "Fitting…", "a faulted fit left the detail line at Fitting…");
+                    Require(detail.Text == "The preview couldn't be computed. Nothing changed." && !replace.IsEnabled,
+                        "a faulted fit's detail line: " + detail.Text);
+                    break;
+                case "CatalogDialog_EnterDuringFit_AppliesOnLanding":
+                {
+                    const string pending = "Fitting… Replace will follow.";
+                    int cursor = controller.Section!.Draft.Cursor;
+                    var other = list.Items.OfType<ListBoxItem>().First(row => row.Tag is CatalogChoice.Catalog
+                        { Entry: { DisabledReason: null, Coordinates: not null } entry } && entry.Designation != "NACA 0012");
+                    SelectCatalog(list, "NACA 0012");
+                    Dispatcher.UIThread.RunJobs();
+                    PressKey(search, Key.Enter);
+                    Dispatcher.UIThread.RunJobs();
+                    Require(detail.Text == pending && !replace.IsEnabled,
+                        $"Enter during the fit: detail \"{detail.Text}\", Replace enabled {replace.IsEnabled}");
+                    list.SelectedItem = other;
+                    Dispatcher.UIThread.RunJobs();
+                    Require(detail.Text == "Fitting…", "moving the selection kept the armed apply: " + detail.Text);
+                    Require(SessionEvents(controller).Any(item => item.Operation == "catalog.apply" && item.Outcome == "dropped-fitting"),
+                        "the cleared arm was not recorded as catalog.apply dropped-fitting");
+                    SelectCatalog(list, "NACA 0012");
+                    Dispatcher.UIThread.RunJobs();
+                    PressKey(search, Key.Enter);
+                    Dispatcher.UIThread.RunJobs();
+                    Require(detail.Text == pending && !replace.IsEnabled, "Enter after moving back: " + detail.Text);
+                    hold.Set();
+                    WaitFor(() => !dialog.IsVisible);
+                    Require(controller.Section!.Draft.Cursor == cursor + 1,
+                        $"cursor {controller.Section!.Draft.Cursor} after the fit landed (want {cursor + 1} from one Enter)");
+                    break;
+                }
                 case "CatalogDialog_SharedPreview_DetailNamesStationsFitLimit":
                     SelectCatalog(list, "NACA 0012");
                     WaitFor(() => controller.CurrentPreview is not null);
@@ -182,6 +225,10 @@ public static class CatalogDialogTests
         }
         finally { dialog.Close(); }
     }
+
+    private static IReadOnlyList<SessionEvent> SessionEvents(WorkbenchController controller) =>
+        ((AuthoringSession)typeof(WorkbenchController).GetField("session",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(controller)!).ReadLocalEvents();
 
     private static T Need<T>(Control root, string name) where T : Control =>
         root.FindControl<T>(name) ?? throw new Exception($"{name} missing");
