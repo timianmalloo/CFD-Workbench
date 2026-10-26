@@ -997,7 +997,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  subgraph Desktop\n    Shell[Shell: Dock host, workspaces, NativeMenu] --> Cmd[Command table]\n    Cmd --> Ctl[WorkbenchController: selection, modes, gestures]\n    Ctl --> Props[Properties / Points / Messages / Browser panes]\n    Ctl --> Views[Plan · 3D · Side · Front · Section canvas]\n  end\n  subgraph Core\n    Session[Authoring session: drafts, section steps, ApplyDimension] --> Parser[FoilDSL 4.0/4.1 parser and patcher]\n    Session --> Fit[ConstrainedFit and import fit]\n    Session --> Kernel[Rational certificate: Geometry.Assess]\n    Basis[SplineBasis, binary64] --> Est[WingEstimates]\n    Points[Point model: derived type, tangent rows] --> Session\n    Catalog[Profile catalog, read-only]\n  end\n  subgraph Persistence\n    Store[Native project store]\n    Lib[Section library folder store]\n    Prefs[Layout preference store]\n  end\n  Ctl --> Session\n  Ctl --> Est\n  Ctl --> Catalog\n  Ctl --> Lib\n  Shell --> Prefs\n  Session --> Store"
         }
       ],
-      "sourceSha256": "156df962dc794ac9c8b576c6751b2d45b325d0446cdfb5df98805c6e4a804d2b"
+      "sourceSha256": "5bc6bfb33205d8e5445dd24359839d42d64729ad41ea07729bd2667435c2c19a"
     },
     {
       "id": "cad-editing-views",
@@ -2612,7 +2612,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5ae1dabac26fcc843f8aa84b76b8c2d7a37335d0775382f190651e9a9796f1a5"
+      "sourceSha256": "8290f0afffae2c8354256d23f467e5d6765e35cb578b782818dcc02638083284"
     },
     {
       "id": "design-application-foundation",
@@ -3718,7 +3718,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b7e334d58aa29bdb7597d41ae62cb02b0a3d4c9450ead65940c6215ac99b711d"
+      "sourceSha256": "d1340648b7949b80899ebf1114ca177eb4ac50792d11ac20245a0d6cd0c74c37"
     },
     {
       "id": "design-next-cad-increment",
@@ -6076,7 +6076,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "032b9f5a5d2953a9ee87c618ae1ccd57bb6e005367dbb55c4460ee09d1ebb466"
+      "sourceSha256": "686f8af3a5140b4f19ac3e707a4d1a7aa8185a632309789494432711b4d01fc1"
     },
     {
       "id": "domain-experts",
@@ -9888,7 +9888,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0a8d0a11e4abb58d3840055c4fd4169cc743a89503f9155b034eaeefc4b7778f"
+      "sourceSha256": "d8854c3941676091c67ebcf93cde57b9f00dac25d982ae8a4a664bc5324cfcf2"
     },
     {
       "id": "kb-hw-glossary",
@@ -10074,7 +10074,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4ef69178a7bad33634b8ddb8dc54d927f33048a483d9332b96ee8a42310a6d26"
+      "sourceSha256": "338b8b1e05a348bdd6c05d28c17129715b39041fc981d0545e26cdcced7b450c"
     },
     {
       "id": "investigation-pce-escape-flake",
@@ -19171,6 +19171,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "04b56401dd97fa794fe900e38ab7b092150136b0e8a78b9fda007ceb4847a5a8"
     },
     {
+      "id": "proof-st-store-codes",
+      "path": "docs/proof/st-store-codes/README.md",
+      "title": "ST store-code, copy and preference proof",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@st",
+      "phase": "",
+      "reviewBy": "2026-11-26",
+      "reviewSuggested": [],
+      "summary": "Observed ST store-code, copy and preference checks. Dispatch 2 records the genuine old-build fixture's axes refusal while leaving COPY-615 dimensional-headline evidence open.",
+      "tags": [
+        "store",
+        "windows",
+        "testing",
+        "telemetry"
+      ],
+      "links": [
+        {
+          "to": "coordination-wave3-next-steps",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "fb830f1586d9263be8259fa5180394e416ed232dcb54bf62ecaf305ea61b468d"
+    },
+    {
       "id": "proof-stc-red-first",
       "path": "docs/proof/stc/red-first.md",
       "title": "STC red-first receipts (Ruling 147)",
@@ -24533,5 +24559,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "3d5ee46c49ad5a1f697c6ab1163297e0a85b9924c60ad2c97de0cb998bd91a97"
+  "graphSha256": "25073297d4d4bca2f6777f3cc73445927db6fa1cb2060d6ccab68893e91087d9"
 };
