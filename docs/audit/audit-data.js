@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-26T15:43:32Z",
+  "generated": "2026-10-26T16:08:04Z",
   "audit": [
     {
       "actor": null,
@@ -43204,6 +43204,33 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-10-26T15:33:04Z",
       "duration_seconds": 627.0
+    },
+    {
+      "id": "al-01M5WFG2SHWM0C6XD3E04EX4HS",
+      "shortname": "sc2-source-text",
+      "datetime": "2026-10-26T16:08:04Z",
+      "session": "sc2",
+      "prompt": "SC2 wave 3 brief: source text (A3, F3), DR-INV-1 a",
+      "summary": "One Provenance-level source-text composer (SourceName, SourceLabel, RowText); Browser row and Properties section title read Modified from NACA 0012 after an edit; ChipSourceName removed; three tests red then green; m12d 14.1 rows updated. Cli SleepingChild check fails alone (unrelated, 2 s limit).",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Browser row and section title carry Modified from <source> after an edit; one composer, one lookup",
+      "done_when": "BrowserRow_AfterEdit_NotTheOriginal, Properties_SectionTitle_AfterEdit_NotTheOriginal, SourceText_AllSurfacesAgree red then green; AfterReplace unchanged; run-tests green",
+      "tier": "T1",
+      "started_at": "2026-10-26T15:53:17Z",
+      "duration_seconds": 887.0,
+      "git": {
+        "sha": "f5714a694d08762d442dfaef756a277b1254edeb",
+        "short": "f5714a694",
+        "branch": "w3-sc2-source-text",
+        "pushed": null
+      }
     }
   ],
   "changes": [
