@@ -51,6 +51,12 @@ FAIL PrefStore_ForeignOwnedFolder_LoadIsSessionOnly_NoWrite InvalidOperationExce
 PASS PrefStore_ForeignOwnedFolder_LoadIsSessionOnly_NoWrite
 ```
 
+### 8 — genuine old-build fixture, dimensional branch NOT DONE
+
+Fixture: `docs/proof/a3a-old-build/one-run.cfdw.json`, introduced by 91501f10 (2026-10-04 11:22 -0700), a verified ancestor of 0b277815 (2026-10-04 18:08 -0700), which introduced `ReferenceQuantities.cs`. The original receipt describes the STO writer's `RecordRun` + `SaveImage` production. SHA-256 is pinned to that receipt: `9edbe94b74396a7c97fa72096b15b9f1317a27f79b9e612139c2234e9f0fd929`. The test opens those unchanged committed bytes, computes a modern estimator at the stored run's revision/point/water, and compares both orientations through production coefficient derivation and CompareProjection.
+
+The first expectation was too broad: `FAIL Compare_OldBuildStoredRun_Copy615Reason InvalidOperationException: old versus modern references expected ReferenceDiffers; actual Blocked`. Inspection of Compare.DimensionalApplies established that an axes mismatch correctly requires the full block (design 12.1). This fixture's axes are `body`; modern axes are `body; wind for lift and drag`. The corrected characterization requires the exact reference/axes refusal and no outputs in either orientation. This is not a COPY-615 defect and does not close its dimensional-headline gap. No old run was rewritten or resealed to force that branch. Item 8 remains NOT DONE: an honest old-build fixture reaching the dimensional branch was not established.
+
 Verified on Windows. Reproduce focused green checks with `bash docs/proof/st-store-codes/run.sh`.
 The CLI harness has the coordinator-reported environment defect: its sleeping child cannot resolve ping through the over-long User PATH. It is outside ST's scope.
 
