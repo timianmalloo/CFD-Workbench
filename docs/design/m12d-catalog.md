@@ -834,7 +834,8 @@ Order: CAT ∥ (Ruling 71 fix) → LIB ∥ RPL → CTL → DLG → UXR. Critical
 | Dashed preview over the current section | `ReplacePreview.Bytes` | `SectionReplace.cs` via `WorkbenchController.cs` | `SectionCanvas.cs` |
 | Detail line: fit (µm and % chord), limit, stations, point count, largest change, t/c and scaling, frame | `ReplacePreview` / `ImportReport` fields; station t/c (derived, as built) | `SectionReplace.cs`, `Catalog.cs` (frame) | `CatalogDialog.axaml.cs` |
 | Largest-change marker on the canvas | `ReplacePreview.LargestChangeAtX` | `SectionReplace.cs` | `SectionCanvas.cs` |
-| Browser row and station card "section-a · NACA 4412" | `ProfileDefinition.Provenance` | `FoilSource.cs`, `Provenance.cs` | `BrowserPane.axaml.cs`, `PropertiesView.cs` |
+| Browser row "section-a · NACA 4412" after Replace; "section-a · Modified from NACA 4412" after an edit (COPY-112, DR-INV-1 a) | `ProfileDefinition.Provenance` (origin + the modified flag) | `Provenance.cs` (`SourceName` the one designation lookup, `SourceLabel`, `RowText`) | `BrowserPane.axaml.cs` (`StationSourceText`); same label in the Section group title, `PropertiesView.cs` (`SourceLabel`) |
+| Station card Source value "Catalog original · NACA 4412 (GEN)" → "Modified from NACA 4412 (GEN)" after an edit | `ProfileDefinition.Provenance` | `Provenance.cs` (`ChipText` over `SourceName`) | `PropertiesView.cs`, `WorkbenchController.StationSource` |
 | "Use NACA 0009's t/c at these stations" | existing `SectionStep.Thickness(UseSource)` | `AuthoringSession.cs` (as built) | `CatalogDialog.axaml.cs` |
 | Spacing refusal + Replace at <chain> | `ReplacePreview.RefusalCode`, `BlendChain` | `SectionReplace.cs` (+ Ruling 71 predicate) | `CatalogDialog.axaml.cs` |
 | Section takes the shape; one inner Undo | step bytes | `AuthoringSession.cs` (`PatchSectionStep`) | `SectionCanvas.cs`, `SectionEditorView.axaml.cs` |
