@@ -1322,30 +1322,26 @@ public static class PropertiesView
         // The notes sit where the mockup draws them: under the t/c rows and under the LE radius rows (B continuations).
         return
         [
-            new PropertyGroup("sec", "Section", $"{section.Mode.Draft.Profile} · {SourceName(section.Mode.Draft.Bytes, section.Mode.Draft.Profile)} · degree {degree}", true, thickness,
+            new PropertyGroup("sec", "Section", $"{section.Mode.Draft.Profile} · {SourceLabel(section.Mode.Draft.Bytes, section.Mode.Draft.Profile)} · degree {degree}", true, thickness,
                 [new RowMessage(ThicknessNote, MessageKind.Info)]),
             new PropertyGroup("sec-le", "Section", "", true, radius, [new RowMessage(leNote, MessageKind.Info)], Continues: true),
             new PropertyGroup("sec-te", "Section", "", true, rows, [], Continues: true)
         ];
     }
 
-    public static string SourceName(byte[] foil, string profile)
+    /// <summary>The recorded source's name for a profile in these bytes, by the one Core lookup.</summary>
+    public static string SourceName(byte[] foil, string profile) =>
+        Provenance.Parse(FoilSource.Parse(foil).Profile(profile)?.Provenance).SourceName(CatalogOrEmpty());
+
+    private static IReadOnlyList<CatalogEntry> CatalogOrEmpty()
     {
-        string? raw = FoilSource.Parse(foil).Profile(profile)?.Provenance;
-        var provenance = Provenance.Parse(raw);
-        if (provenance.Origin is not { } origin) return "Source not recorded";
-        int colon = origin.IndexOf(':');
-        if (colon > 0 && origin.StartsWith("gen:", StringComparison.Ordinal))
-        {
-            try
-            {
-                var row = Catalog.Load().FirstOrDefault(entry => entry.Id == origin[(colon + 1)..]);
-                if (row is not null) return row.Designation;
-            }
-            catch (ContractError) { }
-        }
-        return origin;
+        try { return Catalog.Load(); }
+        catch (ContractError) { return []; }
     }
+
+    /// <summary>The Browser-row and group-title source part: the name, "Modified from" the name, or "Source not recorded".</summary>
+    public static string SourceLabel(byte[] foil, string profile) =>
+        Provenance.Parse(FoilSource.Parse(foil).Profile(profile)?.Provenance).SourceLabel(SourceName(foil, profile));
 
     public static string SourceDisplay(byte[] foil, string profile)
     {
