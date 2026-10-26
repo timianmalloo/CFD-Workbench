@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-26T20:11:33Z",
+  "generated": "2026-10-26T20:29:11Z",
   "audit": [
     {
       "actor": null,
@@ -43938,6 +43938,35 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M5WYE74YQ577PME2DFNB55Q0",
+      "shortname": "join-w4-copy-and-followups",
+      "datetime": "2026-10-26T20:29:11Z",
+      "session": "w4-followups",
+      "prompt": "the join of w4-copy-and-followups into main",
+      "summary": "Operator approved COPY-647..651 and 677..680 (Ruling 268). Follow-up SC1: SaveSectionDialog name error drawn and cleared (DR-CELL-3, LIB-NAME-* only). Follow-up: ui-craft-gate refuses unscannable types (measured on Impeccable 0.1.16; class GATE-VACUOUS-FILE-TYPE). One Test Architect adversary review, ACCEPT-WITH-CONDITIONS, conditions met. run-tests green twice. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/craft-gate-scanned-types"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Record the operator's copy approval, then close the wave 3 follow-ups doable on this machine: the SaveSectionDialog invalid state and the craft gate's vacuous file types.",
+      "done_when": "Ruling 268 and the nine rows on main; both fixes merged with red-first tests and mutants; run-tests and check-docs green; CI green.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-26T20:23:51Z",
+      "duration_seconds": 320.0
     }
   ],
   "changes": [
@@ -47711,6 +47740,24 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M5WJRF6XBZD1KKPC9VS7EHY8",
       "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M5WWVJSEFTYEE5E481K6QC10",
+      "ts": "2026-10-26T20:01:32Z",
+      "from": "w4-followups",
+      "to": "operator",
+      "kind": "decision-request",
+      "ref": "req-01M5WWVJS09J1YCPZJVBZG736N",
+      "session": "w4-followups"
+    },
+    {
+      "id": "mail-01M5WWVS7ZS9KAEB27MTKPX7XF",
+      "ts": "2026-10-26T20:01:39Z",
+      "from": "operator",
+      "to": "w4-followups",
+      "kind": "ruling",
+      "ref": "req-01M5WWVJS09J1YCPZJVBZG736N",
+      "session": "operator"
     }
   ]
 };

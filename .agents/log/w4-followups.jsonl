@@ -1,0 +1,3 @@
+{"agent": "w4-followups", "at": 1793044862.3074784, "kind": "session-start", "path": "-", "seq": 1, "session": "w4-followups", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-w4-copy-and-followups"}
+{"action": "add", "agent": "w4-followups", "at": 1793044892.4384594, "deadline_at": 1793045792.4384594, "id": "req-01M5WWVJS09J1YCPZJVBZG736N", "kind": "request", "path": "-", "seq": 2, "session": "w4-followups", "to": "operator", "type": "request", "wi": "WI-0"}
+{"at": 1793044892.4623222, "from": "w4-followups", "kind": "decision-request", "mail_id": "mail-01M5WWVJSEFTYEE5E481K6QC10", "ref": "req-01M5WWVJS09J1YCPZJVBZG736N", "session": "w4-followups", "to": "operator", "type": "mail"}

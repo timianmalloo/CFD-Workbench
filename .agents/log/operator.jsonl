@@ -1,0 +1,2 @@
+{"action": "resolve", "agent": "operator", "at": 1793044899.0565147, "id": "req-01M5WWVJS09J1YCPZJVBZG736N", "kind": "request", "outcome": "resolution", "path": "-", "seq": 1, "session": "operator", "type": "request", "wi": "WI-0"}
+{"at": 1793044899.0711443, "from": "operator", "kind": "ruling", "mail_id": "mail-01M5WWVS7ZS9KAEB27MTKPX7XF", "ref": "req-01M5WWVJS09J1YCPZJVBZG736N", "session": "operator", "to": "w4-followups", "type": "mail"}
