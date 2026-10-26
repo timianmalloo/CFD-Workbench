@@ -1,4 +1,5 @@
 using System.IO;
+using Avalonia;
 using CfdWorkbench.Core;
 using CfdWorkbench.Persistence;
 using CfdWorkbench.Analysis;
@@ -10,6 +11,35 @@ public static class StoreCodeSurfaceTests
 {
     public static void Run()
     {
+        DesktopChecks.Check("StoreCodes_ConflictExistenceProbe_OffDispatcher", () =>
+        {
+            if (Avalonia.Application.Current is null)
+                Avalonia.AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+            var dispatcher = Avalonia.Threading.Dispatcher.UIThread;
+            if (!dispatcher.CheckAccess()) throw new Exception("test must start on dispatcher thread");
+            var previous = SynchronizationContext.Current;
+            var context = new PumpContext();
+            SynchronizationContext.SetSynchronizationContext(context);
+            try
+            {
+                foreach (bool exists in new[] { false, true })
+                {
+                    bool? onDispatcher = null;
+                    using var controller = new WorkbenchController(_ => new RefusingStore("DOC-CONFLICT"),
+                        fileExistsProbe: _ => { onDispatcher = dispatcher.CheckAccess(); return exists; });
+                    var task = controller.OpenAsync(TestTemp.Combine("conflict.cfdw.json"));
+                    var deadline = DateTime.UtcNow.AddSeconds(10);
+                    while (!task.IsCompleted && DateTime.UtcNow < deadline) { context.Pump(); Thread.Sleep(1); }
+                    if (!task.IsCompleted) throw new Exception("open did not complete");
+                    var outcome = task.GetAwaiter().GetResult();
+                    if (onDispatcher != false) throw new Exception("existence probe dispatcher=" + onDispatcher);
+                    if (outcome is not OpenOutcome.Failed failure ||
+                        failure.Failure.Kind != (exists ? OpenFailureKind.Changed : OpenFailureKind.Missing))
+                        throw new Exception("conflict classification lost existence result");
+                }
+            }
+            finally { SynchronizationContext.SetSynchronizationContext(previous); }
+        });
         DesktopChecks.Check("StoreCodes_NonNtfsRemedy_NamesDrive", () =>
         {
             const string path = @"Q:\foils\wing.cfdw.json";
@@ -66,5 +96,12 @@ public static class StoreCodeSurfaceTests
         public void Dispose() { }
         public Task<ReadResult> ReadAsync(string path, CancellationToken cancellation = default) => Task.FromException<ReadResult>(new ContractError(code));
         public Task<SaveResult> SaveAsync(string path, SaveRequest request, CancellationToken cancellation = default) => Task.FromResult(new SaveResult(code, null, false, false));
+    }
+
+    private sealed class PumpContext : SynchronizationContext
+    {
+        private readonly System.Collections.Concurrent.ConcurrentQueue<Action> jobs = new();
+        public override void Post(SendOrPostCallback callback, object? state) => jobs.Enqueue(() => callback(state));
+        public void Pump() { while (jobs.TryDequeue(out var job)) job(); }
     }
 }

@@ -95,7 +95,7 @@ public abstract record OpenFailure(string Code, string Path)
         public override OpenFailureKind Kind => OpenFailureKind.CloudOnly;
     }
 
-    public static OpenFailure Classify(Exception exception, string path)
+    public static OpenFailure Classify(Exception exception, string path, Func<string, bool>? fileExists = null)
     {
         ArgumentNullException.ThrowIfNull(exception);
 
@@ -106,15 +106,15 @@ public abstract record OpenFailure(string Code, string Path)
             return new AccessDenied("DOC-ACCESS", path);
 
         if (exception is ContractError contractError)
-            return ClassifyCode(contractError.Code, path);
+            return ClassifyCode(contractError.Code, path, fileExists);
 
         if (exception is IOException)
             return new Unreadable("DOC-IO", path);
 
-        return ClassifyCode(exception.Message, path);
+        return ClassifyCode(exception.Message, path, fileExists);
     }
 
-    public static OpenFailure ClassifyCode(string code, string path)
+    public static OpenFailure ClassifyCode(string code, string path, Func<string, bool>? fileExists = null)
     {
         if (code is "DOC-NOT-FOUND")
             return new Missing(code, path);
@@ -134,7 +134,7 @@ public abstract record OpenFailure(string Code, string Path)
             return new NotAFile(code, path);
         // The store reports a missing file as DOC-CONFLICT too (its Win32 2 and 3, errno 2); the file system tells the two apart, so the store stays unchanged.
         if (code is "DOC-CONFLICT")
-            return path.Length > 0 && !File.Exists(path) ? new Missing(code, path) : new Changed(code, path);
+            return path.Length > 0 && !(fileExists ?? File.Exists)(path) ? new Missing(code, path) : new Changed(code, path);
         if (code is "DOC-CLOUD-ONLY")
             return new CloudOnly(code, path);
         if (code is "DOC-UNSUPPORTED-FIELD")
