@@ -12,6 +12,12 @@ internal static class WindowsProjectStoreTests
 {
     internal static void Run()
     {
+        Check("WindowsStore_ReparseErrorCodes_4390And4395", () =>
+        {
+            var map = typeof(WindowsProjectStore).GetMethod("CodeOf", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!;
+            foreach (int error in new[] { 4390, 4395 })
+                Equal("DOC-UNSUPPORTED-PERSISTENCE", (string)map.Invoke(null, [new WindowsNative.NativeFailure(null, error)])!);
+        });
         Check("WindowsStore_NewCodes_Mapping", () =>
         {
             var map = typeof(WindowsProjectStore).GetMethod("CodeOf", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!;

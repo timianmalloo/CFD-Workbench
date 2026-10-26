@@ -476,8 +476,10 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
             // ERROR_HANDLE_DISK_FULL, ERROR_DISK_FULL.
             39 or 112 => "DOC-DISK-FULL",
             // ERROR_INVALID_FUNCTION, ERROR_NOT_SUPPORTED, ERROR_INVALID_NAME, ERROR_BAD_PATHNAME, ERROR_FILENAME_EXCED_RANGE,
-            // ERROR_DIRECTORY, ERROR_REPARSE_POINT_ENCOUNTERED.
-            1 or 50 or 123 or 161 or 206 or 4390 => "DOC-UNSUPPORTED-PERSISTENCE",
+            // ERROR_NOT_A_REPARSE_POINT (4390), ERROR_REPARSE_POINT_ENCOUNTERED (4395).
+            // Both refuse an unsupported path traversal; keep 4390's existing fail-closed mapping.
+            1 or 50 or 123 or 161 or 206 or 4390 or 4395 => "DOC-UNSUPPORTED-PERSISTENCE",
+            // ERROR_DIRECTORY.
             267 => "DOC-NOT-A-FILE",
             _ => "DOC-IO"
         },
