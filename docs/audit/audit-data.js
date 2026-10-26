@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-26T17:47:16Z",
+  "generated": "2026-10-26T20:11:33Z",
   "audit": [
     {
       "actor": null,
@@ -43923,6 +43923,21 @@ window.AUDIT_DATA = {
         "speedup": 2.84,
         "peak_concurrency": 4
       }
+    },
+    {
+      "id": "al-01M5WXDXX2KJ8DBMSZ775JPH9V",
+      "shortname": "1: approved 2: will do later 3: proceed without grok 4: keep going with …",
+      "datetime": "2026-10-26T20:11:33Z",
+      "session": "prompt-log",
+      "prompt": "1: approved 2: will do later 3: proceed without grok 4: keep going with the next piece(s) of work",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
     }
   ],
   "changes": [
