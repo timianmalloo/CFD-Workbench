@@ -18,6 +18,8 @@ Steps, in order, stop on the first red (the exit status is the failing step's nu
                                       default: the ref's epoch at the join's start) is lower
                                       than the ref's, or when the ref cannot be read; an absent
                                       ref is "not applicable" (S2 has no leader)
+ 0b. dirty-primary fence              refuses dirt outside .agents/log/ before merging or
+                                      resuming with --continue (exit 12); changes stay in place
   1. git merge --no-ff <branch>       a conflict stops here with the file list; resolve by hand,
                                       `git add`, `git commit --no-edit`, re-run with --continue
   2. audit marker                     `audit-log.py start --session <s> --skill execute-with-coordination`
@@ -31,7 +33,8 @@ Steps, in order, stop on the first red (the exit status is the failing step's nu
                                       the one no entry recorded. --docs-only skips the recount.
   5. audit-log append                 tier T1, fan-out 0, the marker's duration, recount_seconds
   6. regenerate                       `regenerate` from join.json, default `coord-core.py regen`
-  7. git add -A && git commit         the join commit (the pre-commit boundary runs)
+  7. stage own outputs; commit         merge result, changed derived views, audit entry, session logs;
+                                      refuse residual dirt before gates or push (exit 7)
   8. gates                            `gates` from join.json, default `run-verify-gates.py`
   9. git push <remote> <branch>       only if 8 passed; --no-push skips
  10. build                            `build` from join.json, optional; --no-build skips
@@ -53,13 +56,17 @@ Usage (from the checkout the join lands on):
       [--join <join.json>] [--session <id>] [--self-test]
 
 Exit 0 on a complete join; the failing step's number otherwise; 11 when the leader fence (step
-0) refuses; 2 on a usage error. Stdlib only.
+0) refuses; 12 for dirty-primary refusal (also --continue); 13 for a merge refusal without
+unmerged paths (a real conflict remains 1); 7 for residual dirt after committing; 2 on a usage
+error. Stdlib only.
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
+import runpy
 import shutil
 import subprocess
 import sys
@@ -83,11 +90,13 @@ SKILL = "execute-with-coordination"
 EXIT_FENCE = 11
 # Step 0b (investigation join-dirty-primary): an uncommitted change to a tracked path outside
 # .agents/log/ in the checkout the join runs in. Git refuses the merge when the branch touches the
-# same path ("Your local changes ... would be overwritten by merge"), and step 7's `git add -A`
-# would sweep every other such change into the join commit under the join's name. Both are the
+# same path ("Your local changes ... would be overwritten by merge"), and the former step 7's
+# `git add -A` swept every other such change into the join commit under the join's name. Both are the
 # same defect: a register write (a ruling, a logged prompt, an audit append) left uncommitted in
 # the primary. The fence names it before step 1 and leaves the change in place.
 EXIT_DIRTY = 12
+# A nonzero merge without unmerged paths is a refusal, not a conflict (step 1).
+EXIT_MERGE_REFUSED = 13
 
 
 def _sibling(name: str) -> str:
@@ -189,6 +198,40 @@ class Join:
         return subprocess.run(["git", *args], cwd=str(self.root), capture_output=True, text=True,
                               encoding="utf-8", errors="replace")
 
+    def paths(self, *args) -> set[str]:
+        result = self.git(*args, "-z")
+        if result.returncode:
+            self.log("conductor-join: cannot read git paths: " + result.stderr.strip())
+            raise SystemExit(7)
+        return {p for p in result.stdout.split("\0") if p}
+
+    def dirty_paths(self) -> set[str]:
+        return (self.paths("diff", "--no-renames", "--name-only")
+                | self.paths("diff", "--cached", "--no-renames", "--name-only")
+                | self.paths("ls-files", "--others", "--exclude-standard"))
+
+
+def join_outputs(j: Join):
+    """Reuse the artifact registry's validated parser and longest-pattern classification.
+
+    Only fingerprints changed by a join command become owned outputs. A file merely dirty
+    at step 7 is not evidence the join wrote it. Session logs retain their existing exemption.
+    """
+    core = runpy.run_path(_sibling("coord-core.py"))
+    registry = j.root / ".agents"
+    core["load_registry"](registry)  # Fail closed on an invalid registry, before commands run.
+
+    def snapshot():
+        result = {}
+        for path in j.dirty_paths():
+            if (path == "docs/audit/audit-log.jsonl"
+                    or core["classify"](registry, path)[0] == "derived"):
+                full = j.root / path
+                result[path] = hashlib.sha256(full.read_bytes()).digest() if full.is_file() else None
+        return result
+
+    return snapshot
+
 
 def leader_fence(j: Join, given: "int | None", log) -> None:
     """Step 0 - the join carries an epoch and the ref decides (spec-leader-designation US-7).
@@ -275,8 +318,7 @@ def join(args, root: Path, contract: dict, log=print, *, _after_fence=None) -> i
         return 2
 
     leader_fence(j, getattr(args, "epoch", None), log)
-    if not args.cont:
-        dirty_fence(j, args.branch, log)
+    dirty_fence(j, args.branch, log)
     # Private in-process seam: self-tests can reproduce a writer racing the fence.
     # No command-line option or inherited environment variable can activate it.
     if _after_fence is not None:
@@ -296,7 +338,17 @@ def join(args, root: Path, contract: dict, log=print, *, _after_fence=None) -> i
         for line in (merge.stdout + merge.stderr).strip().splitlines()[-6:]:
             log("   | " + line[:200])
         if merge.returncode != 0:
-            conflicts = j.git("diff", "--name-only", "--diff-filter=U").stdout.strip().splitlines()
+            conflicts = sorted(j.paths("diff", "--name-only", "--diff-filter=U"))
+            if not conflicts:
+                log("\nconductor-join: merge refused [COORD-JOIN-MERGE-REFUSED] (exit {0}); "
+                    "git did not create unmerged paths. Git's full refusal follows:".format(EXIT_MERGE_REFUSED))
+                # Git names the paths in its own diagnostic (including overwrite refusals).
+                # Keep it intact: the normal subprocess tail can omit the refusal heading.
+                for line in (merge.stdout + merge.stderr).strip().splitlines():
+                    log("   | " + line)
+                    if line.startswith("\t"):
+                        log("   - " + line.strip())
+                return EXIT_MERGE_REFUSED
             log("\nconductor-join: the merge has conflicts - resolve by hand (a DERIVED file is "
                 "regenerated, never resolved), `git add` them, `git commit --no-edit`, then "
                 "re-run with --continue:")
@@ -306,6 +358,18 @@ def join(args, root: Path, contract: dict, log=print, *, _after_fence=None) -> i
     else:
         log("\n== step 1: --continue (the merge was resolved by hand)")
 
+    merge_staged = j.paths("diff", "--cached", "--name-only")
+    snapshot = join_outputs(j)
+    produced = set()
+
+    def run_output(step, what, command):
+        before = snapshot()
+        result = j.run(step, what, command)
+        after = snapshot()
+        produced.update(p for p in before.keys() | after.keys()
+                        if (p in before) != (p in after) or before.get(p) != after.get(p))
+        return result
+
     # The join's own marker (F-22): one marker measures one join (AL4a), keyed to the skill
     # so a prompt logged meanwhile cannot consume it.
     j.run(2, "audit marker", [PY, _sibling("audit-log.py"), "start", "--session", session, "--skill", SKILL])
@@ -313,7 +377,7 @@ def join(args, root: Path, contract: dict, log=print, *, _after_fence=None) -> i
     j.run(3, "no conflict markers", [PY, _sibling("verify-no-conflict-markers.py")])
 
     for command in contract.get("checks") or []:
-        j.run(4, "check", _interp(command))
+        run_output(4, "check", _interp(command))
     recount_started = time.monotonic()
     recount = contract.get("recount") or []
     if args.docs_only:
@@ -322,7 +386,7 @@ def join(args, root: Path, contract: dict, log=print, *, _after_fence=None) -> i
         log("\n== step 4: no recount configured (join.json `recount` is empty)")
     else:
         for command in recount:
-            j.run(4, "recount", _interp(command))
+            run_output(4, "recount", _interp(command))
     recount_seconds = int(time.monotonic() - recount_started)
 
     audit = [PY, _sibling("audit-log.py"), "append",
@@ -336,18 +400,46 @@ def join(args, root: Path, contract: dict, log=print, *, _after_fence=None) -> i
              "--signal-acceptance-met", "true"]
     for a in args.artifact:
         audit += ["--artifact", a]
-    j.run(5, "audit entry", audit)
+    run_output(5, "audit entry", audit)
 
     regenerate = contract.get("regenerate")
     if regenerate is None:
         regenerate = [[PY, _sibling("coord-core.py"), "regen"]]
     for command in regenerate:
-        j.run(6, "regenerate derived views", _interp(command))
+        run_output(6, "regenerate derived views", _interp(command))
 
-    j.run(7, "stage", ["git", "add", "-A"])
+    produced.update(p for p in j.dirty_paths() if p.startswith(".agents/log/"))
+    unexpected_staged = j.paths("diff", "--cached", "--name-only") - merge_staged - produced
+    if unexpected_staged:
+        log("conductor-join: unrelated staged paths appeared after the fence; refusing commit (exit 7):")
+        for path in sorted(unexpected_staged):
+            log("   - " + path)
+        return 7
+    if produced:
+        j.run(7, "stage join outputs", ["git", "--literal-pathspecs", "add", "-A", "--", *sorted(produced)])
     j.run(7, "commit", ["git", "commit", "-q", "-m",
                         "chore(join): {0} - the join's audit entry, derived views, floors{1}".format(
                             args.audit_shortname, trailer)])
+
+    status = j.git("status", "--porcelain=v1", "-z", "--untracked-files=all")
+    if status.returncode:
+        log("conductor-join: post-commit status could not be read (exit 7): " + status.stderr)
+        return 7
+    records = iter(status.stdout.split("\0"))
+    remaining = set()
+    for record in records:
+        if not record:
+            continue
+        paths = [record[3:]]
+        if "R" in record[:2] or "C" in record[:2]:
+            paths.append(next(records))  # porcelain -z carries the rename/copy source too.
+        remaining.update(p for p in paths if not p.startswith(".agents/log/"))
+    if remaining:
+        log("conductor-join: residual dirt after join commit [COORD-JOIN-DIRTY-AFTER-COMMIT] "
+            "(exit 7); gates and push did not run; changes kept:")
+        for path in sorted(remaining):
+            log("   - " + path)
+        return 7
 
     gates = contract.get("gates")
     if gates is None:
@@ -383,6 +475,17 @@ def self_test() -> int:
         if done.returncode != 0:
             raise AssertionError("git {0}: {1}".format(" ".join(a), done.stderr))
         return done.stdout
+
+    def audit_fixture(root):
+        # Match the consuming tree: the marker is local, and audit render outputs are derived.
+        (root / ".gitignore").write_text("docs/audit/.run-starts.json*\n", encoding="utf-8")
+        (root / ".agents").mkdir(exist_ok=True)
+        (root / ".agents" / "artifacts.yml").write_text(
+            "docs/audit/audit-data.js: derived python audit-log.py render\n"
+            "docs/audit/index.html: derived python audit-log.py render\n"
+            "generated/*: derived python generate.py\n", encoding="utf-8")
+        (root / "docs" / "audit").mkdir(parents=True, exist_ok=True)
+        (root / "docs" / "audit" / "audit-log.md").write_text("audit reader\n", encoding="utf-8")
 
     problems = []
     # Regression: configured .sh commands must be translated for Windows, and the runner must
@@ -442,6 +545,7 @@ def self_test() -> int:
         git(repo, "config", "user.name", "join")
         (repo / "docs" / "audit").mkdir(parents=True)
         (repo / "README.md").write_text("base\n", encoding="utf-8", newline="\n")
+        audit_fixture(repo)
         git(repo, "add", "-A")
         git(repo, "commit", "-qm", "init")
         contract = {"regenerate": [], "gates": [["python3", "-c", "print('gates ok')"]]}
@@ -639,7 +743,8 @@ def self_test() -> int:
             git(root, "config", "user.email", "join@example.invalid")
             git(root, "config", "user.name", "join")
             (root / "README.md").write_text("base\n", encoding="utf-8")
-            git(root, "add", "README.md")
+            audit_fixture(root)
+            git(root, "add", "-A")
             git(root, "commit", "-qm", "base")
             git(root, "checkout", "-qb", "feature")
             (root / "branch.txt").write_text("branch\n", encoding="utf-8")
@@ -651,7 +756,9 @@ def self_test() -> int:
             lines = []
             contract = {"regenerate": [], "gates": []}
 
-            def run(hook=None):
+            def run(hook=None, regenerate=None):
+                if regenerate is not None:
+                    contract["regenerate"] = regenerate
                 try:
                     return join(args, root, contract, log=lines.append, _after_fence=hook)
                 except SystemExit as exc:
@@ -716,19 +823,36 @@ def self_test() -> int:
         args.branch = None
         return run() == 0 and not git(root, "status", "--porcelain").strip()
 
+    def derived_outputs(root, args, lines, run):
+        (root / "generated").mkdir()
+        (root / "generated" / "deleted.txt").write_text("old\n", encoding="utf-8")
+        (root / "generate.py").write_text(
+            "from pathlib import Path\n"
+            "Path('generated/deleted.txt').unlink()\n"
+            "Path('generated/with space.txt').write_text('derived', encoding='utf-8')\n",
+            encoding="utf-8")
+        git(root, "add", "-A")
+        git(root, "commit", "-qm", "generator")
+        status = run(regenerate=[[PY, "generate.py"]])
+        return (status == 0 and git(root, "show", "HEAD:generated/with space.txt") == "derived"
+                and not (root / "generated" / "deleted.txt").exists()
+                and not git(root, "status", "--porcelain").strip())
+
     r2_case("R2 case A: post-fence write stays dirty, outside commit; post-commit check exits 7", late_write)
     r2_case("R2 case B: untracked overwrite refusal names path and exits 13", refusal)
     r2_case("R2 case B: tracked overwrite refusal names path and exits 13", tracked_refusal)
     r2_case("R2 real conflict: names path and exits 1", conflict)
     r2_case("R2 case C: --continue fences unrelated dirt", continued)
     r2_case("R2 case C: clean --continue leaves empty porcelain", clean_continued)
+    r2_case("R2 derived outputs: deletion and spaced path committed; porcelain empty", derived_outputs)
     if problems:
         print("conductor-join --self-test: FAILED - " + "; ".join(problems))
         return 1
     print("conductor-join --self-test: OK - Windows .sh command resolution rejects WindowsApps aliases; "
           "nonzero child status stops its join step; a clean join completes with a measured T1 entry; "
           "conflict markers and stale epochs stop before the join commit; an uncommitted change in the "
-          "checkout stops at the dirty-primary fence and a session log alone does not")
+          "checkout stops at the dirty-primary fence and a session log alone does not; "
+          "R2 cases A/B/C and derived outputs pass")
     return 0
 
 
@@ -744,7 +868,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--artifact", action="append", default=[], help="proof paths for the audit entry")
     parser.add_argument("--docs-only", action="store_true", help="skip the recount (no test or product change)")
     parser.add_argument("--continue", dest="cont", action="store_true",
-                        help="the merge was resolved by hand; start at step 2")
+                        help="the merge was resolved and committed by hand; fence the tree, then start at step 2")
     parser.add_argument("--no-push", action="store_true")
     parser.add_argument("--no-build", action="store_true")
     parser.add_argument("--join", help="the join contract (default docs/coordination/join.json)")
