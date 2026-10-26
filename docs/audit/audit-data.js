@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-26T15:55:28Z",
+  "generated": "2026-10-26T15:59:19Z",
   "audit": [
     {
       "actor": null,
@@ -43229,6 +43229,31 @@ window.AUDIT_DATA = {
       "fan_out": 1,
       "started_at": "2026-10-26T15:53:21Z",
       "duration_seconds": 127.0
+    },
+    {
+      "id": "al-01M5WF0265Y9302EPKDQG82T8J",
+      "shortname": "st-dispatch1-core-operation-boundary",
+      "datetime": "2026-10-26T15:59:19Z",
+      "session": "st",
+      "prompt": "COORDINATOR AMENDMENT: resume ST dispatch 1; WindowsProjectStoreTests.cs directory-leaf assertion and ProjectStoreTests.cs missing/unloadable-helper assertions are approved owned paths. Implement items 1-5 of the supplied ST brief, red before green, full run-tests.sh green. Work only in D:/Projects/CFD-Workbench-w3-st-store-copy. Stop when any item cannot be met without leaving section 5 owned paths. Doctor leader/heartbeat notes are known and out of scope.",
+      "summary": "Verified item 5 cannot be implemented through the owned paths: src/CfdWorkbench.Core/AuthoringSession.cs:213, RecordPersistence, assigns Operation=document.reopen for store.read and document.save for every other persistence action. That Core file is absent from section 5 and the coordinator amendment. A change to ProjectStore.Emit alone cannot give Clear and read-origin their own Operation on the shared session ring; using Catalog telemetry would misclassify store events. Stopped under section 8 convergence boundary before source/test/copy edits. Items 1-5 remain unimplemented; no red/green or full suite claimed. Required ownership extension: RecordPersistence operation mapping and adjacent SessionEvent remarks in AuthoringSession.cs. Read doctor: registry/requests/merge drivers OK, no lease overlap; known leader/heartbeat notes untouched. Planned five serial red-green increments plus full suite; actual boundary check stopped before increment 1.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "blocked",
+      "compiled": false,
+      "goal": "Items 1-5 of the ST row: split store codes, drive remedy, Win32 mapping, off-dispatcher probe, Operation telemetry.",
+      "done_when": "Each of items 1-5 has observed red and green evidence and run-tests.sh is green, or stop and report when implementation requires an unowned path.",
+      "tier": "T1",
+      "main_calls": 10,
+      "main_budget": 45,
+      "main_over_budget": false,
+      "fan_out": 1,
+      "started_at": "2026-10-26T15:56:49Z",
+      "duration_seconds": 150.0
     }
   ],
   "changes": [
