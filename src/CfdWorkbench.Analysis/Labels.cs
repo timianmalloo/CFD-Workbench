@@ -399,14 +399,13 @@ public static class Labels
     public const string OpenUnavailableWindows = "CFD Workbench can't open this file from here. It may be in a folder or on a drive that CFD Workbench can't use safely, such as a network, removable, linked or cloud-synced folder, or its name or path may be one CFD Workbench can't use. The file hasn't been changed. Copy the project to a local folder, give it a short plain name, and open it from there."; // COPY-641 (DR-DS-5)
     public const string OpenUnavailableOther = "CFD Workbench can't open this file safely from here on this system. The file hasn't been changed. Copy the project to a local folder and open it from there."; // COPY-642
     public const string OpenChanged = "The file changed, or another program was using it, while CFD Workbench was reading it. CFD Workbench didn't change it. Try opening it again."; // COPY-643
-    public const string OpenGone = "The file isn't there any more. It may have been moved, renamed or deleted. The file hasn't been changed."; // COPY-644
     public const string OpenAccessDeniedMac = "CFD Workbench isn't allowed to read it. The file hasn't been changed. Check its permissions in Finder, or open another file."; // COPY-126 (approved)
     public const string OpenAccessDeniedWindows = "CFD Workbench isn't allowed to read it. The file hasn't been changed. In File Explorer, right-click the file, choose Properties, then Security to check its permissions, or open another file."; // COPY-645
     public const string SectionSaveUnavailable = "This system can't save to My sections safely. Nothing was saved."; // approved dialog sentence, off Windows
     public const string SectionSaveUnavailableWindows = "CFD Workbench can't save to the My sections folder safely (it may be in a network, removable, linked or cloud-synced folder). Nothing was saved."; // COPY-646
     public static string OpenUnavailable(bool windows) => windows ? OpenUnavailableWindows : OpenUnavailableOther;
     public static string OpenAccessDenied(bool windows) => windows ? OpenAccessDeniedWindows : OpenAccessDeniedMac;
-    public static string SectionSaveUnavailableFor(bool windows) => windows ? SectionSaveUnavailableWindows : SectionSaveUnavailable;
+    public static string SectionSaveUnavailableFor(bool storeAdmitted) => storeAdmitted ? SectionSaveUnavailableWindows : SectionSaveUnavailable;
     // Read-only Open from OneDrive (Ruling 259; design windows-store-recovery section 5). Proposed rows COPY-592 to 594: the operator approves the wording.
     public const string ReadOnlyTitleSuffix = "(read-only: opened from OneDrive)"; // COPY-592 (DS-COPY-1)
     public const string ReadOnlyNotice = "This project was opened from OneDrive, so it can't be saved there. Use Save As to save it in a local folder."; // COPY-593 (DS-COPY-2)
@@ -414,8 +413,20 @@ public static class Labels
     public const string SaveUncertain ="Save not confirmed: CFD Workbench couldn't tell whether the file was fully written (DOC-SAVE-UNCERTAIN). Your changes are kept and still marked unsaved. Retry to check the file, or Save As."; // COPY-421 (Ruling 155)
 
     /// <summary>The strip sentence for a refused or failed foil save: one cause row per code family (COPY-412 to 423, Ruling 155). An unknown code gets the generic row, which still carries the code.</summary>
+    // ---- ST: store codes and copy (wave 3) ----
+    public const string OpenGone = "It isn't where it was — it may have been moved, renamed or deleted. The file hasn't been changed."; // COPY-125; file-name headline and actions are rendered by StartView
+    public const string OpenUnsupportedPlatform = "CFD Workbench can't open projects on this system. The file hasn't been changed."; // COPY-677 proposed
+    public const string OpenNotAFile = "This path is a folder. Choose a project file inside it. The folder hasn't been changed."; // COPY-678 proposed
+    public const string SaveNotAFile = "This path is a folder (DOC-NOT-A-FILE). Your changes are kept in this session. Use Save As to choose a project file name."; // COPY-679 proposed
+    public static string DriveRemedy(string path) => path.Length >= 2 && char.IsAsciiLetter(path[0]) && path[1] == ':'
+        ? $" The refused path is on drive {path[..2]}. Choose a folder on a local NTFS drive." : ""; // COPY-680 proposed; appended to approved location copy
+    public static string SaveRefusal(string code, string path, string? unsupportedReason = null) => SaveRefusal(code) +
+        (code == "DOC-UNSUPPORTED-PERSISTENCE" && unsupportedReason == "non-ntfs" && OperatingSystem.IsWindows() ? DriveRemedy(path) : "");
+
     public static string SaveRefusal(string code) => code switch
     {
+        "DOC-UNSUPPORTED-PLATFORM" => SaveUnavailable, // keep approved COPY-31W
+        "DOC-NOT-A-FILE" => SaveNotAFile,
         "DOC-UNSUPPORTED-PERSISTENCE" => OperatingSystem.IsWindows() ? SaveUnavailableWindows : SaveUnavailable,
         "DOC-SAVE-UNCERTAIN" => SaveUncertain,
         "DOC-IO" => SaveFailed("the disk couldn't be written", code, "Retry or Save As."), // COPY-412

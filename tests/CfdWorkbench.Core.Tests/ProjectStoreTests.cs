@@ -13,6 +13,33 @@ internal static class ProjectStoreTests
         // semantics (mode bits, symlink spelling, in-place rename of a held file) and have a Windows form in WindowsProjectStoreTests.
         if (OperatingSystem.IsWindows()) WindowsProjectStoreTests.Run();
         else if (!OperatingSystem.IsMacOS()) { Console.WriteLine("NOT ASSESSED native persistence primitives on this platform"); return; }
+        foreach (var (name, action) in new[] { ("Open", "store.read"), ("Save", "store.save"),
+            ("Clear", "store.clear"), ("ReadOrigin", "store.read-origin") })
+            Check("Store_Operation_" + name, () =>
+            {
+                string root = Root(), path = Path.Combine(root, "operation.cfdw.json");
+                try
+                {
+                    using var session = new AuthoringSession(); using var store = new ProjectStore(session);
+                    Equal("OK", Save(store, path, new([1, 2, 3], null, Id())).Code);
+                    var read = store.ReadAsync(path).GetAwaiter().GetResult();
+                    _ = store.ClearUnfinishedSaveAsync(path).GetAwaiter().GetResult();
+                    var events = session.ReadLocalEvents();
+                    var rows = events.Where(row => row.Action == action).ToArray();
+                    Equal(1, rows.Length);
+                    Equal(action, rows[0].Operation);
+                    Equal(true, rows[0].DurationMilliseconds >= 0);
+                    Equal(true, rows[0].TraceId is not null);
+                    if (action == "store.read-origin")
+                    {
+                        Equal(read.Origin.ToString(), rows[0].Outcome);
+                        Equal(events.Single(row => row.Action == "store.read").TraceId, rows[0].TraceId);
+                        Equal<int?>(null, rows[0].InputBytes); Equal<int?>(null, rows[0].OutputBytes);
+                    }
+                    Equal(false, System.Text.Json.JsonSerializer.Serialize(rows).Contains(root, StringComparison.Ordinal));
+                }
+                finally { Directory.Delete(root, true); }
+            });
         // Windows store recovery, node A: the macOS half of Clear is compiled (ProjectStore.Clear, OwnedEntry.Create's O_EXLOCK) and runs on the Mac only.
         MacOrSkip("MacStore_Clear_RemovesCrashLeftovers_ClaimLast", MacClearRemovesLeftovers);
         MacOrSkip("MacStore_Clear_LiveWriterLockHeld_RefusedInUse", MacClearLiveWriter);
@@ -37,8 +64,8 @@ internal static class ProjectStoreTests
             {
                 string root = Root(), path = Path.Combine(root, "project"); using var store = new ProjectStore();
                 var result = Save(store, path, new([1, 2, 3], null, Id()));
-                Equal("DOC-UNSUPPORTED-PERSISTENCE", result.Code); Equal(false, result.PublicationKnown);
-                Refuses("DOC-UNSUPPORTED-PERSISTENCE", () => store.ReadAsync(path).GetAwaiter().GetResult());
+                Equal("DOC-UNSUPPORTED-PLATFORM", result.Code); Equal(false, result.PublicationKnown);
+                Refuses("DOC-UNSUPPORTED-PLATFORM", () => store.ReadAsync(path).GetAwaiter().GetResult());
                 Equal(0, Directory.GetFiles(root).Length);
             });
             return;
@@ -226,10 +253,10 @@ internal static class ProjectStoreTests
             Equal("OK", Save(store, path, new([1, 2, 3], null, Id())).Code);
             _ = store.ReadAsync(path).GetAwaiter().GetResult();
             var events = session.ReadLocalEvents();
-            var save = events.Single(item => item.Action == "store.save"); Equal("document.save", save.Operation);
+            var save = events.Single(item => item.Action == "store.save"); Equal("store.save", save.Operation);
             Equal(3, save.InputBytes); Equal(3, save.OutputBytes); Equal("OK", save.Outcome); Equal(true, save.DurationMilliseconds >= 0);
             Equal(true, save.TraceId is not null); Equal(null, save.Generation); Equal(null, save.Evaluator);
-            Equal(true, events.Any(item => item.Operation == "document.reopen" && item.Action == "store.read" && item.OutputBytes == 3));
+            Equal(true, events.Any(item => item.Operation == "store.read" && item.Action == "store.read" && item.OutputBytes == 3));
             Equal(false, System.Text.Json.JsonSerializer.Serialize(events).Contains("PRIVATE-PATH-NAME", StringComparison.Ordinal));
             session.Dispose(); Equal(0, store.ReadLocalEvents().Count);
         });

@@ -229,7 +229,7 @@ C4 typed internal boundaries, C5 no model side effects, C6 operation IDs, C7 exp
 C8 named patterns, C9 anti-pattern review, C10 bounded local history/events, C11 OS principal/no credentials.
 
 Normal-path events: `language.parse`, `geometry.validate`, `geometry.preview`, `document.apply`,
-`document.save`, `document.reopen`, with operation ID, source byte count, generation, evaluator, duration,
+`store.save`, `store.read`, `store.clear`, `store.read-origin`, with operation ID, source byte count, generation, evaluator, duration,
 status and stable code. No source, names, file paths or rationale text in telemetry. Local-only by default;
 no telemetry exporter in M1. An operator distinguishes parse failure, unsupported geometry, exhausted proof,
 stale draft and disk conflict by code and duration. Missing measurement says Not recorded.

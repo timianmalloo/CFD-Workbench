@@ -19,6 +19,7 @@ internal static class CompareTests
 
     internal static void Run()
     {
+        Check("Compare_OldBuildStoredRun_ReferenceAndAxesRefusal", OldBuildStoredRun);
         Check("Compare_TwoTiers_DeltaAndDiscrepancyRecord", TwoTiers);
         Check("Compare_SameKeyTwice_ReadNotNewRecord", SameKeyTwice);
         Check("Compare_EstimatorE_ExcludedFromEDeltas", EstimatorExcluded);
@@ -59,6 +60,51 @@ internal static class CompareTests
         Check("Discrepancy_OldRuleVersion_StillReproduces", OldRuleStillReproduces);
         Check("NativeReader_AnalysisMember_ClosedSet", ClosedSet);
         Check("Discrepancy_SaveEvent_CarriesPinnedRunsAndBytes", SaveEvent);
+    }
+
+    private static void OldBuildStoredRun()
+    {
+        // Genuine STO output committed at 91501f10, ancestor of reference-quantity implementation 0b277815.
+        // Never rewrite/reseal this fixture: its stored run and reference fields are the historical evidence.
+        string path = System.IO.Path.Combine(StripFixtureTests.RepoRoot(), "docs", "proof", "a3a-old-build", "one-run.cfdw.json");
+        byte[] image = System.IO.File.ReadAllBytes(path);
+        Equal("9edbe94b74396a7c97fa72096b15b9f1317a27f79b9e612139c2234e9f0fd929", Identity.Sha256(image), "old-build fixture unchanged");
+        using var session = new AuthoringSession();
+        session.Reopen(image);
+        var stored = session.ReadRuns().Runs;
+        Equal(1, stored.Count, "the historical document actually holds a stored run");
+        foreach (var old in stored)
+        {
+            Equal(RunIntegrity.Intact, old.Integrity, "the genuine old-build run must be intact before comparison");
+            var service = new AnalysisService(session, new ProductWingMethod());
+            var modern = service.EvaluateAsync(old.Run.Op, old.Run.Water, Tier.Estimator, new Scope.Wing(), default, old.Run).GetAwaiter().GetResult();
+            foreach (bool reverse in new[] { false, true })
+            {
+                var a = reverse ? modern : old.Run;
+                var b = reverse ? old.Run : modern;
+                var current = Freshness.Current(session.Snapshot(), modern.Water, modern.Op, modern.Method, modern.Settings);
+                var context = new CompareContext(current, Units.Metric, Compare.Derivation(session.AcceptedSourceOf), Compare.AcceptedOrdinal(session))
+                {
+                    BaseIntegrity = reverse ? RunIntegrity.Intact : old.Integrity,
+                    ComparedIntegrity = reverse ? old.Integrity : RunIntegrity.Intact
+                };
+                var view = CompareProjection.Build(a, b, context);
+                if (old.Integrity != RunIntegrity.Intact)
+                {
+                    Equal(CompareState.Unavailable, view.State, "an invalid old run is not shown");
+                    Equal(true, view.Notices.Contains(Labels.RunFailedCheck), "invalid stored-run reason");
+                    Equal(0, view.Outputs.Count, "no invalid old-run results");
+                    continue;
+                }
+                // This genuine pre-reference fixture records axes="body"; modern runs use "body; wind for lift and drag".
+                // Design 12.1 excludes axes mismatches from COPY-615's dimensional branch. Do not edit the fixture to reach it.
+                Equal(CompareState.Blocked, view.State, "old axes require the full block");
+                Equal(Labels.DeltaBlockedReference("S_ref, b_ref, c_ref, moment datum, axes"), view.Notices[0], "the exact old-build block reason");
+                Equal("", view.Headline, "no dimensional headline for incompatible axes");
+                Equal(0, view.Outputs.Count, "no incomparable old-run outputs");
+            }
+        }
+        Equal(true, image.AsSpan().SequenceEqual(System.IO.File.ReadAllBytes(path)), "fixture not written");
     }
 
     // ---- 7.1 the three section 13.5 tests ----

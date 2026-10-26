@@ -89,13 +89,15 @@ public partial class StartView : UserControl
 
     private static string Sentence(OpenFailure failure, string fileName, bool windows) => failure switch
     {
-        OpenFailure.Missing { Code: "DOC-CONFLICT" } => CfdWorkbench.Analysis.Labels.OpenGone,
-        OpenFailure.Missing => "It isn't where it was — it may have been moved, renamed or deleted. The file hasn't been changed.",
+        OpenFailure.Missing => CfdWorkbench.Analysis.Labels.OpenGone,
         OpenFailure.AccessDenied => CfdWorkbench.Analysis.Labels.OpenAccessDenied(windows),
         OpenFailure.Changed => CfdWorkbench.Analysis.Labels.OpenChanged,
         OpenFailure.Unreadable => "It couldn't be read from the disk. The file hasn't been changed.",
         OpenFailure.NotRecognised => "It isn't a foil or project file that CFD Workbench can read, or it is damaged. The file hasn't been changed.",
-        OpenFailure.UnsupportedLocation => CfdWorkbench.Analysis.Labels.OpenUnavailable(windows),
+        OpenFailure.UnsupportedLocation => CfdWorkbench.Analysis.Labels.OpenUnavailable(windows) +
+            (windows && failure.UnsupportedReason == "non-ntfs" ? CfdWorkbench.Analysis.Labels.DriveRemedy(failure.Path) : ""),
+        OpenFailure.UnsupportedPlatform => CfdWorkbench.Analysis.Labels.OpenUnsupportedPlatform,
+        OpenFailure.NotAFile => CfdWorkbench.Analysis.Labels.OpenNotAFile,
         OpenFailure.CloudOnly => CfdWorkbench.Analysis.Labels.OpenCloudOnly,
         OpenFailure.TooLarge => $"It is larger than CFD Workbench can open ({(fileName.EndsWith(".foil", StringComparison.Ordinal) ? "1 MiB" : CfdWorkbench.Core.NativeProject.MaxBytes / 1_000_000 + " MB")}). The file hasn't been changed.",
         OpenFailure.UnknownContent => "It contains parts this version doesn't understand. The file hasn't been changed. A newer version of CFD Workbench may open it.",

@@ -353,8 +353,8 @@ public static class CatalogDialogTests
         Require(CfdWorkbench.Analysis.Labels.SectionSaveUnavailableFor(false) == "This system can't save to My sections safely. Nothing was saved.", "the other systems lost the approved sentence");
         foreach (var (code, expected) in new[]
         {
-            // Item 6: the section library saves on Windows, so the store's refusal there names the folder, never "this system".
-            ("DOC-UNSUPPORTED-PERSISTENCE", CfdWorkbench.Analysis.Labels.SectionSaveUnavailableFor(OperatingSystem.IsWindows())),
+            // ST 7: the actual store admission predicate chooses system versus folder refusal.
+            ("DOC-UNSUPPORTED-PERSISTENCE", CfdWorkbench.Analysis.Labels.SectionSaveUnavailableFor(CfdWorkbench.Persistence.ProjectStore.PlatformAdmitted())),
             ("LIB-IO", "Couldn't save to My sections: the file couldn't be written. Nothing was saved."),
             ("DOC-SAVE-UNCERTAIN", "CFD Workbench couldn't confirm whether this section was saved. Check My sections before trying again."),
             ("LIB-UNKNOWN", "Couldn't finish saving this section (LIB-UNKNOWN). Check My sections before trying again.")

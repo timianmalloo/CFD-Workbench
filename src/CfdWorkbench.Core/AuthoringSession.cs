@@ -32,8 +32,8 @@ public sealed record SessionBinding(string SourceHash, string Base, string Draft
 public sealed record SessionView(string AcceptedId, string SourceHash, string SurfaceHash, byte[] Source, SessionDraft? Draft, RecoveryRow? Recovery, bool Dirty);
 /// <remarks>
 /// Known reuse: <c>store.clear</c> puts the candidate count in <see cref="InputBytes"/> and the removed count in <see cref="OutputBytes"/>
-/// (counts, not bytes) and is recorded under the <c>document.save</c> operation; <see cref="Action"/> stays <c>store.clear</c>.
-/// A follow-up gives Clear its own <see cref="Operation"/> value and count fields (docs/design/windows-store-recovery.md section 11).
+/// (counts, not bytes). Persistence events use their action as <see cref="Operation"/>, including <c>store.clear</c> and
+/// <c>store.read-origin</c>; document encoding and reopening keep their separate document operations.
 /// </remarks>
 public sealed record SessionEvent(long Sequence, string Operation, string Outcome, double? DurationMilliseconds, int? InputBytes,
     int? OutputBytes, string? TraceId, long? Generation, string? Evaluator, int RetainedSources, int AcceptedFacts, string Action,
@@ -210,7 +210,7 @@ public sealed class AuthoringSession : IDisposable
         {
             if (closed) return;
             if (events.Count == 256) events.Dequeue();
-            events.Enqueue(new(eventSequence++, action == "store.read" ? "document.reopen" : "document.save", outcome,
+            events.Enqueue(new(eventSequence++, action, outcome,
                 milliseconds, inputBytes, outputBytes, traceId, null, null, sources.Count, accepted.Count, action, publicationKnown, durabilityConfirmed));
         }
     }

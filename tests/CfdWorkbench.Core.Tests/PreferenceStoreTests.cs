@@ -10,6 +10,39 @@ internal static class PreferenceStoreTests
 {
     internal static void Run()
     {
+        Check("PrefStore_OneHeldHandle_OwnerBeforeDacl", () =>
+        {
+            if (!OperatingSystem.IsWindows()) return;
+            string directory = LayoutFileTests.Root();
+            Directory.CreateDirectory(directory);
+            var calls = new List<(string Call, nint Handle)>();
+            bool secured;
+            WindowsNative.DirectorySecurityCalls = calls;
+            try { secured = WindowsNative.EnsurePrivateDirectory(directory); }
+            finally { WindowsNative.DirectorySecurityCalls = null; }
+            Equal(true, secured);
+            Equal("open,owner-accepted,dacl", string.Join(',', calls.Select(call => call.Call)));
+            Equal(1, calls.Select(call => call.Handle).Distinct().Count());
+            AssertPrivateDirectory(directory);
+        });
+        Check("PrefStore_OwnerProbeThrows_SessionOnlyNoWrite", () =>
+        {
+            foreach (Exception error in new Exception[] { new System.Security.SecurityException(), new ArgumentException(), new InvalidOperationException() })
+            {
+                string root = LayoutFileTests.Root();
+                Directory.CreateDirectory(root);
+                int stores = 0;
+                var prefs = new PreferenceStore(root, () => { stores++; return new ProjectStore(); }, _ => throw error);
+                Equal(true, Wait(prefs.LoadLayoutAsync(LayoutFileTests.Panes(), default)).SessionOnly);
+                Equal(true, Wait(prefs.LoadRecentAsync(default)).SessionOnly);
+                Equal(true, Wait(prefs.LoadTextSizeAsync(default)).SessionOnly);
+                Equal(true, Wait(prefs.LoadUnitsAsync(default)).SessionOnly);
+                Equal(true, Wait(prefs.LoadCombViewAsync(default)).SessionOnly);
+                Equal("session-only", Wait(prefs.SaveTextSizeAsync(125, default)).Outcome);
+                Equal(0, stores);
+                Equal(0, Directory.GetFileSystemEntries(root).Length);
+            }
+        });
         Check("LayoutLoad_Absent_ReturnsPresets", Absent);
         Check("Rollback_V2UnknownTopLevel_BytesUnchanged", () => Rollback("v2-unknown-top.json"));
         Check("Rollback_V2UnknownWorkspaceMember_BytesUnchanged", () => Rollback("v2-unknown-workspace.json"));
@@ -41,6 +74,7 @@ internal static class PreferenceStoreTests
         Check("PrefStore_DirectoryLink_WindowsBranchUsesJunction", DirectoryLinkWindowsBranch);
         Check("PrefStore_ExistingInheritedFolder_BecomesPrivateOnSave", ExistingFolderTightened);
         Check("PrefStore_ForeignOwnedFolder_LeftUnchanged", ForeignOwnerLeftUnchanged);
+        Check("PrefStore_ForeignOwnedFolder_LoadIsSessionOnly_NoWrite", ForeignOwnerLoad);
         Check("PrefStore_NewFolder_PrivateAtCreation", NewFolderPrivateAtCreation);
         RunView();
     }
@@ -690,6 +724,28 @@ internal static class PreferenceStoreTests
     }
 
     /// <summary>A folder owned by someone else is left as it is and reported (false); the system folder is owned by the OS, not the user.</summary>
+    private static void ForeignOwnerLoad()
+    {
+        if (!OperatingSystem.IsWindows()) { Console.WriteLine("NOT ASSESSED foreign-owner load: Windows owner probe"); return; }
+        // Existing system folder: a real foreign owner, no elevation or ownership mutation.
+        string foreign = Environment.GetFolderPath(Environment.SpecialFolder.System);
+        string before = ForeignDacl(foreign);
+        int stores = 0;
+        var prefs = new PreferenceStore(foreign, () => { stores++; return new ProjectStore(); });
+        var layout = Wait(prefs.LoadLayoutAsync(LayoutFileTests.Panes(), default));
+        Equal(true, layout.SessionOnly);
+        Equal(true, Wait(prefs.LoadRecentAsync(default)).SessionOnly);
+        Equal(true, Wait(prefs.LoadTextSizeAsync(default)).SessionOnly);
+        Equal(true, Wait(prefs.LoadUnitsAsync(default)).SessionOnly);
+        Equal(true, Wait(prefs.LoadCombViewAsync(default)).SessionOnly);
+        Equal("session-only", Wait(prefs.SaveLayoutAsync(() => layout.Layout, new HashSet<string>(["planform"]), default)).Outcome);
+        Equal("session-only", Wait(prefs.SaveTextSizeAsync(125, default)).Outcome);
+        Equal("session-only", Wait(prefs.SaveUnitsAsync(DisplayPreferences.Imperial, default)).Outcome);
+        Equal("session-only", Wait(prefs.SaveCombViewAsync(5, 64, true, default)).Outcome);
+        Equal(0, stores);
+        Equal(before, ForeignDacl(foreign));
+    }
+
     private static void ForeignOwnerLeftUnchanged()
     {
         if (!OperatingSystem.IsWindows()) { Console.WriteLine("NOT ASSESSED foreign-owner: ownership by another account is a Windows fact"); return; }

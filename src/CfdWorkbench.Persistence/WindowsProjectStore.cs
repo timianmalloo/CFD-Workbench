@@ -35,7 +35,7 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
         var timer = System.Diagnostics.Stopwatch.StartNew(); string code = "OK"; int? count = null;
         try
         {
-            ProjectStore.Supported(); cancellation.ThrowIfCancellationRequested();
+            ProjectStore.Supported(hooks?.PlatformAdmission); cancellation.ThrowIfCancellationRequested();
             using var parent = Parent.Open(path, ParentMode.OpenRead, hooks);                       // O1
             var origin = OriginOf(path, parent);                                                    // O2
             using var attribute = WindowsNative.OpenAttributes(parent.Handle, parent.Name);         // O3: attribute handle A, no data access
@@ -59,6 +59,7 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
             // A local file keeps the ordinary mapping below (a read error is DOC-IO).
             catch (Exception failure) when (origin == DocumentOrigin.OneDriveReadOnly && failure is IOException or UnauthorizedAccessException) { throw new ContractError("DOC-CONFLICT"); }
             count = bytes.Length;
+            emit("store.read-origin", origin.ToString(), timer.Elapsed.TotalMilliseconds, null, null, traceId, null, null);
             return new ReadResult(bytes, Identity.Sha256(bytes), origin);
         }
         catch (OperationCanceledException) { code = "DOC-CANCELLED"; throw new ContractError(code); }
@@ -95,7 +96,7 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
     {
         var (attributes, tag) = Observe(attribute, "attribute", name);
         var standard = WindowsNative.Standard(attribute);
-        Require((attributes & WindowsNative.AttributeDirectory) == 0 && standard.Directory == 0, "DOC-UNSUPPORTED-PERSISTENCE");
+        Require((attributes & WindowsNative.AttributeDirectory) == 0 && standard.Directory == 0, "DOC-NOT-A-FILE");
         Require(standard.DeletePending == 0, "DOC-CONFLICT");
         Require(standard.NumberOfLinks == 1, "DOC-UNSUPPORTED-PERSISTENCE");
         if (origin == DocumentOrigin.Local) { Require((attributes & WindowsNative.AttributeReparsePoint) == 0, "DOC-UNSUPPORTED-PERSISTENCE"); return; }
@@ -129,7 +130,7 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
         Parent? parent = null; ClearResult result;
         try
         {
-            ProjectStore.Supported(); cancellation.ThrowIfCancellationRequested();
+            ProjectStore.Supported(hooks?.PlatformAdmission); cancellation.ThrowIfCancellationRequested();
             parent = Parent.Open(path, ParentMode.Save, hooks); RequireLocalFolder(path);       // C0
             var first = Candidates(parent); candidates = first.Count;                             // C1, check 1
             ClearResult? refused = null;
@@ -220,10 +221,10 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
         bool published = false;
         byte[] image = request.Image; string hash = Identity.Sha256(image);
         Parent? parent = null; Owned? claim = null, temp = null; SafeFileHandle? target = null;
-        string code = "OK"; bool durable = false;
+        string code = "OK"; bool durable = false; string? unsupportedReason = null;
         try
         {
-            ProjectStore.Supported(); cancellation.ThrowIfCancellationRequested(); parent = Parent.Open(path, ParentMode.Save, hooks);
+            ProjectStore.Supported(hooks?.PlatformAdmission); cancellation.ThrowIfCancellationRequested(); parent = Parent.Open(path, ParentMode.Save, hooks);
             RequireLocalFolder(path);
             hooks?.Visit(StoreStage.ParentOpened);
             _ = Exists(parent, parent.Name);
@@ -286,7 +287,7 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
             durable = true;
         }
         catch (OperationCanceledException) { code = published ? "DOC-SAVE-UNCERTAIN" : "DOC-CANCELLED"; }
-        catch (ContractError error) { code = published ? "DOC-SAVE-UNCERTAIN" : error.Code; }
+        catch (ContractError error) { code = published ? "DOC-SAVE-UNCERTAIN" : error.Code; unsupportedReason = published ? null : error.Reason; }
         catch (Exception error) when (IsStoreFailure(error)) { code = published ? "DOC-SAVE-UNCERTAIN" : CodeOf(error); }
         finally
         {
@@ -297,7 +298,7 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
             target?.Dispose(); temp?.Dispose(); claim?.Dispose(); parent?.Dispose();
         }
         emit("store.save", code, timer.Elapsed.TotalMilliseconds, image.Length, published ? image.Length : 0, traceId, published, durable && code == "OK");
-        return new(code, published ? hash : null, published, durable && code == "OK");
+        return new(code, published ? hash : null, published, durable && code == "OK") { UnsupportedReason = unsupportedReason };
     }
 
     /// <summary>Claim-scoped create-only publication for an immutable, hash-named library entry.</summary>
@@ -313,7 +314,7 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
         try
         {
             Require(!(isClosed?.Invoke() ?? false), "DOC-CLOSED");
-            ProjectStore.Supported();
+            ProjectStore.Supported(hooks?.PlatformAdmission);
             Require(bytes.Length <= 1_048_576 &&
                 Regex.IsMatch(fileName, @"\A[0-9a-f]{64}\.foil\z") && fileName == hash + ".foil", "DOC-HASH");
             parent = Parent.Open(Path.Combine(dir, fileName), ParentMode.Save, hooks); RequireLocalFolder(Path.Combine(dir, fileName));
@@ -430,8 +431,9 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
         var handle = WindowsNative.OpenReader(parent.Handle, name, share);
         try
         {
-            Require((WindowsNative.AttributeTag(handle).Attributes & (WindowsNative.AttributeDirectory | WindowsNative.AttributeReparsePoint)) == 0,
-                "DOC-UNSUPPORTED-PERSISTENCE");
+            uint attributes = WindowsNative.AttributeTag(handle).Attributes;
+            Require((attributes & WindowsNative.AttributeDirectory) == 0, "DOC-NOT-A-FILE");
+            Require((attributes & WindowsNative.AttributeReparsePoint) == 0, "DOC-UNSUPPORTED-PERSISTENCE");
             var standard = WindowsNative.Standard(handle);
             Require(standard.DeletePending == 0, "DOC-CONFLICT");
             Require(standard.NumberOfLinks == 1, "DOC-UNSUPPORTED-PERSISTENCE");
@@ -467,7 +469,7 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
     {
         ContractError contract => contract.Code,
         // ntstatus.h STATUS_FILE_IS_A_DIRECTORY (0xC00000BA) reaches Win32 as ERROR_ACCESS_DENIED, so it is read from the NTSTATUS.
-        WindowsNative.NativeFailure { NtStatus: unchecked((int)0xC00000BA) } => "DOC-UNSUPPORTED-PERSISTENCE",
+        WindowsNative.NativeFailure { NtStatus: unchecked((int)0xC00000BA) } => "DOC-NOT-A-FILE",
         WindowsNative.NativeFailure failure => failure.ProductCode ?? failure.Win32Error switch
         {
             // ERROR_FILE_NOT_FOUND, ERROR_PATH_NOT_FOUND, ERROR_FILE_EXISTS, ERROR_ALREADY_EXISTS.
@@ -475,11 +477,14 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
             // ERROR_HANDLE_DISK_FULL, ERROR_DISK_FULL.
             39 or 112 => "DOC-DISK-FULL",
             // ERROR_INVALID_FUNCTION, ERROR_NOT_SUPPORTED, ERROR_INVALID_NAME, ERROR_BAD_PATHNAME, ERROR_FILENAME_EXCED_RANGE,
-            // ERROR_DIRECTORY, ERROR_REPARSE_POINT_ENCOUNTERED.
-            1 or 50 or 123 or 161 or 206 or 267 or 4390 => "DOC-UNSUPPORTED-PERSISTENCE",
+            // ERROR_NOT_A_REPARSE_POINT (4390), ERROR_REPARSE_POINT_ENCOUNTERED (4395).
+            // Both refuse an unsupported path traversal; keep 4390's existing fail-closed mapping.
+            1 or 50 or 123 or 161 or 206 or 4390 or 4395 => "DOC-UNSUPPORTED-PERSISTENCE",
+            // ERROR_DIRECTORY: also returned when a parent component is a file; it does not identify a folder leaf.
+            267 => "DOC-UNSUPPORTED-PERSISTENCE",
             _ => "DOC-IO"
         },
-        DllNotFoundException or EntryPointNotFoundException or BadImageFormatException => "DOC-UNSUPPORTED-PERSISTENCE",
+        DllNotFoundException or EntryPointNotFoundException or BadImageFormatException => "DOC-UNSUPPORTED-PLATFORM",
         _ => "DOC-IO"
     };
 
@@ -534,7 +539,8 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
             {
                 var rootHandle = WindowsNative.OpenRoot(root); result.chain.Add((rootHandle, ""));
                 // The qualified candidate is a local NTFS volume (design section 4); ReFS, SMB and removable media stay closed.
-                Require(WindowsNative.VolumeFileSystem(rootHandle) == "NTFS", "DOC-UNSUPPORTED-PERSISTENCE");
+                if ((hooks?.VolumeFileSystem ?? WindowsNative.VolumeFileSystem(rootHandle)) != "NTFS")
+                    throw new ContractError("DOC-UNSUPPORTED-PERSISTENCE", "non-ntfs");
                 var driveRoot = WindowsNative.AttributeTag(rootHandle);
                 RequireDirectory(rootHandle, (driveRoot.Attributes, driveRoot.ReparseTag), false);
                 // A mapped network drive reports the server's file system name, so the device itself is asked (design section 4).

@@ -7,6 +7,15 @@ internal static class LabelsTests
 {
     internal static void Run()
     {
+        Check("Labels_MissingFile_OneActiveDefinition_Copy125", () => {
+            string design = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "DESIGN.md"));
+            var rows = design.Split('\n').Where(line => line.StartsWith("| COPY-", StringComparison.Ordinal)
+                && line.Contains("moved, renamed or deleted", StringComparison.Ordinal)
+                && !line.Contains("superseded by", StringComparison.Ordinal)).ToArray();
+            Equal(1, rows.Length, "active missing-file definitions: " + string.Join(", ", rows.Select(row => row.Split('|')[1].Trim())));
+            Equal(true, rows[0].StartsWith("| COPY-125 |", StringComparison.Ordinal));
+            Equal(true, rows[0].Contains(Labels.OpenGone, StringComparison.Ordinal), "OpenGone uses COPY-125");
+        });
         Check("Labels_ProfilePlates_Copy406To409", () => {
             Equal("Section · η 0.5", Labels.SectionCaption(0.5));
             Equal("Cp_min −0.47 · x/c 0.120 · upper", Labels.CpMinMarker(-0.4712, 0.12, "upper"));

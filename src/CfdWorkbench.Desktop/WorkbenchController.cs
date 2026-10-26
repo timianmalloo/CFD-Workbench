@@ -1194,9 +1194,11 @@ public sealed class WorkbenchController : IDisposable
     public WorkbenchController(Func<AuthoringSession, IProjectStore>? storeFactory = null,
         SurfaceCompute? surfaceCompute = null, TimeProvider? time = null, Func<long, Task>? sectionAssessmentGate = null,
         Action<long>? sectionStepGate = null, SectionLibrary? sections = null, Action<int>? previewGate = null,
-        Action? libraryGate = null, IWingMethod? analysisMethod = null, IEvaluationBarrier? analysisBarrier = null)
+        Action? libraryGate = null, IWingMethod? analysisMethod = null, IEvaluationBarrier? analysisBarrier = null,
+        Func<string, bool>? fileExistsProbe = null)
     {
         this.storeFactory = storeFactory ?? (active => new ProjectStore(active));
+        this.fileExistsProbe = fileExistsProbe;
         store = this.storeFactory(session);
         this.surfaceCompute = surfaceCompute ?? ((source, basis, generation, cancellation) =>
             Task.Run(() => Placement.Surface(source, basis, generation, cancellation), cancellation));
@@ -3436,6 +3438,8 @@ public sealed class WorkbenchController : IDisposable
         return CommitPreparedFoil(requestGen, bytes, null, cancellation);
     }
 
+    private readonly Func<string, bool>? fileExistsProbe;
+
     public async Task<OpenOutcome> OpenAsync(string path, CancellationToken cancellation = default)
     {
         await CompleteGestureBeforeDocumentActionAsync(GestureEnd.Open);
@@ -3475,7 +3479,8 @@ public sealed class WorkbenchController : IDisposable
         }
         catch (Exception ex)
         {
-            return new OpenOutcome.Failed(OpenFailure.Classify(ex, path));
+            // Classification may probe a refused DOC-CONFLICT path. Keep that disk access off the dispatcher too.
+            return new OpenOutcome.Failed(await Task.Run(() => OpenFailure.Classify(ex, path, fileExistsProbe)));
         }
 
         if (cancellation.IsCancellationRequested)
@@ -3883,9 +3888,9 @@ public sealed class WorkbenchController : IDisposable
                     uncertainDraftGeneration = capturedView.Draft?.Generation ?? 0;
                     uncertainAcceptedId = capturedView.AcceptedId;
                 }
-                SetStatus(uncertainImage is null ? Labels.SaveRefusal(result.Code)
+                SetStatus(uncertainImage is null ? Labels.SaveRefusal(result.Code, path, result.UnsupportedReason)
                     : Labels.SaveUncertain, // COPY-421
-                    result.Code == "DOC-UNSUPPORTED-PERSISTENCE" ? ReportKind.Warning : ReportKind.Error);
+                    MainWindow.SaveFailureKind(result.Code));
             }
             Notify();
             return result;

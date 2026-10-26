@@ -135,6 +135,9 @@ public static class DisplayPreferences
 /// <summary>Installation preferences under <paramref name="root"/>/<c>layout</c>, <c>recent</c> (§4) and <c>display</c> (DN-5).</summary>
 public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactory)
 {
+    private Func<string, bool> ownerProbe = WindowsOwner;
+    internal PreferenceStore(string root, Func<IProjectStore> storeFactory, Func<string, bool> ownerProbe) : this(root, storeFactory) => this.ownerProbe = ownerProbe;
+    private static bool WindowsOwner(string path) => !OperatingSystem.IsWindows() || WindowsNative.OwnedByCurrentUser(path);
     private readonly SemaphoreSlim gate = new(1, 1);
     private readonly object sync = new();
     private readonly HashSet<string> pending = new(StringComparer.Ordinal);
@@ -176,7 +179,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
     {
         registered = registeredPanes ?? new HashSet<string>(StringComparer.Ordinal);
         var presets = LayoutCodec.Presets(WorkspaceId.Planform, registered);
-        if (Linked(root) || Linked(LayoutDir))
+        if (UnsafeForLoad(root) || UnsafeForLoad(LayoutDir))
         {
             layoutSession = true;
             lastActive = presets.Active;
@@ -237,7 +240,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
 
     public async Task<RecentLoad> LoadRecentAsync(CancellationToken ct)
     {
-        if (Linked(root) || Linked(RecentDir))
+        if (UnsafeForLoad(root) || UnsafeForLoad(RecentDir))
         {
             recentSession = true;
             return new RecentLoad([], "session-only", ["LAYOUT-SESSION-ONLY"], true, true, null);
@@ -362,7 +365,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
         var (read, error) = await Read(RecentPath, ct).ConfigureAwait(false);
         if (error is not null)
         {
-            if (error == "DOC-UNSUPPORTED-PERSISTENCE") recentSession = true;
+            if (SessionOnlyCode(error)) recentSession = true;
             else { recentNeverWrite = true; recentBlock = error; }
             return ([], null, new PrefSave("never-write", error, false, false, false, null));
         }
@@ -406,7 +409,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
     private LayoutLoad LayoutReadFailed(LayoutDocument presets, string error)
     {
         lastActive = presets.Active;
-        if (error == "DOC-UNSUPPORTED-PERSISTENCE")
+        if (SessionOnlyCode(error))
         {
             layoutSession = true;
             return new LayoutLoad(presets, "session-only", ["LAYOUT-SESSION-ONLY", error], 0, 0, true, true, null);
@@ -418,7 +421,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
 
     private RecentLoad RecentReadFailed(string error)
     {
-        if (error == "DOC-UNSUPPORTED-PERSISTENCE")
+        if (SessionOnlyCode(error))
         {
             recentSession = true;
             return new RecentLoad([], "session-only", ["LAYOUT-SESSION-ONLY", error], true, true, null);
@@ -449,6 +452,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
     private static PrefSave Failed(SaveResult result) =>
         new(result.Code == "DOC-CANCELLED" ? "cancelled" : "failed", result.Code, result.PublicationKnown, result.DurabilityConfirmed, false, null);
 
+    private static bool SessionOnlyCode([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] string? code) => code is "DOC-UNSUPPORTED-PERSISTENCE" or "DOC-UNSUPPORTED-PLATFORM" or "DOC-NOT-A-FILE";
     private static PrefSave Session() => new("session-only", "LAYOUT-SESSION-ONLY", false, false, false, null);
 
     private async Task<SaveResult> Write(string path, byte[] image, string? expected, CancellationToken ct)
@@ -513,7 +517,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
     private async Task<TextSizeLoad> LoadTextSizeCore(CancellationToken ct)
     {
         const int fallback = DisplayPreferences.DefaultTextSize;
-        if (Linked(root) || Linked(DisplayDir))
+        if (UnsafeForLoad(root) || UnsafeForLoad(DisplayDir))
         {
             displaySession = true;
             return new TextSizeLoad(fallback, "session-only", ["LAYOUT-SESSION-ONLY"], true, true, null);
@@ -524,7 +528,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
             return new TextSizeLoad(fallback, "absent", [], false, false, null);
         }
         var (read, error) = await Read(DisplayPath, ct).ConfigureAwait(false);
-        if (error == "DOC-UNSUPPORTED-PERSISTENCE")
+        if (SessionOnlyCode(error))
         {
             displaySession = true;
             return new TextSizeLoad(fallback, "session-only", ["LAYOUT-SESSION-ONLY", error], true, true, null);
@@ -584,7 +588,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
                 displayHash = first.PublishedSha256;
                 return Saved(first, false);
             }
-            if (first.Code == "DOC-UNSUPPORTED-PERSISTENCE")
+            if (SessionOnlyCode(first.Code))
             {
                 displaySession = true;
                 return Session();
@@ -700,6 +704,16 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
         Directory.CreateDirectory(path);
         File.SetUnixFileMode(path, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
         return true;
+    }
+
+    // Read-only admission: never tighten an ACL while loading. A failed owner probe fails closed.
+    private bool UnsafeForLoad(string path)
+    {
+        try
+        {
+            return Linked(path) || Directory.Exists(path) && !ownerProbe(path);
+        }
+        catch (Exception) { return true; }
     }
 
     private static bool Linked(string path)

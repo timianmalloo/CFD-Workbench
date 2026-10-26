@@ -12,6 +12,20 @@ internal static class SectionLibraryTests
 
     internal static void Run()
     {
+        Check("Library_UnadmittedHost_PassesPlatformCode", () =>
+        {
+            string root = NewRoot();
+            var library = new SectionLibrary(root, () => new ProjectStore(new StoreHooks { PlatformAdmission = false }));
+            Refuses("DOC-UNSUPPORTED-PLATFORM", () => library.Save("Refused", Block(), Origin));
+            Equal(0, Directory.GetFiles(root).Length);
+        });
+        Check("Library_FolderRefusal_PassesNotAFileCode", () =>
+        {
+            string root = NewRoot();
+            var library = new SectionLibrary(root, () => new ProjectStore(new StoreHooks { OnStage = _ => throw new ContractError("DOC-NOT-A-FILE") }));
+            Refuses("DOC-NOT-A-FILE", () => library.Save("Refused", Block(), Origin));
+            Equal(0, Directory.GetFiles(root, "*.foil").Length);
+        });
         Check("Library_Save_PublishesHashNamedFile", () =>
         {
             string root = NewRoot();
