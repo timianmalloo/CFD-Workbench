@@ -1102,6 +1102,49 @@ public static class ControllerSectionTests
                 throw new InvalidOperationException("catalog.apply outcomes: " + Outcomes("catalog.apply"));
         });
 
+        DesktopChecks.Check("Controller_QueuedChoiceThenStep_ReportsStale", () =>
+        {
+            using var held = new ManualResetEventSlim(false);
+            using var release = new ManualResetEventSlim(false);
+            int entered = 0;
+            using var controller = new WorkbenchController(previewGate: _ =>
+            {
+                if (Interlocked.Increment(ref entered) == 1)
+                {
+                    held.Set();
+                    release.Wait(TimeSpan.FromSeconds(5));
+                }
+            });
+            Wait(controller.OpenExampleAsync());
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+            controller.PreviewReplace(Naca("naca-0012"));
+            if (!held.Wait(TimeSpan.FromSeconds(5)))
+                throw new InvalidOperationException("the preview never reached the gate");
+            // A second choice queues behind the fit in flight; the step then drops the queued choice.
+            controller.PreviewReplace(Naca("naca-4412"));
+            Wait(controller.ApplySectionStepAsync(Raise(controller)));
+            release.Set();
+            WaitFor(() => !controller.PreviewPending);
+            if (controller.CurrentPreview is not null || controller.PreviewFault?.Code != "DSL-STALE")
+                throw new InvalidOperationException("a step after a queued choice left PreviewFault "
+                    + (controller.PreviewFault?.Code ?? "null") + " (the sheet stays on Fitting)");
+        });
+
+        DesktopChecks.Check("Catalog_Select_IdenticalRecordsOnce", () =>
+        {
+            using var controller = new WorkbenchController();
+            Wait(controller.OpenExampleAsync());
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+            controller.RecordCatalogSelect(Naca("naca-0012"));
+            controller.RecordCatalogSelect(Naca("naca-0012"));
+            controller.RecordCatalogSelect(Disabled("naca-16-012"));
+            controller.RecordCatalogSelect(Naca("naca-0012"));
+            var outcomes = SessionOf(controller).ReadLocalEvents()
+                .Where(item => item.Operation == "catalog.select").Select(item => item.Outcome);
+            if (string.Join(", ", outcomes) != "choosable, disabled, choosable")
+                throw new InvalidOperationException("catalog.select outcomes: " + string.Join(", ", outcomes));
+        });
+
         DesktopChecks.Check("Controller_PreviewChangedThrow_ReleasesBusy", () =>
         {
             using var controller = new WorkbenchController();
