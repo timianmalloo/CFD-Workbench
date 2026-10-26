@@ -57,6 +57,19 @@ Fixture: `docs/proof/a3a-old-build/one-run.cfdw.json`, introduced by 91501f10 (2
 
 The first expectation was too broad: `FAIL Compare_OldBuildStoredRun_Copy615Reason InvalidOperationException: old versus modern references expected ReferenceDiffers; actual Blocked`. Inspection of Compare.DimensionalApplies established that an axes mismatch correctly requires the full block (design 12.1). This fixture's axes are `body`; modern axes are `body; wind for lift and drag`. The corrected characterization requires the exact reference/axes refusal and no outputs in either orientation. This is not a COPY-615 defect and does not close its dimensional-headline gap. No old run was rewritten or resealed to force that branch. Item 8 remains NOT DONE: an honest old-build fixture reaching the dimensional branch was not established.
 
+### 10 — owner and ACL use one held handle
+
+The existing-folder path opens once with READ_CONTROL | WRITE_DAC, reads the owner from that handle and passes that same handle to SetSecurityInfo. Access denied on that open fails closed to session-only. Foreign owners remain untouched. The separate read-only path owner probe is for preference loads and is not called by this transaction.
+
+`check-one-handle.py` is a code-level assertion, not a runtime open counter. It requires one CreateFileW, the handle overload of the owner reader, and the same handle at DACL publication; it rejects an owner-reader reopen. Its self-test inserts a second CreateFileW into the transaction and observes the expected failure. Residual: an equivalent reopen spelled through a new helper would require extending this explicitly scoped structural guard.
+
+```text
+FAIL Preferences_OneHeldHandle_OwnerAndDacl owner check reopens the path before the DACL handle
+PASS Preferences_OneHeldHandle_OwnerAndDacl
+FAIL Preferences_OneHeldHandle_InjectedSecondOpen existing folder must be opened exactly once (expected mutant failure)
+PASS Preferences_OneHeldHandle_MutationRejected
+```
+
 Verified on Windows. Reproduce focused green checks with `bash docs/proof/st-store-codes/run.sh`.
 The CLI harness has the coordinator-reported environment defect: its sleeping child cannot resolve ping through the over-long User PATH. It is outside ST's scope.
 

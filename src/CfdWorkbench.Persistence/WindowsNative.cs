@@ -313,7 +313,7 @@ internal static unsafe partial class WindowsNative
     /// <summary>
     /// The preference folder is private: created with the private descriptor, or, if it already exists (an earlier build made it
     /// inheriting the profile's ACL), tightened in place when the current user owns it. False means the folder belongs to someone
-    /// else and is left unchanged. The parent is made by the caller and keeps its inherited ACL.
+    /// else or cannot be opened for an ACL update, and is left unchanged. The parent keeps its inherited ACL.
     /// </summary>
     internal static bool EnsurePrivateDirectory(string path)
     {
@@ -328,10 +328,16 @@ internal static unsafe partial class WindowsNative
                 if (CreateDirectoryW(path, &attributes) != 0) return true;
                 int error = Marshal.GetLastPInvokeError();
                 if (error != AlreadyExists) throw new NativeFailure(null, error);
-                if (!OwnedByCurrentUser(path)) return false;
                 using var handle = CreateFileW(path, ReadControl | WriteDac, ShareRead | ShareWrite | ShareDelete, 0, OpenExisting,
                     BackupSemantics | OpenReparsePoint, 0);
-                if (handle.IsInvalid) throw new NativeFailure(null, Marshal.GetLastPInvokeError());
+                if (handle.IsInvalid)
+                {
+                    int openError = Marshal.GetLastPInvokeError();
+                    if (openError == 5) return false; // Cannot safely inspect and tighten: preferences stay session-only.
+                    throw new NativeFailure(null, openError);
+                }
+                // ST 10: ownership and ACL publication refer to this exact held directory, never a second path lookup.
+                if (!OwnedByCurrentUser(handle)) return false;
                 Check(GetSecurityDescriptorDacl(descriptor, out _, out nint acl, out _));
                 uint result = SetSecurityInfo(handle, FileObject, DaclProtected, 0, 0, acl, 0);
                 if (result != 0) throw new NativeFailure(null, checked((int)result));
@@ -346,6 +352,11 @@ internal static unsafe partial class WindowsNative
         using var handle = CreateFileW(path, ReadControl, ShareRead | ShareWrite | ShareDelete, 0, OpenExisting,
             BackupSemantics | OpenReparsePoint, 0);
         if (handle.IsInvalid) throw new NativeFailure(null, Marshal.GetLastPInvokeError());
+        return OwnedByCurrentUser(handle);
+    }
+
+    private static bool OwnedByCurrentUser(SafeFileHandle handle)
+    {
         var owner = new System.Security.AccessControl.RawSecurityDescriptor(ReadOwnerAndDacl(handle)).Owner;
         using var current = WindowsIdentity.GetCurrent();
         return owner is not null && owner.Value == current.User?.Value;
