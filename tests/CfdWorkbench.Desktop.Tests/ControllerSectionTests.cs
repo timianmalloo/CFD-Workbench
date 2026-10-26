@@ -773,6 +773,69 @@ public static class ControllerSectionTests
             }
         });
 
+        // Class STATE-IN-AUTOMATION-TREE-ONLY (investigation section-catalog-apply, Phase 4): a row whose state lives only in
+        // the automation tree reads as choosable to a pointer user. Opens every sheet the Modal rows show (the enumeration
+        // above) and requires each item whose ItemStatus is disabled/invalid to carry the matching style class. The library
+        // holds one damaged file so the catalog states a damaged My-sections row next to the pending catalog rows.
+        DesktopChecks.Check("AutomationState_HasRenderedState", () =>
+        {
+            string root = BindRoot();
+            try
+            {
+                string library = Path.Combine(root, "sweep-library");
+                Directory.CreateDirectory(library);
+                File.WriteAllText(Path.Combine(library, "bad.foil"), "damaged");
+                using var controller = new WorkbenchController(sections: new SectionLibrary(library));
+                var host = new ShellHost(controller, pickOpenFile: () => Task.FromResult<string?>(null));
+                var sheets = new List<string>();
+                var problems = new List<string>();
+                int stated = 0;
+                void Sweep(string sheet, Window window)
+                {
+                    window.Show();
+                    Dispatcher.UIThread.RunJobs();
+                    try
+                    {
+                        sheets.Add(sheet);
+                        foreach (var control in Avalonia.LogicalTree.LogicalExtensions.GetLogicalDescendants(window).OfType<Control>())
+                        {
+                            if (AutomationProperties.GetItemStatus(control) is not { } status || status is not ("disabled" or "invalid"))
+                                continue;
+                            stated++;
+                            if (!control.Classes.Contains(status))
+                                problems.Add($"{sheet}: '{AutomationProperties.GetName(control) ?? control.Name ?? control.GetType().Name}' "
+                                    + $"has ItemStatus {status} but no '{status}' class");
+                        }
+                    }
+                    finally { window.Close(); }
+                }
+                host.ShowExportDialog = session => { Sweep("export dialog", new ExportDialog(session)); return Task.FromResult<ExportOutcome?>(null); };
+                host.ShowCatalogDialog = () => { Sweep("catalog dialog", new CatalogDialog(controller, controller.OpenCatalog())); return Task.CompletedTask; };
+                host.ShowSaveDialog = () =>
+                {
+                    Sweep("save dialog", new SaveSectionDialog(controller, _ => Task.CompletedTask));
+                    return Task.FromResult<string?>(null);
+                };
+                Wait(controller.OpenExampleAsync());
+                foreach (var row in CommandTable.Rows.Where(row => row.Modal))
+                {
+                    if (controller.Section is null) Wait(controller.EnterSectionAsync(0, EntryOrigin.Palette));
+                    Wait(host.RunCommand(row.Id));
+                }
+                // The import row opens the OS file picker, not a sheet the shell renders, so it adds no sheet here.
+                if (sheets.Count == 0 || stated == 0)
+                    throw new InvalidOperationException($"vacuous sweep: {sheets.Count} sheet(s) opened, {stated} stated item(s) read");
+                if (problems.Count > 0)
+                    throw new InvalidOperationException($"{sheets.Count} sheet(s), {stated} stated item(s): " + string.Join("; ", problems));
+                Console.WriteLine($"  AutomationState_HasRenderedState: {sheets.Count} sheet(s) opened ({string.Join(", ", sheets.Distinct())}), "
+                    + $"{stated} stated item(s) read");
+            }
+            finally
+            {
+                ReleaseRoot(root);
+            }
+        });
+
         DesktopChecks.Check("Commands_SectionMenu_ReplaceSaveImportRowsRun", () =>
         {
             (string Id, string Title)[] rows =
