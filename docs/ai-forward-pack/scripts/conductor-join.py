@@ -59,6 +59,18 @@ Exit 0 on a complete join; the failing step's number otherwise; 11 when the lead
 0) refuses; 12 for dirty-primary refusal (also --continue); 13 for a merge refusal without
 unmerged paths (a real conflict remains 1); 7 for residual dirt after committing; 2 on a usage
 error. Stdlib only.
+
+Recovery after exit 7: gates and push have not run. Read the diagnostic and inspect
+`git log -2`, `git status`, and the audit diff. A pre-commit refusal leaves no join chore
+commit; the merge may already exist locally. Commit or stash foreign work under its own
+session before retrying. A post-commit refusal leaves the join chore commit locally too:
+keep it local, separate foreign changes under their author's session, and repair any bad
+audit diff before proceeding. Once the tree and audit diff are verified, run the configured
+step-8 gates, then the intended push/build steps. Do not blindly retry with --continue:
+it performs another step-5 append and creates a second audit entry and chore commit.
+
+Derived-output ownership remains a timing boundary: a foreign session writing an eligible
+derived path during a join command can still be included. Joins require exclusive execution.
 """
 from __future__ import annotations
 
@@ -73,6 +85,7 @@ import sys
 import tempfile
 import time
 from pathlib import Path
+from collections.abc import Callable
 
 for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
@@ -211,7 +224,7 @@ class Join:
                 | self.paths("ls-files", "--others", "--exclude-standard"))
 
 
-def join_outputs(j: Join):
+def join_outputs(j: Join) -> Callable[[], dict[str, bytes | None]]:
     """Reuse the artifact registry's validated parser and longest-pattern classification.
 
     Only fingerprints changed by a join command become owned outputs. A file merely dirty
@@ -221,11 +234,10 @@ def join_outputs(j: Join):
     registry = j.root / ".agents"
     core["load_registry"](registry)  # Fail closed on an invalid registry, before commands run.
 
-    def snapshot():
+    def snapshot() -> dict[str, bytes | None]:
         result = {}
         for path in j.dirty_paths():
-            if (path == "docs/audit/audit-log.jsonl"
-                    or core["classify"](registry, path)[0] == "derived"):
+            if path != "docs/audit/audit-log.jsonl" and core["classify"](registry, path)[0] == "derived":
                 full = j.root / path
                 result[path] = hashlib.sha256(full.read_bytes()).digest() if full.is_file() else None
         return result
@@ -296,7 +308,7 @@ def dirty_fence(j: Join, branch: str, log) -> None:
     for path in dirty:
         kind = "untracked" if path in untracked else "staged" if path in staged else "modified"
         log("   - {0}  ({1}; {2})".format(path, kind, "the branch also changes it: the merge would refuse"
-                                           if path in on_branch else "step 7 would sweep it into the join commit"))
+                                           if path in on_branch else "unrelated work must be committed or stashed before joining"))
     log("\nconductor-join: step 0b (dirty-primary fence) refused - {0} uncommitted change(s) in this "
         "checkout [COORD-JOIN-DIRTY-PRIMARY]; commit them first under the session that wrote them "
         "(a ruling, a logged prompt or an audit append written into the primary is committed before "
@@ -319,6 +331,21 @@ def join(args, root: Path, contract: dict, log=print, *, _after_fence=None) -> i
 
     leader_fence(j, getattr(args, "epoch", None), log)
     dirty_fence(j, args.branch, log)
+    audit_relative = "docs/audit/audit-log.jsonl"
+    audit_path = root / audit_relative
+
+    def audit_hash() -> str | None:
+        if not audit_path.exists():
+            return None
+        hashed = j.git("hash-object", "--", audit_relative)
+        if hashed.returncode:
+            log("conductor-join: cannot hash audit log (exit 7): " + hashed.stderr)
+            raise SystemExit(7)
+        return hashed.stdout.strip()
+
+    # Capture immediately after the fence, before any test seam or merge can write.
+    audit_expected = audit_hash()
+    head_at_fence = j.git("rev-parse", "HEAD").stdout.strip()
     # Private in-process seam: self-tests can reproduce a writer racing the fence.
     # No command-line option or inherited environment variable can activate it.
     if _after_fence is not None:
@@ -340,6 +367,12 @@ def join(args, root: Path, contract: dict, log=print, *, _after_fence=None) -> i
         if merge.returncode != 0:
             conflicts = sorted(j.paths("diff", "--name-only", "--diff-filter=U"))
             if not conflicts:
+                if j.git("rev-parse", "--verify", "-q", "MERGE_HEAD").returncode == 0:
+                    log("\nconductor-join: merge started but its commit did not complete "
+                        "[COORD-JOIN-MERGE-INCOMPLETE] (exit 1); MERGE_HEAD exists. "
+                        "Inspect git's diagnostic and the staged merge, finish the commit "
+                        "by hand, then re-run with --continue.")
+                    return 1
                 log("\nconductor-join: merge refused [COORD-JOIN-MERGE-REFUSED] (exit {0}); "
                     "git did not create unmerged paths. Git's full refusal follows:".format(EXIT_MERGE_REFUSED))
                 # Git names the paths in its own diagnostic (including overwrite refusals).
@@ -357,6 +390,14 @@ def join(args, root: Path, contract: dict, log=print, *, _after_fence=None) -> i
             return 1
     else:
         log("\n== step 1: --continue (the merge was resolved by hand)")
+
+    if j.git("rev-parse", "HEAD").stdout.strip() != head_at_fence:
+        # Accept committed audit history brought by the merge, never a worktree append.
+        tree = j.git("ls-tree", "HEAD", "--", audit_relative)
+        if tree.returncode:
+            log("conductor-join: cannot read merged audit baseline (exit 7): " + tree.stderr)
+            return 7
+        audit_expected = tree.stdout.split()[2] if tree.stdout.strip() else None
 
     merge_staged = j.paths("diff", "--cached", "--name-only")
     snapshot = join_outputs(j)
@@ -400,7 +441,26 @@ def join(args, root: Path, contract: dict, log=print, *, _after_fence=None) -> i
              "--signal-acceptance-met", "true"]
     for a in args.artifact:
         audit += ["--artifact", a]
-    run_output(5, "audit entry", audit)
+    if audit_hash() != audit_expected:
+        log("conductor-join: audit log changed since the fence/committed merge "
+            "[COORD-JOIN-AUDIT-CHANGED] (exit 7); own append and commit did not run; "
+            "foreign work is kept in docs/audit/audit-log.jsonl.")
+        return 7
+    audit_before = audit_path.read_bytes() if audit_path.exists() else b""
+    appended = run_output(5, "audit entry", audit)
+    audit_after = audit_path.read_bytes()
+    added = audit_after[len(audit_before):] if audit_after.startswith(audit_before) else b""
+    try:
+        own_entry = json.loads(added) if len(added.splitlines()) == 1 else {}
+    except ValueError:
+        own_entry = {}
+    if (not added.endswith(b"\n") or not isinstance(own_entry, dict)
+            or own_entry.get("id") != appended.stdout.strip()):
+        log("conductor-join: audit append was not exactly the join's one entry "
+            "[COORD-JOIN-AUDIT-CHANGED] (exit 7); commit did not run.")
+        return 7
+    audit_expected = audit_hash()
+    produced.add(audit_relative)
 
     regenerate = contract.get("regenerate")
     if regenerate is None:
@@ -408,7 +468,13 @@ def join(args, root: Path, contract: dict, log=print, *, _after_fence=None) -> i
     for command in regenerate:
         run_output(6, "regenerate derived views", _interp(command))
 
-    produced.update(p for p in j.dirty_paths() if p.startswith(".agents/log/"))
+    if audit_hash() != audit_expected:
+        log("conductor-join: audit log changed after the own append "
+            "[COORD-JOIN-AUDIT-CHANGED] (exit 7); commit did not run; foreign work is kept.")
+        return 7
+    dirty_now = j.dirty_paths()
+    produced.intersection_update(dirty_now)
+    produced.update(p for p in dirty_now if p.startswith(".agents/log/"))
     unexpected_staged = j.paths("diff", "--cached", "--name-only") - merge_staged - produced
     if unexpected_staged:
         log("conductor-join: unrelated staged paths appeared after the fence; refusing commit (exit 7):")
@@ -420,6 +486,13 @@ def join(args, root: Path, contract: dict, log=print, *, _after_fence=None) -> i
     j.run(7, "commit", ["git", "commit", "-q", "-m",
                         "chore(join): {0} - the join's audit entry, derived views, floors{1}".format(
                             args.audit_shortname, trailer)])
+
+    audit_diff = j.git("diff", "--numstat", "--no-renames", "HEAD^", "HEAD", "--", audit_relative)
+    if audit_diff.returncode or audit_diff.stdout.split() != ["1", "0", audit_relative]:
+        log("conductor-join: join commit audit diff is not exactly one added line "
+            "[COORD-JOIN-AUDIT-DIFF] (exit 7); commit exists locally; gates and push did not run. "
+            "Inspect and repair the local commit; --continue would append a second entry.")
+        return 7
 
     status = j.git("status", "--porcelain=v1", "-z", "--untracked-files=all")
     if status.returncode:
@@ -615,7 +688,7 @@ def self_test() -> int:
             problems.append("the merge ran although the dirty-primary fence refused")
         if not any("COORD-JOIN-DIRTY-PRIMARY" in line for line in lines):
             problems.append("the dirty-primary refusal is not named")
-        if not any(line.startswith("   - README.md  (modified; step 7 would sweep") for line in lines):
+        if not any(line.startswith("   - README.md  (modified; unrelated work must be committed") for line in lines):
             problems.append("the dirty-primary fence did not list README.md as a modified path the join would sweep")
         if "an uncommitted register write" not in (repo / "README.md").read_text(encoding="utf-8"):
             problems.append("the dirty-primary fence changed or dropped the uncommitted change")
@@ -882,6 +955,16 @@ def self_test() -> int:
         return (status == 7 and any("COORD-JOIN-AUDIT-DIFF" in l for l in lines)
                 and not any("step 8:" in l for l in lines))
 
+    def merged_audit_history(root, args, lines, run):
+        git(root, "checkout", "-q", "feature")
+        (root / "docs/audit/audit-log.jsonl").write_text('{"id":"branch-history"}\n', encoding="utf-8")
+        git(root, "add", "docs/audit/audit-log.jsonl")
+        git(root, "commit", "-qm", "committed branch audit history")
+        git(root, "checkout", "-q", "main")
+        status = run()
+        entries = [json.loads(line) for line in git(root, "show", "HEAD:docs/audit/audit-log.jsonl").splitlines()]
+        return status == 0 and len(entries) == 2 and entries[0]["id"] == "branch-history"
+
     def transient_output(root, args, lines, run):
         (root / "generate.py").write_text(
             "from pathlib import Path\n"
@@ -912,6 +995,7 @@ def self_test() -> int:
     r2_case("R2 repair: foreign audit append before step 5 refused, not carried", foreign_audit)
     r2_case("R2 repair: foreign audit append at step 6 refused, not carried", foreign_audit_after_append)
     r2_case("R2 repair: post-commit audit diff must be exactly one added line", audit_commit_diff)
+    r2_case("R2 repair: committed branch audit history remains joinable", merged_audit_history)
     r2_case("R2 repair: transient generated path does not break staging", transient_output)
     r2_case("R2 repair: failed merge hook leaves MERGE_HEAD, not a refusal", merge_hook_failure)
     if problems:
@@ -921,7 +1005,7 @@ def self_test() -> int:
           "nonzero child status stops its join step; a clean join completes with a measured T1 entry; "
           "conflict markers and stale epochs stop before the join commit; an uncommitted change in the "
           "checkout stops at the dirty-primary fence and a session log alone does not; "
-          "R2 cases A/B/C and derived outputs pass")
+          "R2 cases A/B/C, derived outputs, and repair-cycle audit/merge guards pass")
     return 0
 
 
