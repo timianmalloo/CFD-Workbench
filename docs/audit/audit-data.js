@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-26T15:31:30Z",
+  "generated": "2026-10-26T15:32:49Z",
   "audit": [
     {
       "actor": null,
@@ -43084,6 +43084,21 @@ window.AUDIT_DATA = {
       "datetime": "2026-10-26T15:31:30Z",
       "session": "prompt-log",
       "prompt": "pick up from the last two sessions. last session i did an investigate of some ux issues. session before was continuing on overdue work. both have left next-steps. build a table of next steps, create a plan to execute then /prepare-for-coordination on the plan then /execute-with-coordination the plan. --- use Opus as the leader, use Fable as the owner, use Opus and Sonnet for claude's coding sub agents and use Grok and Codex for coding tasks (with whatever their latest best coding model option is)",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M5WDFG4RJ6B6FBKTT26787VC",
+      "shortname": "operator answers 2026-10-26: DR-INV-1 = a 'Modified from NACA 0012' on e…",
+      "datetime": "2026-10-26T15:32:47Z",
+      "session": "prompt-log",
+      "prompt": "operator answers 2026-10-26: DR-INV-1 = a 'Modified from NACA 0012' on every surface; DR-INV-2 = a listed, muted, reason in detail line + state tag; B7 = encode re-measure only, compatible fit stays design-only; B9 = delete only fully merged old branches (git branch -d), list unmerged",
       "summary": "prompt logged for reuse",
       "kind": "prompt",
       "skill": null,
