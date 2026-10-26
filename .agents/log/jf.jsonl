@@ -25,3 +25,14 @@
 {"agent": "jf", "at": 1793031734.0538578, "kind": "release", "path": "tools/qualify-windows-runtime.py", "seq": 25, "session": "jf", "wi": "jf"}
 {"agent": "jf", "at": 1793031734.2056148, "kind": "release", "path": "tools/verify-application-adapters.py", "seq": 26, "session": "jf", "wi": "jf"}
 {"agent": "jf", "at": 1793031734.3620708, "kind": "release", "path": "tools/verify-application-core.py", "seq": 27, "session": "jf", "wi": "jf"}
+{"agent": "jf", "at": 1793033210.1013997, "kind": "claim", "path": "docs/ai-forward-pack/scripts/conductor-join.py", "seq": 28, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793033210.370177, "kind": "claim", "path": "tests/test_dotnet_cli_home_env.py", "seq": 29, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793033569.6085806, "kind": "claim", "path": "docs/investigations/join-dirty-primary.md", "seq": 30, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793033629.1816294, "kind": "claim", "path": "docs/ai-forward-pack/scripts/conductor-join.py", "seq": 31, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793033629.3930683, "kind": "claim", "path": "tests/test_dotnet_cli_home_env.py", "seq": 32, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793033715.9891002, "kind": "claim", "path": "docs/ai-forward-pack/scripts/conductor-join.py", "seq": 33, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793033716.407319, "kind": "claim", "path": "tests/test_dotnet_cli_home_env.py", "seq": 34, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793033716.6369166, "kind": "claim", "path": "docs/investigations/join-dirty-primary.md", "seq": 35, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793033717.7689881, "kind": "release", "path": "docs/ai-forward-pack/scripts/conductor-join.py", "seq": 36, "session": "jf", "wi": "jf"}
+{"agent": "jf", "at": 1793033717.995266, "kind": "release", "path": "tests/test_dotnet_cli_home_env.py", "seq": 37, "session": "jf", "wi": "jf"}
+{"agent": "jf", "at": 1793033718.1855168, "kind": "release", "path": "docs/investigations/join-dirty-primary.md", "seq": 38, "session": "jf", "wi": "jf"}

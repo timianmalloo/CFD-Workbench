@@ -1,0 +1,13 @@
+{"agent": "hx", "at": 1793032326.1695085, "kind": "session-start", "path": "-", "seq": 1, "session": "hx", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-w3-hx-harness"}
+{"agent": "hx", "at": 1793032595.648611, "kind": "claim", "path": "tests/CfdWorkbench.Desktop.Tests/ControllerShellTests.cs", "seq": 2, "session": "hx", "ttl": 300.0, "wi": "hx"}
+{"agent": "hx", "at": 1793032648.791429, "kind": "claim", "path": "src/CfdWorkbench.Analysis/Labels.cs", "seq": 3, "session": "hx", "ttl": 300.0, "wi": "hx"}
+{"agent": "hx", "at": 1793032649.0496826, "kind": "claim", "path": "src/CfdWorkbench.Desktop/WorkbenchController.cs", "seq": 4, "session": "hx", "ttl": 300.0, "wi": "hx"}
+{"agent": "hx", "at": 1793032765.057178, "kind": "release", "path": "src/CfdWorkbench.Analysis/Labels.cs", "seq": 5, "session": "hx", "wi": "hx"}
+{"agent": "hx", "at": 1793032765.245927, "kind": "release", "path": "src/CfdWorkbench.Desktop/WorkbenchController.cs", "seq": 6, "session": "hx", "wi": "hx"}
+{"agent": "hx", "at": 1793032777.9925056, "kind": "claim", "path": "tools/run-tests.sh", "seq": 7, "session": "hx", "ttl": 300.0, "wi": "hx"}
+{"agent": "hx", "at": 1793032783.8519752, "kind": "release", "path": "tools/run-tests.sh", "seq": 8, "session": "hx", "wi": "hx"}
+{"agent": "hx", "at": 1793032943.380608, "kind": "claim", "path": "tests/CfdWorkbench.Desktop.Tests/VerticesLifetimeProbe.cs", "seq": 9, "session": "hx", "ttl": 300.0, "wi": "hx"}
+{"agent": "hx", "at": 1793033157.2543902, "kind": "release", "path": "tests/CfdWorkbench.Desktop.Tests/ControllerShellTests.cs", "seq": 10, "session": "hx", "wi": "hx"}
+{"agent": "hx", "at": 1793033157.400952, "kind": "release", "path": "tests/CfdWorkbench.Desktop.Tests/VerticesLifetimeProbe.cs", "seq": 11, "session": "hx", "wi": "hx"}
+{"agent": "hx", "at": 1793033185.3307981, "kind": "claim", "path": "tests/CfdWorkbench.Analysis.Tests/CompareTests.cs", "seq": 12, "session": "hx", "ttl": 300.0, "wi": "hx"}
+{"agent": "hx", "at": 1793033534.6372037, "kind": "release", "path": "tests/CfdWorkbench.Analysis.Tests/CompareTests.cs", "seq": 13, "session": "hx", "wi": "hx"}
