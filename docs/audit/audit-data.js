@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-26T16:31:26Z",
+  "generated": "2026-10-26T16:56:58Z",
   "audit": [
     {
       "actor": null,
@@ -43285,6 +43285,27 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-26T16:25:39Z",
       "duration_seconds": 347.0
+    },
+    {
+      "id": "al-01M5WJ9MAX80EVW3F6CEHSRDP5",
+      "shortname": "hx-harness",
+      "datetime": "2026-10-26T16:56:58Z",
+      "session": "hx",
+      "prompt": "HX coder wave 3: harness and small fixes B4-B7 per briefs/hx.md",
+      "summary": "Match receipt Labels.MatchReceipt (COPY-628), already-matches test+mutant, probe N2-N4, status-strip race fixed in the check, encode at cap median 60 ms Release (under 100), unset split; run-tests green; 20 repeats pending (foreign Desktop process present)",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "HX harness and small fixes B4-B7 (wave 3)",
+      "done_when": "items 1-6 evidence; 20 repeats alone pending",
+      "tier": "T1",
+      "started_at": "2026-10-26T16:32:47Z",
+      "duration_seconds": 1451.0
     }
   ],
   "changes": [
