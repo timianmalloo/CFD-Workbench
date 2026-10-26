@@ -3718,7 +3718,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "87de34c30a7b011b0b75045698e9a6de4a599ee325b318e45248d20a6a7efd5a"
+      "sourceSha256": "b7e334d58aa29bdb7597d41ae62cb02b0a3d4c9450ead65940c6215ac99b711d"
     },
     {
       "id": "design-next-cad-increment",
@@ -16064,6 +16064,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "1257bc0ede1aaf57db308757267eff5a7ed6c1aa4a7ad7551a9da4d43e89aef2"
     },
     {
+      "id": "proof-hx-status-strip",
+      "path": "docs/proof/hx-status-strip/README.md",
+      "title": "HX: the status-strip race and the encode cost at the 32 MB cap (wave 3)",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-11-26",
+      "reviewSuggested": [],
+      "summary": "Two reproducers: the StatusStrip_BackgroundCompletion check 20 times alone (20 of 20 PASS, 0 foreign processes) and the CompareFields encode at the 32,000,000-byte cap (median about 60 ms, cold first read 99.3 ms, at the limit).",
+      "tags": [
+        "harness",
+        "status-strip",
+        "flaky",
+        "encode-cost",
+        "desktop-harness"
+      ],
+      "links": [
+        {
+          "to": "coordination-wave3-next-steps",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "db21f25fa4535f95fd1e617e45cf3f01f59c687007d6e995a2aea8e4aaac693c"
+    },
+    {
       "id": "proof-hyg-core-cost",
       "path": "docs/proof/hyg/core-cost.md",
       "title": "HYG Core partition hints: measurements",
@@ -24506,5 +24533,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d6e634e3b60b6ce1890a4f108e0fff22b7bd8003b2df2711ecc38e914d7aca63"
+  "graphSha256": "3d5ee46c49ad5a1f697c6ab1163297e0a85b9924c60ad2c97de0cb998bd91a97"
 };

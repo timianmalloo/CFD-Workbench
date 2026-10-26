@@ -27,9 +27,21 @@ internal static partial class VerticesLifetimeProbe
 
     /// <summary>The pure verdict: the array arm is the positive control, so the probe passes only when held survived and the control crashed.</summary>
     public static (int Exit, string Line) Verdict(int held, int array, long draws, long collections) =>
-        held != 0 ? (held, $"FAIL VerticesLifetime held crashed ({Code(held)})")
+        held == TimedOut ? (held, $"FAIL VerticesLifetime held timed out (exit {TimedOut}, killed at the time limit): not a crash")
+        : held == NotDrained ? (held, $"FAIL VerticesLifetime held output did not drain (exit {NotDrained}): not a crash")
+        : held != 0 ? (held, $"FAIL VerticesLifetime held crashed ({Code(held)})")
         : array == 0 ? (1, "FAIL VerticesLifetime the array control did not crash: the probe is not sensitive")
+        : array is TimedOut or NotDrained ? (1, $"FAIL VerticesLifetime the array control {(array == TimedOut ? "timed out" : "output did not drain")} (exit {array}): it did not crash, so the probe is not sensitive")
         : (0, $"PASS VerticesLifetime: held survived {draws} draws under {collections} collections; the array control crashed ({Code(array)})");
+
+    /// <summary>The harness's exit for a child it killed at its time limit, and for one whose output never reached end of file (RunBufferedWithin).</summary>
+    private const int TimedOut = 124, NotDrained = 125;
+
+    /// <summary>The line for an arm name that is neither <c>array</c> nor <c>held</c>; null for the two arms.</summary>
+    public static string? ArmRefusal(string arm) => arm is "array" or "held" ? null : $"FAIL VerticesLifetime unknown arm '{arm}' (array or held)";
+
+    /// <summary>The line under a Debug build, where the JIT keeps every local live and the held verdict cannot be read.</summary>
+    public const string DebugSkipLine = "SKIP VerticesLifetime held verdict: Debug build, the JIT keeps every local live (run Release)";
 
     private static string Code(int exit) => "0x" + exit.ToString("X8", System.Globalization.CultureInfo.InvariantCulture);
 
@@ -39,8 +51,12 @@ internal static partial class VerticesLifetimeProbe
         int failed = VerdictChecks();
         if (!Enabled) { Console.WriteLine($"SKIP {Mode}: set {Variable}=1"); return failed == 0 ? 0 : 1; }
         Console.WriteLine($"VERTICES-PROBE optimizer={(Optimized ? "enabled (Release)" : "disabled (Debug)")}");
-        if (!Optimized) { Console.WriteLine("SKIP VerticesLifetime held verdict: Debug build, the JIT keeps every local live (run Release)"); return failed == 0 ? 0 : 1; }
-        int array = DesktopChecks.Spawn($"{Mode}=array");
+        if (!Optimized) { Console.WriteLine(DebugSkipLine); return failed == 0 ? 0 : 1; }
+        // CR2 N2: the control is expected to crash, so the harness lines about it (a FAIL ... native crash) are not printed inside a run that passes.
+        var controlLog = new StringWriter();
+        int array = DesktopChecks.SpawnWith(controlLog, controlLog, DesktopChecks.RunBuffered, [$"{Mode}=array"]);
+        if (array == 0 || array is TimedOut or NotDrained) Console.Write(controlLog);   // not the expected crash: the child's own lines are the evidence
+        Console.WriteLine($"VERTICES-PROBE control arm=array exited {Code(array)}{(array == 0 ? " (it should have crashed)" : "")}");
         var captured = new StringWriter();
         int held = DesktopChecks.SpawnWith(captured, Console.Error, DesktopChecks.RunBuffered, [$"{Mode}=held"]);
         Console.Write(captured);
@@ -69,14 +85,27 @@ internal static partial class VerticesLifetimeProbe
             "FAIL VerticesLifetime held crashed (0xC0000005)");
         Expect("VerticesLifetimeVerdict_ControlDidNotCrash_FailsInsensitive", Verdict(0, 0, 500, 600000), 1,
             "FAIL VerticesLifetime the array control did not crash: the probe is not sensitive");
+        // CR2 N3: the harness reports a child it killed at its time limit as exit 124 (and one whose output never drained as 125); neither is a native crash.
+        Expect("VerticesLifetimeVerdict_HeldTimedOut_ReadsAsATimeoutNotACrash", Verdict(124, unchecked((int)0xC0000005), 0, 0), 124,
+            "FAIL VerticesLifetime held timed out (exit 124, killed at the time limit): not a crash");
+        Expect("VerticesLifetimeVerdict_ControlTimedOut_IsNotACrashEither", Verdict(0, 124, 500, 600000), 1,
+            "FAIL VerticesLifetime the array control timed out (exit 124): it did not crash, so the probe is not sensitive");
+        // CR2 N4: the two paths a good live run does not take.
+        var refused = new StringWriter();
+        int refusedExit = RunArm("bogus", true, refused);   // RunArm's own exit 2, not a copy of the line
+        Expect("VerticesLifetimeArm_Unknown_ExitsTwoWithItsLine", (refusedExit, refused.ToString().TrimEnd()), 2, "FAIL VerticesLifetime unknown arm 'bogus' (array or held)");
+        Expect("VerticesLifetimeArm_ArrayAndHeld_Accepted", (0, ArmRefusal("array") ?? ArmRefusal("held") ?? ""), 0, "");
         return failures;
     }
 
     /// <summary>One arm in this process; exits 0 after the bounded time, or the process dies of the native fault.</summary>
-    public static int RunArm(string arm)
+    public static int RunArm(string arm) => RunArm(arm, Enabled, Console.Out);
+
+    /// <summary>The arm with its gate and output injected, so a check reaches the unknown-arm exit without a 60 s run.</summary>
+    internal static int RunArm(string arm, bool enabled, TextWriter output)
     {
-        if (!Enabled) return 0;
-        if (arm is not ("array" or "held")) { Console.WriteLine($"FAIL VerticesLifetime unknown arm '{arm}' (array or held)"); return 2; }
+        if (!enabled) return 0;
+        if (ArmRefusal(arm) is { } refusal) { output.WriteLine(refusal); return 2; }
         var rng = new Random(20261022);
         var points = new SKPoint[VertexCount];
         var colors = new SKColor[VertexCount];
