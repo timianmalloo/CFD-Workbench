@@ -177,6 +177,7 @@ public sealed class ProjectStore : IProjectStore, IDisposable
             using var parent = ParentPath.Open(path); using var target = OpenRegular(parent.Fd, parent.Name);
             byte[] bytes = ReadAll(target.Fd, cancellation);
             parent.Verify(); Require(SameEntry(parent.Fd, parent.Name, target.Fd), "DOC-CONFLICT"); count = bytes.Length;
+            Emit("store.read-origin", DocumentOrigin.Local.ToString(), timer.Elapsed.TotalMilliseconds, null, null, traceId, null, null);
             return new ReadResult(bytes, Identity.Sha256(bytes));
         }
         catch (OperationCanceledException) { code = "DOC-CANCELLED"; throw new ContractError(code); }
