@@ -486,5 +486,5 @@ public static class Labels
     /// <summary>The status receipt of Match the blend (SF2-COPY-7, COPY-628; DESIGN.md holds the row). Names, µm and η % as the strip shows them.</summary>
     public static string MatchReceipt(string station, string left, string right, double changeMeters, double atEta) =>
         string.Create(CultureInfo.InvariantCulture, $"Matched {station} to the blend of {left} and {right}. Largest change {changeMeters * 1e6:F2} µm at η {atEta * 100:F1} %. Thickness: keep current."); // COPY-628
-    public static readonly string[] VectorKey =["V∞", "Local inflow", "Lift", "Drag, profile (cap: Ncrit 2–4 band)", "Drag, induced", "Pitching-moment couple"]; // COPY-SF16
+    public static readonly string[] VectorKey = ["V∞", "Local inflow", "Lift", "Drag, profile (cap: Ncrit 2–4 band)", "Drag, induced", "Pitching-moment couple"]; // COPY-SF16
 }

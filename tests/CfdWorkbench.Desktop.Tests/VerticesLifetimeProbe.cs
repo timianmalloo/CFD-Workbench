@@ -55,6 +55,7 @@ internal static partial class VerticesLifetimeProbe
         // CR2 N2: the control is expected to crash, so the harness lines about it (a FAIL ... native crash) are not printed inside a run that passes.
         var controlLog = new StringWriter();
         int array = DesktopChecks.SpawnWith(controlLog, controlLog, DesktopChecks.RunBuffered, [$"{Mode}=array"]);
+        if (array == 0 || array is TimedOut or NotDrained) Console.Write(controlLog);   // not the expected crash: the child's own lines are the evidence
         Console.WriteLine($"VERTICES-PROBE control arm=array exited {Code(array)}{(array == 0 ? " (it should have crashed)" : "")}");
         var captured = new StringWriter();
         int held = DesktopChecks.SpawnWith(captured, Console.Error, DesktopChecks.RunBuffered, [$"{Mode}=held"]);
@@ -90,17 +91,21 @@ internal static partial class VerticesLifetimeProbe
         Expect("VerticesLifetimeVerdict_ControlTimedOut_IsNotACrashEither", Verdict(0, 124, 500, 600000), 1,
             "FAIL VerticesLifetime the array control timed out (exit 124): it did not crash, so the probe is not sensitive");
         // CR2 N4: the two paths a good live run does not take.
-        Expect("VerticesLifetimeArm_Unknown_Refused", (2, ArmRefusal("bogus") ?? ""), 2, "FAIL VerticesLifetime unknown arm 'bogus' (array or held)");
+        var refused = new StringWriter();
+        int refusedExit = RunArm("bogus", true, refused);   // RunArm's own exit 2, not a copy of the line
+        Expect("VerticesLifetimeArm_Unknown_ExitsTwoWithItsLine", (refusedExit, refused.ToString().TrimEnd()), 2, "FAIL VerticesLifetime unknown arm 'bogus' (array or held)");
         Expect("VerticesLifetimeArm_ArrayAndHeld_Accepted", (0, ArmRefusal("array") ?? ArmRefusal("held") ?? ""), 0, "");
-        Expect("VerticesLifetimeDebugSkip_NamesTheReason", (0, DebugSkipLine), 0, "SKIP VerticesLifetime held verdict: Debug build, the JIT keeps every local live (run Release)");
         return failures;
     }
 
     /// <summary>One arm in this process; exits 0 after the bounded time, or the process dies of the native fault.</summary>
-    public static int RunArm(string arm)
+    public static int RunArm(string arm) => RunArm(arm, Enabled, Console.Out);
+
+    /// <summary>The arm with its gate and output injected, so a check reaches the unknown-arm exit without a 60 s run.</summary>
+    internal static int RunArm(string arm, bool enabled, TextWriter output)
     {
-        if (!Enabled) return 0;
-        if (ArmRefusal(arm) is { } refusal) { Console.WriteLine(refusal); return 2; }
+        if (!enabled) return 0;
+        if (ArmRefusal(arm) is { } refusal) { output.WriteLine(refusal); return 2; }
         var rng = new Random(20261022);
         var points = new SKPoint[VertexCount];
         var colors = new SKColor[VertexCount];

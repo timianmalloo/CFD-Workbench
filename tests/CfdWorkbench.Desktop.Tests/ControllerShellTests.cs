@@ -75,13 +75,18 @@ public static class ControllerShellTests
             // not replace it. The shell's sink does exactly this for every such report.
             // HX (B5): the sampling runs beside this setup, so under load it can finish before the report is shown. That ordering is
             // not the defect; the old setup Require failed on it. An attempt where the sampling won is inconclusive and is repeated.
-            for (int attempt = 0; attempt < 20; attempt++)
-                if (SupersedeAttempt(null) == SupersedeOutcome.SupersededFirst) return;
+            for (int attempt = 1; attempt <= 20; attempt++)
+                if (SupersedeAttempt(null) == SupersedeOutcome.SupersededFirst)
+                {
+                    Console.WriteLine($"INFO StatusStrip_BackgroundCompletion_DoesNotReplaceNewerReport conclusive at attempt {attempt} of 20 (drift toward 20 means the sampling is winning the race)");
+                    return;
+                }
             throw new InvalidOperationException("the sampling finished before the report in all 20 attempts: the check never saw the interleaving it guards");
         });
 
         // HX (B5): the other interleaving, forced. The hook waits for the completion to write its report, so the report comes after it; the
         // slot must then be unchanged by the report (no write follows it) and the attempt reads as inconclusive, never as a failure.
+        // This proves the classification only (completion-first is not red); it says nothing about the guard, which the check above owns.
         DesktopChecks.Check("StatusStrip_BackgroundCompletion_FinishedFirst_ReadsInconclusiveNotRed", () =>
         {
             var outcome = SupersedeAttempt(controller =>
@@ -619,10 +624,15 @@ public static class ControllerShellTests
         var point = controller.Planform!.Trailing.Points.First(item => item.Role == PointRole.Control);
         controller.ApplyPointCommandAsync(new PointCommand.MakeAnchor(point.Curve, point.Id)).GetAwaiter().GetResult();
         betweenCommandAndReport?.Invoke(controller);
+        // The completion's own signal: its Notify() runs after the slot write (TryReplace) it ends with, whereas Provenance is set before it.
+        // Subscribed before the report, so a completion after the report cannot be missed; one before it already left "Accepted η" in the slot.
+        using var completed = new ManualResetEventSlim();
+        Action onChanged = () => { if (controller.Provenance == "accepted") completed.Set(); };
+        controller.Changed += onChanged;
         long shown = controller.SupersedeStatus();   // the version the report took, in the same locked step
-        var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(8);
-        while (controller.Provenance != "accepted" && DateTime.UtcNow < deadline) Thread.Sleep(5);
-        Require(controller.Provenance == "accepted", "sampling did not finish: " + controller.Provenance);
+        if (!controller.Status.StartsWith("Accepted η", StringComparison.Ordinal))
+            Require(completed.Wait(TimeSpan.FromSeconds(8)), "sampling did not finish: " + controller.Provenance);
+        controller.Changed -= onChanged;
         // Every slot write moves the version, so a completion that wrote after the report leaves it above the value the report took.
         Require(controller.StatusVersion == shown, $"the sampling completion replaced the newer report: '{controller.Status}'");
         return controller.Status.StartsWith("Accepted η", StringComparison.Ordinal) ? SupersedeOutcome.CompletedFirst : SupersedeOutcome.SupersededFirst;
