@@ -261,7 +261,7 @@ def dirty_fence(j: Join, branch: str, log) -> None:
     raise SystemExit(EXIT_DIRTY)
 
 
-def join(args, root: Path, contract: dict, log=print) -> int:
+def join(args, root: Path, contract: dict, log=print, *, _after_fence=None) -> int:
     env = dict(os.environ)
     env.setdefault("PYTHONIOENCODING", "utf-8")
     session = args.session or env.get("AGENT_SESSION") or contract.get("session") or "conductor"
@@ -277,6 +277,10 @@ def join(args, root: Path, contract: dict, log=print) -> int:
     leader_fence(j, getattr(args, "epoch", None), log)
     if not args.cont:
         dirty_fence(j, args.branch, log)
+    # Private in-process seam: self-tests can reproduce a writer racing the fence.
+    # No command-line option or inherited environment variable can activate it.
+    if _after_fence is not None:
+        _after_fence(root)
 
     trailer = ""
     trailer_file = args.trailer_file or contract.get("trailer_file")
@@ -627,6 +631,97 @@ def self_test() -> int:
             problems.append("the merge ran although the leader fence refused")
         if not any("COORD-JOIN-EPOCH-STALE" in line for line in lines):
             problems.append("the fence's refusal is not named")
+    # R2 cases use independent repositories so a failed assertion cannot poison another case.
+    def r2_case(name, probe):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            git(root, "init", "-q", "-b", "main")
+            git(root, "config", "user.email", "join@example.invalid")
+            git(root, "config", "user.name", "join")
+            (root / "README.md").write_text("base\n", encoding="utf-8")
+            git(root, "add", "README.md")
+            git(root, "commit", "-qm", "base")
+            git(root, "checkout", "-qb", "feature")
+            (root / "branch.txt").write_text("branch\n", encoding="utf-8")
+            git(root, "add", "branch.txt")
+            git(root, "commit", "-qm", "feature")
+            git(root, "checkout", "-q", "main")
+            args = _parser().parse_args(["feature", "--title", "merge", "--audit-shortname",
+                                         "r2", "--no-push", "--docs-only", "--session", "selftest"])
+            lines = []
+            contract = {"regenerate": [], "gates": []}
+
+            def run(hook=None):
+                try:
+                    return join(args, root, contract, log=lines.append, _after_fence=hook)
+                except SystemExit as exc:
+                    return exc.code
+
+            if not probe(root, args, lines, run):
+                problems.append(name)
+                print("conductor-join --self-test: FAILED - " + name)
+            else:
+                print("conductor-join --self-test: OK - " + name)
+
+    def late_write(root, args, lines, run):
+        status = run(lambda r: (r / "README.md").write_text("late write\n", encoding="utf-8"))
+        return (git(root, "show", "HEAD:README.md").strip() == "base"
+                and (root / "README.md").read_text(encoding="utf-8") == "late write\n"
+                and status == 7 and any("COORD-JOIN-DIRTY-AFTER-COMMIT" in l for l in lines)
+                and any("README.md" in l for l in lines)
+                and not any("step 8:" in l for l in lines))
+
+    def refusal(root, args, lines, run):
+        status = run(lambda r: (r / "branch.txt").write_text("untracked writer\n", encoding="utf-8"))
+        return (status == 13 and any("COORD-JOIN-MERGE-REFUSED" in l for l in lines)
+                and any(l == "   - branch.txt" for l in lines)
+                and not any("the merge has conflicts" in l for l in lines)
+                and (root / "branch.txt").read_text(encoding="utf-8") == "untracked writer\n")
+
+    def tracked_refusal(root, args, lines, run):
+        git(root, "checkout", "-q", "feature")
+        (root / "README.md").write_text("feature\n", encoding="utf-8")
+        git(root, "commit", "-qam", "change README")
+        git(root, "checkout", "-q", "main")
+        status = run(lambda r: (r / "README.md").write_text("local writer\n", encoding="utf-8"))
+        return (status == 13 and any("COORD-JOIN-MERGE-REFUSED" in l for l in lines)
+                and any(l == "   - README.md" for l in lines)
+                and not any("the merge has conflicts" in l for l in lines))
+
+    def conflict(root, args, lines, run):
+        git(root, "checkout", "-q", "feature")
+        (root / "README.md").write_text("feature\n", encoding="utf-8")
+        git(root, "commit", "-qam", "feature README")
+        git(root, "checkout", "-q", "main")
+        (root / "README.md").write_text("main\n", encoding="utf-8")
+        git(root, "commit", "-qam", "main README")
+        status = run()
+        return (status == 1 and any("the merge has conflicts" in l for l in lines)
+                and any(l == "   - README.md" for l in lines))
+
+    def continued(root, args, lines, run):
+        git(root, "merge", "--no-ff", "feature", "-m", "hand committed merge")
+        args.cont = True
+        args.branch = None
+        before = git(root, "rev-parse", "HEAD")
+        (root / "README.md").write_text("unrelated\n", encoding="utf-8")
+        status = run()
+        return (status == EXIT_DIRTY and git(root, "rev-parse", "HEAD") == before
+                and (root / "README.md").read_text(encoding="utf-8") == "unrelated\n"
+                and any("COORD-JOIN-DIRTY-PRIMARY" in l for l in lines))
+
+    def clean_continued(root, args, lines, run):
+        git(root, "merge", "--no-ff", "feature", "-m", "hand committed merge")
+        args.cont = True
+        args.branch = None
+        return run() == 0 and not git(root, "status", "--porcelain").strip()
+
+    r2_case("R2 case A: post-fence write stays dirty, outside commit; post-commit check exits 7", late_write)
+    r2_case("R2 case B: untracked overwrite refusal names path and exits 13", refusal)
+    r2_case("R2 case B: tracked overwrite refusal names path and exits 13", tracked_refusal)
+    r2_case("R2 real conflict: names path and exits 1", conflict)
+    r2_case("R2 case C: --continue fences unrelated dirt", continued)
+    r2_case("R2 case C: clean --continue leaves empty porcelain", clean_continued)
     if problems:
         print("conductor-join --self-test: FAILED - " + "; ".join(problems))
         return 1
