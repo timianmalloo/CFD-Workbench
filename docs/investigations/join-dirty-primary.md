@@ -135,7 +135,7 @@ lived only in the operator's sequencing, and a write made in the same turn as th
 | Phase | Scope | Failure mode it removes | Validation | Status |
 |---|---|---|---|---|
 | R1 | The step-0b fence, its two self-test cases, the writers' notes, the register entry | a join refused with a conflict message, or a write swept into a join commit | the self-test red on the unfenced join and green with it; `check-docs` green; the join of this branch itself | this branch |
-| R2 (follow-up) | `conductor-join` step 7 stages only the paths the join itself produced (the merge result, the derived views, the audit entry, the session logs) rather than `git add -A` | any future sweep the fence does not cover (a path dirtied between step 0b and step 7) | a self-test that dirties a path after the fence and asserts the join commit does not carry it | not started; the fence makes the window one step wide |
+| R2 (follow-up) | `conductor-join` step 7 stages only the paths the join itself produced (the merge result, the derived views, the audit entry, the session logs) rather than `git add -A` | any future sweep the fence does not cover (a path dirtied between step 0b and step 7) | a self-test that dirties a path after the fence and asserts the join commit does not carry it | landed on `w3-jf-join-fence`: explicit own-output staging, merge refusal exit 13 distinct from conflict exit 1, `--continue` fenced, post-commit porcelain checked (exit 7 on residual dirt); self-test cases A/B/C observed red then green |
 
 ## 10. Residual risk
 
