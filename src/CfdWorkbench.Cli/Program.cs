@@ -39,7 +39,7 @@ public static class Cli
     public static int ExitForCode(string code) => code switch
     {
         "DOC-CANCELLED" or "GEOMETRY-CANCELLED" => 130,
-        "DOC-VERSION" or "DOC-UNSUPPORTED-FIELD" or "DOC-UNSUPPORTED-PERSISTENCE" or "DOC-CLOUD-ONLY" or
+        "DOC-VERSION" or "DOC-UNSUPPORTED-FIELD" or "DOC-UNSUPPORTED-PERSISTENCE" or "DOC-UNSUPPORTED-PLATFORM" or "DOC-NOT-A-FILE" or "DOC-CLOUD-ONLY" or
             "DSL-VERSION" or "DSL-UNSUPPORTED" => 3,
         "GEOMETRY-BUDGET" or "DSL-NOT-ASSESSED" or "DSL-LIMIT" => 4,
         "DOC-IO" or "DOC-CONFLICT" or "DOC-SAVE-UNCERTAIN" => 5,

@@ -3838,7 +3838,7 @@ public sealed class WorkbenchController : IDisposable
                 }
                 SetStatus(uncertainImage is null ? Labels.SaveRefusal(result.Code)
                     : Labels.SaveUncertain, // COPY-421
-                    result.Code == "DOC-UNSUPPORTED-PERSISTENCE" ? ReportKind.Warning : ReportKind.Error);
+                    MainWindow.SaveFailureKind(result.Code));
             }
             Notify();
             return result;

@@ -280,7 +280,7 @@ public sealed partial class MainWindow : Window
         }
         catch (Exception error) when (error is ContractError or IOException or UnauthorizedAccessException)
         {
-            shellHost.Report(new StatusReport(SaveFailureText(error), (error as ContractError)?.Code == "DOC-UNSUPPORTED-PERSISTENCE" ? ReportKind.Warning : ReportKind.Error));
+            shellHost.Report(new StatusReport(SaveFailureText(error), SaveFailureKind((error as ContractError)?.Code)));
             throw;
         }
     }
@@ -290,6 +290,9 @@ public sealed partial class MainWindow : Window
     /// a thrown save is worded. The controller words a returned refusal through the same <see cref="Labels.SaveRefusal"/>.
     /// </summary>
     public static string SaveFailureText(Exception error) => Labels.SaveRefusal((error as ContractError)?.Code ?? "DOC-IO");
+
+    public static ReportKind SaveFailureKind(string? code) =>
+        code is "DOC-UNSUPPORTED-PERSISTENCE" or "DOC-UNSUPPORTED-PLATFORM" or "DOC-NOT-A-FILE" ? ReportKind.Warning : ReportKind.Error;
 
     private async Task<bool> MayReplaceAsync()
     {

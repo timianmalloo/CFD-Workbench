@@ -12,6 +12,13 @@ internal static class WindowsProjectStoreTests
 {
     internal static void Run()
     {
+        Check("WindowsStore_NewCodes_Mapping", () =>
+        {
+            var map = typeof(WindowsProjectStore).GetMethod("CodeOf", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!;
+            foreach (var error in new Exception[] { new DllNotFoundException(), new EntryPointNotFoundException(), new BadImageFormatException(),
+                new WindowsNative.NativeFailure(unchecked((int)0xC00000BA), 5), new WindowsNative.NativeFailure(null, 267) })
+                Equal(error is WindowsNative.NativeFailure ? "DOC-NOT-A-FILE" : "DOC-UNSUPPORTED-PLATFORM", (string)map.Invoke(null, [error])!);
+        });
         if (Environment.GetEnvironmentVariable("CFD_WIN_CRASH_STAGE") is { } crashStage) { CrashChild(crashStage); return; }
         if (Environment.GetEnvironmentVariable("CFD_WIN_CLEAR_STAGE") is { } clearStage) { ClearCrashChild(clearStage); return; }
         Check("WindowsNative_ProductCode_UnqualifiedWin32Error_IsUnmapped", () =>
@@ -712,7 +719,7 @@ internal static class WindowsProjectStoreTests
         Equal(0, Directory.GetFileSystemEntries(root).Length);
         // A directory in the leaf's place is refused too (design section 4: a disk regular file for leaves).
         string folder = Path.Combine(root, "folder.cfdw"); Directory.CreateDirectory(folder);
-        Equal("DOC-UNSUPPORTED-PERSISTENCE", Save(store, folder, new([1], null, Id())).Code);
+        Equal("DOC-NOT-A-FILE", Save(store, folder, new([1], null, Id())).Code);
         Equal(1, Directory.GetFileSystemEntries(root).Length);
     }
 

@@ -78,6 +78,7 @@ internal static class DesktopHarness
         if (args.Contains("--controller-shell", StringComparer.Ordinal))
         {
             CfdWorkbench.Desktop.Tests.ControllerShellTests.Run();
+            CfdWorkbench.Desktop.Tests.StoreCodeSurfaceTests.Run();
             Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
         }
 

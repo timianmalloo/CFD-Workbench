@@ -362,7 +362,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
         var (read, error) = await Read(RecentPath, ct).ConfigureAwait(false);
         if (error is not null)
         {
-            if (error == "DOC-UNSUPPORTED-PERSISTENCE") recentSession = true;
+            if (SessionOnlyCode(error)) recentSession = true;
             else { recentNeverWrite = true; recentBlock = error; }
             return ([], null, new PrefSave("never-write", error, false, false, false, null));
         }
@@ -406,7 +406,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
     private LayoutLoad LayoutReadFailed(LayoutDocument presets, string error)
     {
         lastActive = presets.Active;
-        if (error == "DOC-UNSUPPORTED-PERSISTENCE")
+        if (SessionOnlyCode(error))
         {
             layoutSession = true;
             return new LayoutLoad(presets, "session-only", ["LAYOUT-SESSION-ONLY", error], 0, 0, true, true, null);
@@ -418,7 +418,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
 
     private RecentLoad RecentReadFailed(string error)
     {
-        if (error == "DOC-UNSUPPORTED-PERSISTENCE")
+        if (SessionOnlyCode(error))
         {
             recentSession = true;
             return new RecentLoad([], "session-only", ["LAYOUT-SESSION-ONLY", error], true, true, null);
@@ -449,6 +449,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
     private static PrefSave Failed(SaveResult result) =>
         new(result.Code == "DOC-CANCELLED" ? "cancelled" : "failed", result.Code, result.PublicationKnown, result.DurabilityConfirmed, false, null);
 
+    private static bool SessionOnlyCode([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] string? code) => code is "DOC-UNSUPPORTED-PERSISTENCE" or "DOC-UNSUPPORTED-PLATFORM" or "DOC-NOT-A-FILE";
     private static PrefSave Session() => new("session-only", "LAYOUT-SESSION-ONLY", false, false, false, null);
 
     private async Task<SaveResult> Write(string path, byte[] image, string? expected, CancellationToken ct)
@@ -524,7 +525,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
             return new TextSizeLoad(fallback, "absent", [], false, false, null);
         }
         var (read, error) = await Read(DisplayPath, ct).ConfigureAwait(false);
-        if (error == "DOC-UNSUPPORTED-PERSISTENCE")
+        if (SessionOnlyCode(error))
         {
             displaySession = true;
             return new TextSizeLoad(fallback, "session-only", ["LAYOUT-SESSION-ONLY", error], true, true, null);
@@ -584,7 +585,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
                 displayHash = first.PublishedSha256;
                 return Saved(first, false);
             }
-            if (first.Code == "DOC-UNSUPPORTED-PERSISTENCE")
+            if (SessionOnlyCode(first.Code))
             {
                 displaySession = true;
                 return Session();

@@ -10,6 +10,13 @@ internal static class CliHarness
     {
         var output = new StringWriter();
         int cliFailures = 0;
+        try
+        {
+            foreach (string code in new[] { "DOC-UNSUPPORTED-PLATFORM", "DOC-NOT-A-FILE" })
+                if (Cli.ExitForCode(code) != 3) throw new Exception(code + " exit=" + Cli.ExitForCode(code));
+            Console.WriteLine("PASS Cli_NewStoreCodes_ExitThree");
+        }
+        catch (Exception error) { Console.WriteLine("FAIL Cli_NewStoreCodes_ExitThree " + error.Message); cliFailures++; }
         int exit = await Cli.RunAsync(["inspect", "example", "--json"], output);
         if (exit != 0) throw new Exception($"Example inspect returned {exit}: {output}");
         using var json = JsonDocument.Parse(output.ToString());

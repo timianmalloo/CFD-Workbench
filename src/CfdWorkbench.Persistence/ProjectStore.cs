@@ -158,7 +158,7 @@ public sealed class ProjectStore : IProjectStore, IDisposable
         catch (OperationCanceledException) { result = new(ClearOutcome.Failed, "DOC-CANCELLED", removed); }
         catch (ContractError error) { result = new(ClearOutcome.Failed, error.Code, removed); }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or DllNotFoundException or EntryPointNotFoundException or BadImageFormatException)
-        { result = new(ClearOutcome.Failed, error is DllNotFoundException or EntryPointNotFoundException or BadImageFormatException ? "DOC-UNSUPPORTED-PERSISTENCE" : "DOC-IO", removed); }
+        { result = new(ClearOutcome.Failed, error is DllNotFoundException or EntryPointNotFoundException or BadImageFormatException ? "DOC-UNSUPPORTED-PLATFORM" : "DOC-IO", removed); }
         finally
         {
             foreach (var (_, fd) in held) fd.Dispose();
@@ -182,7 +182,7 @@ public sealed class ProjectStore : IProjectStore, IDisposable
         catch (OperationCanceledException) { code = "DOC-CANCELLED"; throw new ContractError(code); }
         catch (ContractError error) { code = error.Code; throw; }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or DllNotFoundException or EntryPointNotFoundException or BadImageFormatException)
-        { code = error is DllNotFoundException or EntryPointNotFoundException or BadImageFormatException ? "DOC-UNSUPPORTED-PERSISTENCE" : "DOC-IO"; throw new ContractError(code); }
+        { code = error is DllNotFoundException or EntryPointNotFoundException or BadImageFormatException ? "DOC-UNSUPPORTED-PLATFORM" : "DOC-IO"; throw new ContractError(code); }
         finally { Emit("store.read", code, timer.Elapsed.TotalMilliseconds, count, count, traceId, null, null); }
     }
     private void Emit(string action, string code, double elapsed, int? input, int? output, string traceId, bool? published, bool? durable)
@@ -203,7 +203,7 @@ public sealed class ProjectStore : IProjectStore, IDisposable
         {
             Supported(); cancellation.ThrowIfCancellationRequested(); parent = ParentPath.Open(path);
             hooks?.Visit(StoreStage.ParentOpened);
-            if (Exists(parent.Fd, parent.Name, out var prior)) Require(IsRegular(prior), "DOC-UNSUPPORTED-PERSISTENCE");
+            if (Exists(parent.Fd, parent.Name, out var prior)) RequireRegular(prior);
             if (!request.CreateOnly)
             {
                 claim = OwnedEntry.Create(parent.Fd, ClaimName(), hooks?.CreationMode ?? 0x180); hooks?.Visit(StoreStage.ClaimCreated);
@@ -259,7 +259,7 @@ public sealed class ProjectStore : IProjectStore, IDisposable
         catch (OperationCanceledException) { code = published ? "DOC-SAVE-UNCERTAIN" : "DOC-CANCELLED"; }
         catch (ContractError error) { code = published ? "DOC-SAVE-UNCERTAIN" : error.Code; }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or DllNotFoundException or EntryPointNotFoundException or BadImageFormatException)
-        { code = published ? "DOC-SAVE-UNCERTAIN" : error is DllNotFoundException or EntryPointNotFoundException or BadImageFormatException ? "DOC-UNSUPPORTED-PERSISTENCE" : "DOC-IO"; }
+        { code = published ? "DOC-SAVE-UNCERTAIN" : error is DllNotFoundException or EntryPointNotFoundException or BadImageFormatException ? "DOC-UNSUPPORTED-PLATFORM" : "DOC-IO"; }
         finally
         {
             // Cleanup is handle-relative and removes only an entry still matching its retained owned handle.
@@ -313,7 +313,7 @@ public sealed class ProjectStore : IProjectStore, IDisposable
         }
         catch (ContractError error) { code = published ? "DOC-SAVE-UNCERTAIN" : error.Code; }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or DllNotFoundException or EntryPointNotFoundException or BadImageFormatException)
-        { code = published ? "DOC-SAVE-UNCERTAIN" : error is DllNotFoundException or EntryPointNotFoundException or BadImageFormatException ? "DOC-UNSUPPORTED-PERSISTENCE" : "DOC-IO"; }
+        { code = published ? "DOC-SAVE-UNCERTAIN" : error is DllNotFoundException or EntryPointNotFoundException or BadImageFormatException ? "DOC-UNSUPPORTED-PLATFORM" : "DOC-IO"; }
         finally
         {
             bool cleaned = (temp?.Cleanup() ?? true) & (claim?.Cleanup() ?? true);
@@ -369,19 +369,22 @@ public sealed class ProjectStore : IProjectStore, IDisposable
     internal static void Supported()
     {
         // Windows: the entry points dispatch to WindowsProjectStore, which admits x64 and ARM64 here and NTFS per path.
-        if (OperatingSystem.IsWindows()) { Require(WindowsProjectStore.PlatformAdmitted(), "DOC-UNSUPPORTED-PERSISTENCE"); return; }
+        if (OperatingSystem.IsWindows()) { Require(WindowsProjectStore.PlatformAdmitted(), "DOC-UNSUPPORTED-PLATFORM"); return; }
         // Every other platform stays fail-closed. No path-only fallback.
         Require(OperatingSystem.IsMacOS() && RuntimeInformation.ProcessArchitecture == Architecture.Arm64 &&
-            Marshal.SizeOf<Native.Stat>() == 144, "DOC-UNSUPPORTED-PERSISTENCE");
+            Marshal.SizeOf<Native.Stat>() == 144, "DOC-UNSUPPORTED-PLATFORM");
     }
     private static void Require(bool condition, string code) { if (!condition) throw new ContractError(code); }
     private static void Check(int result) { if (result < 0) throw Failure(Marshal.GetLastPInvokeError()); }
     private static ContractError Failure(int error) => new(error switch
     {
         17 => "DOC-CONFLICT", 2 => "DOC-CONFLICT", 28 => "DOC-DISK-FULL",
+        21 => "DOC-NOT-A-FILE", // Darwin EISDIR.
         // Darwin errno.h: ENOTDIR, ENOTSUP, ELOOP, ENAMETOOLONG, ENOSYS.
         20 or 45 or 62 or 63 or 78 => "DOC-UNSUPPORTED-PERSISTENCE", _ => "DOC-IO"
     });
+    private static void RequireRegular(Native.Stat stat) =>
+        Require(IsRegular(stat), (stat.Mode & 0xf000) == 0x4000 ? "DOC-NOT-A-FILE" : "DOC-UNSUPPORTED-PERSISTENCE");
     private static bool IsRegular(Native.Stat stat) => (stat.Mode & 0xf000) == 0x8000;
     private static bool Exists(int parent, string name, out Native.Stat stat)
     {
@@ -395,7 +398,7 @@ public sealed class ProjectStore : IProjectStore, IDisposable
     private static NativeFd OpenRegular(int parent, string name)
     {
         var handle = new NativeFd(Native.OpenAt(parent, name, Native.NoFollow | Native.NonBlock, 0));
-        try { Check(Native.Fstat(handle.Fd, out var stat)); Require(IsRegular(stat), "DOC-UNSUPPORTED-PERSISTENCE"); return handle; }
+        try { Check(Native.Fstat(handle.Fd, out var stat)); RequireRegular(stat); return handle; }
         catch { handle.Dispose(); throw; }
     }
     private static byte[] ReadAll(int fd, CancellationToken cancellation)

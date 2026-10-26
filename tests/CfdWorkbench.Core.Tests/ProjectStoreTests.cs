@@ -37,8 +37,8 @@ internal static class ProjectStoreTests
             {
                 string root = Root(), path = Path.Combine(root, "project"); using var store = new ProjectStore();
                 var result = Save(store, path, new([1, 2, 3], null, Id()));
-                Equal("DOC-UNSUPPORTED-PERSISTENCE", result.Code); Equal(false, result.PublicationKnown);
-                Refuses("DOC-UNSUPPORTED-PERSISTENCE", () => store.ReadAsync(path).GetAwaiter().GetResult());
+                Equal("DOC-UNSUPPORTED-PLATFORM", result.Code); Equal(false, result.PublicationKnown);
+                Refuses("DOC-UNSUPPORTED-PLATFORM", () => store.ReadAsync(path).GetAwaiter().GetResult());
                 Equal(0, Directory.GetFiles(root).Length);
             });
             return;

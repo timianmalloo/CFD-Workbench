@@ -95,7 +95,7 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
     {
         var (attributes, tag) = Observe(attribute, "attribute", name);
         var standard = WindowsNative.Standard(attribute);
-        Require((attributes & WindowsNative.AttributeDirectory) == 0 && standard.Directory == 0, "DOC-UNSUPPORTED-PERSISTENCE");
+        Require((attributes & WindowsNative.AttributeDirectory) == 0 && standard.Directory == 0, "DOC-NOT-A-FILE");
         Require(standard.DeletePending == 0, "DOC-CONFLICT");
         Require(standard.NumberOfLinks == 1, "DOC-UNSUPPORTED-PERSISTENCE");
         if (origin == DocumentOrigin.Local) { Require((attributes & WindowsNative.AttributeReparsePoint) == 0, "DOC-UNSUPPORTED-PERSISTENCE"); return; }
@@ -430,8 +430,9 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
         var handle = WindowsNative.OpenReader(parent.Handle, name, share);
         try
         {
-            Require((WindowsNative.AttributeTag(handle).Attributes & (WindowsNative.AttributeDirectory | WindowsNative.AttributeReparsePoint)) == 0,
-                "DOC-UNSUPPORTED-PERSISTENCE");
+            uint attributes = WindowsNative.AttributeTag(handle).Attributes;
+            Require((attributes & WindowsNative.AttributeDirectory) == 0, "DOC-NOT-A-FILE");
+            Require((attributes & WindowsNative.AttributeReparsePoint) == 0, "DOC-UNSUPPORTED-PERSISTENCE");
             var standard = WindowsNative.Standard(handle);
             Require(standard.DeletePending == 0, "DOC-CONFLICT");
             Require(standard.NumberOfLinks == 1, "DOC-UNSUPPORTED-PERSISTENCE");
@@ -467,7 +468,7 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
     {
         ContractError contract => contract.Code,
         // ntstatus.h STATUS_FILE_IS_A_DIRECTORY (0xC00000BA) reaches Win32 as ERROR_ACCESS_DENIED, so it is read from the NTSTATUS.
-        WindowsNative.NativeFailure { NtStatus: unchecked((int)0xC00000BA) } => "DOC-UNSUPPORTED-PERSISTENCE",
+        WindowsNative.NativeFailure { NtStatus: unchecked((int)0xC00000BA) } => "DOC-NOT-A-FILE",
         WindowsNative.NativeFailure failure => failure.ProductCode ?? failure.Win32Error switch
         {
             // ERROR_FILE_NOT_FOUND, ERROR_PATH_NOT_FOUND, ERROR_FILE_EXISTS, ERROR_ALREADY_EXISTS.
@@ -476,10 +477,11 @@ internal sealed class WindowsProjectStore(StoreHooks? hooks, Action<string, stri
             39 or 112 => "DOC-DISK-FULL",
             // ERROR_INVALID_FUNCTION, ERROR_NOT_SUPPORTED, ERROR_INVALID_NAME, ERROR_BAD_PATHNAME, ERROR_FILENAME_EXCED_RANGE,
             // ERROR_DIRECTORY, ERROR_REPARSE_POINT_ENCOUNTERED.
-            1 or 50 or 123 or 161 or 206 or 267 or 4390 => "DOC-UNSUPPORTED-PERSISTENCE",
+            1 or 50 or 123 or 161 or 206 or 4390 => "DOC-UNSUPPORTED-PERSISTENCE",
+            267 => "DOC-NOT-A-FILE",
             _ => "DOC-IO"
         },
-        DllNotFoundException or EntryPointNotFoundException or BadImageFormatException => "DOC-UNSUPPORTED-PERSISTENCE",
+        DllNotFoundException or EntryPointNotFoundException or BadImageFormatException => "DOC-UNSUPPORTED-PLATFORM",
         _ => "DOC-IO"
     };
 

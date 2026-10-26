@@ -414,8 +414,15 @@ public static class Labels
     public const string SaveUncertain ="Save not confirmed: CFD Workbench couldn't tell whether the file was fully written (DOC-SAVE-UNCERTAIN). Your changes are kept and still marked unsaved. Retry to check the file, or Save As."; // COPY-421 (Ruling 155)
 
     /// <summary>The strip sentence for a refused or failed foil save: one cause row per code family (COPY-412 to 423, Ruling 155). An unknown code gets the generic row, which still carries the code.</summary>
+    // ---- ST: store codes and copy (wave 3) ----
+    public const string OpenUnsupportedPlatform = "CFD Workbench can't open projects on this system. The file hasn't been changed."; // COPY-677 proposed
+    public const string OpenNotAFile = "This path is a folder. Choose a project file inside it. The folder hasn't been changed."; // COPY-678 proposed
+    public const string SaveNotAFile = "This path is a folder. Your changes are kept in this session. Use Save As to choose a project file name."; // COPY-679 proposed
+
     public static string SaveRefusal(string code) => code switch
     {
+        "DOC-UNSUPPORTED-PLATFORM" => SaveUnavailable, // keep approved COPY-31W
+        "DOC-NOT-A-FILE" => SaveNotAFile,
         "DOC-UNSUPPORTED-PERSISTENCE" => OperatingSystem.IsWindows() ? SaveUnavailableWindows : SaveUnavailable,
         "DOC-SAVE-UNCERTAIN" => SaveUncertain,
         "DOC-IO" => SaveFailed("the disk couldn't be written", code, "Retry or Save As."), // COPY-412
