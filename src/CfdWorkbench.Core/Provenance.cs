@@ -41,14 +41,14 @@ public sealed record Provenance(string? Origin, bool Modified)
     /// The one designation lookup: the catalog designation for a <c>gen:</c> or <c>vend:</c> origin, else the name the
     /// section was last replaced with, else the raw origin. Without an origin it is <paramref name="replaceName"/> or "".
     /// </summary>
-    public string SourceName(IReadOnlyList<CatalogEntry> catalog, string? replaceName = null)
+    public string SourceName(Func<IReadOnlyList<CatalogEntry>> catalog, string? replaceName = null)
     {
         if (Origin is not { } origin) return replaceName ?? "";
         int colon = origin.IndexOf(':');
         if (colon > 0 && (origin.StartsWith("gen:", StringComparison.Ordinal) || origin.StartsWith("vend:", StringComparison.Ordinal)))
         {
             string id = origin[(colon + 1)..];
-            var entry = catalog.FirstOrDefault(item => item.Id == id);
+            var entry = catalog().FirstOrDefault(item => item.Id == id);
             if (entry is not null) return entry.Designation;
         }
         return replaceName is { Length: > 0 } name ? name : origin;

@@ -1331,7 +1331,7 @@ public static class PropertiesView
 
     /// <summary>The recorded source's name for a profile in these bytes, by the one Core lookup.</summary>
     public static string SourceName(byte[] foil, string profile) =>
-        Provenance.Parse(FoilSource.Parse(foil).Profile(profile)?.Provenance).SourceName(CatalogOrEmpty());
+        Provenance.Parse(FoilSource.Parse(foil).Profile(profile)?.Provenance).SourceName(CatalogOrEmpty);
 
     private static IReadOnlyList<CatalogEntry> CatalogOrEmpty()
     {
