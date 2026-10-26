@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-26T15:59:19Z",
+  "generated": "2026-10-26T16:22:55Z",
   "audit": [
     {
       "actor": null,
@@ -43254,6 +43254,39 @@ window.AUDIT_DATA = {
       "fan_out": 1,
       "started_at": "2026-10-26T15:56:49Z",
       "duration_seconds": 150.0
+    },
+    {
+      "id": "al-01M5WGB960RMZTJPBF3B7J9TVW",
+      "shortname": "st-dispatch1-items1-5",
+      "datetime": "2026-10-26T16:22:55Z",
+      "session": "st",
+      "prompt": "Resume ST dispatch 1. You were interrupted by a model-capacity error after observing item 4 red (StoreCodes_ConflictExistenceProbe_OffDispatcher: existence probe dispatcher=True). Your uncommitted edits are in OpenOutcome.cs, WorkbenchController.cs, StoreCodeSurfaceTests.cs. Finish item 4 (green), then item 5 (one store Operation per action, red first; the RecordPersistence region of AuthoringSession.cs is yours per amendment 2), then run bash tools/run-tests.sh once and write your Return. Known environment defect, not yours: Cli InspectRuns_ChildHarness_SleepingChild_KilledAtTheLimit fails on every tree (cmd.exe cannot resolve ping: over-long User PATH) — report it, do not fix it.",
+      "summary": "Implemented ST items 1-5 with exact red/green evidence in docs/proof/st-store-codes. Commits split platform/directory codes across native, CLI, Warning status, StartView, preference load; append drive/NTFS remedy while preserving approved text; FormatMessage verifies 4390/4395, map 4395 and retain 4390 fail-closed; probe off dispatcher with real-dispatcher child test; one Operation per persistence action and read-origin on Windows/POSIX. One full run TESTS-RED 277s: Core 915/7/0; Analysis 307/1/2; Desktop 890/1/6; Cli 32/1/2. Suite-discovered ST copy and dispatcher-test regressions repaired. Separate Analysis rerun 309/1/0. Required controller-shell alone final rerun 156 PASS 0 FAIL, exit 0 after original exited124; copy-constant check PASS. Remaining CLI sleeping-child failure is the coordinator-known PATH/ping environment defect, untouched. check-docs green. No full-suite green or independent reviewer clearance claimed. Items6-10 not started. Extra edited files listed in proof. Graph hub kb-graph-and-loop-engineering absent; linked actual coordination upstream. Plan width1, five red-green increments then one suite; rework described in plan.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/st-store-codes/README.md",
+        "docs/proof/st-store-codes/run.sh",
+        "docs/plans/st-dispatch1.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Items 1-5 of ST: split store codes, drive remedy, Win32 mapping, off-dispatcher probe, one Operation per action.",
+      "done_when": "Each item has observed red/green evidence; run-tests.sh invoked once; report its actual result and known environment failure without starting dispatch2.",
+      "tier": "T1",
+      "main_calls": 44,
+      "main_budget": 45,
+      "main_over_budget": false,
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true
+      },
+      "started_at": "2026-10-26T16:00:09Z",
+      "duration_seconds": 1366.0
     }
   ],
   "changes": [
