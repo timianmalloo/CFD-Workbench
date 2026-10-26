@@ -6,6 +6,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
+using CfdWorkbench.Analysis;
 using CfdWorkbench.Core;
 using System.Globalization;
 
@@ -21,6 +22,8 @@ public partial class CatalogDialog : Window
     private readonly List<ListBoxItem> options = [];
     private int countTicket;
     private bool replacing;
+    // The row whose Enter arrived during its fit; the apply runs when that row's preview lands.
+    private ListBoxItem? armedApply;
 
     public CatalogDialog(WorkbenchController controller, CatalogSnapshot snapshot, Control? returnFocus = null,
         Action<TimeSpan, Action>? schedule = null)
@@ -85,7 +88,7 @@ public partial class CatalogDialog : Window
                             Reason: (string?)problem.Reason, Tag: "damaged"))).ToArray()
                 : snapshot.Entries.Where(entry => entry.Family == family && entry.Designation.Contains(query, StringComparison.OrdinalIgnoreCase))
                     .Select(entry => (Name: entry.Designation, Choice: (CatalogChoice)new CatalogChoice.Catalog(entry), Reason: entry.DisabledReason,
-                        Tag: entry.Class.ToString().ToUpperInvariant())).ToArray();
+                        Tag: RowTag(entry))).ToArray();
             if (rows.Length == 0 && family != CatalogFamily.MySections) continue;
             SectionList.Items.Add(new ListBoxItem { Content = title, IsEnabled = false, FontWeight = Avalonia.Media.FontWeight.SemiBold });
             foreach (var row in rows)
@@ -96,6 +99,7 @@ public partial class CatalogDialog : Window
                 AutomationProperties.SetName(item, row.Name);
                 if (row.Reason is not null)
                 {
+                    item.Classes.Add("disabled");
                     AutomationProperties.SetItemStatus(item, "disabled");
                     AutomationProperties.SetHelpText(item, row.Reason);
                 }
@@ -128,6 +132,17 @@ public partial class CatalogDialog : Window
         }
         else SectionList.SelectedItem = options[0];
     }
+
+    // A row with a reason names its state; a choosable row names its admission class.
+    private static string RowTag(CatalogEntry entry) => entry.DisabledReason is null
+        ? entry.Class.ToString().ToUpperInvariant()
+        : entry.Class switch
+        {
+            AdmissionClass.Gen => Labels.CatalogTagNotInBuild,
+            AdmissionClass.Vend => Labels.CatalogTagPending,
+            AdmissionClass.Link => Labels.CatalogTagCiteOnly,
+            _ => throw new ArgumentOutOfRangeException(nameof(entry), entry.Class, "Unknown admission class")
+        };
 
     private void OnSearchKeyDown(object? sender, KeyEventArgs args)
     {
@@ -163,6 +178,8 @@ public partial class CatalogDialog : Window
     private void SelectRow()
     {
         if (SectionList.SelectedItem is not ListBoxItem { Tag: CatalogChoice choice } item || !options.Contains(item)) return;
+        if (!ReferenceEquals(armedApply, item)) DropArmedApply();
+        controller.RecordCatalogSelect(choice);
         string? reason = choice switch
         {
             CatalogChoice.Catalog { Entry.DisabledReason: { } disabled } => disabled,
@@ -186,13 +203,18 @@ public partial class CatalogDialog : Window
 
     private void OnPreviewChanged()
     {
-        if (SectionList.SelectedItem is not ListBoxItem { Tag: CatalogChoice choice }) return;
+        if (SectionList.SelectedItem is not ListBoxItem { Tag: CatalogChoice choice } item) return;
         if (controller.CurrentPreview is { } preview && Equals(controller.PreviewChoice, choice))
         {
             DetailLine.Text = Detail(preview, choice);
             ReplaceButton.IsEnabled = true;
             ChainButton.IsVisible = false;
             UseSourceThickness.IsVisible = ShouldOfferThickness(preview);
+            if (ReferenceEquals(armedApply, item))
+            {
+                armedApply = null;
+                _ = ApplyAsync(ReplaceScope.Draft);
+            }
         }
         else if (controller.RefusedPreview is { } refused)
         {
@@ -200,12 +222,21 @@ public partial class CatalogDialog : Window
             ReplaceButton.IsEnabled = false;
             ChainButton.IsVisible = refused.RefusalCode == "CAT-SPACING" && refused.BlendChain is { Count: > 0 };
             if (ChainButton.IsVisible) ChainButton.Content = ChainText(refused.BlendChain!);
+            DropArmedApply();
         }
         else if (controller.PreviewFault is { } error)
         {
             DetailLine.Text = error.Reason ?? error.Code;
             ReplaceButton.IsEnabled = false;
+            DropArmedApply();
         }
+    }
+
+    private void DropArmedApply()
+    {
+        if (armedApply is null) return;
+        armedApply = null;
+        controller.RecordCatalogApplyDropped();
     }
 
     private string Detail(ReplacePreview preview, CatalogChoice choice)
@@ -274,14 +305,24 @@ public partial class CatalogDialog : Window
 
     private async Task ApplyAsync(ReplaceScope scope)
     {
-        if (replacing || SectionList.SelectedItem is not ListBoxItem { Tag: CatalogChoice choice } ||
-            choice is CatalogChoice.Catalog { Entry.DisabledReason: not null } or CatalogChoice.Damaged || controller.CurrentPreview is null)
+        if (replacing || SectionList.SelectedItem is not ListBoxItem { Tag: CatalogChoice choice } item ||
+            choice is CatalogChoice.Catalog { Entry.DisabledReason: not null } or CatalogChoice.Damaged)
             return;
+        if (controller.CurrentPreview is null)
+        {
+            // Enter during the fit is kept, not dropped: it applies when this row's preview lands. Replace stays disabled.
+            if (scope == ReplaceScope.Draft && controller.PreviewPending)
+            {
+                armedApply = item;
+                DetailLine.Text = Labels.CatalogFittingThenReplace;
+            }
+            return;
+        }
         replacing = true;
         ReplaceButton.IsEnabled = false;
         try
         {
-            await controller.ApplyReplaceAsync(scope);
+            await controller.ApplyCatalogAsync(scope);
             if (UseSourceThickness.IsChecked == true)
                 await controller.ApplySectionStepAsync(new SectionStep.Thickness(ThicknessIntent.UseSource));
             Close();

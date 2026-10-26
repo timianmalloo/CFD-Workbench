@@ -2,6 +2,12 @@
         x:Class="CfdWorkbench.Desktop.CatalogDialog" Title="Replace from catalog"
         Width="{StaticResource ToastWidth}" SizeToContent="Height" CanResize="False"
         Background="{DynamicResource SurfaceBrush}" Foreground="{DynamicResource InkBrush}">
+  <Window.Styles>
+    <!-- A row with a reason stays reachable (no IsEnabled=false, m12d §3.4); its name is muted (mockup .opt.dis .on). -->
+    <Style Selector="ListBoxItem.disabled TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
+    </Style>
+  </Window.Styles>
   <Border Padding="{StaticResource Space3}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource HairlineThickness}">
     <StackPanel Spacing="8">
       <TextBlock Classes="heading" Text="Replace from catalog" />

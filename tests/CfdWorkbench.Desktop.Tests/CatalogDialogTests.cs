@@ -23,7 +23,8 @@ public static class CatalogDialogTests
         "CatalogDialog_Escape_NothingChangedFocusToSectionMenu", "CatalogDialog_SpacingRefusal_ReasonAndChainOffered",
         "CatalogDialog_ChainButton_AppliesAllStations", "CatalogDialog_CatalogUnavailable_ShowsCauseAndCancel",
         "CatalogDialog_MySectionsEmpty_ShowsNextAction", "CatalogDialog_DoubleClickRow_Replaces",
-        "CatalogDialog_Preview_LargestChangeMarkerAtMeasuredX"
+        "CatalogDialog_Preview_LargestChangeMarkerAtMeasuredX", "CatalogDialog_PendingGenRow_TagNamesState",
+        "CatalogDialog_PreviewFault_LeavesFitting", "CatalogDialog_EnterDuringFit_AppliesOnLanding"
     ];
     private static readonly string[] SaveNames =
     [
@@ -42,13 +43,21 @@ public static class CatalogDialogTests
         DesktopChecks.Check("SourceChip_StationTcDiffers_SaysScaled", CheckScaledChip);
         DesktopChecks.Check("BrowserRow_AfterReplace_NameThenSource", CheckBrowserText);
         DesktopChecks.Check("CatalogDialog_DamagedLibraryRow_DisabledWithReason", CheckDamagedRow);
+        DesktopChecks.Check("CatalogDialog_NonChoosableRow_RenderedDistinct", CheckNonChoosableRendered);
         DesktopChecks.Check("SaveDialog_UnsupportedPersistence_ExplainsSafety", CheckUnsupportedSave);
         DesktopChecks.Check("Properties_StationSource_UsesProfileProvenance", CheckStationSource);
     }
 
     private static void CheckCatalog(string name)
     {
-        using var controller = new WorkbenchController();
+        using var hold = new ManualResetEventSlim(false);
+        Action<int>? previewGate = name switch
+        {
+            "CatalogDialog_PreviewFault_LeavesFitting" => _ => throw new InvalidOperationException("fit fault"),
+            "CatalogDialog_EnterDuringFit_AppliesOnLanding" => _ => hold.Wait(TimeSpan.FromSeconds(20)),
+            _ => null
+        };
+        using var controller = new WorkbenchController(previewGate: previewGate);
         Wait(controller.OpenExampleAsync());
         Wait(controller.EnterSectionAsync(0, EntryOrigin.Palette));
         if (name is "CatalogDialog_SpacingRefusal_ReasonAndChainOffered" or "CatalogDialog_ChainButton_AppliesAllStations")
@@ -115,6 +124,41 @@ public static class CatalogDialogTests
                         detail.Text?.Contains("Pending admission", StringComparison.Ordinal) == true,
                         "Enter on a pending row changed the section or hid its reason");
                     break;
+                case "CatalogDialog_PreviewFault_LeavesFitting":
+                    SelectCatalog(list, "NACA 0012");
+                    WaitFor(() => !controller.PreviewPending);
+                    Require(detail.Text != "Fitting…", "a faulted fit left the detail line at Fitting…");
+                    Require(detail.Text == "The preview couldn't be computed. Nothing changed." && !replace.IsEnabled,
+                        "a faulted fit's detail line: " + detail.Text);
+                    break;
+                case "CatalogDialog_EnterDuringFit_AppliesOnLanding":
+                {
+                    const string pending = "Fitting… Replace will follow.";
+                    int cursor = controller.Section!.Draft.Cursor;
+                    var other = list.Items.OfType<ListBoxItem>().First(row => row.Tag is CatalogChoice.Catalog
+                        { Entry: { DisabledReason: null, Coordinates: not null } entry } && entry.Designation != "NACA 0012");
+                    SelectCatalog(list, "NACA 0012");
+                    Dispatcher.UIThread.RunJobs();
+                    PressKey(search, Key.Enter);
+                    Dispatcher.UIThread.RunJobs();
+                    Require(detail.Text == pending && !replace.IsEnabled,
+                        $"Enter during the fit: detail \"{detail.Text}\", Replace enabled {replace.IsEnabled}");
+                    list.SelectedItem = other;
+                    Dispatcher.UIThread.RunJobs();
+                    Require(detail.Text == "Fitting…", "moving the selection kept the armed apply: " + detail.Text);
+                    Require(SessionEvents(controller).Any(item => item.Operation == "catalog.apply" && item.Outcome == "dropped-fitting"),
+                        "the cleared arm was not recorded as catalog.apply dropped-fitting");
+                    SelectCatalog(list, "NACA 0012");
+                    Dispatcher.UIThread.RunJobs();
+                    PressKey(search, Key.Enter);
+                    Dispatcher.UIThread.RunJobs();
+                    Require(detail.Text == pending && !replace.IsEnabled, "Enter after moving back: " + detail.Text);
+                    hold.Set();
+                    WaitFor(() => !dialog.IsVisible);
+                    Require(controller.Section!.Draft.Cursor == cursor + 1,
+                        $"cursor {controller.Section!.Draft.Cursor} after the fit landed (want {cursor + 1} from one Enter)");
+                    break;
+                }
                 case "CatalogDialog_SharedPreview_DetailNamesStationsFitLimit":
                     SelectCatalog(list, "NACA 0012");
                     WaitFor(() => controller.CurrentPreview is not null);
@@ -171,10 +215,20 @@ public static class CatalogDialogTests
                     WaitFor(() => controller.CurrentPreview is not null);
                     Require(controller.CurrentPreview!.LargestChangeAtX is >= 0 and <= 1, "Largest-change x is not on chord");
                     break;
+                case "CatalogDialog_PendingGenRow_TagNamesState":
+                    string[] tags = new[] { "NACA 0012", "NACA 63-412", "Eppler E817", "Speer H105" }
+                        .Select(designation => LeafText(CatalogRow(list, designation)).Text ?? "").ToArray();
+                    Require(tags.SequenceEqual(["NACA 0012 · GEN", "NACA 63-412 · not in this build", "Eppler E817 · pending", "Speer H105 · cite only"]),
+                        "Row tags do not name the state: " + string.Join(" | ", tags));
+                    break;
             }
         }
         finally { dialog.Close(); }
     }
+
+    private static IReadOnlyList<SessionEvent> SessionEvents(WorkbenchController controller) =>
+        ((AuthoringSession)typeof(WorkbenchController).GetField("session",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(controller)!).ReadLocalEvents();
 
     private static T Need<T>(Control root, string name) where T : Control =>
         root.FindControl<T>(name) ?? throw new Exception($"{name} missing");
@@ -251,6 +305,45 @@ public static class CatalogDialogTests
         }
         finally { Directory.Delete(root, recursive: true); }
     }
+
+    // Investigation section-catalog-apply F1 / class 1: a row whose state is only in the automation tree reads as choosable.
+    private static void CheckNonChoosableRendered()
+    {
+        string root = TestTemp.Combine("dlg-nonchoosable-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        try
+        {
+            File.WriteAllText(Path.Combine(root, "bad.foil"), "damaged");
+            using var controller = new WorkbenchController(sections: new SectionLibrary(root));
+            Wait(controller.OpenExampleAsync());
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Palette));
+            var dialog = new CatalogDialog(controller, controller.OpenCatalog());
+            dialog.Show();
+            Dispatcher.UIThread.RunJobs();
+            try
+            {
+                var list = Need<ListBox>(dialog, "SectionList");
+                var choosable = CatalogRow(list, "NACA 0012");
+                var rows = new[] { ("pending", CatalogRow(list, "NACA 63-412")),
+                    ("damaged", list.Items.OfType<ListBoxItem>().Single(item => item.Tag is CatalogChoice.Damaged)) };
+                string Ink(ListBoxItem item) =>
+                    $"{(LeafText(item).Foreground as ISolidColorBrush)?.Color}@{LeafText(item).Opacity * item.Opacity}";
+                Require(!choosable.Classes.Contains("disabled"), "Choosable row carries the disabled class");
+                string[] alike = rows.Where(pair => !(pair.Item2.IsEnabled && pair.Item2.Classes.Contains("disabled") && Ink(pair.Item2) != Ink(choosable)))
+                    .Select(pair => $"{pair.Item1} row renders like a choosable one: enabled={pair.Item2.IsEnabled}, " +
+                        $"class={string.Join(",", pair.Item2.Classes)}, ink={Ink(pair.Item2)} vs choosable {Ink(choosable)}").ToArray();
+                Require(alike.Length == 0, string.Join("; ", alike));
+            }
+            finally { dialog.Close(); }
+        }
+        finally { Directory.Delete(root, recursive: true); }
+    }
+
+    private static ListBoxItem CatalogRow(ListBox list, string designation) =>
+        list.Items.OfType<ListBoxItem>().Single(item => item.Tag is CatalogChoice.Catalog choice && choice.Entry.Designation == designation);
+
+    private static TextBlock LeafText(ListBoxItem item) =>
+        item.Content as TextBlock ?? throw new Exception($"Row {item.Content} has no leaf TextBlock");
 
     private static void CheckUnsupportedSave()
     {
