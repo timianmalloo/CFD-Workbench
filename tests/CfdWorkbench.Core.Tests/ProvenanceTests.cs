@@ -15,8 +15,20 @@ internal static class ProvenanceTests
         Check("Provenance_LegacyDatForm_ParsesAsDat", LegacyDatForm);
         Check("Provenance_Unknown_NotRecordedNeverGuessed", UnknownNeverGuessed);
         Check("Provenance_Rights_DerivedFromOrigin", RightsDerived);
+        Check("Provenance_SourceName_VendResolvesDesignation_CatalogReadOnlyWhenNeeded", SourceNameLookup);
         Check("Provenance_MoveAfterReplace_MarkedModified", MoveAfterReplace);
         Check("Provenance_SurvivesEveryRewriter", SurvivesEveryRewriter);
+    }
+
+    private static void SourceNameLookup()
+    {
+        IReadOnlyList<CatalogEntry> rows =
+            [new("e387", CatalogFamily.Eppler, "Eppler 387", AdmissionClass.Vend, null, null)];
+        Equal("Eppler 387", new Provenance("vend:e387", false).SourceName(() => rows));
+        int reads = 0;
+        string dat = "dat:sha256:" + new string('c', 64);
+        Equal(dat, new Provenance(dat, false).SourceName(() => { reads++; return rows; }));
+        Equal(0, reads);
     }
 
     private static void FormatParseRoundTrip()

@@ -38,6 +38,31 @@ public sealed record Provenance(string? Origin, bool Modified)
         : "Catalog original · " + sourceName;
 
     /// <summary>
+    /// The one designation lookup: the catalog designation for a <c>gen:</c> or <c>vend:</c> origin, else the name the
+    /// section was last replaced with, else the raw origin. Without an origin it is <paramref name="replaceName"/> or "".
+    /// </summary>
+    public string SourceName(Func<IReadOnlyList<CatalogEntry>> catalog, string? replaceName = null)
+    {
+        if (Origin is not { } origin) return replaceName ?? "";
+        int colon = origin.IndexOf(':');
+        if (colon > 0 && (origin.StartsWith("gen:", StringComparison.Ordinal) || origin.StartsWith("vend:", StringComparison.Ordinal)))
+        {
+            string id = origin[(colon + 1)..];
+            var entry = catalog().FirstOrDefault(item => item.Id == id);
+            if (entry is not null) return entry.Designation;
+        }
+        return replaceName is { Length: > 0 } name ? name : origin;
+    }
+
+    /// <summary>The source part of a Browser row or section title: the name, "Modified from" the name, or "Source not recorded".</summary>
+    public string SourceLabel(string sourceName) =>
+        Origin is null ? "Source not recorded" : Modified ? "Modified from " + sourceName : sourceName;
+
+    /// <summary>A Browser station row: the profile name, then the source label when a source is recorded.</summary>
+    public string RowText(string profile, string sourceName) =>
+        Origin is null ? profile : profile + " · " + SourceLabel(sourceName);
+
+    /// <summary>
     /// The only writer of <c> modified</c>. Adds it when <paramref name="bytes"/> changed
     /// <paramref name="profile"/> beyond the identity tolerance relative to <paramref name="before"/>.
     /// </summary>

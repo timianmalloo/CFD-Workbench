@@ -2099,7 +2099,7 @@ public sealed class WorkbenchController : IDisposable
         {
             if (Section is not { } mode) return null;
             var parsed = ProvenanceFor(mode.Draft.Bytes, mode.Draft.Profile);
-            return parsed.ChipText(ChipSourceName(parsed));
+            return parsed.ChipText(parsed.SourceName(CatalogRows, LastReplaceName));
         }
     }
 
@@ -2111,7 +2111,7 @@ public sealed class WorkbenchController : IDisposable
         string profile = projection.Assignments[station].ProfileName;
         byte[] foil = Section?.Draft.Bytes ?? session.Snapshot().Source;
         var source = ProvenanceFor(foil, profile);
-        string display = source.ChipText(ChipSourceName(source));
+        string display = source.ChipText(source.SourceName(CatalogRows, LastReplaceName));
         return source.Rights == RightsClass.NotRecorded ? display : display + " (" + source.Rights.ToString().ToUpperInvariant() + ")";
     }
 
@@ -2355,19 +2355,6 @@ public sealed class WorkbenchController : IDisposable
         CatalogChoice.Mine row => new ReplaceSource.Record(row.Entry.Name, row.Entry.Provenance, row.Entry.Bytes),
         _ => throw new ContractError("CAT-NOT-ADMITTED", "This section has no coordinates in this build. Nothing changed.")
     };
-
-    private string ChipSourceName(Provenance parsed)
-    {
-        if (parsed.Origin is not { } origin) return LastReplaceName ?? "";
-        int colon = origin.IndexOf(':');
-        if (colon > 0 && (origin.StartsWith("gen:", StringComparison.Ordinal) || origin.StartsWith("vend:", StringComparison.Ordinal)))
-        {
-            string id = origin[(colon + 1)..];
-            var entry = CatalogRows().FirstOrDefault(item => item.Id == id);
-            if (entry is not null) return entry.Designation;
-        }
-        return LastReplaceName is { Length: > 0 } name ? name : origin;
-    }
 
     private IReadOnlyList<CatalogEntry> CatalogRows()
     {

@@ -108,8 +108,8 @@ public partial class BrowserPane : UserControl
 
     public static string StationSourceText(string profile, byte[] foil)
     {
-        string source = PropertiesView.SourceName(foil, profile);
-        return source == "Source not recorded" ? profile : profile + " · " + source;
+        var provenance = Provenance.Parse(FoilSource.Parse(foil).Profile(profile)?.Provenance);
+        return provenance.RowText(profile, PropertiesView.SourceName(foil, profile));
     }
 
     public static void BindStations(ListBox list, IReadOnlyList<ListBoxItem> items, bool acceptedChanged)

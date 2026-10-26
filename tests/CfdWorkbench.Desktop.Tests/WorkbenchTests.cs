@@ -65,6 +65,7 @@ internal static class DesktopHarness
             AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
             CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("catalog-dialog");
             CfdWorkbench.Desktop.Tests.CatalogDialogTests.Run();
+            CfdWorkbench.Desktop.Tests.SourceTextTests.Run();
             Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
         }
 
