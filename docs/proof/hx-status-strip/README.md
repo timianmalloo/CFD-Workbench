@@ -1,3 +1,17 @@
+---
+id: proof-hx-status-strip
+title: "HX: the status-strip race and the encode cost at the 32 MB cap (wave 3)"
+type: proof-pack
+summary: "Two reproducers: the StatusStrip_BackgroundCompletion check 20 times alone (20 of 20 PASS, 0 foreign processes) and the CompareFields encode at the 32,000,000-byte cap (median about 60 ms, cold first read 99.3 ms, at the limit)."
+status: active
+owner: "@timianmalloo"
+phase: implement
+tags: [harness, status-strip, flaky, encode-cost, desktop-harness]
+links:
+  - { to: coordination-wave3-next-steps, rel: relates-to }
+review-by: "2026-11-26"
+---
+
 # HX: status-strip race and encode cost (wave 3)
 
 Two reproducers, both run from the repo root, both load-sensitive: run them with no other test suite running.
