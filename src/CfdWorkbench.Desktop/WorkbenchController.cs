@@ -3836,7 +3836,7 @@ public sealed class WorkbenchController : IDisposable
                     uncertainDraftGeneration = capturedView.Draft?.Generation ?? 0;
                     uncertainAcceptedId = capturedView.AcceptedId;
                 }
-                SetStatus(uncertainImage is null ? Labels.SaveRefusal(result.Code)
+                SetStatus(uncertainImage is null ? Labels.SaveRefusal(result.Code, path)
                     : Labels.SaveUncertain, // COPY-421
                     MainWindow.SaveFailureKind(result.Code));
             }

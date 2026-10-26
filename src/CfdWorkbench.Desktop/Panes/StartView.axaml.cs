@@ -95,7 +95,8 @@ public partial class StartView : UserControl
         OpenFailure.Changed => CfdWorkbench.Analysis.Labels.OpenChanged,
         OpenFailure.Unreadable => "It couldn't be read from the disk. The file hasn't been changed.",
         OpenFailure.NotRecognised => "It isn't a foil or project file that CFD Workbench can read, or it is damaged. The file hasn't been changed.",
-        OpenFailure.UnsupportedLocation => CfdWorkbench.Analysis.Labels.OpenUnavailable(windows),
+        OpenFailure.UnsupportedLocation => CfdWorkbench.Analysis.Labels.OpenUnavailable(windows) +
+            (windows ? CfdWorkbench.Analysis.Labels.DriveRemedy(failure.Path) : ""),
         OpenFailure.UnsupportedPlatform => CfdWorkbench.Analysis.Labels.OpenUnsupportedPlatform,
         OpenFailure.NotAFile => CfdWorkbench.Analysis.Labels.OpenNotAFile,
         OpenFailure.CloudOnly => CfdWorkbench.Analysis.Labels.OpenCloudOnly,

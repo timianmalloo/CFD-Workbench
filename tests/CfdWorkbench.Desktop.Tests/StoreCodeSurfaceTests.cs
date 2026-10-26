@@ -10,6 +10,17 @@ public static class StoreCodeSurfaceTests
 {
     public static void Run()
     {
+        DesktopChecks.Check("StoreCodes_NonNtfsRemedy_NamesDrive", () =>
+        {
+            const string path = @"Q:\foils\wing.cfdw.json";
+            string open = StartView.FailureMessage(OpenFailure.ClassifyCode("DOC-UNSUPPORTED-PERSISTENCE", path), "wing.cfdw.json", true);
+            using var controller = new WorkbenchController(_ => new RefusingStore("DOC-UNSUPPORTED-PERSISTENCE"));
+            controller.NewFoilAsync().GetAwaiter().GetResult();
+            controller.SaveAsync(path).GetAwaiter().GetResult();
+            if (!open.Contains("Q:", StringComparison.Ordinal) || !open.Contains("NTFS", StringComparison.Ordinal) ||
+                !controller.Status.Contains("Q:", StringComparison.Ordinal) || !controller.Status.Contains("NTFS", StringComparison.Ordinal))
+                throw new Exception("drive/NTFS remedy absent: Open=" + open.Replace('\n', '|') + "; Save=" + controller.Status);
+        });
         DesktopChecks.Check("StoreCodes_NewCodes_ReachEverySurface", () =>
         {
             var errors = new List<string>();
