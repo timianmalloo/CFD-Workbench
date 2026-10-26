@@ -405,7 +405,7 @@ public static class Labels
     public const string SectionSaveUnavailableWindows = "CFD Workbench can't save to the My sections folder safely (it may be in a network, removable, linked or cloud-synced folder). Nothing was saved."; // COPY-646
     public static string OpenUnavailable(bool windows) => windows ? OpenUnavailableWindows : OpenUnavailableOther;
     public static string OpenAccessDenied(bool windows) => windows ? OpenAccessDeniedWindows : OpenAccessDeniedMac;
-    public static string SectionSaveUnavailableFor(bool windows) => windows ? SectionSaveUnavailableWindows : SectionSaveUnavailable;
+    public static string SectionSaveUnavailableFor(bool storeAdmitted) => storeAdmitted ? SectionSaveUnavailableWindows : SectionSaveUnavailable;
     // Read-only Open from OneDrive (Ruling 259; design windows-store-recovery section 5). Proposed rows COPY-592 to 594: the operator approves the wording.
     public const string ReadOnlyTitleSuffix = "(read-only: opened from OneDrive)"; // COPY-592 (DS-COPY-1)
     public const string ReadOnlyNotice = "This project was opened from OneDrive, so it can't be saved there. Use Save As to save it in a local folder."; // COPY-593 (DS-COPY-2)

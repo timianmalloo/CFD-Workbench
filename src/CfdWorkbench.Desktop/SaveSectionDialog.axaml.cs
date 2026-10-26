@@ -12,14 +12,17 @@ public partial class SaveSectionDialog : Window
 {
     private readonly Func<string, Task> save;
     private readonly Control? returnFocus;
+    private readonly Func<bool> storeAdmitted;
     private bool saving;
 
     public string? SavedName { get; private set; }
 
-    public SaveSectionDialog(WorkbenchController controller, Func<string, Task> save, Control? returnFocus = null)
+    public SaveSectionDialog(WorkbenchController controller, Func<string, Task> save, Control? returnFocus = null,
+        Func<bool>? storeAdmitted = null)
     {
         this.save = save;
         this.returnFocus = returnFocus;
+        this.storeAdmitted = storeAdmitted ?? CfdWorkbench.Persistence.ProjectStore.PlatformAdmitted;
         InitializeComponent();
         string source = controller.SourceChip ?? "Source not recorded";
         var mode = controller.Section;
@@ -76,7 +79,7 @@ public partial class SaveSectionDialog : Window
                 "LIB-SECTION-INVALID" => "Fix the crossing before saving this section.",
                 "LIB-CLAIM-HELD" => "Another save is in progress. Try again in a moment.",
                 "LIB-IO" => "Couldn't save to My sections: the file couldn't be written. Nothing was saved.",
-                "DOC-UNSUPPORTED-PERSISTENCE" => CfdWorkbench.Analysis.Labels.SectionSaveUnavailableFor(OperatingSystem.IsWindows()),
+                "DOC-UNSUPPORTED-PERSISTENCE" or "DOC-UNSUPPORTED-PLATFORM" => CfdWorkbench.Analysis.Labels.SectionSaveUnavailableFor(storeAdmitted()),
                 "DOC-SAVE-UNCERTAIN" => "CFD Workbench couldn't confirm whether this section was saved. Check My sections before trying again.",
                 _ => $"Couldn't finish saving this section ({error.Code}). Check My sections before trying again."
             };

@@ -1,5 +1,6 @@
 using System.IO;
 using Avalonia;
+using Avalonia.Controls;
 using CfdWorkbench.Core;
 using CfdWorkbench.Persistence;
 using CfdWorkbench.Analysis;
@@ -19,6 +20,24 @@ public static class StoreCodeSurfaceTests
 
     private static void RunChecks()
     {
+        DesktopChecks.Check("StoreCodes_SaveSection_UnadmittedHost_UsesSystemSentence", () =>
+        {
+            if (Application.Current is null) AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+            using var controller = new WorkbenchController();
+            foreach (string code in new[] { "DOC-UNSUPPORTED-PERSISTENCE", "DOC-UNSUPPORTED-PLATFORM" })
+            {
+                var dialog = new SaveSectionDialog(controller, _ => Task.FromException(new ContractError(code)), storeAdmitted: () => false);
+                dialog.Show();
+                try
+                {
+                    dialog.FindControl<TextBox>("NameBox")!.Text = "Kept";
+                    dialog.SaveAsync().GetAwaiter().GetResult();
+                    string? actual = dialog.FindControl<TextBlock>("SaveError")!.Text;
+                    if (actual != Labels.SectionSaveUnavailable) throw new Exception(code + " unadmitted host: " + actual);
+                }
+                finally { dialog.Close(); }
+            }
+        });
         DesktopChecks.Check("StoreCodes_ConflictExistenceProbe_OffDispatcher", () =>
         {
             // Earlier controller checks can bind Avalonia's uninitialized dispatcher. Qualify thread affinity in a fresh process.

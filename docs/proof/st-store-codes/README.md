@@ -31,6 +31,17 @@ FAIL Labels_MissingFile_OneActiveDefinition_Copy125 InvalidOperationException: a
 PASS Labels_MissingFile_OneActiveDefinition_Copy125
 ```
 
+### 7 — Save-section sentence follows store admission
+
+ProjectStore exposes its existing admission predicate, and Supported uses that same definition. SaveSectionDialog accepts an injected predicate for the host-OS negative test. Both unsupported store codes use the system sentence when unadmitted; admitted stores retain the folder sentence. No wording changed.
+
+```text
+FAIL StoreCodes_SaveSection_UnadmittedHost_UsesSystemSentence Exception: DOC-UNSUPPORTED-PERSISTENCE unadmitted host: CFD Workbench can't save to the My sections folder safely (it may be in a network, removable, linked or cloud-synced folder). Nothing was saved.
+PASS StoreCodes_SaveSection_UnadmittedHost_UsesSystemSentence
+```
+
+The first build attempt was blocked by a leftover Desktop.Tests process (PID 9064). Its executable path was verified as this tree's test apphost before termination. The stale apphost's SELECTOR failure is not the red proof above.
+
 Verified on Windows. Reproduce focused green checks with `bash docs/proof/st-store-codes/run.sh`.
 The CLI harness has the coordinator-reported environment defect: its sleeping child cannot resolve ping through the over-long User PATH. It is outside ST's scope.
 

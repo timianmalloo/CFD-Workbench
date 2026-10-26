@@ -367,14 +367,11 @@ public sealed class ProjectStore : IProjectStore, IDisposable
     // aliases bypassing a raw-name lock. Upgrade only with measured per-file identity-lock lifetimes.
     internal static string ClaimName() => ".cfd-writer.claim";
     private bool IsClosed() { lock (lifecycle) return disposed; }
-    internal static void Supported()
-    {
-        // Windows: the entry points dispatch to WindowsProjectStore, which admits x64 and ARM64 here and NTFS per path.
-        if (OperatingSystem.IsWindows()) { Require(WindowsProjectStore.PlatformAdmitted(), "DOC-UNSUPPORTED-PLATFORM"); return; }
-        // Every other platform stays fail-closed. No path-only fallback.
-        Require(OperatingSystem.IsMacOS() && RuntimeInformation.ProcessArchitecture == Architecture.Arm64 &&
-            Marshal.SizeOf<Native.Stat>() == 144, "DOC-UNSUPPORTED-PLATFORM");
-    }
+    /// <summary>The platform admission used by the store, before any per-path safety checks.</summary>
+    public static bool PlatformAdmitted() => OperatingSystem.IsWindows() ? WindowsProjectStore.PlatformAdmitted() :
+        OperatingSystem.IsMacOS() && RuntimeInformation.ProcessArchitecture == Architecture.Arm64 && Marshal.SizeOf<Native.Stat>() == 144;
+
+    internal static void Supported() => Require(PlatformAdmitted(), "DOC-UNSUPPORTED-PLATFORM");
     private static void Require(bool condition, string code) { if (!condition) throw new ContractError(code); }
     private static void Check(int result) { if (result < 0) throw Failure(Marshal.GetLastPInvokeError()); }
     private static ContractError Failure(int error) => new(error switch
