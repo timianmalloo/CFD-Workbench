@@ -12029,6 +12029,44 @@ window.DOCS_INDEX = {
       "sourceSha256": "241b86e22920bd8f00185420beec185918146c673378f26e9cab495a6eed1b4c"
     },
     {
+      "id": "coordination-wave3-next-steps",
+      "path": "docs/coordination/wave3-next-steps.md",
+      "title": "Coordination plan - wave 3: the next steps of 2026-10-23",
+      "type": "plan",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2026-11-26",
+      "reviewSuggested": [],
+      "summary": "Wave 3 closes the next steps the last two sessions left: the section-catalog repair (phases 1-4, rulings DR-INV-1 a and DR-INV-2 a), join fence R2, and the wave-2 follow-ups grouped by file family. Five tracks at width 3; Fable Owner, Opus leader, Opus and Sonnet sub-agent coders, Codex and Grok CLI coders.",
+      "tags": [
+        "coordination",
+        "worktrees",
+        "parallelism",
+        "windows"
+      ],
+      "links": [
+        {
+          "to": "coordination-next-best-six-wave2",
+          "rel": "refines"
+        },
+        {
+          "to": "investigation-section-catalog-apply",
+          "rel": "implements"
+        },
+        {
+          "to": "investigation-join-dirty-primary",
+          "rel": "implements"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9c295cecf18af6fe33f06b86b39e419383bcc7dedaf484326098461f8365281e"
+    },
+    {
       "id": "coordination-windows-gpu-f1-design",
       "path": "docs/coordination/windows-gpu-f1-design.md",
       "title": "Coordination plan - Windows GPU F1 design",
@@ -24220,6 +24258,14 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-round-oct06"
     },
     {
+      "id": "surface-coordination-wave3-next-steps",
+      "path": "docs/coordination/wave3-next-steps.html",
+      "title": "CFD-Workbench — coordination plan",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "coordination-wave3-next-steps"
+    },
+    {
       "id": "surface-specs-cfd-workbench-v1",
       "path": "docs/specs/cfd-workbench-v1.html",
       "title": "CFD-Workbench — Product specification",
@@ -24460,5 +24506,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "012bbcc904440ac4109d48725cbdb607b0d3cb7a71d633e3fe0c1f348267a943"
+  "graphSha256": "d6e634e3b60b6ce1890a4f108e0fff22b7bd8003b2df2711ecc38e914d7aca63"
 };

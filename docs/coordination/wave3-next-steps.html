@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CFD-Workbench — coordination plan</title><meta name="source-sha256" content="9c295cecf18af6fe33f06b86b39e419383bcc7dedaf484326098461f8365281e">
+<style>
+:root{color-scheme:light dark;font:16px/1.5 system-ui,-apple-system,sans-serif}
+body{margin:0;background:Canvas;color:CanvasText}
+main{max-width:1180px;margin:auto;padding:clamp(1rem,3vw,3rem)}
+h1,h2,h3{line-height:1.2;margin:2rem 0 .7rem}h1{font-size:2rem}h2{border-bottom:1px solid color-mix(in srgb,CanvasText 24%,transparent);padding-bottom:.4rem}
+a{color:LinkText}a:focus-visible{outline:3px solid Highlight;outline-offset:3px}
+.table-wrap{overflow-x:auto;margin:1rem 0 2rem}table{border-collapse:collapse;min-width:720px;width:100%}th,td{border:1px solid color-mix(in srgb,CanvasText 24%,transparent);padding:.65rem;vertical-align:top;text-align:left}th{background:color-mix(in srgb,CanvasText 8%,Canvas)}
+code,pre{font: .9em/1.4 ui-monospace,SFMono-Regular,monospace}code{overflow-wrap:anywhere}pre{overflow-x:auto;padding:1rem;background:color-mix(in srgb,CanvasText 7%,Canvas);border-radius:.5rem}
+header{border-bottom:1px solid color-mix(in srgb,CanvasText 24%,transparent)}.eyebrow{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase}.note{font-size:.9rem;opacity:.75}
+</style></head><body><main><header><div class="eyebrow">CFD-Workbench / execution</div><p class="note">Canonical source: <a href="wave3-next-steps.md">wave3-next-steps.md</a> · 2026-10-26</p></header>
+<h1>Coordination plan: wave 3</h1>
+<p><strong>Input.</strong> The operator&#39;s prompt of 2026-10-26 (audit al entry committed at 8e433b4f) and their answers (8b6d35a3):
+DR-INV-1 = a (&quot;Modified from NACA 0012&quot; on every surface); DR-INV-2 = a (listed, muted, the reason in the detail line,
+a state tag); B7 = the encode re-measure only, the compatible fit stays a design; B9 = <code>git branch -d</code> only, unmerged
+branches listed. Sources: <code>docs/investigations/section-catalog-apply.md</code> (phased repair plan),
+<code>docs/investigations/join-dirty-primary.md</code> sections 9-10, <code>docs/coordination/next-best-six-wave2.md</code> section 4.</p>
+<p><strong>Not in scope.</strong> The macOS verify-gate run (dropped under the Windows pivot, wave-2 input row 39); the compatible fit
+build (DR-DF-8); the SF1 advisories and WF N7 (board items, not in the operator&#39;s list).</p>
+<p><strong>Seats.</strong> Owner = a Fable sub-agent, session <code>fable-owner</code>; it rules with
+<code>AGENT_SESSION=fable-owner python docs/ai-forward-pack/scripts/coord-decide.py rule next --request &lt;id&gt;</code> into
+<code>docs/notes/rulings.md</code> (next number 267) and never commits. Leader = an Opus sub-agent <code>opus-leader</code>: it writes every
+brief, reviews every Return and decides every join. The main session (<code>wave3-coordinator</code>) runs the mechanics:
+worktrees, dispatch, CLI runs, joins, commits, pushes. Reviewers are Opus sub-agents in Adversary Mode with the lenses
+the leader names. Every track&#39;s decision request goes <code>--to fable-owner</code>.</p>
+<p><strong>Leader ref.</strong> Released at epoch 5 and <strong>not pinned</strong>: the Ruling 247 session recorded that pinning broke joins and
+that joins read the released epoch and work (memory f1-attempt2-status, re-observed by wave 2). Deviation from the
+skill&#39;s S3 row 1, recorded here.</p>
+<h2>Layer state</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>check</th>
+<th>result</th>
+<th>meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>registry</td>
+<td>ok - 7 pattern(s)</td>
+<td><code>.agents/artifacts.yml</code> present; managed block plus four repo entries</td>
+</tr>
+<tr>
+<td>merge driver</td>
+<td>effective - coord-regen, coord-register, defect-register registered</td>
+<td>derived and register files merge without a human</td>
+</tr>
+<tr>
+<td>leader</td>
+<td>released (epoch 5)</td>
+<td>not pinned (see Leader ref)</td>
+</tr>
+<tr>
+<td>heartbeat</td>
+<td>1 session, newest beat 1206481 s ago; 0 live</td>
+<td>nothing in flight</td>
+</tr>
+<tr>
+<td>requests</td>
+<td>34, 0 open</td>
+<td>no unanswered decision</td>
+</tr>
+<tr>
+<td>lease overlap</td>
+<td>none (0 live leases)</td>
+<td>clean start</td>
+</tr>
+<tr>
+<td>claude edit boundary</td>
+<td>enforcing (spike S5)</td>
+<td>sub-agent coders are fenced by the PreToolUse hook</td>
+</tr>
+<tr>
+<td>commit floor</td>
+<td>enforces regardless of the hook</td>
+<td>the pre-commit lease check covers the CLI coders</td>
+</tr>
+<tr>
+<td>doorbells</td>
+<td>not recorded</td>
+<td>no harness doorbell probed; dispatch is by the main session</td>
+</tr>
+<tr>
+<td>python</td>
+<td><code>python3</code> fails here; use <code>python</code></td>
+<td>every command below is written <code>python</code></td>
+</tr>
+</tbody></table></div>
+<p>Measured 2026-10-26 15:33Z by <code>coord-core.py doctor</code> and <code>pack-doctor.py --json</code>. The layer is installed <strong>once, in
+the primary checkout</strong>; every worktree this plan creates inherits it and runs <code>coord doctor</code> to read it back, never
+<code>coord install</code>.</p>
+<h2>Artifact classes</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>path / pattern</th>
+<th>class</th>
+<th>mechanism</th>
+<th>coordination needed</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>docs/audit/audit-log.jsonl</code>, <code>docs/audit/change-log.jsonl</code></td>
+<td>register</td>
+<td>coord-register union merge</td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>docs/audit/audit-data.js</code>, <code>docs/audit/index.html</code></td>
+<td>derived</td>
+<td>coord-regen: <code>audit-log.py render</code></td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>docs/docs-index.js</code></td>
+<td>derived</td>
+<td>coord-regen: <code>docs-graph.py derive</code></td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>.agents/log/*.jsonl</code>, <code>.agents/requests.jsonl</code></td>
+<td>register</td>
+<td>coord-register</td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>docs/lessons/defect-classes.md</code></td>
+<td>register</td>
+<td>defect-register driver</td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>docs/notes/rulings.md</code></td>
+<td>authored, single writer</td>
+<td>only <code>fable-owner</code> writes; the main session commits it on main before any join</td>
+<td>serial (spine)</td>
+</tr>
+<tr>
+<td><code>DESIGN.md</code> copy rows</td>
+<td>authored, shared</td>
+<td>rows appended in a per-track COPY-id range (below); both sides kept at a merge</td>
+<td>range rule</td>
+</tr>
+<tr>
+<td><code>src/CfdWorkbench.Analysis/Labels.cs</code></td>
+<td>authored, shared</td>
+<td>constants appended in a per-track region comment; both sides kept</td>
+<td>range rule</td>
+</tr>
+<tr>
+<td><code>src/CfdWorkbench.Desktop/WorkbenchController.cs</code> (4,232 lines)</td>
+<td>authored, shared by region</td>
+<td>SC1: the catalog-preview region (<code>PreviewFault</code> <del><code>:2089</code>, <code>FinishPreview</code>, the reset ~`:2407<code>) **except** </code>ChipSourceName<code> (</code>:2359<code>) and its two callers (</code>:2102<code>, </code>:2114`), which are SC2&#39;s; ST: the open region (</del><code>:3370-3580</code>) and the save region (~`:3800-3845<code>); HX: </code>ApplyMatchAsync` only</td>
+<td>region rule</td>
+</tr>
+<tr>
+<td><code>docs/design/m12d-catalog.md</code></td>
+<td>authored, shared by section</td>
+<td>SC1 writes §11.4 only; SC2 writes §14.1 only</td>
+<td>section rule</td>
+</tr>
+<tr>
+<td><code>tests/CfdWorkbench.Desktop.Tests/CatalogDialogTests.cs</code></td>
+<td>authored, shared by hunk</td>
+<td>SC1 owns it; ST may change only the Save-section sentence assertion (~`:264`)</td>
+<td>hunk rule; ST rebases at its join</td>
+</tr>
+<tr>
+<td><code>tests/CfdWorkbench.Desktop.Tests/ControllerShellTests.cs</code></td>
+<td>authored, shared by hunk</td>
+<td>HX owns it; ST may change only the store-code assertion (~`:202`)</td>
+<td>hunk rule; the later join rebases</td>
+</tr>
+<tr>
+<td><code>tools/run-tests.sh</code></td>
+<td>authored</td>
+<td>one variable per <code>unset</code> line (wave-2 control); only HX may add one</td>
+<td>single owner</td>
+</tr>
+<tr>
+<td>everything else</td>
+<td>authored</td>
+<td>one owner per file (Tracks)</td>
+<td>owner</td>
+</tr>
+</tbody></table></div>
+<p><strong>COPY-id ranges</strong> (high water today COPY-646): SC1 647-666 · SC2 667-676 · ST 677-706 · HX 707-716. A new row lands
+&quot;proposed&quot; for the operator; moving shipped code from an approved row to a proposed one is a supersession and needs an
+Owner request first (wave-2 control).</p>
+<p><strong>Joint satisfiability of the shared surfaces.</strong> The guards over <code>DESIGN.md</code> and <code>Labels.cs</code> are the existing
+one-definition checks (<code>Copy_*_MatchesDesignRows</code> and the Labels-to-DESIGN row scans in the Desktop and Analysis
+harnesses; root: the repo&#39;s <code>DESIGN.md</code> copy table and <code>Labels.cs</code>; no recursion; token set <code>COPY-\d+</code>; allowlist: none).
+Each track adds rows and constants only inside its range, so every other track&#39;s scan sees a superset with its own rows
+unchanged: satisfiable. ST merges COPY-644 into COPY-125 (a removal), which no other track cites. The four regions of
+<code>WorkbenchController.cs</code> are disjoint hunks: SC1 (the catalog-preview path, ~`:2089<code>-</code>:2407<code> minus SC2&#39;s lines), SC2 (</code>ChipSourceName<code> </code>:2359<code>and its callers</code>:2102<code>, </code>:2114<code>), ST (open ~</code>:3370-3580<code>, save ~</code>:3800-3845<code>), HX (</code>ApplyMatchAsync`).</p>
+<h2>Tracks</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>track</th>
+<th>owns (authored)</th>
+<th>depends on</th>
+<th>tier</th>
+<th>fan-out cap</th>
+<th>budget</th>
+<th>exit evidence</th>
+<th>harness</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>SC1</strong> catalog sheet (A1, A2, A4)</td>
+<td><code>src/CfdWorkbench.Desktop/CatalogDialog.axaml(.cs)</code>, the catalog-preview region of <code>WorkbenchController.cs</code>, catalog telemetry, Desktop catalog tests, <code>docs/design</code> m12d §11.4 note</td>
+<td>A0 joined</td>
+<td>T1</td>
+<td>1 (phases serial: 1, 2, then 4)</td>
+<td>3 dispatches · 80 calls · 300k · 3 h</td>
+<td>the investigation&#39;s named tests seen <strong>red first</strong> then green: <code>CatalogDialog_NonChoosableRow_RenderedDistinct</code>, <code>CatalogDialog_PendingGenRow_TagNamesState</code>, <code>Controller_PreviewInternalFault_ReportsReason</code>, <code>Controller_PreviewDraftChanged_ReportsReason</code>, <code>CatalogDialog_PreviewFault_LeavesFitting</code>, <code>CatalogDialog_EnterDuringFit_AppliesOnLanding</code>, <code>Catalog_Select_RecordsOutcome</code>; <code>CatalogDialog_NonChoosableRow_RenderedDistinct</code> includes a damaged My-sections row (<code>CatalogChoice.Damaged</code>) case, observed red before the fix; <code>CatalogDialog_ArrowsReachDisabledRows_Quiet</code> stays green; <code>AutomationState_HasRenderedState</code> red with Phase 1&#39;s class removed, green with it; <code>ui-craft-gate.py</code> clean on the sheet; <code>catalog.preview</code> outcome unchanged (Phase 2 validation); the damaged My-sections rows (investigation class 1) rendered distinct by the same Phase 1 test; the manual pointer pass after Phase 1 recorded by the operator or marked Inferred with the residual named; <code>run-tests.sh</code> green</td>
+<td>Claude <strong>Opus</strong> sub-agent (enforcing)</td>
+</tr>
+<tr>
+<td><strong>SC2</strong> source text (A3)</td>
+<td><code>src/CfdWorkbench.Core/Provenance.cs</code> (one composer), <code>Panes/BrowserPane.axaml.cs</code>, <code>PropertiesView.cs</code> (section title, <code>:1325</code>), <code>ChipSourceName</code> and its two callers in <code>WorkbenchController.cs</code> (the second designation lookup), their tests, the m12d §14.1 trace rows</td>
+<td>A0 joined</td>
+<td>T1</td>
+<td>1</td>
+<td>1 dispatch · 50 calls · 150k · 1 h 30 min</td>
+<td><code>BrowserRow_AfterEdit_NotTheOriginal</code>, <code>Properties_SectionTitle_AfterEdit_NotTheOriginal</code>, <code>SourceText_AllSurfacesAgree</code> red first then green with the DR-INV-1 a string &quot;Modified from NACA 0012&quot;; <code>BrowserRow_AfterReplace_NameThenSource</code> unchanged; <code>run-tests.sh</code> green</td>
+<td>Claude <strong>Sonnet</strong> sub-agent (enforcing)</td>
+</tr>
+<tr>
+<td><strong>ST</strong> store and copy (B2, B3, B8)</td>
+<td><code>src/CfdWorkbench.Persistence/*</code> (<code>WindowsProjectStore.cs</code>, <code>ProjectStore.cs</code>, <code>PreferenceStore.cs</code>, <code>SectionLibrary.cs</code>), <code>OpenOutcome.cs</code>, <code>SaveSectionDialog.axaml.cs</code>, <code>src/CfdWorkbench.Cli/Program.cs</code> (code to exit-status map, <code>:42-46</code>), <code>MainWindow.axaml.cs</code> (status kind, <code>:283</code>), <code>Panes/StartView.axaml.cs</code>, the open and save regions of <code>WorkbenchController.cs</code>, the store region of <code>Labels.cs</code>, Persistence, Cli and copy tests, plus the two named hunks in <code>CatalogDialogTests.cs</code> and <code>ControllerShellTests.cs</code></td>
+<td>—</td>
+<td>T1</td>
+<td>1</td>
+<td>2 dispatches · 90 calls · 300k · 3 h</td>
+<td>every item red first, then green: (1) DOC-UNSUPPORTED-PLATFORM and DOC-NOT-A-FILE each with its own message, and one end-to-end test that runs each new code through the CLI (exit 3), the status kind (Warning), StartView (a message) and preferences (session-only); (2) the non-NTFS remedy names the drive (test asserts the drive letter in the text); (3) Win32 4395 mapped (a mapping test) and the 4390 comment corrected; (4) <code>File.Exists</code> off the UI thread (a test that fails if the probe runs on the dispatcher); (5) one store <code>Operation</code> per action (a telemetry test per action: Open, Save, Clear, read-origin); (6) COPY-644 merged into COPY-125 (the one-definition check red on two rows); (7) the Save-section sentence chosen by store admission (a test with an unadmitted store on the host OS); (8) COPY-615: an old-build stored run fixture opened, <strong>fail = any run shown without its COPY-615 reason or with a wrong one</strong>, else the gap is closed by that test; (9) preference load checks folder ownership (a test with a foreign-owned folder → session-only); (10) the owner check and the ACL change use one handle (a test or a code-level assertion that one handle is opened); <code>run-tests.sh</code> green</td>
+<td><strong>Codex CLI</strong> <code>gpt-6.1-sol</code> reasoning high (observed-only; commit floor enforces)</td>
+</tr>
+<tr>
+<td><strong>JF</strong> join fence R2 (B1)</td>
+<td><code>docs/ai-forward-pack/scripts/conductor-join.py</code>, its self-test, the investigation&#39;s R2 status row</td>
+<td>—</td>
+<td>T1</td>
+<td>1</td>
+<td>1 run · 40 calls · 120k · 1 h</td>
+<td>the self-test dirties a path after the fence and asserts the join commit does not carry it (red on today&#39;s <code>git add -A</code>); git&#39;s &quot;would be overwritten&quot; refusal reported apart from a real conflict (red first); the <code>--continue</code> path fenced and a post-commit <code>git status --porcelain</code> empty outside <code>.agents/log/</code>; <code>check-docs.py</code> green</td>
+<td><strong>Grok CLI</strong> <code>grok-4.6</code> (unsupported until login and one probe pass; fallback Codex <code>gpt-6.1-sol</code>)</td>
+</tr>
+<tr>
+<td><strong>HX</strong> harness and small fixes (B4, B5, B6, B7)</td>
+<td><code>ApplyMatchAsync</code> region of <code>WorkbenchController.cs</code>, the SF2 region of <code>Labels.cs</code>, <code>tests/CfdWorkbench.Desktop.Tests/VerticesLifetimeProbe.cs</code>, <code>ControllerShellTests.cs</code>, <code>tools/run-tests.sh</code> (one line per variable), the encode-timing check in <code>tests/CfdWorkbench.Analysis.Tests/</code></td>
+<td>—</td>
+<td>T0/T1</td>
+<td>1</td>
+<td>1 dispatch · 60 calls · 180k · 2 h</td>
+<td>Match receipt a <code>Labels</code> constant (one-definition check red on the literal); the cheap &quot;already matches&quot; test with a mutant; probe: quiet control spawn, 124 reads as a timeout, the Debug SKIP and unknown-arm paths run and logged; the flaky check&#39;s race reproduced red by forced timing (an injected delay or barrier in <code>StatusStrip_BackgroundCompletion_DoesNotReplaceNewerReport</code>, <code>ControllerShellTests.cs:69</code>), then fixed and green, then 20 repeats green <strong>alone</strong> (no concurrent suites: wave-2 rule, and width 3 would collide with SC1 and ST); encode cost measured at the 32,000,000-byte cap (<code>AuthoringSession.cs:2419</code>, <code>MaxBytes</code> <code>:2567</code>) and recorded against the 100 ms rule; <strong>if over, HX files a decision request to <code>fable-owner</code> and does not change <code>AuthoringSession.cs</code></strong> (B7 = re-measure only); <code>run-tests.sh</code> green</td>
+<td>Claude <strong>Sonnet</strong> sub-agent (enforcing)</td>
+</tr>
+</tbody></table></div>
+<p>Every track: its own worktree from <code>coord worktree new</code>, <code>coord doctor</code> read back in the tree, a Return written as the
+final message, one Opus Adversary review before the join (lenses: SC1 UX &amp; Accessibility + Test Architect; SC2
+Test Architect + marine-CAD UX; ST Security + Test Architect; JF Python developer + Test Architect; HX Test Architect +
+SRE). Co-Authored-By trailers are checked before a join (wave-2 lesson). <strong>Termination:</strong> a track ends at exit evidence
+met and reviewed, or at its budget cap, which is a defect signal reported to the leader, never a reason to continue.
+Fallback for any CLI track that fails to start or breaks the commit floor: re-dispatch to a Sonnet sub-agent.</p>
+<h2>Serial spine</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>item</th>
+<th>why it cannot be parallel</th>
+<th>who owns it</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A0: join <code>inv-section-catalog-apply</code> (docs and probes)</td>
+<td>SC1 and SC2 build on its report, probes and register entries (data edge)</td>
+<td>main session</td>
+</tr>
+<tr>
+<td>Commit this plan, then every ruling and logged prompt, before any join</td>
+<td>a dirty primary refuses the join (COORD-JOIN-DIRTY-PRIMARY)</td>
+<td>main session</td>
+</tr>
+<tr>
+<td>JF&#39;s join runs alone, and the next join is watched step by step</td>
+<td>it changes the joiner; a broken joiner must not land under another track&#39;s merge, and the next join is R2&#39;s first real use</td>
+<td>leader decides; main session runs</td>
+</tr>
+<tr>
+<td>Joins one at a time, loops paused</td>
+<td>the Desktop harness crash/124 rule from wave 2: a crashed child is rerun alone</td>
+<td>main session</td>
+</tr>
+<tr>
+<td>SC2 joins before SC1</td>
+<td>SC2 rewrites <code>ChipSourceName</code> inside SC1&#39;s file region (data edge, review finding 2)</td>
+<td>leader</td>
+</tr>
+<tr>
+<td>SC1 phases 1, 2, 4</td>
+<td>phase 4&#39;s sweep is validated by removing phase 1&#39;s class (data edge)</td>
+<td>SC1</td>
+</tr>
+<tr>
+<td>B9 housekeeping last</td>
+<td>branch pruning after all wave branches are joined and removed</td>
+<td>main session</td>
+</tr>
+</tbody></table></div>
+<h2>Seams</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>from -&gt; to</th>
+<th>the request</th>
+<th>resolved by</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SC1 -&gt; ST</td>
+<td>none expected: SC1&#39;s tag and fault copy uses its own range</td>
+<td>—</td>
+</tr>
+<tr>
+<td>SC2 -&gt; SC1</td>
+<td><strong>hard edge: SC2 joins before SC1.</strong> SC2 replaces the second designation lookup (<code>ChipSourceName</code>) inside the file region SC1 edits; SC1 rebases on SC2 and does not touch <code>ChipSourceName</code> or source text</td>
+<td>leader orders the joins</td>
+</tr>
+<tr>
+<td>ST -&gt; SC1, ST -&gt; HX</td>
+<td>ST changes one assertion each in <code>CatalogDialogTests.cs</code> (<del><code>:264</code>) and <code>ControllerShellTests.cs</code> (</del><code>:202</code>); whichever joins second rebases and keeps both</td>
+<td>main session at the join</td>
+</tr>
+<tr>
+<td>HX -&gt; SC1, ST -&gt; SC1</td>
+<td>disjoint regions of <code>WorkbenchController.cs</code>; the later join rebases</td>
+<td>main session at the join</td>
+</tr>
+<tr>
+<td>any -&gt; Owner</td>
+<td>a copy supersession, a new store code&#39;s wording, or an exit-evidence change</td>
+<td><code>fable-owner</code> ruling</td>
+</tr>
+</tbody></table></div>
+<h2>Struck tracks</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>track</th>
+<th>why it was not worth its multiplier</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>one track per wave-2 follow-up (eight)</td>
+<td>grouped by file family: store, harness, catalog, source text, joiner (wave-2 Simplifier rule)</td>
+</tr>
+<tr>
+<td>SC1 split by phase</td>
+<td>phases share one sheet and one test file; split would share an aggregate and generate seams</td>
+</tr>
+<tr>
+<td>B3 copy as its own track</td>
+<td>its Save-section sentence depends on ST&#39;s admission codes (decision and data edge); merged into ST</td>
+</tr>
+<tr>
+<td>B9 as a track</td>
+<td>three commands; main-session mechanics</td>
+</tr>
+<tr>
+<td>macOS verify gate, compatible fit build</td>
+<td>out of scope by the operator&#39;s answers</td>
+</tr>
+</tbody></table></div>
+<p><strong>Cost.</strong> Five tracks at width 3, plus a leader, an Owner and five reviews: about 10-15 times one session&#39;s tokens
+(GO6). Each track is paid for by <strong>independence</strong> (disjoint file families, no decision edge after the operator&#39;s
+answers) and <strong>context hygiene</strong> (SC1&#39;s three phases and ST&#39;s Win32 detail would crowd one context past the 400k ceiling
+that broke A3 in wave 1). The CLI tracks add harness diversity at no Claude token cost.</p>
+<h2>Order of operations</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>action</th>
+<th>cost</th>
+<th>why now</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Commit this plan (md, html, index) on main</td>
+<td>1 commit</td>
+<td>the plan is cited by every brief</td>
+</tr>
+<tr>
+<td>2</td>
+<td>A0: <code>conductor-join</code> the investigation branch; remove its worktree</td>
+<td>1 join, ~5 min</td>
+<td>SC1 and SC2 need it</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Spawn <code>opus-leader</code> and <code>fable-owner</code>; leader writes the five briefs</td>
+<td>~60k</td>
+<td>briefs before dispatch</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Ask the operator to run <code>grok login</code>; probe Grok with one read-only prompt</td>
+<td>2 min</td>
+<td>JF&#39;s harness is unsupported until then</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Wave A at width 3: SC1 (Opus), ST (Codex), SC2 (Sonnet)</td>
+<td>~3 h</td>
+<td>the longest tracks start first; SC2 early so it joins before SC1 without pushing a late rebase onto SC1 (review cycle 2)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>As a slot frees: JF (Grok, or Codex as fallback), then HX (Sonnet)</td>
+<td>~2 h</td>
+<td>width cap 3; JF depends on nothing</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Review each Return (Opus Adversary); repair cycles as the leader rules</td>
+<td>per track</td>
+<td>—</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Joins as ready, one at a time, with SC2 always before SC1 (hard edge); JF&#39;s join alone and the next one watched</td>
+<td>~5 min each + ring</td>
+<td>spine</td>
+</tr>
+<tr>
+<td>9</td>
+<td>B9: rmdir the empty cr2 folder; <code>git branch -d</code> merged old branches; list the rest; confirm the wave-2 OneDrive throwaway files are gone (removed at the wave-2 close)</td>
+<td>5 min</td>
+<td>after all joins</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Planned vs actual appended here; push; CI green read back</td>
+<td>—</td>
+<td>close</td>
+</tr>
+</tbody></table></div>
+<h2>Gate record</h2>
+<p><code>GATE prepare-for-coordination · 2026-10-26 · Orchestrator (author, Peer) · Test Architect with the Simplifier and Tech Lead lenses (Adversary, Opus sub-agent, read-only) · cycle 1 verdict BLOCK (one blocker: ST&#39;s owned files missed the surfaces its new store codes reach: CLI exit map, status kind, StartView, preferences, the open and save regions) · resolution: ST owns those files and adds one end-to-end red-first test; SC2 owns ChipSourceName and joins before SC1 (hard edge); m12d and two test files declared shared by section or hunk; every ST item given a named red-first test and COPY-615 a fail condition; HX&#39;s flaky fix reproduced red by forced timing and repeated alone; HX files a request instead of changing AuthoringSession.cs; SC1&#39;s evidence gains the damaged My-sections rows, the manual pointer pass and catalog.preview unchanged; finding 8 already met (the OneDrive throwaway files were removed at the wave-2 close), B9 confirms. Tech Lead casting vote: five tracks, no strike. Cycle 2 verdict PASS-WITH-CONDITIONS, CLEARS-THE-VETO yes: three conditions folded (a damaged-row case in the Phase 1 test; SC2 dispatched in wave A in place of JF; the joint-satisfiability paragraph names all four controller regions). Each Return attaches a Proof Pack before its join.</code></p>
+<footer><p class="note">This view is generated from the canonical Markdown. Source SHA-256: <code>9c295cecf18af6fe33f06b86b39e419383bcc7dedaf484326098461f8365281e</code>.</p></footer></main></body></html>

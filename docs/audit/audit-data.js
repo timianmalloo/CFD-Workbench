@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-26T15:38:59Z",
+  "generated": "2026-10-26T15:43:32Z",
   "audit": [
     {
       "actor": null,
@@ -43180,6 +43180,30 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-26T15:38:15Z",
       "duration_seconds": 44.0
+    },
+    {
+      "id": "al-01M5WE3478ZTE7EZNMEF5KKVH1",
+      "shortname": "coordination-wave3-next-steps",
+      "datetime": "2026-10-26T15:43:31Z",
+      "session": "wave3-coordinator",
+      "prompt": "Wave 3 plan from the next-steps table of the last two sessions (operator prompt al logged at 8e433b4f; answers 8b6d35a3)",
+      "summary": "five tracks at width 3: SC1 catalog sheet (Opus), SC2 source text (Sonnet), ST store+copy (Codex gpt-6.1-sol), JF join fence R2 (Grok grok-4.6, Codex fallback), HX harness+small (Sonnet); spine: A0 joined, SC2 before SC1, JF join alone; struck: per-item tracks, SC1 split, B3 alone, B9 track; gate PASS-WITH-CONDITIONS cycle 2",
+      "kind": "skill",
+      "skill": "prepare-for-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/wave3-next-steps.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "derive the wave-3 coordination plan",
+      "done_when": "plan md+html committed, adversary veto cleared, check-docs green",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-10-26T15:33:04Z",
+      "duration_seconds": 627.0
     }
   ],
   "changes": [
