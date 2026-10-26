@@ -429,6 +429,7 @@ def main():
     manifest = {p: digest((ROOT / p).read_bytes()) for p in SOURCES}
     source = digest(json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode())
     env = dict(os.environ, DOTNET_CLI_HOME=str(out / "dotnet-home"),
+               DOTNET_ADD_GLOBAL_TOOLS_TO_PATH="false",
                NUGET_PACKAGES=str(out / "nuget"), DOTNET_CLI_TELEMETRY_OPTOUT="1",
                DOTNET_GENERATE_ASPNET_CERTIFICATE="false", DOTNET_SKIP_FIRST_TIME_EXPERIENCE="1",
                DOTNET_CLI_WORKLOAD_UPDATE_NOTIFY_DISABLE="true", MSBUILDDISABLENODEREUSE="1")

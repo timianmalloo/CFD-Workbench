@@ -208,7 +208,8 @@ def main() -> None:
         path.mkdir(parents=True, exist_ok=True)
         environment[key] = str(path)
     (scratch / "receipts").mkdir(exist_ok=True)
-    environment.update(DOTNET_SKIP_FIRST_TIME_EXPERIENCE="1", DOTNET_CLI_TELEMETRY_OPTOUT="1",
+    environment.update(DOTNET_ADD_GLOBAL_TOOLS_TO_PATH="false",
+                       DOTNET_SKIP_FIRST_TIME_EXPERIENCE="1", DOTNET_CLI_TELEMETRY_OPTOUT="1",
                        DOTNET_CLI_DO_NOT_USE_MSBUILD_SERVER="1", DOTNET_GENERATE_ASPNET_CERTIFICATE="false",
                        # Without it Avalonia's build telemetry collector joins the build's process group and can outlive it.
                        AVALONIA_TELEMETRY_OPTOUT="1")

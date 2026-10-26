@@ -70,6 +70,7 @@ def recount(root: Path) -> dict[str, object]:
         env["DOTNET_SKIP_FIRST_TIME_EXPERIENCE"] = "1"
         env["DOTNET_GENERATE_ASPNET_CERTIFICATE"] = "false"
         env["DOTNET_CLI_HOME"] = str(scratch / "dotnet-home")
+        env["DOTNET_ADD_GLOBAL_TOOLS_TO_PATH"] = "false"
         env["NUGET_PACKAGES"] = str(scratch / "nuget-packages")
         env["PIP_CACHE_DIR"] = str(scratch / "pip-cache")
         project = root / SOURCE_PATHS[0]

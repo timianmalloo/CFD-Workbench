@@ -135,7 +135,7 @@ lived only in the operator's sequencing, and a write made in the same turn as th
 | Phase | Scope | Failure mode it removes | Validation | Status |
 |---|---|---|---|---|
 | R1 | The step-0b fence, its two self-test cases, the writers' notes, the register entry | a join refused with a conflict message, or a write swept into a join commit | the self-test red on the unfenced join and green with it; `check-docs` green; the join of this branch itself | this branch |
-| R2 (follow-up) | `conductor-join` step 7 stages only the paths the join itself produced (the merge result, the derived views, the audit entry, the session logs) rather than `git add -A` | any future sweep the fence does not cover (a path dirtied between step 0b and step 7) | a self-test that dirties a path after the fence and asserts the join commit does not carry it | not started; the fence makes the window one step wide |
+| R2 (follow-up) | `conductor-join` step 7 stages only the paths the join itself produced (the merge result, the derived views, the audit entry, the session logs) rather than `git add -A` | any future sweep the fence does not cover (a path dirtied between step 0b and step 7) | a self-test that dirties a path after the fence and asserts the join commit does not carry it | landed on `w3-jf-join-fence`, repair cycle 1: scoped staging; audit hash fenced before own append, checked again before staging, committed diff exactly one added line; vanished candidates excluded; refusal 13 distinct from conflict/incomplete merge 1; `--continue` fenced, post-commit porcelain checked; required cases red then green. Residual: a foreign write to an eligible derived path during a join command can still be staged; joins require exclusive execution |
 
 ## 10. Residual risk
 
