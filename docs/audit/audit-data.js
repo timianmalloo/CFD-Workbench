@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-26T17:14:08Z",
+  "generated": "2026-10-26T17:22:17Z",
   "audit": [
     {
       "actor": null,
@@ -43549,12 +43549,81 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M5WK9282MCKV9TMFZ2PQYKBX",
-      "shortname": "join-w3-sc1",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-26T17:14:08Z",
-      "session": "wave3-coordinator",
+      "done_when": "ring green, ten gates green",
+      "duration_seconds": 294.0,
+      "fan_out": 0,
+      "goal": "SC1 on main",
+      "id": "al-01M5WK9282MCKV9TMFZ2PQYKBX",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of the resolved merge into main",
+      "session": "wave3-coordinator",
+      "shortname": "join-w3-sc1",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-26T17:09:14Z",
       "summary": "SC1 phases 1, 2, 4 and repair 1: muted rows + state tags (pending, damaged incl.), PreviewFault on every drop branch incl. queued choice + step, Enter during fit, catalog.select/apply telemetry deduped, AutomationState_HasRenderedState over Modal opening states; COPY-647..651 proposed; review ACCEPT-WITH-CONDITIONS, all met; defect-classes.md conflict resolved keeping both sides (SC1's in-place control edits + JF's appended entries); ui-craft-gate Not assessed; manual pointer pass Inferred recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-26T16:56:58Z",
+      "done_when": "items 1-6 evidence; 20 repeats alone pending",
+      "duration_seconds": 1451.0,
+      "goal": "HX harness and small fixes B4-B7 (wave 3)",
+      "id": "al-01M5WJ9MAX80EVW3F6CEHSRDP5",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "HX coder wave 3: harness and small fixes B4-B7 per briefs/hx.md",
+      "session": "hx",
+      "shortname": "hx-harness",
+      "skill": "implement",
+      "started_at": "2026-10-26T16:32:47Z",
+      "summary": "Match receipt Labels.MatchReceipt (COPY-628), already-matches test+mutant, probe N2-N4, status-strip race fixed in the check, encode at cap median 60 ms Release (under 100), unset split; run-tests green; 20 repeats pending (foreign Desktop process present)",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-26T17:08:30Z",
+      "done_when": "findings addressed; 20 repeats stay with the main session",
+      "duration_seconds": 170.0,
+      "goal": "HX repair 1",
+      "id": "al-01M5WJYR3Z70T2ZP803XC0Z77H",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "HX repair cycle 1 (review ACCEPT-WITH-CONDITIONS findings 2,3,4,5,7,10)",
+      "session": "hx",
+      "shortname": "hx-repair-1",
+      "skill": "implement",
+      "started_at": "2026-10-26T17:05:40Z",
+      "summary": "completion-signal wait, attempt count printed, classification-only comment, real unknown-arm exit, control log on bad verdict, proof folder docs/proof/hx-status-strip, VectorKey whitespace restored; Release probe run quiet control",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M5WKR01BH9CKNE89BV3VMMGH",
+      "shortname": "join-w3-hx",
+      "datetime": "2026-10-26T17:22:17Z",
+      "session": "wave3-coordinator",
+      "prompt": "the join of w3-hx-harness into main",
+      "summary": "HX (Sonnet): Labels.MatchReceipt (COPY-628, still proposed) with a one-definition check; RemoveFlyout_StationAlreadyMatches with a mutant; probe quiet control (log printed on a bad verdict), 124 reads as a timeout, real unknown-arm exit 2, Debug SKIP; status-strip race in the test setup, now waits on the completion's signal (review mutants red 5/5, 3/3), 20 of 20 alone by the main session; encode median ~60 ms, cold first read 99.3 ms (at the limit), no request; run-tests.sh one variable per unset line; review ACCEPT-WITH-CONDITIONS, all met recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -43563,7 +43632,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "SC1 on main",
+      "goal": "HX on main",
       "done_when": "ring green, ten gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -43572,8 +43641,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-26T17:09:14Z",
-      "duration_seconds": 294.0
+      "started_at": "2026-10-26T17:17:15Z",
+      "duration_seconds": 302.0
     }
   ],
   "changes": [
