@@ -756,9 +756,11 @@ def self_test() -> int:
             lines = []
             contract = {"regenerate": [], "gates": []}
 
-            def run(hook=None, regenerate=None):
+            def run(hook=None, regenerate=None, checks=None):
                 if regenerate is not None:
                     contract["regenerate"] = regenerate
+                if checks is not None:
+                    contract["checks"] = checks
                 try:
                     return join(args, root, contract, log=lines.append, _after_fence=hook)
                 except SystemExit as exc:
@@ -838,6 +840,68 @@ def self_test() -> int:
                 and not (root / "generated" / "deleted.txt").exists()
                 and not git(root, "status", "--porcelain").strip())
 
+    def audit_writer_fixture(root):
+        (root / "docs/audit/audit-log.jsonl").write_text('{"id":"base"}\n', encoding="utf-8")
+        (root / "foreign.py").write_text(
+            "from pathlib import Path\n"
+            "with Path('docs/audit/audit-log.jsonl').open('a', encoding='utf-8') as f:\n"
+            "    f.write('{\"id\":\"foreign\"}\\n')\n", encoding="utf-8")
+        git(root, "add", "docs/audit/audit-log.jsonl", "foreign.py")
+        git(root, "commit", "-qm", "audit baseline and foreign writer")
+
+    def foreign_audit(root, args, lines, run):
+        audit_writer_fixture(root)
+        status = run(checks=[[PY, "foreign.py"]])
+        carried = '"foreign"' in git(root, "show", "HEAD:docs/audit/audit-log.jsonl")
+        if carried:
+            print("conductor-join --self-test: evidence - HEAD carries the foreign audit line")
+        return (status == 7 and not carried
+                and '"foreign"' in (root / "docs/audit/audit-log.jsonl").read_text(encoding="utf-8")
+                and any("COORD-JOIN-AUDIT-CHANGED" in l for l in lines)
+                and not any("step 5:" in l for l in lines))
+
+    def foreign_audit_after_append(root, args, lines, run):
+        audit_writer_fixture(root)
+        status = run(regenerate=[[PY, "foreign.py"]])
+        return (status == 7 and '"foreign"' not in git(root, "show", "HEAD:docs/audit/audit-log.jsonl")
+                and any("COORD-JOIN-AUDIT-CHANGED" in l for l in lines)
+                and not any("step 7: commit" in l for l in lines))
+
+    def audit_commit_diff(root, args, lines, run):
+        audit_writer_fixture(root)
+        # Install only during step 6, so the hook affects the join's chore commit, not its merge.
+        hook = "#!/bin/sh\nprintf '%s\\n' '{\"id\":\"foreign\"}' >> docs/audit/audit-log.jsonl\ngit add docs/audit/audit-log.jsonl\n"
+        (root / "install_hook.py").write_text(
+            "from pathlib import Path\n"
+            "p = Path('.git/hooks/pre-commit')\n"
+            "p.write_text(" + repr(hook) + ", encoding='utf-8')\n"
+            "p.chmod(0o755)\n", encoding="utf-8")
+        git(root, "add", "install_hook.py")
+        git(root, "commit", "-qm", "hook installer")
+        status = run(regenerate=[[PY, "install_hook.py"]])
+        return (status == 7 and any("COORD-JOIN-AUDIT-DIFF" in l for l in lines)
+                and not any("step 8:" in l for l in lines))
+
+    def transient_output(root, args, lines, run):
+        (root / "generate.py").write_text(
+            "from pathlib import Path\n"
+            "p = Path('generated/transient.txt')\n"
+            "p.unlink() if p.exists() else (p.parent.mkdir(exist_ok=True), p.write_text('temporary'))\n",
+            encoding="utf-8")
+        git(root, "add", "generate.py")
+        git(root, "commit", "-qm", "transient generator")
+        status = run(regenerate=[[PY, "generate.py"], [PY, "generate.py"]])
+        return status == 0 and not git(root, "status", "--porcelain").strip()
+
+    def merge_hook_failure(root, args, lines, run):
+        hook = root / ".git/hooks/pre-merge-commit"
+        hook.write_text("#!/bin/sh\nexit 1\n", encoding="utf-8")
+        hook.chmod(0o755)
+        status = run()
+        return (status == 1 and any("COORD-JOIN-MERGE-INCOMPLETE" in l for l in lines)
+                and not any("COORD-JOIN-MERGE-REFUSED" in l for l in lines)
+                and (root / ".git/MERGE_HEAD").is_file())
+
     r2_case("R2 case A: post-fence write stays dirty, outside commit; post-commit check exits 7", late_write)
     r2_case("R2 case B: untracked overwrite refusal names path and exits 13", refusal)
     r2_case("R2 case B: tracked overwrite refusal names path and exits 13", tracked_refusal)
@@ -845,6 +909,11 @@ def self_test() -> int:
     r2_case("R2 case C: --continue fences unrelated dirt", continued)
     r2_case("R2 case C: clean --continue leaves empty porcelain", clean_continued)
     r2_case("R2 derived outputs: deletion and spaced path committed; porcelain empty", derived_outputs)
+    r2_case("R2 repair: foreign audit append before step 5 refused, not carried", foreign_audit)
+    r2_case("R2 repair: foreign audit append at step 6 refused, not carried", foreign_audit_after_append)
+    r2_case("R2 repair: post-commit audit diff must be exactly one added line", audit_commit_diff)
+    r2_case("R2 repair: transient generated path does not break staging", transient_output)
+    r2_case("R2 repair: failed merge hook leaves MERGE_HEAD, not a refusal", merge_hook_failure)
     if problems:
         print("conductor-join --self-test: FAILED - " + "; ".join(problems))
         return 1

@@ -50,6 +50,19 @@ def environment_writes(tree):
 
 
 class DotnetCliHomeEnvironmentTests(unittest.TestCase):
+    def test_review_forms_cannot_silently_escape_the_guard(self):
+        fixtures = {
+            "os.environ subscript": 'os.environ["DOTNET_CLI_HOME"] = "scratch"',
+            "dict unpack": 'env = {**os.environ, "DOTNET_CLI_HOME": "scratch"}',
+            "env keyword": 'run(env={"DOTNET_CLI_HOME": "scratch"})',
+            "setdefault": 'env.setdefault("DOTNET_CLI_HOME", "scratch")',
+        }
+        for name, source in fixtures.items():
+            with self.subTest(form=name):
+                writes = environment_writes(ast.parse(source))
+                self.assertTrue(any("DOTNET_CLI_HOME" in variables for variables in writes.values()),
+                                f"{name}: fresh home silently escaped the AST guard")
+
     def test_fresh_home_disables_global_tools_path_mutation(self):
         # Scope: tools/*.py, nonrecursive; all environment mappings setting the home;
         # no allowlist. Comments, receipts, and an opt-out on another mapping do not pass.
