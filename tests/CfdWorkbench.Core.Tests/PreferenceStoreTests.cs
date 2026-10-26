@@ -10,6 +10,39 @@ internal static class PreferenceStoreTests
 {
     internal static void Run()
     {
+        Check("PrefStore_OneHeldHandle_OwnerBeforeDacl", () =>
+        {
+            if (!OperatingSystem.IsWindows()) return;
+            string directory = LayoutFileTests.Root();
+            Directory.CreateDirectory(directory);
+            var calls = new List<(string Call, nint Handle)>();
+            bool secured;
+            WindowsNative.DirectorySecurityCalls = calls;
+            try { secured = WindowsNative.EnsurePrivateDirectory(directory); }
+            finally { WindowsNative.DirectorySecurityCalls = null; }
+            Equal(true, secured);
+            Equal("open,owner-accepted,dacl", string.Join(',', calls.Select(call => call.Call)));
+            Equal(1, calls.Select(call => call.Handle).Distinct().Count());
+            AssertPrivateDirectory(directory);
+        });
+        Check("PrefStore_OwnerProbeThrows_SessionOnlyNoWrite", () =>
+        {
+            foreach (Exception error in new Exception[] { new System.Security.SecurityException(), new ArgumentException(), new InvalidOperationException() })
+            {
+                string root = LayoutFileTests.Root();
+                Directory.CreateDirectory(root);
+                int stores = 0;
+                var prefs = new PreferenceStore(root, () => { stores++; return new ProjectStore(); }, _ => throw error);
+                Equal(true, Wait(prefs.LoadLayoutAsync(LayoutFileTests.Panes(), default)).SessionOnly);
+                Equal(true, Wait(prefs.LoadRecentAsync(default)).SessionOnly);
+                Equal(true, Wait(prefs.LoadTextSizeAsync(default)).SessionOnly);
+                Equal(true, Wait(prefs.LoadUnitsAsync(default)).SessionOnly);
+                Equal(true, Wait(prefs.LoadCombViewAsync(default)).SessionOnly);
+                Equal("session-only", Wait(prefs.SaveTextSizeAsync(125, default)).Outcome);
+                Equal(0, stores);
+                Equal(0, Directory.GetFileSystemEntries(root).Length);
+            }
+        });
         Check("LayoutLoad_Absent_ReturnsPresets", Absent);
         Check("Rollback_V2UnknownTopLevel_BytesUnchanged", () => Rollback("v2-unknown-top.json"));
         Check("Rollback_V2UnknownWorkspaceMember_BytesUnchanged", () => Rollback("v2-unknown-workspace.json"));

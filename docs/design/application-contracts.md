@@ -313,7 +313,7 @@ INTEGRITY/ID/SIZE/OPERATION-CONFLICT/RECOVERY-BASE`; persistence `DOC-CONFLICT/I
 UNSUPPORTED-PERSISTENCE/SAVE-UNCERTAIN`. Display literal text; no HTML/eval/auto-link execution.
 
 Normal-path events/spans: `language.parse`, `identity.canonicalize`, `geometry.validate`, `document.open`,
-`document.apply`, `document.cursor`, `document.recovery`, `document.save`, `document.reopen`. Record trace/operation
+`document.apply`, `document.cursor`, `document.recovery`, `store.save`, `store.read`, `store.clear`, `store.read-origin`. Record trace/operation
 ID, action, status/code, input/output byte counts, generation, evaluator and measured duration. Histograms:
 operation latency/bytes; counters: failures/conflicts/resource refusal/cancellation; gauge: retained source
 and history count. No source/paths/names/vertex strings/raw exception text/hash correlation identifiers in logs.

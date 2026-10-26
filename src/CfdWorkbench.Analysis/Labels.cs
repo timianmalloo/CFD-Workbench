@@ -420,8 +420,8 @@ public static class Labels
     public const string SaveNotAFile = "This path is a folder (DOC-NOT-A-FILE). Your changes are kept in this session. Use Save As to choose a project file name."; // COPY-679 proposed
     public static string DriveRemedy(string path) => path.Length >= 2 && char.IsAsciiLetter(path[0]) && path[1] == ':'
         ? $" The refused path is on drive {path[..2]}. Choose a folder on a local NTFS drive." : ""; // COPY-680 proposed; appended to approved location copy
-    public static string SaveRefusal(string code, string path) => SaveRefusal(code) +
-        (code == "DOC-UNSUPPORTED-PERSISTENCE" && OperatingSystem.IsWindows() ? DriveRemedy(path) : "");
+    public static string SaveRefusal(string code, string path, string? unsupportedReason = null) => SaveRefusal(code) +
+        (code == "DOC-UNSUPPORTED-PERSISTENCE" && unsupportedReason == "non-ntfs" && OperatingSystem.IsWindows() ? DriveRemedy(path) : "");
 
     public static string SaveRefusal(string code) => code switch
     {

@@ -31,6 +31,7 @@ public enum OpenFailureKind
 
 public abstract record OpenFailure(string Code, string Path)
 {
+    public string? UnsupportedReason { get; init; }
     public abstract OpenFailureKind Kind { get; }
 
     public sealed record Missing(string Code, string Path) : OpenFailure(Code, Path)
@@ -106,7 +107,7 @@ public abstract record OpenFailure(string Code, string Path)
             return new AccessDenied("DOC-ACCESS", path);
 
         if (exception is ContractError contractError)
-            return ClassifyCode(contractError.Code, path, fileExists);
+            return ClassifyCode(contractError.Code, path, fileExists) with { UnsupportedReason = contractError.Reason };
 
         if (exception is IOException)
             return new Unreadable("DOC-IO", path);

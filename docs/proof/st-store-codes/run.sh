@@ -4,7 +4,8 @@ set -euo pipefail
 export PATH="$(printf '%s' "$PATH" | tr ':' '\n' | grep -v 'recount-' | paste -sd: -)"
 cd "$(dirname "$0")/../../.."
 dotnet build CFDWorkbench.slnx -c Debug -nologo -v q
-python docs/proof/st-store-codes/check-one-handle.py --self-test
+CFD_TEST_ONLY=PrefStore_OneHeldHandle tests/CfdWorkbench.Core.Tests/bin/Debug/net10.0/CfdWorkbench.Core.Tests.exe --harness
+CFD_TEST_ONLY=Library_UnadmittedHost,Library_FolderRefusal,PrefStore_OwnerProbeThrows,WindowsStore_ParentIsFile tests/CfdWorkbench.Core.Tests/bin/Debug/net10.0/CfdWorkbench.Core.Tests.exe --harness
 CFD_TEST_ONLY=Labels_MissingFile tests/CfdWorkbench.Analysis.Tests/bin/Debug/net10.0/CfdWorkbench.Analysis.Tests.exe --harness
 CFD_TEST_ONLY=Compare_OldBuild tests/CfdWorkbench.Analysis.Tests/bin/Debug/net10.0/CfdWorkbench.Analysis.Tests.exe --harness
 CFD_TEST_ONLY=PrefStore_ForeignOwnedFolder tests/CfdWorkbench.Core.Tests/bin/Debug/net10.0/CfdWorkbench.Core.Tests.exe --harness

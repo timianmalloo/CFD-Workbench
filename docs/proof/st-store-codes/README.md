@@ -7,7 +7,6 @@ owner: "@st"
 tags: [store, windows, testing, telemetry]
 links:
   - {to: coordination-wave3-next-steps, rel: implements}
-  - {to: plan-st-dispatch1, rel: tested-by}
 review-by: 2026-11-26
 summary: Observed ST store-code, copy and preference checks. Dispatch 2 records the genuine old-build fixture's axes refusal while leaving COPY-615 dimensional-headline evidence open.
 ---
@@ -61,7 +60,7 @@ The first expectation was too broad: `FAIL Compare_OldBuildStoredRun_Copy615Reas
 
 The existing-folder path opens once with READ_CONTROL | WRITE_DAC, reads the owner from that handle and passes that same handle to SetSecurityInfo. Access denied on that open fails closed to session-only. Foreign owners remain untouched. The separate read-only path owner probe is for preference loads and is not called by this transaction.
 
-`check-one-handle.py` is a code-level assertion, not a runtime open counter. It requires one CreateFileW, the handle overload of the owner reader, and the same handle at DACL publication; it rejects an owner-reader reopen. Its self-test inserts a second CreateFileW into the transaction and observes the expected failure. Residual: an equivalent reopen spelled through a new helper would require extending this explicitly scoped structural guard.
+Dispatch 2 originally used the structural `check-one-handle.py` assertion. Repair 1 below supersedes that evidence with the harness runtime test and three observed mutant failures. The structural script and its run.sh invocation are deleted.
 
 ```text
 FAIL Preferences_OneHeldHandle_OwnerAndDacl owner check reopens the path before the DACL handle
@@ -233,3 +232,128 @@ duration: 1m 17s 859ms
 This establishes the repaired Desktop project result, not a green exit from the earlier run-tests.sh invocation. No second full run-tests.sh invocation was made. The strict green-script requirement remains unobserved. Item 8's dimensional-headline evidence also remains open.
 
 Planned five serial item assessments and one full script run; actual five assessments, one full script run, three before/after mode reruns, and one complete Desktop project rerun. Rework: one stale-apphost build retry, two corrected test compile signatures, historical axes/field expectations corrected from observed compatibility, and the two copy assertions plus context cleanup found by the full suite. Independent review remains pending. No dispatch-1 production change was reworked; item 6 required updating its prior missing-file assertions.
+
+## ST repair 1 — Opus ACCEPT-WITH-CONDITIONS
+
+Goal: address review items 1–8 in the assigned ST tree. Done when the targeted regressions and three native mutants are observed red, repaired checks pass, the full script and each affected Desktop mode are reported, and the repair plus audit are committed. Tier T1; fan-out cap 1; 45 calls / 90 minutes. Wave-plan item 8 stays NOT DONE under Owner Ruling 267. No new approved copy or change to COPY-615 is authorized.
+
+The optimize-graph pass uses the existing proof as its record rather than creating another plan. The serial dependency graph is grounding → red assertions → minimal fixes → native/fixture mutations → full script → isolated Desktop reruns → docs checks → audit/commit. Verification nodes are immovable. Each mutation restores source in a finally block; its exit is an observed assertion failure, followed by the real-code pass. No agents were delegated. Test Architect and Security lenses are the supplied Opus conditions; their independent acceptance remains with the main session.
+
+Surface list: store admission → SectionLibrary → Save-section error; native open/owner/DACL transaction → Core harness; volume admission → ContractError.Reason → OpenFailure → StartView and SaveResult.UnsupportedReason → controller → Labels; preference owner read → session-only load/save; historical run integrity → compare projection; copy register and operation-name documentation. The refusal cause is transient, one cause per failed operation, and adds no durable document schema or stored history. The owner probe and native counters are internal test seams; default behavior still uses the real OS calls.
+
+### 1. SectionLibrary refusal propagation — Verified
+
+The factory constructs a real ProjectStore with platform admission refused on this host. Before the fix:
+
+```text
+FAIL Library_UnadmittedHost_PassesPlatformCode InvalidOperationException: Expected DOC-UNSUPPORTED-PLATFORM; actual LIB-IO
+FAIL Library_FolderRefusal_PassesNotAFileCode InvalidOperationException: Expected DOC-NOT-A-FILE; actual LIB-IO
+```
+
+After passing both codes through (alongside DOC-UNSUPPORTED-PERSISTENCE):
+
+```text
+PASS Library_UnadmittedHost_PassesPlatformCode
+PASS Library_FolderRefusal_PassesNotAFileCode
+PASS StoreCodes_SaveSection_UnadmittedHost_UsesSystemSentence
+```
+
+DOC-NOT-A-FILE stays a store refusal instead of becoming a write failure; the dialog's existing generic code-bearing sentence handles it. DOC-UNSUPPORTED-PLATFORM now reaches the existing system-sentence arm. The tests assert that no section file was published.
+
+### 2. Runtime one-handle control — Verified
+
+`PrefStore_OneHeldHandle_OwnerBeforeDacl` runs the existing-folder path against Windows. It observes successful opens at the CreateFileW and NtCreateFile boundaries, owner acceptance after the real identity comparison, and the actual handle-based SetSecurityInfo call. It requires exactly `open,owner-accepted,dacl`, one handle value throughout, then reads the resulting protected owner-only DACL. `run-tests.sh` executes this Core harness test normally. The old text scan and its run.sh call are removed.
+
+`runtime-mutants.py` temporarily applies, builds and runs each mutant, restores the exact original source bytes, then rebuilds and runs the real code:
+
+```text
+MUTANT second-relative-open
+FAIL PrefStore_OneHeldHandle_OwnerBeforeDacl InvalidOperationException: Expected open,owner-accepted,dacl; actual open,owner-accepted,open,dacl
+MUTANT path-dacl-comment-decoy
+FAIL PrefStore_OneHeldHandle_OwnerBeforeDacl InvalidOperationException: Expected open,owner-accepted,dacl; actual open,owner-accepted
+MUTANT owner-after-dacl
+FAIL PrefStore_OneHeldHandle_OwnerBeforeDacl InvalidOperationException: Expected open,owner-accepted,dacl; actual open,dacl,owner-accepted
+REAL CODE
+PASS PrefStore_OneHeldHandle_OwnerBeforeDacl
+```
+
+The path-DACL mutant calls SetNamedSecurityInfoW and leaves `SetSecurityInfo(handle,` in a comment. The relative-open mutant calls OpenRelative, not CreateFileW. None of the mutants is committed. Reproduce with the PATH strip from run.sh, then `python docs/proof/st-store-codes/runtime-mutants.py`.
+
+### 3. Cause-true copy — Verified
+
+Win32 ERROR_DIRECTORY (267) can identify a parent component that is a file. It retains DOC-UNSUPPORTED-PERSISTENCE; the distinct STATUS_FILE_IS_A_DIRECTORY mapping remains DOC-NOT-A-FILE. The real filesystem test saves to `<file>.txt/x.cfdw.json` and checks the parent bytes remain unchanged:
+
+```text
+FAIL WindowsStore_ParentIsFile_UnsupportedPersistence InvalidOperationException: Expected DOC-UNSUPPORTED-PERSISTENCE; actual DOC-NOT-A-FILE
+PASS WindowsStore_ParentIsFile_UnsupportedPersistence
+```
+
+Only the actual non-NTFS volume-check branch supplies the machine-readable `non-ntfs` cause. Reads carry it in ContractError.Reason and OpenFailure.UnsupportedReason; saves carry it in SaveResult.UnsupportedReason. StartView and Labels append the drive remedy only for that cause. The tests inject filesystem identity or ancestor reparse attributes into the real WindowsProjectStore; they do not infer a filesystem from a drive letter or an error code.
+
+```text
+FAIL StoreCodes_LocalLinkedCause_NoDriveRemedy Exception: local reparse refusal received non-NTFS remedy
+PASS StoreCodes_LocalLinkedCause_NoDriveRemedy
+PASS StoreCodes_NonNtfsRemedy_NamesDrive
+PASS StoreCodes_NewCodes_ReachEverySurface
+```
+
+The full run exposed an older test that required the remedy for every persistence refusal. It was updated to assert both unknown cause (no drive remedy) and explicit non-NTFS cause (drive remedy):
+
+```text
+FAIL OpenRefusal_Sentences_AreTheLabelsConstants InvalidOperationException: COPY-641 and drive remedy are not the Windows sentence
+```
+
+### 4–8. Copy record, fail-closed preferences, fixture and documentation
+
+4. COPY-644 restores the complete approved text and approval status from commit `99b81769`, then appends `— superseded by COPY-125 — wave 3 plan, ST item 6 (WF review N4)`. Documentation-only correction; no runtime red applies. `PASS Labels_MissingFile_OneActiveDefinition_Copy125` verifies the retired row is not a second active definition.
+
+5. Any Exception from the preference ownership/descriptor probe now fails closed to session-only. The test injects SecurityException, ArgumentException and InvalidOperationException, checks every load family and a save, and asserts zero store creations and zero files:
+
+```text
+FAIL PrefStore_OwnerProbeThrows_SessionOnlyNoWrite AggregateException: One or more errors occurred. (Security error.)
+PASS PrefStore_OwnerProbeThrows_SessionOnlyNoWrite
+```
+
+6. Compare_OldBuildStoredRun asserts the historical run is Intact before attempting comparison. A temporary test mutant marks the loaded run PayloadFailedCheck and proves the new assertion prevents vacuous continuation. The fixture bytes and SHA-256 remain unchanged; the mutant is restored:
+
+```text
+FAIL Compare_OldBuildStoredRun_ReferenceAndAxesRefusal InvalidOperationException: the genuine old-build run must be intact before comparison expected Intact; actual PayloadFailedCheck
+PASS Compare_OldBuildStoredRun_ReferenceAndAxesRefusal
+```
+
+This strengthens the characterization only. Wave-plan item 8 / COPY-615 remains NOT DONE under Ruling 267 because this historical fixture has incompatible axes and cannot reach the dimensional-headline branch honestly.
+
+7. application-contracts.md and architecture/application.md now list `store.save`, `store.read`, `store.clear`, and `store.read-origin` instead of document.save/document.reopen. Documentation-only correction; no runtime red applies.
+
+8. The duplicate docs/plans/st-dispatch1.md and its proof graph link are removed. AuthoringSession.cs has no repair-cycle diff; its existing RecordPersistence region records the emitted action as Operation. Documentation-only correction; no runtime red applies.
+
+Amendment (c) paths: WindowsNative.cs provides the required native runtime seams; CompareTests.cs strengthens the expressly requested historical assertion; ControllerShellOneDriveTests.cs reconciles the stale copy assertion found by the full run; DESIGN.md and the two named contract/architecture docs implement the requested record corrections. No other track's owned region was changed. No claim was refused.
+
+### Full run and residual acceptance
+
+The single required `bash tools/run-tests.sh` invocation returned:
+
+```text
+== CfdWorkbench.Core.Tests: 921 passed, 7 skipped, 0 failed, exit 0
+== CfdWorkbench.Analysis.Tests: 311 passed, 1 skipped, 0 failed, exit 0
+== CfdWorkbench.Desktop.Tests: 895 passed, 1 skipped, 3 failed, exit 2
+== CfdWorkbench.Cli.Tests: 34 passed, 1 skipped, 0 failed, exit 0
+TESTS-RED 283 s
+```
+
+Desktop reported the aggregate harness failure, `--section-editor --part=1/2 exited 1`, and the stale OpenRefusal assertion above. The first full unpartitioned section-editor rerun alone repeated only that assertion. Controller-shell also ran alone with exit 0. An unrecognized `--onedrive` argument inadvertently triggered an extra Desktop harness run; it repeated the same failures and is not counted as isolated evidence. Subsequent final isolated rerun results are recorded below. No crash or exit 124 was reported by the required script. The main session's join ring remains the authoritative green; this repair does not relabel the red script as green.
+
+Final standalone checks, with CFD_TEST_ONLY unset, on the final Debug build:
+
+```text
+--section-editor: 187 PASS, 0 FAIL, exit 0
+PASS OpenRefusal_Sentences_AreTheLabelsConstants
+--section-editor --part=1/2: 94 PASS, 0 FAIL, exit 0
+PASS OpenRefusal_Sentences_AreTheLabelsConstants
+```
+
+The complete editor log finished at 17:30:21 UTC; the partition log was created at 17:30:33 UTC, establishing that the failed partition's final rerun did execute alone. No final-run crash, timeout or exit 124 occurred. The final focused Core run reported five PASS and `RESULT failures=0`; Analysis reported both the old-build characterization and one-active-copy checks PASS, `RESULT failures=0`. The focused Desktop store-code suite reported five PASS. `python tools/check-docs.py` printed `Documentation checks passed.` and git diff --check returned 0.
+
+Proof oracles: exact code equality and no publication for item 1; actual native call order, handle equality and real DACL for item 2; real parent-file bytes plus read/save projection under injected volume/reparse attributes for item 3; original approved register row plus one-active-definition check for item 4; no exception escape, no store creation and no writes for item 5; explicit intact precondition under a corrupt-run mutant for item 6; source contract names and docs gate for items 7–8. Confidence is Verified for those observations. macOS native behavior was not executed on this Windows ARM64 host. COPY-615 dimensional-headline coverage remains open; independent acceptance and the authoritative full green remain with the main session.
+
+The existing-store/native-call seams reuse installed code and OS primitives; no dependency or general persistence abstraction was added. The obsolete structural scan and duplicate plan were deleted. No commented-out implementation or committed mutant remains. Planned one full script, targeted red/green and three native mutants; actual one full script, all three rejected native mutants, one rejected fixture-integrity mutant, targeted greens, and isolated failed-mode reruns. Rework: one explicit UTF-8 correction, test-prefix alignment with the existing store-subset control, and reconciliation of a stale drive-remedy assertion. The accidental extra Desktop dispatch is reported above rather than counted as isolated proof. No approval of the author's own hard veto is claimed.

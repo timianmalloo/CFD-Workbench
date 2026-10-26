@@ -135,6 +135,9 @@ public static class DisplayPreferences
 /// <summary>Installation preferences under <paramref name="root"/>/<c>layout</c>, <c>recent</c> (§4) and <c>display</c> (DN-5).</summary>
 public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactory)
 {
+    private Func<string, bool> ownerProbe = WindowsOwner;
+    internal PreferenceStore(string root, Func<IProjectStore> storeFactory, Func<string, bool> ownerProbe) : this(root, storeFactory) => this.ownerProbe = ownerProbe;
+    private static bool WindowsOwner(string path) => !OperatingSystem.IsWindows() || WindowsNative.OwnedByCurrentUser(path);
     private readonly SemaphoreSlim gate = new(1, 1);
     private readonly object sync = new();
     private readonly HashSet<string> pending = new(StringComparer.Ordinal);
@@ -704,13 +707,13 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
     }
 
     // Read-only admission: never tighten an ACL while loading. A failed owner probe fails closed.
-    private static bool UnsafeForLoad(string path)
+    private bool UnsafeForLoad(string path)
     {
         try
         {
-            return Linked(path) || OperatingSystem.IsWindows() && Directory.Exists(path) && !WindowsNative.OwnedByCurrentUser(path);
+            return Linked(path) || Directory.Exists(path) && !ownerProbe(path);
         }
-        catch (Exception error) when (error is IOException or UnauthorizedAccessException) { return true; }
+        catch (Exception) { return true; }
     }
 
     private static bool Linked(string path)

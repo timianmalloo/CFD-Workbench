@@ -75,6 +75,7 @@ internal static class CompareTests
         Equal(1, stored.Count, "the historical document actually holds a stored run");
         foreach (var old in stored)
         {
+            Equal(RunIntegrity.Intact, old.Integrity, "the genuine old-build run must be intact before comparison");
             var service = new AnalysisService(session, new ProductWingMethod());
             var modern = service.EvaluateAsync(old.Run.Op, old.Run.Water, Tier.Estimator, new Scope.Wing(), default, old.Run).GetAwaiter().GetResult();
             foreach (bool reverse in new[] { false, true })

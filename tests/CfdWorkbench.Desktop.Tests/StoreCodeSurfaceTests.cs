@@ -20,6 +20,30 @@ public static class StoreCodeSurfaceTests
 
     private static void RunChecks()
     {
+        DesktopChecks.Check("StoreCodes_LocalLinkedCause_NoDriveRemedy", () =>
+        {
+            if (!OperatingSystem.IsWindows()) return;
+            string root = TestTemp.Combine("copy-hardlink-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(root);
+            try
+            {
+                string path = Path.Combine(root, "wing.cfdw.json");
+                File.WriteAllText(path, "original");
+                // Attribute injection uses the real store's ancestor admission and refusal projection.
+                var hooks = new StoreHooks { AttributeOverride = (site, name, real) => site == "ancestor" ? (real.Attributes | 0x400u, 0xA000000Cu) : real };
+                using var store = new ProjectStore(hooks);
+                Exception? refusal = null;
+                try { store.ReadAsync(path).GetAwaiter().GetResult(); } catch (ContractError e) { refusal = e; }
+                if (refusal is null) throw new Exception("reparse ancestor admitted");
+                string open = StartView.FailureMessage(OpenFailure.Classify(refusal, path), "wing.cfdw.json", true);
+                using var controller = new WorkbenchController(_ => new ProjectStore(hooks));
+                controller.NewFoilAsync().GetAwaiter().GetResult();
+                controller.SaveAsync(path).GetAwaiter().GetResult();
+                if (open.Contains("Choose a folder on a local NTFS drive", StringComparison.Ordinal) || controller.Status.Contains("Choose a folder on a local NTFS drive", StringComparison.Ordinal))
+                    throw new Exception("local reparse refusal received non-NTFS remedy");
+            }
+            finally { Directory.Delete(root, true); }
+        });
         DesktopChecks.Check("StoreCodes_SaveSection_UnadmittedHost_UsesSystemSentence", () =>
         {
             var previous = SynchronizationContext.Current;
@@ -89,13 +113,20 @@ public static class StoreCodeSurfaceTests
         });
         DesktopChecks.Check("StoreCodes_NonNtfsRemedy_NamesDrive", () =>
         {
-            const string path = @"Q:\foils\wing.cfdw.json";
-            string open = StartView.FailureMessage(OpenFailure.ClassifyCode("DOC-UNSUPPORTED-PERSISTENCE", path), "wing.cfdw.json", true);
-            using var controller = new WorkbenchController(_ => new RefusingStore("DOC-UNSUPPORTED-PERSISTENCE"));
+            if (!OperatingSystem.IsWindows()) return;
+            string path = Path.Combine(TestTemp.Root, "wing.cfdw.json");
+            var hooks = new StoreHooks { VolumeFileSystem = "exFAT" };
+            using var store = new ProjectStore(hooks);
+            Exception? refusal = null;
+            try { store.ReadAsync(path).GetAwaiter().GetResult(); } catch (ContractError e) { refusal = e; }
+            if (refusal is not ContractError { Reason: "non-ntfs" }) throw new Exception("non-NTFS cause lost during read");
+            string open = StartView.FailureMessage(OpenFailure.Classify(refusal, path), "wing.cfdw.json", true);
+            using var controller = new WorkbenchController(_ => new ProjectStore(hooks));
             controller.NewFoilAsync().GetAwaiter().GetResult();
             controller.SaveAsync(path).GetAwaiter().GetResult();
-            if (!open.Contains("Q:", StringComparison.Ordinal) || !open.Contains("NTFS", StringComparison.Ordinal) ||
-                OperatingSystem.IsWindows() && (!controller.Status.Contains("Q:", StringComparison.Ordinal) || !controller.Status.Contains("NTFS", StringComparison.Ordinal)))
+            string drive = path[..2];
+            if (!open.Contains(drive, StringComparison.Ordinal) || !open.Contains("NTFS", StringComparison.Ordinal) ||
+                !controller.Status.Contains(drive, StringComparison.Ordinal) || !controller.Status.Contains("NTFS", StringComparison.Ordinal))
                 throw new Exception("drive/NTFS remedy absent: Open=" + open.Replace('\n', '|') + "; Save=" + controller.Status);
         });
         DesktopChecks.Check("StoreCodes_NewCodes_ReachEverySurface", () =>

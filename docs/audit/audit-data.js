@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-26T16:58:59Z",
+  "generated": "2026-10-26T17:34:00Z",
   "audit": [
     {
       "actor": null,
@@ -43317,6 +43317,65 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "952199583e68fa30ffdb5b35a2119cd58c31d7c2",
         "short": "952199583",
+        "branch": "w3-st-store-copy",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M5WMDDYCTA81E73BQ0NPR1QB",
+      "shortname": "st-repair-1-request",
+      "datetime": "2026-10-26T17:34:00Z",
+      "session": "st",
+      "prompt": "python docs/ai-forward-pack/scripts/audit-log.py start --session st --skill implement   (run this first)\n\nYou are the ST coder for wave 3 (session st), repair cycle 1, running as Codex. Work only in D:/Projects/CFD-Workbench-w3-st-store-copy. Standing rules from st-1.md and st-2.md (in C:/Users/malla/AppData/Local/Temp/claude/D--Projects-CFD-Workbench/e9a4c020-74e2-4657-b7f2-bf77414b858a/scratchpad/briefs/) and amendments (a)-(c) apply: read AGENTS.md; AGENT_SESSION=st on every commit; Git bash, `python`; before any build or test: export PATH=$(echo \"$PATH\" | tr ':' '\\n' | grep -v 'recount-' | paste -sd:) ; red first for every code change with the FAIL line recorded in docs/proof/st-store-codes/README.md; claim for minutes, never write while refused; Codex trailer `Co-Authored-By: Codex gpt-6.1-sol <noreply@openai.com>`; never push, never touch main; a boundary hit on one item does not stop the others. Budget 45 calls / 1 h 30 min.\n\nThe Opus review (Security + Test Architect) is ACCEPT-WITH-CONDITIONS. Owner Ruling 267 (now on main) accepted item 8 as NOT DONE with the characterization test; keep it NOT DONE.\n\n1. (condition, regression) src/CfdWorkbench.Persistence/SectionLibrary.cs:96 passes on only DOC-UNSUPPORTED-PERSISTENCE; Supported() now throws DOC-UNSUPPORTED-PLATFORM, which falls through to LIB-IO, so an unadmitted host shows \"the file couldn't be written\" instead of the system sentence (a regression from before your branch). Pass DOC-UNSUPPORTED-PLATFORM through there, decide what DOC-NOT-A-FILE does there, and add a test that runs SectionLibrary itself with a store factory that refuses as unadmitted (red on the current branch, green after). The PLATFORM arm in SaveSectionDialog.axaml.cs:82 must become reachable or be removed.\n2. (condition) docs/proof/st-store-codes/check-one-handle.py is a text scan that passed three bypass mutants (a second open via OpenRelative(path); the DACL set by path name with `SetSecurityInfo(handle,` left in a comment; the owner check moved after the DACL change) and nothing runs it. Replace it with a runtime test in the test harness (Core or Desktop, wherever WindowsNative is reachable): e.g. an internal seam/counter in WindowsNative that records the open count and the order (owner check before DACL set, both on the same handle), asserted on the existing-folder path. Show it red with each of the three mutants applied (record the FAIL lines; do not commit mutants), green on the real code. Delete check-one-handle.py (and its run.sh call) once the runtime test replaces it; update the lesson OWNER-CHECK-PATH-REOPEN in docs/lessons/defect-classes.md to name the runtime test as its control.\n3. (condition) Copy truth: (a) Win32 267 (ERROR_DIRECTORY) now maps to \"This path is a folder\" (WindowsProjectStore.cs:482), but 267 is also returned when a parent component is a file (save to <file>.txt\\x.cfdw.json) — keep 267 as DOC-UNSUPPORTED-PERSISTENCE unless you can tell the causes apart, with a test for the parent-is-a-file case. (b) DriveRemedy is appended to every DOC-UNSUPPORTED-PERSISTENCE (StartView.axaml.cs:297, Labels.cs:137), but that code also covers hard links, reparse points and bad names on local NTFS C:, where \"Choose a folder on a local NTFS drive\" is false: show the drive remedy only when the cause really is non-NTFS (carry the cause, do not guess), with a test for a reparse/hard-link cause that must not show it.\n4. (condition) COPY-644 retirement in DESIGN.md (row near :15) must follow the file's superseded convention (see rows ~282-290): restore the row's approved text and status and append \"— superseded by COPY-125 — wave 3 plan, ST item 6 (WF review N4)\".\n5. (minor) PreferenceStore.cs:477: the ownership-check catch takes only IO and UnauthorizedAccess; catch every exception from the descriptor/identity read and report session-only (fail closed), with a test.\n6. (minor) Compare_OldBuildStoredRun test: assert the fixture's run is Intact first so it cannot pass vacuously via `continue`.\n7. (minor) Docs drift: docs/design/application-contracts.md:316 and docs/architecture/application.md:232 still list document.save / document.reopen; update to the store.* operation names you emit.\n8. (minor) Drop docs/plans/st-dispatch1.md (it duplicates the proof README); keep AuthoringSession.cs comment edits only if they describe the RecordPersistence change accurately.\nThen run bash tools/run-tests.sh once; every failed/crashed/124 Desktop mode is rerun alone and reported (the main session's join ring is the authoritative green). Write and commit your audit entry. Final message: RETURN st repair 1 with commits, each item's red/green lines, run-tests result, budget, not done.",
+      "summary": "ST repair cycle 1: execute the eight Opus review conditions in the assigned tree.",
+      "kind": "prompt",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Address ST repair 1 items 1-8; retain wave-plan item 8 as NOT DONE under Ruling 267.",
+      "done_when": "Requested repairs have evidence, full script and failed Desktop reruns are reported, and audit plus repair are committed.",
+      "tier": "T1",
+      "fan_out": 1
+    },
+    {
+      "id": "al-01M5WMDE92RSNVS9CMBTS4WVFN",
+      "shortname": "st-repair-1",
+      "datetime": "2026-10-26T17:34:00Z",
+      "session": "st",
+      "prompt": "python docs/ai-forward-pack/scripts/audit-log.py start --session st --skill implement   (run this first)\n\nYou are the ST coder for wave 3 (session st), repair cycle 1, running as Codex. Work only in D:/Projects/CFD-Workbench-w3-st-store-copy. Standing rules from st-1.md and st-2.md (in C:/Users/malla/AppData/Local/Temp/claude/D--Projects-CFD-Workbench/e9a4c020-74e2-4657-b7f2-bf77414b858a/scratchpad/briefs/) and amendments (a)-(c) apply: read AGENTS.md; AGENT_SESSION=st on every commit; Git bash, `python`; before any build or test: export PATH=$(echo \"$PATH\" | tr ':' '\\n' | grep -v 'recount-' | paste -sd:) ; red first for every code change with the FAIL line recorded in docs/proof/st-store-codes/README.md; claim for minutes, never write while refused; Codex trailer `Co-Authored-By: Codex gpt-6.1-sol <noreply@openai.com>`; never push, never touch main; a boundary hit on one item does not stop the others. Budget 45 calls / 1 h 30 min.\n\nThe Opus review (Security + Test Architect) is ACCEPT-WITH-CONDITIONS. Owner Ruling 267 (now on main) accepted item 8 as NOT DONE with the characterization test; keep it NOT DONE.\n\n1. (condition, regression) src/CfdWorkbench.Persistence/SectionLibrary.cs:96 passes on only DOC-UNSUPPORTED-PERSISTENCE; Supported() now throws DOC-UNSUPPORTED-PLATFORM, which falls through to LIB-IO, so an unadmitted host shows \"the file couldn't be written\" instead of the system sentence (a regression from before your branch). Pass DOC-UNSUPPORTED-PLATFORM through there, decide what DOC-NOT-A-FILE does there, and add a test that runs SectionLibrary itself with a store factory that refuses as unadmitted (red on the current branch, green after). The PLATFORM arm in SaveSectionDialog.axaml.cs:82 must become reachable or be removed.\n2. (condition) docs/proof/st-store-codes/check-one-handle.py is a text scan that passed three bypass mutants (a second open via OpenRelative(path); the DACL set by path name with `SetSecurityInfo(handle,` left in a comment; the owner check moved after the DACL change) and nothing runs it. Replace it with a runtime test in the test harness (Core or Desktop, wherever WindowsNative is reachable): e.g. an internal seam/counter in WindowsNative that records the open count and the order (owner check before DACL set, both on the same handle), asserted on the existing-folder path. Show it red with each of the three mutants applied (record the FAIL lines; do not commit mutants), green on the real code. Delete check-one-handle.py (and its run.sh call) once the runtime test replaces it; update the lesson OWNER-CHECK-PATH-REOPEN in docs/lessons/defect-classes.md to name the runtime test as its control.\n3. (condition) Copy truth: (a) Win32 267 (ERROR_DIRECTORY) now maps to \"This path is a folder\" (WindowsProjectStore.cs:482), but 267 is also returned when a parent component is a file (save to <file>.txt\\x.cfdw.json) — keep 267 as DOC-UNSUPPORTED-PERSISTENCE unless you can tell the causes apart, with a test for the parent-is-a-file case. (b) DriveRemedy is appended to every DOC-UNSUPPORTED-PERSISTENCE (StartView.axaml.cs:297, Labels.cs:137), but that code also covers hard links, reparse points and bad names on local NTFS C:, where \"Choose a folder on a local NTFS drive\" is false: show the drive remedy only when the cause really is non-NTFS (carry the cause, do not guess), with a test for a reparse/hard-link cause that must not show it.\n4. (condition) COPY-644 retirement in DESIGN.md (row near :15) must follow the file's superseded convention (see rows ~282-290): restore the row's approved text and status and append \"— superseded by COPY-125 — wave 3 plan, ST item 6 (WF review N4)\".\n5. (minor) PreferenceStore.cs:477: the ownership-check catch takes only IO and UnauthorizedAccess; catch every exception from the descriptor/identity read and report session-only (fail closed), with a test.\n6. (minor) Compare_OldBuildStoredRun test: assert the fixture's run is Intact first so it cannot pass vacuously via `continue`.\n7. (minor) Docs drift: docs/design/application-contracts.md:316 and docs/architecture/application.md:232 still list document.save / document.reopen; update to the store.* operation names you emit.\n8. (minor) Drop docs/plans/st-dispatch1.md (it duplicates the proof README); keep AuthoringSession.cs comment edits only if they describe the RecordPersistence change accurately.\nThen run bash tools/run-tests.sh once; every failed/crashed/124 Desktop mode is rerun alone and reported (the main session's join ring is the authoritative green). Write and commit your audit entry. Final message: RETURN st repair 1 with commits, each item's red/green lines, run-tests result, budget, not done.",
+      "summary": "Pass platform/folder codes through SectionLibrary; runtime one-handle test rejects all three native mutants; retain ERROR_DIRECTORY as general persistence refusal; carry non-NTFS cause to Open and Save; fail closed on owner probe exceptions; require intact historical run; restore COPY-644 approved retirement; correct operation docs; remove duplicate plan and structural scan. Targeted tests and docs passed. Full script TESTS-RED 283 s: Core 921/7/0, Analysis 311/1/0, Desktop 895/1/3, Cli 34/1/0 (pass/skip/fail). Final standalone section-editor 187 PASS, failed partition 94 PASS, both exit 0. COPY-615 remains NOT DONE; main join ring is authoritative.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/st-store-codes/README.md",
+        "docs/proof/st-store-codes/runtime-mutants.py",
+        "src/CfdWorkbench.Persistence/WindowsNative.cs",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Complete the eight ST repair 1 review items without changing COPY-615 acceptance.",
+      "done_when": "All targeted reds and greens recorded; required full script and affected Desktop modes reported; repair and audit committed.",
+      "tier": "T1",
+      "main_calls": 38,
+      "main_budget": 45,
+      "main_over_budget": false,
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true
+      },
+      "started_at": "2026-10-26T17:17:16Z",
+      "duration_seconds": 1004.0,
+      "git": {
+        "sha": "406ea9c9b7c5fffc3cba6a29673d10ebdb798ad6",
+        "short": "406ea9c9b",
         "branch": "w3-st-store-copy",
         "pushed": null
       }

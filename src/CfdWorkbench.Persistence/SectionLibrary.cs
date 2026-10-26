@@ -93,7 +93,7 @@ public sealed class SectionLibrary(string root)
             if (duplicate) throw new ContractError("LIB-NAME-DUPLICATE");
             if (result.Code == "DOC-CONFLICT" && File.Exists(Path.Combine(root, ProjectStore.ClaimName())))
                 throw new ContractError("LIB-CLAIM-HELD");
-            if (result.Code == "DOC-UNSUPPORTED-PERSISTENCE") throw new ContractError(result.Code);
+            if (result.Code is "DOC-UNSUPPORTED-PERSISTENCE" or "DOC-UNSUPPORTED-PLATFORM" or "DOC-NOT-A-FILE") throw new ContractError(result.Code);
             if (result.PublicationKnown) throw new ContractError("DOC-SAVE-UNCERTAIN");
             throw new ContractError("LIB-IO");
         }

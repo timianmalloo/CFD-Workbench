@@ -997,7 +997,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  subgraph Desktop\n    Shell[Shell: Dock host, workspaces, NativeMenu] --> Cmd[Command table]\n    Cmd --> Ctl[WorkbenchController: selection, modes, gestures]\n    Ctl --> Props[Properties / Points / Messages / Browser panes]\n    Ctl --> Views[Plan · 3D · Side · Front · Section canvas]\n  end\n  subgraph Core\n    Session[Authoring session: drafts, section steps, ApplyDimension] --> Parser[FoilDSL 4.0/4.1 parser and patcher]\n    Session --> Fit[ConstrainedFit and import fit]\n    Session --> Kernel[Rational certificate: Geometry.Assess]\n    Basis[SplineBasis, binary64] --> Est[WingEstimates]\n    Points[Point model: derived type, tangent rows] --> Session\n    Catalog[Profile catalog, read-only]\n  end\n  subgraph Persistence\n    Store[Native project store]\n    Lib[Section library folder store]\n    Prefs[Layout preference store]\n  end\n  Ctl --> Session\n  Ctl --> Est\n  Ctl --> Catalog\n  Ctl --> Lib\n  Shell --> Prefs\n  Session --> Store"
         }
       ],
-      "sourceSha256": "156df962dc794ac9c8b576c6751b2d45b325d0446cdfb5df98805c6e4a804d2b"
+      "sourceSha256": "5bc6bfb33205d8e5445dd24359839d42d64729ad41ea07729bd2667435c2c19a"
     },
     {
       "id": "cad-editing-views",
@@ -2612,7 +2612,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5ae1dabac26fcc843f8aa84b76b8c2d7a37335d0775382f190651e9a9796f1a5"
+      "sourceSha256": "8290f0afffae2c8354256d23f467e5d6765e35cb578b782818dcc02638083284"
     },
     {
       "id": "design-application-foundation",
@@ -6076,7 +6076,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8f4fe5173a3ba305341f3c7857f1b2ed6211e5ff1a0983a5f86a22db407834f6"
+      "sourceSha256": "91903391d4f5b7cc7a8acf81c92e4bd39a78c79e7be461650d19b908a13eed22"
     },
     {
       "id": "domain-experts",
@@ -6726,45 +6726,6 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "b80e0ce647471b451674c0f740bd2dab113675824867a2e1f2e540cb59aeef97"
-    },
-    {
-      "id": "plan-st-dispatch1",
-      "path": "docs/plans/st-dispatch1.md",
-      "title": "ST dispatch 1 execution and evidence",
-      "type": "doc",
-      "status": "active",
-      "owner": "@st",
-      "phase": "",
-      "reviewBy": "2026-11-26",
-      "reviewSuggested": [],
-      "summary": "Serial red-green implementation of wave 3 ST items 1 to 5, bounded by the coordinator's file ownership and one final full-suite run.",
-      "tags": [
-        "store",
-        "testing",
-        "coordination"
-      ],
-      "links": [
-        {
-          "to": "coordination-wave3-next-steps",
-          "rel": "implements"
-        },
-        {
-          "to": "coordination-next-best-six-wave2",
-          "rel": "depends-on"
-        },
-        {
-          "to": "proof-st-store-codes",
-          "rel": "tested-by"
-        }
-      ],
-      "diagrams": [
-        {
-          "kind": "flowchart",
-          "title": "Diagram 1",
-          "mermaid": "flowchart LR\n  Ground --> Codes --> Drive --> Reparse --> Dispatcher --> Operations --> Suite"
-        }
-      ],
-      "sourceSha256": "63b412517dff5ba4262f206b9d636041a09a05a5db2f88fb30120f032cd38810"
     },
     {
       "id": "plan-test-cost",
@@ -19203,14 +19164,10 @@ window.DOCS_INDEX = {
         {
           "to": "coordination-wave3-next-steps",
           "rel": "implements"
-        },
-        {
-          "to": "plan-st-dispatch1",
-          "rel": "tested-by"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f75b7dedab325edb9570bbd39b6270a558c1827c864e1450656b59c97249c3ec"
+      "sourceSha256": "fb830f1586d9263be8259fa5180394e416ed232dcb54bf62ecaf305ea61b468d"
     },
     {
       "id": "proof-stc-red-first",
@@ -24575,5 +24532,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "8761439d217411c10aa80e072088570393ef418cb9d54d0dcce3060b06fa68b4"
+  "graphSha256": "22422ab1b935b74d03564adb5303516b2922c7e03d2087e9f14dd23d918f685d"
 };

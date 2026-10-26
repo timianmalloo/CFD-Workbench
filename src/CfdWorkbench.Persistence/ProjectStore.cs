@@ -27,7 +27,11 @@ public sealed class SaveRequest
 /// <summary>DurabilityConfirmed means file fsync and final-directory fsync succeeded after owned cleanup;
 /// on Windows it means the temp-file FlushFileBuffers, the atomic rename and owned cleanup succeeded (Ruling 135).
 /// It is not a hardware power-loss guarantee. An uncertain result requires reopen/compare before retry.</summary>
-public sealed record SaveResult(string Code, string? PublishedSha256, bool PublicationKnown, bool DurabilityConfirmed);
+public sealed record SaveResult(string Code, string? PublishedSha256, bool PublicationKnown, bool DurabilityConfirmed)
+{
+    /// <summary>Machine-readable refusal cause, when known. "non-ntfs" comes only from the volume filesystem check.</summary>
+    public string? UnsupportedReason { get; init; }
+}
 /// <summary>Where an opened document lives (design windows-store-recovery 2.1): a read-only OneDrive document is never saved in place.</summary>
 public enum DocumentOrigin { Local, OneDriveReadOnly }
 
@@ -98,7 +102,7 @@ public sealed class ProjectStore : IProjectStore, IDisposable
         ParentPath? parent = null; ClearResult result;
         try
         {
-            Supported(); cancellation.ThrowIfCancellationRequested(); parent = ParentPath.Open(path);
+            Supported(hooks?.PlatformAdmission); cancellation.ThrowIfCancellationRequested(); parent = ParentPath.Open(path);
             string folder = Path.GetDirectoryName(path)!;
             var first = UnfinishedSave.Candidates(Directory.EnumerateFileSystemEntries(folder).Select(Path.GetFileName)!); candidates = first.Count;
             ClearResult? refused = null;
@@ -173,7 +177,7 @@ public sealed class ProjectStore : IProjectStore, IDisposable
         var timer = System.Diagnostics.Stopwatch.StartNew(); string code = "OK"; int? count = null;
         try
         {
-            Supported(); cancellation.ThrowIfCancellationRequested();
+            Supported(hooks?.PlatformAdmission); cancellation.ThrowIfCancellationRequested();
             using var parent = ParentPath.Open(path); using var target = OpenRegular(parent.Fd, parent.Name);
             byte[] bytes = ReadAll(target.Fd, cancellation);
             parent.Verify(); Require(SameEntry(parent.Fd, parent.Name, target.Fd), "DOC-CONFLICT"); count = bytes.Length;
@@ -202,7 +206,7 @@ public sealed class ProjectStore : IProjectStore, IDisposable
         string code = "OK"; bool durable = false;
         try
         {
-            Supported(); cancellation.ThrowIfCancellationRequested(); parent = ParentPath.Open(path);
+            Supported(hooks?.PlatformAdmission); cancellation.ThrowIfCancellationRequested(); parent = ParentPath.Open(path);
             hooks?.Visit(StoreStage.ParentOpened);
             if (Exists(parent.Fd, parent.Name, out var prior)) RequireRegular(prior);
             if (!request.CreateOnly)
@@ -287,7 +291,7 @@ public sealed class ProjectStore : IProjectStore, IDisposable
         try
         {
             lock (lifecycle) Require(!disposed, "DOC-CLOSED");
-            Supported();
+            Supported(hooks?.PlatformAdmission);
             Require(bytes.Length <= 1_048_576 &&
                 Regex.IsMatch(fileName, @"\A[0-9a-f]{64}\.foil\z") && fileName == hash + ".foil", "DOC-HASH");
             parent = ParentPath.Open(Path.Combine(dir, fileName));
@@ -371,7 +375,7 @@ public sealed class ProjectStore : IProjectStore, IDisposable
     public static bool PlatformAdmitted() => OperatingSystem.IsWindows() ? WindowsProjectStore.PlatformAdmitted() :
         OperatingSystem.IsMacOS() && RuntimeInformation.ProcessArchitecture == Architecture.Arm64 && Marshal.SizeOf<Native.Stat>() == 144;
 
-    internal static void Supported() => Require(PlatformAdmitted(), "DOC-UNSUPPORTED-PLATFORM");
+    internal static void Supported(bool? admission = null) => Require(admission ?? PlatformAdmitted(), "DOC-UNSUPPORTED-PLATFORM");
     private static void Require(bool condition, string code) { if (!condition) throw new ContractError(code); }
     private static void Check(int result) { if (result < 0) throw Failure(Marshal.GetLastPInvokeError()); }
     private static ContractError Failure(int error) => new(error switch
@@ -549,6 +553,8 @@ internal enum StoreStage { ParentOpened, ClaimCreated, TempCreated, Writing, Fil
     PlaceholderExceptionApplied }
 internal sealed class StoreHooks
 {
+    internal bool? PlatformAdmission { get; init; }
+    internal string? VolumeFileSystem { get; init; }
     /// <summary>
     /// Test seam for the Open path (design 2.6): the attributes and reparse tag the store reads at a <c>site</c> (<c>ancestor</c>, <c>attribute</c>,
     /// <c>data</c>, <c>attribute-after</c>, <c>data-after</c>) for the entry <c>name</c>, replaced by the returned pair. Null: the real values.

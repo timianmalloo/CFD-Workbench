@@ -310,6 +310,9 @@ internal static unsafe partial class WindowsNative
     [StructLayout(LayoutKind.Sequential)]
     internal struct SecurityAttributes { internal uint Length; internal nint SecurityDescriptor; internal int InheritHandle; }
 
+    // Test observer at native boundaries. Thread-local because this transaction is synchronous.
+    [ThreadStatic] internal static List<(string Call, nint Handle)>? DirectorySecurityCalls;
+
     /// <summary>
     /// The preference folder is private: created with the private descriptor, or, if it already exists (an earlier build made it
     /// inheriting the profile's ACL), tightened in place when the current user owns it. False means the folder belongs to someone
@@ -359,7 +362,9 @@ internal static unsafe partial class WindowsNative
     {
         var owner = new System.Security.AccessControl.RawSecurityDescriptor(ReadOwnerAndDacl(handle)).Owner;
         using var current = WindowsIdentity.GetCurrent();
-        return owner is not null && owner.Value == current.User?.Value;
+        bool owned = owner is not null && owner.Value == current.User?.Value;
+        if (owned) DirectorySecurityCalls?.Add(("owner-accepted", handle.DangerousGetHandle()));
+        return owned;
     }
 
     internal static SafeFileHandle OpenReader(SafeFileHandle parent, string child, uint share = ShareRead | ShareDelete) =>
@@ -399,7 +404,11 @@ internal static unsafe partial class WindowsNative
                 int status = NtCreateFile(out nint raw, access, &attributes, out IoStatusBlock io, 0,
                     NormalAttributes, share, disposition,
                     SynchronousNonalert | (directory ? DirectoryFile : NonDirectory) | OpenReparsePoint | extraOptions, 0, 0);
-                if (status == 0 && (int)io.Status == 0) return new SafeFileHandle(raw, true);
+                if (status == 0 && (int)io.Status == 0)
+                {
+                    DirectorySecurityCalls?.Add(("open", raw));
+                    return new SafeFileHandle(raw, true);
+                }
                 if (raw != 0 && raw != -1) new SafeFileHandle(raw, true).Dispose();
                 int completion = status == 0 ? (int)io.Status : status;
                 throw new NativeFailure(completion, checked((int)RtlNtStatusToDosError(completion)));
@@ -540,10 +549,19 @@ internal static unsafe partial class WindowsNative
 
     // Signatures: Microsoft Learn per function. System32-only resolution, never application DLL search.
     // https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilew
-    [LibraryImport("kernel32.dll", StringMarshalling = StringMarshalling.Utf16, SetLastError = true)]
+    [LibraryImport("kernel32.dll", EntryPoint = "CreateFileW", StringMarshalling = StringMarshalling.Utf16, SetLastError = true)]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-    private static partial SafeFileHandle CreateFileW(string name, uint access, uint share, nint security,
+    private static partial SafeFileHandle CreateFileWCore(string name, uint access, uint share, nint security,
         uint disposition, uint flags, nint template);
+
+    private static SafeFileHandle CreateFileW(string name, uint access, uint share, nint security, uint disposition, uint flags, nint template)
+    {
+        var handle = CreateFileWCore(name, access, share, security, disposition, flags, template);
+        int error = Marshal.GetLastPInvokeError();
+        if (!handle.IsInvalid) DirectorySecurityCalls?.Add(("open", handle.DangerousGetHandle()));
+        Marshal.SetLastPInvokeError(error);
+        return handle;
+    }
     // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-ntcreatefile
     [LibraryImport("ntdll.dll")]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
@@ -606,10 +624,16 @@ internal static unsafe partial class WindowsNative
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
     private static partial int GetSecurityDescriptorDacl(LocalMemory descriptor, out int present, out nint acl, out int defaulted);
     // https://learn.microsoft.com/en-us/windows/win32/api/aclapi/nf-aclapi-setsecurityinfo
-    [LibraryImport("advapi32.dll")]
+    [LibraryImport("advapi32.dll", EntryPoint = "SetSecurityInfo")]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-    private static partial uint SetSecurityInfo(SafeFileHandle handle, int kind, uint information,
+    private static partial uint SetSecurityInfoCore(SafeFileHandle handle, int kind, uint information,
         nint owner, nint group, nint dacl, nint sacl);
+
+    private static uint SetSecurityInfo(SafeFileHandle handle, int kind, uint information, nint owner, nint group, nint dacl, nint sacl)
+    {
+        DirectorySecurityCalls?.Add(("dacl", handle.DangerousGetHandle()));
+        return SetSecurityInfoCore(handle, kind, information, owner, group, dacl, sacl);
+    }
     // https://learn.microsoft.com/en-us/windows/win32/api/sddl/nf-sddl-convertstringsecuritydescriptortosecuritydescriptorw
     [LibraryImport("advapi32.dll", StringMarshalling = StringMarshalling.Utf16, SetLastError = true)]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
