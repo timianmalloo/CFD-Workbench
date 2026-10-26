@@ -1630,6 +1630,42 @@ window.DOCS_INDEX = {
       "sourceSha256": "e403ec1fa6749f66600021007d59dfa7500598d7dc70f5fca239831f1c7dc0dd"
     },
     {
+      "id": "note-20261023-smoke-test-row-assumption",
+      "path": "docs/notes/note-20261023-smoke-test-row-assumption.md",
+      "title": "The smoke test's 'cannot apply' hit one of the three verified silent paths, most likely a catalog row without coordinates",
+      "type": "decision-note",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "investigate",
+      "reviewBy": "2026-11-23",
+      "reviewSuggested": [
+        {
+          "by": "investigation-section-catalog-apply",
+          "on": "2026-10-23",
+          "reason": "Investigation section-catalog-apply: the catalog sheet renders rows without coordinates as choosable, the fit's loading state has silent branches, and the Browser row and Properties section title drop the modified flag; review the m12d design's component-state table and the behaviour trace"
+        }
+      ],
+      "summary": "The operator did not name the row or document of the smoke test, and the catalog sheet records nothing on select or on a dropped apply, so the instance cannot be pinned; the investigation proceeds on the assumption that the row chosen had no coordinates, with the Enter-during-fit and fit-fault paths as the alternatives. The repair plan covers all three.",
+      "tags": [
+        "decision-note",
+        "catalog",
+        "section-editor",
+        "assumption"
+      ],
+      "links": [
+        {
+          "to": "investigation-section-catalog-apply",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-section-catalog-apply",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c394c82c174733f23f9001e19da660fc35674dc06ea25bf1ca8cf7f0fbf485e5"
+    },
+    {
       "id": "note-adr-0011-size-cap",
       "path": "docs/notes/adr-0011-size-cap.md",
       "title": "ADR-0011 amendment note: the native document size cap is 32,000,000 bytes",
@@ -3611,7 +3647,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "design — M1.2d (operator 2026-10-04, \"apply an existing profile from the catalog to the section\")",
       "reviewBy": "2027-04-01",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "investigation-section-catalog-apply",
+          "on": "2026-10-23",
+          "reason": "§11.4 gives the Replace button a disabled column and the catalog row none, and the build rendered non-choosable rows like choosable ones; §9's FM table has no fault-inside-the-fit or Enter-during-fit row; §14.1's Browser row and station card rows cover after-Replace only, and both drop the modified flag after an edit. Investigation section-catalog-apply, DR-INV-1 and DR-INV-2 pending."
+        }
+      ],
       "summary": "Detailed design of slice M1.2d. In the section editor, Replace from catalog… puts a NACA section or a My sections entry on the section as one undoable draft step, and Save to My sections… keeps the current section for any foil. Neighbouring sections must share their point spacing for the blend to certify (Ruling 71), so Replace fits the chosen shape onto the section's existing spacing and reports the fit against the 10 µm rule; when that fit is over the limit and a neighbour uses a different section, Replace for this station is refused with the number, and a Replace at every station of the blend is offered instead. A probe measured every number. Gate: four lenses, one repair cycle.",
       "tags": [
         "desktop",
@@ -3676,7 +3718,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "aaaf5fa821a2578a395ba502edc357ab2c5d4b88de6d05906fe20a8e6796f071"
+      "sourceSha256": "87de34c30a7b011b0b75045698e9a6de4a599ee325b318e45248d20a6a7efd5a"
     },
     {
       "id": "design-next-cad-increment",
@@ -6034,7 +6076,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "de972379d2a5606e26a203589ec2f0a0a8d40acb7f26d1b7d6c2cd9fe3a97912"
+      "sourceSha256": "032b9f5a5d2953a9ee87c618ae1ccd57bb6e005367dbb55c4460ee09d1ebb466"
     },
     {
       "id": "domain-experts",
@@ -10131,6 +10173,62 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "6deaa30ff109a2d8ef08e7d742fc1be6bbf9265ac6863f3c19bb62a68afbcf1d"
+    },
+    {
+      "id": "investigation-section-catalog-apply",
+      "path": "docs/investigations/section-catalog-apply.md",
+      "title": "Investigation: a catalog row that cannot be applied, and an edited section still listed as its catalog original",
+      "type": "investigation",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "investigate",
+      "reviewBy": "2026-11-23",
+      "reviewSuggested": [],
+      "summary": "The operator's smoke test could select a catalog foil but not apply it, and an edited catalog section stayed listed as its original. Verified: the catalog sheet renders its 16 rows without coordinates exactly like its 3 choosable rows, with the refusal only in the detail line; a fault inside the fit leaves the sheet on \"Fitting…\" with no reason; Enter during the fit is dropped silently; the real route applies every choosable row. Verified: the Browser station row and the Properties section title compose the source text from the origin alone and drop the modified flag that the chip and station card carry. Three classes registered; four repair phases proposed; stopped for review.",
+      "tags": [
+        "catalog",
+        "section-editor",
+        "provenance",
+        "browser-pane",
+        "rendered-surface",
+        "desktop"
+      ],
+      "links": [
+        {
+          "to": "design-m12d-catalog",
+          "rel": "relates-to"
+        },
+        {
+          "to": "mockup-m12d-catalog",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-m12c-section-editor",
+          "rel": "relates-to"
+        },
+        {
+          "to": "adr-0008-section-library",
+          "rel": "relates-to"
+        },
+        {
+          "to": "decision-catalog-admission-classes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-section-catalog-apply",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "note-20261023-smoke-test-row-assumption",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b0ed4ea921d63b166d09a8a516d0b0ada422c8e276a17c9cfcad3bc5a98f419f"
     },
     {
       "id": "proof-wri-investigation",
@@ -18152,6 +18250,43 @@ window.DOCS_INDEX = {
       "sourceSha256": "58d1be122b6a3cebdf01270d9220e118dbefeccaea41d6603d179b0847ab9fff"
     },
     {
+      "id": "proof-section-catalog-apply",
+      "path": "docs/proof/section-catalog-apply/README.md",
+      "title": "Section catalog apply: the probes behind investigation section-catalog-apply",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "investigate",
+      "reviewBy": "",
+      "reviewSuggested": [
+        {
+          "by": "investigation-section-catalog-apply",
+          "on": "2026-10-23",
+          "reason": "Investigation section-catalog-apply: the catalog sheet renders rows without coordinates as choosable, the fit's loading state has silent branches, and the Browser row and Properties section title drop the modified flag; review the m12d design's component-state table and the behaviour trace"
+        }
+      ],
+      "summary": "Four Desktop-harness probes run on 2026-10-23: the real shell route applies a choosable catalog row; every row with coordinates lands on the Example; the 16 rows without coordinates render exactly like the 3 choosable ones; a fault inside the fit leaves the dialog on Fitting… with no reason; and the Browser station row drops the modified flag that the chip and station card carry.",
+      "tags": [
+        "catalog",
+        "section-editor",
+        "provenance",
+        "desktop-harness",
+        "probe"
+      ],
+      "links": [
+        {
+          "to": "investigation-section-catalog-apply",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-m12d-catalog",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "bc5ed372df03ce01695e7fe6b24179059a2634b2260d69972b5c2c13fc80baa1"
+    },
+    {
       "id": "proof-sfv-captures",
       "path": "docs/proof/sfv/captures.md",
       "title": "SFV captures of the Section force vectors against the approved mockup states A to E",
@@ -24325,5 +24460,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "9beb583176e6055e2bdddbf819620d4c61680626d7c043e1140105f849798ff4"
+  "graphSha256": "012bbcc904440ac4109d48725cbdb607b0d3cb7a71d633e3fe0c1f348267a943"
 };

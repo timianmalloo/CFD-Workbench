@@ -1,0 +1,77 @@
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Threading;
+using CfdWorkbench.Core;
+
+namespace CfdWorkbench.Desktop.Tests;
+
+/// <summary>Investigation probe (inv-section-catalog-apply): Enter on a choosable row while its fit is still running, and the leaf text's rendered brush per row.</summary>
+public static class InvEnterDuringFitProbe
+{
+    public static void Run()
+    {
+        DesktopChecks.Check("Probe_EnterDuringFit_ChoosableRow", CheckEnterDuringFit);
+    }
+
+    private static void CheckEnterDuringFit()
+    {
+        var hold = new ManualResetEventSlim(false);
+        using var controller = new WorkbenchController(previewGate: _ => hold.Wait());
+        Wait(controller.OpenExampleAsync());
+        Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+        var dialog = new CatalogDialog(controller, controller.OpenCatalog(), schedule: (_, _) => { });
+        dialog.Show();
+        Dispatcher.UIThread.RunJobs();
+        var search = dialog.FindControl<TextBox>("SearchBox")!;
+        var list = dialog.FindControl<ListBox>("SectionList")!;
+        var detail = dialog.FindControl<TextBlock>("DetailLine")!;
+        var replace = dialog.FindControl<Button>("ReplaceButton")!;
+        foreach (string name in new[] { "NACA 0012", "NACA 63-412" })
+        {
+            var item = list.Items.OfType<ListBoxItem>().First(row => row.Tag is CatalogChoice.Catalog { Entry: { } entry } && entry.Designation == name);
+            var leaf = item.Content as TextBlock;
+            Console.WriteLine($"LEAF {name}: itemForeground={item.Foreground} leafForeground={leaf?.Foreground} leafOpacity={leaf?.Opacity} itemOpacity={item.Opacity} fontWeight={leaf?.FontWeight}");
+        }
+        var row = list.Items.OfType<ListBoxItem>().First(item => item.Tag is CatalogChoice.Catalog { Entry.Designation: "NACA 0012" });
+        list.SelectedItem = row;
+        Dispatcher.UIThread.RunJobs();
+        Console.WriteLine($"ENTER during fit (before): pending={controller.PreviewPending} preview={controller.CurrentPreview is not null} detail=\"{detail.Text}\" replaceEnabled={replace.IsEnabled}");
+        search.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Source = search, Key = Key.Enter });
+        Dispatcher.UIThread.RunJobs();
+        Console.WriteLine($"ENTER during fit (after Enter): cursor={controller.Section!.Draft.Cursor} visible={dialog.IsVisible} detail=\"{detail.Text}\" status=\"{controller.Status}\"");
+        hold.Set();
+        WaitFor(() => controller.CurrentPreview is not null);
+        Dispatcher.UIThread.RunJobs();
+        Console.WriteLine($"ENTER after landing (no second Enter): cursor={controller.Section!.Draft.Cursor} visible={dialog.IsVisible} replaceEnabled={replace.IsEnabled} detail=\"{(detail.Text ?? "")[..Math.Min(40, detail.Text?.Length ?? 0)]}\"");
+        search.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Source = search, Key = Key.Enter });
+        WaitFor(() => !dialog.IsVisible || controller.Section!.Draft.Cursor == 1);
+        Console.WriteLine($"ENTER second Enter: cursor={controller.Section!.Draft.Cursor} visible={dialog.IsVisible}");
+        if (dialog.IsVisible) dialog.Close();
+        Dispatcher.UIThread.RunJobs();
+    }
+
+    private static void WaitFor(Func<bool> condition)
+    {
+        var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(20);
+        while (!condition())
+        {
+            if (DateTime.UtcNow >= deadline) throw new TimeoutException("probe state did not settle");
+            Dispatcher.UIThread.RunJobs();
+            Thread.Sleep(1);
+        }
+        Dispatcher.UIThread.RunJobs();
+    }
+
+    private static void Wait(Task task)
+    {
+        var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(20);
+        while (!task.IsCompleted)
+        {
+            if (DateTime.UtcNow >= deadline) throw new TimeoutException("probe wait timed out");
+            Dispatcher.UIThread.RunJobs();
+            Thread.Sleep(1);
+        }
+        task.GetAwaiter().GetResult();
+    }
+}

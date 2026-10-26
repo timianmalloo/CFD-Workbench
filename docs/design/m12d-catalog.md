@@ -26,7 +26,8 @@ summary: >-
   section's existing spacing and reports the fit against the 10 µm rule; when that fit is over the limit and a neighbour
   uses a different section, Replace for this station is refused with the number, and a Replace at every station of the
   blend is offered instead. A probe measured every number. Gate: four lenses, one repair cycle.
-review-suggested: []
+review-suggested:
+  - { by: investigation-section-catalog-apply, on: 2026-10-23, reason: "§11.4 gives the Replace button a disabled column and the catalog row none, and the build rendered non-choosable rows like choosable ones; §9's FM table has no fault-inside-the-fit or Enter-during-fit row; §14.1's Browser row and station card rows cover after-Replace only, and both drop the modified flag after an edit. Investigation section-catalog-apply, DR-INV-1 and DR-INV-2 pending." }
 ---
 
 # Design: M1.2d — Replace from catalog and My sections
