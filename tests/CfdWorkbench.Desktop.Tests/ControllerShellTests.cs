@@ -1,4 +1,5 @@
 using System.IO;
+using CfdWorkbench.Analysis;
 using CfdWorkbench.Core;
 
 namespace CfdWorkbench.Desktop.Tests;
@@ -12,6 +13,7 @@ public static class ControllerShellTests
         GroupDragTests.RunController();
         StationDesktopTests.Run();
         MeasureDocumentAtCap();
+        RunHarnessItemChecks();
         DesktopChecks.Check("StatusStrip_VerbReport_NotClobberedBySampling", () =>
         {
             using var controller = new WorkbenchController();
@@ -602,6 +604,41 @@ public static class ControllerShellTests
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException(message);
+    }
+
+    private static string RepoRootFromSource([System.Runtime.CompilerServices.CallerFilePath] string self = "") =>
+        Path.GetFullPath(Path.Combine(Path.GetDirectoryName(self)!, "..", ".."));
+
+    // Track HX (wave 3, SF2 follow-ups): the Match receipt has one definition, and the "already matches" guard is cheap to prove.
+    private static void RunHarnessItemChecks()
+    {
+        DesktopChecks.Check("MatchReceipt_OneDefinition_NoLiteralInTheController", () =>
+        {
+            var offenders = Directory.EnumerateFiles(Path.Combine(RepoRootFromSource(), "src", "CfdWorkbench.Desktop"), "*.cs", SearchOption.AllDirectories)
+                .Where(file => !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+                .Where(file => File.ReadAllText(file).Contains("\"Matched {", StringComparison.Ordinal))
+                .Select(Path.GetFileName).ToList();
+            Require(offenders.Count == 0, "COPY-628 is a literal in " + string.Join(", ", offenders) + ", not a Labels constant");
+            string row = File.ReadAllLines(Path.Combine(AppContext.BaseDirectory, "DESIGN.md")).Single(line => line.StartsWith("| COPY-628 |", StringComparison.Ordinal));
+            string template = "Matched <name> to the blend of <left> and <right>. Largest change <µm> µm at η <at> %. Thickness: keep current.";
+            Require(row.Contains(template, StringComparison.Ordinal), "DESIGN.md COPY-628 row changed: " + row);
+            Require(Labels.MatchReceipt("Station 2", "Root", "Tip", 1.5e-6, 0.6) == template.Replace("<name>", "Station 2").Replace("<left>", "Root").Replace("<right>", "Tip").Replace("<µm>", "1.50").Replace("<at>", "60.0"),
+                "Labels.MatchReceipt: " + Labels.MatchReceipt("Station 2", "Root", "Tip", 1.5e-6, 0.6));
+        });
+
+        // SF2 repair B1: a station that already matches is not offered Match. A stubbed preview makes the guard cheap to reach (no 2400 mm production plan).
+        DesktopChecks.Check("RemoveFlyout_StationAlreadyMatches_MatchNotOffered", () =>
+        {
+            var field = typeof(WorkbenchController).GetField("previewMatch", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+            foreach ((string? code, bool offered) in new (string?, bool)[] { ("STATION-MATCHED", false), (null, true) })
+            {
+                using var controller = StationDesktopTests.Open(StationDesktopTests.Three());
+                field.SetValue(controller, new Func<AuthoringSession, int, MatchPreview>((_, _) => new MatchPreview(1, 0, 0, 0, 0, 0, 0, "R0", [], 0, code, null)));
+                controller.BeginRemoveStationAsync(1).GetAwaiter().GetResult();
+                Require(controller.Flyout is { Kind: WorkbenchController.StationFlyoutKind.Remove, Checking: false } remove && remove.MatchOffered == offered,
+                    $"Preview refusal {code ?? "none"}: Match offered should be {offered}, flyout {controller.Flyout}");
+            }
+        });
     }
 
     private static void RunPointControllerChecks()

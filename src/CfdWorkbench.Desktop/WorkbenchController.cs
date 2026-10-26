@@ -1072,8 +1072,7 @@ public sealed class WorkbenchController : IDisposable
         var outcome = await RunDirectCommandAsync(() =>
         {
             var result = session.MatchBlend(Guid.NewGuid().ToString("D"), index);
-            return new CommitOutcome.Committed(result.AcceptedId, string.Create(CultureInfo.InvariantCulture,
-                $"Matched {name} to the blend of {left} and {right}. Largest change {result.Report.ChangeMeters * 1e6:F2} µm at η {result.Report.ChangeAtEta * 100:F1} %. Thickness: keep current."))   // SF2-COPY-7 (COPY-628)
+            return new CommitOutcome.Committed(result.AcceptedId, Labels.MatchReceipt(name, left, right, result.Report.ChangeMeters, result.Report.ChangeAtEta))   // SF2-COPY-7 (COPY-628)
             { SelectItem = new Selection.Station(index, eta) };
         }, warningOnRefusal: true, preserveStatusAfterCommit: true);
         if (reopenRemove && outcome is CommitOutcome.Committed) await BeginRemoveStationAsync(index);
