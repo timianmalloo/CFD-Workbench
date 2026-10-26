@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-26T16:25:00Z",
+  "generated": "2026-10-26T16:31:26Z",
   "audit": [
     {
       "actor": null,
@@ -43258,6 +43258,33 @@ window.AUDIT_DATA = {
         "branch": "w3-sc2-source-text",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M5WGTWAS7SC17FZJ1K1Z9RE0",
+      "shortname": "join-w3-sc2",
+      "datetime": "2026-10-26T16:31:26Z",
+      "session": "wave3-coordinator",
+      "prompt": "the join of w3-sc2-source-text into main",
+      "summary": "SC2: Provenance.SourceName the single gen:/vend: designation lookup (lazy), ChipSourceName removed, BrowserRow/Properties title/all-surfaces tests red then green, vend: Core test; review ACCEPT-WITH-CONDITIONS, condition 1a met; follow-up: dat/My-sections names recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "SC2 on main",
+      "done_when": "ring green, gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-26T16:25:39Z",
+      "duration_seconds": 347.0
     }
   ],
   "changes": [

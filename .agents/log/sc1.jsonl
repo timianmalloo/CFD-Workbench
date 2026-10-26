@@ -1,0 +1,21 @@
+{"agent": "sc1", "at": 1793029449.3762362, "kind": "session-start", "path": "-", "seq": 1, "session": "sc1", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-w3-sc1-catalog-sheet"}
+{"agent": "sc1", "at": 1793030322.8094494, "kind": "claim", "path": "DESIGN.md", "seq": 2, "session": "sc1", "ttl": 300.0, "wi": "sc1"}
+{"agent": "sc1", "at": 1793030323.0084991, "kind": "claim", "path": "src/CfdWorkbench.Analysis/Labels.cs", "seq": 3, "session": "sc1", "ttl": 300.0, "wi": "sc1"}
+{"agent": "sc1", "at": 1793030323.224967, "kind": "claim", "path": "src/CfdWorkbench.Desktop/CatalogDialog.axaml", "seq": 4, "session": "sc1", "ttl": 300.0, "wi": "sc1"}
+{"agent": "sc1", "at": 1793030323.432711, "kind": "claim", "path": "src/CfdWorkbench.Desktop/CatalogDialog.axaml.cs", "seq": 5, "session": "sc1", "ttl": 300.0, "wi": "sc1"}
+{"agent": "sc1", "at": 1793030439.5444663, "kind": "release", "path": "DESIGN.md", "seq": 6, "session": "sc1", "wi": "sc1"}
+{"agent": "sc1", "at": 1793030439.7031467, "kind": "release", "path": "src/CfdWorkbench.Analysis/Labels.cs", "seq": 7, "session": "sc1", "wi": "sc1"}
+{"agent": "sc1", "at": 1793030439.867186, "kind": "release", "path": "src/CfdWorkbench.Desktop/CatalogDialog.axaml", "seq": 8, "session": "sc1", "wi": "sc1"}
+{"agent": "sc1", "at": 1793030440.0310533, "kind": "release", "path": "src/CfdWorkbench.Desktop/CatalogDialog.axaml.cs", "seq": 9, "session": "sc1", "wi": "sc1"}
+{"agent": "sc1", "at": 1793031566.8868027, "kind": "claim", "path": "tests/CfdWorkbench.Desktop.Tests/ControllerSectionTests.cs", "seq": 10, "session": "sc1", "ttl": 300.0, "wi": "sc1"}
+{"agent": "sc1", "at": 1793031567.1221848, "kind": "claim", "path": "tests/CfdWorkbench.Desktop.Tests/CatalogDialogTests.cs", "seq": 11, "session": "sc1", "ttl": 300.0, "wi": "sc1"}
+{"agent": "sc1", "at": 1793031567.3626692, "kind": "claim", "path": "src/CfdWorkbench.Desktop/WorkbenchController.cs", "seq": 12, "session": "sc1", "ttl": 300.0, "wi": "sc1"}
+{"agent": "sc1", "at": 1793031683.24458, "kind": "claim", "path": "src/CfdWorkbench.Desktop/CatalogDialog.axaml.cs", "seq": 13, "session": "sc1", "ttl": 300.0, "wi": "sc1"}
+{"agent": "sc1", "at": 1793031872.371335, "kind": "claim", "path": "DESIGN.md", "seq": 14, "session": "sc1", "ttl": 300.0, "wi": "sc1"}
+{"agent": "sc1", "at": 1793031872.6004856, "kind": "claim", "path": "src/CfdWorkbench.Analysis/Labels.cs", "seq": 15, "session": "sc1", "ttl": 300.0, "wi": "sc1"}
+{"agent": "sc1", "at": 1793031912.8793654, "kind": "release", "path": "DESIGN.md", "seq": 16, "session": "sc1", "wi": "sc1"}
+{"agent": "sc1", "at": 1793031913.127161, "kind": "release", "path": "src/CfdWorkbench.Analysis/Labels.cs", "seq": 17, "session": "sc1", "wi": "sc1"}
+{"agent": "sc1", "at": 1793031913.3262951, "kind": "release", "path": "src/CfdWorkbench.Desktop/CatalogDialog.axaml.cs", "seq": 18, "session": "sc1", "wi": "sc1"}
+{"agent": "sc1", "at": 1793031913.5896838, "kind": "release", "path": "src/CfdWorkbench.Desktop/WorkbenchController.cs", "seq": 19, "session": "sc1", "wi": "sc1"}
+{"agent": "sc1", "at": 1793031913.8125465, "kind": "release", "path": "tests/CfdWorkbench.Desktop.Tests/ControllerSectionTests.cs", "seq": 20, "session": "sc1", "wi": "sc1"}
+{"agent": "sc1", "at": 1793031914.0028882, "kind": "release", "path": "tests/CfdWorkbench.Desktop.Tests/CatalogDialogTests.cs", "seq": 21, "session": "sc1", "wi": "sc1"}

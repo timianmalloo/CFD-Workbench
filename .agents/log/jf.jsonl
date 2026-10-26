@@ -1,0 +1,27 @@
+{"agent": "jf", "at": 1793031139.5449977, "kind": "session-start", "path": "-", "seq": 1, "session": "jf", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-w3-jf-join-fence"}
+{"agent": "jf", "at": 1793031204.5749583, "kind": "claim", "path": "docs/ai-forward-pack/scripts/conductor-join.py", "seq": 2, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793031367.750496, "kind": "claim", "path": "tests/test_dotnet_cli_home_env.py", "seq": 3, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793031367.9490345, "kind": "claim", "path": "docs/ai-forward-pack/scripts/conductor-join.py", "seq": 4, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793031426.647914, "kind": "release", "path": "docs/ai-forward-pack/scripts/conductor-join.py", "seq": 5, "session": "jf", "wi": "jf"}
+{"agent": "jf", "at": 1793031426.89106, "kind": "claim", "path": "docs/ai-forward-pack/scripts/conductor-join.py", "seq": 6, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793031492.1551864, "kind": "claim", "path": "tests/test_dotnet_cli_home_env.py", "seq": 7, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793031559.6454935, "kind": "claim", "path": "tools/recount-application-contracts.py", "seq": 8, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793031559.8602686, "kind": "claim", "path": "tools/recount-architecture-spike.py", "seq": 9, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793031560.0594218, "kind": "claim", "path": "tools/qualify-windows-runtime.py", "seq": 10, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793031560.2646735, "kind": "claim", "path": "tools/verify-application-adapters.py", "seq": 11, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793031560.4784539, "kind": "claim", "path": "tools/verify-application-core.py", "seq": 12, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793031560.6570964, "kind": "release", "path": "tests/test_dotnet_cli_home_env.py", "seq": 13, "session": "jf", "wi": "jf"}
+{"agent": "jf", "at": 1793031606.70642, "kind": "claim", "path": "docs/ai-forward-pack/scripts/conductor-join.py", "seq": 14, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793031671.9088082, "kind": "release", "path": "docs/ai-forward-pack/scripts/conductor-join.py", "seq": 15, "session": "jf", "wi": "jf"}
+{"agent": "jf", "at": 1793031672.0342352, "kind": "claim", "path": "docs/investigations/join-dirty-primary.md", "seq": 16, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793031673.0484812, "kind": "release", "path": "docs/investigations/join-dirty-primary.md", "seq": 17, "session": "jf", "wi": "jf"}
+{"agent": "jf", "at": 1793031731.2475443, "kind": "claim", "path": "tools/recount-application-contracts.py", "seq": 18, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793031731.4974532, "kind": "claim", "path": "tools/recount-architecture-spike.py", "seq": 19, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793031731.779141, "kind": "claim", "path": "tools/qualify-windows-runtime.py", "seq": 20, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793031732.0787075, "kind": "claim", "path": "tools/verify-application-adapters.py", "seq": 21, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793031732.372133, "kind": "claim", "path": "tools/verify-application-core.py", "seq": 22, "session": "jf", "ttl": 300.0, "wi": "jf"}
+{"agent": "jf", "at": 1793031733.6329894, "kind": "release", "path": "tools/recount-application-contracts.py", "seq": 23, "session": "jf", "wi": "jf"}
+{"agent": "jf", "at": 1793031733.88428, "kind": "release", "path": "tools/recount-architecture-spike.py", "seq": 24, "session": "jf", "wi": "jf"}
+{"agent": "jf", "at": 1793031734.0538578, "kind": "release", "path": "tools/qualify-windows-runtime.py", "seq": 25, "session": "jf", "wi": "jf"}
+{"agent": "jf", "at": 1793031734.2056148, "kind": "release", "path": "tools/verify-application-adapters.py", "seq": 26, "session": "jf", "wi": "jf"}
+{"agent": "jf", "at": 1793031734.3620708, "kind": "release", "path": "tools/verify-application-core.py", "seq": 27, "session": "jf", "wi": "jf"}

@@ -1,0 +1,25 @@
+{"agent": "sc2", "at": 1793029467.9410594, "kind": "session-start", "path": "-", "seq": 1, "session": "sc2", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-w3-sc2-source-text"}
+{"agent": "sc2", "at": 1793030188.8100553, "kind": "claim", "path": "src/CfdWorkbench.Core/Provenance.cs", "seq": 2, "session": "sc2", "ttl": 300.0, "wi": "sc2"}
+{"agent": "sc2", "at": 1793030189.014473, "kind": "claim", "path": "src/CfdWorkbench.Desktop/Panes/BrowserPane.axaml.cs", "seq": 3, "session": "sc2", "ttl": 300.0, "wi": "sc2"}
+{"agent": "sc2", "at": 1793030189.2272182, "kind": "claim", "path": "src/CfdWorkbench.Desktop/PropertiesView.cs", "seq": 4, "session": "sc2", "ttl": 300.0, "wi": "sc2"}
+{"agent": "sc2", "at": 1793030189.4418151, "kind": "claim", "path": "src/CfdWorkbench.Desktop/WorkbenchController.cs", "seq": 5, "session": "sc2", "ttl": 300.0, "wi": "sc2"}
+{"agent": "sc2", "at": 1793030189.6456265, "kind": "claim", "path": "tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs", "seq": 6, "session": "sc2", "ttl": 300.0, "wi": "sc2"}
+{"agent": "sc2", "at": 1793030189.8515537, "kind": "claim", "path": "tests/CfdWorkbench.Desktop.Tests/SourceTextTests.cs", "seq": 7, "session": "sc2", "ttl": 300.0, "wi": "sc2"}
+{"agent": "sc2", "at": 1793030479.6341999, "kind": "claim", "path": "docs/design/m12d-catalog.md", "seq": 8, "session": "sc2", "ttl": 300.0, "wi": "sc2"}
+{"agent": "sc2", "at": 1793030559.7968376, "kind": "release", "path": "src/CfdWorkbench.Core/Provenance.cs", "seq": 9, "session": "sc2", "wi": "sc2"}
+{"agent": "sc2", "at": 1793030560.02613, "kind": "release", "path": "src/CfdWorkbench.Desktop/Panes/BrowserPane.axaml.cs", "seq": 10, "session": "sc2", "wi": "sc2"}
+{"agent": "sc2", "at": 1793030560.1975777, "kind": "release", "path": "src/CfdWorkbench.Desktop/PropertiesView.cs", "seq": 11, "session": "sc2", "wi": "sc2"}
+{"agent": "sc2", "at": 1793030560.3743806, "kind": "release", "path": "src/CfdWorkbench.Desktop/WorkbenchController.cs", "seq": 12, "session": "sc2", "wi": "sc2"}
+{"agent": "sc2", "at": 1793030560.5906813, "kind": "release", "path": "tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs", "seq": 13, "session": "sc2", "wi": "sc2"}
+{"agent": "sc2", "at": 1793030560.7945588, "kind": "release", "path": "tests/CfdWorkbench.Desktop.Tests/SourceTextTests.cs", "seq": 14, "session": "sc2", "wi": "sc2"}
+{"agent": "sc2", "at": 1793030560.9720047, "kind": "release", "path": "docs/design/m12d-catalog.md", "seq": 15, "session": "sc2", "wi": "sc2"}
+{"agent": "sc2", "at": 1793031179.6873176, "kind": "claim", "path": "src/CfdWorkbench.Core/Provenance.cs", "seq": 16, "session": "sc2", "ttl": 300.0, "wi": "sc2"}
+{"agent": "sc2", "at": 1793031179.9071217, "kind": "claim", "path": "src/CfdWorkbench.Desktop/PropertiesView.cs", "seq": 17, "session": "sc2", "ttl": 300.0, "wi": "sc2"}
+{"agent": "sc2", "at": 1793031180.1308472, "kind": "claim", "path": "src/CfdWorkbench.Desktop/WorkbenchController.cs", "seq": 18, "session": "sc2", "ttl": 300.0, "wi": "sc2"}
+{"agent": "sc2", "at": 1793031180.3520792, "kind": "claim", "path": "tests/CfdWorkbench.Core.Tests/ProvenanceTests.cs", "seq": 19, "session": "sc2", "ttl": 300.0, "wi": "sc2"}
+{"agent": "sc2", "at": 1793031180.6047306, "kind": "claim", "path": "docs/design/m12d-catalog.md", "seq": 20, "session": "sc2", "ttl": 300.0, "wi": "sc2"}
+{"agent": "sc2", "at": 1793031901.6676188, "kind": "release", "path": "src/CfdWorkbench.Core/Provenance.cs", "seq": 21, "session": "sc2", "wi": "sc2"}
+{"agent": "sc2", "at": 1793031901.922893, "kind": "release", "path": "src/CfdWorkbench.Desktop/PropertiesView.cs", "seq": 22, "session": "sc2", "wi": "sc2"}
+{"agent": "sc2", "at": 1793031902.1531086, "kind": "release", "path": "src/CfdWorkbench.Desktop/WorkbenchController.cs", "seq": 23, "session": "sc2", "wi": "sc2"}
+{"agent": "sc2", "at": 1793031902.373514, "kind": "release", "path": "tests/CfdWorkbench.Core.Tests/ProvenanceTests.cs", "seq": 24, "session": "sc2", "wi": "sc2"}
+{"agent": "sc2", "at": 1793031902.5753462, "kind": "release", "path": "docs/design/m12d-catalog.md", "seq": 25, "session": "sc2", "wi": "sc2"}
