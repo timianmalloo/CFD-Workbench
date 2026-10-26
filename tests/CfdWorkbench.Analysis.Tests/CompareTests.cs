@@ -673,15 +673,21 @@ internal static class CompareTests
         }
         Equal(true, stored is not null && length >= NativeProject.MaxBytes - 200_000, "the document reached the cap region;");
         var milliseconds = new List<double>();
-        for (int i = 0; i < 3; i++)
+        // HX (B7): seven reads at the cap (the first is the cold one), median and spread against the 100 ms rule.
+        for (int i = 0; i < 7; i++)
         {
             session.RecordDiscrepancy(stored!);
             milliseconds.Add(session.ReadLocalEvents().Last(item => item.Operation == "analysis.compare").DurationMilliseconds!.Value);
         }
-        milliseconds.Sort();
+        var ordered = milliseconds.Order().ToList();
         var last = session.ReadLocalEvents().Last(item => item.Operation == "analysis.compare");
         Equal(session.SaveImage().Length, last.Compare?.DocumentBytes, "the compare event's size equals the save image;");
-        Console.WriteLine($"MEASURED compareFieldsMedianMs={milliseconds[1]:F1} reads={string.Join(",", milliseconds.Select(m => m.ToString("F1")))} documentBytes={last.Compare?.DocumentBytes} cap={NativeProject.MaxBytes}");
+#if DEBUG
+        const string config = "Debug";
+#else
+        const string config = "Release";
+#endif
+        Console.WriteLine($"MEASURED compareFieldsMedianMs={ordered[3]:F1} minMs={ordered[0]:F1} maxMs={ordered[^1]:F1} runs={ordered.Count} config={config} vs100ms={(ordered[3] > 100 ? "over" : "under")} reads={string.Join(",", milliseconds.Select(m => m.ToString("F1")))} documentBytes={last.Compare?.DocumentBytes} cap={NativeProject.MaxBytes}");
     }
 
     // Four 128-strip runs, each on its own revision, and the records (0,1) and (2,3).
