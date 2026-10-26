@@ -133,7 +133,7 @@ public static class ControllerShellOneDriveTests
     private static void RefusalConstants()
     {
         string path = ExistingFile(), absent = Path.Combine(Path.GetDirectoryName(path)!, "gone.cfdw.json");
-        Need(Message("DOC-UNSUPPORTED-PERSISTENCE", path, true) == Labels.OpenUnavailableWindows + "\nCode: DOC-UNSUPPORTED-PERSISTENCE", "COPY-641 is not the Windows sentence");
+        Need(Message("DOC-UNSUPPORTED-PERSISTENCE", path, true) == Labels.OpenUnavailableWindows + Labels.DriveRemedy(path) + "\nCode: DOC-UNSUPPORTED-PERSISTENCE", "COPY-641 and drive remedy are not the Windows sentence");
         Need(Message("DOC-UNSUPPORTED-PERSISTENCE", path, false) == Labels.OpenUnavailableOther + "\nCode: DOC-UNSUPPORTED-PERSISTENCE", "COPY-642 is not the other sentence");
         Need(Message("DOC-CONFLICT", path, true) == Labels.OpenChanged + "\nCode: DOC-CONFLICT", "COPY-643 is not the conflict sentence");
         Need(!Labels.OpenChanged.Contains("hasn't been changed", StringComparison.Ordinal), "COPY-643 says the file hasn't been changed, but its cause is that the file changed");

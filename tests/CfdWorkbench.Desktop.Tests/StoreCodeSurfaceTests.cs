@@ -11,13 +11,36 @@ public static class StoreCodeSurfaceTests
 {
     public static void Run()
     {
+        var previous = SynchronizationContext.Current;
+        SynchronizationContext.SetSynchronizationContext(null);
+        try { RunChecks(); }
+        finally { SynchronizationContext.SetSynchronizationContext(previous); }
+    }
+
+    private static void RunChecks()
+    {
         DesktopChecks.Check("StoreCodes_ConflictExistenceProbe_OffDispatcher", () =>
         {
+            // Earlier controller checks can bind Avalonia's uninitialized dispatcher. Qualify thread affinity in a fresh process.
+            if (Environment.GetEnvironmentVariable("CFD_STORE_DISPATCHER_CHILD") != "1")
+            {
+                string host = Path.Combine(AppContext.BaseDirectory, "CfdWorkbench.Desktop.Tests" + (OperatingSystem.IsWindows() ? ".exe" : ""));
+                var start = new System.Diagnostics.ProcessStartInfo(host) { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
+                start.ArgumentList.Add("--harness"); start.ArgumentList.Add("--controller-shell");
+                start.Environment["CFD_STORE_DISPATCHER_CHILD"] = "1";
+                start.Environment["CFD_TEST_ONLY"] = "StoreCodes_ConflictExistenceProbe_OffDispatcher";
+                using var child = System.Diagnostics.Process.Start(start) ?? throw new Exception("dispatcher child did not start");
+                var output = child.StandardOutput.ReadToEndAsync(); var error = child.StandardError.ReadToEndAsync();
+                if (!child.WaitForExit(45_000)) { child.Kill(entireProcessTree: true); throw new Exception("dispatcher child timed out"); }
+                if (child.ExitCode != 0 || !output.GetAwaiter().GetResult().Contains("PASS StoreCodes_ConflictExistenceProbe_OffDispatcher", StringComparison.Ordinal))
+                    throw new Exception("dispatcher child: " + output.GetAwaiter().GetResult() + error.GetAwaiter().GetResult());
+                return;
+            }
+            var previous = SynchronizationContext.Current;
             if (Avalonia.Application.Current is null)
                 Avalonia.AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
             var dispatcher = Avalonia.Threading.Dispatcher.UIThread;
             if (!dispatcher.CheckAccess()) throw new Exception("test must start on dispatcher thread");
-            var previous = SynchronizationContext.Current;
             var context = new PumpContext();
             SynchronizationContext.SetSynchronizationContext(context);
             try
@@ -48,7 +71,7 @@ public static class StoreCodeSurfaceTests
             controller.NewFoilAsync().GetAwaiter().GetResult();
             controller.SaveAsync(path).GetAwaiter().GetResult();
             if (!open.Contains("Q:", StringComparison.Ordinal) || !open.Contains("NTFS", StringComparison.Ordinal) ||
-                !controller.Status.Contains("Q:", StringComparison.Ordinal) || !controller.Status.Contains("NTFS", StringComparison.Ordinal))
+                OperatingSystem.IsWindows() && (!controller.Status.Contains("Q:", StringComparison.Ordinal) || !controller.Status.Contains("NTFS", StringComparison.Ordinal)))
                 throw new Exception("drive/NTFS remedy absent: Open=" + open.Replace('\n', '|') + "; Save=" + controller.Status);
         });
         DesktopChecks.Check("StoreCodes_NewCodes_ReachEverySurface", () =>

@@ -417,7 +417,7 @@ public static class Labels
     // ---- ST: store codes and copy (wave 3) ----
     public const string OpenUnsupportedPlatform = "CFD Workbench can't open projects on this system. The file hasn't been changed."; // COPY-677 proposed
     public const string OpenNotAFile = "This path is a folder. Choose a project file inside it. The folder hasn't been changed."; // COPY-678 proposed
-    public const string SaveNotAFile = "This path is a folder. Your changes are kept in this session. Use Save As to choose a project file name."; // COPY-679 proposed
+    public const string SaveNotAFile = "This path is a folder (DOC-NOT-A-FILE). Your changes are kept in this session. Use Save As to choose a project file name."; // COPY-679 proposed
     public static string DriveRemedy(string path) => path.Length >= 2 && char.IsAsciiLetter(path[0]) && path[1] == ':'
         ? $" The refused path is on drive {path[..2]}. Choose a folder on a local NTFS drive." : ""; // COPY-680 proposed; appended to approved location copy
     public static string SaveRefusal(string code, string path) => SaveRefusal(code) +

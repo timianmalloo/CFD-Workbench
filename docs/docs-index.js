@@ -6076,7 +6076,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "032b9f5a5d2953a9ee87c618ae1ccd57bb6e005367dbb55c4460ee09d1ebb466"
+      "sourceSha256": "249395688dca47dca08b93cef4b1306436a2feec1187a31a5f24a1a0c7e62f10"
     },
     {
       "id": "domain-experts",
@@ -6726,6 +6726,45 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "b80e0ce647471b451674c0f740bd2dab113675824867a2e1f2e540cb59aeef97"
+    },
+    {
+      "id": "plan-st-dispatch1",
+      "path": "docs/plans/st-dispatch1.md",
+      "title": "ST dispatch 1 execution and evidence",
+      "type": "doc",
+      "status": "active",
+      "owner": "@st",
+      "phase": "",
+      "reviewBy": "2026-11-26",
+      "reviewSuggested": [],
+      "summary": "Serial red-green implementation of wave 3 ST items 1 to 5, bounded by the coordinator's file ownership and one final full-suite run.",
+      "tags": [
+        "store",
+        "testing",
+        "coordination"
+      ],
+      "links": [
+        {
+          "to": "coordination-wave3-next-steps",
+          "rel": "implements"
+        },
+        {
+          "to": "coordination-next-best-six-wave2",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-st-store-codes",
+          "rel": "tested-by"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Diagram 1",
+          "mermaid": "flowchart LR\n  Ground --> Codes --> Drive --> Reparse --> Dispatcher --> Operations --> Suite"
+        }
+      ],
+      "sourceSha256": "63b412517dff5ba4262f206b9d636041a09a05a5db2f88fb30120f032cd38810"
     },
     {
       "id": "plan-test-cost",
@@ -19144,6 +19183,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "04b56401dd97fa794fe900e38ab7b092150136b0e8a78b9fda007ceb4847a5a8"
     },
     {
+      "id": "proof-st-store-codes",
+      "path": "docs/proof/st-store-codes/README.md",
+      "title": "ST dispatch 1 store-code and plumbing proof",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@st",
+      "phase": "",
+      "reviewBy": "2026-11-26",
+      "reviewSuggested": [],
+      "summary": "Observed red and green harness lines for ST items 1 to 5, with the full-suite result and remaining environment limitations.",
+      "tags": [
+        "store",
+        "windows",
+        "testing",
+        "telemetry"
+      ],
+      "links": [
+        {
+          "to": "coordination-wave3-next-steps",
+          "rel": "implements"
+        },
+        {
+          "to": "plan-st-dispatch1",
+          "rel": "tested-by"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "270a7af28ee2c25c12b385319e5afd4d1c72cb78f5b6e7a835605c2140f55951"
+    },
+    {
       "id": "proof-stc-red-first",
       "path": "docs/proof/stc/red-first.md",
       "title": "STC red-first receipts (Ruling 147)",
@@ -24506,5 +24575,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d6e634e3b60b6ce1890a4f108e0fff22b7bd8003b2df2711ecc38e914d7aca63"
+  "graphSha256": "6b49053221ad4927fd2afe576c6fc47bf9f20f6fd69c63855858b2e8f4c5d301"
 };
