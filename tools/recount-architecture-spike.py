@@ -67,6 +67,7 @@ def main() -> int:
         env = os.environ.copy()
         env["DOTNET_GENERATE_ASPNET_CERTIFICATE"] = "false"
         env["DOTNET_CLI_HOME"] = str(scratch / "dotnet-home")
+        env["DOTNET_ADD_GLOBAL_TOOLS_TO_PATH"] = "false"
         env["NUGET_PACKAGES"] = str(scratch / "nuget-packages")
         env["PIP_CACHE_DIR"] = str(scratch / "pip-cache")
         # Avalonia's build-services collector otherwise outlives the build and holds its DLL in the NuGet cache (Windows: WinError 5 on cleanup).

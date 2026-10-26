@@ -449,7 +449,8 @@ def main() -> int:
                         "NUGET_HTTP_CACHE_PATH": "http-cache", "TMPDIR": "tmp",
                         "TMP": "tmp", "TEMP": "tmp"}.items():
         ENV[key] = str(SCRATCH / suffix)
-    ENV.update(DOTNET_SKIP_FIRST_TIME_EXPERIENCE="1", DOTNET_CLI_TELEMETRY_OPTOUT="1",
+    ENV.update(DOTNET_ADD_GLOBAL_TOOLS_TO_PATH="false",
+               DOTNET_SKIP_FIRST_TIME_EXPERIENCE="1", DOTNET_CLI_TELEMETRY_OPTOUT="1",
                DOTNET_CLI_DO_NOT_USE_MSBUILD_SERVER="1", DOTNET_GENERATE_ASPNET_CERTIFICATE="false",
                AVALONIA_TELEMETRY_OPTOUT="1")
     RECORDED_ENV = {key: ENV[key] for key in ("DOTNET_CLI_HOME", "NUGET_PACKAGES", "NUGET_HTTP_CACHE_PATH",
