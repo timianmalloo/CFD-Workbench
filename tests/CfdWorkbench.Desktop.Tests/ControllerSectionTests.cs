@@ -777,6 +777,9 @@ public static class ControllerSectionTests
         // the automation tree reads as choosable to a pointer user. Opens every sheet the Modal rows show (the enumeration
         // above) and requires each item whose ItemStatus is disabled/invalid to carry the matching style class. The library
         // holds one damaged file so the catalog states a damaged My-sections row next to the pending catalog rows.
+        // Scope: the opening state of every Modal sheet only, not post-interaction states and not popovers.
+        // Follow-up (not covered): SaveSectionDialog.ShowError (SaveSectionDialog.axaml.cs:97) sets ItemStatus "invalid" on
+        // NameBox with no class, after an interaction, so this sweep cannot reach it.
         DesktopChecks.Check("AutomationState_HasRenderedState", () =>
         {
             string root = BindRoot();
