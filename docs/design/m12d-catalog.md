@@ -659,7 +659,7 @@ empty and catalog-unavailable strings (spec :2342-2343).
 
 | Component | default | hover/focus | disabled | loading | empty | error | success |
 |---|---|---|---|---|---|---|---|
-| Replace dialog list | families with rows | active row outlined | VEND/LINK/not-generated rows with reason | "Loading sections…" while the scan runs (only if > 150 ms) | "No sections match …" (COPY-115); My sections empty string | catalog unavailable (C2) | — |
+| Replace dialog list | families with rows | active row outlined | muted name + reason: VEND/LINK/not-generated catalog rows and damaged My-sections rows carry the `disabled` style class (muted ink), the state tag after the name (`RowTag`, `· damaged`) and automation `ItemStatus` `disabled` with the reason as help text; pinned by `CatalogDialog_NonChoosableRow_RenderedDistinct` and the Modal-sheet sweep `AutomationState_HasRenderedState` (investigation `section-catalog-apply`, class STATE-IN-AUTOMATION-TREE-ONLY) | "Loading sections…" while the scan runs (only if > 150 ms) | "No sections match …" (COPY-115); My sections empty string | catalog unavailable (C2) | — |
 | Replace button | enabled when the preview is acceptable | — | `aria-disabled` + detail line as description | "Fitting…" while a preview computes | — | COPY-191 | dialog closes, status line |
 | Replace at <chain> | hidden unless COPY-191 shows | — | — | — | — | — | as Replace |
 | Canvas preview | dashed accent outline | — | none for disabled rows | previous preview kept, dimmed | none | none | becomes the section |
