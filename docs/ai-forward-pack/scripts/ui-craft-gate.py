@@ -101,6 +101,11 @@ CLUSTERS = {
 # candidate doctrine change - flagged, never silently absorbed.
 UNMAPPED = ("Unmapped (candidate doctrine)", "-- unmapped --", "CD7")
 
+# CD9: the file types the detector has rules for. Measured on engine 0.1.16 (a directory walk scans exactly these; a
+# named file of another type is read as text, so Avalonia XAML in its own syntax returns no findings and a clean run on
+# it is vacuous). Re-measure when the engine changes; the README lists HTML, CSS, JSX, TSX, Vue and Svelte.
+SCANNED = {".html", ".htm", ".css", ".scss", ".sass", ".less", ".js", ".jsx", ".ts", ".tsx", ".vue", ".svelte", ".astro"}
+
 SEV_ORDER = ["Blocker", "Major", "Minor", "Nit"]
 # The detector's own severity is advisory (CD12); this is the base mapping.
 BASE_SEVERITY = {"error": "Major", "warning": "Minor", "info": "Nit"}
@@ -128,6 +133,31 @@ def resolve_detector(explicit=None):
     if shutil.which("npx"):
         return [shutil.which("npx"), "--yes", "impeccable"]
     return None
+
+
+def check_targets(targets):
+    """Return (refusal, notes) for the local targets: a refusal when the detector would read nothing of them."""
+    refused, notes = [], []
+    for target in targets:
+        if target.startswith(("http://", "https://")):
+            continue
+        if not os.path.exists(target):
+            refused.append("%s does not exist" % target)
+        elif os.path.isfile(target):
+            ext = os.path.splitext(target)[1].lower()
+            if ext not in SCANNED:
+                refused.append("%s: the detector has no rules for %s files" % (target, ext or "extensionless"))
+        else:
+            kinds = Counter(os.path.splitext(name)[1].lower()
+                            for _, _, names in os.walk(target) for name in names)
+            if not any(ext in SCANNED for ext in kinds):
+                refused.append("%s: nothing in it is a type the detector reads" % target)
+            # A mixed tree runs, but a clean report must not imply the skipped UI markup was checked.
+            skipped = {ext: n for ext, n in kinds.items() if ext in (".axaml", ".xaml", ".xhtml", ".razor", ".cshtml")}
+            if skipped:
+                notes.append("%s: not scanned (no detector rules): %s" % (
+                    target, ", ".join("%d %s" % (n, ext) for ext, n in sorted(skipped.items()))))
+    return refused, notes
 
 
 def run_detector(prefix, targets):
@@ -303,19 +333,20 @@ def main(argv=None):
             "  See ui-craft-detection.md CD1.\n")
         return 2
 
+    # CD9 / E14 - an empty corpus exits clean and proves nothing. Guard the
+    # success-shaped failure before the run: a target the detector cannot read is refused, not passed.
+    refused, notes = check_targets(args.targets)
+    if refused:
+        sys.stderr.write("ui-craft-gate: nothing scanned: %s\n"
+                         "  The detector reads %s. A detector that scanned nothing is not a passing gate (CD9).\n"
+                         % ("; ".join(refused), " ".join(sorted(SCANNED))))
+        return 2
+    for note in notes:
+        sys.stderr.write("ui-craft-gate: %s\n" % note)
+
     findings, err = run_detector(prefix, args.targets)
     if err:
         sys.stderr.write("ui-craft-gate: %s\n" % err)
-        return 2
-
-    # CD9 / E14 - an empty corpus exits clean and proves nothing. Guard the
-    # success-shaped failure: if nothing was scanned, say so rather than pass.
-    local = [t for t in args.targets if not t.startswith(("http://", "https://"))]
-    missing = [t for t in local if not os.path.exists(t)]
-    if missing:
-        sys.stderr.write("ui-craft-gate: target(s) do not exist: %s\n"
-                         "  A detector that scanned nothing is not a passing gate (CD9).\n"
-                         % ", ".join(missing))
         return 2
 
     rows = translate(findings, args.a11y_obligation)
