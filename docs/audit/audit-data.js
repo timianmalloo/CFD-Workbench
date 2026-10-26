@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-26T16:46:38Z",
+  "generated": "2026-10-26T17:04:09Z",
   "audit": [
     {
       "actor": null,
@@ -43373,6 +43373,39 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-10-26T16:34:19Z",
       "duration_seconds": 739.0
+    },
+    {
+      "id": "al-01M5WJPRSXZJ149D13HZ876WCE",
+      "shortname": "sc1-repair-1",
+      "datetime": "2026-10-26T17:04:09Z",
+      "session": "sc1",
+      "prompt": "SC1 repair cycle 1 (wave 3): brief sc1-r1.md, conditions a/b/c and two minors from the Opus review",
+      "summary": "Red 6d57cb31 (both new tests FAIL), fix 8ce25512 (previewRunningTicket replaces previewRequestTicket so a step that drops a queued choice marks the in-flight fit stale; catalog.select skips a key equal to the last recorded, reset on OpenCatalog), docs 9153412b (sweep scope = opening state of every Modal sheet; SaveSectionDialog.ShowError follow-up; register controls built; m12d 11.4 DSL-STALE residual). section-editor PASS 197 FAIL 0; catalog-dialog PASS 33 FAIL 0.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Close review conditions a (queued choice + step drops a fit silently), b (register controls), c (narrow the sweep claim) and minors (catalog.select dedupe, m12d 11.4 DSL-STALE residual)",
+      "done_when": "Controller_QueuedChoiceThenStep_ReportsStale and Catalog_Select_IdenticalRecordsOnce seen FAIL then PASS; --section-editor 197/0 and --catalog-dialog 33/0; check-docs green; register and m12d updated",
+      "tier": "T1",
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-10-26T16:58:19Z",
+      "duration_seconds": 350.0,
+      "git": {
+        "sha": "9153412b9c87a3373fe7adcd56e601cfe68a24ed",
+        "short": "9153412b9",
+        "branch": "w3-sc1-catalog-sheet",
+        "pushed": null
+      }
     }
   ],
   "changes": [
