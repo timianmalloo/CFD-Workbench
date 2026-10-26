@@ -551,14 +551,14 @@ def self_test() -> int:
 
     def audit_fixture(root):
         # Match the consuming tree: the marker is local, and audit render outputs are derived.
-        (root / ".gitignore").write_text("docs/audit/.run-starts.json*\n", encoding="utf-8")
+        (root / ".gitignore").write_text("docs/audit/.run-starts.json*\n", encoding="utf-8", newline="\n")
         (root / ".agents").mkdir(exist_ok=True)
         (root / ".agents" / "artifacts.yml").write_text(
             "docs/audit/audit-data.js: derived python audit-log.py render\n"
             "docs/audit/index.html: derived python audit-log.py render\n"
-            "generated/*: derived python generate.py\n", encoding="utf-8")
+            "generated/*: derived python generate.py\n", encoding="utf-8", newline="\n")
         (root / "docs" / "audit").mkdir(parents=True, exist_ok=True)
-        (root / "docs" / "audit" / "audit-log.md").write_text("audit reader\n", encoding="utf-8")
+        (root / "docs" / "audit" / "audit-log.md").write_text("audit reader\n", encoding="utf-8", newline="\n")
 
     problems = []
     # Regression: configured .sh commands must be translated for Windows, and the runner must
@@ -815,12 +815,12 @@ def self_test() -> int:
             git(root, "init", "-q", "-b", "main")
             git(root, "config", "user.email", "join@example.invalid")
             git(root, "config", "user.name", "join")
-            (root / "README.md").write_text("base\n", encoding="utf-8")
+            (root / "README.md").write_text("base\n", encoding="utf-8", newline="\n")
             audit_fixture(root)
             git(root, "add", "-A")
             git(root, "commit", "-qm", "base")
             git(root, "checkout", "-qb", "feature")
-            (root / "branch.txt").write_text("branch\n", encoding="utf-8")
+            (root / "branch.txt").write_text("branch\n", encoding="utf-8", newline="\n")
             git(root, "add", "branch.txt")
             git(root, "commit", "-qm", "feature")
             git(root, "checkout", "-q", "main")
@@ -846,7 +846,7 @@ def self_test() -> int:
                 print("conductor-join --self-test: OK - " + name)
 
     def late_write(root, args, lines, run):
-        status = run(lambda r: (r / "README.md").write_text("late write\n", encoding="utf-8"))
+        status = run(lambda r: (r / "README.md").write_text("late write\n", encoding="utf-8", newline="\n"))
         return (git(root, "show", "HEAD:README.md").strip() == "base"
                 and (root / "README.md").read_text(encoding="utf-8") == "late write\n"
                 and status == 7 and any("COORD-JOIN-DIRTY-AFTER-COMMIT" in l for l in lines)
@@ -854,7 +854,7 @@ def self_test() -> int:
                 and not any("step 8:" in l for l in lines))
 
     def refusal(root, args, lines, run):
-        status = run(lambda r: (r / "branch.txt").write_text("untracked writer\n", encoding="utf-8"))
+        status = run(lambda r: (r / "branch.txt").write_text("untracked writer\n", encoding="utf-8", newline="\n"))
         return (status == 13 and any("COORD-JOIN-MERGE-REFUSED" in l for l in lines)
                 and any(l == "   - branch.txt" for l in lines)
                 and not any("the merge has conflicts" in l for l in lines)
@@ -862,20 +862,20 @@ def self_test() -> int:
 
     def tracked_refusal(root, args, lines, run):
         git(root, "checkout", "-q", "feature")
-        (root / "README.md").write_text("feature\n", encoding="utf-8")
+        (root / "README.md").write_text("feature\n", encoding="utf-8", newline="\n")
         git(root, "commit", "-qam", "change README")
         git(root, "checkout", "-q", "main")
-        status = run(lambda r: (r / "README.md").write_text("local writer\n", encoding="utf-8"))
+        status = run(lambda r: (r / "README.md").write_text("local writer\n", encoding="utf-8", newline="\n"))
         return (status == 13 and any("COORD-JOIN-MERGE-REFUSED" in l for l in lines)
                 and any(l == "   - README.md" for l in lines)
                 and not any("the merge has conflicts" in l for l in lines))
 
     def conflict(root, args, lines, run):
         git(root, "checkout", "-q", "feature")
-        (root / "README.md").write_text("feature\n", encoding="utf-8")
+        (root / "README.md").write_text("feature\n", encoding="utf-8", newline="\n")
         git(root, "commit", "-qam", "feature README")
         git(root, "checkout", "-q", "main")
-        (root / "README.md").write_text("main\n", encoding="utf-8")
+        (root / "README.md").write_text("main\n", encoding="utf-8", newline="\n")
         git(root, "commit", "-qam", "main README")
         status = run()
         return (status == 1 and any("the merge has conflicts" in l for l in lines)
@@ -886,7 +886,7 @@ def self_test() -> int:
         args.cont = True
         args.branch = None
         before = git(root, "rev-parse", "HEAD")
-        (root / "README.md").write_text("unrelated\n", encoding="utf-8")
+        (root / "README.md").write_text("unrelated\n", encoding="utf-8", newline="\n")
         status = run()
         return (status == EXIT_DIRTY and git(root, "rev-parse", "HEAD") == before
                 and (root / "README.md").read_text(encoding="utf-8") == "unrelated\n"
@@ -900,12 +900,12 @@ def self_test() -> int:
 
     def derived_outputs(root, args, lines, run):
         (root / "generated").mkdir()
-        (root / "generated" / "deleted.txt").write_text("old\n", encoding="utf-8")
+        (root / "generated" / "deleted.txt").write_text("old\n", encoding="utf-8", newline="\n")
         (root / "generate.py").write_text(
             "from pathlib import Path\n"
             "Path('generated/deleted.txt').unlink()\n"
             "Path('generated/with space.txt').write_text('derived', encoding='utf-8')\n",
-            encoding="utf-8")
+            encoding="utf-8", newline="\n")
         git(root, "add", "-A")
         git(root, "commit", "-qm", "generator")
         status = run(regenerate=[[PY, "generate.py"]])
@@ -914,11 +914,11 @@ def self_test() -> int:
                 and not git(root, "status", "--porcelain").strip())
 
     def audit_writer_fixture(root):
-        (root / "docs/audit/audit-log.jsonl").write_text('{"id":"base"}\n', encoding="utf-8")
+        (root / "docs/audit/audit-log.jsonl").write_text('{"id":"base"}\n', encoding="utf-8", newline="\n")
         (root / "foreign.py").write_text(
             "from pathlib import Path\n"
             "with Path('docs/audit/audit-log.jsonl').open('a', encoding='utf-8') as f:\n"
-            "    f.write('{\"id\":\"foreign\"}\\n')\n", encoding="utf-8")
+            "    f.write('{\"id\":\"foreign\"}\\n')\n", encoding="utf-8", newline="\n")
         git(root, "add", "docs/audit/audit-log.jsonl", "foreign.py")
         git(root, "commit", "-qm", "audit baseline and foreign writer")
 
@@ -948,7 +948,7 @@ def self_test() -> int:
             "from pathlib import Path\n"
             "p = Path('.git/hooks/pre-commit')\n"
             "p.write_text(" + repr(hook) + ", encoding='utf-8')\n"
-            "p.chmod(0o755)\n", encoding="utf-8")
+            "p.chmod(0o755)\n", encoding="utf-8", newline="\n")
         git(root, "add", "install_hook.py")
         git(root, "commit", "-qm", "hook installer")
         status = run(regenerate=[[PY, "install_hook.py"]])
@@ -957,7 +957,7 @@ def self_test() -> int:
 
     def merged_audit_history(root, args, lines, run):
         git(root, "checkout", "-q", "feature")
-        (root / "docs/audit/audit-log.jsonl").write_text('{"id":"branch-history"}\n', encoding="utf-8")
+        (root / "docs/audit/audit-log.jsonl").write_text('{"id":"branch-history"}\n', encoding="utf-8", newline="\n")
         git(root, "add", "docs/audit/audit-log.jsonl")
         git(root, "commit", "-qm", "committed branch audit history")
         git(root, "checkout", "-q", "main")
@@ -970,7 +970,7 @@ def self_test() -> int:
             "from pathlib import Path\n"
             "p = Path('generated/transient.txt')\n"
             "p.unlink() if p.exists() else (p.parent.mkdir(exist_ok=True), p.write_text('temporary'))\n",
-            encoding="utf-8")
+            encoding="utf-8", newline="\n")
         git(root, "add", "generate.py")
         git(root, "commit", "-qm", "transient generator")
         status = run(regenerate=[[PY, "generate.py"], [PY, "generate.py"]])
@@ -978,7 +978,7 @@ def self_test() -> int:
 
     def merge_hook_failure(root, args, lines, run):
         hook = root / ".git/hooks/pre-merge-commit"
-        hook.write_text("#!/bin/sh\nexit 1\n", encoding="utf-8")
+        hook.write_text("#!/bin/sh\nexit 1\n", encoding="utf-8", newline="\n")
         hook.chmod(0o755)
         status = run()
         return (status == 1 and any("COORD-JOIN-MERGE-INCOMPLETE" in l for l in lines)
