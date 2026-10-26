@@ -22,21 +22,26 @@ public static class StoreCodeSurfaceTests
     {
         DesktopChecks.Check("StoreCodes_SaveSection_UnadmittedHost_UsesSystemSentence", () =>
         {
-            if (Application.Current is null) AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
-            using var controller = new WorkbenchController();
-            foreach (string code in new[] { "DOC-UNSUPPORTED-PERSISTENCE", "DOC-UNSUPPORTED-PLATFORM" })
+            var previous = SynchronizationContext.Current;
+            try
             {
-                var dialog = new SaveSectionDialog(controller, _ => Task.FromException(new ContractError(code)), storeAdmitted: () => false);
-                dialog.Show();
-                try
+                if (Application.Current is null) AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+                using var controller = new WorkbenchController();
+                foreach (string code in new[] { "DOC-UNSUPPORTED-PERSISTENCE", "DOC-UNSUPPORTED-PLATFORM" })
                 {
-                    dialog.FindControl<TextBox>("NameBox")!.Text = "Kept";
-                    dialog.SaveAsync().GetAwaiter().GetResult();
-                    string? actual = dialog.FindControl<TextBlock>("SaveError")!.Text;
-                    if (actual != Labels.SectionSaveUnavailable) throw new Exception(code + " unadmitted host: " + actual);
+                    var dialog = new SaveSectionDialog(controller, _ => Task.FromException(new ContractError(code)), storeAdmitted: () => false);
+                    dialog.Show();
+                    try
+                    {
+                        dialog.FindControl<TextBox>("NameBox")!.Text = "Kept";
+                        dialog.SaveAsync().GetAwaiter().GetResult();
+                        string? actual = dialog.FindControl<TextBlock>("SaveError")!.Text;
+                        if (actual != Labels.SectionSaveUnavailable) throw new Exception(code + " unadmitted host: " + actual);
+                    }
+                    finally { dialog.Close(); }
                 }
-                finally { dialog.Close(); }
             }
+            finally { SynchronizationContext.SetSynchronizationContext(previous); }
         });
         DesktopChecks.Check("StoreCodes_ConflictExistenceProbe_OffDispatcher", () =>
         {

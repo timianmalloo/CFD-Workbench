@@ -117,7 +117,7 @@ public static class ControllerShellOneDriveTests
         var failure = OpenFailure.ClassifyCode("DOC-CONFLICT", absent);
         Need(failure is OpenFailure.Missing, "an absent file is " + failure.GetType().Name);
         string message = StartView.FailureMessage(failure, "gone.cfdw.json", OperatingSystem.IsWindows());
-        Need(Has(message, "isn't there any more") && !Has(message, "damaged") && !Has(message, "using it"), message);
+        Need(message == Labels.OpenGone + "\nCode: DOC-CONFLICT" && !Has(message, "damaged") && !Has(message, "using it"), message);
         Need(OpenFailure.ClassifyCode("DOC-CONFLICT", "") is not OpenFailure.Missing, "no path is a conflict, not a missing file");
     }
 

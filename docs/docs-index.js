@@ -6076,7 +6076,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "249395688dca47dca08b93cef4b1306436a2feec1187a31a5f24a1a0c7e62f10"
+      "sourceSha256": "8f4fe5173a3ba305341f3c7857f1b2ed6211e5ff1a0983a5f86a22db407834f6"
     },
     {
       "id": "domain-experts",
@@ -19185,14 +19185,14 @@ window.DOCS_INDEX = {
     {
       "id": "proof-st-store-codes",
       "path": "docs/proof/st-store-codes/README.md",
-      "title": "ST dispatch 1 store-code and plumbing proof",
+      "title": "ST store-code, copy and preference proof",
       "type": "proof-pack",
       "status": "active",
       "owner": "@st",
       "phase": "",
       "reviewBy": "2026-11-26",
       "reviewSuggested": [],
-      "summary": "Observed red and green harness lines for ST items 1 to 5, with the full-suite result and remaining environment limitations.",
+      "summary": "Observed ST store-code, copy and preference checks. Dispatch 2 records the genuine old-build fixture's axes refusal while leaving COPY-615 dimensional-headline evidence open.",
       "tags": [
         "store",
         "windows",
@@ -19210,7 +19210,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "270a7af28ee2c25c12b385319e5afd4d1c72cb78f5b6e7a835605c2140f55951"
+      "sourceSha256": "f75b7dedab325edb9570bbd39b6270a558c1827c864e1450656b59c97249c3ec"
     },
     {
       "id": "proof-stc-red-first",
@@ -24575,5 +24575,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "6b49053221ad4927fd2afe576c6fc47bf9f20f6fd69c63855858b2e8f4c5d301"
+  "graphSha256": "8761439d217411c10aa80e072088570393ef418cb9d54d0dcce3060b06fa68b4"
 };

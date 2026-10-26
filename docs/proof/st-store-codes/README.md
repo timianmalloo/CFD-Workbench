@@ -1,6 +1,6 @@
 ---
 id: proof-st-store-codes
-title: ST dispatch 1 store-code and plumbing proof
+title: ST store-code, copy and preference proof
 type: proof-pack
 status: active
 owner: "@st"
@@ -9,7 +9,7 @@ links:
   - {to: coordination-wave3-next-steps, rel: implements}
   - {to: plan-st-dispatch1, rel: tested-by}
 review-by: 2026-11-26
-summary: Observed red and green harness lines for ST items 1 to 5, with the full-suite result and remaining environment limitations.
+summary: Observed ST store-code, copy and preference checks. Dispatch 2 records the genuine old-build fixture's axes refusal while leaving COPY-615 dimensional-headline evidence open.
 ---
 
 # ST dispatch 1
@@ -69,6 +69,22 @@ PASS Preferences_OneHeldHandle_OwnerAndDacl
 FAIL Preferences_OneHeldHandle_InjectedSecondOpen existing folder must be opened exactly once (expected mutant failure)
 PASS Preferences_OneHeldHandle_MutationRejected
 ```
+
+### Dispatch 2 review and limits
+
+The brief is the compiled contract. All five requested increments were assessed serially; items 6, 7, 9 and 10 have observed red/green evidence, while item 8 has a passing historical characterization and an explicit unresolved dimensional-branch requirement. The solution-selection ladder reused existing Labels, ProjectStore admission, preference session flags and native SafeFileHandle APIs; no dependency or durable field was added.
+
+Testing triggers: D0 applies throughout; deterministic rule checks cover copy cardinality/admission; UI failure-state checks render the Save dialog; native boundary checks cover real ownership and ACL publication; historical-state characterization uses committed bytes and production readers. The single-handle structural guard has an explicit second-open mutation. Failure dispositions remain existing messages or session-only; no new public error code or copy row was introduced. Existing store telemetry and test COST lines remain the measurement sources.
+
+| Claim | Oracle / evidence | Confidence / remaining limit |
+|---|---|---|
+| One active missing-file definition | Two rows fail cardinality; COPY-125 body matches Labels; StartView shares it for every Missing code | Verified on this tree |
+| Save-section follows admission | Inject false on Windows; rendered SaveError must equal the system sentence for either unsupported code | Verified on Windows; existing host-predicate catalog test also passes |
+| Foreign-owner load is session-only | Real foreign-owned folder; all five loads; store factory never called; owner/DACL unchanged | Verified on Windows; macOS owner policy unchanged |
+| ACL update uses owner handle | Explicit scoped assertion; injected second open rejected; real owned/foreign folder checks pass | Verified source assertion and Windows behaviour; helper-spelled reopen outside the guard is a residual limit |
+| Old-run COPY-615 dimensional reason | Genuine pre-reference fixture opens and compares; axes mismatch correctly blocks output | NOT DONE for dimensional headline; no eligible fixture established |
+
+Independent pre-merge reviewer clearance is not claimed. The author has not cleared its own hard veto. No new UI layout, design token, generated asset, HTTP endpoint or persisted schema was introduced.
 
 Verified on Windows. Reproduce focused green checks with `bash docs/proof/st-store-codes/run.sh`.
 The CLI harness has the coordinator-reported environment defect: its sleeping child cannot resolve ping through the over-long User PATH. It is outside ST's scope.
@@ -184,3 +200,36 @@ No second full-suite invocation was made. The join must run its authoritative su
 Additional edited repository files beyond the original authored-file list: src/CfdWorkbench.Core/AuthoringSession.cs (explicit Amendment 2 region), tests/CfdWorkbench.Desktop.Tests/ControllerShellOneDriveTests.cs (Amendment 2 permits unowned files), this proof and run.sh, docs/plans/st-dispatch1.md, docs/lessons/defect-classes.md, docs/docs-index.js, and audit log / derived audit-data. No other track's owned region was edited.
 
 The requested graph hub kb-graph-and-loop-engineering is absent from this tree's index; the plan links to the actual upstream coordination report instead. This is a finding, not a repaired pack dependency. No independent review clearance is claimed.
+
+### Dispatch 2 complete suite and required alone reruns
+
+The required single `bash tools/run-tests.sh` invocation finished TESTS-RED in 268 s. Core: 916 passed / 7 skipped / 0 failed; Analysis: 311 / 1 / 0; Desktop: 891 / 1 / 7 (exit 2); CLI: 34 / 1 / 0. No heap-corruption crash occurred. The controller child exited 124 at 120 s, in StoreCodes_NonNtfsRemedy_NamesDrive. Shell-window part 2/2 and section-editor part 1/2 exited 1 on the stale COPY-644 assertions.
+
+All three modes were rerun alone with CFD_TEST_ONLY unset. The repeated stale copy assertions were corrected to COPY-125. The new Save-dialog test had left Avalonia's synchronization context installed; restoring its entry context fixes the later synchronous store checks. The before controller rerun was bounded at 150 s and its own process tree was killed on timeout.
+
+```text
+before --shell-window: 120 PASS, 1 FAIL
+FAIL Copy_OpenFailures_MatchesDesignRows InvalidOperationException: COPY-644: expected 'The file isn't there any more. It may have been moved, renamed or deleted. The file hasn't been changed. - superseded by COPY-125 (wave 3 ST, merged) ú Locate. ú Open another file.', built 'It isn't where it was - it may have been moved, renamed or deleted. The file hasn't been changed. ú Locate. ú Open another file.'
+before --section-editor: 186 PASS, 1 FAIL
+FAIL OpenRefusal_ConflictOnAbsentFile_IsMissing InvalidOperationException: It isn't where it was - it may have been moved, renamed or deleted. The file hasn't been changed.
+before --controller-shell: 155 PASS, 1 FAIL
+FAIL ST-RERUN-TIMEOUT standalone mode exceeded 150 s; own process tree killed
+after --shell-window: 121 PASS, 0 FAIL
+after --section-editor: 187 PASS, 0 FAIL
+after --controller-shell: 157 PASS, 0 FAIL
+```
+
+A complete Desktop project rerun after these repairs (all modes, no selector) returned:
+
+```text
+Test run summary: Passed!
+total: 897
+failed: 0
+succeeded: 896
+skipped: 1
+duration: 1m 17s 859ms
+```
+
+This establishes the repaired Desktop project result, not a green exit from the earlier run-tests.sh invocation. No second full run-tests.sh invocation was made. The strict green-script requirement remains unobserved. Item 8's dimensional-headline evidence also remains open.
+
+Planned five serial item assessments and one full script run; actual five assessments, one full script run, three before/after mode reruns, and one complete Desktop project rerun. Rework: one stale-apphost build retry, two corrected test compile signatures, historical axes/field expectations corrected from observed compatibility, and the two copy assertions plus context cleanup found by the full suite. Independent review remains pending. No dispatch-1 production change was reworked; item 6 required updating its prior missing-file assertions.

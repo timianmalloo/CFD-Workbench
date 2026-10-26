@@ -2164,7 +2164,7 @@ public static class ShellWindowTests
                 ("COPY-130", new OpenFailure.UnknownContent("DOC-UNSUPPORTED-FIELD", "sample.foil"), false, null),
                 ("COPY-103", new OpenFailure.Newer("DOC-VERSION", "sample.foil"), false, null),
                 ("COPY-643", new OpenFailure.Changed("DOC-CONFLICT", "sample.foil"), false, ["Try again", "Open another file…"]),
-                ("COPY-644", new OpenFailure.Missing("DOC-CONFLICT", "sample.foil"), false, ["Locate…", "Open another file…"])
+                ("COPY-125", new OpenFailure.Missing("DOC-CONFLICT", "sample.foil"), true, null)
             };
             foreach (var item in cases)
             {
