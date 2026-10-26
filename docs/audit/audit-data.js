@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-26T16:56:58Z",
+  "generated": "2026-10-26T17:08:30Z",
   "audit": [
     {
       "actor": null,
@@ -43306,6 +43306,27 @@ window.AUDIT_DATA = {
       "tier": "T1",
       "started_at": "2026-10-26T16:32:47Z",
       "duration_seconds": 1451.0
+    },
+    {
+      "id": "al-01M5WJYR3Z70T2ZP803XC0Z77H",
+      "shortname": "hx-repair-1",
+      "datetime": "2026-10-26T17:08:30Z",
+      "session": "hx",
+      "prompt": "HX repair cycle 1 (review ACCEPT-WITH-CONDITIONS findings 2,3,4,5,7,10)",
+      "summary": "completion-signal wait, attempt count printed, classification-only comment, real unknown-arm exit, control log on bad verdict, proof folder docs/proof/hx-status-strip, VectorKey whitespace restored; Release probe run quiet control",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "HX repair 1",
+      "done_when": "findings addressed; 20 repeats stay with the main session",
+      "tier": "T1",
+      "started_at": "2026-10-26T17:05:40Z",
+      "duration_seconds": 170.0
     }
   ],
   "changes": [
