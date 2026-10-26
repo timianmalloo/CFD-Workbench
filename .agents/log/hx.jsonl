@@ -17,3 +17,5 @@
 {"agent": "hx", "at": 1793034510.0097413, "kind": "release", "path": "tests/CfdWorkbench.Desktop.Tests/ControllerShellTests.cs", "seq": 17, "session": "hx", "wi": "hx"}
 {"agent": "hx", "at": 1793034510.1611648, "kind": "release", "path": "tests/CfdWorkbench.Desktop.Tests/VerticesLifetimeProbe.cs", "seq": 18, "session": "hx", "wi": "hx"}
 {"agent": "hx", "at": 1793034510.3166096, "kind": "release", "path": "src/CfdWorkbench.Analysis/Labels.cs", "seq": 19, "session": "hx", "wi": "hx"}
+{"agent": "hx", "at": 1793035363.8165162, "kind": "session-end", "path": "-", "seq": 20, "session": "hx", "wi": "WI-0", "worktree": "CFD-Workbench"}
+{"agent": "hx", "at": 1793035372.7465322, "kind": "session-end", "path": "-", "seq": 21, "session": "hx", "wi": "WI-0", "worktree": "CFD-Workbench-w3-hx-harness"}

@@ -23,3 +23,5 @@
 {"agent": "sc2", "at": 1793031902.1531086, "kind": "release", "path": "src/CfdWorkbench.Desktop/WorkbenchController.cs", "seq": 23, "session": "sc2", "wi": "sc2"}
 {"agent": "sc2", "at": 1793031902.373514, "kind": "release", "path": "tests/CfdWorkbench.Core.Tests/ProvenanceTests.cs", "seq": 24, "session": "sc2", "wi": "sc2"}
 {"agent": "sc2", "at": 1793031902.5753462, "kind": "release", "path": "docs/design/m12d-catalog.md", "seq": 25, "session": "sc2", "wi": "sc2"}
+{"agent": "sc2", "at": 1793035363.3662271, "kind": "session-end", "path": "-", "seq": 26, "session": "sc2", "wi": "WI-0", "worktree": "CFD-Workbench"}
+{"agent": "sc2", "at": 1793035371.9117002, "kind": "session-end", "path": "-", "seq": 27, "session": "sc2", "wi": "WI-0", "worktree": "CFD-Workbench-w3-sc2-source-text"}

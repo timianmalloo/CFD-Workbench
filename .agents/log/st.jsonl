@@ -207,3 +207,53 @@
 {"agent": "st", "at": 1793035167.5045998, "kind": "claim", "path": "docs/design/application-contracts.md", "seq": 207, "session": "st", "ttl": 300.0, "wi": "st"}
 {"agent": "st", "at": 1793035167.7250204, "kind": "claim", "path": "docs/architecture/application.md", "seq": 208, "session": "st", "ttl": 300.0, "wi": "st"}
 {"agent": "st", "at": 1793035167.9388192, "kind": "claim", "path": "docs/plans/st-dispatch1.md", "seq": 209, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035614.2648225, "kind": "claim", "path": "tests/CfdWorkbench.Desktop.Tests/ControllerShellOneDriveTests.cs", "seq": 210, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035699.9162993, "kind": "claim", "path": "tests/CfdWorkbench.Desktop.Tests/ControllerShellOneDriveTests.cs", "seq": 211, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035703.4692836, "kind": "claim", "path": "src/CfdWorkbench.Persistence", "seq": 212, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035703.7046125, "kind": "claim", "path": "src/CfdWorkbench.Desktop/OpenOutcome.cs", "seq": 213, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035703.9322383, "kind": "claim", "path": "src/CfdWorkbench.Desktop/Panes/StartView.axaml.cs", "seq": 214, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035704.1692655, "kind": "claim", "path": "src/CfdWorkbench.Desktop/WorkbenchController.cs", "seq": 215, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035704.4020689, "kind": "claim", "path": "src/CfdWorkbench.Analysis/Labels.cs", "seq": 216, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035704.6243172, "kind": "claim", "path": "tests/CfdWorkbench.Core.Tests/SectionLibraryTests.cs", "seq": 217, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035704.842914, "kind": "claim", "path": "tests/CfdWorkbench.Core.Tests/PreferenceStoreTests.cs", "seq": 218, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035705.0807724, "kind": "claim", "path": "tests/CfdWorkbench.Core.Tests/WindowsProjectStoreTests.cs", "seq": 219, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035705.2973526, "kind": "claim", "path": "tests/CfdWorkbench.Desktop.Tests/StoreCodeSurfaceTests.cs", "seq": 220, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035705.5238147, "kind": "claim", "path": "tests/CfdWorkbench.Analysis.Tests/CompareTests.cs", "seq": 221, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035705.7439196, "kind": "claim", "path": "tests/CfdWorkbench.Desktop.Tests/ControllerShellOneDriveTests.cs", "seq": 222, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035705.9779665, "kind": "claim", "path": "DESIGN.md", "seq": 223, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035706.1972427, "kind": "claim", "path": "docs/proof/st-store-codes", "seq": 224, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035706.42358, "kind": "claim", "path": "docs/design/application-contracts.md", "seq": 225, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035706.6439576, "kind": "claim", "path": "docs/architecture/application.md", "seq": 226, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035706.8877301, "kind": "claim", "path": "docs/plans/st-dispatch1.md", "seq": 227, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035974.526895, "kind": "claim", "path": "src/CfdWorkbench.Persistence", "seq": 228, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035974.722209, "kind": "claim", "path": "src/CfdWorkbench.Desktop/OpenOutcome.cs", "seq": 229, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035974.915221, "kind": "claim", "path": "src/CfdWorkbench.Desktop/Panes/StartView.axaml.cs", "seq": 230, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035975.1140106, "kind": "claim", "path": "src/CfdWorkbench.Desktop/WorkbenchController.cs", "seq": 231, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035975.311977, "kind": "claim", "path": "src/CfdWorkbench.Analysis/Labels.cs", "seq": 232, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035975.508236, "kind": "claim", "path": "tests/CfdWorkbench.Core.Tests/SectionLibraryTests.cs", "seq": 233, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035975.6929617, "kind": "claim", "path": "tests/CfdWorkbench.Core.Tests/PreferenceStoreTests.cs", "seq": 234, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035975.887816, "kind": "claim", "path": "tests/CfdWorkbench.Core.Tests/WindowsProjectStoreTests.cs", "seq": 235, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035976.0806837, "kind": "claim", "path": "tests/CfdWorkbench.Desktop.Tests/StoreCodeSurfaceTests.cs", "seq": 236, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035976.2749023, "kind": "claim", "path": "tests/CfdWorkbench.Analysis.Tests/CompareTests.cs", "seq": 237, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035976.48198, "kind": "claim", "path": "tests/CfdWorkbench.Desktop.Tests/ControllerShellOneDriveTests.cs", "seq": 238, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035976.6754985, "kind": "claim", "path": "DESIGN.md", "seq": 239, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035976.875251, "kind": "claim", "path": "docs/proof/st-store-codes", "seq": 240, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035977.0632284, "kind": "claim", "path": "docs/design/application-contracts.md", "seq": 241, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035977.2592626, "kind": "claim", "path": "docs/architecture/application.md", "seq": 242, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793035977.4567442, "kind": "claim", "path": "docs/plans/st-dispatch1.md", "seq": 243, "session": "st", "ttl": 300.0, "wi": "st"}
+{"agent": "st", "at": 1793036067.114101, "kind": "release", "path": "src/CfdWorkbench.Persistence", "seq": 244, "session": "st", "wi": "st"}
+{"agent": "st", "at": 1793036067.2581494, "kind": "release", "path": "src/CfdWorkbench.Desktop/OpenOutcome.cs", "seq": 245, "session": "st", "wi": "st"}
+{"agent": "st", "at": 1793036067.401435, "kind": "release", "path": "src/CfdWorkbench.Desktop/Panes/StartView.axaml.cs", "seq": 246, "session": "st", "wi": "st"}
+{"agent": "st", "at": 1793036067.5481462, "kind": "release", "path": "src/CfdWorkbench.Desktop/WorkbenchController.cs", "seq": 247, "session": "st", "wi": "st"}
+{"agent": "st", "at": 1793036067.6950655, "kind": "release", "path": "src/CfdWorkbench.Analysis/Labels.cs", "seq": 248, "session": "st", "wi": "st"}
+{"agent": "st", "at": 1793036067.8457954, "kind": "release", "path": "tests/CfdWorkbench.Core.Tests/SectionLibraryTests.cs", "seq": 249, "session": "st", "wi": "st"}
+{"agent": "st", "at": 1793036067.985194, "kind": "release", "path": "tests/CfdWorkbench.Core.Tests/PreferenceStoreTests.cs", "seq": 250, "session": "st", "wi": "st"}
+{"agent": "st", "at": 1793036068.131457, "kind": "release", "path": "tests/CfdWorkbench.Core.Tests/WindowsProjectStoreTests.cs", "seq": 251, "session": "st", "wi": "st"}
+{"agent": "st", "at": 1793036068.2777786, "kind": "release", "path": "tests/CfdWorkbench.Desktop.Tests/StoreCodeSurfaceTests.cs", "seq": 252, "session": "st", "wi": "st"}
+{"agent": "st", "at": 1793036068.4179125, "kind": "release", "path": "tests/CfdWorkbench.Analysis.Tests/CompareTests.cs", "seq": 253, "session": "st", "wi": "st"}
+{"agent": "st", "at": 1793036068.5644095, "kind": "release", "path": "tests/CfdWorkbench.Desktop.Tests/ControllerShellOneDriveTests.cs", "seq": 254, "session": "st", "wi": "st"}
+{"agent": "st", "at": 1793036068.7098842, "kind": "release", "path": "DESIGN.md", "seq": 255, "session": "st", "wi": "st"}
+{"agent": "st", "at": 1793036068.853763, "kind": "release", "path": "docs/proof/st-store-codes", "seq": 256, "session": "st", "wi": "st"}
+{"agent": "st", "at": 1793036068.9899914, "kind": "release", "path": "docs/design/application-contracts.md", "seq": 257, "session": "st", "wi": "st"}
+{"agent": "st", "at": 1793036069.1408293, "kind": "release", "path": "docs/architecture/application.md", "seq": 258, "session": "st", "wi": "st"}
+{"agent": "st", "at": 1793036069.2896154, "kind": "release", "path": "docs/plans/st-dispatch1.md", "seq": 259, "session": "st", "wi": "st"}

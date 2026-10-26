@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-26T17:37:43Z",
+  "generated": "2026-10-26T17:43:20Z",
   "audit": [
     {
       "actor": null,
@@ -43818,6 +43818,33 @@ window.AUDIT_DATA = {
       "tags": [],
       "tier": "T1",
       "tool": null
+    },
+    {
+      "id": "al-01M5WMYHCQB09C2JT4DSNAV1RD",
+      "shortname": "join-w3-st",
+      "datetime": "2026-10-26T17:43:20Z",
+      "session": "wave3-coordinator",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "ST (Codex gpt-6.1-sol, 3 dispatches + repair): DOC-UNSUPPORTED-PLATFORM and DOC-NOT-A-FILE to every surface (CLI exit 3, Warning, StartView, session-only prefs, SectionLibrary); non-NTFS remedy names the drive only for a non-NTFS cause; 267 kept PERSISTENCE; 4395 mapped; File.Exists off the dispatcher; store.* operation per action; COPY-644 superseded by COPY-125; preference ownership fail-closed; owner check before DACL on one handle (runtime test, three mutants red); COPY-677..680 proposed; item 8 NOT DONE under Ruling 267; review ACCEPT-WITH-CONDITIONS, all met; defect-classes.md conflict resolved keeping both sides; a brief-path leak redacted from two audit prompts recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "ST on main",
+      "done_when": "ring green, ten gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-26T17:38:17Z",
+      "duration_seconds": 303.0
     }
   ],
   "changes": [
