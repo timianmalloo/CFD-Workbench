@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-26T15:43:32Z",
+  "generated": "2026-10-26T15:55:28Z",
   "audit": [
     {
       "actor": null,
@@ -43204,6 +43204,31 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-10-26T15:33:04Z",
       "duration_seconds": 627.0
+    },
+    {
+      "id": "al-01M5WES0RVD5TNBW3W2PHNHF9G",
+      "shortname": "st-dispatch1-boundary-stop",
+      "datetime": "2026-10-26T15:55:28Z",
+      "session": "st",
+      "prompt": "You are the ST coder for wave 3 (session st), running as Codex. The coordinator approved the briefs boundary correction: you own the new file tests/CfdWorkbench.Desktop.Tests/StoreCodeSurfaceTests.cs, the Cli check in tests/CfdWorkbench.Cli.Tests/, and one wiring line in the --controller-shell block of tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs. Work only in this directory (D:/Projects/CFD-Workbench-w3-st-store-copy). Brief ST, dispatch 1 of 2: items 1-5, red first, then green, then run-tests.sh. Existing assertions on DOC-UNSUPPORTED-PERSISTENCE that the split changes: ControllerShellTests.cs store-code assertion is yours; any other that must change, stop and report it.",
+      "summary": "Stopped before implementation under the explicit assertion-boundary rule. Verified WindowsProjectStoreTests.cs:715 expects DOC-UNSUPPORTED-PERSISTENCE for a directory leaf (required new code DOC-NOT-A-FILE); ProjectStoreTests.cs:40-41 expects DOC-UNSUPPORTED-PERSISTENCE for missing/unloadable helper (required new code DOC-UNSUPPORTED-PLATFORM). No source/test/copy edits, no tests run, unused StoreCodeSurfaceTests claim released. Doctor: registry/merge drivers/requests OK, leader released epoch 5, heartbeat stale (3 stalled sessions), no lease overlap. Existing assigned branch w3-st-store-copy retained; no other tree accessed. Optimization selected five serial red-green increments then full suite, but boundary gate stopped before increment 1.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "blocked",
+      "compiled": false,
+      "goal": "Items 1-5 of the ST row: split store codes, drive remedy, Win32 mapping, off-dispatcher probe, Operation telemetry.",
+      "done_when": "Items 1-5 each have red and green evidence and run-tests.sh is green, or stop and report an assertion boundary that the brief prohibits crossing.",
+      "tier": "T1",
+      "main_calls": 9,
+      "main_budget": 45,
+      "main_over_budget": false,
+      "fan_out": 1,
+      "started_at": "2026-10-26T15:53:21Z",
+      "duration_seconds": 127.0
     }
   ],
   "changes": [
