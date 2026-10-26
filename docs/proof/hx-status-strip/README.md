@@ -22,3 +22,20 @@ reached). Forced timing: a 2000 ms delay between the command and the report turn
 Result (Release, two runs, 0 foreign test processes before; 1 Desktop test process in the listing after the second run):
 median about 60 ms (60.1 and 60.6), cold first read 99.3 ms (at the 100 ms limit), later reads 58-66 ms with one 81.5 ms.
 Against the 100 ms rule: under at the median, at the limit on a cold read. `AuthoringSession.cs` is unchanged.
+
+## The 20 repeats alone (main session, 2026-10-26)
+
+Run by the main session `wave3-coordinator` with no coder running, after a Debug build of HX head 0a80976f:
+`bash docs/proof/hx-status-strip/repeat20.sh`. Output:
+
+```text
+foreign before:
+0
+0
+REPEATS pass=20 fail=0
+foreign after:
+0
+0
+```
+
+Verdict: 20 of 20 PASS alone; 0 foreign Desktop or testhost processes before and after. This meets the review blocker (finding 1).

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# HX item 4(d): the status-strip check 20 times through the Desktop exe, alone. Run from the tree root. Not committed.
+# HX item 4(d): the status-strip check 20 times through the Desktop exe, alone. Run from the tree root.
 exe=tests/CfdWorkbench.Desktop.Tests/bin/Debug/net10.0/CfdWorkbench.Desktop.Tests.exe
 echo "foreign before:"; tasklist.exe //FI "IMAGENAME eq CfdWorkbench.Desktop.Tests.exe" | grep -c "CfdWorkbench.Desktop" ; tasklist.exe //FI "IMAGENAME eq testhost.exe" | grep -c "testhost"
 pass=0; fail=0
