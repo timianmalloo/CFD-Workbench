@@ -488,4 +488,6 @@ public static class Labels
     public const string CatalogTagNotInBuild = "not in this build"; // COPY-647
     public const string CatalogTagPending = "pending"; // COPY-648
     public const string CatalogTagCiteOnly = "cite only"; // COPY-649
+    public const string CatalogPreviewFault = "The preview couldn't be computed. Nothing changed."; // COPY-650
+    public const string CatalogFittingThenReplace = "Fitting… Replace will follow."; // COPY-651
 }

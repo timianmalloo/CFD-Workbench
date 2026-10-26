@@ -2088,6 +2088,10 @@ public sealed class WorkbenchController : IDisposable
     /// <summary>The contract error of the latest preview when it refused; null when a preview is showing or none was asked.</summary>
     public ContractError? PreviewFault { get; private set; }
 
+    // The latest PreviewReplace ticket, and that ticket again when a section step made its fit stale (UI thread only).
+    private int previewRequestTicket;
+    private int previewStaleTicket;
+
     public CatalogSnapshot? OpenedCatalog { get; private set; }
 
     /// <summary>DLG repaints the dashed preview. The shell subscribes and does not rebuild panes.</summary>
@@ -2152,11 +2156,31 @@ public sealed class WorkbenchController : IDisposable
 
     public void ClearCatalogPreview() => ClearReplacePreview();
 
-    public void RecordCatalogSelect(CatalogChoice choice) { }
+    /// <summary>Records <c>catalog.select</c> for the row the sheet made active: choosable, disabled or damaged.</summary>
+    public void RecordCatalogSelect(CatalogChoice choice) => RecordCatalogSheet("catalog.select", choice switch
+    {
+        CatalogChoice.Damaged => "damaged",
+        CatalogChoice.Catalog { Entry.DisabledReason: not null } => "disabled",
+        _ => "choosable"
+    });
 
-    public Task ApplyCatalogAsync(ReplaceScope scope) => ApplyReplaceAsync(scope);
+    /// <summary>The sheet's Replace: applies the landed preview and records <c>catalog.apply</c> applied or refused.</summary>
+    public async Task ApplyCatalogAsync(ReplaceScope scope)
+    {
+        try { await ApplyReplaceAsync(scope); }
+        catch (ContractError)
+        {
+            RecordCatalogSheet("catalog.apply", "refused");
+            throw;
+        }
+        RecordCatalogSheet("catalog.apply", "applied");
+    }
 
-    public void RecordCatalogApplyDropped() { }
+    /// <summary>Records <c>catalog.apply</c> dropped-fitting: an Enter armed during the fit was cleared before the preview landed.</summary>
+    public void RecordCatalogApplyDropped() => RecordCatalogSheet("catalog.apply", "dropped-fitting");
+
+    private void RecordCatalogSheet(string operation, string outcome) =>
+        session.RecordCatalog(new(operation, outcome, null, null, null, null, null, null, null, null));
 
     /// <summary>
     /// One preview at a time, off the UI thread. A newer choice replaces the one waiting; the in-flight result is dropped
@@ -2167,6 +2191,8 @@ public sealed class WorkbenchController : IDisposable
         if (RefuseAnalysisEdit()) throw new ContractError("ANA-EDIT-INERT", AnalysisPointRefusal);
         if (Section is null) throw new ContractError("DSL-DRAFT-OWNED");
         int ticket = Interlocked.Increment(ref previewTicket);
+        previewRequestTicket = ticket;
+        previewStaleTicket = 0;
         CurrentPreview = null;
         RefusedPreview = null;
         PreviewChoice = null;
@@ -2319,6 +2345,9 @@ public sealed class WorkbenchController : IDisposable
             bool ticketLatest = ticket == Volatile.Read(ref previewTicket) && !disposed && Section is not null;
             bool sameDraft = ticketLatest && draftId is not null
                 && Section!.Draft.DraftId == draftId && Section.Draft.Generation == generation;
+            // A section step during the fit superseded this ticket without a newer request: report it, never drop it silently.
+            bool staleByStep = !ticketLatest && ticket == previewStaleTicket && ticket == previewRequestTicket
+                && !disposed && Section is not null;
             bool refused = fault is not null || preview?.RefusalCode is not null;
             if (sameDraft && preview is not null && !refused)
             {
@@ -2332,14 +2361,13 @@ public sealed class WorkbenchController : IDisposable
                 PreviewLandings++;
                 PreviewChanged?.Invoke();
             }
-            else if (ticketLatest)
+            else if (ticketLatest || staleByStep)
             {
                 CurrentPreview = null;
                 RefusedPreview = sameDraft && preview?.RefusalCode is not null && preview.RefusedBytes is not null ? preview : null;
                 PreviewChoice = null;
                 PreviewSourceName = null;
-                PreviewFault = fault as ContractError
-                    ?? (preview?.RefusalCode is { } code ? new ContractError(code, preview.RefusalReason ?? code) : null);
+                PreviewFault = FitFault(fault, preview, sameDraft);
                 previewDraftId = null;
                 previewGeneration = 0;
                 PreviewDrops++;
@@ -2353,6 +2381,15 @@ public sealed class WorkbenchController : IDisposable
             else Interlocked.Exchange(ref previewBusy, 0);
         }
     }
+
+    /// <summary>Every fit that does not land names its reason: the contract error, a fault, a stale draft, or the refusal.</summary>
+    private static ContractError? FitFault(Exception? fault, ReplacePreview? preview, bool sameDraft) => fault switch
+    {
+        ContractError contract => contract,
+        not null => new ContractError("CAT-PREVIEW-FAULT", Labels.CatalogPreviewFault),
+        null when !sameDraft => new ContractError("DSL-STALE", Labels.Refusal("DSL-STALE")),
+        _ => preview?.RefusalCode is { } code ? new ContractError(code, preview.RefusalReason ?? code) : null
+    };
 
     private static ReplaceSource SourceOf(CatalogChoice choice) => choice switch
     {
@@ -2392,6 +2429,8 @@ public sealed class WorkbenchController : IDisposable
     {
         Interlocked.Increment(ref previewTicket);
         previewWaiting = null;
+        // keepApplyTarget is the section-step clear: a fit still running is now stale and FinishPreview says so.
+        previewStaleTicket = keepApplyTarget && PreviewPending ? previewRequestTicket : 0;
         bool had = CurrentPreview is not null || RefusedPreview is not null || PreviewSourceName is not null || PreviewFault is not null
             || (!keepApplyTarget && PreviewChoice is not null);
         CurrentPreview = null;
