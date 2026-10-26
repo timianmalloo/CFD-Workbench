@@ -6076,7 +6076,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "686f8af3a5140b4f19ac3e707a4d1a7aa8185a632309789494432711b4d01fc1"
+      "sourceSha256": "5106239acc62eb0ec788d2485ea6b7fbf85cb264c8ba3c0b4daaa5657178c709"
     },
     {
       "id": "domain-experts",
@@ -9888,7 +9888,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d8854c3941676091c67ebcf93cde57b9f00dac25d982ae8a4a664bc5324cfcf2"
+      "sourceSha256": "6b0d21d2fec89e0dcd942777cd05ef5b66e39b9cebd159f2ecb7c50ba574effe"
     },
     {
       "id": "kb-hw-glossary",
@@ -15038,6 +15038,33 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "359ef932076656929ed94883a87e19a8f3c1b7017f90075ca322673b5e509049"
+    },
+    {
+      "id": "proof-craft-gate-scanned-types",
+      "path": "docs/proof/craft-gate-scanned-types/README.md",
+      "title": "Craft gate scanned types: what Impeccable 0.1.16 reads, and the Save dialog error state",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@pc-laptop-leader",
+      "phase": "wave4",
+      "reviewBy": "",
+      "reviewSuggested": [],
+      "summary": "The detector walks 13 web file types and skips node_modules, dist, build, __pycache__ and dot-folders; Avalonia XAML matches no rule, so ui-craft-gate.py now refuses it. The Save-section name error is drawn per DR-CELL-3, for name refusals only, and both new checks were seen red first and their mutants fail.",
+      "tags": [
+        "ui-craft-gate",
+        "impeccable",
+        "avalonia",
+        "accessibility",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e6fe2a4ad340c926ea58344dbff38d08bdae868dc757e9b573e27608adacfb12"
     },
     {
       "id": "proof-crd-red-first",
@@ -24559,5 +24586,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "8ddf233e8a811d89386edca974cf6ef816ea7365dd90feae9119b0a5bd180977"
+  "graphSha256": "2bc1cce0e1ca527d06e22eb78b6d3413dff4a546f6838960f80df343b1d4554f"
 };

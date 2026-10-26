@@ -778,8 +778,8 @@ public static class ControllerSectionTests
         // above) and requires each item whose ItemStatus is disabled/invalid to carry the matching style class. The library
         // holds one damaged file so the catalog states a damaged My-sections row next to the pending catalog rows.
         // Scope: the opening state of every Modal sheet only, not post-interaction states and not popovers.
-        // Follow-up (not covered): SaveSectionDialog.ShowError (SaveSectionDialog.axaml.cs:97) sets ItemStatus "invalid" on
-        // NameBox with no class, after an interaction, so this sweep cannot reach it.
+        // The Save dialog's name error appears only after an interaction, so SaveDialog_Error_RenderedThenClearedOnRetry
+        // (CatalogDialogTests) covers it, not this sweep.
         DesktopChecks.Check("AutomationState_HasRenderedState", () =>
         {
             string root = BindRoot();
