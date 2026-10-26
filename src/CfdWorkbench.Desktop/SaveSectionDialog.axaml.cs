@@ -61,7 +61,7 @@ public partial class SaveSectionDialog : Window
         saving = true;
         SaveButton.IsEnabled = false;
         SaveButton.Content = "Saving…";
-        SaveError.IsVisible = false;
+        ClearError();
         try
         {
             await save(name);
@@ -97,8 +97,24 @@ public partial class SaveSectionDialog : Window
     {
         SaveError.Text = copy;
         SaveError.IsVisible = true;
+        SetInvalid(true);
         AutomationProperties.SetItemStatus(NameBox, "invalid");
         AutomationProperties.SetHelpText(NameBox, copy);
         NameBox.Focus();
+    }
+
+    private void ClearError()
+    {
+        SaveError.IsVisible = false;
+        SetInvalid(false);
+        NameBox.ClearValue(AutomationProperties.ItemStatusProperty);
+        NameBox.ClearValue(AutomationProperties.HelpTextProperty);
+    }
+
+    // The stated error and the drawn one move together (class STATE-IN-AUTOMATION-TREE-ONLY).
+    private void SetInvalid(bool invalid)
+    {
+        NameBox.Classes.Set("invalid", invalid);
+        NameRing.Classes.Set("invalid", invalid);
     }
 }

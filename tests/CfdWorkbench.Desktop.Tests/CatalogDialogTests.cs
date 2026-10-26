@@ -45,6 +45,7 @@ public static class CatalogDialogTests
         DesktopChecks.Check("CatalogDialog_DamagedLibraryRow_DisabledWithReason", CheckDamagedRow);
         DesktopChecks.Check("CatalogDialog_NonChoosableRow_RenderedDistinct", CheckNonChoosableRendered);
         DesktopChecks.Check("SaveDialog_UnsupportedPersistence_ExplainsSafety", CheckUnsupportedSave);
+        DesktopChecks.Check("SaveDialog_Error_RenderedThenClearedOnRetry", CheckSaveErrorRendered);
         DesktopChecks.Check("Properties_StationSource_UsesProfileProvenance", CheckStationSource);
     }
 
@@ -344,6 +345,55 @@ public static class CatalogDialogTests
 
     private static TextBlock LeafText(ListBoxItem item) =>
         item.Content as TextBlock ?? throw new Exception($"Row {item.Content} has no leaf TextBlock");
+
+    // Class STATE-IN-AUTOMATION-TREE-ONLY after an interaction: the name error the field states to assistive technology is
+    // drawn too (DR-CELL-3: focused, the accent box with the danger box outside it; unfocused, the danger box only), and the
+    // next attempt clears the stated and the drawn error together.
+    private static void CheckSaveErrorRendered()
+    {
+        using var controller = new WorkbenchController();
+        Wait(controller.OpenExampleAsync());
+        Wait(controller.EnterSectionAsync(0, EntryOrigin.Palette));
+        var pending = new TaskCompletionSource();
+        var dialog = new SaveSectionDialog(controller, _ => pending.Task);
+        dialog.Show();
+        Dispatcher.UIThread.RunJobs();
+        try
+        {
+            var input = Need<TextBox>(dialog, "NameBox");
+            var ring = Need<Border>(dialog, "NameRing");
+            Color danger = dialog.TryFindResource("DangerBrush", dialog.ActualThemeVariant, out var value) && value is ISolidColorBrush brush
+                ? brush.Color : throw new Exception("DangerBrush not found");
+            Color? RingColor() => (ring.BorderBrush as ISolidColorBrush)?.Color;
+            Color? BoxColor() => (Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(input).OfType<Border>()
+                .Single(part => part.Name == "PART_BorderElement").BorderBrush as ISolidColorBrush)?.Color;
+            Require(RingColor() != danger, $"Name shows a danger ring before any error: {RingColor()}");
+
+            input.Text = " ";
+            Wait(dialog.SaveAsync());
+            Dispatcher.UIThread.RunJobs();
+            Require(input.IsFocused && AutomationProperties.GetItemStatus(input) == "invalid" && input.Classes.Contains("invalid"),
+                $"Empty name stated without the invalid class: focused={input.IsFocused}, status={AutomationProperties.GetItemStatus(input)}, " +
+                $"class={string.Join(",", input.Classes)}");
+            Require(RingColor() == danger && BoxColor() is { A: > 0 } focusBox && focusBox != danger,
+                $"Focused error is not the accent box inside a danger box: ring={RingColor()}, box={BoxColor()}");
+
+            Need<Button>(dialog, "CancelButton").Focus();
+            Dispatcher.UIThread.RunJobs();
+            Require(RingColor() == danger && BoxColor() is null or { A: 0 },
+                $"Unfocused error is not the danger box only: ring={RingColor()}, box={BoxColor()}");
+
+            input.Text = "Kite tip";
+            var retry = dialog.SaveAsync();
+            Dispatcher.UIThread.RunJobs();
+            Require(AutomationProperties.GetItemStatus(input) is null && AutomationProperties.GetHelpText(input) is null &&
+                !input.Classes.Contains("invalid") && RingColor() != danger,
+                $"Retry kept the old error: status={AutomationProperties.GetItemStatus(input)}, class={string.Join(",", input.Classes)}, ring={RingColor()}");
+            pending.SetResult();
+            Wait(retry);
+        }
+        finally { dialog.Close(); }
+    }
 
     private static void CheckUnsupportedSave()
     {

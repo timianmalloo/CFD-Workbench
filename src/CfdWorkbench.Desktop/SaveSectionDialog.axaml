@@ -2,11 +2,20 @@
         x:Class="CfdWorkbench.Desktop.SaveSectionDialog" Title="Save to My sections"
         Width="{StaticResource ToastWidth}" SizeToContent="Height" CanResize="False"
         Background="{DynamicResource SurfaceBrush}" Foreground="{DynamicResource InkBrush}">
+  <!-- A name error (DR-CELL-3): focused, the field keeps its accent box and the danger box is drawn 1 px outside it;
+       unfocused, the danger box only. The transparent ring is always there, so the error moves nothing. -->
+  <Window.Styles>
+    <Style Selector="Border.field-ring"><Setter Property="Padding" Value="{StaticResource PropErrorRingInset}" /><Setter Property="BorderThickness" Value="{StaticResource HairlineThickness}" /><Setter Property="BorderBrush" Value="Transparent" /></Style>
+    <Style Selector="Border.field-ring.invalid"><Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}" /></Style>
+    <Style Selector="TextBox.invalid:not(:focus) /template/ Border#PART_BorderElement, TextBox.invalid:not(:focus):pointerover /template/ Border#PART_BorderElement"><Setter Property="BorderBrush" Value="Transparent" /></Style>
+  </Window.Styles>
   <Border Padding="{StaticResource Space3}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource HairlineThickness}">
     <StackPanel Spacing="8">
       <TextBlock Classes="heading" Text="Save to My sections" />
       <TextBlock Text="Name" />
-      <TextBox x:Name="NameBox" AutomationProperties.Name="Section name" />
+      <Border x:Name="NameRing" Classes="field-ring">
+        <TextBox x:Name="NameBox" AutomationProperties.Name="Section name" />
+      </Border>
       <TextBlock x:Name="ProvenanceLine" TextWrapping="Wrap" />
       <TextBlock x:Name="RightsLine" TextWrapping="Wrap" />
       <TextBlock x:Name="SaveError" TextWrapping="Wrap" Foreground="{DynamicResource DangerBrush}"
