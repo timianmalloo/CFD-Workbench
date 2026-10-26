@@ -341,7 +341,7 @@ internal static unsafe partial class WindowsNative
         }
     }
 
-    private static bool OwnedByCurrentUser(string path)
+    internal static bool OwnedByCurrentUser(string path)
     {
         using var handle = CreateFileW(path, ReadControl, ShareRead | ShareWrite | ShareDelete, 0, OpenExisting,
             BackupSemantics | OpenReparsePoint, 0);

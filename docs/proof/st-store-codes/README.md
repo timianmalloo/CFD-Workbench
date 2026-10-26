@@ -42,6 +42,15 @@ PASS StoreCodes_SaveSection_UnadmittedHost_UsesSystemSentence
 
 The first build attempt was blocked by a leftover Desktop.Tests process (PID 9064). Its executable path was verified as this tree's test apphost before termination. The stale apphost's SELECTOR failure is not the red proof above.
 
+### 9 — preference load ownership
+
+The real Windows system directory supplies a foreign-owned folder without elevation. Layout, recent, text size, units and comb loads must all return session-only. Subsequent layout/display saves must remain session-only, the store factory must never run, and the folder's owner/DACL must remain equal. The load check applies to both the installation root and each preference subfolder. Missing folders keep first-run behaviour; owner-probe I/O/access failures fail closed. macOS keeps its existing admission (this item concerns Windows ownership).
+
+```text
+FAIL PrefStore_ForeignOwnedFolder_LoadIsSessionOnly_NoWrite InvalidOperationException: Expected True; actual False
+PASS PrefStore_ForeignOwnedFolder_LoadIsSessionOnly_NoWrite
+```
+
 Verified on Windows. Reproduce focused green checks with `bash docs/proof/st-store-codes/run.sh`.
 The CLI harness has the coordinator-reported environment defect: its sleeping child cannot resolve ping through the over-long User PATH. It is outside ST's scope.
 

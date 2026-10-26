@@ -176,7 +176,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
     {
         registered = registeredPanes ?? new HashSet<string>(StringComparer.Ordinal);
         var presets = LayoutCodec.Presets(WorkspaceId.Planform, registered);
-        if (Linked(root) || Linked(LayoutDir))
+        if (UnsafeForLoad(root) || UnsafeForLoad(LayoutDir))
         {
             layoutSession = true;
             lastActive = presets.Active;
@@ -237,7 +237,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
 
     public async Task<RecentLoad> LoadRecentAsync(CancellationToken ct)
     {
-        if (Linked(root) || Linked(RecentDir))
+        if (UnsafeForLoad(root) || UnsafeForLoad(RecentDir))
         {
             recentSession = true;
             return new RecentLoad([], "session-only", ["LAYOUT-SESSION-ONLY"], true, true, null);
@@ -514,7 +514,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
     private async Task<TextSizeLoad> LoadTextSizeCore(CancellationToken ct)
     {
         const int fallback = DisplayPreferences.DefaultTextSize;
-        if (Linked(root) || Linked(DisplayDir))
+        if (UnsafeForLoad(root) || UnsafeForLoad(DisplayDir))
         {
             displaySession = true;
             return new TextSizeLoad(fallback, "session-only", ["LAYOUT-SESSION-ONLY"], true, true, null);
@@ -701,6 +701,16 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
         Directory.CreateDirectory(path);
         File.SetUnixFileMode(path, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
         return true;
+    }
+
+    // Read-only admission: never tighten an ACL while loading. A failed owner probe fails closed.
+    private static bool UnsafeForLoad(string path)
+    {
+        try
+        {
+            return Linked(path) || OperatingSystem.IsWindows() && Directory.Exists(path) && !WindowsNative.OwnedByCurrentUser(path);
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException) { return true; }
     }
 
     private static bool Linked(string path)

@@ -41,6 +41,7 @@ internal static class PreferenceStoreTests
         Check("PrefStore_DirectoryLink_WindowsBranchUsesJunction", DirectoryLinkWindowsBranch);
         Check("PrefStore_ExistingInheritedFolder_BecomesPrivateOnSave", ExistingFolderTightened);
         Check("PrefStore_ForeignOwnedFolder_LeftUnchanged", ForeignOwnerLeftUnchanged);
+        Check("PrefStore_ForeignOwnedFolder_LoadIsSessionOnly_NoWrite", ForeignOwnerLoad);
         Check("PrefStore_NewFolder_PrivateAtCreation", NewFolderPrivateAtCreation);
         RunView();
     }
@@ -690,6 +691,28 @@ internal static class PreferenceStoreTests
     }
 
     /// <summary>A folder owned by someone else is left as it is and reported (false); the system folder is owned by the OS, not the user.</summary>
+    private static void ForeignOwnerLoad()
+    {
+        if (!OperatingSystem.IsWindows()) { Console.WriteLine("NOT ASSESSED foreign-owner load: Windows owner probe"); return; }
+        // Existing system folder: a real foreign owner, no elevation or ownership mutation.
+        string foreign = Environment.GetFolderPath(Environment.SpecialFolder.System);
+        string before = ForeignDacl(foreign);
+        int stores = 0;
+        var prefs = new PreferenceStore(foreign, () => { stores++; return new ProjectStore(); });
+        var layout = Wait(prefs.LoadLayoutAsync(LayoutFileTests.Panes(), default));
+        Equal(true, layout.SessionOnly);
+        Equal(true, Wait(prefs.LoadRecentAsync(default)).SessionOnly);
+        Equal(true, Wait(prefs.LoadTextSizeAsync(default)).SessionOnly);
+        Equal(true, Wait(prefs.LoadUnitsAsync(default)).SessionOnly);
+        Equal(true, Wait(prefs.LoadCombViewAsync(default)).SessionOnly);
+        Equal("session-only", Wait(prefs.SaveLayoutAsync(() => layout.Layout, new HashSet<string>(["planform"]), default)).Outcome);
+        Equal("session-only", Wait(prefs.SaveTextSizeAsync(125, default)).Outcome);
+        Equal("session-only", Wait(prefs.SaveUnitsAsync(DisplayPreferences.Imperial, default)).Outcome);
+        Equal("session-only", Wait(prefs.SaveCombViewAsync(5, 64, true, default)).Outcome);
+        Equal(0, stores);
+        Equal(before, ForeignDacl(foreign));
+    }
+
     private static void ForeignOwnerLeftUnchanged()
     {
         if (!OperatingSystem.IsWindows()) { Console.WriteLine("NOT ASSESSED foreign-owner: ownership by another account is a Windows fact"); return; }
