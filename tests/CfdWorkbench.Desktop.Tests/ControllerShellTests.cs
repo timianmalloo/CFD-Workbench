@@ -73,20 +73,23 @@ public static class ControllerShellTests
             // STATUS-CLOBBER at the strip (docs/reviews/ui-status-bar.md §2.3): a report the strip shows from outside the
             // controller while sampling runs (a Properties report) supersedes the sampling placeholder, so the completion does
             // not replace it. The shell's sink does exactly this for every such report.
-            using var controller = new WorkbenchController();
-            controller.OpenExampleAsync().GetAwaiter().GetResult();
-            var point = controller.Planform!.Trailing.Points.First(item => item.Role == PointRole.Control);
-            controller.ApplyPointCommandAsync(new PointCommand.MakeAnchor(point.Curve, point.Id)).GetAwaiter().GetResult();
-            Require(controller.Status.StartsWith("Sampling accepted geometry", StringComparison.Ordinal),
-                "setup: sampling finished before the report: " + controller.Status);
-            dynamic strip = controller;   // by name, so the check ran red before the API existed
-            strip.SupersedeStatus();
-            long shown = (long)strip.StatusVersion;
-            var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(8);
-            while (controller.Provenance != "accepted" && DateTime.UtcNow < deadline) Thread.Sleep(5);
-            Require(controller.Provenance == "accepted", "sampling did not finish: " + controller.Provenance);
-            Require((long)strip.StatusVersion == shown && !controller.Status.StartsWith("Accepted η", StringComparison.Ordinal),
-                $"the sampling completion replaced the newer report: '{controller.Status}'");
+            // HX (B5): the sampling runs beside this setup, so under load it can finish before the report is shown. That ordering is
+            // not the defect; the old setup Require failed on it. An attempt where the sampling won is inconclusive and is repeated.
+            for (int attempt = 0; attempt < 20; attempt++)
+                if (SupersedeAttempt(null) == SupersedeOutcome.SupersededFirst) return;
+            throw new InvalidOperationException("the sampling finished before the report in all 20 attempts: the check never saw the interleaving it guards");
+        });
+
+        // HX (B5): the other interleaving, forced. The hook waits for the completion to write its report, so the report comes after it; the
+        // slot must then be unchanged by the report (no write follows it) and the attempt reads as inconclusive, never as a failure.
+        DesktopChecks.Check("StatusStrip_BackgroundCompletion_FinishedFirst_ReadsInconclusiveNotRed", () =>
+        {
+            var outcome = SupersedeAttempt(controller =>
+            {
+                var finished = DateTime.UtcNow + TimeSpan.FromSeconds(8);
+                while (!controller.Status.StartsWith("Accepted η", StringComparison.Ordinal) && DateTime.UtcNow < finished) Thread.Sleep(5);
+            });
+            Require(outcome == SupersedeOutcome.CompletedFirst, "forced completion-first ordering read as " + outcome);
         });
 
         DesktopChecks.Check("ApplySpan_EdgesCross_Refused", () =>
@@ -604,6 +607,25 @@ public static class ControllerShellTests
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException(message);
+    }
+
+    private enum SupersedeOutcome { SupersededFirst, CompletedFirst }
+
+    /// <summary>One run of the STATUS-CLOBBER scenario. Throws if the sampling completion wrote after the report; otherwise says which came first.</summary>
+    private static SupersedeOutcome SupersedeAttempt(Action<WorkbenchController>? betweenCommandAndReport)
+    {
+        using var controller = new WorkbenchController();
+        controller.OpenExampleAsync().GetAwaiter().GetResult();
+        var point = controller.Planform!.Trailing.Points.First(item => item.Role == PointRole.Control);
+        controller.ApplyPointCommandAsync(new PointCommand.MakeAnchor(point.Curve, point.Id)).GetAwaiter().GetResult();
+        betweenCommandAndReport?.Invoke(controller);
+        long shown = controller.SupersedeStatus();   // the version the report took, in the same locked step
+        var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(8);
+        while (controller.Provenance != "accepted" && DateTime.UtcNow < deadline) Thread.Sleep(5);
+        Require(controller.Provenance == "accepted", "sampling did not finish: " + controller.Provenance);
+        // Every slot write moves the version, so a completion that wrote after the report leaves it above the value the report took.
+        Require(controller.StatusVersion == shown, $"the sampling completion replaced the newer report: '{controller.Status}'");
+        return controller.Status.StartsWith("Accepted η", StringComparison.Ordinal) ? SupersedeOutcome.CompletedFirst : SupersedeOutcome.SupersededFirst;
     }
 
     private static string RepoRootFromSource([System.Runtime.CompilerServices.CallerFilePath] string self = "") =>
