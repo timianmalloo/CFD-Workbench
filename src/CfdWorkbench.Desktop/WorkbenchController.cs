@@ -2088,9 +2088,11 @@ public sealed class WorkbenchController : IDisposable
     /// <summary>The contract error of the latest preview when it refused; null when a preview is showing or none was asked.</summary>
     public ContractError? PreviewFault { get; private set; }
 
-    // The latest PreviewReplace ticket, and that ticket again when a section step made its fit stale (UI thread only).
-    private int previewRequestTicket;
+    // The ticket of the fit in flight, and that ticket again when a section step made its fit stale (UI thread only).
+    private int previewRunningTicket;
     private int previewStaleTicket;
+    // The last catalog.select key recorded, so the sheet's auto-select on every keystroke records a row once (UI thread only).
+    private string? lastSelectKey;
 
     public CatalogSnapshot? OpenedCatalog { get; private set; }
 
@@ -2121,6 +2123,7 @@ public sealed class WorkbenchController : IDisposable
 
     public CatalogSnapshot OpenCatalog()
     {
+        lastSelectKey = null;
         var clock = Stopwatch.StartNew();
         IReadOnlyList<CatalogEntry> entries;
         string outcome;
@@ -2157,12 +2160,25 @@ public sealed class WorkbenchController : IDisposable
     public void ClearCatalogPreview() => ClearReplacePreview();
 
     /// <summary>Records <c>catalog.select</c> for the row the sheet made active: choosable, disabled or damaged.</summary>
-    public void RecordCatalogSelect(CatalogChoice choice) => RecordCatalogSheet("catalog.select", choice switch
+    /// A selection equal to the last one recorded is not recorded again.
+    public void RecordCatalogSelect(CatalogChoice choice)
     {
-        CatalogChoice.Damaged => "damaged",
-        CatalogChoice.Catalog { Entry.DisabledReason: not null } => "disabled",
-        _ => "choosable"
-    });
+        string key = choice switch
+        {
+            CatalogChoice.Catalog catalog => "catalog:" + catalog.Entry.Id,
+            CatalogChoice.Mine mine => "mine:" + mine.Entry.Name + ":" + mine.Entry.Hash,
+            CatalogChoice.Damaged damaged => "damaged:" + damaged.File,
+            _ => throw new ArgumentOutOfRangeException(nameof(choice))
+        };
+        if (key == lastSelectKey) return;
+        lastSelectKey = key;
+        RecordCatalogSheet("catalog.select", choice switch
+        {
+            CatalogChoice.Damaged => "damaged",
+            CatalogChoice.Catalog { Entry.DisabledReason: not null } => "disabled",
+            _ => "choosable"
+        });
+    }
 
     /// <summary>The sheet's Replace: applies the landed preview and records <c>catalog.apply</c> applied or refused.</summary>
     public async Task ApplyCatalogAsync(ReplaceScope scope)
@@ -2191,7 +2207,6 @@ public sealed class WorkbenchController : IDisposable
         if (RefuseAnalysisEdit()) throw new ContractError("ANA-EDIT-INERT", AnalysisPointRefusal);
         if (Section is null) throw new ContractError("DSL-DRAFT-OWNED");
         int ticket = Interlocked.Increment(ref previewTicket);
-        previewRequestTicket = ticket;
         previewStaleTicket = 0;
         CurrentPreview = null;
         RefusedPreview = null;
@@ -2286,6 +2301,7 @@ public sealed class WorkbenchController : IDisposable
 
     private void StartPreview(int ticket, CatalogChoice choice, ReplaceScope scope)
     {
+        previewRunningTicket = ticket;
         var mode = Section;
         if (mode is null)
         {
@@ -2346,8 +2362,7 @@ public sealed class WorkbenchController : IDisposable
             bool sameDraft = ticketLatest && draftId is not null
                 && Section!.Draft.DraftId == draftId && Section.Draft.Generation == generation;
             // A section step during the fit superseded this ticket without a newer request: report it, never drop it silently.
-            bool staleByStep = !ticketLatest && ticket == previewStaleTicket && ticket == previewRequestTicket
-                && !disposed && Section is not null;
+            bool staleByStep = !ticketLatest && ticket == previewStaleTicket && !disposed && Section is not null;
             bool refused = fault is not null || preview?.RefusalCode is not null;
             if (sameDraft && preview is not null && !refused)
             {
@@ -2429,8 +2444,9 @@ public sealed class WorkbenchController : IDisposable
     {
         Interlocked.Increment(ref previewTicket);
         previewWaiting = null;
-        // keepApplyTarget is the section-step clear: a fit still running is now stale and FinishPreview says so.
-        previewStaleTicket = keepApplyTarget && PreviewPending ? previewRequestTicket : 0;
+        // keepApplyTarget is the section-step clear: the fit in flight is now stale and FinishPreview says so,
+        // also when a queued choice was dropped here (the in-flight ticket, not the dropped one, lands).
+        previewStaleTicket = keepApplyTarget && PreviewPending ? previewRunningTicket : 0;
         bool had = CurrentPreview is not null || RefusedPreview is not null || PreviewSourceName is not null || PreviewFault is not null
             || (!keepApplyTarget && PreviewChoice is not null);
         CurrentPreview = null;
