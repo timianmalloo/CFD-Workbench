@@ -415,11 +415,11 @@ public static class Labels
     /// <summary>The strip sentence for a refused or failed foil save: one cause row per code family (COPY-412 to 423, Ruling 155). An unknown code gets the generic row, which still carries the code.</summary>
     // ---- ST: store codes and copy (wave 3) ----
     public const string OpenGone = "It isn't where it was — it may have been moved, renamed or deleted. The file hasn't been changed."; // COPY-125; file-name headline and actions are rendered by StartView
-    public const string OpenUnsupportedPlatform = "CFD Workbench can't open projects on this system. The file hasn't been changed."; // COPY-677 proposed
-    public const string OpenNotAFile = "This path is a folder. Choose a project file inside it. The folder hasn't been changed."; // COPY-678 proposed
-    public const string SaveNotAFile = "This path is a folder (DOC-NOT-A-FILE). Your changes are kept in this session. Use Save As to choose a project file name."; // COPY-679 proposed
+    public const string OpenUnsupportedPlatform = "CFD Workbench can't open projects on this system. The file hasn't been changed."; // COPY-677, approved Ruling 268
+    public const string OpenNotAFile = "This path is a folder. Choose a project file inside it. The folder hasn't been changed."; // COPY-678, approved Ruling 268
+    public const string SaveNotAFile = "This path is a folder (DOC-NOT-A-FILE). Your changes are kept in this session. Use Save As to choose a project file name."; // COPY-679, approved Ruling 268
     public static string DriveRemedy(string path) => path.Length >= 2 && char.IsAsciiLetter(path[0]) && path[1] == ':'
-        ? $" The refused path is on drive {path[..2]}. Choose a folder on a local NTFS drive." : ""; // COPY-680 proposed; appended to approved location copy
+        ? $" The refused path is on drive {path[..2]}. Choose a folder on a local NTFS drive." : ""; // COPY-680, approved Ruling 268; appended to approved location copy
     public static string SaveRefusal(string code, string path, string? unsupportedReason = null) => SaveRefusal(code) +
         (code == "DOC-UNSUPPORTED-PERSISTENCE" && unsupportedReason == "non-ntfs" && OperatingSystem.IsWindows() ? DriveRemedy(path) : "");
 
@@ -500,9 +500,9 @@ public static class Labels
     public static readonly string[] VectorKey = ["V∞", "Local inflow", "Lift", "Drag, profile (cap: Ncrit 2–4 band)", "Drag, induced", "Pitching-moment couple"]; // COPY-SF16
 
     // ---- SC1: catalog row states (wave 3, DR-INV-2 a) ----
-    public const string CatalogTagNotInBuild = "not in this build"; // COPY-647
-    public const string CatalogTagPending = "pending"; // COPY-648
-    public const string CatalogTagCiteOnly = "cite only"; // COPY-649
-    public const string CatalogPreviewFault = "The preview couldn't be computed. Nothing changed."; // COPY-650
-    public const string CatalogFittingThenReplace = "Fitting… Replace will follow."; // COPY-651
+    public const string CatalogTagNotInBuild = "not in this build"; // COPY-647, approved Ruling 268
+    public const string CatalogTagPending = "pending"; // COPY-648, approved Ruling 268
+    public const string CatalogTagCiteOnly = "cite only"; // COPY-649, approved Ruling 268
+    public const string CatalogPreviewFault = "The preview couldn't be computed. Nothing changed."; // COPY-650, approved Ruling 268
+    public const string CatalogFittingThenReplace = "Fitting… Replace will follow."; // COPY-651, approved Ruling 268
 }
