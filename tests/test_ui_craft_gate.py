@@ -59,6 +59,26 @@ class CraftGateTargetTests(unittest.TestCase):
         self.assertIn("nothing", err)
         self.assertFalse(self.ran.exists())
 
+    def test_readable_files_only_in_folders_the_walk_skips_are_refused(self):
+        # Measured on 0.1.16: the walk never enters node_modules, dist, build, __pycache__ or a dot-folder.
+        for folder in ("node_modules", "dist", "build", "__pycache__", ".cache"):
+            with self.subTest(folder=folder):
+                tree = self.dir / ("tree-" + folder.strip("._"))
+                (tree / folder).mkdir(parents=True)
+                (tree / folder / "site.css").write_text("x", encoding="utf-8")
+                code, err = self.run_gate(tree)
+                self.assertEqual(2, code)
+                self.assertFalse(self.ran.exists())
+
+    def test_a_missing_path_is_refused_and_a_url_goes_to_the_detector(self):
+        code, err = self.run_gate(self.dir / "absent.html")
+        self.assertEqual(2, code)
+        self.assertIn("does not exist", err)
+        self.assertFalse(self.ran.exists())
+        code, _ = self.run_gate("https://example.invalid/")
+        self.assertEqual(0, code)
+        self.assertTrue(self.ran.exists())
+
     def test_a_readable_file_runs_the_detector(self):
         code, _ = self.run_gate(self.write("site.css"))
         self.assertEqual(0, code)

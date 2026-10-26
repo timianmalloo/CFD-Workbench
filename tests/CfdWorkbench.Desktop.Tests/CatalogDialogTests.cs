@@ -362,12 +362,15 @@ public static class CatalogDialogTests
         {
             var input = Need<TextBox>(dialog, "NameBox");
             var ring = Need<Border>(dialog, "NameRing");
-            Color danger = dialog.TryFindResource("DangerBrush", dialog.ActualThemeVariant, out var value) && value is ISolidColorBrush brush
-                ? brush.Color : throw new Exception("DangerBrush not found");
+            Color Token(string key) => dialog.TryFindResource(key, dialog.ActualThemeVariant, out var value) && value is ISolidColorBrush brush
+                ? brush.Color : throw new Exception(key + " not found");
+            Color danger = Token("DangerBrush"), primary = Token("PrimaryBrush");
             Color? RingColor() => (ring.BorderBrush as ISolidColorBrush)?.Color;
             Color? BoxColor() => (Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(input).OfType<Border>()
                 .Single(part => part.Name == "PART_BorderElement").BorderBrush as ISolidColorBrush)?.Color;
             Require(RingColor() != danger, $"Name shows a danger ring before any error: {RingColor()}");
+            Require(ring.BorderThickness == new Thickness(1), $"The error ring is not 1 px: {ring.BorderThickness}");
+            var before = input.Bounds;
 
             input.Text = " ";
             Wait(dialog.SaveAsync());
@@ -375,8 +378,9 @@ public static class CatalogDialogTests
             Require(input.IsFocused && AutomationProperties.GetItemStatus(input) == "invalid" && input.Classes.Contains("invalid"),
                 $"Empty name stated without the invalid class: focused={input.IsFocused}, status={AutomationProperties.GetItemStatus(input)}, " +
                 $"class={string.Join(",", input.Classes)}");
-            Require(RingColor() == danger && BoxColor() is { A: > 0 } focusBox && focusBox != danger,
-                $"Focused error is not the accent box inside a danger box: ring={RingColor()}, box={BoxColor()}");
+            Require(RingColor() == danger && BoxColor() == primary,
+                $"Focused error is not the accent box inside a danger box: ring={RingColor()}, box={BoxColor()}, primary={primary}");
+            Require(input.Bounds == before, $"The error moved the field: {before} -> {input.Bounds}");
 
             Need<Button>(dialog, "CancelButton").Focus();
             Dispatcher.UIThread.RunJobs();
@@ -393,6 +397,22 @@ public static class CatalogDialogTests
             Wait(retry);
         }
         finally { dialog.Close(); }
+
+        // A store or library failure is not the name's fault: its text shows, the field stays unmarked.
+        var failing = new SaveSectionDialog(controller, _ => Task.FromException(new ContractError("LIB-IO")));
+        failing.Show();
+        Dispatcher.UIThread.RunJobs();
+        try
+        {
+            var input = Need<TextBox>(failing, "NameBox");
+            input.Text = "Kept";
+            Wait(failing.SaveAsync());
+            Dispatcher.UIThread.RunJobs();
+            Require(Need<TextBlock>(failing, "SaveError").IsVisible && AutomationProperties.GetItemStatus(input) is null &&
+                !input.Classes.Contains("invalid") && !Need<Border>(failing, "NameRing").Classes.Contains("invalid"),
+                $"LIB-IO marked the name invalid: status={AutomationProperties.GetItemStatus(input)}, class={string.Join(",", input.Classes)}");
+        }
+        finally { failing.Close(); }
     }
 
     private static void CheckUnsupportedSave()

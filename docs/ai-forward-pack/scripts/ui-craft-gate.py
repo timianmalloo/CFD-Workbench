@@ -105,6 +105,8 @@ UNMAPPED = ("Unmapped (candidate doctrine)", "-- unmapped --", "CD7")
 # named file of another type is read as text, so Avalonia XAML in its own syntax returns no findings and a clean run on
 # it is vacuous). Re-measure when the engine changes; the README lists HTML, CSS, JSX, TSX, Vue and Svelte.
 SCANNED = {".html", ".htm", ".css", ".scss", ".sass", ".less", ".js", ".jsx", ".ts", ".tsx", ".vue", ".svelte", ".astro"}
+# The folders the same walk never enters (measured on 0.1.16, names case-sensitive; ignore files are not read).
+WALK_SKIPS = {"node_modules", "dist", "build", "__pycache__"}
 
 SEV_ORDER = ["Blocker", "Major", "Minor", "Nit"]
 # The detector's own severity is advisory (CD12); this is the base mapping.
@@ -148,8 +150,10 @@ def check_targets(targets):
             if ext not in SCANNED:
                 refused.append("%s: the detector has no rules for %s files" % (target, ext or "extensionless"))
         else:
-            kinds = Counter(os.path.splitext(name)[1].lower()
-                            for _, _, names in os.walk(target) for name in names)
+            kinds = Counter()
+            for _, dirs, names in os.walk(target):
+                dirs[:] = [d for d in dirs if d not in WALK_SKIPS and not d.startswith(".")]
+                kinds.update(os.path.splitext(name)[1].lower() for name in names)
             if not any(ext in SCANNED for ext in kinds):
                 refused.append("%s: nothing in it is a type the detector reads" % target)
             # A mixed tree runs, but a clean report must not imply the skipped UI markup was checked.

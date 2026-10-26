@@ -83,7 +83,7 @@ public partial class SaveSectionDialog : Window
                 "DOC-SAVE-UNCERTAIN" => "CFD Workbench couldn't confirm whether this section was saved. Check My sections before trying again.",
                 _ => $"Couldn't finish saving this section ({error.Code}). Check My sections before trying again."
             };
-            ShowError(copy);
+            ShowError(copy, nameInvalid: error.Code.StartsWith("LIB-NAME-", StringComparison.Ordinal));
         }
         finally
         {
@@ -93,13 +93,18 @@ public partial class SaveSectionDialog : Window
         }
     }
 
-    private void ShowError(string copy)
+    // Only a refusal of the name marks the field invalid; a store or library failure is not the name's fault, so it
+    // speaks through the assertive SaveError region alone.
+    private void ShowError(string copy, bool nameInvalid = true)
     {
         SaveError.Text = copy;
         SaveError.IsVisible = true;
-        SetInvalid(true);
-        AutomationProperties.SetItemStatus(NameBox, "invalid");
-        AutomationProperties.SetHelpText(NameBox, copy);
+        if (nameInvalid)
+        {
+            SetInvalid(true);
+            AutomationProperties.SetItemStatus(NameBox, "invalid");
+            AutomationProperties.SetHelpText(NameBox, copy);
+        }
         NameBox.Focus();
     }
 
