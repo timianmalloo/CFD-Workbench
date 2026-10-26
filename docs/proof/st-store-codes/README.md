@@ -14,6 +14,23 @@ summary: Observed red and green harness lines for ST items 1 to 5, with the full
 
 # ST dispatch 1
 
+## Dispatch 2 plan and evidence
+
+Goal: ST items 6–10. Done when their stated evidence is observed, or an honest NOT DONE reason is recorded, and the full suite plus every failed Desktop mode's alone rerun is read. Tier T1; width 1. No schema or copy wording changes beyond the approved COPY-644 retirement.
+
+Execution graph: ground → (6 red → fix → green → commit) → (7 red → fix → green → commit) → (9 red → fix → green → commit) → (8 historical-fixture provenance → open/compare test → commit or report) → (10 red → fix → green → commit) → full suite → failed Desktop modes alone → proof/audit commit. Each item's test result is the decision edge to its fix. Serial order follows the dispatch contract; no agent fan-out. The remaining failing assertions decrease through each repair; a repeated unrelated failure becomes a finding. Budget: 50 calls / 105 minutes, then report incomplete work without dropping proof requirements.
+
+Surface list: COPY registry → Labels → StartView; platform admission → Save-section refusal label → dialog; preference folder owner → layout/recent/display load result → session-only save gate; existing-folder open → owner read → DACL update; old document → codec → stored run admission → compare projection. Existing telemetry remains the emitting source for store actions; no new data fields are introduced.
+
+### 6 — one active missing-file definition
+
+The scan reads DESIGN.md's COPY rows, excludes only rows marked `superseded by`, and counts the missing-file cause phrase. The two active rows make it fail. StartView now uses COPY-125 for every Missing code, including DOC-CONFLICT; its file headline and actions supply the rest of that row.
+
+```text
+FAIL Labels_MissingFile_OneActiveDefinition_Copy125 InvalidOperationException: active missing-file definitions: COPY-125, COPY-644 expected 1; actual 2
+PASS Labels_MissingFile_OneActiveDefinition_Copy125
+```
+
 Verified on Windows. Reproduce focused green checks with `bash docs/proof/st-store-codes/run.sh`.
 The CLI harness has the coordinator-reported environment defect: its sleeping child cannot resolve ping through the over-long User PATH. It is outside ST's scope.
 

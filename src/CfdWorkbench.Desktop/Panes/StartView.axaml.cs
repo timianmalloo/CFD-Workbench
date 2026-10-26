@@ -89,8 +89,7 @@ public partial class StartView : UserControl
 
     private static string Sentence(OpenFailure failure, string fileName, bool windows) => failure switch
     {
-        OpenFailure.Missing { Code: "DOC-CONFLICT" } => CfdWorkbench.Analysis.Labels.OpenGone,
-        OpenFailure.Missing => "It isn't where it was — it may have been moved, renamed or deleted. The file hasn't been changed.",
+        OpenFailure.Missing => CfdWorkbench.Analysis.Labels.OpenGone,
         OpenFailure.AccessDenied => CfdWorkbench.Analysis.Labels.OpenAccessDenied(windows),
         OpenFailure.Changed => CfdWorkbench.Analysis.Labels.OpenChanged,
         OpenFailure.Unreadable => "It couldn't be read from the disk. The file hasn't been changed.",
