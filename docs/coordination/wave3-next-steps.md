@@ -2,7 +2,7 @@
 id: coordination-wave3-next-steps
 title: "Coordination plan - wave 3: the next steps of 2026-10-23"
 type: plan
-status: active
+status: complete
 owner: "@timianmalloo"
 tags: [coordination, worktrees, parallelism, windows]
 links:
@@ -165,3 +165,57 @@ and catalog.preview unchanged; finding 8 already met (the OneDrive throwaway fil
 B9 confirms. Tech Lead casting vote: five tracks, no strike. Cycle 2 verdict PASS-WITH-CONDITIONS, CLEARS-THE-VETO yes:
 three conditions folded (a damaged-row case in the Phase 1 test; SC2 dispatched in wave A in place of JF; the
 joint-satisfiability paragraph names all four controller regions). Each Return attaches a Proof Pack before its join.`
+
+## Planned vs actual (record by `wave3-coordinator`, 2026-10-26; final at the ST join, ae8c624a)
+
+**Outcome.** All five tracks joined to `main` and pushed; every join's ring green and all ten verify gates green. A0
+joined first (bf793289). Ruling 267 (fable-owner) is the wave's one ruling. B9 done: the cr2 folder was already gone,
+45 merged local branches deleted with `git branch -d` (0 kept; the list is in the session scratchpad), no wave-2
+OneDrive throwaway file remains.
+
+| track | planned budget | actual (calls) | review cycles | result | join |
+|---|---|---|---|---|---|
+| SC2 source text (Sonnet) | 50 · 150k · 1 h 30 | ~33 + repair ~14 | 1 (ACCEPT-WITH-CONDITIONS: the "one lookup" claim narrowed to gen:/vend:; a vend: Core test; lazy catalog read) | Browser row, section title and every surface say "Modified from NACA 0012" (DR-INV-1 a); `ChipSourceName` removed; follow-up: designer-readable names for dat and My-sections origins | 9c6d25a9 (ring 278 s) |
+| JF join fence R2 (Codex gpt-6.1-sol; Grok fallback) | 40 · 120k · 1 h (55 after the PATH item) | 33 + repair 11 + gate fix ~6 | 1 (ACCEPT-WITH-CONDITIONS: a foreign audit append mid-join was still staged) + the join's step-8 gate | R2 cases A/B/C, audit ownership, vanished outputs, MERGE_HEAD guard; exits 13/12/7; DOTNET_ADD_GLOBAL_TOOLS_TO_PATH=false in five tools scripts with a fail-closed control | e91f0e85 + gate fix ba65057f |
+| SC1 catalog sheet (Opus) | 80 · 300k · 3 h | 37 + 33 + 25 + repair 27 = 122 (**cap fired**) | 1 (ACCEPT-WITH-CONDITIONS: queued choice + step still dropped a fit silently; sweep claim narrowed; register controls named) | muted rows with state tags (DR-INV-2 a), every fit exit has a reason, Enter during the fit applies on landing, catalog.select/apply telemetry, the Modal-sheet opening-state sweep | 42c573aa (ring 248 s) |
+| HX harness and small (Sonnet) | 60 · 180k · 2 h | 68 + repair 14 (**cap fired**) | 1 (ACCEPT-WITH-CONDITIONS: the 20 repeats alone; wait on the completion signal) | Match receipt a Labels constant; probe follow-ups; status-strip race fixed in the test (review mutants red); 20 of 20 alone (main session, 0 foreign processes); encode median ~60 ms, cold first read 99.3 ms (at the limit) | 3ec7c693 (ring 258 s) |
+| ST store and copy (Codex gpt-6.1-sol) | 90 · 300k · 3 h | 11 + 11 (boundary stops) + 45 + 50 + repair 39 = 156 (**cap fired**) | 1 (ACCEPT-WITH-CONDITIONS: a Save-section regression on an unadmitted host; a text-scan control; two copy sentences false for some causes; the COPY-644 marker) | separate store codes to every surface; the drive named only for a non-NTFS cause; 4395; store.* per action; preference ownership on one handle (runtime test, three mutants red); item 8 NOT DONE under Ruling 267 | ae8c624a (ring 259 s) |
+
+**Boundary corrections (coordinator).** SC2 and ST owned new test files plus one wiring line each in
+`WorkbenchTests.cs` (shared by hunk); SC1 owned `ControllerSectionTests.cs`; HX had a conditional grant on
+`StatusSlot.cs`/`ShellHost.cs` (unused); ST gained the Core store-test assertions, the `RecordPersistence` region of
+`AuthoringSession.cs`, and "any file no other track owns, listed in the Return" after two up-front stops. **Root
+cause:** the plan listed product files per track but not the existing tests that pin today's behaviour; a literal coder
+(Codex) stops at each. The next plan lists the test files that assert a code a track changes.
+
+**Which justifications paid.** Independence paid: the five tracks never needed a seam request; the only collisions were
+the defect register (two hand-resolved merges, both "keep both sides": the register driver unions appends but not an
+in-place edit next to an append) and the expected rebase of SC1 over SC2 (clean). Context hygiene paid: SC1's three
+phases ran as three fresh dispatches with no ceiling breach. Harness diversity paid in findings, not speed: Codex was
+literal about ownership (two stops), hit one model-capacity error (resumed by session), and its JF code passed its own
+checks but failed the join's text-I/O gate. Grok was never logged in, so JF ran on its Codex fallback.
+
+**Budget signals (defects in the estimate, not reasons to raise caps).** SC1 122/80: the plan sized three unequal
+phases equally. ST 156/90: the missing test-file ownership above plus two repair-heavy dispatches. HX 82/60: the forced
+timing work and two machine-quiet checks.
+
+**Findings for the next plan.**
+- **User PATH pollution (Verified, fixed):** 72 dead `%TEMP%\cfd-*-recount-*\dotnet-home\.dotnet\tools` entries
+  (7,883 characters) made `cmd.exe` unable to resolve `ping`, failing a Cli check in every tree. The operator approved
+  the cleanup (backup in the session scratchpad); JF's change stops the leak (class TOOL-FRESH-HOME-PERSISTS-USER-ENV).
+  Shells started before the cleanup keep the old PATH: strip `recount-` entries inline until they restart.
+- **ui-craft-gate cannot scan Avalonia XAML (Verified):** no windows-arm64 detector build exists; the x64 build under
+  emulation exits 0 with no findings on a planted bad `.axaml` (magenta, size 13.7, Comic Sans). SC1's craft-gate item
+  is Not assessed. A clean run on `.axaml` is vacuous until the gate refuses file types its detector does not read.
+- **Worktree cleanup ORPHANED (Verified cause):** every track tree left `.tmp-tests/tmp/winstore-*` paths over 260
+  characters that `git worktree remove` cannot delete; `rm -rf` then `git worktree prune` works.
+- **Brief paths leak into audit prompts:** a coordinator brief quoting a scratchpad path under the user profile was
+  copied by a CLI coder into two audit entries; check-docs' PROOF-PII check stopped the join; redacted. Briefs cite
+  scratchpad files relative to `%USERPROFILE%`.
+- **R2's first real use:** the second JF join exited 7 because Ruling 267 was written into the primary mid-join; the
+  new joiner kept it out of the join commit, as designed. Recovery: commit the ruling, run the gates, push.
+- **Open follow-ups:** designer-readable source names for dat and My-sections origins (SC2); `SaveSectionDialog.ShowError`
+  sets ItemStatus invalid with no rendered class (SC1); the COPY-615 headline for runs from builds at or after 0b277815
+  (Ruling 267); preference ownership on macOS not checked; proposed copy rows COPY-647..651 and 677..680 await the
+  operator; the manual pointer pass on the catalog sheet (operator steps in SC1's Return); upstream the conductor-join
+  and recount changes to the pack.

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-26T17:43:20Z",
+  "generated": "2026-10-26T17:47:16Z",
   "audit": [
     {
       "actor": null,
@@ -43845,6 +43845,84 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-26T17:38:17Z",
       "duration_seconds": 303.0
+    },
+    {
+      "id": "al-01M5WN5PC04TFKPPNGK4EX91F1",
+      "shortname": "coordinate-wave3-next-steps",
+      "datetime": "2026-10-26T17:47:15Z",
+      "session": "wave3-coordinator",
+      "prompt": "/execute-with-coordination docs/coordination/wave3-next-steps.md - seats: Owner fable-owner (Fable), leader opus-leader (Opus), coders SC1 Opus, SC2 and HX Sonnet, ST Codex gpt-6.1-sol, JF Grok grok-4.6 with Codex fallback; width 3",
+      "summary": "five tracks joined and pushed (SC2 9c6d25a9, JF e91f0e85+ba65057f, SC1 42c573aa, HX 3ec7c693, ST ae8c624a), every ring green, ten gates green; one Owner ruling (267, ST item 8 NOT DONE accepted); seven boundary corrections, 0 seam requests, two defect-register conflicts resolved keeping both sides; caps fired on SC1 122/80, ST 156/90, HX 82/60; User PATH pollution found and cleaned with operator approval; Grok never authenticated, JF ran on Codex; B9: 45 merged branches deleted",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/wave3-next-steps.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "run the wave-3 plan to completion",
+      "done_when": "every track joined or recorded with a reason; CI green",
+      "tier": "T2",
+      "fan_out": 3,
+      "duration_source": "session-start-hook",
+      "started_at": "2026-10-26T17:08:18Z",
+      "duration_seconds": 2337.0,
+      "agent_runs": [
+        {
+          "agent": "SC2",
+          "started_at": "2026-10-26T15:58:06Z",
+          "ended_at": "2026-10-26T16:25:00Z",
+          "duration_seconds": 1614.0,
+          "calls": 47,
+          "budget_calls": 50,
+          "over_budget": false
+        },
+        {
+          "agent": "JF",
+          "started_at": "2026-10-26T16:16:08Z",
+          "ended_at": "2026-10-26T17:06:09Z",
+          "duration_seconds": 3001.0,
+          "calls": 50,
+          "budget_calls": 55,
+          "over_budget": false
+        },
+        {
+          "agent": "SC1",
+          "started_at": "2026-10-26T15:58:21Z",
+          "ended_at": "2026-10-26T17:04:09Z",
+          "duration_seconds": 3948.0,
+          "calls": 122,
+          "budget_calls": 80,
+          "over_budget": true
+        },
+        {
+          "agent": "HX",
+          "started_at": "2026-10-26T16:39:24Z",
+          "ended_at": "2026-10-26T17:16:59Z",
+          "duration_seconds": 2255.0,
+          "calls": 82,
+          "budget_calls": 60,
+          "over_budget": true
+        },
+        {
+          "agent": "ST",
+          "started_at": "2026-10-26T15:55:56Z",
+          "ended_at": "2026-10-26T17:34:01Z",
+          "duration_seconds": 5885.0,
+          "calls": 156,
+          "budget_calls": 90,
+          "over_budget": true
+        }
+      ],
+      "parallelism": {
+        "agent_seconds": 16703.0,
+        "span_seconds": 5885.0,
+        "speedup": 2.84,
+        "peak_concurrency": 4
+      }
     }
   ],
   "changes": [

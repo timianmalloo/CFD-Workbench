@@ -257,3 +257,4 @@
 {"agent": "st", "at": 1793036068.9899914, "kind": "release", "path": "docs/design/application-contracts.md", "seq": 257, "session": "st", "wi": "st"}
 {"agent": "st", "at": 1793036069.1408293, "kind": "release", "path": "docs/architecture/application.md", "seq": 258, "session": "st", "wi": "st"}
 {"agent": "st", "at": 1793036069.2896154, "kind": "release", "path": "docs/plans/st-dispatch1.md", "seq": 259, "session": "st", "wi": "st"}
+{"agent": "st", "at": 1793036621.3099563, "kind": "session-end", "path": "-", "seq": 260, "session": "st", "wi": "WI-0", "worktree": "CFD-Workbench-w3-st-store-copy"}

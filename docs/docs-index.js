@@ -12033,7 +12033,7 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/wave3-next-steps.md",
       "title": "Coordination plan - wave 3: the next steps of 2026-10-23",
       "type": "plan",
-      "status": "active",
+      "status": "complete",
       "owner": "@timianmalloo",
       "phase": "",
       "reviewBy": "2026-11-26",
@@ -12064,7 +12064,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9c295cecf18af6fe33f06b86b39e419383bcc7dedaf484326098461f8365281e"
+      "sourceSha256": "5d29d6437995d4d94b4bb7460c04cb91b6dc4c54d96ea4703ec1c041ef3b8046"
     },
     {
       "id": "coordination-windows-gpu-f1-design",
@@ -24559,5 +24559,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "25073297d4d4bca2f6777f3cc73445927db6fa1cb2060d6ccab68893e91087d9"
+  "graphSha256": "8ddf233e8a811d89386edca974cf6ef816ea7365dd90feae9119b0a5bd180977"
 };
