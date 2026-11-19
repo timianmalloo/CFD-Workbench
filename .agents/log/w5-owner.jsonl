@@ -1,0 +1,2 @@
+{"action": "resolve", "agent": "w5-owner", "at": 1795129385.8531137, "id": "req-01M7V0S8KD6MMJGRFYV4AD33BJ", "kind": "request", "outcome": "resolution", "path": "-", "seq": 1, "session": "w5-owner", "type": "request", "wi": "WI-0"}
+{"at": 1795129385.8670888, "from": "w5-owner", "kind": "ruling", "mail_id": "mail-01M7V0S8WBHJAPSX4QWJA1ATGW", "ref": "req-01M7V0S8KD6MMJGRFYV4AD33BJ", "session": "w5-owner", "to": "agy-coord-w5", "type": "mail"}
