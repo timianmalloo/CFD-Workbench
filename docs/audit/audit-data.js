@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-19T22:56:36Z",
+  "generated": "2026-11-19T23:26:52Z",
   "audit": [
     {
       "actor": null,
@@ -44028,6 +44028,36 @@ window.AUDIT_DATA = {
       "fan_out": 3,
       "started_at": "2026-11-19T22:45:56Z",
       "duration_seconds": 640.0
+    },
+    {
+      "id": "al-01M7V24SV3HR9AVY8BWWZ4R4AY",
+      "shortname": "join-w5-set",
+      "datetime": "2026-11-19T23:26:52Z",
+      "session": "agy-coord-w5",
+      "prompt": "the join of swarm-w5-setup-design-646d7b75 into main",
+      "summary": "Area 1 Setup and Goal State /design-slice (design-setup-seeding), interactive mockup (setup-seeding.html, 6 hard states, 0 off-token hexes, 0 LAB-01 hits), spec amendment AM-SET-S1..S4; Adversary PASS after repair 1 (exact 4-CV cubic kappa and full stationary-point proof) recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/setup-seeding.md",
+        "docs/mockups/setup-seeding.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land reviewed Area 1 Setup design and mockup on main",
+      "done_when": "conductor-join checks, check-docs, and verify gates green on main",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-19T23:26:01Z",
+      "duration_seconds": 51.0
     }
   ],
   "changes": [
@@ -47819,6 +47849,24 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M5WWVJS09J1YCPZJVBZG736N",
       "session": "operator"
+    },
+    {
+      "id": "mail-01M7V0S8KZEV15S6KRJGVYT6TB",
+      "ts": "2026-11-19T23:03:05Z",
+      "from": "agy-coord-w5",
+      "to": "w5-owner",
+      "kind": "decision-request",
+      "ref": "req-01M7V0S8KD6MMJGRFYV4AD33BJ",
+      "session": "agy-coord-w5"
+    },
+    {
+      "id": "mail-01M7V0S8WBHJAPSX4QWJA1ATGW",
+      "ts": "2026-11-19T23:03:05Z",
+      "from": "w5-owner",
+      "to": "agy-coord-w5",
+      "kind": "ruling",
+      "ref": "req-01M7V0S8KD6MMJGRFYV4AD33BJ",
+      "session": "w5-owner"
     }
   ]
 };
