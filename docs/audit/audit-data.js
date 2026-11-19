@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-19T23:50:37Z",
+  "generated": "2026-11-19T23:54:28Z",
   "audit": [
     {
       "actor": null,
@@ -44149,6 +44149,36 @@ window.AUDIT_DATA = {
         "branch": "swarm-w5-kernel-arch-9e84b687",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M7V3QBH2HS97QGXEBSRZX0Z5",
+      "shortname": "join-w5-krn",
+      "datetime": "2026-11-19T23:54:28Z",
+      "session": "agy-coord-w5",
+      "prompt": "the join of swarm-w5-kernel-arch-9e84b687 into main",
+      "summary": "Area 7 STEP AP203 and 3DM CAD export kernel /define-architecture brief (architecture-cad-export-kernel) and proposed ADR-0013 (Option A hybrid OCCT process-isolated + rhino3dm baseline with Option B pure-C# STEP bake-off in SPIKE-CAD-01, EXP-02 two-CAM + Fusion SPIKE-CAD-02 fixture, DR-KRN-1..6); Adversary PASS-WITH-CONDITIONS (CF alignment + spike gate continuity) recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/architecture/cad-export-kernel.md",
+        "docs/adr/0013-cad-export-kernel.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land reviewed Area 7 CAD export kernel architecture brief and proposed ADR-0013 on main",
+      "done_when": "conductor-join checks, check-docs, and all 10 verify gates green on main",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-19T23:53:39Z",
+      "duration_seconds": 49.0
     }
   ],
   "changes": [
