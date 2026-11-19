@@ -3278,6 +3278,74 @@ window.DOCS_INDEX = {
       "sourceSha256": "7e3ba2a1af818a1729021030b78476acdc7158a0561abc323621321681c9b17e"
     },
     {
+      "id": "design-local-sweeps",
+      "path": "docs/design/local-sweeps.md",
+      "title": "Design: Area 4 — local-tier sweeps & performance curves (Experiment setup, local Run, and sweep Results over VLM + strip and Estimator)",
+      "type": "design",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "design — Area 4 (Wave 5 SWP; documents only; no build until mockup and DR-SWP-1..6 are approved)",
+      "reviewBy": "2026-12-19",
+      "reviewSuggested": [],
+      "summary": "Build-ready design slice for Area 4 Local-Tier Sweeps & Performance Curves (XS-01, XS-03, ANA-08, ANA-16, RES-04 over local · in-process VLM + strip and wing Estimator tiers, with zero OpenFOAM/SU2 dependency). Settles the DM1-DM18 data model first (Experiment, Case schedule, Sweep attempt, Attempt-state events, runId linkage without duplicating strip data, additive top-level experiments member on cfdw-project-2, and explicit Archive/unpin retention under Ruling 263's 32 MB cap), the E7 surface list across Core, Analysis, CLI, and Desktop, exact Cm/CD/L/D/depth physics derivations, normal-path IO1-IO12 telemetry, red-first test suite with named mutants, 5-node build plan, and six operator Decision Requests (DR-SWP-1..6).",
+      "tags": [
+        "sweeps",
+        "experiment",
+        "area-4",
+        "analysis",
+        "local-tier",
+        "performance-curves",
+        "data-model",
+        "retention",
+        "telemetry",
+        "mockup"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-amendment-local-sweeps",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "refines"
+        },
+        {
+          "to": "design-area3-analysis",
+          "rel": "refines"
+        },
+        {
+          "to": "design-a3d-compare",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-local-sweeps",
+          "rel": "tested-by"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-wave5-next-steps",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "8b78e9b0a8f37676cddef8a8734670c93c73540b26c704085d73a3f8e959523c"
+    },
+    {
       "id": "design-m12b-points",
       "path": "docs/design/m12b-points.md",
       "title": "Design: M1.2b — CAD point editing on the Plan view (rail points, point types, gestures, typed chords)",
@@ -6281,6 +6349,52 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "316f3457566f8e9d4a0c50e1ce02bb1b12a707e7a3dd40dfd4e7054a3de86125"
+    },
+    {
+      "id": "mockup-local-sweeps",
+      "path": "docs/mockups/local-sweeps.md",
+      "title": "Local-tier sweeps & performance curves — interactive review mockup (Experiment setup, local Run, sweep Results)",
+      "type": "doc",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-19",
+      "reviewSuggested": [],
+      "summary": "Self-contained, dependency-free interactive HTML mockup (docs/mockups/local-sweeps.html) covering all seven hard states of Area 4 Local-Tier Sweeps & Performance Curves over local in-process VLM + strip and Estimator tiers: Empty, Invalid input blocked, Preview ready (12-case 3 speeds x 4 alphas with derived Re/q/h/c/Fr_h/sigma and zero Run button in Experiment setup), Running / Cancelled (live local progress and non-destructive Cancel), Completed with 1 failed case (11 Completed + 1 Failed with explicit non-bridged chart gaps, Ncrit 2-4 bands, Cm datum, table twin, linked selection, and Retry sample), Depth unset (free surface not modelled, never deep water), and Historical sweep after geometry edit. Includes review harness (persona, viewport 1440x900 / 1024x700, state, light/dark/high-contrast theme, reduced motion) and live WCAG contrast audit.",
+      "tags": [
+        "mockup",
+        "sweeps",
+        "area-4",
+        "analysis",
+        "local-tier",
+        "performance-curves",
+        "hard-states",
+        "operator-show"
+      ],
+      "links": [
+        {
+          "to": "design-local-sweeps",
+          "rel": "documents"
+        },
+        {
+          "to": "spec-amendment-local-sweeps",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-area3-analysis",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ce34528b272730d663f01099883d9b99dd7ee00709ad4cf3c06e389006f674c3"
     },
     {
       "id": "mockup-setup-seeding",
@@ -23384,6 +23498,48 @@ window.DOCS_INDEX = {
       "sourceSha256": "22f04e75d82c392bf6e55fd9088ca341f1ce853066f053917f58d5c7dcb69e4f"
     },
     {
+      "id": "spec-amendment-local-sweeps",
+      "path": "docs/specs/amendments/spec-local-sweeps.md",
+      "title": "Spec amendment note — Area 4 local-tier sweeps, performance curves, and retention (XS-01, XS-03, ANA-16, RES-04)",
+      "type": "spec",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2026-12-19",
+      "reviewSuggested": [],
+      "summary": "Three targeted proposed clarifications to cfd-workbench-v1 for executing Area 4 sweeps over local in-process tiers (VLM + strip and wing Estimator) without requiring an OpenFOAM/SU2 backend: (1) local in-process attempt lifecycle and runId linkage, (2) wing-only CD/L/D Ncrit band and Cm datum/availability on local performance curves, and (3) non-archived sweep run pinning plus explicit append-only archive/unpin under the 32,000,000-byte project cap. Existing XS-01, XS-03, ANA-08, ANA-16, RES-04, and LAB-01 requirements remain unchanged.",
+      "tags": [
+        "spec",
+        "amendments",
+        "sweeps",
+        "experiment",
+        "analysis",
+        "local-tier",
+        "retention",
+        "performance-curves"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "design-local-sweeps",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "8d8b42035398464324e03b3556a952c72491ce751db62cffef367ab7a37d0678"
+    },
+    {
       "id": "spec-amendment-setup-seeding",
       "path": "docs/specs/amendments/spec-setup-seeding.md",
       "title": "Spec amendment proposal: Area 1 Setup & Goal State clarifications (GEN polar fallback, soft-target norm, OperatingPoint.Load, and 8->9 preset mapping)",
@@ -24415,6 +24571,14 @@ window.DOCS_INDEX = {
       "artifactId": "audit-log"
     },
     {
+      "id": "surface-design-local-sweeps",
+      "path": "docs/design/local-sweeps.html",
+      "title": "Local Sweeps",
+      "kind": "design-preview",
+      "description": "Inspect a rendered design or design-language preview.",
+      "artifactId": "design-local-sweeps"
+    },
+    {
       "id": "surface-design-setup-seeding",
       "path": "docs/design/setup-seeding.html",
       "title": "Setup Seeding",
@@ -24468,6 +24632,14 @@ window.DOCS_INDEX = {
       "kind": "knowledge-tool",
       "description": "Open an interactive knowledge artifact.",
       "artifactId": "mockup-dx-section-polar-states"
+    },
+    {
+      "id": "surface-mockups-local-sweeps",
+      "path": "docs/mockups/local-sweeps.html",
+      "title": "Area 4 — Local-Tier Sweeps & Performance Curves (Review Mockup)",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-local-sweeps"
     },
     {
       "id": "surface-mockups-cad-limits-in-gesture",
@@ -24821,5 +24993,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "cd2e2d52a3380f62b7da07d1ea44bf882019af88c20fce3a3b2b12375cedc297"
+  "graphSha256": "66879206be1a1808acb0680f99ee5c49c8ed952b59967340869ce3c322a47f40"
 };

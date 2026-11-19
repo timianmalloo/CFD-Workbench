@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-19T23:26:52Z",
+  "generated": "2026-11-19T23:35:42Z",
   "audit": [
     {
       "actor": null,
@@ -44058,6 +44058,36 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-19T23:26:01Z",
       "duration_seconds": 51.0
+    },
+    {
+      "id": "al-01M7V2MZ7RDHR5XWF824QF3GTP",
+      "shortname": "join-w5-swp",
+      "datetime": "2026-11-19T23:35:42Z",
+      "session": "agy-coord-w5",
+      "prompt": "the join of swarm-w5-sweeps-design-5c8b90f2 into main",
+      "summary": "Area 4 Local-Tier Sweeps and Performance Curves /design-slice (design-local-sweeps), interactive mockup (local-sweeps.html, 7 hard states, 0 off-token hexes, 0 LAB-01 hits, non-bridged failed-case gaps), spec amendment AM-SWP-1..3; Adversary PASS after repair 1 (fixedVlmBasis shallow/unset guard and SET/SWP Envelope composition) recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/local-sweeps.md",
+        "docs/mockups/local-sweeps.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land reviewed Area 4 Local-Tier Sweeps design and mockup on main",
+      "done_when": "conductor-join checks, check-docs, and all 10 verify gates green on main",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-19T23:34:46Z",
+      "duration_seconds": 56.0
     }
   ],
   "changes": [
