@@ -38,8 +38,9 @@ public sealed record Provenance(string? Origin, bool Modified)
         : "Catalog original · " + sourceName;
 
     /// <summary>
-    /// The one designation lookup: the catalog designation for a <c>gen:</c> or <c>vend:</c> origin, else the name the
-    /// section was last replaced with, else the raw origin. Without an origin it is <paramref name="replaceName"/> or "".
+    /// The one designation lookup: the catalog designation for a <c>gen:</c> or <c>vend:</c> origin, else
+    /// <paramref name="replaceName"/> when supplied, else a designer-readable label for <c>dat:sha256:</c>, else the
+    /// raw origin. Without an origin it is <paramref name="replaceName"/> or "".
     /// </summary>
     public string SourceName(Func<IReadOnlyList<CatalogEntry>> catalog, string? replaceName = null)
     {
@@ -51,7 +52,11 @@ public sealed record Provenance(string? Origin, bool Modified)
             var entry = catalog().FirstOrDefault(item => item.Id == id);
             if (entry is not null) return entry.Designation;
         }
-        return replaceName is { Length: > 0 } name ? name : origin;
+        if (replaceName is { Length: > 0 } name) return name;
+        const string dat = "dat:sha256:";
+        if (origin.StartsWith(dat, StringComparison.Ordinal) && origin.Length >= dat.Length + 8)
+            return "Imported .dat (" + origin.Substring(dat.Length, 8) + ")";
+        return origin;
     }
 
     /// <summary>The source part of a Browser row or section title: the name, "Modified from" the name, or "Source not recorded".</summary>

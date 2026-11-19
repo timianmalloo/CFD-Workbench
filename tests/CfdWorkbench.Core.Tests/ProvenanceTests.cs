@@ -23,11 +23,25 @@ internal static class ProvenanceTests
     private static void SourceNameLookup()
     {
         IReadOnlyList<CatalogEntry> rows =
-            [new("e387", CatalogFamily.Eppler, "Eppler 387", AdmissionClass.Vend, null, null)];
+        [
+            new("e387", CatalogFamily.Eppler, "Eppler 387", AdmissionClass.Vend, null, null),
+            new("naca-0012", CatalogFamily.Naca, "NACA 0012", AdmissionClass.Gen, null, null)
+        ];
         Equal("Eppler 387", new Provenance("vend:e387", false).SourceName(() => rows));
+        Equal("NACA 0012", new Provenance("gen:naca-0012", false).SourceName(() => rows));
         int reads = 0;
-        string dat = "dat:sha256:" + new string('c', 64);
-        Equal(dat, new Provenance(dat, false).SourceName(() => { reads++; return rows; }));
+        string hex = "01234567" + new string('c', 56);
+        string dat = "dat:sha256:" + hex;
+        Equal("Imported .dat (01234567)", new Provenance(dat, false).SourceName(() => { reads++; return rows; }));
+        Equal("Custom foil", new Provenance(dat, false).SourceName(() => { reads++; return rows; }, "Custom foil"));
+        Equal("Modified from Imported .dat (01234567)",
+            new Provenance(dat, true).SourceLabel(new Provenance(dat, true).SourceName(() => { reads++; return rows; })));
+        var selig = Provenance.Parse("selig sha256:" + hex + " points:81");
+        Equal("Imported .dat (01234567)", selig.SourceName(() => { reads++; return rows; }));
+        var lednicerMod = Provenance.Parse("lednicer sha256:" + hex + " points:81 modified");
+        Equal("Modified from Imported .dat (01234567)", lednicerMod.ChipText(lednicerMod.SourceName(() => { reads++; return rows; })));
+        Equal("", new Provenance(null, false).SourceName(() => { reads++; return rows; }));
+        Equal("Source not recorded", new Provenance(null, false).SourceLabel(""));
         Equal(0, reads);
     }
 

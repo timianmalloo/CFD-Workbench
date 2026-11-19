@@ -2106,7 +2106,7 @@ public sealed class WorkbenchController : IDisposable
         {
             if (Section is not { } mode) return null;
             var parsed = ProvenanceFor(mode.Draft.Bytes, mode.Draft.Profile);
-            return parsed.ChipText(parsed.SourceName(CatalogRows, LastReplaceName));
+            return parsed.ChipText(parsed.SourceName(CatalogRows));
         }
     }
 
@@ -2118,7 +2118,7 @@ public sealed class WorkbenchController : IDisposable
         string profile = projection.Assignments[station].ProfileName;
         byte[] foil = Section?.Draft.Bytes ?? session.Snapshot().Source;
         var source = ProvenanceFor(foil, profile);
-        string display = source.ChipText(source.SourceName(CatalogRows, LastReplaceName));
+        string display = source.ChipText(source.SourceName(CatalogRows));
         return source.Rights == RightsClass.NotRecorded ? display : display + " (" + source.Rights.ToString().ToUpperInvariant() + ")";
     }
 
