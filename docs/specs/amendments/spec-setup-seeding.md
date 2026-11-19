@@ -50,7 +50,7 @@ summary: >-
   `RunRecord.cs` carries `double? Load` on `OperatingPoint` with an explicit `assume:` awaiting Area 1 confirmation. Meanwhile `NativeProject.Read` (`AuthoringSession.cs:2631-2643`) enforces `Exact(root, [...], ["analysis"])` and `format == RunRecord.Format(runs.Length)`.
 - **Proposed clarification (`DR-SET-1`, `DR-SET-2`):**
   1. Confirm `OperatingPoint.Load` is the Goal-state front-wing required load in Newtons (`requiredLoadN`), kept `null` on custom fixed-α runs (preserving all A3a/A3d run keys) and set to `requiredLoadN` on Goal-state load-solved runs once `OperatingPoints.Validate` permits finite positive `Load`.
-  2. Persist `SetupBriefVersion[]`, `GoalStateVersion[]`, and `DrcExclusion[]` under one optional top-level `setup` member on `Envelope` (omitted when null so unseeded run-free projects stay `cfdw-project-1` byte-identical to today), with `format` generalized per `DR-SET-1`.
+  2. Persist `SetupBriefVersion[]`, `GoalStateVersion[]`, and `DrcExclusion[]` under one optional top-level `setup` member on `Envelope` (omitted when null so unseeded run-free projects stay `cfdw-project-1` byte-identical to today), updating `NativeProject.Read` (`AuthoringSession.cs:2631, 2641, 2643`) to accept optional `"setup"` and derive `format` via `NativeProject.Format(runCount, hasSetup)` per `DR-SET-1`.
 
 ## AM-SET-S4 · `SET-04`: Explicit 8-purpose to 9-discipline-preset mapping
 

@@ -4064,7 +4064,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "df0eb70ea58b2a50d29e008952a53db0c590d8ca6e450235910abc257c9fe718"
+      "sourceSha256": "1ef42ece70a07abba220eefce126cd15b682aa2b88d562a0ceec7da836894512"
     },
     {
       "id": "design-view-preferences",
@@ -23432,7 +23432,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "625d5d693cf938b1d26995ecafd32a0f54bff0b5d1cff8136bd85434b2df4336"
+      "sourceSha256": "1217721998586ca6ab385b1b9b67b94ca7d0a0af950600912dbcf3b11ed23344"
     },
     {
       "id": "spec-amendments-1-7",
@@ -24821,5 +24821,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "f0f492188b1c3a4b9476746b88ebf0bbce52d5acf37ad5c1820f0158eda0a63f"
+  "graphSha256": "065e1bc452e9798d83d63fa85987c68cb3656d5d76b142ca3e934025d2b33191"
 };

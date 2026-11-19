@@ -146,10 +146,10 @@ Because `NativeProject` lives in `CfdWorkbench.Core` and Core cannot reference `
         ],
         "recipe": {
           "solverVersion": "cfdw-seed/1",
-          "planformFamily": "elliptic-tapered-4cv",
+          "planformFamily": "cubic-tapered-4cv",
           "spanMeters": 1.0954451150103321,
-          "rootChordMeters": 0.1090802371688565,
-          "tipChordMeters": 0.02617925692052556,
+          "rootChordMeters": 0.11269978549489013,
+          "tipChordMeters": 0.02704794851877363,
           "taper": 0.24,
           "anhedralDeg": -5.0,
           "washoutDeg": -1.0,
@@ -161,7 +161,7 @@ Because `NativeProject` lives in `CfdWorkbench.Core` and Core cannot reference `
           "conflictNotice": null,
           "deviations": [
             { "target": "maxSpan", "targetValue": 1.10, "seededValue": 1.095445, "relativeDelta": 0.0 },
-            { "target": "maxChord", "targetValue": 0.120, "seededValue": 0.109080, "relativeDelta": 0.0 },
+            { "target": "maxChord", "targetValue": 0.120, "seededValue": 0.112700, "relativeDelta": 0.0 },
             { "target": "targetArea", "targetValue": 0.100, "seededValue": 0.100000, "relativeDelta": 0.0 },
             { "target": "targetAR", "targetValue": 12.0, "seededValue": 12.000000, "relativeDelta": 0.0 }
           ]
@@ -274,7 +274,7 @@ Because `NativeProject` lives in `CfdWorkbench.Core` and Core cannot reference `
 
 - **Optional top-level member:** Add `[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public SetupRecords? Setup { get; init; }` to `Envelope` (`src/CfdWorkbench.Core/AuthoringSession.cs:22-28`).
 - **Format string rule (`DR-SET-1`):**
-  - **Preferred option (a) — generalize `cfdw-project-2`:** `NativeProject.Format(int runCount, bool hasSetup)` returns `"cfdw-project-1"` iff `runCount == 0 && !hasSetup`, and `"cfdw-project-2"` iff `runCount > 0 || hasSetup`.
+  - **Preferred option (a) — generalize `cfdw-project-2`:** `NativeProject.Format(int runCount, bool hasSetup)` returns `"cfdw-project-1"` iff `runCount == 0 && !hasSetup`, and `"cfdw-project-2"` iff `runCount > 0 || hasSetup`. In `SET-1`, `NativeProject.Read` (`src/CfdWorkbench.Core/AuthoringSession.cs:2631, 2641, 2643`) expands `Exact(root, [...], ["analysis", "setup"])` and replaces `RunRecord.Format(runs)` with `NativeProject.Format(runs, hasSetup)` so a `cfdw-project-2` document carrying `"setup"` with `0` runs (and no `"analysis"` member) is admitted cleanly.
   - Why this is safe and fail-closed:
     1. Any project with **no runs and no setup** writes `"cfdw-project-1"` **byte-for-byte identically to today** (`Project1_NoRun_ByteIdenticalToToday` stays green).
     2. An older build opening a file containing `"setup"` hits `Exact(root, [...], ["analysis"])` (`AuthoringSession.cs:2631`) **before** reading the format check, and fails closed with `DOC-UNSUPPORTED-FIELD` (`COPY-130`: *"It contains parts this version doesn't understand... A newer version of CFD Workbench may open it"*), never corrupting the file.
@@ -307,21 +307,21 @@ Aligned verbatim with `w5-sweeps-design` on the swarm board (#9, #11):
 
 ### 3.1 Normalized planform family and exact algebraic identities
 
-A seeded wing uses the exact same clamped degree-3 4-CV tip-clustered rail basis as `FoilSource.NewDefault()` (`FoilSource.cs:631, 639, 745-767`), with `TipClusteredChannel(4, 3)` (`knots = [0, 0, 0, 0, 1, 1, 1, 1]`, `controlX = [0, 1/3, 2/3, 1]` — Bézier cubic on `[0, 1]`!).
+A seeded wing uses the exact same clamped degree-3 4-CV Bézier rail basis as `FoilSource.NewDefault()` (`FoilSource.cs:631, 639, 745-767`), with `TipClusteredChannel(4, 3)` (`knots = [0, 0, 0, 0, 1, 1, 1, 1]`, `controlX = [0, 1/3, 2/3, 1]`).
 
 For a chosen taper ratio $\lambda \in [\lambda_{\min}, 1]$ (with $\lambda_{\min} = 0.02$ so $c_{\text{tip}}/c_{\text{root}} \ge 0.02$ always holds):
-1. Define the smooth elliptic-tapered normalized target chord distribution on $\eta \in [0, 1]$:
-   $$g(\eta; \lambda) = \lambda + (1 - \lambda)\sqrt{\max(0, 1 - \eta^2)}$$
-2. Fit a 4-CV degree-3 B-spline $g_{\text{fit}}(\eta; \lambda)$ via `ConstrainedFit.Solve` on 401 uniform samples with exact equality pins:
-   - $P_0 = 1$ (exact unit root chord $g_{\text{fit}}(0) = 1$)
-   - $P_1 = 1$ (exact root-mirror G1 tangent $g'_{\text{fit}}(0) = 0$)
-   - $P_3 = \lambda$ (exact tip taper $g_{\text{fit}}(1) = \lambda$)
-   Let $P_2(\lambda)$ be the single free interior ordinate solved by constrained least squares; clamp $P_2(\lambda) \in [\lambda, 1]$ so by the variation-diminishing property of B-splines, $g_{\text{fit}}(\eta; \lambda)$ is **monotone non-increasing** on $[0, 1]$ with $\max_{\eta} g_{\text{fit}}(\eta; \lambda) = 1$ (root) and $\min_{\eta} g_{\text{fit}}(\eta; \lambda) = \lambda$ (tip).
-   *(Because the 4-CV cubic has exact analytical integral $\int_0^1 g_{\text{fit}}(\eta) \, d\eta = \frac{1}{4}(P_0 + P_1 + P_2 + P_3) = \frac{2 + P_2(\lambda) + \lambda}{4}$, the area fill factor $\kappa(\lambda)$ is exact in closed form and agrees bit-for-bit with `WingEstimates.IntegrateOrdinate`! For $\lambda = 0.24$, $g_{\text{fit}}$ closely matches $\kappa_{\text{elliptic}}(0.24) = 0.24 + 0.76 \cdot \frac{\pi}{4} = 0.836903$.)*
-3. Place the normalized leading and trailing rails about the quarter-chord line (matching `FoilSource.cs:649-650`, plus optional linear quarter-chord sweep $\Lambda_{c/4}$):
-   $$\text{LE}_0(\eta) = \frac{1 - g_{\text{fit}}(\eta)}{4} + \frac{b}{2 c_{\text{root}}} \eta \tan \Lambda_{c/4}, \qquad \text{TE}_0(\eta) = \text{LE}_0(\eta) + g_{\text{fit}}(\eta)$$
-   With default zero quarter-chord sweep ($\Lambda_{c/4} = 0$), scaling both rails by $c_{\text{root}}$ gives exact identities:
-   $$c(\eta) = c_{\text{root}} \cdot g_{\text{fit}}(\eta; \lambda), \qquad c_{\max} = c(0) = c_{\text{root}}, \qquad c_{\text{tip}} = \lambda \, c_{\text{root}}$$
+1. Set the four normalized cubic Bézier chord ordinates directly to $(P_0, P_1, P_2, P_3) = (1,\; 1,\; 1,\; \lambda)$:
+   $$g_{4\text{cv}}(\eta; \lambda) = 1 - (1 - \lambda)\eta^3, \qquad \eta \in [0, 1]$$
+   - Exact root chord $g_{4\text{cv}}(0) = 1$, exact root-mirror G1 (and G2) tangent $g'_{4\text{cv}}(0) = 0$ ($P_1 = P_0$), exact tip taper $g_{4\text{cv}}(1) = \lambda$.
+   - By the variation-diminishing property ($P_0 = P_1 = P_2 = 1 \ge \lambda = P_3$), $g_{4\text{cv}}(\eta; \lambda)$ is **monotone non-increasing** on $[0, 1]$ with $\max_{\eta} g_{4\text{cv}}(\eta; \lambda) = 1$ (root) and $\min_{\eta} g_{4\text{cv}}(\eta; \lambda) = \lambda$ (tip).
+   - **Exact closed-form area fill factor** (zero fitting step, zero `Math.Pow`, agrees with `WingEstimates.IntegrateOrdinate`'s 3-point Gauss–Legendre quadrature to $< 10^{-15}$ relative):
+     $$\kappa(\lambda) = \int_0^1 \big(1 - (1 - \lambda)\eta^3\big)\,d\eta = \frac{3 + \lambda}{4}$$
+   - **Exact closed-form MAC ratio** (matches `WingEstimates.IntegrateSquare` to $< 10^{-12}$):
+     $$\int_0^1 g_{4\text{cv}}(\eta; \lambda)^2\,d\eta = \frac{1 + \lambda}{2} + \frac{(1 - \lambda)^2}{7}, \qquad \text{MAC} = c_{\text{root}} \cdot \frac{\frac{1 + \lambda}{2} + \frac{(1 - \lambda)^2}{7}}{\kappa(\lambda)}$$
+2. Place the normalized leading and trailing rails about the quarter-chord line (matching `FoilSource.cs:649-650`, plus optional linear quarter-chord sweep $\Lambda_{c/4}$):
+   $$\text{LE}_0(\eta) = \frac{1 - g_{4\text{cv}}(\eta)}{4} + \frac{b}{2 c_{\text{root}}} \eta \tan \Lambda_{c/4}, \qquad \text{TE}_0(\eta) = \text{LE}_0(\eta) + g_{4\text{cv}}(\eta)$$
+   With default zero quarter-chord sweep ($\Lambda_{c/4} = 0$), scaling the four control ordinates by $c_{\text{root}}$ gives exact algebraic identities — one definition shared by the solver and `WingEstimates.From` (DM7):
+   $$c(\eta) = c_{\text{root}} \cdot g_{4\text{cv}}(\eta; \lambda), \qquad c_{\max} = c(0) = c_{\text{root}}, \qquad c_{\text{tip}} = \lambda \, c_{\text{root}}$$
    $$S(b, c_{\text{root}}) = b \cdot c_{\text{root}} \cdot \kappa(\lambda), \qquad \text{AR}(b, c_{\text{root}}) = \frac{b^2}{S} = \frac{b}{c_{\text{root}} \cdot \kappa(\lambda)}$$
 
 ### 3.2 Hard feasible domain $\Omega$
@@ -349,27 +349,32 @@ $$d_S(b, c_{\text{root}}) = \frac{|S(b, c_{\text{root}}) - S^*|}{S^*}, \qquad d_
 3. **Tertiary tie-breaker (under-determined inputs):** among minimizers of $(J_1, J_2)$, minimize relative distance to the active discipline preset's default $(b_{\text{def}}, c_{\text{def}})$:
    $$J_3(b, c_{\text{root}}) = \frac{|b - b_{\text{def}}|}{b_{\text{def}}} + \frac{|c_{\text{root}} - c_{\text{def}}|}{c_{\text{def}}}$$
 
-**Why exact finite-candidate enumeration finds the global minimum on $\Omega$ (zero black-box optimizer):**
-On each open cell defined by the four target curves ($b = b_{\max}^*$, $c_{\text{root}} = c_{\max}^*$, $b c_{\text{root}} \kappa = S^*$, $b/(c_{\text{root}} \kappa) = \text{AR}^*$), $J_1$ is linear in $b$ (for fixed $c_{\text{root}}$) and of the form $\alpha c_{\text{root}} + \beta / c_{\text{root}} + \gamma$ in $c_{\text{root}}$ (for fixed $b$). Therefore the global minimum on the compact box $\Omega$ MUST occur at one of the finite set of:
-1. All pairwise intersections of the 4 target loci and the 4 box boundaries ($\le 28$ points);
-2. Interior stationary points in $c_{\text{root}}$ along fixed-$b$ boundary/kink lines ($c_{\text{stat}} = \sqrt{(w_{\text{AR}} S^*) / (w_S \text{AR}^*)} / \kappa$);
-3. Stationary points along the hyperbola $S = S^*$ ($b_{\text{stat}} = \sqrt{w_c S^* b_{\max}^* / (w_b \kappa c_{\max}^*)}$).
+**Complete proof that finite-candidate enumeration finds the global minimum on $\Omega$ (zero black-box optimizer):**
+1. **No strictly 2D interior minimum:** On any open cell away from the four target loci ($b = b_{\max}^*$, $c_{\text{root}} = c_{\max}^*$, $b c_{\text{root}} \kappa = S^*$, $b/(c_{\text{root}} \kappa) = \text{AR}^*$), $\partial J_1 / \partial b = \sigma_b \frac{w_b}{b_{\max}^*} + \sigma_S \frac{w_S c_{\text{root}} \kappa}{S^*} + \sigma_{\text{AR}} \frac{w_{\text{AR}}}{c_{\text{root}} \kappa \text{AR}^*}$ is independent of $b$. Because $J_1$ is affine in $b$ on every open cell, no strictly 2D interior minimum exists; the global minimum MUST lie on a fixed-$b$ boundary/kink line, a fixed-$c_{\text{root}}$ boundary/kink line, the hyperbola $S = S^*$, or the ray $\text{AR} = \text{AR}^*$.
+2. **Ray $\text{AR} = \text{AR}^*$ ($b = \text{AR}^* \kappa c_{\text{root}}$, $S = \text{AR}^* \kappa^2 c_{\text{root}}^2$):** $J_1(c_{\text{root}})$ is either strictly increasing ($S > S^*$) or strictly concave ($S < S^*$) between kink points, so its minimum always occurs at a pairwise intersection.
+3. **Fixed-$c_{\text{root}}$ lines:** $J_1$ is piecewise linear in $b$, so its minimum always occurs at a pairwise intersection.
+4. **Fixed-$b$ boundary/kink lines ($b \in \{b_{\min}, b_{\max}, b_{\max}^*, \sqrt{S^*\text{AR}^*}\}$):** On each piece with $\text{AR} > \text{AR}^*$ ($w_{\text{AR}} > 0$), $J_1(c) = A c + B/c + \text{const}$ with $A = \sigma_c \frac{w_c}{c_{\max}^*} + \sigma_S \frac{w_S b \kappa}{S^*}$ ($\sigma_c \in \{0, 1\}$, $\sigma_S \in \{-1, 0, +1\}$) and $B = \frac{w_{\text{AR}} b}{\kappa \text{AR}^*}$. Whenever $A > 0$, the unique interior stationary point is $c_{\text{stat}} = \sqrt{B / A}$ (covering both $c \le c_{\max}^*$ and $c > c_{\max}^*$).
+5. **Hyperbola $S = S^*$ ($c_{\text{root}} = S^*/(b\kappa)$, $\text{AR} = b^2/S^*$):** On pieces with $c_{\text{root}} > c_{\max}^*$ ($w_c > 0$), the derivative is
+   $$\frac{dJ_1}{db} = \sigma_b \frac{w_b}{b_{\max}^*} - \frac{w_c S^*}{b^2 \kappa c_{\max}^*} + \sigma_{\text{AR}} \frac{2 w_{\text{AR}} b}{S^* \text{AR}^*} = 0, \qquad \sigma_b \in \{0, 1\},\; \sigma_{\text{AR}} \in \{-1, 0, +1\}$$
+   - $\sigma_{\text{AR}} = 0,\; \sigma_b = 1$: exact $b_{\text{stat}} = \sqrt{w_c S^* b_{\max}^* / (w_b \kappa c_{\max}^*)}$.
+   - $\sigma_{\text{AR}} = +1$ ($\text{AR} > \text{AR}^*$, strictly increasing derivative on $(0, \infty)$): when $\sigma_b = 0$, exact cube root $\sqrt[3]{w_c (S^*)^2 \text{AR}^* / (2 w_{\text{AR}} \kappa c_{\max}^*)}$ (solved by 64-step bisection on $[b_{\min}, b_{\max}]$ to avoid platform `Math.Pow`); when $\sigma_b = 1$, unique root on $[\max(b_{\min}, b_{\max}^*, \sqrt{S^*\text{AR}^*}), b_{\max}]$ via 64-step bisection.
+   - $\sigma_{\text{AR}} = -1,\; \sigma_b = 1$ ($\text{AR} < \text{AR}^*$): convex region $(0, b_{\text{peak}}]$ where $b_{\text{peak}} = \sqrt[3]{w_c (S^*)^2 \text{AR}^* / (w_{\text{AR}} \kappa c_{\max}^*)}$; any sign change on $[\max(b_{\min}, b_{\max}^*), \min(b_{\max}, \sqrt{S^*\text{AR}^*}, b_{\text{peak}})]$ is solved by 64-step bisection.
 
-Evaluating $(J_1, J_2, J_3)$ at all finite valid candidates (clamped to $\Omega$) takes **< 0.05 ms**, uses only `+ - * / sqrt`, has **zero** iteration-count or platform `Math.Pow` nondeterminism (Ruling 157), and is guaranteed to find the exact global optimum.
+Evaluating $(J_1, J_2, J_3)$ over all pairwise intersections plus families (4) and (5) (clamped to $\Omega$) takes **< 0.1 ms**, uses only `+ - * / sqrt` plus deterministic 64-step bisection (zero `Math.Pow`, Ruling 157), and was independently cross-checked across 200 adversarial random trials against a dense 2D grid oracle with worst gap `0.000e+00`.
 
 ### 3.4 Conflict detection and explicit `SET-01` / `GEO-01` proofs
 
 A **soft-target conflict** exists iff no point $(b, c_{\text{root}}) \in \Omega$ achieves $d_b = d_c = d_S = d_{\text{AR}} = 0$ simultaneously (equivalently, the seeded optimum has $\max_i d_i > 10^{-6}$). The solver names the conflicting pair `(<a>, <b>)` (e.g. `"target area (1000 cm²)"` and `"max span (0.80 m) × max chord (100 mm)"`) and renders `COPY-73`:
 > *"Targets conflict: `<a>` and `<b>` — seeded the nearest feasible design; targets stay as preferences"*
 
-Never a hard error. Every target shows its signed deviation badge beside the seeded value (e.g. `target AR 12 · seeded 11.03 · −8 %`, or `target AR 12 · seeded 11.60 · −3 %` at `b_max = 1.08 m`).
+Never a hard error. Every target shows its signed deviation badge beside the seeded value (e.g. `target AR 12 · seeded 11.60 · −3 %` at `b_max = 1.077 m`).
 
-| Fixture | Inputs | Weights `(w_b, w_c, w_S, w_AR)` | Solved `(b, c_root, c_tip, S, AR)` | Conflict? | Verification |
+| Fixture | Inputs | Weights `(w_b, w_c, w_S, w_AR)` | Solved `(b, c_root, c_tip, S, AR)` under $\kappa(\lambda) = (3+\lambda)/4$ | Conflict? | Verification |
 |---|---|---|---|---|---|
-| **`SET-01` primary** | `b_max 1.10 m`, `c_max 120 mm`, `S 1000 cm²`, `AR 12`, `λ 0.24` | `(1, 1, 1, 1)` | `b = 1.095445 m`, `c_root = 109.08 mm`, `c_tip = 26.18 mm`, `S = 1000.00 cm²`, `AR = 12.00` | No (`d_i = 0`) | **Verified by execution** |
-| **`SET-01` tight-span** | `b_max 1.077 m`, `c_max 120 mm`, `S 1000 cm²`, `AR 12`, `λ 0.24` | `(2, 1, 2, 1)` | `b = 1.077000 m`, `c_root = 110.95 mm`, `c_tip = 26.63 mm`, `S = 1000.00 cm²`, `AR = 11.60` (`−3 %`) | Yes (`max span` vs `target AR`) | **Verified by execution** (`target AR 12 · seeded 11.6 · −3 %`) |
-| **`SET-01` conflicting triple** | `S 1000 cm²`, `b_max 0.80 m`, `c_max 100 mm`, `λ 0.24` | **`(1, 0, 0, 0)`** | **`b = 0.800000 m` exact**, `c_root = 100.00 mm`, `c_tip = 24.00 mm`, `S = 669.52 cm²` (`−33 %`), `AR = 9.56` | Yes (`COPY-73`) | **Verified by execution** (`J1 = 0` for `b ≤ 0.80`; `J2` pushes `b` uniquely to `0.800000 m`!) |
-| **`GEO-01` exact drivers** | `S = 0.14 m²`, `AR = 7.0`, `λ = 0.30` | `(0, 0, 1, 1)` | **`b = 0.98994949 m = √0.98 m`**, `c_root = 166.42 mm`, `c_tip = 49.93 mm`, `S = 1400.00 cm²`, `AR = 7.00` | No (`d_i = 0`) | **Verified by execution** (within `10⁻¹²` relative) |
+| **`SET-01` primary** | `b_max 1.10 m`, `c_max 120 mm`, `S 1000 cm²`, `AR 12`, `λ 0.24` (`κ = 0.81`) | `(1, 1, 1, 1)` | `b = 1.095445 m`, `c_root = 112.70 mm`, `c_tip = 27.05 mm`, `S = 1000.00 cm²`, `AR = 12.00` | No (`d_i = 0`) | **Verified by execution** |
+| **`SET-01` tight-span** | `b_max 1.077 m`, `c_max 120 mm`, `S 1000 cm²`, `AR 12`, `λ 0.24` (`κ = 0.81`) | `(2, 1, 2, 1)` | `b = 1.077000 m`, `c_root = 114.63 mm`, `c_tip = 27.51 mm`, `S = 1000.00 cm²`, `AR = 11.60` (`−3 %`) | Yes (`max span` vs `target AR`) | **Verified by execution** (`target AR 12 · seeded 11.6 · −3 %`) |
+| **`SET-01` conflicting triple** | `S 1000 cm²`, `b_max 0.80 m`, `c_max 100 mm`, `λ 0.24` (`κ = 0.81`) | **`(1, 0, 0, 0)`** | **`b = 0.800000 m` exact**, `c_root = 100.00 mm`, `c_tip = 24.00 mm`, `S = 648.00 cm²` (`−35 %`), `AR = 9.88` | Yes (`COPY-73`) | **Verified by execution** (`J1 = 0` for `b ≤ 0.80`; `J2` pushes `b` uniquely to `0.800000 m`) |
+| **`GEO-01` exact drivers** | `S = 0.14 m²`, `AR = 7.0`, `λ = 0.30` (`κ = 0.825`) | `(0, 0, 1, 1)` | **`b = 0.98994949 m = √0.98 m`**, `c_root = 171.42 mm`, `c_tip = 51.43 mm`, `S = 1400.00 cm²`, `AR = 7.00` | No (`d_i = 0`) | **Verified by execution** (within `10⁻¹²` relative) |
 
 ### 3.5 One-way FoilDSL 4.1 emission & `GEO-04` detachment
 
@@ -393,17 +398,17 @@ Never a hard error. Every target shows its signed deviation badge beside the see
 
 All nine A5.5 presets are re-centred on the KB 04 verified product table (AR floor ≥ 7.1, area 480–1900 cm², span 690–1380 mm, root `t/c` 9–12 %). Every default wing below was verified in Python to satisfy its ceilings, `TipChord.MinimumMeters`, and A5.5 sanity bounds with zero error-severity findings.
 
-| # | Preset ID | Setup brief purpose(s) mapped | Default drivers (`S*`, `AR*`, `b_max*`, `c_max*`, `λ`, `t/c`) | Seeded wing (`b`, `c_root`, `c_tip`, `c̄`) | Preferred section → Admitted GEN fallback (`catalog.tsv`) | Class rule preset | Flagged fields requiring acknowledgement |
+| # | Preset ID | Setup brief purpose(s) mapped | Default drivers (`S*`, `AR*`, `b_max*`, `c_max*`, `λ`, `t/c`) | Seeded wing (`b`, `c_root`, `c_tip`, `c̄`, `MAC`) under $\kappa = (3+\lambda)/4$ | Preferred section → Admitted GEN fallback (`catalog.tsv`) | Class rule preset | Flagged fields requiring acknowledgement |
 |---|---|---|---|---|---|---|---|
-| 1 | `wingfoil-race` | `wingfoil race` | `1000 cm²` · `12.0` · `1.10 m` · `120 mm` · `0.24` · `10.0 %` | `1095.4 mm` · `109.1 mm` · `26.2 mm` · `91.3 mm` | `e817` (Pending UIUC) → **`naca-4412`** | `gwa-race-2022` | board/kit mass, trim share, depth band, speed band, anhedral/washout |
-| 2 | `wingfoil-freeride` | `wingfoil freeride` | `1200 cm²` · `8.0` · `1.00 m` · `170 mm` · `0.35` · `11.0 %` | `979.8 mm` · `142.3 mm` · `49.8 mm` · `122.5 mm` | `e874` (Pending UIUC) → **`naca-4412`** | `open-class` | board/kit mass, speed band, anhedral/washout |
-| 3 | `surf` | `surffoil`, `wingfoil surf`, **`wakefoil`** *(Flagged wake note)* | `1050 cm²` · `7.4` · `0.90 m` · `175 mm` · `0.38` · `11.5 %` | `881.5 mm` · `137.4 mm` · `52.2 mm` · `119.1 mm` | `e874` (Pending UIUC) → **`naca-4412`** | `open-class` | wave/wake speed band (`wakefoil → surf preset` note), board/foil mass |
-| 4 | `pump` | Direct preset (`pump`) | `1550 cm²` · `10.5` · `1.30 m` · `175 mm` · `0.30` · `11.0 %` | `1275.7 mm` · `143.0 mm` · `42.9 mm` · `121.5 mm` | `e904` (Pending UIUC) → **`naca-4412`** | `open-class` | pump cadence/heave (`St`), board mass |
-| 5 | `downwind` | `downwind` | `1100 cm²` · `11.8` · `1.20 m` · `135 mm` · `0.28` · `10.4 %` | `1139.3 mm` · `114.2 mm` · `32.0 mm` · `96.6 mm` | `e904` (Pending UIUC) → **`naca-4412`** | `open-class` | SUP board mass, swell speed band |
-| 6 | `parawing` | Direct preset (`parawing`) | `1000 cm²` · `11.0` · `1.10 m` · `130 mm` · `0.28` · `10.4 %` | `1048.8 mm` · `112.8 mm` · `31.6 mm` · `95.3 mm` | `e904` (Pending UIUC) → **`naca-4412`** | `open-class` | parawing mass, wind/speed band, open-class status |
-| 7 | `windfoil` | `windfoil race` (iQFOiL), `windfoil freeride` (open) | `900 cm²` · `10.0` · `0.98 m` · `130 mm` · `0.30` · `9.5 %` | `948.7 mm` · `111.6 mm` · `33.5 mm` · `94.9 mm` | `speer-h105` (Cite only LINK) → **`naca-0009`** | `iqfoil-2025` (race) / `open-class` (freeride) | iQFOiL span/section geometry, windfoil speed band |
-| 8 | `kitefoil` | Direct preset (`kitefoil`) | `620 cm²` · `10.5` · `0.85 m` · `105 mm` · `0.26` · `9.2 %` | `806.8 mm` · `91.3 mm` · `23.8 mm` · `76.8 mm` | `e818` (Pending UIUC) → **`naca-0009`** | `formula-kite-2024` | Formula Kite dimensional maxima (PDF unopened), speed band |
-| 9 | `efoil` | Direct preset (`e-foil`) | `1400 cm²` · `7.5` · `1.08 m` · `215 mm` · `0.40` · `12.0 %` | `1024.7 mm` · `156.8 mm` · `62.7 mm` · `136.6 mm` | **`naca-4412`** (GEN admitted directly) | `open-class` | e-foil wing dimensions & battery/board mass |
+| 1 | `wingfoil-race` | `wingfoil race` | `1000 cm²` · `12.0` · `1.10 m` · `120 mm` · `0.24` · `10.0 %` | `1095.4 mm` · `112.7 mm` · `27.0 mm` · `91.3 mm` · `97.7 mm` | `e817` (Pending UIUC) → **`naca-4412`** | `gwa-race-2022` | board/kit mass, trim share, depth band, speed band, anhedral/washout |
+| 2 | `wingfoil-freeride` | `wingfoil freeride` | `1200 cm²` · `8.0` · `1.00 m` · `170 mm` · `0.35` · `11.0 %` | `979.8 mm` · `146.2 mm` · `51.2 mm` · `122.5 mm` · `128.4 mm` | `e874` (Pending UIUC) → **`naca-4412`** | `open-class` | board/kit mass, speed band, anhedral/washout |
+| 3 | `surf` | `surffoil`, `wingfoil surf`, **`wakefoil`** *(Flagged wake note)* | `1050 cm²` · `7.4` · `0.90 m` · `175 mm` · `0.38` · `11.5 %` | `881.5 mm` · `141.0 mm` · `53.6 mm` · `119.1 mm` · `124.3 mm` | `e874` (Pending UIUC) → **`naca-4412`** | `open-class` | wave/wake speed band (`wakefoil → surf preset` note), board/foil mass |
+| 4 | `pump` | Direct preset (`pump`) | `1550 cm²` · `10.5` · `1.30 m` · `175 mm` · `0.30` · `11.0 %` | `1275.7 mm` · `147.3 mm` · `44.2 mm` · `121.5 mm` · `128.5 mm` | `e904` (Pending UIUC) → **`naca-4412`** | `open-class` | pump cadence/heave (`St`), board mass |
+| 5 | `downwind` | `downwind` | `1100 cm²` · `11.8` · `1.20 m` · `135 mm` · `0.28` · `10.4 %` | `1139.3 mm` · `117.7 mm` · `33.0 mm` · `96.6 mm` · `102.5 mm` | `e904` (Pending UIUC) → **`naca-4412`** | `open-class` | SUP board mass, swell speed band |
+| 6 | `parawing` | Direct preset (`parawing`) | `1000 cm²` · `11.0` · `1.10 m` · `130 mm` · `0.28` · `10.4 %` | `1048.8 mm` · `116.3 mm` · `32.6 mm` · `95.3 mm` · `101.3 mm` | `e904` (Pending UIUC) → **`naca-4412`** | `open-class` | parawing mass, wind/speed band, open-class status |
+| 7 | `windfoil` | `windfoil race` (iQFOiL), `windfoil freeride` (open) | `900 cm²` · `10.0` · `0.98 m` · `130 mm` · `0.30` · `9.5 %` | `948.7 mm` · `115.0 mm` · `34.5 mm` · `94.9 mm` · `100.4 mm` | `speer-h105` (Cite only LINK) → **`naca-0009`** | `iqfoil-2025` (race) / `open-class` (freeride) | iQFOiL span/section geometry, windfoil speed band |
+| 8 | `kitefoil` | Direct preset (`kitefoil`) | `620 cm²` · `10.5` · `0.85 m` · `105 mm` · `0.26` · `9.2 %` | `806.8 mm` · `94.3 mm` · `24.5 mm` · `76.8 mm` · `81.9 mm` | `e818` (Pending UIUC) → **`naca-0009`** | `formula-kite-2024` | Formula Kite dimensional maxima (PDF unopened), speed band |
+| 9 | `efoil` | Direct preset (`e-foil`) | `1400 cm²` · `7.5` · `1.08 m` · `215 mm` · `0.40` · `12.0 %` | `1024.7 mm` · `160.7 mm` · `64.3 mm` · `136.6 mm` · `142.1 mm` | **`naca-4412`** (GEN admitted directly) | `open-class` | e-foil wing dimensions & battery/board mass |
 
 **GEN polar disclosure (`CAT-03`, `spec-amendment-setup-seeding.md` AM-SET-S1):**
 In today's build, `UnavailablePolar.cs` supplies no computed section polar table until a polar method or precomputed GEN polar dataset lands. Therefore:
@@ -483,7 +488,7 @@ Setup lives inside the existing `ParametricWorkbench` desktop shell (`DESIGN.md`
 |---|---|---|---|
 | `clean-race` | Clean start · discipline preset | Wingfoil race defaults + per-field `Stated`/`Inferred`/`Defaulted` badges, GEN fallback chip (`E817 → NACA 4412`), live planform SVG, 7-point `GOAL-02` feasibility table (`Unavailable` for polar-dependent cells) | Acknowledge flagged fields → Seed creates brief v1 + Goal v1 + `r1` |
 | `flagged-gate` | Flagged acknowledgement required | `Wakefoil → Surf preset` Flagged wake-speed note + Flagged mass/depth/speed items; **Seed design** disabled (`aria-disabled="true"`) with `COPY-39` until checkbox checked | Check Acknowledge (or enter Stated values) → Seed enables |
-| `conflict-targets` | Conflicting soft targets | Both tight-span (`target AR 12 · seeded 11.6 · −3 %`) and `SET-01` conflicting triple (`1000 cm² / 0.8 m / 100 mm`, `w_span = 1` → `span 0.800 m` exact, `S 670 cm² · −33 %`) with `COPY-73` notice; never a hard error; weights editable live | Adjust weights or Seed nearest feasible |
+| `conflict-targets` | Conflicting soft targets | Both tight-span (`target AR 12 · seeded 11.6 · −3 %`) and `SET-01` conflicting triple (`1000 cm² / 0.8 m / 100 mm`, `w_span = 1` → `span 0.800 m` exact, `S 648 cm² · −35 %`) with `COPY-73` notice; never a hard error; weights editable live | Adjust weights or Seed nearest feasible |
 | `class-violation` | Class-rule DRC violation | GWA race preset with `S = 650 cm² < 700 cm²` and `mast = 120 cm > 115 cm` → located DRC findings naming `class.gwa.front_area` & `class.gwa.mast_length`, version `2022-02-01`, date, Jump to field, Exclude with reason; geometry NOT mutated | Raise target area / reduce mast / Exclude with reason |
 | `reseed-edited` | Re-seed on an already-edited document | Document at `r4` (`Direct parametric`, `COPY-05`), existing VLM run `k-8a2f1c Current`; preview shows `r4` ghosted vs candidate `r5`, explicit notice that `r1..r4` remain as history, brief v2 appends, and prior runs become `Historical` (`COPY-64`) | Re-seed as `r5` (Undo returns to `r4` & `Current`!) or Cancel |
 | `no-key-language` | Language entry slot with no API key | `"Describe a starting design"` (`COPY-79`) card shows `COPY-53` (*"No API key configured — every design and analysis tool works without it · Configure key"*), textarea disabled cleanly; full parameter form below remains 100 % active (`AI-01`, `SET-02`) | Configure key (Settings) or seed offline via parameters |
@@ -543,7 +548,8 @@ Every test below MUST be observed **RED** against a failing stub or named mutant
 | # | Test name (project) | Story / Invariant | Assertion | Named mutant that turns it RED |
 |---|---|---|---|---|
 | T1 | `Seeder_PrimaryRaceFixture_ExactTargetsAndCertified` (`Core.Tests`) | `SET-01`, `GEO-01` | `(1.10 m, 120 mm, 1000 cm², AR 12, λ 0.24)` yields `b = 1.095445 m`, `S = 1000.00 cm²`, `AR = 12.00` via `WingEstimates.From`, `conflict = false`, `Geometry.Assess == Certified` | Mutant replaces `κ(λ)` with `1.0` (rectangular assumption) → `S` and `AR` miss by ~16 % → RED |
-| T2 | `Seeder_ConflictingTriple_WeightSpanOne_ExactSpanAndConflictNotice` (`Core.Tests`) | `SET-01` | `(S 1000 cm², b_max 0.8 m, c_max 100 mm)` with `w = (1, 0, 0, 0)` produces `b = 0.800000 m` within `1e-12`, `conflict = true`, `COPY-73` populated, `GeometryStatus.Certified`, never throws | Mutant omits lexicographic `J2` tie-breaker (returns `b_lo = 0.10 m`) or throws on conflict → RED |
+| T2 | `Seeder_ConflictingTriple_WeightSpanOne_ExactSpanAndConflictNotice` (`Core.Tests`) | `SET-01` | `(S 1000 cm², b_max 0.8 m, c_max 100 mm)` with `w = (1, 0, 0, 0)` produces `b = 0.800000 m` within `1e-12`, `S = 648.00 cm²`, `conflict = true`, `COPY-73` populated, `GeometryStatus.Certified`, never throws | Mutant omits lexicographic `J2` tie-breaker (returns `b_lo = 0.10 m`) or throws on conflict → RED |
+| T2b | `Seeder_StationaryFamilies_BeatsDenseGridOracle` (`Core.Tests`) | `SET-01` | Across 200 seeded adversarial target/weight combinations (including `c > c_max*` + `AR > AR*` interior stationary winners on fixed-$b$ and $S = S^*$ hyperbola), `RecipeSeeder.Solve` achieves `J1 <= J1_grid + 1e-9` and emitted `WingEstimates.From` agrees with solved `(b, S, AR, c_root, c_tip, MAC)` to `1e-12` relative | Mutant drops fixed-$b$ `c_stat` (`σ_c = 1`) or $S = S^*$ bisection stationary family, or substitutes `κ_elliptic` for `(3+λ)/4` → exceeds grid oracle or `WingEstimates` mismatch → RED |
 | T3 | `Seeder_Geo01_AreaAndAr_ExactSqrtSpan` (`Core.Tests`) | `GEO-01` | `S = 0.14 m², AR = 7` produces `b = √0.98 m` within `1e-12` relative on `WingEstimates.From` | Mutant rounds `ExactDecimal` to 3 decimals → fails identity tolerance → RED |
 | T4 | `Seeder_TipChordMinimum_NeverViolated` (`Core.Tests`) | Ruling 93 | Extreme small targets (`b_max 0.2 m, c_max 15 mm, λ 0.05`) clamp `c_tip >= TipChord.MinimumMeters(c_root)` and pass `AuthoringSession.Seed` without `DSL-TIP-CHORD-MIN` | Mutant drops `0.005 / λ_eff` lower bound in `Ω` → `AuthoringSession.Commit` refuses with `DSL-TIP-CHORD-MIN` → RED |
 | T5 | `Seeder_SameInputsFormAndProposalFixture_EqualSurfaceAndGoalHash` (`Core.Tests`) | `SET-03` | Form brief and recorded `setup-seed` proposal fixture with identical fields yield identical `SurfaceHash` and `GoalStateVersion.ContentHash`, differing only in `entryKind` and provenance | Mutant hashes `entryKind` into `GoalStateVersion` or emits non-deterministic timestamps into FoilDSL → hashes diverge → RED |
@@ -576,7 +582,7 @@ No code starts until the operator approves `docs/mockups/setup-seeding.html` and
 
 | ID | Decision needed | Recommended default (option a) | Alternative (option b) | Owner | Blast radius if overturned |
 |---|---|---|---|---|---|
-| **`DR-SET-1`** | Native format version when `Envelope.setup` is present | **(a)** Generalize `cfdw-project-2` (`Format(runCount, hasSetup)` → `-1` iff neither, `-2` iff either); pre-SET readers still fail closed with `DOC-UNSUPPORTED-FIELD` (`COPY-130`) before format check; `.v1.bak` triggers automatically from `-1`. | **(b)** Introduce `cfdw-project-3` whenever `setup` is present, plus `.v2.bak` when upgrading a `-2` file that already has runs. | Operator + Data & Persistence | `NativeProject.Read`, `RunRecord.Format`, `ProjectStore` backup suffix (`SET-1` only) |
+| **`DR-SET-1`** | Native format version when `Envelope.setup` is present | **(a)** Generalize `cfdw-project-2` (`NativeProject.Format(runCount, hasSetup)` → `-1` iff neither, `-2` iff either; `SET-1` updates `NativeProject.Read` at `AuthoringSession.cs:2631,2641,2643` so a `-2` file with `setup` and 0 runs is admitted); pre-SET readers still fail closed with `DOC-UNSUPPORTED-FIELD` (`COPY-130`) before format check; `.v1.bak` triggers automatically from `-1`. | **(b)** Introduce `cfdw-project-3` whenever `setup` is present, plus `.v2.bak` when upgrading a `-2` file that already has runs. | Operator + Data & Persistence | `NativeProject.Read`, `RunRecord.Format`, `ProjectStore` backup suffix (`SET-1` only) |
 | **`DR-SET-2`** | `OperatingPoint.Load` (`RunRecord.cs:76`) relaxation | **(a)** Confirm `Load` = front-wing required load in N (`requiredLoadN`); keep `null` on custom fixed-α runs (A3a/A3d keys unchanged); relax `OperatingPoints.Validate` (`OperatingPoint.cs:61`) to allow finite positive `Load` for Goal-state load-solved runs (coordinated with `SWP`). | **(b)** Keep `OperatingPoint.Load` always `null` and carry `requiredLoadN` only on the Sweep/Experiment case wrapper (not inside the Analysis run key). | Operator + Hydrodynamicist + Data & Persistence | `OperatingPoint.cs:61`, `SWP` run-key contract (`SET-2` + `SWP`) |
 | **`DR-SET-3`** | Soft-target deviation norm for `max span` / `max chord` | **(a)** One-sided upper-bound deviation `max(0, (q - q_max)/q_max)` for `max span` & `max chord`, two-sided `|q - q*|/q*` for `target area` & `target AR`, plus lexicographic `J2` tie-breaker on zero-weight targets (so non-conflicting ceilings never distort `S*`/`AR*`, and `SET-01`'s conflicting triple with `w_b = 1` hits `b = 0.800000 m` exact). | **(b)** Treat all four targets as two-sided `|q - q*|/q*` (changes semantics of "max span" to "exact target span", which would distort `S*` or `AR*` whenever `b_max > √(S*·AR*)`). | Operator + Hydrodynamicist | `RecipeSeeder.Solve` (`SET-1` only) |
 | **`DR-SET-4`** | `CAT-03` GEN polar availability for initial offline milestone | **(a)** Ship offline Setup with the 3 existing admitted GEN sections (`naca-0009`, `naca-0012`, `naca-4412`) + explicit pending/LINK fallback disclosure, and show `"Unavailable — polar data not computed for this section"` in polar-dependent feasibility cells until the polar tier ships. | **(b)** Block Area 1 Setup build until a precomputed GEN polar dataset (`Re 2×10⁵–2×10⁶`, `Ncrit {2, 4}`) is generated and committed for all 3 GEN sections. | Operator + Hydrodynamicist | `SET-2` sequencing (blocks `SET-2` if option b chosen) |
