@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-19T23:41:20Z",
+  "generated": "2026-11-19T23:50:37Z",
   "audit": [
     {
       "actor": null,
@@ -44117,6 +44117,38 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-19T23:36:10Z",
       "duration_seconds": 310.0
+    },
+    {
+      "id": "al-01M7V3G8EZZHR910BY4NEAGGDF",
+      "shortname": "define-architecture-cad-export-kernel",
+      "datetime": "2026-11-19T23:50:36Z",
+      "session": "w5-kernel-arch",
+      "prompt": "Wave 5 Track KRN: define Area 7 STEP AP203 and Rhino 3DM CAD export kernel architecture and proposed ADR-0013",
+      "summary": "Authored docs/architecture/cad-export-kernel.md, rendered HTML, and proposed docs/adr/0013-cad-export-kernel.md with Hybrid baseline + pure-C# STEP SPIKE-CAD-01 bake-off and SPIKE-CAD-02 Fusion/CAM/Rhino open-and-measure contract.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/architecture/cad-export-kernel.md",
+        "docs/architecture/cad-export-kernel.html",
+        "docs/adr/0013-cad-export-kernel.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Produce evidence-based Area 7 STEP AP203 and Rhino 3DM CAD export kernel architecture brief and proposed ADR-0013 resolving ADR-0003 unselected export kernel gate.",
+      "done_when": "cad-export-kernel.md, cad-export-kernel.html, and adr-0013-cad-export-kernel.md authored with verified constraints, 4-option matrix, SPIKE-CAD-01/02, threat/license tables, E7 list, LAB-01 check, DR-KRN-1..6; docs-graph derive and check-docs.py exit 0; clean commit on branch.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-11-19T23:42:43Z",
+      "duration_seconds": 473.0,
+      "git": {
+        "sha": "df566d56cedb076a22f5d92b6431d05606e6a23b",
+        "short": "df566d56c",
+        "branch": "swarm-w5-kernel-arch-9e84b687",
+        "pushed": null
+      }
     }
   ],
   "changes": [
@@ -44996,6 +45028,30 @@ window.AUDIT_DATA = {
         "before": "5b8506e326b4a7cac18b723207ab6b07b923c588",
         "after": "5b8506e326b4a7cac18b723207ab6b07b923c588",
         "branch": "plan/f1-rescope",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M7V3G7XCNW4Q50SZBYASC990",
+      "datetime": "2026-11-19T23:50:35Z",
+      "session": "w5-kernel-arch",
+      "kind": "architecture",
+      "skill": "define-architecture",
+      "title": "Area 7 CAD Export Kernel Architecture and Proposed ADR-0013",
+      "prompt": "Wave 5 Track KRN: define Area 7 STEP AP203 and Rhino 3DM CAD export kernel architecture and proposed ADR-0013 resolving ADR-0003 unselected export kernel gate",
+      "summary": "Produced docs/architecture/cad-export-kernel.md (.html) and proposed docs/adr/0013-cad-export-kernel.md recommending Hybrid T0 architecture (owned Placement.cs authority, process-isolated OCCT LGPL-2.1 STEP worker, MIT rhino3dm/openNURBS 3DM) gated on a two-track SPIKE-CAD-01 bake-off against a pure-C# STEP writer and SPIKE-CAD-02 Fusion + two-CAM + Rhino open-and-measure fixture.",
+      "rationale": "Honors COMMIT-02 (no LGPL linked in-process), resolves spec 1.3 A4.12 vs A8.5 drift, preserves ADR-0010 single placement authority, surfaces Windows ARM64 native ABI risk honestly as Flagged, and gates build on empirical SPIKE-CAD-01/02 evidence.",
+      "artifacts": [
+        "docs/architecture/cad-export-kernel.md",
+        "docs/architecture/cad-export-kernel.html",
+        "docs/adr/0013-cad-export-kernel.md"
+      ],
+      "tags": [],
+      "git": {
+        "before": "df566d56cedb076a22f5d92b6431d05606e6a23b",
+        "after": "df566d56cedb076a22f5d92b6431d05606e6a23b",
+        "branch": "swarm-w5-kernel-arch-9e84b687",
         "pushed": null,
         "commits": []
       }
