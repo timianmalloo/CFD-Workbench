@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-19T22:11:37Z",
+  "generated": "2026-11-19T22:56:36Z",
   "audit": [
     {
       "actor": null,
@@ -43989,6 +43989,45 @@ window.AUDIT_DATA = {
       "duration_source": "session-start-hook",
       "started_at": "2026-11-19T22:07:52Z",
       "duration_seconds": 225.0
+    },
+    {
+      "id": "al-01M7V02WMP9K773KV1BJX56TN0",
+      "shortname": "/prepare-for-coordination : consider all of the suggestions and build a …",
+      "datetime": "2026-11-19T22:50:52Z",
+      "session": "prompt-log",
+      "prompt": "/prepare-for-coordination : consider all of the suggestions and build a plan to execute on them in the optimal way / /execute-with-coordination : use the plan and /swarm in agy to drive a multi-agent coordinated swarm to get this work done",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M7V0DC95YAGRRAG1EFM5M1F2",
+      "shortname": "coordination-wave5-next-steps",
+      "datetime": "2026-11-19T22:56:36Z",
+      "session": "agy-coord-w5",
+      "prompt": "/prepare-for-coordination : consider all of the suggestions and build a plan to execute on them in the optimal way",
+      "summary": "5 tracks across 2 waves (Wave A width 3: CLN, SWP, SET + CF-0 CG/Owner gate; Wave B width 2: CF, KRN); 7 struck tracks; independent Adversary PASS-WITH-CONDITIONS cleared with C1-C4 folded",
+      "kind": "skill",
+      "skill": "prepare-for-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/wave5-next-steps.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Produce verified Wave 5 coordination plan for AGY swarm covering all suggested next steps",
+      "done_when": "Layer measured, artifact classes and GO14a/DC-189 verified, Adversary veto cleared, md+html+index committed and check-docs green",
+      "tier": "T2",
+      "fan_out": 3,
+      "started_at": "2026-11-19T22:45:56Z",
+      "duration_seconds": 640.0
     }
   ],
   "changes": [

@@ -12067,6 +12067,53 @@ window.DOCS_INDEX = {
       "sourceSha256": "5d29d6437995d4d94b4bb7460c04cb91b6dc4c54d96ea4703ec1c041ef3b8046"
     },
     {
+      "id": "coordination-wave5-next-steps",
+      "path": "docs/coordination/wave5-next-steps.md",
+      "title": "Coordination plan - wave 5: cleanup, compatible fit, sweeps and setup designs, and export kernel scoping",
+      "type": "plan",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2026-12-19",
+      "reviewSuggested": [],
+      "summary": "Wave 5 executes every unblocked next-step suggestion on AGY native swarm at width cap 3: Wave A runs cleanup/headroom (CLN) in parallel with Area 4 Local Sweeps design (SWP) and Area 1 Setup design (SET); after CLN joins and Owner rules DR-DF-7/DR-DF-9, Wave B runs the full Compatible Fit build (CF, cfdw-cv/3) in parallel with Area 7 CAD export kernel architecture scoping (KRN). Area 5 solver build/WSL install and UI builds for unapproved mockups are explicitly struck.",
+      "tags": [
+        "coordination",
+        "worktrees",
+        "parallelism",
+        "windows",
+        "agy-swarm"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "design-compatible-fit",
+          "rel": "implements"
+        },
+        {
+          "to": "coordination-wave3-next-steps",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-0010-one-placement-rule",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "29606b9b35a0fba27ab46052346a2977f046cf1931638edd29a2b75b5b54a5f8"
+    },
+    {
       "id": "coordination-windows-gpu-f1-design",
       "path": "docs/coordination/windows-gpu-f1-design.md",
       "title": "Coordination plan - Windows GPU F1 design",
@@ -24562,6 +24609,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-w2-recovery"
     },
     {
+      "id": "surface-coordination-wave5-next-steps",
+      "path": "docs/coordination/wave5-next-steps.html",
+      "title": "Wave5 Next Steps",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "coordination-wave5-next-steps"
+    },
+    {
       "id": "surface-coordination-windows-gpu-f1-preflight-r217",
       "path": "docs/coordination/windows-gpu-f1-preflight-r217.html",
       "title": "Windows GPU F1 dependency preflight coordination plan",
@@ -24586,5 +24641,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "2bc1cce0e1ca527d06e22eb78b6d3413dff4a546f6838960f80df343b1d4554f"
+  "graphSha256": "9c68ed3104a1e8ba95a65e233296ab524511d02f7dac95e746df0f37e813ec1d"
 };
