@@ -3997,6 +3997,76 @@ window.DOCS_INDEX = {
       "sourceSha256": "1ead8948b387530146f2d8e8a522823c8d2213d4ed2228ccd1f361ef41a94c1e"
     },
     {
+      "id": "design-setup-seeding",
+      "path": "docs/design/setup-seeding.md",
+      "title": "Design: Area 1 — Setup & Goal State (offline parameter/preset seeding, soft-target solver, class rules, Goal state persistence, and no-key language slot)",
+      "type": "design",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "design — documents and mockup only; no build until operator approves mockup and DR-SET-1..5",
+      "reviewBy": "2026-12-19",
+      "reviewSuggested": [],
+      "summary": "Build-ready /design-slice for Area 1 (Setup & Goal State: SET-01, SET-03, SET-04, GEO-01, GEO-04, CAT-03, CAT-04, GOAL-01, GOAL-02, plus AI-01/AI-02 no-key language slot). Defines the append-only SetupBriefVersion and GoalStateVersion data model inside NativeProject, aligns the immutable GoalStateVersion operating-point schema with Area 4 local sweeps (SWP), proves the exact 2D deterministic soft-target solver subject to TipChord.MinimumMeters (Ruling 93) and FoilDSL 4.1 one-way emission, specifies all nine discipline presets (8->9 purpose mapping, GEN fallbacks over CatalogData/catalog.tsv, Flagged acknowledgement gate, GWA/iQFOiL/Formula Kite/open-class DRC, sanity bounds, and verified GOAL-02 7-point arithmetic), and gives the E7 surface list, telemetry, red-first test plan with mutants, build slices, and five Decision Requests (DR-SET-1..5).",
+      "tags": [
+        "setup",
+        "goal-state",
+        "seeding",
+        "recipe",
+        "soft-targets",
+        "presets",
+        "class-rules",
+        "drc",
+        "foildsl",
+        "persistence",
+        "data-model",
+        "wave5"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-amendment-setup-seeding",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-foildsl-authority",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-application-project-contract",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "depends-on"
+        },
+        {
+          "to": "kb-hw-hydrofoil-disciplines-and-design-data",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-setup-seeding",
+          "rel": "tested-by"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "df0eb70ea58b2a50d29e008952a53db0c590d8ca6e450235910abc257c9fe718"
+    },
+    {
       "id": "design-view-preferences",
       "path": "docs/design/view-preferences.md",
       "title": "View preferences: the rail comb's scale and density survive a restart",
@@ -6211,6 +6281,49 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "316f3457566f8e9d4a0c50e1ce02bb1b12a707e7a3dd40dfd4e7054a3de86125"
+    },
+    {
+      "id": "mockup-setup-seeding",
+      "path": "docs/mockups/setup-seeding.md",
+      "title": "Area 1 — Setup & Goal State interactive HTML review mockup",
+      "type": "doc",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "ui-design — review mockup (no code build until operator approves)",
+      "reviewBy": "2026-12-19",
+      "reviewSuggested": [],
+      "summary": "Self-contained, dependency-free, theme-aware interactive HTML mockup (docs/mockups/setup-seeding.html) for Area 1 Setup & Goal State. Exercises all six hard states (clean start with Stated/Inferred/Defaulted badges, Flagged acknowledgement gate for Wakefoil -> Surf, SET-01 conflicting soft targets with live 2D deterministic solver and deviation badges, GWA Race class-rule DRC violations with Jump and Exclude, Re-seed on an already-edited r4 document preserving history and marking prior runs Historical, and AI-02 language entry slot in its no-key state) across Light/Dark themes, 1440x900 / 1280x800 / 1024x700 viewports, four review personas, and Reduced Motion.",
+      "tags": [
+        "mockup",
+        "setup",
+        "goal-state",
+        "seeding",
+        "soft-targets",
+        "class-rules",
+        "presets",
+        "hard-states",
+        "wave5"
+      ],
+      "links": [
+        {
+          "to": "design-setup-seeding",
+          "rel": "documents"
+        },
+        {
+          "to": "spec-amendment-setup-seeding",
+          "rel": "relates-to"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5c7860b024dc363abaa1ce077ef433b4eb8ea9664a37ef086048cc9374972b49"
     },
     {
       "id": "plan-application-build",
@@ -23271,6 +23384,57 @@ window.DOCS_INDEX = {
       "sourceSha256": "22f04e75d82c392bf6e55fd9088ca341f1ce853066f053917f58d5c7dcb69e4f"
     },
     {
+      "id": "spec-amendment-setup-seeding",
+      "path": "docs/specs/amendments/spec-setup-seeding.md",
+      "title": "Spec amendment proposal: Area 1 Setup & Goal State clarifications (GEN polar fallback, soft-target norm, OperatingPoint.Load, and 8->9 preset mapping)",
+      "type": "spec",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "specification — proposal (not applied; awaits operator ruling on DR-SET-1..5)",
+      "reviewBy": "2026-12-19",
+      "reviewSuggested": [],
+      "summary": "Four bounded spec clarifications uncovered while grounding Area 1 Setup & Goal State against the built codebase (CatalogData/catalog.tsv, RunRecord.cs, OperatingPoint.cs, AuthoringSession.cs): (1) CAT-03 GEN fallback and honest Unavailable polar cells while UnavailablePolar is active; (2) SET-01 exact one-sided ceiling vs two-sided soft-target deviation norm with lexicographic tie-breaking; (3) confirmation of RunRecord.cs:76 OperatingPoint.Load and additive Envelope.setup persistence; (4) explicit 8-purpose to 9-discipline-preset mapping table. Nothing here is applied until the operator rules on DR-SET-1..5.",
+      "tags": [
+        "setup",
+        "goal-state",
+        "seeding",
+        "presets",
+        "soft-targets",
+        "catalog",
+        "persistence",
+        "spec-amendment",
+        "wave5"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "design-setup-seeding",
+          "rel": "tested-by"
+        },
+        {
+          "to": "mockup-setup-seeding",
+          "rel": "relates-to"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-language",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "625d5d693cf938b1d26995ecafd32a0f54bff0b5d1cff8136bd85434b2df4336"
+    },
+    {
       "id": "spec-amendments-1-7",
       "path": "docs/specs/amendments/spec-1.7.md",
       "title": "Spec 1.7 amendment batch — every spec-owner request, as exact text, approved in Ruling 66",
@@ -24251,6 +24415,14 @@ window.DOCS_INDEX = {
       "artifactId": "audit-log"
     },
     {
+      "id": "surface-design-setup-seeding",
+      "path": "docs/design/setup-seeding.html",
+      "title": "Setup Seeding",
+      "kind": "design-preview",
+      "description": "Inspect a rendered design or design-language preview.",
+      "artifactId": "design-setup-seeding"
+    },
+    {
       "id": "surface-proof-win-naca-sources-tmr-sa-withoutpv",
       "path": "docs/proof/win-naca/sources/tmr-sa-withoutpv.html",
       "title": "2D NACA 0012 Airfoil Validation for Turbulence Model Numerical Analysis - SA Model Results without Point Vortex BC",
@@ -24272,6 +24444,14 @@ window.DOCS_INDEX = {
       "kind": "knowledge-tool",
       "description": "Open an interactive knowledge artifact.",
       "artifactId": "mockup-add-station"
+    },
+    {
+      "id": "surface-mockups-setup-seeding",
+      "path": "docs/mockups/setup-seeding.html",
+      "title": "Area 1 — Setup & Goal State (Interactive Review Mockup)",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-setup-seeding"
     },
     {
       "id": "surface-mockups-area3-analysis",
@@ -24641,5 +24821,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "9c68ed3104a1e8ba95a65e233296ab524511d02f7dac95e746df0f37e813ec1d"
+  "graphSha256": "f0f492188b1c3a4b9476746b88ebf0bbce52d5acf37ad5c1820f0158eda0a63f"
 };

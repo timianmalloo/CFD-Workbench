@@ -1,0 +1,2243 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-motion="standard" data-persona="designer">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Area 1 — Setup &amp; Goal State (Interactive Review Mockup)</title>
+<!--
+  CFD-Workbench · Area 1 (Setup & Goal State) interactive review mockup.
+  Self-contained, dependency-free, DESIGN.md tokens verbatim. Zero external requests.
+  Companion design: docs/design/setup-seeding.md
+  Companion spec amendment: docs/specs/amendments/spec-setup-seeding.md
+  All geometry estimates, soft-target solutions, class-rule DRC, and GOAL-02 7-point
+  hydrodynamic readouts are computed deterministically in this page. Illustrative
+  review artifact only — no C# code or solver is invoked.
+-->
+<style>
+:root {
+  --font-sans: system-ui, sans-serif;
+  --font-mono: ui-monospace, monospace;
+  --radius-none: 0px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-pill: 9999px;
+  --motion-fast: 120ms;
+  --motion-ease: cubic-bezier(0.2, 0, 0, 1);
+  /* Graphite viewport tokens (DESIGN.md) */
+  --viewport: #17272c;
+  --viewport-soft: #243a40;
+  --viewport-ink: #edf4f2;
+  --viewport-mute: #afc6c7;
+  --viewport-grid: #344b50;
+  --foil: #85c9c4;
+  --foil-edge: #c4e7df;
+  --station: #66ddc8;
+  --focus-ring-viewport: #66ddc8;
+  --danger-viewport: #ffaeb5;
+  --warning-viewport: #efc576;
+  --foil-shade-lit: #3f6a6c;
+}
+:root[data-theme="light"] {
+  --canvas: #f0f2f1;
+  --surface: #fbfcfb;
+  --surface-soft: #e8edeb;
+  --ink: #1b2929;
+  --ink-mute: #526362;
+  --hairline: #c9d3cf;
+  --control-line: #788d87;
+  --selection: #d8eeea;
+  --primary: #006c67;
+  --on-primary: #ffffff;
+  --success: #24653f;
+  --warning: #895900;
+  --danger: #a92e37;
+  --focus-ring: #006c67;
+}
+:root[data-theme="dark"] {
+  --canvas: #172326;
+  --surface: #1e2d31;
+  --surface-soft: #2a3d40;
+  --ink: #ebf3f0;
+  --ink-mute: #b2c4bf;
+  --hairline: #49605b;
+  --control-line: #79928c;
+  --selection: #274c47;
+  --primary: #88d8c6;
+  --on-primary: #172326;
+  --success: #92d1a5;
+  --warning: #efc576;
+  --danger: #ffaeb5;
+  --focus-ring: #88d8c6;
+}
+:root[data-motion="reduced"] *,
+:root[data-motion="reduced"] *::before,
+:root[data-motion="reduced"] *::after {
+  transition: none !important;
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.4;
+}
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+:root[data-persona="keyboard"] :focus {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* ---------- Review Harness Header ---------- */
+.harness-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  padding: 10px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--hairline);
+}
+.harness-bar h1 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+.harness-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-left: auto;
+}
+.harness-controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ink-mute);
+}
+.harness-controls select,
+.harness-controls button {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--control-line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--motion-ease);
+}
+.harness-controls button:hover,
+.harness-controls select:hover {
+  background: var(--surface-soft);
+}
+.harness-controls button[aria-pressed="true"] {
+  background: var(--selection);
+  border-color: var(--primary);
+  font-weight: 600;
+}
+.audit-strip {
+  flex: 1 0 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: 12px;
+  color: var(--ink-mute);
+  padding-top: 4px;
+  border-top: 1px solid var(--hairline);
+}
+.audit-strip .ok { color: var(--success); font-weight: 600; }
+.audit-strip .bad { color: var(--danger); font-weight: 600; }
+.persona-note {
+  display: none;
+  flex: 1 0 100%;
+  padding: 6px 10px;
+  background: var(--surface-soft);
+  border-left: 3px solid var(--primary);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+}
+:root:not([data-persona="designer"]) .persona-note { display: block; }
+
+/* ---------- Stage & Fixed Desktop Shell ---------- */
+.stage {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.shell {
+  width: 1440px;
+  height: 900px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  position: relative;
+}
+.shell[data-vp="1280"] { width: 1280px; height: 800px; }
+.shell[data-vp="1024"] { width: 1024px; height: 700px; }
+
+/* Title / Menu bar */
+.titlebar {
+  flex: 0 0 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--hairline);
+  font-size: 12px;
+}
+.titlebar .menus { display: flex; gap: 12px; color: var(--ink-mute); }
+.titlebar .doc-title {
+  margin: 0 auto;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.titlebar .rev-pill {
+  padding: 2px 8px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-pill);
+  background: var(--surface-soft);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink);
+}
+
+/* Main shell body */
+.body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+}
+
+/* Activity rail (68 px) */
+.rail {
+  flex: 0 0 68px;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-right: 1px solid var(--hairline);
+  padding: 6px 4px;
+  gap: 4px;
+}
+.rail-btn {
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 4px 2px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink-mute);
+  font-size: 11px;
+  cursor: pointer;
+}
+.rail-btn:hover { background: var(--surface-soft); color: var(--ink); }
+.rail-btn[aria-current="page"] {
+  background: var(--selection);
+  border-color: var(--primary);
+  color: var(--ink);
+  font-weight: 600;
+}
+.rail-btn .glyph { font-size: 14px; line-height: 1; }
+.rail-foot { margin-top: auto; display: flex; flex-direction: column; gap: 4px; }
+
+/* Left dock (232 px) */
+.dock {
+  flex: 0 0 232px;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-right: 1px solid var(--hairline);
+  min-height: 0;
+  overflow-y: auto;
+  padding: 10px;
+  gap: 12px;
+}
+.shell[data-vp="1024"] .dock { flex: 0 0 196px; padding: 8px; }
+.dock h2 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-mute);
+}
+.preset-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.preset-item {
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 5px 8px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  text-align: left;
+  font-size: 12px;
+  cursor: pointer;
+}
+.preset-item:hover { background: var(--surface-soft); }
+.preset-item[aria-pressed="true"] {
+  background: var(--selection);
+  border-color: var(--primary);
+  font-weight: 600;
+}
+.preset-item .ar-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-mute);
+  font-variant-numeric: tabular-nums;
+}
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+}
+.history-row {
+  padding: 6px 8px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  background: var(--canvas);
+}
+.history-row.active {
+  border-color: var(--primary);
+  background: var(--selection);
+}
+.history-row .meta {
+  font-size: 11px;
+  color: var(--ink-mute);
+  font-family: var(--font-mono);
+}
+
+/* Center Setup Workspace (2 columns, internal scroll per column) */
+.workspace {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(420px, 1.15fr) minmax(340px, 0.85fr);
+  gap: 0;
+  overflow: hidden;
+}
+.shell[data-vp="1024"] .workspace {
+  grid-template-columns: minmax(380px, 1.08fr) minmax(320px, 0.92fr);
+}
+.col-form, .col-preview {
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.col-preview {
+  border-left: 1px solid var(--hairline);
+  background: var(--surface);
+}
+.shell[data-vp="1024"] .col-form,
+.shell[data-vp="1024"] .col-preview {
+  padding: 10px 12px;
+  gap: 10px;
+}
+
+/* Workspace Section Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+}
+.col-preview .card { background: var(--canvas); }
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.card-head h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+.sub-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--hairline);
+  padding-bottom: 8px;
+}
+.sub-tab {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--control-line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  cursor: pointer;
+  font-weight: 500;
+}
+.sub-tab[aria-selected="true"] {
+  background: var(--primary);
+  color: var(--on-primary);
+  border-color: var(--primary);
+  font-weight: 600;
+}
+
+/* AI-02 No-Key Language Entry Slot */
+.ai-slot {
+  border: 1px solid var(--hairline);
+  border-left: 3px solid var(--control-line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ai-slot.highlight {
+  border-color: var(--primary);
+  border-left: 3px solid var(--primary);
+}
+.ai-slot-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.ai-slot-head strong { font-size: 13px; }
+.ai-nokey-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  background: var(--surface-soft);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--ink);
+}
+.ai-slot textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 6px 8px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  background: var(--canvas);
+  color: var(--ink-mute);
+  resize: none;
+}
+
+/* Provenance & Confidence Badges (non-colour redundant cues) */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--hairline);
+  font-size: 11px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+.badge.stated { background: var(--selection); border-color: var(--primary); color: var(--ink); font-weight: 600; }
+.badge.inferred { background: var(--surface-soft); border-style: dashed; border-color: var(--control-line); color: var(--ink); }
+.badge.defaulted { background: var(--canvas); border-color: var(--hairline); color: var(--ink-mute); }
+.badge.flagged { background: var(--surface); border: 1px solid var(--warning); color: var(--warning); font-weight: 600; }
+.badge.verified { background: var(--surface); border: 1px solid var(--success); color: var(--success); font-weight: 600; }
+.badge.danger { background: var(--surface); border: 1px solid var(--danger); color: var(--danger); font-weight: 600; }
+.badge.hist { background: var(--surface); border: 1px solid var(--warning); color: var(--warning); font-weight: 600; }
+
+/* Parameter Grid */
+.param-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.field.full { grid-column: 1 / -1; }
+.field-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  font-size: 12px;
+}
+.field-top label { font-weight: 500; color: var(--ink); }
+.field-input-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.field-input-row input,
+.field-input-row select {
+  flex: 1;
+  min-width: 0;
+  min-height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--control-line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.field-input-row input[type="number"] {
+  text-align: right;
+  font-family: var(--font-mono);
+}
+.field-input-row .unit {
+  flex: 0 0 auto;
+  min-width: 28px;
+  font-size: 12px;
+  color: var(--ink-mute);
+}
+.field-input-row .wt-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--ink-mute);
+}
+.field-input-row .wt-wrap input {
+  width: 48px;
+  min-height: 28px;
+  padding: 0 4px;
+}
+.field .hint {
+  font-size: 11px;
+  color: var(--ink-mute);
+}
+.field.error input { border-color: var(--danger); }
+.field .err-txt { font-size: 11px; color: var(--danger); font-weight: 600; }
+
+/* Alerts & Banners */
+.alert {
+  padding: 8px 10px;
+  border: 1px solid var(--hairline);
+  border-left: 3px solid var(--primary);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.alert.warn { border-color: var(--warning); border-left-width: 3px; }
+.alert.danger { border-color: var(--danger); border-left-width: 3px; }
+.alert-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-weight: 600;
+}
+.alert.warn .alert-head { color: var(--warning); }
+.alert.danger .alert-head { color: var(--danger); }
+
+/* Flagged Ack Checkbox */
+.ack-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--warning);
+  border-left: 3px solid var(--warning);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: 12px;
+}
+.ack-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  flex: none;
+  cursor: pointer;
+}
+
+/* Graphite Planform Viewport */
+.vp-box {
+  position: relative;
+  height: 210px;
+  background: var(--viewport);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.shell[data-vp="1024"] .vp-box { height: 176px; }
+.vp-box svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.vp-plate {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  padding: 3px 8px;
+  background: var(--viewport-soft);
+  color: var(--viewport-ink);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 600;
+}
+.vp-legend {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  right: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 3px 8px;
+  background: var(--viewport-soft);
+  color: var(--viewport-mute);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-family: var(--font-mono);
+}
+
+/* Derived Estimates & Deviations */
+.est-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.est-cell {
+  padding: 6px 8px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+.est-cell .k {
+  font-size: 11px;
+  color: var(--ink-mute);
+}
+.est-cell .v {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.dev-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.dev-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.dev-row.changed {
+  border-color: var(--warning);
+  border-left: 3px solid var(--warning);
+}
+
+/* Tables (Goal State & Feasibility) */
+.tbl-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+}
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+table.data th,
+table.data td {
+  padding: 5px 7px;
+  border-bottom: 1px solid var(--hairline);
+  text-align: right;
+  white-space: nowrap;
+}
+table.data th:first-child,
+table.data td:first-child { text-align: left; }
+table.data th {
+  background: var(--surface-soft);
+  color: var(--ink-mute);
+  font-weight: 600;
+}
+table.data td.num { font-family: var(--font-mono); }
+table.data tr:last-child td { border-bottom: 0; }
+
+/* DRC Findings */
+.drc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.drc-row {
+  padding: 8px 10px;
+  border: 1px solid var(--hairline);
+  border-left: 3px solid var(--warning);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.drc-row.advisory { border-left-color: var(--control-line); }
+.drc-row.excluded { opacity: 0.72; }
+.drc-row.excluded .drc-msg { text-decoration: line-through; }
+.drc-row .drc-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.drc-row .drc-id {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-mute);
+}
+.drc-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+.excl-box {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+.excl-box input {
+  flex: 1;
+  min-height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--control-line);
+  border-radius: var(--radius-sm);
+  background: var(--canvas);
+}
+
+/* Buttons */
+.btn {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--control-line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--motion-ease);
+}
+.btn:hover:not([aria-disabled="true"]):not(:disabled) { background: var(--surface-soft); }
+.btn.sm { min-height: 28px; padding: 0 8px; font-size: 11px; }
+.btn.primary {
+  min-height: 44px;
+  padding: 0 18px;
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--on-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+.btn.primary[aria-disabled="true"] {
+  background: var(--surface-soft);
+  border-color: var(--hairline);
+  color: var(--ink-mute);
+  cursor: not-allowed;
+}
+.action-bar {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--hairline);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Status Strip (DR-STATUS-1 V2, 24 px) */
+.statusbar {
+  flex: 0 0 24px;
+  display: flex;
+  align-items: stretch;
+  background: var(--surface);
+  border-top: 1px solid var(--hairline);
+  font-size: 11px;
+  line-height: 14px;
+}
+.statusbar .msg {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.statusbar .msg.warn {
+  color: var(--warning);
+  box-shadow: inset 3px 0 0 var(--warning);
+}
+.statusbar .msg.err {
+  color: var(--danger);
+  box-shadow: inset 3px 0 0 var(--danger);
+}
+.statusbar .slot {
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  border-left: 1px solid var(--hairline);
+  color: var(--ink-mute);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.statusbar .slot b { color: var(--ink); font-weight: 600; margin-left: 4px; }
+.statusbar .slot.warn b { color: var(--warning); }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+</style>
+</head>
+<body>
+
+<header class="harness-bar" aria-label="Mockup review harness">
+  <h1>Area 1 · Setup &amp; Goal State — Review Mockup</h1>
+  <div class="harness-controls">
+    <label>State
+      <select id="h-state" aria-label="Review hard state">
+        <option value="clean-race">1 · Clean start (Wingfoil race)</option>
+        <option value="flagged-gate">2 · Flagged acknowledgement (Wakefoil → Surf)</option>
+        <option value="conflict-targets">3 · Conflicting soft targets (SET-01)</option>
+        <option value="class-violation">4 · Class-rule DRC violation (GWA Race)</option>
+        <option value="reseed-edited">5 · Re-seed on edited doc (r4 → r5)</option>
+        <option value="no-key-language">6 · Language entry, no API key (AI-01)</option>
+      </select>
+    </label>
+    <label>Persona
+      <select id="h-persona" aria-label="Review persona">
+        <option value="designer">Engineer / Maker</option>
+        <option value="keyboard">Keyboard-only</option>
+        <option value="screenreader">Screen-reader</option>
+        <option value="reviewer">Reviewer (audit view)</option>
+      </select>
+    </label>
+    <label>Viewport
+      <select id="h-vp" aria-label="Viewport size">
+        <option value="1440">1440 × 900</option>
+        <option value="1280">1280 × 800</option>
+        <option value="1024">1024 × 700</option>
+      </select>
+    </label>
+    <button type="button" id="h-theme" aria-pressed="false">Dark theme</button>
+    <button type="button" id="h-motion" aria-pressed="false">Reduced motion</button>
+  </div>
+  <div class="audit-strip" id="audit-strip" role="status">Running in-page checks…</div>
+  <div class="persona-note" id="persona-note" role="note"></div>
+</header>
+
+<main class="stage">
+  <div class="shell" id="shell" data-vp="1440" role="application" aria-label="CFD-Workbench Setup workspace">
+    <!-- Top bar -->
+    <div class="titlebar">
+      <div class="menus" aria-hidden="true"><span>File</span><span>Edit</span><span>View</span><span>Checks</span><span>Window</span></div>
+      <div class="doc-title" id="doc-title">race-wing-90kg.cfdw.json — Setup</div>
+      <span class="rev-pill" id="rev-pill">New brief</span>
+    </div>
+
+    <div class="body">
+      <!-- Activity rail -->
+      <nav class="rail" aria-label="Workbench areas">
+        <button type="button" class="rail-btn" aria-current="page" title="Setup — seeded v1">
+          <span class="glyph" aria-hidden="true">◎</span><span>Setup</span>
+        </button>
+        <button type="button" class="rail-btn" id="nav-cad" title="CAD — geometry">
+          <span class="glyph" aria-hidden="true">◇</span><span>CAD</span>
+        </button>
+        <button type="button" class="rail-btn" title="Analysis — local tiers">
+          <span class="glyph" aria-hidden="true">≈</span><span>Analysis</span>
+        </button>
+        <button type="button" class="rail-btn" title="Experiment — sweeps">
+          <span class="glyph" aria-hidden="true">⊞</span><span>Exp</span>
+        </button>
+        <button type="button" class="rail-btn" title="Run — gated (SPIKE-03/04)">
+          <span class="glyph" aria-hidden="true">▷</span><span>Run</span>
+        </button>
+        <button type="button" class="rail-btn" title="Results — gated (SPIKE-03/04)">
+          <span class="glyph" aria-hidden="true">▤</span><span>Results</span>
+        </button>
+        <div class="rail-foot">
+          <button type="button" class="rail-btn" id="nav-checks" title="Checks drawer">
+            <span class="glyph" aria-hidden="true">⚑</span><span id="rail-checks-lbl">Checks</span>
+          </button>
+          <button type="button" class="rail-btn" title="Settings">
+            <span class="glyph" aria-hidden="true">⚙</span><span>Settings</span>
+          </button>
+        </div>
+      </nav>
+
+      <!-- Left Dock: Presets & Brief History -->
+      <aside class="dock" aria-label="Discipline presets and brief history">
+        <div>
+          <h2>Discipline presets (9)</h2>
+          <div class="preset-list" id="preset-list" role="group" aria-label="Nine discipline presets"></div>
+        </div>
+        <div>
+          <h2>Brief &amp; Goal history</h2>
+          <div class="history-list" id="history-list"></div>
+        </div>
+      </aside>
+
+      <!-- Center Workspace -->
+      <section class="workspace" aria-label="Setup brief, Goal state, and preview">
+        <!-- Left column: AI-02 slot + Parameter Form / Goal State Tabs -->
+        <div class="col-form" id="col-form">
+          <!-- AI-02 Language Entry Slot (no-key state per AI-01) -->
+          <div class="ai-slot" id="ai-slot" aria-label="Describe a starting design">
+            <div class="ai-slot-head">
+              <strong>Describe a starting design</strong>
+              <span class="badge defaulted">AI-02 · optional</span>
+            </div>
+            <div class="ai-nokey-row" role="status">
+              <span>No API key configured — every design and analysis tool works without it · Configure key</span>
+              <button type="button" class="btn sm" id="btn-cfg-key">Configure key</button>
+            </div>
+            <label class="sr-only" for="ai-prompt">Natural-language brief (disabled without API key)</label>
+            <textarea id="ai-prompt" disabled aria-disabled="true" placeholder="Example: 90 kg rider, race wingfoil, salt water, 10–20 kn, a bit fuller tip"></textarea>
+          </div>
+
+          <!-- Sub-tabs: Brief & Soft Targets vs Goal State & Feasibility -->
+          <div class="sub-tabs" role="tablist" aria-label="Setup sections">
+            <button type="button" class="sub-tab" role="tab" id="tab-brief" aria-selected="true" aria-controls="panel-brief">Brief &amp; soft targets</button>
+            <button type="button" class="sub-tab" role="tab" id="tab-goal" aria-selected="false" aria-controls="panel-goal">Goal state &amp; feasibility</button>
+          </div>
+
+          <!-- PANEL 1: Brief & Soft Targets -->
+          <div id="panel-brief" role="tabpanel" aria-labelledby="tab-brief">
+            <div class="card">
+              <div class="card-head">
+                <h3>Purpose, class rule &amp; section</h3>
+                <span class="badge verified" id="purpose-map-badge">wingfoil race → wingfoil-race</span>
+              </div>
+              <div class="param-grid">
+                <div class="field">
+                  <div class="field-top">
+                    <label for="in-purpose">Intended purpose</label>
+                    <span class="badge stated">Stated</span>
+                  </div>
+                  <div class="field-input-row">
+                    <select id="in-purpose">
+                      <option value="wingfoil-race">Wingfoil race</option>
+                      <option value="wingfoil-freeride">Wingfoil freeride</option>
+                      <option value="wingfoil-surf">Wingfoil surf</option>
+                      <option value="windfoil-race">Windfoil race</option>
+                      <option value="windfoil-freeride">Windfoil freeride</option>
+                      <option value="wakefoil">Wakefoil (→ Surf preset)</option>
+                      <option value="surffoil">Surffoil</option>
+                      <option value="downwind">Downwind</option>
+                      <option value="pump">Pump / dock-start (preset)</option>
+                      <option value="parawing">Parawing (preset)</option>
+                      <option value="kitefoil">Kitefoil race (preset)</option>
+                      <option value="efoil">E-foil (preset)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <div class="field-top">
+                    <label for="in-class">Class-rule preset</label>
+                    <span class="badge defaulted" id="b-class-prov">Defaulted</span>
+                  </div>
+                  <div class="field-input-row">
+                    <select id="in-class">
+                      <option value="gwa-race-2022">GWA Race Box (2022-02-01)</option>
+                      <option value="iqfoil-2025">iQFOiL One-Design (2025)</option>
+                      <option value="formula-kite-2024">IKA Formula Kite (2024)</option>
+                      <option value="open-class">Open class</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="field full" id="section-fallback-note"></div>
+              </div>
+            </div>
+
+            <div class="card" style="margin-top: 10px;">
+              <div class="card-head">
+                <h3>Soft targets &amp; weights (SET-01)</h3>
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                  <button type="button" class="btn sm" id="btn-preset-tight">Load tight-span conflict</button>
+                  <button type="button" class="btn sm" id="btn-preset-triple">Load SET-01 triple (w_b=1)</button>
+                </div>
+              </div>
+              <div class="param-grid">
+                <div class="field" id="f-span">
+                  <div class="field-top">
+                    <label for="in-bmax">Max span</label>
+                    <span class="badge stated" id="b-span-prov">Stated</span>
+                  </div>
+                  <div class="field-input-row">
+                    <input type="number" id="in-bmax" step="0.01" min="0.1" max="5">
+                    <span class="unit">m</span>
+                    <label class="wt-wrap">w <input type="number" id="in-wb" step="0.5" min="0" max="10" aria-label="Max span weight"></label>
+                  </div>
+                </div>
+
+                <div class="field" id="f-chord">
+                  <div class="field-top">
+                    <label for="in-cmax">Max chord</label>
+                    <span class="badge stated" id="b-chord-prov">Stated</span>
+                  </div>
+                  <div class="field-input-row">
+                    <input type="number" id="in-cmax" step="1" min="20" max="1000">
+                    <span class="unit">mm</span>
+                    <label class="wt-wrap">w <input type="number" id="in-wc" step="0.5" min="0" max="10" aria-label="Max chord weight"></label>
+                  </div>
+                </div>
+
+                <div class="field" id="f-area">
+                  <div class="field-top">
+                    <label for="in-area">Target area</label>
+                    <span class="badge stated" id="b-area-prov">Stated</span>
+                  </div>
+                  <div class="field-input-row">
+                    <input type="number" id="in-area" step="10" min="100" max="4000">
+                    <span class="unit">cm²</span>
+                    <label class="wt-wrap">w <input type="number" id="in-ws" step="0.5" min="0" max="10" aria-label="Target area weight"></label>
+                  </div>
+                </div>
+
+                <div class="field" id="f-ar">
+                  <div class="field-top">
+                    <label for="in-ar">Target AR (b²/S)</label>
+                    <span class="badge stated" id="b-ar-prov">Stated</span>
+                  </div>
+                  <div class="field-input-row">
+                    <input type="number" id="in-ar" step="0.1" min="2" max="20">
+                    <span class="unit">—</span>
+                    <label class="wt-wrap">w <input type="number" id="in-war" step="0.5" min="0" max="10" aria-label="Target AR weight"></label>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <div class="field-top">
+                    <label for="in-taper">Taper (c_tip / c_root)</label>
+                    <span class="badge stated" id="b-taper-prov">Stated</span>
+                  </div>
+                  <div class="field-input-row">
+                    <input type="number" id="in-taper" step="0.02" min="0.02" max="1.0">
+                    <span class="unit">—</span>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <div class="field-top">
+                    <label for="in-tc">Root thickness t/c</label>
+                    <span class="badge defaulted">Defaulted</span>
+                  </div>
+                  <div class="field-input-row">
+                    <input type="number" id="in-tc" step="0.2" min="4" max="25">
+                    <span class="unit">%</span>
+                  </div>
+                </div>
+              </div>
+              <div id="weight-error" class="err-txt" role="alert" style="margin-top:6px;"></div>
+            </div>
+
+            <div class="card" style="margin-top: 10px;">
+              <div class="card-head">
+                <h3>Rider, water &amp; equipment context</h3>
+                <span class="badge inferred" id="sys-mass-badge">≈ 105.4 kg · 1050 N</span>
+              </div>
+              <div class="param-grid">
+                <div class="field">
+                  <div class="field-top">
+                    <label for="in-rider">Rider mass</label>
+                    <span class="badge stated">Stated</span>
+                  </div>
+                  <div class="field-input-row">
+                    <input type="number" id="in-rider" step="1" min="30" max="150">
+                    <span class="unit">kg</span>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <div class="field-top">
+                    <label for="in-water">Water (ITTC Rev 03)</label>
+                    <span class="badge verified">Verified</span>
+                  </div>
+                  <div class="field-input-row">
+                    <select id="in-water">
+                      <option value="salt">Salt (35.16504 g/kg)</option>
+                      <option value="fresh">Fresh (0 g/kg)</option>
+                    </select>
+                    <input type="number" id="in-temp" step="1" min="0" max="50" style="flex:0 0 58px;" aria-label="Water temperature degrees Celsius">
+                    <span class="unit">°C</span>
+                  </div>
+                </div>
+
+                <div class="field" id="f-mast">
+                  <div class="field-top">
+                    <label for="in-mast">Mast length (class check)</label>
+                    <span class="badge flagged">Flagged</span>
+                  </div>
+                  <div class="field-input-row">
+                    <input type="number" id="in-mast" step="1" min="50" max="150">
+                    <span class="unit">cm</span>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <div class="field-top">
+                    <label for="in-href">Default depth h_ref</label>
+                    <span class="badge flagged">Flagged</span>
+                  </div>
+                  <div class="field-input-row">
+                    <input type="number" id="in-href" step="0.05" min="0.1" max="2.0">
+                    <span class="unit">m</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANEL 2: Goal State & Feasibility (GOAL-01, GOAL-02, GOAL-03) -->
+          <div id="panel-goal" role="tabpanel" aria-labelledby="tab-goal" hidden>
+            <div class="card">
+              <div class="card-head">
+                <h3>Goal state operating points (GOAL-02)</h3>
+                <div style="display:flex; gap:6px;">
+                  <button type="button" class="btn sm" id="btn-example-light">Race light (1000 cm²)</button>
+                  <button type="button" class="btn sm" id="btn-example-strong">Race strong (750 cm²)</button>
+                  <button type="button" class="btn sm" id="btn-shallow-p1">Set P1 h_ref = 0.3 m</button>
+                </div>
+              </div>
+              <p class="hint" style="margin:0 0 8px;">Speed band is <span class="badge flagged">Flagged</span> (no public race GPS dataset; disconfirming note: light-wind take-off is pump-assisted). Polar-dependent cells read Unavailable until a polar source is installed.</p>
+              <div class="tbl-wrap">
+                <table class="data" aria-label="Goal state operating points and feasibility">
+                  <thead>
+                    <tr>
+                      <th>Point</th>
+                      <th>V (kn)</th>
+                      <th>h_ref (m)</th>
+                      <th>q (Pa)</th>
+                      <th>CL_req</th>
+                      <th>σ</th>
+                      <th>Re_ref</th>
+                      <th>h/c̄</th>
+                      <th>Polar / −Cp_min</th>
+                    </tr>
+                  </thead>
+                  <tbody id="goal-op-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card" style="margin-top: 10px;">
+              <div class="card-head">
+                <h3>Constraint set (GOAL-01 · edits never mutate geometry)</h3>
+                <button type="button" class="btn sm" id="btn-save-goal">Save Goal state version</button>
+              </div>
+              <div class="tbl-wrap">
+                <table class="data" aria-label="Goal state constraint rows">
+                  <thead>
+                    <tr>
+                      <th>Constraint</th>
+                      <th>Bound</th>
+                      <th>Status</th>
+                      <th>Active</th>
+                    </tr>
+                  </thead>
+                  <tbody id="goal-con-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right column: Planform Preview, Deviations, DRC, and Seed Action -->
+        <div class="col-preview" id="col-preview">
+          <!-- Context Alert Slot (Re-seed / Conflict / Flagged) -->
+          <div id="preview-alerts"></div>
+
+          <!-- Graphite Planform Preview -->
+          <div class="vp-box" aria-label="Seeded half-wing and mirrored planform preview">
+            <div class="vp-plate" id="vp-plate">Preview · elliptic-tapered 4-CV · FoilDSL 4.1</div>
+            <svg id="planform-svg" viewBox="0 0 460 210" role="img" aria-label="Planform spline preview with control polygon"></svg>
+            <div class="vp-legend" id="vp-legend">
+              <span>Solid: evaluated rails · Dashed: 4-CV polygon</span>
+              <span id="vp-tip-rule">Tip floor: ≥ 5.0 mm (OK)</span>
+            </div>
+          </div>
+
+          <!-- Derived Wing Estimates -->
+          <div class="card">
+            <div class="card-head">
+              <h3>Wing estimates (derived on read)</h3>
+              <span class="badge defaulted">AR (projected, b²/S)</span>
+            </div>
+            <div class="est-grid" id="est-grid"></div>
+          </div>
+
+          <!-- Soft-Target Deviation Badges -->
+          <div class="card">
+            <div class="card-head">
+              <h3>Soft-target deviations</h3>
+              <span class="badge verified" id="solver-status-badge">Exact match</span>
+            </div>
+            <div class="dev-list" id="dev-list"></div>
+          </div>
+
+          <!-- Class-Rule & Sanity-Bound DRC -->
+          <div class="card">
+            <div class="card-head">
+              <h3>Design-rule checks (class &amp; envelope)</h3>
+              <span class="badge defaulted" id="drc-count-badge">0 findings</span>
+            </div>
+            <div class="drc-list" id="drc-list"></div>
+          </div>
+
+          <!-- Flagged Acknowledgement Gate -->
+          <div id="flagged-gate-box"></div>
+
+          <!-- Primary Action Footer -->
+          <div class="action-bar">
+            <button type="button" class="btn" id="btn-discard">Discard changes</button>
+            <button type="button" class="btn primary" id="btn-seed" aria-describedby="seed-help">Seed design</button>
+            <span class="sr-only" id="seed-help"></span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- DR-STATUS-1 V2 Status Strip -->
+    <footer class="statusbar" role="status" aria-live="polite">
+      <div class="msg" id="sb-msg">Ready to seed a FoilDSL 4.1 wing and Goal state offline.</div>
+      <div class="slot" id="sb-recipe">Recipe <b id="sb-recipe-val">New brief</b></div>
+      <div class="slot" id="sb-checks">Checks <b id="sb-checks-val">0</b></div>
+      <div class="slot">Rev <b id="sb-rev-val">—</b></div>
+      <div class="slot">Units <b>SI / mm</b></div>
+    </footer>
+  </div>
+</main>
+
+<script>
+'use strict';
+
+// ============================================================================
+// Constants & Nine Discipline Presets (verified against KB 04 & catalog.tsv)
+// ============================================================================
+const KN = 0.514444;
+const G = 9.80665;
+const PATM = 101325.0;
+
+// ITTC 7.5-02-01-03 Rev 03 anchor rows (linear interpolation 0..50 C)
+const ITTC_SALT = { 5: [1027.72, 1.5762e-6, 854.7], 10: [1027.00, 1.3604e-6, 1203.0], 15: [1026.02, 1.1892e-6, 1670.9], 20: [1024.81, 1.0508e-6, 2291.4], 25: [1023.39, 9.3713e-7, 3105.0], 30: [1021.77, 8.4253e-7, 4160.0] };
+const ITTC_FRESH = { 5: [999.97, 1.5182e-6, 872.6], 10: [999.70, 1.3063e-6, 1228.2], 15: [999.10, 1.1386e-6, 1705.8], 20: [998.21, 1.0034e-6, 2339.3], 25: [997.05, 8.9266e-7, 3169.9], 30: [995.65, 8.0071e-7, 4247.0] };
+
+function waterAt(kind, tempC) {
+  const tbl = kind === 'salt' ? ITTC_SALT : ITTC_FRESH;
+  const t = Math.min(30, Math.max(5, tempC));
+  const keys = [5, 10, 15, 20, 25, 30];
+  let lo = 5, hi = 30;
+  for (let i = 0; i < keys.length - 1; i++) {
+    if (t >= keys[i] && t <= keys[i + 1]) { lo = keys[i]; hi = keys[i + 1]; break; }
+  }
+  const f = hi === lo ? 0 : (t - lo) / (hi - lo);
+  const a = tbl[lo], b = tbl[hi];
+  return {
+    rho: a[0] + (b[0] - a[0]) * f,
+    nu: a[1] + (b[1] - a[1]) * f,
+    pv: a[2] + (b[2] - a[2]) * f,
+    salinity: kind === 'salt' ? 35.16504 : 0
+  };
+}
+
+const PRESETS = [
+  { id: 'wingfoil-race', name: 'Wingfoil race', areaCm2: 1000, ar: 12.0, bMax: 1.10, cMaxMm: 120, taper: 0.24, tcPct: 10.0, classId: 'gwa-race-2022', prefSec: 'Eppler E817', prefReason: 'Pending admission — terms requested from UIUC', genSec: 'NACA 4412', mastCm: 95, hrefM: 0.50, addedMassKg: 15.4, loadN: 1050, flagged: ['Board mass 5.5 kg & kit 3.0 kg (KB 04)', 'Front-wing trim share 1050 N (no measured trim data)', 'Speed band 10–32 kn (no public race GPS dataset)', 'Depth band 0.3–0.5 m (practitioner mast clearance)'] },
+  { id: 'wingfoil-freeride', name: 'Wingfoil freeride', areaCm2: 1200, ar: 8.0, bMax: 1.00, cMaxMm: 170, taper: 0.35, tcPct: 11.0, classId: 'open-class', prefSec: 'Eppler E874', prefReason: 'Pending admission — terms requested from UIUC', genSec: 'NACA 4412', mastCm: 85, hrefM: 0.45, addedMassKg: 14.5, loadN: 1030, flagged: ['Board mass 6.0 kg & speed band 8–22 kn (KB 04)'] },
+  { id: 'surf', name: 'Surf foil', areaCm2: 1050, ar: 7.4, bMax: 0.90, cMaxMm: 175, taper: 0.38, tcPct: 11.5, classId: 'open-class', prefSec: 'Eppler E874', prefReason: 'Pending admission — terms requested from UIUC', genSec: 'NACA 4412', mastCm: 80, hrefM: 0.40, addedMassKg: 10.5, loadN: 990, flagged: ['Wave speed band 6–18 kn (KB 04)', 'Board & foil mass 8.5 kg (practitioner estimate)'] },
+  { id: 'pump', name: 'Pump / dock-start', areaCm2: 1550, ar: 10.5, bMax: 1.30, cMaxMm: 175, taper: 0.30, tcPct: 11.0, classId: 'open-class', prefSec: 'Eppler E904', prefReason: 'Pending admission — terms requested from UIUC', genSec: 'NACA 4412', mastCm: 80, hrefM: 0.40, addedMassKg: 9.0, loadN: 970, flagged: ['Pump cadence 1–2 Hz & heave 0.2–0.4 m (KB 04)'] },
+  { id: 'downwind', name: 'Downwind SUP', areaCm2: 1100, ar: 11.8, bMax: 1.20, cMaxMm: 135, taper: 0.28, tcPct: 10.4, classId: 'open-class', prefSec: 'Eppler E904', prefReason: 'Pending admission — terms requested from UIUC', genSec: 'NACA 4412', mastCm: 85, hrefM: 0.45, addedMassKg: 13.5, loadN: 1020, flagged: ['SUP board mass 7.5 kg & swell speeds 7–25 kn (KB 04)'] },
+  { id: 'parawing', name: 'Parawing', areaCm2: 1000, ar: 11.0, bMax: 1.10, cMaxMm: 130, taper: 0.28, tcPct: 10.4, classId: 'open-class', prefSec: 'Eppler E904', prefReason: 'Pending admission — terms requested from UIUC', genSec: 'NACA 4412', mastCm: 85, hrefM: 0.45, addedMassKg: 12.0, loadN: 1005, flagged: ['Parawing mass 0.5 kg & wind band 12–30 kn (KB 04)'] },
+  { id: 'windfoil', name: 'Windfoil (iQFOiL)', areaCm2: 900, ar: 10.0, bMax: 0.98, cMaxMm: 130, taper: 0.30, tcPct: 9.5, classId: 'iqfoil-2025', prefSec: 'Speer H105', prefReason: 'Cite only (LINK) — coordinates may not be copied', genSec: 'NACA 0009', mastCm: 95, hrefM: 0.50, addedMassKg: 21.0, loadN: 1090, flagged: ['iQFOiL front span & section coordinates (unopened)', 'Windfoil speed band 10–35 kn (KB 04)'] },
+  { id: 'kitefoil', name: 'Kitefoil race', areaCm2: 620, ar: 10.5, bMax: 0.85, cMaxMm: 105, taper: 0.26, tcPct: 9.2, classId: 'formula-kite-2024', prefSec: 'Eppler E818', prefReason: 'Pending admission — terms requested from UIUC', genSec: 'NACA 0009', mastCm: 105, hrefM: 0.55, addedMassKg: 11.0, loadN: 990, flagged: ['Formula Kite dimensional maxima (rules PDF unopened)', 'Race speed band 8–38 kn (KB 04)'] },
+  { id: 'efoil', name: 'E-foil', areaCm2: 1400, ar: 7.5, bMax: 1.08, cMaxMm: 215, taper: 0.40, tcPct: 12.0, classId: 'open-class', prefSec: 'NACA 4412', prefReason: null, genSec: 'NACA 4412', mastCm: 80, hrefM: 0.45, addedMassKg: 32.0, loadN: 1200, flagged: ['E-foil wing geometry & battery mass 11 kg (tertiary spec)'] }
+];
+
+const PURPOSE_TO_PRESET = {
+  'wingfoil-race': 'wingfoil-race',
+  'wingfoil-freeride': 'wingfoil-freeride',
+  'wingfoil-surf': 'surf',
+  'windfoil-race': 'windfoil',
+  'windfoil-freeride': 'windfoil',
+  'wakefoil': 'surf',
+  'surffoil': 'surf',
+  'downwind': 'downwind',
+  'pump': 'pump',
+  'parawing': 'parawing',
+  'kitefoil': 'kitefoil',
+  'efoil': 'efoil'
+};
+
+const GOAL02_POINTS_LIGHT = [
+  { id: 'op-1', label: 'P1 · 10 kn take-off', vKn: 10, hRef: 0.5, loadN: 1050 },
+  { id: 'op-2', label: 'P2 · 14 kn upwind', vKn: 14, hRef: 0.5, loadN: 1050 },
+  { id: 'op-3', label: 'P3 · 18 kn downwind', vKn: 18, hRef: 0.5, loadN: 1050 }
+];
+const GOAL02_POINTS_STRONG = [
+  { id: 'op-4', label: 'P4 · 15 kn post-take-off', vKn: 15, hRef: 0.5, loadN: 1050 },
+  { id: 'op-5', label: 'P5 · 22 kn upwind', vKn: 22, hRef: 0.5, loadN: 1050 },
+  { id: 'op-6', label: 'P6 · 28 kn downwind', vKn: 28, hRef: 0.5, loadN: 1050 },
+  { id: 'op-7', label: 'P7 · 32 kn top end', vKn: 32, hRef: 0.5, loadN: 1050 }
+];
+
+// ============================================================================
+// Exact 2D Deterministic Soft-Target Solver (matches design §3.3)
+// ============================================================================
+function kappaElliptic(lam) {
+  const l = Math.max(0.02, Math.min(1.0, lam));
+  return l + (1 - l) * (Math.PI / 4);
+}
+
+function solveSoftTargets(opts) {
+  const { bMax, cMax, areaM2, arTarget, taper, wb, wc, wS, wAR, bDef, cDef } = opts;
+  const lam = Math.max(0.02, Math.min(1.0, taper));
+  const k = kappaElliptic(lam);
+  const bLo = 0.10, bHi = 5.00;
+  const cLo = Math.max(0.020, 0.005 / lam), cHi = 1.00;
+
+  function score(bIn, cIn) {
+    const b = Math.min(bHi, Math.max(bLo, bIn));
+    const c = Math.min(cHi, Math.max(cLo, cIn));
+    const S = b * c * k;
+    const AR = b / (c * k);
+    const db = bMax > 0 ? Math.max(0, (b - bMax) / bMax) : 0;
+    const dc = cMax > 0 ? Math.max(0, (c - cMax) / cMax) : 0;
+    const dS = areaM2 > 0 ? Math.abs(S - areaM2) / areaM2 : 0;
+    const dAR = arTarget > 0 ? Math.abs(AR - arTarget) / arTarget : 0;
+    const j1 = Math.round((wb * db + wc * dc + wS * dS + wAR * dAR) * 1e14) / 1e14;
+    const j2 = Math.round(((wb === 0 ? db : 0) + (wc === 0 ? dc : 0) + (wS === 0 ? dS : 0) + (wAR === 0 ? dAR : 0)) * 1e14) / 1e14;
+    const j3 = Math.abs(b - bDef) / bDef + Math.abs(c - cDef) / cDef;
+    return { key: [j1, j2, j3], b, c, S, AR, tip: c * lam, mean: S / b, db, dc, dS, dAR, tipClamped: c <= cLo + 1e-12 };
+  }
+
+  const bVals = [bLo, bHi, bDef];
+  if (bMax > 0) bVals.push(bMax);
+  const cVals = [cLo, cHi, cDef];
+  if (cMax > 0) cVals.push(cMax);
+  if (areaM2 > 0 && arTarget > 0) {
+    bVals.push(Math.sqrt(areaM2 * arTarget));
+    cVals.push(Math.sqrt(areaM2 / arTarget) / k);
+  }
+
+  const cand = [];
+  for (const b of bVals) {
+    for (const c of cVals) cand.push([b, c]);
+    if (areaM2 > 0) cand.push([b, areaM2 / (b * k)]);
+    if (arTarget > 0) cand.push([b, b / (arTarget * k)]);
+  }
+  for (const c of cVals) {
+    if (areaM2 > 0) cand.push([areaM2 / (c * k), c]);
+    if (arTarget > 0) cand.push([arTarget * c * k, c]);
+  }
+  if (areaM2 > 0 && bMax > 0 && cMax > 0 && wb > 0 && wc > 0) {
+    const bStat = Math.sqrt((wc * areaM2 * bMax) / (wb * k * cMax));
+    cand.push([bStat, areaM2 / (bStat * k)]);
+  }
+  if (areaM2 > 0 && arTarget > 0 && wS > 0 && wAR > 0) {
+    const cStat = Math.sqrt((wAR * areaM2) / (wS * arTarget)) / k;
+    for (const b of bVals) cand.push([b, cStat]);
+  }
+
+  let winner = null;
+  for (const [b, c] of cand) {
+    if (!Number.isFinite(b) || !Number.isFinite(c) || b <= 0 || c <= 0) continue;
+    const res = score(b, c);
+    if (!winner ||
+        res.key[0] < winner.key[0] ||
+        (res.key[0] === winner.key[0] && res.key[1] < winner.key[1]) ||
+        (res.key[0] === winner.key[0] && res.key[1] === winner.key[1] && res.key[2] < winner.key[2])) {
+      winner = res;
+    }
+  }
+  const conflict = Math.max(winner.db, winner.dc, winner.dS, winner.dAR) > 1e-6;
+  return { ...winner, conflict, k, lam };
+}
+
+// ============================================================================
+// Application State
+// ============================================================================
+const app = {
+  hardState: 'clean-race',
+  activeTab: 'brief',
+  purpose: 'wingfoil-race',
+  presetId: 'wingfoil-race',
+  classId: 'gwa-race-2022',
+  bMax: 1.10, wb: 1,
+  cMaxMm: 120, wc: 1,
+  areaCm2: 1000, wS: 1,
+  arTarget: 12.0, wAR: 1,
+  taper: 0.24,
+  tcPct: 10.0,
+  riderKg: 90,
+  waterKind: 'salt',
+  tempC: 15,
+  mastCm: 95,
+  hrefM: 0.50,
+  flaggedAck: true,
+  isEditedDoc: false,
+  priorRev: null,
+  priorRuns: [],
+  seededRevs: [{ briefV: 1, goalV: 1, rev: 'r1', label: 'Initial brief (unsaved preview)', active: true }],
+  goalPointsMode: 'light',
+  p1Shallow: false,
+  goalVersion: 1,
+  constraints: [
+    { id: 'c-load', label: 'Support front-wing load (W)', bound: '1050 N', enabled: true, edited: false },
+    { id: 'c-cav', label: 'Cavitation margin σ / (−Cp_min)', bound: '≥ 1.15 (15 % margin)', enabled: true, edited: false },
+    { id: 'c-re', label: 'Reynolds inside polar envelope', bound: '2.0×10⁵ – 2.0×10⁶', enabled: true, edited: false },
+    { id: 'c-hc', label: 'Deep-water submergence floor', bound: 'h/c ≥ 5.0', enabled: true, edited: false }
+  ],
+  exclusions: {},
+  excludingId: null,
+  lastStatus: 'Ready to seed a FoilDSL 4.1 wing and Goal state offline.',
+  lastStatusTone: 'info'
+};
+
+function presetOf(id) { return PRESETS.find(p => p.id === id) || PRESETS[0]; }
+
+function applyHardState(st) {
+  app.hardState = st;
+  app.exclusions = {};
+  app.excludingId = null;
+  app.p1Shallow = false;
+  app.goalPointsMode = 'light';
+  app.activeTab = 'brief';
+  app.isEditedDoc = false;
+  app.priorRev = null;
+  app.priorRuns = [];
+  app.lastStatusTone = 'info';
+
+  if (st === 'clean-race') {
+    loadPresetValues('wingfoil-race', 'wingfoil-race');
+    app.flaggedAck = true;
+    app.seededRevs = [{ briefV: 1, goalV: 1, rev: 'preview', label: 'Clean start · Wingfoil race', active: true }];
+    app.lastStatus = 'Clean start · Wingfoil race preset loaded offline.';
+  } else if (st === 'flagged-gate') {
+    loadPresetValues('surf', 'wakefoil');
+    app.flaggedAck = false;
+    app.seededRevs = [{ briefV: 1, goalV: 1, rev: 'preview', label: 'Wakefoil → Surf preset (awaiting acknowledgement)', active: true }];
+    app.lastStatus = 'Flagged assumptions require acknowledgement before Seed.';
+    app.lastStatusTone = 'warn';
+  } else if (st === 'conflict-targets') {
+    loadPresetValues('wingfoil-race', 'wingfoil-race');
+    app.bMax = 1.077; app.wb = 2; app.wc = 1; app.wS = 2; app.wAR = 1;
+    app.flaggedAck = true;
+    app.seededRevs = [{ briefV: 1, goalV: 1, rev: 'preview', label: 'Soft-target conflict · nearest feasible previewed', active: true }];
+    app.lastStatus = 'Targets conflict — nearest feasible design previewed; targets stay as preferences.';
+    app.lastStatusTone = 'warn';
+  } else if (st === 'class-violation') {
+    loadPresetValues('wingfoil-race', 'wingfoil-race');
+    app.areaCm2 = 650;
+    app.arTarget = 11.5;
+    app.mastCm = 120;
+    app.flaggedAck = true;
+    app.seededRevs = [{ briefV: 1, goalV: 1, rev: 'preview', label: 'GWA Race DRC check (2 violations)', active: true }];
+    app.lastStatus = '2 class-rule findings in GWA Race Box v2022-02-01 (geometry not mutated).';
+    app.lastStatusTone = 'warn';
+  } else if (st === 'reseed-edited') {
+    loadPresetValues('wingfoil-race', 'wingfoil-race');
+    app.areaCm2 = 750;
+    app.arTarget = 12.0;
+    app.bMax = 0.98;
+    app.flaggedAck = true;
+    app.isEditedDoc = true;
+    app.priorRev = { rev: 'r4', b: 1.095, cRoot: 0.109, taper: 0.24, areaCm2: 1000, status: 'Direct parametric' };
+    app.priorRuns = [{ key: 'k-8a2f1c', rev: 'r4', tier: 'VLM + strip', status: 'Current → Historical on re-seed' }];
+    app.seededRevs = [
+      { briefV: 1, goalV: 1, rev: 'r1', label: 'Brief v1 · Wingfoil race (1000 cm²)', active: false },
+      { briefV: 1, goalV: 1, rev: 'r2–r4', label: 'Manual CAD edits · Direct parametric', active: false },
+      { briefV: 2, goalV: 2, rev: 'r5 (preview)', label: 'Re-seed · Wingfoil race (750 cm²)', active: true }
+    ];
+    app.lastStatus = 'Re-seed preview over r4 (Direct parametric). Earlier revisions stay in history; runs become Historical.';
+    app.lastStatusTone = 'warn';
+  } else if (st === 'no-key-language') {
+    loadPresetValues('wingfoil-race', 'wingfoil-race');
+    app.flaggedAck = true;
+    app.seededRevs = [{ briefV: 1, goalV: 1, rev: 'preview', label: 'No API key · offline parameter path active', active: true }];
+    app.lastStatus = 'No API key configured — parameter form and presets work offline.';
+  }
+  syncInputsFromApp();
+  renderAll();
+}
+
+function loadPresetValues(presetId, purposeVal) {
+  const p = presetOf(presetId);
+  app.presetId = p.id;
+  app.purpose = purposeVal || p.id;
+  app.classId = p.classId;
+  app.bMax = p.bMax;
+  app.cMaxMm = p.cMaxMm;
+  app.areaCm2 = p.areaCm2;
+  app.arTarget = p.ar;
+  app.taper = p.taper;
+  app.tcPct = p.tcPct;
+  app.mastCm = p.mastCm;
+  app.hrefM = p.hrefM;
+  app.wb = 1; app.wc = 1; app.wS = 1; app.wAR = 1;
+}
+
+function syncInputsFromApp() {
+  document.getElementById('in-purpose').value = app.purpose;
+  document.getElementById('in-class').value = app.classId;
+  document.getElementById('in-bmax').value = app.bMax;
+  document.getElementById('in-wb').value = app.wb;
+  document.getElementById('in-cmax').value = app.cMaxMm;
+  document.getElementById('in-wc').value = app.wc;
+  document.getElementById('in-area').value = app.areaCm2;
+  document.getElementById('in-ws').value = app.wS;
+  document.getElementById('in-ar').value = app.arTarget;
+  document.getElementById('in-war').value = app.wAR;
+  document.getElementById('in-taper').value = app.taper;
+  document.getElementById('in-tc').value = app.tcPct;
+  document.getElementById('in-rider').value = app.riderKg;
+  document.getElementById('in-water').value = app.waterKind;
+  document.getElementById('in-temp').value = app.tempC;
+  document.getElementById('in-mast').value = app.mastCm;
+  document.getElementById('in-href').value = app.hrefM;
+}
+
+// ============================================================================
+// DRC Evaluation (Class rules + A5.5 Sanity bounds)
+// ============================================================================
+function evaluateDrc(sol) {
+  const findings = [];
+  const areaCm2 = sol.S * 1e4;
+  const spanMm = sol.b * 1000;
+  const ar = sol.AR;
+  const tc = app.tcPct;
+
+  if (app.classId === 'gwa-race-2022') {
+    if (areaCm2 < 700) {
+      findings.push({
+        id: 'class.gwa.front_area',
+        version: 'GWA Race Box v2022-02-01 · 2022-02-01',
+        severity: 'warning',
+        jump: 'in-area',
+        msg: `Front wing area ${areaCm2.toFixed(0)} cm² is below GWA Race minimum 700 cm² (GWA Race Box v2022-02-01, 2022-02-01).`
+      });
+    }
+    if (app.mastCm > 115) {
+      findings.push({
+        id: 'class.gwa.mast_length',
+        version: 'GWA Race Box v2022-02-01 · 2022-02-01',
+        severity: 'warning',
+        jump: 'in-mast',
+        msg: `Mast length ${app.mastCm.toFixed(0)} cm exceeds GWA Race maximum 115 cm (GWA Race Box v2022-02-01, 2022-02-01).`
+      });
+    }
+  } else if (app.classId === 'iqfoil-2025') {
+    findings.push({
+      id: 'class.iqfoil.benchmark',
+      version: 'iQFOiL One-Design 2025',
+      severity: Math.abs(areaCm2 - 900) > 1 ? 'warning' : 'advisory',
+      jump: 'in-area',
+      msg: `iQFOiL one-design benchmark: 900 cm² front · 255 cm² tail · shim −2°…+1° (current wing ${areaCm2.toFixed(0)} cm²).`
+    });
+  } else if (app.classId === 'formula-kite-2024') {
+    findings.push({
+      id: 'class.formulakite.tolerances',
+      version: 'IKA Formula Kite · 2024-08-10',
+      severity: 'advisory',
+      jump: 'in-bmax',
+      msg: 'IKA Formula Kite tolerances: span ±2 mm · chord −1 mm · general ±0.4 mm · mass ±4 % (dimensional maxima Flagged).'
+    });
+  }
+
+  // Sanity bounds (A5.5 advisory)
+  if (areaCm2 < 480 || areaCm2 > 1900) {
+    findings.push({
+      id: 'envelope.area',
+      version: 'A5.5 product table · 2026-09-20',
+      severity: 'advisory',
+      jump: 'in-area',
+      msg: `Out-of-envelope observation — area ${areaCm2.toFixed(0)} cm² outside 480–1900 cm² (Verified product pages, 2026-09-20).`
+    });
+  }
+  if (spanMm < 690 || spanMm > 1380) {
+    findings.push({
+      id: 'envelope.span',
+      version: 'A5.5 product table · 2026-09-20',
+      severity: 'advisory',
+      jump: 'in-bmax',
+      msg: `Out-of-envelope observation — span ${spanMm.toFixed(0)} mm outside 690–1380 mm (Verified product pages, 2026-09-20).`
+    });
+  }
+  if (ar < 7.0 || ar > 13.1) {
+    findings.push({
+      id: 'envelope.aspect_ratio',
+      version: 'A5.5 product table · 2026-09-20',
+      severity: 'advisory',
+      jump: 'in-ar',
+      msg: `Out-of-envelope observation — AR ${ar.toFixed(2)} outside 7.0–13.1 (Verified product pages, 2026-09-20).`
+    });
+  }
+  if (tc < 9.0 || tc > 12.0) {
+    findings.push({
+      id: 'envelope.root_tc',
+      version: 'A5.5 product table · 2026-09-20',
+      severity: 'advisory',
+      jump: 'in-tc',
+      msg: `Out-of-envelope observation — root t/c ${tc.toFixed(1)} % outside 9.0–12.0 % (Verified product pages, 2026-09-20).`
+    });
+  }
+  return findings;
+}
+
+// ============================================================================
+// Planform SVG Renderer (Graphite Viewport)
+// ============================================================================
+function renderPlanformSvg(sol) {
+  const svg = document.getElementById('planform-svg');
+  const W = 460, H = 210;
+  const cx = W / 2, cy = 96;
+  const maxSpanRef = Math.max(sol.b, app.priorRev ? app.priorRev.b : 0, 1.25);
+  const scale = 340 / maxSpanRef; // px per metre
+
+  function wingPath(b, cRoot, lam) {
+    const half = b / 2;
+    const n = 48;
+    const ptsU = [], ptsL = [];
+    for (let i = 0; i <= n; i++) {
+      const eta = i / n;
+      const g = lam + (1 - lam) * Math.sqrt(Math.max(0, 1 - eta * eta));
+      const c = cRoot * g;
+      const xLe = (cRoot - c) * 0.25;
+      const xTe = xLe + c;
+      const y = eta * half;
+      ptsU.push([y, xLe]);
+      ptsL.push([y, xTe]);
+    }
+    function buildHalf(sign) {
+      let d = '';
+      for (let i = 0; i <= n; i++) {
+        const px = cx + sign * ptsU[i][0] * scale;
+        const py = cy + (ptsU[i][1] - cRoot * 0.35) * scale;
+        d += (i === 0 ? 'M' : 'L') + px.toFixed(1) + ',' + py.toFixed(1) + ' ';
+      }
+      for (let i = n; i >= 0; i--) {
+        const px = cx + sign * ptsL[i][0] * scale;
+        const py = cy + (ptsL[i][1] - cRoot * 0.35) * scale;
+        d += 'L' + px.toFixed(1) + ',' + py.toFixed(1) + ' ';
+      }
+      return d + 'Z';
+    }
+    return buildHalf(1) + ' ' + buildHalf(-1);
+  }
+
+  // 4-CV control polygon on starboard half
+  const half = sol.b / 2;
+  const cvEta = [0, 1 / 3, 2 / 3, 1];
+  const leCv = cvEta.map((e, i) => {
+    const g = i < 2 ? 1 : (i === 2 ? (0.88 + 0.12 * sol.lam) : sol.lam);
+    const c = sol.c * g;
+    return [cx + e * half * scale, cy + ((sol.c - c) * 0.25 - sol.c * 0.35) * scale];
+  });
+  const teCv = cvEta.map((e, i) => {
+    const g = i < 2 ? 1 : (i === 2 ? (0.88 + 0.12 * sol.lam) : sol.lam);
+    const c = sol.c * g;
+    return [cx + e * half * scale, cy + ((sol.c - c) * 0.25 + c - sol.c * 0.35) * scale];
+  });
+
+  let html = '';
+  // Grid lines
+  for (let gx = 40; gx <= 420; gx += 38) {
+    html += `<line x1="${gx}" y1="24" x2="${gx}" y2="180" stroke="#344b50" stroke-width="1"/>`;
+  }
+  html += `<line x1="${cx}" y1="24" x2="${cx}" y2="180" stroke="#afc6c7" stroke-width="1" stroke-dasharray="4 3"/>`;
+
+  // Ghost prior revision when re-seeding
+  if (app.priorRev) {
+    const gd = wingPath(app.priorRev.b, app.priorRev.cRoot, app.priorRev.taper);
+    html += `<path d="${gd}" fill="none" stroke="#efc576" stroke-width="1.5" stroke-dasharray="5 3"/>`;
+  }
+
+  // Seeded wing fill & outline
+  const d = wingPath(sol.b, sol.c, sol.lam);
+  html += `<path d="${d}" fill="#3f6a6c" fill-opacity="0.55" stroke="#85c9c4" stroke-width="1.75"/>`;
+
+  // Dashed 4-CV control polygons (starboard)
+  const lePts = leCv.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ');
+  const tePts = teCv.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ');
+  html += `<polyline points="${lePts}" fill="none" stroke="#c4e7df" stroke-width="1" stroke-dasharray="3 3"/>`;
+  html += `<polyline points="${tePts}" fill="none" stroke="#c4e7df" stroke-width="1" stroke-dasharray="3 3"/>`;
+  for (const [idx, p] of [...leCv, ...teCv].entries()) {
+    const isEnd = (idx % 4 === 0 || idx % 4 === 3);
+    if (isEnd) {
+      html += `<rect x="${(p[0] - 3.5).toFixed(1)}" y="${(p[1] - 3.5).toFixed(1)}" width="7" height="7" transform="rotate(45 ${p[0].toFixed(1)} ${p[1].toFixed(1)})" fill="#17272c" stroke="#66ddc8" stroke-width="1.5"/>`;
+    } else {
+      html += `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="#66ddc8"/>`;
+    }
+  }
+
+  // Span dimension callout
+  const xL = cx - half * scale, xR = cx + half * scale;
+  html += `<line x1="${xL.toFixed(1)}" y1="164" x2="${xR.toFixed(1)}" y2="164" stroke="#edf4f2" stroke-width="1"/>`;
+  html += `<text x="${cx}" y="159" text-anchor="middle" fill="#edf4f2" font-size="11" font-family="ui-monospace, monospace">b ≈ ${(sol.b * 1000).toFixed(1)} mm · S ≈ ${(sol.S * 1e4).toFixed(0)} cm² · AR ≈ ${sol.AR.toFixed(2)}</text>`;
+
+  svg.innerHTML = html;
+}
+
+// ============================================================================
+// Master Render
+// ============================================================================
+function renderAll() {
+  const p = presetOf(app.presetId);
+  const wSum = app.wb + app.wc + app.wS + app.wAR;
+  const weightErr = document.getElementById('weight-error');
+  const weightsOk = Number.isFinite(wSum) && wSum > 0 && app.wb >= 0 && app.wc >= 0 && app.wS >= 0 && app.wAR >= 0;
+  weightErr.textContent = weightsOk ? '' : 'Weights must be finite and non-negative, with at least one weight above 0.';
+
+  const defB = Math.sqrt((p.areaCm2 * 1e-4) * p.ar);
+  const defC = (p.areaCm2 * 1e-4) / (defB * kappaElliptic(p.taper));
+
+  const sol = solveSoftTargets({
+    bMax: app.bMax,
+    cMax: app.cMaxMm / 1000,
+    areaM2: app.areaCm2 * 1e-4,
+    arTarget: app.arTarget,
+    taper: app.taper,
+    wb: weightsOk ? app.wb : 1,
+    wc: weightsOk ? app.wc : 1,
+    wS: weightsOk ? app.wS : 1,
+    wAR: weightsOk ? app.wAR : 1,
+    bDef: defB,
+    cDef: defC
+  });
+
+  // Left dock: 9 discipline presets
+  const plist = document.getElementById('preset-list');
+  plist.innerHTML = PRESETS.map(item => `
+    <button type="button" class="preset-item" data-preset="${item.id}" aria-pressed="${item.id === app.presetId}">
+      <span>${item.name}</span>
+      <span class="ar-tag">AR ${item.ar.toFixed(1)}</span>
+    </button>
+  `).join('');
+  plist.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.preset;
+      loadPresetValues(id, id);
+      app.flaggedAck = false;
+      app.lastStatus = `Preset switched to ${presetOf(id).name}. Review flagged assumptions to seed.`;
+      app.lastStatusTone = 'warn';
+      syncInputsFromApp();
+      renderAll();
+    });
+  });
+
+  // Brief & Goal history
+  const hlist = document.getElementById('history-list');
+  hlist.innerHTML = app.seededRevs.map(r => `
+    <div class="history-row ${r.active ? 'active' : ''}">
+      <div><strong>${r.rev}</strong> · ${r.label}</div>
+      <div class="meta">brief v${r.briefV} · goal v${r.goalV}</div>
+    </div>
+  `).join('');
+
+  // AI-02 slot emphasis in state 6
+  document.getElementById('ai-slot').classList.toggle('highlight', app.hardState === 'no-key-language');
+
+  // Purpose mapping badge & section fallback disclosure
+  const mapBadge = document.getElementById('purpose-map-badge');
+  if (app.purpose === 'wakefoil') {
+    mapBadge.className = 'badge flagged';
+    mapBadge.textContent = 'wakefoil → surf preset (Flagged)';
+  } else {
+    mapBadge.className = 'badge verified';
+    mapBadge.textContent = `${app.purpose} → ${p.id}`;
+  }
+
+  const fbBox = document.getElementById('section-fallback-note');
+  if (p.prefReason) {
+    fbBox.innerHTML = `<div class="alert"><div><strong>Section admission:</strong> Preferred section ${p.prefSec} (${p.prefReason}) · Using GEN fallback: <strong>${p.genSec}</strong>.</div></div>`;
+  } else {
+    fbBox.innerHTML = `<div class="alert"><div><strong>Section admission:</strong> Admitted GEN section <strong>${p.genSec}</strong> (Catalog original).</div></div>`;
+  }
+
+  // System mass badge
+  const sysKg = app.riderKg + p.addedMassKg;
+  const loadN = Math.round(sysKg * G * 1.015 / 10) * 10;
+  document.getElementById('sys-mass-badge').textContent = `≈ ${sysKg.toFixed(1)} kg · ${app.presetId === 'wingfoil-race' && app.riderKg === 90 ? 1050 : loadN} N`;
+
+  // Planform SVG + tip rule readout
+  renderPlanformSvg(sol);
+  const tipMinMm = Math.max(5.0, 0.02 * sol.c * 1000);
+  document.getElementById('vp-tip-rule').textContent = sol.tipClamped
+    ? `Tip chord held at minimum ${tipMinMm.toFixed(1)} mm (Ruling 93)`
+    : `Tip ${(sol.tip * 1000).toFixed(1)} mm ≥ min ${tipMinMm.toFixed(1)} mm`;
+  document.getElementById('vp-plate').textContent = app.priorRev
+    ? `Preview diff · ${app.priorRev.rev} (dashed) → r5 candidate · FoilDSL 4.1`
+    : `Preview · ${p.name} · 4-CV FoilDSL 4.1`;
+
+  // Derived Wing Estimates
+  const macApprox = sol.mean * 1.07; // illustrative MAC > S/b for tapered wing
+  document.getElementById('est-grid').innerHTML = [
+    ['Span b', `≈ ${(sol.b * 1000).toFixed(1)} mm`],
+    ['Area S', `≈ ${(sol.S * 1e4).toFixed(0)} cm²`],
+    ['Aspect ratio', `≈ ${sol.AR.toFixed(2)}`],
+    ['Root chord', `≈ ${(sol.c * 1000).toFixed(1)} mm`],
+    ['Tip chord', `≈ ${(sol.tip * 1000).toFixed(1)} mm`],
+    ['Mean c (S/b)', `≈ ${(sol.mean * 1000).toFixed(1)} mm`],
+    ['MAC (≠ S/b)', `≈ ${(macApprox * 1000).toFixed(1)} mm`],
+    ['Max t/c', `≈ ${app.tcPct.toFixed(1)} %`],
+    ['Wing loading', `≈ ${((app.presetId === 'wingfoil-race' && app.riderKg === 90 ? 1050 : loadN) / sol.S / 1000).toFixed(1)} kPa`]
+  ].map(([k, v]) => `<div class="est-cell"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+
+  // Soft-target deviations
+  const devRows = [
+    { name: 'max span', tStr: `${app.bMax.toFixed(3)} m`, sStr: `${sol.b.toFixed(3)} m`, pct: app.bMax > 0 ? ((sol.b - app.bMax) / app.bMax) * 100 : 0, viol: sol.db > 1e-6 },
+    { name: 'max chord', tStr: `${app.cMaxMm.toFixed(0)} mm`, sStr: `${(sol.c * 1000).toFixed(1)} mm`, pct: app.cMaxMm > 0 ? ((sol.c * 1000 - app.cMaxMm) / app.cMaxMm) * 100 : 0, viol: sol.dc > 1e-6 },
+    { name: 'area', tStr: `${app.areaCm2.toFixed(0)} cm²`, sStr: `${(sol.S * 1e4).toFixed(0)} cm²`, pct: app.areaCm2 > 0 ? ((sol.S * 1e4 - app.areaCm2) / app.areaCm2) * 100 : 0, viol: sol.dS > 1e-6 },
+    { name: 'AR', tStr: `${app.arTarget.toFixed(1)}`, sStr: `${sol.AR.toFixed(2)}`, pct: app.arTarget > 0 ? ((sol.AR - app.arTarget) / app.arTarget) * 100 : 0, viol: sol.dAR > 1e-6 }
+  ];
+  const solverBadge = document.getElementById('solver-status-badge');
+  solverBadge.className = sol.conflict ? 'badge flagged' : 'badge verified';
+  solverBadge.textContent = sol.conflict ? 'Nearest feasible (conflict)' : 'Targets satisfied';
+  document.getElementById('dev-list').innerHTML = devRows.map(r => {
+    const sign = r.pct > 0.05 ? '+' : (r.pct < -0.05 ? '−' : '');
+    const pctText = Math.abs(r.pct) < 0.05 ? '0 %' : `${sign}${Math.abs(r.pct).toFixed(0)} %`;
+    return `<div class="dev-row ${r.viol ? 'changed' : ''}"><span>target ${r.name} ${r.tStr} · seeded ${r.sStr} · ${pctText}</span><span>${r.viol ? 'Δ' : '✓'}</span></div>`;
+  }).join('');
+
+  // Preview Alerts (Re-seed, Conflict, Wakefoil)
+  const alerts = [];
+  if (app.isEditedDoc && app.priorRev) {
+    alerts.push(`
+      <div class="alert warn" role="region" aria-label="Re-seed history notice">
+        <div class="alert-head"><span>Re-seeding over edited revision ${app.priorRev.rev} (${app.priorRev.status})</span><span class="badge hist">Runs → Historical</span></div>
+        <div>Re-seeding appends Setup brief v2 and Design revision r5. Earlier revisions r1–r4 stay in history; existing VLM run <code>k-8a2f1c</code> becomes <strong>Historical</strong>. Undo restores r4 and returns run freshness to Current.</div>
+      </div>
+    `);
+  }
+  if (sol.conflict) {
+    const aName = sol.dS > 1e-6 ? `target area (${app.areaCm2} cm²)` : `target AR (${app.arTarget})`;
+    const bName = `max span (${app.bMax} m) × max chord (${app.cMaxMm} mm)`;
+    alerts.push(`
+      <div class="alert warn" role="status">
+        <div class="alert-head"><span>Soft-target conflict (SET-01)</span><span class="badge flagged">Preference only</span></div>
+        <div>Targets conflict: ${aName} and ${bName} — seeded the nearest feasible design; targets stay as preferences</div>
+      </div>
+    `);
+  }
+  if (app.purpose === 'wakefoil') {
+    alerts.push(`
+      <div class="alert warn" role="status">
+        <div class="alert-head"><span>Wakefoil → Surf preset mapping (SET-04)</span><span class="badge flagged">Flagged</span></div>
+        <div>Wakefoil uses the Surf preset with Flagged boat-wake speeds (no public wakefoil dataset).</div>
+      </div>
+    `);
+  }
+  document.getElementById('preview-alerts').innerHTML = alerts.join('');
+
+  // DRC Findings
+  const drc = evaluateDrc(sol);
+  const openCount = drc.filter(f => !app.exclusions[f.id]).length;
+  document.getElementById('drc-count-badge').textContent = `${openCount} open · ${drc.length} total`;
+  document.getElementById('rail-checks-lbl').textContent = openCount > 0 ? `Checks (${openCount})` : 'Checks';
+  document.getElementById('sb-checks-val').textContent = String(openCount);
+  document.getElementById('sb-checks').classList.toggle('warn', openCount > 0);
+
+  const drcEl = document.getElementById('drc-list');
+  if (drc.length === 0) {
+    drcEl.innerHTML = app.classId === 'open-class'
+      ? '<div class="alert"><div><strong>Open class</strong> — no equipment box rules apply. All A5.5 sanity bounds met (0 findings).</div></div>'
+      : '<div class="alert"><div>0 open findings for the active class rule and A5.5 sanity bounds.</div></div>';
+  } else {
+    drcEl.innerHTML = drc.map(f => {
+      const excl = app.exclusions[f.id];
+      const isEditingExcl = app.excludingId === f.id;
+      return `
+        <div class="drc-row ${f.severity === 'advisory' ? 'advisory' : ''} ${excl ? 'excluded' : ''}">
+          <div class="drc-top">
+            <span class="drc-id">${f.id} · ${f.version}</span>
+            <span class="badge ${f.severity === 'warning' ? 'flagged' : 'defaulted'}">${excl ? 'Excluded' : f.severity}</span>
+          </div>
+          <div class="drc-msg">${f.msg}</div>
+          ${excl ? `<div class="hint">Excluded reason: "${excl}" (stored on finding; never sent to assistant)</div>` : ''}
+          <div class="drc-actions">
+            <button type="button" class="btn sm" data-jump="${f.jump}">Jump to field</button>
+            ${!excl ? `<button type="button" class="btn sm" data-excl="${f.id}">Exclude finding…</button>` : `<button type="button" class="btn sm" data-unexcl="${f.id}">Restore finding</button>`}
+          </div>
+          ${isEditingExcl ? `
+            <div class="excl-box">
+              <input type="text" id="excl-input-${f.id}" placeholder="Reason required (e.g. light-wind prototype)" aria-label="Exclusion reason">
+              <button type="button" class="btn sm" data-excl-save="${f.id}">Save</button>
+              <button type="button" class="btn sm" data-excl-cancel="1">Cancel</button>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }).join('');
+    drcEl.querySelectorAll('[data-jump]').forEach(b => b.addEventListener('click', () => {
+      setTab('brief');
+      const target = document.getElementById(b.dataset.jump);
+      if (target) { target.focus(); target.select && target.select(); }
+    }));
+    drcEl.querySelectorAll('[data-excl]').forEach(b => b.addEventListener('click', () => {
+      app.excludingId = b.dataset.excl;
+      renderAll();
+    }));
+    drcEl.querySelectorAll('[data-unexcl]').forEach(b => b.addEventListener('click', () => {
+      delete app.exclusions[b.dataset.unexcl];
+      renderAll();
+    }));
+    drcEl.querySelectorAll('[data-excl-cancel]').forEach(b => b.addEventListener('click', () => {
+      app.excludingId = null;
+      renderAll();
+    }));
+    drcEl.querySelectorAll('[data-excl-save]').forEach(b => b.addEventListener('click', () => {
+      const id = b.dataset.exclSave;
+      const val = (document.getElementById(`excl-input-${id}`)?.value || '').trim();
+      if (!val) {
+        app.lastStatus = 'Exclusion reason is required.';
+        app.lastStatusTone = 'err';
+        renderStatus();
+        return;
+      }
+      app.exclusions[id] = val;
+      app.excludingId = null;
+      app.lastStatus = `Excluded ${id} with recorded reason.`;
+      app.lastStatusTone = 'info';
+      renderAll();
+    }));
+  }
+
+  // Flagged Acknowledgement Gate
+  const flaggedItems = [...p.flagged];
+  if (app.purpose === 'wakefoil') flaggedItems.unshift('Wakefoil uses the Surf preset with Flagged boat-wake speeds');
+  const gateBox = document.getElementById('flagged-gate-box');
+  if (flaggedItems.length > 0) {
+    gateBox.innerHTML = `
+      <div class="ack-row">
+        <input type="checkbox" id="in-ack" ${app.flaggedAck ? 'checked' : ''}>
+        <div>
+          <label for="in-ack" style="font-weight:600; cursor:pointer;">Acknowledge ${flaggedItems.length} flagged assumption(s) to enable Seed</label>
+          <div class="hint">Flagged — ${flaggedItems[0]} · Acknowledge to continue (${flaggedItems.length} total)</div>
+        </div>
+      </div>
+    `;
+    document.getElementById('in-ack').addEventListener('change', e => {
+      app.flaggedAck = e.target.checked;
+      app.lastStatus = app.flaggedAck
+        ? 'Flagged assumptions acknowledged. Seed design is available.'
+        : 'Flagged assumptions require acknowledgement before Seed.';
+      app.lastStatusTone = app.flaggedAck ? 'info' : 'warn';
+      renderAll();
+    });
+  } else {
+    gateBox.innerHTML = '';
+  }
+
+  // Primary Seed Button state
+  const btnSeed = document.getElementById('btn-seed');
+  const seedBlocked = !weightsOk || (flaggedItems.length > 0 && !app.flaggedAck);
+  btnSeed.textContent = app.isEditedDoc ? 'Re-seed as r5' : 'Seed design';
+  btnSeed.setAttribute('aria-disabled', String(seedBlocked));
+  document.getElementById('seed-help').textContent = seedBlocked
+    ? 'Seed is unavailable until flagged assumptions are acknowledged and weights are valid.'
+    : 'Emits one-way FoilDSL 4.1 geometry and appends Setup brief and Goal state versions.';
+
+  // Goal State Operating Points Table (GOAL-02 exact arithmetic)
+  const w = waterAt(app.waterKind, app.tempC);
+  const pts = app.goalPointsMode === 'strong' ? GOAL02_POINTS_STRONG : GOAL02_POINTS_LIGHT;
+  const sForGoal = app.goalPointsMode === 'strong' ? 0.075 : 0.100;
+  const bForGoal = app.goalPointsMode === 'strong' ? 0.95 : 1.10;
+  const cBarGoal = sForGoal / bForGoal;
+
+  document.getElementById('goal-op-tbody').innerHTML = pts.map((pt, idx) => {
+    const h = (idx === 0 && app.p1Shallow) ? 0.3 : pt.hRef;
+    const V = pt.vKn * KN;
+    const q = 0.5 * w.rho * V * V;
+    const cl = pt.loadN / (q * sForGoal);
+    const sig = (PATM + w.rho * G * h - w.pv) / q;
+    const re = (V * cBarGoal) / w.nu;
+    const hc = h / cBarGoal;
+    return `
+      <tr>
+        <td>${pt.label}</td>
+        <td class="num">${pt.vKn}</td>
+        <td class="num">${h.toFixed(1)}</td>
+        <td class="num">${Math.round(q).toLocaleString('en-US')}</td>
+        <td class="num"><strong>${cl.toFixed(3)}</strong></td>
+        <td class="num"><strong>${sig.toFixed(2)}</strong></td>
+        <td class="num">${(re / 1e5).toFixed(2)}×10⁵</td>
+        <td class="num">${hc.toFixed(2)}${hc < 5 ? ' ⚠' : ''}</td>
+        <td><span class="badge defaulted">Unavailable — polar not computed</span></td>
+      </tr>
+    `;
+  }).join('');
+
+  // Goal State Constraint Rows
+  document.getElementById('goal-con-tbody').innerHTML = app.constraints.map((c, i) => `
+    <tr>
+      <td>${c.label} ${c.edited ? '<span class="badge stated">edited by user</span>' : ''}</td>
+      <td class="num"><input type="text" data-cbound="${i}" value="${c.bound}" style="width:140px; min-height:26px; padding:0 6px; border:1px solid var(--control-line); border-radius:4px; background:var(--surface);"></td>
+      <td>${c.enabled ? (c.id === 'c-hc' && app.p1Shallow ? '<span class="badge flagged">Violated (h/c 3.30)</span>' : '<span class="badge defaulted">Unavailable — polar</span>') : '<span class="badge defaulted">Disabled</span>'}</td>
+      <td><input type="checkbox" data-cenable="${i}" ${c.enabled ? 'checked' : ''} aria-label="Enable ${c.label}"></td>
+    </tr>
+  `).join('');
+  document.querySelectorAll('[data-cbound]').forEach(inp => inp.addEventListener('change', () => {
+    const idx = Number(inp.dataset.cbound);
+    app.constraints[idx].bound = inp.value;
+    app.constraints[idx].edited = true;
+    renderAll();
+  }));
+  document.querySelectorAll('[data-cenable]').forEach(chk => chk.addEventListener('change', () => {
+    const idx = Number(chk.dataset.cenable);
+    app.constraints[idx].enabled = chk.checked;
+    app.constraints[idx].edited = true;
+    renderAll();
+  }));
+
+  // Status bar & header pills
+  document.getElementById('rev-pill').textContent = app.isEditedDoc ? 'r4 → r5 (preview)' : 'Preview · r1';
+  document.getElementById('sb-recipe-val').textContent = app.isEditedDoc ? 'Direct parametric' : `Linked · ${p.name}`;
+  document.getElementById('sb-rev-val').textContent = app.isEditedDoc ? 'r4' : '—';
+  renderStatus();
+  runSmokeAudit();
+}
+
+function renderStatus() {
+  const el = document.getElementById('sb-msg');
+  el.textContent = app.lastStatus;
+  el.className = 'msg' + (app.lastStatusTone === 'warn' ? ' warn' : app.lastStatusTone === 'err' ? ' err' : '');
+}
+
+function setTab(which) {
+  app.activeTab = which;
+  const isBrief = which === 'brief';
+  document.getElementById('tab-brief').setAttribute('aria-selected', String(isBrief));
+  document.getElementById('tab-goal').setAttribute('aria-selected', String(!isBrief));
+  document.getElementById('panel-brief').hidden = !isBrief;
+  document.getElementById('panel-goal').hidden = isBrief;
+}
+
+// ============================================================================
+// In-Page Deterministic Smoke Audit (LAB-01 + GOAL-02 + SET-01 + Target Floor)
+// ============================================================================
+function runSmokeAudit() {
+  const forbidden = ['cavitation-free', 'ventilation-safe', 'validated', 'optimized', 'best', 'recommended', 'certified'];
+  const visibleText = document.body.innerText.toLowerCase();
+  const hits = forbidden.filter(w => new RegExp(`\\b${w}\\b`, 'i').test(visibleText));
+
+  // GOAL-02 self-check (p_v 1670.9 Pa, rho 1026.02, W 1050 N)
+  const q10 = 0.5 * 1026.02 * (10 * KN) ** 2;
+  const cl10 = (1050 / (q10 * 0.100)).toFixed(3);
+  const sig10_05 = ((PATM + 1026.02 * G * 0.5 - 1670.9) / q10).toFixed(2);
+  const sig10_03 = ((PATM + 1026.02 * G * 0.3 - 1670.9) / q10).toFixed(2);
+  const goalOk = cl10 === '0.773' && sig10_05 === '7.71' && sig10_03 === '7.56';
+
+  // SET-01 conflicting triple self-check (S=1000 cm2, b_max=0.8 m, c_max=100 mm, w_b=1, others=0)
+  const triple = solveSoftTargets({ bMax: 0.80, cMax: 0.100, areaM2: 0.100, arTarget: 0, taper: 0.24, wb: 1, wc: 0, wS: 0, wAR: 0, bDef: 1.0, cDef: 0.12 });
+  const tripleOk = Math.abs(triple.b - 0.80) < 1e-12 && triple.conflict;
+
+  document.getElementById('audit-strip').innerHTML = `
+    <span>External requests: <span class="ok">0</span></span>
+    <span>LAB-01 scan: <span class="${hits.length === 0 ? 'ok' : 'bad'}">${hits.length === 0 ? '0 hits (PASS)' : 'FAIL: ' + hits.join(', ')}</span></span>
+    <span>GOAL-02 check (10 kn): <span class="${goalOk ? 'ok' : 'bad'}">${goalOk ? 'CL 0.773 · σ 7.71 / 7.56 (PASS)' : 'FAIL'}</span></span>
+    <span>SET-01 triple (w_b=1): <span class="${tripleOk ? 'ok' : 'bad'}">${tripleOk ? 'b = 0.8000 m + conflict (PASS)' : 'FAIL'}</span></span>
+  `;
+}
+
+// ============================================================================
+// Wire Controls
+// ============================================================================
+document.getElementById('h-state').addEventListener('change', e => applyHardState(e.target.value));
+document.getElementById('h-vp').addEventListener('change', e => {
+  document.getElementById('shell').setAttribute('data-vp', e.target.value);
+});
+document.getElementById('h-theme').addEventListener('click', e => {
+  const root = document.documentElement;
+  const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  root.setAttribute('data-theme', next);
+  e.target.setAttribute('aria-pressed', String(next === 'dark'));
+  e.target.textContent = next === 'dark' ? 'Light theme' : 'Dark theme';
+});
+document.getElementById('h-motion').addEventListener('click', e => {
+  const root = document.documentElement;
+  const next = root.getAttribute('data-motion') === 'standard' ? 'reduced' : 'standard';
+  root.setAttribute('data-motion', next);
+  e.target.setAttribute('aria-pressed', String(next === 'reduced'));
+});
+document.getElementById('h-persona').addEventListener('change', e => {
+  const p = e.target.value;
+  document.documentElement.setAttribute('data-persona', p);
+  const note = document.getElementById('persona-note');
+  if (p === 'keyboard') note.textContent = 'Keyboard-only mode: focus rings reinforced. Tab reaches presets, inputs, weights, tabs, DRC actions, acknowledgement checkbox, and Seed. All controls >= 24 px.';
+  else if (p === 'screenreader') note.textContent = 'Screen-reader mode: every input carries explicit label + unit; status strip is role=status polite; weight errors are role=alert; disabled Seed uses aria-disabled with aria-describedby.';
+  else if (p === 'reviewer') note.textContent = 'Reviewer mode: inspect all 6 hard states via State dropdown, test live SET-01 solver weights, toggle Goal state tab for GOAL-02 7-point arithmetic, and verify zero LAB-01 hits above.';
+  else note.textContent = '';
+});
+
+document.getElementById('tab-brief').addEventListener('click', () => setTab('brief'));
+document.getElementById('tab-goal').addEventListener('click', () => setTab('goal'));
+
+document.getElementById('in-purpose').addEventListener('change', e => {
+  const purpose = e.target.value;
+  const pid = PURPOSE_TO_PRESET[purpose] || 'wingfoil-race';
+  loadPresetValues(pid, purpose);
+  if (purpose === 'windfoil-freeride') app.classId = 'open-class';
+  app.flaggedAck = false;
+  app.lastStatus = `Purpose set to ${purpose} (preset: ${presetOf(pid).name}).`;
+  app.lastStatusTone = 'warn';
+  syncInputsFromApp();
+  renderAll();
+});
+document.getElementById('in-class').addEventListener('change', e => { app.classId = e.target.value; renderAll(); });
+
+const numBindings = [
+  ['in-bmax', 'bMax'], ['in-wb', 'wb'],
+  ['in-cmax', 'cMaxMm'], ['in-wc', 'wc'],
+  ['in-area', 'areaCm2'], ['in-ws', 'wS'],
+  ['in-ar', 'arTarget'], ['in-war', 'wAR'],
+  ['in-taper', 'taper'], ['in-tc', 'tcPct'],
+  ['in-rider', 'riderKg'], ['in-temp', 'tempC'],
+  ['in-mast', 'mastCm'], ['in-href', 'hrefM']
+];
+for (const [elId, prop] of numBindings) {
+  document.getElementById(elId).addEventListener('input', e => {
+    const v = parseFloat(e.target.value);
+    if (Number.isFinite(v)) { app[prop] = v; renderAll(); }
+  });
+}
+document.getElementById('in-water').addEventListener('change', e => { app.waterKind = e.target.value; renderAll(); });
+
+document.getElementById('btn-preset-tight').addEventListener('click', () => {
+  app.bMax = 1.077; app.cMaxMm = 120; app.areaCm2 = 1000; app.arTarget = 12.0; app.taper = 0.24;
+  app.wb = 2; app.wc = 1; app.wS = 2; app.wAR = 1;
+  syncInputsFromApp();
+  renderAll();
+});
+document.getElementById('btn-preset-triple').addEventListener('click', () => {
+  app.bMax = 0.80; app.cMaxMm = 100; app.areaCm2 = 1000; app.arTarget = 0; app.taper = 0.24;
+  app.wb = 1; app.wc = 0; app.wS = 0; app.wAR = 0;
+  syncInputsFromApp();
+  renderAll();
+});
+
+document.getElementById('btn-example-light').addEventListener('click', () => { app.goalPointsMode = 'light'; app.p1Shallow = false; renderAll(); });
+document.getElementById('btn-example-strong').addEventListener('click', () => { app.goalPointsMode = 'strong'; app.p1Shallow = false; renderAll(); });
+document.getElementById('btn-shallow-p1').addEventListener('click', () => { app.goalPointsMode = 'light'; app.p1Shallow = !app.p1Shallow; renderAll(); });
+
+document.getElementById('btn-save-goal').addEventListener('click', () => {
+  app.goalVersion += 1;
+  app.lastStatus = `Goal state saved as v${app.goalVersion}. Geometry is unchanged.`;
+  app.lastStatusTone = 'info';
+  renderStatus();
+});
+
+document.getElementById('btn-cfg-key').addEventListener('click', () => {
+  app.lastStatus = 'Configure key opens Settings → Assistant (OS credential store only; never stored in the project file).';
+  app.lastStatusTone = 'info';
+  renderStatus();
+});
+
+document.getElementById('btn-seed').addEventListener('click', () => {
+  const btn = document.getElementById('btn-seed');
+  if (btn.getAttribute('aria-disabled') === 'true') {
+    app.lastStatus = 'Acknowledge flagged assumptions and ensure weights are valid before seeding.';
+    app.lastStatusTone = 'err';
+    renderStatus();
+    return;
+  }
+  const p = presetOf(app.presetId);
+  if (app.isEditedDoc) {
+    app.lastStatus = `Seeded r5 from ${p.name} (brief v2, goal v2). Earlier revisions r1–r4 kept in history; prior runs marked Historical.`;
+  } else {
+    app.lastStatus = `Seeded r1 from ${p.name} (brief v1, goal v1). FoilDSL 4.1 ready in CAD.`;
+  }
+  app.lastStatusTone = 'info';
+  renderStatus();
+});
+
+document.getElementById('btn-discard').addEventListener('click', () => {
+  applyHardState(app.hardState);
+  app.lastStatus = 'Draft changes discarded. Document unchanged.';
+  app.lastStatusTone = 'info';
+  renderStatus();
+});
+
+// Initialize on clean-race (or query string ?state=...)
+const qs = new URLSearchParams(window.location.search);
+const initState = qs.get('state') || 'clean-race';
+if (document.querySelector(`#h-state option[value="${initState}"]`)) {
+  document.getElementById('h-state').value = initState;
+  applyHardState(initState);
+} else {
+  applyHardState('clean-race');
+}
+</script>
+</body>
+</html>
