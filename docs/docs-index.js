@@ -730,6 +730,72 @@ window.DOCS_INDEX = {
       "sourceSha256": "fd0143551ea6ffa5f28284037ee2f5b522bf49e5d21c2038a9181ff53f993fe3"
     },
     {
+      "id": "adr-0013-cad-export-kernel",
+      "path": "docs/adr/0013-cad-export-kernel.md",
+      "title": "ADR-0013: Area 7 CAD export kernel — Hybrid T0 architecture (owned Core authority, process-isolated OCCT STEP worker, MIT rhino3dm/openNURBS 3DM) gated on a two-track SPIKE-CAD-01 bake-off with a pure-C# STEP writer",
+      "type": "adr",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "architecture — Area 7 (Wave 5 KRN)",
+      "reviewBy": "2027-05-18",
+      "reviewSuggested": [],
+      "summary": "Resolves the unselected export geometry kernel gate left open in ADR-0003 for Area 7 STEP AP203 and Rhino 3DM export (EXP-02, EXP-04, EXP-05, COMMIT-02). Selects a COMMIT-02-compliant Hybrid baseline (owned C# Placement authority, process-isolated LGPL-2.1 OCCT worker for STEP AP203 B-Rep sewing, MIT rhino3dm/openNURBS for 3DM) subject to a mandatory SPIKE-CAD-01 bake-off against a pure-C# STEP AP203 writer across Windows ARM64, Windows x64, and macOS ARM64, and gates release on the SPIKE-CAD-02 Fusion + two-CAM + Rhino open-and-measure fixture.",
+      "tags": [
+        "adr",
+        "export",
+        "cad",
+        "kernel",
+        "step",
+        "3dm",
+        "occt",
+        "rhino3dm",
+        "commit-02",
+        "exp-02",
+        "exp-04",
+        "exp-05"
+      ],
+      "links": [
+        {
+          "to": "architecture-cad-export-kernel",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-application-stack",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-0010-one-placement-rule",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0012-openfoam-backend-macos",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-export",
+          "rel": "relates-to"
+        },
+        {
+          "to": "kernel-spike-occt-loft",
+          "rel": "depends-on"
+        },
+        {
+          "to": "threat-model",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f9ebb5ba4dd7780f60c7e9c73c22ecb19b7d2cd28f72fa68db907dd422859e89"
+    },
+    {
       "id": "adr-application-project-contract",
       "path": "docs/adr/0004-application-project-contract.md",
       "title": "Native-v1 immutable receipts and bounded admission",
@@ -998,6 +1064,95 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "5bc6bfb33205d8e5445dd24359839d42d64729ad41ea07729bd2667435c2c19a"
+    },
+    {
+      "id": "architecture-cad-export-kernel",
+      "path": "docs/architecture/cad-export-kernel.md",
+      "title": "Architecture: Area 7 CAD Export Kernel (STEP AP203 & Rhino 3DM)",
+      "type": "architecture",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "architecture — Area 7 (Wave 5 KRN)",
+      "reviewBy": "2027-05-18",
+      "reviewSuggested": [],
+      "summary": "Defines the candidate architecture for Area 7 STEP AP203 and Rhino 3DM CAD export (EXP-02, EXP-04, EXP-05, COMMIT-02), resolving the unselected export geometry kernel gate left open in ADR-0003. Proposes a hybrid T0 architecture—owned C# curve/placement authority, process-isolated OCCT (LGPL-2.1) for STEP AP203 B-Rep sewing, and MIT rhino3dm/openNURBS for 3DM—gated on a two-track SPIKE-CAD-01 bake-off that benchmarks a pure-C# STEP AP203 writer alongside OCCT across Windows ARM64, Windows x64, and macOS ARM64 before any product build begins.",
+      "tags": [
+        "architecture",
+        "export",
+        "cad",
+        "kernel",
+        "step",
+        "3dm",
+        "occt",
+        "rhino3dm",
+        "exp-02",
+        "exp-04",
+        "exp-05",
+        "commit-02",
+        "area-7"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-application-stack",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-0010-one-placement-rule",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0012-openfoam-backend-macos",
+          "rel": "relates-to"
+        },
+        {
+          "to": "adr-0013-cad-export-kernel",
+          "rel": "documents"
+        },
+        {
+          "to": "design-export",
+          "rel": "relates-to"
+        },
+        {
+          "to": "kernel-spike-occt-loft",
+          "rel": "depends-on"
+        },
+        {
+          "to": "threat-model",
+          "rel": "depends-on"
+        },
+        {
+          "to": "kb-hw-file-formats-and-grammars",
+          "rel": "depends-on"
+        },
+        {
+          "to": "kb-hw-parametric-curves-lofts-and-surfaces",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "4. Component Map, Seam Contracts, and Data Flow",
+          "mermaid": "flowchart LR\n  UI[\"ExportDialog (Desktop)\"] --> Session[\"ExportSession (Analysis)\"]\n  CLI[\"ExportVerb (Cli)\"] --> Session\n  Session --> Gate[\"Certified Geometry Gate (H2)\"]\n  Gate --> Extract[\"Core CadExportExtractor (Placement.cs / FoilDSL §6)\"]\n  Extract --> Payload[\"CadExportSectionPayload (mm, no PII)\"]\n  Payload --> StepAdapter[\"ICadStepExporter (contract seam)\"]\n  Payload --> ThreeDmAdapter[\"ICad3dmExporter (contract seam)\"]\n  StepAdapter -. \"Option A: argv subprocess\" .-> OcctWorker[\"cfdw-step-worker (OCCT LGPL-2.1, isolated)\"]\n  StepAdapter -. \"Option B: in-process if spike wins\" .-> PureStep[\"Pure-C# NURBS + STEP AP203 Writer\"]\n  ThreeDmAdapter --> OpenNurbs[\"rhino3dm / openNURBS (MIT)\"]\n  OcctWorker --> Verify[\"Core Verification (A-vs-B <= 10 um, PII scan, B-Rep valid)\"]\n  PureStep --> Verify\n  OpenNurbs --> Verify\n  Verify --> Atomic[\"ExportSession.WriteAtomicAsync (Ruling 198)\"]\n  Atomic --> Disk[\"User-chosen .step / .3dm\"]\n  Session --> Ring[\"ExportTelemetry Ring (zero PII)\"]"
+        }
+      ],
+      "sourceSha256": "a74c03d551f842c37cec26529d7fd8436866c3b5ab25dc232c6c654474b0afbd"
     },
     {
       "id": "cad-editing-views",
@@ -24678,6 +24833,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-local-sweeps"
     },
     {
+      "id": "surface-architecture-cad-export-kernel",
+      "path": "docs/architecture/cad-export-kernel.html",
+      "title": "Cad Export Kernel",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "architecture-cad-export-kernel"
+    },
+    {
       "id": "surface-mockups-cad-limits-in-gesture",
       "path": "docs/mockups/cad-limits-in-gesture.html",
       "title": "CAD limits in the gesture",
@@ -25029,5 +25192,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "7e832c86338cc6f9b13bb194e82cd796a44666575339cb3747fe11a257bccbcf"
+  "graphSha256": "596bc271b580ebd1787922cee4132cfd482fe36fc15d0bbaf7e1a952296c5a23"
 };
