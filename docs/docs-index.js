@@ -10695,7 +10695,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "27f4c7a213040028526370ef778362e3780000f09684f2f0b927bb76691ff41a"
+      "sourceSha256": "38109c300e0ba13d64ae577c506a422b3ac0ddb033d72618db101d4ef1917b8b"
     },
     {
       "id": "kb-hw-marine-and-board-cad-tooling",
@@ -10958,7 +10958,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "048476ee0e72b95cff848ca7f95c1215029737beb2d99c424be237c2a810c5cb"
+      "sourceSha256": "ac5548d9136bfa3ddf81fa29e5f8f2c02d69762d17dfe18bcd1037e8b85e7bc9"
     },
     {
       "id": "kb-hw-structures-materials-and-manufacturing",
@@ -24821,5 +24821,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "a2b22bd5833cbc5cd7ebbad66c0c48c3b9e433033cc2ac4ee8de1e990de9adb8"
+  "graphSha256": "cd2e2d52a3380f62b7da07d1ea44bf882019af88c20fce3a3b2b12375cedc297"
 };
