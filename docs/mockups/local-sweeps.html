@@ -350,6 +350,15 @@ function deriveConditions(speedMs, hRef, water) {
   return { q, reRef, hc, frH, sigma };
 }
 
+function fixedVlmBasis(hRef) {
+  // Mirrors Labels.FixedVlm(deepWater) (Labels.cs:25-26, 304-305): COPY-223 ("deep water") ONLY when h_ref is set AND h/c >= 5.0; otherwise COPY-224 ("free surface not modelled").
+  const hc = hRef !== null ? hRef / FOIL.cRef : null;
+  const isDeepWater = hRef !== null && hc >= 5.0;
+  if (isDeepWater) return { isDeepWater: true, text: "attached flow; no stall; no ventilation; deep water" };
+  const shallowNote = hc !== null ? ` (h/c = ${hc.toFixed(2)} < 5)` : "";
+  return { isDeepWater: false, text: "attached flow; no stall; no ventilation; free surface not modelled" + shallowNote };
+}
+
 function solveCase(speedKn, alphaDeg, hRef, tier, revOffset) {
   const speedMs = speedKn * KN_TO_MS;
   const cond = deriveConditions(speedMs, hRef, WATER_15_SALT);
@@ -679,9 +688,7 @@ function renderLeftDock(cases) {
     <div class="panel">
       <h3>Basis &amp; omissions</h3>
       <div class="muted" style="margin-bottom:4px;">Computed estimate · Model uncertainty not quantified</div>
-      <div class="muted">${ui.state === "depth-unset"
-        ? "attached flow; no stall; no ventilation; free surface not modelled"
-        : "attached flow; no stall; no ventilation; deep water (h/c = 4.17 < 5: free surface not modelled)"}</div>
+      <div class="muted">${fixedVlmBasis(ui.state === "depth-unset" ? null : 0.50).text}</div>
       <div class="muted" style="margin-top:4px;">Not included: junction, mast, wave, spray</div>
     </div>
     <div class="panel">
@@ -1105,7 +1112,7 @@ function renderResultsView(cases) {
       <div class="chart-box" id="chart-box">
         ${buildChartSvg(cases)}
         <div class="chart-legend">
-          <span class="legend-item"><strong>Basis:</strong> ${isDepthUnset ? "attached flow; no stall; no ventilation; free surface not modelled" : "attached flow; no stall; no ventilation; deep water (h/c 4.17 < 5: free surface not modelled)"}</span>
+          <span class="legend-item"><strong>Basis:</strong> ${fixedVlmBasis(isDepthUnset ? null : 0.50).text}</span>
           ${isDepthUnset ? `<span class="legend-item"><strong>Cavitation ceiling:</strong> Unavailable — depth not set</span>` : ""}
           <span class="legend-item"><strong>Gap rule:</strong> Failed/pruned cases break the curve; zero interpolation across gaps.</span>
         </div>
@@ -1310,8 +1317,10 @@ function renderAudit() {
     ? Array.from(document.querySelectorAll("#main-body button")).filter(b => /\brun\b/i.test(b.textContent)).length
     : 0;
 
-  // Live ANA-19 depth-unset check
-  const deepWaterInUnset = ui.state === "depth-unset" && /deep water/i.test(shellText);
+  // Live ANA-19 / Labels.FixedVlm check: "deep water" must never appear when h_ref is unset OR h/c < 5.0
+  const activeHRef = ui.state === "depth-unset" ? null : 0.50;
+  const activeDeepWater = fixedVlmBasis(activeHRef).isDeepWater;
+  const deepWaterLeak = !activeDeepWater && /deep water/i.test(shellText);
 
   document.getElementById("audit").innerHTML = `
     <h2>In-page review audit (Theme: ${ui.theme} · Viewport: ${ui.vp} · State: ${ui.state})</h2>
@@ -1319,7 +1328,7 @@ function renderAudit() {
       <span class="${contrastFails === 0 ? "pass-pill" : "fail-pill"}">Contrast: ${pairs.length - contrastFails}/${pairs.length} PASS</span>
       <span class="${labHits.length === 0 ? "pass-pill" : "fail-pill"}">LAB-01 forbidden words in shell: ${labHits.length}</span>
       <span class="${runBtnsInExp === 0 ? "pass-pill" : "fail-pill"}">XS-03 Run buttons in Experiment setup: ${runBtnsInExp}</span>
-      <span class="${!deepWaterInUnset ? "pass-pill" : "fail-pill"}">ANA-19 depth-unset "deep water" leak: ${deepWaterInUnset ? "YES" : "0"}</span>
+      <span class="${!deepWaterLeak ? "pass-pill" : "fail-pill"}">ANA-19 / Labels.FixedVlm "deep water" leak (unset or h/c &lt; 5): ${deepWaterLeak ? "YES" : "0"}</span>
     </div>
     <div class="tbl-wrap">
       <table>

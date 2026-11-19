@@ -3343,7 +3343,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "96d82bc649d884819e5236bff49eeaa47859dae48f2023302d52ec46c8ffc0b8"
+      "sourceSha256": "8b78e9b0a8f37676cddef8a8734670c93c73540b26c704085d73a3f8e959523c"
     },
     {
       "id": "design-m12b-points",
@@ -24813,5 +24813,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "eea3f41ed75db33235ac08be3f38be6127978d8495b9c03f15f29a03d47a1cc8"
+  "graphSha256": "1896b925608175e092824283007c703bb97f89c7073ad51e4af8cfb6c1225c23"
 };
