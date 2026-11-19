@@ -15174,6 +15174,42 @@ window.DOCS_INDEX = {
       "sourceSha256": "87cda78ce3a37f639984c4e8759350dd3a44a736a106debb1ac3c684ae777901"
     },
     {
+      "id": "proof-copy-615-post-0b277815",
+      "path": "docs/proof/copy-615-post-0b277815/README.md",
+      "title": "Ruling 267 receipt: genuine post-0b277815 stored run compared under COPY-615",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "implementation",
+      "reviewBy": "2027-03-19",
+      "reviewSuggested": [],
+      "summary": "A genuine cfdw-project-2 document written by commit 0b2778153b182e85d0da9dd53517396ccce29964 (modern axes and ReferenceQuantities, predating Provisional/YLow/YHigh/FlagCode/Discrepancies), reopened by the current build and compared against a modern run with different reference quantities to verify the exact COPY-615 headline and dimensional deltas in both orientations.",
+      "tags": [
+        "a3d",
+        "compare",
+        "copy-615",
+        "old-build",
+        "ruling-267",
+        "analysis"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-a3a-old-build",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "8b9865d0d3c200b87efbda5261268719688e70dd733e69d30662b7227e77b675"
+    },
+    {
       "id": "proof-copy447-reachability",
       "path": "docs/proof/copy447-reachability/receipt.md",
       "title": "COPY-447 public ProjectStore reachability measurement",
@@ -24993,5 +25029,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "66879206be1a1808acb0680f99ee5c49c8ed952b59967340869ce3c322a47f40"
+  "graphSha256": "7e832c86338cc6f9b13bb194e82cd796a44666575339cb3747fe11a257bccbcf"
 };

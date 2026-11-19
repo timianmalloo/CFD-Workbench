@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-19T23:35:42Z",
+  "generated": "2026-11-19T23:41:20Z",
   "audit": [
     {
       "actor": null,
@@ -44088,6 +44088,35 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-19T23:34:46Z",
       "duration_seconds": 56.0
+    },
+    {
+      "id": "al-01M7V2ZA10WRSGFH1NZT48C94B",
+      "shortname": "join-w5-cln",
+      "datetime": "2026-11-19T23:41:20Z",
+      "session": "agy-coord-w5",
+      "prompt": "the join of swarm-w5-cleanup-7280e2bb into main",
+      "summary": "SC2 designer-readable dat/My-sections source names across all 6 surfaces; AuthoringSession.CompareFields encode cache dropping 32MB cap median from 58.8ms to 3.4ms (17.3x speedup, all mutators invalidated); genuine post-0b277815 COPY-615 fixture and test (Ruling 267); README refreshed for Waves 1-4 and pack rev 120; Adversary PASS and TESTS-GREEN recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/copy-615-post-0b277815/README.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land Wave 3/4 cleanup, encode headroom, Ruling 267 fixture, and README refresh on main",
+      "done_when": "conductor-join checks, full run-tests.sh ring, check-docs, and all 10 verify gates green on main",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-19T23:36:10Z",
+      "duration_seconds": 310.0
     }
   ],
   "changes": [
