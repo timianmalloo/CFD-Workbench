@@ -25,7 +25,9 @@ What it does, per artifact family (pack-owned names only - repo-local files are 
                  INSTALL,context-budget.json}; .github/hooks/ai-forward.json; .claude/settings.json
                  (hooks merged, showThinkingSummaries set); .grok/hooks/ai-forward.json;
                  .grok/rules/grok-surface.md (path map only — not knowledge docs); .gitignore lines;
-                 docs/index.html only if absent; docs/docs-index.js NEVER (V10)
+                 docs/index.html and docs/docs-index.js NEVER created or overwritten by
+                 install — a content-creating skill instantiates the Explorer shell, as its
+                 last action, once it has real content to show (V10; AL0.2, PK-03)
   front doors -> AGENTS.md: the managed block replaced wholesale between markers (appended if absent).
                  CLAUDE.md: converted to `@AGENTS.md` + the addendum block (CTX-B); the old file is
                  backed up under docs/ai-forward-pack/retired/, and every paragraph that is NOT in
@@ -64,6 +66,29 @@ for _stream in (sys.stdout, sys.stderr):
 MANIFEST = "FOUNDATION.md"
 
 
+class UnsafeDestination(ValueError):
+    """FR-092: a destination that is a link, or that resolves outside the target repository."""
+
+
+def read_hook_settings(path):
+    """Decode policy-bearing configuration strictly; absence alone is an empty install."""
+    if os.path.islink(path):
+        raise ValueError("symlink hook target")
+    try:
+        with open(path, encoding="utf-8", newline="") as handle:
+            return handle.read()
+    except FileNotFoundError:
+        return None
+
+
+# B15 (hook cost): revision 100 shipped one launcher command per pack hook; one dispatcher
+# command per host event replaces them. These are the source-managed names and commands it
+# retires. A refresh that left them would run every hook twice.
+RETIRED_HOOK_SCRIPTS = ("reread-guard", "mail-doorbell", "heartbeat", "git-identity-guard",
+                        "owner-review-gate", "session-start")
+RETIRED_AGY_SECTIONS = ("reread-guard", "session-start", "mail-doorbell", "heartbeat", "owner-review-gate")
+
+
 def merge_named_hook_bundles(source_text, current_text=None):
     """Refresh source-owned names and retain project-owned names; reject invalid JSON."""
     source = json.loads(source_text)
@@ -71,7 +96,159 @@ def merge_named_hook_bundles(source_text, current_text=None):
     for value in (source, current):
         if not isinstance(value, dict) or any(not isinstance(section, dict) for section in value.values()):
             raise ValueError("Named hook bundles must be objects of objects")
+    _refresh_legacy_startup(current)
+    _refresh_legacy_ownership(current)
+    for name in RETIRED_AGY_SECTIONS:
+        if name not in source:
+            current.pop(name, None)
     current.update(source)
+    return json.dumps(current, indent=2) + "\n"
+
+
+STARTUP_LAUNCHER = ("git -c alias.aif-hook=!sh aif-hook -c '"
+    'r=.;n=0;while [ ! -f "$r/docs/ai-forward-pack/hooks/run-hook.sh" ];do '
+    '[ -e "$r/.git" ] && exit 2;n=$((n+1));[ "$n" -le 64 ] || exit 2;r=$r/..;done;'
+    'cd "$r" || exit 2;exec sh docs/ai-forward-pack/hooks/run-hook.sh "$@"'
+    "' aif-hook ")
+
+
+STARTUP_EVENTS = ("SessionStart", "SubagentStart", "sessionStart", "subagentStart")
+
+
+def _refresh_legacy_startup(value, event=None):
+    """Only exact shipped startup commands; wrappers and argv extensions are local.
+
+    Both earlier shipped forms (the plain launcher and the revision 106/107 bounded search
+    running session-start.py) become the bounded search running the event dispatcher (B15),
+    in place, so a handler keeps its position and timeout and startup never runs twice."""
+    if isinstance(value, dict):
+        if event and not value.get("args"):
+            old = "git -c alias.aif-hook=!sh aif-hook docs/ai-forward-pack/hooks/run-hook.sh "
+            for field in ("command", "bash", "powershell"):
+                for host in ("claude", "grok", "copilot"):
+                    suffix = "session-start.py --host " + host
+                    if value.get(field) in (old + suffix, STARTUP_LAUNCHER + suffix):
+                        value[field] = STARTUP_LAUNCHER + "dispatch.py --host " + host + " --event " + event
+        for key, item in value.items():
+            _refresh_legacy_startup(item, key if key in STARTUP_EVENTS else event)
+    elif isinstance(value, list):
+        for item in value:
+            _refresh_legacy_startup(item, event)
+
+
+def _refresh_legacy_ownership(value):
+    """Migrate only the complete previously emitted ownership command, not wrappers."""
+    prefix = ("py=$(python3 -c 'import sys;print(sys.executable)' 2>/dev/null); "
+              "[ -x \"$py\" ] || py=$(python -c 'import sys;print(sys.executable)'); "
+              'root=$(git rev-parse --show-toplevel) || exit 2; '
+              'exec "$py" "$root/docs/ai-forward-pack/scripts/coord-core.py" hook --host ')
+    launcher = "git -c alias.aif-hook=!sh aif-hook docs/ai-forward-pack/hooks/run-hook.sh "
+    if isinstance(value, dict):
+        command = value.get("command")
+        for host in ("claude", "copilot", "codex", "grok", "agy"):
+            if command == prefix + host and not value.get("args"):
+                caller = "" if host == "agy" else "--caller-cwd "
+                value["command"] = launcher + caller + "../scripts/coord-core.py hook --host " + host
+                break
+        stop = prefix.replace('scripts/coord-core.py" hook --host ',
+                              'hooks/owner-review-gate.py" --host ') + "codex --event Stop"
+        if command == stop and not value.get("args"):
+            value["command"] = launcher + "owner-review-gate.py --host codex --event Stop"
+        for item in value.values():
+            _refresh_legacy_ownership(item)
+    elif isinstance(value, list):
+        for item in value:
+            _refresh_legacy_ownership(item)
+
+
+def merge_hook_ownership(current_text):
+    """Refresh existing native opt-ins only; never create or enable an ownership hook."""
+    config = json.loads(merge_claude_settings('{"hooks":{}}', current_text))
+    _refresh_legacy_ownership(config)
+    return json.dumps(config, indent=2) + "\n"
+
+
+def merge_claude_settings(source_text, current_text=None):
+    """Replace complete shipped commands, never custom wrappers or permission settings."""
+    source = json.loads(source_text)
+    current = json.loads(current_text.lstrip("\ufeff")) if current_text is not None else {}
+    for config in (source, current):
+        if not isinstance(config, dict) or not isinstance(config.get("hooks", {}), dict):
+            raise ValueError("Settings and hooks must be objects")
+        for entries in config.get("hooks", {}).values():
+            if not isinstance(entries, list):
+                raise ValueError("Hook events must be arrays")
+            for entry in entries:
+                if not isinstance(entry, dict) or not isinstance(entry.get("hooks"), list):
+                    raise ValueError("Hook entries must contain handler arrays")
+                if "matcher" in entry and not isinstance(entry["matcher"], str):
+                    raise ValueError("Hook matcher must be a string")
+                for handler in entry["hooks"]:
+                    if not isinstance(handler, dict):
+                        raise ValueError("Hook handlers must be objects")
+                    if handler.get("type") == "command" and not isinstance(handler.get("command"), str):
+                        raise ValueError("Command handlers require a command string")
+                    if "command" in handler and not isinstance(handler["command"], str):
+                        raise ValueError("Hook commands must be strings")
+    _refresh_legacy_startup(current)
+    prefix = ("py=$(python3 -c 'import sys;print(sys.executable)' 2>/dev/null); "
+              "[ -x \"$py\" ] || py=$(python -c 'import sys;print(sys.executable)'); ")
+    launcher = "git -c alias.aif-hook=!sh aif-hook docs/ai-forward-pack/hooks/run-hook.sh "
+    ownership = launcher + "--caller-cwd ../scripts/coord-core.py hook --host claude"
+    ownership_old = {
+        prefix + '"$py" "' + path + '" hook'
+        for path in ("pack/scripts/coord-core.py", "docs/ai-forward-pack/scripts/coord-core.py")
+    }
+    ownership_old.add(prefix + 'root=$(git rev-parse --show-toplevel) || exit 2; '
+                      'exec "$py" "$root/docs/ai-forward-pack/scripts/coord-core.py" hook --host claude')
+    hooks = current.setdefault("hooks", {})
+    ships_dispatcher = any("run-hook.sh dispatch.py --host claude" in handler.get("command", "")
+                           for entries in source.get("hooks", {}).values()
+                           for entry in entries for handler in entry["hooks"])
+    if ships_dispatcher:
+        # B15: the exact per-hook commands revision 100 (and its older spellings) shipped are
+        # retired; a custom wrapper never matches exactly and survives.
+        retired = re.compile("(?:" + re.escape(launcher) + "|(?:" + re.escape(prefix + '"$py" ') +
+                             "|python )docs/ai-forward-pack/hooks/)(?:" + "|".join(RETIRED_HOOK_SCRIPTS) +
+                             r")\.py --host claude(?: --event \w+)?")
+        for event in list(hooks):
+            kept = []
+            for entry in hooks[event]:
+                handlers = [h for h in entry["hooks"]
+                            if h.get("args") or not retired.fullmatch(str(h.get("command", "")))]
+                if handlers or not entry["hooks"]:
+                    kept.append(dict(entry, hooks=handlers))
+            hooks[event] = kept
+    for event, entries in source.get("hooks", {}).items():
+        replacements = {}
+        for entry in entries:
+            for handler in entry["hooks"]:
+                command = handler.get("command", "")
+                match = re.fullmatch(re.escape(launcher) + r"([a-z-]+\.py) (--host claude(?: --event \w+)?)", command)
+                if not match:
+                    match = re.fullmatch(re.escape(STARTUP_LAUNCHER) + r"(session-start\.py) (--host claude)", command)
+                if match:
+                    script, args = match.groups()
+                    target = "docs/ai-forward-pack/hooks/" + script
+                    for old in (prefix + '"$py" ' + target + " " + args,
+                                "python " + target + " " + args):
+                        replacements[old] = command
+        if event == "PreToolUse":
+            replacements.update({old: ownership for old in ownership_old})
+        have = hooks.setdefault(event, [])
+        for entry in have:
+            for handler in entry["hooks"]:
+                old = handler.get("command")
+                if old in replacements and not handler.get("args"):
+                    handler["command"] = replacements[old]
+        existing = {handler.get("command") for entry in have for handler in entry["hooks"]}
+        for entry in entries:
+            if not any(handler.get("command") in existing for handler in entry["hooks"]):
+                have.append(entry)
+                existing.update(handler.get("command") for handler in entry["hooks"])
+    for key, value in source.items():
+        if key != "hooks":
+            current.setdefault(key, value)
     return json.dumps(current, indent=2) + "\n"
 
 BEGIN = "<!-- AI-FORWARD-PACK:BEGIN"
@@ -92,7 +269,11 @@ GITIGNORE_LINES = ["*.jsonl.lock", "spikes/", "docs/audit/.run-starts.json",
                    "docs/audit/.run-starts.json.tmp",
                    ".agents/*", "!.agents/artifacts.yml", "!.agents/log/",
                    "!.agents/skills*", "!.agents/hooks.json", "!.agents/rules*",
-                   ".agents/mail/"]
+                   "!.agents/session-checks.json",
+                   ".agents/mail/", ".agents/log/audit/.run-starts.json",
+                   ".agents/log/audit/.run-starts.json.tmp",
+                   "**/docs/audit/.run-starts.json", "**/docs/audit/.run-starts.json.tmp",
+                   "**/.agents/log/audit/.run-starts.json", "**/.agents/log/audit/.run-starts.json.tmp"]
 # D10 (ratified 2026-09-19): the coord ledgers `.agents/log/` are TRACKED by default - git is the
 # durable and cross-machine path for state-changing mail (their body-less twins). The mail
 # inboxes `.agents/mail/` are machine-local and carry bodies, so they are ignored by an EXPLICIT
@@ -178,11 +359,18 @@ PATH_NORMALISERS = [
 
 
 # --------------------------------------------------------------------------- io helpers
+def _unlisted(error):
+    """CTRL-G: an unlistable pack source directory would install a partial pack and report success."""
+    raise error
+
+
 def read(path):
+    """The file's text, or None when it does not exist. Any other failure raises (CTRL-G): an
+    unreadable file read as absent would install a partial pack, or overwrite what it never read."""
     try:
         with open(path, encoding="utf-8", errors="replace", newline="") as fh:
             return fh.read()
-    except OSError:
+    except (FileNotFoundError, NotADirectoryError):
         return None
 
 
@@ -250,16 +438,18 @@ class Applier(object):
         self.baselines = baselines
         self.allow_stale = allow_stale
         self.rows = []
-        self.old_pack_sha = None
+        self.old_pack_shas = None
         self.source_rev, self.source_meta = self._source_revision()
         self.target_rev = self._target_revision()
+        # Snapshot provenance before apply advances the installed INSTALL.md.
+        self.target_install_text = read(os.path.join(self.target, "docs", "ai-forward-pack", "INSTALL.md"))
 
     def _project_name(self):
         """The TARGET repo's canonical name -- never `basename(target)` (class PACK-P).
 
         `--project` still wins. Without it this used the target directory's basename, which
         stamps a WORKTREE folder into the target's committed `docs/index.html` and `AGENTS.md`
-        whenever the install is run from a worktree -- which WT1 requires it to be.
+        whenever the install is run from a worktree -- which WT1 often makes it.
         """
         here = os.path.dirname(os.path.abspath(__file__))
         if here not in sys.path:
@@ -326,25 +516,62 @@ class Applier(object):
         return int(rev.group(1)) if rev else None
 
     def _old_pack_text(self, rel):
-        """The pack file as it was at the target's installed revision, from the source's history.
-        None when unresolvable (no git, revision unknown, file did not exist) - then no merge base."""
+        """Resolve installed bytes by full INSTALL provenance, not a revision number.
+
+        Independent lineages can publish the same revision; even one lineage can
+        correct it without renumbering. Compare the immutable installed guidance
+        with reachable source snapshots (including merge-parent comparisons).
+        Missing or ambiguous provenance is not a merge base.
+        """
         if self.target_rev is None or self.target_rev == self.source_rev:
             return None
-        if self.old_pack_sha is None:
-            rc, out = git(["log", "--format=%H", "-S", "revision: {0}".format(self.target_rev), "--",
-                           "pack/adapters/INSTALL.md"], self.source)
-            shas = out.split()
-            self.old_pack_sha = shas[-1] if rc == 0 and shas else ""
-        if not self.old_pack_sha:
+        if self.old_pack_shas is None:
+            self.old_pack_shas = []
+            # Include pack-only edits too: identical INSTALL text does not prove
+            # identical pack bytes. Never choose the oldest/newest matching tree.
+            rc, out = git(["log", "--full-history", "-m", "--format=%H", "--", "pack"], self.source)
+            if rc != 0 or self.target_install_text is None:
+                return None
+            installed = self.target_install_text.lstrip("\ufeff").replace("\r\n", "\n").replace("\r", "\n")
+            for sha in dict.fromkeys(out.split()):
+                rc, guidance = git(["show", sha + ":pack/adapters/INSTALL.md"], self.source)
+                revision = re.search(r"^revision:\s*(\d+)\s*$", guidance, re.M)
+                if (rc == 0 and revision is not None and int(revision.group(1)) == self.target_rev
+                        and guidance.lstrip("\ufeff").replace("\r\n", "\n").replace("\r", "\n") == installed):
+                    self.old_pack_shas.append(sha)
+        if not self.old_pack_shas:
             return None
-        rc, out = git(["show", "{0}:pack/{1}".format(self.old_pack_sha, rel.replace("\\", "/"))], self.source)
-        return out if rc == 0 else None
+        old = None
+        for sha in self.old_pack_shas:
+            rc, text = git(["show", "{0}:pack/{1}".format(sha, rel.replace("\\", "/"))], self.source)
+            if rc != 0 or (old is not None and text != old):
+                return None
+            old = text
+        return old
 
     # ---- primitive writes
+    def _contain(self, dest):
+        """Refuse a destination that is a link or that resolves outside the target (FR-092).
+
+        Checked on the deepest directory that already exists, before any is created, so a planted
+        junction or symlink in a parent cannot redirect the write either.
+        """
+        root = os.path.realpath(self.target)
+        if os.path.islink(dest):
+            raise UnsafeDestination("{0} is a link".format(self.rel(dest)))
+        probe = os.path.dirname(os.path.abspath(dest))
+        while not os.path.exists(probe) and os.path.dirname(probe) != probe:
+            probe = os.path.dirname(probe)
+        real = os.path.realpath(probe)
+        if os.path.normcase(os.path.commonpath([real, root])) != os.path.normcase(root):
+            raise UnsafeDestination("{0} resolves outside the target ({1})".format(self.rel(dest), real))
+
     def _write(self, dest, text):
         if self.dry:
             return
+        self._contain(dest)
         os.makedirs(os.path.dirname(dest), exist_ok=True)
+        self._contain(dest)   # nothing raced a link into the directories just made
         with open(dest, "w", encoding="utf-8", newline="\n") as fh:
             fh.write(norm_nl(text))
 
@@ -461,7 +688,7 @@ class Applier(object):
             if not os.path.isfile(os.path.join(sdir, "SKILL.md")):
                 continue
             inventory[name] = []
-            for base, _dirs, files in os.walk(sdir):
+            for base, _dirs, files in os.walk(sdir, onerror=_unlisted):
                 for f in sorted(files):
                     src = os.path.join(base, f)
                     rel_in_skill = os.path.relpath(src, sdir)
@@ -497,6 +724,9 @@ class Applier(object):
         self.place("bundle", "adapters/codex/codex.md",
                    os.path.join(self.target, "docs", "ai-forward-pack", "codex.md"),
                    read(os.path.join(self.pack, "adapters", "codex", "codex.md")))
+        self.place("bundle", "adapters/muse/muse-surface.md",
+                   os.path.join(self.target, "docs", "ai-forward-pack", "muse-surface.md"),
+                   read(os.path.join(self.pack, "adapters", "muse", "muse-surface.md")))
 
     def agents(self):
         cc = os.path.join(self.pack, "adapters", "claude-code", "agents")
@@ -524,7 +754,7 @@ class Applier(object):
         dp = os.path.join(self.target, "docs", "ai-forward-pack")
         for sub in ("templates", "scripts"):
             src_dir = os.path.join(self.pack, sub)
-            for base, _dirs, files in os.walk(src_dir):
+            for base, _dirs, files in os.walk(src_dir, onerror=_unlisted):
                 if "__pycache__" in base:
                     continue
                 for f in sorted(files):
@@ -536,17 +766,37 @@ class Applier(object):
         for f in ("README.md", "OVERVIEW.md", "research-synthesis.md", "context-budget.json"):
             self.place("bundle", f, os.path.join(dp, f), read(os.path.join(self.pack, f)))
         hooks = os.path.join(self.pack, "adapters", "hooks")
-        for f in ("reread-guard.py", "session-start.py", "mail-doorbell.py", "heartbeat.py", "coord_identity.py",
-                  "owner-review-gate.py", "copilot.ai-forward-hooks.json", "README.md"):
+        for f in ("dispatch.py", "reread-guard.py", "session-start.py", "mail-doorbell.py", "heartbeat.py", "coord_identity.py",
+                  "owner-review-gate.py", "git-identity-guard.py", "run-hook.sh", "copilot.ai-forward-hooks.json",
+                  "README.md"):
             self.place("hooks", "adapters/hooks/" + f, os.path.join(dp, "hooks", f), read(os.path.join(hooks, f)))
         self.place("hooks", "adapters/hooks/copilot.ai-forward-hooks.json",
                    os.path.join(self.target, ".github", "hooks", "ai-forward.json"), read(os.path.join(hooks, "copilot.ai-forward-hooks.json")))
         self.place("hooks", "adapters/hooks/grok.ai-forward-hooks.json",
                    os.path.join(self.target, ".grok", "hooks", "ai-forward.json"),
                    read(os.path.join(hooks, "grok.ai-forward-hooks.json")))
+        # A customized whole native bundle is normally kept as a local deviation.
+        # Startup migration is narrower: change only exact formerly shipped commands
+        # inside it, preserving extra handlers, native metadata and all settings.
+        for relative in (".github/hooks/ai-forward.json", ".grok/hooks/ai-forward.json"):
+            target = os.path.join(self.target, *relative.split("/"))
+            try:
+                current = read_hook_settings(target)
+                if current is None:
+                    continue
+                config = json.loads(current)
+                if not isinstance(config, dict) or not isinstance(config.get("hooks"), dict):
+                    raise ValueError("native hooks must be an object")
+                before = json.dumps(config, sort_keys=True)
+                _refresh_legacy_startup(config)
+                if json.dumps(config, sort_keys=True) != before:
+                    self._write(target, json.dumps(config, indent=2) + "\n")
+                    self.row("hooks", relative, "MERGE", "ok", "exact startup commands refreshed; custom policy retained")
+            except (OSError, ValueError, TypeError):
+                self.row("hooks", relative, "CONFLICT", "fail", "invalid native hooks; existing file retained")
         agy_target = os.path.join(self.target, ".agents", "hooks.json")
         try:
-            current_hooks = read(agy_target)
+            current_hooks = read_hook_settings(agy_target)
             if os.path.islink(agy_target):
                 raise ValueError("symlink hook target")
             merged_hooks = merge_named_hook_bundles(read(os.path.join(hooks, "agy.ai-forward-hooks.json")), current_hooks)
@@ -565,48 +815,61 @@ class Applier(object):
         self.place("bundle", ".agents/skills.json",
                    os.path.join(self.target, ".agents", "skills.json"), skills_json)
         self._settings(read(os.path.join(hooks, "claude-code.settings.hooks.json")))
+        optional = [os.path.join(self.target, ".codex", "hooks.json")]
+        grok_hooks = os.path.join(self.target, ".grok", "hooks")
+        if os.path.isdir(grok_hooks):
+            optional.extend(os.path.join(grok_hooks, name) for name in sorted(os.listdir(grok_hooks))
+                            if name.endswith(".json"))
+        for target in optional:
+            relative = os.path.relpath(target, self.target).replace("\\", "/")
+            try:
+                current = read_hook_settings(target)
+                if current is None:
+                    continue
+                merged = merge_hook_ownership(current)
+            except (OSError, ValueError, TypeError):
+                self.row("hooks", relative, "CONFLICT", "fail", "invalid native hooks; existing file retained")
+                continue
+            if merged != current:
+                self._write(target, merged)
+            self.row("hooks", relative, "UNCHANGED" if merged == current else "MERGE", "ok",
+                     "existing opt-ins only; native review remains required")
         self._gitignore()
         self._gitattributes()
         self._editorconfig()
+        # docs/index.html is the SAME signal docs-graph.py's `_opted_into_docs_explorer`
+        # reads as "this repo wants the Docs Explorer" before `derive` will write
+        # docs/docs-index.js (AL0.2/V10). Instantiating it here, at bare install, would
+        # satisfy that signal for every repo the installer ever touches -- with zero
+        # content under docs/ -- so the next bare `derive` (every shipped skill calls it
+        # bare) would seed docs-index.js unasked (PK-03, measured in grid-4: the shell
+        # present pre-task, docs-index.js added outside the task's declared scope). The
+        # shell is instantiated only by a content-creating skill, as ITS last action
+        # (V10 step 3), once it has real content to show -- never by install.
         explorer = os.path.join(self.target, "docs", "index.html")
-        if not os.path.isfile(explorer):
-            tpl = read(os.path.join(self.pack, "templates", "docs-explorer.template.html")) or ""
-            self._write(explorer, tpl.replace("__PROJECT__", self._project_name()))
-            self.row("bundle", "docs/index.html", "ADD", "ok", "Docs Explorer instantiated (one-time)")
-        else:
+        if os.path.isfile(explorer):
             self.row("bundle", "docs/index.html", "SKIP", "ok", "exists - never overwritten")
+        else:
+            self.row("bundle", "docs/index.html", "SKIP", "ok",
+                     "never created by install - a content-creating skill instantiates it "
+                     "once it has real content to show (V10)")
         self.row("bundle", "docs/docs-index.js", "SKIP", "ok", "never created or overwritten (V10)")
 
     def _settings(self, snippet_text):
         dest = os.path.join(self.target, ".claude", "settings.json")
         try:
-            snippet = json.loads(snippet_text or "{}")
-        except ValueError:
-            self.row("hooks", ".claude/settings.json", "ERROR", "fail", "pack snippet is not valid JSON")
+            current_text = read_hook_settings(dest)
+            merged = merge_claude_settings(snippet_text, current_text)
+        except (OSError, ValueError, TypeError):
+            self.row("hooks", ".claude/settings.json", "CONFLICT", "fail",
+                     "HOOK-SETTINGS-INVALID: existing settings retained; inspect JSON and nested hook shapes")
             return
-        current_text = read(dest)
-        try:
-            current = json.loads(current_text) if current_text else {}
-        except ValueError:
-            self.row("hooks", ".claude/settings.json", "CONFLICT", "fail", "existing settings.json is not valid JSON - merge by hand")
-            return
-        merged = json.loads(json.dumps(current))
-        hooks = merged.setdefault("hooks", {})
-        for event, entries in (snippet.get("hooks") or {}).items():
-            have = hooks.setdefault(event, [])
-            for entry in entries:
-                wanted = {h.get("command") for h in entry.get("hooks", [])}
-                if not any(wanted & {h.get("command") for h in e.get("hooks", [])} for e in have):
-                    have.append(entry)
-        for k, v in snippet.items():
-            if k != "hooks" and k not in merged:
-                merged[k] = v
-        if merged == current:
+        if merged == current_text:
             self.row("hooks", ".claude/settings.json", "UNCHANGED", "ok")
             return
-        self._write(dest, json.dumps(merged, indent=2) + "\n")
+        self._write(dest, merged)
         self.row("hooks", ".claude/settings.json", "ADD" if current_text is None else "MERGE", "ok",
-                 "hooks + showThinkingSummaries merged; other keys untouched")
+                 "exact shipped hooks refreshed; custom hooks and settings retained; BOM-free UTF-8")
 
     def _tracked_under(self, path):
         """Which files does the TARGET repo track under this path? None = cannot tell.
@@ -637,6 +900,16 @@ class Applier(object):
                     declined.add(rest[0])
         if line in declined:
             return "the repo records `{0}{1}`".format(DECLINE_MARKER, line)
+        if line.startswith("**/"):
+            # These suffix patterns include the root as well as descendants.
+            # Do not reintroduce a root default explicitly withheld above.
+            root_pattern = line[3:]
+            root_reason = self._gitignore_withhold(root_pattern, have)
+            if root_reason:
+                return "its root pattern was withheld: " + root_reason
+            suffix = "/" + root_pattern
+            if any(entry.startswith("!") and entry[1:].endswith(suffix) for entry in have):
+                return "the repo already re-includes a descendant duration marker"
         clash = sorted(gitignore_negations(line) & have)
         if clash:
             return ("the repo already re-includes it with {0} - .gitignore is"
@@ -780,7 +1053,7 @@ class Applier(object):
         the original is backed up. Only PowerShell/Python files outside the pack's own directories
         are considered, and only when their text names CLAUDE.md together with a parity marker."""
         skip = (".git", "node_modules", "docs/ai-forward-pack", ".claude", ".github/instructions", ".github/knowledge")
-        for base, dirs, files in os.walk(self.target):
+        for base, dirs, files in os.walk(self.target):  # skip-ok: best-effort retirement in the target; an unlistable directory keeps its files, the pre-install state
             rel_base = self.rel(base)
             if any(rel_base == s or rel_base.startswith(s + "/") for s in skip):
                 dirs[:] = []
@@ -855,12 +1128,17 @@ class Applier(object):
             return self.rows
         if self.target_rev == self.source_rev and not self.force:
             self.row("meta", "revision", "UNCHANGED", "ok", "already at revision {0} (use --force to re-apply)".format(self.source_rev))
-        self.knowledge()
-        self.skills()
-        self.agents()
-        self.bundle()
-        self.front_doors()
-        self.advance()
+        try:
+            self.knowledge()
+            self.skills()
+            self.agents()
+            self.bundle()
+            self.front_doors()
+            self.advance()
+        except UnsafeDestination as exc:
+            # A planted link makes the target suspect: stop before the revision advances.
+            self.row("meta", "target", "REFUSED", "fail", "{0}; nothing written there - remove the link".format(exc))
+            return self.rows
         self.run_baselines()
         return self.rows
 
@@ -1055,7 +1333,12 @@ def main(argv=None):
         return 2
     app = Applier(args.source, args.target, dry=(args.cmd == "plan"), project=args.project, install=args.install, allow_stale=args.allow_stale,
                   force=args.force, baselines=not args.no_baselines)
-    rows = app.run()
+    try:
+        rows = app.run()
+    except OSError as error:   # CTRL-G: read() raises rather than mistake unreadable for absent
+        print("pack-apply: stopped - {0} could not be read ({1}); nothing after it was applied".format(
+            error.filename or "a file", error.__class__.__name__), file=sys.stderr)
+        return 1
     if args.json:
         print(json.dumps({"mode": args.cmd, "source_revision": app.source_rev, "target_revision": app.target_rev, "rows": rows}, indent=2))
     else:

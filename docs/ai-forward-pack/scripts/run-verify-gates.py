@@ -73,7 +73,7 @@ def gates(root: Path, dirs) -> list[Path]:
         base = root / d
         if not base.is_dir():
             continue
-        for p in sorted(base.glob("verify-*.py")):
+        for p in sorted(q for q in base.iterdir() if q.match("verify-*.py")):   # iterdir raises; glob returns []
             if p.is_file() and p.resolve() != SELF:
                 found.append(p)
     return found

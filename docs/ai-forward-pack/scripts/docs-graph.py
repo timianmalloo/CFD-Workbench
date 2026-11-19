@@ -27,7 +27,7 @@ Conventions
   docs/index.html, docs/docs-index.js, non-.md files. Frontmatter is the record; this tool
   never invents metadata — files without frontmatter are reported, not silently indexed.
 """
-import argparse, concurrent.futures, contextlib, datetime, hashlib, json, os, re, stat, sys, tempfile, time
+import argparse, codecs, concurrent.futures, contextlib, datetime, hashlib, json, os, re, stat, sys, tempfile, time
 from html.parser import HTMLParser
 
 # Windows consoles default to cp1252, which cannot encode the box/arrow glyphs this
@@ -244,14 +244,22 @@ def _is_reparse_point(path, metadata=None):
         return False
 
 
+def _path_kind(path):
+    """'file', 'directory' or 'other' (a link, a reparse point, a special file). An lstat failure
+    raises: a path that could not be examined is not the same as one that is unsafe (CTRL-G)."""
+    metadata = os.lstat(path)
+    if stat.S_ISLNK(metadata.st_mode) or _is_reparse_point(path, metadata):
+        return "other"
+    if stat.S_ISDIR(metadata.st_mode):
+        return "directory"
+    return "file" if stat.S_ISREG(metadata.st_mode) else "other"
+
+
 def _safe_path_kind(path, expected):
     try:
-        metadata = os.lstat(path)
-    except OSError:
+        return _path_kind(path) == expected
+    except OSError:  # skip-ok: every caller records a False as a problem (_markdown_candidates)
         return False
-    if stat.S_ISLNK(metadata.st_mode) or _is_reparse_point(path, metadata):
-        return False
-    return stat.S_ISDIR(metadata.st_mode) if expected == "directory" else stat.S_ISREG(metadata.st_mode)
 
 
 def _file_identity(metadata):
@@ -502,7 +510,12 @@ def _markdown_candidates(root, artifact_limit=None):
     candidates, problems = [], []
     absolute_root = os.path.abspath(root)
     public_parent = os.path.dirname(absolute_root)
-    for dp, dns, fns in os.walk(absolute_root):
+
+    def unlisted(error):   # CTRL-G: os.walk drops a directory it cannot list unless told otherwise
+        problems.append({"file": os.path.relpath(error.filename or absolute_root, public_parent).replace("\\", "/"),
+                         "problem": f"unreadable directory: {type(error).__name__}"})
+
+    for dp, dns, fns in os.walk(absolute_root, onerror=unlisted):
         retained = []
         for directory in sorted(dns):
             candidate = os.path.join(dp, directory)
@@ -585,18 +598,20 @@ def _surface_title(path, relative_to_root):
     }
     if normalized in explicit:
         return explicit[normalized]
-    try:
-        source, opened = _open_verified_binary(path)
-        with source:
-            data = source.read(SURFACE_TITLE_BYTES)
-            _verify_open_snapshot(path, source, opened)
-        parser = _TitleParser()
-        parser.feed(data.decode("utf-8"))
-        title = parser.title()
-        if title:
-            return title
-    except (OSError, UnicodeError, _SourceChangedError):
-        return None
+    # A read or decode failure raises to the caller, which records it as a finding (CTRL-G).
+    source, opened = _open_verified_binary(path)
+    with source:
+        data = source.read(SURFACE_TITLE_BYTES + 1)
+        _verify_open_snapshot(path, source, opened)
+    # A read capped mid-file may end inside a multi-byte character; only a complete file must
+    # decode in full (one byte of look-ahead tells the two apart). Invalid bytes before the cut raise.
+    complete = len(data) <= SURFACE_TITLE_BYTES
+    text = codecs.getincrementaldecoder("utf-8")().decode(data[:SURFACE_TITLE_BYTES], final=complete)
+    parser = _TitleParser()
+    parser.feed(text)
+    title = parser.title()
+    if title:
+        return title
     stem = os.path.splitext(os.path.basename(relative_to_root))[0]
     if stem.lower() == "index":
         stem = os.path.basename(os.path.dirname(relative_to_root)) or "Documentation"
@@ -632,11 +647,23 @@ def _surface_id(relative_to_root):
     return "surface-" + (slug or "knowledge")
 
 
-def discover_html_surfaces(root, artifacts):
+def discover_html_surfaces(root, artifacts, problems):
+    """Every surface is counted when it is admitted, BEFORE it is read, and every path that
+    could not be examined is a finding in `problems` (CTRL-G): counting only the files that
+    read cleanly let one transient fault among 101 surfaces slip under SURFACE_LIMIT."""
     absolute_root = os.path.abspath(root)
     public_parent = os.path.dirname(absolute_root)
     candidates = []
-    for directory_path, directory_names, file_names in os.walk(absolute_root):
+    admitted = 0
+
+    def unreadable(path, what, error):
+        problems.append({"file": os.path.relpath(path, public_parent).replace("\\", "/"),
+                         "problem": f"{what}: {type(error).__name__}"})
+
+    def unlisted(error):
+        unreadable(error.filename or absolute_root, "unreadable directory", error)
+
+    for directory_path, directory_names, file_names in os.walk(absolute_root, onerror=unlisted):
         retained = []
         for directory_name in sorted(directory_names):
             candidate = os.path.join(directory_path, directory_name)
@@ -647,9 +674,15 @@ def discover_html_surfaces(root, artifacts):
                 or directory_name in {"node_modules", ".git", "__pycache__"}
             ):
                 continue
-            if not _safe_path_kind(candidate, "directory"):
+            try:
+                kind = _path_kind(candidate)
+            except FileNotFoundError:
                 continue
-            retained.append(directory_name)
+            except OSError as error:
+                unreadable(candidate, "unreadable directory", error)
+                continue
+            if kind == "directory":
+                retained.append(directory_name)
         directory_names[:] = retained
         for file_name in sorted(file_names):
             if not file_name.lower().endswith(".html"):
@@ -663,16 +696,39 @@ def discover_html_surfaces(root, artifacts):
                 or relative_to_root.startswith("ai-forward-pack/templates/")
             ):
                 continue
-            if not _safe_path_kind(path, "file"):
+            failure = None
+            try:
+                kind = _path_kind(path)
+            except FileNotFoundError:
                 continue
-            if len(candidates) >= SURFACE_LIMIT:
+            except OSError as error:
+                kind, failure = "file", error
+            if kind != "file":
+                continue   # a link, reparse point or special file: excluded, never counted
+            admitted += 1
+            if admitted > SURFACE_LIMIT:
                 raise DocsGraphError(
                     "SURFACE_LIMIT_EXCEEDED",
                     "The HTML knowledge-surface limit was exceeded.",
                     {"limit": "surfaces", "maximum": SURFACE_LIMIT},
                     4,
                 )
-            title = _surface_title(path, relative_to_root)
+            if failure is not None:
+                unreadable(path, "unreadable surface", failure)
+                continue
+            try:
+                title = _surface_title(path, relative_to_root)
+            except FileNotFoundError:
+                continue
+            except UnicodeDecodeError as error:
+                unreadable(path, "surface is not UTF-8", error)
+                continue
+            except _SourceChangedError as error:
+                unreadable(path, "surface changed during read", error)
+                continue
+            except OSError as error:
+                unreadable(path, "unreadable surface", error)
+                continue
             if not title:
                 continue
             public_path = os.path.relpath(path, public_parent).replace("\\", "/")
@@ -899,6 +955,7 @@ def analyze(arts, problems):
 # ---------- subcommands ----------
 def cmd_inventory(args, exit_on_findings=False):
     arts, problems = scan(args.root, metadata_only=True, artifact_limit=CONTEXT_LIMITS["artifacts"])
+    discover_html_surfaces(args.root, [], problems)   # a surface `derive` could not read is a defect here
     by_id, inbound, stale, flagged, orphans = analyze(arts, problems)
     drift = index_drift(args, arts)
     # FR-056. Findings are two different KINDS and must not share one exit code.
@@ -1033,6 +1090,19 @@ def _frontmatter_snapshot(artifact):
     }
 
 
+def _opted_into_docs_explorer(root, dst):
+    """pack-onoff-analysis.html #3 (class PK-03, F-6): docs-index.js is a generated pack
+    artifact; it must not appear, unasked, in a repo that never opted into the Docs
+    Explorer. 'Opted in' is read from what is ALREADY on disk, independent of this call --
+    the destination file itself, or docs/index.html (the Explorer shell a skill
+    instantiates before calling derive). A repo with neither has not opted in; `derive`
+    then refuses to seed the FIRST one and says so, rather than creating docs/ in a product
+    tree nobody asked to put it in."""
+    if os.path.exists(dst):
+        return True
+    return os.path.exists(os.path.join(root, "index.html"))
+
+
 def cmd_derive(args):
     arts, problems = scan(
         args.root,
@@ -1087,7 +1157,7 @@ def cmd_derive(args):
                         "links": a["links"], "diagrams": diagrams,
                         "sourceSha256": sha256_text(source)})
     project = project_identity(args.root, args.project)
-    surfaces = discover_html_surfaces(args.root, entries)
+    surfaces = discover_html_surfaces(args.root, entries, problems)
     out = {"schemaVersion":"docs-index/v2", "project": project,
            # FR-068. No build timestamp. A wall-clock stamp made this file differ on every run,
            # so docs-index.js could never be byte-stable and therefore could never sit inside a
@@ -1120,6 +1190,17 @@ def cmd_derive(args):
             4,
         )
     dst = args.out or os.path.join(args.root, "docs-index.js")
+    # Explicit --root or --out is a direct ask (sandboxed tests and callers that name their
+    # own location both count) and bypasses the opt-in check below; only the DEFAULT -- no
+    # flag, the documented skill invocation -- is guarded.
+    root_explicit = "--root" in sys.argv[1:]
+    if not args.out and not root_explicit and not _opted_into_docs_explorer(args.root, dst):
+        print("docs-graph derive: skipped writing {0} -- the repo has not opted into the "
+              "Docs Explorer (neither it nor {1} exists yet). Pass --out to write it "
+              "anyway, or instantiate docs/index.html first "
+              "(pack-onoff-analysis.html #3, class PK-03).".format(
+                  dst, os.path.join(args.root, "index.html")), file=sys.stderr)
+        return 0
     for a in arts:
         current, _ = _read_source_bounded(a["_fs_path"], a["id"])
         if sha256_text(normalized_source(current)) != source_snapshots[a["_fs_path"]]:

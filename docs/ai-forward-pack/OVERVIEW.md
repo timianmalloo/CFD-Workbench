@@ -8,7 +8,23 @@ The pack is a repository-droppable extension to the **Agent Knowledge Pack**. It
 
 ## 1. How to install
 
-The pack is installed by **manual reconciliation** — it's all text, and every source path has exactly one destination per host. The deployment map, the ready-to-paste managed blocks (`adapters/managed-blocks/`), the Copilot frontmatter wrap, the Grok path map (`.grok/rules/grok-surface.md`), the Antigravity path map (`.agents/rules/agy-surface.md`), and the update procedure are in **`adapters/INSTALL.md`** (installed copy: `docs/ai-forward-pack/INSTALL.md`) — whose **frontmatter `changes` changelog** is the refresh guide: on a repo refresh, read "what changed since the last version" and apply exactly those re-copies and managed-block re-pastes. In short: knowledge → `.claude/knowledge/` + `.github/instructions/` (wrapped; Grok and Antigravity read the `.claude/knowledge/` copies), skills → `.claude/skills/` + `.github/prompts/` + `.grok/skills/` + `.agents/skills/`, all 23 agents → every host's agent directory, templates + pack docs → `docs/ai-forward-pack/`, the Docs Explorer template → `docs/index.html` (one-time copy), the managed block in `AGENTS.md`, the Grok path map in `.grok/rules/`, and the Antigravity path map in `.agents/rules/`.
+The portable setup is the short path. In the project you want to work on, with
+Git and [uv](https://docs.astral.sh/uv/getting-started/installation/) on PATH, run:
+
+```text
+uv run --no-config --no-project --script https://raw.githubusercontent.com/timianmalloo/ai-forward/v2026.10.19.4/bootstrap.py
+```
+
+This works in Windows PowerShell/Command Prompt and macOS/Linux terminals. Setup
+uses upstream `main`; no `--repo` or `--ref` is needed. The upstream launcher becomes
+available when its contribution merges; reviewers use the matching committed source
+before then. Append `--dry-run` to preview, or rerun to check/update an install.
+Existing Git repositories and plain projects are supported, without automatic Git
+initialization. Setup preserves project policy and stops for specific conflicts;
+it does not install project dependencies, grant permissions, commit, push or deploy.
+Open the target in your coding app and start a fresh chat after installation.
+
+For expert installation or project-specific reconciliation, the pack can still be installed by **manual reconciliation** — it's all text, and every source path has exactly one destination per host. The deployment map, the ready-to-paste managed blocks (`adapters/managed-blocks/`), the Copilot frontmatter wrap, the Grok path map (`.grok/rules/grok-surface.md`), the Antigravity path map (`.agents/rules/agy-surface.md`), and the update procedure are in **`adapters/INSTALL.md`** (installed copy: `docs/ai-forward-pack/INSTALL.md`) — whose **frontmatter `changes` changelog** is the refresh guide: on a repo refresh, read "what changed since the last version" and apply exactly those re-copies and managed-block re-pastes. In short: knowledge → `.claude/knowledge/` + `.github/instructions/` (wrapped; Grok and Antigravity read the `.claude/knowledge/` copies), skills → `.claude/skills/` + `.github/prompts/` + `.grok/skills/` + `.agents/skills/`, all 23 agents → every host's agent directory, templates + pack docs → `docs/ai-forward-pack/`, the Docs Explorer template is available for the first content-creating skill to instantiate at `docs/index.html` (not copied by install), the managed block in `AGENTS.md`, the Grok path map in `.grok/rules/`, and the Antigravity path map in `.agents/rules/`.
 
 **What lands in your repo** (for `--tool both`):
 
@@ -51,16 +67,16 @@ The reasoning behind every seat — and the seats deliberately *not* added — i
 
 **The system tests itself.** `evals/` is the pack's own regression suite — golden tasks per skill with objective trajectory assertions (the artifact exists, frontmatter valid, the FMA/STRIDE/phasing fingerprints present, `docs-graph.py validate` clean); skills are prompt-code and are tested like it. `ci/docs-health.yml` is a ready-to-copy GitHub Actions workflow gating PRs on graph health, freshness, and vendored-foundation drift. `knowledge/FOUNDATION.md` + `scripts/foundation-check.py` make divergence between the vendored base docs and your canonical base pack visible (normalized hashes; known intentional divergences cataloged, currently three pending back-port). `docs-graph.py snapshot` appends the governance-health trend every /document run.
 
-**The artifacts.** 28 templates in `templates/` (spec, architecture, design, ADR, investigation, proof-pack, domain-expert, knowledge-base, documentation-bundle, the **glossary**, the **decision note**, the **project-memory** ledger, the **threat model** and **privacy review** rollups, the **native-UI proof pack**, the **session contract**, the **design-language** doc (Stitch DESIGN.md extended with the pack floors) and its **preview** HTML, the self-contained doc-viewer HTML, the **Docs Explorer** HTML that becomes `docs/index.html`, the **audit & change-log viewer** HTML that becomes `docs/audit/index.html`, and the **UI capability guide** HTML that becomes `docs/ui-guide.html`). The artifact templates all carry the V2 frontmatter header. Worked examples live in `examples/finance-repo/` and `examples/design-languages/`.
+**The artifacts.** 29 templates in `templates/` (spec, proposal, architecture, design, ADR, investigation, proof-pack, domain-expert, knowledge-base, documentation-bundle, the **glossary**, the **decision note**, the **project-memory** ledger, the **threat model** and **privacy review** rollups, the **native-UI proof pack**, the **session contract**, the **design-language** doc (Stitch DESIGN.md extended with the pack floors) and its **preview** HTML, the self-contained doc-viewer HTML, the **Docs Explorer** HTML that becomes `docs/index.html`, the **audit & change-log viewer** HTML that becomes `docs/audit/index.html`, and the **UI capability guide** HTML that becomes `docs/ui-guide.html`). The artifact templates all carry the V2 frontmatter header. Worked examples live in `examples/finance-repo/` and `examples/design-languages/`.
 
 **The foundation (vendored, so the bundle is self-contained).** The Agent Knowledge Pack docs this pack builds on ship inside `knowledge/` and install alongside everything else: the **Body of Knowledge**, the **Rules of the Road**, the **Persona Catalog**, the **Layered-Optimized Architecture**, **Engineering Governance**, the **Testing Strategy**, and the **C# Style Guide**. They're heavily referenced throughout the skills and personas; bundling them means the pack works in a repo that doesn't already have the base pack. (They're *copies* — if you maintain the base pack separately, refresh them when it changes.)
 
 ```
 ai-forward-pack/
 ├─ README.md · research-synthesis.md · OVERVIEW.md
-├─ knowledge/   39 docs (+FOUNDATION manifest) — 31 reasoning + 7 vendored Agent-Knowledge-Pack foundation (BoK, Rules of the Road, Persona Catalog, LOA, Governance, Testing Strategy, C# Style)
-├─ commands/    (the 28 skills, SKILL.md + reference/ each)
-├─ templates/   (the 28 artifact templates)
+├─ knowledge/   40 docs (+FOUNDATION manifest) — 32 reasoning + 7 vendored Agent-Knowledge-Pack foundation (BoK, Rules of the Road, Persona Catalog, LOA, Governance, Testing Strategy, C# Style)
+├─ commands/    (the 30 skills, SKILL.md + reference/ each)
+├─ templates/   (the 29 artifact templates)
 ├─ adapters/    (INSTALL.md, claude-code/agents, copilot/agents, copilot/prompts)
 └─ examples/    (finance-repo — a worked /adddomainexperts result)
 ```
@@ -69,7 +85,32 @@ ai-forward-pack/
 
 ## 3. How to use the skills
 
-There are **28 skills** — six that carry a piece of work from idea to shipped code (`/specify`, `/define-architecture`, `/design-slice`, `/ui-design`, `/implement`, `/investigate`), eight that support them (knowledge collection, persona tailoring, execution-graph planning, documentation, brownfield **adoption**, whole-repo **forensic review**, characterization-first **migration**, and **code-hygiene** review/fix), three **pack-lifecycle** skills that manage the pack installation itself (**/addpacktorepo**, **/updatepack**, and **/extendaibundle**), two **utility** skills (**/auditlog** and **/also**), and two **prompt-log utilities** (**/prompts** and **/searchprompts**). The workflow/support skills form the engineering surface below; lifecycle and utility skills sit outside it.
+**One request across the applicable stages.** Use `/deliver <your task>` in Claude
+Code or a host that lists the installed slash entry point; Codex uses `$deliver`.
+In Copilot CLI, find it with `/skills`, then `/deliver <your task>`, or ask
+`Use the /deliver skill to <your task>`. If installed during a chat, use
+`/skills reload`, then `/skills info deliver`. VS Code Copilot Agent Host sessions
+use skills rather than the older prompt files; select/request the installed skill
+when `/deliver` is not listed. Grok Build and Antigravity can select/request it by
+name. These are chat requests, not terminal commands.
+
+```text
+/deliver Add CSV export for the current project and filter. Export all matches, not only the visible page. Do not add scheduling or new roles.
+```
+
+`deliver` preserves your original outcome, selects only the existing workflows it
+needs and continues through approved work. It does not run every skill or start a
+swarm by default. A necessary human decision, permission or blocking review pauses
+the same task; reply to the specific question in the same chat. A hard veto requires
+independent re-review. In a fresh chat in the same project, use
+`/deliver resume <task-id>` (Codex `$deliver resume <task-id>`). Checkpoints are local,
+not automatically shared across clones, and validate saved state rather than human
+authenticity or the meaning of acceptance evidence. The handback still needs checks
+of the actual result, including limits and unmet criteria. The individual skills,
+reference table and worked example below remain available when you prefer to direct
+one stage at a time.
+
+There are **30 skills** — seven that carry an idea or piece of work from exploration to shipped code (`/create-proposal`, `/specify`, `/define-architecture`, `/design-slice`, `/ui-design`, `/implement`, `/investigate`), eight that support them (knowledge collection, persona tailoring, execution-graph planning, documentation, brownfield **adoption**, whole-repo **forensic review**, characterization-first **migration**, and **code-hygiene** review/fix), three **pack-lifecycle** skills that manage the pack installation itself (**/addpacktorepo**, **/updatepack**, and **/extendaibundle**), two **utility** skills (**/auditlog** and **/also**), and two **prompt-log utilities** (**/prompts** and **/searchprompts**). The workflow/support skills form the engineering surface below; lifecycle and utility skills sit outside it.
 
 **Built-in delivery discipline.** `/define-architecture` *defines completely but phases vertically*: the whole architecture is specified, then delivery is partitioned into end-to-end vertical slices (Phase 1 a walking skeleton; mocks at unbuilt edges as contract seams) so serial implementation always yields a deployable, human-validatable increment. `/design-slice` performs a mandatory **failure-mode analysis** (each mode → an explicit disposition: prevent/detect/mitigate/recover/accept) and `/implement` carries every mode into code + a negative test. And `/define-architecture`, `/design-slice`, and `/implement` each **end with a status table** — completed / remaining / best next action — so you always know where the build stands.
 
@@ -87,6 +128,8 @@ There are **28 skills** — six that carry a piece of work from idea to shipped 
 
 | Skill | Use it when… | You get | Convened (peers → adversaries) |
 |---|---|---|---|
+| **/deliver** | one outcome completed without choosing every workflow yourself | applicable existing stages, local checkpoints and original criteria-to-evidence handback; pause at necessary gates | applicable author/reviewer lenses; no default swarm |
+| **/create-proposal** | brainstorming an idea before requirements are fixed | `docs/proposals/<idea>.md` + `.html`, with optional `docs/mockups/` experiments | Product Strategist, UX Researcher/IA → Simplifier, UX & Accessibility when mocked up |
 | **/collectknowledge** | starting in an unfamiliar or high-stakes domain, before design | `docs/knowledge/<topic>/` — sourced, confidence-labeled domain knowledge | Domain Researcher, Product Strategist → Domain Researcher (adversary), Simplifier |
 | **/adddomainexperts** | the project has a real subject-matter domain | domain-expert personas + `docs/domain-experts.md` | Orchestrator, Product Strategist, Domain Researcher → Simplifier, Tech Lead, Data |
 | **/specify** | turning an idea or prompt into a testable spec | `docs/specs/<feature>.md` with acceptance criteria | Product Strategist, Domain Researcher → Simplifier, Test Architect, Security (if data/identity), UX (if a UI) |

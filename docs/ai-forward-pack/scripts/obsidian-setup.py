@@ -176,7 +176,7 @@ def write_text_lf(path: str, text: str, dry: bool) -> str:
             with open(path, encoding="utf-8") as f:
                 if f.read() == text:
                     return "unchanged"
-        except OSError:
+        except OSError:  # skip-ok: a failed comparison read falls through to the write, which reports its own error
             pass
         action = "would update" if dry else "updated"
     else:

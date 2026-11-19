@@ -31,7 +31,8 @@ a measurement path that does not exist reports "not recorded", never a plausible
 Subcommands
   discover   list the sessions found for the repo(s) in the window
   profile    per-turn metrics + findings + fixes for the selected sessions; writes
-             docs/profiles/<sp-id>/{profile.json,profile.md} in the FIRST --repo (or --out-root)
+             <profiles>/<sp-id>/{profile.json,profile.md} for the FIRST --repo (or --out-root):
+             docs/profiles/ in the pack source repo or with --publish, else <git-dir>/ai-forward/profiles/
   compare    aggregate the same metrics by model family x harness (the tuning view)
   fixes      print the fix catalog (finding id -> pack surface -> control)
 
@@ -41,6 +42,8 @@ import argparse
 import collections
 import datetime as _dt
 import glob
+import hashlib
+import importlib.util
 import json
 import os
 import re
@@ -558,10 +561,11 @@ def git(args, cwd):
     try:
         # text=True alone decodes with locale.getpreferredencoding() — cp1252 on a Windows
         # console — so a non-ASCII branch name or author line raises UnicodeDecodeError.
-        out = subprocess.run(["git"] + args, cwd=cwd, capture_output=True, text=True,
+        # FR-105: git runs inside the profiled repository; its config may not start a program.
+        out = subprocess.run(["git", "-c", "core.fsmonitor=false"] + args, cwd=cwd, capture_output=True, text=True,
                              encoding="utf-8", errors="replace", timeout=20)
         return out.stdout if out.returncode == 0 else ""
-    except (OSError, subprocess.SubprocessError):
+    except (OSError, subprocess.SubprocessError):  # skip-ok: advisory profiler input; a failed git read is left out of the report
         return ""
 
 
@@ -927,7 +931,7 @@ def claude_sessions(identity, since, home):
     for name in sorted(os.listdir(projects)):
         if name.lower() not in wanted:
             continue
-        for path in sorted(glob.glob(os.path.join(projects, name, "*.jsonl"))):
+        for path in sorted(glob.glob(os.path.join(projects, name, "*.jsonl"))):  # skip-ok: advisory profiler input; an unlistable project is left out of the report
             sid = os.path.splitext(_basename(path))[0]
             mtime = _dt.datetime.fromtimestamp(os.path.getmtime(path), _dt.timezone.utc)
             if since and mtime < since:
@@ -945,7 +949,7 @@ def claude_sessions(identity, since, home):
                                 continue
                             title = r.get("aiTitle") or title
                             cwd = cwd or r.get("cwd")
-            except OSError:
+            except OSError:  # skip-ok: advisory profiler input; an unreadable session is left out of the report
                 pass
             out.append({"harness": "claude", "id": sid, "path": path, "project": name,
                         "updated": iso(mtime), "started": None, "title": title, "cwd": cwd})
@@ -982,13 +986,13 @@ def read_subagents(session_dir):
     if not os.path.isdir(store):
         return [], NOT_RECORDED
     nodes = []
-    for path in sorted(glob.glob(os.path.join(store, "agent-*.jsonl"))):
+    for path in sorted(glob.glob(os.path.join(store, "agent-*.jsonl"))):  # skip-ok: advisory profiler input; an unlistable store is left out of the report
         aid = _basename(path)[len("agent-"):-len(".jsonl")]
         meta = {}
         try:
             with open(path[:-len(".jsonl")] + ".meta.json", encoding="utf-8") as fh:
                 meta = json.load(fh) or {}
-        except (OSError, ValueError):
+        except (OSError, ValueError):  # skip-ok: advisory profiler input; an unreadable sidecar is left out of the report
             pass
         recs = _load_events(path)
         seen, rows, models = set(), [], collections.Counter()
@@ -1884,8 +1888,22 @@ def _compile_for(args):
     return compile_measurements(os.path.abspath(args.repo[0]), args.days) if args.repo else None
 
 
-def profile_id(root):
-    d = os.path.join(root, "docs", "profiles")
+def profiles_dir(root, publish):
+    """Where this run's profile goes, and whether that place is committed (FR-104, owner ruling
+    2026-10-19). Only the pack's own source repository commits profiles by default; any other
+    repository gets the checkout's untracked git dir (or the user's state dir outside git)
+    unless the operator passes --publish."""
+    if publish or os.path.isfile(os.path.join(root, "pack", "adapters", "INSTALL.md")):
+        return os.path.join(root, "docs", "profiles"), True
+    common = git(["rev-parse", "--path-format=absolute", "--git-common-dir"], root).strip()
+    if common:
+        return os.path.join(common, "ai-forward", "profiles"), False
+    state = os.environ.get("XDG_STATE_HOME") or os.path.join(os.path.expanduser("~"), ".local", "state")
+    key = hashlib.sha256(os.path.abspath(root).encode("utf-8")).hexdigest()[:16]
+    return os.path.join(state, "ai-forward", "profiles", key), False
+
+
+def profile_id(d):
     n = 0
     if os.path.isdir(d):
         for name in os.listdir(d):
@@ -1895,7 +1913,37 @@ def profile_id(root):
     return "sp-{0:04d}".format(n + 1)
 
 
+def _scrubber():
+    """dream.py's `scrub`, the pack's one secret/PII pattern set (FR-103). None if it is missing."""
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dream.py")
+    try:
+        spec = importlib.util.spec_from_file_location("_ai_forward_dream_scrub", path)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = module
+        spec.loader.exec_module(module)
+        return module.scrub
+    except (OSError, ImportError, AttributeError, SyntaxError):
+        return None
+
+
+def scrubbed(value, scrub):
+    """Every string in a profile, scrubbed. FR-103: prompts, titles, paths and shell evidence were
+    copied into committed profiles as typed, so a token in a gated command line was published."""
+    if isinstance(value, str):
+        return scrub(value)[0]
+    if isinstance(value, dict):
+        return {k: scrubbed(v, scrub) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [scrubbed(v, scrub) for v in value]
+    return value
+
+
 def cmd_profile(args):
+    scrub = _scrubber()
+    if scrub is None:
+        print("COORD-NOT-CHECKED: dream.py (the secret scrub) is missing beside this script; "
+              "nothing was written, because an unscrubbed profile can publish a secret", file=sys.stderr)
+        return 2
     found, since = _select(args)
     if not found:
         print("no sessions found for {0} (harness={1}, days={2})".format(", ".join(args.repo), args.harness, args.days))
@@ -1903,13 +1951,16 @@ def cmd_profile(args):
     compile = _compile_for(args)
     sessions, findings, comparison = _profile_all(found, args, compile)
     root = os.path.abspath(args.out_root or args.repo[0])
-    pid = profile_id(root)
+    base, published = profiles_dir(root, getattr(args, "publish", False))
+    pid = profile_id(base)
     profile = {"id": pid, "generated": iso(_dt.datetime.now(_dt.timezone.utc)), "repos": [os.path.abspath(r) for r in args.repo],
                "repo_labels": [repo_label(r) for r in args.repo],
              "window": "last {0} days".format(args.days) if args.days else "all sessions",
                "chars_per_token": CHARS_PER_TOKEN, "sessions": sessions, "findings": findings, "comparison": comparison,
-               "fixes": FIXES, "compile": compile}
-    out_dir = os.path.join(root, "docs", "profiles", pid)
+               "compile": compile}
+    profile = scrubbed(profile, scrub)
+    profile["fixes"] = FIXES   # the pack's own static catalog: nothing from a session
+    out_dir = os.path.join(base, pid)
     if args.json_only:
         print(json.dumps(profile, ensure_ascii=False, indent=2, default=str))
         return 0
@@ -1919,18 +1970,24 @@ def cmd_profile(args):
     md = render_markdown(profile)
     with open(os.path.join(out_dir, "profile.md"), "w", encoding="utf-8", newline="\n") as fh:
         fh.write(md)
-    _index(root, profile)
-    _audit(root, pid, len(sessions), len(findings), args.session_id)
+    _index(base, profile)
+    _audit(root, pid, len(sessions), len(findings), args.session_id,
+           "docs/profiles/{0}/profile.md".format(pid) if published else None)
     print("profile {0}: {1} session(s), {2} finding(s)".format(pid, len(sessions), len(findings)))
     print("  report: {0}".format(os.path.join(out_dir, "profile.md")))
+    if published:
+        print("  NOTICE: docs/profiles/ is tracked: a commit publishes this profile. It carries scrubbed prompt "
+              "previews, session titles, paths and command fragments.")
+    else:
+        print("  NOTICE: written to this checkout's git dir, not committed (FR-104). Pass --publish to write "
+              "docs/profiles/, which is tracked and may be published.")
     if args.print_markdown:
         print()
         print(md)
     return 0
 
 
-def _index(root, profile):
-    d = os.path.join(root, "docs", "profiles")
+def _index(d, profile):
     path = os.path.join(d, "PROFILES.md")
     header = ("---\nid: session-profiles\ntitle: \"Session profiles\"\ntype: doc\nstatus: accepted\nowner: \"@timianmalloo\"\n"
               "tags: [profile, session-profiler, index]\nlinks:\n  - { to: design-session-profiler, rel: relates-to }\n"
@@ -1951,22 +2008,22 @@ def _index(root, profile):
 _RUN_STARTED = iso(_dt.datetime.now(_dt.timezone.utc))
 
 
-def _audit(root, pid, n_sessions, n_findings, session):
+def _audit(root, pid, n_sessions, n_findings, session, artifact=None):
     """The script's own entry. It passes its OWN start (--started), so it never consumes the
     /session-profiler skill's marker - measured twice: the skill's closing entry read 16 s of a
     3-minute run because this append had eaten the marker (pack finding #2, Addenda C/D)."""
-    script = os.path.join(root, "docs", "ai-forward-pack", "scripts", "audit-log.py")
-    if not os.path.isfile(script):
-        script = os.path.join(root, "pack", "scripts", "audit-log.py")
+    # FR-105: the audit-log.py beside this script, isolated (-I). The one found in the target
+    # repository was run before, so profiling a repository executed that repository's code.
+    script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "audit-log.py")
     if not os.path.isfile(script):
         return
     try:
-        subprocess.run([sys.executable, script, "append", "--shortname", "session-profile-" + pid, "--kind", "script",
+        subprocess.run([sys.executable, "-I", script, "append", "--shortname", "session-profile-" + pid, "--kind", "script",
                         "--skill", "session-profiler", "--session", session or "session-profile-job",
                         "--started", _RUN_STARTED,
                         "--prompt", "session-profile.py profile", "--summary",
-                        "Profile {0}: {1} session(s), {2} finding(s)".format(pid, n_sessions, n_findings),
-                        "--artifact", "docs/profiles/{0}/profile.md".format(pid)],
+                        "Profile {0}: {1} session(s), {2} finding(s)".format(pid, n_sessions, n_findings)]
+                       + (["--artifact", artifact] if artifact else []),
                        cwd=root, capture_output=True, timeout=30)
     except (OSError, subprocess.SubprocessError):
         pass
@@ -2030,6 +2087,8 @@ def main(argv=None):
     p = sub.add_parser("profile", help="profile sessions and write docs/profiles/<sp-id>/")
     p.add_argument("--out-root", help="repo root that receives docs/profiles/ (default: first --repo)")
     p.add_argument("--json-only", action="store_true", help="print JSON, write nothing")
+    p.add_argument("--publish", action="store_true",
+                   help="write docs/profiles/ (tracked) in a repo that is not the pack source (FR-104)")
     p.add_argument("--print-markdown", action="store_true")
     p.add_argument("--session-id", help="audit session id to record")
     p.set_defaults(func=cmd_profile)

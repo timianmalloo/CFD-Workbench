@@ -31,6 +31,7 @@ import argparse
 import json
 import os
 import re
+import stat
 import sys
 import tempfile
 
@@ -50,12 +51,40 @@ PAGED_OUTPUT_RX = re.compile(r"copilot-tool-output-[0-9a-f-]+\.txt$", re.I)
 READ_TOOLS = {"claude": {"Read"}, "copilot": {"view"}, "grok": {"read_file", "Read"}, "agy": {"view_file"}}
 
 
+def _state_dir():
+    """The user's own state directory, or None when it is not private (FR-092).
+
+    A fixed name in the shared temp dir let another user plant a link the next save wrote
+    through. This is under the user's cache home, refused unless only its owner can write it.
+    """
+    base = os.path.join(os.environ.get("XDG_CACHE_HOME") or os.path.join(os.path.expanduser("~"), ".cache"),
+                        "ai-forward")
+    path = os.path.join(base, "reread-guard")
+    try:
+        os.makedirs(path, mode=0o700, exist_ok=True)
+        if os.name != "nt":
+            for directory in (base, path):
+                info = os.lstat(directory)
+                if (not stat.S_ISDIR(info.st_mode) or info.st_uid != os.getuid()
+                        or info.st_mode & 0o022):
+                    return None
+    except OSError:
+        return None
+    return path
+
+
 def state_path(session):
+    """This session's state file, or None: with no private directory the guard keeps no state."""
+    directory = _state_dir()
+    if directory is None:
+        return None
     safe = re.sub(r"[^A-Za-z0-9_.-]", "_", session or "unknown")[:80]
-    return os.path.join(tempfile.gettempdir(), "ai-forward-reread-guard-{0}.json".format(safe))
+    return os.path.join(directory, "{0}.json".format(safe))
 
 
 def load(path):
+    if path is None:
+        return {}
     try:
         with open(path, encoding="utf-8") as fh:
             data = json.load(fh)
@@ -65,13 +94,25 @@ def load(path):
 
 
 def save(path, data):
+    if path is None:
+        return
+    tmp = None
     try:
-        tmp = path + ".tmp"
-        with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
+        # mkstemp creates a new, randomly named file exclusively (O_EXCL), so no planted link is
+        # followed; os.replace then swaps the name itself, never a link's target.
+        descriptor, tmp = tempfile.mkstemp(prefix=".state-", suffix=".tmp", dir=os.path.dirname(path))
+        with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as fh:
             json.dump(data, fh)
         os.replace(tmp, path)
+        tmp = None
     except OSError:
         pass
+    finally:
+        if tmp is not None:
+            try:
+                os.unlink(tmp)
+            except OSError:
+                pass
 
 
 def normalize(p):

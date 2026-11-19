@@ -15,7 +15,17 @@ for _stream in (sys.stdout, sys.stderr):
 
 CONFIGS = (".claude/settings.json", ".grok/hooks/ai-forward.json", ".agents/hooks.json",
            ".github/hooks/ai-forward.json")
-HOOK_PATH = re.compile(r"(?:docs/ai-forward-pack|tools)/hooks/[\w-]+\.py")
+HOOK_PATH = re.compile(r"(?:docs/ai-forward-pack|tools)/hooks/[\w-]+\.(?:py|sh)")
+TOPLEVEL_SAFE = ("git rev-parse --show-toplevel", "git -c alias.aif-hook=!sh aif-hook")
+
+
+def hook_target(cmd):
+    """Identify the managed/project hook target script from either the rev-108 launcher or a direct path."""
+    m = re.search(r"docs/ai-forward-pack/hooks/run-hook\.sh(?:\s+\"\$@\"'\s+aif-hook)?\s+(\S+)", cmd)
+    if m:
+        return m.group(1)
+    m = HOOK_PATH.search(cmd)
+    return m.group() if m else None
 
 
 def command_strings(node):
@@ -33,12 +43,13 @@ def command_strings(node):
 
 def bare_relative_commands(root):
     """HOOK-CWD-RELATIVE: a hook command must still find its script after the shell cwd moves
-    into a subdirectory, so it must fall back to `git rev-parse --show-toplevel`."""
+    into a subdirectory, either via the git `!` alias launcher (runs from toplevel) or an explicit
+    `git rev-parse --show-toplevel` fallback."""
     bad = []
     for name in CONFIGS:
         data = json.loads((root / name).read_text(encoding="utf-8"))
         for cmd in command_strings(data):
-            if HOOK_PATH.search(cmd) and "git rev-parse --show-toplevel" not in cmd:
+            if HOOK_PATH.search(cmd) and not any(tok in cmd for tok in TOPLEVEL_SAFE):
                 bad.append((name, cmd))
     return bad
 
@@ -54,10 +65,10 @@ def main():
     for event, groups in settings.get("hooks", {}).items():
         for group in groups:
             for hook in group.get("hooks", []):
-                match = re.search(r"(?:docs/ai-forward-pack|tools)/hooks/[\w-]+\.py", hook.get("command", ""))
-                if not match:
+                target = hook_target(hook.get("command", ""))
+                if not target:
                     continue
-                key = (event, group.get("matcher", ""), match.group())
+                key = (event, group.get("matcher", ""), target)
                 if key in seen:
                     duplicates.append(key)
                 seen.add(key)

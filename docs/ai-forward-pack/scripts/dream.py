@@ -75,6 +75,8 @@ SECRET_RE = [
     re.compile(r"\b(?:sk|pk|ghp|gho|xox[baprs])[-_][A-Za-z0-9]{16,}\b"),
     re.compile(r"\b[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}\b"),  # email (PII)
     re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
+    re.compile(r"\bgithub_pat_[A-Za-z0-9_]{20,}"),           # FR-103: fine-grained GitHub token
+    re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"),        # FR-103: a pasted private key
 ]
 UNTRUSTED_ORIGINS = {"untrusted", "system", "tool", "subagent", "cron", "heartbeat"}
 
@@ -137,10 +139,13 @@ def grep_markers(root):
     # A comment leader glued to a quote or escape is a string literal, not a marker (LINT-A).
     rx = re.compile(r"(?:^|(?<=\s))(?:#|//)\s?(simplify|assume|ponytail):\s*(.+)")
     out = []
-    for dirpath, dirnames, filenames in os.walk(root):
+    for dirpath, dirnames, filenames in os.walk(root):  # skip-ok: advisory miner; a missed file lowers recall, dream renders no pass/fail
         dirnames[:] = [d for d in dirnames if d not in skip]
-        # do not walk the dreams output or the pack mirror
-        if os.sep + "dreams" in dirpath or os.sep + "ai-forward-pack" in dirpath:
+        # do not walk the dreams output or the pack mirror -- judged BELOW the root (SKIP-P):
+        # a root under a directory named `ai-forward-pack...` must still be harvested.
+        parts = os.path.relpath(dirpath, root).split(os.sep)
+        if "dreams" in parts or "ai-forward-pack" in parts:
+            dirnames[:] = []
             continue
         for fn in filenames:
             if not fn.endswith((".py", ".ps1", ".ts", ".js", ".cs", ".go", ".rs", ".md")):
@@ -154,7 +159,7 @@ def grep_markers(root):
                             rel = os.path.relpath(fp, root).replace(os.sep, "/")
                             out.append({"marker": mm.group(1), "text": mm.group(2).strip()[:200],
                                         "src": "{0}#L{1}".format(rel, i), "origin": "owner"})
-            except OSError:
+            except OSError:  # skip-ok: advisory miner; a missed file lowers recall, dream renders no pass/fail
                 pass
     return out
 
@@ -199,7 +204,7 @@ def load_profiles(root, cutoff):
         try:
             with open(path, encoding="utf-8") as fh:
                 pr = json.load(fh)
-        except (OSError, ValueError):
+        except (OSError, ValueError):  # skip-ok: advisory miner; an unreadable profile is left out of a proposal
             continue
         ts = pr.get("generated") or ""
         try:

@@ -271,7 +271,7 @@ def _locate(root: Path, ref: str) -> Tuple[Optional[Path], Optional[dict], List[
     errors: List[str] = []
     if not directory.is_dir():
         return None, None, errors
-    for path in sorted(directory.glob("*.jsonl")):
+    for path in sorted(p for p in directory.iterdir() if p.match("*.jsonl")):   # CTRL-G: iterdir raises; glob returns []
         entries, errs = read_file(path)
         errors.extend(errs)
         for row in entries:

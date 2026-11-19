@@ -72,11 +72,16 @@ def scan_source(source, rel):
 
 def scan(root):
     out = []
+
+    def unlisted(error):   # CTRL-G: a directory os.walk could not list is not an empty one
+        out.append("{0}: could not be listed ({1}) - not checked".format(
+            os.path.relpath(error.filename or root, root).replace(os.sep, "/"), error.__class__.__name__))
+
     for base in ROOTS:
         top = os.path.join(root, base)
         if not os.path.isdir(top):
             continue
-        for dirpath, dirnames, filenames in os.walk(top):
+        for dirpath, dirnames, filenames in os.walk(top, onerror=unlisted):
             dirnames[:] = [d for d in dirnames if d not in ("__pycache__", "node_modules")]
             for filename in sorted(filenames):
                 if not filename.endswith(".py"):
@@ -86,7 +91,10 @@ def scan(root):
                 try:
                     with open(path, encoding="utf-8", errors="replace") as handle:
                         source = handle.read()
-                except OSError:
+                except FileNotFoundError:
+                    continue
+                except OSError as error:   # CTRL-G: not read is not clean
+                    out.append("{0}: could not be read ({1}) - not checked".format(rel, error.__class__.__name__))
                     continue
                 for lineno, head in scan_source(source, rel):
                     out.append("{0}:{1}: {2}".format(rel, lineno, head))

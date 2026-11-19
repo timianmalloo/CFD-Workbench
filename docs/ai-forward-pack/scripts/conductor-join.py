@@ -56,9 +56,12 @@ Usage (from the checkout the join lands on):
       [--join <join.json>] [--session <id>] [--self-test]
 
 Exit 0 on a complete join; the failing step's number otherwise; 11 when the leader fence (step
-0) refuses; 12 for dirty-primary refusal (also --continue); 13 for a merge refusal without
-unmerged paths (a real conflict remains 1); 7 for residual dirt after committing; 2 on a usage
-error. Stdlib only.
+0) refuses; 12 for dirty-primary refusal (also --continue); 14 when .agents/artifacts.yml is
+absent or invalid (before the merge; the join stages only outputs it declares derived, plus the
+audit log, the audit hub it creates and session logs); 13 for a merge refusal without unmerged
+paths; 1 for a real conflict or an incomplete merge commit (MERGE_HEAD left); 7 for residual
+dirt after committing, and for a refusal while staging (a foreign audit change, unrelated staged
+paths, an unreadable git path list or audit hash); 2 on a usage error. Stdlib only.
 
 Recovery after exit 7: gates and push have not run. Read the diagnostic and inspect
 `git log -2`, `git status`, and the audit diff. A pre-commit refusal leaves no join chore
@@ -110,6 +113,9 @@ EXIT_FENCE = 11
 EXIT_DIRTY = 12
 # A nonzero merge without unmerged paths is a refusal, not a conflict (step 1).
 EXIT_MERGE_REFUSED = 13
+# No artifact registry, or an invalid one: refused before the merge (the join stages only declared outputs).
+EXIT_REGISTRY = 14
+AUDIT_HUB = "docs/audit/audit-log.md"
 
 
 def _sibling(name: str) -> str:
@@ -232,12 +238,27 @@ def join_outputs(j: Join) -> Callable[[], dict[str, bytes | None]]:
     """
     core = runpy.run_path(_sibling("coord-core.py"))
     registry = j.root / ".agents"
-    core["load_registry"](registry)  # Fail closed on an invalid registry, before commands run.
+    # Fail closed before the merge: without a registry the join cannot tell its outputs from foreign
+    # work, and every join would end at exit 7 after its merge and commit.
+    try:
+        loaded = core["load_registry"](registry)
+    except core["CoordError"] as exc:
+        j.log("\nconductor-join: .agents/artifacts.yml is invalid [COORD-JOIN-NO-REGISTRY]: {0}; "
+              "nothing was changed (exit {1}).".format(exc, EXIT_REGISTRY))
+        raise SystemExit(EXIT_REGISTRY)
+    if loaded is None:
+        j.log("\nconductor-join: no .agents/artifacts.yml [COORD-JOIN-NO-REGISTRY]: the join stages only "
+              "outputs the registry classifies as derived; run `coord classify init` (or declare "
+              "docs/audit/audit-data.js and docs/audit/index.html as derived) and commit it; nothing was "
+              "changed (exit {0}).".format(EXIT_REGISTRY))
+        raise SystemExit(EXIT_REGISTRY)
 
     def snapshot() -> dict[str, bytes | None]:
         result = {}
         for path in j.dirty_paths():
-            if path != "docs/audit/audit-log.jsonl" and core["classify"](registry, path)[0] == "derived":
+            # The audit hub is created by the join's own step-5 append when it is missing (ensure_hub).
+            if path == AUDIT_HUB or (path != "docs/audit/audit-log.jsonl"
+                                     and core["classify"](registry, path)[0] == "derived"):
                 full = j.root / path
                 result[path] = hashlib.sha256(full.read_bytes()).digest() if full.is_file() else None
         return result
@@ -293,9 +314,9 @@ def dirty_fence(j: Join, branch: str, log) -> None:
     because every session appends to its own file and the join's own chore commit carries them.
     The change is never stashed or committed here: whoever wrote it commits it under their name.
     """
-    def paths(*git_args) -> set:
-        # -z: one NUL per path, so a path with a space or a non-ASCII name is one entry, never quoted.
-        return {p for p in j.git(*git_args, "-z").stdout.split("\0") if p}
+    # Join.paths reads with -z (a spaced or non-ASCII path is one entry) and fails closed: a git read
+    # that fails is exit 7, never an empty, clean-looking checkout (CTRL-G).
+    paths = j.paths
     unstaged = paths("diff", "--name-only")
     staged = paths("diff", "--name-only", "--cached")
     untracked = paths("ls-files", "--others", "--exclude-standard")
@@ -331,6 +352,7 @@ def join(args, root: Path, contract: dict, log=print, *, _after_fence=None) -> i
 
     leader_fence(j, getattr(args, "epoch", None), log)
     dirty_fence(j, args.branch, log)
+    snapshot = join_outputs(j)  # the registry is read before the merge
     audit_relative = "docs/audit/audit-log.jsonl"
     audit_path = root / audit_relative
 
@@ -400,7 +422,6 @@ def join(args, root: Path, contract: dict, log=print, *, _after_fence=None) -> i
         audit_expected = tree.stdout.split()[2] if tree.stdout.strip() else None
 
     merge_staged = j.paths("diff", "--cached", "--name-only")
-    snapshot = join_outputs(j)
     produced = set()
 
     def run_output(step, what, command):
@@ -985,6 +1006,36 @@ def self_test() -> int:
                 and not any("COORD-JOIN-MERGE-REFUSED" in l for l in lines)
                 and (root / ".git/MERGE_HEAD").is_file())
 
+    def registry_refused(contents):
+        def probe(root, args, lines, run):
+            registry = root / ".agents" / "artifacts.yml"
+            if contents is None:
+                git(root, "rm", "-q", ".agents/artifacts.yml")
+            else:
+                registry.write_text(contents, encoding="utf-8", newline="\n")
+                git(root, "add", ".agents/artifacts.yml")
+            git(root, "commit", "-qm", "registry under test")
+            head = git(root, "rev-parse", "HEAD").strip()
+            status = run()
+            return (status == EXIT_REGISTRY and git(root, "rev-parse", "HEAD").strip() == head
+                    and any("COORD-JOIN-NO-REGISTRY" in l for l in lines)
+                    and not git(root, "status", "--porcelain").strip())
+        return probe
+
+    def hub_missing(root, args, lines, run):
+        # A fresh install: the step-5 append creates the audit hub, and the join commits it as its own.
+        # docs/audit/ keeps its log, so audit-log.py still writes the product tree, not .agents/log.
+        (root / "docs/audit/audit-log.jsonl").write_text('{"id":"base"}\n', encoding="utf-8", newline="\n")
+        git(root, "rm", "-q", AUDIT_HUB)
+        git(root, "add", "docs/audit/audit-log.jsonl")
+        git(root, "commit", "-qm", "no hub yet")
+        status = run()
+        return (status == 0 and git(root, "cat-file", "-e", "HEAD:" + AUDIT_HUB) == ""
+                and not git(root, "status", "--porcelain").strip())
+
+    r2_case("R2 registry: no .agents/artifacts.yml refused before the merge, exit 14", registry_refused(None))
+    r2_case("R2 registry: an invalid registry refused before the merge, exit 14", registry_refused("no colon here\n"))
+    r2_case("R2 registry: a missing audit hub is created and committed by the join", hub_missing)
     r2_case("R2 case A: post-fence write stays dirty, outside commit; post-commit check exits 7", late_write)
     r2_case("R2 case B: untracked overwrite refusal names path and exits 13", refusal)
     r2_case("R2 case B: tracked overwrite refusal names path and exits 13", tracked_refusal)

@@ -229,7 +229,7 @@ def detect_pass_through(raw: str) -> dict | None:
 
 def _walk_files(root: str) -> list[str]:
     out = []
-    for dirpath, dirnames, filenames in os.walk(root):
+    for dirpath, dirnames, filenames in os.walk(root):  # skip-ok: best-effort grounding discovery; a missed doc lowers recall, no verdict
         dirnames[:] = sorted(d for d in dirnames if d not in SKIP_DIRS)
         for name in sorted(filenames):
             out.append(os.path.relpath(os.path.join(dirpath, name), root).replace(os.sep, "/"))
@@ -241,7 +241,7 @@ def _frontmatter(path: str) -> dict:
     try:
         with open(path, encoding="utf-8", errors="replace") as handle:
             head = handle.read(8192)
-    except OSError:
+    except OSError:  # skip-ok: best-effort grounding discovery; a missed doc lowers recall, no verdict
         return {}
     if not head.startswith("---"):
         return {}

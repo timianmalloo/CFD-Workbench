@@ -57,12 +57,16 @@ CODE_EXT = (".py", ".ps1", ".ts", ".js", ".cs", ".go", ".rs")
 SKIP_DIRS = {".git", "node_modules", "dist", "_site", ".claude", ".github"}
 
 
-def _iter_files(root, include_md):
+def _iter_files(root, include_md, unlisted=None):
     exts = CODE_EXT + ((".md",) if include_md else ())
-    for dirpath, dirnames, filenames in os.walk(root):
+    for dirpath, dirnames, filenames in os.walk(root, onerror=unlisted):
         dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS]
-        # never lint the generated pack mirror or the dream output
-        if "ai-forward-pack" in dirpath or (os.sep + "dreams") in dirpath:
+        # never lint the generated pack mirror or the dream output. SKIP-P: judged on the path
+        # BELOW the root - matching the whole path skipped every file of a repo checked out
+        # under a directory whose name contained `ai-forward-pack`, so --gate passed on 0 files.
+        parts = os.path.relpath(dirpath, root).split(os.sep)
+        if "ai-forward-pack" in parts or "dreams" in parts:
+            dirnames[:] = []
             continue
         for fn in filenames:
             if fn.endswith(exts):
@@ -105,12 +109,21 @@ def scan(root, include_md):
     total = 0
     files = 0
     findings = []
-    for fp in _iter_files(root, include_md):
+
+    def unreadable(path, error):   # CTRL-G: a file the lint could not read is a finding, not a pass
+        findings.append({"code": "UNREADABLE", "marker": "",
+                         "src": os.path.relpath(path, root).replace(os.sep, "/"),
+                         "text": type(error).__name__})
+
+    for fp in _iter_files(root, include_md, lambda error: unreadable(error.filename or root, error)):
         files += 1
         try:
             with open(fp, "r", encoding="utf-8", errors="ignore") as f:
                 lines = f.read().splitlines()
-        except OSError:
+        except FileNotFoundError:
+            continue
+        except OSError as error:
+            unreadable(fp, error)
             continue
         i = 0
         while i < len(lines):

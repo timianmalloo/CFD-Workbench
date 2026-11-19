@@ -28,6 +28,7 @@ Exit 0 when clean, 1 on a finding, 2 on a usage error. Stdlib only.
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import subprocess
 import sys
@@ -66,7 +67,13 @@ def findings(root: Path, roots=DEFAULT_ROOTS) -> tuple[list[str], int]:
         base = root / sub
         if not base.is_dir():
             continue
-        for path in sorted(base.rglob("*")):
+        listed = []   # CTRL-G: rglob skips a directory it cannot list; os.walk reports it
+        for dirpath, dirnames, filenames in os.walk(base, onerror=lambda error: out.append(
+                "{0}: could not be listed ({1})".format(
+                    Path(os.path.relpath(error.filename or base, root)).as_posix(), error.__class__.__name__))):
+            dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS]
+            listed.extend(Path(dirpath, name) for name in filenames)
+        for path in sorted(listed):
             if not path.is_file() or path.suffix.lower() not in EXTENSIONS:
                 continue
             if any(part in SKIP_DIRS for part in path.relative_to(root).parts):

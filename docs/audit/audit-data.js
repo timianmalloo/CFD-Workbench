@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-26T20:29:11Z",
+  "generated": "2026-11-19T22:11:37Z",
   "audit": [
     {
       "actor": null,
@@ -43967,6 +43967,28 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-26T20:23:51Z",
       "duration_seconds": 320.0
+    },
+    {
+      "id": "al-01M7TXV0TFBFGXKEZ3TATH92NY",
+      "shortname": "updatepack-r120",
+      "datetime": "2026-11-19T22:11:37Z",
+      "session": "agy-updatepack-20261119",
+      "prompt": "/updatepack",
+      "summary": "92 -> 120 (2026.11.19.1); 73 UPDATE, 26 ADD, 22 MERGE, 10 CONFLICT reconciled, 3 SKIP, 3 BASELINE; cleaned 10 superseded Claude hook entries, migrated tools/hooks/no-heredoc.py to run-hook.sh and updated tools/check-pack-hooks.py; ran coord-core install for pre-merge-commit hook; pack-doctor 22 PASS / 0 FAIL, check-docs green",
+      "kind": "command",
+      "skill": "updatepack",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Update installed AI-Forward Pack in CFD-Workbench to latest source revision",
+      "done_when": "Revisions compared, plan reviewed, apply and conflict reconciliation complete, verify-no-conflict-markers, pack-doctor, check-docs, and idempotency checks green, audit recorded, commit offered",
+      "tier": "T1",
+      "fan_out": 0,
+      "duration_source": "session-start-hook",
+      "started_at": "2026-11-19T22:07:52Z",
+      "duration_seconds": 225.0
     }
   ],
   "changes": [

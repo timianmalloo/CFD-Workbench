@@ -41,6 +41,8 @@ EXIT  0 clean  ·  1 findings  ·  2 usage
 from __future__ import annotations
 
 import argparse
+import fnmatch
+import os
 import re
 import sys
 import tempfile
@@ -73,11 +75,33 @@ class Finding(NamedTuple):
     line: str
 
 
+def _unlisted(error):
+    """CTRL-G: a directory that cannot be listed would silently drop its documented commands."""
+    raise error
+
+
+def _listed(pack, pattern):
+    """Path.glob(pattern) for the two shapes ROOT_GLOBS uses - `dir/**/name` and `dir/name` - but a
+    directory that cannot be listed raises instead of reading as empty (CTRL-G)."""
+    if "/**/" in pattern:
+        prefix, name = pattern.split("/**/", 1)
+        top = pack / prefix
+        if not top.is_dir():
+            return []
+        found = []
+        for dirpath, _dirnames, filenames in os.walk(top, onerror=_unlisted):
+            found.extend(Path(dirpath, f) for f in filenames if fnmatch.fnmatch(f, name))
+        return found
+    directory, _, name = pattern.rpartition("/")
+    top = pack / directory
+    return [p for p in top.iterdir() if fnmatch.fnmatch(p.name, name)] if top.is_dir() else []
+
+
 def documented_files(pack: Path) -> list[Path]:
     """The files the contract names, in a stable order."""
     files: list[Path] = []
     for pattern in ROOT_GLOBS:
-        files.extend(sorted(p for p in pack.glob(pattern) if p.is_file()))
+        files.extend(sorted(p for p in _listed(pack, pattern) if p.is_file()))
     return files
 
 

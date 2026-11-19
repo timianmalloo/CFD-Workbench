@@ -37,6 +37,45 @@ HERE = Path(__file__).resolve().parent
 CAPABILITIES = {"worktree_isolation", "instructions", "hooks", "permissions"}
 RANK = {"unsupported": 0, "observed-only": 1, "enforced": 2}
 MAX_DOCUMENT = 2 * 1024 * 1024
+# `coord-core.py leader who --json` measured 144-246 ms idle, up to 1352 ms under one
+# parallel test run on a 28-core host (x-harness-x-model-bench, 2026-09-29, brief
+# al-01M3Q4K73M91FWPR48PACHH04W). The old fixed 2 s per-check bound left under 650 ms of
+# headroom there and, under heavier load, turned a live lease into a false RUN-LEADER
+# (RUN-C). LEADER_CHECK_TIMEOUT gives a single check >3.5x that measured worst case.
+LEADER_CHECK_TIMEOUT = 5
+# assume: a housekeeping leader check (no operation deadline of its own -- the periodic
+# in-run check, the renewal, and the post-completion re-check) tolerates slow checks until
+# the last observed lease expiry is one check window away, never for a fixed budget. Basis:
+# the fixed 2x LEADER_CHECK_TIMEOUT budget it replaces cancelled run w2-lgc-e1e4
+# (x-harness-x-model-bench, 2026-10-05) at 1,298 s with 833 s of lease left, under one full
+# pytest suite plus two worker gates; and before the observed expiry no other session can
+# take the designation (leader_decide refuses pin/reclaim of a live lease with
+# COORD-LEADER-HELD), so slowness alone cannot hide a new holder. Only the holder's own
+# release can, and that is seen at the next check that answers. Wrong if a designation can
+# change holder before its expires_at by any path other than the holder's release -- then a
+# slow check could keep an in-flight turn running for up to one lease without authority.
+# Prompts and approvals still need a positive answer inside their own deadline (worker_fence).
+
+
+def housekeeping_check(check, lease, epoch):
+    """One bounded leader check for a caller with no operation deadline (RUN-C).
+
+    True while authority stands. A definitive refusal or a changed epoch ends it at once. A
+    check that only ran slow (LeaderCheckSlow) is not lost authority while the last observed
+    lease expiry is more than one check window away; the caller checks again on its next
+    tick, so the dispatch loop never blocks for longer than one check. `check(window)` returns
+    a leader row, or None for a renewal, which carries no row."""
+    try:
+        row = check(min(LEADER_CHECK_TIMEOUT, lease["expires_at"] - time.time()))
+    except LeaderCheckSlow:
+        return time.time() + LEADER_CHECK_TIMEOUT < lease["expires_at"]
+    except (Refused, OSError, ValueError):
+        return False
+    if row is not None:
+        if row["epoch"] != epoch:
+            return False
+        lease["expires_at"] = row["expires_at"]
+    return True
 
 
 def load_module(name, filename):
@@ -56,6 +95,16 @@ class Refused(Exception):
     def __init__(self, code, remedy):
         self.code, self.remedy = code, remedy
         super().__init__(code)
+
+
+class LeaderCheckSlow(Refused):
+    """A bounded leader-check subprocess did not finish inside its timeout. Carries the
+    same RUN-LEADER code as any other refusal, so an unaware caller behaves exactly as
+    before; only Runner.leader_retrying tells this apart, to retry while a check's
+    deadline still allows it instead of treating load as lost authority (RUN-C)."""
+
+    def __init__(self, remedy):
+        super().__init__("RUN-LEADER", remedy)
 
 
 def require(condition, code, remedy):
@@ -118,6 +167,26 @@ def git(cwd, *args):
     return result.stdout.strip()
 
 
+def dispatch_base(cwd, contract):
+    """The commit every worker tree starts from: the contract's `base` (a branch, tag or
+    commit) when it names one, else the invoking checkout's HEAD.
+
+    BASE-A (x-harness-x-model-bench, 2026-10-04): with HEAD as the only base, a dirty primary
+    froze every dispatch, because the integration head was a branch the primary could not
+    fast-forward to. The base is resolved once, here, and pinned in the manifest as a sha."""
+    if "base" not in contract:
+        return git(cwd, "rev-parse", "HEAD")
+    base = contract["base"]
+    require(text(base) and len(base) <= 256 and not base.startswith("-")
+            and not any(ord(c) < 32 for c in base), "RUN-BASE",
+            "Name the dispatch base as a branch, tag or commit (not an option).")
+    result = subprocess.run(["git", "rev-parse", "--verify", "--quiet", base + "^{commit}"], cwd=str(cwd),
+                            capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10)
+    require(result.returncode == 0 and result.stdout.strip(), "RUN-BASE",
+            "Name a dispatch base that resolves to a commit in this repository.")
+    return result.stdout.strip()
+
+
 def identity(value):
     require(isinstance(value, str) and len(value) <= 80 and not core.session_id_error(value),
             "RUN-IDENTITY", "Use a unique portable session/run id of at most 80 characters.")
@@ -144,6 +213,28 @@ def copilot_model(argv):
     require(len(models) == 1 and text(models[0]) and models[0] != "auto"
             and not models[0].startswith("-"), "RUN-COPILOT-MODEL",
             "Pin one explicit model; defaults and automatic routing are not qualified.")
+    return models[0]
+
+
+def expected_model(worker):
+    """The model the transport must select and confirm before any prompt, or None.
+
+    SERVE-A (x-harness-x-model-bench run w2-g3-e1e4): a Grok argv pin (-m / --model) was never
+    sent as session/set_model, so Grok's ACP default answered instead. An unpinned Grok worker
+    keeps the earlier behaviour; an ambiguous pin is refused."""
+    if worker["harness"] == "copilot":
+        return copilot_model(worker["argv"])
+    if worker["harness"] != "grok":
+        return None
+    argv = worker["argv"]
+    models = [arg.split("=", 1)[1] for arg in argv if arg.startswith("--model=")]
+    for index, arg in enumerate(argv):
+        if arg in ("-m", "--model"):
+            models.append(argv[index + 1] if index + 1 < len(argv) else "")
+    if not models:
+        return None
+    require(len(models) == 1 and text(models[0]) and not models[0].startswith("-"),
+            "RUN-GROK-MODEL", "Pin one explicit Grok model with -m or --model.")
     return models[0]
 
 
@@ -399,7 +490,7 @@ class Runner:
         workers = self.validate(contract)
         require(not git(self.cwd, "ls-files", "-u"), "RUN-INDEX", "Resolve the invoking checkout's unmerged index first.")
         manifest = {"schema": "coord-prepared/1", "run_id": contract["run_id"], "owner": contract["owner"],
-                    "parallelism": contract["parallelism"], "base": git(self.cwd, "rev-parse", "HEAD"),
+                    "parallelism": contract["parallelism"], "base": dispatch_base(self.cwd, contract),
                     "contract_sha256": digest(contract), "workers": workers, "created_at": time.time()}
         directory = self.directory(manifest["run_id"])
         directory.parent.mkdir(mode=0o700, exist_ok=True)
@@ -569,12 +660,12 @@ class Runner:
                 return False
             started_check = time.monotonic()
             checkout_identity(remaining)
-            row = self.leader(owner, timeout=min(2, remaining - (time.monotonic() - started_check)))
+            row = self.leader(owner, timeout=min(LEADER_CHECK_TIMEOUT, remaining - (time.monotonic() - started_check)))
             current = socket.lstat()
             return row["epoch"] == admission["epoch"] and time.time() < row["expires_at"] and (
                 current.st_dev, current.st_ino) == socket_identity and stat.S_ISSOCK(current.st_mode)
 
-        require(admitted(2), "RUN-LEADER", "Live authority and socket identity must remain unchanged.")
+        require(admitted(LEADER_CHECK_TIMEOUT), "RUN-LEADER", "Live authority and socket identity must remain unchanged.")
         self.event(manifest, "attachment_started", worker=args.worker, harness=args.harness)
         try:
             if args.harness == "codex":
@@ -673,7 +764,10 @@ class Runner:
         result = run_bounded(command,
                              cwd=self.cwd, env=dict(os.environ, AGENT_SESSION=owner),
                              timeout_seconds=timeout, stdout_limit=8192, stderr_limit=2048)
-        require(result.returncode == 0 and not result.timed_out and not result.limit_exceeded
+        if result.timed_out:
+            raise LeaderCheckSlow("The bounded leader check did not finish inside its "
+                                   "timeout; retry while the check's deadline still allows it.")
+        require(result.returncode == 0 and not result.limit_exceeded
                 and not result.cleanup_error and result.contained, "RUN-LEADER",
                 "Establish a live designation for this Owner or inspect the bounded leader command failure.")
         if renew_run:
@@ -682,6 +776,20 @@ class Runner:
         require(row.get("state") == "live" and row.get("leader") == owner,
                 "RUN-LEADER", "Use the live designated Owner; the runner never pins or steals leadership.")
         return row
+
+    def leader_retrying(self, owner, deadline, renew_run=None, stopped=lambda: False):
+        """Retry a leader check while its deadline allows -- never a fixed per-attempt
+        timeout. Only a definitive epoch/liveness answer (raised by leader() as a plain
+        Refused), the deadline itself, or a stopped run ends the retry; a bounded-subprocess
+        timeout (LeaderCheckSlow) is retried instead of read as lost authority (RUN-C)."""
+        while True:
+            require(not stopped(), "RUN-LEADER", "The run was stopped; no further check is admitted.")
+            window = min(LEADER_CHECK_TIMEOUT, deadline - time.time())
+            require(window > 0, "RUN-LEADER", "Lease or attempt deadline expired; retain the worker evidence.")
+            try:
+                return self.leader(owner, timeout=window, renew_run=renew_run)
+            except LeaderCheckSlow:
+                time.sleep(min(0.25, max(0, deadline - time.time())))
 
     def renew_admitted(self, manifest):
         """Bounded helper: expected epoch is checked in the SAME CAS attempt as renewal."""
@@ -842,11 +950,16 @@ class Runner:
                 stop.set()
             return stop.is_set()
 
-        def fence(remaining):
+        def fence(remaining=None):
+            """Positive confirmation of authority. `remaining` is the caller's operation
+            deadline; None (a housekeeping check) retries slow checks until the observed
+            lease could expire before the next answer (RUN-C)."""
             if cancelled():
                 return False
             try:
-                row = self.leader(owner, timeout=min(2, remaining, lease["expires_at"] - time.time()))
+                horizon = lease["expires_at"] - (LEADER_CHECK_TIMEOUT if remaining is None else 0)
+                deadline = horizon if remaining is None else min(time.time() + remaining, horizon)
+                row = self.leader_retrying(owner, deadline, stopped=stop.is_set)
                 require(row["epoch"] == admission["epoch"], "RUN-LEADER", "The leader epoch changed; no further dispatch is admitted.")
                 lease["expires_at"] = row["expires_at"]
                 return not cancelled()
@@ -915,8 +1028,9 @@ class Runner:
                                    "next_prompt": next_prompt if policy["mailbox"] else None,
                                    "permission_handler": permission_handler if policy["permissions"] == "ask" else None,
                                    "mode_id": policy.get("mode_id")}
-                    if worker["harness"] == "copilot":
-                        options["expected_model"] = copilot_model(worker["argv"])
+                    pin = expected_model(worker)
+                    if pin is not None:
+                        options["expected_model"] = pin
                     deadline = time.monotonic() + worker["deadline_seconds"]
                     attempts = []
                     bytes_used = 0
@@ -959,7 +1073,7 @@ class Runner:
                                 result.update(state="blocked", code="RUN-DECISION-NOT-CHECKED")
                             elif state["open_count"]:
                                 result.update(state="blocked", code="RUN-DECISION-OPEN")
-                            elif not fence(2):
+                            elif not fence():
                                 result.update(state="cancelled", code=lease["reason"])
                             else:
                                 result["state"] = "ready_for_review"
@@ -981,14 +1095,21 @@ class Runner:
                     done, pending = wait(pending, timeout=0.1, return_when=FIRST_COMPLETED)
                     results.extend(f.result() for f in done)
                     if not stop.is_set() and time.monotonic() >= next_check:
-                        if fence(2):
-                            if lease["expires_at"] - time.time() <= float(admission["ttl"]) * 2 / 3:
-                                try:
-                                    self.leader(owner, timeout=min(2, lease["expires_at"] - time.time()), renew_run=manifest["run_id"])
-                                    fence(2)
-                                except (Refused, OSError, ValueError):
-                                    lease["reason"] = "RUN-LEADER"
-                                    stop.set()
+                        # RUN-C: one bounded check per tick, so a slow check never blocks the
+                        # loop for longer than LEADER_CHECK_TIMEOUT nor cancels a live lease.
+                        def check(window):
+                            return self.leader(owner, timeout=window)
+
+                        def renew(window):
+                            return self.leader(owner, timeout=window, renew_run=manifest["run_id"])
+
+                        held = not cancelled() and housekeeping_check(check, lease, admission["epoch"])
+                        if held and lease["expires_at"] - time.time() <= float(admission["ttl"]) * 2 / 3:
+                            held = (housekeeping_check(renew, lease, admission["epoch"])
+                                    and housekeeping_check(check, lease, admission["epoch"]))
+                        if not held:
+                            lease["reason"] = lease["reason"] or "RUN-LEADER"
+                            stop.set()
                         next_check = time.monotonic() + 0.5
         finally:
             stop.set()

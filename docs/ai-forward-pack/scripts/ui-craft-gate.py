@@ -150,11 +150,14 @@ def check_targets(targets):
             if ext not in SCANNED:
                 refused.append("%s: the detector has no rules for %s files" % (target, ext or "extensionless"))
         else:
-            kinds = Counter()
-            for _, dirs, names in os.walk(target):
+            kinds, unlisted = Counter(), []
+            # CTRL-G: a folder the walk cannot list is a refusal, never a silent gap in the count.
+            for _, dirs, names in os.walk(target, onerror=lambda error: unlisted.append(error.filename)):
                 dirs[:] = [d for d in dirs if d not in WALK_SKIPS and not d.startswith(".")]
                 kinds.update(os.path.splitext(name)[1].lower() for name in names)
-            if not any(ext in SCANNED for ext in kinds):
+            if unlisted:
+                refused.append("%s: could not list %s" % (target, ", ".join(sorted(map(str, unlisted)))))
+            elif not any(ext in SCANNED for ext in kinds):
                 refused.append("%s: nothing in it is a type the detector reads" % target)
             # A mixed tree runs, but a clean report must not imply the skipped UI markup was checked.
             skipped = {ext: n for ext, n in kinds.items() if ext in (".axaml", ".xaml", ".xhtml", ".razor", ".cshtml")}

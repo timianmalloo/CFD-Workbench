@@ -82,12 +82,19 @@ def scan(root: Path, files: list[str]) -> tuple[list[str], int]:
         try:
             if path.resolve() == SELF:
                 continue
-        except OSError:
+        except OSError:  # skip-ok: identity probe only; the read below reports a path it cannot open
             pass
+        if path.is_dir():
+            continue   # a submodule's gitlink: not a file
         try:
             text = path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError):
-            continue   # binary, or gone from the worktree: neither carries a text marker
+        except UnicodeDecodeError:
+            continue   # binary: it carries no text marker
+        except FileNotFoundError:
+            continue   # tracked but gone from the worktree
+        except OSError as error:   # CTRL-G: not read is not clean
+            findings.append("{0}: could not be read ({1}) - not checked".format(relative, error.__class__.__name__))
+            continue
         read += 1
         for number, line in enumerate(text.splitlines(), 1):
             if line.startswith(MARKERS):

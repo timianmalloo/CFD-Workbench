@@ -112,7 +112,9 @@ class Controls:
                 time.sleep(.01)
 
     def _records(self):
-        paths = sorted(itertools.islice(self.directory.glob("*.json"), MAX_RECORDS + 1))
+        # CTRL-G: iterdir raises on a directory it cannot list, where glob returns [].
+        paths = sorted(itertools.islice((p for p in self.directory.iterdir() if p.match("*.json")),
+                                        MAX_RECORDS + 1))
         require(len(paths) <= MAX_RECORDS)
         rows = []
         previous = ""

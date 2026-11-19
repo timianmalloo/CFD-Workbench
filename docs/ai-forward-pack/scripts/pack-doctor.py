@@ -76,7 +76,7 @@ def _read(path):
     try:
         with open(path, encoding="utf-8", errors="replace") as fh:
             return fh.read()
-    except OSError:
+    except OSError:  # skip-ok: every caller turns a None read into a failed missing/empty check
         return None
 
 
@@ -138,6 +138,65 @@ def check_codex(root):
                        "review the override with its owner; do not overwrite it automatically")
     return _result(name, PASS,
                    "%d pack skills, companion files, constitution and scripts present; filesystem only, Codex catalog not queried"
+                   % len(inventory))
+
+
+def check_muse(root):
+    """Check the deployed Muse contract, never claim a running Muse catalog was read.
+
+    Muse discovers the shared .agents/skills surface (the Codex/Antigravity
+    tree) and reads AGENTS.md; its own contribution is the path map
+    docs/ai-forward-pack/muse-surface.md plus the AGENTS.md pointer to it.
+    The skill inventory is the shared codex-skills.json manifest."""
+    name = "Muse repository readiness"
+    fix = "run $updatepack (or pwsh tools/sync-pack.ps1 in the source repo); see docs/ai-forward-pack/muse-surface.md"
+    problems = []
+    required = ["AGENTS.md", "docs/ai-forward-pack/muse-surface.md",
+                "docs/ai-forward-pack/scripts/audit-log.py",
+                "docs/ai-forward-pack/scripts/prompt-log.py",
+                "docs/ai-forward-pack/scripts/docs-graph.py"]
+    required += [".claude/knowledge/" + doc + ".md" for doc in (
+        "agent-body-of-knowledge", "agent-rules-of-the-road", "agent-persona-catalog",
+        "layered-optimized-architecture", "engineering-governance")]
+    for rel in required:
+        if not (_read(os.path.join(root, rel)) or "").strip():
+            problems.append("missing or empty " + rel)
+    agents = _read(os.path.join(root, "AGENTS.md")) or ""
+    if "docs/ai-forward-pack/muse-surface.md" not in agents:
+        problems.append("AGENTS.md does not direct Muse to its grounding guide")
+
+    manifest = "docs/ai-forward-pack/codex-skills.json"
+    try:
+        inventory = json.loads(_read(os.path.join(root, manifest)) or "null")
+    except ValueError:
+        inventory = None
+    if not isinstance(inventory, dict) or not inventory:
+        return _result(name, FAIL, "; ".join(problems + ["missing or invalid " + manifest]), fix)
+    for skill, files in inventory.items():
+        if (not re.fullmatch(r"[a-z0-9-]+", skill) or not isinstance(files, list)
+                or "SKILL.md" not in files or any(
+                    not isinstance(f, str) or not f or "\\" in f
+                    or f.startswith("/") or ":" in f or ".." in f.split("/") for f in files)):
+            problems.append("invalid skill inventory entry " + skill)
+            continue
+        for rel in files:
+            target = ".agents/skills/" + skill + "/" + rel
+            if not os.path.isfile(os.path.join(root, target)):
+                problems.append("missing " + target)
+        target = ".agents/skills/" + skill + "/SKILL.md"
+        text = _read(os.path.join(root, target)) or ""
+        header = re.match(r"\A---\r?\n(.*?)\r?\n---(?:\r?\n|$)", text, re.S)
+        fields = {}
+        if header:
+            for key in ("name", "description"):
+                match = re.search(r"^" + key + r":[ \t]*([^\r\n]+)", header.group(1), re.M)
+                fields[key] = match.group(1).strip().strip("\"'") if match else ""
+        if fields.get("name") != skill or not fields.get("description", "").strip():
+            problems.append("invalid name/description in " + target)
+    if problems:
+        return _result(name, FAIL, "; ".join(problems), fix)
+    return _result(name, PASS,
+                   "%d pack skills, companion files, constitution and scripts present; filesystem only, Muse catalog not queried"
                    % len(inventory))
 
 
@@ -224,16 +283,78 @@ def check_hooks(root):
         have.append("Grok Build (.grok/hooks/ai-forward.json)")
     if os.path.isfile(agy):
         have.append("Antigravity (.agents/hooks.json)")
-    if "reread-guard" in cc:
+    # B15: the guard runs inside the per-event dispatcher (dispatch.py); older installs name it directly.
+    if "reread-guard" in cc or "dispatch.py --host claude" in cc:
         have.append("Claude Code (.claude/settings.json)")
-    guard = os.path.isfile(os.path.join(root, "docs", "ai-forward-pack", "hooks", "reread-guard.py"))
-    if have and guard:
+    hooks_dir = os.path.join(root, "docs", "ai-forward-pack", "hooks")
+    missing = [f for f in ("reread-guard.py", "dispatch.py") if not os.path.isfile(os.path.join(hooks_dir, f))]
+    if have and not missing:
         return _result("re-read guard hook", PASS, "installed for " + ", ".join(have))
-    if have and not guard:
-        return _result("re-read guard hook", FAIL, "hook config present but docs/ai-forward-pack/hooks/reread-guard.py is missing",
-                       "copy adapters/hooks/reread-guard.py to docs/ai-forward-pack/hooks/ (INSTALL 1.5)")
+    if have:
+        return _result("re-read guard hook", FAIL, "hook config present but docs/ai-forward-pack/hooks/{0} is missing"
+                       .format(" and ".join(missing)),
+                       "copy adapters/hooks/reread-guard.py and dispatch.py to docs/ai-forward-pack/hooks/ (INSTALL 1.5)")
     return _result("re-read guard hook", WARN, "not installed on any host",
                    "copy adapters/hooks/copilot.ai-forward-hooks.json to .github/hooks/ai-forward.json, grok.ai-forward-hooks.json to .grok/hooks/ai-forward.json, agy.ai-forward-hooks.json to .agents/hooks.json, and merge adapters/hooks/claude-code.settings.hooks.json into .claude/settings.json (INSTALL 1.4 / 1.7 / 1.8)")
+
+
+def check_hook_launchers(root):
+    """Scan five config files recursively for legacy command tokens; no custom allowlist."""
+    import shutil
+    import subprocess
+    files = [".claude/settings.json", ".github/hooks/ai-forward.json",
+             ".agents/hooks.json", ".codex/hooks.json"]
+    grok_hooks = os.path.join(root, ".grok", "hooks")
+    if os.path.isdir(grok_hooks):
+        files.extend(".grok/hooks/" + name for name in sorted(os.listdir(grok_hooks)) if name.endswith(".json"))
+    configured = False
+
+    def walk(value):
+        if isinstance(value, dict):
+            for key, item in value.items():
+                if key in ("command", "bash", "powershell") and isinstance(item, str):
+                    yield item
+                else:
+                    yield from walk(item)
+        elif isinstance(value, list):
+            for item in value:
+                yield from walk(item)
+
+    for relative in files:
+        try:
+            with open(os.path.join(root, relative), encoding="utf-8") as handle:
+                text = handle.read()
+            config = json.loads(text)
+        except FileNotFoundError:
+            continue
+        except (OSError, ValueError):
+            return _result("hook launchers", FAIL, "HOOK-CONFIG-INVALID: " + relative,
+                           "repair JSON/UTF-8 encoding without discarding local settings")
+        for command in walk(config):
+            if "py=$(python3" in command:
+                return _result("hook launchers", FAIL, "HOOK-SHELL: Bash-only command in " + relative,
+                               "refresh the pack; inspect custom wrappers separately")
+            configured = configured or "run-hook.sh" in command
+    if not configured:
+        return _result("hook launchers", WARN, "portable pack launcher not configured", "refresh the pack")
+    git = shutil.which("git")
+    if not git or not os.path.isfile(os.path.join(root, "docs", "ai-forward-pack", "hooks", "run-hook.sh")):
+        return _result("hook launchers", FAIL, "HOOK-RUNTIME-MISSING: Git or run-hook.sh absent",
+                       "install Git and Python 3; refresh the complete hook bundle")
+    try:
+        result = subprocess.run(
+            [git, "-c", "alias.aif-hook=!sh", "aif-hook",
+             "docs/ai-forward-pack/hooks/run-hook.sh", "reread-guard.py", "--help"],
+            cwd=root, capture_output=True, text=True, encoding="utf-8", timeout=10,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return _result("hook launchers", FAIL, "HOOK-RUNTIME-FAILED: launcher probe could not finish",
+                       "check Git's shell and Python installations")
+    if result.returncode != 0 or "usage:" not in result.stdout.lower():
+        return _result("hook launchers", FAIL, "HOOK-RUNTIME-FAILED: hook help did not execute",
+                       "check Git's shell, Python, and the installed hook bundle")
+    return _result("hook launchers", PASS,
+                   "Git launcher executed the Python hook; native event enforcement is not qualified here")
 
 
 def check_block(root, fname):
@@ -487,54 +608,130 @@ def _command_head(command):
     return text.split(None, 1)[0] if text else ""
 
 
+def _coordination_activation(root):
+    """Read existing opt-ins, not the mere presence of shipped scripts/lifecycle hooks."""
+    signals = []
+    attributes = _read(os.path.join(root, ".gitattributes")) or ""
+    for line in attributes.splitlines():
+        tokens = line.split()
+        if tokens and not tokens[0].startswith("#") and any(
+                token.startswith("merge=coord-") for token in tokens[1:]):
+            signals.append(".gitattributes coordination merge driver")
+            break
+
+    checkout = _git_lines(root, "rev-parse", "--show-toplevel")
+    if checkout is not None and checkout[0] == 0:
+        drivers = _git_lines(root, "config", "--get-regexp", r"^merge\.coord-.*\.driver$")
+        if drivers is not None and drivers[1]:
+            signals.append("Git coordination merge driver configuration")
+        hooks = _git_lines(root, "rev-parse", "--git-path", "hooks")
+        if hooks is not None and hooks[0] == 0 and hooks[1]:
+            directory = hooks[1][0]
+            if not os.path.isabs(directory):
+                directory = os.path.join(root, directory)
+            for name in ("pre-commit", "pre-merge-commit"):
+                path = os.path.join(directory, name)
+                text = _read(path) or ""
+                if (os.path.isfile(path) and (os.name == "nt" or os.access(path, os.X_OK))
+                        and ("# coord-core pre-commit floor" in text
+                             or re.search(r"coord-core\.py[\"']?\s+(?:precommit|staged-markers)\b", text))):
+                    signals.append("Git " + name + " coordination hook")
+
+    def ownership_command(value):
+        if isinstance(value, dict):
+            if value.get("enabled") is False or value.get("disableAllHooks") is True:
+                return False
+            for key, item in value.items():
+                if key in ("command", "bash", "powershell") and isinstance(item, str):
+                    if re.search(r"coord-core\.py[\"']?\s+hook\b", item):
+                        return True
+                elif ownership_command(item):
+                    return True
+        elif isinstance(value, list):
+            return any(ownership_command(item) for item in value)
+        return False
+
+    configs = [".claude/settings.json", ".claude/settings.local.json",
+               ".agents/hooks.json", ".codex/hooks.json"]
+    for directory in (".github/hooks", ".grok/hooks"):
+        path = os.path.join(root, directory)
+        if os.path.isdir(path):
+            configs.extend(directory + "/" + name for name in sorted(os.listdir(path))
+                           if name.endswith(".json"))
+    for relative in configs:
+        text = _read(os.path.join(root, relative))
+        if text is None:
+            continue
+        try:
+            config = json.loads(text)
+        except ValueError:
+            # A broken installed config cannot establish an inactive mode. The launcher
+            # check diagnoses its syntax separately; never turn it into a serial exemption.
+            signals.append("invalid hook configuration " + relative)
+            continue
+        if ownership_command(config):
+            signals.append("native ownership hook in " + relative)
+    return signals
+
+
 def check_coordination(root):
-    """Is the coordination layer switched ON in this repo? (CTX-H)
+    """Optional for serial use; validate any registry or explicitly installed coordination.
 
-    The layer ships inert: `coord-core.py` is deployed and nothing writes the one file the
-    whole mechanism keys on. An uninstalled layer reports "0 decisions, nothing claimed",
-    which is indistinguishable from a working layer that saw no traffic -- so the absence
-    has to be checked here or it is not checked anywhere.
-
-    Three states, three verdicts:
-      no script         the check does not apply
-      no/broken registry FAIL - every path is `authored`, nothing is ever regenerated
-      declared-not-registered WARN - .git/config is per-clone and never committed, so a
-                            fresh CLONE lands here. A worktree does NOT: it shares the
-                            parent's config and inherits the registration, which is why
-                            the remedy names the primary checkout and `coord install`
-                            refuses to run from a linked tree.
+    Shipping coord-core.py and lifecycle hooks does not activate ownership/merge controls.
+    Existing native ownership commands, effective Git hooks/config, and merge attributes
+    are opt-ins. A missing enabled contract is a failure; an absent optional one is not.
+    Fresh clones with declared but unregistered drivers retain the per-clone warning.
     """
     name = "coordination"
     script = os.path.join(root, "docs", "ai-forward-pack", "scripts", "coord-core.py")
-    if not os.path.exists(script):
-        return _result(name, PASS, "coord-core.py not installed - check does not apply")
-
     registry = os.path.join(root, ".agents", "artifacts.yml")
     if not os.path.exists(registry):
-        return _result(name, FAIL,
-                       "coord-core.py is installed and .agents/artifacts.yml is absent - "
-                       "every path is treated as `authored` and nothing is regenerated",
-                       "python docs/ai-forward-pack/scripts/coord-core.py classify init")
+        activation = _coordination_activation(root)
+        if activation:
+            return _result(name, FAIL,
+                           "coordination is explicitly activated ({0}) but .agents/artifacts.yml "
+                           "is absent; the enabled classification contract is missing".format("; ".join(activation)),
+                           "restore the registry or intentionally remove the coordination opt-ins; "
+                           "initialize classifications with coord-core.py classify init only if coordination is intended")
+        if not os.path.exists(script):
+            return _result(name, PASS, "coord-core.py not installed - check does not apply")
+        return _result(name, WARN,
+                       "NOT APPLICABLE to serial use: optional coordination is not activated; "
+                       ".agents/artifacts.yml is absent (not an install failure)",
+                       "leave it absent for serial work; classify artifacts only when opting into coordination")
 
-    entries, bad, derived = 0, "", []
+    entries, bad, derived, seen = 0, "", [], {}
     try:
-        for lineno, raw in enumerate(
-                open(registry, encoding="utf-8").read().splitlines(), start=1):
+        with open(registry, encoding="utf-8") as handle:
+            rows = handle.read().splitlines()
+        for lineno, raw in enumerate(rows, start=1):
             line = raw.strip()
             if not line or line.startswith("#"):
                 continue
             if ":" not in line:
                 bad = "line {0}: expected `pattern: class [command]`".format(lineno)
                 break
-            parts = line.split(":", 1)[1].strip().split(None, 1)
+            pattern, rest = line.split(":", 1)
+            pattern = pattern.strip().replace("\\", "/")
+            if not pattern:
+                bad = "line {0}: empty pattern".format(lineno)
+                break
+            parts = rest.strip().split(None, 1)
             klass = parts[0] if parts else ""
             if klass not in ("authored", "derived", "register"):
                 bad = "line {0}: unknown class {1!r}".format(lineno, klass)
                 break
-            if klass == "derived" and len(parts) > 1:
+            if pattern in seen and seen[pattern] != klass:
+                bad = "line {0}: {1!r} has conflicting classes".format(lineno, pattern)
+                break
+            seen[pattern] = klass
+            if klass == "derived":
+                if len(parts) < 2 or not parts[1].strip():
+                    bad = "line {0}: a `derived` pattern needs a regenerate command".format(lineno)
+                    break
                 derived.append((lineno, parts[1].strip()))
             entries += 1
-    except OSError as e:
+    except (OSError, UnicodeError) as e:
         return _result(name, FAIL, f"registry unreadable ({e})",
                        "check .agents/artifacts.yml permissions")
     if bad:
@@ -571,12 +768,15 @@ def check_coordination(root):
     ga = os.path.join(root, ".gitattributes")
     if os.path.exists(ga):
         try:
-            for line in open(ga, encoding="utf-8").read().splitlines():
-                if "merge=" in line:
-                    value = line.rsplit("merge=", 1)[1].strip()
-                    if value.startswith("coord-"):
-                        declared.add(value)
-                if re.search(r"\beol=lf\b", line) and not line.lstrip().startswith("#"):
+            with open(ga, encoding="utf-8") as handle:
+                attribute_rows = handle.read().splitlines()
+            for line in attribute_rows:
+                tokens = line.split()
+                if not tokens or tokens[0].startswith("#"):
+                    continue
+                declared.update(token[len("merge="):] for token in tokens[1:]
+                                if token.startswith("merge=coord-"))
+                if "eol=lf" in tokens[1:]:
                     eol_rule = True
         except OSError:
             pass
@@ -688,6 +888,21 @@ def check_interpreter():
     of being discovered one command at a time (continuous-improvement.md CI6 - convert the
     lesson into a control that fires at the moment of the mistake).
     """
+    # uv prepends its selected interpreter directory to the child's PATH. A successful
+    # `python3 --version` there cannot prove the caller could run the native docs command.
+    # The actual uv marker is observed at runtime; no pack-specific mode flag is needed.
+    uv_depth = os.environ.get("UV_RUN_RECURSION_DEPTH", "0")
+    if uv_depth.isdigit() and int(uv_depth) > 0:
+        executable = sys.executable.replace("\\", "/")
+        return _result(
+            "python interpreter", WARN,
+            "running via uv-managed invocation (Python {0} at {1}); native Python invocation "
+            "from the caller PATH is not verified — uv may add Python names only to its child PATH".format(
+                sys.version.split()[0], sys.executable),
+            'use `uv run --no-config --no-project --python "{0}" '
+            'docs/ai-forward-pack/scripts/pack-doctor.py` with this existing interpreter; '
+            'test native Python commands separately in the caller shell'.format(executable))
+
     candidates = [("python3", ["python3", "--version"]),
                   ("python", ["python", "--version"]),
                   ("py -3", ["py", "-3", "--version"])]
@@ -695,7 +910,7 @@ def check_interpreter():
     for label, argv in candidates:
         try:
             proc = run_bounded(argv, timeout_seconds=15)
-        except (OSError, ValueError):
+        except (OSError, ValueError):  # skip-ok: an interpreter that cannot be launched is the expected miss this probe looks for
             # Only "this command could not be launched" is an expected miss. A TypeError
             # here would be a bug in this call, and swallowing it would turn a programming
             # error into a plausible-looking FAIL - which is exactly how this check shipped
@@ -737,10 +952,12 @@ def run(root):
         check_surface(root, ".grok", [".grok/skills", ".grok/agents", ".grok/hooks", ".grok/rules"]),
         check_surface(root, ".agents", [".agents/skills", ".agents/rules", ".agents/hooks.json"]),
         check_codex(root),
+        check_muse(root),
         check_block(root, "CLAUDE.md"),
         check_block(root, "AGENTS.md"),
         check_claude_md_import(root),
         check_hooks(root),
+        check_hook_launchers(root),
         check_claude_settings(root),
         check_copilot_settings(),
         check_graph(root),

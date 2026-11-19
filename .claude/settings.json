@@ -2,30 +2,20 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Read",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "py=$(python3 -c 'import sys;print(sys.executable)' 2>/dev/null); [ -x \"$py\" ] || py=$(python -c 'import sys;print(sys.executable)'); h=docs/ai-forward-pack/hooks/reread-guard.py; [ -f \"$h\" ] || h=\"$(git rev-parse --show-toplevel)/$h\"; \"$py\" \"$h\" --host claude",
-            "timeout": 10
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "py=$(python3 -c 'import sys;print(sys.executable)' 2>/dev/null); [ -x \"$py\" ] || py=$(python -c 'import sys;print(sys.executable)'); h=docs/ai-forward-pack/hooks/mail-doorbell.py; [ -f \"$h\" ] || h=\"$(git rev-parse --show-toplevel)/$h\"; \"$py\" \"$h\" --host claude --event PreToolUse",
-            "timeout": 10
-          }
-        ]
-      },
-      {
         "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
-            "command": "py=$(python3 -c 'import sys;print(sys.executable)' 2>/dev/null); [ -x \"$py\" ] || py=$(python -c 'import sys;print(sys.executable)'); h=tools/hooks/no-heredoc.py; [ -f \"$h\" ] || h=\"$(git rev-parse --show-toplevel)/$h\"; \"$py\" \"$h\"",
+            "command": "git -c alias.aif-hook=!sh aif-hook docs/ai-forward-pack/hooks/run-hook.sh ../../../tools/hooks/no-heredoc.py",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "git -c alias.aif-hook=!sh aif-hook docs/ai-forward-pack/hooks/run-hook.sh dispatch.py --host claude --event PreToolUse",
             "timeout": 10
           }
         ]
@@ -36,16 +26,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "py=$(python3 -c 'import sys;print(sys.executable)' 2>/dev/null); [ -x \"$py\" ] || py=$(python -c 'import sys;print(sys.executable)'); h=docs/ai-forward-pack/hooks/reread-guard.py; [ -f \"$h\" ] || h=\"$(git rev-parse --show-toplevel)/$h\"; \"$py\" \"$h\" --host claude",
-            "timeout": 10
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "py=$(python3 -c 'import sys;print(sys.executable)' 2>/dev/null); [ -x \"$py\" ] || py=$(python -c 'import sys;print(sys.executable)'); h=docs/ai-forward-pack/hooks/mail-doorbell.py; [ -f \"$h\" ] || h=\"$(git rev-parse --show-toplevel)/$h\"; \"$py\" \"$h\" --host claude --event UserPromptSubmit",
+            "command": "git -c alias.aif-hook=!sh aif-hook docs/ai-forward-pack/hooks/run-hook.sh dispatch.py --host claude --event UserPromptSubmit",
             "timeout": 10
           }
         ]
@@ -56,7 +37,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "py=$(python3 -c 'import sys;print(sys.executable)' 2>/dev/null); [ -x \"$py\" ] || py=$(python -c 'import sys;print(sys.executable)'); h=docs/ai-forward-pack/hooks/session-start.py; [ -f \"$h\" ] || h=\"$(git rev-parse --show-toplevel)/$h\"; \"$py\" \"$h\" --host claude",
+            "command": "git -c alias.aif-hook=!sh aif-hook -c 'r=.;n=0;while [ ! -f \"$r/docs/ai-forward-pack/hooks/run-hook.sh\" ];do [ -e \"$r/.git\" ] && exit 2;n=$((n+1));[ \"$n\" -le 64 ] || exit 2;r=$r/..;done;cd \"$r\" || exit 2;exec sh docs/ai-forward-pack/hooks/run-hook.sh \"$@\"' aif-hook dispatch.py --host claude --event SessionStart",
             "timeout": 15
           }
         ]
@@ -67,7 +48,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "py=$(python3 -c 'import sys;print(sys.executable)' 2>/dev/null); [ -x \"$py\" ] || py=$(python -c 'import sys;print(sys.executable)'); h=docs/ai-forward-pack/hooks/session-start.py; [ -f \"$h\" ] || h=\"$(git rev-parse --show-toplevel)/$h\"; \"$py\" \"$h\" --host claude",
+            "command": "git -c alias.aif-hook=!sh aif-hook -c 'r=.;n=0;while [ ! -f \"$r/docs/ai-forward-pack/hooks/run-hook.sh\" ];do [ -e \"$r/.git\" ] && exit 2;n=$((n+1));[ \"$n\" -le 64 ] || exit 2;r=$r/..;done;cd \"$r\" || exit 2;exec sh docs/ai-forward-pack/hooks/run-hook.sh \"$@\"' aif-hook dispatch.py --host claude --event SubagentStart",
             "timeout": 15
           }
         ]
@@ -78,7 +59,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "py=$(python3 -c 'import sys;print(sys.executable)' 2>/dev/null); [ -x \"$py\" ] || py=$(python -c 'import sys;print(sys.executable)'); h=docs/ai-forward-pack/hooks/heartbeat.py; [ -f \"$h\" ] || h=\"$(git rev-parse --show-toplevel)/$h\"; \"$py\" \"$h\" --host claude --event PostToolUse",
+            "command": "git -c alias.aif-hook=!sh aif-hook docs/ai-forward-pack/hooks/run-hook.sh dispatch.py --host claude --event PostToolUse",
             "timeout": 10
           }
         ]
@@ -89,16 +70,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "py=$(python3 -c 'import sys;print(sys.executable)' 2>/dev/null); [ -x \"$py\" ] || py=$(python -c 'import sys;print(sys.executable)'); h=docs/ai-forward-pack/hooks/heartbeat.py; [ -f \"$h\" ] || h=\"$(git rev-parse --show-toplevel)/$h\"; \"$py\" \"$h\" --host claude --event Stop",
-            "timeout": 10
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "py=$(python3 -c 'import sys;print(sys.executable)' 2>/dev/null); [ -x \"$py\" ] || py=$(python -c 'import sys;print(sys.executable)'); h=docs/ai-forward-pack/hooks/owner-review-gate.py; [ -f \"$h\" ] || h=\"$(git rev-parse --show-toplevel)/$h\"; \"$py\" \"$h\" --host claude --event Stop",
+            "command": "git -c alias.aif-hook=!sh aif-hook docs/ai-forward-pack/hooks/run-hook.sh dispatch.py --host claude --event Stop",
             "timeout": 10
           }
         ]
@@ -109,7 +81,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "py=$(python3 -c 'import sys;print(sys.executable)' 2>/dev/null); [ -x \"$py\" ] || py=$(python -c 'import sys;print(sys.executable)'); h=docs/ai-forward-pack/hooks/owner-review-gate.py; [ -f \"$h\" ] || h=\"$(git rev-parse --show-toplevel)/$h\"; \"$py\" \"$h\" --host claude --event SubagentStop",
+            "command": "git -c alias.aif-hook=!sh aif-hook docs/ai-forward-pack/hooks/run-hook.sh dispatch.py --host claude --event SubagentStop",
             "timeout": 10
           }
         ]

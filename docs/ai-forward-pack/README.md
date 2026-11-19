@@ -2,13 +2,14 @@
 
 *A repository-droppable extension that turns the **Agent Knowledge Pack** into a working swarm: collaborating peers that author, adversarial personas that review, and a staged reasoning discipline that slows the rush to a plausible answer and replaces it with evidence at every step.*
 
-Works with **Claude Code**, **GitHub Copilot**, **Grok Build**, **Antigravity**, **Codex**, or any combination. Install into any GitHub repo.
+Works with **Claude Code**, **GitHub Copilot**, **Grok Build**, **Antigravity**, **Codex**, or any combination. Install into an existing Git repository or a plain project; GitHub hosting is not required.
 
 ---
 
 **Codex users:** invoke `$collectknowledge` or `$specify` (CLI/IDE: `/skills` or `$`).
 Skills live in `.agents/skills/`; `AGENTS.md` supplies project instructions.
-See the [Codex setup and troubleshooting guide](adapters/codex/codex.md).
+See `adapters/codex/codex.md` in the source bundle or
+`docs/ai-forward-pack/codex.md` in the installed project for Codex setup and troubleshooting.
 
 ## Why this pack exists
 
@@ -20,7 +21,7 @@ It adds three things and nothing you have to relearn:
 2. **The dual-mode persona model** — collaborating peers plus the rule for moving between collaboration and adversarial review (`knowledge/collaborative-personas.md`), including three new peer-first roles your all-adversary catalog lacks.
 3. **The Spike Protocol** — read-the-code and run-a-PoC discipline for unfamiliar APIs, SDKs, and MCP servers (`knowledge/spike-protocol.md`), so designs rest on established contracts rather than guessed semantics.
 
-On top of these sit **twenty-eight skills** that any developer can invoke — **six delivery workflows** that carry a piece of work from idea to shipped code (including `/ui-design`, the UI craft skill), **eight supporting skills** (domain knowledge, persona tailoring, execution-graph planning, documentation, brownfield adoption, whole-repo forensic review, characterization-first migration, and code-hygiene review/fix), **three pack-lifecycle skills** that manage the pack itself (install, update, and extend), **three utility skills** — `/auditlog`, the command-line lens over the project's durable **audit & change log**, `/also`, which appends a late addition to the prior prompt without derailing the work in flight, and `/compile`, which turns the operator's prose into the harness-specific starting prompt without adding scope (stage CO-S0) — and **two prompt-log utilities** (`/prompts` and `/searchprompts`) for reusing prior prompts.
+On top of these sit **thirty skills** that any developer can invoke — **seven delivery workflows** that carry a piece of work from idea exploration to shipped code (including `/create-proposal` and `/ui-design`), **eight supporting skills** (domain knowledge, persona tailoring, execution-graph planning, documentation, brownfield adoption, whole-repo forensic review, characterization-first migration, and code-hygiene review/fix), **three pack-lifecycle skills** that manage the pack itself (install, update, and extend), **three utility skills** — `/auditlog`, the command-line lens over the project's durable **audit & change log**, `/also`, which appends a late addition to the prior prompt without derailing the work in flight, and `/compile`, which turns the operator's prose into the harness-specific starting prompt without adding scope (stage CO-S0) — and **two prompt-log utilities** (`/prompts` and `/searchprompts`) for reusing prior prompts.
 
 ---
 
@@ -39,6 +40,86 @@ Every adversary in your catalog already implies its peer counterpart (the C# Dev
 Six stages: **0 Rush Interdiction** (no conclusion without a confidence label) → **1 OPEN** (map the whole before touching a part) → **2 INTERROGATE** (precise questions, one at a time) → **3 EVIDENCE** (establish contracts, verify by execution) → **4 DISCONFIRM** (try to falsify; convene the adversary) → **5 CONVERGE** (commit to exactly what the evidence supports). It scales with the tier: T0 runs a quick self-check; T2 runs all five with full evidence and an external adversary.
 
 ---
+
+## Start here
+
+You need Git, [uv](https://docs.astral.sh/uv/getting-started/installation/), network
+access and a supported coding app with its own account/model access.
+Open a terminal in the project you want to work on and copy this one line:
+
+```text
+uv run --no-config --no-project --script https://raw.githubusercontent.com/timianmalloo/ai-forward/v2026.10.19.4/bootstrap.py
+```
+
+Setup defaults to the upstream repository and `main`; no `--repo` or `--ref` is
+needed for normal installation. An unmerged contribution is not yet in `main`:
+reviewers use a committed local source or explicitly select its repository/ref.
+That is review guidance, not another onboarding step.
+
+The line works in Windows PowerShell/Command Prompt and macOS/Linux terminals,
+with Git and uv on PATH. Setup reports `AI-Forward installed`, `AI-Forward updated`
+or `AI-Forward already current`, with the revision and exact source commit.
+Open that project in your coding app and start a fresh chat.
+
+- **Claude Code / apps with the installed slash entry point:** `/deliver <your task>`.
+- **Codex:** `$deliver <your task>`.
+- **Copilot CLI:** find `deliver` with `/skills`, then use `/deliver <your task>`.
+  You can also ask `Use the /deliver skill to <your task>`. If installed during a
+  chat, use `/skills reload`, then `/skills info deliver`.
+- **VS Code Copilot:** use `/deliver` when listed, or select/request the installed
+  `deliver` skill. Agent Host sessions use skills rather than the older prompt files.
+- **Grok Build / Antigravity:** select or request the installed `deliver` skill by name.
+
+These are chat requests, not shell commands. For example:
+
+```text
+/deliver Add CSV export for the active project and filter. Export every matching task, not only the visible page. Do not add scheduling or new roles.
+```
+
+Replace the example with a change in your project. Say what correct behavior looks
+like and what must stay unchanged. You do not need to choose each stage yourself.
+
+`deliver` selects only applicable existing workflows; it does not run the whole
+catalog or start a swarm by default. Required review, permission and release gates
+still apply. Individual skills remain available for stage-by-stage work.
+
+## When work pauses
+
+A pause keeps the task open. The agent explains what is blocked, asks a specific
+question and gives you a task id. Reply in the same chat. Approval applies only to
+the decision you answered; it does not grant unrelated tool access or permission to
+release. A blocking review needs the finding addressed and independently
+re-reviewed; the author cannot clear its own veto.
+
+In a fresh chat in the same project, use `/deliver resume <task-id>` (Codex:
+`$deliver resume <task-id>`). In Copilot CLI, ask it to use the `/deliver` skill to
+resume that id. The agent checks the request, project and evidence before reusing
+valid work. Changed or missing inputs require an explanation and revalidation, not
+an invented approval or a silent reset. Checkpoints are local, not automatically
+shared with another clone or computer.
+
+The local helper records and checks progress. It does not run the coding workflows,
+authenticate people or judge the meaning of a result. Your coding agent and you
+still need to inspect the actual evidence.
+
+## Setup and updates without surprises
+
+The one-line setup above uses the existing deployment map and checks installed
+files. Append `--dry-run` to preview without writing to the project. Rerun it to
+check or update the installed pack. To pin a version, use the same full commit id
+in the wrapper URL and `--ref`; a branch can move.
+
+Setup does not initialize Git, install project dependencies, commit, push, deploy
+or change model/trust permissions. If instructions, hooks, Git settings or checks
+conflict, it names the item and stops for review. Keep the existing file and
+reconcile the specific conflict rather than deleting project policy or granting
+blanket permissions. Use a credential-free repository URL with Git's credential
+helper, not a token in a URL.
+
+Manual reconciliation is an expert alternative, not a required extra step. Its
+file-by-file map and revision changelog are in `adapters/INSTALL.md` in this bundle
+and `docs/ai-forward-pack/INSTALL.md` after installation. The base knowledge pack
+is included; local project rules still need to be preserved and reconciled.
 
 ## The workflow skills
 
@@ -100,7 +181,7 @@ ai-forward-pack/
 │  └─ + 7 vendored Agent-Knowledge-Pack foundation docs (so the bundle is self-contained):
 │       body-of-knowledge · rules-of-the-road · persona-catalog · layered-optimized-architecture ·
 │       engineering-governance · testing-strategy · csharp-style-guide
-├─ commands/                         ← the twenty-eight skills (SKILL.md + reference/ each)
+├─ commands/                         ← the thirty skills (SKILL.md + reference/ each)
 │  ├─ specify/  define-architecture/  design/  implement/  investigate/
 │  ├─ collectknowledge/              ← deep domain research before design → docs/knowledge/
 │  ├─ adddomainexperts/              ← tailors the roster to your project's domain
@@ -130,7 +211,7 @@ ai-forward-pack/
 
 ## Install (summary — full guide in `adapters/INSTALL.md`)
 
-**Install = manual reconciliation.** The pack ships no installer: copy each source to its mapped destination per **`adapters/INSTALL.md`** (knowledge, skills, the 23 agents, templates, the Docs Explorer at `docs/index.html`), and paste the managed blocks from `adapters/managed-blocks/` into `CLAUDE.md` / `AGENTS.md`. Updates follow the **`changes` changelog in `adapters/INSTALL.md`'s frontmatter** — "what changed since the last version" — so a refresh re-copies exactly the changed sources and re-pastes the marked blocks, rather than diffing the whole tree. 
+**Install with the one-line setup above, or reconcile manually.** For the manual alternative, copy each source to its mapped destination per **`adapters/INSTALL.md`** (knowledge, skills, the 23 agents, templates, the Docs Explorer template (available for the first content-creating skill to instantiate at `docs/index.html`, not copied by install)), and paste the managed blocks from `adapters/managed-blocks/` into `CLAUDE.md` / `AGENTS.md`. Updates follow the **`changes` changelog in `adapters/INSTALL.md`'s frontmatter** — "what changed since the last version" — so a refresh re-copies exactly the changed sources and re-pastes the marked blocks, rather than diffing the whole tree.
 
 Both tools share one model: **knowledge** = always-on reference, **skills** = workflow logic, **agents** = personas, **commands/prompts** = thin entry points. Only locations differ.
 
@@ -146,6 +227,6 @@ Both tools share one model: **knowledge** = always-on reference, **skills** = wo
 
 ## How it fits the Agent Knowledge Pack
 
-This pack is an **extension, not a replacement**. It speaks your pack's vocabulary throughout — the three Prime Directives (D1 correctness over completion, D2 no guessing at contracts, D3 verification never self-certified), Coning and Iterative Critical Thinking, the Proof Pack and the phase gates, the capability tiers and the LOA principles P1–P11 and conformance criteria C1–C11, the persona names and the veto matrix, the Testing Strategy triggers, and the Deviation Protocol. The eleven adversaries ship with your existing pack; this one adds their peer mode, three new authoring personas, four further adversaries that close audited coverage gaps, four more for the UI/app and documentation surface, a Persona Operating Standard that makes every lens uniform and machine-routable, the reasoning protocol they all run, and the twenty-eight skills that put them to work.
+This pack is an **extension, not a replacement**. It speaks your pack's vocabulary throughout — the three Prime Directives (D1 correctness over completion, D2 no guessing at contracts, D3 verification never self-certified), Coning and Iterative Critical Thinking, the Proof Pack and the phase gates, the capability tiers and the LOA principles P1–P11 and conformance criteria C1–C11, the persona names and the veto matrix, the Testing Strategy triggers, and the Deviation Protocol. The eleven adversaries ship with your existing pack; this one adds their peer mode, three new authoring personas, four further adversaries that close audited coverage gaps, four more for the UI/app and documentation surface, a Persona Operating Standard that makes every lens uniform and machine-routable, the reasoning protocol they all run, and the thirty skills that put them to work.
 
 New here? **`OVERVIEW.md`** is the practical start — how to install, what's inside, and how to use the skills. Then `research-synthesis.md` for the *why* behind every choice, `knowledge/rigor-protocol.md` for the *how*, and `adapters/INSTALL.md` to wire it in by hand.

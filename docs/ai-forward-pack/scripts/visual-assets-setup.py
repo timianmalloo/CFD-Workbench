@@ -198,7 +198,10 @@ def scan_for_committed_secrets(root):
     Responsible-AI policy - real enforcement belongs in CI secret scanning)."""
     hits = []
     skip_dirs = {".git", "node_modules", "__pycache__", ".venv", "venv", "dist", "graphify-out"}
-    for directory, dirnames, filenames in os.walk(root):
+    def unlisted(error):   # CTRL-G: an unlistable directory is unscanned, so it is a suspect
+        hits.append((os.path.relpath(error.filename or root, root), "unlistable directory: " + error.__class__.__name__))
+
+    for directory, dirnames, filenames in os.walk(root, onerror=unlisted):
         dirnames[:] = [d for d in dirnames if d not in skip_dirs]
         for filename in filenames:
             if os.path.splitext(filename)[1].lower() not in (
@@ -210,7 +213,10 @@ def scan_for_committed_secrets(root):
                     continue
                 with open(path, "r", encoding="utf-8", errors="ignore") as handle:
                     text = handle.read()
-            except OSError:
+            except FileNotFoundError:
+                continue
+            except OSError as error:   # CTRL-G: an unreadable file is a suspect, not a pass
+                hits.append((os.path.relpath(path, root), "unreadable: " + error.__class__.__name__))
                 continue
             for pattern, label in SECRET_PATTERNS:
                 if pattern.search(text):
@@ -254,7 +260,7 @@ def read_user_mcp_credentials(spec):
         try:
             with open(path, "r", encoding="utf-8") as handle:
                 data = json.load(handle)
-        except (OSError, ValueError):
+        except (OSError, ValueError):  # skip-ok: credential discovery; an unreadable candidate reads as not configured
             continue
         servers = data.get("mcpServers", data)
         server = servers.get(name) if isinstance(servers, dict) else None

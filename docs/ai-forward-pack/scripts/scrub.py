@@ -84,12 +84,12 @@ def redact_text(text, aggressive=False):
     return text
 
 
-def _iter_md(paths):
+def _iter_md(paths, unlisted=None):
     for p in paths:
         if os.path.isfile(p) and p.endswith(".md"):
             yield p
         elif os.path.isdir(p):
-            for dirpath, dirs, files in os.walk(p):
+            for dirpath, dirs, files in os.walk(p, onerror=unlisted):
                 dirs[:] = [d for d in dirs if d not in (".git", "node_modules", "__pycache__")]
                 for f in files:
                     if f.endswith(".md"):
@@ -105,6 +105,15 @@ def _report_undecodable(undecodable, as_json):
             print("    %s  (%s)" % (path, why))
 
 
+def _report_unreadable(unreadable, as_json):
+    """Name every file or directory that could not be read (CTRL-G). Nothing in it was scanned,
+    so the exit code is non-zero: an unscanned file must not look clean."""
+    if unreadable and not as_json:
+        print("\n  %d path(s) could not be read - NOT scanned:" % len(unreadable))
+        for path, why in unreadable:
+            print("    %s  (%s)" % (path, why))
+
+
 def main():
     ap = argparse.ArgumentParser(description="First-pass PII/secret redaction for Markdown (NOT CI-grade).")
     ap.add_argument("paths", nargs="*", default=["docs", "pack"])
@@ -116,13 +125,16 @@ def main():
     args = ap.parse_args()
     paths = args.paths or ["docs", "pack"]
 
-    findings, scanned, written, undecodable = [], 0, 0, []
-    for path in _iter_md(paths):
+    findings, scanned, written, undecodable, unreadable = [], 0, 0, [], []
+    for path in _iter_md(paths, lambda error: unreadable.append((error.filename or "<unknown directory>", error.__class__.__name__))):
         scanned += 1
         try:
             with open(path, "rb") as f:
                 raw = f.read()
-        except OSError:
+        except FileNotFoundError:
+            continue
+        except OSError as error:   # CTRL-G: a file not scanned is not a clean file
+            unreadable.append((path, error.__class__.__name__))
             continue
         # Decode STRICTLY first. errors="replace" turns every byte it cannot read into
         # U+FFFD, and --write then persists that loss: the tool meant to protect the file
@@ -156,16 +168,19 @@ def main():
         print("scrub — PII/secret first-pass (NOT a substitute for gitleaks/Presidio in CI)\n")
     if args.write:
         out = {"redacted_files": written, "scanned": scanned,
-               "not_utf8": [{"path": q, "error": why} for q, why in undecodable]}
+               "not_utf8": [{"path": q, "error": why} for q, why in undecodable],
+               "unreadable": [{"path": q, "error": why} for q, why in unreadable]}
         print(json.dumps(out) if args.json else
               f"  redacted {written} file(s) of {scanned} scanned\n"
               f"  (history not rewritten — use git-filter-repo/BFG to purge already-committed secrets)")
         _report_undecodable(undecodable, args.json)
-        return 1 if undecodable else 0
+        _report_unreadable(unreadable, args.json)
+        return 1 if (undecodable or unreadable) else 0
     # check mode
     if args.json:
         print(json.dumps({"findings": findings, "scanned": scanned,
-                          "not_utf8": [{"path": q, "error": why} for q, why in undecodable]}, indent=2))
+                          "not_utf8": [{"path": q, "error": why} for q, why in undecodable],
+                          "unreadable": [{"path": q, "error": why} for q, why in unreadable]}, indent=2))
     else:
         for f in findings:
             print(f"  {f['path']}:{f['line']}  {f['category']:11} {f['preview']} -> [REDACTED:{f['category']}]")
@@ -173,7 +188,8 @@ def main():
         print(f"\n  {n} finding(s) in {scanned} file(s) · run with --write to redact · CI: use gitleaks + Presidio"
               if n else f"  no findings in {scanned} file(s)")
     _report_undecodable(undecodable, args.json)
-    return 1 if (findings or undecodable) else 0
+    _report_unreadable(unreadable, args.json)
+    return 1 if (findings or undecodable or unreadable) else 0
 
 
 if __name__ == "__main__":

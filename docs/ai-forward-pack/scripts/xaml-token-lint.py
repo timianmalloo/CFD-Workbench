@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -140,8 +141,13 @@ def is_under_root(root_resolved: Path, candidate: Path) -> bool:
     try:
         candidate.resolve().relative_to(root_resolved)
         return True
-    except (OSError, ValueError):
+    except ValueError:
         return False
+
+
+def _unlisted(error):
+    """CTRL-G: a directory that cannot be listed would silently drop its XAML files."""
+    raise error
 
 
 def expand_paths(root: Path, inputs: list[str]) -> list[Path]:
@@ -150,10 +156,12 @@ def expand_paths(root: Path, inputs: list[str]) -> list[Path]:
     for item in inputs:
         resolved = resolve_under_root(root, Path(item))
         if resolved.is_dir():
-            for extension in TEXT_EXTENSIONS:
-                for child in sorted(resolved.rglob(f"*{extension}")):
-                    if is_under_root(root_resolved, child):
-                        candidates.append(child)
+            listed = []
+            for dirpath, _dirnames, filenames in os.walk(resolved, onerror=_unlisted):
+                listed.extend(Path(dirpath, name) for name in filenames)
+            for child in sorted(listed):
+                if child.suffix.lower() in TEXT_EXTENSIONS and is_under_root(root_resolved, child):
+                    candidates.append(child)
         else:
             candidates.append(resolved)
     return candidates

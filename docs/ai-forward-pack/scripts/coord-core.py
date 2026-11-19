@@ -159,6 +159,30 @@ def resolve_root(cwd, raw):
     return root, None
 
 
+def coordination_active(root):
+    """Is coordination ON for this repository? Only when its record holds something: a session
+    ledger (`log/<session>.jsonl`, written by `session start`, mail twins, heartbeats), an inbox
+    (`mail/*.jsonl`) or the request store. A session identity in the environment is not enough,
+    and neither is the `log/` directory alone - the audit log's local fallback (AL0.2) creates
+    `log/audit/` in repositories that never coordinate.
+
+    The coordination hooks (doorbell, heartbeat, owner-review gate) return at once when this is
+    False, so a repository that never coordinates pays nothing for them and gains no ledger
+    (bench decision B15: they ran on every tool call in cells that never coordinate).
+    Filesystem only: this runs on the hook hot path."""
+    root = Path(root)
+    if (root / REQUESTS_FILE).is_file():
+        return True
+    for sub in ("log", "mail"):
+        try:
+            with os.scandir(str(root / sub)) as entries:
+                if any(entry.name.endswith(".jsonl") and entry.is_file() for entry in entries):
+                    return True
+        except OSError:
+            continue
+    return False
+
+
 def _norm(p):
     return str(p).replace("\\", "/").replace("**", "*")
 
@@ -306,7 +330,7 @@ def read_events(root):
     events, errors, files = [], [], 0
     if not logdir.is_dir():
         return events, errors, files
-    for logfile in sorted(logdir.glob("*.jsonl")):
+    for logfile in sorted(p for p in logdir.iterdir() if p.match("*.jsonl")):   # CTRL-G: iterdir raises
         files += 1
         with open(logfile, "r", encoding="utf-8") as fh:
             for lineno, line in enumerate(fh, start=1):
@@ -465,7 +489,7 @@ def append_decision(root, session, agent, path, decision, hook_context=None):
             os.write(fd, payload.encode("utf-8"))
         finally:
             os.close(fd)
-    except Exception:
+    except Exception:  # skip-ok: bookkeeping append; a failure must not change the verdict it records
         pass    # never let a bookkeeping failure change a verdict
 
 
@@ -474,7 +498,7 @@ def read_decisions(root):
     out = []
     if not logdir.is_dir():
         return out
-    for logfile in sorted(logdir.glob("*.jsonl")):
+    for logfile in sorted(p for p in logdir.iterdir() if p.match("*.jsonl")):   # CTRL-G: iterdir raises
         with open(logfile, "r", encoding="utf-8") as fh:
             for line in fh:
                 if not line.strip():
@@ -664,7 +688,7 @@ def current_blob(repo, path):
     try:
         with open(target, "rb") as fh:
             return blob_sha(fh.read())
-    except OSError:
+    except OSError:  # skip-ok: a blob probe for one known path; None reads as no current blob
         return None
 
 
@@ -1264,10 +1288,11 @@ def _build_parser():
     # --- Phase 2: enforcement ---
     hook = sub.add_parser("hook", help="PreToolUse adapter: stdin JSON in, decision JSON out")
     hook.add_argument("--host", choices=["claude", "codex", "copilot", "grok", "agy"],
-                      help="native response contract (Codex indeterminate checks deny)")
+                      help="native response contract (each host's own decision shape)")
     hook.add_argument("--config", action="store_true",
                       help="print a project hook entry as JSON; never install or trust it")
     sub.add_parser("precommit", help="the universal floor: refuse unclaimed staged paths")
+    sub.add_parser("staged-markers", help="refuse staged conflict markers (the pre-merge-commit hook)")
     guard = sub.add_parser("guard", help="refuse to move HEAD over work held in one place")
     guard.add_argument("--fix", action="store_true", help="push, the cheapest second copy")
     ses = sub.add_parser("session", help="one session per working tree; `heartbeat` samples progress")
@@ -1405,7 +1430,7 @@ def _build_parser():
     ci.add_argument("--force", action="store_true",
                     help="replace an existing registry (it is repo configuration)")
     ci.add_argument("--timeout", type=float, default=180)
-    md = sub.add_parser("merge-derived", help="the .gitattributes merge driver (always 0)")
+    md = sub.add_parser("merge-derived", help="the .gitattributes merge driver (0 resolved; 1 with conflict markers)")
     md.add_argument("result"); md.add_argument("base")
     md.add_argument("theirs"); md.add_argument("realpath")
     # P4 / P6: the message layer and the board live in sibling scripts; `coord mail …` and
@@ -1423,7 +1448,7 @@ def _build_parser():
     alloc.add_argument("--scheme", required=True)
     res = sub.add_parser("resolve", help="resolve an id prefix; never picks a first match")
     res.add_argument("prefix"); res.add_argument("--register", required=True)
-    mr = sub.add_parser("merge-register", help="union two append-only registers (always 0)")
+    mr = sub.add_parser("merge-register", help="union two append-only registers (0 merged; 1 with conflict markers)")
     mr.add_argument("result"); mr.add_argument("base")
     mr.add_argument("theirs"); mr.add_argument("realpath")
     pl = sub.add_parser("plugin", help="emit the bundle both harnesses read; never installs")
@@ -1547,7 +1572,15 @@ def _read_jsonl(path):
 
 
 def cmd_merge_register(result_path, base_path, theirs_path, real_path):
-    """The merge driver for `register`-class artifacts. ALWAYS exits 0 (the S12b rule)."""
+    """The merge driver for `register`-class artifacts.
+
+    Exit 0 only for a clean union. A merge it cannot make writes conflict markers into the
+    result AND exits 1 (REG-C, measured 2026-10-05 in a consuming repo): with exit 0, `git
+    merge` read the marker file as a clean merge and auto-committed it. With exit 1 git stops
+    and leaves the path unmerged, and the markers in the file keep it from looking clean (the
+    S12b hazard: an unmerged file holding only OURS invites `git add .`), where the staged-
+    markers scan refuses to commit it.
+    """
     try:
         ours = _read_jsonl(result_path)
         theirs = _read_jsonl(theirs_path)
@@ -1557,16 +1590,16 @@ def cmd_merge_register(result_path, base_path, theirs_path, real_path):
             base = None                     # no base -> conserve, but never guess a renumber
     except (OSError, json.JSONDecodeError) as exc:
         # A register we cannot read must not be "merged" -- guessing here is exactly how an
-        # entry disappears. Make the failure visible in the file instead.
+        # entry disappears. Make the failure visible in the file AND to git.
         _write_conflict(result_path, result_path, theirs_path,
                         "{} is unreadable as JSONL ({}); not merging".format(
                             real_path, exc.__class__.__name__))
-        return 0
+        return 1
     merged, lost = merge_register(ours, theirs, base=base)
     if lost:
         _write_conflict(result_path, result_path, theirs_path,
                         "{} entry/entries would be lost by this merge".format(len(lost)))
-        return 0
+        return 1
     Path(result_path).write_text(
         "".join(json.dumps(r, sort_keys=True) + "\n" for r in merged),
         encoding="utf-8", newline="\n")
@@ -2106,7 +2139,7 @@ def _relativise(path, repo, cwd=None):
         resolved = _norm(str(Path(path).resolve()))
         if resolved not in forms:
             forms.append(resolved)
-    except (OSError, ValueError):
+    except (OSError, ValueError):  # skip-ok: path-spelling normalisation; an unresolvable spelling is not added
         pass
     for base in (cwd, repo):
         if not base:
@@ -2116,7 +2149,7 @@ def _relativise(path, repo, cwd=None):
             resolved_base = _norm(str(Path(base).resolve()))
             if resolved_base not in bases:
                 bases.append(resolved_base)
-        except (OSError, ValueError):
+        except (OSError, ValueError):  # skip-ok: path-spelling normalisation; an unresolvable base is not added
             pass
         for candidate in forms:
             for b in bases:
@@ -2132,13 +2165,15 @@ def _patch_paths(command):
     This is a bounded target recognizer, not a patch applier. Body text never becomes a
     target. A future native grammar extension needs a contract test before it is accepted.
     """
-    if not isinstance(command, str) or len(command.encode("utf-8")) > 1048576:
-        raise ValueError("missing or oversized patch")
+    if not isinstance(command, str):
+        raise ValueError("missing patch")          # no target at all: no decision, as on Claude
+    if len(command.encode("utf-8")) > 1048576:
+        raise UnreadableWrite("oversized patch")
     # splitlines also splits Unicode filename characters such as U+2028, inventing a
     # different target. Native patches use LF/CRLF records; preserve every other byte.
     lines = [line[:-1] if line.endswith("\r") else line for line in command.strip().split("\n")]
     if len(lines) < 3 or lines[0] != "*** Begin Patch" or lines[-1] != "*** End Patch":
-        raise ValueError("invalid patch envelope")
+        raise UnreadableWrite("invalid patch envelope")
     paths, operation, moved, body = [], None, False, False
     headers = {"*** Add File: ": "add", "*** Delete File: ": "delete",
                "*** Update File: ": "update"}
@@ -2147,13 +2182,13 @@ def _patch_paths(command):
         if header:
             path = line[len(header):]
             if not path or path != path.strip():
-                raise ValueError("invalid patch target")
+                raise UnreadableWrite("invalid patch target")
             paths.append(path)
             operation, moved, body = headers[header], False, False
         elif line.startswith("*** Move to: ") and operation == "update" and not moved and not body:
             path = line[len("*** Move to: "):]
             if not path or path != path.strip():
-                raise ValueError("invalid move target")
+                raise UnreadableWrite("invalid move target")
             paths.append(path)
             moved = True
         elif operation == "add" and line.startswith("+"):
@@ -2162,9 +2197,9 @@ def _patch_paths(command):
                                         or line == "*** End of File"):
             body = True
         else:
-            raise ValueError("unrecognized patch syntax")
+            raise UnreadableWrite("unrecognized patch syntax")
     if not paths or len(paths) > 256:
-        raise ValueError("patch must have 1..256 targets")
+        raise UnreadableWrite("patch must have 1..256 targets")
     return paths
 
 
@@ -2186,6 +2221,87 @@ def _physical_spelling(path):
     return result
 
 
+class UnreadableWrite(ValueError):
+    """A native patch whose targets cannot be read. Refused as a unit on every host: the
+    host may apply what this recognizer cannot see, so no decision would half-allow it."""
+
+
+class PrimaryCheckoutWrite(ValueError):
+    """A target outside this linked worktree and inside the repository's primary checkout."""
+
+
+class SiblingCheckoutWrite(ValueError):
+    """WT-D: a target inside another LINKED worktree of this repository; `top` is that tree."""
+
+    def __init__(self, top):
+        super().__init__(str(top))
+        self.top = top
+
+
+class OutsideCheckout(ValueError):
+    """A target in no checkout of this repository. `via_alias` is True when the spelled path
+    was inside the checkout and only its resolved target escapes -- that one fails closed."""
+
+    def __init__(self, target, via_alias=False):
+        super().__init__(target)
+        self.via_alias = via_alias
+
+
+def _linked_sibling_top(target, base):
+    """WT-D: the top of the linked worktree of THIS repository that holds `target`, else None.
+
+    A submodule's `.git` file points into `.git/modules`, not `.git/worktrees`, so repo_root
+    does not map it to this repository and it stays outside."""
+    probe = target
+    while not probe.exists() and probe != probe.parent:
+        probe = probe.parent
+    top = checkout_top(probe)
+    if top == base or not (top / ".git").is_file():
+        return None
+    try:
+        same = os.path.samefile(repo_root(top), repo_root(base))
+    except OSError:
+        return None
+    return top if same else None
+
+
+def _in_primary_from_linked_tree(target, base):
+    """PRIM-A: True when `base` is a LINKED worktree and `target` lies in the primary checkout
+    (the main worktree, parent of the common .git dir) but not in `base`. A session working in
+    place in the primary is not a linked tree, so the Leader's own work is never this case."""
+    out, err = _git(base, "rev-parse", "--git-common-dir")
+    if err or not out or not out.strip():
+        return False
+    common = Path(out.strip())
+    common = (common if common.is_absolute() else base / common).resolve()
+    if common.name != ".git":
+        return False                      # a bare or separate-git-dir layout: no primary tree here
+    primary = common.parent
+    if primary == base:
+        return False
+    try:
+        target.relative_to(primary)
+    except ValueError:
+        return False
+    return True
+
+
+def _escapes_from_checkout(lexical, base):
+    """WT-E2: does some component of `lexical` sit inside `base` and resolve out of it?
+
+    Found by resolving each prefix, never by comparing spellings: the lexical path need not
+    sit under the resolved root (/var -> /private/var on macOS, 8.3 short names on Windows).
+    """
+    def inside(path):
+        try:
+            path.resolve().relative_to(base)
+            return True
+        except ValueError:
+            return False
+    return any(inside(prefix.parent) and not inside(prefix)
+               for prefix in [*reversed(lexical.parents), lexical] if prefix.parent != prefix)
+
+
 def _native_paths(path, repo, cwd):
     """Check lexical and symlink-resolved targets, relative to the actual process cwd.
 
@@ -2202,7 +2318,15 @@ def _native_paths(path, repo, cwd):
     paths = []
     canonical = _physical_spelling(candidate.resolve())
     # A resolved outside target is always refused, even if its lexical symlink is inside.
-    canonical.relative_to(base)
+    try:
+        canonical.relative_to(base)
+    except ValueError:
+        if _in_primary_from_linked_tree(canonical, base):
+            raise PrimaryCheckoutWrite(str(canonical)) from None
+        sibling = _linked_sibling_top(canonical, base)
+        if sibling is not None:
+            raise SiblingCheckoutWrite(sibling) from None
+        raise OutsideCheckout(str(canonical), via_alias=_escapes_from_checkout(lexical, base)) from None
     for target in (lexical, canonical):
         try:
             relative = target.relative_to(base).as_posix()
@@ -2272,8 +2396,10 @@ def parse_hook_request(event, repo, host=None, cwd=None):
         if not isinstance(args, dict):
             raise ValueError("invalid native arguments")
         if call.get("name") in ("write_to_file", "replace_file_content", "multi_replace_file_content"):
-            if not isinstance(args.get("TargetFile"), str) or not Path(args["TargetFile"]).is_absolute():
-                raise ValueError("native TargetFile must be absolute; hook cwd is not the tool resolver")
+            if not isinstance(args.get("TargetFile"), str) or not args["TargetFile"]:
+                raise ValueError("native write has no target")   # nothing to judge: no decision
+            if not Path(args["TargetFile"]).is_absolute():
+                raise UnreadableWrite("native TargetFile must be absolute; hook cwd is not the tool resolver")
         # Native tool schemas, not generic aliases, choose the authoritative path.
         event = {"tool_name": call.get("name"), "tool_input": {"file_path": args.get("TargetFile")}}
     if host in ("grok", "agy") and (not isinstance(event.get("tool_name"), str)
@@ -2455,11 +2581,38 @@ def hook_response(decision, reason, host=None):
         "permissionDecisionReason": reason}})
 
 
-def _not_checked(reason, host=None):
-    return hook_response("deny" if host in ("codex", "grok", "agy", "copilot") else "ask", "NOT CHECKED  -\n  held by   unknown - this check did"
+def no_decision(host=None):
+    """The hook has no opinion: the host's own permission mode decides, as with no hook at all.
+
+    Each host's documented neutral answer. Codex and Grok read exit 0 with empty stdout as
+    "continue"; Copilot reads `{}`; agy reads empty success; Claude reads `{}`.
+    """
+    return "" if host in ("codex", "grok", "agy") else "{}"
+
+
+def _not_checked(reason, host=None, refuse=False):
+    """The answer when the ownership check could not run.
+
+    EDIT-ASK (owner ruling, 2026-10-19): an edit never asks. Claude Code reads `ask` as
+    "prompt now" even under bypass permissions, so a path that is itself suspect (`refuse`:
+    traversal, an alias out of the checkout) is refused, and anything else gets no decision --
+    the session's own permission mode decides, as it would with no hook at all.
+    HOST-P (owner ruling, 2026-10-19, FR-100): every host answers as Claude does. Worktrees,
+    user memory and scratch directories sit outside the repository, so a native host that
+    refused them could not do ordinary work.
+    """
+    if not refuse:
+        return no_decision(host)
+    return hook_response("deny", "NOT CHECKED  -\n  held by   unknown - this check did"
                          " not run\n  because   {}\n"
                          "  remedy    fix the condition above; this is not a pass"
                          .format(reason), host)
+
+
+def _emit(output):
+    """Print a hook answer. An empty answer prints nothing: a blank line is not empty stdout."""
+    if output:
+        print(output)
 
 
 def cmd_hook(root, session, agent, now, stdin_text, repo=None, host=None, cwd=None):
@@ -2484,7 +2637,31 @@ def cmd_hook(root, session, agent, now, stdin_text, repo=None, host=None, cwd=No
                     raise ValueError("tool cwd is not a checkout of the bound repository")
                 cwd = tool_cwd
                 repo = checkout_top(tool_cwd)
-        calls = parse_hook_request(event, repo or root, host=host, cwd=cwd)
+        try:
+            calls = parse_hook_request(event, repo or root, host=host, cwd=cwd)
+        except SiblingCheckoutWrite as exc:
+            # WT-D: the same check, made in the linked tree that holds the path. The ledger
+            # (root) is per repository, so the leases are the same leases.
+            repo = str(exc.top)
+            calls = parse_hook_request(event, repo, host=host, cwd=cwd)
+    except PrimaryCheckoutWrite as exc:
+        # PRIM-A: refused by name on every host (Claude's generic not-checked answer is `{}`).
+        return hook_response("deny", "COORD-PRIMARY-WRITE  refused  {}\n"
+                             "  because   this session works in a linked worktree and the path is in"
+                             " the primary checkout, the Leader's fast-forward target\n"
+                             "  remedy    write it in your own tree; the primary receives work by merge"
+                             .format(_safe(str(exc), 300)), host)
+    except OutsideCheckout as exc:
+        reason = "the write target is outside this repository's checkouts ({})".format(_safe(str(exc), 300))
+        if exc.via_alias:
+            return _not_checked(reason, host, refuse=True)
+        # WT-E: no lease can cover a path outside every checkout, so this hook has no opinion.
+        # `ask` overrode the session's own permission mode on every write to user memory or a
+        # scratchpad; `allow` would grant a write anywhere on disk. No decision defers to the
+        # mode -- on every host (HOST-P).
+        return no_decision(host)
+    except UnreadableWrite as exc:
+        return _not_checked("unreadable patch ({})".format(_safe(str(exc), 300)), host, refuse=True)
     except Exception as exc:
         return _not_checked("unreadable hook payload ({})".format(exc.__class__.__name__), host)
 
@@ -2506,7 +2683,7 @@ def cmd_hook(root, session, agent, now, stdin_text, repo=None, host=None, cwd=No
     for path in paths:
         bad = _reject_path(str(path))                   # B4 tampering
         if bad:
-            return _not_checked(bad, host)
+            return _not_checked(bad, host, refuse=True)
         # B4 spoofing: identity is the ENVIRONMENT's, never the payload's sessionId.
         decision = check(root, str(path), session, now, covers=covers)
         append_decision(root, session, agent, path, decision,
@@ -2521,8 +2698,9 @@ def cmd_hook(root, session, agent, now, stdin_text, repo=None, host=None, cwd=No
     if worst is None:
         return hook_response("allow", "coordination: {} path(s) free or mine"
                              .format(len(paths)), host)
-    mapped = {"deny": "deny", "not_checked": "deny" if host in ("codex", "grok", "agy", "copilot") else "ask"}[worst["decision"]]
-    return hook_response(mapped, render(worst), host)
+    if worst["decision"] == "not_checked":
+        return _not_checked(render(worst), host)
+    return hook_response("deny", render(worst), host)
 
 
 def cmd_precommit(root, repo, session, agent, now):
@@ -3017,7 +3195,7 @@ def cmd_request(root, action, now, session, agent, args, repo=None):
 # --- worktree lifecycle (session-worktree-discipline.md WT1-WT12) ------------
 # This file already resolves the primary checkout from any tree and keys occupancy by
 # worktree, so the lifecycle belongs here rather than in a parallel tool. WT1 makes a fresh
-# worktree the DEFAULT unit of session isolation; WT6-WT12 close the half that actually rots:
+# worktree the default response to a concurrent-writer risk; WT6-WT12 close the half that actually rots:
 # an isolation mechanism nobody cleans up becomes a disk of half-finished trees, one of which
 # is eventually the only copy of some real work.
 
@@ -3202,7 +3380,7 @@ def cmd_worktree(root, repo, action, cwd, now, session=None, agent=None,
         # ALWAYS resolve explicitly, including the default. With no --base, `git -C
         # <primary> worktree add` uses the PRIMARY's HEAD while the help promises
         # "current HEAD" -- so the documented contract and the behaviour disagreed in
-        # exactly the case WT1 makes the normal one. Resolving here makes them agree.
+        # exactly the case WT1 makes common under concurrency. Resolving here makes them agree.
         sha, base_err = base_commit(cwd, repo, base or "HEAD")
         if base_err:
             print("COORD-WORKTREE-BASE-UNRESOLVED: {}\n"
@@ -3748,7 +3926,7 @@ def worktree_mtimes(repo):
                 name = line[3:].split(" -> ")[-1].strip().strip('"')
                 try:
                     stamp = os.path.getmtime(os.path.join(path, name))
-                except OSError:
+                except OSError:  # skip-ok: a staleness heuristic; a missing stamp only lowers the estimate
                     continue
                 newest = stamp if newest is None else max(newest, stamp)
         if newest is not None:
@@ -4071,6 +4249,7 @@ def cmd_install(repo, root, force=False):
             # never touched .gitattributes, which made it a no-op in exactly the case
             # `pack-doctor`'s WARN sends people to run it. Fall through instead.
             print("pre-commit hook already installed (unchanged)")
+            _install_merge_hook(hooks_dir)
             _install_merge_driver(repo, root)
             _print_settings_entry(repo)
             return 0
@@ -4088,6 +4267,7 @@ def cmd_install(repo, root, force=False):
     except OSError:
         pass
     print("Wrote {}  (shared by every worktree of this repo)".format(target))
+    _install_merge_hook(hooks_dir)
     _install_merge_driver(repo, root)
     _print_settings_entry(repo)
     return 0
@@ -4140,10 +4320,12 @@ def _install_merge_driver(repo, root):
             continue
         declared[name] = patterns
 
-    if not declared:
-        return
     ga = Path(repo) / ".gitattributes"
     current = ga.read_text(encoding="utf-8") if ga.exists() else ""
+    # ATTR-A: install RECONCILES. Adding only left the driver on a file the registry had moved
+    # back to `authored` until somebody edited .gitattributes by hand.
+    wanted = {name: {p for p, k, _c in entries if k == klass} for klass, name in MERGE_MECHANISMS.items()}
+    current, removed = _reconcile_attributes(current, wanted)
     added = 0
     for name, patterns in sorted(declared.items()):
         for pattern in patterns:
@@ -4154,20 +4336,122 @@ def _install_merge_driver(repo, root):
                 current += "\n"                     # LOG-A's sibling seam
             current += line + "\n"
             added += 1
-    if added:
+    if added or removed:
         ga.write_text(current, encoding="utf-8", newline="\n")
+    if removed:
+        print("Removed {} stale merge attribute(s) the registry no longer declares".format(removed))
+    if not declared:
+        return
     print("Registered {}; .gitattributes declares {} pattern(s)".format(
         ", ".join(repr(n) for n in sorted(declared)),
         sum(len(p) for p in declared.values())))
 
 
-def _write_conflict(result_path, ours_path, theirs_path, reason):
-    """Write conventional conflict markers into the driver's result file, then exit 0.
+def _reconcile_attributes(text, wanted):
+    """Drop `merge=<coord driver>` from each .gitattributes line whose pattern the registry no
+    longer declares for that driver (ATTR-A). The line's other attributes stay, a line left with
+    only its pattern goes, and a driver this command does not own is never touched."""
+    out, removed = [], 0
+    for line in text.splitlines(keepends=True):
+        tokens = line.split()
+        if not tokens or tokens[0].startswith("#"):
+            out.append(line)
+            continue
+        pattern, attrs = tokens[0], tokens[1:]
+        keep = [a for a in attrs if not (a.startswith("merge=") and a[len("merge="):] in wanted
+                                         and _norm(pattern) not in wanted[a[len("merge="):]])]
+        if len(keep) == len(attrs):
+            out.append(line)
+            continue
+        removed += len(attrs) - len(keep)
+        if keep:
+            out.append(" ".join([pattern] + keep) + "\n")
+    return "".join(out), removed
 
-    S12b, the hazard this exists for: a driver that exits NON-ZERO leaves the file unmerged
-    with OURS content and NO markers. It looks clean, and `git add .` commits ours and
+
+MERGE_HOOK_BODY = """#!/bin/sh
+{marker}
+# An automatic merge commit skips pre-commit; pre-merge-commit is its seam (GATE-B / REG-C).
+exec "{python}" "{script}" staged-markers
+"""
+
+
+def _install_merge_hook(hooks_dir):
+    """Write the pre-merge-commit hook: a merge git concludes on its own runs no pre-commit,
+    which is how a driver that exited 0 over conflict markers got them committed (REG-C)."""
+    target = hooks_dir / "pre-merge-commit"
+    body = MERGE_HOOK_BODY.format(marker=HOOK_MARKER, python=sys.executable.replace("\\", "/"),
+                                  script=str(Path(__file__).resolve()).replace("\\", "/"))
+    if target.exists():
+        existing = target.read_text(encoding="utf-8", errors="replace")
+        if HOOK_MARKER not in existing:
+            print("COORD-HOOK-EXISTS  {} already exists and is not ours - not overwritten;"
+                  " add `coord-core.py staged-markers` to it by hand".format(target))
+            return
+        if existing == body:
+            return
+    target.write_text(body, encoding="utf-8", newline="\n")
+    try:
+        os.chmod(target, 0o755)
+    except OSError:
+        pass
+    print("Wrote {}  (refuses staged conflict markers on a merge commit)".format(target))
+
+
+# Only the unambiguous markers (verify-no-conflict-markers.py's set): `=======` alone is a
+# Markdown setext underline and is never flagged.
+CONFLICT_MARKERS = ("<" * 7, ">" * 7, "|" * 7)
+
+
+def staged_marker_hits(repo):
+    """Lines the index ADDS that start with a conflict marker, as `path:line` strings.
+    Returns (hits, error). GATE-B, 2026-10-05: a conflict-resolution edit failed while a
+    parallel `git add` staged the file, and the commit carried the markers."""
+    try:
+        proc = subprocess.run(["git", "-C", str(repo), "diff", "--cached", "--no-color", "--no-ext-diff",
+                               "-U0", "--diff-filter=ACMR"], capture_output=True, timeout=60, check=False)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return [], exc.__class__.__name__
+    if proc.returncode != 0:
+        return [], proc.stderr.decode("utf-8", "replace").strip()[:200] or "git diff failed"
+    hits, path, lineno = [], None, 0
+    for raw in proc.stdout.decode("utf-8", "replace").splitlines():
+        if raw.startswith("+++ "):
+            path = raw[4:].strip().strip('"')
+            path = path[2:] if path.startswith("b/") else path
+        elif raw.startswith("@@"):
+            match = re.search(r"\+(\d+)", raw)
+            lineno = int(match.group(1)) if match else 0
+        elif raw.startswith("+"):
+            if raw[1:].startswith(CONFLICT_MARKERS):
+                hits.append("{}:{}".format(path, lineno))
+            lineno += 1
+    return hits, None
+
+
+def cmd_staged_markers(repo):
+    hits, err = staged_marker_hits(repo)
+    if err is not None:
+        print("COORD-NOT-CHECKED-GIT: staged conflict markers not checked ({})".format(_safe(err, 200)))
+        return 4
+    if hits:
+        print("COORD-STAGED-MARKERS  {} staged line(s) start with a conflict marker:".format(len(hits)))
+        for hit in hits[:20]:
+            print("  " + _safe(hit, 300))
+        print("  remedy    resolve the conflict (Read, then Edit), scan for markers, then stage again")
+        return 1
+    return 0
+
+
+def _write_conflict(result_path, ours_path, theirs_path, reason):
+    """Write conventional conflict markers into the driver's result file.
+
+    S12b, the hazard this exists for: a driver that exits NON-ZERO with no markers leaves the
+    file unmerged with OURS content. It looks clean, and `git add .` commits ours and
     silently discards theirs. Writing the markers makes the failure visible in the file --
-    where a human, `git diff --check`, and the pre-commit floor all see it.
+    where a human, `git diff --check`, and the staged-markers scan all see it. The caller
+    decides the exit: merge-register and merge-derived exit 1 after this (REG-C), so git
+    stops as well.
     """
     def read(p):
         try:
@@ -4182,10 +4466,12 @@ def _write_conflict(result_path, ours_path, theirs_path, reason):
 
 
 def cmd_merge_derived(root, repo, result_path, base_path, theirs_path, real_path):
-    """The .gitattributes merge driver. ALWAYS returns 0 -- see _write_conflict.
+    """The .gitattributes merge driver for `derived` artifacts.
 
-    Resolves a `derived` artifact to OURS and records that a regeneration is owed; anything
-    it cannot classify as derived gets conventional conflict markers instead.
+    Resolves a `derived` artifact to OURS, records that a regeneration is owed, and returns 0.
+    Anything it cannot classify as derived gets conventional conflict markers AND returns 1
+    (REG-C's sibling, 2026-10-05): with exit 0, `git merge` read the marker file as a clean
+    merge and auto-committed it. The markers keep the unmerged path from looking clean (S12b).
     """
     try:
         klass, reason = classify(root, real_path)
@@ -4196,19 +4482,19 @@ def cmd_merge_derived(root, repo, result_path, base_path, theirs_path, real_path
             _write_conflict(result_path, result_path, theirs_path,
                             "{} is classified {}{}; not resolving".format(
                                 real_path, klass, " (" + reason + ")" if reason else ""))
-            return 0
+            return 1
         # Resolve to ours, byte for byte. `result_path` (%A) already holds ours; touching
         # nothing else is the whole of STRIDE B8's mitigation -- %P is identity, never a
         # write target.
         record_regen_owed(root, real_path)
         return 0
-    except Exception as exc:                      # never exit non-zero; never raise
+    except Exception as exc:                      # never raise; markers, then stop git
         try:
             _write_conflict(result_path, result_path, theirs_path,
                             "driver error: {}".format(exc.__class__.__name__))
         except Exception:
             pass
-        return 0
+        return 1
 
 
 def cmd_regen(root, checkout, timeout=120):
@@ -4329,7 +4615,7 @@ def driver_path_status(repo):
         for record in records[1:]:          # records[0] is the primary checkout
             try:
                 linked.append(Path(record["path"]).resolve())
-            except (OSError, KeyError):
+            except (OSError, KeyError):  # skip-ok: records the failure: checked=False marks the ledger unverified
                 checked = False
     for line in out.splitlines():
         key, _sp, command = line.partition(" ")
@@ -4384,6 +4670,17 @@ def cmd_doctor(root, repo):
                 REGISTRY_NAME))
         else:
             print("registry         ok - {} pattern(s)".format(len(entries)))
+            # REG-C: the register driver unions JSONL rows. On any other file it cannot
+            # merge, so a markdown "append-only log" classed `register` conflicts on the first
+            # concurrent append (and auto-committed markers while the driver exited 0).
+            for pattern, klass, _command in entries:
+                if klass == "register" and not pattern.endswith(".jsonl"):
+                    print("register class   NOT JSONL  [COORD-REGISTER-NOT-JSONL]  {}".format(
+                        _safe(pattern, 200)))
+                    print("  because     the register driver merges JSONL rows only")
+                    print("  remedy      class it `authored` (one file per session if it is a log),"
+                          " or make it .jsonl")
+                    problems += 1
     except CoordError as exc:
         print("registry         {}".format(exc.code))
         print("  because     {}".format(_safe(str(exc), 200)))
@@ -4537,6 +4834,14 @@ def cmd_plugin_emit(out_dir, host=None):
             print("COORD-PLUGIN-HOOKS  install the native Copilot hook bundle before emitting this profile")
             return 2
         source = json.loads((hook_dir / "copilot.ai-forward-hooks.json").read_text(encoding="utf-8"))
+        # Reuse the applier's exact managed startup syntax in source and installed layouts.
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("coord_plugin_pack_apply", here / "pack-apply.py")
+        if spec is None or spec.loader is None:
+            raise ValueError("Unsupported source-managed Copilot hook bundle")
+        applier = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = applier
+        spec.loader.exec_module(applier)
         events = {"preToolUse": "PreToolUse", "postToolUse": "PostToolUse",
                   "sessionStart": "SessionStart", "subagentStart": "SubagentStart",
                   "agentStop": "Stop", "subagentStop": "SubagentStop",
@@ -4544,8 +4849,15 @@ def cmd_plugin_emit(out_dir, host=None):
         scripts = {}
         for event, entries in source["hooks"].items():
             for entry in entries:
-                match = re.search(r"hooks/([A-Za-z_-]+\.py)(.*)$", entry["bash"])
+                # Only the complete canonical startup command; its shell body is not argv.
+                match = re.fullmatch(re.escape(applier.STARTUP_LAUNCHER) +
+                                     r"(session-start\.py|dispatch\.py)( --host copilot(?: --event [A-Za-z]+)?)", entry["bash"])
                 if not match:
+                    # Existing PLAT-A commands retain their script, host and event argv.
+                    match = re.fullmatch(re.escape(
+                        "git -c alias.aif-hook=!sh aif-hook docs/ai-forward-pack/hooks/run-hook.sh ") +
+                        r"([A-Za-z_-]+\.py)( --host copilot(?: --event [A-Za-z]+)?)", entry["bash"])
+                if not match or not (hook_dir / match.group(1)).is_file():
                     raise ValueError("Unsupported source-managed Copilot hook command")
                 name, arguments = match.groups()
                 scripts[name] = str(hook_dir / name)
@@ -4594,22 +4906,7 @@ def _print_settings_entry(repo):
     Windows path - output that reads correctly and is invalid the moment it is pasted.
     A serializer cannot make either mistake.
     """
-    # .claude/settings.json is TRACKED, so the entry must carry nothing about this machine
-    # (class PLAT-B): the interpreter is resolved at run time by the same shell form the
-    # pack's hook adapters use, and the script is named relative to the repo when it lives
-    # inside it. The earlier form printed `sys.executable` and an absolute script path.
-    me = Path(__file__).resolve()
-    try:
-        script = me.relative_to(Path(repo).resolve()).as_posix()
-    except ValueError:
-        script = me.as_posix()
-    entry = {"hooks": {"PreToolUse": [{
-        "matcher": "Write|Edit",
-        "hooks": [{"type": "command",
-                   "command": ("py=$(python3 -c 'import sys;print(sys.executable)' 2>/dev/null); "
-                               "[ -x \"$py\" ] || py=$(python -c 'import sys;print(sys.executable)'); "
-                               "\"$py\" \"{0}\" hook".format(script)),
-                   "timeout": 5}]}]}}
+    entry = native_hook_config("claude")
     print("")
     print("Add this to .claude/settings.json yourself - this tool does not edit it:")
     for line in json.dumps(entry, indent=2).splitlines():
@@ -4626,17 +4923,38 @@ def native_hook_config(host):
     it; runtime paths stay in quoted expansions, never eval or interpolated source code.
     """
     if host == "copilot":
+        # PLAT-A: Copilot on Windows runs hook commands through PowerShell (measured 2026-09-24, Copilot CLI
+        # 1.0.89-1). Both arms are the quote-free launcher, which pwsh, cmd.exe and sh parse alike and which
+        # resolves the interpreter; --caller-cwd keeps the caller's directory, as the old relative form needed.
+        command = ("git -c alias.aif-hook=!sh aif-hook docs/ai-forward-pack/hooks/run-hook.sh "
+                   "--caller-cwd ../scripts/coord-core.py hook --host copilot")
         return {"version": 1, "hooks": {"preToolUse": [{
             "type": "command",
-            "bash": "python3 docs/ai-forward-pack/scripts/coord-core.py hook --host copilot",
-            "powershell": "python docs/ai-forward-pack/scripts/coord-core.py hook --host copilot",
+            "bash": command,
+            "powershell": command,
             "timeoutSec": 10,
             "matcher": "^(edit|create|write|apply_patch|str_replace|search_replace|multiedit|notebookedit|edit_file|write_file|write_to_file|replace_file_content|multi_replace_file_content)$",
         }]}}
-    command = ("py=$(python3 -c 'import sys;print(sys.executable)' 2>/dev/null); "
-               "[ -x \"$py\" ] || py=$(python -c 'import sys;print(sys.executable)'); "
-               "root=$(git rev-parse --show-toplevel) || exit 2; "
-               "exec \"$py\" \"$root/docs/ai-forward-pack/scripts/coord-core.py\" hook --host " + host)
+    if host == "claude":
+        # PLAT-A: this entry is merged into .claude/settings.json, which Copilot CLI 1.0.89-1 also reads and runs
+        # through PowerShell on Windows (Inferred from its runtime.node). --caller-cwd keeps the caller's directory.
+        command = ("git -c alias.aif-hook=!sh aif-hook docs/ai-forward-pack/hooks/run-hook.sh "
+                   "--caller-cwd ../scripts/coord-core.py hook --host claude")
+    elif host == "codex":
+        # PLAT-C: Codex on Windows runs hook commands through `pwsh -Command` (measured 2026-09-24,
+        # codex 0.156), which cannot parse the sh form below. One quote-free git invocation parses
+        # alike under pwsh, cmd.exe and sh; run-hook.sh resolves the interpreter and, with
+        # --caller-cwd, keeps the caller's directory, against which Codex patch paths resolve.
+        command = ("git -c alias.aif-hook=!sh aif-hook docs/ai-forward-pack/hooks/run-hook.sh "
+                   "--caller-cwd ../scripts/coord-core.py hook --host codex")
+    elif host == "agy":
+        # PLAT-A: Agy on Windows runs hook commands through cmd.exe from <repo>/.agents (measured 2026-09-24,
+        # agy 1.2.10), as its six bundle commands already do. Its TargetFile is absolute, so the launcher
+        # runs the hook from the top of the tree with no --caller-cwd.
+        command = "git -c alias.aif-hook=!sh aif-hook docs/ai-forward-pack/hooks/run-hook.sh ../scripts/coord-core.py hook --host agy"
+    else:
+        command = ("git -c alias.aif-hook=!sh aif-hook docs/ai-forward-pack/hooks/run-hook.sh "
+                   "--caller-cwd ../scripts/coord-core.py hook --host " + host)
     matcher = {"codex": "apply_patch", "claude": "Write|Edit|MultiEdit|NotebookEdit",
                "grok": "Write|Edit|MultiEdit|NotebookEdit|write_file|edit_file|search_replace",
                "agy": "write_to_file|replace_file_content|multi_replace_file_content"}[host]
@@ -4661,13 +4979,13 @@ def main(argv=None):
     except Exception as exc:
         if args.cmd != "hook":
             raise
-        print(_not_checked("hook root unavailable ({})".format(type(exc).__name__), args.host))
+        _emit(_not_checked("hook root unavailable ({})".format(type(exc).__name__), args.host))
         return 0
     if err:
         payload = {"decision": "not_checked", "path": "-"}
         payload.update(err)
         if args.cmd == "hook":
-            print(_not_checked(render(payload), args.host))
+            _emit(_not_checked(render(payload), args.host))
             return 0
         print(render(payload), file=sys.stderr)
         return 4
@@ -4679,7 +4997,7 @@ def main(argv=None):
         bad = session_id_error(session)
         if bad:
             if args.cmd == "hook":
-                print(_not_checked(bad, args.host))
+                _emit(_not_checked(bad, args.host))
                 return 0
             print(bad, file=sys.stderr)
             return 2
@@ -4830,6 +5148,13 @@ def main(argv=None):
         append_decision(root, session, agent, args.path, decision)
         print(json.dumps(decision) if args.json else render(decision))
         return EXIT[decision["decision"]]
+
+    if args.cmd in ("precommit", "staged-markers"):
+        # GATE-B: staged conflict markers are refused before identity or the record matter,
+        # so the floor holds in advisory mode and for a commit made by hand.
+        rc = cmd_staged_markers(tree)
+        if rc or args.cmd == "staged-markers":
+            return rc
 
     if args.cmd == "precommit":
         if not session:

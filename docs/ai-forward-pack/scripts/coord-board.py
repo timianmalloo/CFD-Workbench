@@ -132,14 +132,14 @@ def read_sources(root):
     inbox, twins, errors, files = [], [], [], 0
     mail_dir, log_dir = Path(root) / "mail", Path(root) / "log"
     if mail_dir.is_dir():
-        for path in sorted(mail_dir.glob("*.jsonl")):
+        for path in sorted(p for p in mail_dir.iterdir() if p.match("*.jsonl")):   # CTRL-G: iterdir raises; glob returns []
             files += 1
             for _, obj in _iter_jsonl(path, errors):
                 if obj.get("id"):
                     obj.setdefault("_inbox", path.stem)
                     inbox.append(obj)
     if log_dir.is_dir():
-        for path in sorted(log_dir.glob("*.jsonl")):
+        for path in sorted(p for p in log_dir.iterdir() if p.match("*.jsonl")):   # CTRL-G: iterdir raises; glob returns []
             files += 1
             for _, obj in _iter_jsonl(path, errors):
                 if obj.get("type") == "mail" and obj.get("mail_id"):
