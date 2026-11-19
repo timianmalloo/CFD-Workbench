@@ -3,31 +3,69 @@
 A cross-platform client application for hydrofoil design and simulation, targeting
 **Windows and macOS**.
 
-The project is implementing the reviewed specification and mockups.
-The first offline milestone uses C#/.NET 10 and Avalonia, with a shared core for
-the native workbench and CLI. The shared core has passed its bounded independent
-gate. A buildable desktop and runnable CLI **candidate** exists on
-`feature/application-native-adapters` at checkpoint `de105f0`.
-[Ruling 25](docs/notes/rulings.md) keeps that candidate isolated and the native
-M1 gate blocked pending actual rendered and accessibility evidence. The
-simulation backend and export geometry kernel remain unselected.
+## Current status (`main`)
 
-On macOS, the candidate branch's argument-free
-`python3 tools/verify-application-adapters.py` builds and tests the shared-core
-adapters and publishes self-contained macOS ARM64 and Windows x64 development
-packages in a fresh local scratch directory. The verifier has not run its
-checks on a Windows host. It prints a receipt path; that JSON's `packages`
-map locates the macOS `CFD Workbench.app` and Windows portable folder, while
-its `publish` map locates the CLI apphosts. These are local development
-candidates. The CLI, controller, recovery and package contents
-have bounded independent evidence in the
-[native adapter review](docs/reviews/ui-application-native.md). The final
-11-step source and package gate passed, including real apphost XAML startup.
-The supported native inspection tool returned `cgWindowNotFound` on the
-running review app, so rendered layout, keyboard and AX behavior remain
-unverified. Minimum-window behavior, Windows runtime, signing and distribution
-also remain open. A successful package build is not a release or a validated
-solver.
+The application is built on **C#/.NET 10 and Avalonia** (`CFDWorkbench.slnx`), as
+accepted in [ADR-0003](docs/adr/0003-application-stack.md). **Windows** is the current
+platform of record while macOS compatibility is maintained across the shared core,
+analysis, CLI, and CI checks.
+
+Waves 1–4 have landed on `main` across six projects:
+
+- **`src/CfdWorkbench.Core`** — FoilDSL 4.0/4.1 parser, exact geometry certificate
+  (`cfdw-cv/2`), parametric planform/dihedral/twist/thickness distribution curves,
+  station profiles (promote, remove, match-blend, `.dat` import, provenance), and the
+  append-only native project envelope (`cfdw-project-1` / `cfdw-project-2`, 32 MB cap).
+- **`src/CfdWorkbench.Persistence`** — Atomic, crash-safe project store and local
+  *My sections* library.
+- **`src/CfdWorkbench.Analysis`** — Local in-process VLM + strip coupler, wing
+  estimator tier, hashed ITTC water table, and Compare / Discrepancy records
+  (including dimensional ΔL and ΔDᵢ when reference quantities differ).
+- **`src/CfdWorkbench.Export`** — Export Slice A (STL mesh and Selig/Lednicer `.dat`
+  section exports).
+- **`src/CfdWorkbench.Desktop`** — Avalonia workbench shell (Plan, Elevation, 3D, and
+  Section views, Browser, Properties, Analysis, Compare, Catalog, Save-section, and
+  Export dialogs).
+- **`src/CfdWorkbench.Cli`** — Headless inspection, analysis, and export CLI.
+
+The high-fidelity CFD simulation backend (Area 5) and the NURBS/STEP/3DM CAD export
+kernel (Area 7) remain unselected and gated on operator review.
+
+## Building and testing
+
+Build once and run all four .NET test harnesses (Core, Analysis, Desktop, CLI) plus any
+Python tests from Git Bash (Windows) or bash (macOS):
+
+```sh
+bash tools/run-tests.sh
+```
+
+On headless machines or CI without a display, pass `--no-desktop` to run Core, Analysis,
+and CLI (`tools/run-tests.sh --no-desktop`). You can also run `dotnet test CFDWorkbench.slnx`.
+
+## Repository checks
+
+The tooling requires Python 3.8 or later and uses the standard library. From the
+repository root on Windows:
+
+```sh
+python tools/check-docs.py
+python docs/ai-forward-pack/scripts/pack-doctor.py
+```
+
+On macOS/Linux, use `python3` in place of `python`.
+
+After cloning, initialize the pack's local Git coordination hooks and merge drivers
+once in the primary checkout (linked worktrees inherit them):
+
+```sh
+python docs/ai-forward-pack/scripts/coord-core.py install
+```
+
+The committed regeneration commands require Python 3 to be available as `python` on
+`PATH`; activate a Python virtual environment if needed. CI runs
+`.github/workflows/tests.yml` (`Core`, `Analysis`, `Cli`, and `tools/check-docs.py`)
+on pushes to `main`.
 
 ## Review the product
 
@@ -39,23 +77,22 @@ solver.
 - [Independent specification review](docs/reviews/specification-gate.md)
 - [Interface review and proof](docs/reviews/ui-workbench.md)
 
-The modeling contract uses **one parametric surface definition** viewed through
-five distribution curves and editable station profiles. Manual edits detach the
-starting recipe while preserving an explicit parametric model. Analysis in the
-mockup is illustrative; it is not numerical validation or a working solver.
+The modeling contract uses **one parametric surface definition** viewed through five
+distribution curves and editable station profiles. Manual edits detach the starting
+recipe while preserving an explicit parametric model.
 
 The specification HTML is generated from the complete Markdown by
-`tools/render-spec.mjs`. Its documentation-only dependencies are `marked` 17.0.5
-and `@viz-js/viz` 3.25.0. Run `node tools/render-spec.mjs` with those installed,
-or pass the path of a directory containing their installed Node modules. Set
-`SPEC_NAME=cfd-workbench-v1` to render the current product specification (the
-default selects the historical document). Neither
-dependency is needed to read the committed HTML; this does not select the app stack.
+`tools/render-spec.mjs`. Its documentation-only dependencies are `marked` 17.0.5 and
+`@viz-js/viz` 3.25.0. Run `node tools/render-spec.mjs` with those installed, or pass
+the path of a directory containing their installed Node modules. Set
+`SPEC_NAME=cfd-workbench-v1` to render the current product specification (the default
+selects the historical document). Neither dependency is needed to read the committed
+HTML.
 
 ## Development workflow
 
 This repository includes the [AI-Forward Pack](https://timianmalloo.github.io/ai-forward/),
-revision **92** (`2026.09.21.3`), with skills, personas, engineering guidance,
+revision **120** (`2026.11.19.1`), with skills, personas, engineering guidance,
 documentation tools, and integrations for Codex, Claude Code, GitHub Copilot, Grok,
 and Antigravity.
 
@@ -67,47 +104,17 @@ and Antigravity.
 - [Codex guide](docs/ai-forward-pack/codex.md)
 - [Docs Explorer](docs/index.html) — open locally to browse the specification, design and evidence.
 
-Follow the [coordination plan](docs/coordination/application-build.md) and its
-isolated worktree assignments. The accepted architecture and `$design-slice`
-contracts govern `$implement` increments. The shared core has been joined;
-the native GUI and CLI adapter candidate is under independent review. Live
-workflow proof and the remaining platform gates still govern delivery.
-Further load-bearing decisions use `$define-architecture`.
+Follow the active coordination plan under `docs/coordination/` and its isolated
+worktree assignments. Accepted architecture and `/design-slice` contracts govern
+`/implement` increments; further load-bearing decisions use `/define-architecture`.
 
-## Repository checks
-
-The tooling requires Python 3.8 or later and uses the standard library. From the
-repository root on macOS:
-
-```sh
-python3 tools/check-docs.py
-python3 docs/ai-forward-pack/scripts/pack-doctor.py
-```
-
-On Windows, use `py -3` or `python` in place of `python3`.
-
-After cloning, initialize the pack's local Git coordination hooks and merge drivers:
-
-```sh
-python3 docs/ai-forward-pack/scripts/coord-core.py install
-```
-
-Run this once per clone in the primary checkout. Linked worktrees inherit it.
-The committed regeneration commands require Python 3 to be available as `python`
-on `PATH`; activate a Python virtual environment if needed. If regenerating the
-artifact registry, retain portable interpreter commands instead of machine-specific paths.
-The `docs-health` GitHub Actions workflow checks documentation and pack readiness
-on relevant pull requests, pushes to `main`, and manual runs.
-
-
-### FoilDSL authoring proposal
+### FoilDSL authoring reference
 
 [Review workbench v7](docs/mockups/workbench-v7.html) · [Product specification 1.5](docs/specs/cfd-workbench-v1.html)
 · [Normative FoilDSL 4.0](docs/specs/foildsl.md) · [Reference reconciliation](docs/notes/foildsl-reconciliation.md)
 · [Review walkthrough and prototype limits](docs/mockups/workbench-v7.md)
 · [Section and decision workflow](docs/notes/design-iteration.md).
 
-The source files in `reference/` are preserved originals. FoilDSL and mockup v7
-form the current build basis. The separate architecture decision selects the
-application stack; prototype computations remain illustrative, and no simulation
-backend is selected.
+The source files in `reference/` are preserved originals. FoilDSL and mockup v7 form
+the build basis; no high-fidelity CFD simulation backend or CAD export kernel is
+selected.

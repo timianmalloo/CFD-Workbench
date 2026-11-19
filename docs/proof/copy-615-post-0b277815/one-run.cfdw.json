@@ -1,0 +1,3598 @@
+{
+  "format": "cfdw-project-2",
+  "projectId": "fc6c2591-6a05-4f79-a8d8-e112d90f45cb",
+  "sources": [
+    {
+      "id": "443198c54cbb863cf4a89004cc475e7e498aa9a34e6c72371ff834500d39a36d",
+      "utf8Base64Chunks": [
+        "Zm9pbGRzbCAiNC4wIgojIExhbmd1YWdlIGNvbmZvcm1hbmNlIGZpeHR1cmU6IGEgbWFudWZhY3R1cmVkIHNlY3Rpb24sIG5vdCBhIGNhdGFsb2cgTkFDQSBmb2lsLgpmb2lsICJCYXNpYyBmb2lsIiB7CiAgdW5pdHMgbW0KICBoYWxmX3NwYW4gNDUwIG1tCiAgZXZhbHVhdG9yICJjZmR3LWN2IiAiMiIKICBzeW1tZXRyeSBtaXJyb3JfeQogIHBsYW5mb3JtIHsKICAgIGxlYWRpbmcgY3YgeyBkZWdyZWUgMyBrbm90cyBbMCwgMCwgMCwgMCwgMC4yNSwgMC41LCAwLjc1LCAxLCAxLCAxLCAxXSBwb2ludHMgWygwLCAwKSwgKDAuMSwgMCksICgwLjMsIDApLCAoMC41LCAwKSwgKDAuNywgMCksICgwLjksIDApLCAoMSwgMCldICBpZHMgWyJjdi0wIiwiY3YtMSIsImN2LTIiLCJjdi0zIiwiY3YtNCIsImN2LTUiLCJjdi02Il0gfQogICAgdHJhaWxpbmcgY3YgeyBkZWdyZWUgMyBrbm90cyBbMCwgMCwgMCwgMCwgMC4yNSwgMC41LCAwLjc1LCAxLCAxLCAxLCAxXSBwb2ludHMgWygwLCAxMjApLCAoMC4xLCAxMjApLCAoMC4zLCAxMjApLCAoMC41LCAxMjApLCAoMC43LCAxMjApLCAoMC45LCAxMjApLCAoMSwgMTIwKV0gIGlkcyBbImN2LTAiLCJjdi0xIiwiY3YtMiIsImN2LTMiLCJjdi00IiwiY3YtNSIsImN2LTYiXSB9CiAgfQogIGRpaGVkcmFsIGN2IHsgZGVncmVlIDMga25vdHMgWzAsIDAsIDAsIDAsIDAuMjUsIDAuNSwgMC43NSwgMSwgMSwgMSwgMV0gcG9pbnRzIFsoMCwgMCksICgwLjEsIDApLCAoMC4zLCAwKSwgKDAuNSwgMCksICgwLjcsIDApLCAoMC45LCAwKSwgKDEsIDApXSAgaWRzIFsiY3YtMCIsImN2LTEiLCJjdi0yIiwiY3YtMyIsImN2LTQiLCJjdi01IiwiY3YtNiJdIH0KICB0d2lzdCBjdiB7IGRlZ3JlZSAzIGtub3RzIFswLCAwLCAwLCAwLCAwLjI1LCAwLjUsIDAuNzUsIDEsIDEsIDEsIDFdIHBvaW50cyBbKDAsIDApLCAoMC4xLCAwKSwgKDAuMywgLTAuMjUpLCAoMC41LCAtMC41KSwgKDAuNywgLTEpLCAoMC45LCAtMS41KSwgKDEsIC0yKV0gIGlkcyBbImN2LTAiLCJjdi0xIiwiY3YtMiIsImN2LTMiLCJjdi00IiwiY3YtNSIsImN2LTYiXSB9CiAgdGhpY2tuZXNzIGN2IHsgZGVncmVlIDMga25vdHMgWzAsIDAsIDAsIDAsIDAuMjUsIDAuNSwgMC43NSwgMSwgMSwgMSwgMV0gcG9pbnRzIFsoMCwgMC4xMiksICgwLjEsIDAuMTIpLCAoMC4zLCAwLjEyKSwgKDAuNSwgMC4xMiksICgwLjcsIDAuMTIpLCAoMC45LCAwLjEyKSwgKDEsIDAuMTIpXSAgaWRzIFsiY3YtMCIsImN2LTEiLCJjdi0yIiwiY3YtMyIsImN2LTQiLCJjdi01IiwiY3YtNiJdIH0KICBwcm9maWxlcyB7CiAgICBwcm9maWxlICJzZWN0aW9uLWEiIHsKICAgICAgdXBwZXIgY3YgeyBkZWdyZWUgNSBrbm90cyBbMCwgMCwgMCwgMCwgMCwgMCwgMC4zMzMzMzMzMzMzMzMzMzMzLCAwLjY2NjY2NjY2NjY2NjY2NjYsIDEsIDEsIDEsIDEsIDEsIDFdIHBvaW50cyBbKDAsIDApLCAoMCwgMC4wMjUpLCAoMC4xNSwgMC4wNTUpLCAoMC4zNSwgMC4wNjUpLCAoMC41NSwgMC4wNSksICgwLjc1LCAwLjAzKSwgKDAuOSwgMC4wMSksICgxLCAwKV0gIGlkcyBbImN2LTAiLCJjdi0xIiwiY3YtMiIsImN2LTMiLCJjdi00IiwiY3YtNSIsImN2LTYiLCJjdi03Il0gfQogICAgICBsb3dlciBjdiB7IGRlZ3JlZSA1IGtub3RzIFswLCAwLCAwLCAwLCAwLCAwLCAwLjMzMzMzMzMzMzMzMzMzMzMsIDAuNjY2NjY2NjY2NjY2NjY2NiwgMSwgMSwgMSwgMSwgMSwgMV0gcG9pbnRzIFsoMCwgMCksICgwLCAtMC4wMjUpLCAoMC4xNSwgLTAuMDU1KSwgKDAuMzUsIC0wLjA2NSksICgwLjU1LCAtMC4wNSksICgwLjc1LCAtMC4wMyksICgwLjksIC0wLjAxKSwgKDEsIDApXSAgaWRzIFsiY3YtMCIsImN2LTEiLCJjdi0yIiwiY3YtMyIsImN2LTQiLCJjdi01IiwiY3YtNiIsImN2LTciXSB9CiAgICB9CiAgfQogIHNlY3Rpb25zIHsgYXQgcm9vdCBwcm9maWxlICJzZWN0aW9uLWEiIGF0IHRpcCBwcm9maWxlICJzZWN0aW9uLWEiIH0KfQo="
+      ]
+    }
+  ],
+  "designs": [
+    {
+      "id": "6ab4020d-a888-4658-86df-e246de3b67d5",
+      "parent": null,
+      "surfaceHash": "f4181fe578502e1ad24c4a6d7935adc7a46710535f761b112157dddb2aaaf9ae",
+      "evaluator": "cfdw-cv/2"
+    }
+  ],
+  "accepted": [
+    {
+      "id": "bff36bf6-93e3-4bcd-bcfb-1b474827965a",
+      "parent": null,
+      "sourceId": "443198c54cbb863cf4a89004cc475e7e498aa9a34e6c72371ff834500d39a36d",
+      "designId": "6ab4020d-a888-4658-86df-e246de3b67d5",
+      "operationId": "f527d483-720a-4abc-882d-4df684e67a4c",
+      "edit": null
+    }
+  ],
+  "cursors": [
+    {
+      "sequence": 0,
+      "target": "bff36bf6-93e3-4bcd-bcfb-1b474827965a",
+      "reason": "open",
+      "operationId": "f527d483-720a-4abc-882d-4df684e67a4c"
+    }
+  ],
+  "recovery": null,
+  "analysis": {
+    "runs": [
+      {
+        "runId": "c67ee98e-477b-447a-b7b3-78aebd4908cd",
+        "runKey": "7f445b3d18d6824372c6c279723d586116208e61cec8f435b3039606fa4427b8",
+        "contentHash": "c47ffc065b7d4fc01c7c26abeafa873f4a0af5b1f275bb58ad9a5e81a00bad19",
+        "outcome": {
+          "status": "completed"
+        },
+        "tier": "vlm-strip",
+        "method": {
+          "id": "cfdw.vlm-strip",
+          "version": "1.0.0",
+          "order": 1
+        },
+        "settings": {
+          "nSpanPerHalf": 64,
+          "nChord": 4,
+          "spanSpacing": "cosine",
+          "chordSpacing": "cosine",
+          "wakeSpans": 20,
+          "wakeDirection": "\u002Bx",
+          "singularityCutoff": 1E-08,
+          "envelope": "vlm-envelope/1",
+          "polar": null,
+          "ncrit": [
+            2,
+            4
+          ],
+          "surfaceState": "clean",
+          "teFloorMm": 0.3,
+          "sectionEtas": [
+            0,
+            0.01227061426145604,
+            0.024541228522912142,
+            0.03680445142516507,
+            0.04906767432741801,
+            0.061316118963542665,
+            0.07356456359966733,
+            0.08579085196461399,
+            0.09801714032956065,
+            0.1102139077643884,
+            0.12241067519921615,
+            0.1345705748272889,
+            0.14673047445536164,
+            0.15884618160783143,
+            0.17096188876030124,
+            0.18302610538821473,
+            0.1950903220161282,
+            0.20709578108649893,
+            0.21910124015686966,
+            0.23104071003006676,
+            0.24298017990326387,
+            0.2548464686890811,
+            0.2667127574748983,
+            0.27849871736468024,
+            0.29028467725446216,
+            0.3019832088266768,
+            0.3136817403988914,
+            0.3252857968955557,
+            0.33688985339221994,
+            0.34839244496360405,
+            0.35989503653498817,
+            0.3712892344500389,
+            0.3826834323650897,
+            0.39396237318503974,
+            0.40524131400498975,
+            0.4163982037176358,
+            0.42755509343028186,
+            0.4385832115424443,
+            0.4496113296546067,
+            0.4605040332403022,
+            0.4713967368259977,
+            0.4821474645278908,
+            0.492898192229784,
+            0.5035004682115027,
+            0.5141027441932216,
+            0.5245501820401592,
+            0.534997619887097,
+            0.5452839264533496,
+            0.555570233019602,
+            0.5656892122187236,
+            0.5758081914178453,
+            0.5857537479551393,
+            0.5956993044924334,
+            0.60546544753653,
+            0.6152315905806267,
+            0.624812437372136,
+            0.6343932841636454,
+            0.643783063558711,
+            0.6531728429537765,
+            0.6623658989003975,
+            0.6715589548470184,
+            0.6805497497920427,
+            0.6895405447370669,
+            0.6983236629618073,
+            0.7071067811865475,
+            0.7156769320690071,
+            0.7242470829514668,
+            0.7325991041532128,
+            0.7409511253549589,
+            0.7490799859307218,
+            0.7572088465064847,
+            0.7651096499346108,
+            0.773010453362737,
+            0.7806784404946716,
+            0.7883464276266062,
+            0.7957769795536256,
+            0.8032075314806448,
+            0.8103961723161142,
+            0.8175848131515836,
+            0.8245272127270644,
+            0.8314696123025453,
+            0.8381615887761262,
+            0.8448535652497071,
+            0.8512910876249895,
+            0.857728610000272,
+            0.8639078005544917,
+            0.8700869911087113,
+            0.8760041277285331,
+            0.8819212643483549,
+            0.8875727827719351,
+            0.8932243011955152,
+            0.8986067971594793,
+            0.9039892931234433,
+            0.909099524413487,
+            0.9142097557035307,
+            0.9190446441074087,
+            0.9238795325112867,
+            0.9284361656730128,
+            0.9329927988347388,
+            0.9372684320088798,
+            0.9415440651830207,
+            0.9455361228880287,
+            0.9495281805930367,
+            0.9532342581626227,
+            0.9569403357322088,
+            0.9603582007638243,
+            0.9637760657954398,
+            0.9669036594949919,
+            0.970031253194544,
+            0.9728666916165363,
+            0.9757021300385285,
+            0.9782437052208794,
+            0.9807852804032304,
+            0.9830314613960858,
+            0.9852776423889412,
+            0.9872270761768611,
+            0.989176509964781,
+            0.9908280222817455,
+            0.99247953459871,
+            0.9938321306354534,
+            0.9951847266721968,
+            0.9962375916754436,
+            0.9972904566786902,
+            0.9980429564419313,
+            0.9987954562051724,
+            0.9992471374506884,
+            0.9996988186962042,
+            0.9998494093481021,
+            1
+          ],
+          "sectionXs": [
+            0,
+            0.03661165235168155,
+            0.10983495705504466,
+            0.1464466094067262,
+            0.23483495705504465,
+            0.4116116523516815,
+            0.49999999999999994,
+            0.5883883476483184,
+            0.7651650429449552,
+            0.8535533905932737,
+            0.8901650429449552,
+            0.9633883476483185,
+            1
+          ]
+        },
+        "settingsHash": "752ebf3bb52860261175c7f04c38c2df04488e09b437f84be4ef31a8479bd865",
+        "inputs": {
+          "acceptedId": "bff36bf6-93e3-4bcd-bcfb-1b474827965a",
+          "surfaceHash": "f4181fe578502e1ad24c4a6d7935adc7a46710535f761b112157dddb2aaaf9ae",
+          "profileHashes": [
+            "c2b6ace58272ca8488357e98be0b8ab5b7dfe247aa4d0dd43b3e00d531d84f04",
+            "c2b6ace58272ca8488357e98be0b8ab5b7dfe247aa4d0dd43b3e00d531d84f04"
+          ],
+          "evaluator": "cfdw-cv/2",
+          "placementRule": "foildsl-6/1"
+        },
+        "water": {
+          "temperatureC": 15,
+          "salinityGPerKg": 35,
+          "rho": 1025.8946639362275,
+          "nu": 1.188962519138326E-06,
+          "pv": 1671.0637960883878,
+          "source": "ITTC 7.5-02-01-03 Rev 03",
+          "tableHash": "fca86591cf575f50c0c17ca6de8dac6372d0c2baaa40f7711d184c2b6e154480"
+        },
+        "op": {
+          "speed": 10,
+          "pAtm": 101325,
+          "hRef": null,
+          "datum": "free surface",
+          "alphaDeg": 2,
+          "load": null
+        },
+        "reference": {
+          "sRef": 0.1079999999999997,
+          "bRef": 0.9,
+          "cRef": 0.11999999999999966,
+          "momentDatum": "frame origin",
+          "axes": "body; wind for lift and drag"
+        },
+        "reconciliationTolerance": 0.01,
+        "strips": [
+          {
+            "j": 0,
+            "y": -0.44993223420664596,
+            "eta": -0.9998494093481021,
+            "chord": 0.11999999999999998,
+            "gamma": 0.02496282984698094,
+            "alphaI": 312.9552567513621,
+            "alphaEff": -312.9545039870453,
+            "reLocal": 1009283.2874745899,
+            "clLocal": 0.04160471641163491,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": 0.07396607902356372,
+            "fy": 0.0002924059151170841,
+            "fz": 0.03468952493856664,
+            "mx": -0.015608574633573397,
+            "my": -0.0015085832017886465,
+            "mz": 0.03329803364609678,
+            "downwashTrefftz": -109.24199283470963
+          },
+          {
+            "j": 1,
+            "y": -0.4496612118528097,
+            "eta": -0.9992471374506884,
+            "chord": 0.12000000000000001,
+            "gamma": 0.002638524272924532,
+            "alphaI": -27.224348024579783,
+            "alphaEff": 27.228107618582563,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.004397540454874219,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.0013225762444727686,
+            "fy": 8.162955523768177E-05,
+            "fz": 0.010996914477612873,
+            "mx": -0.004945120792133684,
+            "my": -0.0004219898766461721,
+            "mz": -0.0005879718651324035,
+            "downwashTrefftz": 9.503090194754627
+          },
+          {
+            "j": 2,
+            "y": -0.4491193303988691,
+            "eta": -0.9980429564419313,
+            "chord": 0.11999999999999998,
+            "gamma": 0.006893208392251326,
+            "alphaI": 3.4463773371139315,
+            "alphaEff": -3.43662395533293,
+            "reLocal": 1009283.2874745899,
+            "clLocal": 0.011488680653752211,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.0010413105142760787,
+            "fy": 0.00038616381890903804,
+            "fz": 0.04786535577371555,
+            "mx": -0.021498155359041055,
+            "my": -0.0020043232222218934,
+            "mz": -0.000441807533191483,
+            "downwashTrefftz": -1.2030126359750535
+          },
+          {
+            "j": 3,
+            "y": -0.4483069162539496,
+            "eta": -0.9962375916754436,
+            "chord": 0.12,
+            "gamma": 0.0071239083186288455,
+            "alphaI": 0.1788403384351678,
+            "alphaEff": -0.16014568782724672,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.011873180531048076,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.002599835308612214,
+            "fy": 0.0005192812905769274,
+            "fz": 0.0692120150107004,
+            "mx": -0.03102942543686365,
+            "my": -0.0027114881099863,
+            "mz": -0.001130824173721484,
+            "downwashTrefftz": -0.062427054821492835
+          },
+          {
+            "j": 4,
+            "y": -0.44722445878595407,
+            "eta": -0.9938321306354534,
+            "chord": 0.11999999999999998,
+            "gamma": 0.00800041003304749,
+            "alphaI": 0.1882018455087117,
+            "alphaEff": -0.15767700045724245,
+            "reLocal": 1009283.2874745899,
+            "clLocal": 0.013334016721745818,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.0036293734155325896,
+            "fy": 0.0007081645351114411,
+            "fz": 0.0998549860523478,
+            "mx": -0.04465919053856855,
+            "my": -0.003727443728239048,
+            "mz": -0.0015766614454866992,
+            "downwashTrefftz": -0.06569483724913443
+          },
+          {
+            "j": 5,
+            "y": -0.44587261002678547,
+            "eta": -0.9908280222817455,
+            "chord": 0.12,
+            "gamma": 0.008909872207624916,
+            "alphaI": 0.05223489021930603,
+            "alphaEff": -0.00706778115591309,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.014849787012708195,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.004950551708411359,
+            "fy": 0.0009127588626638698,
+            "fz": 0.13578183741930253,
+            "mx": -0.060543411093757,
+            "my": -0.004852462991139606,
+            "mz": -0.00214845992755857,
+            "downwashTrefftz": -0.018233416374893462
+          },
+          {
+            "j": 6,
+            "y": -0.4442521842795875,
+            "eta": -0.9872270761768611,
+            "chord": 0.12,
+            "gamma": 0.00989924801173495,
+            "alphaI": -0.009102429072118438,
+            "alphaEff": 0.07162972882387031,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.016498746686224915,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.006491302589613187,
+            "fy": 0.0011407625694413222,
+            "fz": 0.1780731051547083,
+            "mx": -0.07911181158481385,
+            "my": -0.006137349632632406,
+            "mz": -0.0028114799823680224,
+            "downwashTrefftz": 0.0031773471447543826
+          },
+          {
+            "j": 7,
+            "y": -0.44236415762823866,
+            "eta": -0.9830314613960858,
+            "chord": 0.12,
+            "gamma": 0.010957255808647573,
+            "alphaI": -0.04155909151976657,
+            "alphaEff": 0.12405431014082537,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.018262093014412624,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.008270431276334943,
+            "fy": 0.0013927767687492703,
+            "fz": 0.22710862251992936,
+            "mx": -0.10046762251995521,
+            "my": -0.007597802128394306,
+            "mz": -0.0035716835737825536,
+            "downwashTrefftz": 0.014506859623151614
+          },
+          {
+            "j": 8,
+            "y": -0.4402096673493958,
+            "eta": -0.9782437052208794,
+            "chord": 0.12000000000000001,
+            "gamma": 0.012079696664170188,
+            "alphaI": -0.05759147780323357,
+            "alphaEff": 0.16253751658068635,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.02013282777361698,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.010298146055271417,
+            "fy": 0.001669230885293398,
+            "fz": 0.2832993449534099,
+            "mx": -0.12471450513035469,
+            "my": -0.00925070344112359,
+            "mz": -0.0044307460620525395,
+            "downwashTrefftz": 0.020103218175113135
+          },
+          {
+            "j": 9,
+            "y": -0.4377900112274413,
+            "eta": -0.9728666916165363,
+            "chord": 0.12,
+            "gamma": 0.013263989722114825,
+            "alphaI": -0.06391287120707222,
+            "alphaEff": 0.19365477581214718,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.022106649536858043,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.012583761352205937,
+            "fy": 0.0019699249339757,
+            "fz": 0.34704087701188807,
+            "mx": -0.15193493264943234,
+            "my": -0.011111653476105115,
+            "mz": -0.00538951575194912,
+            "downwashTrefftz": 0.022309800739329855
+          },
+          {
+            "j": 10,
+            "y": -0.43510664677274635,
+            "eta": -0.9669036594949919,
+            "chord": 0.12000000000000001,
+            "gamma": 0.01450849342653647,
+            "alphaI": -0.0641596210039366,
+            "alphaEff": 0.22089330049554892,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.02418082237756078,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.015135306704228456,
+            "fy": 0.002294092349516966,
+            "fz": 0.41871511905779063,
+            "mx": -0.1821901612043263,
+            "my": -0.013195172761426947,
+            "mz": -0.006447830311299025,
+            "downwashTrefftz": 0.022395932667008067
+          },
+          {
+            "j": 11,
+            "y": -0.43216119034372097,
+            "eta": -0.9603582007638243,
+            "chord": 0.12000000000000001,
+            "gamma": 0.015811984453067106,
+            "alphaI": -0.060437401658328574,
+            "alphaEff": 0.24620021901663802,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.026353307421778507,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.01795956191132122,
+            "fy": 0.00264043242908607,
+            "fz": 0.49868594548209794,
+            "mx": -0.21551768165969926,
+            "my": -0.015514661537844258,
+            "mz": -0.007604531441290082,
+            "downwashTrefftz": 0.021096633005762293
+          },
+          {
+            "j": 12,
+            "y": -0.4289554161731802,
+            "eta": -0.9532342581626227,
+            "chord": 0.12,
+            "gamma": 0.017173343731423853,
+            "alphaI": -0.054038396514986486,
+            "alphaEff": 0.2707017315565801,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.02862223955237309,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.021062084707348296,
+            "fy": 0.003007151470211682,
+            "fz": 0.5872934599378429,
+            "mx": -0.25192822840317286,
+            "my": -0.01808231965535675,
+            "mz": -0.008857481305309306,
+            "downwashTrefftz": 0.01886295883369487
+          },
+          {
+            "j": 13,
+            "y": -0.42549125529961296,
+            "eta": -0.9455361228880287,
+            "chord": 0.12,
+            "gamma": 0.018591371509989265,
+            "alphaI": -0.04579775480750331,
+            "alphaEff": 0.2950616197733003,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.03098561918331544,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.02444721639115844,
+            "fy": 0.003392018602712449,
+            "fz": 0.6848477425239548,
+            "mx": -0.29140279339876496,
+            "my": -0.020909060591440733,
+            "mz": -0.010203573667922978,
+            "downwashTrefftz": 0.01598643222823989
+          },
+          {
+            "j": 14,
+            "y": -0.42177079440399595,
+            "eta": -0.9372684320088798,
+            "chord": 0.12,
+            "gamma": 0.020064683590028685,
+            "alphaI": -0.03628068336216804,
+            "alphaEff": 0.31967045437982633,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.033441139316714476,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.02811809143931547,
+            "fy": 0.0037924386249504867,
+            "fz": 0.7916232137042937,
+            "mx": -0.3338901646041872,
+            "my": -0.024004435640287383,
+            "mz": -0.011638750759528398,
+            "downwashTrefftz": 0.012664347590867172
+          },
+          {
+            "j": 15,
+            "y": -0.4177962745528558,
+            "eta": -0.9284361656730128,
+            "chord": 0.12000000000000001,
+            "gamma": 0.021591659433554334,
+            "alphaI": -0.02588562977702984,
+            "alphaEff": 0.34475094484907914,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.035986099055923884,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.032076640111241825,
+            "fy": 0.004205541598974451,
+            "fz": 0.9078536593310907,
+            "mx": -0.37930502333090105,
+            "my": -0.02737657087612781,
+            "mz": -0.013158021050663788,
+            "downwashTrefftz": 0.009035789371229126
+          },
+          {
+            "j": 16,
+            "y": -0.41357008984833393,
+            "eta": -0.9190446441074087,
+            "chord": 0.11999999999999998,
+            "gamma": 0.023170424498331843,
+            "alphaI": -0.014903672641359233,
+            "alphaEff": 0.37041953988802884,
+            "reLocal": 1009283.2874745899,
+            "clLocal": 0.038617374163886414,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.03632357495389621,
+            "fy": 0.00462828850569921,
+            "fz": 1.033727820240715,
+            "mx": -0.4275265698621575,
+            "my": -0.03103211611124289,
+            "mz": -0.014755474370977847,
+            "downwashTrefftz": 0.005202363164622373
+          },
+          {
+            "j": 17,
+            "y": -0.4090947859860692,
+            "eta": -0.909099524413487,
+            "chord": 0.12000000000000001,
+            "gamma": 0.024798856092303208,
+            "alphaI": -0.003553936694572712,
+            "alphaEff": 0.3967240964575516,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.04133142682050534,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.04085839617110392,
+            "fy": 0.005057593097584481,
+            "fz": 1.1693861993900923,
+            "mx": -0.47839795093539406,
+            "my": -0.03497620843138031,
+            "mz": -0.01642430920973456,
+            "downwashTrefftz": 0.0012405579345547584
+          },
+          {
+            "j": 18,
+            "y": -0.4043730587217657,
+            "eta": -0.8986067971594793,
+            "chord": 0.12000000000000001,
+            "gamma": 0.026474606098158,
+            "alphaI": 0.007994704350556284,
+            "alphaEff": 0.4236678880876602,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.044124343496929994,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.04567940632241796,
+            "fy": 0.005490460175120515,
+            "fz": 1.3149189211807049,
+            "mx": -0.531726402056392,
+            "my": -0.03921245029474414,
+            "mz": -0.018156867773434778,
+            "downwashTrefftz": -0.002790678272814442
+          },
+          {
+            "j": 19,
+            "y": -0.3994077522473708,
+            "eta": -0.8875727827719351,
+            "chord": 0.12,
+            "gamma": 0.028195136249105898,
+            "alphaI": 0.019610086887998958,
+            "alphaEff": 0.45122552075783234,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.04699189374850983,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.05078373927134434,
+            "fy": 0.005924141612129001,
+            "fz": 1.4703647732121559,
+            "mx": -0.5872841327717206,
+            "my": -0.0437429042270002,
+            "mz": -0.019944680308369447,
+            "downwashTrefftz": -0.006845211655955006
+          },
+          {
+            "j": 20,
+            "y": -0.39420185747784,
+            "eta": -0.8760041277285331,
+            "chord": 0.12,
+            "gamma": 0.029957762934829397,
+            "alphaI": 0.031188254340786644,
+            "alphaEff": 0.47935391024036433,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.04992960489138233,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.05616740138211912,
+            "fy": 0.006356312517330678,
+            "fz": 1.6357114787494869,
+            "mx": -0.6448099371672134,
+            "my": -0.04856810578605361,
+            "mz": -0.02177851709804069,
+            "downwashTrefftz": -0.01088675452392281
+          },
+          {
+            "j": 21,
+            "y": -0.3887585102495213,
+            "eta": -0.8639078005544917,
+            "chord": 0.12000000000000001,
+            "gamma": 0.031759709207841935,
+            "alphaI": 0.04264817377668625,
+            "alphaEff": 0.5080001839011467,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.05293284867973655,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.06182531870382978,
+            "fy": 0.006785271430795153,
+            "fz": 1.8108972152815404,
+            "mx": -0.7040114881998834,
+            "my": -0.053687095635919765,
+            "mz": -0.023648444761997265,
+            "downwashTrefftz": -0.014887021047317596
+          },
+          {
+            "j": 22,
+            "y": -0.38308098943124536,
+            "eta": -0.8512910876249895,
+            "chord": 0.12,
+            "gamma": 0.033598161993944504,
+            "alphaI": 0.05392859176382303,
+            "alphaEff": 0.537107651542942,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.055996936656574174,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.06775137961006837,
+            "fy": 0.007210170649486461,
+            "fz": 1.995813357407766,
+            "mx": -0.7645682507607826,
+            "my": -0.05909747030623384,
+            "mz": -0.025543881900206403,
+            "downwashTrefftz": -0.01882462974485216
+          },
+          {
+            "j": 23,
+            "y": -0.37717271494925675,
+            "eta": -0.8381615887761262,
+            "chord": 0.12,
+            "gamma": 0.03547033260688807,
+            "alphaI": 0.06498638791102215,
+            "alphaEff": 0.5666205764876404,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.05911722101148011,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.07393845784920712,
+            "fy": 0.007631286028105637,
+            "fz": 2.190308379461909,
+            "mx": -0.8261349247063781,
+            "my": -0.06479544976773821,
+            "mz": -0.02745364768077671,
+            "downwashTrefftz": -0.022684528760511524
+          },
+          {
+            "j": 24,
+            "y": -0.371037245727179,
+            "eta": -0.8245272127270644,
+            "chord": 0.12,
+            "gamma": 0.03737351855070839,
+            "alphaI": 0.07579606052468378,
+            "alphaEff": 0.5964882368386158,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.06228919758451398,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.08037839550672946,
+            "fy": 0.008050340440440281,
+            "fz": 2.394192800766397,
+            "mx": -0.8883453047759194,
+            "my": -0.07077595840167022,
+            "mz": -0.029365995425437285,
+            "downwashTrefftz": -0.026457816323932654
+          },
+          {
+            "j": 25,
+            "y": -0.36467827754225146,
+            "eta": -0.8103961723161142,
+            "chord": 0.11999999999999997,
+            "gamma": 0.03930516420689953,
+            "alphaI": 0.08635016462530996,
+            "alphaEff": 0.62666862968521,
+            "reLocal": 1009283.2874745899,
+            "clLocal": 0.06550860701149923,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.08706191772735253,
+            "fy": 0.008470902340082045,
+            "fz": 2.607244985799037,
+            "mx": -0.9508164173380396,
+            "my": -0.077032714173977,
+            "mz": -0.03126862120125781,
+            "downwashTrefftz": -0.030141893647015888
+          },
+          {
+            "j": 26,
+            "y": -0.35809964079913154,
+            "eta": -0.7957769795536256,
+            "chord": 0.12,
+            "gamma": 0.041262917199601686,
+            "alphaI": 0.09666066200363069,
+            "alphaEff": 0.6571321015330988,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.0687715286660028,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.09397843908583285,
+            "fy": 0.008898891900151647,
+            "fz": 2.829217507338678,
+            "mx": -1.0131527604439268,
+            "my": -0.08355831859038378,
+            "mz": -0.033148634238821306,
+            "downwashTrefftz": -0.033740936182414694
+          },
+          {
+            "j": 27,
+            "y": -0.35130529822260226,
+            "eta": -0.7806784404946716,
+            "chord": 0.12000000000000001,
+            "gamma": 0.04324467570635025,
+            "alphaI": 0.1067612690395968,
+            "alphaEff": 0.6878651655331932,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.07207445951058375,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.10111570153210327,
+            "fy": 0.00934324439482807,
+            "fz": 3.0598436133686016,
+            "mx": -1.074950426298403,
+            "my": -0.09034433693455415,
+            "mz": -0.03499247058970591,
+            "downwashTrefftz": -0.03726671316696897
+          },
+          {
+            "j": 28,
+            "y": -0.34429934247057487,
+            "eta": -0.7651096499346108,
+            "chord": 0.12,
+            "gamma": 0.04524861908208664,
+            "alphaI": 0.11671103766625876,
+            "alphaEff": 0.7188747731788323,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.07541436513681107,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.10845914881954732,
+            "fy": 0.009816807961790224,
+            "fz": 3.298843047673955,
+            "mx": -1.1358008085168656,
+            "my": -0.09738135384963804,
+            "mz": -0.03678572180632925,
+            "downwashTrefftz": -0.04073983761390668
+          },
+          {
+            "j": 29,
+            "y": -0.33708599366882486,
+            "eta": -0.7490799859307218,
+            "chord": 0.12,
+            "gamma": 0.047273208299256915,
+            "alphaI": 0.1265996528087319,
+            "alphaEff": 0.7501933047309235,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.07878868049876153,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.11599087751481009,
+            "fy": 0.01033759817964162,
+            "fz": 3.5459259190944863,
+            "mx": -1.1952934533754875,
+            "my": -0.10465898257448626,
+            "mz": -0.038512832428569385,
+            "downwashTrefftz": -0.04419161546788117
+          },
+          {
+            "j": 30,
+            "y": -0.3296695968689459,
+            "eta": -0.7325991041532128,
+            "chord": 0.12000000000000001,
+            "gamma": 0.04931712904966175,
+            "alphaI": 0.13655560780589188,
+            "alphaEff": 0.7818842576401379,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.08219521508276957,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.12368786468519288,
+            "fy": 0.010930609097183517,
+            "fz": 3.8007920452697035,
+            "mx": -1.2530172783473583,
+            "my": -0.1121657946832498,
+            "mz": -0.040156580424491106,
+            "downwashTrefftz": -0.04766689936549766
+          },
+          {
+            "j": 31,
+            "y": -0.3220546194310533,
+            "eta": -0.7156769320690071,
+            "chord": 0.12,
+            "gamma": 0.05137910219422487,
+            "alphaI": 0.14675497638142063,
+            "alphaEff": 0.8140526908545305,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.08563183699037479,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.13151940206292873,
+            "fy": 0.011625985340683476,
+            "fz": 4.063119735825446,
+            "mx": -1.3085584310513263,
+            "my": -0.1198890902826204,
+            "mz": -0.041697598328773566,
+            "downwashTrefftz": -0.05122715063084607
+          },
+          {
+            "j": 32,
+            "y": -0.31424564833281327,
+            "eta": -0.6983236629618073,
+            "chord": 0.11999999999999997,
+            "gamma": 0.05345727671579702,
+            "alphaI": 0.1573299344720141,
+            "alphaEff": 0.8468437117021754,
+            "reLocal": 1009283.2874745899,
+            "clLocal": 0.08909546119299505,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.13945142261164212,
+            "fy": 0.012377836187515732,
+            "fz": 4.332516805282887,
+            "mx": -1.3614867428782305,
+            "my": -0.12781393312839495,
+            "mz": -0.04312069111861992,
+            "downwashTrefftz": -0.054918507369671445
+          },
+          {
+            "j": 33,
+            "y": -0.3062473874064192,
+            "eta": -0.6805497497920427,
+            "chord": 0.12,
+            "gamma": 0.055548675081445203,
+            "alphaI": 0.16828730796000482,
+            "alphaEff": 0.8802014025914008,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.09258112513574202,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.14745533349745468,
+            "fy": 0.013116216983446111,
+            "fz": 4.608468717877311,
+            "mx": -1.4113438455363936,
+            "my": -0.13592265633911954,
+            "mz": -0.044414795948719187,
+            "downwashTrefftz": -0.058743352264394914
+          },
+          {
+            "j": 34,
+            "y": -0.29806465450517894,
+            "eta": -0.6623658989003975,
+            "chord": 0.12,
+            "gamma": 0.057649260804085264,
+            "alphaI": 0.17956941987904518,
+            "alphaEff": 0.9140303497474771,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.09608210134014211,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.15550627972326128,
+            "fy": 0.013823293714056408,
+            "fz": 4.890336083263641,
+            "mx": -1.4576487224164683,
+            "my": -0.14419522418180467,
+            "mz": -0.045567997161241595,
+            "downwashTrefftz": -0.06268155225570991
+          },
+          {
+            "j": 35,
+            "y": -0.28970237860142,
+            "eta": -0.643783063558711,
+            "chord": 0.12000000000000002,
+            "gamma": 0.05975415010926022,
+            "alphaI": 0.19110542398743074,
+            "alphaEff": 0.9482120756736698,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.09959025018210035,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.16357865351735015,
+            "fy": 0.014480193980008178,
+            "fz": 5.1773649745182,
+            "mx": -1.4999072675329883,
+            "my": -0.1526093160340299,
+            "mz": -0.04656914146298291,
+            "downwashTrefftz": -0.06670837734000834
+          },
+          {
+            "j": 36,
+            "y": -0.2811655968174612,
+            "eta": -0.624812437372136,
+            "chord": 0.11999999999999998,
+            "gamma": 0.06185767954229381,
+            "alphaI": 0.20280729114563495,
+            "alphaEff": 0.9826045592084263,
+            "reLocal": 1009283.2874745899,
+            "clLocal": 0.1030961325704897,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.1716469931710703,
+            "fy": 0.015064891022784412,
+            "fz": 5.46868768182764,
+            "mx": -1.5376189645759557,
+            "my": -0.16114027485609206,
+            "mz": -0.0474082934550871,
+            "downwashTrefftz": -0.07079309955084145
+          },
+          {
+            "j": 37,
+            "y": -0.27245945139143857,
+            "eta": -0.60546544753653,
+            "chord": 0.11999999999999998,
+            "gamma": 0.06395347073152943,
+            "alphaI": 0.21456722762098424,
+            "alphaEff": 1.0170416468908554,
+            "reLocal": 1009283.2874745899,
+            "clLocal": 0.1065891178858824,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.17968714698123495,
+            "fy": 0.015552676240914911,
+            "fz": 5.763325012889618,
+            "mx": -1.5702841808751857,
+            "my": -0.16976115784204437,
+            "mz": -0.048077069263068144,
+            "downwashTrefftz": -0.07489809177724589
+          },
+          {
+            "j": 38,
+            "y": -0.2635891865798128,
+            "eta": -0.5857537479551393,
+            "chord": 0.12,
+            "gamma": 0.06603452746393261,
+            "alphaI": 0.22625694078930356,
+            "alphaEff": 1.0513330499507576,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.11005754577322102,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.1876774147479609,
+            "fy": 0.015917219440377533,
+            "fz": 6.06019228964203,
+            "mx": -1.597412518039322,
+            "my": -0.17844289999409751,
+            "mz": -0.048568866209278694,
+            "downwashTrefftz": -0.0789785714452641
+          },
+          {
+            "j": 39,
+            "y": -0.25456014549842576,
+            "eta": -0.5656892122187236,
+            "chord": 0.12,
+            "gamma": 0.06809338431982374,
+            "alphaI": 0.2377288988956246,
+            "alphaEff": 1.0852660702590848,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.11348897386637291,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.19559973827604574,
+            "fy": 0.016132337369546522,
+            "fz": 6.358112281598516,
+            "mx": -1.6185327782387755,
+            "my": -0.18715461111381496,
+            "mz": -0.04887899752642402,
+            "downwashTrefftz": -0.08298304025738722
+          },
+          {
+            "j": 40,
+            "y": -0.24537776690400742,
+            "eta": -0.5452839264533496,
+            "chord": 0.12,
+            "gamma": 0.070122322296367,
+            "alphaI": 0.24881999992080478,
+            "alphaEff": 1.118609856214919,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.11687053716061167,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.2034407742803556,
+            "fy": 0.016174460378015034,
+            "fz": 6.655836418909662,
+            "mx": -1.633204385656974,
+            "my": -0.19586401664398634,
+            "mz": -0.04900468520346594,
+            "downwashTrefftz": -0.08685456486860146
+          },
+          {
+            "j": 41,
+            "y": -0.23604758191807176,
+            "eta": -0.5245501820401592,
+            "chord": 0.12000000000000001,
+            "gamma": 0.07211366620475447,
+            "alphaI": 0.2593578642581727,
+            "alphaEff": 1.1511226966649195,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.12018944367459077,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.21119281081768307,
+            "fy": 0.016025567726289297,
+            "fz": 6.952076317308075,
+            "mx": -1.641030137563733,
+            "my": -0.20453804786078805,
+            "mz": -0.048944919102997704,
+            "downwashTrefftz": -0.09053297344491269
+          },
+          {
+            "j": 42,
+            "y": -0.22657521069517628,
+            "eta": -0.5035004682115027,
+            "chord": 0.12,
+            "gamma": 0.07406018976431893,
+            "alphaI": 0.2691700547534324,
+            "alphaEff": 1.1825617786801934,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.12343364960719821,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.21885452329370475,
+            "fy": 0.015677190049816714,
+            "fz": 7.2455483397824985,
+            "mx": -1.6416701336740462,
+            "my": -0.21314356690128045,
+            "mz": -0.048700155196162595,
+            "downwashTrefftz": -0.09395807406441618
+          },
+          {
+            "j": 43,
+            "y": -0.21696635903755093,
+            "eta": -0.4821474645278908,
+            "chord": 0.12,
+            "gamma": 0.07595575848084614,
+            "alphaI": 0.27814019636470955,
+            "alphaEff": 1.2126941641119786,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.12659293080141024,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.22642369578734264,
+            "fy": 0.015198778035212438,
+            "fz": 7.535046018942328,
+            "mx": -1.6348591454165964,
+            "my": -0.2216483573697563,
+            "mz": -0.048266572436054644,
+            "downwashTrefftz": -0.09708924417415488
+          },
+          {
+            "j": 44,
+            "y": -0.207226814958136,
+            "eta": -0.4605040332403022,
+            "chord": 0.12000000000000001,
+            "gamma": 0.07779595523161573,
+            "alphaI": 0.28628633614661025,
+            "alphaEff": 1.2414968301323497,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.1296599253860262,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.23388223094288116,
+            "fy": 0.014719855615067482,
+            "fz": 7.819516859601189,
+            "mx": -1.6204204403756046,
+            "my": -0.23002198071801533,
+            "mz": -0.04763401981830089,
+            "downwashTrefftz": -0.0999327833845921
+          },
+          {
+            "j": 45,
+            "y": -0.19736244519409998,
+            "eta": -0.4385832115424443,
+            "chord": 0.12,
+            "gamma": 0.07957802335877807,
+            "alphaI": 0.29372853046628306,
+            "alphaEff": 1.269038301492078,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.1326300389312968,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.24119780735386442,
+            "fy": 0.014284933896349761,
+            "fz": 8.098070998467861,
+            "mx": -1.5982612638897369,
+            "my": -0.23823589210211565,
+            "mz": -0.0467953317061021,
+            "downwashTrefftz": -0.10253059927362229
+          },
+          {
+            "j": 46,
+            "y": -0.1873791916729362,
+            "eta": -0.4163982037176358,
+            "chord": 0.12000000000000001,
+            "gamma": 0.08130041482276583,
+            "alphaI": 0.30062159110758296,
+            "alphaEff": 1.2954174322308072,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.13550069137127635,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.24833391414095987,
+            "fy": 0.013924899404054572,
+            "fz": 8.369946781671587,
+            "mx": -1.5683594191778534,
+            "my": -0.24626331002379,
+            "mz": -0.04574489522638825,
+            "downwashTrefftz": -0.10493673134822859
+          },
+          {
+            "j": 47,
+            "y": -0.17728306793326792,
+            "eta": -0.39396237318503974,
+            "chord": 0.12,
+            "gamma": 0.08296243326373641,
+            "alphaI": 0.30714089867285316,
+            "alphaEff": 1.3207567521039605,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.13827072210622735,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.2552506308587265,
+            "fy": 0.013662773625205632,
+            "fz": 8.63448335635971,
+            "mx": -1.5307527215022547,
+            "my": -0.2540790119097462,
+            "mz": -0.04447870466224323,
+            "downwashTrefftz": -0.10721239898751138
+          },
+          {
+            "j": 48,
+            "y": -0.1670801555025176,
+            "eta": -0.3712892344500389,
+            "chord": 0.12,
+            "gamma": 0.08456387527343048,
+            "alphaI": 0.3134719394036657,
+            "alphaEff": 1.34519043509477,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.14093979212238414,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.26190493926039204,
+            "fy": 0.013512435449703993,
+            "fz": 8.891089296304877,
+            "mx": -1.4855291380987825,
+            "my": -0.26165892335760105,
+            "mz": -0.04299469125125153,
+            "downwashTrefftz": -0.10942234910412232
+          },
+          {
+            "j": 49,
+            "y": -0.1567766002336219,
+            "eta": -0.34839244496360405,
+            "chord": 0.11999999999999998,
+            "gamma": 0.08610465167429969,
+            "alphaI": 0.31980029451968717,
+            "alphaEff": 1.368853272090092,
+            "reLocal": 1009283.2874745899,
+            "clLocal": 0.14350775279049952,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.26825115012892525,
+            "fy": 0.013478821719792738,
+            "fz": 9.139206050266852,
+            "mx": -1.4328177982931638,
+            "my": -0.26897954168445987,
+            "mz": -0.04129296898239183,
+            "downwashTrefftz": -0.11163136176432238
+          },
+          {
+            "j": 50,
+            "y": -0.14637860860300012,
+            "eta": -0.3252857968955557,
+            "chord": 0.12,
+            "gamma": 0.0875843916009019,
+            "alphaI": 0.32630342712617905,
+            "alphaEff": 1.39187178438884,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.14597398600150316,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.27424102225134617,
+            "fy": 0.01355921980183582,
+            "fz": 9.378266951081704,
+            "mx": -1.372781441230341,
+            "my": -0.2760172384915133,
+            "mz": -0.03937594617353912,
+            "downwashTrefftz": -0.11390138327786406
+          },
+          {
+            "j": 51,
+            "y": -0.13589244397200462,
+            "eta": -0.3019832088266768,
+            "chord": 0.12000000000000001,
+            "gamma": 0.08900201691993852,
+            "alphaI": 0.33314489456747565,
+            "alphaEff": 1.4143580071691177,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.14833669486656417,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.27982309709830155,
+            "fy": 0.013745117742130384,
+            "fz": 9.607650978065696,
+            "mx": -1.3056105991797773,
+            "my": -0.2827474892653886,
+            "mz": -0.03724828904877811,
+            "downwashTrefftz": -0.1162895059282364
+          },
+          {
+            "j": 52,
+            "y": -0.12532442281410616,
+            "eta": -0.27849871736468024,
+            "chord": 0.12,
+            "gamma": 0.09035520213266972,
+            "alphaI": 0.34045908642828515,
+            "alphaEff": 1.4364166231535207,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.15059200355444954,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.2849436576017553,
+            "fy": 0.014001715682639453,
+            "fz": 9.82662351885412,
+            "mx": -1.231519005246758,
+            "my": -0.28914408113019785,
+            "mz": -0.03491839115573718,
+            "downwashTrefftz": -0.11884264053011033
+          },
+          {
+            "j": 53,
+            "y": -0.11468091091008654,
+            "eta": -0.2548464686890811,
+            "chord": 0.12,
+            "gamma": 0.09163949540268762,
+            "alphaI": 0.34823594475201913,
+            "alphaEff": 1.4580324558025748,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.15273249233781272,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.28957317756383766,
+            "fy": 0.014095430242516116,
+            "fz": 10.03423329934859,
+            "mx": -1.1507377118424258,
+            "my": -0.2951781096570655,
+            "mz": -0.03241129764559356,
+            "downwashTrefftz": -0.12155727619431606
+          },
+          {
+            "j": 54,
+            "y": -0.1039683195135301,
+            "eta": -0.23104071003006676,
+            "chord": 0.12,
+            "gamma": 0.09284813187520226,
+            "alphaI": 0.3562889997154504,
+            "alphaEff": 1.4788860876657084,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.15474688645867044,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.293718210311531,
+            "fy": 0.013911949873077631,
+            "fz": 10.229285321031988,
+            "mx": -1.0635238698605123,
+            "my": -0.30081783202102275,
+            "mz": -0.029750661452078875,
+            "downwashTrefftz": -0.12436832267343499
+          },
+          {
+            "j": 55,
+            "y": -0.09319310148892457,
+            "eta": -0.20709578108649893,
+            "chord": 0.11999999999999998,
+            "gamma": 0.09397296348796763,
+            "alphaI": 0.3643910905047041,
+            "alphaEff": 1.4986975497124497,
+            "reLocal": 1009283.2874745899,
+            "clLocal": 0.1566216058132794,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.29739269380848093,
+            "fy": 0.013468282378885496,
+            "fz": 10.410444686456765,
+            "mx": -0.970183450537049,
+            "my": -0.30602963090305574,
+            "mz": -0.026953436629890228,
+            "downwashTrefftz": -0.12719648588479465
+          },
+          {
+            "j": 56,
+            "y": -0.08236174742469668,
+            "eta": -0.18302610538821473,
+            "chord": 0.12,
+            "gamma": 0.09500524620624717,
+            "alphaI": 0.3723376701591571,
+            "alphaEff": 1.5172114928700386,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.15834207701041197,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.30060502210677936,
+            "fy": 0.01277610540567848,
+            "fz": 10.576325685366832,
+            "mx": -0.8710860602255819,
+            "my": -0.3107790155074669,
+            "mz": -0.024036110680726096,
+            "downwashTrefftz": -0.1299703654696386
+          },
+          {
+            "j": 57,
+            "y": -0.0714807817235242,
+            "eta": -0.15884618160783143,
+            "chord": 0.12000000000000001,
+            "gamma": 0.0959360094745547,
+            "alphaI": 0.37993864529858573,
+            "alphaEff": 1.534188875069999,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.15989334912425782,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.3033617447248311,
+            "fy": 0.011842433883391866,
+            "fz": 10.725536631404044,
+            "mx": -0.7666707494787874,
+            "my": -0.31503148833685646,
+            "mz": -0.021015195751758742,
+            "downwashTrefftz": -0.1326236063205439
+          },
+          {
+            "j": 58,
+            "y": -0.06055675867228006,
+            "eta": -0.1345705748272889,
+            "chord": 0.12000000000000001,
+            "gamma": 0.09675630923882106,
+            "alphaI": 0.38701180126340995,
+            "alphaEff": 1.5494016104324886,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.16126051539803507,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.3056699991954422,
+            "fy": 0.010671137828407224,
+            "fz": 10.85671405297693,
+            "mx": -0.6574480857527392,
+            "my": -0.3187534398769518,
+            "mz": -0.01790735719560866,
+            "downwashTrefftz": -0.1350926035224091
+          },
+          {
+            "j": 59,
+            "y": -0.04959625849397484,
+            "eta": -0.1102139077643884,
+            "chord": 0.12,
+            "gamma": 0.0974574399710038,
+            "alphaI": 0.3933776714195164,
+            "alphaEff": 1.5626285702679152,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.16242906661833967,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.3075392476439807,
+            "fy": 0.009263918684267139,
+            "fz": 10.968553098132158,
+            "mx": -0.543999600244163,
+            "my": -0.3219130498370658,
+            "mz": -0.014729379854592266,
+            "downwashTrefftz": -0.13731471140197915
+          },
+          {
+            "j": 60,
+            "y": -0.03860588338407635,
+            "eta": -0.08579085196461399,
+            "chord": 0.12,
+            "gamma": 0.09803114159955154,
+            "alphaI": 0.3988552855630065,
+            "alphaEff": 1.5736524107527086,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.16338523599925256,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.308982728695282,
+            "fy": 0.007620930009297267,
+            "fz": 11.059837674228245,
+            "mx": -0.42697501338681537,
+            "my": -0.3244812083565332,
+            "mz": -0.011498029210197207,
+            "downwashTrefftz": -0.13922675944113336
+          },
+          {
+            "j": 61,
+            "y": -0.027592253533594256,
+            "eta": -0.061316118963542665,
+            "chord": 0.12000000000000002,
+            "gamma": 0.09846982840514425,
+            "alphaI": 0.4032584533602568,
+            "alphaEff": 1.5822568489065705,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.1641163806752404,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.3100189180868446,
+            "fy": 0.0057411434003794455,
+            "fz": 11.129473037010618,
+            "mx": -0.3070873264900109,
+            "my": -0.32643247320046365,
+            "mz": -0.00822983114054145,
+            "downwashTrefftz": -0.14076375495272944
+          },
+          {
+            "j": 62,
+            "y": -0.016562003141324336,
+            "eta": -0.03680445142516507,
+            "chord": 0.11999999999999998,
+            "gamma": 0.0987668717969059,
+            "alphaI": 0.40639235572582755,
+            "alphaEff": 1.5882240976741218,
+            "reLocal": 1009283.2874745899,
+            "clLocal": 0.1646114529948432,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.3106733426072636,
+            "fy": 0.0036225108557144795,
+            "fz": 11.17652410091409,
+            "mx": -0.18510564843033878,
+            "my": -0.3277460770613713,
+            "mz": -0.00494077248978157,
+            "downwashTrefftz": -0.14185769324703443
+          },
+          {
+            "j": 63,
+            "y": -0.005521776417655273,
+            "eta": -0.01227061426145604,
+            "chord": 0.12,
+            "gamma": 0.09891699556547226,
+            "alphaI": 0.40805027728641313,
+            "alphaEff": 1.5913322213936532,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.1648616592757871,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.3109813858533617,
+            "fy": 0.00126194250482702,
+            "fz": 11.20026516089932,
+            "mx": -0.06184536154918603,
+            "my": -0.32840697297365656,
+            "mz": -0.0016458980643422334,
+            "downwashTrefftz": -0.14243641704647483
+          },
+          {
+            "j": 64,
+            "y": 0.0055217764176552185,
+            "eta": 0.01227061426145604,
+            "chord": 0.12,
+            "gamma": 0.09891699556547218,
+            "alphaI": 0.4080502772863981,
+            "alphaEff": 1.5913322213936683,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.16486165927578697,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.3109813858533639,
+            "fy": -0.0012619425048270197,
+            "fz": 11.200265160899312,
+            "mx": 0.06184536154918598,
+            "my": -0.32840697297365645,
+            "mz": 0.0016458980643422455,
+            "downwashTrefftz": -0.1424364170464696
+          },
+          {
+            "j": 65,
+            "y": 0.016562003141324284,
+            "eta": 0.03680445142516507,
+            "chord": 0.11999999999999998,
+            "gamma": 0.09876687179690581,
+            "alphaI": 0.40639235572582183,
+            "alphaEff": 1.5882240976741275,
+            "reLocal": 1009283.2874745899,
+            "clLocal": 0.16461145299484306,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.3106733426072667,
+            "fy": -0.003622510855714487,
+            "fz": 11.17652410091408,
+            "mx": 0.18510564843033864,
+            "my": -0.3277460770613719,
+            "mz": 0.00494077248978162,
+            "downwashTrefftz": -0.1418576932470324
+          },
+          {
+            "j": 66,
+            "y": 0.0275922535335942,
+            "eta": 0.061316118963542665,
+            "chord": 0.12000000000000002,
+            "gamma": 0.09846982840514418,
+            "alphaI": 0.40325845336025745,
+            "alphaEff": 1.5822568489065698,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.16411638067524026,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.3100189180868407,
+            "fy": -0.005741143400379433,
+            "fz": 11.129473037010609,
+            "mx": 0.30708732649001064,
+            "my": -0.32643247320046287,
+            "mz": 0.008229831140541342,
+            "downwashTrefftz": -0.14076375495272966
+          },
+          {
+            "j": 67,
+            "y": 0.03860588338407629,
+            "eta": 0.08579085196461399,
+            "chord": 0.12,
+            "gamma": 0.09803114159955144,
+            "alphaI": 0.3988552855630103,
+            "alphaEff": 1.5736524107527048,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.1633852359992524,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.3089827286952847,
+            "fy": -0.00762093000929727,
+            "fz": 11.059837674228232,
+            "mx": 0.42697501338681493,
+            "my": -0.3244812083565334,
+            "mz": 0.01149802921019731,
+            "downwashTrefftz": -0.1392267594411347
+          },
+          {
+            "j": 68,
+            "y": 0.04959625849397478,
+            "eta": 0.1102139077643884,
+            "chord": 0.12,
+            "gamma": 0.09745743997100363,
+            "alphaI": 0.39337767141949853,
+            "alphaEff": 1.5626285702679332,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.1624290666183394,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.3075392476439834,
+            "fy": -0.009263918684267125,
+            "fz": 10.968553098132139,
+            "mx": 0.5439996002441622,
+            "my": -0.32191304983706537,
+            "mz": 0.014729379854592396,
+            "downwashTrefftz": -0.1373147114019729
+          },
+          {
+            "j": 69,
+            "y": 0.060556758672280005,
+            "eta": 0.1345705748272889,
+            "chord": 0.12000000000000001,
+            "gamma": 0.09675630923882103,
+            "alphaI": 0.3870118012634241,
+            "alphaEff": 1.5494016104324746,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.16126051539803501,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.3056699991954421,
+            "fy": -0.010671137828407251,
+            "fz": 10.85671405297693,
+            "mx": 0.657448085752739,
+            "my": -0.3187534398769526,
+            "mz": 0.01790735719560865,
+            "downwashTrefftz": -0.135092603522414
+          },
+          {
+            "j": 70,
+            "y": 0.07148078172352415,
+            "eta": 0.15884618160783143,
+            "chord": 0.12000000000000001,
+            "gamma": 0.0959360094745546,
+            "alphaI": 0.3799386452985775,
+            "alphaEff": 1.5341888750700072,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.15989334912425765,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.3033617447248322,
+            "fy": -0.011842433883391856,
+            "fz": 10.725536631404031,
+            "mx": 0.7666707494787867,
+            "my": -0.31503148833685607,
+            "mz": 0.02101519575175882,
+            "downwashTrefftz": -0.13262360632054104
+          },
+          {
+            "j": 71,
+            "y": 0.08236174742469662,
+            "eta": 0.18302610538821473,
+            "chord": 0.12,
+            "gamma": 0.09500524620624715,
+            "alphaI": 0.37233767015916536,
+            "alphaEff": 1.5172114928700302,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.15834207701041192,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.3006050221067792,
+            "fy": -0.01277610540567849,
+            "fz": 10.576325685366829,
+            "mx": 0.8710860602255817,
+            "my": -0.31077901550746706,
+            "mz": 0.02403611068072608,
+            "downwashTrefftz": -0.1299703654696415
+          },
+          {
+            "j": 72,
+            "y": 0.09319310148892451,
+            "eta": 0.20709578108649893,
+            "chord": 0.11999999999999998,
+            "gamma": 0.0939729634879676,
+            "alphaI": 0.36439109050471213,
+            "alphaEff": 1.4986975497124417,
+            "reLocal": 1009283.2874745899,
+            "clLocal": 0.15662160581327939,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.29739269380848016,
+            "fy": -0.013468282378885494,
+            "fz": 10.410444686456765,
+            "mx": 0.9701834505370487,
+            "my": -0.30602963090305574,
+            "mz": 0.026953436629890155,
+            "downwashTrefftz": -0.12719648588479746
+          },
+          {
+            "j": 73,
+            "y": 0.10396831951353006,
+            "eta": 0.23104071003006676,
+            "chord": 0.12,
+            "gamma": 0.09284813187520213,
+            "alphaI": 0.35628899971544137,
+            "alphaEff": 1.4788860876657175,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.15474688645867024,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.2937182103115296,
+            "fy": -0.013911949873077567,
+            "fz": 10.229285321031973,
+            "mx": 1.063523869860511,
+            "my": -0.3008178320210213,
+            "mz": 0.029750661452078737,
+            "downwashTrefftz": -0.12436832267343184
+          },
+          {
+            "j": 74,
+            "y": 0.1146809109100865,
+            "eta": 0.2548464686890811,
+            "chord": 0.12,
+            "gamma": 0.09163949540268755,
+            "alphaI": 0.34823594475202413,
+            "alphaEff": 1.4580324558025697,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.15273249233781258,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.28957317756383827,
+            "fy": -0.01409543024251608,
+            "fz": 10.034233299348582,
+            "mx": 1.150737711842425,
+            "my": -0.2951781096570647,
+            "mz": 0.03241129764559365,
+            "downwashTrefftz": -0.12155727619431778
+          },
+          {
+            "j": 75,
+            "y": 0.1253244228141061,
+            "eta": 0.27849871736468024,
+            "chord": 0.12,
+            "gamma": 0.09035520213266957,
+            "alphaI": 0.34045908642826994,
+            "alphaEff": 1.4364166231535358,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.1505920035544493,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.28494365760175555,
+            "fy": -0.014001715682639375,
+            "fz": 9.826623518854104,
+            "mx": 1.2315190052467557,
+            "my": -0.28914408113019624,
+            "mz": 0.03491839115573722,
+            "downwashTrefftz": -0.11884264053010503
+          },
+          {
+            "j": 76,
+            "y": 0.13589244397200456,
+            "eta": 0.3019832088266768,
+            "chord": 0.12000000000000001,
+            "gamma": 0.08900201691993848,
+            "alphaI": 0.3331448945674829,
+            "alphaEff": 1.4143580071691104,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.14833669486656412,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.27982309709830105,
+            "fy": -0.013745117742130344,
+            "fz": 9.607650978065692,
+            "mx": 1.3056105991797766,
+            "my": -0.28274748926538784,
+            "mz": 0.03724828904877804,
+            "downwashTrefftz": -0.11628950592823895
+          },
+          {
+            "j": 77,
+            "y": 0.14637860860300006,
+            "eta": 0.3252857968955557,
+            "chord": 0.12,
+            "gamma": 0.08758439160090184,
+            "alphaI": 0.3263034271261767,
+            "alphaEff": 1.3918717843888424,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.14597398600150308,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.27424102225134644,
+            "fy": -0.01355921980183577,
+            "fz": 9.3782669510817,
+            "mx": 1.37278144123034,
+            "my": -0.2760172384915123,
+            "mz": 0.03937594617353915,
+            "downwashTrefftz": -0.11390138327786323
+          },
+          {
+            "j": 78,
+            "y": 0.15677660023362183,
+            "eta": 0.34839244496360405,
+            "chord": 0.11999999999999998,
+            "gamma": 0.08610465167429968,
+            "alphaI": 0.3198002945196926,
+            "alphaEff": 1.3688532720900866,
+            "reLocal": 1009283.2874745899,
+            "clLocal": 0.1435077527904995,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.2682511501289219,
+            "fy": -0.013478821719792684,
+            "fz": 9.139206050266852,
+            "mx": 1.4328177982931636,
+            "my": -0.2689795416844588,
+            "mz": 0.04129296898239132,
+            "downwashTrefftz": -0.11163136176432427
+          },
+          {
+            "j": 79,
+            "y": 0.16708015550251754,
+            "eta": 0.3712892344500389,
+            "chord": 0.12,
+            "gamma": 0.08456387527343044,
+            "alphaI": 0.31347193940366225,
+            "alphaEff": 1.3451904350947737,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.14093979212238408,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.2619049392603924,
+            "fy": -0.013512435449703972,
+            "fz": 8.891089296304873,
+            "mx": 1.485529138098782,
+            "my": -0.26165892335760066,
+            "mz": 0.042994691251251584,
+            "downwashTrefftz": -0.10942234910412112
+          },
+          {
+            "j": 80,
+            "y": 0.17728306793326787,
+            "eta": 0.39396237318503974,
+            "chord": 0.12,
+            "gamma": 0.08296243326373644,
+            "alphaI": 0.3071408986728732,
+            "alphaEff": 1.3207567521039405,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.1382707221062274,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.25525063085872723,
+            "fy": -0.013662773625205661,
+            "fz": 8.634483356359713,
+            "mx": 1.5307527215022556,
+            "my": -0.2540790119097467,
+            "mz": 0.044478704662243365,
+            "downwashTrefftz": -0.10721239898751839
+          },
+          {
+            "j": 81,
+            "y": 0.1873791916729361,
+            "eta": 0.4163982037176358,
+            "chord": 0.12000000000000001,
+            "gamma": 0.08130041482276572,
+            "alphaI": 0.3006215911075772,
+            "alphaEff": 1.295417432230813,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.13550069137127618,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.24833391414095862,
+            "fy": -0.013924899404054518,
+            "fz": 8.369946781671574,
+            "mx": 1.5683594191778512,
+            "my": -0.24626331002378907,
+            "mz": 0.04574489522638801,
+            "downwashTrefftz": -0.10493673134822656
+          },
+          {
+            "j": 82,
+            "y": 0.19736244519409993,
+            "eta": 0.4385832115424443,
+            "chord": 0.12,
+            "gamma": 0.07957802335877785,
+            "alphaI": 0.2937285304662604,
+            "alphaEff": 1.2690383014921007,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.13263003893129643,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.24119780735386734,
+            "fy": -0.0142849338963497,
+            "fz": 8.09807099846784,
+            "mx": 1.5982612638897327,
+            "my": -0.23823589210211465,
+            "mz": 0.046795331706102686,
+            "downwashTrefftz": -0.10253059927361438
+          },
+          {
+            "j": 83,
+            "y": 0.207226814958136,
+            "eta": 0.4605040332403022,
+            "chord": 0.12000000000000001,
+            "gamma": 0.0777959552316156,
+            "alphaI": 0.2862863361466085,
+            "alphaEff": 1.2414968301323515,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.12965992538602597,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.2338822309428804,
+            "fy": -0.014719855615067428,
+            "fz": 7.819516859601177,
+            "mx": 1.6204204403756022,
+            "my": -0.23002198071801447,
+            "mz": 0.04763401981830075,
+            "downwashTrefftz": -0.09993278338459147
+          },
+          {
+            "j": 84,
+            "y": 0.2169663590375509,
+            "eta": 0.4821474645278908,
+            "chord": 0.12,
+            "gamma": 0.07595575848084608,
+            "alphaI": 0.2781401963647239,
+            "alphaEff": 1.2126941641119642,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.12659293080141015,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.22642369578734084,
+            "fy": -0.015198778035212392,
+            "fz": 7.535046018942322,
+            "mx": 1.634859145416595,
+            "my": -0.2216483573697556,
+            "mz": 0.04826657243605425,
+            "downwashTrefftz": -0.09708924417415991
+          },
+          {
+            "j": 85,
+            "y": 0.22657521069517625,
+            "eta": 0.5035004682115027,
+            "chord": 0.12,
+            "gamma": 0.07406018976431876,
+            "alphaI": 0.2691700547534201,
+            "alphaEff": 1.1825617786802056,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.12343364960719794,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.21885452329370647,
+            "fy": -0.015677190049816644,
+            "fz": 7.245548339782481,
+            "mx": 1.6416701336740425,
+            "my": -0.21314356690127947,
+            "mz": 0.04870015519616299,
+            "downwashTrefftz": -0.09395807406441188
+          },
+          {
+            "j": 86,
+            "y": 0.23604758191807168,
+            "eta": 0.5245501820401592,
+            "chord": 0.12000000000000001,
+            "gamma": 0.07211366620475437,
+            "alphaI": 0.25935786425818463,
+            "alphaEff": 1.1511226966649075,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.1201894436745906,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.21119281081768176,
+            "fy": -0.01602556772628923,
+            "fz": 6.952076317308065,
+            "mx": 1.6410301375637302,
+            "my": -0.2045380478607872,
+            "mz": 0.04894491910299739,
+            "downwashTrefftz": -0.09053297344491686
+          },
+          {
+            "j": 87,
+            "y": 0.24537776690400726,
+            "eta": 0.5452839264533496,
+            "chord": 0.12,
+            "gamma": 0.07012232229636678,
+            "alphaI": 0.24881999992078174,
+            "alphaEff": 1.1186098562149418,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.1168705371606113,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.2034407742803551,
+            "fy": -0.016174460378014864,
+            "fz": 6.655836418909641,
+            "mx": 1.633204385656969,
+            "my": -0.19586401664398426,
+            "mz": 0.04900468520346583,
+            "downwashTrefftz": -0.08685456486859341
+          },
+          {
+            "j": 88,
+            "y": 0.25456014549842565,
+            "eta": 0.5656892122187236,
+            "chord": 0.12,
+            "gamma": 0.0680933843198236,
+            "alphaI": 0.2377288988956309,
+            "alphaEff": 1.0852660702590784,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.11348897386637267,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.19559973827604604,
+            "fy": -0.01613233736954642,
+            "fz": 6.358112281598503,
+            "mx": 1.6185327782387724,
+            "my": -0.18715461111381382,
+            "mz": 0.04887899752642411,
+            "downwashTrefftz": -0.08298304025738941
+          },
+          {
+            "j": 89,
+            "y": 0.26358918657981273,
+            "eta": 0.5857537479551393,
+            "chord": 0.12,
+            "gamma": 0.06603452746393235,
+            "alphaI": 0.22625694078927394,
+            "alphaEff": 1.0513330499507871,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.11005754577322058,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.1876774147479609,
+            "fy": -0.01591721944037734,
+            "fz": 6.060192289642005,
+            "mx": 1.5974125180393157,
+            "my": -0.17844289999409532,
+            "mz": 0.048568866209278715,
+            "downwashTrefftz": -0.07897857144525375
+          },
+          {
+            "j": 90,
+            "y": 0.27245945139143857,
+            "eta": 0.60546544753653,
+            "chord": 0.11999999999999998,
+            "gamma": 0.06395347073152931,
+            "alphaI": 0.2145672276209892,
+            "alphaEff": 1.0170416468908505,
+            "reLocal": 1009283.2874745899,
+            "clLocal": 0.1065891178858822,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.17968714698123445,
+            "fy": -0.015552676240914807,
+            "fz": 5.763325012889608,
+            "mx": 1.570284180875183,
+            "my": -0.16976115784204326,
+            "mz": 0.04807706926306802,
+            "downwashTrefftz": -0.07489809177724763
+          },
+          {
+            "j": 91,
+            "y": 0.2811655968174612,
+            "eta": 0.624812437372136,
+            "chord": 0.11999999999999998,
+            "gamma": 0.06185767954229374,
+            "alphaI": 0.20280729114564308,
+            "alphaEff": 0.982604559208418,
+            "reLocal": 1009283.2874745899,
+            "clLocal": 0.1030961325704896,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.17164699317106996,
+            "fy": -0.015064891022784344,
+            "fz": 5.468687681827634,
+            "mx": 1.537618964575954,
+            "my": -0.16114027485609134,
+            "mz": 0.047408293455087,
+            "downwashTrefftz": -0.07079309955084429
+          },
+          {
+            "j": 92,
+            "y": 0.2897023786014199,
+            "eta": 0.643783063558711,
+            "chord": 0.12000000000000002,
+            "gamma": 0.059754150109260155,
+            "alphaI": 0.1911054239874346,
+            "alphaEff": 0.948212075673666,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.09959025018210024,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.16357865351734874,
+            "fy": -0.014480193980008091,
+            "fz": 5.177364974518196,
+            "mx": 1.4999072675329868,
+            "my": -0.15260931603402897,
+            "mz": 0.04656914146298251,
+            "downwashTrefftz": -0.06670837734000969
+          },
+          {
+            "j": 93,
+            "y": 0.2980646545051789,
+            "eta": 0.6623658989003975,
+            "chord": 0.12,
+            "gamma": 0.057649260804085216,
+            "alphaI": 0.17956941987905162,
+            "alphaEff": 0.9140303497474707,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.09608210134014203,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.15550627972326203,
+            "fy": -0.013823293714056386,
+            "fz": 4.890336083263636,
+            "mx": 1.4576487224164667,
+            "my": -0.14419522418180442,
+            "mz": 0.045567997161241824,
+            "downwashTrefftz": -0.06268155225571218
+          },
+          {
+            "j": 94,
+            "y": 0.3062473874064192,
+            "eta": 0.6805497497920427,
+            "chord": 0.12,
+            "gamma": 0.05554867508144511,
+            "alphaI": 0.1682873079600038,
+            "alphaEff": 0.8802014025914018,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.09258112513574186,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.14745533349745443,
+            "fy": -0.01311621698344606,
+            "fz": 4.608468717877303,
+            "mx": 1.4113438455363914,
+            "my": -0.135922656339119,
+            "mz": 0.04441479594871911,
+            "downwashTrefftz": -0.05874335226439456
+          },
+          {
+            "j": 95,
+            "y": 0.3142456483328132,
+            "eta": 0.6983236629618073,
+            "chord": 0.11999999999999997,
+            "gamma": 0.053457276715796885,
+            "alphaI": 0.15732993447199894,
+            "alphaEff": 0.8468437117021905,
+            "reLocal": 1009283.2874745899,
+            "clLocal": 0.08909546119299483,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.13945142261164245,
+            "fy": -0.01237783618751564,
+            "fz": 4.332516805282876,
+            "mx": 1.361486742878227,
+            "my": -0.127813933128394,
+            "mz": 0.043120691118620026,
+            "downwashTrefftz": -0.05491850736966616
+          },
+          {
+            "j": 96,
+            "y": 0.3220546194310532,
+            "eta": 0.7156769320690071,
+            "chord": 0.12,
+            "gamma": 0.05137910219422477,
+            "alphaI": 0.1467549763814119,
+            "alphaEff": 0.8140526908545392,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.08563183699037462,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.13151940206292773,
+            "fy": -0.011625985340683384,
+            "fz": 4.063119735825439,
+            "mx": 1.308558431051324,
+            "my": -0.11988909028261946,
+            "mz": 0.04169759832877325,
+            "downwashTrefftz": -0.05122715063084304
+          },
+          {
+            "j": 97,
+            "y": 0.3296695968689458,
+            "eta": 0.7325991041532128,
+            "chord": 0.12000000000000001,
+            "gamma": 0.0493171290496617,
+            "alphaI": 0.13655560780590223,
+            "alphaEff": 0.7818842576401275,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.08219521508276949,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.12368786468519193,
+            "fy": -0.010930609097183465,
+            "fz": 3.8007920452696995,
+            "mx": 1.2530172783473572,
+            "my": -0.11216579468324929,
+            "mz": 0.04015658042449079,
+            "downwashTrefftz": -0.047666899365501274
+          },
+          {
+            "j": 98,
+            "y": 0.33708599366882486,
+            "eta": 0.7490799859307218,
+            "chord": 0.12,
+            "gamma": 0.0472732082992568,
+            "alphaI": 0.1265996528087304,
+            "alphaEff": 0.7501933047309249,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.07878868049876134,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.11599087751480987,
+            "fy": -0.010337598179641557,
+            "fz": 3.5459259190944783,
+            "mx": 1.1952934533754844,
+            "my": -0.10465898257448562,
+            "mz": 0.03851283242856932,
+            "downwashTrefftz": -0.04419161546788065
+          },
+          {
+            "j": 99,
+            "y": 0.3442993424705749,
+            "eta": 0.7651096499346108,
+            "chord": 0.12,
+            "gamma": 0.04524861908208651,
+            "alphaI": 0.11671103766626122,
+            "alphaEff": 0.7188747731788299,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.07541436513681085,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.10845914881954759,
+            "fy": -0.009816807961790186,
+            "fz": 3.298843047673945,
+            "mx": 1.1358008085168625,
+            "my": -0.09738135384963767,
+            "mz": 0.036785721806329344,
+            "downwashTrefftz": -0.04073983761390754
+          },
+          {
+            "j": 100,
+            "y": 0.35130529822260226,
+            "eta": 0.7806784404946716,
+            "chord": 0.12000000000000001,
+            "gamma": 0.04324467570635015,
+            "alphaI": 0.10676126903960215,
+            "alphaEff": 0.6878651655331879,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.07207445951058357,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.10111570153210368,
+            "fy": -0.009343244394828063,
+            "fz": 3.059843613368595,
+            "mx": 1.0749504262984009,
+            "my": -0.09034433693455411,
+            "mz": 0.03499247058970606,
+            "downwashTrefftz": -0.03726671316697084
+          },
+          {
+            "j": 101,
+            "y": 0.3580996407991315,
+            "eta": 0.7957769795536256,
+            "chord": 0.12,
+            "gamma": 0.04126291719960158,
+            "alphaI": 0.0966606620036201,
+            "alphaEff": 0.6571321015331093,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.06877152866600264,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.09397843908583292,
+            "fy": -0.008898891900151635,
+            "fz": 2.829217507338671,
+            "mx": 1.0131527604439243,
+            "my": -0.08355831859038365,
+            "mz": 0.03314863423882133,
+            "downwashTrefftz": -0.033740936182410995
+          },
+          {
+            "j": 102,
+            "y": 0.3646782775422514,
+            "eta": 0.8103961723161142,
+            "chord": 0.11999999999999997,
+            "gamma": 0.03930516420689946,
+            "alphaI": 0.08635016462530452,
+            "alphaEff": 0.6266686296852154,
+            "reLocal": 1009283.2874745899,
+            "clLocal": 0.06550860701149912,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.08706191772735236,
+            "fy": -0.00847090234008203,
+            "fz": 2.607244985799032,
+            "mx": 0.9508164173380379,
+            "my": -0.07703271417397686,
+            "mz": 0.03126862120125774,
+            "downwashTrefftz": -0.030141893647013994
+          },
+          {
+            "j": 103,
+            "y": 0.371037245727179,
+            "eta": 0.8245272127270644,
+            "chord": 0.12,
+            "gamma": 0.03737351855070834,
+            "alphaI": 0.07579606052469043,
+            "alphaEff": 0.5964882368386092,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.06228919758451391,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.08037839550672932,
+            "fy": -0.008050340440440278,
+            "fz": 2.3941928007663935,
+            "mx": 0.8883453047759182,
+            "my": -0.07077595840167018,
+            "mz": 0.029365995425437236,
+            "downwashTrefftz": -0.026457816323934978
+          },
+          {
+            "j": 104,
+            "y": 0.3771727149492568,
+            "eta": 0.8381615887761262,
+            "chord": 0.12,
+            "gamma": 0.03547033260688801,
+            "alphaI": 0.06498638791103645,
+            "alphaEff": 0.5666205764876262,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.05911722101148002,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.0739384578492067,
+            "fy": -0.0076312860281056135,
+            "fz": 2.1903083794619054,
+            "mx": 0.8261349247063767,
+            "my": -0.064795449767738,
+            "mz": 0.027453647680776558,
+            "downwashTrefftz": -0.022684528760516517
+          },
+          {
+            "j": 105,
+            "y": 0.3830809894312453,
+            "eta": 0.8512910876249895,
+            "chord": 0.12,
+            "gamma": 0.033598161993944414,
+            "alphaI": 0.0539285917638077,
+            "alphaEff": 0.5371076515429574,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.05599693665657403,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.06775137961006866,
+            "fy": -0.00721017064948643,
+            "fz": 1.9958133574077612,
+            "mx": 0.7645682507607807,
+            "my": -0.05909747030623359,
+            "mz": 0.02554388190020652,
+            "downwashTrefftz": -0.01882462974484681
+          },
+          {
+            "j": 106,
+            "y": 0.38875851024952124,
+            "eta": 0.8639078005544917,
+            "chord": 0.12000000000000001,
+            "gamma": 0.03175970920784186,
+            "alphaI": 0.04264817377668539,
+            "alphaEff": 0.5080001839011475,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.052932848679736424,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.06182531870382938,
+            "fy": -0.0067852714307951,
+            "fz": 1.810897215281536,
+            "mx": 0.7040114881998817,
+            "my": -0.05368709563591934,
+            "mz": 0.023648444761997112,
+            "downwashTrefftz": -0.014887021047317298
+          },
+          {
+            "j": 107,
+            "y": 0.3942018574778399,
+            "eta": 0.8760041277285331,
+            "chord": 0.12,
+            "gamma": 0.0299577629348293,
+            "alphaI": 0.03118825434076838,
+            "alphaEff": 0.4793539102403826,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.049929604891382165,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.05616740138211927,
+            "fy": -0.006356312517330631,
+            "fz": 1.6357114787494818,
+            "mx": 0.6448099371672112,
+            "my": -0.048568105786053264,
+            "mz": 0.021778517098040757,
+            "downwashTrefftz": -0.010886754523916436
+          },
+          {
+            "j": 108,
+            "y": 0.3994077522473708,
+            "eta": 0.8875727827719351,
+            "chord": 0.12,
+            "gamma": 0.028195136249105832,
+            "alphaI": 0.019610086888005356,
+            "alphaEff": 0.45122552075782596,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.04699189374850972,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.05078373927134425,
+            "fy": -0.005924141612128958,
+            "fz": 1.4703647732121523,
+            "mx": 0.5872841327717192,
+            "my": -0.04374290422699987,
+            "mz": 0.019944680308369413,
+            "downwashTrefftz": -0.00684521165595724
+          },
+          {
+            "j": 109,
+            "y": 0.40437305872176565,
+            "eta": 0.8986067971594793,
+            "chord": 0.12000000000000001,
+            "gamma": 0.026474606098157966,
+            "alphaI": 0.007994704350552308,
+            "alphaEff": 0.42366788808766415,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.04412434349692994,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.04567940632241771,
+            "fy": -0.0054904601751204745,
+            "fz": 1.3149189211807029,
+            "mx": 0.5317264020563912,
+            "my": -0.03921245029474384,
+            "mz": 0.018156867773434674,
+            "downwashTrefftz": -0.0027906782728130547
+          },
+          {
+            "j": 110,
+            "y": 0.4090947859860692,
+            "eta": 0.909099524413487,
+            "chord": 0.12000000000000001,
+            "gamma": 0.02479885609230317,
+            "alphaI": -0.003553936694569926,
+            "alphaEff": 0.3967240964575488,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.04133142682050528,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.040858396171103775,
+            "fy": -0.005057593097584443,
+            "fz": 1.1693861993900907,
+            "mx": 0.4783979509353934,
+            "my": -0.03497620843138005,
+            "mz": 0.01642430920973451,
+            "downwashTrefftz": 0.001240557934553786
+          },
+          {
+            "j": 111,
+            "y": 0.41357008984833393,
+            "eta": 0.9190446441074087,
+            "chord": 0.11999999999999998,
+            "gamma": 0.023170424498331812,
+            "alphaI": -0.01490367264134971,
+            "alphaEff": 0.37041953988801934,
+            "reLocal": 1009283.2874745899,
+            "clLocal": 0.03861737416388636,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.03632357495389594,
+            "fy": -0.004628288505699175,
+            "fz": 1.0337278202407136,
+            "mx": 0.42752656986215687,
+            "my": -0.031032116111242652,
+            "mz": 0.014755474370977743,
+            "downwashTrefftz": 0.005202363164619048
+          },
+          {
+            "j": 112,
+            "y": 0.41779627455285573,
+            "eta": 0.9284361656730128,
+            "chord": 0.12000000000000001,
+            "gamma": 0.021591659433554275,
+            "alphaI": -0.025885629777053106,
+            "alphaEff": 0.3447509448491024,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.03598609905592379,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.03207664011124183,
+            "fy": -0.004205541598974423,
+            "fz": 0.9078536593310886,
+            "mx": 0.3793050233309,
+            "my": -0.02737657087612764,
+            "mz": 0.013158021050663792,
+            "downwashTrefftz": 0.009035789371237248
+          },
+          {
+            "j": 113,
+            "y": 0.4217707944039959,
+            "eta": 0.9372684320088798,
+            "chord": 0.12,
+            "gamma": 0.020064683590028644,
+            "alphaI": -0.036280683362173376,
+            "alphaEff": 0.31967045437983166,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.033441139316714406,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.028118091439315495,
+            "fy": -0.003792438624950469,
+            "fz": 0.7916232137042921,
+            "mx": 0.33389016460418647,
+            "my": -0.024004435640287272,
+            "mz": 0.011638750759528409,
+            "downwashTrefftz": 0.012664347590869035
+          },
+          {
+            "j": 114,
+            "y": 0.4254912552996129,
+            "eta": 0.9455361228880287,
+            "chord": 0.12,
+            "gamma": 0.018591371509989244,
+            "alphaI": -0.045797754807514295,
+            "alphaEff": 0.2950616197733113,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.030985619183315407,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.024447216391158346,
+            "fy": -0.003392018602712438,
+            "fz": 0.6848477425239541,
+            "mx": 0.29140279339876474,
+            "my": -0.020909060591440667,
+            "mz": 0.010203573667922936,
+            "downwashTrefftz": 0.015986432228243728
+          },
+          {
+            "j": 115,
+            "y": 0.4289554161731802,
+            "eta": 0.9532342581626227,
+            "chord": 0.12,
+            "gamma": 0.01717334373142384,
+            "alphaI": -0.05403839651497894,
+            "alphaEff": 0.27070173155657257,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.028622239552373065,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.021062084707348334,
+            "fy": -0.0030071514702116765,
+            "fz": 0.5872934599378423,
+            "mx": 0.25192822840317264,
+            "my": -0.01808231965535672,
+            "mz": 0.008857481305309325,
+            "downwashTrefftz": 0.018862958833692232
+          },
+          {
+            "j": 116,
+            "y": 0.43216119034372097,
+            "eta": 0.9603582007638243,
+            "chord": 0.12000000000000001,
+            "gamma": 0.015811984453067095,
+            "alphaI": -0.06043740165832025,
+            "alphaEff": 0.2462002190166297,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.02635330742177849,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.017959561911321167,
+            "fy": -0.002640432429086062,
+            "fz": 0.4986859454820977,
+            "mx": 0.21551768165969917,
+            "my": -0.015514661537844211,
+            "mz": 0.007604531441290061,
+            "downwashTrefftz": 0.021096633005759386
+          },
+          {
+            "j": 117,
+            "y": 0.43510664677274635,
+            "eta": 0.9669036594949919,
+            "chord": 0.12000000000000001,
+            "gamma": 0.014508493426536448,
+            "alphaI": -0.06415962100393892,
+            "alphaEff": 0.22089330049555123,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.02418082237756074,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.015135306704228435,
+            "fy": -0.0022940923495169555,
+            "fz": 0.41871511905778996,
+            "mx": 0.18219016120432602,
+            "my": -0.013195172761426888,
+            "mz": 0.006447830311299018,
+            "downwashTrefftz": 0.02239593266700888
+          },
+          {
+            "j": 118,
+            "y": 0.4377900112274413,
+            "eta": 0.9728666916165363,
+            "chord": 0.12,
+            "gamma": 0.013263989722114806,
+            "alphaI": -0.06391287120705474,
+            "alphaEff": 0.1936547758121297,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.022106649536858012,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.012583761352205926,
+            "fy": -0.0019699249339756916,
+            "fz": 0.34704087701188757,
+            "mx": 0.15193493264943211,
+            "my": -0.011111653476105068,
+            "mz": 0.005389515751949116,
+            "downwashTrefftz": 0.022309800739323756
+          },
+          {
+            "j": 119,
+            "y": 0.44020966734939576,
+            "eta": 0.9782437052208794,
+            "chord": 0.12000000000000001,
+            "gamma": 0.01207969666417018,
+            "alphaI": -0.05759147780325746,
+            "alphaEff": 0.16253751658071025,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.020132827773616965,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.010298146055271372,
+            "fy": -0.0016692308852933914,
+            "fz": 0.2832993449534098,
+            "mx": 0.12471450513035463,
+            "my": -0.009250703441123555,
+            "mz": 0.00443074606205252,
+            "downwashTrefftz": 0.020103218175121475
+          },
+          {
+            "j": 120,
+            "y": 0.44236415762823866,
+            "eta": 0.9830314613960858,
+            "chord": 0.12,
+            "gamma": 0.010957255808647547,
+            "alphaI": -0.041559091519772655,
+            "alphaEff": 0.12405431014083146,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.01826209301441258,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.008270431276334927,
+            "fy": -0.0013927767687492614,
+            "fz": 0.22710862251992883,
+            "mx": 0.10046762251995499,
+            "my": -0.007597802128394257,
+            "mz": 0.003571683573782547,
+            "downwashTrefftz": 0.014506859623153737
+          },
+          {
+            "j": 121,
+            "y": 0.4442521842795875,
+            "eta": 0.9872270761768611,
+            "chord": 0.12,
+            "gamma": 0.009899248011734927,
+            "alphaI": -0.009102429072119523,
+            "alphaEff": 0.07162972882387139,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.016498746686224877,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.00649130258961318,
+            "fy": -0.0011407625694413157,
+            "fz": 0.17807310515470787,
+            "mx": 0.07911181158481365,
+            "my": -0.006137349632632371,
+            "mz": 0.00281147998236802,
+            "downwashTrefftz": 0.0031773471447547608
+          },
+          {
+            "j": 122,
+            "y": 0.44587261002678547,
+            "eta": 0.9908280222817455,
+            "chord": 0.12,
+            "gamma": 0.008909872207624901,
+            "alphaI": 0.052234890219314885,
+            "alphaEff": -0.007067781155921944,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.01484978701270817,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.004950551708411344,
+            "fy": -0.0009127588626638655,
+            "fz": 0.13578183741930228,
+            "mx": 0.0605434110937569,
+            "my": -0.004852462991139585,
+            "mz": 0.0021484599275585644,
+            "downwashTrefftz": -0.018233416374896554
+          },
+          {
+            "j": 123,
+            "y": 0.447224458785954,
+            "eta": 0.9938321306354534,
+            "chord": 0.11999999999999998,
+            "gamma": 0.008000410033047476,
+            "alphaI": 0.18820184550861493,
+            "alphaEff": -0.1576770004571457,
+            "reLocal": 1009283.2874745899,
+            "clLocal": 0.013334016721745796,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.0036293734155325857,
+            "fy": -0.0007081645351114384,
+            "fz": 0.09985498605234762,
+            "mx": 0.04465919053856847,
+            "my": -0.0037274437282390337,
+            "mz": 0.0015766614454866975,
+            "downwashTrefftz": -0.06569483724910065
+          },
+          {
+            "j": 124,
+            "y": 0.4483069162539496,
+            "eta": 0.9962375916754436,
+            "chord": 0.12,
+            "gamma": 0.007123908318628834,
+            "alphaI": 0.17884033843527014,
+            "alphaEff": -0.16014568782734906,
+            "reLocal": 1009283.2874745901,
+            "clLocal": 0.011873180531048057,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.0025998353086122087,
+            "fy": -0.0005192812905769254,
+            "fz": 0.06921201501070029,
+            "mx": 0.0310294254368636,
+            "my": -0.0027114881099862894,
+            "mz": 0.0011308241737214818,
+            "downwashTrefftz": -0.06242705482152855
+          },
+          {
+            "j": 125,
+            "y": 0.4491193303988691,
+            "eta": 0.9980429564419313,
+            "chord": 0.11999999999999998,
+            "gamma": 0.006893208392251316,
+            "alphaI": 3.4463773371139426,
+            "alphaEff": -3.436623955332941,
+            "reLocal": 1009283.2874745899,
+            "clLocal": 0.011488680653752196,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.0010413105142760772,
+            "fy": -0.000386163818909037,
+            "fz": 0.04786535577371547,
+            "mx": 0.021498155359041024,
+            "my": -0.002004323222221888,
+            "mz": 0.0004418075331914824,
+            "downwashTrefftz": -1.2030126359750573
+          },
+          {
+            "j": 126,
+            "y": 0.4496612118528097,
+            "eta": 0.9992471374506884,
+            "chord": 0.12000000000000001,
+            "gamma": 0.0026385242729245243,
+            "alphaI": -27.224348024579772,
+            "alphaEff": 27.228107618582552,
+            "reLocal": 1009283.2874745902,
+            "clLocal": 0.004397540454874206,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": -0.001322576244472757,
+            "fy": -8.162955523768035E-05,
+            "fz": 0.010996914477612842,
+            "mx": 0.004945120792133669,
+            "my": -0.0004219898766461648,
+            "mz": 0.0005879718651323985,
+            "downwashTrefftz": 9.503090194754623
+          },
+          {
+            "j": 127,
+            "y": 0.44993223420664596,
+            "eta": 0.9998494093481021,
+            "chord": 0.11999999999999998,
+            "gamma": 0.024962829846980925,
+            "alphaI": 312.9552567513619,
+            "alphaEff": -312.9545039870451,
+            "reLocal": 1009283.2874745899,
+            "clLocal": 0.041604716411634886,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "Unavailable \u2014 no polar method installed"
+            },
+            "fx": 0.07396607902356368,
+            "fy": -0.00029240591511708435,
+            "fz": 0.03468952493856662,
+            "mx": 0.015608574633573388,
+            "my": -0.0015085832017886478,
+            "mz": -0.03329803364609676,
+            "downwashTrefftz": -109.24199283470956
+          }
+        ],
+        "wallMs": 171.0349,
+        "platform": {
+          "os": "Microsoft Windows 10.0.28000",
+          "arch": "arm64",
+          "dotnet": "10.0.13"
+        },
+        "diagnostics": {
+          "residualInf": 7.105427357601002E-15,
+          "kappa1": 68.46067575604062
+        }
+      }
+    ],
+    "polarSamples": [],
+    "pruned": []
+  }
+}

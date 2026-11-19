@@ -263,6 +263,7 @@ public sealed class AuthoringSession : IDisposable
             sources.Clear(); designs.Clear(); accepted.Clear(); cursors.Clear(); redo.Clear(); operations.Clear();
             draft = null; recovery = null; current = null; activeImportReport = null;
             section = null;
+            InvalidateEnvelopeSize();
         }
     }
     private T Run<T>(string operation, Func<T> action, int? inputBytes = null, long? generation = null, string? editKind = null, string? stepKind = null)
@@ -575,6 +576,9 @@ public sealed class AuthoringSession : IDisposable
     string? current;
     string projectId = Guid.NewGuid().ToString("D");
     string? savedImageHash;
+    // Cached encoded byte length of EnvelopeCore() under sync; null whenever any envelope field mutates.
+    int? encodedEnvelopeBytes;
+    private void InvalidateEnvelopeSize() => encodedEnvelopeBytes = null;
     public static string[] Chunks(byte[] bytes) => Enumerable.Range(0, (bytes.Length + 2303) / 2304).Select(i => Convert.ToBase64String(bytes.Skip(i * 2304).Take(2304).ToArray())).ToArray();
     static byte[] Decode(string[] chunks) => chunks.SelectMany(Convert.FromBase64String).ToArray();
     AcceptedRow Current => accepted.Single(a => a.Id == current);
@@ -654,7 +658,7 @@ public sealed class AuthoringSession : IDisposable
         var prospective = new Envelope(RunRecord.Format(runs.Count), projectId, nextSources.ToArray(), nextDesigns.ToArray(), [.. accepted, row], [.. cursors, cursor], null) { Analysis = AnalysisCore() };
         NativeProject.Preflight(prospective, envelopeCap);
         designs.Clear(); designs.AddRange(nextDesigns); sources.Clear(); sources.AddRange(nextSources);
-        accepted.Add(row); current = id; cursors.Add(cursor); redo.Clear(); return id;
+        accepted.Add(row); current = id; cursors.Add(cursor); redo.Clear(); InvalidateEnvelopeSize(); return id;
     }
     private string? gestureDraftId;
     private int gestureFrames;
@@ -1100,6 +1104,7 @@ public sealed class AuthoringSession : IDisposable
                 operations.Add(operationId, (fresh.Payload, id));
                 draft = null;
                 recovery = null;
+                InvalidateEnvelopeSize();
                 return id;
             }
             catch
@@ -1140,6 +1145,7 @@ public sealed class AuthoringSession : IDisposable
                 operations.Add(operationId, (fresh.Payload, id));
                 draft = null;
                 recovery = null;
+                InvalidateEnvelopeSize();
                 Remember(fresh.Report);
                 return new(id, fresh.Report);
             }
@@ -1324,7 +1330,7 @@ public sealed class AuthoringSession : IDisposable
                 RequireAdmission(next, Key(next, draft));
                 string id = Commit(next, operationId, "apply");
                 operations.Add(operationId, (payload, id));
-                draft = null; recovery = null;
+                draft = null; recovery = null; InvalidateEnvelopeSize();
                 return new(id, ids.Count, firstDelta);
             }
             catch
@@ -1394,7 +1400,7 @@ public sealed class AuthoringSession : IDisposable
                 RequireAdmission(next, Key(next, draft));
                 string id = Commit(next, operationId, "apply");
                 operations.Add(operationId, (payload, id));
-                draft = null; recovery = null;
+                draft = null; recovery = null; InvalidateEnvelopeSize();
                 return Done(id);
             }
             catch
@@ -1488,7 +1494,7 @@ public sealed class AuthoringSession : IDisposable
                 RequireCertified(Key(plan.Parsed, draft), plan.Assessment!);
                 string id = Commit(plan.Parsed, operationId, "apply");
                 operations.Add(operationId, (payload, id));
-                draft = null; recovery = null;
+                draft = null; recovery = null; InvalidateEnvelopeSize();
                 pendingDeviationUm = report.DeviationMeters * 1e6;
                 return Done(id);
             }
@@ -1532,7 +1538,7 @@ public sealed class AuthoringSession : IDisposable
                 RequireCertified(Key(plan.Parsed, draft), AssessOwned(plan.Parsed));
                 string id = Commit(plan.Parsed, operationId, "apply");
                 operations.Add(operationId, (payload, id));
-                draft = null; recovery = null;
+                draft = null; recovery = null; InvalidateEnvelopeSize();
                 pendingDeviationUm = report.DeviationMeters * 1e6;
                 return new(id, report);
             }
@@ -1574,7 +1580,7 @@ public sealed class AuthoringSession : IDisposable
                 RequireCertified(Key(plan.Parsed, draft), plan.Assessment!);
                 string id = Commit(plan.Parsed, operationId, "apply");
                 operations.Add(operationId, (payload, id));
-                draft = null; recovery = null;
+                draft = null; recovery = null; InvalidateEnvelopeSize();
                 pendingDeviationUm = report.ChangeMeters * 1e6;
                 return new(id, report);
             }
@@ -1785,7 +1791,7 @@ public sealed class AuthoringSession : IDisposable
             string id;
             try { id = Commit(p, operationId, "apply"); }
             catch { pendingCurveFamily = null; throw; }   // a refusal (DSL-TIP-CHORD-MIN) keeps the draft owned but leaves no stale family
-            operations.Add(operationId, (payload, id)); draft = null; recovery = null; activeImportReport = null; section = null;
+            operations.Add(operationId, (payload, id)); draft = null; recovery = null; activeImportReport = null; section = null; InvalidateEnvelopeSize();
             if (gesture) { pendingMembers = gestureMembers.Length; Record("gesture.end", "OK", System.Diagnostics.Stopwatch.GetElapsedTime(gestureStarted).TotalMilliseconds, null, null, assessment.Key!.Generation, "cfdw-cv/2", frames: gestureFrames, curveFamily: family); gestureDraftId = null; gestureFrames = 0; }
             return id;
         }
@@ -1797,7 +1803,7 @@ public sealed class AuthoringSession : IDisposable
             Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(draft?.Id == draftId, "DSL-CONFLICT");
             string? family = gestureDraftId == draftId ? Channels.Family(draft!.Rail) : null;
             if (section is not null && draft!.Rail == "section") EndSection("section.cancel", "OK", null);
-            draft = null; recovery = null; activeImportReport = null;
+            draft = null; recovery = null; activeImportReport = null; InvalidateEnvelopeSize();
             if (gestureDraftId == draftId) { pendingMembers = gestureMembers.Length; Record("gesture.end", "NoChange", System.Diagnostics.Stopwatch.GetElapsedTime(gestureStarted).TotalMilliseconds, null, null, null, "cfdw-cv/2", frames: gestureFrames, curveFamily: family); gestureDraftId = null; gestureFrames = 0; }
         }
     }
@@ -1963,7 +1969,7 @@ public sealed class AuthoringSession : IDisposable
             if (draft.Bytes.AsSpan().SequenceEqual(BaseBytes(draft.Base)))
             {
                 EndSection("section.finish", "NoChange", draft.Generation);
-                draft = null; recovery = null; activeImportReport = null;
+                draft = null; recovery = null; activeImportReport = null; InvalidateEnvelopeSize();
                 return null;
             }
             int steps = state.Cursor;
@@ -2125,7 +2131,7 @@ public sealed class AuthoringSession : IDisposable
             var cursor = new CursorRow(cursors.Count, target, payload, op);
             NativeProject.Preflight(EnvelopeCore() with { Cursors = [.. cursors, cursor] }, envelopeCap);
             if (forward) redo.Pop(); else redo.Push(current!);
-            current = target; cursors.Add(cursor); operations.Add(op, (payload, target)); return target;
+            current = target; cursors.Add(cursor); operations.Add(op, (payload, target)); InvalidateEnvelopeSize(); return target;
         }
     }
     private SessionView SnapshotCore()
@@ -2145,7 +2151,7 @@ public sealed class AuthoringSession : IDisposable
                 ? new RecoveryRow(draft.Id, draft.Base, draft.Generation, "section", section.EntryProfile, Chunks(draft.Bytes), section.EntryProfile, draft.Assignment, draft.Intent)
                 : new RecoveryRow(draft!.Id, draft.Base, draft.Generation, draft.Rail, draft.VertexId, Chunks(draft.Bytes), draft.Profile, draft.Assignment, draft.Intent);
             NativeProject.Preflight(EnvelopeCore() with { Recovery = next }, envelopeCap);
-            recovery = next; return CopyRecovery(recovery)!;
+            recovery = next; InvalidateEnvelopeSize(); return CopyRecovery(recovery)!;
         }
     }
     private void ResumeRecoveryCore()
@@ -2174,7 +2180,7 @@ public sealed class AuthoringSession : IDisposable
             draft = new(recovery.DraftId, recovery.BaseAcceptedId, recovery.Generation, recovery.Rail, recovery.VertexId, bytes, recovery.Profile, recovery.Assignment, recovery.Intent);
         }
     }
-    private void DiscardRecoveryCore() { lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(draft is null, "DSL-DRAFT-OWNED"); recovery = null; } }
+    private void DiscardRecoveryCore() { lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(draft is null, "DSL-DRAFT-OWNED"); recovery = null; InvalidateEnvelopeSize(); } }
     static RecoveryRow? CopyRecovery(RecoveryRow? r) => r is null ? null : r with { Utf8Base64Chunks = r.Utf8Base64Chunks.ToArray() };
     private Envelope EnvelopeCore()
     {
@@ -2190,7 +2196,7 @@ public sealed class AuthoringSession : IDisposable
         lock (sync) { Guard.Require(!closed, "DOC-CLOSED");
             int pinned = PruneRunsAtSave();
             PreflightWithPinReport("save-image", EnvelopeCore());
-            byte[] image = NativeProject.Encode(EnvelopeCore()); string hash = Identity.Sha256(image);
+            byte[] image = NativeProject.Encode(EnvelopeCore()); encodedEnvelopeBytes = image.Length; string hash = Identity.Sha256(image);
             // Ruling 251: every save of a document with runs emits the pinned-run count and the image's byte size.
             // "captured": the image exists, whether it is written is the store.save event.
             if (runs.Count > 0) RecordCompareEvent("captured", null, new CompareEvent { Records = discrepancies.Count, PinnedRuns = pinned, DocumentBytes = image.Length }, "analysis.save");
@@ -2240,7 +2246,9 @@ public sealed class AuthoringSession : IDisposable
                 }
             }
             // Dirty-state identity is independent of original on-disk formatting/conflict token.
-            savedImageHash = Identity.Sha256(NativeProject.Encode(EnvelopeCore()));
+            byte[] encoded = NativeProject.Encode(EnvelopeCore());
+            savedImageHash = Identity.Sha256(encoded);
+            encodedEnvelopeBytes = encoded.Length;
         }
     }
 
@@ -2318,8 +2326,9 @@ public sealed class AuthoringSession : IDisposable
             var prospective = new AnalysisRecords([.. runs, run], polarSamples.ToArray(), prunedRuns.ToArray(), DiscrepanciesOrNull());
             RunRecord.CheckStore(prospective, AcceptedExists, AcceptedOrdinal);
             Guard.Require(RunRecord.Verify(run) && SurfaceMatches(run), "DOC-INTEGRITY");
-            PreflightWithPinReport("record-run", EnvelopeCore() with { Format = RunRecord.Format(runs.Count + 1), Analysis = prospective });
+            int bytes = PreflightWithPinReport("record-run", EnvelopeCore() with { Format = RunRecord.Format(runs.Count + 1), Analysis = prospective });
             runs.Add(run);
+            encodedEnvelopeBytes = bytes;
         }
     }
 
@@ -2399,8 +2408,9 @@ public sealed class AuthoringSession : IDisposable
                 }
                 var prospective = new AnalysisRecords(runs.ToArray(), polarSamples.ToArray(), prunedRuns.ToArray(), [.. discrepancies, record]);
                 RunRecord.CheckStore(prospective, AcceptedExists, AcceptedOrdinal);
-                PreflightWithPinReport("record-discrepancy", EnvelopeCore() with { Analysis = prospective });
+                int bytes = PreflightWithPinReport("record-discrepancy", EnvelopeCore() with { Analysis = prospective });
                 discrepancies.Add(record);
+                encodedEnvelopeBytes = bytes;
                 outcome = "recorded";
                 fields = CompareFields(record, discrepancies.Count);
                 return new DiscrepancyOutcome(record, true);
@@ -2415,11 +2425,24 @@ public sealed class AuthoringSession : IDisposable
         }
     });
 
-    // The document size is measured by encoding the image the next save would capture; a failed encode stays null ("not recorded").
+    // Test seam only: counts full envelope encodes performed inside CompareFields so tests can prove cache hits without timing flakes.
+    internal int CompareFieldsEncodeCount { get; private set; }
+
+    // The document size is measured by encoding the image the next save would capture (cached under sync until any envelope
+    // field mutates); a failed encode stays null ("not recorded").
     private CompareEvent CompareFields(DiscrepancyRecord record, int count)
     {
-        int? bytes = null;
-        try { bytes = NativeProject.Encode(EnvelopeCore()).Length; } catch (ContractError) { }
+        int? bytes = encodedEnvelopeBytes;
+        if (bytes is null)
+        {
+            try
+            {
+                CompareFieldsEncodeCount++;
+                bytes = NativeProject.Encode(EnvelopeCore()).Length;
+                encodedEnvelopeBytes = bytes;
+            }
+            catch (ContractError) { }
+        }
         return new()
         {
             BaseTier = runs.FirstOrDefault(run => run.RunId == record.BaseRunId)?.Tier,
@@ -2449,9 +2472,9 @@ public sealed class AuthoringSession : IDisposable
 
     // The size preflight. A DOC-SIZE refusal in a document that holds records is emitted with its pinned-run count, so it can
     // be told apart from an ordinary size refusal (Ruling 251).
-    private void PreflightWithPinReport(string operation, Envelope prospective)
+    private int PreflightWithPinReport(string operation, Envelope prospective)
     {
-        try { NativeProject.Preflight(prospective, envelopeCap); }
+        try { return NativeProject.PreflightBytes(prospective, envelopeCap); }
         catch (ContractError error) when (error.Code == "DOC-SIZE" && discrepancies.Count > 0)
         {
             RecordCompareEvent("DOC-SIZE", null, new CompareEvent { Records = discrepancies.Count, PinnedRuns = KeepPlan().Pinned }, "analysis.size");
@@ -2486,7 +2509,7 @@ public sealed class AuthoringSession : IDisposable
             if (keep[i]) { kept.Add(runs[i]); continue; }
             prunedRuns.Add(new PrunedRun(runs[i].RunId, keys[i], now)); pruned++;
         }
-        runs.Clear(); runs.AddRange(kept);
+        runs.Clear(); runs.AddRange(kept); InvalidateEnvelopeSize();
         // "planned": the prune is part of the captured image; whether that image was saved is the store.save event's
         // outcome, so this event never claims a completed save.
         RecordAnalysisEvent("analysis.prune", "planned", null, new AnalysisEvent { Pruned = pruned });
@@ -2591,11 +2614,13 @@ public static class NativeProject
     public static void Uuid(string id) => Guard.Require(Regex.IsMatch(id, @"\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z") && Guid.TryParseExact(id, "D", out _), "DOC-ID");
     static void Hash(string hash) => Guard.Require(Regex.IsMatch(hash, @"\A[0-9a-f]{64}\z"), "DOC-INTEGRITY");
     public static byte[] Encode(Envelope envelope) => JsonSerializer.SerializeToUtf8Bytes(envelope, Options);
-    public static void Preflight(Envelope envelope, int cap)
+    internal static int PreflightBytes(Envelope envelope, int cap)
     {
         byte[] bytes = Encode(envelope);
         Guard.Require(bytes.Length <= cap && FoilSource.Utf8.GetString(bytes).Split('\n').All(l => FoilSource.Utf8.GetByteCount(l.TrimEnd('\r')) <= 4096), "DOC-SIZE");
+        return bytes.Length;
     }
+    public static void Preflight(Envelope envelope, int cap) => _ = PreflightBytes(envelope, cap);
     static byte[] Decode(string[] chunks, bool allowEmpty = false)
     {
         Guard.Require(allowEmpty || chunks.Length > 0, "DOC-SCHEMA"); var result = new List<byte>();

@@ -20,6 +20,7 @@ internal static class CompareTests
     internal static void Run()
     {
         Check("Compare_OldBuildStoredRun_ReferenceAndAxesRefusal", OldBuildStoredRun);
+        Check("Compare_Post0b277815StoredRun_Copy615DimensionalDeltas", Post0b277815StoredRunCopy615);
         Check("Compare_TwoTiers_DeltaAndDiscrepancyRecord", TwoTiers);
         Check("Compare_SameKeyTwice_ReadNotNewRecord", SameKeyTwice);
         Check("Compare_EstimatorE_ExcludedFromEDeltas", EstimatorExcluded);
@@ -49,6 +50,7 @@ internal static class CompareTests
         Check("Retention_RunReferencedByDiscrepancy_NeverPruned", ReferencedNeverPruned);
         Check("Retention_ReferencedRunInLatestTwenty_TakesNoQuotaSlot", ReferencedTakesNoQuota);
         Check("Discrepancy_CompareEvent_CarriesDocumentBytes", CompareEventBytes);
+        Check("Discrepancy_CompareFields_CacheHitAndInvalidatesOnMutation", CompareFieldsCacheAndInvalidation);
         Check("Compare_TierHeadline_OnlyWhenBothRunsShareARevision", TierHeadlineNeedsOneRevision);
         Check("Discrepancy_PinnedRuns_ReachDocSize_RefusedNotCorrupted", ReachDocSize);
         if (EncodeTiming) Check("Discrepancy_CompareFields_EncodeCost_Measured", CompareFieldsEncodeCost);
@@ -104,6 +106,71 @@ internal static class CompareTests
                 Equal(0, view.Outputs.Count, "no incomparable old-run outputs");
             }
         }
+        Equal(true, image.AsSpan().SequenceEqual(System.IO.File.ReadAllBytes(path)), "fixture not written");
+    }
+
+    private static void Post0b277815StoredRunCopy615()
+    {
+        // Ruling 267: genuine output of commit 0b2778153b182e85d0da9dd53517396ccce29964 (which introduced ReferenceQuantities
+        // and axes="body; wind for lift and drag", and predates Provisional/YLow/YHigh/FlagCode/Discrepancies).
+        // Fail condition: any run shown without its COPY-615 reason or with a wrong one.
+        string path = System.IO.Path.Combine(StripFixtureTests.RepoRoot(), "docs", "proof", "copy-615-post-0b277815", "one-run.cfdw.json");
+        byte[] image = System.IO.File.ReadAllBytes(path);
+        Equal("676a7c632d7066ac8f6875e6a5b438bd8433184de25a76215acbda8c6b1791a8", Identity.Sha256(image), "post-0b277815 fixture unchanged");
+        string raw = Encoding.UTF8.GetString(image);
+        Equal(true, raw.Contains("\"axes\": \"body; wind for lift and drag\"", StringComparison.Ordinal), "fixture carries modern axes");
+        foreach (string laterField in new[] { "\"provisional\"", "\"yLow\"", "\"yHigh\"", "\"flagCode\"", "\"discrepancies\"" })
+            Equal(false, raw.Contains(laterField, StringComparison.Ordinal), "fixture predates " + laterField);
+
+        using var session = new AuthoringSession();
+        session.Reopen(image);
+        var stored = session.ReadRuns().Runs;
+        Equal(1, stored.Count, "the genuine 0b277815 document holds one stored run");
+        var old = stored[0];
+        Equal(RunIntegrity.Intact, old.Integrity, "the genuine 0b277815 run is intact when read with later defaults");
+        Equal("body; wind for lift and drag", old.Run.Reference.Axes, "stored run axes");
+
+        // Change span (900 mm -> 1000 mm) so S_ref and b_ref differ while op, water, moment datum and axes stay identical.
+        session.ApplyDimension(Fixture.Id(), new DimensionCommand("span", "1000"));
+        var service = new AnalysisService(session, new ProductWingMethod());
+        var modern = service.EvaluateAsync(old.Run.Op, old.Run.Water, Tier.VlmStrip, new Scope.Wing(), default).GetAwaiter().GetResult();
+        Equal(true, modern.Outcome is RunOutcome.Completed, "modern run completed");
+        Equal(old.Run.Reference.Axes, modern.Reference.Axes, "axes match");
+        Equal(true, modern.Reference.SRef != old.Run.Reference.SRef && modern.Reference.BRef != old.Run.Reference.BRef, "reference quantities differ");
+
+        var values = Compare.Derivation(session.AcceptedSourceOf);
+        foreach (bool reverse in new[] { false, true })
+        {
+            var a = reverse ? modern : old.Run;
+            var b = reverse ? old.Run : modern;
+            var current = Freshness.Current(session.Snapshot(), modern.Water, modern.Op, modern.Method, modern.Settings);
+            var context = new CompareContext(current, Units.Metric, values, Compare.AcceptedOrdinal(session))
+            {
+                BaseIntegrity = reverse ? RunIntegrity.Intact : old.Integrity,
+                ComparedIntegrity = reverse ? old.Integrity : RunIntegrity.Intact
+            };
+            var view = CompareProjection.Build(a, b, context);
+            var dimLines = Compare.DimensionalLines(a, b, values);
+            Equal(2, dimLines?.Count, "dimensional L and D_i lines exist");
+            double dL = dimLines![0].Delta!.Value;
+            double dDi = dimLines[1].Delta!.Value;
+            string expectedPct = (dL < 0 ? "−" : "+") + Math.Abs(dL * 100).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + " %";
+            Equal(CompareState.ReferenceDiffers, view.State, "reference-only state (reverse=" + reverse + ")");
+            Equal(Labels.DimensionalHeadline(expectedPct), view.Headline, "exact COPY-615 headline (reverse=" + reverse + ")");
+            Equal(Labels.DeltaBlockedReferenceDimensional("S_ref, b_ref"), view.Notices[0], "exact differing reference notice (reverse=" + reverse + ")");
+            Equal(Labels.DimensionalNotRecorded, view.RecordStatus, "not-recorded status");
+            Equal("CL,CDi,e,L,D_i", string.Join(",", view.Outputs.Select(row => row.Quantity)), "output rows in order");
+            foreach (var coeff in view.Outputs.Where(row => row.Quantity is "CL" or "CDi"))
+            {
+                Equal(true, coeff.DeltaValue is null, coeff.Quantity + " delta blocked");
+                Equal(Labels.ReferenceDiffersCell, coeff.Delta, coeff.Quantity + " cell copy");
+            }
+            var eRow = view.Outputs.Single(row => row.Quantity == "e");
+            Equal(true, eRow.DeltaValue is null && eRow.Delta == Labels.ENotComparedSpan, "e blocked on span");
+            Near(dL, view.Outputs.Single(row => row.Quantity == "L").DeltaValue!.Value, "L delta matches Compare.DimensionalLines");
+            Near(dDi, view.Outputs.Single(row => row.Quantity == "D_i").DeltaValue!.Value, "D_i delta matches Compare.DimensionalLines");
+        }
+        Equal(0, session.ReadDiscrepancies().Count, "reference-only comparison stores no discrepancy");
         Equal(true, image.AsSpan().SequenceEqual(System.IO.File.ReadAllBytes(path)), "fixture not written");
     }
 
@@ -638,6 +705,127 @@ internal static class CompareTests
         var compared = session.ReadLocalEvents().Last(item => item.Operation == "analysis.compare");
         Equal(image.Length, compared.Compare?.DocumentBytes, "documentBytes on the compare event is the image size");
     }
+
+    private static void CompareFieldsCacheAndInvalidation()
+    {
+        using var session = Fixture.Opened();
+        var vlm = Row(session, "vlm-strip");
+        var est = Row(session, "estimator");
+        var values = Values((vlm, 0.4120, 0.00760, 0.9479157), (est, 0.4212557233, EstimatorCdi, 1.0));
+        var recorded = Compare.Record(session, vlm, est, values);
+        Equal(true, recorded.Created, "initial record created");
+        int reportedInitial = LastCompareBytes(session);
+        int expected = session.SaveImage().Length;
+        Equal(expected, reportedInitial, "initial record reports exact SaveImage length");
+
+        int encodesBeforeReads = session.CompareFieldsEncodeCount;
+        // Repeated read on an unchanged envelope must hit the cache and report the exact byte length.
+        Compare.Record(session, vlm, est, values);
+        Compare.Record(session, est, vlm, values);
+        Equal(expected, LastCompareBytes(session), "repeated read reports exact SaveImage length");
+        Equal(encodesBeforeReads, session.CompareFieldsEncodeCount, "repeated read hits cache without re-encoding");
+
+        // Every mutation below is checked by calling Compare.Record BEFORE SaveImage() so a missed invalidation returns a stale size.
+        // 1) RecordRun mutation invalidates / updates cached byte length.
+        var extra = Row(session, "vlm-strip", alpha: 3.0);
+        Compare.Record(session, vlm, est, values);
+        int reportedAfterRun = LastCompareBytes(session);
+        int afterRun = session.SaveImage().Length;
+        Equal(true, afterRun > expected, "adding a run grows the image");
+        Equal(afterRun, reportedAfterRun, "after RecordRun: exact SaveImage length");
+
+        // 2) Accepted geometry edit (Commit) invalidates cached byte length.
+        Fixture.TwistEdit(session, 1.0);
+        Compare.Record(session, vlm, est, values);
+        int reportedAfterEdit = LastCompareBytes(session);
+        int afterEdit = session.SaveImage().Length;
+        Equal(true, afterEdit != afterRun, "geometry edit changes image size");
+        Equal(afterEdit, reportedAfterEdit, "after Commit: exact SaveImage length");
+
+        // 3) Undo and Redo (Move) invalidate cached byte length.
+        session.Undo(Fixture.Id());
+        Compare.Record(session, vlm, est, values);
+        int reportedAfterUndo = LastCompareBytes(session);
+        int afterUndo = session.SaveImage().Length;
+        Equal(true, afterUndo != afterEdit, "Undo changes image size");
+        Equal(afterUndo, reportedAfterUndo, "after Undo: exact SaveImage length");
+
+        session.Redo(Fixture.Id());
+        Compare.Record(session, vlm, est, values);
+        int reportedAfterRedo = LastCompareBytes(session);
+        int afterRedo = session.SaveImage().Length;
+        Equal(true, afterRedo != afterUndo, "Redo changes image size");
+        Equal(afterRedo, reportedAfterRedo, "after Redo: exact SaveImage length");
+
+        // 4) Recovery capture, Cancel, and DiscardRecovery invalidate cached byte length.
+        var draft = session.BeginSectionDraft(Fixture.Id(), 0);
+        session.CaptureRecovery();
+        Compare.Record(session, vlm, est, values);
+        int reportedWithRecovery = LastCompareBytes(session);
+        int withRecovery = NativeProject.Encode(session.Envelope()).Length;
+        Equal(true, withRecovery > afterRedo, "CaptureRecovery grows envelope");
+        Equal(withRecovery, reportedWithRecovery, "after CaptureRecovery: exact envelope length");
+        session.Cancel(draft.DraftId);
+        Compare.Record(session, vlm, est, values);
+        int reportedAfterCancel = LastCompareBytes(session);
+        int afterCancel = session.SaveImage().Length;
+        Equal(true, afterCancel < withRecovery, "Cancel clears recovery");
+        Equal(afterCancel, reportedAfterCancel, "after Cancel (recovery cleared): exact SaveImage length");
+
+        var draft2 = session.BeginSectionDraft(Fixture.Id(), 0);
+        session.CaptureRecovery();
+        byte[] withRecoveryImage = NativeProject.Encode(session.Envelope());
+        using (var recoverySession = new AuthoringSession())
+        {
+            recoverySession.Reopen(withRecoveryImage);
+            var recRuns = recoverySession.ReadRuns().Runs.Select(stored => stored.Run).ToArray();
+            Compare.Record(recoverySession, recRuns[0], recRuns[1], Values((recRuns[0], 0.4120, 0.00760, 0.9479157), (recRuns[1], 0.4212557233, EstimatorCdi, 1.0)));
+            Equal(withRecoveryImage.Length, LastCompareBytes(recoverySession), "reopened recovery image length");
+            recoverySession.DiscardRecovery();
+            Compare.Record(recoverySession, recRuns[0], recRuns[1], Values((recRuns[0], 0.4120, 0.00760, 0.9479157), (recRuns[1], 0.4212557233, EstimatorCdi, 1.0)));
+            int reportedAfterDiscard = LastCompareBytes(recoverySession);
+            int afterDiscard = recoverySession.SaveImage().Length;
+            Equal(true, afterDiscard < withRecoveryImage.Length, "DiscardRecovery shrinks envelope");
+            Equal(afterDiscard, reportedAfterDiscard, "after DiscardRecovery: exact SaveImage length");
+        }
+        session.Cancel(draft2.DraftId);
+
+        // 5) Recording a second Discrepancy updates cached byte length.
+        var est3 = Row(session, "estimator", alpha: 3.0);
+        Compare.Record(session, extra, est3, Values((extra, 0.42, 0.0077, 0.94), (est3, 0.43, 0.0078, 1.0)));
+        int reportedAfterSecond = LastCompareBytes(session);
+        int afterSecondRecord = session.SaveImage().Length;
+        Equal(afterSecondRecord, reportedAfterSecond, "after second RecordDiscrepancy: exact SaveImage length");
+
+        // 6) Reopen populates exact length and hits cache on first read.
+        byte[] saved = session.SaveImage();
+        using var reopened = new AuthoringSession();
+        reopened.Reopen(saved);
+        int reopenedEncodesBefore = reopened.CompareFieldsEncodeCount;
+        var reopenedRuns = reopened.ReadRuns().Runs.Select(stored => stored.Run).ToArray();
+        Compare.Record(reopened, reopenedRuns[0], reopenedRuns[1], Values((reopenedRuns[0], 0.4120, 0.00760, 0.9479157), (reopenedRuns[1], 0.4212557233, EstimatorCdi, 1.0)));
+        Equal(saved.Length, LastCompareBytes(reopened), "after Reopen: exact SaveImage length");
+        Equal(reopenedEncodesBefore, reopened.CompareFieldsEncodeCount, "after Reopen: read hits cached size without re-encoding");
+
+        // 7) PruneRunsAtSave invalidates cached size when unreachable runs are pruned.
+        using var pruner = Fixture.Opened();
+        Fixture.TwistEdit(pruner, 1.0);
+        var onBranch = Enumerable.Range(0, AuthoringSession.RetainedOthersPerTier + 2).Select(step => Row(pruner, "vlm-strip", alpha: step)).ToArray();
+        var onBranchEst = Row(pruner, "estimator", alpha: 0);
+        Compare.Record(pruner, onBranch[0], onBranchEst, Values((onBranch[0], 0.4, 0.0076, 0.9), (onBranchEst, 0.41, 0.0075, 1.0)));
+        pruner.Undo(Fixture.Id());
+        Fixture.TwistEdit(pruner, 2.0);
+        Compare.Record(pruner, onBranch[0], onBranchEst, Values((onBranch[0], 0.4, 0.0076, 0.9), (onBranchEst, 0.41, 0.0075, 1.0)));
+        int beforePrune = LastCompareBytes(pruner);
+        byte[] prunedImage = pruner.SaveImage();
+        Equal(true, prunedImage.Length < beforePrune, "SaveImage pruned an unreachable run and shrank");
+        Compare.Record(pruner, onBranch[0], onBranchEst, Values((onBranch[0], 0.4, 0.0076, 0.9), (onBranchEst, 0.41, 0.0075, 1.0)));
+        Equal(prunedImage.Length, LastCompareBytes(pruner), "after PruneRunsAtSave: exact SaveImage length");
+    }
+
+    private static int LastCompareBytes(AuthoringSession session) =>
+        session.ReadLocalEvents().Last(item => item.Operation == "analysis.compare").Compare?.DocumentBytes
+        ?? throw new InvalidOperationException("compare event lacked documentBytes");
 
     // Ruling 251 and design 1.8: records pin runs with no cap. The cap is small here so the refusal comes fast; the bytes per
     // run (128 strips, 10-digit synthetic values: a lower bound, a solver prints up to 17 digits) and per record are measured, and the proof note takes them from this line.
