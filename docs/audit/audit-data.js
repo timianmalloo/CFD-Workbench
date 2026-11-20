@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-19T23:54:28Z",
+  "generated": "2026-11-20T01:17:41Z",
   "audit": [
     {
       "actor": null,
@@ -44179,6 +44179,37 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-19T23:53:39Z",
       "duration_seconds": 49.0
+    },
+    {
+      "id": "al-01M7V8FQ3EDRFE3P7GZKC53P9X",
+      "shortname": "join-w5-cf",
+      "datetime": "2026-11-20T01:17:41Z",
+      "session": "agy-coord-w5",
+      "prompt": "the join of swarm-w5-compatible-fit-fd5774b0 into main",
+      "summary": "Full Compatible Fit cfdw-cv/3 build (CF-1..CF-6) under Rulings 73 and 269: Compatible.cs with tangent-keyed memos, single PrepareCompatible entry in Placement.cs and Geometry.AssessWithin (C1/C2/BC-1/BC-2), Evaluator.IdFor 21-site sweep and DR-DF-9(a) DOC-VERSION guard (BC-5), R3 Promote/Match/Remove on copies (C3/C4), XPAU UI COPY-686..693 proposed, ADR-0010 Amd 2, ADR-0005 Amd 1, genuine pre-CF DOC-VERSION receipt docs/proof/xpa-old-build/; Adversary PASS after repair 1 (memo tangent key + dead helper cleanup) and TESTS-GREEN recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/xpa-old-build/README.md",
+        "docs/adr/0010-one-placement-rule.md",
+        "docs/adr/0005-point-types-in-the-b-spline-record.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land complete Compatible Fit cfdw-cv/3 implementation on main",
+      "done_when": "conductor-join checks, full run-tests.sh ring, check-docs, xaml-token-lint, and all 10 verify gates green on main",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-20T01:10:52Z",
+      "duration_seconds": 409.0
     }
   ],
   "changes": [
