@@ -12453,7 +12453,7 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/wave5-next-steps.md",
       "title": "Coordination plan - wave 5: cleanup, compatible fit, sweeps and setup designs, and export kernel scoping",
       "type": "plan",
-      "status": "proposed",
+      "status": "complete",
       "owner": "@timianmalloo",
       "phase": "",
       "reviewBy": "2026-12-19",
@@ -12493,7 +12493,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "29606b9b35a0fba27ab46052346a2977f046cf1931638edd29a2b75b5b54a5f8"
+      "sourceSha256": "2c92b078d3c5b8a50cb88f1387cc92fc8da3fa19aa40c41c6134411fcf1069e4"
     },
     {
       "id": "coordination-windows-gpu-f1-design",
@@ -25237,5 +25237,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "a080aa8b9c306da505a94cb8ef0205856ae1bf9b07818ca799e63db4e52e7742"
+  "graphSha256": "d2f7570c30a983e30495272fbc994a6cdd6db0cfa3502e7c7e2ab0f8c5c0a9e9"
 };

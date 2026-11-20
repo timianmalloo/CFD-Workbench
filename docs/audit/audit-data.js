@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-20T01:17:41Z",
+  "generated": "2026-11-20T01:19:06Z",
   "audit": [
     {
       "actor": null,
@@ -44210,6 +44210,84 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-20T01:10:52Z",
       "duration_seconds": 409.0
+    },
+    {
+      "id": "al-01M7V8JA6732JE3AF6M6633ED7",
+      "shortname": "coordinate-wave5-next-steps",
+      "datetime": "2026-11-20T01:19:06Z",
+      "session": "agy-coord-w5",
+      "prompt": "/execute-with-coordination : use the plan and /swarm in agy to drive a multi-agent coordinated swarm to get this work done",
+      "summary": "All 5 Wave 5 tracks (SET, SWP, CLN, KRN, CF) plus CF-0 (CG clearance + Ruling 269) verified in Adversary Mode and merged onto main via conductor-join.py (ee1942a7); 3 repair cycles caught real math/hydrodynamic/memo-cache defects; 1 peer seam (SWP<->SET) resolved on board; 1 boundary grant (CF 5 wiring/test files); TESTS-GREEN 357 s (Core 952, Analysis 313, Desktop 914, Cli 35, Python 10); check-docs exit 0; 10/10 verify gates green; 0 merge conflicts; all share workspaces cleanly removed",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/wave5-next-steps.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Execute Wave 5 coordination plan across AGY native swarm to completion",
+      "done_when": "All 5 tracks verified in Adversary Mode, merged via conductor-join.py, TESTS-GREEN, check-docs and verify gates green, Planned vs Actual recorded",
+      "tier": "T2",
+      "fan_out": 3,
+      "duration_source": "session-start-hook",
+      "started_at": "2026-11-20T01:18:12Z",
+      "duration_seconds": 54.0,
+      "agent_runs": [
+        {
+          "agent": "SET",
+          "started_at": "2026-11-19T22:59:50Z",
+          "ended_at": "2026-11-19T23:25:16Z",
+          "duration_seconds": 1526.0,
+          "calls": 0,
+          "budget_calls": 65,
+          "over_budget": false
+        },
+        {
+          "agent": "SWP",
+          "started_at": "2026-11-19T22:59:46Z",
+          "ended_at": "2026-11-19T23:34:11Z",
+          "duration_seconds": 2065.0,
+          "calls": 0,
+          "budget_calls": 65,
+          "over_budget": false
+        },
+        {
+          "agent": "CLN",
+          "started_at": "2026-11-19T22:59:42Z",
+          "ended_at": "2026-11-19T23:35:38Z",
+          "duration_seconds": 2156.0,
+          "calls": 0,
+          "budget_calls": 80,
+          "over_budget": false
+        },
+        {
+          "agent": "KRN",
+          "started_at": "2026-11-19T23:42:25Z",
+          "ended_at": "2026-11-19T23:53:02Z",
+          "duration_seconds": 637.0,
+          "calls": 0,
+          "budget_calls": 55,
+          "over_budget": false
+        },
+        {
+          "agent": "CF",
+          "started_at": "2026-11-19T23:42:20Z",
+          "ended_at": "2026-11-20T01:10:10Z",
+          "duration_seconds": 5270.0,
+          "calls": 0,
+          "budget_calls": 440,
+          "over_budget": false
+        }
+      ],
+      "parallelism": {
+        "agent_seconds": 11654.0,
+        "span_seconds": 7426.0,
+        "speedup": 1.57,
+        "peak_concurrency": 3
+      }
     }
   ],
   "changes": [

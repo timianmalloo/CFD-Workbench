@@ -2,7 +2,7 @@
 id: coordination-wave5-next-steps
 title: "Coordination plan - wave 5: cleanup, compatible fit, sweeps and setup designs, and export kernel scoping"
 type: plan
-status: proposed
+status: complete
 owner: "@timianmalloo"
 tags: [coordination, worktrees, parallelism, windows, agy-swarm]
 links:
@@ -237,10 +237,40 @@ non-speed justification:
 
 `GATE prepare-for-coordination · 2026-11-19 · Orchestrator (author, Peer) · Independent Adversary Plan Reviewer (read-only research subagent 1682a3bb, Test Architect + Simplifier + Tech Lead lenses) · verdict PASS-WITH-CONDITIONS, CLEARS-THE-VETO yes · four conditions folded verbatim before S0 commit: C1 added six missing CF test files (IdentityTests.cs, SectionEditTests.cs, PlacementTests.cs, SectionDraftTests.cs, ReopenSectionDraftTests.cs, CliTests.cs) and stated SectionReplace.cs stays untouched; C2 added w5-verifier Computational Geometry Adversary clearance of compatible-fit.md §3–§6 & §12 Q1–Q2 ahead of w5-owner Ruling 269 in CF-0; C3 added DC-189 verbatim quote of Ruling 256; C4 added WorkbenchController.cs to Artifact classes and Seams. Simplifier: no strike required (advisory: defer KRN first if Wave B budget tightens). Tech Lead casting vote: 5 tracks across 2 waves (Wave A width 3, Wave B width 2; at most 1 code/Desktop-test track active per wave).`
 
+## Planned vs actual (record by `agy-coord-w5`, 2026-11-19; final at CF join `ee1942a7`)
+
+**Outcome.** All five planned tracks (`SET`, `SWP`, `CLN`, `KRN`, `CF`) and Serial Spine `CF-0` (CG Adversary clearance + **Ruling 269**) completed, cleared independent Adversary review (`w5-verifier`), and merged cleanly onto `main` via `conductor-join.py` (`--no-push`). Integrated ring on `main` at `ee1942a7`: **`TESTS-GREEN 357 s`** (Core 952 passed / 7 skipped / 0 failed; Analysis 313 / 1 / 0; Desktop 914 / 1 / 0; Cli 35 / 1 / 0; Python unittest 10 ran), `check-docs.py` exit 0 (`631` artifacts, `0` problems, `0` PII), `xaml-token-lint.py` clean, `check-event-subscribers.py` 0 findings, and **10/10 `run-verify-gates.py` PASS** (`verify-ruling-citations.py` 269/269). Zero model failovers; zero merge conflicts; all share workspaces cleanly removed after join (`git worktree list` = primary only).
+
+### 1. Per track
+
+| track | swarm worker & model | planned budget | wall span (UTC) | repair cycles (cap 2) | Adversary verdict & result | join commit |
+|---|---|---|---|---|---|---|
+| **CF-0** (Spine S1) | `w5-verifier` (CG) → `w5-owner` (`Gemini 4 Neon (High)`) | 40 + 25 calls | 22:58Z–23:03Z (5 min) | 0 | CG `PASS-WITH-CONDITIONS` (`#7`, adding BC-1..BC-5) → **Ruling 269** (`req-01M7V0S8KD6MMJGRFYV4AD33BJ`, DR-DF-7(a) + DR-DF-9(a)) | `8b79fd63` |
+| **SET** (Wave A) | `w5-setup-design` (`share`) | 65 calls · 220k · 1 h 30 | 22:59Z–23:25Z (26 min) | 1 (#13 → #14: exact 4-CV cubic `κ(λ) = (3+λ)/4`, complete stationary-point proof + 64-step bisection, `NativeProject.Read` note) | `PASS` (`#15`): `setup-seeding.{md,html}`, `setup-seeding.html` mockup (6 hard states, 34/34 hex tokens, 16/16 WCAG AA, 0 `LAB-01` hits), `spec-setup-seeding.md` (`AM-SET-S1..S4`) | joined before `4a3c67d5` (`al-01M7V24SV3HR9AVY8BWWZ4R4AY`) |
+| **SWP** (Wave A) | `w5-sweeps-design` (`share`) | 65 calls · 220k · 1 h 30 | 22:59Z–23:34Z (35 min) | 1 (#20 → #21: `fixedVlmBasis` shallow `h/c < 5` `"deep water"` guard + `SET`/`SWP` `Envelope` composition) | `PASS` (`#22`): `local-sweeps.{md,html}`, `local-sweeps.html` mockup (7 hard states, 32/32 hex tokens, 33/33 WCAG AA, non-bridged gaps, 0 `LAB-01` hits), `spec-local-sweeps.md` (`AM-SWP-1..3`) | `1bcedbf7` |
+| **CLN** (Wave A) | `w5-cleanup` (`share`) | 80 calls · 250k · 1 h 30 | 22:59Z–23:35Z (36 min) | 0 | `PASS` (`#23`): designer-readable `.dat`/My-sections provenance across 6 surfaces; `CompareFields` cache dropping 32 MB median **58.8 ms → 3.4 ms** (17.3× speedup); genuine post-`0b277815` COPY-615 fixture (`docs/proof/copy-615-post-0b277815/`, Ruling 267); `README.md` refreshed; `TESTS-GREEN 259 s` | `df566d56` |
+| **KRN** (Wave B) | `w5-kernel-arch` (`share`) | 55 calls · 180k · 1 h | 23:42Z–23:53Z (11 min) | 0 | `PASS-WITH-CONDITIONS` (`#28`, non-blocking Phase 0/1 CF-alignment & spike gate continuity): `cad-export-kernel.{md,html}`, proposed `ADR-0013` (Option A hybrid OCCT process-isolated + `rhino3dm` baseline with Option B pure-C# STEP bake-off in `SPIKE-CAD-01`, `EXP-02` `SPIKE-CAD-02` fixture, `DR-KRN-1..6`) | `67dc9410` |
+| **CF** (Wave B) | `w5-compatible-fit` (`share`) | 440 calls · 1.2M · 4 h | 23:42Z–01:10Z (88 min) | 1 (#35 → #38: `PrepMemo`/`MeasureMemo` profile-tangent key fixing XPA-I6 stale cache + removed 4 uncalled/duplicated `Labels.cs` helpers & dead `mid6` locals) | `PASS` (`#39`, CG Return diff gate cleared): `Compatible.cs` + single `PrepareCompatible` entry in `Placement.cs` & `Geometry.AssessWithin` (enclosure `1.21e-17 m ≤ 1 nm`), `Evaluator.IdFor` 21-site sweep & `DR-DF-9(a)` `DOC-VERSION`, R3 Promote/Match/Remove (C3/C4), XPAU UI (`COPY-686..693` proposed), ADR-0010 Amd 2, ADR-0005 Amd 1, genuine pre-CF `DOC-VERSION` receipt (`docs/proof/xpa-old-build/`); `TESTS-GREEN 357 s` | `ee1942a7` |
+
+*(Per-worker tool-call and token totals are Not recorded because AGY swarm status does not expose worker call/token counters; wall spans are Measured from board timestamps.)*
+
+### 2. Seams, boundary corrections & findings
+
+- **Peer-to-peer seam (`SWP` ↔ `SET`, `#9` → `#11`):** Resolved directly on the board without Coordinator bottleneck — aligned `GoalStateVersion` `(goalStateId, contentHash)`, `GoalOperatingPoint`, `WaterRecord`, `speedBand`/`depthBand`, and `OperatingPoint.Load` (`DR-SET-2` / `DR-SWP-4`).
+- **Boundary correction (`CF`, `#33`):** Extended `CF` ownership to 5 wiring/test files (`SectionEditorView.axaml.cs`, `Shell/ShellHost.cs`, `BlendTests.cs`, `ConstructionTests.cs`, `ProjectStoreTests.cs`) while no other author was active — zero contention, all 5 verified in `#34`/`#39`.
+- **Which parallelism justifications paid:**
+  - **Wave A (width 3, 1 code + 2 docs):** Paid in full — 0 file collisions, 0 Desktop test timeouts, and `CF-0` (CG clearance + Ruling 269) completed inside Wave A so Wave B started immediately on `CLN`'s join.
+  - **Wave B (width 2, 1 code + 1 docs):** Paid cleanly — `KRN` landed in 11 min with zero impact on `CF`'s 88-min geometry build, and `CF` finished all 6 stages inside one context without needing a warm fork.
+  - **Independent `w5-verifier` + `monitor`:** High ROI — `w5-verifier` caught real mathematical/hydrodynamic/cache defects in `SET` (4-CV cubic `κ` + stationary-point proof), `SWP` (shallow `h/c < 5` `"deep water"` leak), and `CF` (`PrepMemo`/`MeasureMemo` profile-tangent stale-cache bug + HYG-A dead helpers), while `monitor` broke 2 quiet stalls (`#30`, `#32`, `#36`) automatically.
+- **Environment & pack findings resolved during execution:**
+  1. **Windows `core.longpaths`:** Initial `swarm add workspace:"share"` failed on 260-char paths under `docs/proof/ring-windows/...`; setting `git config core.longpaths true` in the primary repo resolved it permanently for all share workspaces.
+  2. **`verify-ruling-citations.py` rev-120 short-form ruling false positive:** Pack rev 120 flagged two pre-existing short-form NACA report citations (`496` and `567`) in `07-low-order-hydrodynamics.md` and `state-of-the-art.md` (already spelled `NACA TR-496`/`TR-567` elsewhere in `state-of-the-art.md`); harmonized at `4a3c67d5`, restoring 10/10 `run-verify-gates.py` PASS.
+  3. **`ui-craft-gate.py` on Windows ARM64:** Still `Not recorded` on this host (`impeccable` 0.1.27 lacks a `windows-arm64` binary); run on macOS ARM64 or Windows x64 before Area 1/4 UI build sign-off.
+
 ## Status
 
 | | |
 |---|---|
-| **Completed** | Layer state measured (`coord doctor`, `pack-doctor`, `check-docs.py` green); artifact classes, joint satisfiability, DC-189 quotes, 5 tracks, swarm topology, serial spine, seams, struck tracks authored; independent Adversary review PASS-WITH-CONDITIONS cleared (C1–C4 folded) |
-| **Remaining** | Commit S0 plan on `main` → execute Wave A & Wave B via `/execute-with-coordination --swarm` |
-| **Best next action** | Launch AGY swarm (`title`, `monitor`, `w5-owner`, `w5-verifier`, Wave A tracks `CLN`, `SWP`, `SET`) |
+| **Completed** | All 5 Wave 5 tracks (`SET`, `SWP`, `CLN`, `KRN`, `CF`) and Serial Spine `CF-0` (Ruling 269) verified in Adversary Mode and landed on `main` (`ee1942a7`); `TESTS-GREEN 357 s`, `check-docs.py` exit 0, `10/10` verify gates green; all share workspaces torn down |
+| **Remaining** | Operator review of Wave 5 deliverables & Decision Packet: `COPY-686..693` (CF proposed copy); `setup-seeding.html` + `DR-SET-1..5`; `local-sweeps.html` + `DR-SWP-1..6`; `ADR-0013` + `DR-KRN-1..6` (`SPIKE-CAD-01/02`); Area 5 (`solver-setup.html`, `DR-SETUP-1..6`, `DR-F3-1`, WSL OpenFOAM/PETSc-CUDA build authorization); optional push to `origin/main` and cleanup of 5 old remote branches |
+| **Best next action** | Review the Wave 5 mockups & Operator Decision Packet, decide whether to push `main` to `origin`, and pick Wave 6 (Area 4 Local Sweeps build, Area 1 Setup build, `SPIKE-CAD-01/02`, or Area 5 WSL build) |
