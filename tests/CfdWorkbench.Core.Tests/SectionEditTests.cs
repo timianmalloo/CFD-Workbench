@@ -266,7 +266,7 @@ internal static class SectionEditTests
             session.Redo(Id());
             Equal(kept, ProfileBlock(Encoding.UTF8.GetString(session.Snapshot().Source), "section-a"));
         });
-        Check("Profile_IndependentAbscissaEdit_NamesNeighbour", () =>
+        Check("Profile_IndependentAbscissaEdit_AdmittedUnderCompatibleFit", () =>
         {
             using var session = new AuthoringSession();
             session.Open(ThreeStations(), Id(), true);
@@ -274,15 +274,11 @@ internal static class SectionEditTests
             int index = before.Upper.ToList().FindIndex(item => item.Id == "cv-3");
             string draft = Id();
             var begun = session.BeginSectionEdit(draft, 1, SectionScope.Independent, "upper", "cv-3");
-            // Ruling 71: was a landed step that the certificate refused at Validate ("Profile 'section-a-i1' abscissae differ
-            // from neighbouring profile 'section-a'."); now the step is refused, naming the neighbour, and nothing changes.
-            ContractError? error = null;
-            try { session.UpdateSectionPoint(draft, begun.Generation, 0.4, before.Upper[index].Y); }
-            catch (ContractError refused) { error = refused; }
-            Equal("DSL-GEOMETRY", error?.Code);
-            Equal("This edit would give Station 2's section different point positions from Root's, and the wing between them " +
-                "can't be checked then. Move points up or down only, or keep the section shared.", error?.Reason);
-            Equal(begun.Generation, session.Snapshot().Draft!.Generation);
+            // Ruling 73 / 269: compatible fit lifts the Ruling 71 stopgap for admitted mixed-spacing edits within 10 um.
+            var updated = session.UpdateSectionPoint(draft, begun.Generation, 0.36, before.Upper[index].Y);
+            Equal(begun.Generation + 1, updated.Generation);
+            var assessment = session.Validate(draft, updated.Generation);
+            Equal(GeometryStatus.Certified, assessment.Status);
         });
     }
 

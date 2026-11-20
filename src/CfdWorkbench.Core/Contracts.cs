@@ -62,7 +62,11 @@ public sealed class AuthoredProjection
     public IReadOnlyList<AuthoredAssertion> Assertions { get; }
     internal AuthoredProjection Rebind(AuthoredBinding binding) => new(binding, Name, SourceUnit, HalfSpanMeters, Rails, Assignments, Constraints, Diagnostics, Assertions);
 }
-public sealed record AcceptedInspection(AuthoredProjection Authored, GeometryAssessment Geometry);
+public sealed record AcceptedInspection(AuthoredProjection Authored, GeometryAssessment Geometry)
+{
+    /// <summary>Derived compatible-fit blend matches for the accepted revision (session memory only; never stored).</summary>
+    public IReadOnlyList<BlendMatch> Matches { get; init; } = [];
+}
 
 /// <summary>Section editing scope: edit the shared profile, or copy it for one assignment.</summary>
 public enum SectionScope { Shared, Independent }
@@ -145,8 +149,15 @@ public abstract record SectionStep
     public sealed record Thickness(ThicknessIntent Intent) : SectionStep;
 }
 
+/// <summary>
+/// Derived, never-stored compatible-fit match for one station section (docs/design/cross-profile-abscissa.md §7, Ruling 73/269).
+/// <paramref name="Kind"/> is <c>identity</c>, <c>refined</c>, or <c>fitted</c>. Both deviations are sampled lower bounds.
+/// </summary>
+public sealed record BlendMatch(string Profile, IReadOnlyList<int> Assignments, bool Basis, string Kind,
+    double RecordDeviation, double SurfaceDeviationMeters, double SurfaceEta, double LimitMeters, int SharedSpans);
+
 public sealed record SectionStepReport(string Kind, double MaxChange, string MaxChangeOracle, int UpperPoints, int LowerPoints,
-    ImportReport? Import, ThicknessProposal? Thickness, IReadOnlyList<string> RowsRemoved);
+    ImportReport? Import, ThicknessProposal? Thickness, IReadOnlyList<string> RowsRemoved, IReadOnlyList<BlendMatch>? Matches = null);
 
 public sealed record SectionDraftView(string DraftId, string BaseAcceptedId, int Assignment, string Profile,
     SectionScope Scope, ThicknessIntent Intent, long Generation, int Cursor, int StepCount, byte[] Bytes, SectionStepReport? Last);

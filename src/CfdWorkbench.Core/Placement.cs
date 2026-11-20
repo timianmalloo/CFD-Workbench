@@ -309,7 +309,8 @@ public static class Placement
 
     public static SurfaceView Surface(byte[] source, string basis, long generation, CancellationToken cancellation, int stations = 41, int chordSamples = 101)
     {
-        var (parsed, definition) = RequireFoil(source);
+        var (parsed, authored) = RequireFoil(source);
+        var definition = PrepareCompatible(authored, parsed.SurfaceHash);
         Guard.Require(stations >= 2 && chordSamples >= 2, "DSL-RANGE");
         double[] xs = ChordSamples(chordSamples);
         var prepared = new PreparedProfile[definition.Profiles.Length];
@@ -341,7 +342,8 @@ public static class Placement
         CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
-        var (_, definition) = RequireFoil(source);
+        var (parsed, authored) = RequireFoil(source);
+        var definition = PrepareCompatible(authored, parsed.SurfaceHash);
         Guard.Require(etas.Count > 0 && xs.Count > 0, "DSL-RANGE");
         var abscissa = new double[xs.Count];
         for (int index = 0; index < xs.Count; index++)
@@ -370,13 +372,34 @@ public static class Placement
     /// <summary>
     /// <see cref="Sections"/> for the station measure alone (Ruling 262 DF-Q3): the same checks, the same station read and the same
     /// <see cref="OrdinatesAt"/> per sample, so Camber and Thickness carry the same bits; the camber slope and the placed midline, which the
-    /// measure never reads, are not computed. Only <c>StationEdits</c> calls it; every other caller keeps <see cref="Sections"/>.
+    /// measure never reads, are not computed. Only <c>StationEdits</c> and <c>Compatible</c> call it; every other caller keeps <see cref="Sections"/>.
     /// </summary>
     internal static IReadOnlyList<SectionMeasure> SectionsForMeasure(byte[] source, IReadOnlyList<double> etas, IReadOnlyList<double> xs,
         CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
-        var (_, definition) = RequireFoil(source);
+        var (parsed, authored) = RequireFoil(source);
+        return EvaluateMeasures(PrepareCompatible(authored, parsed.SurfaceHash), etas, xs, cancellation);
+    }
+
+    internal static IReadOnlyList<SectionMeasure> SectionsForMeasure(Definition definition, IReadOnlyList<double> etas, IReadOnlyList<double> xs,
+        CancellationToken cancellation)
+    {
+        cancellation.ThrowIfCancellationRequested();
+        return EvaluateMeasures(PrepareCompatible(definition, null), etas, xs, cancellation);
+    }
+
+    // Ruling 269 (C1): single-caller authored-reference mode used exclusively by Compatible.cs to measure copy residuals.
+    internal static IReadOnlyList<SectionMeasure> SectionsForMeasureAuthored(Definition definition, IReadOnlyList<double> etas, IReadOnlyList<double> xs,
+        CancellationToken cancellation)
+    {
+        cancellation.ThrowIfCancellationRequested();
+        return EvaluateMeasures(definition, etas, xs, cancellation);
+    }
+
+    private static IReadOnlyList<SectionMeasure> EvaluateMeasures(Definition definition, IReadOnlyList<double> etas, IReadOnlyList<double> xs,
+        CancellationToken cancellation)
+    {
         Guard.Require(etas.Count > 0 && xs.Count > 0, "DSL-RANGE");
         var abscissa = new double[xs.Count];
         for (int index = 0; index < xs.Count; index++)
@@ -411,12 +434,22 @@ public static class Placement
         return measures;
     }
 
+    // Ruling 269 (DR-DF-7 a): the one compatible-preparation entry inside Placement.cs (serving Surface, Sections, SectionsForMeasure).
+    private static Definition PrepareCompatible(Definition definition, string? surfaceHash)
+    {
+        var compatible = Compatible.Of(definition, surfaceHash);
+        if (compatible.Failed)
+            throw new ContractError("GEOMETRY-FIT-SINGULAR", compatible.FailureReason ?? "Compatible fit could not be constructed.");
+        return compatible.Definition;
+    }
+
     /// <summary>The authored upper and lower ordinates of the profile at one authored station, in chord units.</summary>
     public sealed record OwnOrdinates(IReadOnlyList<double> Upper, IReadOnlyList<double> Lower);
 
     /// <summary>
     /// The profile an authored station names, as drawn: ordinates at the chord abscissae <paramref name="xs"/>, unscaled (no
-    /// thickness channel, no twist, no chord). The public face of <see cref="ProfileEvaluator"/> for export (Export design 3.1).
+    /// thickness channel, no twist, no chord). The public face of <see cref="ProfileEvaluator"/> for export (Export design 3.1;
+    /// Ruling 269 BC-1: intentionally reads the authored record for <c>DatShape.Own</c>).
     /// </summary>
     public static OwnOrdinates OwnProfile(byte[] source, int assignment, IReadOnlyList<double> xs)
     {
@@ -454,6 +487,7 @@ public static class Placement
         return ReadFrame(definition, eta);
     }
 
+    // Ruling 269 BC-1: pure utility on caller-supplied curves (StationEdits.Blend passes compatible copies for R3).
     internal static double ProfileDifferenceMaximum(Curve upper, Curve lower) => DifferenceMaximum(upper, lower);
 
     private static StationFrame ReadFrame(Definition definition, double eta) => new(eta, eta * definition.HalfSpan,
@@ -746,6 +780,7 @@ public static class Placement
         return (d1, d2);
     }
 
+    // Ruling 269 BC-1: intentional authored-record spacing predicate (used by Evaluator.NeedsCompatibleFit and StationEdits).
     internal static bool SameAbscissa(Curve left, Curve right)
     {
         if (left.Degree != right.Degree || left.Knots.Length != right.Knots.Length || left.Points.Length != right.Points.Length) return false;
@@ -764,6 +799,7 @@ public static class Placement
         }
     }
 
+    // Ruling 269 BC-1: intentional record comparison predicate (ReadStation calls it on the compatible definition).
     internal static bool SameRecord(ProfileDefinition left, ProfileDefinition right) =>
         ReferenceEquals(left, right) || SameCurve(left.Upper, right.Upper) && SameCurve(left.Lower, right.Lower);
 

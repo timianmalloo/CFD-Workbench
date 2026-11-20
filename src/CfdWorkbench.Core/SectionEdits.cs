@@ -27,38 +27,39 @@ internal static class SectionEdits
         };
     }
 
-    // Ruling 71: a step that would give the edited profile other abscissae than a neighbouring station's different profile
-    // is refused before it lands, nothing changed; the certificate's blend rule (Geometry.SharedAbscissa) would refuse the
-    // whole draft at Finish. Judged on the result, so it holds for every step kind. A pair that already differed before the
-    // step is left to the certificate: refusing every step there would trap the draft. Replace (and Import, a Replace) never
-    // takes its own spacing beside a neighbour (m12d §3.6), so COPY-210 is retired (Ruling 72).
+    // Ruling 73 / Ruling 269: compatible fit (CF) lifts the Ruling 71 early-refusal stopgap for admitted mixed-spacing steps.
+    // Every candidate step is judged by the compatible fit residual on the placed surface (<= 10 um, DR-XPA-3/4, COPY-C5)
+    // and by the certificate's blend capacity (Geometry.BlendSpanLimit and Geometry.OperationBoundCode, COPY-C4 / COPY-194b).
     internal static void RequireNeighbourAbscissa(Definition before, Definition after, int assignment)
     {
         ArgumentNullException.ThrowIfNull(before);
         ArgumentNullException.ThrowIfNull(after);
         int edited = after.Assignments[assignment].Profile;
         var watch = new ProofBudget();
-        for (int index = 0; index + 1 < after.Assignments.Length; index++)
+        var compat = Compatible.Measure(after);
+        if (compat.Failed)
+            throw new ContractError("GEOMETRY-FIT-SINGULAR", compat.FailureReason ?? "Compatible fit could not be constructed.");
+
+        BlendMatch? worstOver = null;
+        foreach (var match in compat.Matches)
+            if (match.SurfaceDeviationMeters > match.LimitMeters &&
+                (worstOver is null || match.SurfaceDeviationMeters > worstOver.SurfaceDeviationMeters))
+                worstOver = match;
+        if (worstOver is not null)
         {
-            int left = after.Assignments[index].Profile, right = after.Assignments[index + 1].Profile;
-            if (left == right || left != edited && right != edited) continue;
-            if (Geometry.SharedAbscissa(after.Profiles[left], after.Profiles[right], watch)) continue;
-            if (index + 1 >= before.Assignments.Length || !Geometry.SharedAbscissa(before.Profiles[before.Assignments[index].Profile],
-                    before.Profiles[before.Assignments[index + 1].Profile], watch))
-                continue;
-            int own = left == edited ? index : index + 1, other = left == edited ? index + 1 : index;
-            string neighbour = StationName(other, after.Assignments[other].Eta);
-            throw new ContractError("DSL-GEOMETRY", NeighbourAbscissaReason(StationName(own, after.Assignments[own].Eta), neighbour));
+            var error = new ContractError("DSL-GEOMETRY", MatchOverLimitReason(before, after, compat, worstOver));
+            error.Data["MatchProfile"] = worstOver.Profile;
+            error.Data["MatchDeviationMeters"] = worstOver.SurfaceDeviationMeters;
+            error.Data["MatchLimitMeters"] = worstOver.LimitMeters;
+            error.Data["MatchEta"] = worstOver.SurfaceEta;
+            throw error;
         }
-        RequireBlendBudget(before, after, edited, watch);
+        RequireBlendBudget(before, after, edited, watch, compat);
     }
 
-    // F-1 (m12d §3.6 rule 7, DR-M12D-6 a): a step that makes the edited section differ from a neighbour it matched is
-    // checked before it lands: the parser-derived span ceiling (Geometry.BlendSpanLimit), then
-    // Assess itself on the candidate, whose all-query operation bound refuses four differing sections at any span count
-    // (docs/proof/blend-certificate-budget/verdict.md §4.2). A pair that already differed is left to the certificate, and a
-    // candidate is refused only when the base did not fail the same way, so a draft is never trapped.
-    private static void RequireBlendBudget(Definition before, Definition after, int edited, ProofBudget watch)
+    // F-1 (m12d §3.6 rule 7, DR-M12D-6 a) and CF capacity check (cross-profile-abscissa.md §5, COPY-C4):
+    // checks span ceiling (Geometry.BlendSpanLimit) and Assess itself on the candidate (Geometry.OperationBoundCode).
+    private static void RequireBlendBudget(Definition before, Definition after, int edited, ProofBudget watch, CompatibleDefinition compatAfter)
     {
         var newly = new List<int>();
         for (int index = 0; index + 1 < after.Assignments.Length; index++)
@@ -69,8 +70,14 @@ internal static class SectionEdits
                 !Geometry.SameGeometry(before.Profiles[before.Assignments[index].Profile], before.Profiles[before.Assignments[index + 1].Profile], watch);
             if (!differedBefore) newly.Add(index);
         }
-        if (newly.Count == 0) return;
+        var compatBefore = Compatible.Of(before);
+        bool spansGrew = compatAfter.NeedsFit && compatAfter.SharedSpans > compatBefore.SharedSpans;
+        if (newly.Count == 0 && !spansGrew) return;
+
         int limit = Geometry.BlendSpanLimit();
+        if (compatAfter.NeedsFit && compatAfter.SharedSpans > limit)
+            throw new ContractError("DSL-GEOMETRY", CapacitySpanReason(limit, compatAfter.SharedSpans));
+
         foreach (int index in newly)
         {
             var left = after.Profiles[after.Assignments[index].Profile];
@@ -83,8 +90,12 @@ internal static class SectionEdits
         }
         var candidate = Geometry.Assess(new SourceParse([], [], after));
         if (!OperationBoundRefused(candidate)) return;
-        // Left alone only when the base failed the same way with as many different sections (nothing this step added).
-        if (DistinctShapes(after, watch) <= DistinctShapes(before, watch) && OperationBoundRefused(Geometry.Assess(new SourceParse([], [], before)))) return;
+        // Left alone only when the base failed the same way with as many different sections and spans (nothing this step added).
+        if (!spansGrew && DistinctShapes(after, watch) <= DistinctShapes(before, watch) &&
+            OperationBoundRefused(Geometry.Assess(new SourceParse([], [], before))))
+            return;
+        if (spansGrew)
+            throw new ContractError("DSL-GEOMETRY", CapacitySpanReason(compatBefore.SharedSpans, compatAfter.SharedSpans));
         var differing = Enumerable.Range(0, after.Assignments.Length).Where(index =>
             index > 0 && !Geometry.SameGeometry(after.Profiles[after.Assignments[index - 1].Profile], after.Profiles[after.Assignments[index].Profile], watch) ||
             index + 1 < after.Assignments.Length && !Geometry.SameGeometry(after.Profiles[after.Assignments[index].Profile], after.Profiles[after.Assignments[index + 1].Profile], watch));
@@ -126,10 +137,29 @@ internal static class SectionEdits
     internal static string JoinNames(IReadOnlyList<string> names) =>
         names.Count <= 1 ? string.Concat(names) : string.Join(", ", names.Take(names.Count - 1)) + " and " + names[^1];
 
-    // COPY-209 (m12c design §11.4).
-    private static string NeighbourAbscissaReason(string station, string neighbour) =>
-        $"This edit would give {station}'s section different point positions from {neighbour}'s, and the wing between them " +
-        "can't be checked then. Move points up or down only, or keep the section shared.";
+    // COPY-C4 (proposed, cross-profile-abscissa.md §8): blend capacity refusal on a CF candidate.
+    private static string CapacitySpanReason(int limitSpans, int neededSpans) =>
+        $"Can't keep this change: the blend can be checked for {limitSpans} spans and this needs {neededSpans}. " +
+        "Delete a point first, or use the same section at both stations. Nothing changed.";
+
+    // COPY-C5 (proposed, cross-profile-abscissa.md §8; UX-2 basis-change cause): copy surface residual over 10 um.
+    private static string MatchOverLimitReason(Definition before, Definition after, CompatibleDefinition compatAfter, BlendMatch worst)
+    {
+        string station = JoinNames(worst.Assignments.Select(index => StationName(index, after.Assignments[index].Eta)).ToArray());
+        string devMm = (worst.SurfaceDeviationMeters * 1e3).ToString("0.0000", System.Globalization.CultureInfo.InvariantCulture);
+        string limitMm = (worst.LimitMeters * 1e3).ToString("0.000", System.Globalization.CultureInfo.InvariantCulture);
+        var compatBefore = Compatible.Of(before);
+        bool basisChanged = compatBefore.BasisProfile.Length > 0 && compatBefore.BasisProfile != compatAfter.BasisProfile;
+        if (basisChanged)
+        {
+            var basisMatch = compatAfter.Matches.FirstOrDefault(m => m.Basis);
+            string leader = basisMatch is not null
+                ? JoinNames(basisMatch.Assignments.Select(index => StationName(index, after.Assignments[index].Eta)).ToArray())
+                : compatAfter.BasisProfile;
+            return $"Can't keep this change: this makes {leader} the leading section; {station} would be {devMm} mm from its drawn shape on the blend (limit {limitMm} mm). Nothing changed.";
+        }
+        return $"Can't keep this change: {station} would be {devMm} mm from its drawn shape on the blend (limit {limitMm} mm). Nothing changed.";
+    }
 
     // simplify: the Desktop's station naming (ElevationView.StationName, PointsView.StationName) restated for a Core reason;
     // the Core's one copy, read here and by SectionReplace. Ceiling: three copies of one rule. Upgrade trigger: the next
@@ -568,9 +598,12 @@ internal static class SectionEdits
     private static SectionStepReport ReportOf(string kind, byte[] before, byte[] after, int assignment, IReadOnlyList<string> removed)
     {
         var (prior, _, _) = Sides(before, assignment);
-        var (next, upper, lower) = Sides(after, assignment);
+        var afterParsed = FoilSource.Parse(after);
+        var afterDef = afterParsed.Definition ?? throw new ContractError("DSL-INVALID");
+        var next = afterDef.Profiles[afterDef.Assignments[assignment].Profile];
+        var matches = Compatible.Measure(afterParsed).Matches;
         return new(kind, FoilSource.MaxOrdinateDeviation(prior, next), "FoilSource.MaxOrdinateDeviation",
-            upper.Points.Length, lower.Points.Length, null, null, removed);
+            next.Upper.Points.Length, next.Lower.Points.Length, null, null, removed, matches);
     }
 
     private static string KindName(TangentKind kind) => kind switch

@@ -188,7 +188,8 @@ public sealed class AuthoringSession : IDisposable
         }
         var parsed = ParseOwned(bytes);
         var binding = new AuthoredBinding(parsed.SourceHash, "Accepted", revision.Id, design.Id, parsed.SurfaceHash, design.Evaluator, null, null, null);
-        return new AcceptedInspection(parsed.Authored().Rebind(binding), AssessOwned(parsed));
+        var matches = Compatible.Measure(parsed).Matches;
+        return new AcceptedInspection(parsed.Authored().Rebind(binding), AssessOwned(parsed)) { Matches = matches };
     });
     public AuthoredProjection InspectDraft() => Run("inspect-draft", () =>
     {
@@ -2022,7 +2023,10 @@ public sealed class AuthoringSession : IDisposable
             }
             case SectionStep.Rebuild { Side: null } rebuild:
             {
-                var (patched, result) = FoilSource.RebuildProfile(bytes, prior.Name, rebuild.VertexCount, rebuild.Tolerance, rebuild.Ends);
+                byte[] clean = bytes;
+                if (prior.Upper.Tangents.Length > 0) clean = FoilSource.WriteSideTangents(clean, prior.Name, SurfaceSide.Upper, []);
+                if (prior.Lower.Tangents.Length > 0) clean = FoilSource.WriteSideTangents(clean, prior.Name, SurfaceSide.Lower, []);
+                var (patched, result) = FoilSource.RebuildProfile(clean, prior.Name, rebuild.VertexCount, rebuild.Tolerance, rebuild.Ends);
                 RequireFair(result);
                 (next, achieved) = (patched, result.MaxDeviation);
                 break;
@@ -2050,17 +2054,19 @@ public sealed class AuthoringSession : IDisposable
         if (intent == ThicknessIntent.UseSource) next = ThicknessFit.Fit(next, name);
         // m12d §5.1: the one writer of " modified", after any step but Replace (and Import, a Replace) that changed the shape.
         if (step is not (SectionStep.Replace or SectionStep.Import)) next = Provenance.MarkModified(next, name, bytes);
-        var after = SessionSource.Parse(next).Definition!;
-        // Ruling 71 at the one step choke point (operator 2026-10-04). Replace (and Import, which is a Replace) is judged once,
-        // inside SectionReplace, before its preview is offered.
+        var afterParsed = SessionSource.Parse(next);
+        var after = afterParsed.Definition!;
+        // Ruling 73 / 269 at the one step choke point: compatible-fit residual + blend capacity on candidate bytes.
+        // Replace (and Import, which is a Replace) is judged once, inside SectionReplace, before its preview is offered.
         if (step is not (SectionStep.Replace or SectionStep.Import)) SectionEdits.RequireNeighbourAbscissa(definition, after, assignment);
         var profile = after.Profiles.Single(item => item.Name == name);
+        var matches = Compatible.Measure(afterParsed).Matches;
         ThicknessProposal? proposal = intent == ThicknessIntent.UseSource ? ThicknessFit.Describe(next, name, baseBytes).Proposal : null;
         var report = delegated is not null
-            ? delegated with { Thickness = proposal ?? delegated.Thickness }
+            ? delegated with { Thickness = proposal ?? delegated.Thickness, Matches = matches }
             : new SectionStepReport(SectionStepKind(step), achieved ?? FoilSource.MaxOrdinateDeviation(prior, profile),
                 achieved is null ? ProfileChangeOracle : "ProfileFair.MaxDeviation", profile.Upper.Points.Length, profile.Lower.Points.Length,
-                import, proposal, RowsRemoved(prior, profile));
+                import, proposal, RowsRemoved(prior, profile), matches);
         return new(next, name, intent, report);
     }
 
@@ -3056,16 +3062,23 @@ internal static class StationEdits
     };
 
     /// <summary>Camber, thickness and their sum differences, 129 eta per interval plus the interval ends, 2001 x: sampled, not a bound.</summary>
-    private static (double Relative, double Meters, double AtEta, double WorstRelative) Measure(byte[] before, byte[] after, IReadOnlyList<double> etas, int xSamples)
+    internal static (double Relative, double Meters, double AtEta, double WorstRelative) Measure(byte[] before, byte[] after, IReadOnlyList<double> etas, int xSamples)
     {
         var xs = Enumerable.Range(0, xSamples).Select(i => i / (double)(xSamples - 1)).ToArray();
         var a = SectionsParallel(before, etas, xs);
         var b = SectionsParallel(after, etas, xs);
+        return CompareMeasures(a, b, etas, xs.Length);
+    }
+
+    /// <summary>Shared surface norm used identically by <see cref="StationEdits"/> and <see cref="Compatible"/> (Ruling 269).</summary>
+    internal static (double Relative, double Meters, double AtEta, double WorstRelative) CompareMeasures(
+        SectionMeasure[] a, SectionMeasure[] b, IReadOnlyList<double> etas, int xCount)
+    {
         double relative = 0, meters = 0, at = etas[0], worstRelative = 0;
         for (int i = 0; i < etas.Count; i++)
         {
             double worst = 0;
-            for (int j = 0; j < xs.Length; j++)
+            for (int j = 0; j < xCount; j++)
             {
                 double camber = b[i].Camber[j] - a[i].Camber[j], width = (b[i].Thickness[j] - a[i].Thickness[j]) / 2;
                 worst = Math.Max(worst, Math.Max(Math.Abs(camber + width), Math.Abs(camber - width)));
@@ -3093,7 +3106,7 @@ internal static class StationEdits
         return samples;
     }
 
-    private static List<double> Grid(StationGrid grid, params (double From, double To)[] intervals)
+    internal static List<double> Grid(StationGrid grid, params (double From, double To)[] intervals)
     {
         var etas = new List<double>();
         foreach (var (from, to) in intervals)
