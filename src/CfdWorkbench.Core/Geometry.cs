@@ -357,6 +357,10 @@ public static class Geometry
                 Require(profile.Closure != "closed" || profile.Upper.Points[^1][1] == 0 && profile.Lower.Points[^1][1] == 0,
                     "Closed trailing endpoints must meet at zero.", GeometryStatus.Invalid);
             }
+            // Ruling 269 (DR-DF-7 a, BC-2): compatible copies replace both Profiles and Curves after authored tangent checks.
+            var compatible = Compatible.Of(definition, source.SurfaceHash);
+            Require(!compatible.Failed, compatible.FailureReason ?? "Compatible fit could not be constructed.", GeometryStatus.NotAssessed, "GEOMETRY-FIT-SINGULAR");
+            definition = compatible.Definition;
             var spans = definition.Curves.ToDictionary(pair => pair.Key, pair => Bernstein.Spans(pair.Value, watch));
             foreach (var curve in spans.Values)
                 foreach (var span in curve)

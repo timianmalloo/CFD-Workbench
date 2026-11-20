@@ -61,6 +61,7 @@ internal static class IdentityTests
             SectionDraftTests.RunReadiness();
             GroupGestureTests.RunReadiness();
             TipChordTests.RunReadiness();
+            CompatibleTests.RunReadiness();
             Console.WriteLine($"RESULT failures={failures}");
             return failures == 0 ? 0 : 1;
         }
@@ -140,6 +141,7 @@ internal static class IdentityTests
         SectionEditsTests.Run();
         SectionDraftTests.Run();
         SectionEditTests.RunMultiProfile();
+        CompatibleTests.Run();
         OverlayTests.Run();
         CorePartition.Run();
         bool emptyPart = part is not null && only is null && ran == 0;

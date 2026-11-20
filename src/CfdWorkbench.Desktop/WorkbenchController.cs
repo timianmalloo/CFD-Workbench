@@ -1227,6 +1227,7 @@ public sealed class WorkbenchController : IDisposable
     public event Action? SectionChanged;
     public SectionMode? Section { get; private set; }
     public (SurfaceSide Side, double ChordX, double DeviationMeters, double LimitMeters)? SectionRefitRefusal { get; private set; }
+    public (string Profile, double DeviationMeters, double LimitMeters, double Eta)? SectionMatchRefusal { get; private set; }
     public WingEstimates? Estimates { get; private set; }
     public PlanformView? Planform => Inspection is null ? null : CfdWorkbench.Core.Planform.View(
         !IsAnalysis ? draft?.Bytes ?? session.Snapshot().Source : session.Snapshot().Source,
@@ -1834,6 +1835,7 @@ public sealed class WorkbenchController : IDisposable
         draft = session.Snapshot().Draft;
         Section = new SectionMode(view, baseBytes, origin);
         SectionRefitRefusal = null;
+        SectionMatchRefusal = null;
         interiorEta = Inspection.Authored.Assignments[assignment].Eta;
         var first = SectionCurve(SurfaceSide.Upper)!.Points[0];
         Select(new Selection.Points([new PointRef("upper", first.Id, view.Profile)]));
@@ -1870,6 +1872,10 @@ public sealed class WorkbenchController : IDisposable
                     error.Data["RefitAffectedSide"] is SurfaceSide side &&
                     error.Data["RefitDeviationMeters"] is double deviation &&
                     error.Data["RefitLimitMeters"] is double limit ? (side, x, deviation, limit) : null;
+                SectionMatchRefusal = error.Data["MatchProfile"] is string matchProfile &&
+                    error.Data["MatchDeviationMeters"] is double matchDeviation &&
+                    error.Data["MatchLimitMeters"] is double matchLimit &&
+                    error.Data["MatchEta"] is double matchEta ? (matchProfile, matchDeviation, matchLimit, matchEta) : null;
                 Status = error.Message;
                 // The refused step left the draft unchanged. Keep the certificate this step cleared:
                 // "Checking…" is for bytes that moved, and a refused step must not show it while the re-check runs.
@@ -1888,6 +1894,7 @@ public sealed class WorkbenchController : IDisposable
             if (SectionStale(mode)) return;
             draft = landed;
             SectionRefitRefusal = null;
+            SectionMatchRefusal = null;
             if (step is SectionStep.Replace replace)
                 replaceNames[next.Profile] = replace.Source.DisplayName;
             sectionBeforeChecking = null;
@@ -1920,6 +1927,7 @@ public sealed class WorkbenchController : IDisposable
         if (SectionStale(mode)) return;
         draft = landed;
         SectionRefitRefusal = null;
+        SectionMatchRefusal = null;
         bool moved = next.Cursor != mode.Draft.Cursor;
         if (moved) sectionBeforeChecking = null;
         Section = Section! with
@@ -2495,6 +2503,7 @@ public sealed class WorkbenchController : IDisposable
         Section = null;
         sectionBeforeChecking = null;
         SectionRefitRefusal = null;
+        SectionMatchRefusal = null;
         draft = null;
         Inspection = session.InspectAccepted();
         sectionViews.Clear();
@@ -2514,6 +2523,7 @@ public sealed class WorkbenchController : IDisposable
         Section = null;
         sectionBeforeChecking = null;
         SectionRefitRefusal = null;
+        SectionMatchRefusal = null;
         draft = null;
         Status = "Section cancelled. Accepted source and history are unchanged.";
         Select(new Selection.Station(mode.Draft.Assignment, Inspection!.Authored.Assignments[mode.Draft.Assignment].Eta));

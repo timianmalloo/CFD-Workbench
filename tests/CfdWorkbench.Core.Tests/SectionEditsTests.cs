@@ -29,16 +29,12 @@ internal static class SectionEditsTests
         IdentityTests.Check(nameof(SectionEdits_PairedAngle_HandlesKeepPairedX_Certifies), SectionEdits_PairedAngle_HandlesKeepPairedX_Certifies);
         IdentityTests.Check(nameof(SectionEdits_PairedToAnchorWithKind_PartnerRowWritten), SectionEdits_PairedToAnchorWithKind_PartnerRowWritten);
         IdentityTests.Check(nameof(SectionEdits_PairedToControl_PartnerRowRemoved), SectionEdits_PairedToControl_PartnerRowRemoved);
-        IdentityTests.Check(nameof(SectionEdits_TwoProfiles_ControlToAnchor_Observed), SectionEdits_TwoProfiles_ControlToAnchor_Observed);
-        IdentityTests.Check(nameof(SectionEdits_UniqueProfile_AbscissaBreakingStepRefusedNothingChanged), SectionEdits_UniqueProfile_AbscissaBreakingStepRefusedNothingChanged);
+        IdentityTests.Check(nameof(SectionEdits_TwoProfiles_ControlToAnchor_Certified), SectionEdits_TwoProfiles_ControlToAnchor_Certified);
+        IdentityTests.Check(nameof(SectionEdits_UniqueProfile_AbscissaStepAdmittedUnderCompatibleFit), SectionEdits_UniqueProfile_AbscissaStepAdmittedUnderCompatibleFit);
         IdentityTests.Check(nameof(SectionEdits_UniqueProfile_YOnlyMoveAllowed), SectionEdits_UniqueProfile_YOnlyMoveAllowed);
         IdentityTests.Check(nameof(SectionEdits_SharedImport0012_LandsAsSharedReplaceCertified), SectionEdits_SharedImport0012_LandsAsSharedReplaceCertified);
         IdentityTests.Check(nameof(SectionEdits_UniqueImportOverLimit_RefusedNothingChanged), SectionEdits_UniqueImportOverLimit_RefusedNothingChanged);
     }
-
-    // COPY-209 (Ruling 71): the Example's Root after Make unique; Tip keeps the shared profile.
-    private const string UniqueRootReason = "This edit would give Root's section different point positions from Tip's, and the wing " +
-        "between them can't be checked then. Move points up or down only, or keep the section shared.";
 
     internal static void RunReadiness()
     {
@@ -307,7 +303,7 @@ internal static class SectionEditsTests
         IdentityTests.Equal(angle, lower.Angle);
     }
 
-    private static void SectionEdits_TwoProfiles_ControlToAnchor_Observed()
+    private static void SectionEdits_TwoProfiles_ControlToAnchor_Certified()
     {
         string text = Encoding.UTF8.GetString(FoilSource.MaterializeIds(FoilSource.Parse(FoilSourceTests.Example)));
         int start = text.IndexOf("    profile \"section-a\" {", StringComparison.Ordinal);
@@ -323,37 +319,31 @@ internal static class SectionEditsTests
             throw new InvalidOperationException("Fixture is not certified: " + before.Status + " " + before.Code + " " + before.Reason);
         byte[] edited = SectionEdits.Apply(foil, 0, new SectionStep.SetType(SurfaceSide.Upper, "cv-4", true)).Bytes;
         var after = Geometry.Assess(FoilSource.Parse(edited));
-        IdentityTests.Equal(GeometryStatus.Unsupported, after.Status);
-        IdentityTests.Equal(true, after.Reason.Contains("abscissa", StringComparison.OrdinalIgnoreCase));
+        IdentityTests.Equal(GeometryStatus.Certified, after.Status);
     }
 
-    // Ruling 71: a step that would give a unique profile other abscissae than its neighbour's is refused at the step, with
-    // nothing changed; before, it landed and the certificate refused the whole draft at Finish.
-    private static void SectionEdits_UniqueProfile_AbscissaBreakingStepRefusedNothingChanged()
+    // Ruling 73 / 269: compatible fit lifts the Ruling 71 early-refusal stopgap for abscissa-changing steps within 10 um.
+    private static void SectionEdits_UniqueProfile_AbscissaStepAdmittedUnderCompatibleFit()
     {
         using var session = SectionDraftTests.Opened();
         string id = SectionDraftTests.Id();
         var view = session.BeginSectionDraft(id, 0);
         view = session.ApplySectionStep(id, view.Generation, new SectionStep.MakeUnique());
         var (x, y) = SectionDraftTests.Point(view, SurfaceSide.Upper, "cv-3");
-        var (nextX, _) = SectionDraftTests.Point(view, SurfaceSide.Upper, "cv-4");
-        SectionStep[] breaking =
+        SectionStep[] steps =
         [
             new SectionStep.SetType(SurfaceSide.Upper, "cv-4", true),
             new SectionStep.Insert(SurfaceSide.Upper, 0.37),
-            new SectionStep.Move(SurfaceSide.Upper, "cv-3", (x + nextX) / 2, y),
+            new SectionStep.Move(SurfaceSide.Upper, "cv-3", x + 0.005, y),
         ];
-        foreach (var step in breaking)
+        foreach (var step in steps)
         {
-            var error = Throws(() => session.ApplySectionStep(id, view.Generation, step));
-            IdentityTests.Equal("DSL-GEOMETRY", error.Code);
-            IdentityTests.Equal(UniqueRootReason, error.Reason);
-            var draft = session.Snapshot().Draft!;
-            IdentityTests.Equal(view.Generation, draft.Generation);
-            IdentityTests.Equal(true, draft.Bytes.AsSpan().SequenceEqual(view.Bytes));
+            var next = session.ApplySectionStep(id, view.Generation, step);
+            IdentityTests.Equal(view.Generation + 1, next.Generation);
+            var assessment = session.AssessSection(id, next.Generation, CancellationToken.None);
+            IdentityTests.Equal(GeometryStatus.Certified, assessment.Status);
+            view = session.UndoSectionStep(id);
         }
-        var assessment = session.AssessSection(id, view.Generation, CancellationToken.None);
-        IdentityTests.Equal(GeometryStatus.Certified, assessment.Status);
     }
 
     // The useful part of a unique section: a y-only move keeps the abscissae, lands, and the draft still certifies.

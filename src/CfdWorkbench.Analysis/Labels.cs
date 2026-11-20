@@ -505,4 +505,26 @@ public static class Labels
     public const string CatalogTagCiteOnly = "cite only"; // COPY-649, approved Ruling 268
     public const string CatalogPreviewFault = "The preview couldn't be computed. Nothing changed."; // COPY-650, approved Ruling 268
     public const string CatalogFittingThenReplace = "Fitting… Replace will follow."; // COPY-651, approved Ruling 268
+
+    // ---- CF: compatible fit copy (wave 5, Rulings 73, 269, proposed COPY-686..688) ----
+    /// <summary>COPY-686 (COPY-C1): persistent scope chip for a unique station section.</summary>
+    public static string CompatibleScopeUnique(string station, string basisStation, string? otherAnchorStations = null)
+    {
+        string tail = string.IsNullOrWhiteSpace(otherAnchorStations)
+            ? $"the wing blends on {basisStation}'s spacing"
+            : $"the wing blends on {basisStation}'s spacing + {otherAnchorStations}'s anchors";
+        return $"Only {station} uses this section · {tail}";
+    }
+
+    /// <summary>COPY-687 (COPY-C2): Properties Section block Blend row value when the copy is the identity.</summary>
+    public const string CompatibleBlendIdenticalValue = "identical spacing";
+
+    /// <summary>COPY-687 (COPY-C2): Properties Section block Blend row value when the copy is non-identity.</summary>
+    public static string CompatibleBlendDeviationValue(double deviationMeters, double limitMeters, string basisStation) =>
+        string.Create(CultureInfo.InvariantCulture,
+            $"deviation {deviationMeters * 1e3:0.0000} mm, sampled (limit {limitMeters * 1e3:0.000} mm), on {basisStation}'s spacing");
+
+    /// <summary>COPY-688 (COPY-C3): status-strip clause appended when a copy's blend match changed.</summary>
+    public static string CompatibleStripClause(string station, double deviationMeters) =>
+        string.Create(CultureInfo.InvariantCulture, $"{station} deviates {deviationMeters * 1e3:0.0000} mm on the blend (sampled).");
 }

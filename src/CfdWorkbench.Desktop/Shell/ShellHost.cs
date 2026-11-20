@@ -1614,8 +1614,22 @@ public sealed class ShellHost : Grid
             Report(new StatusReport(copy, ReportKind.Warning), new StripAction("Show", () => ShowBlocker(named, null)));
             return;
         }
+        if (error.Data["MatchProfile"] is string && StepPointRef(step) is { } matchTarget)
+        {
+            Report(new StatusReport(RefusalCopy(error), ReportKind.Warning), new StripAction("Show", () => ShowBlocker(matchTarget, null)));
+            return;
+        }
         Report(new StatusReport(RefusalCopy(error), ReportKind.Warning));
     }
+
+    private PointRef? StepPointRef(SectionStep step) => step switch
+    {
+        SectionStep.Move move => new PointRef(move.Side == SurfaceSide.Upper ? "upper" : "lower", move.VertexId, Controller.Section?.Draft.Profile),
+        SectionStep.SetType setType => new PointRef(setType.Side == SurfaceSide.Upper ? "upper" : "lower", setType.VertexId, Controller.Section?.Draft.Profile),
+        SectionStep.SetTangent tangent => new PointRef(tangent.Side == SurfaceSide.Upper ? "upper" : "lower", tangent.VertexId, Controller.Section?.Draft.Profile),
+        SectionStep.Delete delete => new PointRef(delete.Side == SurfaceSide.Upper ? "upper" : "lower", delete.VertexId, Controller.Section?.Draft.Profile),
+        _ => null
+    };
 
     /// <summary>CAT and LIB reasons are already the operator sentence. Other refusals gain "Nothing changed." once.</summary>
     internal static string RefusalCopy(ContractError error)

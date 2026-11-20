@@ -127,8 +127,10 @@ public sealed record PromotionPreview(double Eta, string EtaText, int Left, int 
     public int? ExistingIndex { get; init; }
     /// <summary>The sampling grid the deviation was measured on (Ruling 252: the number is labelled sampled and names its grid).</summary>
     public string Grid { get; init; } = StationGrid.Production.Label;
-    /// <summary>How many eta were sampled (both adjacent intervals, each end included).</summary>
+    /// <summary>How many eta were sampled (both adjacent intervals, each end included, plus any interval touching a bitwise-changed CF copy).</summary>
     public int EtaCount { get; init; }
+    /// <summary>Intervals measured (adjacent plus any interval touching a bitwise-changed CF copy; C3).</summary>
+    public IReadOnlyList<BlendInterval>? MeasuredIntervals { get; init; }
 }
 public sealed record PromotionOutcome(string AcceptedId, int Index, string ProfileName, PromotionPreview Report, ThicknessIntent Thickness);
 public sealed record RemovalPreview(int Index, double DeviationRelative, double DeviationMeters, double AtEta, double LimitMeters,
@@ -136,6 +138,8 @@ public sealed record RemovalPreview(int Index, double DeviationRelative, double 
 {
     public string Grid { get; init; } = StationGrid.Production.Label;
     public int EtaCount { get; init; }
+    /// <summary>Intervals measured (adjacent plus any interval touching a bitwise-changed CF copy; C3).</summary>
+    public IReadOnlyList<BlendInterval>? MeasuredIntervals { get; init; }
 }
 public sealed record RemovalOutcome(string AcceptedId, RemovalPreview Report);
 
@@ -152,6 +156,8 @@ public sealed record MatchPreview(int Index, double ChangeRelative, double Chang
     public bool RemoveAdmittedAfter => ResidualMeters <= StationEdits.LimitMeters;
     public string Grid { get; init; } = StationGrid.Production.Label;
     public int EtaCount { get; init; }
+    /// <summary>Intervals measured (adjacent plus any interval touching a bitwise-changed CF copy; C3).</summary>
+    public IReadOnlyList<BlendInterval>? MeasuredIntervals { get; init; }
 }
 public sealed record MatchOutcome(string AcceptedId, MatchPreview Report);
 
@@ -188,7 +194,8 @@ public sealed class AuthoringSession : IDisposable
         }
         var parsed = ParseOwned(bytes);
         var binding = new AuthoredBinding(parsed.SourceHash, "Accepted", revision.Id, design.Id, parsed.SurfaceHash, design.Evaluator, null, null, null);
-        return new AcceptedInspection(parsed.Authored().Rebind(binding), AssessOwned(parsed));
+        var matches = Compatible.Measure(parsed).Matches;
+        return new AcceptedInspection(parsed.Authored().Rebind(binding), AssessOwned(parsed)) { Matches = matches };
     });
     public AuthoredProjection InspectDraft() => Run("inspect-draft", () =>
     {
@@ -198,7 +205,7 @@ public sealed class AuthoringSession : IDisposable
     });
     private static AuthoredBinding DraftBinding(SessionDraft capture, SourceParse? parsed = null) =>
         new(parsed?.SourceHash ?? Identity.Sha256(capture.Bytes), "Draft", null, null, parsed?.SurfaceHash,
-            parsed?.IsParsed == true ? "cfdw-cv/2" : null, capture.Base, capture.Id, capture.Generation);
+            parsed?.IsParsed == true ? Evaluator.IdFor(parsed) : null, capture.Base, capture.Id, capture.Generation);
     private readonly Queue<SessionEvent> events = new();
     private readonly AsyncLocal<string?> trace = new();
     private long eventSequence;
@@ -331,15 +338,16 @@ public sealed class AuthoringSession : IDisposable
         var timer = System.Diagnostics.Stopwatch.StartNew(); SourceParse parsed;
         try { parsed = SessionSource.Parse(bytes); }
         catch (ContractError error) { Record("language.parse", error.Code, timer.Elapsed.TotalMilliseconds, bytes.Length, null, null, null); throw; }
-        Record("language.parse", "OK", timer.Elapsed.TotalMilliseconds, bytes.Length, bytes.Length, null, "cfdw-cv/2");
+        string evaluator = Evaluator.IdFor(parsed);
+        Record("language.parse", "OK", timer.Elapsed.TotalMilliseconds, bytes.Length, bytes.Length, null, evaluator);
         timer.Restart(); _ = parsed.SourceHash; _ = parsed.SurfaceHash;
-        Record("identity.canonicalize", "OK", timer.Elapsed.TotalMilliseconds, bytes.Length, null, null, "cfdw-cv/2");
+        Record("identity.canonicalize", "OK", timer.Elapsed.TotalMilliseconds, bytes.Length, null, null, evaluator);
         return parsed;
     }
     private GeometryAssessment AssessOwned(SourceParse parsed, long? generation = null)
     {
         var timer = System.Diagnostics.Stopwatch.StartNew(); var result = Geometry.Assess(parsed, new ProofBudget(proofWorkLimit));
-        Record("geometry.validate", result.Code, timer.Elapsed.TotalMilliseconds, parsed.Source.Length, null, generation, "cfdw-cv/2");
+        Record("geometry.validate", result.Code, timer.Elapsed.TotalMilliseconds, parsed.Source.Length, null, generation, Evaluator.IdFor(parsed));
         return result;
     }
     public byte[] Open(byte[] source, string operationId, bool acceptIdInsertion) => Run("open", () => OpenCore(source, operationId, acceptIdInsertion), source.Length);
@@ -436,7 +444,7 @@ public sealed class AuthoringSession : IDisposable
                 });
             }
         }
-        Record("rebuild.preview", "OK", watch.Elapsed.TotalMilliseconds, bytes.Length, null, null, "cfdw-cv/2", "rebuild.preview", curveFamily: Channels.Family(curve));
+        Record("rebuild.preview", "OK", watch.Elapsed.TotalMilliseconds, bytes.Length, null, null, Evaluator.IdFor(parsed), "rebuild.preview", curveFamily: Channels.Family(curve));
         return list;
     }
     private static string PointEditKind(PointCommand? command) => command switch
@@ -488,7 +496,7 @@ public sealed class AuthoringSession : IDisposable
         try { preview = SectionReplace.Preview(bytes, assignment, draftScope, source, scope); }
         catch (ContractError error)
         {
-            Record("catalog.preview", error.Code, timer.Elapsed.TotalMilliseconds, bytes.Length, null, generation, "cfdw-cv/2", editKind: "section");
+            Record("catalog.preview", error.Code, timer.Elapsed.TotalMilliseconds, bytes.Length, null, generation, Evaluator.IdFor(bytes), editKind: "section");
             throw;
         }
         lock (sync)
@@ -501,7 +509,7 @@ public sealed class AuthoringSession : IDisposable
             { Family = family, Class = rights, FamilyRefusal = refusal };
         }
         Record("catalog.preview", preview.RefusalCode?.ToLowerInvariant() ?? "ok", timer.Elapsed.TotalMilliseconds, bytes.Length, null, generation,
-            "cfdw-cv/2", editKind: "section", stepKind: preview.Spacing);
+            Evaluator.IdFor(preview.Bytes ?? bytes), editKind: "section", stepKind: preview.Spacing);
         return preview;
     }
     /// <summary>Moves the cursor back one step; a no-op at cursor 0. Never document undo.</summary>
@@ -583,7 +591,7 @@ public sealed class AuthoringSession : IDisposable
     static byte[] Decode(string[] chunks) => chunks.SelectMany(Convert.FromBase64String).ToArray();
     AcceptedRow Current => accepted.Single(a => a.Id == current);
     byte[] CurrentBytes => Decode(sources.Single(s => s.Id == Current.SourceId).Utf8Base64Chunks);
-    SessionBinding Key(SourceParse p, SessionDraft d) => new(p.SourceHash, d.Base, d.Id, d.Generation, "cfdw-cv/2", p.SurfaceHash!, d.Rail, d.VertexId);
+    SessionBinding Key(SourceParse p, SessionDraft d) => new(p.SourceHash, d.Base, d.Id, d.Generation, Evaluator.IdFor(p), p.SurfaceHash!, d.Rail, d.VertexId);
     // Admits a document into the session. `toleratesBudget` is for re-certifying a revision
     // that is already stored (reopen, undo/redo): a proof that merely ran out of its
     // cooperative work limit must not refuse the whole session — the revision is simply
@@ -622,7 +630,7 @@ public sealed class AuthoringSession : IDisposable
             p = ParseOwned(candidate);
             if (Retry(operationId, "open:" + p.SourceHash, out _)) return candidate;
             Guard.Require(current is null, "DOC-SESSION-NOT-EMPTY");
-            var key = new SessionBinding(p.SourceHash, "", "", 0, "cfdw-cv/2", p.SurfaceHash!, "", "");
+            var key = new SessionBinding(p.SourceHash, "", "", 0, Evaluator.IdFor(p), p.SurfaceHash!, "", "");
             RequireAdmission(p, key);
             string id = Commit(p, operationId, "open"); operations.Add(operationId, ("open:" + p.SourceHash, id)); return candidate;
         }
@@ -650,7 +658,7 @@ public sealed class AuthoringSession : IDisposable
         string? parent = current; string? priorDesign = current is null ? null : Current.DesignId;
         string design = priorDesign is not null && designs.Single(d => d.Id == priorDesign).SurfaceHash! == p.SurfaceHash! ? priorDesign : Guid.NewGuid().ToString("D");
         var nextDesigns = designs.ToList(); var nextSources = sources.ToList();
-        if (!nextDesigns.Any(d => d.Id == design)) nextDesigns.Add(new(design, priorDesign, p.SurfaceHash!, "cfdw-cv/2"));
+        if (!nextDesigns.Any(d => d.Id == design)) nextDesigns.Add(new(design, priorDesign, p.SurfaceHash!, Evaluator.IdFor(p)));
         if (!nextSources.Any(s => s.Id == p.SourceHash)) nextSources.Add(new(p.SourceHash, Chunks(p.Source)));
         string id = Guid.NewGuid().ToString("D");
         var row = new AcceptedRow(id, parent, p.SourceHash, design, op, draft is null ? null : new(draft.Id, draft.Generation, draft.Rail, draft.VertexId, draft.Intent, draft.Rule, draft.Curve));
@@ -701,7 +709,7 @@ public sealed class AuthoringSession : IDisposable
                 if (points[Array.IndexOf(rail.Ids, id)].Freedom != PointFreedom.Fixed) continue;
                 throw group ? new ContractError("DSL-LOCK", $"{id} is locked.") : new ContractError("DSL-LOCK");
             }
-            RequireAdmission(parsed, new(parsed.SourceHash, current!, draftId, 0, "cfdw-cv/2", parsed.SurfaceHash!, curve, vertexIds[0]), toleratesBudget: false);
+            RequireAdmission(parsed, new(parsed.SourceHash, current!, draftId, 0, Evaluator.IdFor(parsed), parsed.SurfaceHash!, curve, vertexIds[0]), toleratesBudget: false);
             retiredDraftIds.Add(draftId);
             draft = new(draftId, current!, 0, curve, vertexIds[0], CurrentBytes);
             gestureMembers = [.. members];
@@ -1051,11 +1059,12 @@ public sealed class AuthoringSession : IDisposable
         {
             if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", null, null, DraftBinding(capture), null, importReport: activeImportReport);
             var timer = System.Diagnostics.Stopwatch.StartNew(); var parsed = FoilSource.Parse(capture.Bytes);
-            Record("language.parse", parsed.IsParsed ? "OK" : parsed.Diagnostics[0].Code, timer.Elapsed.TotalMilliseconds, capture.Bytes.Length, null, generation, parsed.IsParsed ? "cfdw-cv/2" : null);
+            string? parsedEvaluator = parsed.IsParsed ? Evaluator.IdFor(parsed) : null;
+            Record("language.parse", parsed.IsParsed ? "OK" : parsed.Diagnostics[0].Code, timer.Elapsed.TotalMilliseconds, capture.Bytes.Length, null, generation, parsedEvaluator);
             if (!parsed.IsParsed) return new(authorityId, parsed.Diagnostics[0].Code == "DSL-LIMIT" ? GeometryStatus.NotAssessed : GeometryStatus.Invalid,
                 parsed.Diagnostics[0].Code, null, null, DraftBinding(capture, parsed), parsed.Diagnostics, importReport: activeImportReport);
             timer.Restart(); var key = Key(parsed, capture);
-            Record("identity.canonicalize", "OK", timer.Elapsed.TotalMilliseconds, capture.Bytes.Length, null, generation, "cfdw-cv/2");
+            Record("identity.canonicalize", "OK", timer.Elapsed.TotalMilliseconds, capture.Bytes.Length, null, generation, parsedEvaluator);
             ThicknessFit.View? thickness = capture.Intent == ThicknessIntent.UseSource && capture.Profile is not null
                 ? ThicknessFit.Describe(capture.Bytes, capture.Profile, baseline) : null;
             if (thickness?.Fault is string fault)
@@ -1792,7 +1801,7 @@ public sealed class AuthoringSession : IDisposable
             try { id = Commit(p, operationId, "apply"); }
             catch { pendingCurveFamily = null; throw; }   // a refusal (DSL-TIP-CHORD-MIN) keeps the draft owned but leaves no stale family
             operations.Add(operationId, (payload, id)); draft = null; recovery = null; activeImportReport = null; section = null; InvalidateEnvelopeSize();
-            if (gesture) { pendingMembers = gestureMembers.Length; Record("gesture.end", "OK", System.Diagnostics.Stopwatch.GetElapsedTime(gestureStarted).TotalMilliseconds, null, null, assessment.Key!.Generation, "cfdw-cv/2", frames: gestureFrames, curveFamily: family); gestureDraftId = null; gestureFrames = 0; }
+            if (gesture) { pendingMembers = gestureMembers.Length; Record("gesture.end", "OK", System.Diagnostics.Stopwatch.GetElapsedTime(gestureStarted).TotalMilliseconds, null, null, assessment.Key!.Generation, Evaluator.IdFor(p), frames: gestureFrames, curveFamily: family); gestureDraftId = null; gestureFrames = 0; }
             return id;
         }
     }
@@ -1804,7 +1813,7 @@ public sealed class AuthoringSession : IDisposable
             string? family = gestureDraftId == draftId ? Channels.Family(draft!.Rail) : null;
             if (section is not null && draft!.Rail == "section") EndSection("section.cancel", "OK", null);
             draft = null; recovery = null; activeImportReport = null; InvalidateEnvelopeSize();
-            if (gestureDraftId == draftId) { pendingMembers = gestureMembers.Length; Record("gesture.end", "NoChange", System.Diagnostics.Stopwatch.GetElapsedTime(gestureStarted).TotalMilliseconds, null, null, null, "cfdw-cv/2", frames: gestureFrames, curveFamily: family); gestureDraftId = null; gestureFrames = 0; }
+            if (gestureDraftId == draftId) { pendingMembers = gestureMembers.Length; Record("gesture.end", "NoChange", System.Diagnostics.Stopwatch.GetElapsedTime(gestureStarted).TotalMilliseconds, null, null, null, current is null ? Evaluator.V2 : Evaluator.IdFor(CurrentBytes), frames: gestureFrames, curveFamily: family); gestureDraftId = null; gestureFrames = 0; }
         }
     }
     // Section draft (ADR-0007 with Amendment 1; m12c-section-editor.md §3.2–§3.3, §5.1, §10). Command + Memento-by-bytes
@@ -1852,7 +1861,8 @@ public sealed class AuthoringSession : IDisposable
     private void EndSection(string operation, string outcome, long? generation)
     {
         var state = section!;
-        Record(operation, outcome, System.Diagnostics.Stopwatch.GetElapsedTime(state.Began).TotalMilliseconds, null, null, generation, "cfdw-cv/2",
+        string evaluator = draft is not null ? Evaluator.IdFor(draft.Bytes) : Evaluator.V2;
+        Record(operation, outcome, System.Diagnostics.Stopwatch.GetElapsedTime(state.Began).TotalMilliseconds, null, null, generation, evaluator,
             operation, "section", steps: state.Cursor, independent: draft?.Profile != state.EntryProfile);
         section = null;
     }
@@ -1976,7 +1986,7 @@ public sealed class AuthoringSession : IDisposable
             bool independent = draft.Profile != state.EntryProfile;
             string id = ApplyCore(operationId, assessment);
             Record("section.finish", "OK", System.Diagnostics.Stopwatch.GetElapsedTime(state.Began).TotalMilliseconds, null, null, assessment.Key!.Generation,
-                "cfdw-cv/2", "section.finish", "section", steps: steps, independent: independent);
+                assessment.Key.Evaluator, "section.finish", "section", steps: steps, independent: independent);
             return id;
         }
     }
@@ -2022,7 +2032,10 @@ public sealed class AuthoringSession : IDisposable
             }
             case SectionStep.Rebuild { Side: null } rebuild:
             {
-                var (patched, result) = FoilSource.RebuildProfile(bytes, prior.Name, rebuild.VertexCount, rebuild.Tolerance, rebuild.Ends);
+                byte[] clean = bytes;
+                if (prior.Upper.Tangents.Length > 0) clean = FoilSource.WriteSideTangents(clean, prior.Name, SurfaceSide.Upper, []);
+                if (prior.Lower.Tangents.Length > 0) clean = FoilSource.WriteSideTangents(clean, prior.Name, SurfaceSide.Lower, []);
+                var (patched, result) = FoilSource.RebuildProfile(clean, prior.Name, rebuild.VertexCount, rebuild.Tolerance, rebuild.Ends);
                 RequireFair(result);
                 (next, achieved) = (patched, result.MaxDeviation);
                 break;
@@ -2050,17 +2063,19 @@ public sealed class AuthoringSession : IDisposable
         if (intent == ThicknessIntent.UseSource) next = ThicknessFit.Fit(next, name);
         // m12d §5.1: the one writer of " modified", after any step but Replace (and Import, a Replace) that changed the shape.
         if (step is not (SectionStep.Replace or SectionStep.Import)) next = Provenance.MarkModified(next, name, bytes);
-        var after = SessionSource.Parse(next).Definition!;
-        // Ruling 71 at the one step choke point (operator 2026-10-04). Replace (and Import, which is a Replace) is judged once,
-        // inside SectionReplace, before its preview is offered.
+        var afterParsed = SessionSource.Parse(next);
+        var after = afterParsed.Definition!;
+        // Ruling 73 / 269 at the one step choke point: compatible-fit residual + blend capacity on candidate bytes.
+        // Replace (and Import, which is a Replace) is judged once, inside SectionReplace, before its preview is offered.
         if (step is not (SectionStep.Replace or SectionStep.Import)) SectionEdits.RequireNeighbourAbscissa(definition, after, assignment);
         var profile = after.Profiles.Single(item => item.Name == name);
+        var matches = Compatible.Measure(afterParsed).Matches;
         ThicknessProposal? proposal = intent == ThicknessIntent.UseSource ? ThicknessFit.Describe(next, name, baseBytes).Proposal : null;
         var report = delegated is not null
-            ? delegated with { Thickness = proposal ?? delegated.Thickness }
+            ? delegated with { Thickness = proposal ?? delegated.Thickness, Matches = matches }
             : new SectionStepReport(SectionStepKind(step), achieved ?? FoilSource.MaxOrdinateDeviation(prior, profile),
                 achieved is null ? ProfileChangeOracle : "ProfileFair.MaxDeviation", profile.Upper.Points.Length, profile.Lower.Points.Length,
-                import, proposal, RowsRemoved(prior, profile));
+                import, proposal, RowsRemoved(prior, profile), matches);
         return new(next, name, intent, report);
     }
 
@@ -2127,7 +2142,7 @@ public sealed class AuthoringSession : IDisposable
             if (target is null) { operations.Add(op, (payload, current!)); return current!; }
             var targetRow = accepted.Single(a => a.Id == target);
             var targetParsed = ParseOwned(Decode(sources.Single(s => s.Id == targetRow.SourceId).Utf8Base64Chunks));
-            RequireAdmission(targetParsed, new(targetParsed.SourceHash, "", "", 0, "cfdw-cv/2", targetParsed.SurfaceHash!, "", ""), toleratesBudget: true);
+            RequireAdmission(targetParsed, new(targetParsed.SourceHash, "", "", 0, Evaluator.IdFor(targetParsed), targetParsed.SurfaceHash!, "", ""), toleratesBudget: true);
             var cursor = new CursorRow(cursors.Count, target, payload, op);
             NativeProject.Preflight(EnvelopeCore() with { Cursors = [.. cursors, cursor] }, envelopeCap);
             if (forward) redo.Pop(); else redo.Push(current!);
@@ -2219,7 +2234,7 @@ public sealed class AuthoringSession : IDisposable
             Guard.Require(current is null, "DOC-SESSION-NOT-EMPTY"); var env = NativeProject.Read(image);
             var replay = NativeProject.Replay(env); var active = env.Accepted.Single(a => a.Id == replay.Current);
             var p = ParseOwned(Decode(env.Sources.Single(s => s.Id == active.SourceId).Utf8Base64Chunks));
-            var key = new SessionBinding(p.SourceHash, "", "", 0, "cfdw-cv/2", p.SurfaceHash!, "", "");
+            var key = new SessionBinding(p.SourceHash, "", "", 0, Evaluator.IdFor(p), p.SurfaceHash!, "", "");
             RequireAdmission(p, key, toleratesBudget: true);
             projectId = env.ProjectId;
             sources.AddRange(env.Sources); designs.AddRange(env.Designs); accepted.AddRange(env.Accepted); cursors.AddRange(env.Cursors); recovery = env.Recovery;
@@ -2748,8 +2763,8 @@ public static class NativeProject
         Guard.Require(e.Sources.Length > 0 && e.Designs.Length > 0 && e.Accepted.Length > 0 && e.Cursors.Length > 0, "DOC-REFERENCE");
         Guard.Require(e.Sources.Select(x => x.Id).Distinct().Count() == e.Sources.Length && e.Designs.Select(x => x.Id).Distinct().Count() == e.Designs.Length && e.Accepted.Select(x => x.Id).Distinct().Count() == e.Accepted.Length, "DOC-REFERENCE");
         // Native compatibility is checked before parsing any retained source or
-        // considering adoption. An older evaluator is not a broken reference.
-        foreach (var design in e.Designs) Guard.Require(design.Evaluator == "cfdw-cv/2", "DOC-VERSION");
+        // considering adoption. Both cfdw-cv/2 and cfdw-cv/3 are accepted (Ruling 73 / 269).
+        foreach (var design in e.Designs) Guard.Require(Evaluator.IsKnown(design.Evaluator), "DOC-VERSION");
         var parsed = new Dictionary<string, SourceParse>();
         foreach (var s in e.Sources) { Hash(s.Id); byte[] bytes = Decode(s.Utf8Base64Chunks); Guard.Require(Identity.Sha256(bytes) == s.Id, "DOC-INTEGRITY"); var p = SessionSource.Parse(bytes); Guard.Require(p.Definition!.Curves.Values.All(c => !c.MissingIds), "DOC-INTEGRITY"); parsed.Add(s.Id, p); }
         var designs = new Dictionary<string, DesignRow>();
@@ -2760,6 +2775,8 @@ public static class NativeProject
             Uuid(a.Id); Uuid(a.OperationId); Guard.Require(accepted.Count == 0 ? a.Parent is null : a.Parent is not null && accepted.ContainsKey(a.Parent), "DOC-REFERENCE");
             Guard.Require(parsed.ContainsKey(a.SourceId) && designs.ContainsKey(a.DesignId), "DOC-REFERENCE");
             Guard.Require(parsed[a.SourceId].SurfaceHash! == designs[a.DesignId].SurfaceHash!, "DOC-INTEGRITY");
+            // Ruling 269 DR-DF-9(a): a cfdw-cv/2 row whose source requires CF is refused with DOC-VERSION.
+            Guard.Require(!(designs[a.DesignId].Evaluator == Evaluator.V2 && Evaluator.NeedsCompatibleFit(parsed[a.SourceId].Definition)), "DOC-VERSION");
             if (a.Parent is not null)
             {
                 Guard.Require(a.Edit is not null, "DOC-REFERENCE"); Uuid(a.Edit!.DraftId);
@@ -2883,9 +2900,19 @@ internal static class StationEdits
         var l = definition.Profiles[stations[left].Profile];
         var r = definition.Profiles[stations[left + 1].Profile];
         bool same = Placement.SameRecord(l, r);
-        if (!same && !FourCurvesShareSpacing(l, r))
-            return Refused(eta, etaText, left, left + 1, "STATION-SPACING", "Promote is not available: " + StationNames.Of(left, stations[left].Eta) +
-                " and " + StationNames.Of(left + 1, stations[left + 1].Eta) + " have different point spacing, so this loft is not assessed.");
+        // C4 (Ruling 269): when L and R share their own spacing (even inside a mixed document), P keeps L's spacing bitwise (S1 path).
+        // Only an R3 pair (different spacings) blends on compatible copies L* and R* on S*.
+        bool sharedSpacing = same || FourCurvesShareSpacing(l, r);
+        ProfileDefinition blendLeft = l, blendRight = r;
+        if (!sharedSpacing)
+        {
+            var compat = Compatible.Of(definition);
+            if (compat.Failed)
+                return Refused(eta, etaText, left, left + 1, "STATION-NOT-ASSESSED",
+                    "Promote is not available: " + (compat.FailureReason ?? "compatible fit failed."));
+            blendLeft = compat.Definition.Profiles[stations[left].Profile];
+            blendRight = compat.Definition.Profiles[stations[left + 1].Profile];
+        }
         var names = definition.Profiles.Select(item => item.Name).ToHashSet(StringComparer.Ordinal);
         string name = StationNames.Of(left + 1, eta);
         for (int k = 2; names.Contains(name); k++) name = StationNames.Of(left + 1, eta) + "-" + k.ToString(CultureInfo.InvariantCulture);
@@ -2897,16 +2924,16 @@ internal static class StationEdits
             Guard.Require(thickness > 0, "DSL-PATCH");
             double weight = Binary64.BlendWeight(eta, stations[left].Eta, stations[left + 1].Eta).Value;
             string provenance = "promoted from the blend of " + l.Name + " and " + r.Name + " at " + etaText;
-            block = FoilSource.Utf8.GetString(FoilSource.ProfileBlock(Blend(l, r, weight, thickness, name, provenance)));
+            block = FoilSource.Utf8.GetString(FoilSource.ProfileBlock(Blend(blendLeft, blendRight, weight, thickness, name, provenance)));
         }
         byte[] candidate = FoilSource.AddAssignment(source, eta, etaText, name, block);
         var parsed = FoilSource.Parse(candidate);
-        var measured = Grid(grid, (stations[left].Eta, eta), (eta, stations[left + 1].Eta));
+        var (measured, intervals) = MeasurePlan(definition, parsed.Definition!, [(stations[left].Eta, eta), (eta, stations[left + 1].Eta)], grid);
         int etasMeasured = measured.Count;
         var (relative, meters, at, worstRelative) = Measure(source, candidate, measured, grid.XSamples);
         string regime = Regime(same, worstRelative);
         PromotionPreview Report(bool admitted, string? code, string? reason) =>
-            new(eta, etaText, left, left + 1, regime, relative, meters, at, admitted, code, reason) { EtaCount = etasMeasured, Grid = grid.Label };
+            new(eta, etaText, left, left + 1, regime, relative, meters, at, admitted, code, reason) { EtaCount = etasMeasured, Grid = grid.Label, MeasuredIntervals = intervals };
         if (regime == "R2" && meters > LimitMeters)
             return new(Report(false, "STATION-INEXACT", "Promote refused: the new station would change the loft by " + Micrometres(meters) + " µm (" +
                 relative.ToString("E2", CultureInfo.InvariantCulture) + " of chord) at eta " + at.ToString("F4", CultureInfo.InvariantCulture) +
@@ -2933,12 +2960,13 @@ internal static class StationEdits
         if (index == 0 || index == definition.Assignments.Length - 1)
             throw new ContractError("STATION-ENDPOINT", "Root and tip stations cannot be removed.");
         var (candidate, removed, profile) = FoilSource.RemoveAssignment(source, index);
+        var parsedAfter = FoilSource.Parse(candidate);
         var stations = definition.Assignments;
-        // Both intervals that join into the gap, each sampled as Promote samples one; the removed station's eta is their shared end.
-        var etas = Grid(grid, (stations[index - 1].Eta, stations[index].Eta), (stations[index].Eta, stations[index + 1].Eta));
+        // Both intervals that join into the gap, plus (C3) every interval touching any bitwise-changed compatible copy.
+        var (etas, intervals) = MeasurePlan(definition, parsedAfter.Definition!, [(stations[index - 1].Eta, stations[index].Eta), (stations[index].Eta, stations[index + 1].Eta)], grid);
         var (relative, meters, at, _) = Measure(source, candidate, etas, grid.XSamples);
-        var preview = new RemovalPreview(index, relative, meters, at, LimitMeters, meters <= LimitMeters, removed) { EtaCount = etas.Count, Grid = grid.Label };
-        return new(preview, candidate, FoilSource.Parse(candidate), profile);
+        var preview = new RemovalPreview(index, relative, meters, at, LimitMeters, meters <= LimitMeters, removed) { EtaCount = etas.Count, Grid = grid.Label, MeasuredIntervals = intervals };
+        return new(preview, candidate, parsedAfter, profile);
     }
 
     /// <summary>
@@ -2961,9 +2989,17 @@ internal static class StationEdits
         var shared = Enumerable.Range(0, stations.Length).Where(i => i != index && stations[i].Profile == stations[index].Profile).ToArray();
         int tangents = m.Upper.Tangents.Length + m.Lower.Tangents.Length;
         bool same = Placement.SameRecord(l, r);
-        if (!same && !FourCurvesShareSpacing(l, r))
-            return new(new MatchPreview(index, 0, 0, 0, 0, 0, 0, null, shared, tangents, "STATION-SPACING", "Match is not available: " + StationNames.Of(index - 1, stations[index - 1].Eta) +
-                " and " + StationNames.Of(index + 1, stations[index + 1].Eta) + " have different point spacing, so this loft is not assessed."), null, null, null, null);
+        bool sharedSpacing = same || FourCurvesShareSpacing(l, r);
+        ProfileDefinition blendLeft = l, blendRight = r;
+        if (!sharedSpacing)
+        {
+            var compat = Compatible.Of(definition);
+            if (compat.Failed)
+                return new(new MatchPreview(index, 0, 0, 0, 0, 0, 0, null, shared, tangents, "STATION-NOT-ASSESSED",
+                    "Match is not available: " + (compat.FailureReason ?? "compatible fit failed.")), null, null, null, null);
+            blendLeft = compat.Definition.Profiles[stations[index - 1].Profile];
+            blendRight = compat.Definition.Profiles[stations[index + 1].Profile];
+        }
         // A profile another station also names is first made independent for this one (SF2-I2).
         byte[] work = source;
         string name = m.Name;
@@ -2979,18 +3015,18 @@ internal static class StationEdits
             double thickness = ChannelEvaluator.At(definition.Curves["thickness"], eta);
             Guard.Require(thickness > 0, "DSL-PATCH");
             double weight = Binary64.BlendWeight(eta, stations[index - 1].Eta, stations[index + 1].Eta).Value;
-            matched = Blend(l, r, weight, thickness, name, provenance);
+            matched = Blend(blendLeft, blendRight, weight, thickness, name, provenance);
         }
         byte[] candidate = FoilSource.ReplaceProfileBlock(work, name, FoilSource.Utf8.GetString(FoilSource.ProfileBlock(matched)));
         var parsed = FoilSource.Parse(candidate);
-        var etas = Grid(grid, (stations[index - 1].Eta, eta), (eta, stations[index + 1].Eta));
+        var (etas, intervals) = MeasurePlan(definition, parsed.Definition!, [(stations[index - 1].Eta, eta), (eta, stations[index + 1].Eta)], grid);
         var (relative, meters, at, worstRelative) = Measure(source, candidate, etas, grid.XSamples);
         MatchPreview Report(string? code, string? reason, string? regime = null, double[]? residual = null) =>
-            new(index, relative, meters, at, residual?[0] ?? 0, residual?[1] ?? 0, residual?[2] ?? 0, regime, shared, tangents, code, reason) { EtaCount = etas.Count, Grid = grid.Label };
+            new(index, relative, meters, at, residual?[0] ?? 0, residual?[1] ?? 0, residual?[2] ?? 0, regime, shared, tangents, code, reason) { EtaCount = etas.Count, Grid = grid.Label, MeasuredIntervals = intervals };
         if (worstRelative <= ExactRelative)
         {
             // The station already matches, but what a later Remove changes is still measured: only a residual at or below 1e-12 says "exact".
-            var (alreadyRelative, alreadyMeters, alreadyAt, alreadyWorst) = RemoveResidual(candidate, index, etas, grid.XSamples);
+            var (alreadyRelative, alreadyMeters, alreadyAt, alreadyWorst) = RemoveResidual(candidate, index, grid);
             string stationName = StationNames.Of(index, eta);
             string reason = alreadyWorst <= ExactRelative
                 ? stationName + " already matches the blend of its neighbours. Remove is exact."
@@ -3008,15 +3044,75 @@ internal static class StationEdits
         }
         if (assessment.Status != GeometryStatus.Certified)
             return new(Report("STATION-NOT-ASSESSED", "Match is not available: the loft is not assessed (" + assessment.Reason + ")."), candidate, name, parsed, assessment);
-        // What a later Remove would still change: the loft with the matched station against the loft without it, on the same grid.
-        var (residualRelative, residualMeters, residualAt, residualWorst) = RemoveResidual(candidate, index, etas, grid.XSamples);
+        // What a later Remove would still change: the loft with the matched station against the loft without it, on the same grid (with C3 widened intervals if copies change).
+        var (residualRelative, residualMeters, residualAt, residualWorst) = RemoveResidual(candidate, index, grid);
         return new(Report(null, null, Regime(same, residualWorst), [residualRelative, residualMeters, residualAt]), candidate, name, parsed, assessment);
     }
 
-    private static (double Relative, double Meters, double AtEta, double WorstRelative) RemoveResidual(byte[] matched, int index, IReadOnlyList<double> etas, int xSamples)
+    private static (double Relative, double Meters, double AtEta, double WorstRelative) RemoveResidual(byte[] matched, int index, StationGrid grid)
     {
+        var beforeDef = FoilSource.Parse(matched).Definition!;
         var (afterRemove, _, _) = FoilSource.RemoveAssignment(matched, index);
-        return Measure(matched, afterRemove, etas, xSamples);
+        var afterDef = FoilSource.Parse(afterRemove).Definition!;
+        var stations = beforeDef.Assignments;
+        var (etas, _) = MeasurePlan(beforeDef, afterDef, [(stations[index - 1].Eta, stations[index].Eta), (stations[index].Eta, stations[index + 1].Eta)], grid);
+        return Measure(matched, afterRemove, etas, grid.XSamples);
+    }
+
+    // C3 (Ruling 269): compare every compatible copy before and after; when any surviving station's compatible copy
+    // changes bitwise, add every interval in `after` that touches that changed copy (outside the already-measured adjacent span).
+    private static (List<double> Etas, BlendInterval[] Intervals) MeasurePlan(
+        Definition before, Definition after, (double From, double To)[] adjacent, StationGrid grid)
+    {
+        var intervals = new List<(double From, double To)>(adjacent);
+        var compatBefore = Compatible.Of(before);
+        var compatAfter = Compatible.Of(after);
+        if (!compatBefore.Failed && !compatAfter.Failed && (compatBefore.NeedsFit || compatAfter.NeedsFit))
+        {
+            double adjMin = adjacent.Min(iv => iv.From);
+            double adjMax = adjacent.Max(iv => iv.To);
+            var beforeByEta = new Dictionary<long, ProfileDefinition>(before.Assignments.Length);
+            foreach (var st in before.Assignments)
+                beforeByEta[BitConverter.DoubleToInt64Bits(st.Eta)] = compatBefore.Definition.Profiles[st.Profile];
+
+            var extra = new HashSet<(long FromBits, long ToBits)>();
+            for (int i = 0; i < after.Assignments.Length; i++)
+            {
+                long etaBits = BitConverter.DoubleToInt64Bits(after.Assignments[i].Eta);
+                if (!beforeByEta.TryGetValue(etaBits, out var prevCopy)) continue;
+                var nextCopy = compatAfter.Definition.Profiles[after.Assignments[i].Profile];
+                if (SameCopyBits(prevCopy, nextCopy)) continue;
+                if (i > 0) AddExtra(after.Assignments[i - 1].Eta, after.Assignments[i].Eta);
+                if (i + 1 < after.Assignments.Length) AddExtra(after.Assignments[i].Eta, after.Assignments[i + 1].Eta);
+            }
+
+            void AddExtra(double from, double to)
+            {
+                if (from >= adjMin && to <= adjMax) return;
+                if (extra.Add((BitConverter.DoubleToInt64Bits(from), BitConverter.DoubleToInt64Bits(to))))
+                    intervals.Add((from, to));
+            }
+            intervals.Sort((a, b) => a.From != b.From ? a.From.CompareTo(b.From) : a.To.CompareTo(b.To));
+        }
+
+        var etas = Grid(grid, intervals.ToArray());
+        double half = before.HalfSpan;
+        var named = intervals.Select(iv => new BlendInterval(iv.From, iv.To, iv.From * half, iv.To * half)).ToArray();
+        return (etas, named);
+    }
+
+    private static bool SameCopyBits(ProfileDefinition left, ProfileDefinition right) =>
+        ReferenceEquals(left, right) || SameCurveBits(left.Upper, right.Upper) && SameCurveBits(left.Lower, right.Lower);
+
+    private static bool SameCurveBits(Curve left, Curve right)
+    {
+        if (left.Degree != right.Degree || left.Knots.Length != right.Knots.Length || left.Points.Length != right.Points.Length) return false;
+        for (int i = 0; i < left.Knots.Length; i++)
+            if (BitConverter.DoubleToInt64Bits(left.Knots[i]) != BitConverter.DoubleToInt64Bits(right.Knots[i])) return false;
+        for (int i = 0; i < left.Points.Length; i++)
+            if (BitConverter.DoubleToInt64Bits(left.Points[i][0]) != BitConverter.DoubleToInt64Bits(right.Points[i][0]) ||
+                BitConverter.DoubleToInt64Bits(left.Points[i][1]) != BitConverter.DoubleToInt64Bits(right.Points[i][1])) return false;
+        return true;
     }
 
     /// <summary>
@@ -3056,16 +3152,23 @@ internal static class StationEdits
     };
 
     /// <summary>Camber, thickness and their sum differences, 129 eta per interval plus the interval ends, 2001 x: sampled, not a bound.</summary>
-    private static (double Relative, double Meters, double AtEta, double WorstRelative) Measure(byte[] before, byte[] after, IReadOnlyList<double> etas, int xSamples)
+    internal static (double Relative, double Meters, double AtEta, double WorstRelative) Measure(byte[] before, byte[] after, IReadOnlyList<double> etas, int xSamples)
     {
         var xs = Enumerable.Range(0, xSamples).Select(i => i / (double)(xSamples - 1)).ToArray();
         var a = SectionsParallel(before, etas, xs);
         var b = SectionsParallel(after, etas, xs);
+        return CompareMeasures(a, b, etas, xs.Length);
+    }
+
+    /// <summary>Shared surface norm used identically by <see cref="StationEdits"/> and <see cref="Compatible"/> (Ruling 269).</summary>
+    internal static (double Relative, double Meters, double AtEta, double WorstRelative) CompareMeasures(
+        SectionMeasure[] a, SectionMeasure[] b, IReadOnlyList<double> etas, int xCount)
+    {
         double relative = 0, meters = 0, at = etas[0], worstRelative = 0;
         for (int i = 0; i < etas.Count; i++)
         {
             double worst = 0;
-            for (int j = 0; j < xs.Length; j++)
+            for (int j = 0; j < xCount; j++)
             {
                 double camber = b[i].Camber[j] - a[i].Camber[j], width = (b[i].Thickness[j] - a[i].Thickness[j]) / 2;
                 worst = Math.Max(worst, Math.Max(Math.Abs(camber + width), Math.Abs(camber - width)));
@@ -3093,7 +3196,7 @@ internal static class StationEdits
         return samples;
     }
 
-    private static List<double> Grid(StationGrid grid, params (double From, double To)[] intervals)
+    internal static List<double> Grid(StationGrid grid, params (double From, double To)[] intervals)
     {
         var etas = new List<double>();
         foreach (var (from, to) in intervals)

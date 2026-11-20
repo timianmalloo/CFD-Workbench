@@ -317,13 +317,13 @@ internal static class StationTests
             Equal(null, control.PreviewPromote(Pct("80"), "80 %").RefusalCode);
             control.AddStation(Id(), Pct("80"), "80 %", false);
         });
-        Check("Station_MixedSpacing_PromoteRefused", () =>
+        Check("Station_MixedSpacing_PromoteUsesCompatibleCopies", () =>
         {
-            // A document with a different spacing between neighbours is Unsupported and cannot be admitted, so the
-            // spacing check is reached on the parsed bytes with no session (the assessment must not be called).
-            var plan = StationEdits.Promote(Spacing(), 0.5, "50 %", _ => throw new InvalidOperationException("assessed"));
-            Equal("STATION-SPACING", plan.Preview.RefusalCode);
-            Equal(false, plan.Preview.Admitted);
+            // Ruling 73 / 269: mixed-spacing promote runs on compatible copies (R3) rather than refusing STATION-SPACING.
+            var plan = StationEdits.Promote(Spacing(), 0.5, "50 %", parsed => Geometry.Assess(parsed), Coarse);
+            Equal(null, plan.Preview.RefusalCode);
+            Equal(true, plan.Preview.Admitted);
+            Equal(GeometryStatus.Certified, plan.Assessment!.Status);
         });
         Check("Station_Promote_ThicknessKeepCurrent_ChannelsByteIdentical", () =>
         {
@@ -594,11 +594,13 @@ internal static class StationTests
             Equal("STATION-BUDGET", plan.Preview.RefusalCode);
             Equal(false, plan.Preview.Admitted);
         });
-        Check("MatchBlend_Spacing_Refused", () =>
+        Check("MatchBlend_MixedSpacing_MatchesOnCompatibleCopies", () =>
         {
-            var plan = StationEdits.Match(Spacing3(), 1, _ => throw new InvalidOperationException("assessed"));
-            Equal("STATION-SPACING", plan.Preview.RefusalCode);
-            Equal(false, plan.Preview.Admitted);
+            // Ruling 73 / 269: mixed-spacing Match runs on compatible copies (R3) rather than refusing STATION-SPACING.
+            var plan = StationEdits.Match(Spacing3(), 1, parsed => Geometry.Assess(parsed), Coarse);
+            Equal(null, plan.Preview.RefusalCode);
+            Equal(true, plan.Preview.Admitted);
+            Equal(GeometryStatus.Certified, plan.Assessment!.Status);
         });
         Check("MatchBlend_Closure_FromNeighbours", () =>
         {

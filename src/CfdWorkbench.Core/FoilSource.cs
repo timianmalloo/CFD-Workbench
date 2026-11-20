@@ -62,7 +62,7 @@ public sealed class SourceParse
             double[] values = item.Values.Select((value, index) => DecimalSi.Parse(value.Text, item.Kind == "freeze" && index == 0 ? 0 : scale)).ToArray();
             return new AuthoredConstraint(item.Kind, item.Channel.Text, item.Id?.String, eta, Array.AsReadOnly(values));
         });
-        return new(new(SourceHash, candidate ? "IdCandidate" : "Parsed", null, null, SurfaceHash, "cfdw-cv/2", null, null, null),
+        return new(new(SourceHash, candidate ? "IdCandidate" : "Parsed", null, null, SurfaceHash, Evaluator.IdFor(definition), null, null, null),
             definition.Name, definition.Kind == "foil" ? unit : null, definition.Kind == "foil" ? definition.HalfSpan : null, rails, assignments, constraints, Diagnostics,
             definition.Assertions.Select(item => new AuthoredAssertion(item.Metric.Text, item.Comparison, QuantitySi(item.Value), item.Value.Unit?.Text,
                 item.Tolerance is null ? null : QuantitySi(item.Tolerance))));
