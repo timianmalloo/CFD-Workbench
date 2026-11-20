@@ -168,6 +168,74 @@ public static class SectionStrip
         ArgumentNullException.ThrowIfNull(controller);
         ArgumentNullException.ThrowIfNull(mode);
         if (mode.LastReport is not { } report) return null;
+        var baseCopy = ReportBody(controller, before, mode, station, report);
+        if (baseCopy is null || report.Matches is not { Count: > 0 } afterMatches || controller.Inspection is not { } inspection)
+            return baseCopy;
+        string clause = MatchClause(before, afterMatches, inspection.Authored.Assignments);
+        return clause.Length == 0 ? baseCopy : baseCopy with { Text = baseCopy.Text + " " + clause };
+    }
+
+    /// <summary>COPY-686 (COPY-C1): persistent scope chip for a unique station section, naming the blend's shared spacing.</summary>
+    public static string UniqueScopeChip(byte[] bytes, IReadOnlyList<AuthoredAssignment> assignments, string station)
+    {
+        var (basisProfile, hasOtherAnchors, matches) = Compatible.Summary(bytes);
+        var basisMatch = matches.FirstOrDefault(item => item.Basis);
+        string basisStation = basisMatch is { Assignments.Count: > 0 }
+            ? JoinStationNames(basisMatch.Assignments, assignments)
+            : string.IsNullOrWhiteSpace(basisProfile) ? station : basisProfile;
+        string? otherAnchors = null;
+        if (hasOtherAnchors)
+        {
+            var others = matches
+                .Where(item => !item.Basis)
+                .SelectMany(item => item.Assignments)
+                .Distinct()
+                .OrderBy(index => index)
+                .ToArray();
+            if (others.Length > 0)
+                otherAnchors = JoinStationNames(others, assignments);
+        }
+        return Labels.CompatibleScopeUnique(station, basisStation, otherAnchors);
+    }
+
+    private static string MatchClause(byte[] before, IReadOnlyList<BlendMatch> afterMatches, IReadOnlyList<AuthoredAssignment> assignments)
+    {
+        var beforeMatches = Compatible.Matches(before);
+        var clauses = new List<string>();
+        foreach (var match in afterMatches)
+        {
+            if (string.Equals(match.Kind, "identity", StringComparison.Ordinal)) continue;
+            var prior = beforeMatches.FirstOrDefault(item => item.Assignments.SequenceEqual(match.Assignments))
+                ?? beforeMatches.FirstOrDefault(item => string.Equals(item.Profile, match.Profile, StringComparison.Ordinal));
+            bool changed = prior is null
+                || string.Equals(prior.Kind, "identity", StringComparison.Ordinal)
+                || Math.Abs(match.SurfaceDeviationMeters - prior.SurfaceDeviationMeters) > 1e-12;
+            if (!changed) continue;
+            string who = match.Assignments.Count > 0 ? JoinStationNames(match.Assignments, assignments) : match.Profile;
+            clauses.Add(Labels.CompatibleStripClause(who, match.SurfaceDeviationMeters));
+        }
+        return string.Join(" ", clauses);
+    }
+
+    private static string JoinStationNames(IReadOnlyList<int> indices, IReadOnlyList<AuthoredAssignment> assignments)
+    {
+        var names = new List<string>(indices.Count);
+        foreach (int index in indices)
+        {
+            if ((uint)index >= (uint)assignments.Count) continue;
+            names.Add(ElevationView.StationName(index, assignments[index].Eta));
+        }
+        return names.Count switch
+        {
+            0 => "the wing",
+            1 => names[0],
+            2 => names[0] + " and " + names[1],
+            _ => string.Join(", ", names.Take(names.Count - 1)) + " and " + names[^1]
+        };
+    }
+
+    private static SectionStepCopy? ReportBody(WorkbenchController controller, byte[] before, SectionMode mode, string station, SectionStepReport report)
+    {
         int assignment = mode.Draft.Assignment;
         var oldUpper = Sections.View(before, assignment, SurfaceSide.Upper, "accepted", 0);
         var oldLower = Sections.View(before, assignment, SurfaceSide.Lower, "accepted", 0);

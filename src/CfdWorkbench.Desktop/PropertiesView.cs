@@ -130,7 +130,9 @@ public sealed record SectionContext(
     CurveView Lower,
     SectionFacts Facts,
     string Station,
-    IReadOnlyList<(string Station, SectionFacts Facts)> Stations)
+    IReadOnlyList<(string Station, SectionFacts Facts)> Stations,
+    IReadOnlyList<BlendMatch>? Matches = null,
+    string? BasisStation = null)
 {
     /// <summary>The context of the controller's open section, or null outside the mode.</summary>
     public static SectionContext? Of(WorkbenchController controller)
@@ -144,8 +146,12 @@ public sealed record SectionContext(
         for (int index = 0; index < projection.Assignments.Count; index++)
             if (index == mode.Draft.Assignment || projection.Assignments[index].ProfileName == mode.Draft.Profile)
                 stations.Add((SectionPoints.StationName(projection, index), Sections.Facts(bytes, index)));
+        var (_, _, matches) = Compatible.Summary(bytes);
+        string? basisStation = null;
+        if (matches.FirstOrDefault(item => item.Basis) is { Assignments.Count: > 0 } basis)
+            basisStation = string.Join(" and ", basis.Assignments.Select(index => SectionPoints.StationName(projection, index)));
         return new SectionContext(mode, upper, lower, Sections.Facts(bytes, mode.Draft.Assignment),
-            SectionPoints.StationName(projection, mode.Draft.Assignment), stations);
+            SectionPoints.StationName(projection, mode.Draft.Assignment), stations, matches, basisStation);
     }
 }
 
@@ -1319,6 +1325,14 @@ public static class PropertiesView
         rows.Add(Pair("sec:te-gap", $"TE gap own · {first.Item1}", facts.TrailingGap * 100, first.Item2.StationTrailingGap * 100, "% c"));
         rows.Add(Pair("sec:te-wedge", $"TE wedge own · {first.Item1}", facts.TrailingWedgeDegrees, first.Item2.StationTrailingWedgeDegrees, "°"));
         rows.Add(Prose("sec:points", "Points", $"{section.Upper.Points.Count} upper · {section.Lower.Points.Count} lower"));
+        var activeMatch = section.Matches?.FirstOrDefault(item => item.Assignments.Contains(section.Mode.Draft.Assignment));
+        string blendText = activeMatch is null || string.Equals(activeMatch.Kind, "identity", StringComparison.Ordinal)
+            ? CfdWorkbench.Analysis.Labels.CompatibleBlendIdenticalValue
+            : CfdWorkbench.Analysis.Labels.CompatibleBlendDeviationValue(
+                activeMatch.SurfaceDeviationMeters,
+                activeMatch.LimitMeters,
+                section.BasisStation ?? activeMatch.Profile);
+        rows.Add(Prose("sec:blend", "Blend", blendText));
         // The notes sit where the mockup draws them: under the t/c rows and under the LE radius rows (B continuations).
         return
         [

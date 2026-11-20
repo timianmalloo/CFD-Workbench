@@ -179,3 +179,34 @@ Code as built constrains the choice:
   code cited above. The probe script lived in the session scratchpad and is not committed; its numbers are quoted here.
 - Handle rotation of 63.5° when only the anchor is moved to P.y (council probe) — the reason decision 5 moves the handles.
 - As-built shared-basis rule, version check and reparse-on-open: code cited above — **Verified** (read).
+
+## Amendment 1 — cross-profile abscissa under compatible fit (Ruling 73, Ruling 269)
+
+### Context
+
+Decision 6's final bullet originally refused any section step that broke the basis shared with a distinct neighbouring
+profile (enforced as the Ruling 71 early-refusal stopgap). Under Ruling 73 (`docs/design/compatible-fit.md`,
+`docs/design/cross-profile-abscissa.md`) and Ruling 269, each station section retains its own authored points while the
+evaluator derives shared-spacing compatible copies in session memory (`cfdw-cv/3`).
+
+### Decision
+
+1. **Decision 6's cross-profile clause is amended:** a step on a unique station section that changes its point count,
+   knot vector, or abscissa is kept on the edited section alone (no neighbouring profile block is rewritten). The
+   evaluator derives compatible copies on the shared spacing `S*` (`cfdw-cv/3`), and the step is refused only when:
+   - any station copy's placed-surface residual against its authored shape exceeds 10 µm (Ruling 61; `ContractError.Data`
+     carries `MatchProfile`, `MatchDeviationMeters`, `MatchLimitMeters`, `MatchEta`), or
+   - the derived shared spacing exceeds blend capacity (`Geometry.BlendSpanLimit` or `Geometry.OperationBoundCode`), or
+   - the compatible least-squares fit is singular or non-finite (`GEOMETRY-FIT-SINGULAR`).
+2. **Paired angle construction keeps abscissae aligned (`DR-XPA-6`):** `SetTangent` with `Angle` adjusts handle `y`
+   coordinates while preserving paired `x` coordinates on both surfaces, preventing unintended abscissa divergence
+   (`F-XPA-1`).
+3. **Evaluator id provenance (`DR-XPA-2`, `DR-DF-9(a)`):** documents whose station sections share one spacing continue
+   to record `cfdw-cv/2`; documents whose station sections differ in spacing record `cfdw-cv/3`, and `cfdw-cv/2` rows
+   requiring compatible fit are refused on read with `DOC-VERSION`.
+
+### Consequences
+
+- Operators can convert control points to anchors, insert/delete points, drag `x`, import `.dat` files, or rebuild one
+  station's unique section without rewriting neighbouring stations.
+- Equal-spacing documents remain bit-identical (`cfdw-cv/2`) and undo/receipts remain single-section whole-byte mementos.

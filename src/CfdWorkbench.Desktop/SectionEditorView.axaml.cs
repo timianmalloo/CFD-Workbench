@@ -240,17 +240,20 @@ public partial class SectionEditorView : UserControl
         ModeTitle.Inlines = [new Run("Editing "), new Run(station) { Foreground = Brush("PrimaryBrush") }, new Run(" section")];
     }
 
-    // §0.1 steps 2 and 8: "Shared with <stations> · Make unique to <station>", or "Only <station> uses this section".
+    // §0.1 steps 2 and 8 + COPY-686 (COPY-C1): "Shared with <stations> · Make unique to <station>",
+    // or "Only <station> uses this section · the wing blends on <basis>'s spacing".
     private void SetScopeChip(SectionMode mode, IReadOnlyList<AuthoredAssignment> assignments, int active, string name)
     {
         var others = assignments.Select((row, index) => (row, index))
             .Where(item => item.index != active && item.row.ProfileName == mode.Draft.Profile)
             .Select(item => ElevationView.StationName(item.index, item.row.Eta)).ToArray();
         bool shared = mode.Draft.Scope == SectionScope.Shared && others.Length > 0;
-        ScopeChip.Text = shared ? $"Shared with {string.Join(", ", others)} · " : $"Only {name} uses this section";
+        ScopeChip.Text = shared
+            ? $"Shared with {string.Join(", ", others)} · "
+            : SectionStrip.UniqueScopeChip(mode.Draft.Bytes, assignments, name);
         ScopeChipLinkText.Text = $"Make unique to {name}";
         ScopeChipLink.IsVisible = shared;
-        ToolTip.SetTip(ScopeChip.Parent as Control ?? ScopeChip, shared ? $"Shared with {string.Join(", ", others)}" : null);
+        ToolTip.SetTip(ScopeChip.Parent as Control ?? ScopeChip, shared ? $"Shared with {string.Join(", ", others)}" : ScopeChip.Text);
     }
 
     // COPY-187 for a refused Anchor → Control, held for that refusal: the controller's status line moves on, the copy stays.

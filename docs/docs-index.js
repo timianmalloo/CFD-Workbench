@@ -335,7 +335,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3d8c8faa6bc70040cb1434150f16181e77c77c1e78640d6dcd04e3d10ce439c6"
+      "sourceSha256": "cc9a6bca94cec16189d0b53033ff37eb6dcd8472d4dc68e4a893cdaeba8fbcfd"
     },
     {
       "id": "adr-0006-driving-dimensions",
@@ -617,7 +617,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f80244fbefc0ceb2f15b42560e959e19837f67f38169391b71969041a9c99cf1"
+      "sourceSha256": "5b356c60a87c53f2b94e27acc981d9f74b42f7353b27900a8082f9cd15ff43f0"
     },
     {
       "id": "adr-0011-analysis-run-storage",
@@ -22135,6 +22135,51 @@ window.DOCS_INDEX = {
       "sourceSha256": "96e7d2910a3b2cf031c1e3f96c735673a5789412a7cca716ce4dd339a426068f"
     },
     {
+      "id": "proof-xpa-old-build",
+      "path": "docs/proof/xpa-old-build/README.md",
+      "title": "Compatible Fit old-build receipt: pre-CF build refuses cfdw-cv/3 project with DOC-VERSION",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "implementation",
+      "reviewBy": "2027-03-19",
+      "reviewSuggested": [],
+      "summary": "Reproducible receipt for test 24 (cross-profile-abscissa.md §3.6, §10): a genuine cfdw-cv/3 mixed-spacing project written by the CF build is inspected by the pre-CF build at commit df566d56, which refuses it with DOC-VERSION (CLI exit 3) and leaves the file bytes unchanged.",
+      "tags": [
+        "xpa",
+        "compatible-fit",
+        "cfdw-cv-3",
+        "old-build",
+        "doc-version",
+        "ruling-73",
+        "ruling-269"
+      ],
+      "links": [
+        {
+          "to": "design-compatible-fit",
+          "rel": "implements"
+        },
+        {
+          "to": "design-cross-profile-abscissa",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-0010-one-placement-rule",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0005-point-types",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ae8add84f0b01b39dc68613aabca41eb60830221ccf2e6b5251e2b0b2ec605b4"
+    },
+    {
       "id": "receipt-win-gpu-b1-r199",
       "path": "docs/proof/win-gpu-b1/receipt.md",
       "title": "Windows GPU B1 inventory receipt",
@@ -25029,5 +25074,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "7e832c86338cc6f9b13bb194e82cd796a44666575339cb3747fe11a257bccbcf"
+  "graphSha256": "f49a1db0a9fea70bb72659a336249a5e93b01fcf085ffb8052230db5caa62af1"
 };

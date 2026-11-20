@@ -505,4 +505,48 @@ public static class Labels
     public const string CatalogTagCiteOnly = "cite only"; // COPY-649, approved Ruling 268
     public const string CatalogPreviewFault = "The preview couldn't be computed. Nothing changed."; // COPY-650, approved Ruling 268
     public const string CatalogFittingThenReplace = "Fitting… Replace will follow."; // COPY-651, approved Ruling 268
+
+    // ---- CF: compatible fit copy (wave 5, Rulings 73, 269, proposed COPY-686..693) ----
+    /// <summary>COPY-686 (COPY-C1): persistent scope chip for a unique station section.</summary>
+    public static string CompatibleScopeUnique(string station, string basisStation, string? otherAnchorStations = null)
+    {
+        string tail = string.IsNullOrWhiteSpace(otherAnchorStations)
+            ? $"the wing blends on {basisStation}'s spacing"
+            : $"the wing blends on {basisStation}'s spacing + {otherAnchorStations}'s anchors";
+        return $"Only {station} uses this section · {tail}";
+    }
+
+    /// <summary>COPY-687 (COPY-C2): Properties Section block Blend row value when the copy is the identity.</summary>
+    public const string CompatibleBlendIdenticalValue = "identical spacing";
+
+    /// <summary>COPY-687 (COPY-C2): Properties Section block Blend row value when the copy is non-identity.</summary>
+    public static string CompatibleBlendDeviationValue(double deviationMeters, double limitMeters, string basisStation) =>
+        string.Create(CultureInfo.InvariantCulture,
+            $"deviation {deviationMeters * 1e3:0.0000} mm, sampled (limit {limitMeters * 1e3:0.000} mm), on {basisStation}'s spacing");
+
+    /// <summary>COPY-688 (COPY-C3): status-strip clause appended when a copy's blend match changed.</summary>
+    public static string CompatibleStripClause(string station, double deviationMeters) =>
+        string.Create(CultureInfo.InvariantCulture, $"{station} deviates {deviationMeters * 1e3:0.0000} mm on the blend (sampled).");
+
+    /// <summary>COPY-689 (COPY-C4): blend span capacity refusal.</summary>
+    public static string CompatibleCapacityRefusal(int limitSpans, int neededSpans) =>
+        string.Create(CultureInfo.InvariantCulture,
+            $"Can't keep this change: the blend can be checked for {limitSpans} spans and this needs {neededSpans}. Delete a point first, or use the same section at both stations. Nothing changed.");
+
+    /// <summary>COPY-690 / COPY-691 (COPY-C5, UX-2): copy surface residual over 10 µm refusal.</summary>
+    public static string CompatibleMatchRefusal(string station, double deviationMeters, double limitMeters, string? newBasisStation = null) =>
+        string.IsNullOrWhiteSpace(newBasisStation)
+            ? string.Create(CultureInfo.InvariantCulture,
+                $"Can't keep this change: {station} would be {deviationMeters * 1e3:0.0000} mm from its drawn shape on the blend (limit {limitMeters * 1e3:0.000} mm). Nothing changed.")
+            : string.Create(CultureInfo.InvariantCulture,
+                $"Can't keep this change: this makes {newBasisStation} the leading section; {station} would be {deviationMeters * 1e3:0.0000} mm from its drawn shape on the blend (limit {limitMeters * 1e3:0.000} mm). Nothing changed.");
+
+    /// <summary>COPY-692 (COPY-C6): per-station blend match readout for section rebuild.</summary>
+    public static string CompatibleRebuildMatch(string station, double deviationMeters, double limitMeters) =>
+        deviationMeters > limitMeters
+            ? string.Create(CultureInfo.InvariantCulture, $"{station}: over limit ({deviationMeters * 1e3:0.0000} mm, limit {limitMeters * 1e3:0.000} mm)")
+            : string.Create(CultureInfo.InvariantCulture, $"{station}: {deviationMeters * 1e3:0.0000} mm (limit {limitMeters * 1e3:0.000} mm)");
+
+    /// <summary>COPY-693 (COPY-C7, UX-5): drag-release match check note.</summary>
+    public const string CompatibleDragReleaseNote = "Match checked on release.";
 }

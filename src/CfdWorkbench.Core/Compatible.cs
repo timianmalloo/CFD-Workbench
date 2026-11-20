@@ -18,14 +18,19 @@ public static class Evaluator
     internal static bool NeedsCompatibleFit(Definition? definition)
     {
         if (definition is null || definition.Kind != "foil" || definition.Assignments.Length < 2) return false;
+        // Independent upper vs lower abscissa within a single profile stays Unsupported (SharedAbscissa), not CF.
+        for (int index = 0; index < definition.Assignments.Length; index++)
+        {
+            var profile = definition.Profiles[definition.Assignments[index].Profile];
+            if (!Placement.SameAbscissa(profile.Upper, profile.Lower))
+                return false;
+        }
         var first = definition.Profiles[definition.Assignments[0].Profile];
         for (int index = 1; index < definition.Assignments.Length; index++)
         {
             var other = definition.Profiles[definition.Assignments[index].Profile];
             if (ReferenceEquals(first, other)) continue;
-            if (!Placement.SameAbscissa(first.Upper, first.Lower) ||
-                !Placement.SameAbscissa(first.Upper, other.Upper) ||
-                !Placement.SameAbscissa(first.Upper, other.Lower))
+            if (!Placement.SameAbscissa(first.Upper, other.Upper))
                 return true;
         }
         return false;

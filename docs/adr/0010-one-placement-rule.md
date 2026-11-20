@@ -168,3 +168,46 @@ inversion (`Jet`, `ParameterFor`, `OrdinateAt`, used by `Prepare`). M1.2c's sect
   and one profile evaluator, both on `SplineBasis`, with the certificate separate.
 - Rollback: the fold is internal. The `Placement` golden master pins the 3D and elevation outputs across it, and
   `ProfileView` samples move only within the 10⁻⁹ chord binding.
+
+## Amendment 2 — compatible fit for mixed-spacing wings (Ruling 73, Ruling 269)
+
+### Context
+
+When a foil assigns station sections with differing point counts, knot vectors, or abscissae, the authored profile blocks
+do not share one abscissa `x(t)` and `SharedAbscissa` cannot directly loft them. Under Ruling 73 (compatible fit,
+`docs/design/compatible-fit.md`, `docs/design/cross-profile-abscissa.md`) and Ruling 269 (`DR-DF-7(a)`, `DR-DF-9(a)`),
+each station section keeps its own authored points in FoilDSL (never rewritten on disk), while the evaluator derives
+shared-spacing compatible copies in session memory under evaluator id `cfdw-cv/3`.
+
+### Decision
+
+1. **Compatible copies are the one profile input for mixed-spacing wings.** When `Evaluator.NeedsCompatibleFit` is true,
+   `Compatible.Of` selects the richest station section as basis (most Bézier spans, then most vertices, then lowest
+   station index), builds shared spacing `S*` by exact Boehm insertion of every other station's interior anchors
+   (multiplicity 5, skip-if-present), and derives a compatible copy for every station section (identity, exact Boehm
+   refinement adopting `S*` x bitwise when knots nest within `10⁻¹²`, or `DatImport.FitToBasis` least squares on 161
+   `double.CosPi` samples with mapped KKT tangent rows at coinciding anchors). Both `definition.Profiles` and the
+   matching `definition.Curves` entries are updated together (BC-2).
+2. **One preparation entry in `Placement.cs` and one matching entry in `Geometry.AssessWithin`.** Ruling 269 lifts
+   Ruling 252/256's read-only clause on `Placement.cs` solely for `Placement.PrepareCompatible` (serving `Surface`,
+   `Sections`, and `SectionsForMeasure` immediately after `RequireFoil`) alongside one matching entry in
+   `Geometry.AssessWithin` (after authored tangent rows are checked). `PlacementRule`, both `IPlacementScalar`
+   instantiations, `SharedAbscissa`, `QueryFeasibility`, and `Bernstein` remain untouched.
+3. **Single-caller authored-reference mode (C1) and reflection guard (C2 / BC-1).** An internal authored-reference entry
+   (`Placement.SectionsForMeasureAuthored`) exists solely for `Compatible.cs` to measure the placed-surface residual
+   between authored profiles and compatible copies on the versioned `129 η × 2001 x` grid (≤ 10 µm admission limit).
+   Source and reflection tests (`Compatible_AuthoredMode_SingleCaller`, `Placement_SingleEntry_NoAuthoredBlendReader`)
+   enforce that no other caller reads authored sections for blending or display, with `Placement.OwnProfile` (used by
+   `DatShape.Own`), `ProfileDifferenceMaximum`, `SameRecord`, and `SameAbscissa` explicitly allowlisted.
+4. **Equal-spacing invariance and 1 nm enclosure bound.** When all station sections already share one spacing,
+   `Compatible.Of` returns the authored `Definition` untouched, `Evaluator.IdFor` returns `cfdw-cv/2`, and all
+   equal-spacing golden masters stay bit-identical (XPA-I3). For mixed-spacing foils (`cfdw-cv/3`), display points stay
+   within 1 nm of the certified enclosure (`Placement_CompatiblePair_DisplayWithinCertifiedEnclosure`).
+
+### Consequences
+
+- Mixed-spacing foils certify, display, export (`DatShape.AtStation`), and run station Promote/Match/Remove on one
+  shared derived geometry, while single-section views (`SectionCanvas`, `DatShape.Own`) continue to show the section as
+  authored.
+- Old `cfdw-cv/2`-only builds refuse `cfdw-cv/3` projects with `DOC-VERSION` (`docs/proof/xpa-old-build/`), and this
+  build refuses any `cfdw-cv/2` row whose source requires compatible fit with `DOC-VERSION` (Ruling 269 `DR-DF-9(a)`).

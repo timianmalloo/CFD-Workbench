@@ -66,9 +66,12 @@ internal static class BlendTests
         });
         Check("Blend_IndependentAbscissa_RefusesUnenclosedMaximum", () =>
         {
-            string source = Cambered().Replace("(.375,.15625)", "(.5,.15625)", StringComparison.Ordinal)
-                .Replace("(.375,-.09375)", "(.5,-.09375)", StringComparison.Ordinal);
-            Equal(GeometryStatus.Unsupported, Geometry.Assess(Prepared(source)).Status);
+            // Independent upper vs lower abscissa within one profile remains Unsupported (SharedAbscissa).
+            string unpaired = Cambered().Replace("(.375,.15625)", "(.5,.15625)", StringComparison.Ordinal);
+            Equal(GeometryStatus.Unsupported, Geometry.Assess(Prepared(unpaired)).Status);
+            // Differing paired abscissae across two station profiles now certify via Compatible Fit (Ruling 73 / 269).
+            string pairedMixed = unpaired.Replace("(.375,-.09375)", "(.5,-.09375)", StringComparison.Ordinal);
+            Equal(GeometryStatus.Certified, Geometry.Assess(Prepared(pairedMixed)).Status);
         });
         Check("Blend_HeapMaximum_MatchesListOracleAndComparisonBound", () =>
         {

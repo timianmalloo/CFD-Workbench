@@ -631,9 +631,52 @@ public static class SectionEditorTests
                 focused = shell.Window.FocusManager?.GetFocusedElement();
                 if (focused is not ComboBox) throw new Exception("Tab from a section point did not land on its Type: " + focused);
             });
-            // Ruling 71 (native look): after Make unique to Root, Control → Anchor would give Root other knots than Tip.
-            // The step is refused in the strip with COPY-209, and the draft and its Finish state stay as they were.
-            DesktopChecks.Check("SectionEditor_UniqueSectionAbscissaStep_RefusedInStripFinishUnchanged", () =>
+            // Ruling 73 / Ruling 269 (XPAU tests 18-21): compatible fit lifts the Ruling 71 early-refusal stopgap.
+            // ScopeChip (COPY-C1 / COPY-686) names the blend's shared spacing; admitted mixed-spacing steps append
+            // COPY-C3 (COPY-688) from BlendMatch; over-limit steps refuse in the strip with COPY-C5 (COPY-690) and
+            // leave draft/Finish unchanged; Properties Section block shows COPY-C2 (COPY-687) live and after reopen.
+            DesktopChecks.Check("ScopeChip_UniqueSection_NamesSharedSpacing", () =>
+            {
+                shell.Enter();
+                Wait(shell.Host.ApplySectionStepAsync(new SectionStep.MakeUnique()));
+                WaitUntil(() => shell.Controller.Section is { Assessment: not null });
+                shell.Settle();
+                string chip = shell.View.FindControl<TextBlock>("ScopeChip")!.Text ?? "";
+                const string expectedChip = "Only Root uses this section · the wing blends on Root's spacing";
+                if (chip != expectedChip)
+                    throw new Exception($"Unique Root scope chip mismatch: '{chip}' (expected '{expectedChip}')");
+                var target = shell.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+                Wait(shell.Host.ApplySectionStepAsync(new SectionStep.SetType(SurfaceSide.Upper, target.Id, true)));
+                WaitUntil(() => shell.Controller.Section is { Assessment.Status: GeometryStatus.Certified });
+                shell.Settle();
+                chip = shell.View.FindControl<TextBlock>("ScopeChip")!.Text ?? "";
+                if (chip != expectedChip)
+                    throw new Exception($"Unique Root scope chip after anchor mismatch: '{chip}' (expected '{expectedChip}')");
+                shell.Controller.CancelSection();
+            });
+            DesktopChecks.Check("SectionStrip_MatchClause_FromReport", () =>
+            {
+                shell.Enter();
+                Wait(shell.Host.ApplySectionStepAsync(new SectionStep.MakeUnique()));
+                WaitUntil(() => shell.Controller.Section is { Assessment: not null });
+                shell.Settle();
+                var target = shell.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+                Wait(shell.Host.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, target.Id, target.SpanMeters + 0.005, target.Ordinate)));
+                WaitUntil(() => shell.Controller.Section is { Assessment.Status: GeometryStatus.Certified });
+                shell.Settle();
+                var matches = shell.Controller.Section!.LastReport?.Matches;
+                if (matches is null || matches.Count == 0)
+                    throw new Exception("SectionStepReport.Matches was empty after a mixed-spacing step.");
+                var tipMatch = matches.FirstOrDefault(m => !m.Basis);
+                if (tipMatch is null || tipMatch.Kind == "identity")
+                    throw new Exception($"Expected non-identity Tip match, got {tipMatch?.Kind ?? "null"}");
+                string expectedClause = CfdWorkbench.Analysis.Labels.CompatibleStripClause("Tip", tipMatch.SurfaceDeviationMeters);
+                string strip = shell.Host.StatusStrip.Text ?? "";
+                if (!strip.Contains(expectedClause, StringComparison.Ordinal))
+                    throw new Exception($"Strip did not carry COPY-C3 clause '{expectedClause}': '{strip}'");
+                shell.Controller.CancelSection();
+            });
+            DesktopChecks.Check("Controller_MatchRefusal_StripNamesSectionAndNumbers", () =>
             {
                 shell.Enter();
                 Wait(shell.Host.ApplySectionStepAsync(new SectionStep.MakeUnique()));
@@ -643,22 +686,75 @@ public static class SectionEditorTests
                 var finish = shell.View.FindControl<Button>("ModeFinishButton")!;
                 bool finishBefore = finish.IsEnabled;
                 var target = shell.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
-                Wait(shell.Host.ApplySectionStepAsync(new SectionStep.SetType(SurfaceSide.Upper, target.Id, true)));
-                // The shell task ends when the refusal is in the strip. That refusal cleared the certificate
-                // and asked for it again, so Finish stays "Checking…" until this re-check lands.
+                // Large x move on unique Root pushes Tip's compatible fit well past 10 um.
+                Wait(shell.Host.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, target.Id, target.SpanMeters + 0.08, target.Ordinate)));
                 WaitUntil(() => shell.Controller.Section?.Assessment is not null);
                 shell.Settle();
                 var after = shell.Controller.Section!;
-                const string expected = "This edit would give Root's section different point positions from Tip's, and the wing between " +
-                    "them can't be checked then. Move points up or down only, or keep the section shared. Nothing changed.";
-                if (shell.Host.StatusStrip.Text != expected)
-                    throw new Exception($"The refusal is not in the strip: '{shell.Host.StatusStrip.Text}'");
+                string strip = shell.Host.StatusStrip.Text ?? "";
+                if (shell.Controller.SectionMatchRefusal is not { } refusal)
+                    throw new Exception($"Expected SectionMatchRefusal to be populated, strip: '{strip}'");
+                string expected = CfdWorkbench.Analysis.Labels.CompatibleMatchRefusal("Tip", refusal.DeviationMeters, refusal.LimitMeters);
+                if (strip != expected)
+                    throw new Exception($"COPY-C5 refusal mismatch in strip: '{strip}' (expected '{expected}')");
                 if (after.Draft.Cursor != before.Draft.Cursor || after.Draft.Generation != before.Draft.Generation ||
                     !after.CanFinish || after.CanFinish != before.CanFinish || after.FinishReason != before.FinishReason ||
                     !finish.IsEnabled || finish.IsEnabled != finishBefore)
-                    throw new Exception($"The refused step changed the draft or Finish: cursor {before.Draft.Cursor} → {after.Draft.Cursor}, " +
-                        $"can finish {before.CanFinish} → {after.CanFinish}, reason '{before.FinishReason}' → '{after.FinishReason}', button {finishBefore} → {finish.IsEnabled}");
+                    throw new Exception($"Refused CF step mutated draft or Finish: cursor {before.Draft.Cursor} -> {after.Draft.Cursor}");
                 shell.Controller.CancelSection();
+            });
+            DesktopChecks.Check("Properties_SectionBlock_ShowsMatchOrIdentical", () =>
+            {
+                shell.Enter();
+                var equalModel = PropertiesView.Build(shell.Controller.Selection, shell.Controller.CurrentProjection,
+                    shell.Controller.Estimates, ShellMode.SectionEditor, new PropertiesContext(Section: SectionContext.Of(shell.Controller)));
+                var equalBlend = equalModel.Groups.SelectMany(g => g.Rows).Single(r => r.Key == "sec:blend");
+                if (equalBlend.Value != CfdWorkbench.Analysis.Labels.CompatibleBlendIdenticalValue)
+                    throw new Exception($"Equal-spacing Blend row mismatch: '{equalBlend.Value}'");
+
+                Wait(shell.Host.ApplySectionStepAsync(new SectionStep.MakeUnique()));
+                WaitUntil(() => shell.Controller.Section is { Assessment: not null });
+                var target = shell.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+                Wait(shell.Host.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, target.Id, target.SpanMeters + 0.005, target.Ordinate)));
+                WaitUntil(() => shell.Controller.Section is { CanFinish: true });
+                Wait(shell.Controller.FinishSectionAsync());
+                shell.Settle();
+
+                // Save and reopen through a real project file to verify COPY-C2 survives reopen without being stored.
+                string tempDir = TestTemp.NewDirectory("cf-props-reopen-");
+                try
+                {
+                    string path = Path.Combine(tempDir, "mixed.cfdw.json");
+                    Wait(shell.Controller.SaveAsync(path));
+                    Wait(shell.Controller.OpenAsync(path));
+                    int tipIndex = shell.Controller.Inspection!.Authored.Assignments.Count - 1;
+                    Wait(shell.Controller.EnterSectionAsync(tipIndex, EntryOrigin.Side));
+                    shell.Settle();
+                    var tipCtx = SectionContext.Of(shell.Controller)!;
+                    var tipModel = PropertiesView.Build(shell.Controller.Selection, shell.Controller.CurrentProjection,
+                        shell.Controller.Estimates, ShellMode.SectionEditor, new PropertiesContext(Section: tipCtx));
+                    var tipBlend = tipModel.Groups.SelectMany(g => g.Rows).Single(r => r.Key == "sec:blend");
+                    var tipMatch = tipCtx.Matches!.First(m => m.Assignments.Contains(tipIndex));
+                    string expectedTipBlend = CfdWorkbench.Analysis.Labels.CompatibleBlendDeviationValue(
+                        tipMatch.SurfaceDeviationMeters, tipMatch.LimitMeters, "Root");
+                    if (tipBlend.Value != expectedTipBlend)
+                        throw new Exception($"Reopened Tip Blend row mismatch: '{tipBlend.Value}' (expected '{expectedTipBlend}')");
+                    string tipChip = shell.View.FindControl<TextBlock>("ScopeChip")!.Text ?? "";
+                    const string expectedTipChip = "Only Tip uses this section · the wing blends on Root's spacing";
+                    if (tipChip != expectedTipChip)
+                        throw new Exception($"Reopened Tip ScopeChip mismatch: '{tipChip}' (expected '{expectedTipChip}')");
+                    // Also pin COPY-689/692/693 label formatters.
+                    if (!CfdWorkbench.Analysis.Labels.CompatibleCapacityRefusal(27, 28).Contains("27 spans and this needs 28", StringComparison.Ordinal) ||
+                        !CfdWorkbench.Analysis.Labels.CompatibleRebuildMatch("Tip", 15e-6, 10e-6).Contains("over limit", StringComparison.Ordinal) ||
+                        CfdWorkbench.Analysis.Labels.CompatibleDragReleaseNote != "Match checked on release.")
+                        throw new Exception("CF Labels helpers did not format COPY-689/692/693 as specified.");
+                    shell.Controller.CancelSection();
+                }
+                finally
+                {
+                    Wait(shell.Controller.OpenExampleAsync());
+                    if (Directory.Exists(tempDir)) Directory.Delete(tempDir, recursive: true);
+                }
             });
             DesktopChecks.Check("SectionEditor_Crossing_MarkerAndReasonRendered", () =>
             {
