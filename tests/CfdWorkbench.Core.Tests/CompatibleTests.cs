@@ -40,6 +40,15 @@ internal static class CompatibleTests
         Check(nameof(Compatible_MultiStation_TwoNonIdentityCopies_AttributedAndIdentityZero), Compatible_MultiStation_TwoNonIdentityCopies_AttributedAndIdentityZero);
         Check(nameof(Compatible_AuthoredTangentCheckedBeforeRefit_AndCurvesSynced), Compatible_AuthoredTangentCheckedBeforeRefit_AndCurvesSynced);
         Check(nameof(Compatible_FixtureHash_SameOnMacAndWindows), Compatible_FixtureHash_SameOnMacAndWindows);
+        // CF-3 evaluator id & migration (BC-5, DR-DF-9 a)
+        Check(nameof(Evaluator_IdFor_V3OnlyWhenSpacingDiffers), Evaluator_IdFor_V3OnlyWhenSpacingDiffers);
+        Check(nameof(Evaluator_OldRowsNeverRewritten), Evaluator_OldRowsNeverRewritten);
+        Check(nameof(Evaluator_V2RowWithMixedSpacing_Refused), Evaluator_V2RowWithMixedSpacing_Refused);
+        Check(nameof(Evaluator_RemoveBackToOneSpacing_V2Again), Evaluator_RemoveBackToOneSpacing_V2Again);
+        // CF-4 R3 station commands (C3, C4)
+        Check(nameof(Promote_R3_OnCopies_RegimeMeasured), Promote_R3_OnCopies_RegimeMeasured);
+        Check(nameof(Remove_CopyChanges_MeasuresTouchedIntervals), Remove_CopyChanges_MeasuresTouchedIntervals);
+        Check(nameof(Promote_SharedSpacingInMixedDoc_KeepsLSpacing), Promote_SharedSpacingInMixedDoc_KeepsLSpacing);
     }
 
     internal static void RunReadiness()
@@ -872,6 +881,277 @@ internal static class CompatibleTests
         var repeatMatch = repeat.Matches.Single(m => !m.Basis);
         Equal(BitConverter.DoubleToInt64Bits(rootMatch.RecordDeviation), BitConverter.DoubleToInt64Bits(repeatMatch.RecordDeviation));
         Equal(BitConverter.DoubleToInt64Bits(rootMatch.SurfaceDeviationMeters), BitConverter.DoubleToInt64Bits(repeatMatch.SurfaceDeviationMeters));
+    }
+
+    // ---- CF-3: Evaluator.IdFor (BC-5 21-site sweep + zero stray literals) -------------------------------------------
+
+    private static void Evaluator_IdFor_V3OnlyWhenSpacingDiffers()
+    {
+        Equal(Evaluator.V2, Evaluator.IdFor(FoilSource.NewDefault()));
+        Equal(Evaluator.V2, Evaluator.IdFor(FoilSource.MaterializeIds(FoilSource.Parse(FoilSourceTests.Example))));
+        Equal(Evaluator.V3, Evaluator.IdFor(LP1Fixture()));
+        Equal(Evaluator.V3, Evaluator.IdFor(LP2Fixture()));
+
+        // BC-5: zero stray "cfdw-cv/..." literals anywhere under src/ outside Compatible.cs (Evaluator).
+        string srcRoot = Path.Combine(PlacementTests.RepoRoot(), "src");
+        string objSep = Path.DirectorySeparatorChar + "obj" + Path.DirectorySeparatorChar;
+        var stray = new List<string>();
+        foreach (string path in Directory.EnumerateFiles(srcRoot, "*.cs", SearchOption.AllDirectories)
+                     .Where(p => !p.Contains(objSep, StringComparison.Ordinal)))
+        {
+            string rel = Path.GetRelativePath(srcRoot, path).Replace(Path.DirectorySeparatorChar, '/');
+            if (rel == "CfdWorkbench.Core/Compatible.cs") continue;
+            string text = File.ReadAllText(path);
+            if (text.Contains("\"cfdw-cv/", StringComparison.Ordinal))
+                stray.Add(rel);
+        }
+        Equal("", string.Join(", ", stray));
+
+        // BC-5: FoilSource.cs:139 single-profile Semantic stays ["cfdw-cv", "2"] so single-profile ProfileIdentity is unchanged.
+        var exampleParsed = FoilSource.Parse(FoilSource.MaterializeIds(FoilSource.Parse(FoilSourceTests.Example)));
+        Equal(Evaluator.V2, exampleParsed.Authored().Binding.Evaluator);
+        var lp2Parsed = FoilSource.Parse(LP2Fixture());
+        Equal(Evaluator.V3, lp2Parsed.Authored().Binding.Evaluator);
+    }
+
+    // ---- CF-3: Existing cfdw-cv/2 rows are never rewritten when a mixed-spacing step lands --------------------------
+
+    private static void Evaluator_OldRowsNeverRewritten()
+    {
+        using var session = SectionDraftTests.Opened();
+        // Create 3 cfdw-cv/2 design rows (open + 2 equal-spacing y-only edits).
+        for (int edit = 0; edit < 2; edit++)
+        {
+            string dId = SectionDraftTests.Id();
+            var v = session.BeginSectionDraft(dId, 0);
+            v = session.ApplySectionStep(dId, v.Generation, SectionDraftTests.Raise(v, "cv-3", 0.002));
+            session.FinishSection(SectionDraftTests.Id(), session.AssessSection(dId, v.Generation, CancellationToken.None));
+        }
+        var beforeDesigns = session.Envelope().Designs.ToArray();
+        Equal(3, beforeDesigns.Length);
+        foreach (var d in beforeDesigns) Equal(Evaluator.V2, d.Evaluator);
+
+        // Now perform a mixed-spacing step (MakeUnique + Control->Anchor on Root) -> 4th design row is cfdw-cv/3.
+        string mixDraft = SectionDraftTests.Id();
+        var view = session.BeginSectionDraft(mixDraft, 0);
+        view = session.ApplySectionStep(mixDraft, view.Generation, new SectionStep.MakeUnique());
+        view = session.ApplySectionStep(mixDraft, view.Generation, new SectionStep.SetType(SurfaceSide.Upper, "cv-4", true));
+        session.FinishSection(SectionDraftTests.Id(), session.AssessSection(mixDraft, view.Generation, CancellationToken.None));
+
+        var afterDesigns = session.Envelope().Designs;
+        Equal(4, afterDesigns.Length);
+        for (int i = 0; i < 3; i++) Equal(beforeDesigns[i], afterDesigns[i]);
+        Equal(Evaluator.V3, afterDesigns[3].Evaluator);
+
+        // Save and reopen preserves all 4 design rows cleanly.
+        byte[] image = session.SaveImage();
+        using var reopened = new AuthoringSession();
+        reopened.Reopen(image);
+        Equal(4, reopened.Envelope().Designs.Length);
+        Equal(Evaluator.V2, reopened.Envelope().Designs[0].Evaluator);
+        Equal(Evaluator.V3, reopened.Envelope().Designs[3].Evaluator);
+    }
+
+    // ---- CF-3 (DR-DF-9 a): A cfdw-cv/2 row whose source needs CF is refused with DOC-VERSION on read ----------------
+
+    private static void Evaluator_V2RowWithMixedSpacing_Refused()
+    {
+        using var session = new AuthoringSession();
+        session.Open(LP2Fixture(), SectionDraftTests.Id(), true);
+        var env = session.Envelope();
+        Equal(Evaluator.V3, env.Designs[0].Evaluator);
+
+        // Hand-forge the design row's evaluator back to cfdw-cv/2 while keeping the mixed-spacing source.
+        var forged = env with { Designs = [env.Designs[0] with { Evaluator = Evaluator.V2 }] };
+        byte[] forgedImage = NativeProject.Encode(forged);
+        Refuses("DOC-VERSION", () => NativeProject.Read(forgedImage));
+        Refuses("DOC-VERSION", () => new AuthoringSession().Reopen(forgedImage));
+
+        // Unknown evaluator version also refuses with DOC-VERSION.
+        var unknown = env with { Designs = [env.Designs[0] with { Evaluator = "cfdw-cv/99" }] };
+        Refuses("DOC-VERSION", () => NativeProject.Read(NativeProject.Encode(unknown)));
+    }
+
+    // ---- CF-3: Removing the odd-spacing station returns the next design row to cfdw-cv/2 ----------------------------
+
+    private static void Evaluator_RemoveBackToOneSpacing_V2Again()
+    {
+        // Build a 3-station wing: Root & Tip share 10-pt NACA 0012; Station 1 at 50 % is a 6-pt sqrt copy of NACA 0012
+        // (same shape, different spacing -> mixed-spacing cfdw-cv/3; removing Station 1 changes loft by ~0 -> admitted, back to cfdw-cv/2!).
+        var baseDef = FoilSource.Parse(FoilSource.NewDefault()).Definition!;
+        var naca = baseDef.Profiles[0];
+        var (k6, x6) = DatImport.OwnSqrtBasis(6);
+        var fit6 = DatImport.FitToBasis(SampleDat(naca), k6, x6, 5, true)!;
+        var mid6 = new ProfileDefinition("mid-6",
+            naca.Upper with { Knots = k6, Points = Points(x6, fit6.Upper), Ids = Ids(6) },
+            naca.Lower with { Knots = k6, Points = Points(x6, fit6.Lower), Ids = Ids(6) },
+            "closed", 0, 0);
+        // Check 6-pt NACA 0012 residual on 10-pt NACA: wait — use 10-pt with an exact Boehm inserted knot at 0.5 on mid so Remove deviation is ~0!
+        var uIns = FoilSource.InsertOnce(naca.Upper.Knots, naca.Upper.Points, 5, 0.5);
+        var lIns = FoilSource.InsertOnce(naca.Lower.Knots, naca.Lower.Points, 5, 0.5);
+        var mid11 = new ProfileDefinition("mid-11",
+            naca.Upper with { Knots = uIns.Knots, Points = uIns.Points, Ids = Ids(uIns.Points.Length) },
+            naca.Lower with { Knots = lIns.Knots, Points = lIns.Points, Ids = Ids(lIns.Points.Length) },
+            "closed", 0, 0);
+        _ = mid6;
+
+        string text = Encoding.UTF8.GetString(FoilSource.NewDefault());
+        int start = text.IndexOf("  profiles {\n", StringComparison.Ordinal);
+        int end = text.IndexOf("  tip open", StringComparison.Ordinal);
+        var sb = new StringBuilder("  profiles {\n");
+        FoilSource.AppendProfile(sb, naca);
+        FoilSource.AppendProfile(sb, mid11);
+        sb.Append("  }\n  sections { at root profile \"naca-0012\" at 50 % profile \"mid-11\" at tip profile \"naca-0012\" }\n");
+        byte[] mixed3 = Encoding.UTF8.GetBytes(text[..start] + sb + text[end..]);
+
+        using var session = new AuthoringSession { StationGrid = FastGrid };
+        session.Open(mixed3, SectionDraftTests.Id(), true);
+        Equal(Evaluator.V3, session.Envelope().Designs[^1].Evaluator);
+        Equal(Evaluator.V3, session.InspectAccepted().Authored.Binding.Evaluator);
+
+        var removal = session.PreviewRemove(1);
+        Equal(true, removal.Admitted);
+        session.RemoveStation(SectionDraftTests.Id(), 1);
+        Equal(Evaluator.V2, session.Envelope().Designs[^1].Evaluator);
+        Equal(Evaluator.V2, session.InspectAccepted().Authored.Binding.Evaluator);
+        // Prior v3 design row was never rewritten!
+        Equal(Evaluator.V3, session.Envelope().Designs[0].Evaluator);
+    }
+
+    // ---- CF-4: Promote R3 on copies, regime measured ----------------------------------------------------------------
+
+    private static void Promote_R3_OnCopies_RegimeMeasured()
+    {
+        byte[] lp2 = LP2Fixture(); // Root 8-pt section-a, Tip 10-pt NACA 0012 (basis -> S* = Tip's 10-pt spacing).
+        using var session = new AuthoringSession { StationGrid = FastGrid };
+        session.Open(lp2, SectionDraftTests.Id(), true);
+        var preview = session.PreviewPromote(0.5, "50 %");
+        Equal(null, preview.RefusalCode);
+        Equal(true, preview.Admitted);
+        True(preview.Regime is "R1" or "R2", $"Unexpected R3 regime '{preview.Regime}'");
+        True(preview.DeviationMeters <= StationEdits.LimitMeters, $"R3 promote deviation {preview.DeviationMeters * 1e6:F2} um > 10 um");
+
+        var outcome = session.AddStation(SectionDraftTests.Id(), 0.5, "50 %", approximate: true);
+        var afterDef = FoilSource.Parse(session.Snapshot().Source).Definition!;
+        Equal(3, afterDef.Assignments.Length);
+        var promoted = afterDef.Profiles[afterDef.Assignments[1].Profile];
+        var tip = afterDef.Profiles[afterDef.Assignments[2].Profile]; // S* is Tip's 10-pt spacing
+        Equal(true, Placement.SameAbscissa(promoted.Upper, tip.Upper));
+        Equal(true, Placement.SameAbscissa(promoted.Lower, tip.Lower));
+        Equal(Evaluator.V3, session.Envelope().Designs[^1].Evaluator);
+        Equal(GeometryStatus.Certified, Geometry.Assess(FoilSource.Parse(session.Snapshot().Source)).Status);
+        _ = outcome;
+    }
+
+    // ---- CF-4 (C3): Remove widens measured intervals to every interval touching a bitwise-changed copy --------------
+
+    private static void Remove_CopyChanges_MeasuresTouchedIntervals()
+    {
+        // Build a 4-station mixed-spacing wing:
+        //   Station 0 (0 %):   6-pt sqrt
+        //   Station 1 (30 %):  10-pt NACA (BASIS!) — when removed, Station 2 (8-pt) becomes the new basis!
+        //   Station 2 (70 %):  8-pt section-a (3 spans)
+        //   Station 3 (100 %): 6-pt sqrt (FAR from the removed station 1's gap [0, 0.7]!)
+        // Removing station 1 changes S* from 10-pt to 8-pt, so station 3's copy changes bitwise -> far interval [0.7, 1.0] MUST be measured!
+        var baseDef = FoilSource.Parse(FoilSource.NewDefault()).Definition!;
+        var naca10 = baseDef.Profiles[0];
+        var sectionA = FoilSource.Parse(FoilSource.MaterializeIds(FoilSource.Parse(FoilSourceTests.Example))).Definition!.Profiles[0];
+        var (k6, x6) = DatImport.OwnSqrtBasis(6);
+        var fit6 = DatImport.FitToBasis(SampleDat(sectionA), k6, x6, 5, true)!;
+        var tip6 = new ProfileDefinition("p6",
+            naca10.Upper with { Knots = k6, Points = Points(x6, fit6.Upper), Ids = Ids(6) },
+            naca10.Lower with { Knots = k6, Points = Points(x6, fit6.Lower), Ids = Ids(6) },
+            "closed", 0, 0);
+        var mid8 = new ProfileDefinition("p8",
+            sectionA.Upper with { Ids = Ids(sectionA.Upper.Points.Length) },
+            sectionA.Lower with { Ids = Ids(sectionA.Lower.Points.Length) },
+            sectionA.Closure, 0, 0);
+
+        string text = Encoding.UTF8.GetString(FoilSource.NewDefault());
+        int start = text.IndexOf("  profiles {\n", StringComparison.Ordinal);
+        int end = text.IndexOf("  tip open", StringComparison.Ordinal);
+        var sb = new StringBuilder("  profiles {\n");
+        FoilSource.AppendProfile(sb, tip6);
+        FoilSource.AppendProfile(sb, naca10);
+        FoilSource.AppendProfile(sb, mid8);
+        sb.Append("  }\n  sections { at root profile \"p6\" at 30 % profile \"naca-0012\" at 70 % profile \"p8\" at tip profile \"p6\" }\n");
+        byte[] doc4 = Encoding.UTF8.GetBytes(text[..start] + sb + text[end..]);
+
+        var removeBasis = StationEdits.Remove(doc4, 1, FastGrid);
+        // Adjacent intervals [0, 0.3], [0.3, 0.7] PLUS far interval [0.7, 1.0] = 3 intervals!
+        Equal(3 * FastGrid.EtaSamples, removeBasis.Preview.EtaCount);
+        True(removeBasis.Preview.MeasuredIntervals is { Count: 3 }, "Expected 3 measured intervals (2 adjacent + 1 far)");
+        Equal(0.7, removeBasis.Preview.MeasuredIntervals![2].EtaStart);
+        Equal(1.0, removeBasis.Preview.MeasuredIntervals[2].EtaEnd);
+
+        // Control (kills "always measure all intervals" or "keyed on S* when no copy changed"):
+        // Put the 10-pt basis at Root (station 0), non-basis 8-pt at station 1 (30 %), non-basis 6-pt at station 2 (70 %) & station 3 (100 %).
+        // Removing station 1 (8-pt, no anchors) leaves S* = Root's 10-pt unchanged -> NO surviving copy changes bitwise -> ONLY 2 adjacent intervals!
+        var sb2 = new StringBuilder("  profiles {\n");
+        FoilSource.AppendProfile(sb2, naca10);
+        FoilSource.AppendProfile(sb2, mid8);
+        FoilSource.AppendProfile(sb2, tip6);
+        sb2.Append("  }\n  sections { at root profile \"naca-0012\" at 30 % profile \"p8\" at 70 % profile \"p6\" at tip profile \"p6\" }\n");
+        byte[] docNoChange = Encoding.UTF8.GetBytes(text[..start] + sb2 + text[end..]);
+
+        var removeNonBasis = StationEdits.Remove(docNoChange, 1, FastGrid);
+        Equal(2 * FastGrid.EtaSamples, removeNonBasis.Preview.EtaCount);
+        True(removeNonBasis.Preview.MeasuredIntervals is { Count: 2 }, "Expected only 2 adjacent intervals when no surviving copy changed");
+    }
+
+    // ---- CF-4 (C4): Promote between L and R sharing their own spacing inside a mixed document keeps L's spacing -----
+
+    private static void Promote_SharedSpacingInMixedDoc_KeepsLSpacing()
+    {
+        // Mixed 3-station wing:
+        //   Station 0 (0 %):   section-a (8-pt, 3 spans)
+        //   Station 1 (50 %):  section-a-cambered (SAME 8-pt spacing as station 0, different ordinates)
+        //   Station 2 (100 %): NACA 0012 (10-pt, 5 spans -> BASIS, so S* is 10-pt!)
+        // Promoting at 25 % (between station 0 and station 1, which share 8-pt spacing) MUST keep L's 8-pt spacing bitwise (NOT S* 10-pt)!
+        var baseDef = FoilSource.Parse(FoilSource.NewDefault()).Definition!;
+        var naca10 = baseDef.Profiles[0];
+        var sectionA = FoilSource.Parse(FoilSource.MaterializeIds(FoilSource.Parse(FoilSourceTests.Example))).Definition!.Profiles[0];
+        var p0 = new ProfileDefinition("s8-root",
+            sectionA.Upper with { Ids = Ids(sectionA.Upper.Points.Length) },
+            sectionA.Lower with { Ids = Ids(sectionA.Lower.Points.Length) },
+            sectionA.Closure, 0, 0);
+        var uPts1 = sectionA.Upper.Points.Select((pt, i) => new[] { pt[0], i == 0 || i == sectionA.Upper.Points.Length - 1 ? pt[1] : pt[1] + 0.008 * 4 * pt[0] * (1 - pt[0]) }).ToArray();
+        var lPts1 = sectionA.Lower.Points.Select((pt, i) => new[] { pt[0], i == 0 || i == sectionA.Lower.Points.Length - 1 ? pt[1] : pt[1] + 0.008 * 4 * pt[0] * (1 - pt[0]) }).ToArray();
+        var p1 = new ProfileDefinition("s8-mid",
+            sectionA.Upper with { Points = uPts1, Ids = Ids(uPts1.Length) },
+            sectionA.Lower with { Points = lPts1, Ids = Ids(lPts1.Length) },
+            sectionA.Closure, 0, 0);
+
+        string text = Encoding.UTF8.GetString(FoilSource.NewDefault());
+        int start = text.IndexOf("  profiles {\n", StringComparison.Ordinal);
+        int end = text.IndexOf("  tip open", StringComparison.Ordinal);
+        var sb = new StringBuilder("  profiles {\n");
+        FoilSource.AppendProfile(sb, p0);
+        FoilSource.AppendProfile(sb, p1);
+        FoilSource.AppendProfile(sb, naca10);
+        sb.Append("  }\n  sections { at root profile \"s8-root\" at 50 % profile \"s8-mid\" at tip profile \"naca-0012\" }\n");
+        byte[] mixedDoc = Encoding.UTF8.GetBytes(text[..start] + sb + text[end..]);
+
+        // Confirm it really is a mixed document whose S* is 10-pt (5 spans).
+        var compat = Compatible.Of(FoilSource.Parse(mixedDoc).Definition!);
+        Equal(true, compat.NeedsFit);
+        Equal("naca-0012", compat.BasisProfile);
+        Equal(5, compat.SharedSpans);
+
+        using var session = new AuthoringSession { StationGrid = FastGrid };
+        session.Open(mixedDoc, SectionDraftTests.Id(), true);
+        var preview = session.PreviewPromote(0.25, "25 %");
+        Equal(null, preview.RefusalCode);
+        Equal(true, preview.Admitted);
+        session.AddStation(SectionDraftTests.Id(), 0.25, "25 %", approximate: true);
+
+        var afterDef = FoilSource.Parse(session.Snapshot().Source).Definition!;
+        var promoted = afterDef.Profiles[afterDef.Assignments[1].Profile];
+        // P MUST keep L's 8-point knots and control x bitwise (NOT 10-point S*)!
+        Equal(8, promoted.Upper.Points.Length);
+        Equal(true, Placement.SameAbscissa(promoted.Upper, p0.Upper));
+        Equal(true, Placement.SameAbscissa(promoted.Lower, p0.Lower));
+        Equal(false, Placement.SameAbscissa(promoted.Upper, naca10.Upper));
     }
 
     // ---- Test 22: Readiness cost check on five-station 32-vertex fixture --------------------------------------------

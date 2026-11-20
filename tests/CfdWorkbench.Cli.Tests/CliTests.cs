@@ -389,6 +389,50 @@ internal static class CliHarness
         cliFailures += DiscrepancyCliTests.Run();
         cliFailures += await ExportCliTests.RunAsync();
 
+        // CF-3 (Ruling 269): `inspect --json` reports `cfdw-cv/2` for equal-spacing foils and `cfdw-cv/3` for mixed-spacing foils.
+        string mixedFoil = TestTemp.Combine(Guid.NewGuid().ToString("N") + ".foil");
+        string mixedProj = TestTemp.Combine(Guid.NewGuid().ToString("N") + ".cfdw.json");
+        try
+        {
+            output.GetStringBuilder().Clear();
+            exit = await Cli.RunAsync(["inspect", "example", "--json"], output);
+            if (exit != 0) throw new Exception($"example inspect exit {exit}");
+            using (var eqDoc = JsonDocument.Parse(output.ToString()))
+                if (eqDoc.RootElement.GetProperty("evaluator").GetString() != "cfdw-cv/2")
+                    throw new Exception($"equal-spacing evaluator was {eqDoc.RootElement.GetProperty("evaluator").GetString()}");
+
+            using var mixSession = new AuthoringSession();
+            mixSession.Open(Cli.ExampleBytes(), Guid.NewGuid().ToString("D"), false);
+            string dId = Guid.NewGuid().ToString("D");
+            var v = mixSession.BeginSectionDraft(dId, 0);
+            v = mixSession.ApplySectionStep(dId, v.Generation, new SectionStep.MakeUnique());
+            v = mixSession.ApplySectionStep(dId, v.Generation, new SectionStep.SetType(SurfaceSide.Upper, "cv-4", true));
+            mixSession.FinishSection(Guid.NewGuid().ToString("D"), mixSession.AssessSection(dId, v.Generation, CancellationToken.None));
+            await File.WriteAllBytesAsync(mixedFoil, mixSession.Snapshot().Source);
+            await File.WriteAllBytesAsync(mixedProj, mixSession.SaveImage());
+
+            foreach (string path in new[] { mixedFoil, mixedProj })
+            {
+                output.GetStringBuilder().Clear();
+                exit = await Cli.RunAsync(["inspect", path, "--json"], output);
+                if (exit != 0) throw new Exception($"mixed inspect ({path}) exit {exit}: {output}");
+                using var mixDoc = JsonDocument.Parse(output.ToString());
+                if (mixDoc.RootElement.GetProperty("evaluator").GetString() != "cfdw-cv/3")
+                    throw new Exception($"mixed-spacing evaluator ({path}) was {mixDoc.RootElement.GetProperty("evaluator").GetString()}");
+            }
+            Console.WriteLine("PASS Cli_InspectJson_EvaluatorV2AndV3");
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine("FAIL Cli_InspectJson_EvaluatorV2AndV3 " + error.GetType().Name + ": " + error.Message);
+            cliFailures++;
+        }
+        finally
+        {
+            if (File.Exists(mixedFoil)) File.Delete(mixedFoil);
+            if (File.Exists(mixedProj)) File.Delete(mixedProj);
+        }
+
         // A check that fails reports its own FAIL line and the harness goes on (WRT-HARNESS-ABORT); the exit says whether any failed.
         return cliFailures == 0 ? 0 : 1;
     }
