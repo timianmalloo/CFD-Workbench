@@ -49,6 +49,8 @@ internal static class CompatibleTests
         Check(nameof(Promote_R3_OnCopies_RegimeMeasured), Promote_R3_OnCopies_RegimeMeasured);
         Check(nameof(Remove_CopyChanges_MeasuresTouchedIntervals), Remove_CopyChanges_MeasuresTouchedIntervals);
         Check(nameof(Promote_SharedSpacingInMixedDoc_KeepsLSpacing), Promote_SharedSpacingInMixedDoc_KeepsLSpacing);
+        // Verifier regression: PrepMemo & MeasureMemo keys must include profile Tangents (XPA-I6).
+        Check(nameof(Compatible_MemoKey_IncludesProfileTangents_NoStaleCache), Compatible_MemoKey_IncludesProfileTangents_NoStaleCache);
     }
 
     internal static void RunReadiness()
@@ -976,24 +978,16 @@ internal static class CompatibleTests
 
     private static void Evaluator_RemoveBackToOneSpacing_V2Again()
     {
-        // Build a 3-station wing: Root & Tip share 10-pt NACA 0012; Station 1 at 50 % is a 6-pt sqrt copy of NACA 0012
+        // Build a 3-station wing: Root & Tip share 10-pt NACA 0012; Station 1 at 50 % has an exact Boehm inserted knot at 0.5
         // (same shape, different spacing -> mixed-spacing cfdw-cv/3; removing Station 1 changes loft by ~0 -> admitted, back to cfdw-cv/2!).
         var baseDef = FoilSource.Parse(FoilSource.NewDefault()).Definition!;
         var naca = baseDef.Profiles[0];
-        var (k6, x6) = DatImport.OwnSqrtBasis(6);
-        var fit6 = DatImport.FitToBasis(SampleDat(naca), k6, x6, 5, true)!;
-        var mid6 = new ProfileDefinition("mid-6",
-            naca.Upper with { Knots = k6, Points = Points(x6, fit6.Upper), Ids = Ids(6) },
-            naca.Lower with { Knots = k6, Points = Points(x6, fit6.Lower), Ids = Ids(6) },
-            "closed", 0, 0);
-        // Check 6-pt NACA 0012 residual on 10-pt NACA: wait — use 10-pt with an exact Boehm inserted knot at 0.5 on mid so Remove deviation is ~0!
         var uIns = FoilSource.InsertOnce(naca.Upper.Knots, naca.Upper.Points, 5, 0.5);
         var lIns = FoilSource.InsertOnce(naca.Lower.Knots, naca.Lower.Points, 5, 0.5);
         var mid11 = new ProfileDefinition("mid-11",
             naca.Upper with { Knots = uIns.Knots, Points = uIns.Points, Ids = Ids(uIns.Points.Length) },
             naca.Lower with { Knots = lIns.Knots, Points = lIns.Points, Ids = Ids(lIns.Points.Length) },
             "closed", 0, 0);
-        _ = mid6;
 
         string text = Encoding.UTF8.GetString(FoilSource.NewDefault());
         int start = text.IndexOf("  profiles {\n", StringComparison.Ordinal);
@@ -1337,5 +1331,63 @@ internal static class CompatibleTests
             }
         }
         return false;
+    }
+
+    // ---- Verifier regression: PrepMemo & MeasureMemo keys must include profile Tangents (XPA-I6) --------------------
+
+    private static void Compatible_MemoKey_IncludesProfileTangents_NoStaleCache()
+    {
+        byte[] baseDoc = LP1Fixture();
+        var def = FoilSource.Parse(baseDoc).Definition!;
+        string tipName = def.Profiles[def.Assignments[1].Profile].Name;
+        double[] k11 = [0, 0, 0, 0, 0, 0, 0.5, 0.5, 0.5, 0.5, 0.5, 1, 1, 1, 1, 1, 1];
+        double[] x11 = [0, 0, 0.1, 0.2, 0.35, 0.35, 0.35, 0.55, 0.75, 0.9, 1];
+        double[] uy11 = [0, 0.03, 0.06, 0.075, 0.0799, 0.0800, 0.0801, 0.065, 0.04, 0.015, 0];
+        double[] ly11 = [0, -0.03, -0.06, -0.075, -0.0799, -0.0800, -0.0801, -0.065, -0.04, -0.015, 0];
+        byte[] beforeBytes = FoilSource.WriteSurfaces(baseDoc, tipName, k11, Points(x11, uy11), Ids(11), Points(x11, ly11), Ids(11));
+        byte[] afterVerticalBytes = FoilSource.WriteSideTangents(beforeBytes, tipName, SurfaceSide.Upper, [new TangentRow("cv-5", "vertical", null)]);
+
+        var parsedBefore = FoilSource.Parse(beforeBytes);
+        var parsedAfterVertical = FoilSource.Parse(afterVerticalBytes);
+        Equal(true, parsedBefore.IsParsed);
+        Equal(true, parsedAfterVertical.IsParsed);
+        // SurfaceHash hashes degree/knots/points only, not Tangents: both share the exact same SurfaceHash.
+        Equal(parsedBefore.SurfaceHash, parsedAfterVertical.SurfaceHash);
+
+        // 1) Populate BOTH PrepMemo and MeasureMemo with the pre-tangent document.
+        var prepBefore = Compatible.Of(parsedBefore.Definition!, parsedBefore.SurfaceHash);
+        Equal(false, prepBefore.Failed);
+        var measBefore = Compatible.Measure(parsedBefore, FastGrid);
+        Equal(false, measBefore.Failed);
+        Equal(GeometryStatus.Certified, Geometry.Assess(parsedBefore).Status);
+
+        // 2) Assess and measure the post-tangent document WITHOUT calling Compatible.ClearMemos():
+        // must NOT serve the cached pre-tangent result.
+        var prepAfter = Compatible.Of(parsedAfterVertical.Definition!, parsedAfterVertical.SurfaceHash);
+        Equal(true, prepAfter.Failed);
+        var measAfter = Compatible.Measure(parsedAfterVertical, FastGrid);
+        Equal(true, measAfter.Failed);
+        var assessedAfter = Geometry.Assess(parsedAfterVertical);
+        Equal(GeometryStatus.NotAssessed, assessedAfter.Status);
+        Equal("GEOMETRY-FIT-SINGULAR", assessedAfter.Code);
+
+        // 3) MeasureMemo independent check: both before and after succeed (Certified) on identical SurfaceHash,
+        // with a valid horizontal tangent row added on aligned points; MeasureMemo must NOT return the prior cached instance.
+        double[] uyHoriz = [0, 0.03, 0.06, 0.075, 0.0800, 0.0800, 0.0800, 0.065, 0.04, 0.015, 0];
+        byte[] horizBeforeBytes = FoilSource.WriteSurfaces(baseDoc, tipName, k11, Points(x11, uyHoriz), Ids(11), Points(x11, ly11), Ids(11));
+        byte[] horizAfterBytes = FoilSource.WriteSideTangents(horizBeforeBytes, tipName, SurfaceSide.Upper, [new TangentRow("cv-5", "horizontal", null)]);
+        var parsedH1 = FoilSource.Parse(horizBeforeBytes);
+        var parsedH2 = FoilSource.Parse(horizAfterBytes);
+        Equal(parsedH1.SurfaceHash, parsedH2.SurfaceHash);
+        var m1 = Compatible.Measure(parsedH1, FastGrid);
+        Equal(false, m1.Failed);
+        var m2 = Compatible.Measure(parsedH2, FastGrid);
+        Equal(false, m2.Failed);
+        Equal(false, ReferenceEquals(m1, m2));
+        Compatible.ClearMemos();
+        var m2Fresh = Compatible.Measure(parsedH2, FastGrid);
+        Equal(m2Fresh.Matches.Count, m2.Matches.Count);
+        for (int i = 0; i < m2Fresh.Matches.Count; i++)
+            Equal(m2Fresh.Matches[i].SurfaceDeviationMeters, m2.Matches[i].SurfaceDeviationMeters);
     }
 }

@@ -127,7 +127,7 @@ public static class Compatible
         if (!Evaluator.NeedsCompatibleFit(definition))
             return IdentityResult(definition);
 
-        string key = (surfaceKey ?? SemanticKey(definition)) + "|" + Evaluator.V3;
+        string key = DefinitionMemoKey(definition, surfaceKey);
         if (PrepMemo.TryGetValue(key, out var cached))
             return cached;
 
@@ -151,8 +151,8 @@ public static class Compatible
         if (!prep.NeedsFit || prep.Failed) return prep;
 
         var grid = gridOverride ?? ResidualGrid;
-        string defKey = surfaceKey ?? SemanticKey(definition);
-        string key = string.Create(CultureInfo.InvariantCulture, $"{defKey}|{grid.EtaSamples}x{grid.XSamples}|{Evaluator.V3}");
+        string defKey = DefinitionMemoKey(definition, surfaceKey);
+        string key = string.Create(CultureInfo.InvariantCulture, $"{defKey}|{grid.EtaSamples}x{grid.XSamples}");
         if (MeasureMemo.TryGetValue(key, out var cached))
             return cached;
 
@@ -700,6 +700,29 @@ public static class Compatible
         foreach (var row in profile.Lower.Tangents)
             sb.Append('L').Append(row.Id).Append(':').Append(row.Kind).Append(':').Append(row.Angle?.ToString("R", CultureInfo.InvariantCulture)).Append(';');
         return sb.ToString();
+    }
+
+    private static string DefinitionMemoKey(Definition definition, string? surfaceKey)
+    {
+        string baseKey = surfaceKey ?? SemanticKey(definition);
+        string tangents = AllStationTangentsKey(definition);
+        return tangents.Length == 0
+            ? baseKey + "|" + Evaluator.V3
+            : baseKey + "|" + tangents + "|" + Evaluator.V3;
+    }
+
+    private static string AllStationTangentsKey(Definition definition)
+    {
+        StringBuilder? sb = null;
+        for (int index = 0; index < definition.Assignments.Length; index++)
+        {
+            var profile = definition.Profiles[definition.Assignments[index].Profile];
+            string key = TangentsKey(profile);
+            if (key.Length == 0) continue;
+            sb ??= new StringBuilder();
+            sb.Append(index).Append('=').Append(profile.Name).Append('[').Append(key).Append(']');
+        }
+        return sb is null ? "" : sb.ToString();
     }
 
     private static string SemanticKey(Definition definition) =>

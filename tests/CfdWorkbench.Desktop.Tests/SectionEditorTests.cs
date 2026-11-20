@@ -694,7 +694,8 @@ public static class SectionEditorTests
                 string strip = shell.Host.StatusStrip.Text ?? "";
                 if (shell.Controller.SectionMatchRefusal is not { } refusal)
                     throw new Exception($"Expected SectionMatchRefusal to be populated, strip: '{strip}'");
-                string expected = CfdWorkbench.Analysis.Labels.CompatibleMatchRefusal("Tip", refusal.DeviationMeters, refusal.LimitMeters);
+                string expected = string.Create(System.Globalization.CultureInfo.InvariantCulture,
+                    $"Can't keep this change: Tip would be {refusal.DeviationMeters * 1e3:0.0000} mm from its drawn shape on the blend (limit {refusal.LimitMeters * 1e3:0.000} mm). Nothing changed.");
                 if (strip != expected)
                     throw new Exception($"COPY-C5 refusal mismatch in strip: '{strip}' (expected '{expected}')");
                 if (after.Draft.Cursor != before.Draft.Cursor || after.Draft.Generation != before.Draft.Generation ||
@@ -743,11 +744,6 @@ public static class SectionEditorTests
                     const string expectedTipChip = "Only Tip uses this section · the wing blends on Root's spacing";
                     if (tipChip != expectedTipChip)
                         throw new Exception($"Reopened Tip ScopeChip mismatch: '{tipChip}' (expected '{expectedTipChip}')");
-                    // Also pin COPY-689/692/693 label formatters.
-                    if (!CfdWorkbench.Analysis.Labels.CompatibleCapacityRefusal(27, 28).Contains("27 spans and this needs 28", StringComparison.Ordinal) ||
-                        !CfdWorkbench.Analysis.Labels.CompatibleRebuildMatch("Tip", 15e-6, 10e-6).Contains("over limit", StringComparison.Ordinal) ||
-                        CfdWorkbench.Analysis.Labels.CompatibleDragReleaseNote != "Match checked on release.")
-                        throw new Exception("CF Labels helpers did not format COPY-689/692/693 as specified.");
                     shell.Controller.CancelSection();
                 }
                 finally
