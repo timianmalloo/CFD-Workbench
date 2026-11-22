@@ -1,0 +1,93 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sweeps="using:CfdWorkbench.Desktop.Sweeps"
+             x:Class="CfdWorkbench.Desktop.Sweeps.SweepResultsView">
+  <Grid RowDefinitions="Auto,Auto,*" Margin="{StaticResource Space3}">
+    <!-- Historical / Archived banner -->
+    <Border Grid.Row="0" x:Name="FreshnessBanner" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
+            BorderBrush="{DynamicResource WarningBrush}" BorderThickness="{StaticResource HairlineThickness}"
+            Padding="{StaticResource Space2}" Margin="{StaticResource PropLineBelow}">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+          <Button x:Name="NewVersionFromResultsButton" Content="New version" />
+          <Button x:Name="ArchiveSweepButton" Content="Archive sweep" />
+        </StackPanel>
+        <TextBlock x:Name="FreshnessBannerText" Foreground="{DynamicResource InkBrush}" VerticalAlignment="Center" TextWrapping="Wrap" />
+      </DockPanel>
+    </Border>
+
+    <!-- Chart metric, X-axis, and Table twin toggle toolbar -->
+    <Border Grid.Row="1" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+            BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}" Margin="{StaticResource PropLineBelow}">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+          <ToggleButton x:Name="AxisAlphaButton" Content="vs α (°)" IsChecked="True" />
+          <ToggleButton x:Name="AxisSpeedButton" Content="vs Speed" />
+          <ToggleButton x:Name="ShowTableTwinButton" Content="Show table" AutomationProperties.Name="Toggle table twin for plotted values" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap1}">
+          <ToggleButton x:Name="MetricClButton" Content="CL" IsChecked="True" />
+          <ToggleButton x:Name="MetricCdButton" Content="CD (Wing only)" />
+          <ToggleButton x:Name="MetricLdButton" Content="L/D (Wing only)" />
+          <ToggleButton x:Name="MetricCmButton" Content="Cm" />
+        </StackPanel>
+      </DockPanel>
+    </Border>
+
+    <!-- Main body: left (chart + table twin + small multiples strip) | right (synchronized Case Inspector) -->
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource StackGap3}">
+      <Grid Grid.Column="0" RowDefinitions="*,Auto,Auto">
+        <sweeps:PerformanceCurveChart Grid.Row="0" x:Name="CurveChart" MinHeight="{StaticResource SweepChartMinHeight}" />
+
+        <!-- One-click Table Twin (UI-17, C2) -->
+        <Border Grid.Row="1" x:Name="TableTwinPanel" IsVisible="False" Background="{DynamicResource SurfaceBrush}"
+                BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource HairlineThickness}"
+                Margin="{StaticResource Space1}" MaxHeight="{StaticResource NavigatorListHeight}">
+          <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <StackPanel x:Name="TableTwinRowsHost" Spacing="{StaticResource StackGap1}" Margin="{StaticResource Space2}" />
+          </ScrollViewer>
+        </Border>
+
+        <!-- Small-multiples horizontal case strip (linked selection) -->
+        <Border Grid.Row="2" Background="{DynamicResource SurfaceSoftBrush}" BorderBrush="{DynamicResource LineBrush}"
+                BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space1}" Margin="{StaticResource Space1}">
+          <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+            <StackPanel x:Name="SmallMultiplesStrip" Orientation="Horizontal" Spacing="{StaticResource StackGap1}" />
+          </ScrollViewer>
+        </Border>
+      </Grid>
+
+      <!-- Synchronized Right-hand Case Provenance & Basis Inspector -->
+      <Border Grid.Column="1" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+              BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space3}"
+              MinWidth="{StaticResource SweepInspectorWidth}" MaxWidth="{StaticResource SweepInspectorWidth}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+          <StackPanel Spacing="{StaticResource StackGap2}">
+            <TextBlock x:Name="InspectorHeading" Text="Case inspector" FontSize="{StaticResource PropTitleSize}" FontWeight="SemiBold" Foreground="{DynamicResource InkBrush}" />
+            <TextBlock x:Name="InspectorFreshnessText" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
+
+            <Border x:Name="InspectorGapBox" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
+                    BorderBrush="{DynamicResource DangerBrush}" BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
+              <StackPanel Spacing="{StaticResource StackGap1}">
+                <TextBlock x:Name="InspectorGapReason" Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}" />
+                <Button x:Name="InspectorRetryButton" Content="Retry sample in Run →" />
+              </StackPanel>
+            </Border>
+
+            <StackPanel x:Name="InspectorScalarsHost" Spacing="{StaticResource StackGap1}" />
+
+            <Border Background="{DynamicResource SurfaceSoftBrush}" BorderBrush="{DynamicResource LineBrush}"
+                    BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
+              <StackPanel Spacing="{StaticResource StackGap1}">
+                <TextBlock Text="Basis &amp; model limits" FontWeight="SemiBold" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource InkBrush}" />
+                <TextBlock x:Name="InspectorBasisText" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
+                <TextBlock x:Name="InspectorNotModelledText" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
+                <TextBlock x:Name="InspectorGoalBandText" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </ScrollViewer>
+      </Border>
+    </Grid>
+  </Grid>
+</UserControl>

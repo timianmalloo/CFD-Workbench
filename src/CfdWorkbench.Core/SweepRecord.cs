@@ -91,7 +91,7 @@ public sealed record SweepCase(
     double? AlphaDeg,
     double? TargetLoadN);
 
-/// <summary>Lifecycle event kind on a <see cref="SweepExperiment"/>.</summary>
+/// <summary>Lifecycle transition kind on a <see cref="SweepExperiment"/>.</summary>
 [JsonConverter(typeof(SweepEventKindConverter))]
 public enum SweepEventKind { Queued, CancelRequested, Archived }
 

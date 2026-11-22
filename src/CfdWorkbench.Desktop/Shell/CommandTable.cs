@@ -101,6 +101,7 @@ public static class CommandTable
 
         // View
         new("view.analysis", "Analysis", "View", "⇧⌘A", false, NoOp),
+        new("view.sweeps", "Sweeps", "View", null, false, NoOp),
         // A3d Compare (design a3d-compare.md 5.1): the palette reaches both; no keyboard gesture. Enabled in Analysis with a Completed VLM + strip run.
         new("analysis.compare", CfdWorkbench.Analysis.Labels.CompareRunsCommand, "View", null, false, NoOp),
         new("analysis.compare-tiers", CfdWorkbench.Analysis.Labels.CompareTiersCommand, "View", null, false, NoOp),

@@ -32,7 +32,10 @@ public partial class StatusStrip : UserControl
         SizeChanged += (_, _) => FitItems();
         // The one action slot: whatever the shown report carries runs here (UI-DEAD-CONTROL: never a dead button).
         StatusTryAgainButton.Click += (_, _) => Action?.Run();
+        SweepCancelButton.Click += (_, _) => sweepCancelAction?.Invoke();
     }
+
+    private Action? sweepCancelAction;
 
     /// <summary>What Try again runs (the shell sets it); a report that offers Try again carries it as its action.</summary>
     public Action? TryAgain { get; set; }
@@ -106,6 +109,17 @@ public partial class StatusStrip : UserControl
         };
         AutomationProperties.SetName(AnalysisItem, AnalysisItemText.Text);
         AnalysisItem.IsVisible = true;
+        FitItems();
+    }
+
+    /// <summary>Area 4 local-sweep progress and reachable Cancel action in the status strip (UX-21).</summary>
+    public void ShowSweepState(string text, bool visible, bool canCancel, Action? onCancel)
+    {
+        SweepItemText.Text = text;
+        AutomationProperties.SetName(SweepItem, text);
+        sweepCancelAction = canCancel ? onCancel : null;
+        SweepCancelButton.IsVisible = visible && canCancel;
+        SweepItem.IsVisible = visible;
         FitItems();
     }
 
