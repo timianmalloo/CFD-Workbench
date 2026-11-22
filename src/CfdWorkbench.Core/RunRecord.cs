@@ -69,9 +69,9 @@ public sealed record WaterRecord(double TemperatureC, double SalinityGPerKg, dou
 
 /// <summary>
 /// The operating point as stored. <paramref name="HRef"/> null is "depth not set" (DR-ANA-13).
-/// <paramref name="Load"/> is reserved by the design manifest (§5.6) and always null in A3a (DR-ANA-9: Custom operating
-/// points only). assume: it is the goal-state design load in newtons; confirmed when Area 1 defines it; if not, it is
-/// renamed before any run stores a value (every A3a row stores null, so the rename changes no stored key).
+/// <paramref name="Load"/> is the Goal-state front-wing required load in newtons (<c>requiredLoadN</c>), confirmed
+/// by Ruling 271 (DR-SWP-4 (b)) and Ruling 272 (DR-SET-2 (a)). Custom fixed-α runs store null so all A3a/A3d run keys
+/// remain bit-identical.
 /// </summary>
 public sealed record OperatingPoint(double Speed, double PAtm, double? HRef, string Datum, double AlphaDeg, double? Load);
 
