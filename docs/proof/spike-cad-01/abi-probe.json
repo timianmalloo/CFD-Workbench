@@ -1,0 +1,573 @@
+{
+  "spike": "SPIKE-CAD-01",
+  "part": "Part 1 - Empirical win-arm64 ABI \u0026 Packaging Probe",
+  "host": {
+    "osDescription": "Microsoft Windows 10.0.28000",
+    "osArchitecture": "Arm64",
+    "processArchitecture": "Arm64",
+    "runtimeIdentifier": "win-arm64",
+    "frameworkDescription": ".NET 10.0.13",
+    "capturedUtc": "2026-11-22T03:18:05Z"
+  },
+  "rhino3dm": {
+    "packageId": "Rhino3dm",
+    "version": "8.35.0",
+    "license": "expression:MIT",
+    "hasWinArm64Native": true,
+    "hasWinX64Native": true,
+    "hasOsxArm64OrUniversalNative": true,
+    "nativeAssets": [
+      {
+        "RelativePath": "runtimes/linux-arm64/native/librhino3dm_native.so",
+        "Bytes": 16216400,
+        "BinaryFormat": "ELF",
+        "Architectures": [
+          "ARM64"
+        ]
+      },
+      {
+        "RelativePath": "runtimes/linux-x64/native/librhino3dm_native.so",
+        "Bytes": 15493744,
+        "BinaryFormat": "ELF",
+        "Architectures": [
+          "x64"
+        ]
+      },
+      {
+        "RelativePath": "runtimes/osx-arm64/native/librhino3dm_native.dylib",
+        "Bytes": 17948752,
+        "BinaryFormat": "Mach-O-Universal",
+        "Architectures": [
+          "x64",
+          "ARM64"
+        ]
+      },
+      {
+        "RelativePath": "runtimes/osx-x64/native/librhino3dm_native.dylib",
+        "Bytes": 17948752,
+        "BinaryFormat": "Mach-O-Universal",
+        "Architectures": [
+          "x64",
+          "ARM64"
+        ]
+      },
+      {
+        "RelativePath": "runtimes/win-arm64/native/librhino3dm_native.dll",
+        "Bytes": 4191744,
+        "BinaryFormat": "PE",
+        "Architectures": [
+          "ARM64"
+        ]
+      },
+      {
+        "RelativePath": "runtimes/win-x64/native/librhino3dm_native.dll",
+        "Bytes": 4267520,
+        "BinaryFormat": "PE",
+        "Architectures": [
+          "x64"
+        ]
+      },
+      {
+        "RelativePath": "runtimes/win-x86/native/librhino3dm_native.dll",
+        "Bytes": 3759616,
+        "BinaryFormat": "PE",
+        "Architectures": [
+          "x86"
+        ]
+      }
+    ],
+    "managedAssets": [
+      "lib/net48/Rhino3dm.dll",
+      "lib/net7.0/Rhino3dm.dll",
+      "lib/netstandard2.0/Rhino3dm.dll"
+    ],
+    "liveLoadWinArm64": {
+      "Succeeded": true,
+      "ElapsedMs": 1867.01,
+      "UnitSystemReadBack": "Millimeters",
+      "LayerCountReadBack": 3,
+      "LayerNamesReadBack": [
+        "Wing Skin",
+        "Master Curves",
+        "Authored Stations"
+      ],
+      "ObjectCountReadBack": 3,
+      "SurfaceDegreeU": 2,
+      "SurfaceDegreeV": 2,
+      "WrittenBytes": 9438,
+      "ZeroPiiVerified": true
+    }
+  },
+  "occt": {
+    "localHostTools": {
+      "FreeCadInstalled": false,
+      "OcctInstalled": false,
+      "VcpkgInstalled": false,
+      "CmakeInstalled": false,
+      "MsvcArm64ToolchainInstalled": true,
+      "MsvcVersion": "14.51.36231",
+      "MsvcTargetBins": [
+        "Hostarm64/arm64",
+        "Hostarm64/x64",
+        "Hostarm64/x86",
+        "Hostx64/arm64",
+        "Hostx64/x64",
+        "Hostx64/x86",
+        "Hostx86/arm64",
+        "Hostx86/x64",
+        "Hostx86/x86"
+      ],
+      "PythonCadModulesPresent": []
+    },
+    "nugetPackagesInspected": [
+      {
+        "packageId": "Occt.NET",
+        "version": "7.9.0",
+        "license": "unspecified",
+        "nupkgBytes": 183426062,
+        "inspectedEntries": false,
+        "note": "Skipped full download (\u003E 80 MB) during spike; license \u0026 metadata inspected from .nuspec",
+        "description": "Occt.NET\u662F\u7684OpenCascade\u7684.NET\u63A5\u53E3\u3002\u6709\u7591\u95EE\u53D1\u4F5C\u8005\u90AE\u7BB1(QQ\u53F7)tengxuetech@qq.com\uFF0C\u6B22\u8FCE\u52A0\u5165qq\u7FA4214850382\u53C2\u4E0E\u8BA8\u8BBA\u3002\u5982\u679C\u5BF9\u4F60\u7684\u5B66\u4E60\u548C\u5DE5\u4F5C\u6709\u5E2E\u52A9\uFF0C\u5E0C\u671B\u80FD\u5BF9\u4F5C\u8005\u6350\u52A9\u8D44\u91D1\u7528\u4E8E\u9879\u76EE\u5B8C\u5584\uFF0C\u652F\u4ED8\u5B9D\u8D26\u53F7tian_teng@qq.com\u3002"
+      },
+      {
+        "packageId": "Xbim.Geometry.Occt",
+        "version": "7.8.1",
+        "license": "expression:LGPL-2.1-only WITH OCCT-exception-1.0",
+        "nupkgBytes": 49567572,
+        "totalEntries": 7902,
+        "nativeBinaryCount": 62,
+        "hasWinArm64Path": false,
+        "hasWinX64Path": true,
+        "hasOsxPath": false,
+        "sampleBinaries": [
+          {
+            "path": "lib/native/v143/win-x64/Release/TKBin.dll",
+            "bytes": 117248,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKBinL.dll",
+            "bytes": 261632,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKBinXCAF.dll",
+            "bytes": 121344,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKBO.dll",
+            "bytes": 1981440,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKBOOL.dll",
+            "bytes": 3589632,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKBRep.dll",
+            "bytes": 883200,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKCAF.dll",
+            "bytes": 514560,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKCDF.dll",
+            "bytes": 268288,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKDESTEP.dll",
+            "bytes": 6086656,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKernel.dll",
+            "bytes": 1649152,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKFeat.dll",
+            "bytes": 1075200,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKFillet.dll",
+            "bytes": 2370048,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKG2d.dll",
+            "bytes": 293888,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKG3d.dll",
+            "bytes": 931328,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKGeomAlgo.dll",
+            "bytes": 4278272,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKGeomBase.dll",
+            "bytes": 4076544,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKHLR.dll",
+            "bytes": 975360,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKLCAF.dll",
+            "bytes": 662528,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKMath.dll",
+            "bytes": 1701376,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKMesh.dll",
+            "bytes": 626688,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKOffset.dll",
+            "bytes": 1905664,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKPrim.dll",
+            "bytes": 302592,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKRWMesh.dll",
+            "bytes": 144896,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKService.dll",
+            "bytes": 1003520,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "lib/native/v143/win-x64/Release/TKShHealing.dll",
+            "bytes": 2542592,
+            "format": "unknown",
+            "architectures": []
+          }
+        ],
+        "description": "Redistribution of the Open CASCADE Technology (OCCT) libraries required by Xbim Geometry engine, supporting x86 and x64 platforms"
+      },
+      {
+        "packageId": "OCCT.WIN64",
+        "version": "7.8.1.3",
+        "license": "expression:LGPL-2.1-or-later",
+        "nupkgBytes": 32416631,
+        "totalEntries": 8096,
+        "nativeBinaryCount": 48,
+        "hasWinArm64Path": false,
+        "hasWinX64Path": true,
+        "hasOsxPath": false,
+        "sampleBinaries": [
+          {
+            "path": "runtimes/win64/TKBin.dll",
+            "bytes": 112128,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "runtimes/win64/TKBinL.dll",
+            "bytes": 257024,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "runtimes/win64/TKBinTObj.dll",
+            "bytes": 57856,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "runtimes/win64/TKBinXCAF.dll",
+            "bytes": 118784,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "runtimes/win64/TKBO.dll",
+            "bytes": 1953792,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "runtimes/win64/TKBool.dll",
+            "bytes": 3448832,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "runtimes/win64/TKBRep.dll",
+            "bytes": 859136,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "runtimes/win64/TKCAF.dll",
+            "bytes": 501248,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "runtimes/win64/TKCDF.dll",
+            "bytes": 267264,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "runtimes/win64/TKDE.dll",
+            "bytes": 85504,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "runtimes/win64/TKDECascade.dll",
+            "bytes": 93696,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "runtimes/win64/TKDEGLTF.dll",
+            "bytes": 221184,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "runtimes/win64/TKDEIGES.dll",
+            "bytes": 2887680,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "runtimes/win64/TKDEOBJ.dll",
+            "bytes": 203264,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "runtimes/win64/TKDEPLY.dll",
+            "bytes": 97792,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "runtimes/win64/TKDESTEP.dll",
+            "bytes": 5921280,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "runtimes/win64/TKDESTL.dll",
+            "bytes": 107008,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "runtimes/win64/TKDEVRML.dll",
+            "bytes": 479744,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "runtimes/win64/TKernel.dll",
+            "bytes": 1601024,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "runtimes/win64/TKExpress.dll",
+            "bytes": 185344,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "runtimes/win64/TKFeat.dll",
+            "bytes": 1064448,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "runtimes/win64/TKFillet.dll",
+            "bytes": 2148864,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "runtimes/win64/TKG2d.dll",
+            "bytes": 275968,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "runtimes/win64/TKG3d.dll",
+            "bytes": 878592,
+            "format": "unknown",
+            "architectures": []
+          },
+          {
+            "path": "runtimes/win64/TKGeomAlgo.dll",
+            "bytes": 3823104,
+            "format": "unknown",
+            "architectures": []
+          }
+        ],
+        "description": "Package https://github.com/Open-Cascade-SAS/OCCT as NuGet pacakge"
+      },
+      {
+        "packageId": "Ab4d.OpenCascade",
+        "version": "1.0.0",
+        "license": "file:LICENSE.txt",
+        "nupkgBytes": 429241,
+        "totalEntries": 18,
+        "nativeBinaryCount": 6,
+        "hasWinArm64Path": false,
+        "hasWinX64Path": false,
+        "hasOsxPath": false,
+        "sampleBinaries": [
+          {
+            "path": "lib/net48/Ab4d.OpenCascade.dll",
+            "bytes": 194048,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "lib/net48/Ijwhost.dll",
+            "bytes": 153384,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "lib/net6.0-windows7/Ab4d.OpenCascade.dll",
+            "bytes": 203776,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "lib/net6.0-windows7/Ijwhost.dll",
+            "bytes": 117536,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "lib/net8.0-windows7/Ab4d.OpenCascade.dll",
+            "bytes": 204288,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          },
+          {
+            "path": "lib/net8.0-windows7/Ijwhost.dll",
+            "bytes": 117536,
+            "format": "PE",
+            "architectures": [
+              "x64"
+            ]
+          }
+        ],
+        "description": "Ab4d.OpenCascade library defines a CadImporter class that can import STEP (.step and .stp) and IGES (.iges or .igs) files into 3D objects."
+      }
+    ],
+    "brepCheckAnalyzerStatus": "Flagged / deferred to SPIKE-CAD-02 (no local OCCT or FreeCAD STEP reader installed on this Windows ARM64 host)"
+  }
+}

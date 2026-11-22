@@ -1,0 +1,17 @@
+{
+  "Spike": "SPIKE-CAD-01",
+  "Part": "Mandatory Red-First Negative Controls (Ruling 270 / C5)",
+  "TwistOmissionDetectedRed": true,
+  "TwistOmissionMeasuredDeviationUm": 16741.55,
+  "TwistOmissionBaselineDeviationUm": 1.6139,
+  "PiiHostnameDetectedRed": true,
+  "PiiHostnameErrors": [
+    "Zero-PII check failed: FILE_NAME author is non-empty (\u0027SYNTH-PII-MARKER-9X\u0027).",
+    "Zero-PII check failed: forbidden marker detected in STEP bytes."
+  ],
+  "PiiTimestampDetectedRed": true,
+  "PiiTimestampErrors": [
+    "Zero-PII check failed: FILE_NAME timestamp \u00272026-11-22T03:00:00\u0027 != \u00271980-01-01T00:00:00\u0027."
+  ],
+  "AllNegativeControlsProvedRed": true
+}

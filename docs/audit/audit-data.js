@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-22T03:00:46Z",
+  "generated": "2026-11-22T03:26:48Z",
   "audit": [
     {
       "actor": null,
@@ -44351,6 +44351,46 @@ window.AUDIT_DATA = {
       "fan_out": 1,
       "started_at": "2026-11-22T02:42:21Z",
       "duration_seconds": 1105.0
+    },
+    {
+      "id": "al-01M80MNJ5EQ84Z8QJTQ36HZ4RW",
+      "shortname": "krn-spk-spike-cad-01",
+      "datetime": "2026-11-22T03:26:47Z",
+      "session": "w6-cad-spike",
+      "prompt": "Track KRN-SPK (Area 7 SPIKE-CAD-01 Empirical Bake-Off and win-arm64 ABI Probe) per Ruling 270 and ADR-0013 section Decision 3.",
+      "summary": "Completed SPIKE-CAD-01 on win-arm64 (.NET 10.0.13): Rhino3dm 8.35.0 (MIT) ships native PE ARM64/x64 and Mach-O Universal binaries and loads/round-trips .3dm natively; 0 prebuilt win-arm64 OCCT NuGet packages exist; Pure-C# Option B cubic (3x3) NURBS skinner + STEP AP203 writer passed all 5 wings at 0.010-1.614 um max A-vs-B deviation (floor 10 um), all 20 Whole/Half x Closed-Shell/Untrimmed checks, and both red-first negative controls (16,741.6 um twist omission; PII author/timestamp). Recommends advancing Option B + MIT Rhino3dm 8.35.0 into SPIKE-CAD-02; OCCT BRepCheck_Analyzer honestly Flagged/deferred.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/spike-cad-01/README.md",
+        "tools/spikes/cad-export-spike/CadExportSpike.csproj"
+      ],
+      "tags": [
+        "spike-cad-01",
+        "krn-spk"
+      ],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Execute Track KRN-SPK (SPIKE-CAD-01): win-arm64 ABI probe for Rhino3dm/OCCT and 5-wing pure-C# Option B NURBS+STEP AP203 bake-off with red-first negative controls.",
+      "done_when": "abi-probe.json, 5-wing deviation-matrix.json (<= 10 um), 20-file pure-step-results.json, negative-controls.json, and proof-spike-cad-01 README.md/.html committed with zero binaries, zero PII, and check-docs.py green.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-11-22T03:10:00Z",
+      "duration_seconds": 1007.0,
+      "git": {
+        "sha": "c308984faae0306943f4200d3d4214da828229ff",
+        "short": "c308984fa",
+        "branch": "swarm-w6-cad-spike-0fee4837",
+        "pushed": null
+      }
     }
   ],
   "changes": [
@@ -48184,6 +48224,60 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M7V0S8KD6MMJGRFYV4AD33BJ",
       "session": "w5-owner"
+    },
+    {
+      "id": "mail-01M80KD0ZTB3PXRTMBTCA3H7GS",
+      "ts": "2026-11-22T03:04:39Z",
+      "from": "agy-w6-coord",
+      "to": "w6-owner",
+      "kind": "decision-request",
+      "ref": "req-01M80KD0Z8SC5S8V5K83W9Q9DP",
+      "session": "agy-w6-coord"
+    },
+    {
+      "id": "mail-01M80KD186C317BTCA2DH3NYH0",
+      "ts": "2026-11-22T03:04:39Z",
+      "from": "agy-w6-coord",
+      "to": "w6-owner",
+      "kind": "decision-request",
+      "ref": "req-01M80KD17PE3HPTEGXTK2694BE",
+      "session": "agy-w6-coord"
+    },
+    {
+      "id": "mail-01M80KD1GEPQFD8ZJYEPV4FAXX",
+      "ts": "2026-11-22T03:04:40Z",
+      "from": "agy-w6-coord",
+      "to": "w6-owner",
+      "kind": "decision-request",
+      "ref": "req-01M80KD1FWKVMX5QZWH6CDFT18",
+      "session": "agy-w6-coord"
+    },
+    {
+      "id": "mail-01M80KJM33XE58577N4GPM9K1D",
+      "ts": "2026-11-22T03:07:43Z",
+      "from": "w6-owner",
+      "to": "agy-w6-coord",
+      "kind": "ruling",
+      "ref": "req-01M80KD0Z8SC5S8V5K83W9Q9DP",
+      "session": "w6-owner"
+    },
+    {
+      "id": "mail-01M80KJMD75R845FPJ8GBRNB9T",
+      "ts": "2026-11-22T03:07:43Z",
+      "from": "w6-owner",
+      "to": "agy-w6-coord",
+      "kind": "ruling",
+      "ref": "req-01M80KD17PE3HPTEGXTK2694BE",
+      "session": "w6-owner"
+    },
+    {
+      "id": "mail-01M80KJMP062TN27R3W65SZDS4",
+      "ts": "2026-11-22T03:07:43Z",
+      "from": "w6-owner",
+      "to": "agy-w6-coord",
+      "kind": "ruling",
+      "ref": "req-01M80KD1FWKVMX5QZWH6CDFT18",
+      "session": "w6-owner"
     }
   ]
 };
