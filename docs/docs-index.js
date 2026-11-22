@@ -10322,7 +10322,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c7b663e9d123d8c02262e9b9030f635544701c27f1a4bfdc765c59ef08d74422"
+      "sourceSha256": "6e31e37c471594a05daf46f69ef882e302903b6007fe286842519779b3adabdc"
     },
     {
       "id": "kb-hw-glossary",
@@ -12603,6 +12603,51 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "71a366d6716d804a3255275781ca7b63b3a4ae61256f11ce6923b96c5ce38f2f"
+    },
+    {
+      "id": "coordination-wave7-ui-polish-and-at-proof",
+      "path": "docs/coordination/wave7-ui-polish-and-at-proof.md",
+      "title": "Coordination plan - wave 7: Desktop UI P1/P2 polish, Sweeps/Setup theme reactivity, and Windows UIA native proof",
+      "type": "plan",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-02-22",
+      "reviewSuggested": [],
+      "summary": "Wave 7 closes all remaining UI review P1 Majors (F-18..F-29 incl. F-23 200% modal scaling), P2 Minors/Nits (F-32..F-46), Wave 6 carry-forward live theme reactivity on PerformanceCurveChart and PlanformPreviewControl, a new UI-CS-TOKEN static test guard, and real OS-level Windows UIA (UIAutomationCore.dll) native tree verification. Per GO5/GO6, because every item touches CfdWorkbench.Desktop and the real-display Desktop harness, Wave 7 runs as three serial, isolated share-workspace tracks (W7-SHELL -> W7-CAD -> W7-ANA-AT) at width 1 for zero merge conflicts and zero Desktop harness timeouts.",
+      "tags": [
+        "coordination",
+        "worktrees",
+        "ui-polish",
+        "accessibility",
+        "uia",
+        "avalonia",
+        "wave7"
+      ],
+      "links": [
+        {
+          "to": "review-ui-as-built-workbench",
+          "rel": "implements"
+        },
+        {
+          "to": "coordination-wave6-and-area5-wsl",
+          "rel": "refines"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1f61f183c6778d494081730f96cd027646e28fe337b0e72d83a30d780f55b866"
     },
     {
       "id": "coordination-windows-gpu-f1-design",
@@ -25619,6 +25664,14 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-wave6-and-area5-wsl"
     },
     {
+      "id": "surface-coordination-wave7-ui-polish-and-at-proof",
+      "path": "docs/coordination/wave7-ui-polish-and-at-proof.html",
+      "title": "Wave7 Ui Polish And At Proof",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "coordination-wave7-ui-polish-and-at-proof"
+    },
+    {
       "id": "surface-coordination-windows-gpu-f1-preflight-r217",
       "path": "docs/coordination/windows-gpu-f1-preflight-r217.html",
       "title": "Windows GPU F1 dependency preflight coordination plan",
@@ -25643,5 +25696,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "c2fbbbe24ea14ec17c59ce6dd2069ac05ae033df1ef875ee702c6afad41e0856"
+  "graphSha256": "c362cac414ccd6b118e9b4479f3779a25d00dbf08f0bd45e6833318deeebf83c"
 };

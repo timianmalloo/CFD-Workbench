@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-22T07:19:04Z",
+  "generated": "2026-11-22T15:54:17Z",
   "audit": [
     {
       "actor": null,
@@ -44781,6 +44781,42 @@ window.AUDIT_DATA = {
         "speedup": 1.39,
         "peak_concurrency": 3
       }
+    },
+    {
+      "id": "al-01M81ZE8GD1EQSVE66JAH3VDHA",
+      "shortname": "wave7-plan",
+      "datetime": "2026-11-22T15:54:17Z",
+      "session": "agy-w7-coord",
+      "prompt": "/prepare-for-coordination on all of (4) then /execute-with-coordination",
+      "summary": "Drafted and Adversary-cleared Wave 7 coordination plan (W7-SHELL -> W7-CAD -> W7-ANA-AT at width 1; C-1..C-6 folded)",
+      "kind": "skill",
+      "skill": "prepare-for-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/wave7-ui-polish-and-at-proof.md",
+        "docs/coordination/wave7-ui-polish-and-at-proof.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Plan Wave 7 Desktop UI P1/P2 polish, Sweeps/Setup theme reactivity, UI-CS-TOKEN guard, and real Windows UIA native proof across 3 serial isolated share-workspace tracks",
+      "done_when": "Adversary plan review PASS (C-1..C-6 folded), HTML rendered, docs/PII/ruling gates exit 0, S0 committed on main",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-22T15:37:51Z",
+      "duration_seconds": 986.0,
+      "git": {
+        "sha": "6da064d4e340a747da493da9344808466a232be5",
+        "short": "6da064d4e",
+        "branch": "main",
+        "pushed": false
+      }
     }
   ],
   "changes": [
@@ -48668,6 +48704,24 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M80KD1FWKVMX5QZWH6CDFT18",
       "session": "w6-owner"
+    },
+    {
+      "id": "mail-01M81YE5NY7GMBAZXNP9Q103XD",
+      "ts": "2026-11-22T15:36:46Z",
+      "from": "agy-w6-coord",
+      "to": "operator",
+      "kind": "decision-request",
+      "ref": "req-01M81YE4JT7TFR5EF93DH103XN",
+      "session": "agy-w6-coord"
+    },
+    {
+      "id": "mail-01M81YE61RXTM27D289QVHAQA5",
+      "ts": "2026-11-22T15:36:46Z",
+      "from": "operator",
+      "to": "agy-w6-coord",
+      "kind": "ruling",
+      "ref": "req-01M81YE4JT7TFR5EF93DH103XN",
+      "session": "operator"
     }
   ]
 };
