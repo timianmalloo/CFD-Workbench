@@ -527,4 +527,28 @@ public static class Labels
     /// <summary>COPY-688 (COPY-C3): status-strip clause appended when a copy's blend match changed.</summary>
     public static string CompatibleStripClause(string station, double deviationMeters) =>
         string.Create(CultureInfo.InvariantCulture, $"{station} deviates {deviationMeters * 1e3:0.0000} mm on the blend (sampled).");
+
+    // ---- SWP: Area 4 local-tier sweeps & performance curves (Ruling 271, COPY-706..727, LAB-01 clean) ----
+    public const string SweepEmpty = "No sweep defined yet. Choose Angles × speeds or Goal-state points to preview cases."; // SWP-COPY-1, COPY-706
+    public const string SweepSetupFooterNote = "Experiment setup defines and previews cases only. Queue hands an immutable version to Run."; // SWP-COPY-2, COPY-707
+    public static string SweepDuplicateValue(string field, string value) => $"Duplicate value in {field}: {value}. Remove duplicates to enable Queue."; // SWP-COPY-3, COPY-708
+    public static string SweepInvalidValue(string field, string value) => $"Invalid value in {field}: {value}. Enter finite numbers with valid units."; // SWP-COPY-4, COPY-709
+    public static string SweepSpeedNonPositive(string value) => $"Speed must be greater than 0. Invalid entry: {value}."; // SWP-COPY-5, COPY-710
+    public static string SweepCaseCapExceeded(int count, int cap) => $"Case count {count} exceeds the local sweep limit ({cap}). Narrow the grid or split into two sweeps."; // SWP-COPY-6, COPY-711
+    public static string SweepPreviewOutOfDate(string whatChanged) => $"Preview out of date — {whatChanged}. Refresh preview before queueing."; // SWP-COPY-7, COPY-712
+    public const string SweepEstimatedWallNotRecorded = "Estimated wall time: Not recorded"; // SWP-COPY-8, COPY-713
+    public static string SweepEstimatedStorage(string size, string used) => $"Estimated storage: ≈ {size} (Inferred) · Document headroom: {used} / 32.0 MB"; // SWP-COPY-9, COPY-714
+    public static string SweepQueuedBanner(string tier, int version) => $"Pinned to local · in-process ({tier}). Queued version v{version} is immutable."; // SWP-COPY-10, COPY-715
+    public static string SweepRunningProgress(int k, int m) => $"Running {k} of {m} · local · in-process"; // SWP-COPY-11, COPY-716
+    public static string SweepCancelledBanner(int k, int m) => $"Cancelled — {k} of {m} completed cases preserved; remaining cases stopped."; // SWP-COPY-12, COPY-717
+    public static string SweepPartialCompletedBanner(int k, int m, int failed) => $"Completed ({k} of {m}) — {failed} failed case(s) shown as gaps. Select a gap to inspect or retry."; // SWP-COPY-13, COPY-718
+    public static string SweepAllFailedBanner(int m) => $"Failed (0 of {m}) — no case completed. Inspect case reasons below before retrying."; // SWP-COPY-14, COPY-719
+    public static string SweepGapAnnotation(string code, string reason) => $"Gap — case failed ({code}): {reason}. No line is drawn across a gap."; // SWP-COPY-15, COPY-720
+    public static string SweepDocSizeStopped(int caseIndex) => $"Stopped before case {caseIndex}: document reached the 32.0 MB size limit (DOC-SIZE). Archive an older sweep or switch to Estimator."; // SWP-COPY-16, COPY-721
+    public const string SweepCmSubtitle = "Cm about frame origin (root LE, c_ref = S/b, positive nose-up)"; // SWP-COPY-17, COPY-722
+    public const string SweepCmUnavailableEstimator = "Unavailable — estimator does not compute pitching moment"; // SWP-COPY-18, COPY-723
+    public const string SweepDragUnavailableEstimator = "Unavailable — estimator computes induced drag only (no viscous profile drag)"; // SWP-COPY-19, COPY-724
+    public const string SweepNoGoalState = "No Goal state in this project yet — define one in Setup, or use Angles × speeds."; // SWP-COPY-20, COPY-725
+    public const string SweepArchivedBanner = "Archived — definition and attempt history kept; unreachable strip data released for pruning at save."; // SWP-COPY-21, COPY-726
+    public const string SweepPrunedCaseCell = "Unavailable — pruned at save (archived sweep). Re-run in a new version to recompute."; // SWP-COPY-22, COPY-727
 }

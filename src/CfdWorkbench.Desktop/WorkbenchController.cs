@@ -244,9 +244,11 @@ public sealed class WorkbenchController : IDisposable
     private string? channelViewsKey;
     private ShellMode areaMode = ShellMode.Workspace;
     private ShellMode returnToCadMode = ShellMode.Workspace;
+    private bool isSweeps;
     private readonly IWingMethod analysisMethod;
     private readonly IEvaluationBarrier? analysisBarrier;
     private AnalysisService analysisService;
+    public Sweeps.SweepController Sweeps { get; }
     private CancellationTokenSource? analysisCancellation;
     private OperatingPoint analysisOp = OperatingPoints.Custom(5.14, 2, null);
     private bool pendingUnreadable;   // a band input is blank, malformed or refused: the pending point cannot match any run
@@ -260,7 +262,9 @@ public sealed class WorkbenchController : IDisposable
 
     /// <summary>The model area's CAD or Analysis state; a section draft remains open while hidden.</summary>
     public ShellMode AreaMode => areaMode == ShellMode.Analysis ? areaMode : Section is null ? ShellMode.Workspace : ShellMode.SectionEditor;
-    public bool IsAnalysis => AreaMode == ShellMode.Analysis;
+    public bool IsAnalysis => !isSweeps && AreaMode == ShellMode.Analysis;
+    /// <summary>True when the third navbar segment (Sweeps, Ruling 271 DR-SWP-6) is active.</summary>
+    public bool IsSweeps => isSweeps;
     /// <summary>The selected run's visible layers, empty before the first result.</summary>
     public IReadOnlyList<LayerData> LayerSet { get; private set; } = [];
     /// <summary>Layers pane visibility (§18.5 row 30). The flag is controller state; the projection reads it, so it survives a re-projection.</summary>
@@ -1168,7 +1172,13 @@ public sealed class WorkbenchController : IDisposable
     {
         long started = time.GetTimestamp();
         ShellMode from = AreaMode;
-        if (IsAnalysis)
+        bool wasSweeps = isSweeps;
+        isSweeps = false;
+        if (wasSweeps)
+        {
+            areaMode = ShellMode.Analysis;
+        }
+        else if (AreaMode == ShellMode.Analysis)
             areaMode = returnToCadMode == ShellMode.SectionEditor && Section is null ? ShellMode.Workspace : returnToCadMode;
         else
         {
@@ -1179,6 +1189,31 @@ public sealed class WorkbenchController : IDisposable
         session.RecordAnalysisEvent("analysis.toggle", "OK", time.GetElapsedTime(started).TotalMilliseconds,
             new AnalysisEvent { From = from.ToString(), To = AreaMode.ToString(), LayersDrawn = LayerSet.Count });
         Notify();
+    }
+
+    public void EnterCad()
+    {
+        if (!IsAnalysis && !isSweeps) return;
+        isSweeps = false;
+        if (areaMode == ShellMode.Analysis)
+            areaMode = returnToCadMode == ShellMode.SectionEditor && Section is null ? ShellMode.Workspace : returnToCadMode;
+        Notify();
+    }
+
+    public void EnterSweeps()
+    {
+        if (isSweeps) return;
+        if (areaMode != ShellMode.Analysis) returnToCadMode = AreaMode;
+        isSweeps = true;
+        Sweeps.SetDisplayUnits(analysisUnits);
+        Sweeps.CheckPreviewFreshness();
+        Notify();
+    }
+
+    public void ToggleSweeps()
+    {
+        if (isSweeps) EnterCad();
+        else EnterSweeps();
     }
 
     /// <summary>Computes one display mesh off the UI thread; the default is <see cref="Placement.Surface"/>.</summary>
@@ -1206,6 +1241,8 @@ public sealed class WorkbenchController : IDisposable
         this.analysisMethod = analysisMethod ?? new ProductWingMethod();
         this.analysisBarrier = analysisBarrier;
         analysisService = new AnalysisService(session, this.analysisMethod, analysisBarrier, this.time);
+        Sweeps = new Sweeps.SweepController(session, this.analysisMethod, analysisBarrier, this.time);
+        Sweeps.Changed += OnSweepsChanged;
         this.sectionAssessmentGate = sectionAssessmentGate;
         this.sectionStepGate = sectionStepGate;
         this.sections = sections ?? App.Sections;
@@ -4094,6 +4131,9 @@ public sealed class WorkbenchController : IDisposable
         session.Dispose();
         session = next;
         analysisService = new AnalysisService(session, analysisMethod, analysisBarrier, time);
+        isSweeps = false;
+        Sweeps.BindSession(session);
+        Sweeps.SetDisplayUnits(analysisUnits);
         analysisProjectionKey = null;
         analysisView = null;
         LayerSet = [];
@@ -4275,10 +4315,14 @@ public sealed class WorkbenchController : IDisposable
         CameraChanged?.Invoke(view);
     }
 
+    private void OnSweepsChanged() => Notify();
+
     public void Dispose()
     {
         if (disposed) return;
         disposed = true;
+        Sweeps.Changed -= OnSweepsChanged;
+        Sweeps.CancelRun();
         sectionBeforeChecking = null;
         Gesture = GestureState.Idle;
         CancelSampling();

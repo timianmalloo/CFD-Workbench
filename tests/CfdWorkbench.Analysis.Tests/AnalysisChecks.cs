@@ -64,6 +64,7 @@ internal static class AnalysisChecks
             ("TeFloor", 1, () => { TeFloorLabelTests.Run(); StationGoldenTests.Run(); }),
             ("WingEstimator", 60, WingEstimatorTests.Run),
             ("Compare", 400, CompareTests.Run),
+            ("Sweeps", 800, SweepTests.Run),
         };
         int[] owner = Assign(groups.Select(group => group.CostHintMs).ToArray(), part?.Count ?? 1);
         for (int i = 0; i < groups.Length; i++)

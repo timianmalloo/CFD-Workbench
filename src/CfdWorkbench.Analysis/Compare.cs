@@ -5,6 +5,9 @@ namespace CfdWorkbench.Analysis;
 /// <summary>The wing coefficients of one run, as numbers: CL, CDi and e. A null is Unavailable, never a zero.</summary>
 public sealed record Coefficients(double? Cl, double? Cdi, double? E);
 
+/// <summary>Derived pitching-moment coefficient Cm about frame origin (Ruling 271 DR-SWP-5), or its Unavailable/Not-resolved reason.</summary>
+public sealed record WingMomentResult(double? Cm, string? UnavailableReason);
+
 /// <summary>How a stored Discrepancy record reads back (design a3d-compare.md 1.6, 1.7, 3). Never silently repaired or deleted.</summary>
 public enum DiscrepancyIntegrity { Intact, PayloadFailedCheck, NoLongerReproduces, RuleUnknown, RunFailedCheck }
 
@@ -35,6 +38,25 @@ internal static class WingCoefficients
         double ar = run.Reference.SRef > 0 ? run.Reference.BRef * run.Reference.BRef / run.Reference.SRef : 0;
         double? e = clTrefftz.HasValue && cdi > 0 && ar > 0 ? Trefftz.Oswald(clTrefftz.Value, ar, cdi.Value) : null;
         return new Coefficients(cl, cdi, e);
+    }
+
+    /// <summary>
+    /// Pitching-moment coefficient Cm = (Σ StripLoad.My) / (q · S_ref · c_ref) about <c>run.Reference.MomentDatum</c>
+    /// ("frame origin", root LE, positive nose-up; Ruling 271 DR-SWP-5, DM7). Reports <see cref="Labels.MomentNotResolved"/>
+    /// at <c>NChord == 1</c> (Ruling 161) and <see cref="Labels.SweepCmUnavailableEstimator"/> on Estimator.
+    /// </summary>
+    internal static WingMomentResult PitchingMoment(AnalysisRun run)
+    {
+        if (run.Outcome is not RunOutcome.Completed) return new(null, Labels.FailedRunCompare);
+        if (run.Tier == WingEstimator.TierId) return new(null, Labels.SweepCmUnavailableEstimator);
+        if (!SectionForces.IsMomentResolved(run.Settings.NChord)) return new(null, Labels.MomentNotResolved);
+        double q = 0.5 * run.Water.Rho * run.Op.Speed * run.Op.Speed;
+        if (!(q > 0)) return new(null, Labels.ReasonTexts["ANA-SPEED-NOT-POSITIVE"]);
+        if (!(run.Reference.SRef > 0) || !(run.Reference.CRef > 0)) return new(null, Labels.ReasonTexts["ANA-REFERENCE-AREA-MISSING"]);
+        if (run.Strips.Count == 0) return new(null, Labels.ReasonTexts["ANA-INDUCED-DRAG-MISSING-STRIPS"]);
+        double my = run.Strips.Sum(s => s.My);
+        if (!double.IsFinite(my)) return new(null, Labels.ReasonTexts["ANA-FORCE-NOT-FINITE"]);
+        return new(my / (q * run.Reference.SRef * run.Reference.CRef), null);
     }
 }
 

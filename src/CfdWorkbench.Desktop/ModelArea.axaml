@@ -3,6 +3,7 @@
              xmlns:local="using:CfdWorkbench.Desktop"
              xmlns:panes="using:CfdWorkbench.Desktop.Panes"
              xmlns:analysis="using:CfdWorkbench.Desktop.Analysis"
+             xmlns:sweeps="using:CfdWorkbench.Desktop.Sweeps"
              x:Class="CfdWorkbench.Desktop.ModelArea">
   <UserControl.Resources>
     <!-- The Rebuild popover's place: the toast inset (12) on three sides; 52 at the bottom clears the navbar.
@@ -248,6 +249,8 @@
                               HorizontalAlignment="Right" VerticalAlignment="Bottom"
                               Margin="{StaticResource RebuildPopoverInset}" />
 
+        <sweeps:SweepsWorkspaceView x:Name="SweepsWorkspace" IsVisible="False" />
+
         <!-- The navbar (§11.7: v10's Fit and Views ▾, plus Display ▾ and Fit Selection). Each control runs a CommandTable row
              through the shell's view-command runner, the same action as its View-menu row; ModelArea fills the menus. -->
         <Border x:Name="Navbar" Classes="navbar">
@@ -256,6 +259,8 @@
                           AutomationProperties.Name="CAD area" />
             <ToggleButton x:Name="NavAnalysisButton" Classes="navbar" Content="Analysis"
                           AutomationProperties.Name="Analysis area" />
+            <ToggleButton x:Name="NavSweepsButton" Classes="navbar" Content="Sweeps"
+                          AutomationProperties.Name="Sweeps area" />
             <Border Classes="navbar-separator" />
             <Button x:Name="NavViewsButton" Classes="navbar" Content="Views ▾ Plan + 3D">
               <Button.Flyout>

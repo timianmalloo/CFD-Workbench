@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sweeps="using:CfdWorkbench.Desktop.Sweeps"
+             x:Class="CfdWorkbench.Desktop.Sweeps.SweepsWorkspaceView">
+  <!-- DR-SWP-6 (a): Sweeps workspace segment hosting three discrete sub-tabs (Experiment setup · Run (local) · Results). -->
+  <Grid RowDefinitions="Auto,*" Background="{DynamicResource CanvasBrush}" Margin="{StaticResource SweepNavbarClearance}">
+    <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+            BorderThickness="{StaticResource PropRuleBottom}" Padding="{StaticResource Space2}">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+          <TextBlock Text="Sweep:" VerticalAlignment="Center" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
+          <ComboBox x:Name="ExperimentPicker" MinWidth="{StaticResource SweepInputMinWidth}" AutomationProperties.Name="Select stored sweep experiment" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+          <ToggleButton x:Name="SubTabSetupButton" Content="Experiment setup" IsChecked="True"
+                        AutomationProperties.Name="Experiment setup sub-tab" />
+          <ToggleButton x:Name="SubTabRunButton" Content="Run (local)"
+                        AutomationProperties.Name="Local Run sub-tab" />
+          <ToggleButton x:Name="SubTabResultsButton" Content="Results"
+                        AutomationProperties.Name="Sweep Results sub-tab" />
+        </StackPanel>
+      </DockPanel>
+    </Border>
+
+    <Panel Grid.Row="1">
+      <sweeps:ExperimentSetupView x:Name="SetupView" IsVisible="True" />
+      <sweeps:LocalRunView x:Name="RunView" IsVisible="False" />
+      <sweeps:SweepResultsView x:Name="ResultsView" IsVisible="False" />
+    </Panel>
+  </Grid>
+</UserControl>

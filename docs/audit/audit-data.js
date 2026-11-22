@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-22T04:33:01Z",
+  "generated": "2026-11-22T05:47:23Z",
   "audit": [
     {
       "actor": null,
@@ -44557,6 +44557,49 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-22T04:25:56Z",
       "duration_seconds": 425.0
+    },
+    {
+      "id": "al-01M80WPZA6Y6AW8EVGAY0Z11AF",
+      "shortname": "swp-build-area4-local-sweeps",
+      "datetime": "2026-11-22T05:47:22Z",
+      "session": "w6-sweeps-build",
+      "prompt": "Track SWP-BUILD (board #62): implement Area 4 local-tier sweeps SWP-1..5 under Ruling 271",
+      "summary": "Delivered SWP-1..5: additive cfdw-project-2 experiments store with retention pinning & swp-old-build proof; dedicated local SweepService, frame-origin Cm, Ncrit 2-4 non-bridged curves, and Goal-state Load seam; CLI sweep preview/run/inspect parity; native Avalonia Sweeps workspace with 3 sub-tabs, live Cancel, charts and linked table twins; DESIGN.md COPY-706..727 and Proof Pack. Full run-tests.sh green (Core 961, Analysis 324, Desktop 934, Cli 37, Python 10; 0 failed) and all static/doc gates 0 findings.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/local-sweeps-native.md",
+        "docs/proof/swp-old-build/README.md",
+        "DESIGN.md"
+      ],
+      "tags": [
+        "sweeps",
+        "area-4",
+        "wave6",
+        "r271"
+      ],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Implement Wave 6 Track SWP-BUILD (Area 4 Local-Tier Sweeps & Performance Curves, SWP-1..5) per Ruling 271 and docs/design/local-sweeps.md",
+      "done_when": "All 5 nodes SWP-1..5 committed cleanly; T1..T18 red-first verified; full bash tools/run-tests.sh and all repo gates exit 0; handed off to w6-verifier",
+      "tier": "T2",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-11-22T04:34:05Z",
+      "duration_seconds": 4397.0,
+      "git": {
+        "sha": "905820902166bbd1cef9ae62ffbb9452aa5fe84c",
+        "short": "905820902",
+        "branch": "swarm-w6-sweeps-build-4300bfbb",
+        "pushed": null
+      }
     }
   ],
   "changes": [

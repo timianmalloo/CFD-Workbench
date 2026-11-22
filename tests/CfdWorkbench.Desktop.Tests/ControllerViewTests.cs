@@ -1026,12 +1026,13 @@ public static class ControllerViewTests
 
         DesktopChecks.Check("ModelArea_Navbar_KeyboardPath_TabAfterTheViews", () =>
         {
-            // §11.3: every pointer verb has a keyboard path. The navbar follows the views in Tab order,
-            // CAD → Analysis → Views ▾ → Display ▾ → Fit → Fit Selection.
+            // §11.3 & Ruling 271 DR-SWP-6: every pointer verb has a keyboard path. The navbar follows the views in Tab order,
+            // CAD → Analysis → Sweeps → Views ▾ → Display ▾ → Fit → Fit Selection.
             using var fixture = new AreaFixture(width: 1400, height: 1000);
             var area = fixture.Area;
             Button[] buttons = [area.FindControl<Avalonia.Controls.Primitives.ToggleButton>("NavCadButton")!,
-                area.FindControl<Avalonia.Controls.Primitives.ToggleButton>("NavAnalysisButton")!, area.NavViewsButton,
+                area.FindControl<Avalonia.Controls.Primitives.ToggleButton>("NavAnalysisButton")!,
+                area.FindControl<Avalonia.Controls.Primitives.ToggleButton>("NavSweepsButton")!, area.NavViewsButton,
                 area.NavDisplayButton, area.NavFitButton, area.NavFitSelectionButton];
             for (int k = 0; k + 1 < buttons.Length; k++)
                 if (!ReferenceEquals(KeyboardNavigationHandler.GetNext(buttons[k], NavigationDirection.Next), buttons[k + 1]))

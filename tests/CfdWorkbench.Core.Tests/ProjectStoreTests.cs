@@ -380,6 +380,23 @@ internal static class ProjectStoreTests
             Equal(true, File.ReadAllBytes(otherBackup).AsSpan().SequenceEqual(new byte[] { 9 }));
             Equal(4, Directory.GetFiles(root).Length);
         });
+        // SWP-1 T5 (Ruling 271 DR-SWP-1): runless queued sweep transitions -1 -> -2 and writes byte-equal .v1.bak.
+        Check("Backup_V1Bak_RunlessSweep_FormatProject2", () =>
+        {
+            string root = Root(), path = Path.Combine(root, "sweep.cfdw.json"), backup = Path.Combine(root, ProjectStore.BackupName("sweep.cfdw.json"));
+            using var session = RunSession();
+            using var store = new ProjectStore(session);
+            byte[] v1 = session.SaveImage(); Equal("cfdw-project-1", NativeProject.FormatOf(v1));
+            var created = Save(store, path, new(v1, null, Id())); Equal("OK", created.Code); session.AcknowledgeSaved(v1);
+            Equal(false, File.Exists(backup));
+            var exp = SweepStoreTests.MakeCartesianExperiment(session, [5.144444444444445, 7.202222222222222, 9.26], [0.0, 2.0, 4.0, 6.0], queued: true);
+            session.RecordExperiment(exp);
+            byte[] v2 = session.SaveImage(); Equal("cfdw-project-2", NativeProject.FormatOf(v2));
+            var upgraded = Save(store, path, new(v2, created.PublishedSha256, Id())); Equal("OK", upgraded.Code);
+            Equal(true, File.Exists(backup));
+            Equal(true, File.ReadAllBytes(backup).AsSpan().SequenceEqual(v1));
+            Equal(true, File.ReadAllBytes(path).AsSpan().SequenceEqual(v2));
+        });
         // FM-11: a run at the strip cap stays inside the document limit (NativeProject.MaxBytes), and one strip past the cap is refused. The cap is
         // the spec's 2,048 written as a literal, so raising RunRecord.MaxStrips turns this red.
         Check("Store_SizeAtStripCap_UnderDocLimit", () =>
@@ -487,6 +504,7 @@ internal static class ProjectStoreTests
         ["m12c-old-build/fixtures/d2-section-recovery-row.cfdw.json"] = "OPEN cfdw-project-1",
         ["m12c-old-build/fixtures/e1-open-per-surface.cfdw.json"] = "DSL-NOT-ASSESSED",
         ["m12c-old-build/fixtures/e2-open-per-surface-row.cfdw.json"] = "DSL-NOT-ASSESSED",
+        ["swp-old-build/one-sweep.cfdw.json"] = "OPEN cfdw-project-2",
         ["xpa-old-build/mixed-spacing.cfdw.json"] = "OPEN cfdw-project-1",
     };
 

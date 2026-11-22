@@ -64,6 +64,7 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
     private readonly TimeProvider time = time ?? TimeProvider.System;
     private readonly object sync = new();
     private readonly Dictionary<Scope, CancellationTokenSource> inFlight = [];
+    private readonly Dictionary<string, SessionView> certifiedPinnedViews = new(StringComparer.Ordinal);
 
     /// <summary>
     /// Evaluates <paramref name="op"/> in <paramref name="water"/>. Refuses an invalid operating point or water record,
@@ -74,8 +75,21 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
     /// <paramref name="atRun"/> (estimator only): evaluate at that run's accepted revision instead of the current one; a revision
     /// whose source this session does not hold is refused (<c>DOC-REFERENCE</c>) before any evaluation, nothing recorded.
     /// </summary>
-    public async Task<AnalysisRun> EvaluateAsync(OperatingPoint op, WaterRecord water, Tier tier, Scope scope,
-        CancellationToken cancellation, AnalysisRun? atRun = null)
+    public Task<AnalysisRun> EvaluateAsync(OperatingPoint op, WaterRecord water, Tier tier, Scope scope,
+        CancellationToken cancellation, AnalysisRun? atRun = null) =>
+        EvaluateCoreAsync(op, water, tier, scope, cancellation, atRun, acceptedIdOverride: null);
+
+    /// <summary>
+    /// Revision-pinned evaluation for Queued sweeps (Ruling 271 DR-SWP-3, XS-03): evaluates the pinned
+    /// <paramref name="acceptedId"/> for both <see cref="Tier.VlmStrip"/> and <see cref="Tier.Estimator"/> without
+    /// silently switching to a newer accepted revision.
+    /// </summary>
+    internal Task<AnalysisRun> EvaluateAtRevisionAsync(string acceptedId, OperatingPoint op, WaterRecord water,
+        Tier tier, Scope scope, CancellationToken cancellation) =>
+        EvaluateCoreAsync(op, water, tier, scope, cancellation, atRun: null, acceptedIdOverride: acceptedId);
+
+    private async Task<AnalysisRun> EvaluateCoreAsync(OperatingPoint op, WaterRecord water, Tier tier, Scope scope,
+        CancellationToken cancellation, AnalysisRun? atRun, string? acceptedIdOverride)
     {
         ArgumentNullException.ThrowIfNull(op);
         ArgumentNullException.ThrowIfNull(water);
@@ -92,25 +106,26 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
             if (scope is not Scope.Wing) throw new ContractError("ANA-INPUT-SCOPE", "the VLM + strip and estimator tiers evaluate the wing");
             OperatingPoints.Validate(op);
             OperatingPoints.Validate(water);
+            SessionView? pinnedView = acceptedIdOverride is null ? null : PinnedRevisionView(acceptedIdOverride);
             if (tier == Tier.Estimator)
             {
                 trace.Estimator = true;
-                if (session.InspectAccepted().Geometry.Status != GeometryStatus.Certified)
+                if (pinnedView is null && session.InspectAccepted().Geometry.Status != GeometryStatus.Certified)
                     throw new ContractError("DSL-NOT-ASSESSED", "the accepted geometry is not certified");
-                var estimated = EvaluateEstimator(op, water, trace, cancellation, atRun);
+                var estimated = EvaluateEstimator(op, water, trace, cancellation, atRun, pinnedView);
                 outcome = estimated.Outcome is RunOutcome.Failed estimatorFailed ? estimatorFailed.Code : "OK";
                 return estimated;
             }
             // Ruling 88: the VLM runs on certified geometry only (a closing tip is never certified), so the service does not
             // trust its caller's gate. Refused before any compute, nothing recorded.
-            if (session.InspectAccepted().Geometry.Status != GeometryStatus.Certified)
+            if (pinnedView is null && session.InspectAccepted().Geometry.Status != GeometryStatus.Certified)
                 throw new ContractError("DSL-NOT-ASSESSED", "the accepted geometry is not certified");
             // The settings are read once, so the key, the sampled stations and the stored row cannot disagree.
             var settings = method.Settings;
             var stations = Stations(settings);
             generation = Supersede(scope, cancellation);
             var token = generation.Token;
-            var run = await Task.Run(() => ComputeAndRecordAsync(op, water, settings, stations, scope, generation, trace, token), token)
+            var run = await Task.Run(() => ComputeAndRecordAsync(op, water, settings, stations, scope, generation, trace, token, pinnedView), token)
                 .ConfigureAwait(false);
             outcome = run.Outcome is RunOutcome.Failed failed ? failed.Code : "OK";
             return run;
@@ -124,6 +139,25 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
         }
     }
 
+    private SessionView PinnedRevisionView(string acceptedId)
+    {
+        lock (sync)
+        {
+            if (certifiedPinnedViews.TryGetValue(acceptedId, out var cached)) return cached;
+        }
+        byte[] bytes = session.AcceptedSourceOf(acceptedId)
+            ?? throw new ContractError("DOC-REFERENCE", "the pinned accepted revision is not held by this session");
+        var parsed = FoilSource.Parse(bytes);
+        if (!parsed.IsParsed || parsed.SurfaceHash is null)
+            throw new ContractError("DOC-INTEGRITY", "the pinned accepted source does not parse");
+        var assessment = Geometry.Assess(parsed);
+        if (assessment.Status != GeometryStatus.Certified)
+            throw new ContractError("DSL-NOT-ASSESSED", "the pinned accepted geometry is not certified");
+        var view = new SessionView(acceptedId, parsed.SourceHash, parsed.SurfaceHash, bytes, null, null, false);
+        lock (sync) certifiedPinnedViews[acceptedId] = view;
+        return view;
+    }
+
     // The η stations and chord abscissae the settings name for Placement.Sections, or ANA-INPUT-STATIONS before compute.
     private static (IReadOnlyList<double> Etas, IReadOnlyList<double> Xs) Stations(RunSettings settings)
     {
@@ -135,7 +169,7 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
 
     private async Task<AnalysisRun> ComputeAndRecordAsync(OperatingPoint op, WaterRecord water, RunSettings settings,
         (IReadOnlyList<double> Etas, IReadOnlyList<double> Xs) stations, Scope scope, CancellationTokenSource generation,
-        Trace trace, CancellationToken token)
+        Trace trace, CancellationToken token, SessionView? pinnedView = null)
     {
         long computeStarted = time.GetTimestamp();
         long mark = computeStarted;
@@ -147,7 +181,7 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
             return ms;
         }
 
-        var view = session.Snapshot();
+        var view = pinnedView ?? session.Snapshot();
         trace.SnapshotMs = Lap();
         var inputs = Freshness.Inputs(view);
         string settingsHash = RunRecord.SettingsHash(settings);
@@ -232,12 +266,12 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
             session.AcceptedSourceOf(run.Inputs.AcceptedId) ?? throw new ContractError("DOC-REFERENCE", "the base run's revision is not held by this session"),
             null, null, false);
 
-    private AnalysisRun EvaluateEstimator(OperatingPoint op, WaterRecord water, Trace trace, CancellationToken cancellation, AnalysisRun? atRun)
+    private AnalysisRun EvaluateEstimator(OperatingPoint op, WaterRecord water, Trace trace, CancellationToken cancellation, AnalysisRun? atRun, SessionView? pinnedView = null)
     {
         long started = time.GetTimestamp();
         var settings = WingEstimator.Settings(method.Settings);
         Stations(settings);
-        var view = atRun is null ? session.Snapshot() : RevisionView(atRun);
+        var view = pinnedView ?? (atRun is null ? session.Snapshot() : RevisionView(atRun));
         var inputs = Freshness.Inputs(view);
         string settingsHash = RunRecord.SettingsHash(settings);
         string key = RunRecord.Key(inputs, water, op, WingEstimator.Method, settingsHash);

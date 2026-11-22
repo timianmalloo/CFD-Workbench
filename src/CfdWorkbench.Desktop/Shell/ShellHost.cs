@@ -1334,6 +1334,9 @@ public sealed class ShellHost : Grid
             case "analysis.compare-tiers":
                 if (Controller.CanCompare) await Controller.CompareWithEstimatorAsync();
                 return;
+            case "view.sweeps":
+                Controller.ToggleSweeps();
+                return;
             case "view.comb-larger" or "view.comb-smaller" or "view.comb-auto" or "view.comb-denser" or "view.comb-sparser":
                 RunCombVerb(id);
                 return;
@@ -1463,7 +1466,7 @@ public sealed class ShellHost : Grid
         id.StartsWith("station.", StringComparison.Ordinal) ||
         id.StartsWith("view.text-", StringComparison.Ordinal) ||
         id.StartsWith("view.comb", StringComparison.Ordinal) ||
-        id is "analysis.compare" or "analysis.compare-tiers" ||
+        id is "analysis.compare" or "analysis.compare-tiers" or "view.sweeps" ||
         CommandTable.UnitsOf(id) is not null ||
         ViewCommands.Handles(id) ||
         IsShellCommand(id);
