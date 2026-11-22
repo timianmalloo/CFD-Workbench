@@ -9474,6 +9474,58 @@ window.DOCS_INDEX = {
       "sourceSha256": "2b8da62f2a38a7cd01584a657c60babad502999f9e1db69f28d96fa11a297c23"
     },
     {
+      "id": "review-ui-as-built-workbench",
+      "path": "docs/reviews/ui-as-built-workbench.md",
+      "title": "UI review — as-built Avalonia Desktop workbench (main 285b765e)",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2027-02-20",
+      "reviewSuggested": [],
+      "summary": "Full as-built UI review and Native UI Proof Pack for the Avalonia Desktop workbench at main 285b765e (77 files, 26,338 LOC). Verdict is BLOCK: while the core token palette, honest-number uncertainty disclosures, and property-grid structure B are strong, direct inspection verified 15 Blockers (data-loss file flows, broken Command Palette routing, 1.01:1 hover/High-Contrast contrast failures, detached duplicate SectionEditor, colliding SectionChartView axes and broken brush keys, unreachable Compare pane, clipped LoadingChart table twin, and a11y gaps) plus open native-client proof obligations. Highest-leverage fix: tighten Styles.axaml interaction states and custom-canvas theme/contrast tokens in one ~120 LOC pass (P0-B).",
+      "tags": [
+        "ui-review",
+        "native-ui",
+        "accessibility",
+        "ux",
+        "avalonia",
+        "punchlist"
+      ],
+      "links": [
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "workbench-direction",
+          "rel": "relates-to"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-ui-application-native",
+          "rel": "refines"
+        },
+        {
+          "to": "review-ui-property-grid",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-ui-status-bar",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e86dafb8cebc787cad208e4858c12cdfcd968bf9fd98d44f40a929ff496b8855"
+    },
+    {
       "id": "review-ui-m12c-paired",
       "path": "docs/reviews/ui-m12c-paired.md",
       "title": "M1.2c section editor — paired point types, before/after against the approved mockup",
@@ -25189,6 +25241,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     },
     {
+      "id": "surface-reviews-ui-as-built-workbench",
+      "path": "docs/reviews/ui-as-built-workbench.html",
+      "title": "Ui As Built Workbench",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "review-ui-as-built-workbench"
+    },
+    {
       "id": "surface-mockups-w2-save-picker",
       "path": "docs/mockups/w2-save-picker.html",
       "title": "W-2 Save Picker",
@@ -25237,5 +25297,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d2f7570c30a983e30495272fbc994a6cdd6db0cfa3502e7c7e2ab0f8c5c0a9e9"
+  "graphSha256": "16858c1caa8e6e6aad57e2234812ee8c83786181dac24ed5b483339e4ca2cc99"
 };

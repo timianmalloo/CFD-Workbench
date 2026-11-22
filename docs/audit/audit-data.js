@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-20T01:19:06Z",
+  "generated": "2026-11-22T02:40:41Z",
   "audit": [
     {
       "actor": null,
@@ -44288,6 +44288,45 @@ window.AUDIT_DATA = {
         "speedup": 1.57,
         "peak_concurrency": 3
       }
+    },
+    {
+      "id": "al-01M80GPWFC5D4C0E3RAWGDX2BP",
+      "shortname": "C:/Program Files/Git/ui-design do a full review of current as built stat…",
+      "datetime": "2026-11-22T02:17:37Z",
+      "session": "prompt-log",
+      "prompt": "C:/Program Files/Git/ui-design do a full review of current as built state and provide a punchlist of recommendations to elevate and tighten up",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M80J13R9CKFV432TEMVQG24W",
+      "shortname": "ui-design-as-built-workbench",
+      "datetime": "2026-11-22T02:40:40Z",
+      "session": "agy-ui-review-w5",
+      "prompt": "/ui-design do a full review of current as built state and provide a punchlist of recommendations to elevate and tighten up",
+      "summary": "Full as-built UI review and Native UI Proof Pack of Avalonia Desktop workbench (main 285b765e, 77 files, 26,338 LOC). Independent Adversary panel verified 19/19 spot-checked findings; review artifact PASS (6 conditions folded); product UX & Accessibility veto BLOCK (15 Blockers, 16 Majors, 11 Minors, 4 Nits) with ranked P0/P1/P2 punchlist.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-as-built-workbench.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Review complete as-built Avalonia Desktop UI and produce Native UI Proof Pack plus ranked elevation punchlist",
+      "done_when": "docs/reviews/ui-as-built-workbench.md and .html committed with Adversary veto disposition, Docs Explorer derived, check-docs and verify gates green",
+      "tier": "T2",
+      "fan_out": 4,
+      "started_at": "2026-11-22T02:17:36Z",
+      "duration_seconds": 1384.0
     }
   ],
   "changes": [
