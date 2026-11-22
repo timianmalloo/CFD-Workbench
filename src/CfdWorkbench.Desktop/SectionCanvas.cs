@@ -23,6 +23,8 @@ public class SectionCanvas : Control
     /// <summary>§11.3: Return on a selected point goes to its x value.</summary>
     public Func<bool>? ValueOut { get; set; }
     public bool CurvatureVisible { get; set; } = true;
+    /// <summary>F-25: raised when the C shortcut toggles curvature visibility so toolbar & comb plate stay in sync.</summary>
+    public event Action<bool>? CurvatureVisibilityChanged;
     public bool ThicknessDoubled { get; set; }
     public string ProbeText { get; private set; } = "Pointer · display";
     public int CombClippedCount { get; private set; }
@@ -38,6 +40,10 @@ public class SectionCanvas : Control
     private double viewMinX;
     private double viewSpan = 1;
     private double viewCenterY;
+    private (double MinX, double CenterY)? panOrigin;
+    private Point panPress;
+    private Point panLast;
+    private bool panning;
     private PointView? draggedPoint;
     private IPointer? draggedPointer;
     private Point? previewPoint;
@@ -58,6 +64,42 @@ public class SectionCanvas : Control
         viewMinX = viewCenterY = 0;
         viewSpan = 1;
         InvalidateVisual();
+    }
+
+    /// <summary>F-25: zoom section viewport about a screen pivot point.</summary>
+    public void ZoomAt(double factor, Point pivot)
+    {
+        if (factor <= 0 || !double.IsFinite(factor)) return;
+        var (modelX, modelY) = ScreenToModel(pivot);
+        double nextSpan = Math.Clamp(viewSpan / factor, 1e-4, 2.0);
+        if (Math.Abs(nextSpan - viewSpan) < 1e-12) return;
+        double width = Bounds.Width > 0 ? Bounds.Width : (Width > 0 ? Width : 800.0);
+        double height = Bounds.Height > 0 ? Bounds.Height : (Height > 0 ? Height : 400.0);
+        double availableWidth = Math.Max(1.0, width - 2.0 * Padding);
+        viewSpan = nextSpan;
+        double nextScale = availableWidth / viewSpan;
+        viewMinX = modelX - (pivot.X - Padding) / nextScale;
+        viewCenterY = modelY - (height / 2.0 - pivot.Y) / nextScale / (ThicknessDoubled ? 2 : 1);
+        InvalidateVisual();
+    }
+
+    /// <summary>F-25: pan section viewport by screen pixel deltas.</summary>
+    public void PanBy(double dx, double dy)
+    {
+        double width = Bounds.Width > 0 ? Bounds.Width : (Width > 0 ? Width : 800.0);
+        double availableWidth = Math.Max(1.0, width - 2.0 * Padding);
+        double scale = availableWidth / viewSpan;
+        viewMinX -= dx / scale;
+        viewCenterY += dy / scale / (ThicknessDoubled ? 2 : 1);
+        InvalidateVisual();
+    }
+
+    protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
+    {
+        base.OnPointerWheelChanged(e);
+        if (Controller?.Section is null) return;
+        ZoomAt(Math.Pow(1.1, e.Delta.Y), e.GetPosition(this));
+        e.Handled = true;
     }
 
     /// <summary>§11.2: frames the selected point so its nearer neighbours (an anchor's handles) are at least 24 px away.</summary>
@@ -370,7 +412,8 @@ public class SectionCanvas : Control
             double at = ModelToScreen(x, 0).X;
             context.DrawLine(gridPen, new Point(at, 34), new Point(at, Bounds.Height - 30));
             var tickLabel = new FormattedText(string.Create(CultureInfo.InvariantCulture, $"{Math.Round(x * 100) + 0.0} %"),
-                CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface(FontFamily.Default), 11, mute);
+                CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
+                CanvasTypography.ResolveTypeface(this), CanvasTypography.ResolveFontSize(this), mute);
             // The last label stays inside the canvas ("100 %", not "100").
             context.DrawText(tickLabel, new Point(Math.Min(at + 3, Bounds.Width - tickLabel.Width - 3), Bounds.Height - 48));
         }
@@ -394,26 +437,28 @@ public class SectionCanvas : Control
             CombScale = p90 <= 1e-12 ? 0 : 30 / p90;
             CombClippedCount = 0;
             var drawn = new List<(Point Start, Point Tip)>(teeth.Length);
-            // Teeth in viewport-mute at half strength, so the curves and glyphs stay on top (mockup comb colour).
-            var toothPen = new Pen(mute is ISolidColorBrush solid ? new SolidColorBrush(solid.Color, .5) : mute, 1);
-            foreach (var tooth in teeth)
-            {
-                double raw = Math.Abs(tooth.Curvature) * CombScale;
-                bool clipped = raw > 60;
-                if (clipped) CombClippedCount++;
-                var start = ModelToScreen(tooth.X, tooth.Y);
-                // §11.2: teeth point outward, away from the centre of curvature (mockup drawSection: dir = −sign κ).
-                double sign = -Math.Sign(tooth.Curvature);
-                var tip = start + new Vector(tooth.Nx * Math.Min(raw, 60) * sign,
-                    -tooth.Ny * Math.Min(raw, 60) * sign * (ThicknessDoubled ? 2 : 1));
-                drawn.Add((start, tip));
-                context.DrawLine(toothPen, start, tip);
-                if (clipped)
+            bool highContrast = ActualThemeVariant == NativeReviewThemes.HighContrast;
+            // F-41: full-opacity dashed comb in High Contrast; PushOpacity(0.5) otherwise (no per-frame brush allocation).
+            var toothPen = highContrast ? new Pen(mute, 1, new DashStyle([2, 2], 0)) : new Pen(mute, 1);
+            using (context.PushOpacity(highContrast ? 1.0 : 0.5))
+                foreach (var tooth in teeth)
                 {
-                    context.DrawLine(new Pen(mute, 1), tip + new Vector(-3, -3), tip + new Vector(3, 3));
-                    context.DrawLine(new Pen(mute, 1), tip + new Vector(-3, 3), tip + new Vector(3, -3));
+                    double raw = Math.Abs(tooth.Curvature) * CombScale;
+                    bool clipped = raw > 60;
+                    if (clipped) CombClippedCount++;
+                    var start = ModelToScreen(tooth.X, tooth.Y);
+                    // §11.2: teeth point outward, away from the centre of curvature (mockup drawSection: dir = −sign κ).
+                    double sign = -Math.Sign(tooth.Curvature);
+                    var tip = start + new Vector(tooth.Nx * Math.Min(raw, 60) * sign,
+                        -tooth.Ny * Math.Min(raw, 60) * sign * (ThicknessDoubled ? 2 : 1));
+                    drawn.Add((start, tip));
+                    context.DrawLine(toothPen, start, tip);
+                    if (clipped)
+                    {
+                        context.DrawLine(new Pen(mute, 1), tip + new Vector(-3, -3), tip + new Vector(3, 3));
+                        context.DrawLine(new Pen(mute, 1), tip + new Vector(-3, 3), tip + new Vector(3, -3));
+                    }
                 }
-            }
             // §11.2: the comb breaks at an interior anchor; a dashed station mark shows where.
             var breakPen = new Pen(station, 2, new DashStyle([1.5, 1], 0));
             foreach (var anchor in new[] { upper, lower }.SelectMany(curve => curve.Points).Where(point => point.Role == PointRole.Anchor))
@@ -458,7 +503,7 @@ public class SectionCanvas : Control
             var lowerEnd = ModelToScreen(Profile.LowerCurve[^1].X, Profile.LowerCurve[^1].Y);
             foreach (var (text, at) in new[] { ("Upper", upperEnd + new Vector(0, -24)), ("Lower", lowerEnd + new Vector(0, 6)) })
                 context.DrawText(new FormattedText(text, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
-                    new Typeface(FontFamily.Default), 11, mute), new Point(Math.Min(at.X + 12, Bounds.Width - 44), at.Y));
+                    CanvasTypography.ResolveTypeface(this), CanvasTypography.ResolveFontSize(this), mute), new Point(Math.Min(at.X + 12, Bounds.Width - 44), at.Y));
         }
         var brushes = new PointGlyphBrushes(foil, station, background, mute);
         foreach (var curve in new[] { upper, lower })
@@ -487,7 +532,7 @@ public class SectionCanvas : Control
                 context.DrawLine(new Pen(station, 1, new DashStyle([2, 3], 0)), from, partner);
                 context.DrawEllipse(null, new Pen(station, 1.5, new DashStyle([3, 2], 0)), partner, 10, 10);
                 var label = new FormattedText($"{other.Curve} pt {index + 1} · paired", CultureInfo.InvariantCulture,
-                    FlowDirection.LeftToRight, new Typeface(FontFamily.Default), 11, station);
+                    FlowDirection.LeftToRight, CanvasTypography.ResolveTypeface(this), CanvasTypography.ResolveFontSize(this), station);
                 context.DrawText(label, partner + new Vector(14, partner.Y > from.Y ? 16 : -10));
             }
         }
@@ -498,7 +543,7 @@ public class SectionCanvas : Control
                 new Point(at.X, at.Y - 14), new Point(at.X, at.Y + 14));
             if (RefitMarkerLabel is { Length: > 0 } label)
                 context.DrawText(new FormattedText(label, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
-                    new Typeface(FontFamily.Default), 11, danger), new Point(at.X - 40, at.Y + 28 > Bounds.Height - 64 ? at.Y - 44 : at.Y + 28));   // clear of the axis labels
+                    CanvasTypography.ResolveTypeface(this), CanvasTypography.ResolveFontSize(this), danger), new Point(at.X - 40, at.Y + 28 > Bounds.Height - 64 ? at.Y - 44 : at.Y + 28));   // clear of the axis labels
         }
     }
 
@@ -722,12 +767,23 @@ public class SectionCanvas : Control
             var hit = layer.HitTest(upper.Points.Concat(lower.Points), position, Controller.Selection);
             if (hit is null)
             {
-                if (e.ClickCount >= 2)
+                var props = e.GetCurrentPoint(this).Properties;
+                if (e.ClickCount >= 2 && props.IsLeftButtonPressed)
                 {
-                    var (x, y) = ScreenToModel(position);
-                    var probe = Sections.Probe(mode.Draft.Bytes, mode.Draft.Assignment, Math.Clamp(x, 0, 1));
-                    var side = Math.Abs(y - probe.UpperY) <= Math.Abs(y - probe.LowerY) ? SurfaceSide.Upper : SurfaceSide.Lower;
-                    _ = ApplyStepAsync(new SectionStep.Insert(side, Math.Clamp(x, 0, 1)));
+                    if (HitTestSectionCurve(position, mode) is { } nearCurve)
+                    {
+                        _ = ApplyStepAsync(new SectionStep.Insert(nearCurve.Side, Math.Clamp(nearCurve.X, 0, 1)));
+                        e.Handled = true;
+                    }
+                    return;
+                }
+                if (props.IsLeftButtonPressed || props.IsMiddleButtonPressed)
+                {
+                    panOrigin = (viewMinX, viewCenterY);
+                    panPress = panLast = position;
+                    panning = false;
+                    e.Pointer.Capture(this);
+                    Focus();
                     e.Handled = true;
                 }
                 return;
@@ -787,6 +843,15 @@ public class SectionCanvas : Control
         if (Controller?.Section is { } mode)
         {
             var position = e.GetPosition(this);
+            if (panOrigin is not null)
+            {
+                if (!panning && Point.Distance(position, panPress) <= 3) return;
+                panning = true;
+                PanBy(position.X - panLast.X, position.Y - panLast.Y);
+                panLast = position;
+                e.Handled = true;
+                return;
+            }
             var (x, y) = ScreenToModel(position);
             if (draggedPoint is { } origin)
             {
@@ -830,15 +895,26 @@ public class SectionCanvas : Control
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
         base.OnPointerReleased(e);
-        if (Controller?.Section is { } mode && draggedPoint is not null)
+        if (Controller?.Section is { } mode)
         {
-            var held = Controller.Gesture == GestureState.Dragging && previewPoint is { } at
-                ? (draggedPoint, at, mode.Draft.DraftId, mode.Draft.Generation) : ((PointView, Point, string, long)?)null;
-            ReleaseDrag();
-            releasedDrag = held;
-            _ = EndGestureAsync(GestureEnd.Release);
-            e.Handled = true;
-            return;
+            if (panOrigin is not null)
+            {
+                panOrigin = null;
+                panning = false;
+                e.Pointer.Capture(null);
+                e.Handled = true;
+                return;
+            }
+            if (draggedPoint is not null)
+            {
+                var held = Controller.Gesture == GestureState.Dragging && previewPoint is { } at
+                    ? (draggedPoint, at, mode.Draft.DraftId, mode.Draft.Generation) : ((PointView, Point, string, long)?)null;
+                ReleaseDrag();
+                releasedDrag = held;
+                _ = EndGestureAsync(GestureEnd.Release);
+                e.Handled = true;
+                return;
+            }
         }
         if (isDragging)
         {
@@ -846,6 +922,35 @@ public class SectionCanvas : Control
             e.Pointer.Capture(null);
             e.Handled = true;
         }
+    }
+
+    protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
+    {
+        base.OnPointerCaptureLost(e);
+        panOrigin = null;
+        panning = false;
+    }
+
+    /// <summary>F-25: screen-space proximity hit-test against upper/lower curves before inserting a CV on double-click.</summary>
+    private (SurfaceSide Side, double X)? HitTestSectionCurve(Point position, SectionMode mode, double tolerance = 10.0)
+    {
+        if (Profile is null) return null;
+        (SurfaceSide Side, double X, double Distance)? best = null;
+        foreach (var (side, curve) in new[] { (SurfaceSide.Upper, Profile.UpperCurve), (SurfaceSide.Lower, Profile.LowerCurve) })
+        {
+            for (int i = 1; i < curve.Count; i++)
+            {
+                var a = ModelToScreen(curve[i - 1].X, curve[i - 1].Y);
+                var b = ModelToScreen(curve[i].X, curve[i].Y);
+                var ab = b - a;
+                double lenSq = ab.X * ab.X + ab.Y * ab.Y;
+                double t = lenSq == 0 ? 0 : Math.Clamp(((position.X - a.X) * ab.X + (position.Y - a.Y) * ab.Y) / lenSq, 0, 1);
+                double dist = Point.Distance(position, a + ab * t);
+                if (dist <= tolerance && (best is null || dist < best.Value.Distance))
+                    best = (side, curve[i - 1].X + (curve[i].X - curve[i - 1].X) * t, dist);
+            }
+        }
+        return best is { } found ? (found.Side, found.X) : null;
     }
 
     private void ReleaseDrag()
@@ -878,6 +983,7 @@ public class SectionCanvas : Control
         if (Controller?.Section is { } mode)
         {
             bool command = e.KeyModifiers.HasFlag(KeyModifiers.Meta) || e.KeyModifiers.HasFlag(KeyModifiers.Control);
+            bool option = e.KeyModifiers.HasFlag(KeyModifiers.Alt);
             // DR-NAV-1: Tab from a selected point goes to its Type; with nothing selected Tab leaves as usual.
             if (e.Key == Key.Tab)
             {
@@ -910,12 +1016,32 @@ public class SectionCanvas : Control
                 e.Handled = true;
                 return;
             }
-            if (e.Key == Key.C && !command) { CurvatureVisible = !CurvatureVisible; InvalidateVisual(); e.Handled = true; return; }
+            if (e.Key == Key.C && !command)
+            {
+                CurvatureVisible = !CurvatureVisible;
+                CurvatureVisibilityChanged?.Invoke(CurvatureVisible);
+                InvalidateVisual();
+                e.Handled = true;
+                return;
+            }
             if (e.Key == Key.F && !command) { FitSelection(); e.Handled = true; return; }
             if (e.Key == Key.D0 && command) { Fit(); e.Handled = true; return; }
+            if (command && e.Key is Key.OemPlus or Key.Add or Key.OemMinus or Key.Subtract)
+            {
+                ZoomAt(e.Key is Key.OemPlus or Key.Add ? 1.2 : 1 / 1.2, new Point(Bounds.Width / 2, Bounds.Height / 2));
+                e.Handled = true;
+                return;
+            }
             if (e.Key == Key.Escape)
             {
-                if (Controller.Gesture != GestureState.Idle)
+                if (panOrigin is { } savedPan)
+                {
+                    viewMinX = savedPan.MinX;
+                    viewCenterY = savedPan.CenterY;
+                    panOrigin = null;
+                    panning = false;
+                }
+                else if (Controller.Gesture != GestureState.Idle)
                 {
                     ReleaseDrag();
                     _ = EndGestureAsync(GestureEnd.Escape);
@@ -946,13 +1072,20 @@ public class SectionCanvas : Control
                 e.Handled = true;
                 return;
             }
-            if (e.Key == Key.Back && SelectedVertex is { } deletion)
+            if (e.Key is Key.Back or Key.Delete && !command && !option && SelectedVertex is { } deletion)
             {
                 var side = deletion.Side == "upper" ? SurfaceSide.Upper : SurfaceSide.Lower;
                 var role = Controller.SectionCurve(side)?.Points.FirstOrDefault(point => point.Id == deletion.Id)?.Role;
                 if (role == PointRole.Nose) ShowReason(NoseNotDeleted, focus: false);
                 else if (role == PointRole.TrailingEnd) ShowReason(TrailingNotDeleted, focus: false);
                 else _ = ApplyStepAsync(new SectionStep.Delete(side, deletion.Id));
+                e.Handled = true;
+                return;
+            }
+            if (option && e.Key is Key.Left or Key.Right or Key.Up or Key.Down)
+            {
+                var screen = CurvePointLayer.ScreenDirection(e.Key);
+                PanBy(screen.X * Bounds.Width * 0.1, screen.Y * Bounds.Height * 0.1);
                 e.Handled = true;
                 return;
             }

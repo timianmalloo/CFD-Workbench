@@ -215,7 +215,9 @@ public static class SectionPoints
         }
         catch (ContractError error)
         {
-            return $"{error.Reason ?? error.Code}. Nothing changed.";
+            return error.Reason is { Length: > 0 } reason
+                ? $"{reason} Nothing changed."
+                : "This change couldn't be applied. Nothing changed.";
         }
     }
 }

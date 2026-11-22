@@ -300,7 +300,7 @@
           <Grid x:Name="FoilSourceBody" RowDefinitions="Auto,*" Margin="{StaticResource Space4}">
             <TextBlock Grid.Row="0" x:Name="SourceLabel" Text="Accepted source bytes" />
             <TextBox Grid.Row="1" x:Name="SourceText" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap"
-                     ScrollViewer.VerticalScrollBarVisibility="Auto" AutomationProperties.Name="Retained FoilDSL source text" />
+                     ScrollViewer.VerticalScrollBarVisibility="Auto" AutomationProperties.Name="Foil source text" />
           </Grid>
       </Grid>
 

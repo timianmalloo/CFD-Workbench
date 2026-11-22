@@ -139,8 +139,16 @@ public partial class ModelArea : UserControl
             (FrontRenderer, FrontRenderErrorBand, FrontRenderTryAgainButton)
         })
         {
-            renderer.RenderFailed += _ => Dispatcher.UIThread.Post(() => band.IsVisible = true, DispatcherPriority.Background);
-            renderer.RenderRecovered += () => band.IsVisible = false;
+            renderer.RenderFailed += _ => Dispatcher.UIThread.Post(() =>
+            {
+                band.IsVisible = true;
+                if (ReferenceEquals(renderer, ThreeDRenderer)) ThreeDDrawing.IsVisible = false;
+            }, DispatcherPriority.Background);
+            renderer.RenderRecovered += () =>
+            {
+                band.IsVisible = false;
+                if (ReferenceEquals(renderer, ThreeDRenderer)) ThreeDDrawing.IsVisible = controller?.Surface is null;
+            };
             retry.Click += (_, _) =>
             {
                 renderer.RetryRender();
@@ -489,6 +497,43 @@ public partial class ModelArea : UserControl
         canvas.Focus();
     }
 
+    /// <summary>
+    /// F-24: routes Shift+Tab and second Escape from PropertiesPane back to the active CAD editor by mode and curve
+    /// (SectionModeEditor.ModeCanvas in Section mode, SideElevation for twist, FrontElevation for dihedral/thickness,
+    /// otherwise PlanCanvas).
+    /// </summary>
+    public bool FocusActiveEditor(PointRef? target = null)
+    {
+        var active = target ?? (controller?.Selection is Selection.Points { Items: [var first, ..] } ? first : null);
+        if (Mode == ModelAreaMode.Section || (SectionModeEditor.IsVisible && active is { Curve: "upper" or "lower" }))
+        {
+            var canvas = SectionModeEditor.ModeCanvas;
+            if (active is { Curve: "upper" or "lower" }) canvas.SelectedVertex = (active.Curve, active.VertexId);
+            return canvas.Focus();
+        }
+        if (active is { Curve: "twist" } && SideElevation.IsEffectivelyVisible)
+        {
+            SideElevation.FocusPoint(active);
+            return SideElevation.IsFocused;
+        }
+        if (active is { Curve: "dihedral" or "thickness" } && FrontElevation.IsEffectivelyVisible)
+        {
+            FrontElevation.FocusPoint(active);
+            return FrontElevation.IsFocused;
+        }
+        if (PlanCanvas.IsEffectivelyVisible)
+        {
+            if (active is { Curve: "leading" or "trailing" })
+            {
+                PlanCanvas.FocusPoint(active);
+                return PlanCanvas.IsFocused;
+            }
+            if (PlanCanvas.FocusSelectedPoint()) return true;
+            return PlanCanvas.Focus();
+        }
+        return false;
+    }
+
     private void OnControllerChanged()
     {
         if (Dispatcher.UIThread.CheckAccess()) Refresh();
@@ -561,7 +606,7 @@ public partial class ModelArea : UserControl
         double? selectedEta = controller.Selection is Selection.Station station ? station.Eta : null;
         string suffix = (certified ? "" : " · not checked") + (controller.SurfaceBehind ? " · Updating…" : "");
 
-        ThreeDDrawing.IsVisible = surface is null;
+        ThreeDDrawing.IsVisible = surface is null && !ThreeDRenderErrorBand.IsVisible;
         ThreeDNote.Text = controller.SurfaceNote;
         ThreeDNote.IsVisible = controller.SurfaceNote is not null;
         foreach (var (renderer, view) in new[] { (ThreeDRenderer, SingleView.ThreeD), (SideRenderer, SingleView.Side), (FrontRenderer, SingleView.Front) })

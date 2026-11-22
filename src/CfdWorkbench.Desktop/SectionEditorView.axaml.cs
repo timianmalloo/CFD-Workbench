@@ -36,6 +36,11 @@ public partial class SectionEditorView : UserControl
             ModeCombPlate.IsVisible = ModeCanvas.CurvatureVisible;
             ModeCanvas.InvalidateVisual();
         };
+        ModeCanvas.CurvatureVisibilityChanged += visible =>
+        {
+            CurvatureToggle.IsChecked = visible;
+            ModeCombPlate.IsVisible = visible;
+        };
         ThicknessToggle.Click += (_, _) =>
         {
             ModeCanvas.ThicknessDoubled = ThicknessToggle.IsChecked == true;
@@ -247,7 +252,7 @@ public partial class SectionEditorView : UserControl
             : SectionStrip.UniqueScopeChip(mode.Draft.Bytes, assignments, name);
         ScopeChipLinkText.Text = $"Make unique to {name}";
         ScopeChipLink.IsVisible = shared;
-        ToolTip.SetTip(ScopeChip.Parent as Control ?? ScopeChip, shared ? $"Shared with {string.Join(", ", others)}" : ScopeChip.Text);
+        ToolTip.SetTip(ScopeChipBorder, shared ? $"Shared with {string.Join(", ", others)} · Make unique to {name}" : ScopeChip.Text);
     }
 
     // COPY-187 for a refused Anchor → Control, held for that refusal: the controller's status line moves on, the copy stays.

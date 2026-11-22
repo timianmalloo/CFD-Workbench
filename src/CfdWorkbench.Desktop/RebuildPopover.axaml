@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="CfdWorkbench.Desktop.RebuildPopover"
+             FontFamily="{StaticResource PropFontFamily}"
              AutomationProperties.Name="Rebuild curve">
   <UserControl.Resources>
     <!-- simplify: local sizes until the design system names them (ceiling: this popover; promote with the inset). -->
@@ -11,6 +12,8 @@
     <!-- The mockup's stepper (− n +) and the largest change in the warning colour. -->
     <Style Selector="Button.step"><Setter Property="Padding" Value="{StaticResource NoInset}" /><Setter Property="HorizontalContentAlignment" Value="Center" /><Setter Property="VerticalContentAlignment" Value="Center" /></Style>
     <Style Selector="TextBlock.change"><Setter Property="Foreground" Value="{DynamicResource WarningBrush}" /><Setter Property="FontWeight" Value="SemiBold" /></Style>
+    <Style Selector="TextBlock.rebuild-num"><Setter Property="FontFeatures" Value="+tnum,+lnum" /></Style>
+    <Style Selector="TextBox.rebuild-num"><Setter Property="FontFeatures" Value="+tnum,+lnum" /></Style>
   </UserControl.Styles>
   <Border Width="{StaticResource RebuildPopoverWidth}" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
           BorderThickness="1" CornerRadius="{StaticResource NavbarRadius}" Padding="{StaticResource Space2}">
@@ -20,7 +23,7 @@
         <TextBlock Text="Points" VerticalAlignment="Center" />
         <Button Grid.Column="1" x:Name="FewerButton" Classes="modebar outline step" Content="−" Width="{StaticResource CompactTargetSize}" Height="{StaticResource CompactTargetSize}"
                 AutomationProperties.Name="Fewer points" />
-        <TextBox Grid.Column="2" x:Name="CountInput" Width="{StaticResource RebuildCountWidth}" TextAlignment="Center"
+        <TextBox Grid.Column="2" x:Name="CountInput" Classes="rebuild-num" Width="{StaticResource RebuildCountWidth}" TextAlignment="Center"
                  AutomationProperties.Name="Points, from 4 to 10" />
         <Button Grid.Column="3" x:Name="MoreButton" Classes="modebar outline step" Content="+" Width="{StaticResource CompactTargetSize}" Height="{StaticResource CompactTargetSize}"
                 AutomationProperties.Name="More points" />

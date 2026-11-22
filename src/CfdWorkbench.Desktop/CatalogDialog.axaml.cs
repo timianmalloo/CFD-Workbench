@@ -24,6 +24,7 @@ public partial class CatalogDialog : Window
     private bool replacing;
     // The row whose Enter arrived during its fit; the apply runs when that row's preview lands.
     private ListBoxItem? armedApply;
+    private ListBoxItem? activeItem;
 
     public CatalogDialog(WorkbenchController controller, CatalogSnapshot snapshot, Control? returnFocus = null,
         Action<TimeSpan, Action>? schedule = null)
@@ -68,6 +69,7 @@ public partial class CatalogDialog : Window
 
     private void Filter()
     {
+        ClearActiveStatus();
         options.Clear();
         SectionList.SelectedItem = null;
         SectionList.Items.Clear();
@@ -175,8 +177,16 @@ public partial class CatalogDialog : Window
         SectionList.ScrollIntoView(options[next]);
     }
 
+    private void ClearActiveStatus()
+    {
+        if (activeItem is { } prior && !prior.Classes.Contains("disabled"))
+            prior.ClearValue(AutomationProperties.ItemStatusProperty);
+        activeItem = null;
+    }
+
     private void SelectRow()
     {
+        ClearActiveStatus();
         if (SectionList.SelectedItem is not ListBoxItem { Tag: CatalogChoice choice } item || !options.Contains(item)) return;
         if (!ReferenceEquals(armedApply, item)) DropArmedApply();
         controller.RecordCatalogSelect(choice);
@@ -199,6 +209,7 @@ public partial class CatalogDialog : Window
         DetailLine.Text = "Fitting…";
         controller.PreviewReplace(choice);
         AutomationProperties.SetItemStatus(item, "active");
+        activeItem = item;
     }
 
     private void OnPreviewChanged()
@@ -226,7 +237,7 @@ public partial class CatalogDialog : Window
         }
         else if (controller.PreviewFault is { } error)
         {
-            DetailLine.Text = error.Reason ?? error.Code;
+            DetailLine.Text = error.Reason is { Length: > 0 } reason ? reason : Labels.CatalogPreviewFault;
             ReplaceButton.IsEnabled = false;
             DropArmedApply();
         }
@@ -329,7 +340,9 @@ public partial class CatalogDialog : Window
         }
         catch (ContractError error)
         {
-            DetailLine.Text = error.Reason ?? error.Code;
+            DetailLine.Text = error.Reason is { Length: > 0 } reason
+                ? reason
+                : "Couldn't apply this section right now. Nothing changed.";
             ReplaceButton.IsEnabled = false;
         }
         finally { replacing = false; }

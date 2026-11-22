@@ -81,6 +81,7 @@ public partial class SaveSectionDialog : Window
                 "LIB-IO" => "Couldn't save to My sections: the file couldn't be written. Nothing was saved.",
                 "DOC-UNSUPPORTED-PERSISTENCE" or "DOC-UNSUPPORTED-PLATFORM" => CfdWorkbench.Analysis.Labels.SectionSaveUnavailableFor(storeAdmitted()),
                 "DOC-SAVE-UNCERTAIN" => "CFD Workbench couldn't confirm whether this section was saved. Check My sections before trying again.",
+                // COPY-203 (approved — Ruling 82): preserve exact approved fallback copy.
                 _ => $"Couldn't finish saving this section ({error.Code}). Check My sections before trying again."
             };
             ShowError(copy, nameInvalid: error.Code.StartsWith("LIB-NAME-", StringComparison.Ordinal));

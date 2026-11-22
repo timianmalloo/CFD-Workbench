@@ -33,6 +33,7 @@ public partial class RebuildPopover : UserControl
             var label = new TextBlock { Text = labels[row], VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top };
             var value = new TextBlock { TextWrapping = Avalonia.Media.TextWrapping.Wrap,
                 TextAlignment = Avalonia.Media.TextAlignment.Right };
+            value.Classes.Add("rebuild-num");
             Grid.SetRow(label, row);
             Grid.SetRow(value, row);
             Grid.SetColumn(value, 1);
