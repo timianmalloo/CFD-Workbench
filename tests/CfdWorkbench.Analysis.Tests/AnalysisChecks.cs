@@ -65,6 +65,7 @@ internal static class AnalysisChecks
             ("WingEstimator", 60, WingEstimatorTests.Run),
             ("Compare", 400, CompareTests.Run),
             ("Sweeps", 800, SweepTests.Run),
+            ("SetupFeasibility", 50, SetupFeasibilityTests.Run),
         };
         int[] owner = Assign(groups.Select(group => group.CostHintMs).ToArray(), part?.Count ?? 1);
         for (int i = 0; i < groups.Length; i++)
