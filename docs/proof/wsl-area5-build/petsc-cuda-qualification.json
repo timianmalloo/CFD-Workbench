@@ -1,0 +1,212 @@
+{
+  "configure": {
+    "build_seconds": 96,
+    "check_seconds": 21,
+    "configure_seconds": 78,
+    "ldd_key_libraries": [
+      "liblapack.so.3 => /lib/aarch64-linux-gnu/liblapack.so.3 (0x0000f5f441c80000)",
+      "libblas.so.3 => /lib/aarch64-linux-gnu/libblas.so.3 (0x0000f5f441bf0000)",
+      "libcudart.so.13 => /usr/local/cuda-13.2/lib64/libcudart.so.13 (0x0000f5f441a70000)",
+      "libcublas.so.13 => /usr/local/cuda-13.2/lib64/libcublas.so.13 (0x0000f5f43d800000)",
+      "libcusparse.so.12 => /usr/local/cuda-13.2/lib64/libcusparse.so.12 (0x0000f5f432a70000)",
+      "libcusolver.so.12 => /usr/local/cuda-13.2/lib64/libcusolver.so.12 (0x0000f5f428900000)",
+      "libcurand.so.10 => /usr/local/cuda-13.2/lib64/libcurand.so.10 (0x0000f5f41f440000)",
+      "libmpi_mpifh.so.40 => /lib/aarch64-linux-gnu/libmpi_mpifh.so.40 (0x0000f5f4419e0000)",
+      "libmpi.so.40 => /lib/aarch64-linux-gnu/libmpi.so.40 (0x0000f5f41f2e0000)",
+      "libcublasLt.so.13 => /usr/local/cuda-13.2/lib64/libcublasLt.so.13 (0x0000f5f3f5000000)",
+      "libnvJitLink.so.13 => /usr/local/cuda-13.2/lib64/libnvJitLink.so.13 (0x0000f5f3ef8e0000)"
+    ],
+    "libpetsc_so_bytes": 139217536,
+    "libpetsc_so_sha256": "5adefba767f7cdeb9a4c2c2c9dcf29d7f49528d82e7123e1d94d0edc6edd2fdb",
+    "options": [
+      "--with-cc=mpicc",
+      "--with-cxx=mpicxx",
+      "--with-fc=mpif90",
+      "--with-cuda=1",
+      "--with-cuda-dir=/usr/local/cuda-13.2",
+      "--with-cuda-arch=121",
+      "--with-precision=double",
+      "--with-scalar-type=real",
+      "--with-64-bit-indices=0",
+      "--with-debugging=0",
+      "--with-shared-libraries=1",
+      "--with-make-np=8"
+    ],
+    "petsc_arch": "arch-linux-cuda132-opt",
+    "petsc_dir": "/opt/cfdw-f1/petsc-3.26.0",
+    "verified_help_flags": [
+      "--with-precision=<__fp16,single,double,__float128>",
+      "--with-scalar-type=<real or complex>",
+      "--with-64-bit-indices=<bool>",
+      "--with-cuda=<bool>",
+      "--with-cuda-dir=<dir>",
+      "--with-cuda-arch"
+    ],
+    "zero_download_flags": true
+  },
+  "ksp_smoke_trials": {
+    "ex2_1000x1000_1m_dof_rtol_1e-8": {
+      "cpu_seqaij": {
+        "iterations": 1715,
+        "ksp_type": "cg",
+        "kspsolve": {
+          "count": 1,
+          "flops": 37700000000.0,
+          "raw_line": "KSPSolve               1 1.0 1.9834e+01 1.0 3.77e+10 1.0 0.0e+00 0.0e+00 0.0e+00 86 100  0  0  0  86 100  0  0  0  1902       0      0 0.00e+00    0 0.00e+00  0",
+          "wall_seconds": 19.834
+        },
+        "mat_type": "seqaij",
+        "mat_type_option": "aij",
+        "matmult": {
+          "count": 1716,
+          "flops": 15400000000.0,
+          "raw_line": "MatMult             1716 1.0 7.9123e+00 1.0 1.54e+10 1.0 0.0e+00 0.0e+00 0.0e+00 34 41  0  0  0  34 41  0  0  0  1950       0      0 0.00e+00    0 0.00e+00  0",
+          "wall_seconds": 7.9123
+        },
+        "max_rss_kib": 393244,
+        "norm_of_error": "4.69193e-05",
+        "pc_type": "jacobi",
+        "petsc_total_seconds": 23.07,
+        "vec_type_option": "standard",
+        "wall_seconds": 37.27
+      },
+      "gpu_seqaijcusparse_clean": {
+        "iterations": 1715,
+        "ksp_type": "not recorded",
+        "mat_type": "not recorded",
+        "mat_type_option": "not recorded",
+        "max_rss_kib": 512944,
+        "norm_of_error": "4.69193e-05",
+        "pc_type": "not recorded",
+        "petsc_total_seconds": "not recorded",
+        "vec_type_option": "not recorded",
+        "wall_seconds": 2.98
+      },
+      "gpu_seqaijcusparse_diagnostic_log_gpu_time": {
+        "iterations": 1715,
+        "ksp_type": "cg",
+        "kspsolve": {
+          "count": 1,
+          "flops": 37700000000.0,
+          "raw_line": "KSPSolve               1 1.0 3.6811e+00 1.0 3.77e+10 1.0 0.0e+00 0.0e+00 0.0e+00 70 100  0  0  0  70 100  0  0  0 10248   14905      1 8.00e+00    1 8.00e+00 100",
+          "wall_seconds": 3.6811
+        },
+        "mat_type": "seqaijcusparse",
+        "mat_type_option": "aijcusparse",
+        "matmult": {
+          "count": 1716,
+          "flops": 15400000000.0,
+          "raw_line": "MatMult             1716 1.0 1.2274e+00 1.0 1.54e+10 1.0 0.0e+00 0.0e+00 0.0e+00 23 41  0  0  0  23 41  0  0  0 12572   18113      1 6.40e+01    0 0.00e+00 100",
+          "wall_seconds": 1.2274
+        },
+        "max_rss_kib": 513020,
+        "norm_of_error": "4.69193e-05",
+        "pc_type": "jacobi",
+        "petsc_total_seconds": 5.268,
+        "vec_type_option": "cuda",
+        "wall_seconds": 5.6
+      },
+      "problem": "src/ksp/ksp/tutorials/ex2 2D 5-point Laplacian, 1000x1000 = 1,000,000 DOFs, CG + Jacobi, rtol=1e-8, 1 rank, OMP_NUM_THREADS=1"
+    },
+    "ex2_400x400_160k_dof_rtol_1e-10": {
+      "cpu_seqaij": {
+        "iterations": 790,
+        "ksp_type": "cg",
+        "kspsolve": {
+          "count": 1,
+          "flops": 2780000000.0,
+          "raw_line": "KSPSolve               1 1.0 6.9367e-01 1.0 2.78e+09 1.0 0.0e+00 0.0e+00 0.0e+00 73 100  0  0  0  73 100  0  0  0  4006       0      0 0.00e+00    0 0.00e+00  0",
+          "wall_seconds": 0.69367
+        },
+        "mat_type": "seqaij",
+        "mat_type_option": "aij",
+        "matmult": {
+          "count": 791,
+          "flops": 1140000000.0,
+          "raw_line": "MatMult              791 1.0 3.2062e-01 1.0 1.14e+09 1.0 0.0e+00 0.0e+00 0.0e+00 34 41  0  0  0  34 41  0  0  0  3545       0      0 0.00e+00    0 0.00e+00  0",
+          "wall_seconds": 0.32062
+        },
+        "max_rss_kib": 282772,
+        "norm_of_error": "1.23398e-07",
+        "pc_type": "jacobi",
+        "petsc_total_seconds": 0.9522,
+        "vec_type_option": "standard",
+        "wall_seconds": 1.19
+      },
+      "gpu_seqaijcusparse_clean": {
+        "iterations": 790,
+        "ksp_type": "not recorded",
+        "mat_type": "not recorded",
+        "mat_type_option": "not recorded",
+        "max_rss_kib": 445376,
+        "norm_of_error": "1.23398e-07",
+        "pc_type": "not recorded",
+        "petsc_total_seconds": "not recorded",
+        "vec_type_option": "not recorded",
+        "wall_seconds": 1.12
+      },
+      "gpu_seqaijcusparse_diagnostic_log_gpu_time": {
+        "iterations": 790,
+        "ksp_type": "cg",
+        "kspsolve": {
+          "count": 1,
+          "flops": 2780000000.0,
+          "raw_line": "KSPSolve               1 1.0 7.5283e-01 1.0 2.78e+09 1.0 0.0e+00 0.0e+00 0.0e+00 67 100  0  0  0  67 100  0  0  0  3692    6761      1 1.28e+00    1 1.28e+00 100",
+          "wall_seconds": 0.75283
+        },
+        "mat_type": "seqaijcusparse",
+        "mat_type_option": "aijcusparse",
+        "matmult": {
+          "count": 791,
+          "flops": 1140000000.0,
+          "raw_line": "MatMult              791 1.0 1.0621e-01 1.0 1.14e+09 1.0 0.0e+00 0.0e+00 0.0e+00  9 41  0  0  0   9 41  0  0  0 10701   20155      1 1.02e+01    0 0.00e+00 100",
+          "wall_seconds": 0.10621
+        },
+        "max_rss_kib": 445512,
+        "norm_of_error": "1.23398e-07",
+        "pc_type": "jacobi",
+        "petsc_total_seconds": 1.121,
+        "vec_type_option": "cuda",
+        "wall_seconds": 1.42
+      },
+      "problem": "src/ksp/ksp/tutorials/ex2 2D 5-point Laplacian, 400x400 = 160,000 DOFs, CG + Jacobi, rtol=1e-10, 1 rank, OMP_NUM_THREADS=1"
+    }
+  },
+  "make_check": {
+    "passed": true,
+    "summary_lines": [
+      "C/C++ example src/snes/tutorials/ex19 run successfully with 1 MPI process",
+      "C/C++ example src/snes/tutorials/ex19 run successfully with 2 MPI processes",
+      "C/C++ example src/snes/tutorials/ex19 run successfully with CUDA",
+      "Fortran example src/snes/tutorials/ex5f run successfully with 1 MPI process",
+      "Completed PETSc check examples"
+    ]
+  },
+  "openfoam_blocker_cause": "net.proxy-tls (dl.openfoam.com -> sourceforge.net intercepted by Cisco Umbrella 146.112.61.104)",
+  "openfoam_cpu_smoke_result": "BLOCKED",
+  "petsc4foam_build_result": "BLOCKED",
+  "petsc4foam_staged_repo": {
+    "actual_head": "cb1badc4978306e7001a4654dcdf53f284a92365",
+    "commit_match": true,
+    "expected_commit": "cb1badc4978306e7001a4654dcdf53f284a92365",
+    "path": "/opt/cfdw-f1/petsc4foam",
+    "tree_sha1": "74e5dbf216effe0768687dec8e66c56f79c9df85",
+    "url": "https://gitlab.com/petsc/petsc4foam.git"
+  },
+  "petsc_cuda_result": "PASS",
+  "petsc_source": {
+    "bytes": 16933940,
+    "expected_bytes": 16933940,
+    "expected_sha256": "f5230023e6e22ee607802a13c82bc25f3d81e71654ad386a5b9bdff17fed93df",
+    "sha256": "f5230023e6e22ee607802a13c82bc25f3d81e71654ad386a5b9bdff17fed93df",
+    "sha256_match": true,
+    "url": "https://web.cels.anl.gov/projects/petsc/download/release-snapshots/petsc-3.26.0.tar.gz",
+    "version": "3.26.0"
+  },
+  "runtime_findings": {
+    "gpu_aware_mpi_required_option": "-use_gpu_aware_mpi 0",
+    "reason": "Ubuntu Noble system OpenMPI 4.1.6 is not built with CUDA/GPU-aware UCX; single-rank GPU execution requires -use_gpu_aware_mpi 0 in ~/.petscrc or PETSC_OPTIONS.",
+    "root_mpiexec_env": "OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 (for root-imported WSL distro)"
+  },
+  "schema": "cfdw-wsl-petsc-cuda-qual/1"
+}

@@ -1,0 +1,43 @@
+{
+  "blocked_components": [
+    "openfoam2512=2512.0-2 (and -common, -dev, -source, -tools)",
+    "OpenFOAM v2512 arm64 M1 icoFoam/cavity CPU smoke",
+    "petsc4Foam Allwmake & OpenFOAM CPU vs GPU pressure-solve trial"
+  ],
+  "blocked_target": "https://dl.openfoam.com/repos/deb/dists/noble/InRelease",
+  "cause_code": "net.proxy-tls",
+  "guided_setup_design_ref": "docs/design/guided-solver-setup.md#8-failure-modes-and-the-cause-catalogue",
+  "policy_compliance": "No TLS verification bypass, DNS override, or proxy circumvention attempted.",
+  "reachable_verified_endpoints": {
+    "gitlab_petsc4foam": "https://gitlab.com/petsc/petsc4foam.git (HTTP 200, pinned commit cb1badc4978306e7001a4654dcdf53f284a92365)",
+    "nvidia_cuda_sbsa": "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/ (1/1 InRelease gpgv VALIDSIG)",
+    "petsc_anl": "https://web.cels.anl.gov/projects/petsc/download/release-snapshots/petsc-3.26.0.tar.gz (HTTP 200, 16,933,940 B, SHA-256 matched)",
+    "ubuntu_ports_noble": "http://ports.ubuntu.com/ubuntu-ports (3/3 InRelease gpgv VALIDSIG)"
+  },
+  "redirect_headers": [
+    "HTTP/2 302",
+    "server: nginx",
+    "date: Sun, 22 Nov 2026 03:14:11 GMT",
+    "content-type: text/html; charset=iso-8859-1",
+    "content-length: 303",
+    "location: https://sourceforge.net/projects/openfoam/files/repos/deb/dists/noble/InRelease"
+  ],
+  "redirect_host_dns": "::ffff:146.112.61.104 sourceforge.net",
+  "schema": "cfdw-wsl-net-proxy-tls/1",
+  "windows_native_curl_error": "curl: (60) schannel: SEC_E_UNTRUSTED_ROOT (0x80090325) - The certificate chain was issued by an authority that is not trusted.",
+  "wsl_apt_update_error_lines": [
+    "Err:4 https://sourceforge.net/projects/openfoam/files/repos/deb noble InRelease",
+    "  Certificate verification failed: The certificate is NOT trusted. The certificate issuer is unknown.  Could not handshake: Error in the certificate verification. [IP: ::ffff:146.112.61.104 443]",
+    "E: Failed to fetch https://dl.openfoam.com/repos/deb/dists/noble/InRelease  Certificate verification failed: The certificate is NOT trusted. The certificate issuer is unknown.  Could not handshake: Error in the certificate verification. [IP: ::ffff:146.112.61.104 443]",
+    "E: Some index files failed to download. They have been ignored, or old ones used instead."
+  ],
+  "wsl_openssl_tls_chain": [
+    "depth=2 C = US, ST = California, L = San Francisco, O = Cisco, CN = Cisco Umbrella Primary SubCA",
+    "depth=1 O = Cisco, CN = Cisco Umbrella Secondary SubCA lax-SG",
+    "depth=0 C = US, ST = California, L = San Francisco, O = \"OpenDNS, Inc.\", CN = sourceforge.net",
+    "CONNECTED(00000003)",
+    "subject=C = US, ST = California, L = San Francisco, O = \"OpenDNS, Inc.\", CN = sourceforge.net",
+    "issuer=O = Cisco, CN = Cisco Umbrella Secondary SubCA lax-SG",
+    "Verify return code: 20 (unable to get local issuer certificate)"
+  ]
+}
