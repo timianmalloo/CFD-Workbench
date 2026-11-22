@@ -100,6 +100,7 @@ public static class CommandTable
         new("station.match-blend", "Match the blend…", "Edit", null, false, NoOp),
 
         // View
+        new("view.setup", "Setup", "View", null, false, NoOp),
         new("view.analysis", "Analysis", "View", "⇧⌘A", false, NoOp),
         new("view.sweeps", "Sweeps", "View", null, false, NoOp),
         // A3d Compare (design a3d-compare.md 5.1): the palette reaches both; no keyboard gesture. Enabled in Analysis with a Completed VLM + strip run.

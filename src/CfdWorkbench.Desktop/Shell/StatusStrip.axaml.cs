@@ -112,6 +112,15 @@ public partial class StatusStrip : UserControl
         FitItems();
     }
 
+    /// <summary>Area 1 Setup recipe link status in the status strip (GEO-04, DR-SET-5).</summary>
+    public void ShowSetupState(string text, bool visible)
+    {
+        SetupItemText.Text = text;
+        AutomationProperties.SetName(SetupItem, text);
+        SetupItem.IsVisible = visible;
+        FitItems();
+    }
+
     /// <summary>Area 4 local-sweep progress and reachable Cancel action in the status strip (UX-21).</summary>
     public void ShowSweepState(string text, bool visible, bool canCancel, Action? onCancel)
     {

@@ -50,6 +50,7 @@ public static class Cli
         AnalysisHost? analysis = null)
     {
         if (args.Length >= 1 && args[0] == "export") return await ExportVerb.RunAsync(args, output, cancellation);
+        if (args.Length >= 1 && args[0] == "seed") return await SeedVerb.RunAsync(args, output, cancellation);
         if (args.Length >= 1 && args[0] == "sweep") return await SweepVerb.RunSweepAsync(args, output, analysis, cancellation);
         if (args.Length == 4 && args[0] == "analyse" && args[2] == "--op") return await AnalyseAsync(args[1], args[3], output, analysis, cancellation);
         if (args.Length == 3 && args[0] == "inspect" && args[2] == "--runs") return await InspectRunsAsync(args[1], output, cancellation);
@@ -59,6 +60,7 @@ public static class Cli
             await output.WriteLineAsync("Usage: cfd-workbench inspect <example|path.foil|path.cfdw.json> --json");
             await output.WriteLineAsync("       cfd-workbench inspect <path.cfdw.json> --runs");
             await output.WriteLineAsync("       cfd-workbench inspect <path.cfdw.json> --sweeps");
+            await output.WriteLineAsync("       cfd-workbench seed --preset <id|purpose> [options] [--acknowledge-flagged] [--out <path.cfdw.json>]");
             await output.WriteLineAsync("       cfd-workbench analyse <example|path.foil|path.cfdw.json> --op <json>");
             await output.WriteLineAsync("       cfd-workbench sweep preview|run <example|path.foil|path.cfdw.json> --grid <json> [--out <path.cfdw.json>]");
             await output.WriteLineAsync("       cfd-workbench export <example|path.foil|path.cfdw.json> --format dat|stl|3mf --out <path> [options]");
@@ -147,24 +149,50 @@ public static class Cli
                     thickness = Rail(Channels.View(source, "thickness", "accepted", 0))
                 };
             }
-            await WriteAsync(output, new
+            var setupProjection = SeedVerb.SetupProjection(session);
+            if (setupProjection is not null)
             {
-                schemaVersion = 1,
-                points = pointModel,
-                sectionPoints = Sections.Points(source),
-                acceptedSourceSha256 = view.SourceHash,
-                definitionHash = view.SurfaceHash,
-                evaluator = inspection.Authored.Binding.Evaluator,
-                projectId = session.Envelope().ProjectId,
-                designId = inspection.Authored.Binding.DesignId,
-                acceptedId = view.AcceptedId,
-                assessment = new { status = inspection.Geometry.Status.ToString(), code = inspection.Geometry.Code, reason = inspection.Geometry.Reason,
-                    placementErrorMetersUpper = certificate?.PlacementWidthUpper, samplingError = "Not assessed" },
-                diagnostics = inspection.Authored.Diagnostics,
-                derived = new { points, pointUnit = "m", centerSection = section, centerSectionEta = .5,
-                    centerSectionNormalizedX = .5, centerSectionUnit = "z/c", provenance = "accepted" },
-                localEvents = session.ReadLocalEvents().Select(e => new { e.Operation, e.Outcome, e.DurationMilliseconds, e.InputBytes, e.OutputBytes, e.Generation, e.PublicationKnown, e.DurabilityConfirmed })
-            });
+                await WriteAsync(output, new
+                {
+                    schemaVersion = 1,
+                    points = pointModel,
+                    sectionPoints = Sections.Points(source),
+                    acceptedSourceSha256 = view.SourceHash,
+                    definitionHash = view.SurfaceHash,
+                    evaluator = inspection.Authored.Binding.Evaluator,
+                    projectId = session.Envelope().ProjectId,
+                    designId = inspection.Authored.Binding.DesignId,
+                    acceptedId = view.AcceptedId,
+                    assessment = new { status = inspection.Geometry.Status.ToString(), code = inspection.Geometry.Code, reason = inspection.Geometry.Reason,
+                        placementErrorMetersUpper = certificate?.PlacementWidthUpper, samplingError = "Not assessed" },
+                    diagnostics = inspection.Authored.Diagnostics,
+                    derived = new { points, pointUnit = "m", centerSection = section, centerSectionEta = .5,
+                        centerSectionNormalizedX = .5, centerSectionUnit = "z/c", provenance = "accepted" },
+                    setup = setupProjection,
+                    localEvents = session.ReadLocalEvents().Select(e => new { e.Operation, e.Outcome, e.DurationMilliseconds, e.InputBytes, e.OutputBytes, e.Generation, e.PublicationKnown, e.DurabilityConfirmed })
+                });
+            }
+            else
+            {
+                await WriteAsync(output, new
+                {
+                    schemaVersion = 1,
+                    points = pointModel,
+                    sectionPoints = Sections.Points(source),
+                    acceptedSourceSha256 = view.SourceHash,
+                    definitionHash = view.SurfaceHash,
+                    evaluator = inspection.Authored.Binding.Evaluator,
+                    projectId = session.Envelope().ProjectId,
+                    designId = inspection.Authored.Binding.DesignId,
+                    acceptedId = view.AcceptedId,
+                    assessment = new { status = inspection.Geometry.Status.ToString(), code = inspection.Geometry.Code, reason = inspection.Geometry.Reason,
+                        placementErrorMetersUpper = certificate?.PlacementWidthUpper, samplingError = "Not assessed" },
+                    diagnostics = inspection.Authored.Diagnostics,
+                    derived = new { points, pointUnit = "m", centerSection = section, centerSectionEta = .5,
+                        centerSectionNormalizedX = .5, centerSectionUnit = "z/c", provenance = "accepted" },
+                    localEvents = session.ReadLocalEvents().Select(e => new { e.Operation, e.Outcome, e.DurationMilliseconds, e.InputBytes, e.OutputBytes, e.Generation, e.PublicationKnown, e.DurabilityConfirmed })
+                });
+            }
             return inspection.Geometry.Status switch { GeometryStatus.Certified => 0, GeometryStatus.Unsupported => 3, _ => 4 };
         }
         catch (OperationCanceledException) { await output.WriteLineAsync("{\"code\":\"DOC-CANCELLED\"}"); return 130; }

@@ -551,4 +551,36 @@ public static class Labels
     public const string SweepNoGoalState = "No Goal state in this project yet — define one in Setup, or use Angles × speeds."; // SWP-COPY-20, COPY-725
     public const string SweepArchivedBanner = "Archived — definition and attempt history kept; unreachable strip data released for pruning at save."; // SWP-COPY-21, COPY-726
     public const string SweepPrunedCaseCell = "Unavailable — pruned at save (archived sweep). Re-run in a new version to recompute."; // SWP-COPY-22, COPY-727
+
+    // ---- SET: Area 1 Setup & Goal State (Ruling 272, COPY-728..749, LAB-01 clean) ----
+    public const string SetupSeedDesign = "Seed design"; // COPY-SET-1, COPY-728
+    public static string SetupReseedAs(int nextOrdinal) => $"Re-seed as r{nextOrdinal}"; // COPY-SET-2, COPY-729
+    public static string SetupLinkedStatus(string preset) => $"Linked · {preset}"; // COPY-SET-3, COPY-730
+    public const string SetupDirectParametric = "Direct parametric"; // COPY-SET-4, COPY-731
+    public const string SetupProvenanceLegend = "Stated · Inferred · Defaulted"; // COPY-SET-5, COPY-732
+    public static string SetupTargetDeviation(string name, string target, string seeded, double relDelta) =>
+        string.Create(CultureInfo.InvariantCulture, $"target {name} {target} · seeded {seeded} · {(relDelta >= 0 ? "+" : "−")}{Math.Abs(relDelta * 100):0.#} %"); // COPY-SET-6, COPY-733
+    public static string SetupSectionFallback(string preferred, string reason, string genFallback) =>
+        $"Preferred section {preferred} ({reason}) · Using GEN fallback: {genFallback}"; // COPY-SET-7, COPY-734
+    public static string SetupAcknowledgeFlagged(int count) => $"Acknowledge {count} flagged assumption(s) to enable Seed"; // COPY-SET-8, COPY-735
+    public const string SetupWakefoilMappingNote = "Wakefoil uses the Surf preset with Flagged boat-wake speeds (no public wakefoil dataset)."; // COPY-SET-9, COPY-736
+    public static string SetupReseedNotice(int nextBrief, int nextRev) =>
+        $"Re-seeding appends Setup brief v{nextBrief} and Design revision r{nextRev}. Earlier revisions r1–r{nextRev - 1} stay in history; existing runs become Historical."; // COPY-SET-10, COPY-737
+    public static string SetupSeedReceipt(int rev, string preset, int briefV, int goalV) =>
+        $"Seeded r{rev} from {preset} (brief v{briefV}, goal v{goalV})."; // COPY-SET-11, COPY-738
+    public static string SetupGoalSavedReceipt(int goalV) => $"Goal state saved as v{goalV}. Geometry is unchanged."; // COPY-SET-12, COPY-739
+    public const string SetupEditedByUser = "edited by user"; // COPY-SET-13, COPY-740
+    public const string SetupPolarUnavailable = "Unavailable — polar data not computed for this section"; // COPY-SET-14, COPY-741
+    public static string SetupGwaFrontAreaWarning(double areaCm2) =>
+        string.Create(CultureInfo.InvariantCulture, $"Front wing area {areaCm2:0.#} cm² is below GWA Race minimum 700 cm² (GWA Race Box v2022-02-01, 2022-02-01)."); // COPY-SET-15, COPY-742
+    public static string SetupGwaMastLengthWarning(double mastCm) =>
+        string.Create(CultureInfo.InvariantCulture, $"Mast length {mastCm:0.#} cm exceeds GWA Race maximum 115 cm (GWA Race Box v2022-02-01, 2022-02-01)."); // COPY-SET-16, COPY-743
+    public const string SetupIqfoilCard = "iQFOiL one-design benchmark: 900 cm² front · 255 cm² tail · shim −2°…+1° (iQFOiL 2025)."; // COPY-SET-17, COPY-744
+    public const string SetupFormulaKiteCard = "IKA Formula Kite tolerances: span ±2 mm · chord −1 mm · general ±0.4 mm · mass ±4 % (dimensional maxima Flagged)."; // COPY-SET-18, COPY-745
+    public const string SetupOpenClassCard = "Open class — no equipment box rules apply."; // COPY-SET-19, COPY-746
+    public const string SetupExcludeFinding = "Exclude finding…"; // COPY-SET-20, COPY-747
+    public const string SetupExclusionReasonRequired = "Exclusion reason is required."; // COPY-SET-20, COPY-747
+    public static string SetupTipClampNotice(string minFormatted) =>
+        $"Tip chord is held at the minimum {minFormatted} (max of 5 mm and 2 % of root chord)."; // COPY-SET-21, COPY-748
+    public const string SetupWeightsInvalid = "Weights must be finite and non-negative, with at least one weight above 0."; // COPY-SET-22, COPY-749
 }

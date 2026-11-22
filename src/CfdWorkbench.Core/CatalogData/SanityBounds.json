@@ -1,0 +1,90 @@
+{
+  "version": "2026-09-20",
+  "source": "A5.5 catalogued hydrofoil product table (KB 04)",
+  "bounds": [
+    {
+      "ruleId": "envelope.area",
+      "label": "Front wing area",
+      "min": 480.0,
+      "max": 1900.0,
+      "unit": "cm²",
+      "confidence": "Verified",
+      "source": "Verified product pages (A5.5)",
+      "accessDate": "2026-09-20",
+      "locationKey": "planform.area",
+      "jumpTarget": "targetArea"
+    },
+    {
+      "ruleId": "envelope.span",
+      "label": "Wing span",
+      "min": 690.0,
+      "max": 1380.0,
+      "unit": "mm",
+      "confidence": "Verified",
+      "source": "Verified product pages (A5.5)",
+      "accessDate": "2026-09-20",
+      "locationKey": "planform.span",
+      "jumpTarget": "maxSpan"
+    },
+    {
+      "ruleId": "envelope.aspect_ratio",
+      "label": "Aspect ratio",
+      "min": 7.0,
+      "max": 13.1,
+      "unit": "",
+      "confidence": "Verified",
+      "source": "Verified product pages (A5.5)",
+      "accessDate": "2026-09-20",
+      "locationKey": "planform.ar",
+      "jumpTarget": "targetAR"
+    },
+    {
+      "ruleId": "envelope.root_tc",
+      "label": "Root thickness ratio",
+      "min": 9.0,
+      "max": 12.0,
+      "unit": "%",
+      "confidence": "Verified",
+      "source": "Verified product pages (A5.5)",
+      "accessDate": "2026-09-20",
+      "locationKey": "section.root_tc",
+      "jumpTarget": "rootThickness"
+    },
+    {
+      "ruleId": "envelope.wing_loading",
+      "label": "Wing loading",
+      "min": 8.0,
+      "max": 20.0,
+      "unit": "kPa",
+      "confidence": "Inferred",
+      "source": "Inferred on Flagged speeds (A5.5)",
+      "accessDate": "2026-09-20",
+      "locationKey": "goal.wing_loading",
+      "jumpTarget": "frontWingLoad"
+    },
+    {
+      "ruleId": "envelope.takeoff_cl",
+      "label": "Take-off CL",
+      "min": 0.60,
+      "max": 0.80,
+      "unit": "",
+      "confidence": "Inferred",
+      "source": "Inferred on Flagged speeds (A5.5)",
+      "accessDate": "2026-09-20",
+      "locationKey": "goal.takeoff_cl",
+      "jumpTarget": "operatingPoints"
+    },
+    {
+      "ruleId": "envelope.cruise_cl",
+      "label": "Cruise CL",
+      "min": 0.10,
+      "max": 0.45,
+      "unit": "",
+      "confidence": "Inferred",
+      "source": "Inferred on Flagged speeds (A5.5)",
+      "accessDate": "2026-09-20",
+      "locationKey": "goal.cruise_cl",
+      "jumpTarget": "operatingPoints"
+    }
+  ]
+}

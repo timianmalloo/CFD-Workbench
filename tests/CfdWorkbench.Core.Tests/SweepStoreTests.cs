@@ -130,9 +130,9 @@ internal static class SweepStoreTests
         session.RecordExperiment(exp);
         string two = Encoding.UTF8.GetString(session.SaveImage());
 
-        // Unknown top-level fields (including Wave C's unparsed "setup" in Wave B) fail closed with DOC-UNSUPPORTED-FIELD.
+        // Empty setup object fails closed with DOC-SCHEMA (Wave C admits "setup" per Ruling 272 DR-SET-1); unknown fields fail with DOC-UNSUPPORTED-FIELD.
         string withSetup = two.Insert(two.IndexOf('\n') + 1, "  \"setup\": {},\n");
-        RefusedEmpty("DOC-UNSUPPORTED-FIELD", withSetup);
+        RefusedEmpty("DOC-SCHEMA", withSetup);
         string withFuture = two.Insert(two.IndexOf('\n') + 1, "  \"future\": 1,\n");
         RefusedEmpty("DOC-UNSUPPORTED-FIELD", withFuture);
 

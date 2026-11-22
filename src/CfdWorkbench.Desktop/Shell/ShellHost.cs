@@ -1334,6 +1334,9 @@ public sealed class ShellHost : Grid
             case "analysis.compare-tiers":
                 if (Controller.CanCompare) await Controller.CompareWithEstimatorAsync();
                 return;
+            case "view.setup":
+                Controller.ToggleSetup();
+                return;
             case "view.sweeps":
                 Controller.ToggleSweeps();
                 return;
@@ -1466,7 +1469,7 @@ public sealed class ShellHost : Grid
         id.StartsWith("station.", StringComparison.Ordinal) ||
         id.StartsWith("view.text-", StringComparison.Ordinal) ||
         id.StartsWith("view.comb", StringComparison.Ordinal) ||
-        id is "analysis.compare" or "analysis.compare-tiers" or "view.sweeps" ||
+        id is "analysis.compare" or "analysis.compare-tiers" or "view.sweeps" or "view.setup" ||
         CommandTable.UnitsOf(id) is not null ||
         ViewCommands.Handles(id) ||
         IsShellCommand(id);

@@ -28,6 +28,9 @@ public sealed record Envelope(string Format, string ProjectId, SourceRow[] Sourc
     /// <summary>Area 4 local-tier sweep experiments (Ruling 271 DR-SWP-1). Omitted when empty.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<SweepExperiment>? Experiments { get; init; }
+    /// <summary>Area 1 Setup &amp; Goal State records (Ruling 272 DR-SET-1). Omitted when empty.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SetupRecords? Setup { get; init; }
 }
 public sealed record SessionDraft(string Id, string Base, long Generation, string Rail, string VertexId, byte[] Bytes, string? Profile = null, int Assignment = -1, ThicknessIntent Intent = ThicknessIntent.KeepCurrent, string? Rule = null, string? Curve = null);
 public sealed record SessionBinding(string SourceHash, string Base, string DraftId, long Generation, string Evaluator, string SurfaceHash, string Rail, string VertexId);
@@ -59,6 +62,8 @@ public sealed record SessionEvent(long Sequence, string Operation, string Outcom
     public ExportTelemetry? Export { get; init; }
     /// <summary>Named fields of <c>sweep.*</c> events (docs/design/local-sweeps.md §6); null otherwise.</summary>
     public SweepTelemetry? Sweep { get; init; }
+    /// <summary>Named fields of <c>setup.*</c> and <c>cli.seed</c> events (docs/design/setup-seeding.md §6); null otherwise.</summary>
+    public SetupTelemetry? Setup { get; init; }
 }
 /// <summary>
 /// One export telemetry row on the session ring. <c>Operation</c> is <c>export.write</c> (one per write attempt) or <c>export.validate</c>
@@ -274,6 +279,7 @@ public sealed class AuthoringSession : IDisposable
             closed = true; events.Clear(); capturedSaveHashes.Clear(); retiredDraftIds.Clear(); stationMemo = null; removeMemo = null;
             sources.Clear(); designs.Clear(); accepted.Clear(); cursors.Clear(); redo.Clear(); operations.Clear();
             experiments.Clear();
+            setupBriefs.Clear(); goalStates.Clear(); drcExclusions.Clear();
             draft = null; recovery = null; current = null; activeImportReport = null;
             section = null;
             InvalidateEnvelopeSize();
@@ -669,7 +675,7 @@ public sealed class AuthoringSession : IDisposable
         string id = Guid.NewGuid().ToString("D");
         var row = new AcceptedRow(id, parent, p.SourceHash, design, op, draft is null ? null : new(draft.Id, draft.Generation, draft.Rail, draft.VertexId, draft.Intent, draft.Rule, draft.Curve));
         var cursor = new CursorRow(cursors.Count, id, reason, op);
-        var prospective = new Envelope(RunRecord.Format(runs.Count, experiments.Count), projectId, nextSources.ToArray(), nextDesigns.ToArray(), [.. accepted, row], [.. cursors, cursor], null) { Analysis = AnalysisCore(), Experiments = ExperimentsOrNull() };
+        var prospective = new Envelope(RunRecord.Format(runs.Count, experiments.Count, HasSetup), projectId, nextSources.ToArray(), nextDesigns.ToArray(), [.. accepted, row], [.. cursors, cursor], null) { Analysis = AnalysisCore(), Experiments = ExperimentsOrNull(), Setup = SetupOrNull() };
         NativeProject.Preflight(prospective, envelopeCap);
         designs.Clear(); designs.AddRange(nextDesigns); sources.Clear(); sources.AddRange(nextSources);
         accepted.Add(row); current = id; cursors.Add(cursor); redo.Clear(); InvalidateEnvelopeSize(); return id;
@@ -2208,8 +2214,8 @@ public sealed class AuthoringSession : IDisposable
         lock (sync)
         {
             Guard.Require(!closed, "DOC-CLOSED");
-            return new(RunRecord.Format(runs.Count, experiments.Count), projectId, sources.Select(s => s with { Utf8Base64Chunks = s.Utf8Base64Chunks.ToArray() }).ToArray(), designs.ToArray(), accepted.ToArray(), cursors.ToArray(), CopyRecovery(recovery))
-            { Analysis = AnalysisCore(), Experiments = ExperimentsOrNull() };
+            return new(RunRecord.Format(runs.Count, experiments.Count, HasSetup), projectId, sources.Select(s => s with { Utf8Base64Chunks = s.Utf8Base64Chunks.ToArray() }).ToArray(), designs.ToArray(), accepted.ToArray(), cursors.ToArray(), CopyRecovery(recovery))
+            { Analysis = AnalysisCore(), Experiments = ExperimentsOrNull(), Setup = SetupOrNull() };
         }
     }
     private byte[] SaveImageCore()
@@ -2246,6 +2252,7 @@ public sealed class AuthoringSession : IDisposable
             sources.AddRange(env.Sources); designs.AddRange(env.Designs); accepted.AddRange(env.Accepted); cursors.AddRange(env.Cursors); recovery = env.Recovery;
             LoadRuns(env.Analysis);
             LoadExperiments(env.Experiments);
+            LoadSetup(env.Setup);
             current = replay.Current;
             foreach (var row in accepted) if (row.Edit is not null) retiredDraftIds.Add(row.Edit.DraftId);
             if (recovery is not null) retiredDraftIds.Add(recovery.DraftId);
@@ -2348,7 +2355,7 @@ public sealed class AuthoringSession : IDisposable
             var prospective = new AnalysisRecords([.. runs, run], polarSamples.ToArray(), prunedRuns.ToArray(), DiscrepanciesOrNull());
             RunRecord.CheckStore(prospective, AcceptedExists, AcceptedOrdinal);
             Guard.Require(RunRecord.Verify(run) && SurfaceMatches(run), "DOC-INTEGRITY");
-            int bytes = PreflightWithPinReport("record-run", EnvelopeCore() with { Format = RunRecord.Format(runs.Count + 1, experiments.Count), Analysis = prospective });
+            int bytes = PreflightWithPinReport("record-run", EnvelopeCore() with { Format = RunRecord.Format(runs.Count + 1, experiments.Count, HasSetup), Analysis = prospective });
             runs.Add(run);
             encodedEnvelopeBytes = bytes;
         }
@@ -2590,15 +2597,15 @@ public sealed class AuthoringSession : IDisposable
     }
 
     /// <summary>
-    /// Read-only snapshot of the active Goal state for Area 4 sweeps (Ruling 271). Returns null until Wave C (SET-BUILD)
-    /// wires live Goal states into Core without editing Desktop/Sweeps.
+    /// Read-only snapshot of the active Goal state for Area 4 sweeps (Ruling 271 &amp; Ruling 272 DR-SET-1).
+    /// Returns null when the document carries no Goal state yet.
     /// </summary>
     public GoalStateSweepSnapshot? CurrentGoalSweepSnapshot() => Run("current-goal-sweep-snapshot", () =>
     {
         lock (sync)
         {
             Guard.Require(!closed, "DOC-CLOSED");
-            return (GoalStateSweepSnapshot?)null;
+            return goalStates.Count == 0 ? null : goalStates[^1].ToSweepSnapshot();
         }
     });
 
@@ -2638,7 +2645,7 @@ public sealed class AuthoringSession : IDisposable
             SweepExperiment[] prospective = [.. experiments, experiment!];
             SweepRecords.Check(prospective, AnalysisCore(), AcceptedExists, AcceptedSurfaceHash);
             int bytes = PreflightWithPinReport("record-experiment",
-                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length), Experiments = prospective });
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length, HasSetup), Experiments = prospective });
             experiments.Add(experiment!);
             encodedEnvelopeBytes = bytes;
             return true;
@@ -2660,7 +2667,7 @@ public sealed class AuthoringSession : IDisposable
             prospective[idx] = updated!;
             SweepRecords.Check(prospective, AnalysisCore(), AcceptedExists, AcceptedSurfaceHash);
             int bytes = PreflightWithPinReport("update-draft-experiment",
-                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length), Experiments = prospective });
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length, HasSetup), Experiments = prospective });
             experiments[idx] = updated!;
             encodedEnvelopeBytes = bytes;
             return true;
@@ -2682,7 +2689,7 @@ public sealed class AuthoringSession : IDisposable
             prospective[idx] = updated;
             SweepRecords.Check(prospective, AnalysisCore(), AcceptedExists, AcceptedSurfaceHash);
             int bytes = PreflightWithPinReport("append-sweep-event",
-                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length), Experiments = prospective });
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length, HasSetup), Experiments = prospective });
             experiments[idx] = updated;
             encodedEnvelopeBytes = bytes;
             return true;
@@ -2704,7 +2711,7 @@ public sealed class AuthoringSession : IDisposable
             prospective[idx] = updated;
             SweepRecords.Check(prospective, AnalysisCore(), AcceptedExists, AcceptedSurfaceHash);
             int bytes = PreflightWithPinReport("record-sweep-attempt",
-                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length), Experiments = prospective });
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length, HasSetup), Experiments = prospective });
             experiments[idx] = updated;
             encodedEnvelopeBytes = bytes;
             return true;
@@ -2722,6 +2729,397 @@ public sealed class AuthoringSession : IDisposable
             events.Enqueue(new SessionEvent(eventSequence++, operation, outcome, durationMilliseconds, null, null, trace.Value,
                 null, null, sources.Count, accepted.Count, operation) { Sweep = fields });
         }
+    }
+    #endregion
+
+    #region Area 1 Setup & Goal State
+    // Ruling 272 (DR-SET-1..4): append-only SetupBriefVersion, GoalStateVersion, and DrcExclusion facts stored in
+    // Envelope.Setup. Writers: Seed, UpdateGoalState, RecordDrcExclusion. Derived readers: RecipeStatus, CurrentGoalSweepSnapshot.
+    readonly List<SetupBriefVersion> setupBriefs = [];
+    readonly List<GoalStateVersion> goalStates = [];
+    readonly List<DrcExclusion> drcExclusions = [];
+
+    private bool HasSetup => setupBriefs.Count > 0 || goalStates.Count > 0 || drcExclusions.Count > 0;
+
+    private SetupRecords? SetupOrNull() => HasSetup
+        ? new SetupRecords(setupBriefs.ToArray(), goalStates.ToArray(), drcExclusions.ToArray())
+        : null;
+
+    private void LoadSetup(SetupRecords? loaded)
+    {
+        setupBriefs.Clear();
+        goalStates.Clear();
+        drcExclusions.Clear();
+        if (loaded is null) return;
+        setupBriefs.AddRange(loaded.Briefs);
+        goalStates.AddRange(loaded.GoalStates);
+        drcExclusions.AddRange(loaded.DrcExclusions);
+    }
+
+    private bool DesignExists(string designId) => designs.Any(d => d.Id == designId);
+
+    /// <summary>Returns a defensive copy of the stored Area 1 Setup records, or null if none exist.</summary>
+    public SetupRecords? ReadSetup() => Run("read-setup", () =>
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            return SetupOrNull();
+        }
+    });
+
+    /// <summary>Derives starter-recipe link status strictly from accepted history and briefs (zero shadow flag, GEO-04).</summary>
+    public RecipeProvenanceStatus RecipeStatus() => Run("recipe-status", () =>
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            return SetupStore.DeriveRecipeStatus(current, accepted, setupBriefs);
+        }
+    });
+
+    /// <summary>
+    /// Seeds a new design (on an empty session) or re-seeds an existing document (appending a new accepted revision
+    /// with <c>edit.rail = "seed"</c>, preserving all prior revisions and marking earlier runs Historical via run-key
+    /// inequality, SET-03 / ANA-07). Enforces <c>SETUP-FLAGGED-UNACK</c>, <c>TipChord</c>, <c>Geometry.Assess == Certified</c>,
+    /// and atomic <c>DOC-SIZE</c> preflight before mutating session state.
+    /// </summary>
+    public SetupSeedOutcome Seed(SetupSeedRequest request, string operationId) => Run("setup.seed", () =>
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        NativeProject.Uuid(operationId);
+        var totalTimer = System.Diagnostics.Stopwatch.StartNew();
+
+        var resolution = DisciplinePresets.ResolvePurpose(request.Purpose);
+        var preset = resolution.Preset;
+        var softTargets = request.SoftTargets ?? DisciplinePresets.DefaultSoftTargets(preset);
+        SetupStore.CheckSoftTargets(softTargets);
+
+        // Enforce mandatory Flagged acknowledgement gate (SET-04, CAT-03, COPY-39).
+        var requiredFlags = DisciplinePresets.FlaggedFor(resolution);
+        IReadOnlyList<FlaggedAcknowledgement> acks;
+        if (request.AcknowledgeAllFlagged)
+        {
+            acks = requiredFlags.Select(f => new FlaggedAcknowledgement(f.FieldPath, f.Label, f.Source)).ToArray();
+        }
+        else
+        {
+            acks = request.FlaggedAcknowledgements?.ToArray() ?? [];
+            if (requiredFlags.Count > 0)
+            {
+                var ackedPaths = new HashSet<string>(acks.Select(a => a.FieldPath), StringComparer.Ordinal);
+                var missing = requiredFlags.Where(f => !ackedPaths.Contains(f.FieldPath)).ToArray();
+                if (missing.Length > 0)
+                    throw new ContractError("SETUP-FLAGGED-UNACK",
+                        $"Flagged — {missing[0].Source} · Acknowledge to continue");
+            }
+        }
+
+        // Resolve admitted GEN catalog profile and fallback disclosure (DR-SET-4).
+        var catalog = Catalog.Load();
+        string requestedProfileId = string.IsNullOrWhiteSpace(request.ProfileId) ? preset.GenFallbackProfileId : request.ProfileId.Trim();
+        var genEntry = catalog.FirstOrDefault(e => string.Equals(e.Id, requestedProfileId, StringComparison.OrdinalIgnoreCase))
+            ?? throw new ContractError("CAT-UNAVAILABLE", $"Catalog profile '{requestedProfileId}' is not available.");
+        if (genEntry.DisabledReason is not null || genEntry.Coordinates is null)
+            throw new ContractError("CAT-UNAVAILABLE", genEntry.DisabledReason ?? $"Profile '{requestedProfileId}' is unavailable.");
+
+        string? preferredId = string.Equals(requestedProfileId, preset.GenFallbackProfileId, StringComparison.OrdinalIgnoreCase)
+            ? preset.PreferredProfileId
+            : genEntry.Id;
+        string? fallbackReason = string.Equals(preferredId, genEntry.Id, StringComparison.OrdinalIgnoreCase)
+            ? null
+            : preset.FallbackReason;
+
+        double defaultK = RecipeSeeder.Kappa(preset.Taper);
+        double defaultSpan = Math.Sqrt(preset.TargetAreaSquareMeters * preset.TargetAspectRatio);
+        double defaultRoot = Math.Sqrt(preset.TargetAreaSquareMeters / preset.TargetAspectRatio) / defaultK;
+
+        var solveInput = new RecipeSolveInput(
+            SoftTargets: softTargets,
+            DefaultSpanMeters: defaultSpan,
+            DefaultRootChordMeters: defaultRoot,
+            AnhedralDeg: request.AnhedralDeg ?? preset.AnhedralDeg,
+            WashoutDeg: request.WashoutDeg ?? preset.WashoutDeg,
+            RootThicknessRatio: request.RootThicknessRatio ?? preset.RootThicknessRatio,
+            SweepQuarterChordDeg: 0.0,
+            ProfileId: genEntry.Id,
+            PreferredProfileId: preferredId,
+            FallbackReason: fallbackReason);
+
+        var solved = RecipeSeeder.Solve(solveInput);
+        byte[] foilBytes = RecipeSeeder.EmitFoilDsl(solved.Recipe, genEntry, preset.Name);
+
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            Guard.Require(draft is null && recovery is null, "DSL-DRAFT-OWNED");
+            Guard.Require(!retiredDraftIds.Contains(operationId), "DSL-DRAFT-REUSED");
+
+            var parsed = ParseOwned(foilBytes);
+            byte[] candidate = FoilSource.MaterializeIds(parsed);
+            parsed = ParseOwned(candidate);
+
+            bool isReseed = current is not null;
+            string briefId = Guid.NewGuid().ToString("D");
+            string goalId = Guid.NewGuid().ToString("D");
+            string acceptedId = Guid.NewGuid().ToString("D");
+
+            // Check TipChord minimum (Ruling 93): seeded wings must always satisfy TipChord.Meets directly.
+            var def = parsed.Definition!;
+            double emittedRoot = WingEstimates.Chord(def, 0);
+            double emittedTip = WingEstimates.Chord(def, 1);
+            if (!TipChord.Meets(emittedTip, emittedRoot))
+                throw new ContractError(TipChord.RefusalCode, TipChord.TypedRefusalReason(emittedRoot));
+
+            // Certify geometry via Geometry.Assess before any commit (DATA-E).
+            var assessTimer = System.Diagnostics.Stopwatch.StartNew();
+            var bindingKey = isReseed
+                ? new SessionBinding(parsed.SourceHash, current!, operationId, 0, Evaluator.IdFor(parsed), parsed.SurfaceHash!, "seed", briefId)
+                : new SessionBinding(parsed.SourceHash, "", "", 0, Evaluator.IdFor(parsed), parsed.SurfaceHash!, "", "");
+            var assessment = AssessOwned(parsed);
+            assessTimer.Stop();
+            RequireCertified(bindingKey, assessment);
+
+            string? parentAccepted = current;
+            string? priorDesign = current is null ? null : Current.DesignId;
+            string designId = priorDesign is not null && designs.Single(d => d.Id == priorDesign).SurfaceHash! == parsed.SurfaceHash!
+                ? priorDesign
+                : Guid.NewGuid().ToString("D");
+
+            var nextDesigns = designs.ToList();
+            var nextSources = sources.ToList();
+            if (!nextDesigns.Any(d => d.Id == designId))
+                nextDesigns.Add(new(designId, priorDesign, parsed.SurfaceHash!, Evaluator.IdFor(parsed)));
+            if (!nextSources.Any(s => s.Id == parsed.SourceHash))
+                nextSources.Add(new(parsed.SourceHash, Chunks(parsed.Source)));
+
+            EditReceipt? receipt = isReseed ? new EditReceipt(operationId, 0, "seed", briefId) : null;
+            var acceptedRow = new AcceptedRow(acceptedId, parentAccepted, parsed.SourceHash, designId, operationId, receipt);
+            var cursorRow = new CursorRow(cursors.Count, acceptedId, isReseed ? "apply" : "open", operationId);
+
+            string? parentGoalId = goalStates.Count > 0 ? goalStates[^1].GoalStateId : null;
+            var goalState = DisciplinePresets.BuildGoalState(
+                goalStateId: goalId,
+                parentGoalStateId: parentGoalId,
+                briefId: briefId,
+                resolution: resolution,
+                softTargets: softTargets,
+                riderMassKg: request.RiderMassKg,
+                water: request.Water,
+                waterProvenance: request.WaterProvenance,
+                hRefMeters: request.HRefMeters,
+                mastLengthCm: request.MastLengthCm,
+                classRulePresetId: request.ClassRulePresetId,
+                classRuleVersion: request.ClassRuleVersion);
+
+            string? parentBriefId = setupBriefs.Count > 0 ? setupBriefs[^1].BriefId : null;
+            var briefDraft = new SetupBriefVersion(
+                BriefId: briefId,
+                Parent: parentBriefId,
+                ContentHash: "",
+                EntryKind: request.EntryKind,
+                Purpose: resolution.NormalizedPurpose,
+                DisciplinePresetId: preset.Id,
+                DisciplinePresetVersion: preset.Version,
+                Text: request.Text,
+                LanguageMeta: request.LanguageMeta,
+                SoftTargets: softTargets,
+                FlaggedAcknowledgements: acks,
+                Recipe: solved.Recipe,
+                SeededGoalStateId: goalId,
+                SeededAcceptedId: acceptedId);
+            var brief = briefDraft with { ContentHash = SetupStore.BriefContentHash(briefDraft) };
+
+            var nextSetup = new SetupRecords([.. setupBriefs, brief], [.. goalStates, goalState], drcExclusions.ToArray());
+            var nextAccepted = accepted.Append(acceptedRow).ToArray();
+            SetupStore.Check(
+                nextSetup,
+                id => nextAccepted.Any(a => a.Id == id),
+                id => nextDesigns.Any(d => d.Id == id));
+
+            var prospective = new Envelope(
+                RunRecord.Format(runs.Count, experiments.Count, hasSetup: true),
+                projectId,
+                nextSources.ToArray(),
+                nextDesigns.ToArray(),
+                nextAccepted,
+                [.. cursors, cursorRow],
+                null)
+            {
+                Analysis = AnalysisCore(),
+                Experiments = ExperimentsOrNull(),
+                Setup = nextSetup
+            };
+            int bytes = PreflightWithPinReport(isReseed ? "setup.reseed" : "setup.seed", prospective);
+
+            // Commit atomically after all validations & preflight succeed.
+            designs.Clear(); designs.AddRange(nextDesigns);
+            sources.Clear(); sources.AddRange(nextSources);
+            accepted.Add(acceptedRow);
+            cursors.Add(cursorRow);
+            current = acceptedId;
+            redo.Clear();
+            setupBriefs.Add(brief);
+            goalStates.Add(goalState);
+            if (isReseed) retiredDraftIds.Add(operationId);
+            string opPayload = isReseed
+                ? "apply:" + JsonSerializer.Serialize(bindingKey)
+                : "open:" + parsed.SourceHash;
+            operations.Add(operationId, (opPayload, acceptedId));
+            encodedEnvelopeBytes = bytes;
+
+            totalTimer.Stop();
+            int ordinal = accepted.Count;
+            EnqueueSetupEvent(
+                isReseed ? "setup.reseed" : "setup.seed",
+                "OK",
+                totalTimer.Elapsed.TotalMilliseconds,
+                new SetupTelemetry
+                {
+                    EntryKind = request.EntryKind,
+                    PresetId = preset.Id,
+                    ClassRuleId = goalState.ClassRulePresetId,
+                    ClassRuleVersion = goalState.ClassRuleVersion,
+                    BriefVersion = setupBriefs.Count,
+                    GoalVersion = goalStates.Count,
+                    RevisionOrdinal = ordinal,
+                    FlaggedAcknowledgedCount = acks.Count,
+                    FallbackUsed = fallbackReason is not null,
+                    Conflict = solved.Conflict,
+                    MaxRelativeDeviation = solved.MaxRelativeDeviation,
+                    TipClampActive = solved.TipClampActive,
+                    CandidatesEvaluated = solved.CandidatesEvaluated,
+                    SolveMs = solved.SolveMs,
+                    AssessMs = assessTimer.Elapsed.TotalMilliseconds,
+                    SurfaceHash12 = parsed.SurfaceHash![..12],
+                    GoalHash12 = goalState.ContentHash[..12],
+                    OutputBytes = bytes
+                });
+
+            return new SetupSeedOutcome(acceptedId, parsed.SurfaceHash!, brief, goalState, isReseed, ordinal);
+        }
+    });
+
+    /// <summary>
+    /// Appends a new immutable <see cref="GoalStateVersion"/> (GOAL-01, GOAL-03). Never mutates prior versions and
+    /// never appends an <see cref="AcceptedRow"/> or changes geometry.
+    /// </summary>
+    public GoalStateVersion UpdateGoalState(GoalStateVersion candidate) => Run("setup.goal.update", () =>
+    {
+        ArgumentNullException.ThrowIfNull(candidate);
+        var timer = System.Diagnostics.Stopwatch.StartNew();
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            Guard.Require(current is not null, "DOC-EMPTY");
+            var prior = goalStates.Count > 0 ? goalStates[^1] : null;
+            string newId = Guid.NewGuid().ToString("D");
+            var normalized = candidate with
+            {
+                GoalStateId = newId,
+                Parent = prior?.GoalStateId,
+                BriefId = candidate.BriefId ?? prior?.BriefId,
+                ContentHash = ""
+            };
+            var finalized = normalized with { ContentHash = SetupStore.GoalContentHash(normalized) };
+            var nextSetup = new SetupRecords(setupBriefs.ToArray(), [.. goalStates, finalized], drcExclusions.ToArray());
+            SetupStore.Check(nextSetup, AcceptedExists, DesignExists);
+
+            int bytes = PreflightWithPinReport("setup.goal.update",
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, experiments.Count, hasSetup: true), Setup = nextSetup });
+
+            goalStates.Add(finalized);
+            encodedEnvelopeBytes = bytes;
+            timer.Stop();
+
+            bool depthChanged = prior is not null && prior.DepthBand != finalized.DepthBand;
+            bool waterChanged = prior is not null && prior.Water != finalized.Water;
+            EnqueueSetupEvent(
+                "setup.goal.update",
+                "OK",
+                timer.Elapsed.TotalMilliseconds,
+                new SetupTelemetry
+                {
+                    PresetId = finalized.DisciplinePresetId,
+                    ClassRuleId = finalized.ClassRulePresetId,
+                    ClassRuleVersion = finalized.ClassRuleVersion,
+                    GoalVersion = goalStates.Count,
+                    EditedConstraintCount = finalized.Constraints.Count(c => c.EditedByUser),
+                    OperatingPointCount = finalized.OperatingPoints.Count,
+                    DepthBandChanged = depthChanged,
+                    WaterChanged = waterChanged,
+                    GoalHash12 = finalized.ContentHash[..12],
+                    OutputBytes = bytes
+                });
+
+            return finalized;
+        }
+    });
+
+    /// <summary>Appends an immutable user exclusion for one located DRC finding on one DesignRevision (A5.8).</summary>
+    public DrcExclusion RecordDrcExclusion(
+        string designId,
+        string ruleId,
+        string ruleVersion,
+        string locationKey,
+        string reason,
+        string attribution = "") => Run("setup.drc.exclude", () =>
+    {
+        var timer = System.Diagnostics.Stopwatch.StartNew();
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            Guard.Require(current is not null, "DOC-EMPTY");
+            Guard.Require(!string.IsNullOrWhiteSpace(reason), "SETUP-EXCLUSION-REASON");
+            var exclusion = new DrcExclusion(
+                Guid.NewGuid().ToString("D"),
+                designId,
+                ruleId.Trim(),
+                ruleVersion.Trim(),
+                locationKey.Trim(),
+                reason.Trim(),
+                (attribution ?? "").Trim());
+            var nextSetup = new SetupRecords(setupBriefs.ToArray(), goalStates.ToArray(), [.. drcExclusions, exclusion]);
+            SetupStore.Check(nextSetup, AcceptedExists, DesignExists);
+
+            int bytes = PreflightWithPinReport("setup.drc.exclude",
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, experiments.Count, hasSetup: true), Setup = nextSetup });
+
+            drcExclusions.Add(exclusion);
+            encodedEnvelopeBytes = bytes;
+            timer.Stop();
+
+            EnqueueSetupEvent(
+                "setup.drc.exclude",
+                "OK",
+                timer.Elapsed.TotalMilliseconds,
+                new SetupTelemetry
+                {
+                    ClassRuleVersion = exclusion.RuleVersion,
+                    ExcludedCount = drcExclusions.Count,
+                    OutputBytes = bytes
+                });
+
+            return exclusion;
+        }
+    });
+
+    /// <summary>Normal-path Area 1 Setup telemetry entry (docs/design/setup-seeding.md §6, IO1–IO12). Closed session drops.</summary>
+    public void RecordSetupEvent(string operation, string outcome, double? durationMilliseconds, SetupTelemetry fields)
+    {
+        Guard.Require(operation.StartsWith("setup.", StringComparison.Ordinal) || operation == "cli.seed", "DSL-RANGE");
+        lock (sync)
+        {
+            if (closed) return;
+            EnqueueSetupEvent(operation, outcome, durationMilliseconds, fields);
+        }
+    }
+
+    private void EnqueueSetupEvent(string operation, string outcome, double? durationMilliseconds, SetupTelemetry fields)
+    {
+        if (events.Count == 256) events.Dequeue();
+        events.Enqueue(new SessionEvent(eventSequence++, operation, outcome, durationMilliseconds, null, null, trace.Value,
+            null, null, sources.Count, accepted.Count, operation) { Setup = fields });
     }
     #endregion
 }
@@ -2832,8 +3230,8 @@ public static class NativeProject
         try
         {
             using var doc = JsonDocument.Parse(bytes, new JsonDocumentOptions { MaxDepth = 32 }); var root = doc.RootElement;
-            // Staged fail-closed admission (Ruling 271 DR-SWP-1): Wave B admits ["analysis", "experiments"]; Wave C widens to include "setup".
-            Exact(root, ["format", "projectId", "sources", "designs", "accepted", "cursors", "recovery"], ["analysis", "experiments"]);
+            // Complete cfdw-project-2 optional admission (Ruling 271 DR-SWP-1 & Ruling 272 DR-SET-1): ["analysis", "setup", "experiments"].
+            Exact(root, ["format", "projectId", "sources", "designs", "accepted", "cursors", "recovery"], ["analysis", "setup", "experiments"]);
             string? format = root.GetProperty("format").GetString();
             Guard.Require(format is "cfdw-project-1" or "cfdw-project-2", "DOC-VERSION");
             int runCount = 0;
@@ -2845,6 +3243,18 @@ public static class NativeProject
                 runCount = analysisElement.GetProperty("runs").GetArrayLength();
                 Guard.Require(runCount > 0, "DOC-SCHEMA");
             }
+            bool hasSetup = root.TryGetProperty("setup", out var setupElement);
+            if (hasSetup)
+            {
+                Exact(setupElement, "briefs", "goalStates", "drcExclusions");
+                Guard.Require(setupElement.GetProperty("briefs").ValueKind == JsonValueKind.Array &&
+                              setupElement.GetProperty("goalStates").ValueKind == JsonValueKind.Array &&
+                              setupElement.GetProperty("drcExclusions").ValueKind == JsonValueKind.Array, "DOC-SCHEMA");
+                int setupCount = setupElement.GetProperty("briefs").GetArrayLength()
+                    + setupElement.GetProperty("goalStates").GetArrayLength()
+                    + setupElement.GetProperty("drcExclusions").GetArrayLength();
+                Guard.Require(setupCount > 0, "DOC-SCHEMA");
+            }
             int experimentCount = 0;
             if (root.TryGetProperty("experiments", out var experimentsElement))
             {
@@ -2852,7 +3262,7 @@ public static class NativeProject
                 experimentCount = experimentsElement.GetArrayLength();
                 Guard.Require(experimentCount > 0, "DOC-SCHEMA");
             }
-            Guard.Require(format == RunRecord.Format(runCount, experimentCount), "DOC-SCHEMA");
+            Guard.Require(format == RunRecord.Format(runCount, experimentCount, hasSetup), "DOC-SCHEMA");
             foreach (var s in root.GetProperty("sources").EnumerateArray()) Exact(s, "id", "utf8Base64Chunks");
             foreach (var d in root.GetProperty("designs").EnumerateArray()) Exact(d, "id", "parent", "surfaceHash", "evaluator");
             foreach (var a in root.GetProperty("accepted").EnumerateArray())
@@ -2885,7 +3295,7 @@ public static class NativeProject
     // Delete's and rebuild's vertex is read off the profile before the operation runs (and
     // rebuild may then renumber every id, per FoilSource.RebuildProfile.NextVertexIds), so
     // only the parent is guaranteed to hold it. Fair renumbers neither, so both must.
-    static bool EditReference(Definition child, Definition parent, EditReceipt edit) => edit.Rail switch
+    static bool EditReference(Definition child, Definition parent, EditReceipt edit, Func<string, bool>? setupBriefExists = null) => edit.Rail switch
     {
         "leading" or "trailing" or "dihedral" or "twist" or "thickness" or "upper" or "lower" => edit.Curve is null && edit.Rule is null && EditTarget(child, edit.Rail, edit.VertexId) && EditTarget(parent, edit.Rail, edit.VertexId),
         "insert" => edit.Curve is null && edit.Rule is null && ProfileHas(child, edit.VertexId),
@@ -2916,6 +3326,8 @@ public static class NativeProject
         // A section receipt names the profile at Finish (§3.3): the parent has it, or the child newly assigns it (Make unique, Import).
         "section" => edit.Curve is null && edit.Rule is null && ProfileNamed(child, edit.VertexId) &&
             (ProfileNamed(parent, edit.VertexId) || child.Assignments.Any(item => child.Profiles[item.Profile].Name == edit.VertexId)),
+        // Area 1 Setup re-seed receipt (SET-03, Ruling 272): vertexId names the immutable SetupBriefVersion that seeded the revision.
+        "seed" => edit.Curve is null && edit.Rule is null && setupBriefExists is not null && setupBriefExists(edit.VertexId),
         _ => false
     };
     static bool ProfileNamed(Definition definition, string name) => definition.Profiles.Any(profile => profile.Name == name);
@@ -2954,7 +3366,8 @@ public static class NativeProject
                 Guard.Require(a.Edit is not null, "DOC-REFERENCE"); Uuid(a.Edit!.DraftId);
                 Guard.Require(a.Edit.Generation is >= 0 and <= 9007199254740991, "DOC-REFERENCE");
                 var parent = accepted[a.Parent]; bool same = parsed[a.SourceId].SurfaceHash! == parsed[parent.SourceId].SurfaceHash!;
-                Guard.Require(EditReference(parsed[a.SourceId].Definition!, parsed[parent.SourceId].Definition!, a.Edit), "DOC-REFERENCE");
+                Func<string, bool>? briefExists = e.Setup?.Briefs is null ? null : id => e.Setup.Briefs.Any(b => b.BriefId == id);
+                Guard.Require(EditReference(parsed[a.SourceId].Definition!, parsed[parent.SourceId].Definition!, a.Edit, briefExists), "DOC-REFERENCE");
                 Guard.Require(same ? a.DesignId == parent.DesignId : designs[a.DesignId].Parent == parent.DesignId, "DOC-REFERENCE");
             }
             else Guard.Require(a.Edit is null, "DOC-REFERENCE");
@@ -2970,6 +3383,10 @@ public static class NativeProject
         if (e.Experiments is not null)
         {
             SweepRecords.Check(e.Experiments, e.Analysis, accepted.ContainsKey, id => accepted.TryGetValue(id, out var row) ? designs[row.DesignId].SurfaceHash : null);
+        }
+        if (e.Setup is not null)
+        {
+            SetupStore.Check(e.Setup, accepted.ContainsKey, designs.ContainsKey);
         }
         if (e.Recovery is not null)
         {
