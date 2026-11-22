@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-22T18:41:58Z",
+  "generated": "2026-11-22T19:36:42Z",
   "audit": [
     {
       "actor": null,
@@ -44871,6 +44871,36 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-22T18:34:32Z",
       "duration_seconds": 446.0
+    },
+    {
+      "id": "al-01M82C5H09TXQK2Q0QGG7GB47B",
+      "shortname": "join-w7-ana-at",
+      "datetime": "2026-11-22T19:36:42Z",
+      "session": "agy-w7-coord",
+      "prompt": "the join of swarm-w7-analysis-uia-3ee11dbe into main",
+      "summary": "Joined W7-ANA-AT (fe415053): F-18 Analysis (omit inert Overlay label while preserving Ruling 108 Labels.OverlayMenu), F-28/F-29/F-36/F-37/F-38/F-40/F-41 Analysis polish + Imperial kn/ft units, Wave 6 live ActualThemeVariantChanged + >=11px ticks on PerformanceCurveChart and PlanformPreviewControl, UI-CS-TOKEN static guard (68 files, 274 keys, 0 findings), real Windows UIAutomationCore.dll MTA COM tree probe across 9 surfaces (--uia-probe PASS), expanded --theme-matrix (302 frozen + 87 THEME-EXT-ROW + 3 200% modals), §13 Post-Wave-7 Addendum in ui-as-built-workbench.{md,html}, and 4 controlled defect classes (UI-CS-TOKEN, UI-HOVER-INVERT, UI-ENV-ONLY-A11Y, UI-DETACHED-DUP); 8 mutants killed, Adversary PASS (#21). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-as-built-workbench.md",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land Wave 7C W7-ANA-AT onto main",
+      "done_when": "W7-ANA-AT merged via conductor-join.py with TESTS-GREEN, xaml-token-lint, check-event-subscribers, check-docs, and 10/10 verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-22T19:29:28Z",
+      "duration_seconds": 434.0
     }
   ],
   "changes": [
