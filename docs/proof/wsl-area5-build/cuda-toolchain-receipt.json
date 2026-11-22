@@ -1,0 +1,191 @@
+{
+  "apt_indices_gpgv": {
+    "developer.download.nvidia.com_compute_cuda_repos_ubuntu2404_sbsa_InRelease": {
+      "valid_signatures": [
+        "EB693B3035CD5710E231E123A4B469963BF863CC"
+      ],
+      "verified": true
+    },
+    "ports.ubuntu.com_ubuntu-ports_dists_noble-security_InRelease": {
+      "valid_signatures": [
+        "F6ECB3762474EDA9D21B7022871920D1991BC93C"
+      ],
+      "verified": true
+    },
+    "ports.ubuntu.com_ubuntu-ports_dists_noble-updates_InRelease": {
+      "valid_signatures": [
+        "F6ECB3762474EDA9D21B7022871920D1991BC93C"
+      ],
+      "verified": true
+    },
+    "ports.ubuntu.com_ubuntu-ports_dists_noble_InRelease": {
+      "valid_signatures": [
+        "F6ECB3762474EDA9D21B7022871920D1991BC93C"
+      ],
+      "verified": true
+    }
+  },
+  "apt_simulation": {
+    "apt_install_seconds": 1497,
+    "forbidden_linux_nvidia_driver_count": 0,
+    "installed_package_count": 184,
+    "removed_package_count": 0
+  },
+  "compilers": {
+    "gcc_13": "gcc-13 (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+    "mpicc_showme": "gcc -I/usr/lib/aarch64-linux-gnu/openmpi/include -I/usr/lib/aarch64-linux-gnu/openmpi/include/openmpi -L/usr/lib/aarch64-linux-gnu/openmpi/lib -lmpi",
+    "mpicxx_showme": "g++ -I/usr/lib/aarch64-linux-gnu/openmpi/include -I/usr/lib/aarch64-linux-gnu/openmpi/include/openmpi -L/usr/lib/aarch64-linux-gnu/openmpi/lib -lmpi_cxx -lmpi",
+    "mpif90_showme": "gfortran -I/usr/lib/aarch64-linux-gnu/openmpi/lib/../../fortran/gfortran-mod-15/openmpi -I/usr/lib/aarch64-linux-gnu/openmpi/lib -L/usr/lib/aarch64-linux-gnu/openmpi/lib/fortran/gfortran -lmpi_usempif08 -lmpi_usempi_ignore_tkr -lmpi_mpifh -lmpi -lopen-rte -lopen-pal -lhwloc -levent_core -levent_pthreads -lm -lz",
+    "ompi_wrapper_override": "OMPI_CC=gcc-13 OMPI_CXX=g++-13 OMPI_FC=gfortran-13 (required because unversioned gfortran meta-package is not installed)"
+  },
+  "distro_install_path": "D:\\wsl\\cfdw-openfoam2512-arm64",
+  "distro_name": "cfdw-openfoam2512-arm64",
+  "distro_post_state": "Stopped (WSL2, retained for openfoam-resume)",
+  "environment": {
+    "architecture": "arm64",
+    "df_root_post_cuda_apt": [
+      "Filesystem      Size  Used Avail Use% Mounted on",
+      "/dev/sdd       1007G   12G  945G   2% /"
+    ],
+    "df_root_post_petsc": [
+      "Filesystem      Size  Used Avail Use% Mounted on",
+      "/dev/sdd       1007G   13G  944G   2% /"
+    ],
+    "gpu_csv": [
+      "name, driver_version, compute_cap, memory.total [MiB]",
+      "NVIDIA RTX Spark N1X (6144-core Blackwell RTX GPU), 617.42, 12.1, 64000 MiB"
+    ],
+    "uname_m": "aarch64",
+    "uname_r": "6.18.58.1-microsoft-standard-WSL2"
+  },
+  "host_ubuntu_24_04_post_state": "Stopped (WSL2, untouched)",
+  "host_ubuntu_24_04_pre_state": "Stopped (WSL2, untouched)",
+  "installed_roots": [
+    {
+      "architecture": "all",
+      "installed_size_kib": 330,
+      "package": "ca-certificates",
+      "version": "20260816ubuntu0.24.04.2"
+    },
+    {
+      "architecture": "arm64",
+      "installed_size_kib": 13,
+      "package": "cuda-toolkit-13-2",
+      "version": "13.2.2-1"
+    },
+    {
+      "architecture": "arm64",
+      "installed_size_kib": 556,
+      "package": "curl",
+      "version": "8.5.0-2ubuntu10.16"
+    },
+    {
+      "architecture": "arm64",
+      "installed_size_kib": 29,
+      "package": "g++-13",
+      "version": "13.3.0-6ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "installed_size_kib": 542,
+      "package": "gcc-13",
+      "version": "13.3.0-6ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "installed_size_kib": 26,
+      "package": "gfortran-13",
+      "version": "13.3.0-6ubuntu2~24.04.1"
+    },
+    {
+      "architecture": "arm64",
+      "installed_size_kib": 21796,
+      "package": "git",
+      "version": "1:2.43.0-1ubuntu7.4"
+    },
+    {
+      "architecture": "arm64",
+      "installed_size_kib": 1026,
+      "package": "libblas-dev",
+      "version": "3.12.0-3build1.1"
+    },
+    {
+      "architecture": "arm64",
+      "installed_size_kib": 22600,
+      "package": "liblapack-dev",
+      "version": "3.12.0-3build1.1"
+    },
+    {
+      "architecture": "arm64",
+      "installed_size_kib": 9114,
+      "package": "libopenmpi-dev",
+      "version": "4.1.6-7ubuntu2"
+    },
+    {
+      "architecture": "arm64",
+      "installed_size_kib": 412,
+      "package": "make",
+      "version": "4.3-4.1build2"
+    },
+    {
+      "architecture": "arm64",
+      "installed_size_kib": 885,
+      "package": "openmpi-bin",
+      "version": "4.1.6-7ubuntu2"
+    },
+    {
+      "architecture": "arm64",
+      "installed_size_kib": 29,
+      "package": "pkg-config",
+      "version": "1.8.1-2build1"
+    },
+    {
+      "architecture": "arm64",
+      "installed_size_kib": 81,
+      "package": "python3",
+      "version": "3.12.3-0ubuntu2.1"
+    },
+    {
+      "architecture": "arm64",
+      "installed_size_kib": 166,
+      "package": "time",
+      "version": "1.9-0.2build1"
+    }
+  ],
+  "nvcc": {
+    "blackwell_compute_121_native": true,
+    "selected_cuda_arch": "121",
+    "supported_gpu_arches": [
+      "compute_75",
+      "compute_80",
+      "compute_86",
+      "compute_87",
+      "compute_88",
+      "compute_89",
+      "compute_90",
+      "compute_100",
+      "compute_110",
+      "compute_103",
+      "compute_120",
+      "compute_121"
+    ],
+    "version_lines": [
+      "nvcc: NVIDIA (R) Cuda compiler driver",
+      "Copyright (c) 2005-2026 NVIDIA Corporation",
+      "Built on Fri_May_08_10:52:52_AM_PDT_2026",
+      "Cuda compilation tools, release 13.2, V13.2.86",
+      "Build cuda_13.2.r13.2/compiler.37953736_0"
+    ]
+  },
+  "result": "PASS",
+  "rootfs_verification": {
+    "bytes": 341873503,
+    "file": "ubuntu-noble-wsl-arm64-wsl.rootfs.tar.gz",
+    "sha256": "fecec1d9b7b750c12c109edb49c13c1006f4a2efabb9b8bf341f11c4c9f2ef11",
+    "sha256sums_gpg_keyring": "/usr/share/keyrings/ubuntu-cloudimage-keyring.gpg",
+    "sha256sums_gpg_signer": "UEC Image Automatic Signing Key <cdimage@ubuntu.com>",
+    "sha256sums_gpg_validsig": "D2EB44626FDDC30B513D5BB71A5D6C4C7DB87C81",
+    "sha256sums_match": true
+  },
+  "schema": "cfdw-wsl-cuda-toolchain/1"
+}

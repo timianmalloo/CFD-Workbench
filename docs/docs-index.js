@@ -12602,7 +12602,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1fc3486ea2d63df98be014bf62f8d3ec4b113a7b1e28a494b58d4d6405754160"
+      "sourceSha256": "d6566b9b053a9d11c6bea058c713ca72c7a75cab11d43d1067f1d369be3be1dc"
     },
     {
       "id": "coordination-windows-gpu-f1-design",
@@ -22341,6 +22341,54 @@ window.DOCS_INDEX = {
       "sourceSha256": "0f467f7bc88b89226d506fdabc484f3a6d98665a998389f94655141760e5df79"
     },
     {
+      "id": "proof-wsl-area5-build",
+      "path": "docs/proof/wsl-area5-build/README.md",
+      "title": "Area 5 WSL2 arm64 build & qualification: CUDA 13.2 + PETSc-CUDA sm_121 PASS; OpenFOAM 2512 BLOCKED (net.proxy-tls)",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@w6-wsl-build",
+      "phase": "qualification",
+      "reviewBy": "2027-02-20",
+      "reviewSuggested": [],
+      "summary": "Dedicated arm64 WSL2 distro cfdw-openfoam2512-arm64 imported with host Ubuntu-24.04 untouched (Stopped pre/post). CUDA 13.2.2-1 (nvcc 13.2.86, native Blackwell compute_121) + GCC 13.3.0 / OpenMPI 4.1.6 / BLAS / LAPACK + PETSc 3.26.0 (--with-cuda=1 --with-cuda-arch=121, zero --download-*) PASS make check 4/4 and verify 100% GPU flops + identical error norms on 160k-DOF and 1M-DOF CG+Jacobi solves (12.5x clean wall reduction on 1M-DOF synthetic Laplacian). OpenFOAM v2512 apt install, M1 cavity smoke, and petsc4Foam Allwmake are honestly recorded as BLOCKED (net.proxy-tls) because dl.openfoam.com 302-redirects to sourceforge.net which Cisco Umbrella intercepts (146.112.61.104, untrusted root); petsc4Foam commit cb1badc4978306e7001a4654dcdf53f284a92365 is staged and tools/wsl-build-openfoam-cuda.sh --mode openfoam-resume completes the remaining stages on an unfiltered network.",
+      "tags": [
+        "wsl",
+        "arm64",
+        "cuda",
+        "blackwell",
+        "sm121",
+        "petsc",
+        "openfoam",
+        "petsc4foam",
+        "net-proxy-tls",
+        "area5"
+      ],
+      "links": [
+        {
+          "to": "coordination-wave6-and-area5-wsl",
+          "rel": "implements"
+        },
+        {
+          "to": "proof-wsl-preflight",
+          "rel": "refines"
+        },
+        {
+          "to": "design-guided-solver-setup",
+          "rel": "relates-to"
+        },
+        {
+          "to": "plan-windows-gpu-f1-r211",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a36849e2d1ce7aac1b90a0affb45a29928f634c95adbd542ab52c261ec999e87"
+    },
+    {
       "id": "proof-wsl-preflight",
       "path": "docs/proof/wsl-preflight/README.md",
       "title": "WSL dependency preflight: Ruling 217's question answered by one bash script in the existing distro",
@@ -25266,6 +25314,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-rail-comb"
     },
     {
+      "id": "surface-proof-wsl-area5-build-readme",
+      "path": "docs/proof/wsl-area5-build/README.html",
+      "title": "Readme",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "proof-wsl-area5-build"
+    },
+    {
       "id": "surface-mockups-section-force-vectors",
       "path": "docs/mockups/section-force-vectors.html",
       "title": "Section force vectors",
@@ -25362,5 +25418,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "45438d40cb5ac23db8c71c8b876e3180e0179c4cb14e63eb0d299045334692e2"
+  "graphSha256": "a9b8379ae5e96d60106c533dc14a6a4c6acdd293b4ee8d1f1de0c1a7632fbaa0"
 };

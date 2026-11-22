@@ -1,0 +1,32 @@
+{
+  "architecture": "arm64",
+  "download_bytes": "not recorded",
+  "download_files": "not recorded",
+  "downloaded": "not performed",
+  "downloaded_bytes": "not performed",
+  "exit_code": 1,
+  "failure_cause_code": "net.proxy-tls",
+  "gpu": "NVIDIA RTX Spark N1X (6144-core Blackwell RTX GPU), 617.42",
+  "indices": "not recorded",
+  "keyrings_sha256": {
+    "cuda-archive-keyring.gpg": "25100d6f2eccaee7d6719a70e3c0c6145064aa9edc2c32148f693ac4c524a376",
+    "openfoam-archive-keyring.gpg": "6d17d37b82fc840b8a5c767545703df7264cfa3e30f9cf74556ebb124bda1a93",
+    "ubuntu-archive-keyring.gpg": "80a36b0a6de2f69f49d2df75ef473ccde121e9e190b9ea01d20a4f63778d5c31"
+  },
+  "last_step": "update",
+  "resolved": "not recorded",
+  "resolved_count": 0,
+  "result": "FAIL",
+  "roots": "not recorded",
+  "schema": "cfdw-wsl-preflight/1",
+  "seconds": 11,
+  "sources": [
+    "deb [arch=arm64 signed-by=/root/cfdw-receipts/pf-work/keyrings/ubuntu-archive-keyring.gpg] http://ports.ubuntu.com/ubuntu-ports noble main universe",
+    "deb [arch=arm64 signed-by=/root/cfdw-receipts/pf-work/keyrings/ubuntu-archive-keyring.gpg] http://ports.ubuntu.com/ubuntu-ports noble-updates main universe",
+    "deb [arch=arm64 signed-by=/root/cfdw-receipts/pf-work/keyrings/ubuntu-archive-keyring.gpg] http://ports.ubuntu.com/ubuntu-ports noble-security main universe",
+    "deb [arch=arm64 signed-by=/root/cfdw-receipts/pf-work/keyrings/openfoam-archive-keyring.gpg] https://dl.openfoam.com/repos/deb noble main",
+    "deb [arch=arm64 signed-by=/root/cfdw-receipts/pf-work/keyrings/cuda-archive-keyring.gpg] https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/ /"
+  ],
+  "started_utc": "2026-11-22T03:14:00Z",
+  "uname_m": "aarch64"
+}

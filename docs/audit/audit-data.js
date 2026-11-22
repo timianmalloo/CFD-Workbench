@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-22T03:00:46Z",
+  "generated": "2026-11-22T03:52:55Z",
   "audit": [
     {
       "actor": null,
@@ -44351,6 +44351,51 @@ window.AUDIT_DATA = {
       "fan_out": 1,
       "started_at": "2026-11-22T02:42:21Z",
       "duration_seconds": 1105.0
+    },
+    {
+      "id": "al-01M80P5CQ2CQZHFQH4KWVZ94RH",
+      "shortname": "a5-wsl-cuda-petsc-qual",
+      "datetime": "2026-11-22T03:52:55Z",
+      "session": "w6-wsl-build",
+      "prompt": "Track A5-WSL (docs/coordination/wave6-and-area5-wsl.md) executed under Option B ruling (#50) after dl.openfoam.com -> sourceforge.net hit Cisco Umbrella net.proxy-tls.",
+      "summary": "Imported cfdw-openfoam2512-arm64 (SHA256SUMS + gpgv VALIDSIG D2EB4462...); host Ubuntu-24.04 Stopped pre/post. Captured verified net.proxy-tls blocker (dl.openfoam.com 302 -> sourceforge.net 146.112.61.104 Cisco Umbrella untrusted root). Installed signed CUDA 13.2.2-1 (nvcc 13.2.86, native compute_121) + GCC 13.3.0 / OpenMPI 4.1.6 / BLAS / LAPACK (184 pkgs, 0 removals, 0 Linux GPU driver). Built PETSc 3.26.0 --with-cuda=1 --with-cuda-arch=121 (zero --download-*, 78s config / 96s build), passed make check 4/4 (incl. ex19 CUDA with -use_gpu_aware_mpi 0), verified 100% GPU flops + identical norms on 160k-DOF and 1M-DOF CG+Jacobi solves (2.98s GPU vs 37.27s CPU wall on 1M-DOF ex2), staged petsc4Foam commit cb1badc4978306e7001a4654dcdf53f284a92365, committed tools/wsl-build-openfoam-cuda.sh + docs/proof/wsl-area5-build/{README.md,README.html,*.json}.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": "w6-wsl-build",
+      "artifacts": [
+        "tools/wsl-build-openfoam-cuda.sh",
+        "docs/proof/wsl-area5-build/README.md",
+        "docs/proof/wsl-area5-build/README.html",
+        "docs/proof/wsl-area5-build/preflight-receipt.json",
+        "docs/proof/wsl-area5-build/net-proxy-tls-receipt.json",
+        "docs/proof/wsl-area5-build/cuda-toolchain-receipt.json",
+        "docs/proof/wsl-area5-build/petsc-cuda-qualification.json"
+      ],
+      "tags": [
+        "wave6",
+        "area5",
+        "wsl",
+        "arm64",
+        "cuda",
+        "sm121",
+        "petsc",
+        "net-proxy-tls"
+      ],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Provision dedicated arm64 WSL2 distro cfdw-openfoam2512-arm64 (host Ubuntu-24.04 untouched), qualify CUDA 13.2 + PETSc 3.26.0 --with-cuda=1 (Blackwell sm_121) + OpenFOAM v2512 + petsc4Foam, and commit reproducible script + scrubbed proof pack.",
+      "done_when": "Host Ubuntu-24.04 verified Stopped pre/post; signed CUDA 13.2 + toolchain + PETSc-CUDA sm_121 make check & GPU KSP smoke PASS; petsc4Foam pinned commit staged; OpenFOAM v2512 net.proxy-tls blocker documented honestly without bypass; tools/wsl-build-openfoam-cuda.sh supports openfoam-resume; PII and docs gates green.",
+      "tier": "T2",
+      "fan_out": 1,
+      "started_at": "2026-11-22T03:04:02Z",
+      "duration_seconds": 2933.0,
+      "git": {
+        "sha": "20d98143d7cf7432d970df49c499590e6b4b6d7c",
+        "short": "20d98143d",
+        "branch": "swarm-w6-wsl-build-6c7bb919",
+        "pushed": null
+      }
     }
   ],
   "changes": [
