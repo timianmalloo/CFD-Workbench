@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-22T05:47:23Z",
+  "generated": "2026-11-22T06:11:09Z",
   "audit": [
     {
       "actor": null,
@@ -44600,6 +44600,33 @@ window.AUDIT_DATA = {
         "branch": "swarm-w6-sweeps-build-4300bfbb",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M80Y2GQR7TZ3WB50QHM3CYH6",
+      "shortname": "join-w6-swp-build",
+      "datetime": "2026-11-22T06:11:09Z",
+      "session": "agy-w6-coord",
+      "prompt": "the join of swarm-w6-sweeps-build-4300bfbb into main",
+      "summary": "Joined SWP-BUILD (355106d3, SWP-1..5): Core SweepRecord + GoalStateSweepSnapshot seam + retention/Archive, Analysis SweepSchedule/Service/Projection + Cm + OperatingPoint.Load, CLI sweep preview/run/inspect parity, Desktop Sweeps workspace + charts/table twins/gaps, DESIGN.md COPY-706..727, swp-old-build proof; T1..T18 PASS, Adversary PASS (#70). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land Area 4 Local-Tier Sweeps and Performance Curves onto main",
+      "done_when": "SWP-BUILD merged via conductor-join.py with TESTS-GREEN, xaml-token-lint, check-event-subscribers, check-docs, and 10/10 verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-22T06:03:43Z",
+      "duration_seconds": 446.0
     }
   ],
   "changes": [
