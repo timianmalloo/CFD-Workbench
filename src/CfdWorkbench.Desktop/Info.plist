@@ -8,5 +8,6 @@
   <key>CFBundleShortVersionString</key><string>0.1.0</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleExecutable</key><string>CfdWorkbench.Desktop</string>
+  <key>CFBundleIconFile</key><string>app-icon</string>
   <key>NSHighResolutionCapable</key><true/>
 </dict></plist>

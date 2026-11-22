@@ -25,6 +25,7 @@ public sealed partial class MainWindow : Window
     private bool closeApproved;
     private bool closed;
     private readonly string baseTitle;
+    private readonly string? reviewTitleSuffix;
     private readonly Border readOnlyNotice;
 
     /// <summary>
@@ -57,11 +58,23 @@ public sealed partial class MainWindow : Window
         shellHost.Children.Add(notice);
     }
 
-    /// <summary>The title suffix (DS-COPY-1) and the notice row follow the document's origin; both go when a Save As makes it local.</summary>
+    /// <summary>Window title (F-22 filename + dirty dot + DS-COPY-1 read-only suffix) and notice row follow the open document.</summary>
     private void RefreshReadOnlyChrome()
     {
         bool readOnly = workbench.Origin == DocumentOrigin.OneDriveReadOnly;
-        string title = readOnly ? baseTitle + " " + Labels.ReadOnlyTitleSuffix : baseTitle;
+        string title;
+        if (workbench.Inspection is null)
+        {
+            title = baseTitle;
+        }
+        else
+        {
+            string fileName = ShellHost.DocumentDisplayName(workbench) ?? "Untitled foil";
+            string dirty = workbench.IsDirty ? " •" : "";
+            title = $"{fileName}{dirty} — CFD Workbench";
+            if (reviewTitleSuffix is not null) title += reviewTitleSuffix;
+            if (readOnly) title += " " + Labels.ReadOnlyTitleSuffix;
+        }
         if (Title != title) Title = title;
         readOnlyNotice.IsVisible = readOnly;
     }
@@ -79,11 +92,13 @@ public sealed partial class MainWindow : Window
         workbench = controller ?? new WorkbenchController();
         bool mac = macOS ?? OperatingSystem.IsMacOS();
         AvaloniaXamlLoader.Load(this);
+        Icon = App.AppIcon;
         if (review is not null)
         {
             Width = review.Width;
             Height = review.Height;
-            Title += $" · REVIEW {review.Persona} / {review.State} / {review.Theme} / {(review.ReducedMotion ? "reduced motion" : "motion default")}";
+            reviewTitleSuffix = $" · REVIEW {review.Persona} / {review.State} / {review.Theme} / {(review.ReducedMotion ? "reduced motion" : "motion default")}";
+            Title += reviewTitleSuffix;
             RequestedThemeVariant = review.Theme switch
             {
                 "dark" => ThemeVariant.Dark,
@@ -130,12 +145,14 @@ public sealed partial class MainWindow : Window
             path => _ = shellHost.OpenFileAsync(path), () => _ = shellHost.ClearRecentAsync());
         _ = shellHost.LoadRecentAsync();
         workbench.Changed += OnWorkbenchChanged;
+        workbench.SelectionChanged += OnWorkbenchChanged;
         Closing += OnClosing;
         Closed += (_, _) =>
         {
             closed = true;
             if (platformSettings is not null) platformSettings.ColorValuesChanged -= OnPlatformColorsChanged;
             workbench.Changed -= OnWorkbenchChanged;
+            workbench.SelectionChanged -= OnWorkbenchChanged;
             workbench.Dispose();
         };
         Opened += async (_, _) =>
@@ -177,10 +194,12 @@ public sealed partial class MainWindow : Window
             case "file.open": await shellHost.OpenFileInteractiveAsync(); break;
             case "file.save": await Guarded(SaveWithPickerAsync); break;
             case "file.save-as": await Guarded(() => SaveWithPickerCoreAsync(forcePicker: true)); break;
-            case "file.close": Close(); break;
+            case "file.close": await shellHost.CloseFoilAsync(); break;
+            case "file.close-window": Close(); break;
             case "view.toggle-left": shellHost.ToggleLeftSidebar(); break;
             case "view.toggle-bottom": shellHost.ToggleBottomPanel(); break;
             case "view.toggle-right": shellHost.ToggleRightSidebar(); break;
+            case "window.reset-layout": shellHost.ResetLayout(); break;
             case "view.analysis": workbench.ToggleAnalysis(); break;
             case "view.palette": shellHost.OpenPalette(); break;
             case "edit.undo": shellHost.RouteEditVerb("undo", FocusManager?.GetFocusedElement()); break;
@@ -229,6 +248,7 @@ public sealed partial class MainWindow : Window
 
     private async Task SaveWithPickerCoreAsync(bool forcePicker)
     {
+        if (workbench.Inspection is null) return;
         string? destination = forcePicker ? null : workbench.NativePath;
         if (destination is not null && OperatingSystem.IsWindows())
         {
@@ -345,22 +365,34 @@ public sealed partial class MainWindow : Window
     private async Task<string> UnsavedDialogAsync()
     {
         if (ConfirmUnsavedOverride is not null) return await ConfirmUnsavedOverride();
-        var dialog = new Window { Title = "Unsaved foil changes", Width = 420, Height = 190, WindowStartupLocation = WindowStartupLocation.CenterOwner,
-            CanResize = false, RequestedThemeVariant = ActualThemeVariant };
-        var result = "Cancel";
-        var buttons = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 8, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right };
-        Button? cancelButton = null;
-        foreach (string choice in new[] { "Save", "Discard", "Cancel" })
+        var dialog = new Window
         {
-            var button = new Button { Content = choice, IsCancel = choice == "Cancel", IsDefault = choice == "Cancel" };
-            if (choice == "Cancel") cancelButton = button;
+            Title = "Unsaved foil changes",
+            Width = 420,
+            SizeToContent = SizeToContent.Height,
+            MaxHeight = DialogChrome.BoundedMaxHeight(this),
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            CanResize = false,
+            RequestedThemeVariant = ActualThemeVariant,
+            Icon = App.AppIcon
+        };
+        var result = "Cancel";
+        var save = new Button { Content = "Save" };
+        var discard = new Button { Content = "Discard" };
+        var cancel = new Button { Content = "Cancel", IsCancel = true, IsDefault = true };
+        foreach (var (button, choice) in new[] { (save, "Save"), (discard, "Discard"), (cancel, "Cancel") })
+        {
             AutomationProperties.SetName(button, choice + " unsaved changes");
             button.Click += (_, _) => { result = choice; dialog.Close(); };
-            buttons.Children.Add(button);
         }
-        dialog.Content = new StackPanel { Margin = new Thickness(20), Spacing = 18,
-            Children = { new TextBlock { Text = "Save this foil before closing or opening another file?", TextWrapping = Avalonia.Media.TextWrapping.Wrap }, buttons } };
-        dialog.Opened += (_, _) => cancelButton?.Focus();
+        var footer = DialogChrome.ButtonRow(OperatingSystem.IsMacOS(), cancel, save, discard);
+        var body = new TextBlock { Text = "Save this foil before closing or opening another file?", TextWrapping = Avalonia.Media.TextWrapping.Wrap };
+        dialog.Content = DialogChrome.BuildScrollableLayout(body, footer);
+        dialog.Opened += (_, _) =>
+        {
+            dialog.MaxHeight = DialogChrome.BoundedMaxHeight(this);
+            cancel.Focus();
+        };
         if (OsAccessibility.IsReducedMotion())
             dialog.LayoutUpdated += (_, _) => SuppressTransitions(dialog);
         await dialog.ShowDialog(this);
@@ -419,21 +451,85 @@ public sealed class FolderRefusalDialog : Window
     {
         bool cloud = location == FolderLocation.Cloud;
         Title = cloud ? CloudTitle : CheckFailedTitle;
-        Width = 440; Height = 210; CanResize = false; WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        Width = 440;
+        SizeToContent = SizeToContent.Height;
+        MaxHeight = DialogChrome.BoundedMaxHeight(null);
+        CanResize = false;
+        WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        Icon = App.AppIcon;
         var choose = new Button { Content = ChooseAnother, IsDefault = true };
         var cancel = new Button { Content = CancelLabel, IsCancel = true };
         AutomationProperties.SetName(choose, ChooseAnother);
         AutomationProperties.SetName(cancel, CancelLabel);
         choose.Click += (_, _) => { ChooseAnotherFolder = true; Close(); };
         cancel.Click += (_, _) => Close();
-        var buttons = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 8,
-            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right, Children = { choose, cancel } };
-        Content = new StackPanel { Margin = new Thickness(20), Spacing = 18, Children =
+        var footer = DialogChrome.ButtonRow(OperatingSystem.IsMacOS(), cancel, choose);
+        var body = new TextBlock { Text = cloud ? CloudBody : CheckFailedBody(code), TextWrapping = Avalonia.Media.TextWrapping.Wrap };
+        Content = DialogChrome.BuildScrollableLayout(body, footer);
+        Opened += (_, _) =>
         {
-            new TextBlock { Text = cloud ? CloudBody : CheckFailedBody(code), TextWrapping = Avalonia.Media.TextWrapping.Wrap },
-            buttons
-        } };
-        Opened += (_, _) => choose.Focus();
+            MaxHeight = DialogChrome.BoundedMaxHeight(Owner as Window);
+            choose.Focus();
+        };
+    }
+}
+
+/// <summary>Shared WCAG 1.4.4 200%-scaling dialog chrome (bounded MaxHeight, scrollable body, sticky footer, OS button order) for F-23/F-35/F-36.</summary>
+internal static class DialogChrome
+{
+    public static double BoundedMaxHeight(Window? owner)
+    {
+        double hostHeight = owner is { Bounds.Height: > 0 } ? owner.Bounds.Height : 700;
+        return Math.Max(280, Math.Min(620, hostHeight - 40));
+    }
+
+    public static Thickness DialogPadding() =>
+        Application.Current?.TryFindResource("DialogPadding", out var value) == true && value is Thickness t ? t : new Thickness(16);
+
+    public static double DialogSpacing() =>
+        Application.Current?.TryFindResource("DialogSpacing", out var value) == true && value is double d ? d : 12;
+
+    public static StackPanel ButtonRow(bool macOS, Button cancel, params Button[] actions)
+    {
+        var row = new StackPanel
+        {
+            Orientation = Avalonia.Layout.Orientation.Horizontal,
+            Spacing = 8,
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right
+        };
+        if (macOS)
+        {
+            row.Children.Add(cancel);
+            for (int i = actions.Length - 1; i >= 0; i--) row.Children.Add(actions[i]);
+        }
+        else
+        {
+            foreach (var action in actions) row.Children.Add(action);
+            row.Children.Add(cancel);
+        }
+        return row;
+    }
+
+    public static Grid BuildScrollableLayout(Control body, Control footer)
+    {
+        double spacing = DialogSpacing();
+        var scroller = new ScrollViewer
+        {
+            VerticalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto,
+            HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled,
+            Content = body
+        };
+        footer.Margin = new Thickness(0, spacing, 0, 0);
+        var root = new Grid
+        {
+            Margin = DialogPadding(),
+            RowDefinitions = new RowDefinitions("*,Auto")
+        };
+        Grid.SetRow(scroller, 0);
+        Grid.SetRow(footer, 1);
+        root.Children.Add(scroller);
+        root.Children.Add(footer);
+        return root;
     }
 }
 
@@ -492,9 +588,18 @@ public sealed class SaveBlockedDialog : Window
     public SaveBlockedDialog(Func<Task<ClearResult>>? clear = null)
     {
         this.clear = clear;
-        Width = 480; Height = 360; CanResize = false; WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        Width = 480;
+        SizeToContent = SizeToContent.Height;
+        MaxHeight = DialogChrome.BoundedMaxHeight(null);
+        CanResize = false;
+        WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        Icon = App.AppIcon;
         ShowBlocked(focusClear: false);
-        Opened += (_, _) => pendingFocus?.Focus();
+        Opened += (_, _) =>
+        {
+            MaxHeight = DialogChrome.BoundedMaxHeight(Owner as Window);
+            pendingFocus?.Focus();
+        };
         Closing += (_, e) => { if (busy) e.Cancel = true; };
     }
 
@@ -511,19 +616,17 @@ public sealed class SaveBlockedDialog : Window
         return button;
     }
 
-    private static StackPanel Row(params Button[] buttons)
-    {
-        var row = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 8, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right };
-        foreach (var button in buttons) row.Children.Add(button);
-        return row;
-    }
+    private static StackPanel Row(Button cancel, params Button[] actions) =>
+        DialogChrome.ButtonRow(OperatingSystem.IsMacOS(), cancel, actions);
 
     private static TextBlock Wrapped(string text) => new() { Text = text, TextWrapping = Avalonia.Media.TextWrapping.Wrap };
 
     /// <summary>Swaps the content; focus goes to <paramref name="focus"/> now when the dialog is open, else when it opens.</summary>
-    private void Present(string title, Control content, Control focus)
+    private void Present(string title, Control body, Control footer, Control focus)
     {
-        Title = title; Content = content; pendingFocus = focus;
+        Title = title;
+        Content = DialogChrome.BuildScrollableLayout(body, footer);
+        pendingFocus = focus;
         if (!IsVisible) return;
         UpdateLayout();
         focus.Focus();
@@ -535,32 +638,33 @@ public sealed class SaveBlockedDialog : Window
         var cancel = MakeButton(CancelLabel, isCancel: true);
         saveAs.Click += (_, _) => { SaveAs = true; Close(); };
         cancel.Click += (_, _) => Close();
-        var buttons = new List<Button> { saveAs };
+        var actions = new List<Button> { saveAs };
         Button? clearButton = null;
         if (clear is not null)
         {
             clearButton = MakeButton(ClearLabel);
             clearButton.Click += (_, _) => ShowConfirm();
-            buttons.Add(clearButton);
+            actions.Add(clearButton);
         }
-        buttons.Add(cancel);
         var steps = new StackPanel { Spacing = 4, Margin = new Thickness(12, 0, 0, 0) };
         AutomationProperties.SetName(steps, "Steps");
         for (int i = 0; i < Steps.Length; i++) steps.Children.Add(Wrapped($"{i + 1}. {Steps[i]}"));
-        Present(TitleText, new StackPanel { Margin = new Thickness(20), Spacing = 12, Children = { Wrapped(Lead), steps, Wrapped(StaysBlocked), Row(buttons.ToArray()) } },
+        var body = new StackPanel { Spacing = DialogChrome.DialogSpacing(), Children = { Wrapped(Lead), steps, Wrapped(StaysBlocked) } };
+        Present(TitleText, body, Row(cancel, actions.ToArray()),
             focusClear && clearButton is not null ? clearButton : saveAs);
     }
 
     /// <summary>A heading that can hold focus while the dialog is busy (U1), the message, and the buttons.</summary>
-    private void ShowStep(string message, bool isBusy, params Button[] buttons)
+    private void ShowStep(string message, bool isBusy, Button action, Button cancel)
     {
         var heading = new TextBlock { Text = ConfirmTitle, Focusable = true, FontWeight = Avalonia.Media.FontWeight.SemiBold, TextWrapping = Avalonia.Media.TextWrapping.Wrap };
         AutomationProperties.SetName(heading, ConfirmTitle);
         var text = Wrapped(message);
         if (message != ConfirmBody) AutomationProperties.SetLiveSetting(text, AutomationLiveSetting.Assertive); // an alert, not a silent swap
-        Control focus = isBusy ? heading : buttons.Last(button => button.IsCancel);
+        Control focus = isBusy ? heading : cancel;
         busy = isBusy;
-        Present(ConfirmTitle, new StackPanel { Margin = new Thickness(20), Spacing = 12, Children = { heading, text, Row(buttons) } }, focus);
+        var body = new StackPanel { Spacing = DialogChrome.DialogSpacing(), Children = { heading, text } };
+        Present(ConfirmTitle, body, Row(cancel, action), focus);
     }
 
     private void ShowConfirm()

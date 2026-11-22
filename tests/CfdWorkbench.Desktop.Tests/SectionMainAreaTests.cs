@@ -42,7 +42,7 @@ public static class SectionMainAreaTests
                 var (_, host, window) = shared.Value;
                 string[] ids = host.LayoutFactory.MainDocumentDock.VisibleDockables!.Select(d => d.Id).ToArray();
                 Equal("model,section,foil-source", string.Join(",", ids), "the main-area documents");
-                Equal("Plan,Section,Foil source", string.Join(",", host.LayoutFactory.MainDocumentDock.VisibleDockables!.Select(d => d.Title)), "the tab titles");
+                Equal("example.foil,Section,Foil source", string.Join(",", host.LayoutFactory.MainDocumentDock.VisibleDockables!.Select(d => d.Title)), "the tab titles (F-22 loaded filename + COPY-404 Section)");
                 Equal(true, host.LayoutFactory.FindDockable("section-sample") is null, "no Section sample document");
                 Equal(true, host.ModelView.FindControl<Control>("SectionViewport") is null && host.ModelView.FindControl<Control>("SectionReadout") is null,
                     "the Section sample controls are gone from the model area");

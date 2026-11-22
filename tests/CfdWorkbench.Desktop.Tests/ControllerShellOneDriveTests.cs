@@ -249,7 +249,7 @@ public static class ControllerShellOneDriveTests
             Await(window.SaveToAsync(local));
             Need(File.Exists(local) && controller.NativePath == local, "Save As did not write the local copy");
             Need(controller.Origin == DocumentOrigin.Local, "the origin stayed " + controller.Origin);
-            Pump(() => !Notice(window).IsVisible && window.Title == "CFD Workbench — Offline Foil", "the notice or the title suffix stayed after Save As: " + window.Title);
+            Pump(() => !Notice(window).IsVisible && window.Title == "copy.cfdw.json — CFD Workbench", "the notice or the title suffix stayed after Save As: " + window.Title);
             Need(Snapshot(folder) == before, "the OneDrive file changed");
         }, folder);
     }

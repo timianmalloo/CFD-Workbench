@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.LogicalTree;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CfdWorkbench.Core;
@@ -58,10 +59,13 @@ public static class SaveBlockedDialogTests
     }
 
     private static void Await(Task task) { Pump(() => task.IsCompleted, "task did not complete"); task.GetAwaiter().GetResult(); }
-    private static StackPanel Panel(Window dialog) => (StackPanel)dialog.Content!;
-    private static Button[] Buttons(Window dialog) => Panel(dialog).Children.OfType<StackPanel>().Last().Children.OfType<Button>().ToArray();
+    private static Button[] Buttons(Window dialog) => dialog.GetLogicalDescendants().OfType<Button>().ToArray();
     private static string[] Labels(Window dialog) => Buttons(dialog).Select(button => (string)button.Content!).ToArray();
-    private static string[] Texts(Window dialog) => Panel(dialog).Children.OfType<TextBlock>().Select(text => text.Text ?? "").ToArray();
+    private static string[] Ordered(params string[] windowsOrder) =>
+        OperatingSystem.IsMacOS() ? [windowsOrder[^1], ..windowsOrder[..^1].Reverse()] : windowsOrder;
+    private static string[] Texts(Window dialog) => dialog.GetLogicalDescendants().OfType<TextBlock>()
+        .Where(tb => tb.FindLogicalAncestorOfType<Button>() is null)
+        .Select(text => text.Text ?? "").ToArray();
     private static Button Find(Window dialog, string label) => Buttons(dialog).Single(button => (string?)button.Content == label);
     private static void Click(Button button) { button.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent)); Dispatcher.UIThread.RunJobs(); }
     private static object? Focused(Window dialog) => dialog.FocusManager?.GetFocusedElement();
@@ -73,12 +77,12 @@ public static class SaveBlockedDialogTests
         try
         {
             Need(dialog.Title == "Save is blocked", $"title '{dialog.Title}'");
-            Need(Labels(dialog).SequenceEqual(["Save As…", "Clear unfinished save…", "Cancel"]), "S3 buttons: " + string.Join(" | ", Labels(dialog)));
+            Need(Labels(dialog).SequenceEqual(Ordered("Save As…", "Clear unfinished save…", "Cancel")), "S3 buttons: " + string.Join(" | ", Labels(dialog)));
             Need(Find(dialog, "Save As…").IsDefault && Focused(dialog) == Find(dialog, "Save As…"), "Save As… is not the default with first focus on S3");
             Click(Find(dialog, "Clear unfinished save…"));
             Need(dialog.Title == "Clear the unfinished save?", $"S4 title '{dialog.Title}'");
             Need(Texts(dialog).Contains(ConfirmBody), "S4 body: " + string.Join(" | ", Texts(dialog)));
-            Need(Labels(dialog).SequenceEqual(["Clear unfinished save", "Cancel"]), "S4 buttons: " + string.Join(" | ", Labels(dialog)));
+            Need(Labels(dialog).SequenceEqual(Ordered("Clear unfinished save", "Cancel")), "S4 buttons: " + string.Join(" | ", Labels(dialog)));
             var confirm = Find(dialog, "Clear unfinished save"); var cancel = Find(dialog, "Cancel");
             Need(cancel.IsDefault && !confirm.IsDefault && cancel.IsCancel, "Enter must act on Cancel in S4");
             Need(Focused(dialog) == cancel, "first focus in S4 is not Cancel");
@@ -92,11 +96,12 @@ public static class SaveBlockedDialogTests
         var dialog = Shown(() => Task.FromResult(Cleared));
         try
         {
-            string[] steps = Panel(dialog).Children.OfType<StackPanel>().First().Children.OfType<TextBlock>().Select(text => text.Text ?? "").ToArray();
+            var texts = Texts(dialog);
+            string[] steps = texts.Where(t => t.StartsWith("1. ", StringComparison.Ordinal) || t.StartsWith("2. ", StringComparison.Ordinal) || t.StartsWith("3. ", StringComparison.Ordinal)).ToArray();
             Need(steps.SequenceEqual(["1. Close any other CFD Workbench window using this project.", "2. Check the project shows your last saved work.",
                 "3. Use Save As to keep your current work in a different folder, or choose Clear unfinished save, then Save."]), "steps: " + string.Join(" | ", steps));
-            Need(Texts(dialog).Contains("This folder stays blocked until the unfinished save is cleared."), "stays-blocked sentence: " + string.Join(" | ", Texts(dialog)));
-            Need(Texts(dialog)[0] == "An earlier save of this project didn't finish (the app may have closed unexpectedly). Your saved file is unchanged.", "lead");
+            Need(texts.Contains("This folder stays blocked until the unfinished save is cleared."), "stays-blocked sentence: " + string.Join(" | ", texts));
+            Need(texts[0] == "An earlier save of this project didn't finish (the app may have closed unexpectedly). Your saved file is unchanged.", "lead");
         }
         finally { dialog.Close(); }
     }
@@ -110,7 +115,7 @@ public static class SaveBlockedDialogTests
             Click(Find(dialog, "Clear unfinished save…")); Click(Find(dialog, "Clear unfinished save"));
             Pump(() => Labels(dialog).Contains("Try again"), "the in-use state did not appear");
             Need(Texts(dialog).Contains(InUseText), "COPY-449: " + string.Join(" | ", Texts(dialog)));
-            Need(Labels(dialog).SequenceEqual(["Try again", "Cancel"]), "A4 buttons: " + string.Join(" | ", Labels(dialog)));
+            Need(Labels(dialog).SequenceEqual(Ordered("Try again", "Cancel")), "A4 buttons: " + string.Join(" | ", Labels(dialog)));
             Need(dialog.IsVisible && !dialog.Cleared, "in use was shown as success");
             Click(Find(dialog, "Try again"));
             Pump(() => dialog.Cleared, "Try again did not clear");
@@ -127,7 +132,7 @@ public static class SaveBlockedDialogTests
             Click(Find(dialog, "Clear unfinished save…")); Click(Find(dialog, "Clear unfinished save"));
             Pump(() => Labels(dialog).Contains("Try again"), "the failed state did not appear");
             Need(Texts(dialog).Contains("Couldn't clear the unfinished save (DOC-CONFLICT). Your saved file and your current work are unchanged."), "COPY-455: " + string.Join(" | ", Texts(dialog)));
-            Need(Labels(dialog).SequenceEqual(["Try again", "Cancel"]) && !dialog.Cleared, "A5 buttons: " + string.Join(" | ", Labels(dialog)));
+            Need(Labels(dialog).SequenceEqual(Ordered("Try again", "Cancel")) && !dialog.Cleared, "A5 buttons: " + string.Join(" | ", Labels(dialog)));
         }
         finally { dialog.Close(); }
     }
@@ -193,7 +198,7 @@ public static class SaveBlockedDialogTests
                 if (state != "confirm") { Click(Find(dialog, "Clear unfinished save")); Pump(() => Labels(dialog).Contains("Try again"), state + " did not appear"); }
                 if (escape) PressEscape(dialog); else Click(Find(dialog, "Cancel"));
                 Need(dialog.IsVisible && dialog.Title == "Save is blocked", $"{state}: {(escape ? "Escape" : "Cancel")} did not return to S3 (title '{dialog.Title}')");
-                Need(Labels(dialog).SequenceEqual(["Save As…", "Clear unfinished save…", "Cancel"]), $"{state}: S3 buttons " + string.Join(" | ", Labels(dialog)));
+                Need(Labels(dialog).SequenceEqual(Ordered("Save As…", "Clear unfinished save…", "Cancel")), $"{state}: S3 buttons " + string.Join(" | ", Labels(dialog)));
                 Need(Focused(dialog) == Find(dialog, "Clear unfinished save…"), $"{state}: focus did not return to Clear unfinished save…");
             }
             finally { dialog.Close(); }

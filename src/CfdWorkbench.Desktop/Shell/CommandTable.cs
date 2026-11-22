@@ -83,7 +83,8 @@ public static class CommandTable
         new("file.save", "Save", "File", "⌘S", false, NoOp),
         new("file.save-as", "Save As…", "File", "⇧⌘S", false, NoOp),
         new("file.export", ExportCopy.ExportMenu, "File", "⇧⌘E", false, NoOp, Modal: true),
-        new("file.close", "Close", "File", "⌘W", false, NoOp),
+        new("file.close", "Close foil", "File", "⌘W", false, NoOp),
+        new("file.close-window", "Close window", "File", "⇧⌘W", false, NoOp),
 
         // Edit
         new("edit.undo", "Undo", "Edit", "⌘Z", true, NoOp),
@@ -183,8 +184,7 @@ public static class CommandTable
         new("window.workspace-review", "Review", "Window", "⌘3", false, NoOp),
         new("window.points", "Points", "Window", null, false, NoOp),
         new("window.layers", "Layers", "Window", null, false, NoOp),
-        new("window.reset-layout", "Reset layout", "Window", "⌥⌘R", false, NoOp),
-        new("window.maximize-pane", "Maximize pane", "Window", "⇧⌘M", false, NoOp)
+        new("window.reset-layout", "Reset layout", "Window", "⌥⌘R", false, NoOp)
     ];
 
     public static IReadOnlyList<CommandRow> Rows => DefaultRows;
