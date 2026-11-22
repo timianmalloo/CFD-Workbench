@@ -50,13 +50,17 @@ public static class Cli
         AnalysisHost? analysis = null)
     {
         if (args.Length >= 1 && args[0] == "export") return await ExportVerb.RunAsync(args, output, cancellation);
+        if (args.Length >= 1 && args[0] == "sweep") return await SweepVerb.RunSweepAsync(args, output, analysis, cancellation);
         if (args.Length == 4 && args[0] == "analyse" && args[2] == "--op") return await AnalyseAsync(args[1], args[3], output, analysis, cancellation);
         if (args.Length == 3 && args[0] == "inspect" && args[2] == "--runs") return await InspectRunsAsync(args[1], output, cancellation);
+        if (args.Length == 3 && args[0] == "inspect" && args[2] == "--sweeps") return await SweepVerb.InspectSweepsAsync(args[1], output, analysis, cancellation);
         if (args.Length != 3 || args[0] != "inspect" || args[2] != "--json")
         {
             await output.WriteLineAsync("Usage: cfd-workbench inspect <example|path.foil|path.cfdw.json> --json");
             await output.WriteLineAsync("       cfd-workbench inspect <path.cfdw.json> --runs");
+            await output.WriteLineAsync("       cfd-workbench inspect <path.cfdw.json> --sweeps");
             await output.WriteLineAsync("       cfd-workbench analyse <example|path.foil|path.cfdw.json> --op <json>");
+            await output.WriteLineAsync("       cfd-workbench sweep preview|run <example|path.foil|path.cfdw.json> --grid <json> [--out <path.cfdw.json>]");
             await output.WriteLineAsync("       cfd-workbench export <example|path.foil|path.cfdw.json> --format dat|stl|3mf --out <path> [options]");
             await output.WriteLineAsync("         (a wrong export command prints every option and exit code)");
             return 2;
@@ -173,7 +177,7 @@ public static class Cli
         catch (UnauthorizedAccessException) { await output.WriteLineAsync("{\"code\":\"DOC-IO\"}"); return 5; }
     }
 
-    private static Task WriteAsync(TextWriter output, object value) => output.WriteLineAsync(JsonSerializer.Serialize(value, Json));
+    internal static Task WriteAsync(TextWriter output, object value) => output.WriteLineAsync(JsonSerializer.Serialize(value, Json));
 
     /// <summary>
     /// <c>analyse &lt;example|path.foil|path.cfdw.json&gt; --op &lt;json&gt;</c>: one evaluation of the accepted revision through
@@ -285,7 +289,7 @@ public static class Cli
     }
 
     // The accepted revision of a native document, the Example or a .foil (the inspect path's three inputs).
-    private static async Task<AuthoringSession> OpenAsync(string input, CancellationToken cancellation)
+    internal static async Task<AuthoringSession> OpenAsync(string input, CancellationToken cancellation)
     {
         var session = new AuthoringSession();
         try
