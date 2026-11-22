@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-22T04:04:26Z",
+  "generated": "2026-11-22T04:17:23Z",
   "audit": [
     {
       "actor": null,
@@ -44391,6 +44391,33 @@ window.AUDIT_DATA = {
         "branch": "swarm-w6-ui-hardening-bf192dad",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M80QJ629RT1PQP4F702FD6NR",
+      "shortname": "join-w6-ui-p0",
+      "datetime": "2026-11-22T04:17:23Z",
+      "session": "agy-w6-coord",
+      "prompt": "the join of swarm-w6-ui-hardening-bf192dad into main",
+      "summary": "Joined UI-P0 (6f7f98db): all 15 Desktop UI Blockers + F-15/17/30/31 fixed red-first, 18 new tests, theme-matrix 302+36 rows PASS, Adversary PASS (#59). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land Wave 6 UI-P0 blocker hardening onto main",
+      "done_when": "UI-P0 merged via conductor-join.py with TESTS-GREEN, xaml-token-lint, check-event-subscribers, check-docs, and 10/10 verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-22T04:10:06Z",
+      "duration_seconds": 437.0
     }
   ],
   "changes": [
@@ -48224,6 +48251,60 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M7V0S8KD6MMJGRFYV4AD33BJ",
       "session": "w5-owner"
+    },
+    {
+      "id": "mail-01M80KD0ZTB3PXRTMBTCA3H7GS",
+      "ts": "2026-11-22T03:04:39Z",
+      "from": "agy-w6-coord",
+      "to": "w6-owner",
+      "kind": "decision-request",
+      "ref": "req-01M80KD0Z8SC5S8V5K83W9Q9DP",
+      "session": "agy-w6-coord"
+    },
+    {
+      "id": "mail-01M80KD186C317BTCA2DH3NYH0",
+      "ts": "2026-11-22T03:04:39Z",
+      "from": "agy-w6-coord",
+      "to": "w6-owner",
+      "kind": "decision-request",
+      "ref": "req-01M80KD17PE3HPTEGXTK2694BE",
+      "session": "agy-w6-coord"
+    },
+    {
+      "id": "mail-01M80KD1GEPQFD8ZJYEPV4FAXX",
+      "ts": "2026-11-22T03:04:40Z",
+      "from": "agy-w6-coord",
+      "to": "w6-owner",
+      "kind": "decision-request",
+      "ref": "req-01M80KD1FWKVMX5QZWH6CDFT18",
+      "session": "agy-w6-coord"
+    },
+    {
+      "id": "mail-01M80KJM33XE58577N4GPM9K1D",
+      "ts": "2026-11-22T03:07:43Z",
+      "from": "w6-owner",
+      "to": "agy-w6-coord",
+      "kind": "ruling",
+      "ref": "req-01M80KD0Z8SC5S8V5K83W9Q9DP",
+      "session": "w6-owner"
+    },
+    {
+      "id": "mail-01M80KJMD75R845FPJ8GBRNB9T",
+      "ts": "2026-11-22T03:07:43Z",
+      "from": "w6-owner",
+      "to": "agy-w6-coord",
+      "kind": "ruling",
+      "ref": "req-01M80KD17PE3HPTEGXTK2694BE",
+      "session": "w6-owner"
+    },
+    {
+      "id": "mail-01M80KJMP062TN27R3W65SZDS4",
+      "ts": "2026-11-22T03:07:43Z",
+      "from": "w6-owner",
+      "to": "agy-w6-coord",
+      "kind": "ruling",
+      "ref": "req-01M80KD1FWKVMX5QZWH6CDFT18",
+      "session": "w6-owner"
     }
   ]
 };
