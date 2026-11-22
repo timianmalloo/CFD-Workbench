@@ -117,9 +117,9 @@ public static class CompareProjection
         Add("Envelope", run => run.Settings.Envelope + (context.EnvelopeVerdict?.Invoke(run) is { } verdict ? " · " + verdict : ""));
         Add("Settings", run => run.SettingsHash[..12]);
         Add("Lattice", run => run.Tier == WingEstimator.TierId ? "none" : run.Settings.NSpanPerHalf + " × " + run.Settings.NChord);
-        Add("Speed", run => Num(run.Op.Speed, "0.###") + " m/s");
+        Add("Speed", run => Num(Labels.Speed(run.Op.Speed, context.Units), "0.###") + " " + Labels.SpeedUnit(context.Units));
         Add("α", run => Num(run.Op.AlphaDeg, "0.##") + "°");
-        Add("Depth h_ref", run => run.Op.HRef is { } h ? Num(h, "0.###") + " m" : "not set");
+        Add("Depth h_ref", run => run.Op.HRef is { } h ? Num(Labels.Depth(h, context.Units), "0.###") + " " + Labels.DepthUnit(context.Units) : "not set");
         Add("Datum", run => run.Op.Datum);
         Add("Water", run => Num(run.Water.TemperatureC, "0.##") + " °C · " + Num(run.Water.SalinityGPerKg, "0.###") + " g/kg");
         Add("ρ", run => Num(run.Water.Rho, "0.###") + " kg/m³");

@@ -618,6 +618,191 @@ public static class ShellWindowTests
                 throw new InvalidOperationException($"{rowFailures.Count} theme rows failed: " + string.Join(" | ", rowFailures));
         });
         UiP0HardeningTests.RunThemeMatrixExtension();
+        RunWave7ThemeMatrixExtension();
+    }
+
+    // Wave 7C expanded theme matrix: emits THEME-EXT-ROW (NEVER alters frozen THEME-ROW verified by verify-application-adapters.py).
+    // Covers ComparePane, FindAlphaDialog, AnalysisPanel, Sweeps, Setup, and 200% modal non-clipping across Light, Dark, and High Contrast.
+    private static void RunWave7ThemeMatrixExtension()
+    {
+        DesktopChecks.Check("ThemeMatrix_Wave7Extended_CompareFindAlphaAnalysisSweepsSetupAnd200PctModals", () =>
+        {
+            var failures = new List<string>();
+            int extRows = 0;
+            int modals200Checked = 0;
+
+            void MeasureExt(string theme, string row, Color foreground, Color background, double floor)
+            {
+                double ratio = Contrast(foreground, background);
+                extRows++;
+                Console.WriteLine(FormattableString.Invariant(
+                    $"THEME-EXT-ROW {theme}/{row} fg=#{foreground.ToUInt32():X8} bg=#{background.ToUInt32():X8} ratio={ratio:F4} floor={floor}"));
+                if (ratio < floor)
+                    failures.Add($"{theme}/{row} {foreground} on {background} = {ratio:F2} < {floor}");
+            }
+
+            void ExtText(string theme, string row, Control target, Window? owner = null)
+            {
+                try
+                {
+                    if (owner is not null)
+                    {
+                        target.BringIntoView();
+                        Settle(owner);
+                        if (target.FindAncestorOfType<ScrollViewer>() is { } sv)
+                        {
+                            var top = target.TranslatePoint(default, sv);
+                            if (top is { } p && p.Y + target.Bounds.Height > sv.Viewport.Height)
+                            {
+                                sv.Offset = new Vector(sv.Offset.X, sv.Offset.Y + (p.Y + target.Bounds.Height - sv.Viewport.Height) + 8);
+                                Settle(owner);
+                            }
+                        }
+                    }
+                    var text = TextVisual(target);
+                    MeasureExt(theme, row, Solid(PropertyBrush(text, "Foreground"), row + " ink"), Backing(text), 4.5);
+                }
+                catch (Exception ex) { failures.Add($"{theme}/{row}: {ex.Message}"); }
+            }
+
+            void ExtTextBox(string theme, string row, TextBox box)
+            {
+                try
+                {
+                    var presenter = box.GetVisualDescendants().OfType<Avalonia.Controls.Presenters.TextPresenter>().Single();
+                    var border = box.GetVisualDescendants().OfType<Border>().Single(item => item.Name == "PART_BorderElement");
+                    MeasureExt(theme, row, Solid(presenter.Foreground, row + " ink"), Backdrop(box, border, row + " backdrop"), 4.5);
+                }
+                catch (Exception ex) { failures.Add($"{theme}/{row}: {ex.Message}"); }
+            }
+
+            foreach (var (theme, variant) in new[] { ("light", ThemeVariant.Light), ("dark", ThemeVariant.Dark), ("high-contrast", NativeReviewThemes.HighContrast) })
+            {
+                var method = new CfdWorkbench.Analysis.ProductWingMethod(
+                    CfdWorkbench.Analysis.Settings.Default with { NSpanPerHalf = 4, NChord = 1, SectionEtas = null, SectionXs = null });
+                using var controller = new WorkbenchController(analysisMethod: method);
+                DesktopChecks.PumpToCompletion(controller.OpenExampleAsync(), "open example ext", TimeSpan.FromSeconds(15));
+                controller.ToggleAnalysis();
+                var evalTask = controller.EvaluateAnalysisAsync(
+                    CfdWorkbench.Analysis.OperatingPoints.Custom(5.14, 2, 0.6), controller.AnalysisWater);
+                DesktopChecks.PumpToCompletion(evalTask, "evaluate ext", TimeSpan.FromSeconds(45));
+                DesktopChecks.PumpToCompletion(controller.CompareWithEstimatorAsync(), "compare estimator ext", TimeSpan.FromSeconds(30));
+
+                var host = new ShellHost(controller);
+                var window = new Window { Content = host, Width = 1024, Height = 700, RequestedThemeVariant = variant };
+                try
+                {
+                    window.Show();
+                    host.RefreshPanes();
+                    Settle(window);
+
+                    // 1. AnalysisPanel (Loads + Loading table twin)
+                    host.AnalysisPanel.PanelTabs.SelectedItem = host.AnalysisPanel.FindControl<TabItem>("LoadsTab");
+                    Settle(window);
+                    var loadsTable = host.AnalysisPanel.GetVisualDescendants().OfType<StackPanel>().First(s => s.Name == "loads-table");
+                    ExtText(theme, "analysis.loads.head", loadsTable.Children.OfType<TextBlock>().First());
+                    ExtText(theme, "analysis.loads.cell", loadsTable.Children.OfType<Grid>().First().Children.OfType<TextBlock>().First());
+
+                    host.AnalysisPanel.PanelTabs.SelectedItem = host.AnalysisPanel.FindControl<TabItem>("LoadingTab");
+                    host.AnalysisPanel.LoadingView.TwinToggle.IsChecked = true;
+                    Settle(window);
+                    var loadingTable = host.AnalysisPanel.LoadingView.GetVisualDescendants().OfType<StackPanel>().First(s => s.Name == "loading-table");
+                    ExtText(theme, "analysis.loading.twin.cell", loadingTable.Children.OfType<Grid>().First().Children.OfType<TextBlock>().First());
+
+                    // 2. ComparePane (headline, headers, CL cell, footnote)
+                    host.AnalysisPanel.PanelTabs.SelectedItem = host.AnalysisPanel.CompareTab;
+                    host.AnalysisPanel.ComparePaneView.Bind(controller);
+                    Settle(window);
+                    var cmp = host.AnalysisPanel.ComparePaneView;
+                    ExtText(theme, "compare.headline", cmp.FindControl<TextBlock>("HeadlineText")!, window);
+                    ExtText(theme, "compare.inputs.head", cmp.InputsTable.Children.OfType<Grid>().First().Children.OfType<TextBlock>().First(), window);
+                    ExtText(theme, "compare.outputs.head", cmp.OutputsTable.Children.OfType<Grid>().First().Children.OfType<TextBlock>().First(), window);
+                    ExtText(theme, "compare.outputs.cl", cmp.OutputsTable.Children.OfType<Grid>().Skip(1).First().Children.OfType<TextBlock>().ElementAt(1), window);
+                    ExtText(theme, "compare.footnote", cmp.FindControl<TextBlock>("FootnoteText")!, window);
+
+                    // 3. FindAlphaDialog (speed banner, inputs, Find & Cancel buttons)
+                    var find = new CfdWorkbench.Desktop.Analysis.FindAlphaDialog(controller, 5.14, _ => { }, controller.AnalysisUnits)
+                    {
+                        RequestedThemeVariant = variant
+                    };
+                    try
+                    {
+                        find.Show(window);
+                        Settle(find);
+                        ExtText(theme, "findalpha.speed", find.GetVisualDescendants().OfType<TextBlock>().First(t => t.Name == "FindSpeedBanner"));
+                        ExtTextBox(theme, "findalpha.target", find.TargetInput);
+                        ExtText(theme, "findalpha.find", find.FindButton);
+                        ExtText(theme, "findalpha.cancel", find.CancelButton);
+                    }
+                    finally { find.Close(); Settle(window); }
+
+                    // 4. Setup surface (RecipeStatusChip, LanguageCardTitle, OpenInCadButton)
+                    controller.EnterSetup();
+                    host.RefreshPanes();
+                    Settle(window);
+                    var setupView = host.ModelView.SetupView;
+                    ExtText(theme, "setup.status.chip", setupView.FindControl<TextBlock>("RecipeStatusChip")!);
+                    ExtText(theme, "setup.language.title", setupView.FindControl<TextBlock>("LanguageCardTitle")!);
+                    ExtText(theme, "setup.open-cad", setupView.FindControl<Button>("OpenInCadButton")!);
+
+                    // 5. Sweeps surface (header label, ExperimentSetup controls, Queue button)
+                    controller.EnterSweeps();
+                    host.RefreshPanes();
+                    Settle(window);
+                    var sweepsView = host.ModelView.SweepsView;
+                    var sweepHeaderLabel = sweepsView.GetVisualDescendants().OfType<TextBlock>()
+                        .First(t => t.Text == "Sweep:");
+                    ExtText(theme, "sweeps.header.label", sweepHeaderLabel);
+                    var newSweepBtn = sweepsView.ExperimentSetup.FindControl<Button>("NewSweepButton")
+                        ?? sweepsView.ExperimentSetup.GetVisualDescendants().OfType<Button>().First(b => b.IsEffectivelyVisible && b.IsEnabled);
+                    ExtText(theme, "sweeps.setup.action", newSweepBtn, window);
+
+                    // 6. 200% text-scale modal non-clipping at 1024x700 (FindAlphaDialog, ExportDialog, FolderRefusalDialog)
+                    if (variant == ThemeVariant.Light)
+                    {
+                        void CheckModal200(string name, Window dlg)
+                        {
+                            try
+                            {
+                                dlg.FontSize = 28;
+                                dlg.RequestedThemeVariant = variant;
+                                dlg.Show(window);
+                                Settle(dlg);
+                                bool bounded = !double.IsInfinity(dlg.MaxHeight) && dlg.MaxHeight <= 700 && dlg.Bounds.Height <= 700.5;
+                                var scroller = dlg.GetVisualDescendants().OfType<ScrollViewer>()
+                                    .FirstOrDefault(s => s.VerticalScrollBarVisibility == ScrollBarVisibility.Auto);
+                                var footerButtons = dlg.GetVisualDescendants().OfType<Button>()
+                                    .Where(b => b.IsEffectivelyVisible && (scroller is null || !scroller.IsVisualAncestorOf(b)))
+                                    .ToArray();
+                                bool buttonsOk = footerButtons.Length > 0 && footerButtons.All(b =>
+                                {
+                                    var o = b.TranslatePoint(default, dlg);
+                                    return o is { } p && p.Y >= -0.5 && p.Y + b.Bounds.Height <= dlg.Bounds.Height + 0.5 && b.Bounds.Height >= 24;
+                                });
+                                modals200Checked++;
+                                Console.WriteLine(FormattableString.Invariant(
+                                    $"THEME-EXT-MODAL {name} scale=200% height={dlg.Bounds.Height:F1} maxHeight={dlg.MaxHeight:F1} scroller={(scroller is not null)} footerButtons={footerButtons.Length} ok={(bounded && scroller is not null && buttonsOk)}"));
+                                if (!bounded || scroller is null || !buttonsOk)
+                                    failures.Add($"200% modal {name} clipped or missing scroller/sticky footer (h={dlg.Bounds.Height:F1}, max={dlg.MaxHeight:F1})");
+                            }
+                            finally { dlg.Close(); Settle(window); }
+                        }
+
+                        CheckModal200("FindAlphaDialog", new CfdWorkbench.Desktop.Analysis.FindAlphaDialog(controller, 5.14, _ => { }));
+                        CheckModal200("ExportDialog", new ExportDialog(new CfdWorkbench.Analysis.Export.ExportSession(controller.ExportSnapshot()!)));
+                        CheckModal200("FolderRefusalDialog", new FolderRefusalDialog(FolderLocation.Cloud));
+                    }
+                }
+                finally
+                {
+                    window.Close();
+                }
+            }
+
+            Console.WriteLine($"THEME-EXT-CHECK rows={extRows} variants=3 modals200={modals200Checked}");
+            if (failures.Count > 0)
+                throw new InvalidOperationException($"{failures.Count} extended theme rows failed: " + string.Join(" | ", failures));
+        });
     }
 
     public static void Run()

@@ -2,6 +2,7 @@ using System.Globalization;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Styling;
 using CfdWorkbench.Analysis;
 using CfdWorkbench.Core;
 using static CfdWorkbench.Desktop.LoadLayerText;
@@ -14,7 +15,7 @@ public static class PlanLoadLayer
     public sealed record Strip(double Y, double Low, double High, double Gamma, bool Outside, bool DashedOutline);
     public sealed record Scene(IReadOnlyList<Strip> Strips, int OutsideCount, string? CountText);
 
-    private static IBrush[]? ramp;
+    private static readonly Dictionary<ThemeVariant, IBrush[]> ramps = new();
 
     public static Scene Build(LayerData? layer)
     {
@@ -42,7 +43,9 @@ public static class PlanLoadLayer
     {
         var scene = Build(layer);
         if (scene.Strips.Count == 0) return;
-        var colors = ramp ??= MakeRamp(resourceScope);
+        var theme = resourceScope.ActualThemeVariant;
+        if (!ramps.TryGetValue(theme, out var colors))
+            ramps[theme] = colors = MakeRamp(resourceScope);
         double max = scene.Strips.Max(s => Math.Abs(s.Gamma));
         foreach (var strip in scene.Strips)
         {
@@ -64,11 +67,11 @@ public static class PlanLoadLayer
         var curve = scene.Strips.Select(s => map.ToScreen(s.Y, At(plan.Leading.Samples, Math.Abs(s.Y)))
             - new Vector(0, 10 + (max > 0 ? 54 * Math.Abs(s.Gamma) / max : 0))).ToArray();
         if (curve.Length > 1) context.DrawGeometry(null, new Pen(ink, 2), new PolylineGeometry(curve, false));
-        Text(context, "Γ(y) · loading", new Point(Math.Max(8, viewport.Width / 2 - 48), Math.Max(30, curve.Min(p => p.Y) - 17)), ink, soft);
+        Text(context, "Γ(y) · loading", new Point(Math.Max(8, viewport.Width / 2 - 48), Math.Max(30, curve.Min(p => p.Y) - 17)), ink, soft, resourceScope);
         var legend = DrawLegend(context, layer.Legend, max, viewport, ink, soft, resourceScope);
         // The outside-strip count sits on the legend, in its column, wrapped to its width, so the two plates never overlap.
         if (scene.CountText is { } count)
-            LoadLayerText.PlateAbove(context, count, new Point(legend.Left + 4, legend.Top - 6), warning, soft, legend.Width - 8);
+            LoadLayerText.PlateAbove(context, count, new Point(legend.Left + 4, legend.Top - 6), warning, soft, legend.Width - 8, resourceScope);
     }
 
     private const double RampHeight = 8, LegendBottom = 48;
@@ -80,9 +83,9 @@ public static class PlanLoadLayer
     private static Rect DrawLegend(DrawingContext context, string legend, double max, Size viewport, IBrush ink, IBrush soft, Control scope)
     {
         double width = Math.Min(350, viewport.Width - 16), left = viewport.Width - width - 8;
-        var text = LoadLayerText.Format(legend, ink, width);
-        var zero = LoadLayerText.Format("0", ink, double.PositiveInfinity);
-        var top = LoadLayerText.Format(max.ToString("0.###", CultureInfo.InvariantCulture), ink, double.PositiveInfinity);
+        var text = LoadLayerText.Format(legend, ink, width, scope);
+        var zero = LoadLayerText.Format("0", ink, double.PositiveInfinity, scope);
+        var top = LoadLayerText.Format(max.ToString("0.###", CultureInfo.InvariantCulture), ink, double.PositiveInfinity, scope);
         double block = text.Height + 4 + RampHeight + 2 + zero.Height, y = Math.Max(8, viewport.Height - LegendBottom - block);
         var plate = new Rect(left - 4, y - 2, width + 8, block + 4);
         context.DrawRectangle(soft, null, plate);

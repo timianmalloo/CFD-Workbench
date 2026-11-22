@@ -32,6 +32,7 @@ public sealed class PerformanceCurveChart : Control
     {
         Focusable = true;
         ClipToBounds = true;
+        ActualThemeVariantChanged += (_, _) => InvalidateVisual();
     }
 
     public event Action<int>? CaseSelected;
@@ -127,8 +128,9 @@ public sealed class PerformanceCurveChart : Control
         }
 
         // Title & subtitle
-        DrawText(context, ChartData.Title, 13, FontWeight.SemiBold, ink, new Point(12, 8));
-        DrawText(context, ChartData.Subtitle, 11, FontWeight.Normal, muted, new Point(12, 26));
+        double tickSize = CanvasTypography.ResolveFontSize(this);
+        DrawText(context, ChartData.Title, Math.Max(13, tickSize + 2), FontWeight.SemiBold, ink, new Point(12, 8));
+        DrawText(context, ChartData.Subtitle, tickSize, FontWeight.Normal, muted, new Point(12, 26));
 
         if (ChartData.UnavailableReason is not null)
         {
@@ -174,17 +176,17 @@ public sealed class PerformanceCurveChart : Control
             double gy = plot.Bottom - frac * plot.Height;
             context.DrawLine(gridPen, new Point(plot.Left, gy), new Point(plot.Right, gy));
             double yVal = yMin + frac * (yMax - yMin);
-            DrawText(context, yVal.ToString("0.###", CultureInfo.InvariantCulture), 10, FontWeight.Normal, muted, new Point(6, gy - 6));
+            DrawText(context, yVal.ToString("0.###", CultureInfo.InvariantCulture), tickSize, FontWeight.Normal, muted, new Point(6, gy - 6));
 
             double gx = plot.Left + frac * plot.Width;
             double xVal = xMin + frac * (xMax - xMin);
-            DrawText(context, xVal.ToString("0.##", CultureInfo.InvariantCulture), 10, FontWeight.Normal, muted, new Point(gx - 12, plot.Bottom + 4));
+            DrawText(context, xVal.ToString("0.##", CultureInfo.InvariantCulture), tickSize, FontWeight.Normal, muted, new Point(gx - 12, plot.Bottom + 4));
         }
 
         var axisPen = new Pen(ink, 1);
         context.DrawLine(axisPen, new Point(plot.Left, plot.Top), new Point(plot.Left, plot.Bottom));
         context.DrawLine(axisPen, new Point(plot.Left, plot.Bottom), new Point(plot.Right, plot.Bottom));
-        DrawText(context, ChartData.XAxisLabel, 11, FontWeight.SemiBold, ink, new Point(plot.Left + plot.Width / 2 - 20, h - 18));
+        DrawText(context, ChartData.XAxisLabel, tickSize, FontWeight.SemiBold, ink, new Point(plot.Left + plot.Width / 2 - 20, h - 18));
 
         // Plot each series: strictly intra-segment lines only (NEVER bridge across gaps!).
         foreach (var s in ChartData.Series)
@@ -229,7 +231,7 @@ public sealed class PerformanceCurveChart : Control
 
             // Direct end label (never colour alone)
             if (lastPoint is { } lp)
-                DrawText(context, s.Label, 10, FontWeight.SemiBold, seriesBrush, new Point(Math.Min(plot.Right + 4, w - 82), lp.Y - 6));
+                DrawText(context, s.Label, tickSize, FontWeight.SemiBold, seriesBrush, new Point(Math.Min(plot.Right + 4, w - 82), lp.Y - 6));
 
             // Explicit gap × markers on x-axis
             var gapPen = new Pen(danger, 2);
@@ -294,16 +296,17 @@ public sealed class PerformanceCurveChart : Control
     private IBrush Brush(string key, IBrush fallback) =>
         this.TryFindResource(key, ActualThemeVariant, out var val) && val is IBrush b ? b : fallback;
 
-    private static void DrawCenteredText(DrawingContext ctx, string text, IBrush brush, double w, double h)
+    private void DrawCenteredText(DrawingContext ctx, string text, IBrush brush, double w, double h)
     {
-        var ft = new FormattedText(text, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, Typeface.Default, 12, brush);
+        var ft = new FormattedText(text, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
+            CanvasTypography.ResolveTypeface(this), Math.Max(12, CanvasTypography.ResolveFontSize(this)), brush);
         ctx.DrawText(ft, new Point(Math.Max(12, (w - ft.Width) / 2), Math.Max(48, (h - ft.Height) / 2)));
     }
 
-    private static void DrawText(DrawingContext ctx, string text, double size, FontWeight weight, IBrush brush, Point at)
+    private void DrawText(DrawingContext ctx, string text, double size, FontWeight weight, IBrush brush, Point at)
     {
         var ft = new FormattedText(text, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
-            new Typeface(FontFamily.Default, FontStyle.Normal, weight), size, brush);
+            CanvasTypography.ResolveTypeface(this, weight), Math.Max(CanvasTypography.MinimumFontSize, size), brush);
         ctx.DrawText(ft, at);
     }
 }

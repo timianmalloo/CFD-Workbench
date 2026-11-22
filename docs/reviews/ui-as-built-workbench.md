@@ -366,10 +366,10 @@ net: -6 dead UI components/controls, -4 unused tokens, ~480–550 LOC removable 
 
 | Candidate Class | Recurring shape observed | Control to add when fixing | Current status |
 |---|---|---|---|
-| **UI-CS-TOKEN** | `xaml-token-lint.py` passes on `.axaml` while C# code-behind hardcodes `Color.Parse`, `Brushes.*`, nonexistent resource keys (`"AccentBrush"`/`"WarnBrush"`), `"Inter"`/`Typeface.Default`, and `FontSize=10` — and skips `ActualThemeVariantChanged` | Extend token lint (or Desktop unit test) to assert every `TryFindResource` key exists in `Styles.axaml`, ban `FontSize < 11` and raw `Color.Parse` in Desktop `.cs`, and test live theme-switch invalidation on custom canvases | Uncontrolled |
-| **UI-HOVER-INVERT** | Global `:pointerover` / `:selected` style fills collide with explicit child `Foreground` classes (`TextBlock.caption` on `Button`, `ListBoxItem.disabled TextBlock` on `CatalogDialog`, `TextBlock.pts-cell` / `pts-cell.ro` on `Border.pts-row.on`), collapsing contrast to 1.01:1–1.16:1 | Expand `ThemeMatrix_ShellControls_AppliedContrast` to cover `StartView` hovered cards, `CatalogDialog` disabled rows, and `PointsPane` selected rows across Light, Dark, and High Contrast | Partially controlled |
-| **UI-ENV-ONLY-A11Y** | OS accessibility preferences (High Contrast, Reduced Motion) wired only to `CFDW_REVIEW_*` test env vars and never to OS platform settings | Add startup platform-settings adapter test verifying OS preference propagation into `ActualThemeVariant` and `ReducedMotion` | Uncontrolled |
-| **UI-DETACHED-DUP** | Legacy XAML control left in hidden `DetachedDocumentBodies` while controller/shell callers still invoke `RefreshPreview` and `returnFocus` on the dead instance | Delete legacy control in the same commit as its replacement; add dead-control/focus-return test on live `SectionModeEditor` | Uncontrolled |
+| **UI-CS-TOKEN** | `xaml-token-lint.py` passes on `.axaml` while C# code-behind hardcodes `Color.Parse`, `Brushes.*`, nonexistent resource keys (`"AccentBrush"`/`"WarnBrush"`), `"Inter"`/`Typeface.Default`, and `FontSize=10` — and skips `ActualThemeVariantChanged` | `TokenDisciplineTests.cs` (`--ui-w7-analysis`, wired in `run-tests.sh`) + `ActualThemeVariantChanged` checks in `UiP0HardeningTests.cs` & `UiW7AnalysisTests.cs` | **Controlled** (`docs/lessons/defect-classes.md`, Wave 7C) |
+| **UI-HOVER-INVERT** | Global `:pointerover` / `:selected` style fills collide with explicit child `Foreground` classes (`TextBlock.caption` on `Button`, `ListBoxItem.disabled TextBlock` on `CatalogDialog`, `TextBlock.pts-cell` / `pts-cell.ro` on `Border.pts-row.on`), collapsing contrast to 1.01:1–1.16:1 | `Styles.axaml` soft hover + `OnSelectionBrush`/`OnPrimaryBrush` overrides guarded by `UiP0HardeningTests.RunThemeMatrixExtension()` (`THEME-EXT-ROW`) & `UiP0_F04_F15_*`/`UiP0_F06_*` (cross-references `UI-INTERACTION-STATE-ORACLE`) | **Controlled** (`docs/lessons/defect-classes.md`, Wave 6/7C) |
+| **UI-ENV-ONLY-A11Y** | OS accessibility preferences (High Contrast, Reduced Motion) wired only to `CFDW_REVIEW_*` test env vars and never to OS platform settings | OS platform-settings listener + dialog `RequestedThemeVariant` propagation + `UiP0_F13_*` + real OS Windows `IUIAutomation` COM tree probe (`WindowsUiaTreeTests.cs`, `--uia-probe`) | **Controlled** (`docs/lessons/defect-classes.md`, Wave 6/7C) |
+| **UI-DETACHED-DUP** | Legacy XAML control left in hidden `DetachedDocumentBodies` while controller/shell callers still invoke `RefreshPreview` and `returnFocus` on the dead instance | Dead `ModelArea.SectionEditor` and `SectionEditorView.LegacyEditor` deleted; `UiP0_F08_F31_*` enforces absence and live `SectionModeEditor` preview/focus | **Controlled** (`docs/lessons/defect-classes.md`, Wave 6/7C) |
 
 ---
 
@@ -381,3 +381,60 @@ net: -6 dead UI components/controls, -4 unused tokens, ~480–550 LOC removable 
 - **Product UX & Accessibility hard veto:** **`BLOCK` CONFIRMED** on the as-built Avalonia Desktop product at `285b765e` until all 5 predicates in §1 pass and are independently re-verified.
 
 `GATE ui-design · review-mode as-built workbench · review artifact PASS (6 conditions folded) · product UX & Accessibility veto BLOCK · 15 Blockers · 16 Majors · 11 Minors · 4 Nits · monetary cost and tokens not recorded.`
+
+---
+
+## 13. Post-Wave-7 Addendum (2026-11-22)
+
+*Records the verified remediation across Wave 6 (`UI-P0`, `0b578678`), Operator Ruling 273 (`6da064d4`), and the three serial Wave 7 tracks (`docs/coordination/wave7-ui-polish-and-at-proof.md`). Sections 0–12 above remain preserved verbatim as the historical `285b765e` baseline.*
+
+### 13.1 Remediation closure by wave
+
+| Wave / Track | Commit / Status | Findings Closed | Automated Ring Control |
+|---|---|---|---|
+| **Wave 6 (`UI-P0`)** | `0b578678` (joined & pushed) | All 15 Blockers (`F-01`–`F-14`, `F-16`) plus `F-15`, `F-17`, `F-30`, `F-31` | `--ui-p0` (`UiP0HardeningTests.cs`) + `ThemeMatrix_HardenedSurfaces_AppliedContrast` (36 `THEME-EXT-ROW`s) |
+| **Ruling 273** | `6da064d4` (joined) | Promoted 52 proposed copy rows (`COPY-686..693`, `COPY-706..727`, `COPY-728..749`) from `proposed` to `approved` byte-for-byte | `verify-ruling-citations.py`, `design-lint.py --strict` |
+| **Wave 7A (`W7-SHELL`)** | `1eb3ebd0` (joined) | `F-18` (shell), `F-19`, `F-20`, `F-22`, `F-23` (200% modals), `F-32`, `F-34`, `F-35`, `F-36`/`F-42`/`F-43`/`F-44` (shell tokens, `app-icon.ico`, `DESIGN.md` §5 reconciliation), `F-40` (Start `.cfdw.json`) | `--ui-w7-shell` (`UiW7ShellTests.cs`, 10 checks wired into `DesktopChecks.Spawn` & `ScaleModes`) |
+| **Wave 7B (`W7-CAD`)** | `febb0bfc` (joined) | `F-21` (async `PropertiesPane`/`BrowserPane`, `PumpUi` removed), `F-24`, `F-25`, `F-26`, `F-27`, `F-33`, `F-37`/`F-39`/`F-40`/`F-41`/`F-42`/`F-45`/`F-46` (CAD typography `CanvasTypography`, `PointContextMenu.cs`, Browser vs Points disambiguation) | `--ui-w7-cad` (`UiW7CadTests.cs`, 7 checks wired into `DesktopChecks.Spawn` & `ScaleModes`) |
+| **Wave 7C (`W7-ANA-AT`)** | Current branch | `F-18` (Analysis: removed inert `"Overlay a section ▾"` from rendered Transition legend while preserving Ruling 108 `Labels.OverlayMenu` constant verbatim), `F-28` (`SectionChartView` compact series legend, right-aligned `+tnum` numeric/delta tables, `ComparePane` headers, `SectionTabView` tabular unit-labeled twin ≥ 11 px), `F-29` (`ConditionsBand` plain-English `DangerBrush` wrapping sub-row for `ANA-INPUT-*`, `ComparePane` responsive wrapping pickers at 1024 px), `F-36`/`F-37`/`F-38`/`F-40`/`F-41` (Analysis `Vik*Color` without `Color.Parse`, safe `is ISolidColorBrush`, aligned induced-drag key swatch, theme-keyed `PlanLoadLayer` ramp, `PropFontFamily`/`PropFontSize`/`+tnum`, Imperial `kn`/`ft` in `FindAlphaDialog`/`CompareProjection.Inputs`/`ElevationDepthLayer`/`View3dLoadLayer`, scrollable `FindAlphaDialog` with `row.Unit`, `"Show chart"` toggle, read-only `MoreButton` `Flyout`, aligned `ComparePane.TabOrder`, clamped `SectionChartView` X-title & markers, plus bubbling `SelectionChanged` recursion fix in `AnalysisPanel`), Wave 6 carry-forward live theme reactivity & ≥ 11 px ticks on `PerformanceCurveChart` & `PlanformPreviewControl` | `--ui-w7-analysis` (`UiW7AnalysisTests.cs` + `TokenDisciplineTests.cs`), `--uia-probe` (`WindowsUiaTreeTests.cs`), and expanded `--theme-matrix` (`THEME-EXT-ROW` + `THEME-EXT-MODAL`) |
+
+### 13.2 Real Windows OS `IUIAutomation` COM native tree receipt (`--uia-probe`)
+
+Measured directly on a Windows 11 ARM64 host (`RenderScaling=2`, `WorkingArea=3270x2084`, `UseLayoutRounding=True`) via `tests/CfdWorkbench.Desktop.Tests/WindowsUiaTreeTests.cs` (`--uia-probe`, wired into `DesktopChecks.Spawn` and `ScaleModes`, skipping cleanly off Windows). Every probe attaches to the live platform HWND (`MainWindow` or modal dialog HWND) through `ole32.dll` + `UIAutomationCore.dll` (`CLSID_CUIAutomation` / `IID_IUIAutomation`, `get_ControlViewWalker`, `ElementFromHandle`) on a dedicated **MTA background thread** (`COINIT_MULTITHREADED`) while Avalonia's STA UI thread pumps Win32 `WM_GETOBJECT` via `Dispatcher.UIThread.PushFrame(...)` (zero STA deadlock; full 9-surface sweep completed in 6.3 s).
+
+| Probed Surface (Live HWND) | Total UIA Nodes | Named Nodes | Non-empty `BoundingRectangle` | Keyboard-Focusable & Bounded | `InvokePattern` | `ValuePattern` | `SelectionItemPattern` | Required OS Names Verified |
+|---|---|---|---|---|---|---|---|---|
+| **Start** (`MainWindow`) | 58 | 49 | 56 | 20 | 17 | 1 | 4 | `New foil`, `New from example`, `Open…` |
+| **Setup** (`MainWindow`) | 122 | 111 | 120 | 50 | 25 | 19 | 4 | `Setup brief and soft targets tab`, `Switch to CAD workspace` |
+| **CAD** (`MainWindow`) | 104 | 95 | 104 | 60 | 44 | 4 | 8 | `Properties`, `Browser` |
+| **Section Editor** (`MainWindow`) | 132 | 121 | 131 | 48 | 42 | 2 | 6 | `Cancel`, `Finish section` |
+| **Analysis** (`MainWindow`) | 136 | 126 | 136 | 70 | 47 | 5 | 13 | `Evaluate`, `Find operating alpha`, `Spanwise loading`, `Compare` |
+| **Sweeps** (`MainWindow`) | 105 | 89 | 105 | 44 | 28 | 5 | 6 | `Experiment setup sub-tab`, `Local Run sub-tab`, `Sweep Results sub-tab` |
+| **Modal · FindAlpha** (`FindAlphaDialog`) | 20 | 17 | 20 | 9 | 6 | 4 | 0 | `Target CL`, `Find α`, `Cancel` |
+| **Modal · Export** (`ExportDialog`) | 60 | 57 | 59 | 18 | 11 | 2 | 10 | `Cancel` (plus radio groups & `FormatList`) |
+| **Modal · Catalog** (`CatalogDialog`) | 38 | 36 | 37 | 15 | 9 | 2 | 8 | `Cancel` (plus catalog list & detail controls) |
+
+**Honest Avalonia 11.3.14 Win32 UIA bridge observations:**
+- Standard controls (`Button` `50000`, `Edit` `50004`, `TabItem` `50019`, `Text` `50020`, `Window` `50032`, `Pane` `50033`) expose native `Name`, `ControlType`, `BoundingRectangle`, `IsKeyboardFocusable`, and COM control patterns (`InvokePattern`, `ValuePattern`, `SelectionItemPattern`) cleanly across all 9 surfaces.
+- `AutomationProperties.Name` overrides inner `Content` at the OS UIA boundary (observed on `SweepsWorkspaceView`: button content `"Run (local)"` surfaces to Windows UIA as `"Local Run sub-tab"`).
+- Structural OS UIA tree verification proves native Win32 accessibility exposure, **not** spoken screen-reader phrasing or live navigation cadence; live NVDA and macOS VoiceOver speech remain explicitly `Flagged` below.
+
+### 13.3 Expanded `--theme-matrix` & `UI-CS-TOKEN` receipts
+
+- **Frozen shell matrix (`THEME-ROW` / `THEME-SHELL-CHECK`):** Unchanged and green across all 4 variants (`light`, `dark`, `high-contrast`, `default`), preserving full compatibility with `tools/verify-application-adapters.py`.
+- **Wave 6 hardened matrix (`ThemeMatrix_HardenedSurfaces_AppliedContrast`):** **36 `THEME-EXT-ROW`s** across 3 variants (`light`, `dark`, `high-contrast`) PASS (`StartView` hovered/pressed captions, `PointsPane` selected rows incl. `pts-cell.ro`, `CatalogDialog` disabled hovered/selected rows, `SectionChartView` `PrimaryBrush`/`WarningBrush`/`DangerBrush`/`MutedBrush`).
+- **Wave 7C extended matrix (`ThemeMatrix_Wave7Extended_CompareFindAlphaAnalysisSweepsSetupAnd200PctModals`):** **51 `THEME-EXT-ROW`s** across 3 variants covering `AnalysisPanel` (Loads + Loading table twin), `ComparePane` (headline, table headers, CL cell, footnote), `FindAlphaDialog` (speed banner, target input, Find/Cancel buttons), `Setup` (`RecipeStatusChip`, `LanguageCardTitle`, `OpenInCadButton`), and `Sweeps` (`Sweep:` header, setup action) PASS — worst measured text contrast **5.63:1** Light, **7.83:1** Dark, **17.62:1** High Contrast (all ≥ 4.5:1 WCAG AA).
+- **200% text-scale modal non-clipping (`THEME-EXT-MODAL`, 1024×700, `FontSize=28`):** `FindAlphaDialog` (306.0 / 620.0 px, 3 sticky footer buttons), `ExportDialog` (620.0 / 620.0 px, 2 sticky footer buttons), and `FolderRefusalDialog` (295.0 / 620.0 px, 2 sticky footer buttons) all PASS with body `ScrollViewer` and zero footer clipping.
+- **`UI-CS-TOKEN` static control (`TokenDisciplineTests.cs`):** Scanned **68** Desktop `.cs` files against **274** XAML keys in `Styles.axaml` and `App.axaml` — observed **10 findings RED** prior to Wave 7C (`SectionProfileView.cs` ×5 `Color.Parse`, `SectionTabView.cs` `FontSize=10`, `SectionChartView.cs` `FormattedText` 10 px, `PerformanceCurveChart.cs` ×3 `DrawText` 10 px), **0 findings GREEN** after remediation, and **5/5** static-scanner mutants killed.
+
+### 13.4 Remaining honestly `Flagged` / open obligations
+
+The following obligations are **not** claimed closed by Wave 7 and remain explicitly `Flagged` / open:
+
+| Item | Status | Reason / What Closes It |
+|---|---|---|
+| **27 unruled Wave 2 proposed `COPY-*` rows** (`COPY-611..633`, `COPY-591..594`) | **Open (proposed)** | Outside Ruling 273 scope; require future operator ruling in `docs/notes/rulings.md` before promoting from `proposed` to `approved` in `DESIGN.md`. |
+| **Live NVDA speech traces (Windows)** | **Flagged** | `nvda.exe` is not installed on this Windows host; `--uia-probe` proves the OS `IUIAutomation` COM tree only, not live NVDA speech announcements. |
+| **Live macOS display & VoiceOver traces** | **Flagged** | Authoring/verification host is Windows ARM64 and CI runs `--no-desktop`; requires live macOS display and VoiceOver verification pass. |
+| **Authenticode / SmartScreen & macOS codesign / Gatekeeper** | **Flagged** | No code-signing certificates or notarization pipeline exist in this repository; Release Engineering gate prior to external distribution. |
+| **Independent UX & Accessibility Adversary clearance** | **Pending (`w7-verifier`)** | Predicate 1–4 technical evidence is complete on Windows; final Adversary sign-off and Predicate 5 live screen-reader traces remain governed by independent review. |

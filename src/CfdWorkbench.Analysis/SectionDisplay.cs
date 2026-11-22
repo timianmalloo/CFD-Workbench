@@ -353,8 +353,8 @@ public static class SectionDisplay
             var tr = new ChartPlot("x_tr/c", "α (°)", "x_tr/c", false,
                 [S("upper Ncrit 4", 4, p => p.XtrUpper, "dot", 0), S("upper Ncrit 2", 2, p => p.XtrUpper, "square", 1),
                  S("lower Ncrit 4", 4, p => p.XtrLower, "triangle", 2), S("lower Ncrit 2", 2, p => p.XtrLower, "diamond", 3)], [alphaMark]);
-            charts.Add(new("transition", "Transition", [tr], Labels.TransitionLegend(revision ?? run.Inputs.AcceptedId, station.Reynolds) +
-                " · " + Labels.OverlayMenu, Labels.PolarSurrogate));
+            // F-18: omit inert static Labels.OverlayMenu dropdown affordance from legend until interactive overlay selection ships (constant preserved in Labels.cs per Ruling 108).
+            charts.Add(new("transition", "Transition", [tr], Labels.TransitionLegend(revision ?? run.Inputs.AcceptedId, station.Reynolds), Labels.PolarSurrogate));
         }
 
         charts.Add(Bucket(run, tier, station, source, cancellation, units));

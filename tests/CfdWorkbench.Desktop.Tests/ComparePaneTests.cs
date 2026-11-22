@@ -221,7 +221,7 @@ public static class ComparePaneTests
                 Equal("Compared outputs", Avalonia.Automation.AutomationProperties.GetName(panel.ComparePaneView.OutputsTable), "outputs table name");
                 Equal(true, panel.ComparePaneView.BasePicker.IsFocused, "focus lands on the Base picker;");
                 var order = panel.ComparePaneView.TabOrder.ToArray();
-                Equal("Base run|Compared run|Compared inputs|Compared outputs", string.Join("|", order), "tab order");
+                Equal("Base run|Compared run|Compare with estimator|Compared inputs|Compared outputs", string.Join("|", order), "tab order");
             }
             finally { window.Close(); }
         });

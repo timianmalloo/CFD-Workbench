@@ -25,8 +25,9 @@ public partial class AnalysisPanel : UserControl
         AutomationProperties.SetName(OpenInMainAreaButton, Labels.OpenInMainArea);
         OpenInMainAreaButton.Click += (_, _) => OpenSectionRequested?.Invoke();
         CompareTab.Header = Labels.CompareTab;
-        PanelTabs.SelectionChanged += (_, _) =>
+        PanelTabs.SelectionChanged += (_, args) =>
         {
+            if (!ReferenceEquals(args.Source, PanelTabs)) return;
             UpdateHeight();
             if (!binding && ReferenceEquals(PanelTabs.SelectedItem, CompareTab) && boundController is not null)
                 ComparePaneHost.Bind(boundController);
@@ -188,8 +189,23 @@ public partial class AnalysisPanel : UserControl
 
     private static TextBlock Cell(string text, int column)
     {
-        var cell = new TextBlock { Text = text, Classes = { "pnl-cell" }, Margin = new Thickness(4, 1) };
+        var cell = new TextBlock
+        {
+            Text = text,
+            Classes = { "pnl-cell" },
+            Margin = new Thickness(4, 1),
+            TextAlignment = column == 1 && IsNumericValue(text) ? Avalonia.Media.TextAlignment.Right : Avalonia.Media.TextAlignment.Left
+        };
         Grid.SetColumn(cell, column);
         return cell;
+    }
+
+    internal static bool IsNumericValue(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return false;
+        string trimmed = text.TrimStart('≠', ' ', '+', '-', '−', '±');
+        return trimmed.Length > 0 && char.IsDigit(trimmed[0]) &&
+            !trimmed.Contains(" · ", StringComparison.Ordinal) &&
+            !trimmed.StartsWith("Unavailable", StringComparison.Ordinal);
     }
 }

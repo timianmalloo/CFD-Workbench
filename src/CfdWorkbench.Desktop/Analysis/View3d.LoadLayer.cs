@@ -7,6 +7,7 @@ public sealed partial class View3d
     private AnalysisViewModel? layerView;
     private IReadOnlyList<LayerData>? seenLayers;
     private IReadOnlyList<LayerData>? seenSceneLayers;
+    private Units seenSceneUnits = Units.Metric;
     private View3dLoadLayer.Scene? layerScene;
 
     private AnalysisViewModel LayerView()
@@ -35,10 +36,11 @@ public sealed partial class View3d
     {
         var view = LayerView();
         if (controller is null) throw new InvalidOperationException("No controller for the 3D load layer.");
-        if (layerScene is null || !ReferenceEquals(seenSceneLayers, controller.LayerSet))
+        if (layerScene is null || !ReferenceEquals(seenSceneLayers, controller.LayerSet) || seenSceneUnits != controller.AnalysisUnits)
         {
-            layerScene = View3dLoadLayer.BuildScene(view);
+            layerScene = View3dLoadLayer.BuildScene(view, controller.AnalysisUnits);
             seenSceneLayers = controller.LayerSet;
+            seenSceneUnits = controller.AnalysisUnits;
         }
         return layerScene;
     }

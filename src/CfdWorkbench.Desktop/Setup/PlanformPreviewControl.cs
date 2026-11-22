@@ -15,6 +15,11 @@ public sealed class PlanformPreviewControl : Control
     private RecipeRecord? candidate;
     private WingEstimates? prior;
 
+    public PlanformPreviewControl()
+    {
+        ActualThemeVariantChanged += (_, _) => InvalidateVisual();
+    }
+
     public void Update(RecipeRecord? nextCandidate, WingEstimates? nextPrior)
     {
         candidate = nextCandidate;

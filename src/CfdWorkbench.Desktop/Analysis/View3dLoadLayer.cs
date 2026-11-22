@@ -12,17 +12,21 @@ public static class View3dLoadLayer
 {
     public sealed record Arrow(double Y, double Magnitude, Loads.Vec Direction);
     public sealed record Scene(LayerData? Lift, IReadOnlyList<Arrow> Arrows, LayerData? Moment,
-        IReadOnlyList<ElevationDepthLayer.DepthMark> Depth);
+        IReadOnlyList<ElevationDepthLayer.DepthMark> Depth, Units Units = Units.Metric);
+
+    public static string FormatTipDepth(double marginMeters, Units units = Units.Metric) =>
+        ElevationDepthLayer.FormatTipDepth(marginMeters, units);
 
     /// <summary>The legend plate's left edge: in the caption's column, right of the triad plate, so the two never overlap.</summary>
     public static double LegendLeft => View3d.CaptionMargin.Left + 4;
 
-    public static Scene BuildScene(AnalysisViewModel view)
+    public static Scene BuildScene(AnalysisViewModel view, Units units = Units.Metric)
     {
         var lift = view.Layers.FirstOrDefault(layer => layer.Id == "strip-lift");
         return new Scene(lift, Build(lift),
             view.Layers.FirstOrDefault(layer => layer.Id == "root-moment" && layer.Visible && layer.Samples.Any(sample => sample.Value.HasValue)),
-            ElevationDepthLayer.Build(view.Layers.FirstOrDefault(layer => layer.Id == "depth-band")));
+            ElevationDepthLayer.Build(view.Layers.FirstOrDefault(layer => layer.Id == "depth-band")),
+            units);
     }
 
     public static IReadOnlyList<Arrow> Build(LayerData? layer)
@@ -104,7 +108,7 @@ public static class View3dLoadLayer
                 var foot = camera.Project(new Point3(surface.MinimumX, tip.Y, tip.Elevation ?? 0), viewport);
                 var top = camera.Project(new Point3(surface.MinimumX, tip.Y, z), viewport);
                 context.DrawLine(new Pen(mute, 1, new DashStyle([2, 3], 0)), foot, top);
-                TextWithin(context, "tip depth " + tip.Margin.ToString("0.###", CultureInfo.InvariantCulture) + " m",
+                TextWithin(context, FormatTipDepth(tip.Margin, scene.Units),
                     new Point(top.X + 6, (foot.Y + top.Y) / 2), viewport, ink, soft);
             }
         }
