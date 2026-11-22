@@ -2,7 +2,7 @@
 id: coordination-wave6-and-area5-wsl
 title: "Coordination plan - wave 6 and Area 5 WSL build (AGY native swarm)"
 type: plan
-status: active
+status: complete
 owner: "@timianmalloo"
 tags: [coordination, worktrees, parallelism, windows, wsl, agy-swarm, wave6]
 links:
@@ -261,10 +261,67 @@ Parallelism multiplies token spend; every concurrent lane clears GO6 on a concre
 
 `GATE prepare-for-coordination · 2026-11-21 · Orchestrator (author, Peer) · Independent Adversary Wave 6 Plan Reviewer (read-only research subagent 10f52232, Test Architect hard veto + Simplifier + Tech Lead lenses) · verdict PASS-WITH-CONDITIONS, CLEARS-THE-VETO yes · all eight conditions (C1–C8) folded verbatim before S0 commit: C1 removed undefined future ruling number citation; C2 replaced placeholder user path and clarified PROOF-PII scope; C3 added join-time Desktop-harness serialization rule for tools/ merges (A5-WSL and KRN-SPK); C4 added mandatory --out on wsl-preflight.sh, pre/post Ubuntu-24.04 checks, SHA256SUMS + gpgv, pinned PETSc SHA-256, nvcc/configure checks, and OpenFOAM Host banner scrubbing; C5 gated KRN-SPK dispatch on W6-0 DR-KRN-1,3,4,6, added binary/slnx/Python-gate rules and planted negative control; C6 clarified UI-P0 does not edit DESIGN.md and noted remaining product a11y veto predicates (F-23 + live AT traces); C7 added SanityBounds.json/RunRecord.cs/OperatingPoint.cs owned paths, defined GoalStateSweepSnapshot Core seam, and required sequential per-node green commits with ~300k warm fork for SWP-BUILD/SET-BUILD; C8 added remaining GO14a scan guards and exact harness capability vocabulary. Simplifier: CLEARED. Tech Lead casting vote: APPROVE 5 tracks (Wave A width 3, Wave B width 1 + ongoing A5-WSL, Wave C width 1).`
 
+## Planned vs actual (record by `agy-w6-coord`, 2026-11-21; final at SET-BUILD join `20344c64`)
+
+**Outcome.** All five planned tracks (`UI-P0`, `KRN-SPK`, `A5-WSL`, `SWP-BUILD`, `SET-BUILD`) plus Serial Spine `W6-0`
+(**Rulings 270, 271, 272**) completed, cleared independent Adversary review (`w6-verifier`) on **first pass with zero
+repair cycles**, and merged cleanly onto `main` via `conductor-join.py` (`--no-push`). Integrated suite on `main` at
+`20344c64`: **`TESTS-GREEN 373 s`** (`CfdWorkbench.Core.Tests` 973 passed / 7 skipped / 0 failed;
+`CfdWorkbench.Analysis.Tests` 326 / 1 / 0; `CfdWorkbench.Desktop.Tests` 936 / 1 / 0; `CfdWorkbench.Cli.Tests` 38 / 1 / 0;
+Python unittest 10 / 0), `xaml-token-lint.py` clean, `check-event-subscribers.py` 0 findings (38 events, 4 allowed),
+`tools/check-docs.py` exit 0, and **10/10 `run-verify-gates.py` PASS** (`verify-ruling-citations.py` 272/272 OK,
+`verify-no-machine-paths.py` clean). Zero model failovers; zero merge conflicts; zero Desktop harness timeouts; all
+share workspaces cleanly torn down (`git worktree list` = primary only).
+
+### 1. Per track
+
+| track | swarm worker & model | planned budget | wall span (UTC) | repair cycles (cap 2) | Adversary verdict & result | join commit |
+|---|---|---|---|---|---|---|
+| **W6-0** (Spine S1) | `w6-owner` (`inherit`) | 30 calls · 15 min | 03:03Z–03:08Z (5 min) | 0 | **Rulings 270, 271, 272** (`DR-KRN-1,3,4,6`, `DR-SWP-1..6`, `DR-SET-1..5`; staged `Exact` allowlist; coordinated `OperatingPoint.Load`; `DR-KRN-2` kept open for operator) | `c308984f` |
+| **KRN-SPK** (Wave A) | `w6-cad-spike` (`share`) | 90 calls · 250k · 1.5 h | 03:09Z–03:27Z (18 min) | 0 | `PASS` (`#53`): `Rhino3dm 8.35.0` MIT `win-arm64`/`win-x64`/`osx-arm64` native ABI verified; pure-C# Option B STEP AP203 **≤ 1.6139 µm** max deviation across 5 wings (6.2× below 10 µm floor), 20/20 deterministic STEP exports, 3/3 red-first negative controls RED; `BRepCheck_Analyzer` honestly `Flagged / deferred to SPIKE-CAD-02` | `35ac59a1` |
+| **A5-WSL** (Wave A) | `w6-wsl-build` (`share`) | 120 calls · 300k · 2.5 h | 03:03Z–03:54Z (51 min) | 0 | `PASS` (`#57`, scoped to Option B ruling `#50`): dedicated `cfdw-openfoam2512-arm64` distro at `D:\wsl\cfdw-openfoam2512-arm64` (`Ubuntu-24.04` untouched `Stopped 2`); CUDA 13.2 + GCC-13/OpenMPI/BLAS/LAPACK installed (0 removals, 0 Linux GPU driver); PETSc 3.26.0 `--with-cuda=1 --with-cuda-arch=121` Blackwell **4/4 `make check` PASS** + 1M-DOF CG+Jacobi GPU smoke **2.98 s GPU vs 37.27 s CPU** (100% GPU flops, exact norm/iter parity); `petsc4Foam` (`cb1badc4...`) staged; verified `net.proxy-tls` receipt (`dl.openfoam.com -> sourceforge.net` intercepted by Cisco Umbrella, zero TLS bypass); idempotent `tools/wsl-build-openfoam-cuda.sh --mode openfoam-resume` ready for unfiltered network | `90b4af4f` |
+| **UI-P0** (Wave A) | `w6-ui-hardening` (`share`) | 180 calls · 380k · 2.5 h | 03:03Z–04:05Z (62 min) | 0 | `PASS` (`#59`): all **15 Blockers** (`F-01..F-14`, `F-16`) + `F-15`, `F-17`, `F-30`, `F-31` fixed red-first; 17 new Desktop tests + 1 Analysis Ncrit test; `--theme-matrix` 302 frozen + 36 extended rows PASS (Light ≥ 5.34:1, Dark ≥ 6.27:1, HC ≥ 17.62:1); dead `SectionEditor`/`LegacyEditor` deleted; `TESTS-GREEN 371 s` | `e2c1a802` |
+| **SWP-BUILD** (Wave B) | `w6-sweeps-build` (`share`) | 400 calls · 900k · 3 h | 04:33Z–05:48Z (75 min) | 0 | `PASS` (`#70`, 5 sequential commits `SWP-1..5`): Core `SweepRecord` + `GoalStateSweepSnapshot` seam + retention/Archive + `swp-old-build` proof; Analysis `SweepSchedule`/`SweepService`/`SweepProjection`/`Cm`/`OperatingPoint.Load`; CLI `sweep preview`/`run`/`inspect --sweeps` bitwise `runKey` parity; Desktop `Sweeps` workspace (`Experiment setup`/`Run (local)`/`Results`, 0 Run button in setup, non-bridged gaps, linked table twins, `LAB-01` 0 hits); `DESIGN.md` `COPY-706..727`; `T1`–`T18` PASS; `TESTS-GREEN 379 s` | `53b6b985` |
+| **SET-BUILD** (Wave C) | `w6-setup-build` (`share`) | 400 calls · 900k · 3 h | 06:11Z–07:06Z (55 min) | 0 | `PASS` (`#77`, 4 sequential commits `SET-1..4`): Core `SetupRecords`/`DisciplinePresets`/exact 2D `RecipeSeeder`/`ClassRules`/`SanityBounds` (BLAKE3 pinned) + live `CurrentGoalSweepSnapshot()` Core seam (0 edits to `Desktop/Sweeps/**`); Analysis `GoalFeasibility` (`GOAL-02` 7-pt + `0.3 m` exact); CLI `seed` + `inspect --json` parity; Desktop `Setup` workspace (`Setup \| CAD \| Analysis \| Sweeps` navbar, all 6 hard states, `COPY-53` no-key `AI-02`, `LAB-01` 0 hits); `DESIGN.md` `COPY-728..749`; `T1`, `T2`, `T2b`, `T3`–`T14` PASS; `TESTS-GREEN 373 s` | `20344c64` |
+
+*(Per-worker tool-call and token counts are Not recorded because AGY swarm status does not expose worker counters; wall
+spans are Measured from board timestamps and audit entries.)*
+
+### 2. Seams, scope rulings & findings
+
+- **Network blocker handled cleanly (`A5-WSL`, `#49` → `#50`):** `dl.openfoam.com` 302-redirects to `sourceforge.net`,
+  which the host network's Cisco Umbrella filter intercepted with an untrusted TLS root (`net.proxy-tls`). Rather than
+  bypassing TLS or halting all progress, Option B completed CUDA 13.2 + GCC-13/OpenMPI/BLAS/LAPACK + PETSc 3.26.0
+  `--with-cuda=1 --with-cuda-arch=121` Blackwell qualification + staged `petsc4Foam` + captured real Windows
+  `net.proxy-tls` evidence (closing a `Flagged` row in `docs/design/guided-solver-setup.md` §8) + shipped
+  `tools/wsl-build-openfoam-cuda.sh --mode openfoam-resume` to finish OpenFOAM v2512 + `petsc4Foam` `Allwmake` on an
+  unfiltered network.
+- **Core seam (`SWP-BUILD` → `SET-BUILD`):** `GoalStateSweepSnapshot` + `AuthoringSession.CurrentGoalSweepSnapshot()`
+  worked with zero friction — `SET-BUILD` wired live Goal states into Area 4 Sweeps purely inside `Core` without editing
+  a single file under `src/CfdWorkbench.Desktop/Sweeps/**`, verified by `SetupViewTests` confirming non-null
+  `Sweeps.GoalSnapshot` after Seed.
+- **Which parallelism justifications paid:**
+  - **Wave A (width 3: `A5-WSL` ∥ `UI-P0` ∥ post-`W6-0` `KRN-SPK`):** Paid heavily — all 3 finished inside ~62 min
+    wall time with 0 file collisions, 0 Desktop harness timeouts, and 3/3 first-try Adversary `PASS` verdicts. Holding
+    `KRN-SPK` and `A5-WSL` joins to the Wave A boundary (C3/S4) prevented `tools/join-ring.sh` from racing `UI-P0`'s
+    `Desktop.Tests`.
+  - **Wave B (`SWP-BUILD`) → Wave C (`SET-BUILD`) serial pipeline:** Paid cleanly — zero merge conflicts on
+    `AuthoringSession.cs`, `RunRecord.cs`, `Labels.cs`, `Program.cs`, `ModelArea.axaml`, or `DESIGN.md`, and both large
+    full-stack tracks completed inside single contexts with sequential per-node green commits (C7).
+  - **Stall monitor (`monitor`):** Caught two quiet waits (`#65`/`#66` at `SWP-5` closeout and `#69` verifier handoff)
+    and recovered both automatically with zero wasted work.
+- **Non-blocking carry-forward polish notes logged by `w6-verifier`:**
+  1. `PerformanceCurveChart.cs:31-35` (Sweeps) and `PlanformPreviewControl.cs:13-23` (Setup): add
+     `ActualThemeVariantChanged += (_, _) => InvalidateVisual()` for instant mid-view live theme repaint (P1 UI polish).
+  2. `KRN-SPK` Phase 1 production notes: map channel knot parameters `t_i -> eta_i = x_channel(t_i)` in production
+     `CadExportExtractor`, and separate boundary vs interior edges on `OPEN_SHELL` in `StepVerifier`.
+  3. Remaining product accessibility veto predicates from `docs/reviews/ui-as-built-workbench.md` §1: `F-23` (200% modal
+     dialog scaling) and live Windows NVDA / macOS VoiceOver traces.
+
 ## Status
 
 | | |
 |---|---|
-| **Completed** | Grounded layer state (`coord doctor` exit 0, `pack-doctor` 22/2/0, WSL2 arm64 Blackwell RTX Spark N1X `sm_121` 64 GB verified, `D:\reviewed` keyrings/rootfs verified), drafted `docs/coordination/wave6-and-area5-wsl.md`, passed independent Adversary plan review (subagent `10f52232`, `CLEARS-THE-VETO: yes`) with all 8 conditions (C1–C8) folded |
-| **Remaining** | S0 commit (`.md`, `.html`, `docs-index.js`, audit entry) → AGY swarm execution of `W6-0` + Wave A (`A5-WSL`, `UI-P0`, `KRN-SPK`) → Wave B (`SWP-BUILD`) → Wave C (`SET-BUILD`) → serial joins & Planned vs Actual |
-| **Best next action** | Render `.html`, verify `check-docs.py` + `verify-ruling-citations.py` + `check-proof-pii.py` exit 0, commit S0 on `main`, and launch the Wave 6 + Area 5 WSL swarm immediately |
+| **Completed** | All 5 tracks (`UI-P0`, `KRN-SPK`, `A5-WSL` Option B, `SWP-BUILD`, `SET-BUILD`) and Serial Spine `W6-0` (Rulings 270–272) cleared independent Adversary review on first pass and landed on `main` (`20344c64`); integrated suite `TESTS-GREEN 373 s` (2,283 passed / 0 failed), `xaml-token-lint` clean, `check-event-subscribers` 0 findings, `check-docs.py` exit 0, `10/10` verify gates PASS; all share worktrees torn down |
+| **Remaining** | (1) On an unfiltered network where `sourceforge.net` has valid TLS, run `tools/wsl-build-openfoam-cuda.sh --mode openfoam-resume` inside `cfdw-openfoam2512-arm64` to finish OpenFOAM v2512 + `petsc4Foam` `Allwmake` + M1 cavity/GPU pressure trial; (2) Operator review of Rulings 270–272, `DR-KRN-2` (two CAM systems for `SPIKE-CAD-02`), and proposed copy `COPY-686..749`; (3) Wave 7 candidates: UI P1 polish (incl. `F-23` 200% modals & live NVDA/VoiceOver traces), Area 5 C# Guided Solver Setup (`T1/T5`), and Area 7 STEP/3DM Phase 1 (`SPIKE-CAD-02`); (4) Push `main` to `origin/main` when operator confirms |
+| **Best next action** | Review Wave 6 results on `main`, decide whether to push `main` to `origin`, and run `tools/wsl-build-openfoam-cuda.sh --mode openfoam-resume` off the Umbrella-filtered network to complete the final OpenFOAM + `petsc4Foam` step |

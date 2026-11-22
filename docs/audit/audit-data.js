@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-22T07:17:36Z",
+  "generated": "2026-11-22T07:19:04Z",
   "audit": [
     {
       "actor": null,
@@ -44694,6 +44694,93 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-22T07:10:16Z",
       "duration_seconds": 440.0
+    },
+    {
+      "id": "al-01M811YVA2AR6WW5C2NKH4E7RW",
+      "shortname": "coordinate-wave6-and-area5-wsl",
+      "datetime": "2026-11-22T07:19:03Z",
+      "session": "agy-w6-coord",
+      "prompt": "use /swarm to execute on Wave 6 and Area 5 WSL build in parallel, use /prepare-for-coordination and /execute-with-coordination to build and execute the total plan",
+      "summary": "Wave 6 and Area 5 WSL build complete on main (20344c64): W6-0 Rulings 270-272, UI-P0 (15 Blockers + F-15/17/30/31), KRN-SPK (Rhino3dm win-arm64 + Option B STEP <= 1.6139 um), A5-WSL (dedicated arm64 WSL2 distro + CUDA 13.2 + PETSc 3.26.0 sm_121 4/4 check + 1M-DOF GPU smoke 2.98s vs 37.27s CPU + net.proxy-tls receipt), SWP-BUILD (Area 4 T1-T18), SET-BUILD (Area 1 T1-T14). All 5 tracks first-pass Adversary PASS, TESTS-GREEN 373 s (2283 passed / 0 failed), 10/10 verify gates PASS.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/wave6-and-area5-wsl.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Execute Wave 6 and Area 5 WSL build in parallel on AGY swarm and converge onto main",
+      "done_when": "All tracks verified in Adversary Mode, joined via conductor-join.py, worktrees cleaned, Planned vs Actual recorded, gates green",
+      "tier": "T2",
+      "fan_out": 3,
+      "duration_source": "session-start-hook",
+      "started_at": "2026-11-22T07:18:53Z",
+      "duration_seconds": 10.0,
+      "agent_runs": [
+        {
+          "agent": "w6-owner",
+          "started_at": "2026-11-22T03:03:00Z",
+          "ended_at": "2026-11-22T03:08:21Z",
+          "duration_seconds": 321.0,
+          "calls": 0,
+          "budget_calls": 30,
+          "over_budget": false
+        },
+        {
+          "agent": "w6-cad-spike",
+          "started_at": "2026-11-22T03:09:31Z",
+          "ended_at": "2026-11-22T03:27:48Z",
+          "duration_seconds": 1097.0,
+          "calls": 0,
+          "budget_calls": 90,
+          "over_budget": false
+        },
+        {
+          "agent": "w6-wsl-build",
+          "started_at": "2026-11-22T03:03:02Z",
+          "ended_at": "2026-11-22T03:54:08Z",
+          "duration_seconds": 3066.0,
+          "calls": 0,
+          "budget_calls": 120,
+          "over_budget": false
+        },
+        {
+          "agent": "w6-ui-hardening",
+          "started_at": "2026-11-22T03:03:20Z",
+          "ended_at": "2026-11-22T04:05:14Z",
+          "duration_seconds": 3714.0,
+          "calls": 0,
+          "budget_calls": 180,
+          "over_budget": false
+        },
+        {
+          "agent": "w6-sweeps-build",
+          "started_at": "2026-11-22T04:33:40Z",
+          "ended_at": "2026-11-22T05:48:15Z",
+          "duration_seconds": 4475.0,
+          "calls": 0,
+          "budget_calls": 400,
+          "over_budget": false
+        },
+        {
+          "agent": "w6-setup-build",
+          "started_at": "2026-11-22T06:11:49Z",
+          "ended_at": "2026-11-22T07:06:00Z",
+          "duration_seconds": 3251.0,
+          "calls": 0,
+          "budget_calls": 400,
+          "over_budget": false
+        }
+      ],
+      "parallelism": {
+        "agent_seconds": 15924.0,
+        "span_seconds": 11460.0,
+        "speedup": 1.39,
+        "peak_concurrency": 3
+      }
     }
   ],
   "changes": [

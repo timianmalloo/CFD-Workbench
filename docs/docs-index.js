@@ -12552,7 +12552,7 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/wave6-and-area5-wsl.md",
       "title": "Coordination plan - wave 6 and Area 5 WSL build (AGY native swarm)",
       "type": "plan",
-      "status": "active",
+      "status": "complete",
       "owner": "@timianmalloo",
       "phase": "",
       "reviewBy": "2027-02-20",
@@ -12602,7 +12602,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d6566b9b053a9d11c6bea058c713ca72c7a75cab11d43d1067f1d369be3be1dc"
+      "sourceSha256": "71a366d6716d804a3255275781ca7b63b3a4ae61256f11ce6923b96c5ce38f2f"
     },
     {
       "id": "coordination-windows-gpu-f1-design",
@@ -25643,5 +25643,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "a42ccc969f3bdf774ea46d08d1fa50b9b62788e0653cc27c9777212d381adbd5"
+  "graphSha256": "c2fbbbe24ea14ec17c59ce6dd2069ac05ae033df1ef875ee702c6afad41e0856"
 };
