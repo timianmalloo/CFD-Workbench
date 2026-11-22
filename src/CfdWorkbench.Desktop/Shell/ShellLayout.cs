@@ -9,8 +9,6 @@ public sealed class ShellLayoutFactory : Factory
 {
     public ITool PropertiesTool { get; private set; } = null!;
     public ITool BrowserTool { get; private set; } = null!;
-    /// <summary>An unfilled tool with no Homes row. A3a took its tab: the approved Analysis mockup draws Properties, Browser, Layers, and a fourth tab no longer fits the 260 px bar (270 px measured). It stays findable, not in the default dock.</summary>
-    public ITool RailControlsTool { get; private set; } = null!;
     /// <summary>The Layers pane (A3a G-T6): a left-dock tab after Browser; its home is a LayoutCodec Homes row.</summary>
     public ITool LayersTool { get; private set; } = null!;
     public IDocument ModelDocument { get; private set; } = null!;
@@ -51,15 +49,6 @@ public sealed class ShellLayoutFactory : Factory
         {
             Id = "layers",
             Title = "Layers",
-            CanPin = false,
-            CanClose = true,
-            CanFloat = true
-        };
-
-        RailControlsTool = new Tool
-        {
-            Id = "rail-controls",
-            Title = "Rail controls",
             CanPin = false,
             CanClose = true,
             CanFloat = true
@@ -152,7 +141,6 @@ public sealed class ShellLayoutFactory : Factory
     {
         "properties" => PropertiesTool,
         "browser" => BrowserTool,
-        "rail-controls" => RailControlsTool,
         "layers" => LayersTool,
         "model" => ModelDocument,
         "section" => SectionDocument,

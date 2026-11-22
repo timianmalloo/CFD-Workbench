@@ -64,38 +64,41 @@ public static class NativeMenuBuilder
     public static void RefreshEditMenu(Window window, Func<string, bool> canExecute)
     {
         var host = FindHost(window);
-        var edit = NativeMenu.GetMenu(window)?.Items.OfType<NativeMenuItem>()
+        var rootMenu = NativeMenu.GetMenu(window);
+        if (rootMenu is null) return;
+        var edit = rootMenu.Items.OfType<NativeMenuItem>()
             .FirstOrDefault(item => Equals(item.Header, "Edit"));
-        if (edit?.Menu is null) return;
-        foreach (var item in edit.Menu.Items.OfType<NativeMenuItem>())
+        if (edit?.Menu is not null)
         {
-            string? id = item.Header?.ToString() switch
+            foreach (var item in edit.Menu.Items.OfType<NativeMenuItem>())
             {
-                "Undo" => "edit.undo",
-                "Redo" => "edit.redo",
-                "Add point…" => "point.add",
-                "Remove point" => "point.remove",
-                "Add station…" => "station.add",
-                "Remove station" => "station.remove",
-                "Match the blend…" => "station.match-blend",
-                var title when title?.StartsWith("Rebuild ", StringComparison.Ordinal) == true => "point.rebuild",
-                _ => null
-            };
-            if (id is null) continue;
-            if (id == "point.rebuild")
-            {
-                string? curve = host?.Controller.Selection is Selection.Points { Items.Count: 1 } points
-                    ? points.Items[0].Curve : null;
-                item.Header = curve is not null && PropertiesView.Curves.TryGetValue(curve, out var rows)
-                    ? $"Rebuild {rows.Name.ToLowerInvariant()}…" : "Rebuild curve…";
+                if (item.Header?.ToString()?.StartsWith("Rebuild ", StringComparison.Ordinal) == true)
+                {
+                    string? curve = host?.Controller.Selection is Selection.Points { Items.Count: 1 } points
+                        ? points.Items[0].Curve : null;
+                    item.Header = curve is not null && PropertiesView.Curves.TryGetValue(curve, out var rows)
+                        ? $"Rebuild {rows.Name.ToLowerInvariant()}…" : "Rebuild curve…";
+                }
             }
-            item.IsEnabled = id.StartsWith("point.", StringComparison.Ordinal) || id.StartsWith("station.", StringComparison.Ordinal) ? host?.CanRun(id) == true : canExecute(id);
+        }
+        // F-20: refresh IsEnabled and CanExecuteChanged across ALL menu commands (not only Edit).
+        foreach (var item in Flatten(rootMenu))
+        {
+            if (item.Command is null) continue;
+            item.IsEnabled = item.Command.CanExecute(null);
             (item.Command as DelegateCommand)?.RaiseCanExecuteChanged();
         }
     }
+
     public static KeyGesture? ParseGesture(string? gestureString, bool? macOS = null)
     {
         if (string.IsNullOrWhiteSpace(gestureString)) return null;
+
+        bool isMac = macOS ?? OperatingSystem.IsMacOS();
+        // F-20: ⌃⌘F is macOS Fullscreen/Zoom; on Windows both ⌃ and ⌘ map to Control which would hijack Ctrl+F (Find).
+        // Use standard Windows F11 instead of Ctrl+F.
+        if (gestureString == "⌃⌘F" && !isMac)
+            return new KeyGesture(Key.F11, KeyModifiers.None);
 
         var modifiers = KeyModifiers.None;
         var s = gestureString;
@@ -105,7 +108,7 @@ public static class NativeMenuBuilder
         if (s.Contains('⌃')) { modifiers |= KeyModifiers.Control; s = s.Replace("⌃", ""); }
         if (s.Contains('⌘'))
         {
-            modifiers |= macOS ?? OperatingSystem.IsMacOS() ? KeyModifiers.Meta : KeyModifiers.Control;
+            modifiers |= isMac ? KeyModifiers.Meta : KeyModifiers.Control;
             s = s.Replace("⌘", "");
         }
 
@@ -132,6 +135,7 @@ public static class NativeMenuBuilder
             "M" => Key.M,
             "F" => Key.F,
             "R" => Key.R,
+            "F11" => Key.F11,
             "↩" => Key.Return,
             "=" => Key.OemPlus,
             "-" => Key.OemMinus,
@@ -141,8 +145,8 @@ public static class NativeMenuBuilder
 
         if (key == Key.None) return null;
         // A single-character key (C, F) is bound on the view control, not the window, so it never fires in a text field
-        // (2.1.4); the menu shows it through the palette instead of claiming it as a key equivalent.
-        if (modifiers == KeyModifiers.None) return null;
+        // (2.1.4); function keys (F11) are allowed unmodified.
+        if (modifiers == KeyModifiers.None && key != Key.F11) return null;
         return new KeyGesture(key, modifiers);
     }
 
@@ -169,8 +173,37 @@ public static class NativeMenuBuilder
     {
         var bar = host.ShowMenuBar();
         host.MenuKeys = new MenuBarKeys(window, () => bar.GetVisualDescendants().OfType<Menu>().FirstOrDefault());
+        // F-20: Windows top-level menu bar mnemonics (_File, _Edit, _View, _Section, _Window) applied to the realized
+        // in-window Menu items while keeping NativeMenu headers clean for macOS / lookup stability.
+        bool mnemonicsApplied = false;
+        void ApplyWindowsMnemonics()
+        {
+            if (mnemonicsApplied) return;
+            var visualMenu = bar.GetVisualDescendants().OfType<Menu>().FirstOrDefault();
+            if (visualMenu is null) return;
+            var topItems = visualMenu.GetVisualDescendants().OfType<MenuItem>()
+                .Where(m => m.FindAncestorOfType<MenuItem>() is null)
+                .ToArray();
+            if (topItems.Length == 0) return;
+            foreach (var mi in topItems)
+            {
+                if (mi.Header is string header && header.Length > 0 && !header.StartsWith('_'))
+                    mi.Header = "_" + header;
+            }
+            mnemonicsApplied = true;
+        }
+        bar.LayoutUpdated += (_, _) => ApplyWindowsMnemonics();
+        ApplyWindowsMnemonics();
+
         foreach (var item in Flatten(menu).Where(item => item.Gesture is not null && item.Command is not null))
             window.KeyBindings.Add(new KeyBinding { Gesture = item.Gesture!, Command = item.Command! });
+
+        // F-20: Windows standard Redo gesture (Ctrl+Y) alongside Ctrl+Shift+Z.
+        var redo = menu.Items.OfType<NativeMenuItem>()
+            .FirstOrDefault(item => Equals(item.Header, "Edit"))?.Menu?.Items.OfType<NativeMenuItem>()
+            .FirstOrDefault(item => Equals(item.Header, "Redo"));
+        if (redo?.Command is not null)
+            window.KeyBindings.Add(new KeyBinding { Gesture = new KeyGesture(Key.Y, KeyModifiers.Control), Command = redo.Command });
     }
 
     private static IEnumerable<NativeMenuItem> Flatten(NativeMenu? level) =>
@@ -329,6 +362,7 @@ public static class NativeMenuBuilder
             }, () =>
             {
                 if (row.Id is "edit.undo" or "edit.redo") return canExecute?.Invoke(row.Id) ?? true;
+                if (row.Id is "file.save" or "file.save-as" or "file.close") return FindHost(window)?.Controller.Inspection is not null;
                 if (IsPaneCommand(row.Id) && FindHost(window) is { } host) return host.CanRun(row.Id);
                 return true;
             });

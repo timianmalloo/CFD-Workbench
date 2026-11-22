@@ -4065,6 +4065,75 @@ public sealed class WorkbenchController : IDisposable
         Notify();
     }
 
+    /// <summary>Closes the open foil and returns the controller to the empty Start state (F-19, seam #82).</summary>
+    public void CloseFoil()
+    {
+        if (disposed || Inspection is null) return;
+        bool hadSection = Section is not null;
+        CancelSectionAssessment();
+        ClearReplacePreview();
+        Section = null;
+        sectionBeforeChecking = null;
+        SectionRefitRefusal = null;
+        SectionMatchRefusal = null;
+        CancelSampling();
+        CancelAnalysis();
+        analysisCancellation = null;
+        store.Dispose();
+        session.Dispose();
+        session = new AuthoringSession();
+        analysisService = new AnalysisService(session, analysisMethod, analysisBarrier, time);
+        isSweeps = false;
+        isSetup = false;
+        Inspection = null;
+        try { Setup.BindSession(session); }
+        catch (ContractError err) when (err.Code == "DOC-EMPTY") { }
+        Sweeps.BindSession(session);
+        Sweeps.SetDisplayUnits(analysisUnits);
+        analysisProjectionKey = null;
+        analysisView = null;
+        LayerSet = [];
+        areaMode = ShellMode.Workspace;
+        returnToCadMode = ShellMode.Workspace;
+        store = storeFactory(session);
+        ClearPendingImport();
+        NativePath = null;
+        Origin = DocumentOrigin.Local;
+        OpenedPath = null;
+        expectedDiskSha = null;
+        uncertainImage = null;
+        uncertainPath = null;
+        uncertainDraftId = uncertainAcceptedId = null;
+        savedDraftId = savedAcceptedId = null;
+        interiorEta = .5;
+        acceptedFrame = null;
+        Frame = null;
+        Surface = null;
+        SurfaceNote = null;
+        surfaceKey = null;
+        camera3d = null;
+        elevationCameras.Clear();
+        draft = null;
+        Gesture = GestureState.Idle;
+        gesturePoint = null;
+        gestureOrigin = null;
+        pendingGestureTarget = null;
+        draftInputValid = true;
+        currentAssessment = null;
+        SectionReport = null;
+        sectionViews.Clear();
+        replaceNames.Clear();
+        Estimates = null;
+        flyout = null;
+        var prevSelection = Selection;
+        Selection = new Selection.None();
+        Provenance = "empty";
+        Status = "Closed foil.";
+        if (hadSection) RaiseSectionChanged();
+        if (!Equals(prevSelection, Selection)) SelectionChanged?.Invoke();
+        Notify();
+    }
+
     private async Task RefreshAcceptedAsync(CancellationToken cancellation = default, bool preserveStatus = false)
     {
         CancelSampling();

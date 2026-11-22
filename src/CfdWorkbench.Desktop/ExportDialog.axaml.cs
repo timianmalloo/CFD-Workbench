@@ -33,6 +33,14 @@ public partial class ExportDialog : Window
         this.session = session;
         Func<string, string?, Task<string?>> panel = pick ?? ((name, folder) => PickWithPanelAsync(this, name, folder));
         InitializeComponent();
+        Icon = App.AppIcon;
+        // F-35: consistent OS dialog button order (Windows: primary left, Cancel right; macOS: Cancel left, primary right).
+        if (OperatingSystem.IsMacOS())
+        {
+            FooterButtons.Children.Clear();
+            FooterButtons.Children.Add(CancelButton);
+            FooterButtons.Children.Add(ExportButton);
+        }
         DatFormatItem.Content = ExportCopy.FormatDat;
         AutomationProperties.SetName(DatFormatItem, ExportCopy.FormatDat);
         StlFormatItem.IsSelected = session.Format == ExportFormat.Stl;
@@ -130,7 +138,11 @@ public partial class ExportDialog : Window
             WritingProgress.Value = 50;
             LayoutUpdated += (_, _) => MainWindow.SuppressTransitions(this);
         }
-        Opened += (_, _) => ((FormatList.SelectedItem as Control) ?? FormatList).Focus();
+        Opened += (_, _) =>
+        {
+            MaxHeight = DialogChrome.BoundedMaxHeight(Owner as Window);
+            ((FormatList.SelectedItem as Control) ?? FormatList).Focus();
+        };
         Closed += (_, _) => returnFocus?.Focus();
         Refresh();
     }

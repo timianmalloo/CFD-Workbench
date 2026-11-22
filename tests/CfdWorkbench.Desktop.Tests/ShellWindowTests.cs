@@ -355,9 +355,11 @@ public static class ShellWindowTests
                     Settle(window);
 
                     var docTabs = host.DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>().ToArray();
-                    string[] titles = docTabs.Select(tab => (tab.DataContext as Dock.Model.Core.IDockable)?.Title ?? "").ToArray();
-                    if (!titles.SequenceEqual(["Plan", "Section", "Foil source"]))
-                        throw new InvalidOperationException("Model-area Dock tabs are " + string.Join(", ", titles));
+                    string[] docIds = docTabs.Select(tab => (tab.DataContext as Dock.Model.Core.IDockable)?.Id ?? "").ToArray();
+                    if (!docIds.SequenceEqual(["model", "section", "foil-source"]))
+                        throw new InvalidOperationException("Model-area Dock tabs are " + string.Join(", ", docIds));
+                    // Preserve verify-application-adapters.py's frozen THEME-ROW keys while F-22 shows loaded filename on the Plan tab.
+                    string[] titles = docIds.Select(id => id switch { "model" => "Plan", "section" => "Section", _ => "Foil source" }).ToArray();
                     var modelTab = docTabs[1];
                     var sourceTab = docTabs[2];
                     modelTab.IsSelected = true;
@@ -1001,10 +1003,10 @@ public static class ShellWindowTests
                     .Single(item => Equals(item.Header, "File"));
                 var openRecent = file.Menu!.Items.OfType<NativeMenuItem>()
                     .Single(item => Equals(item.Header, "Open Recent"));
-                if (rows.Items.OfType<ListBoxItem>().All(item => !Equals(item.Content, recentPath)) ||
+                if (rows.Items.OfType<ListBoxItem>().All(item => !Equals(item.Tag, recentPath)) ||
                     openRecent.Menu!.Items.OfType<NativeMenuItem>().All(item => !Equals(item.Header, recentPath)))
                     throw new InvalidOperationException("Stored recent file is missing: rows=" +
-                        string.Join(",", rows.Items.OfType<ListBoxItem>().Select(item => item.Content)) +
+                        string.Join(",", rows.Items.OfType<ListBoxItem>().Select(item => item.Tag ?? item.Content)) +
                         " menu=" + string.Join(",", openRecent.Menu!.Items.OfType<NativeMenuItem>().Select(item => item.Header)));
             }
             finally
@@ -1287,16 +1289,21 @@ public static class ShellWindowTests
                     ?? throw new InvalidOperationException("Shell controller field is unreadable");
                 var host = window.Content as ShellHost
                     ?? throw new InvalidOperationException("Shell host did not load");
+                var modelTab = host.DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>()
+                    .FirstOrDefault(item => ReferenceEquals(item.DataContext, host.LayoutFactory.ModelDocument))
+                    ?? throw new InvalidOperationException("Plan Dock tab did not render");
+                var earlyVisual = ElementComposition.GetElementVisual(modelTab)
+                    ?? throw new InvalidOperationException("Dock tab lacks composition visual");
+                var early = earlyVisual.Compositor.RequestCompositionBatchCommitAsync();
+                Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+                host.RefreshPanes();
+                Settle(window);
                 var tab = host.DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>()
                     .FirstOrDefault(item => ReferenceEquals(item.DataContext, host.LayoutFactory.SectionDocument))
                     ?? throw new InvalidOperationException("Model Dock tab did not render");
                 var visual = ElementComposition.GetElementVisual(tab)
                     ?? throw new InvalidOperationException("Dock tab lacks composition visual");
-                var early = visual.Compositor.RequestCompositionBatchCommitAsync();
-                Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
-                host.RefreshPanes();
-                Settle(window);
-                if (!ReferenceEquals(ElementComposition.GetElementVisual(tab)?.Compositor, visual.Compositor))
+                if (!ReferenceEquals(visual.Compositor, earlyVisual.Compositor))
                     throw new InvalidOperationException("Dock tab lost its compositor after the fixture opened");
                 if (!tab.Focus(NavigationMethod.Tab))
                     throw new InvalidOperationException("Dock tab refused keyboard focus");
@@ -1367,6 +1374,11 @@ public static class ShellWindowTests
             ShellHost host;
             try { host = new ShellHost(controller); }
             catch (Exception error) { throw new InvalidOperationException(error.ToString(), error); }
+            var startIds = host.LayoutFactory.MainDocumentDock.VisibleDockables?.Select(item => item.Id).ToArray() ?? [];
+            if (!startIds.SequenceEqual(["model"]))
+                throw new InvalidOperationException("Start document tabs should show only Plan: " + string.Join(",", startIds));
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            host.RefreshPanes();
             var ids = host.LayoutFactory.MainDocumentDock.VisibleDockables?.Select(item => item.Id).ToArray() ?? [];
             if (!ids.SequenceEqual(["model", "section", "foil-source"]))
                 throw new InvalidOperationException("Model area document tabs are absent");
@@ -1379,7 +1391,7 @@ public static class ShellWindowTests
             try
             {
                 window.Show();
-                window.UpdateLayout();
+                Settle(window);
                 if (!host.DockHost.IsVisible)
                     throw new InvalidOperationException("Dock host did not render in the window");
                 foreach (var document in new[]
@@ -1390,7 +1402,7 @@ public static class ShellWindowTests
                 })
                 {
                     host.LayoutFactory.MainDocumentDock.ActiveDockable = document;
-                    window.UpdateLayout();
+                    Settle(window);
                 }
             }
             finally { window.Close(); }

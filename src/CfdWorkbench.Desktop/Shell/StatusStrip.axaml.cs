@@ -108,6 +108,7 @@ public partial class StatusStrip : UserControl
             _ => "Analysis: " + state
         };
         AutomationProperties.SetName(AnalysisItem, AnalysisItemText.Text);
+        analysisWanted = true;
         AnalysisItem.IsVisible = true;
         FitItems();
     }
@@ -133,10 +134,11 @@ public partial class StatusStrip : UserControl
     }
 
     private (bool Selection, bool Units, bool Estimates, bool TextSize) wanted = (false, false, false, true);
+    private bool analysisWanted;
 
     /// <summary>
     /// The strip is one line: when the items would crowd the message (large Text size, narrow window) they drop in the order
-    /// Text size, ≈ estimates, units; the selection stays.
+    /// Text size, ≈ estimates, units, analysis state; the selection stays.
     /// </summary>
     private void FitItems()
     {
@@ -144,9 +146,10 @@ public partial class StatusStrip : UserControl
         UnitsItem.IsVisible = wanted.Units;
         EstimateItem.IsVisible = wanted.Estimates;
         TextSizeItem.IsVisible = wanted.TextSize;
+        AnalysisItem.IsVisible = analysisWanted;
         double width = Bounds.Width;
         if (width <= 0) return;
-        foreach (var item in new Control[] { TextSizeItem, EstimateItem, UnitsItem })
+        foreach (var item in new Control[] { TextSizeItem, EstimateItem, UnitsItem, AnalysisItem })
         {
             if (ItemsWidth() <= width / 2) break;
             item.IsVisible = false;

@@ -38,8 +38,15 @@ public partial class StartView : UserControl
 
     private void RequestSelectedRecent()
     {
-        if (RecentListBox.SelectedItem is ListBoxItem { Content: string path })
+        if (RecentListBox.SelectedItem is ListBoxItem item && (item.Tag as string ?? item.Content as string) is { } path)
             RecentRequested?.Invoke(path);
+    }
+
+    public static string FormatRecentLabel(string path)
+    {
+        string file = Path.GetFileName(path);
+        string? parent = Path.GetFileName(Path.GetDirectoryName(path));
+        return string.IsNullOrEmpty(parent) ? file : $"{file} — {parent}";
     }
 
     public void PopulateRecent(IReadOnlyList<string> paths)
@@ -52,11 +59,17 @@ public partial class StartView : UserControl
         else
         {
             RecentSection.IsVisible = true;
-            RecentListBox.ItemsSource = paths.Select(p => new ListBoxItem
+            RecentListBox.ItemsSource = paths.Select(p =>
             {
-                Content = p,
-                [Avalonia.Automation.AutomationProperties.NameProperty] = $"{Path.GetFileName(p)}, {Path.GetFileName(Path.GetDirectoryName(p))}",
-                [Avalonia.Automation.AutomationProperties.HelpTextProperty] = p
+                var item = new ListBoxItem
+                {
+                    Content = FormatRecentLabel(p),
+                    Tag = p,
+                    [Avalonia.Automation.AutomationProperties.NameProperty] = $"{Path.GetFileName(p)}, {Path.GetFileName(Path.GetDirectoryName(p))}",
+                    [Avalonia.Automation.AutomationProperties.HelpTextProperty] = p
+                };
+                ToolTip.SetTip(item, p);
+                return item;
             }).ToList();
         }
     }
@@ -65,6 +78,7 @@ public partial class StartView : UserControl
     {
         originatingControl = origin;
         OpeningText.Text = $"Opening {fileName}…";
+        CardsPanel.IsEnabled = false;
         OpeningPanel.IsVisible = true;
         OpenCancelButton.Focus();
     }
@@ -72,12 +86,14 @@ public partial class StartView : UserControl
     public void CancelOpening()
     {
         OpeningPanel.IsVisible = false;
+        CardsPanel.IsEnabled = true;
         (originatingControl ?? StartNewButton).Focus();
     }
 
     public void HideOpening()
     {
         OpeningPanel.IsVisible = false;
+        CardsPanel.IsEnabled = true;
     }
 
     /// <summary>The approved open sentence (COPY-103, 125 to 130) and, on a second line, the code that fired (COPY-424, Ruling 155).</summary>

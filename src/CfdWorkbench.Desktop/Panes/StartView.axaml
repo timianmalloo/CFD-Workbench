@@ -10,7 +10,7 @@
         <StackPanel Spacing="8">
           <TextBlock x:Name="AlertTitle" Classes="heading" Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap" />
           <TextBlock x:Name="AlertMessage" TextWrapping="Wrap" />
-          <StackPanel Orientation="Horizontal" Spacing="8">
+          <WrapPanel Orientation="Horizontal" Classes="alert-actions">
             <Button x:Name="AlertLocateButton" Content="Locate…" IsVisible="False" />
             <Button x:Name="AlertTryAgainButton" Content="Try again" IsVisible="False" />
             <Button x:Name="AlertNewFoilButton" Content="New foil" IsVisible="False" />
@@ -18,7 +18,7 @@
             <Button x:Name="AlertOpenAnotherButton" Content="Open another file…" IsVisible="False" />
             <Button x:Name="AlertRemoveRecentButton" Content="Remove from Recent" IsVisible="False" />
             <Button x:Name="AlertDismissButton" Content="Dismiss" />
-          </StackPanel>
+          </WrapPanel>
         </StackPanel>
       </Border>
 
@@ -63,7 +63,7 @@
                   AutomationProperties.Name="Open…">
             <StackPanel Spacing="4" Margin="{StaticResource Space2}">
               <TextBlock Text="Open…" FontWeight="SemiBold" />
-              <TextBlock Text="A .foil file on this computer." Classes="caption" TextWrapping="Wrap" />
+              <TextBlock Text="A .foil or .cfdw.json file on this computer." Classes="caption" TextWrapping="Wrap" />
             </StackPanel>
           </Button>
         </Grid>

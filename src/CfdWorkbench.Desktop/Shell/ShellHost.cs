@@ -257,7 +257,6 @@ public sealed class ShellHost : Grid
         // Assign views to layout tools / documents
         LayoutFactory.PropertiesTool.Context = Properties;
         LayoutFactory.BrowserTool.Context = Browser;
-        LayoutFactory.RailControlsTool.Context = null;
         LayoutFactory.PointsTool.Context = Points;
         LayoutFactory.LayersTool.Context = Layers;
 
@@ -270,6 +269,7 @@ public sealed class ShellHost : Grid
         AnalysisPanel.OpenSectionRequested += OpenSectionDocument;
         LayoutFactory.ActiveDockableChanged += (_, change) =>
         {
+            MarkDockFixupNeeded();
             if (change.Dockable is not Dock.Model.Controls.IDocument) return;
             bool section = ReferenceEquals(change.Dockable, LayoutFactory.SectionDocument);
             ModelView.PlaceBand(section);
@@ -287,14 +287,9 @@ public sealed class ShellHost : Grid
             Layout = LayoutRoot,
             InitializeFactory = true
         };
-        DockHost.LayoutUpdated += (_, _) =>
-        {
-            InstallToolTabMenus();
-            LabelToolChrome();
-            PlaceToolTabsAtTop();
-            PlaceSidebarToggle();
-            ApplyDefaultLeftPaneWidth();
-        };
+        HookDockCollectionChanges();
+        DockHost.AttachedToVisualTree += (_, _) => MarkDockFixupNeeded();
+        DockHost.LayoutUpdated += (_, _) => RunGatedDockFixups();
         SetRow(DockHost, 0);
         Children.Add(DockHost);
         SetRow(AnalysisPanel, 1);
@@ -525,18 +520,56 @@ public sealed class ShellHost : Grid
 
     public async Task OpenExampleAsync()
     {
+        if (opening is not null) return;
         if (Controller.IsDirty && ConfirmReplaceAsync is not null && !await ConfirmReplaceAsync()) return;
+        using var cancellation = new CancellationTokenSource();
+        opening = cancellation;
         ModelView.StartCardView.ShowOpening("example.foil", ModelView.StartCardView.StartExampleButton);
         try
         {
-            await Controller.OpenExampleAsync();
+            await Controller.OpenFoilAsync(CfdWorkbench.Cli.Cli.ExampleBytes(), "example.foil", cancellation.Token);
+            if (cancellation.IsCancellationRequested)
+            {
+                HandleOpenOutcome(new OpenOutcome.Cancelled(), "example.foil");
+                return;
+            }
             HandleOpenOutcome(new OpenOutcome.Opened("example.foil"), "example.foil");
+        }
+        catch (OperationCanceledException)
+        {
+            HandleOpenOutcome(new OpenOutcome.Cancelled(), "example.foil");
         }
         catch (Exception)
         {
             ModelView.StartCardView.HideOpening();
             ModelView.StartCardView.ShowAlert("example.foil", new OpenFailure.Missing("FILE-NOT-FOUND", "example.foil"), isMissingFixture: true);
         }
+        finally { opening = null; }
+    }
+
+    /// <summary>Closes the open foil and returns to Start, prompting if dirty (F-19).</summary>
+    public async Task CloseFoilAsync()
+    {
+        if (Controller.Inspection is null) return;
+        if (Controller.IsDirty && ConfirmReplaceAsync is not null && !await ConfirmReplaceAsync()) return;
+        Controller.CloseFoil();
+        RefreshPanes();
+        FocusStartWhenReady();
+    }
+
+    /// <summary>Display filename for the open foil, or null on Start (F-22).</summary>
+    public static string? DocumentDisplayName(WorkbenchController controller)
+    {
+        if (controller.Inspection is null) return null;
+        if (!string.IsNullOrWhiteSpace(controller.NativePath))
+            return Path.GetFileName(controller.NativePath);
+        if (!string.IsNullOrWhiteSpace(controller.OpenedPath))
+        {
+            if (string.Equals(controller.OpenedPath, "Embedded Example", StringComparison.OrdinalIgnoreCase))
+                return "example.foil";
+            return Path.GetFileName(controller.OpenedPath);
+        }
+        return "Untitled foil";
     }
 
     public async Task OpenNewFoilAsync()
@@ -875,6 +908,8 @@ public sealed class ShellHost : Grid
         lastGesture = Controller.Gesture;
 
         bool foilOpen = Controller.Inspection is not null;
+        SyncDocumentTabs(foilOpen);
+        UpdateDocumentTabTitle(foilOpen);
         StatusStrip.ShowItems(SelectionItemText(), foilOpen, Controller.Estimates is not null, Properties.TextScale, StripUnits());
         ModelView.ShowFoilOpen(foilOpen);
         if (foilOpen)
@@ -882,6 +917,43 @@ public sealed class ShellHost : Grid
             // The accepted source changes only with the acceptance (Inspection), one of the inputs above.
             if (!propertiesCurrent) ModelView.SourceText.Text = Controller.AcceptedSource;
         }
+    }
+
+    /// <summary>F-19: hide Section and Foil source tabs while on Start; show them once a foil is open.</summary>
+    private void SyncDocumentTabs(bool foilOpen)
+    {
+        var docs = LayoutFactory.MainDocumentDock.VisibleDockables;
+        if (docs is null) return;
+        bool changed = false;
+        if (!foilOpen)
+        {
+            if (docs.Remove(LayoutFactory.SectionDocument)) changed = true;
+            if (docs.Remove(LayoutFactory.FoilSourceDocument)) changed = true;
+            if (!ReferenceEquals(LayoutFactory.MainDocumentDock.ActiveDockable, LayoutFactory.ModelDocument))
+                LayoutFactory.MainDocumentDock.ActiveDockable = LayoutFactory.ModelDocument;
+        }
+        else
+        {
+            if (!docs.Contains(LayoutFactory.SectionDocument)) { docs.Add(LayoutFactory.SectionDocument); changed = true; }
+            if (!docs.Contains(LayoutFactory.FoilSourceDocument)) { docs.Add(LayoutFactory.FoilSourceDocument); changed = true; }
+        }
+        if (changed) MarkDockFixupNeeded();
+    }
+
+    /// <summary>F-22: Plan tab shows filename + dirty dot when a foil is open, and "Plan" on Start.</summary>
+    private void UpdateDocumentTabTitle(bool foilOpen)
+    {
+        bool dirty = false;
+        if (foilOpen)
+        {
+            try { dirty = Controller.IsDirty; }
+            catch (ContractError err) when (err.Code == "DOC-CLOSED") { return; }
+        }
+        string expected = !foilOpen
+            ? "Plan"
+            : (DocumentDisplayName(Controller) ?? "Plan") + (dirty ? " •" : "");
+        if (LayoutFactory.ModelDocument.Title != expected)
+            LayoutFactory.ModelDocument.Title = expected;
     }
 
     // simplify: the CFDW_DIAG_PANES trace (PaneDiagnostics): the Properties region's active tool, whether the left dock is in
@@ -1423,7 +1495,36 @@ public sealed class ShellHost : Grid
     /// <summary>The right side bar is in the layout.</summary>
     public bool RightSidebarShown => LayoutFactory.TopProportionalDock.VisibleDockables?.Contains(LayoutFactory.RightToolDock) == true;
 
-    public void ToggleRightSidebar() => SetRightShown(!RightSidebarShown);
+    public void ToggleRightSidebar()
+    {
+        SetRightShown(!RightSidebarShown);
+        MarkDockFixupNeeded();
+    }
+
+    /// <summary>F-18: restores default Planform dock layout (left sidebar open at default width, right closed, bottom unfolded, Plan tab active).</summary>
+    public void ResetLayout()
+    {
+        Workspace = WorkspaceId.Planform;
+        SetLeftShown(true);
+        var leftDocs = LayoutFactory.LeftToolDock.VisibleDockables;
+        if (leftDocs is not null)
+        {
+            IDockable[] defaults = [LayoutFactory.PropertiesTool, LayoutFactory.BrowserTool, LayoutFactory.LayersTool];
+            leftDocs.Clear();
+            foreach (var tool in defaults) leftDocs.Add(tool);
+            LayoutFactory.LeftToolDock.ActiveDockable = LayoutFactory.PropertiesTool;
+        }
+        SetRightShown(false);
+        bottomFolded = false;
+        BindAnalysisPanel();
+        LayoutFactory.MainDocumentDock.ActiveDockable = LayoutFactory.ModelDocument;
+        if (Controller.Inspection is not null && Controller.Section is null)
+            Controller.Layout = ViewLayout.Plan3d;
+        leftPaneWidthApplied = false;
+        MarkDockFixupNeeded();
+        ApplyDefaultLeftPaneWidth();
+        Report(new StatusReport("Layout reset to default."));
+    }
 
     private void SetLeftShown(bool shown)
     {
@@ -1474,9 +1575,10 @@ public sealed class ShellHost : Grid
         ViewCommands.Handles(id) ||
         IsShellCommand(id);
 
-    /// <summary>The rows the shell runs itself: the section rows, Thickness ×2, the Points pane and the workspaces.</summary>
+    /// <summary>The rows the shell runs itself: the section rows, Thickness ×2, the Points pane, layout reset, right sidebar, and the workspaces.</summary>
     public static bool IsShellCommand(string id) =>
-        id.StartsWith("section.", StringComparison.Ordinal) || id is "file.export" or "view.thickness-x2" or "window.points" or "window.layers" ||
+        id.StartsWith("section.", StringComparison.Ordinal) ||
+        id is "file.export" or "view.thickness-x2" or "view.toggle-right" or "window.points" or "window.layers" or "window.reset-layout" ||
         id.StartsWith("window.workspace-", StringComparison.Ordinal);
 
     /// <summary>The copy a section row names when the mode is not open.</summary>
@@ -1509,7 +1611,9 @@ public sealed class ShellHost : Grid
     /// <summary>Why a shell row cannot run now, or null when it can (UI-DEAD-CONTROL: every row runs or names why).</summary>
     public string? ShellCommandReason(string id)
     {
-        if (id.StartsWith("window.workspace-", StringComparison.Ordinal) || id is "window.points" or "window.layers") return null;
+        if (id.StartsWith("window.workspace-", StringComparison.Ordinal) ||
+            id is "window.points" or "window.layers" or "window.reset-layout" or "view.toggle-right")
+            return null;
         // Export reads the accepted revision, so an open section draft never blocks it (design H1); only a missing foil does (H9).
         if (id is "file.export" or "section.export-dat") return Controller.Inspection is null ? ExportCopy.NeedsFoil : null;
         var mode = Controller.Section;
@@ -1557,6 +1661,8 @@ public sealed class ShellHost : Grid
         }
         switch (id)
         {
+            case "view.toggle-right": ToggleRightSidebar(); return;
+            case "window.reset-layout": ResetLayout(); return;
             case "window.workspace-planform": ApplyWorkspace(WorkspaceId.Planform); return;
             case "window.workspace-precision": ApplyWorkspace(WorkspaceId.Precision); return;
             case "window.workspace-review": ApplyWorkspace(WorkspaceId.Review); return;
@@ -2062,10 +2168,12 @@ public sealed class ShellHost : Grid
         }, DispatcherPriority.Background);
     }
 
-    private void InstallToolTabMenus()
+    private int InstallToolTabMenus()
     {
+        int found = 0;
         foreach (var tab in DockHost.GetVisualDescendants().OfType<ToolTabStripItem>())
         {
+            found++;
             if (tab.ContextMenu is not null || tab.DataContext is not IDockable dockable || dockable.Id is not { } id)
                 continue;
             var size = new MenuItem { Header = "Size" };
@@ -2086,6 +2194,7 @@ public sealed class ShellHost : Grid
             }, DispatcherPriority.Input);
             tab.ContextMenu = menu;
         }
+        return found;
     }
 
     private void PlaceSidebarToggle()
@@ -2210,18 +2319,107 @@ public sealed class ShellHost : Grid
         }, DispatcherPriority.Background);
     }
 
+    // F-44: gate DockHost.LayoutUpdated visual-tree scans so redundant layout passes do not churn.
+    private bool dockFixupNeeded = true;
+    internal int DockLayoutFixupPasses { get; private set; }
+
+    private void MarkDockFixupNeeded() => dockFixupNeeded = true;
+
+    private void HookDockCollectionChanges()
+    {
+        foreach (var list in new[]
+        {
+            LayoutFactory.TopProportionalDock.VisibleDockables,
+            LayoutFactory.MainDocumentDock.VisibleDockables,
+            LayoutFactory.LeftToolDock.VisibleDockables,
+            LayoutFactory.RightToolDock.VisibleDockables
+        })
+        {
+            if (list is System.Collections.Specialized.INotifyCollectionChanged observable)
+                observable.CollectionChanged += (_, _) => MarkDockFixupNeeded();
+        }
+    }
+
+    private void RunGatedDockFixups()
+    {
+        if (!dockFixupNeeded && leftPaneWidthApplied && sidebarToggleStrip is not null) return;
+        DockLayoutFixupPasses++;
+        int toolTabsWired = InstallToolTabMenus();
+        LabelToolChrome();
+        bool sectionTabLabeled = LabelDocumentTabs();
+        PlaceToolTabsAtTop();
+        PlaceSidebarToggle();
+        ApplyDefaultLeftPaneWidth();
+        bool needsSectionTab = Controller.Inspection is not null;
+        int expectedToolTabs = 0;
+        if (LayoutFactory.TopProportionalDock.VisibleDockables?.Contains(LayoutFactory.LeftToolDock) == true)
+            expectedToolTabs += LayoutFactory.LeftToolDock.VisibleDockables?.Count ?? 0;
+        if (RightSidebarShown)
+            expectedToolTabs += LayoutFactory.RightToolDock.VisibleDockables?.Count ?? 0;
+        if (leftPaneWidthApplied && sidebarToggleStrip is not null &&
+            (!needsSectionTab || sectionTabLabeled) &&
+            toolTabsWired >= expectedToolTabs)
+            dockFixupNeeded = false;
+    }
+
+    /// <summary>F-19: preserve Ruling 125 COPY-404 ("Section") as tab title while disambiguating via ToolTip and AT Name.</summary>
+    private bool LabelDocumentTabs()
+    {
+        bool foundSection = false;
+        foreach (var tab in DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>())
+        {
+            if (ReferenceEquals(tab.DataContext, LayoutFactory.SectionDocument))
+            {
+                foundSection = true;
+                if (!Equals(ToolTip.GetTip(tab), "Section analysis"))
+                    ToolTip.SetTip(tab, "Section analysis");
+                if (AutomationProperties.GetName(tab) != "Section analysis")
+                    AutomationProperties.SetName(tab, "Section analysis");
+            }
+        }
+        return foundSection;
+    }
+
     public void SetPaneSize(string id, string sizeName)
     {
         var dockable = LayoutFactory.FindDockable(id);
         var toolDock = ShellLayoutFactory.FindParentDock(LayoutRoot, dockable!) as IToolDock;
         if (dockable is not null && toolDock is not null)
         {
-            toolDock.Proportion = sizeName switch
+            double target = sizeName switch
             {
                 "Narrow" => 0.15,
                 "Wide" => 0.35,
                 _ => 0.25
             };
+            toolDock.Proportion = target;
+            // F-32: update local ProportionalStackPanel.Proportion on realized presenters (shadows model binding after first layout).
+            var panel = DockHost.GetVisualDescendants().OfType<Dock.Controls.ProportionalStackPanel.ProportionalStackPanel>()
+                .FirstOrDefault(candidate => candidate.Children.Any(child => ReferenceEquals(child.DataContext, toolDock)));
+            if (panel is not null)
+            {
+                double otherToolProportion = 0;
+                foreach (var child in panel.Children)
+                {
+                    if (!ReferenceEquals(child.DataContext, toolDock) &&
+                        !ReferenceEquals(child.DataContext, LayoutFactory.MainDocumentDock) &&
+                        child.DataContext is IToolDock otherTool)
+                    {
+                        double p = Dock.Controls.ProportionalStackPanel.ProportionalStackPanel.GetProportion(child);
+                        otherToolProportion += double.IsNaN(p) || p <= 0 ? otherTool.Proportion : p;
+                    }
+                }
+                double mainProportion = Math.Max(0.2, 1.0 - otherToolProportion - target);
+                foreach (var child in panel.Children)
+                {
+                    if (ReferenceEquals(child.DataContext, toolDock))
+                        Dock.Controls.ProportionalStackPanel.ProportionalStackPanel.SetProportion(child, target);
+                    else if (ReferenceEquals(child.DataContext, LayoutFactory.MainDocumentDock))
+                        Dock.Controls.ProportionalStackPanel.ProportionalStackPanel.SetProportion(child, mainProportion);
+                }
+                panel.InvalidateMeasure();
+                panel.InvalidateArrange();
+            }
             toolDock.ActiveDockable = dockable;
             FocusDockableTab(dockable);
         }

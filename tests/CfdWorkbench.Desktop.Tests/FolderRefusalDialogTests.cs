@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.LogicalTree;
 using Avalonia.Threading;
 using CfdWorkbench.Core;
 using CfdWorkbench.Desktop.Shell;
@@ -97,16 +98,21 @@ public static class FolderRefusalDialogTests
             }
             Need(dialog!.Title == "Save is blocked", $"title '{dialog.Title}'");
             Need(((ShellHost)window.Content!).StatusStrip.Text != inUseLine, "COPY-414 is shown behind the Save is blocked dialog");
-            var panel = (StackPanel)dialog.Content!;
-            var texts = panel.Children.OfType<TextBlock>().Select(text => text.Text ?? "").ToArray();
-            Need(texts[0] == "An earlier save of this project didn't finish (the app may have closed unexpectedly). Your saved file is unchanged.", $"lead '{texts[0]}'");
-            var steps = panel.Children.OfType<StackPanel>().First().Children.OfType<TextBlock>().Select(text => text.Text ?? "").ToArray();
+            var allButtons = dialog.GetLogicalDescendants().OfType<Button>().ToArray();
+            var allTexts = dialog.GetLogicalDescendants().OfType<TextBlock>()
+                .Where(tb => !allButtons.Any(b => ReferenceEquals(b.Content, tb) || b.IsLogicalAncestorOf(tb)))
+                .Select(text => text.Text ?? "").ToArray();
+            Need(allTexts[0] == "An earlier save of this project didn't finish (the app may have closed unexpectedly). Your saved file is unchanged.", $"lead '{allTexts[0]}'");
+            var steps = allTexts[1..4];
             Need(steps.SequenceEqual(["1. Close any other CFD Workbench window using this project.", "2. Check the project shows your last saved work.",
                 "3. Use Save As to keep your current work in a different folder, or choose Clear unfinished save, then Save."]), "steps: " + string.Join(" | ", steps));
-            Need(texts[1] == "This folder stays blocked until the unfinished save is cleared.", $"blocked sentence '{texts[1]}'");
-            var buttons = panel.Children.OfType<StackPanel>().Last().Children.OfType<Button>().Select(button => (string?)button.Content).ToArray();
-            Need(buttons.SequenceEqual(["Save As…", "Clear unfinished save…", "Cancel"]), "buttons: " + string.Join(" | ", buttons));
-            panel.Children.OfType<StackPanel>().Last().Children.OfType<Button>().Last().RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            Need(allTexts[4] == "This folder stays blocked until the unfinished save is cleared.", $"blocked sentence '{allTexts[4]}'");
+            var buttonLabels = allButtons.Select(button => (string?)button.Content).ToArray();
+            string[] expectedOrder = OperatingSystem.IsMacOS()
+                ? ["Cancel", "Clear unfinished save…", "Save As…"]
+                : ["Save As…", "Clear unfinished save…", "Cancel"];
+            Need(buttonLabels.SequenceEqual(expectedOrder), "buttons: " + string.Join(" | ", buttonLabels));
+            allButtons.Single(b => (string?)b.Content == "Cancel").RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
             Await(pending);
             Need(!dialog.SaveAs, "Cancel answered Save As");
             Need(((ShellHost)window.Content!).StatusStrip.Text != inUseLine, "COPY-414 is shown after the Save is blocked dialog closed");
@@ -145,12 +151,13 @@ public static class FolderRefusalDialogTests
         return dialog;
     }
 
-    private static string? Body(FolderRefusalDialog dialog) => Panel(dialog).Children.OfType<TextBlock>().Single().Text;
+    private static string? Body(FolderRefusalDialog dialog) =>
+        dialog.GetLogicalDescendants().OfType<TextBlock>().First().Text;
     private static (Button Choose, Button Cancel) Buttons(FolderRefusalDialog dialog)
     {
-        var buttons = Panel(dialog).Children.OfType<StackPanel>().Single().Children.OfType<Button>().ToArray();
-        return (buttons[0], buttons[1]);
+        var buttons = dialog.GetLogicalDescendants().OfType<Button>().ToArray();
+        return (buttons.Single(b => (string?)b.Content == FolderRefusalDialog.ChooseAnother),
+                buttons.Single(b => (string?)b.Content == FolderRefusalDialog.CancelLabel));
     }
-    private static StackPanel Panel(FolderRefusalDialog dialog) => (StackPanel)dialog.Content!;
     private static void Need(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
 }

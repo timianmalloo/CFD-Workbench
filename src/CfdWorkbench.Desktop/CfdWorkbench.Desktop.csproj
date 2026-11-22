@@ -8,6 +8,7 @@
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <RuntimeIdentifiers>osx-arm64;win-x64</RuntimeIdentifiers>
+    <ApplicationIcon>Assets/app-icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia.Desktop" Version="11.3.14" />
@@ -19,6 +20,9 @@
     <ProjectReference Include="../CfdWorkbench.Cli/CfdWorkbench.Cli.csproj" />
     <ProjectReference Include="../CfdWorkbench.Analysis/CfdWorkbench.Analysis.csproj" />
   </ItemGroup>
-  <ItemGroup><AvaloniaResource Include="Assets/example.foil" /></ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets/example.foil" />
+    <AvaloniaResource Include="Assets/app-icon.ico" />
+  </ItemGroup>
   <ItemGroup><InternalsVisibleTo Include="CfdWorkbench.Desktop.Tests" /></ItemGroup>
 </Project>
