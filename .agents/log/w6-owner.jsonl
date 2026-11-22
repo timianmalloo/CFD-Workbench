@@ -1,0 +1,6 @@
+{"action": "resolve", "agent": "w6-owner", "at": 1795316863.061634, "id": "req-01M80KD0Z8SC5S8V5K83W9Q9DP", "kind": "request", "outcome": "resolution", "path": "-", "seq": 1, "session": "w6-owner", "type": "request", "wi": "WI-0"}
+{"at": 1795316863.0758421, "from": "w6-owner", "kind": "ruling", "mail_id": "mail-01M80KJM33XE58577N4GPM9K1D", "ref": "req-01M80KD0Z8SC5S8V5K83W9Q9DP", "session": "w6-owner", "to": "agy-w6-coord", "type": "mail"}
+{"action": "resolve", "agent": "w6-owner", "at": 1795316863.3823078, "id": "req-01M80KD17PE3HPTEGXTK2694BE", "kind": "request", "outcome": "resolution", "path": "-", "seq": 3, "session": "w6-owner", "type": "request", "wi": "WI-0"}
+{"at": 1795316863.3992996, "from": "w6-owner", "kind": "ruling", "mail_id": "mail-01M80KJMD75R845FPJ8GBRNB9T", "ref": "req-01M80KD17PE3HPTEGXTK2694BE", "session": "w6-owner", "to": "agy-w6-coord", "type": "mail"}
+{"action": "resolve", "agent": "w6-owner", "at": 1795316863.6626527, "id": "req-01M80KD1FWKVMX5QZWH6CDFT18", "kind": "request", "outcome": "resolution", "path": "-", "seq": 5, "session": "w6-owner", "type": "request", "wi": "WI-0"}
+{"at": 1795316863.6807585, "from": "w6-owner", "kind": "ruling", "mail_id": "mail-01M80KJMP062TN27R3W65SZDS4", "ref": "req-01M80KD1FWKVMX5QZWH6CDFT18", "session": "w6-owner", "to": "agy-w6-coord", "type": "mail"}
