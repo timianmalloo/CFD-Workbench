@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-22T02:40:41Z",
+  "generated": "2026-11-22T03:00:46Z",
   "audit": [
     {
       "actor": null,
@@ -44327,6 +44327,30 @@ window.AUDIT_DATA = {
       "fan_out": 4,
       "started_at": "2026-11-22T02:17:36Z",
       "duration_seconds": 1384.0
+    },
+    {
+      "id": "al-01M80K5X49R18H6302527WJY9C",
+      "shortname": "coordination-wave6-and-area5-wsl",
+      "datetime": "2026-11-22T03:00:46Z",
+      "session": "agy-w6-coord",
+      "prompt": "use /prepare-for-coordination and /execute-with-coordination with /swarm to execute Wave 6 and Area 5 WSL build in parallel",
+      "summary": "5 tracks across 3 pipelined waves (Wave A: A5-WSL + UI-P0 + post-W6-0 KRN-SPK; Wave B: SWP-BUILD; Wave C: SET-BUILD), serial spine S0-S4 (W6-0 rulings + tools/ join serialization), 5 struck tracks; Adversary cleared (C1-C8 folded).",
+      "kind": "skill",
+      "skill": "prepare-for-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/wave6-and-area5-wsl.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Build optimal coordination plan for Wave 6 and Area 5 WSL build in parallel",
+      "done_when": "Plan committed on main with Adversary veto cleared, check-docs, verify-ruling-citations, and check-proof-pii green",
+      "tier": "T1",
+      "fan_out": 1,
+      "started_at": "2026-11-22T02:42:21Z",
+      "duration_seconds": 1105.0
     }
   ],
   "changes": [

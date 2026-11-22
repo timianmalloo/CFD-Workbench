@@ -12548,6 +12548,63 @@ window.DOCS_INDEX = {
       "sourceSha256": "2c92b078d3c5b8a50cb88f1387cc92fc8da3fa19aa40c41c6134411fcf1069e4"
     },
     {
+      "id": "coordination-wave6-and-area5-wsl",
+      "path": "docs/coordination/wave6-and-area5-wsl.md",
+      "title": "Coordination plan - wave 6 and Area 5 WSL build (AGY native swarm)",
+      "type": "plan",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-02-20",
+      "reviewSuggested": [],
+      "summary": "Wave 6 + Area 5 WSL build executed on AGY native swarm at max width 3 with at most one C#/Desktop-test track active per wave: Wave A runs Area 5 WSL OpenFOAM 2512 + CUDA 13.2 + PETSc-CUDA/petsc4Foam build (A5-WSL) in parallel with Wave 6 UI P0 Blocker hardening (UI-P0, 15 Blockers) while w6-owner rules DR-SWP-1..6, DR-SET-1..5, and DR-KRN-1,3,4,6 (immediately unlocking KRN-SPK Area 7 SPIKE-CAD-01 bake-off in Wave A); Wave B builds Area 4 Local Sweeps (SWP-BUILD) alongside ongoing A5-WSL; Wave C builds Area 1 Setup & Goal State (SET-BUILD).",
+      "tags": [
+        "coordination",
+        "worktrees",
+        "parallelism",
+        "windows",
+        "wsl",
+        "agy-swarm",
+        "wave6"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "review-ui-as-built-workbench",
+          "rel": "implements"
+        },
+        {
+          "to": "design-local-sweeps",
+          "rel": "implements"
+        },
+        {
+          "to": "design-setup-seeding",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-0013-cad-export-kernel",
+          "rel": "implements"
+        },
+        {
+          "to": "proof-wsl-preflight",
+          "rel": "refines"
+        },
+        {
+          "to": "coordination-wave5-next-steps",
+          "rel": "refines"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1fc3486ea2d63df98be014bf62f8d3ec4b113a7b1e28a494b58d4d6405754160"
+    },
+    {
       "id": "coordination-windows-gpu-f1-design",
       "path": "docs/coordination/windows-gpu-f1-design.md",
       "title": "Coordination plan - Windows GPU F1 design",
@@ -25273,6 +25330,14 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-wave5-next-steps"
     },
     {
+      "id": "surface-coordination-wave6-and-area5-wsl",
+      "path": "docs/coordination/wave6-and-area5-wsl.html",
+      "title": "Wave6 And Area5 Wsl",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "coordination-wave6-and-area5-wsl"
+    },
+    {
       "id": "surface-coordination-windows-gpu-f1-preflight-r217",
       "path": "docs/coordination/windows-gpu-f1-preflight-r217.html",
       "title": "Windows GPU F1 dependency preflight coordination plan",
@@ -25297,5 +25362,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "16858c1caa8e6e6aad57e2234812ee8c83786181dac24ed5b483339e4ca2cc99"
+  "graphSha256": "45438d40cb5ac23db8c71c8b876e3180e0179c4cb14e63eb0d299045334692e2"
 };
