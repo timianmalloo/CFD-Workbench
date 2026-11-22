@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-22T06:11:09Z",
+  "generated": "2026-11-22T07:04:41Z",
   "audit": [
     {
       "actor": null,
@@ -44627,6 +44627,46 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-22T06:03:43Z",
       "duration_seconds": 446.0
+    },
+    {
+      "id": "al-01M8114GVVSPWDD9PKJRZSHMZZ",
+      "shortname": "SET-BUILD Area 1 Setup & Goal State",
+      "datetime": "2026-11-22T07:04:41Z",
+      "session": "w6-setup-build",
+      "prompt": "Implement Wave 6 Track SET-BUILD (Nodes SET-1..4, Ruling 272)",
+      "summary": "Delivered SET-1..4 (SetupRecords, DisciplinePresets, exact 2D RecipeSeeder, live CurrentGoalSweepSnapshot seam, ClassRules, BLAKE3-pinned SanityBounds, GoalFeasibility GOAL-02 7-pt+0.3m, CLI seed+inspect parity, non-modal Desktop Setup navbar segment & 6 hard states, COPY-728..749, proof pack). TESTS-GREEN 364 s (Core 974, Analysis 326, Desktop 936, CLI 38, Python 10; 0 failed).",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/setup-seeding-native.md"
+      ],
+      "tags": [
+        "setup",
+        "wave6",
+        "ruling-272"
+      ],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Deliver Area 1 Setup & Goal State (SET-1..4) across Core, Analysis, CLI, Desktop, DESIGN.md COPY-728..749, and native proof pack.",
+      "done_when": "T1..T14 green, bash tools/run-tests.sh green across all 4 C# harnesses + Python, and all static/docs/PII/ruling gates pass.",
+      "tier": "T2",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-11-22T06:12:12Z",
+      "duration_seconds": 3149.0,
+      "git": {
+        "sha": "a06db47859420397936eb303b247f054fe2735f0",
+        "short": "a06db4785",
+        "branch": "swarm-w6-setup-build-d549728a",
+        "pushed": null
+      }
     }
   ],
   "changes": [

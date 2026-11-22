@@ -59,6 +59,7 @@ public partial class ModelArea : UserControl
     public ModelArea()
     {
         InitializeComponent();
+        NavSetupButton.Click += (_, _) => controller?.EnterSetup();
         NavCadButton.Click += (_, _) => controller?.EnterCad();
         NavAnalysisButton.Click += (_, _) => { if (controller is not null && !controller.IsAnalysis) controller.ToggleAnalysis(); };
         NavSweepsButton.Click += (_, _) => controller?.EnterSweeps();
@@ -507,10 +508,12 @@ public partial class ModelArea : UserControl
     }
 
     public Sweeps.SweepsWorkspaceView SweepsView => SweepsWorkspace;
+    public Setup.SetupWorkspaceView SetupView => SetupWorkspace;
 
     private void RefreshViews(WorkbenchController controller)
     {
-        NavCadButton.IsChecked = !controller.IsAnalysis && !controller.IsSweeps;
+        NavSetupButton.IsChecked = controller.IsSetup;
+        NavCadButton.IsChecked = !controller.IsSetup && !controller.IsAnalysis && !controller.IsSweeps;
         NavAnalysisButton.IsChecked = controller.IsAnalysis;
         NavSweepsButton.IsChecked = controller.IsSweeps;
         AnalysisConditionsBand.IsVisible = foilOpen && controller.IsAnalysis;
@@ -521,18 +524,24 @@ public partial class ModelArea : UserControl
         var analysis = controller.AnalysisView;
         RefreshLayerNames();
         HistoricalBannerText.Text = analysis.Banner;
-        HistoricalBanner.IsVisible = foilOpen && !controller.IsSweeps && analysis.Banner is not null;
+        HistoricalBanner.IsVisible = foilOpen && !controller.IsSweeps && !controller.IsSetup && analysis.Banner is not null;
         PreviewHiddenBanner.IsVisible = foilOpen && controller.IsAnalysis && controller.Draft is not null;
         showHost?.StatusStrip.ShowAnalysisState(controller.AnalysisState);
         controller.Sweeps.SetDisplayUnits(controller.AnalysisUnits);
         controller.Sweeps.CheckPreviewFreshness();
         bool showSweepItem = foilOpen && (controller.IsSweeps || controller.Sweeps.IsRunning || controller.Sweeps.Experiments.Count > 0);
         showHost?.StatusStrip.ShowSweepState(controller.Sweeps.StatusStripText, showSweepItem, controller.Sweeps.IsRunning, controller.Sweeps.CancelRun);
-        Mode = controller.IsAnalysis || controller.IsSweeps || controller.Section is null ? ModelAreaMode.Views : ModelAreaMode.Section;
-        PlanContent.IsVisible = foilOpen && Mode == ModelAreaMode.Views;
-        ViewArrangementGrid.IsVisible = !controller.IsSweeps;
+        controller.Setup.RefreshFromSession(notify: false);
+        bool showSetupItem = controller.IsSetup || controller.Setup.HasSetupOrActive;
+        showHost?.StatusStrip.ShowSetupState(controller.Setup.StatusStripText, showSetupItem);
+        Mode = controller.IsSetup || controller.IsAnalysis || controller.IsSweeps || controller.Section is null ? ModelAreaMode.Views : ModelAreaMode.Section;
+        StartCardView.IsVisible = !foilOpen && !controller.IsSetup;
+        PlanContent.IsVisible = (foilOpen || controller.IsSetup) && Mode == ModelAreaMode.Views;
+        ViewArrangementGrid.IsVisible = foilOpen && !controller.IsSweeps && !controller.IsSetup;
         SweepsWorkspace.IsVisible = foilOpen && controller.IsSweeps;
+        SetupWorkspace.IsVisible = controller.IsSetup;
         if (foilOpen) SweepsWorkspace.Bind(controller.Sweeps);
+        SetupWorkspace.Bind(controller.Setup, () => controller.EnterCad());
         SectionModeEditor.IsVisible = foilOpen && Mode == ModelAreaMode.Section;
         SectionModeEditor.Bind(controller);
         if (Mode == ModelAreaMode.Section)

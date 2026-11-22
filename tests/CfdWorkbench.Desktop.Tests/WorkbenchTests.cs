@@ -169,6 +169,14 @@ internal static class DesktopHarness
             Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
         }
 
+        if (args.Contains("--setup", StringComparer.Ordinal))
+        {
+            AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+            CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("setup");
+            CfdWorkbench.Desktop.Tests.SetupViewTests.Run();
+            Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+        }
+
         if (args.Contains("--status-strip", StringComparer.Ordinal))
         {
             AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
@@ -551,7 +559,7 @@ internal static class DesktopHarness
             "--section-editor --part=2/2", "--properties-view --part=2/2", "--shell-window --part=1/2",
             "--plan-canvas --part=2/2", "--plan-canvas --part=1/2", "--controller-shell",
             "--views --part=1/2", "--analysis", "--views --part=2/2",
-            "--properties-cells --part=2/2", "--properties-cells --part=1/2", "--ui-p0", "--sweeps", "--status-strip --part=1/3",
+            "--properties-cells --part=2/2", "--properties-cells --part=1/2", "--ui-p0", "--sweeps", "--setup", "--status-strip --part=1/3",
             "--status-strip --part=2/3", "--status-strip --part=3/3", "--shell-model");
         // The in-process checks above fail the run too, not only the child suites.
         return spawnedExit != 0 ? spawnedExit : CfdWorkbench.Desktop.Tests.DesktopChecks.FailureCount > 0 ? 1 : 0;

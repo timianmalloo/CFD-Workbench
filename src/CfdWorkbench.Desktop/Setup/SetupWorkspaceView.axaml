@@ -1,0 +1,279 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:setup="using:CfdWorkbench.Desktop.Setup"
+             x:Class="CfdWorkbench.Desktop.Setup.SetupWorkspaceView">
+  <!-- DR-SET-5 (a): Non-modal Area 1 Setup & Goal State surface inside ModelArea navbar (Setup | CAD | Analysis | Sweeps). -->
+  <Grid RowDefinitions="Auto,*" Background="{DynamicResource CanvasBrush}" Margin="{StaticResource SweepNavbarClearance}">
+    <!-- Header bar: sub-tabs, recipe status chip, brief/goal version, Open in CAD -->
+    <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+            BorderThickness="{StaticResource PropRuleBottom}" Padding="{StaticResource Space2}">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+          <Border Background="{DynamicResource SurfaceSoftBrush}" BorderBrush="{DynamicResource LineBrush}"
+                  BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource ChipPadding}">
+            <TextBlock x:Name="RecipeStatusChip" VerticalAlignment="Center" FontSize="{StaticResource CaptionSize}"
+                       Foreground="{DynamicResource InkBrush}" Text="Setup: ready" />
+          </Border>
+          <Border Background="{DynamicResource SurfaceSoftBrush}" BorderBrush="{DynamicResource LineBrush}"
+                  BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource ChipPadding}">
+            <TextBlock x:Name="VersionChip" VerticalAlignment="Center" FontSize="{StaticResource CaptionSize}"
+                       Foreground="{DynamicResource MutedBrush}" Text="Brief v0 · Goal v0" />
+          </Border>
+          <Button x:Name="OpenInCadButton" Content="Open in CAD" MinHeight="{StaticResource ControlHeight}"
+                  AutomationProperties.Name="Switch to CAD workspace" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+          <ToggleButton x:Name="SubTabBriefButton" Content="Brief &amp; targets" IsChecked="True"
+                        AutomationProperties.Name="Setup brief and soft targets tab" />
+          <ToggleButton x:Name="SubTabGoalButton" Content="Goal state &amp; feasibility"
+                        AutomationProperties.Name="Goal state and feasibility tab" />
+          <ToggleButton x:Name="SubTabChecksButton" Content="Checks &amp; DRC"
+                        AutomationProperties.Name="Class rules and sanity checks tab" />
+        </StackPanel>
+      </DockPanel>
+    </Border>
+
+    <!-- Two-column workspace (window never scrolls; internal scroll per pane) -->
+    <Grid Grid.Row="1" ColumnDefinitions="*,*" Margin="{StaticResource Space2}">
+      <!-- Left column: AI-02 language slot + active sub-tab content -->
+      <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                    Padding="{StaticResource Space1}">
+        <StackPanel Spacing="{StaticResource StackGap2}">
+          <!-- AI-02 Language entry slot (COPY-79 / COPY-53 no-key state; never blocks offline form, AI-01) -->
+          <Border x:Name="AiLanguageCard" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+                  BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
+            <StackPanel Spacing="{StaticResource StackGap1}">
+              <TextBlock x:Name="LanguageCardTitle" Text="Describe a starting design" FontWeight="SemiBold"
+                         FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
+              <TextBlock x:Name="LanguageNoKeyText" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
+                         Foreground="{DynamicResource MutedBrush}"
+                         Text="No API key configured — every design and analysis tool works without it · Configure key" />
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBox x:Name="LanguagePromptBox" Grid.Column="0" IsEnabled="False"
+                         Watermark="Describe discipline, rider weight, wind range, and goals…"
+                         AutomationProperties.Name="Describe a starting design prompt" />
+                <Button x:Name="LanguageSubmitButton" Grid.Column="1" Content="Draft brief" IsEnabled="False"
+                        Margin="{StaticResource UnitGap}" AutomationProperties.Name="Submit language brief" />
+              </Grid>
+            </StackPanel>
+          </Border>
+
+          <!-- Sub-tab 1: Brief & soft targets -->
+          <StackPanel x:Name="BriefPanel" Spacing="{StaticResource StackGap2}">
+            <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+                    BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
+              <StackPanel Spacing="{StaticResource StackGap2}">
+                <DockPanel>
+                  <TextBlock DockPanel.Dock="Right" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}"
+                             Text="Stated · Inferred · Defaulted" VerticalAlignment="Center" />
+                  <TextBlock Text="Discipline &amp; class rule" FontWeight="SemiBold" FontSize="{StaticResource PropTitleSize}"
+                             Foreground="{DynamicResource InkBrush}" />
+                </DockPanel>
+                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
+                  <StackPanel Grid.Row="0" Grid.Column="0" Spacing="{StaticResource StackGap1}">
+                    <TextBlock Text="Purpose / discipline preset" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
+                    <ComboBox x:Name="PurposePicker" HorizontalAlignment="Stretch"
+                              AutomationProperties.Name="Discipline preset picker" />
+                  </StackPanel>
+                  <StackPanel Grid.Row="0" Grid.Column="1" Spacing="{StaticResource StackGap1}" Margin="{StaticResource UnitGap}">
+                    <TextBlock Text="Class rule preset" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
+                    <ComboBox x:Name="ClassRulePicker" HorizontalAlignment="Stretch"
+                              AutomationProperties.Name="Class rule preset picker" />
+                  </StackPanel>
+                </Grid>
+                <Border x:Name="WakefoilBanner" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
+                        BorderBrush="{DynamicResource WarningBrush}" BorderThickness="{StaticResource PropRailThickness}"
+                        Padding="{StaticResource Space1}">
+                  <TextBlock x:Name="WakefoilBannerText" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
+                             Foreground="{DynamicResource InkBrush}" />
+                </Border>
+                <Border x:Name="SectionFallbackBanner" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
+                        BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource HairlineThickness}"
+                        Padding="{StaticResource Space1}">
+                  <TextBlock x:Name="SectionFallbackText" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
+                             Foreground="{DynamicResource InkBrush}" />
+                </Border>
+              </StackPanel>
+            </Border>
+
+            <!-- Soft targets & weights -->
+            <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+                    BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
+              <StackPanel Spacing="{StaticResource StackGap1}">
+                <TextBlock Text="Soft targets &amp; weights" FontWeight="SemiBold" FontSize="{StaticResource PropTitleSize}"
+                           Foreground="{DynamicResource InkBrush}" />
+                <Grid ColumnDefinitions="*,Auto,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                  <TextBlock Grid.Row="0" Grid.Column="0" Text="Target" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
+                  <TextBlock Grid.Row="0" Grid.Column="1" Text="Value" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
+                  <TextBlock Grid.Row="0" Grid.Column="2" Text="Weight" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" Margin="{StaticResource UnitGap}" />
+
+                  <TextBlock Grid.Row="1" Grid.Column="0" Text="Max span (m)" VerticalAlignment="Center" Foreground="{DynamicResource InkBrush}" />
+                  <TextBox x:Name="MaxSpanBox" Grid.Row="1" Grid.Column="1" Width="{StaticResource SetupFieldWidth}" AutomationProperties.Name="Max span in metres" />
+                  <TextBox x:Name="WeightSpanBox" Grid.Row="1" Grid.Column="2" Width="{StaticResource SetupWeightWidth}" Margin="{StaticResource UnitGap}" AutomationProperties.Name="Max span weight" />
+
+                  <TextBlock Grid.Row="2" Grid.Column="0" Text="Max chord (mm)" VerticalAlignment="Center" Foreground="{DynamicResource InkBrush}" />
+                  <TextBox x:Name="MaxChordBox" Grid.Row="2" Grid.Column="1" Width="{StaticResource SetupFieldWidth}" AutomationProperties.Name="Max chord in millimetres" />
+                  <TextBox x:Name="WeightChordBox" Grid.Row="2" Grid.Column="2" Width="{StaticResource SetupWeightWidth}" Margin="{StaticResource UnitGap}" AutomationProperties.Name="Max chord weight" />
+
+                  <TextBlock Grid.Row="3" Grid.Column="0" Text="Target area (cm²)" VerticalAlignment="Center" Foreground="{DynamicResource InkBrush}" />
+                  <TextBox x:Name="TargetAreaBox" Grid.Row="3" Grid.Column="1" Width="{StaticResource SetupFieldWidth}" AutomationProperties.Name="Target area in square centimetres" />
+                  <TextBox x:Name="WeightAreaBox" Grid.Row="3" Grid.Column="2" Width="{StaticResource SetupWeightWidth}" Margin="{StaticResource UnitGap}" AutomationProperties.Name="Target area weight" />
+
+                  <TextBlock Grid.Row="4" Grid.Column="0" Text="Target AR (b²/S)" VerticalAlignment="Center" Foreground="{DynamicResource InkBrush}" />
+                  <TextBox x:Name="TargetArBox" Grid.Row="4" Grid.Column="1" Width="{StaticResource SetupFieldWidth}" AutomationProperties.Name="Target aspect ratio" />
+                  <TextBox x:Name="WeightArBox" Grid.Row="4" Grid.Column="2" Width="{StaticResource SetupWeightWidth}" Margin="{StaticResource UnitGap}" AutomationProperties.Name="Target aspect ratio weight" />
+
+                  <TextBlock Grid.Row="5" Grid.Column="0" Text="Taper ratio (λ)" VerticalAlignment="Center" Foreground="{DynamicResource InkBrush}" />
+                  <TextBox x:Name="TaperBox" Grid.Row="5" Grid.Column="1" Width="{StaticResource SetupFieldWidth}" AutomationProperties.Name="Taper ratio" />
+
+                  <TextBlock Grid.Row="6" Grid.Column="0" Text="Root thickness (%)" VerticalAlignment="Center" Foreground="{DynamicResource InkBrush}" />
+                  <TextBox x:Name="ThicknessBox" Grid.Row="6" Grid.Column="1" Width="{StaticResource SetupFieldWidth}" AutomationProperties.Name="Root thickness percent" />
+                </Grid>
+
+                <!-- Rider, water, depth & mast context -->
+                <Grid ColumnDefinitions="*,Auto,*,Auto" RowDefinitions="Auto,Auto,Auto">
+                  <TextBlock Grid.Row="0" Grid.Column="0" Text="Rider mass (kg)" VerticalAlignment="Center" Foreground="{DynamicResource InkBrush}" />
+                  <TextBox x:Name="RiderMassBox" Grid.Row="0" Grid.Column="1" Width="{StaticResource SetupWeightWidth}" AutomationProperties.Name="Rider mass in kilograms" />
+                  <TextBlock Grid.Row="0" Grid.Column="2" Text="Mast length (cm)" VerticalAlignment="Center" Foreground="{DynamicResource InkBrush}" Margin="{StaticResource UnitGap}" />
+                  <TextBox x:Name="MastLengthBox" Grid.Row="0" Grid.Column="3" Width="{StaticResource SetupWeightWidth}" AutomationProperties.Name="Mast length in centimetres" />
+
+                  <TextBlock Grid.Row="1" Grid.Column="0" Text="Water" VerticalAlignment="Center" Foreground="{DynamicResource InkBrush}" />
+                  <ComboBox x:Name="WaterKindPicker" Grid.Row="1" Grid.Column="1" Width="{StaticResource SetupFieldWidth}" AutomationProperties.Name="Water salinity" />
+                  <TextBlock Grid.Row="1" Grid.Column="2" Text="Temp (°C)" VerticalAlignment="Center" Foreground="{DynamicResource InkBrush}" Margin="{StaticResource UnitGap}" />
+                  <TextBox x:Name="WaterTempBox" Grid.Row="1" Grid.Column="3" Width="{StaticResource SetupWeightWidth}" AutomationProperties.Name="Water temperature in Celsius" />
+
+                  <TextBlock Grid.Row="2" Grid.Column="0" Text="Depth h_ref (m)" VerticalAlignment="Center" Foreground="{DynamicResource InkBrush}" />
+                  <TextBox x:Name="HRefBox" Grid.Row="2" Grid.Column="1" Width="{StaticResource SetupWeightWidth}" AutomationProperties.Name="Reference submergence depth in metres" />
+                </Grid>
+
+                <Border x:Name="ValidationBanner" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
+                        BorderBrush="{DynamicResource DangerBrush}" BorderThickness="{StaticResource PropRailThickness}"
+                        Padding="{StaticResource Space1}">
+                  <TextBlock x:Name="ValidationBannerText" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
+                             Foreground="{DynamicResource DangerBrush}" />
+                </Border>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+
+          <!-- Sub-tab 2: Goal state & Feasibility (GOAL-01, GOAL-02, GOAL-03) -->
+          <StackPanel x:Name="GoalPanel" IsVisible="False" Spacing="{StaticResource StackGap2}">
+            <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+                    BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
+              <StackPanel Spacing="{StaticResource StackGap1}">
+                <TextBlock Text="Goal state operating points &amp; feasibility" FontWeight="SemiBold"
+                           FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
+                <TextBlock x:Name="GoalSummaryText" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
+                <StackPanel x:Name="OperatingPointsList" Spacing="{StaticResource StackGap1}" />
+              </StackPanel>
+            </Border>
+            <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+                    BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
+              <StackPanel Spacing="{StaticResource StackGap1}">
+                <TextBlock Text="Constraint set (editable — appends immutable Goal version)" FontWeight="SemiBold"
+                           FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
+                <StackPanel x:Name="ConstraintsList" Spacing="{StaticResource StackGap1}" />
+              </StackPanel>
+            </Border>
+          </StackPanel>
+
+          <!-- Sub-tab 3: Checks & DRC (CAT-04, A5.5, A5.8) -->
+          <StackPanel x:Name="ChecksPanel" IsVisible="False" Spacing="{StaticResource StackGap2}">
+            <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+                    BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
+              <StackPanel Spacing="{StaticResource StackGap1}">
+                <TextBlock Text="Class rules &amp; product-envelope checks (DRC)" FontWeight="SemiBold"
+                           FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
+                <TextBlock x:Name="ExclusionErrorText" IsVisible="False" FontSize="{StaticResource CaptionSize}"
+                           Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap" />
+                <StackPanel x:Name="DrcFindingsList" Spacing="{StaticResource StackGap1}" />
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </StackPanel>
+      </ScrollViewer>
+
+      <!-- Right column: Live Graphite preview, deviations, conflict/flagged/re-seed gates, Seed action -->
+      <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                    Padding="{StaticResource Space1}">
+        <StackPanel Spacing="{StaticResource StackGap2}">
+          <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+                  BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
+            <StackPanel Spacing="{StaticResource StackGap1}">
+              <TextBlock Text="Live planform preview" FontWeight="SemiBold" FontSize="{StaticResource PropTitleSize}"
+                         Foreground="{DynamicResource InkBrush}" />
+              <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource HairlineThickness}">
+                <setup:PlanformPreviewControl x:Name="PlanformPreview" Height="{StaticResource SetupPreviewHeight}" />
+              </Border>
+              <TextBlock x:Name="EstimatesReadout" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource InkBrush}"
+                         TextWrapping="Wrap" />
+              <StackPanel x:Name="DeviationsList" Spacing="{StaticResource StackGap1}" />
+            </StackPanel>
+          </Border>
+
+          <!-- Conflict notice (COPY-73) -->
+          <Border x:Name="ConflictBanner" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
+                  BorderBrush="{DynamicResource WarningBrush}" BorderThickness="{StaticResource PropRailThickness}"
+                  Padding="{StaticResource Space2}">
+            <TextBlock x:Name="ConflictBannerText" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
+                       Foreground="{DynamicResource InkBrush}" />
+          </Border>
+
+          <!-- Tip chord clamp notice (COPY-SET-21) -->
+          <Border x:Name="TipClampBanner" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
+                  BorderBrush="{DynamicResource WarningBrush}" BorderThickness="{StaticResource PropRailThickness}"
+                  Padding="{StaticResource Space2}">
+            <TextBlock x:Name="TipClampBannerText" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
+                       Foreground="{DynamicResource InkBrush}" />
+          </Border>
+
+          <!-- Re-seed history notice (COPY-SET-10) -->
+          <Border x:Name="ReseedBanner" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
+                  BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="{StaticResource PropRailThickness}"
+                  Padding="{StaticResource Space2}">
+            <TextBlock x:Name="ReseedBannerText" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
+                       Foreground="{DynamicResource InkBrush}" />
+          </Border>
+
+          <!-- Flagged assumption acknowledgement gate (COPY-39, COPY-SET-8) -->
+          <Border x:Name="FlaggedGateCard" IsVisible="False" Background="{DynamicResource SurfaceBrush}"
+                  BorderBrush="{DynamicResource WarningBrush}" BorderThickness="{StaticResource HairlineThickness}"
+                  Padding="{StaticResource Space2}">
+            <StackPanel Spacing="{StaticResource StackGap1}">
+              <TextBlock Text="Flagged defaults — acknowledge to continue" FontWeight="SemiBold"
+                         FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource WarningBrush}" />
+              <StackPanel x:Name="FlaggedItemsList" Spacing="{StaticResource StackGap1}" />
+              <CheckBox x:Name="FlaggedAckCheckBox" AutomationProperties.Name="Acknowledge flagged assumptions" />
+            </StackPanel>
+          </Border>
+
+          <!-- Compact DRC summary -->
+          <Border x:Name="DrcSummaryCard" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+                  BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
+            <StackPanel Spacing="{StaticResource StackGap1}">
+              <TextBlock x:Name="DrcSummaryHeading" Text="Checks &amp; class rules" FontWeight="SemiBold"
+                         FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource InkBrush}" />
+              <TextBlock x:Name="DrcSummaryText" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}"
+                         TextWrapping="Wrap" />
+            </StackPanel>
+          </Border>
+
+          <!-- Action footer -->
+          <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+                  BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
+            <StackPanel Spacing="{StaticResource StackGap1}">
+              <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+                <Button x:Name="SeedButton" Classes="primary" Content="Seed design" MinHeight="{StaticResource ControlHeight}"
+                        AutomationProperties.Name="Seed design" />
+                <Button x:Name="ResetPresetButton" Content="Reset preset" MinHeight="{StaticResource ControlHeight}"
+                        AutomationProperties.Name="Reset preset defaults" />
+              </StackPanel>
+              <TextBlock x:Name="ReceiptText" IsVisible="False" FontSize="{StaticResource CaptionSize}"
+                         Foreground="{DynamicResource InkBrush}" TextWrapping="Wrap" />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </ScrollViewer>
+    </Grid>
+  </Grid>
+</UserControl>

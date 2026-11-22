@@ -245,10 +245,12 @@ public sealed class WorkbenchController : IDisposable
     private ShellMode areaMode = ShellMode.Workspace;
     private ShellMode returnToCadMode = ShellMode.Workspace;
     private bool isSweeps;
+    private bool isSetup;
     private readonly IWingMethod analysisMethod;
     private readonly IEvaluationBarrier? analysisBarrier;
     private AnalysisService analysisService;
     public Sweeps.SweepController Sweeps { get; }
+    public Setup.SetupController Setup { get; }
     private CancellationTokenSource? analysisCancellation;
     private OperatingPoint analysisOp = OperatingPoints.Custom(5.14, 2, null);
     private bool pendingUnreadable;   // a band input is blank, malformed or refused: the pending point cannot match any run
@@ -262,9 +264,11 @@ public sealed class WorkbenchController : IDisposable
 
     /// <summary>The model area's CAD or Analysis state; a section draft remains open while hidden.</summary>
     public ShellMode AreaMode => areaMode == ShellMode.Analysis ? areaMode : Section is null ? ShellMode.Workspace : ShellMode.SectionEditor;
-    public bool IsAnalysis => !isSweeps && AreaMode == ShellMode.Analysis;
-    /// <summary>True when the third navbar segment (Sweeps, Ruling 271 DR-SWP-6) is active.</summary>
-    public bool IsSweeps => isSweeps;
+    public bool IsAnalysis => !isSweeps && !isSetup && AreaMode == ShellMode.Analysis;
+    /// <summary>True when the Sweeps navbar segment (Ruling 271 DR-SWP-6) is active.</summary>
+    public bool IsSweeps => isSweeps && !isSetup;
+    /// <summary>True when the Setup navbar segment (Ruling 272 DR-SET-5) is active.</summary>
+    public bool IsSetup => isSetup;
     /// <summary>The selected run's visible layers, empty before the first result.</summary>
     public IReadOnlyList<LayerData> LayerSet { get; private set; } = [];
     /// <summary>Layers pane visibility (§18.5 row 30). The flag is controller state; the projection reads it, so it survives a re-projection.</summary>
@@ -1173,8 +1177,10 @@ public sealed class WorkbenchController : IDisposable
         long started = time.GetTimestamp();
         ShellMode from = AreaMode;
         bool wasSweeps = isSweeps;
+        bool wasSetup = isSetup;
         isSweeps = false;
-        if (wasSweeps)
+        isSetup = false;
+        if (wasSweeps || wasSetup)
         {
             areaMode = ShellMode.Analysis;
         }
@@ -1193,17 +1199,36 @@ public sealed class WorkbenchController : IDisposable
 
     public void EnterCad()
     {
-        if (!IsAnalysis && !isSweeps) return;
+        if (!IsAnalysis && !isSweeps && !isSetup) return;
         isSweeps = false;
+        isSetup = false;
         if (areaMode == ShellMode.Analysis)
             areaMode = returnToCadMode == ShellMode.SectionEditor && Section is null ? ShellMode.Workspace : returnToCadMode;
         Notify();
     }
 
+    public void EnterSetup()
+    {
+        if (isSetup) return;
+        if (areaMode != ShellMode.Analysis) returnToCadMode = AreaMode;
+        isSweeps = false;
+        isSetup = true;
+        Setup.RefreshFromSession(notify: false);
+        Setup.RecomputePreview(notify: false);
+        Notify();
+    }
+
+    public void ToggleSetup()
+    {
+        if (isSetup) EnterCad();
+        else EnterSetup();
+    }
+
     public void EnterSweeps()
     {
-        if (isSweeps) return;
+        if (isSweeps && !isSetup) return;
         if (areaMode != ShellMode.Analysis) returnToCadMode = AreaMode;
+        isSetup = false;
         isSweeps = true;
         Sweeps.SetDisplayUnits(analysisUnits);
         Sweeps.CheckPreviewFreshness();
@@ -1212,7 +1237,7 @@ public sealed class WorkbenchController : IDisposable
 
     public void ToggleSweeps()
     {
-        if (isSweeps) EnterCad();
+        if (isSweeps && !isSetup) EnterCad();
         else EnterSweeps();
     }
 
@@ -1243,6 +1268,8 @@ public sealed class WorkbenchController : IDisposable
         analysisService = new AnalysisService(session, this.analysisMethod, analysisBarrier, this.time);
         Sweeps = new Sweeps.SweepController(session, this.analysisMethod, analysisBarrier, this.time);
         Sweeps.Changed += OnSweepsChanged;
+        Setup = new Setup.SetupController(session, OnSetupSeeded);
+        Setup.Changed += OnSetupChanged;
         this.sectionAssessmentGate = sectionAssessmentGate;
         this.sectionStepGate = sectionStepGate;
         this.sections = sections ?? App.Sections;
@@ -4132,6 +4159,8 @@ public sealed class WorkbenchController : IDisposable
         session = next;
         analysisService = new AnalysisService(session, analysisMethod, analysisBarrier, time);
         isSweeps = false;
+        isSetup = false;
+        Setup.BindSession(session);
         Sweeps.BindSession(session);
         Sweeps.SetDisplayUnits(analysisUnits);
         analysisProjectionKey = null;
@@ -4316,12 +4345,38 @@ public sealed class WorkbenchController : IDisposable
     }
 
     private void OnSweepsChanged() => Notify();
+    private void OnSetupChanged() => Notify();
+
+    private void OnSetupSeeded(SetupSeedOutcome outcome)
+    {
+        if (disposed) return;
+        CancelSampling();
+        CancelAnalysis();
+        analysisProjectionKey = null;
+        analysisView = null;
+        sectionViews.Clear();
+        Inspection = session.InspectAccepted();
+        Surface = null;
+        SurfaceNote = null;
+        surfaceKey = null;
+        UpdateEstimates();
+        if (Selection is Selection.None)
+        {
+            Selection = new Selection.Foil();
+            SelectionChanged?.Invoke();
+        }
+        Sweeps.BindSession(session);
+        Sweeps.SetDisplayUnits(analysisUnits);
+        Status = Setup.LastReceipt ?? Labels.SetupSeedReceipt(outcome.RevisionOrdinal, Setup.SelectedPresetName, Setup.BriefHistory.Count, Setup.CurrentGoalVersion);
+        Notify();
+    }
 
     public void Dispose()
     {
         if (disposed) return;
         disposed = true;
         Sweeps.Changed -= OnSweepsChanged;
+        Setup.Changed -= OnSetupChanged;
         Sweeps.CancelRun();
         sectionBeforeChecking = null;
         Gesture = GestureState.Idle;

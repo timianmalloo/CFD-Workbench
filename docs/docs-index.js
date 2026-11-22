@@ -23047,7 +23047,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "29d01606ec0b8995e78f1f86ca1fe6464f94e50b1740023a7a13331e0b18b231"
+      "sourceSha256": "f9983b6c412cf02b4d9ee884e3ccb6e47bd545954c3e7237225796cbb67e98f4"
     },
     {
       "id": "review-m12b-native",
@@ -23120,6 +23120,64 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "3b9d46da8fc3e5cf4c03bdd853aa3ca70a4e30ae263e56ba3b52082e0bed81cb"
+    },
+    {
+      "id": "review-setup-seeding-native",
+      "path": "docs/reviews/setup-seeding-native.md",
+      "title": "Native implementation proof pack: Area 1 Setup & Goal State (SET-BUILD)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "implementation — Area 1 (Wave 6 SET-BUILD, Ruling 272)",
+      "reviewBy": "2027-02-22",
+      "reviewSuggested": [],
+      "summary": "Implementation proof pack for Wave 6 Track SET-BUILD (Nodes SET-1..4) authorized by Ruling 272: additive cfdw-project-2 setup persistence (SetupBriefVersion, GoalStateVersion, DrcExclusion) with BLAKE3(JCS) integrity and live AuthoringSession.CurrentGoalSweepSnapshot() seam into Area 4 Sweeps, exact 2D deterministic soft-target RecipeSeeder over kappa(lambda) = (3+lambda)/4 honoring TipChord.MinimumMeters (Ruling 93) and one-way FoilDSL 4.1 emission (GEO-04), all 9 discipline presets with wakefoil-to-surf Flagged disclosure and GEN catalog fallbacks, class-rule DRC (GWA/iQFOiL/Formula Kite/open class) and BLAKE3-pinned SanityBounds.json advisory bounds, exact GOAL-02 7-point + 0.3 m GoalFeasibility evaluation with honest Unavailable polar cells, CLI seed & inspect --json hash parity, and non-modal Desktop Setup workspace (Setup | CAD | Analysis | Sweeps) covering all 6 hard states, no-key AI-02 slot (COPY-53), DESIGN.md COPY-728..749, and T1..T14 red-first verification.",
+      "tags": [
+        "setup",
+        "goal-state",
+        "seeding",
+        "recipe",
+        "soft-targets",
+        "presets",
+        "class-rules",
+        "drc",
+        "foildsl",
+        "native",
+        "proof-pack",
+        "wave6"
+      ],
+      "links": [
+        {
+          "to": "design-setup-seeding",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-foildsl-authority",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "implements"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-wave6-and-area5-wsl",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "70ab62ebcd22c8a4339cfa6446626b599f6587f12fc3667eb7c173bfd19115d2"
     },
     {
       "id": "review-spec-v02-critique",
@@ -25497,6 +25555,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-section-main-area"
     },
     {
+      "id": "surface-reviews-setup-seeding-native",
+      "path": "docs/reviews/setup-seeding-native.html",
+      "title": "Setup Seeding Native",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "review-setup-seeding-native"
+    },
+    {
       "id": "surface-mockups-solver-setup",
       "path": "docs/mockups/solver-setup.html",
       "title": "Solver setup",
@@ -25577,5 +25643,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "bd961aedaa247b1e14289b6475e24788f1dbc8bc708bf3d7f56fcdee69b4933d"
+  "graphSha256": "a42ccc969f3bdf774ea46d08d1fa50b9b62788e0653cc27c9777212d381adbd5"
 };
