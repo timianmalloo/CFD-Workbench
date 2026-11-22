@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-22T17:20:17Z",
+  "generated": "2026-11-22T18:41:58Z",
   "audit": [
     {
       "actor": null,
@@ -44844,6 +44844,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-22T17:12:58Z",
       "duration_seconds": 439.0
+    },
+    {
+      "id": "al-01M8291A3ATAM8YGDBZDQ88Q7J",
+      "shortname": "join-w7-cad",
+      "datetime": "2026-11-22T18:41:58Z",
+      "session": "agy-w7-coord",
+      "prompt": "the join of swarm-w7-cad-polish-538337a7 into main",
+      "summary": "Joined W7-CAD (71eae2c8): F-21/F-24/F-25/F-26/F-27/F-33/F-37/F-39/F-40/F-41/F-42/F-44/F-45/F-46 across 26 owned files. Removed synchronous PumpUi/RunJobs 8s spin loops in PropertiesPane/BrowserPane, added SectionCanvas zoom/pan/Delete/C-sync/hit-test, fixed Front port/Four-View/ScopeChip/PlanCanvas clipping, BrowserPane in-place rail diffing + single-parse FoilSource, PointsPane text scaling + CombPlate stretch, shared PointContextMenu.cs, PropFontFamily/PropFontSize across CAD canvases (0 Color.Parse hexes, 0 <11px fonts), distinct Browser vs Points pane accessibility/headers; 7/7 red-first UiW7CadTests + 7/7 live mutants killed, Adversary PASS (#15). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land Wave 7B W7-CAD onto main",
+      "done_when": "W7-CAD merged via conductor-join.py with TESTS-GREEN, xaml-token-lint, check-event-subscribers, check-docs, and 10/10 verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-22T18:34:32Z",
+      "duration_seconds": 446.0
     }
   ],
   "changes": [
