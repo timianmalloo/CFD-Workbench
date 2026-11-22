@@ -70,9 +70,12 @@ public sealed partial class View3d : Panel
     private const double TriadLeft = 10, TriadRise = 92, TriadWidth = 62, TriadHeight = 56, TriadAxis = 20;
     private const double OverlayFontSize = 11;
 
-    /// <summary>The 3D view's help text (§11.4): the instructions are its help, never its name.</summary>
-    public const string HelpText = "Option arrows orbit. Shift arrows pan here; in the elevations they move a point 1 mm. " +
-        "Command equals zooms. F fits the selection. Home returns to Iso.";
+    /// <summary>The 3D view's OS-branched help text (§11.4, F-39): the instructions are its help, never its name.</summary>
+    public static string HelpTextFor(bool macOS) => macOS
+        ? "Option arrows orbit. Shift arrows pan here; in the elevations they move a point 1 mm. Command equals zooms. F fits the selection. Home returns to Iso."
+        : "Alt arrows orbit. Shift arrows pan here; in the elevations they move a point 1 mm. Ctrl equals zooms. F fits the selection. Home returns to Iso.";
+
+    public static string HelpText => HelpTextFor(OperatingSystem.IsMacOS());
 
     /// <summary>The caption plate starts right of the triad plate, as the mockup draws it.</summary>
     public static readonly Thickness CaptionMargin = new(TriadLeft + TriadWidth + 6, 0, 8, 6);
@@ -514,9 +517,9 @@ public sealed partial class View3d : Panel
         context.DrawGeometry(null, new Pen(InkBrush ?? Brushes.White, 1.5), new PolylineGeometry(house, isFilled: false));
     }
 
-    private static FormattedText Text(string text, IBrush? brush, FontWeight weight) =>
+    private FormattedText Text(string text, IBrush? brush, FontWeight weight) =>
         new(text, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
-            new Typeface(FontFamily.Default, FontStyle.Normal, weight), OverlayFontSize, brush ?? Brushes.White);
+            CanvasTypography.ResolveTypeface(this, weight), CanvasTypography.ResolveFontSize(this), brush ?? Brushes.White);
 
     // ---------------- pointer ----------------
 
@@ -617,16 +620,17 @@ public sealed partial class View3d : Panel
     }
 
     /// <summary>
-    /// The mouse wheel zooms about the pointer; a two-finger trackpad scroll pans (DR-13, Fusion 360). <c>assume:</c>
-    /// Avalonia 11.3.14 reports a trackpad scroll with a horizontal or fractional delta and a wheel notch as a whole
-    /// vertical step; confirm: native row N-3D-2 on the operator's trackpad and mouse; if false, a smooth-scrolling
-    /// wheel pans instead of zooming (the Plan zooms on every wheel event, design §5.3).
+    /// Classifies wheel events as trackpad pan vs mouse-wheel zoom (F-39): horizontal scroll always pans;
+    /// fractional vertical-only deltas pan only on macOS trackpads so Windows smooth-scroll mice zoom reliably.
     /// </summary>
+    public static bool IsTrackpadPan(Vector delta, bool macOS) =>
+        delta.X != 0 || (macOS && delta.Y != Math.Round(delta.Y));
+
     protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
     {
         base.OnPointerWheelChanged(e);
         if (Camera is not { } camera) return;
-        bool trackpad = e.Delta.X != 0 || e.Delta.Y != Math.Round(e.Delta.Y);
+        bool trackpad = IsTrackpadPan(e.Delta, OperatingSystem.IsMacOS());
         Navigate(trackpad
             ? camera.Pan(e.Delta.X * TrackpadPanPixels, e.Delta.Y * TrackpadPanPixels, Bounds.Size)
             : camera.ZoomAbout(e.GetPosition(this), Math.Pow(WheelZoomBase, e.Delta.Y), Bounds.Size), announce: false);

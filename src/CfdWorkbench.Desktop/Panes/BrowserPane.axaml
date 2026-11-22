@@ -1,6 +1,13 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="CfdWorkbench.Desktop.Panes.BrowserPane" AutomationProperties.Name="Browser">
+             x:Class="CfdWorkbench.Desktop.Panes.BrowserPane"
+             AutomationProperties.Name="Browser — foil, station, and curve navigation"
+             ToolTip.Tip="Browse foil stations and curve points by structure; select an item to inspect or focus it.">
+  <UserControl.Styles>
+    <Style Selector="ListBoxItem TextBlock">
+      <Setter Property="FontFeatures" Value="+tnum,+lnum" />
+    </Style>
+  </UserControl.Styles>
   <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
     <StackPanel Margin="{StaticResource Space4}" Spacing="12">
       <!-- Error State for PaneBind_Throws -->
@@ -20,6 +27,7 @@
 
       <!-- Content Panel -->
       <StackPanel x:Name="ContentPanel" Spacing="8" IsVisible="False">
+        <TextBlock x:Name="BrowserRoleHeader" Classes="caption" Text="Navigation · foil, stations &amp; curves" />
         <TextBlock x:Name="LeadingEdgeHeader" Classes="caption" Text="Leading edge" />
         <ListBox x:Name="LeadingEdgeList" AutomationProperties.Name="Leading edge points" />
         <TextBlock x:Name="TrailingEdgeHeader" Classes="caption" Text="Trailing edge" />

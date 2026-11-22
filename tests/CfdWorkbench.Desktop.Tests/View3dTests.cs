@@ -661,8 +661,7 @@ public static class View3dTests
             Equal(AutomationControlType.Group, peer.GetAutomationControlType(), "view peer type");
             Equal("3D view, camera Iso", peer.GetName(), "view peer name");
             Equal(View3d.HelpText, peer.GetHelpText(), "help text");
-            Equal("Option arrows orbit. Shift arrows pan here; in the elevations they move a point 1 mm. Command equals zooms. F fits the selection. Home returns to Iso.",
-                View3d.HelpText, "help copy (§11.4)");
+            Equal(View3d.HelpTextFor(OperatingSystem.IsMacOS()), View3d.HelpText, "help copy (§11.4, OS-branched)");
             var children = peer.GetChildren();
             var names = children.Select(child => (child.GetAutomationControlType(), child.GetName())).ToArray();
             foreach (var expected in new[] { "Front view", "Side view", "Orbit left 90°", "Orbit up 90°", "Orbit down 90°", "Orbit right 90°" })

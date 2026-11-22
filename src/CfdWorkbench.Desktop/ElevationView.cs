@@ -218,16 +218,49 @@ public sealed class ElevationView : Control
     /// <summary>The curves this view edits, in Tab order: Front dihedral then t/c, Side twist.</summary>
     public IReadOnlyList<string> Curves => IsFront ? ["dihedral", "thickness"] : ["twist"];
 
-    public Rect BandRect => new(0, 0, Bounds.Width, Math.Round(Bounds.Height * BandShare));
+    public Rect BandRect => new(0, 0, Bounds.Width, BandHeightFor(Bounds.Height));
 
-    /// <summary>The lane's plotting area (the mockup: 30 px under the band for the caption, 52 px above the bottom).</summary>
+    private static double BandHeightFor(double totalHeight) =>
+        totalHeight >= 360 ? Math.Round(totalHeight * BandShare) : Math.Max(80, Math.Round(totalHeight * 0.52));
+
+    /// <summary>The lane's plotting area (compact padding below 360 px height so Four-View Elevation lanes remain usable at 1024x700, F-26).</summary>
     public Rect LaneRect
     {
         get
         {
-            double top = BandRect.Bottom + 30, bottom = Math.Max(top + 1, Bounds.Height - 52);
+            double captionGap = Bounds.Height >= 360 ? 30 : 24;
+            double bottomInset = Bounds.Height >= 360 ? 52 : 16;
+            double top = BandRect.Bottom + captionGap, bottom = Math.Max(top + 1, Bounds.Height - bottomInset);
             if (IsFront) return new Rect(0, top, Bounds.Width, bottom - top);
             return new Rect(56, top, Math.Max(1, Bounds.Width - 86), bottom - top);
+        }
+    }
+
+    /// <summary>Front scale plate rectangle when visible, used to keep "port" clear (F-26).</summary>
+    public Rect? ScalePlateBounds
+    {
+        get
+        {
+            if (ScaleText is not { } scale || Bounds.Width <= 0 || Bounds.Height <= 0) return null;
+            double plateSize = PlateFontSize();
+            double width = TextWidth(scale, plateSize) + 2 * PlatePadX;
+            double height = LineHeight(plateSize) + 2 * PlatePadY;
+            return new Rect(Bounds.Width - PlateInset - width, BandRect.Bottom - 30, width, height);
+        }
+    }
+
+    /// <summary>Front "port" label rectangle, placed left of the scale plate with an 8 px gap so they never overlap (F-26).</summary>
+    public Rect PortLabelBounds
+    {
+        get
+        {
+            if (!IsFront || Bounds.Width <= 0 || Bounds.Height <= 0) return default;
+            double tickSize = TickFontSize();
+            double portWidth = TextWidth("port", tickSize);
+            double starboardRight = 12 + TextWidth("starboard", tickSize) + 8;
+            double rightEdge = ScalePlateBounds is { } plate ? plate.Left - 8 : Bounds.Width - 12;
+            double x = Math.Max(starboardRight, rightEdge - portWidth);
+            return new Rect(x, BandRect.Bottom - 24, portWidth, LineHeight(tickSize));
         }
     }
 
@@ -861,7 +894,7 @@ public sealed class ElevationView : Control
         }
     }
 
-    /// <summary>Ruling 111 (10): on a member of several selected points the request goes to the group's value row; the group stays selected.</summary>
+    /// <summary>Ruling 111 (10) & F-24: double-click / Return on a group or single point focuses PropertiesPane.</summary>
     private void RequestValue(PointRef point)
     {
         if (controller?.IsGroupMember(point) == true)
@@ -871,6 +904,7 @@ public sealed class ElevationView : Control
             return;
         }
         LastValueRequest = $"{point.Curve}:{point.VertexId}";
+        this.FindAncestorOfType<Shell.ShellHost>()?.Properties.FocusFirstValue();
     }
 
     private PointView? Focused() => focusedPoint is { } focus
@@ -1095,23 +1129,7 @@ public sealed class ElevationView : Control
         if (this.FindAncestorOfType<Shell.ShellHost>() is not { } host) return;
         if (controller?.IsGroupMember(reference) != true) SelectPoint(reference, extend: false, toggle: false);   // design §3.2 (4)
         FocusPoint(reference);
-        MenuItem Row(string header, string id)
-        {
-            var item = new MenuItem { Header = header, IsEnabled = host.CanRun(id) };
-            item.Click += (_, _) => _ = host.RunCommand(id);
-            return item;
-        }
-        MenuItem[] tangents = [Row("Smooth", "point.tangent-smooth"), Row("Symmetric", "point.tangent-symmetric"), Row("Corner", "point.tangent-corner")];
-        var tangent = new MenuItem { Header = "Tangent", ItemsSource = tangents, IsEnabled = tangents.Any(item => item.IsEnabled) };
-        var menu = new ContextMenu
-        {
-            ItemsSource = new Control[] { Row("Make Anchor Point", "point.make-anchor"), Row("Make Control Point", "point.make-control"), tangent,
-                new Separator(), Row("Remove Point", "point.remove"), Row($"Rebuild {PropertiesView.Curves[reference.Curve].MenuName}…", "point.rebuild"),
-                new Separator(), Row("Fit", "view.fit") }
-        };
-        menu.Closed += (_, _) => { if (ReferenceEquals(ContextMenu, menu)) ContextMenu = null; };
-        ContextMenu = menu;
-        menu.Open(this);
+        PointContextMenu.Open(this, host, reference);
     }
 
     // ---------------------------------------------------------------- update and layout
@@ -1186,7 +1204,7 @@ public sealed class ElevationView : Control
 
     protected override Size ArrangeOverride(Size finalSize)
     {
-        band?.Arrange(new Rect(0, 0, finalSize.Width, Math.Round(finalSize.Height * BandShare)));
+        band?.Arrange(new Rect(0, 0, finalSize.Width, BandHeightFor(finalSize.Height)));
         overlay.Arrange(new Rect(finalSize));
         return finalSize;
     }
@@ -1306,8 +1324,9 @@ public sealed class ElevationView : Control
             }
             layer.DrawPoints(context, dihedral, brushes, controller.Selection, controller.IsAnalysis);
         }
-        DrawText(context, "starboard", new Point(12, band.Bottom - 24), MuteBrush ?? brushes.Foil, TickFont);
-        DrawText(context, "port", new Point(Bounds.Width - 40, band.Bottom - 24), MuteBrush ?? brushes.Foil, TickFont);
+        DrawText(context, "starboard", new Point(12, band.Bottom - 24), MuteBrush ?? brushes.Foil, TickFontSize());
+        var portBounds = PortLabelBounds;
+        DrawText(context, "port", portBounds.TopLeft, MuteBrush ?? brushes.Foil, TickFontSize());
     }
 
     /// <summary>Design 5.2 (UX2): Front a dashed vertical line, Side a dashed full-weight outline with its chip; the `station` token, 2 px dash.</summary>
@@ -1382,23 +1401,28 @@ public sealed class ElevationView : Control
         }
     }
 
+    private double PlateFontSize() => CanvasTypography.ResolveFontSize(this, PlateFont / CanvasTypography.MinimumFontSize);
+    private double TickFontSize() => CanvasTypography.ResolveFontSize(this, TickFont / CanvasTypography.MinimumFontSize);
+
     private void Plate(DrawingContext context, string text, Point anchor, IBrush ink, bool left)
     {
-        double width = TextWidth(text, PlateFont) + 2 * PlatePadX, height = LineHeight(PlateFont) + 2 * PlatePadY;
+        double size = PlateFontSize();
+        double width = TextWidth(text, size) + 2 * PlatePadX, height = LineHeight(size) + 2 * PlatePadY;
         var box = new Rect(left ? anchor.X : anchor.X - width, anchor.Y, width, height);
         context.DrawRectangle(SoftBrush ?? BackgroundBrush, null, box, 3, 3);
-        DrawText(context, text, box.TopLeft + new Vector(PlatePadX, PlatePadY), ink, PlateFont);
+        DrawText(context, text, box.TopLeft + new Vector(PlatePadX, PlatePadY), ink, size);
     }
 
-    private static FormattedText Text(string text, double size, IBrush brush, FontWeight weight = FontWeight.Normal) =>
-        new(text, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface(FontFamily.Default, FontStyle.Normal, weight), size, brush);
+    private FormattedText Text(string text, double size, IBrush brush, FontWeight weight = FontWeight.Normal) =>
+        new(text, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
+            CanvasTypography.ResolveTypeface(this, weight), Math.Max(CanvasTypography.MinimumFontSize, size), brush);
 
-    private static double TextWidth(string text, double size, FontWeight weight = FontWeight.Normal) =>
+    private double TextWidth(string text, double size, FontWeight weight = FontWeight.Normal) =>
         Text(text, size, Brushes.White, weight).WidthIncludingTrailingWhitespace;
 
     private static double LineHeight(double size) => Math.Ceiling(size * 1.45);
 
-    private static void DrawText(DrawingContext context, string text, Point at, IBrush brush, double size,
+    private void DrawText(DrawingContext context, string text, Point at, IBrush brush, double size,
         FontWeight weight = FontWeight.Normal, double maxWidth = double.PositiveInfinity)
     {
         var formatted = Text(text, size, brush, weight);

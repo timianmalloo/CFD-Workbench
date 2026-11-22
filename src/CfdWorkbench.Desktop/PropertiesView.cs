@@ -1343,9 +1343,12 @@ public static class PropertiesView
         ];
     }
 
+    /// <summary>The recorded source's name for an already-parsed provenance, by the one Core lookup.</summary>
+    public static string SourceName(Provenance provenance) => provenance.SourceName(CatalogOrEmpty);
+
     /// <summary>The recorded source's name for a profile in these bytes, by the one Core lookup.</summary>
     public static string SourceName(byte[] foil, string profile) =>
-        Provenance.Parse(FoilSource.Parse(foil).Profile(profile)?.Provenance).SourceName(CatalogOrEmpty);
+        SourceName(Provenance.Parse(FoilSource.Parse(foil).Profile(profile)?.Provenance));
 
     private static IReadOnlyList<CatalogEntry> CatalogOrEmpty()
     {
@@ -1354,14 +1357,16 @@ public static class PropertiesView
     }
 
     /// <summary>The Browser-row and group-title source part: the name, "Modified from" the name, or "Source not recorded".</summary>
-    public static string SourceLabel(byte[] foil, string profile) =>
-        Provenance.Parse(FoilSource.Parse(foil).Profile(profile)?.Provenance).SourceLabel(SourceName(foil, profile));
+    public static string SourceLabel(byte[] foil, string profile)
+    {
+        var provenance = Provenance.Parse(FoilSource.Parse(foil).Profile(profile)?.Provenance);
+        return provenance.SourceLabel(SourceName(provenance));
+    }
 
     public static string SourceDisplay(byte[] foil, string profile)
     {
-        string? raw = FoilSource.Parse(foil).Profile(profile)?.Provenance;
-        var provenance = Provenance.Parse(raw);
-        string display = provenance.ChipText(SourceName(foil, profile));
+        var provenance = Provenance.Parse(FoilSource.Parse(foil).Profile(profile)?.Provenance);
+        string display = provenance.ChipText(SourceName(provenance));
         return provenance.Rights == RightsClass.NotRecorded ? display : display + " (" + provenance.Rights.ToString().ToUpperInvariant() + ")";
     }
 

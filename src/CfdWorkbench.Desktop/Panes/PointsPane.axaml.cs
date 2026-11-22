@@ -19,10 +19,44 @@ public partial class PointsPane : UserControl
     // x and y are 50 here because the shell font clips five tabular digits at 46 (captures in docs/proof/m12c-pnl).
     private const string Columns = "34,*,50,50,58";
 
+    private static readonly string[] ScaledTokens =
+    [
+        "PropFontSize", "PropNoteSize", "PropLineHeight", "PropNoteLineHeight",
+        "PropRowInputHeight", "PropEditBoxHeight", "CompactTargetSize"
+    ];
+
     private WorkbenchController? controller;
     private readonly Dictionary<string, (string Text, string Error)> errors = new(StringComparer.Ordinal);
     private readonly HashSet<string> collapsed = new(StringComparer.Ordinal);
+    private readonly HashSet<string> committing = new(StringComparer.Ordinal);
     private PointsModel? shown;
+    private double textScale = 1;
+    private bool rendering;
+
+    /// <summary>The Text size multiplier the Points pane is drawn at (F-33 / DN-5).</summary>
+    public double TextScale => textScale;
+
+    /// <summary>F-33: scales PointsPane typography, row targets, and column widths with Text size.</summary>
+    public void ApplyTextScale(double scale)
+    {
+        textScale = scale;
+        foreach (var key in ScaledTokens)
+            Resources[key] = BaseToken(key) * scale;
+        Resources["PropTextScale"] = scale;
+        if (shown is not null) Render(shown);
+    }
+
+    private static double BaseToken(string key) =>
+        Avalonia.Application.Current?.TryFindResource(key, out var value) == true && value is double number ? number : 0;
+
+    private string ColumnSpec()
+    {
+        if (textScale <= 1.01) return Columns;
+        int pt = (int)Math.Round(34 * textScale);
+        int num = (int)Math.Round(50 * textScale);
+        int kind = (int)Math.Round(58 * textScale);
+        return $"{pt},*,{num},{num},{kind}";
+    }
 
     public PointsPane()
     {
@@ -70,33 +104,38 @@ public partial class PointsPane : UserControl
 
     private void Render(PointsModel model)
     {
-        var empty = this.FindControl<StackPanel>("PointsEmpty")!;
-        var head = this.FindControl<StackPanel>("PointsHead")!;
-        var groups = this.FindControl<StackPanel>("PointsGroups")!;
-        empty.IsVisible = model.Empty is not null;
-        head.IsVisible = model.Empty is null;
-        this.FindControl<TextBlock>("PointsEmptyTitle")!.Text = model.Empty?.Title ?? "";
-        this.FindControl<TextBlock>("PointsEmptyBody")!.Text = model.Empty?.Body ?? "";
-        var heading = this.FindControl<TextBlock>("PointsHeading")!;
-        heading.Text = model.Heading ?? "";
-        heading.IsVisible = model.Heading is not null;
-        var note = this.FindControl<TextBlock>("PointsNote")!;
-        note.Text = model.Note ?? "";
-        note.IsVisible = model.Note is not null;
-        var columns = this.FindControl<Grid>("PointsColumns")!;
-        columns.ColumnDefinitions = new ColumnDefinitions(Columns);
-        columns.Children.Clear();
-        for (int index = 0; index < model.Columns.Count; index++)
+        rendering = true;
+        try
         {
-            var column = new TextBlock { Text = model.Columns[index] };
-            column.Classes.Add("pts-col");
-            column.Classes.Set("kind", index == 4);
-            if (index is 2 or 3) column.TextAlignment = Avalonia.Media.TextAlignment.Right;
-            Grid.SetColumn(column, index);
-            columns.Children.Add(column);
+            var empty = this.FindControl<StackPanel>("PointsEmpty")!;
+            var head = this.FindControl<StackPanel>("PointsHead")!;
+            var groups = this.FindControl<StackPanel>("PointsGroups")!;
+            empty.IsVisible = model.Empty is not null;
+            head.IsVisible = model.Empty is null;
+            this.FindControl<TextBlock>("PointsEmptyTitle")!.Text = model.Empty?.Title ?? "";
+            this.FindControl<TextBlock>("PointsEmptyBody")!.Text = model.Empty?.Body ?? "";
+            var heading = this.FindControl<TextBlock>("PointsHeading")!;
+            heading.Text = model.Heading ?? "";
+            heading.IsVisible = model.Heading is not null;
+            var note = this.FindControl<TextBlock>("PointsNote")!;
+            note.Text = model.Note ?? "";
+            note.IsVisible = model.Note is not null;
+            var columns = this.FindControl<Grid>("PointsColumns")!;
+            columns.ColumnDefinitions = new ColumnDefinitions(ColumnSpec());
+            columns.Children.Clear();
+            for (int index = 0; index < model.Columns.Count; index++)
+            {
+                var column = new TextBlock { Text = model.Columns[index] };
+                column.Classes.Add("pts-col");
+                column.Classes.Set("kind", index == 4);
+                if (index is 2 or 3) column.TextAlignment = Avalonia.Media.TextAlignment.Right;
+                Grid.SetColumn(column, index);
+                columns.Children.Add(column);
+            }
+            groups.Children.Clear();
+            foreach (var group in model.Groups) groups.Children.Add(Group(group));
         }
-        groups.Children.Clear();
-        foreach (var group in model.Groups) groups.Children.Add(Group(group));
+        finally { rendering = false; }
     }
 
     private Control Group(PointsGroup group)
@@ -138,7 +177,7 @@ public partial class PointsPane : UserControl
     private Control Row(PointsRow row)
     {
         string key = RowKey(row.Target);
-        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions(Columns), RowDefinitions = new RowDefinitions("Auto,Auto") };
+        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions(ColumnSpec()), RowDefinitions = new RowDefinitions("Auto,Auto") };
         var point = new Button { Name = "PointButton_" + key, Content = (row.Selected || row.Partner ? "⇄ " : "") + row.Point };
         point.Classes.Add("pts-point");
         AutomationProperties.SetName(point, row.Name + (row.Selected ? ", selected" : row.Partner ? ", paired" : ""));
@@ -188,16 +227,19 @@ public partial class PointsPane : UserControl
     private TextBox Field(PointsRow row, string key, bool isX)
     {
         string axis = isX ? "x" : "y";
+        string fieldKey = key + axis;
+        string initial = errors.TryGetValue(fieldKey, out var held) ? held.Text : Quantity.ForField(isX ? row.X : row.Y);
+        bool escaped = false;
         var box = new TextBox
         {
             Name = (isX ? "PointX_" : "PointY_") + key,
-            Text = errors.TryGetValue(key + axis, out var held) ? held.Text : Quantity.ForField(isX ? row.X : row.Y),
+            Text = initial,
             // Stretch, as Properties does: the presenter sized to its text measured "2.50" narrower than its tabular
             // figures draw, so a right-aligned presenter cut the last digit (UXR capture). TextAlignment right stays.
             HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Stretch
         };
         box.Classes.Add("prop-b");
-        box.Classes.Set("error", errors.ContainsKey(key + axis));
+        box.Classes.Set("error", errors.ContainsKey(fieldKey));
         string unit = shown?.Section == true ? "% chord"
             : isX ? Speech.Unit("mm")
             : PropertiesView.Curves.TryGetValue(row.Target.Curve, out var curveRows) ? Speech.Unit(curveRows.ValueUnit) : Speech.Unit("mm");
@@ -213,13 +255,23 @@ public partial class PointsPane : UserControl
             else if (e.Key == Key.Escape)
             {
                 e.Handled = true;
-                errors.Remove(key + axis);
+                escaped = true;
+                errors.Remove(fieldKey);
                 errors.Remove(key);
                 box.Text = Quantity.ForField(isX ? row.X : row.Y);
                 shown = null;
                 if (controller is not null) Bind(controller);
             }
         }, RoutingStrategies.Tunnel);
+        // F-24: commit edits on LostFocus (Tab or click-away) unless unchanged, escaped, or already refused with the same text.
+        box.LostFocus += (_, _) =>
+        {
+            if (rendering || escaped || committing.Contains(fieldKey)) return;
+            string current = box.Text ?? "";
+            if (current == initial) return;
+            if (errors.TryGetValue(fieldKey, out var prev) && prev.Text == current) return;
+            Pending = CommitAsync(row, key, isX, current);
+        };
         return box;
     }
 
@@ -237,46 +289,52 @@ public partial class PointsPane : UserControl
     {
         if (controller is not { } bound) return;
         string axis = isX ? "x" : "y";
-        string? refusal;
-        string? echo = null;
-        if (shown?.Section == true)
+        string fieldKey = key + axis;
+        if (!committing.Add(fieldKey)) return;
+        try
         {
-            var curve = bound.SectionCurve(SectionPoints.Side(row.Target.Curve));
-            var point = curve?.Points.FirstOrDefault(item => item.Id == row.Target.VertexId);
-            if (point is null || bound.Section is not { } mode) return;
-            double chord = Sections.Facts(mode.Draft.Bytes, mode.Draft.Assignment).StationChordMeters;
-            refusal = SectionPoints.Parse(text, isX, chord, out double fraction, out echo);
-            if (refusal is null)
-                refusal = await SectionPoints.CommitAsync(bound, row.Target, isX ? fraction : point.SpanMeters, isX ? point.Ordinate : fraction);
-        }
-        else
-        {
-            var point = PropertiesView.Find(bound.CurveFor, row.Target);
-            var rows = PropertiesView.Curves.GetValueOrDefault(row.Target.Curve);
-            if (point is null || rows is null) return;
-            var family = isX ? UnitFamily.Length : rows.ValueFamily;
-            string label = isX ? "From root" : rows.ValueLabel;
-            if (!UnitEntry.TryParse(text, family, new Dictionary<string, double>(), out var entry))
-                refusal = PropertyCopy.NotANumber(label);
+            string? refusal;
+            string? echo = null;
+            if (shown?.Section == true)
+            {
+                var curve = bound.SectionCurve(SectionPoints.Side(row.Target.Curve));
+                var point = curve?.Points.FirstOrDefault(item => item.Id == row.Target.VertexId);
+                if (point is null || bound.Section is not { } mode) return;
+                double chord = Sections.Facts(mode.Draft.Bytes, mode.Draft.Assignment).StationChordMeters;
+                refusal = SectionPoints.Parse(text, isX, chord, out double fraction, out echo);
+                if (refusal is null)
+                    refusal = await SectionPoints.CommitAsync(bound, row.Target, isX ? fraction : point.SpanMeters, isX ? point.Ordinate : fraction);
+            }
             else
             {
-                double value = entry.Value / PropertiesView.FieldScale[family];
-                refusal = await ViewCommitAsync(bound, row.Target, isX ? value : point.SpanMeters, isX ? point.Ordinate : value);
+                var point = PropertiesView.Find(bound.CurveFor, row.Target);
+                var rows = PropertiesView.Curves.GetValueOrDefault(row.Target.Curve);
+                if (point is null || rows is null) return;
+                var family = isX ? UnitFamily.Length : rows.ValueFamily;
+                string label = isX ? "From root" : rows.ValueLabel;
+                if (!UnitEntry.TryParse(text, family, new Dictionary<string, double>(), out var entry))
+                    refusal = PropertyCopy.NotANumber(label);
+                else
+                {
+                    double value = entry.Value / PropertiesView.FieldScale[family];
+                    refusal = await ViewCommitAsync(bound, row.Target, isX ? value : point.SpanMeters, isX ? point.Ordinate : value);
+                }
             }
+            if (refusal is not null)
+            {
+                errors[fieldKey] = (text ?? "", refusal);
+                errors[key] = (text ?? "", refusal);
+            }
+            else
+            {
+                errors.Remove(fieldKey);
+                errors.Remove(key);
+            }
+            shown = null;   // a refusal changes no row, so the field error is drawn by a forced render
+            Bind(bound);
+            if (refusal is null && echo is not null) Reported?.Invoke(new StatusReport(echo));
         }
-        if (refusal is not null)
-        {
-            errors[key + axis] = (text ?? "", refusal);
-            errors[key] = (text ?? "", refusal);
-        }
-        else
-        {
-            errors.Remove(key + axis);
-            errors.Remove(key);
-        }
-        shown = null;   // a refusal changes no row, so the field error is drawn by a forced render
-        Bind(bound);
-        if (refusal is null && echo is not null) Reported?.Invoke(new StatusReport(echo));
+        finally { committing.Remove(fieldKey); }
     }
 
     private static async Task<string?> ViewCommitAsync(WorkbenchController bound, PointRef target, double span, double value)

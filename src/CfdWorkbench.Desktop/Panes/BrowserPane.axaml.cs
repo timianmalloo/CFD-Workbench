@@ -1,9 +1,11 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
+using Avalonia.VisualTree;
 using CfdWorkbench.Core;
 using CfdWorkbench.Desktop.Shell;
 using System.Globalization;
@@ -17,6 +19,10 @@ public partial class BrowserPane : UserControl
     private string? lastAcceptedIdentity;
     private string? lastSectionSourceKey;
     private bool refreshing;
+    private bool actionPending;
+
+    /// <summary>The in-flight asynchronous context-menu action, or a completed task (F-21).</summary>
+    public Task Pending { get; private set; } = Task.CompletedTask;
 
     public BrowserPane()
     {
@@ -66,13 +72,15 @@ public partial class BrowserPane : UserControl
 
             if (acceptedChanged || StationList.ItemsSource == null)
             {
-                var items = new List<ListBoxItem>();
+                // F-44: encode and parse FoilSource once before the station loop.
+                byte[] source = controller.Section?.Draft.Bytes ?? Encoding.UTF8.GetBytes(controller.AcceptedSource);
+                var parsed = FoilSource.Parse(source);
+                var items = new List<ListBoxItem>(authored.Assignments.Count);
                 int index = 0;
                 foreach (var station in authored.Assignments)
                 {
-                    byte[] source = controller.Section?.Draft.Bytes ?? Encoding.UTF8.GetBytes(controller.AcceptedSource);
                     string text = $"η {station.Eta.ToString("G3", CultureInfo.InvariantCulture)} · " +
-                        StationSourceText(station.ProfileName, source);
+                        StationSourceText(station.ProfileName, parsed);
                     var item = new ListBoxItem { Content = text, Tag = (index, station.Eta) };
                     items.Add(item);
                     index++;
@@ -82,15 +90,12 @@ public partial class BrowserPane : UserControl
                 lastSectionSourceKey = sourceKey;
             }
 
-            // Sync selection
+            // F-27: sync station selection and clear it whenever selection is not a station (no dual selection).
             refreshing = true;
-            if (controller.Selection is Selection.Station st)
-            {
-                if (st.Index >= 0 && st.Index < StationList.ItemCount)
-                {
-                    StationList.SelectedIndex = st.Index;
-                }
-            }
+            if (controller.Selection is Selection.Station st && st.Index >= 0 && st.Index < StationList.ItemCount)
+                StationList.SelectedIndex = st.Index;
+            else
+                StationList.SelectedItem = null;
             refreshing = false;
             BindRails(controller);
         }
@@ -106,10 +111,13 @@ public partial class BrowserPane : UserControl
         }
     }
 
-    public static string StationSourceText(string profile, byte[] foil)
+    public static string StationSourceText(string profile, byte[] foil) =>
+        StationSourceText(profile, FoilSource.Parse(foil));
+
+    private static string StationSourceText(string profile, SourceParse parsed)
     {
-        var provenance = Provenance.Parse(FoilSource.Parse(foil).Profile(profile)?.Provenance);
-        return provenance.RowText(profile, PropertiesView.SourceName(foil, profile));
+        var provenance = Provenance.Parse(parsed.Profile(profile)?.Provenance);
+        return provenance.RowText(profile, PropertiesView.SourceName(provenance));
     }
 
     public static void BindStations(ListBox list, IReadOnlyList<ListBoxItem> items, bool acceptedChanged)
@@ -142,10 +150,15 @@ public partial class BrowserPane : UserControl
         refreshing = true;
         try
         {
-            foreach (var (list, curve) in CurveLists()) FillRail(list, controller.CurveFor(curve), curve);
-            if (controller.Selection is Selection.Points { Items.Count: 1 } selected &&
-                CurveLists().FirstOrDefault(entry => entry.Curve == selected.Items[0].Curve).List is { } selectedList)
-                selectedList.SelectedItem = selectedList.Items.OfType<ListBoxItem>().FirstOrDefault(item => Equals(item.Tag, selected.Items[0].VertexId));
+            var selectedPoint = controller.Selection is Selection.Points { Items.Count: 1 } one ? one.Items[0] : null;
+            foreach (var (list, curve) in CurveLists())
+            {
+                FillRail(list, controller.CurveFor(curve), curve);
+                if (selectedPoint is { } picked && picked.Curve == curve)
+                    list.SelectedItem = list.Items.OfType<ListBoxItem>().FirstOrDefault(item => Equals(item.Tag, picked.VertexId));
+                else
+                    list.SelectedItem = null;
+            }
         }
         finally { refreshing = false; }
     }
@@ -154,51 +167,161 @@ public partial class BrowserPane : UserControl
     private static string RowText(PointView point)
     {
         string from = (point.SpanMeters * 1000).ToString("0.00", CultureInfo.InvariantCulture) + " mm";
+        string role = PropertiesView.RoleText(point.Role);
         if (point.Curve is "leading" or "trailing")
-            return point.Role + "  " + from + "  " + (point.Ordinate * 1000).ToString("0.00", CultureInfo.InvariantCulture) + " mm";
+            return role + "  " + from + "  " + (point.Ordinate * 1000).ToString("0.00", CultureInfo.InvariantCulture) + " mm";
         var rows = PropertiesView.Curves[point.Curve];
-        return point.Role + "  " + from + "  " +
+        return role + "  " + from + "  " +
                Quantity.WithUnit(Quantity.Typed(point.Ordinate * PropertiesView.FieldScale[rows.ValueFamily]), rows.ValueUnit);
     }
 
-    private void FillRail(ListBox list, CurveView? curve, string curveName)
+    private Task RunPendingAsync(Func<Task> action)
     {
-        list.Items.Clear();
-        if (curve is null) return;
-        foreach (var point in curve.Points)
+        if (actionPending) return Task.CompletedTask;
+        var task = ExecuteAsync(action);
+        Pending = task;
+        return task;
+    }
+
+    private async Task ExecuteAsync(Func<Task> action)
+    {
+        actionPending = true;
+        try { await action(); }
+        finally { actionPending = false; }
+    }
+
+    /// <summary>
+    /// F-41: role-matched vector glyphs matching the CAD canvas (filled circle Ellipse for Control, square Rectangle
+    /// for Anchor, diamond Path for End, hollow circle Path for Handle), all live-bound to InkBrush.
+    /// </summary>
+    private Shape CreateRoleGlyph(PointRole role)
+    {
+        Shape glyph = role switch
         {
-            var glyph = new Ellipse
+            PointRole.Anchor => new Rectangle
             {
                 Name = "RoleGlyph",
                 Width = 8,
                 Height = 8,
-                VerticalAlignment = VerticalAlignment.Center
-            };
+                VerticalAlignment = VerticalAlignment.Center,
+                Tag = role
+            },
+            PointRole.RootEnd or PointRole.TipEnd => new Avalonia.Controls.Shapes.Path
+            {
+                Name = "RoleGlyph",
+                Width = 8,
+                Height = 8,
+                Data = Avalonia.Media.Geometry.Parse("M4,0 L8,4 L4,8 L0,4 Z"),
+                VerticalAlignment = VerticalAlignment.Center,
+                Tag = role
+            },
+            PointRole.RootHandle or PointRole.TipHandle or PointRole.AnchorHandle => new Avalonia.Controls.Shapes.Path
+            {
+                Name = "RoleGlyph",
+                Width = 8,
+                Height = 8,
+                Data = Avalonia.Media.Geometry.Parse("M4,1 A3,3 0 1 1 3.99,1 Z"),
+                StrokeThickness = 1.5,
+                Fill = Brushes.Transparent,
+                VerticalAlignment = VerticalAlignment.Center,
+                Tag = role
+            },
+            _ => new Ellipse
+            {
+                Name = "RoleGlyph",
+                Width = 8,
+                Height = 8,
+                VerticalAlignment = VerticalAlignment.Center,
+                Tag = role
+            }
+        };
+        if (role is PointRole.RootHandle or PointRole.TipHandle or PointRole.AnchorHandle)
+            glyph.Bind(Shape.StrokeProperty, this.GetResourceObservable("InkBrush"));
+        else
             glyph.Bind(Shape.FillProperty, this.GetResourceObservable("InkBrush"));
-            var text = new TextBlock
-            {
-                Text = RowText(point),
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            var panel = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
-            panel.Children.Add(glyph);
-            panel.Children.Add(text);
-            var item = new ListBoxItem { Content = panel, Tag = point.Id };
-            var menu = new ContextMenu();
-            var makeAnchor = new MenuItem { Header = "Make anchor" };
-            string id = point.Id;
-            makeAnchor.Click += (_, _) =>
-            {
-                if (boundController is null) return;
-                var task = boundController.ApplyPointCommandAsync(new PointCommand.MakeAnchor(curveName, id));
-                var start = DateTime.UtcNow;
-                while (!task.IsCompleted && DateTime.UtcNow - start < TimeSpan.FromSeconds(8))
-                    Avalonia.Threading.Dispatcher.UIThread.RunJobs(Avalonia.Threading.DispatcherPriority.Background);
-            };
-            menu.Items.Add(makeAnchor);
-            item.ContextMenu = menu;
-            list.Items.Add(item);
+        return glyph;
+    }
+
+    private void FillRail(ListBox list, CurveView? curve, string curveName)
+    {
+        if (curve is null)
+        {
+            list.Items.Clear();
+            return;
         }
+        // F-27: diff rail items in place so ListBoxItem controls and keyboard focus survive Bind().
+        var points = curve.Points;
+        for (int index = 0; index < points.Count; index++)
+        {
+            var point = points[index];
+            string rowText = RowText(point);
+            if (index < list.Items.Count && list.Items[index] is ListBoxItem existing &&
+                existing.Content is StackPanel panel && panel.Children.Count == 2 &&
+                panel.Children[0] is Shape oldGlyph && panel.Children[1] is TextBlock oldText)
+            {
+                existing.Tag = point.Id;
+                if (!Equals(oldGlyph.Tag, point.Role))
+                    panel.Children[0] = CreateRoleGlyph(point.Role);
+                if (oldText.Text != rowText)
+                    oldText.Text = rowText;
+                if (existing.ContextMenu is { } existingMenu && existingMenu.Tag is not ShellHost && this.FindAncestorOfType<ShellHost>() is not null)
+                    PopulatePointMenu(existingMenu, existing, curveName, selectRow: false);
+                continue;
+            }
+            var newItem = CreateRailItem(point, curveName, rowText);
+            if (index < list.Items.Count) list.Items[index] = newItem;
+            else list.Items.Add(newItem);
+        }
+        while (list.Items.Count > points.Count)
+            list.Items.RemoveAt(list.Items.Count - 1);
+    }
+
+    private ListBoxItem CreateRailItem(PointView point, string curveName, string rowText)
+    {
+        var glyph = CreateRoleGlyph(point.Role);
+        var text = new TextBlock
+        {
+            Text = rowText,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        var panel = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        panel.Children.Add(glyph);
+        panel.Children.Add(text);
+        var item = new ListBoxItem { Content = panel, Tag = point.Id };
+        // F-27 + F-42 + F-21: shared PointContextMenu gated via ShellHost.CanRun, eagerly populated and refreshed on open.
+        var menu = new ContextMenu();
+        bool populatedForOpen = false;
+        menu.Opening += (_, _) => { populatedForOpen = true; PopulatePointMenu(menu, item, curveName, selectRow: true); };
+        menu.Opened += (_, _) => { if (!populatedForOpen) PopulatePointMenu(menu, item, curveName, selectRow: true); populatedForOpen = false; };
+        menu.Closed += (_, _) => populatedForOpen = false;
+        item.ContextMenu = menu;
+        PopulatePointMenu(menu, item, curveName, selectRow: false);
+        return item;
+    }
+
+    private void PopulatePointMenu(ContextMenu menu, ListBoxItem item, string curveName, bool selectRow)
+    {
+        if (boundController is null || item.Tag is not string id) return;
+        var reference = new PointRef(curveName, id);
+        void SelectIfNeeded()
+        {
+            if (boundController is { } controller &&
+                (controller.Selection is not Selection.Points { Items: [var only] } || only != reference))
+                controller.Select(new Selection.Points([reference]));
+        }
+        if (selectRow) SelectIfNeeded();
+        if (this.FindAncestorOfType<ShellHost>() is { } host)
+        {
+            menu.Tag = host;
+            menu.ItemsSource = PointContextMenu.BuildItems(host, reference, RunPendingAsync, sentenceCase: true, beforeRun: SelectIfNeeded);
+            return;
+        }
+        menu.ItemsSource = new Control[]
+        {
+            new MenuItem { Header = "Make anchor", IsEnabled = false },
+            new MenuItem { Header = "Make control", IsEnabled = false },
+            new MenuItem { Header = "Remove point", IsEnabled = false }
+        };
     }
 
     private void OnPointSelected(ListBox list, string curve)

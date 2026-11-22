@@ -7,21 +7,21 @@
        .why, .lb, .navbar.sec, .strip, .thumb; Rulings 60, 61): every size and colour is a Styles.axaml token. -->
   <Grid x:Name="ModeEditor" RowDefinitions="32,*,84" IsVisible="False">
     <Border Grid.Row="0" Classes="modebar">
-      <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,Auto" ColumnSpacing="{StaticResource ModeBarGap}">
+      <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="{StaticResource ModeBarGap}">
         <TextBlock x:Name="ModeTitle" Grid.Column="0" Classes="modebar-title" />
-        <Border Grid.Column="1" Classes="modebar-chip">
-          <StackPanel Orientation="Horizontal">
-            <TextBlock x:Name="ScopeChip" VerticalAlignment="Center" />
-            <Button x:Name="ScopeChipLink" Classes="modebar-link" AutomationProperties.Name="Make this section unique to the station">
+        <Border x:Name="ScopeChipBorder" Grid.Column="1" Classes="modebar-chip" HorizontalAlignment="Left">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock x:Name="ScopeChip" Grid.Column="0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+            <Button x:Name="ScopeChipLink" Grid.Column="1" Classes="modebar-link" AutomationProperties.Name="Make this section unique to the station">
               <TextBlock x:Name="ScopeChipLinkText" TextDecorations="Underline" />
             </Button>
-          </StackPanel>
+          </Grid>
         </Border>
         <Button x:Name="ModeSectionButton" Grid.Column="2" Classes="modebar" Content="Section ▾" AutomationProperties.Name="Section actions" />
         <ToggleButton x:Name="CurvatureToggle" Grid.Column="3" Classes="modebar" Content="Curvature" IsChecked="True" AutomationProperties.Name="Curvature comb" />
         <ToggleButton x:Name="ThicknessToggle" Grid.Column="4" Classes="modebar" Content="Thickness ×2" AutomationProperties.Name="Thickness drawn times two" />
-        <Button x:Name="ModeCancelButton" Grid.Column="6" Classes="modebar outline" Content="Cancel" AutomationProperties.Name="Cancel section" />
-        <Button x:Name="ModeFinishButton" Grid.Column="7" Classes="modebar primary" Content="Finish section" AutomationProperties.Name="Finish section" />
+        <Button x:Name="ModeCancelButton" Grid.Column="5" Classes="modebar outline" Content="Cancel" AutomationProperties.Name="Cancel section" />
+        <Button x:Name="ModeFinishButton" Grid.Column="6" Classes="modebar primary" Content="Finish section" AutomationProperties.Name="Finish section" />
       </Grid>
     </Border>
     <Grid Grid.Row="1">

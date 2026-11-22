@@ -81,8 +81,14 @@ public abstract record CommitOutcome
         public bool ClearPointSelection { get; init; }
         /// <summary>A selection the command leaves behind that is not a point: the promoted station, the left neighbour of a removal (S1).</summary>
         public Selection? SelectItem { get; init; }
+        /// <summary>Structured max deviation text for point commands (F-42: avoids regex parsing of English report copy).</summary>
+        public string? MaxDeviationText { get; init; }
     }
-    public sealed record Refused(string Code, string Copy) : CommitOutcome;
+    public sealed record Refused(string Code, string Copy) : CommitOutcome
+    {
+        /// <summary>Structured maximum legal move magnitude in the field's display unit (F-42: avoids regex parsing in PropertiesPane).</summary>
+        public double? MaxMoveAmount { get; init; }
+    }
 }
 
 /// <summary>Label/value view of the open draft's construction, import, and thickness reports.</summary>
@@ -1800,9 +1806,9 @@ public sealed class WorkbenchController : IDisposable
     {
         ArgumentNullException.ThrowIfNull(selection);
         if (selection is not Selection.Points { Items: [var only] } || only != RefusedPoint) RefusedPoint = null;
-        // A flyout belongs to its slice or to its station's panel; selecting anything else closes it.
+        // A flyout belongs to its slice or to its station's panel; selecting anything else closes it (F-24: keep Match on re-select).
         if (flyout is { } open && !(open.Kind == StationFlyoutKind.Promote && selection is Selection.Slice ||
-                                    open.Kind == StationFlyoutKind.Remove && selection is Selection.Station { } at && at.Index == open.Index))
+                                    open.Kind is StationFlyoutKind.Remove or StationFlyoutKind.Match && selection is Selection.Station { } at && at.Index == open.Index))
             flyout = null;
         if (isNotifying)
         {
@@ -2632,7 +2638,7 @@ public sealed class WorkbenchController : IDisposable
         _ = RefreshAcceptedAsync();
     }
 
-    public Task<CommitOutcome> ApplySpanAsync(string text) => RunDirectCommandAsync(() =>
+    public Task<CommitOutcome> ApplySpanAsync(string text) => RunDirectCommandImmediate(() =>
     {
         string id = session.ApplyDimension(Guid.NewGuid().ToString("D"), new("span", text));
         return new CommitOutcome.Committed(id, "Span applied as one accepted source revision. Save to persist it.");
@@ -3277,7 +3283,8 @@ public sealed class WorkbenchController : IDisposable
             return new CommitOutcome.Committed(result.AcceptedId, report)
             {
                 SelectPoint = result.SelectId is { Length: > 0 } ? new PointRef(command.Curve, result.SelectId) : null,
-                ClearPointSelection = command is PointCommand.RebuildCurve
+                ClearPointSelection = command is PointCommand.RebuildCurve,
+                MaxDeviationText = change
             };
         }, warningOnRefusal: command is PointCommand.AddPoint or PointCommand.RemovePoint or PointCommand.RebuildCurve,
             preserveStatusAfterCommit: command is PointCommand.AddPoint or PointCommand.RemovePoint or PointCommand.RebuildCurve);
@@ -3286,7 +3293,7 @@ public sealed class WorkbenchController : IDisposable
     /// <summary>Read-only seven-count preview from the accepted source; one Core event measures the open.</summary>
     public IReadOnlyList<RebuildPreview> PreviewRebuilds(string curve) => session.PreviewRebuilds(curve);
 
-    public Task<CommitOutcome> ApplyChordAsync(string dimension, string text) => RunDirectCommandAsync(() =>
+    public Task<CommitOutcome> ApplyChordAsync(string dimension, string text) => RunDirectCommandImmediate(() =>
     {
         var result = session.ApplyChord(Guid.NewGuid().ToString("D"), new(dimension, text));
         var report = result.Report;
@@ -3298,6 +3305,42 @@ public sealed class WorkbenchController : IDisposable
             $"{report.DeviationFromLinearMeters * 1e3:F2} mm from a straight taper. " +
             $"Planform moved {report.PlanformShiftMeters * 1e3:F2} mm.");
     });
+
+    /// <summary>
+    /// Fast in-memory wing-dimension commit: applies the B-spline algebra directly and dispatches the slow
+    /// geometry refresh asynchronously via <see cref="RefreshAcceptedAsync"/>, avoiding UI-thread spin loops (F-21).
+    /// </summary>
+    private Task<CommitOutcome> RunDirectCommandImmediate(Func<CommitOutcome> action, bool warningOnRefusal = false,
+        bool preserveStatusAfterCommit = false)
+    {
+        if (RefuseAnalysisEdit())
+            return Task.FromResult<CommitOutcome>(new CommitOutcome.Refused("ANA-EDIT-INERT", AnalysisPointRefusal));
+        if (Gesture != GestureState.Idle || draft is not null)
+            return Task.FromResult<CommitOutcome>(new CommitOutcome.Refused("DSL-DRAFT-OWNED", "Finish the current change first."));
+        if (Inspection?.Geometry.Status != GeometryStatus.Certified)
+            return Task.FromResult<CommitOutcome>(new CommitOutcome.Refused("DSL-NOT-ASSESSED", "This foil couldn't be checked. Nothing changed."));
+        try
+        {
+            var outcome = action();
+            Inspection = session.InspectAccepted();
+            UpdateEstimates();
+            var committed = (CommitOutcome.Committed)outcome;
+            Status = committed.Report;
+            if (committed.ClearPointSelection) queuedSelection = new Selection.Foil();
+            else if (committed.SelectPoint is { } point) queuedSelection = new Selection.Points([point]);
+            else if (committed.SelectItem is { } item) queuedSelection = item;
+            Notify();
+            _ = RefreshAcceptedAsync(preserveStatus: preserveStatusAfterCommit);
+            return Task.FromResult(outcome);
+        }
+        catch (ContractError error)
+        {
+            string reason = error.Reason ?? Labels.Refusal(error.Code);
+            SetStatus(reason, warningOnRefusal ? ReportKind.Warning : ReportKind.Error);
+            Notify();
+            return Task.FromResult<CommitOutcome>(new CommitOutcome.Refused(error.Code, reason) { MaxMoveAmount = ReadMaxMoveAmount(reason) });
+        }
+    }
 
     public void ReportPointWarning(string copy)
     {
@@ -3350,7 +3393,7 @@ public sealed class WorkbenchController : IDisposable
             string reason = error.Reason ?? Labels.Refusal(error.Code);
             SetStatus(reason, warningOnRefusal ? ReportKind.Warning : ReportKind.Error);
             Notify();
-            return new CommitOutcome.Refused(error.Code, reason);
+            return new CommitOutcome.Refused(error.Code, reason) { MaxMoveAmount = ReadMaxMoveAmount(reason) };
         }
         finally
         {
@@ -3358,6 +3401,19 @@ public sealed class WorkbenchController : IDisposable
             pendingDirectCommand = null;
             Notify();
         }
+    }
+
+    private static double? ReadMaxMoveAmount(string reason)
+    {
+        const string marker = "The most they can move that way is ";
+        int start = reason.IndexOf(marker, StringComparison.Ordinal);
+        if (start < 0) return null;
+        start += marker.Length;
+        int end = start;
+        while (end < reason.Length && (char.IsAsciiDigit(reason[end]) || reason[end] == '.')) end++;
+        if (end <= start) return null;
+        return double.TryParse(reason.AsSpan(start, end - start), NumberStyles.Float, CultureInfo.InvariantCulture, out double amount)
+            ? amount : null;
     }
 
     private async Task CompleteGestureBeforeDocumentActionAsync(GestureEnd reason)

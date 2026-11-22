@@ -1,6 +1,5 @@
 using System.Globalization;
 using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Automation;
@@ -94,6 +93,13 @@ public partial class PropertiesPane : UserControl
     private string? copyTarget;
     private PropertiesModel? shownModel;
     private string? lastAvailability;
+    private readonly HashSet<Control> pendingControls = [];
+    private readonly Dictionary<(string Text, FontFamily Family, FontStyle Style, FontWeight Weight, double Size), double> longestWordCache = [];
+
+    /// <summary>The most recent in-flight asynchronous commit task, or a completed task (F-21).</summary>
+    public Task Pending { get; private set; } = Task.CompletedTask;
+
+    private void TrackPending(Task task) => Pending = task;
 
     public PropertiesPane()
     {
@@ -131,7 +137,7 @@ public partial class PropertiesPane : UserControl
             HowMeasuredButton.IsChecked = HowMeasuredBody.IsVisible;
             HowMeasuredChevron.Data = Avalonia.Media.Geometry.Parse(HowMeasuredBody.IsVisible ? DisclosureOpen : DisclosureClosed);
         };
-        RecoveryApplyButton.Click += (_, _) => ApplyRecovery();
+        RecoveryApplyButton.Click += (_, _) => TrackPending(ApplyRecoveryAsync());
         RecoveryDiscardButton.Click += (_, _) => boundController?.DiscardRecovery();
         IdentityCrumbLink.Click += (_, _) => GoToCrumb();
 
@@ -192,13 +198,13 @@ public partial class PropertiesPane : UserControl
         shownModel?.Blocks.SelectMany(group => group.Rows).Any(row => row.Key == "p:aft" && row.Group) == true &&
         PointAftInput is { IsEffectivelyVisible: true, IsEffectivelyEnabled: true } box ? box : null;
 
-    // The pane sees Shift+Tab before its first value does, and asks the Plan to focus the selected point again.
+    // The pane sees Shift+Tab before its first value does, and asks ModelArea to focus the active editor by mode/curve (F-24).
     private void OnShiftTabFromFirstValue(object? sender, KeyEventArgs e)
     {
         if (e.Handled || e.Key != Key.Tab || !e.KeyModifiers.HasFlag(KeyModifiers.Shift)) return;
         if (boundController?.Selection is not Selection.Points) return;
         if (!ReferenceEquals(TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement(), FirstValue())) return;
-        if (this.FindAncestorOfType<ShellHost>()?.ModelView.PlanCanvas.FocusSelectedPoint() == true) e.Handled = true;
+        if (this.FindAncestorOfType<ShellHost>()?.ModelView.FocusActiveEditor() == true) e.Handled = true;
     }
 
     public void ShowRenderFailure(bool foilOpen)
@@ -310,6 +316,7 @@ public partial class PropertiesPane : UserControl
                 errors.Clear();
                 typeField.Pending = null;
                 kindField.Pending = null;
+                intentField.Pending = null;
             }
             var model = PropertiesView.Build(controller.Selection, authored, estimates,
                 controller.IsAnalysis ? ShellMode.Analysis : ShellMode.Workspace, context);
@@ -334,12 +341,19 @@ public partial class PropertiesPane : UserControl
     /// <summary>Commits the Wing's Span field (COPY-106 / COPY-118 on refusal). Kept for the shell's edit routing.</summary>
     public bool CommitSpan()
     {
-        if (boundController is null) return false;
+        var task = CommitSpanAsync();
+        TrackPending(task);
+        return task.IsCompletedSuccessfully && task.Result;
+    }
+
+    public Task<bool> CommitSpanAsync()
+    {
+        if (boundController is null) return Task.FromResult(false);
         // With no foil open the field still answers: the controller refuses, and the refusal is shown (COPY-145).
         string typed = SpanInput.Text ?? "";
         var view = rows.GetValueOrDefault("w:span|Input") ?? RenderRow(PropertiesView.SpanField(double.NaN), []);
         SpanInput.Text = typed;
-        return CommitWing(view, SpanInput);
+        return CommitWingAsync(view, SpanInput);
     }
 
     /// <summary>The text the Copy command puts on the clipboard for a fact or estimate row (PG-20 / D2).</summary>
@@ -391,7 +405,7 @@ public partial class PropertiesPane : UserControl
             Sync(BlocksPanel, groupControls);
             if (model.Wing is { } wing) RenderWing(wing, used);
             // A pooled editor this selection does not show is neither enabled nor visible, wherever it was last placed.
-            foreach (var control in pooledInputs.Values.Cast<Control>().Append(TypeControl).Append(KindControl).Where(control => !used.Contains(control)))
+            foreach (var control in pooledInputs.Values.Cast<Control>().Append(TypeControl).Append(KindControl).Append(intentControl).Where(control => !used.Contains(control)))
             {
                 control.IsEnabled = false;
                 control.IsVisible = false;
@@ -987,10 +1001,20 @@ public partial class PropertiesPane : UserControl
         if (view.Label.Margin != margin) view.Label.Margin = margin;
     }
 
-    private static double LongestWord(TextBlock label) =>
-        (label.Text ?? "").Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(word => new FormattedText(word,
-            CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface(label.FontFamily, label.FontStyle, label.FontWeight),
-            label.FontSize, null).WidthIncludingTrailingWhitespace).DefaultIfEmpty(0).Max();
+    private double LongestWord(TextBlock label)
+    {
+        string text = label.Text ?? "";
+        if (text.Length == 0) return 0;
+        var key = (text, label.FontFamily, label.FontStyle, label.FontWeight, label.FontSize);
+        if (longestWordCache.TryGetValue(key, out double cached)) return cached;
+        var typeface = new Typeface(label.FontFamily, label.FontStyle, label.FontWeight);
+        double max = text.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Select(word => new FormattedText(word, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
+                typeface, Math.Max(CanvasTypography.MinimumFontSize, label.FontSize), null).WidthIncludingTrailingWhitespace)
+            .DefaultIfEmpty(0).Max();
+        longestWordCache[key] = max;
+        return max;
+    }
 
     private static bool SameColumns(ColumnDefinitions current, ColumnDefinitions wanted) =>
         current.Count == wanted.Count && current.Zip(wanted).All(pair =>
@@ -1293,11 +1317,11 @@ public partial class PropertiesPane : UserControl
         {
             case Key.Enter:
                 e.Handled = true;
-                Commit(view, box);
+                TrackPending(CommitAsync(view, box));
                 break;
             case Key.Tab:
                 e.Handled = true;
-                if (Dirty(box) && !RefusedAlready(view, box)) Commit(view, box);
+                if (Dirty(box) && !RefusedAlready(view, box)) TrackPending(CommitAsync(view, box));
                 var direction = e.KeyModifiers.HasFlag(KeyModifiers.Shift) ? NavigationDirection.Previous : NavigationDirection.Next;
                 (TopLevel.GetTopLevel(this) as IInputRoot)?.KeyboardNavigationHandler?.Move(box, direction, e.KeyModifiers);
                 break;
@@ -1316,7 +1340,7 @@ public partial class PropertiesPane : UserControl
     {
         if (e.Key is not (Key.Up or Key.Down) || run is not { } active || !ReferenceEquals(active.Box, sender)) return;
         e.Handled = true;
-        EndRun(GestureEnd.KeyUp);
+        TrackPending(EndRunAsync(GestureEnd.KeyUp));
     }
 
     private void OnInputLostFocus(object? sender, RoutedEventArgs e)
@@ -1324,11 +1348,11 @@ public partial class PropertiesPane : UserControl
         if (rendering || sender is not TextBox box || !inputOwners.TryGetValue(box, out var view)) return;
         if (run?.Box == box)
         {
-            EndRun(GestureEnd.KeyUp);
+            TrackPending(EndRunAsync(GestureEnd.KeyUp));
             return;
         }
-        // UI-39: leaving a field commits it; focus goes where it was sent.
-        if (Dirty(box) && !RefusedAlready(view, box)) Commit(view, box);
+        // UI-39: leaving a field commits it; focus goes where it was sent (pendingControls prevents double-commit after Tab).
+        if (Dirty(box) && !RefusedAlready(view, box)) TrackPending(CommitAsync(view, box));
     }
 
     private bool RefusedAlready(RowView view, TextBox box) =>
@@ -1338,7 +1362,7 @@ public partial class PropertiesPane : UserControl
     {
         if (run?.Box == box)
         {
-            EndRun(GestureEnd.Escape);
+            TrackPending(EndRunAsync(GestureEnd.Escape));
             return;
         }
         if (Dirty(box) || errors.ContainsKey(view.Row.Key))
@@ -1348,16 +1372,16 @@ public partial class PropertiesPane : UserControl
             if (boundController is { } controller) Bind(controller);
             return;
         }
-        // A second Escape returns focus to the canvas target (§10.4).
+        // F-24: a second Escape returns focus via ModelArea by active mode/curve (§10.4).
         if (view.Row.Target is not null)
-            this.FindAncestorOfType<ShellHost>()?.ModelView.PlanCanvas.Focus();
+            this.FindAncestorOfType<ShellHost>()?.ModelView.FocusActiveEditor(view.Row.Target);
     }
 
-    private void Commit(RowView view, TextBox box)
+    private Task<bool> CommitAsync(RowView view, TextBox box)
     {
-        if (view.Row.Key.StartsWith("w:", StringComparison.Ordinal)) CommitWing(view, box);
-        else if (view.Row.Group) CommitGroup(view, box);
-        else CommitPoint(view, box);
+        if (view.Row.Key.StartsWith("w:", StringComparison.Ordinal)) return CommitWingAsync(view, box);
+        if (view.Row.Group) return CommitGroupAsync(view, box);
+        return CommitPointAsync(view, box);
     }
 
     private void ChooseGroupMode(GroupValueMode mode)
@@ -1375,99 +1399,115 @@ public partial class PropertiesPane : UserControl
     /// A refusal keeps the typed text, names the cause (Core's words) and offers "Use <value>" by click only; a commit clears a
     /// Move by field to 0 and the row re-reads the shared or Mixed value.
     /// </summary>
-    private bool CommitGroup(RowView view, TextBox box)
+    private async Task<bool> CommitGroupAsync(RowView view, TextBox box)
     {
-        if (boundController is not { } controller) return false;
-        var row = view.Row;
-        if (!Parse(view, box, Dimensions(), out double typed)) return false;
-        bool span = row.Axis == RowAxis.Span;
-        var mode = span ? GroupValueMode.MoveBy : groupMode;
-        double amount = typed / PropertiesView.FieldScale[row.Family];
-        string typedText = box.Text ?? "";
-        Task<CommitOutcome> task;
-        using (Hold())
+        if (boundController is not { } controller || !pendingControls.Add(box)) return false;
+        try
         {
-            task = controller.ApplyGroupValueAsync(mode, span ? GroupValueAxis.Span : GroupValueAxis.Value, amount);
-            PumpUi(task);
+            var row = view.Row;
+            if (!Parse(view, box, Dimensions(), out double typed)) return false;
+            bool span = row.Axis == RowAxis.Span;
+            var mode = span ? GroupValueMode.MoveBy : groupMode;
+            double amount = typed / PropertiesView.FieldScale[row.Family];
+            string typedText = box.Text ?? "";
+            CommitOutcome outcome;
+            using (Hold())
+            {
+                try { outcome = await controller.ApplyGroupValueAsync(mode, span ? GroupValueAxis.Span : GroupValueAxis.Value, amount); }
+                catch (Exception) { outcome = new CommitOutcome.Refused("DSL-NOT-ASSESSED", controller.Status); }
+            }
+            if (outcome is CommitOutcome.Committed)
+            {
+                errors.Remove(row.Key); messages.Remove(row.Key); useValues.Remove(row.Key);
+                // Move by clears to 0, and so does Set to once it re-reads the shared value: the row shows the model's text again.
+                shown[box] = box.Text = mode == GroupValueMode.MoveBy ? "0" : typedText;
+                Bind(controller);
+                return true;
+            }
+            var refused = (CommitOutcome.Refused)outcome;
+            if (box.Text != typedText) box.Text = typedText;
+            return Refuse(view, box, refused.Copy, UseOffer(refused, row, mode, typed, controller));
         }
-        var outcome = task.IsCompletedSuccessfully ? task.Result : new CommitOutcome.Refused("DSL-NOT-ASSESSED", controller.Status);
-        if (outcome is CommitOutcome.Committed)
-        {
-            errors.Remove(row.Key); messages.Remove(row.Key); useValues.Remove(row.Key);
-            // Move by clears to 0, and so does Set to once it re-reads the shared value: the row shows the model's text again.
-            shown[box] = box.Text = mode == GroupValueMode.MoveBy ? "0" : typedText;
-            Bind(controller);
-            return true;
-        }
-        var refused = (CommitOutcome.Refused)outcome;
-        if (box.Text != typedText) box.Text = typedText;
-        return Refuse(view, box, refused.Copy, UseOffer(refused, row, mode, typed, controller));
+        finally { pendingControls.Remove(box); }
     }
 
-    /// <summary>The nearest legal value of a refused typed group entry (design §3.7): the tip minimum for a Set to, "the most they can move" for a Move by.</summary>
+    /// <summary>The nearest legal value of a refused typed group entry (design §3.7, F-42): reads structured bounds on CommitOutcome.Refused.</summary>
     private static string? UseOffer(CommitOutcome.Refused refused, PropertyRow row, GroupValueMode mode, double typed, WorkbenchController controller)
     {
         if (mode == GroupValueMode.SetTo)
             return refused.Code == TipChord.RefusalCode && controller.Estimates is { } wing
                 ? TipChord.FormatMm(TipChord.MinimumMeters(wing.RootChordMeters)) : null;
-        var most = Regex.Match(refused.Copy, @"The most they can move that way is (\d+(?:\.\d+)?)");
-        if (!most.Success || !double.TryParse(most.Groups[1].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out double amount)) return null;
+        if (refused.MaxMoveAmount is not double amount) return null;
         // Core words the amount in the field's own unit at two decimals, so the Use label and the message agree (Ruling 116, finding 11).
         return Quantity.WithUnit((typed < 0 ? Quantity.Minus.ToString() : "") + Quantity.Typed(amount), row.Unit ?? "");
     }
 
-    private bool CommitWing(RowView view, TextBox box)
+    private async Task<bool> CommitWingAsync(RowView view, TextBox box)
     {
-        if (boundController is not { } controller) return false;
-        var row = view.Row;
-        string typedText = box.Text ?? "";
-        string text = typedText.Trim();
-        if (text.Length == 0) return Refuse(view, box, PropertyCopy.NotANumber(row.Label));
-        bool parsed = UnitEntry.TryParse(text, UnitFamily.Length, Dimensions(), out var entry);
-        Task<CommitOutcome> task = row.Key == "w:span"
-            ? controller.ApplySpanAsync(text)
-            : controller.ApplyChordAsync(row.Key == "w:root" ? "root-chord" : "tip-chord", text);
-        using (Hold()) PumpUi(task);
-        var outcome = task.IsCompletedSuccessfully ? task.Result : new CommitOutcome.Refused("DSL-NOT-ASSESSED", "");
-        if (outcome is CommitOutcome.Committed committed)
+        if (boundController is not { } controller || !pendingControls.Add(box)) return false;
+        try
         {
-            errors.Remove(row.Key);
-            bool aboveLimit = committed.Report.Contains("above the limit", StringComparison.Ordinal);
-            string? echo = parsed ? UnitEntry.Echo(text, entry with { Value = CommittedWingValue(row.Key, entry.Value) }, "mm") : null;
-            // DR-STATUS-1 / DR-STATUS-3: the fit warning goes to the strip and the toast, the row keeps its state; an echo
-            // goes to the strip.
-            if (aboveLimit) messages[row.Key] = new RowMessage(committed.Report, MessageKind.Warning);
-            else messages.Remove(row.Key);
-            shown[box] = box.Text ?? "";
-            Bind(controller);
-            if (aboveLimit) Reported?.Invoke(new StatusReport(committed.Report, ReportKind.Warning, Toast: true));
-            else if (echo is not null) Reported?.Invoke(new StatusReport(echo));
-            return true;
+            var row = view.Row;
+            string typedText = box.Text ?? "";
+            string text = typedText.Trim();
+            if (text.Length == 0) return Refuse(view, box, PropertyCopy.NotANumber(row.Label));
+            bool parsed = UnitEntry.TryParse(text, UnitFamily.Length, Dimensions(), out var entry);
+            // Fast synchronous validation when the foil is certified: invalid or non-positive values refuse immediately without background work.
+            if (controller.Inspection?.Geometry.Status == GeometryStatus.Certified && !controller.IsAnalysis && controller.Draft is null && controller.Gesture == GestureState.Idle)
+            {
+                if (!parsed) return Refuse(view, box, PropertyCopy.NotANumber(row.Label));
+                if (entry.Value <= 0) return Refuse(view, box, PropertyCopy.NotPositive(row.Label));
+            }
+            CommitOutcome outcome;
+            using (Hold())
+            {
+                Task<CommitOutcome> task = row.Key == "w:span"
+                    ? controller.ApplySpanAsync(text)
+                    : controller.ApplyChordAsync(row.Key == "w:root" ? "root-chord" : "tip-chord", text);
+                try { outcome = await task; }
+                catch (Exception) { outcome = new CommitOutcome.Refused("DSL-NOT-ASSESSED", ""); }
+            }
+            if (outcome is CommitOutcome.Committed committed)
+            {
+                errors.Remove(row.Key);
+                bool aboveLimit = committed.Report.Contains("above the limit", StringComparison.Ordinal);
+                string? echo = parsed ? UnitEntry.Echo(text, entry with { Value = CommittedWingValue(row.Key, entry.Value) }, "mm") : null;
+                // DR-STATUS-1 / DR-STATUS-3: the fit warning goes to the strip and the toast, the row keeps its state; an echo
+                // goes to the strip.
+                if (aboveLimit) messages[row.Key] = new RowMessage(committed.Report, MessageKind.Warning);
+                else messages.Remove(row.Key);
+                shown[box] = box.Text ?? "";
+                Bind(controller);
+                if (aboveLimit) Reported?.Invoke(new StatusReport(committed.Report, ReportKind.Warning, Toast: true));
+                else if (echo is not null) Reported?.Invoke(new StatusReport(echo));
+                return true;
+            }
+            string code = ((CommitOutcome.Refused)outcome).Code;
+            // The commit's refresh re-binds the row to the accepted value; a refused typed entry keeps what was typed (Ruling 96).
+            if (code is TipChord.RefusalCode or "DSL-UNIT" or "DSL-EDGES-CROSS" or "DSL-NOT-ASSESSED" && box.Text != typedText) box.Text = typedText;
+            if (code == "DSL-TARGET" && row.Key == "w:tip")
+            {
+                messages[row.Key] = new RowMessage(PropertyCopy.TipCloses, MessageKind.Reason);
+                return Refuse(view, box, PropertyCopy.TipCloses);
+            }
+            if (code == TipChord.RefusalCode && boundController?.Estimates is { } wing)
+            {
+                // Ruling 96: the refusal keeps what was typed, says what limits (root first when the root caused it), and offers
+                // the legal value as a click. The text is Core's; the offer is the same one definition.
+                string use = row.Key == "w:root"
+                    ? TipChord.FormatMm(TipChord.MaximumRootMeters(wing.TipChordMeters, wing.RootChordMeters))
+                    : TipChord.FormatMm(TipChord.MinimumMeters(wing.RootChordMeters));
+                return Refuse(view, box, ((CommitOutcome.Refused)outcome).Copy, use);
+            }
+            return Refuse(view, box, code switch
+            {
+                "DSL-UNIT" => PropertyCopy.NotPositive(row.Label),
+                "DSL-EDGES-CROSS" => "That would make the leading and trailing edges cross. Enter a different value.",
+                "DSL-NOT-ASSESSED" => $"The new {row.Label.ToLowerInvariant()} couldn't be checked. {row.Label} is unchanged. Try again or enter a different value.",
+                _ => PropertyCopy.NotANumber(row.Label)
+            });
         }
-        string code = ((CommitOutcome.Refused)outcome).Code;
-        // The commit's refresh re-binds the row to the accepted value; a refused typed entry keeps what was typed (Ruling 96).
-        if (code is TipChord.RefusalCode or "DSL-UNIT" or "DSL-EDGES-CROSS" or "DSL-NOT-ASSESSED" && box.Text != typedText) box.Text = typedText;
-        if (code == "DSL-TARGET" && row.Key == "w:tip")
-        {
-            messages[row.Key] = new RowMessage(PropertyCopy.TipCloses, MessageKind.Reason);
-            return Refuse(view, box, PropertyCopy.TipCloses);
-        }
-        if (code == TipChord.RefusalCode && boundController?.Estimates is { } wing)
-        {
-            // Ruling 96: the refusal keeps what was typed, says what limits (root first when the root caused it), and offers
-            // the legal value as a click. The text is Core's; the offer is the same one definition.
-            string use = row.Key == "w:root"
-                ? TipChord.FormatMm(TipChord.MaximumRootMeters(wing.TipChordMeters, wing.RootChordMeters))
-                : TipChord.FormatMm(TipChord.MinimumMeters(wing.RootChordMeters));
-            return Refuse(view, box, ((CommitOutcome.Refused)outcome).Copy, use);
-        }
-        return Refuse(view, box, code switch
-        {
-            "DSL-UNIT" => PropertyCopy.NotPositive(row.Label),
-            "DSL-EDGES-CROSS" => "That would make the leading and trailing edges cross. Enter a different value.",
-            "DSL-NOT-ASSESSED" => $"The new {row.Label.ToLowerInvariant()} couldn't be checked. {row.Label} is unchanged. Try again or enter a different value.",
-            _ => PropertyCopy.NotANumber(row.Label)
-        });
+        finally { pendingControls.Remove(box); }
     }
 
     /// <summary>The click on "Use <value>": types the offered legal value into the row and commits it as any typed entry.</summary>
@@ -1477,7 +1517,7 @@ public partial class PropertiesPane : UserControl
         box.Text = Quantity.ForField(value);   // the label shows "−", the field takes the typeable "-"
         errors.Remove(key);
         useValues.Remove(key);
-        Commit(view, box);
+        TrackPending(CommitAsync(view, box));
     }
 
     private double CommittedWingValue(string key, double typed)
@@ -1500,162 +1540,179 @@ public partial class PropertiesPane : UserControl
     /// edited station's chord and echoed in % in the strip); y refuses mm with its reason. A refusal is a field error at the
     /// field (UI-39) and makes no step.
     /// </summary>
-    private bool CommitSectionPoint(RowView view, TextBox box, WorkbenchController controller, PointRef target)
+    private async Task<bool> CommitSectionPointAsync(RowView view, TextBox box, WorkbenchController controller, PointRef target)
     {
-        if (controller.Section is not { } mode) return false;
-        var curve = controller.SectionCurve(SectionPoints.Side(target.Curve));
-        var point = curve?.Points.FirstOrDefault(item => item.Id == target.VertexId);
-        if (curve is null || point is null) return false;
-        double chord = Sections.Facts(mode.Draft.Bytes, mode.Draft.Assignment).StationChordMeters;
-        double x = point.SpanMeters, y = point.Ordinate;
-        string? echo = null;
-        var row = view.Row;
-        if (row.Axis is RowAxis.Span or RowAxis.Value)
+        if (controller.Section is not { } mode || !pendingControls.Add(box)) return false;
+        try
         {
-            string? refusal = SectionPoints.Parse(box.Text, row.Axis == RowAxis.Span, chord, out double fraction, out echo);
-            if (refusal is not null) return Refuse(view, box, refusal);
-            if (row.Axis == RowAxis.Span) x = fraction; else y = fraction;
+            var curve = controller.SectionCurve(SectionPoints.Side(target.Curve));
+            var point = curve?.Points.FirstOrDefault(item => item.Id == target.VertexId);
+            if (curve is null || point is null) return false;
+            double chord = Sections.Facts(mode.Draft.Bytes, mode.Draft.Assignment).StationChordMeters;
+            double x = point.SpanMeters, y = point.Ordinate;
+            string? echo = null;
+            var row = view.Row;
+            if (row.Axis is RowAxis.Span or RowAxis.Value)
+            {
+                string? refusal = SectionPoints.Parse(box.Text, row.Axis == RowAxis.Span, chord, out double fraction, out echo);
+                if (refusal is not null) return Refuse(view, box, refusal);
+                if (row.Axis == RowAxis.Span) x = fraction; else y = fraction;
+            }
+            else
+            {
+                var anchor = curve.Points.FirstOrDefault(item => Math.Abs(item.Index - point.Index) == 1 && item.Role == PointRole.Anchor);
+                if (anchor is null) return false;
+                if (!Parse(view, box, Dimensions(), out double typed)) return false;
+                var (angle, length) = PropertiesView.SectionHandle(point, anchor);
+                if (row.Axis == RowAxis.Angle) angle = typed;
+                else length = typed / 1000 / chord;
+                (x, y) = PropertiesView.SectionHandleAt(anchor, angle, length);
+            }
+            string? refused;
+            using (Hold())
+            {
+                try { refused = await SectionPoints.CommitAsync(controller, target, x, y); }
+                catch (Exception) { refused = "This change couldn't be checked, so it wasn't applied. Nothing changed."; }
+            }
+            if (refused is not null) return Refuse(view, box, refused);
+            errors.Remove(row.Key);
+            messages.Remove(row.Key);
+            MarkShown([row.Key]);
+            Bind(controller);
+            if (echo is not null) Reported?.Invoke(new StatusReport(echo));
+            return true;
         }
-        else
-        {
-            var anchor = curve.Points.FirstOrDefault(item => Math.Abs(item.Index - point.Index) == 1 && item.Role == PointRole.Anchor);
-            if (anchor is null) return false;
-            if (!Parse(view, box, Dimensions(), out double typed)) return false;
-            var (angle, length) = PropertiesView.SectionHandle(point, anchor);
-            if (row.Axis == RowAxis.Angle) angle = typed;
-            else length = typed / 1000 / chord;
-            (x, y) = PropertiesView.SectionHandleAt(anchor, angle, length);
-        }
-        Task<string?> task;
-        using (Hold())
-        {
-            task = SectionPoints.CommitAsync(controller, target, x, y);
-            PumpUi(task);
-        }
-        string? refused = task.IsCompletedSuccessfully ? task.Result : "This change couldn't be checked, so it wasn't applied. Nothing changed.";
-        if (refused is not null) return Refuse(view, box, refused);
-        errors.Remove(row.Key);
-        messages.Remove(row.Key);
-        MarkShown([row.Key]);
-        Bind(controller);
-        if (echo is not null) Reported?.Invoke(new StatusReport(echo));
-        return true;
+        finally { pendingControls.Remove(box); }
     }
 
     /// <summary>Type · both surfaces (Ruling 60): one step that sets the type on both surfaces.</summary>
-    private void CommitSectionType(PointRef target, string value) =>
-        RunSectionStep("p:type", new SectionStep.SetType(SectionPoints.Side(target.Curve), target.VertexId, value == "anchor"));
+    private Task CommitSectionTypeAsync(Control guard, PointRef target, string value) =>
+        RunSectionStepAsync(guard, "p:type", new SectionStep.SetType(SectionPoints.Side(target.Curve), target.VertexId, value == "anchor"));
 
     /// <summary>Kind · both surfaces: one step. A Fixed angle keeps the tail handle's present angle.</summary>
-    private void CommitSectionKind(PointRef target, TangentKind kind)
+    private Task CommitSectionKindAsync(Control guard, PointRef target, TangentKind kind)
     {
-        if (boundController is not { } controller) return;
+        if (boundController is not { } controller) return Task.CompletedTask;
         double? angle = null;
         if (kind == TangentKind.Angle && controller.SectionCurve(SectionPoints.Side(target.Curve)) is { } curve &&
             curve.Points.FirstOrDefault(item => item.Id == target.VertexId) is { } anchor && anchor.Index + 1 < curve.Points.Count)
             angle = PropertiesView.SectionHandle(curve.Points[anchor.Index + 1], anchor).AngleDegrees;
-        RunSectionStep("t:kind", new SectionStep.SetTangent(SectionPoints.Side(target.Curve), target.VertexId, kind, angle, null));
+        return RunSectionStepAsync(guard, "t:kind", new SectionStep.SetTangent(SectionPoints.Side(target.Curve), target.VertexId, kind, angle, null));
     }
 
     /// <summary>Station t/c (§11.4): From the Thickness curve, or From this section.</summary>
-    private void CommitIntent(string value) =>
-        RunSectionStep("sec:intent", new SectionStep.Thickness(value == "source" ? ThicknessIntent.UseSource : ThicknessIntent.KeepCurrent));
+    private Task CommitIntentAsync(Control guard, string value) =>
+        RunSectionStepAsync(guard, "sec:intent", new SectionStep.Thickness(value == "source" ? ThicknessIntent.UseSource : ThicknessIntent.KeepCurrent));
 
-    private void RunSectionStep(string key, SectionStep step)
+    private async Task RunSectionStepAsync(Control guard, string key, SectionStep step)
     {
-        if (boundController is not { } controller) return;
-        if (SectionStepRequested is { } shell)
+        if (boundController is not { } controller || !pendingControls.Add(guard)) return;
+        try
         {
-            using (Hold()) PumpUi(shell(step));
+            if (SectionStepRequested is { } shell)
+            {
+                using (Hold()) await shell(step);
+            }
+            else
+            {
+                using (Hold())
+                {
+                    try { await controller.ApplySectionStepAsync(step); }
+                    catch (ContractError error)
+                    {
+                        string reason = error.Reason is { Length: > 0 } r ? r : "This change couldn't be applied.";
+                        messages[key] = new RowMessage($"{reason} Nothing changed.", MessageKind.Error);
+                    }
+                }
+            }
+            Bind(controller);
         }
-        else
-        {
-            var task = controller.ApplySectionStepAsync(step);
-            using (Hold()) PumpUi(task);
-            if (task.Exception?.InnerException is ContractError error)
-                messages[key] = new RowMessage($"{error.Reason ?? error.Code} Nothing changed.", MessageKind.Error);
-        }
-        Bind(controller);
+        finally { pendingControls.Remove(guard); }
     }
 
 
-    private bool CommitPoint(RowView view, TextBox box)
+    private async Task<bool> CommitPointAsync(RowView view, TextBox box)
     {
         if (boundController is not { } controller || view.Row.Target is not { } target) return false;
-        if (target.Curve is "upper" or "lower") return CommitSectionPoint(view, box, controller, target);
-        Func<string, CurveView?> curves = controller.CurveFor;
-        if (PropertiesView.Find(curves, target) is not { } point) return false;
-        var dims = Dimensions();
-        var echoes = new Dictionary<string, string>(StringComparer.Ordinal);
-        var committedKeys = new List<string> { view.Row.Key };
-        (double Span, double Aft) destination;
-        RowMessage? hint = null;
-        if (view.Row.Axis is RowAxis.Span or RowAxis.Value)
+        if (target.Curve is "upper" or "lower") return await CommitSectionPointAsync(view, box, controller, target);
+        if (!pendingControls.Add(box)) return false;
+        try
         {
-            // One intent, one undo row: a dirty From root and value of the same point commit together.
-            double span = point.SpanMeters, value = point.Ordinate;
-            foreach (var field in PositionFields(target))
+            Func<string, CurveView?> curves = controller.CurveFor;
+            if (PropertiesView.Find(curves, target) is not { } point) return false;
+            var dims = Dimensions();
+            var echoes = new Dictionary<string, string>(StringComparer.Ordinal);
+            var committedKeys = new List<string> { view.Row.Key };
+            (double Span, double Aft) destination;
+            RowMessage? hint = null;
+            if (view.Row.Axis is RowAxis.Span or RowAxis.Value)
             {
-                if (field.Input is not { } input) continue;
-                bool include = field == view || input.IsEnabled && Dirty(input);
-                if (!include) continue;
-                if (!Parse(field, input, dims, out double typed)) return false;
-                (span, value) = field.Row.Axis == RowAxis.Span ? (typed / PropertiesView.FieldScale[UnitFamily.Length], value)
-                    : (span, typed / PropertiesView.FieldScale[field.Row.Family]);
-                if (!committedKeys.Contains(field.Row.Key)) committedKeys.Add(field.Row.Key);
-                if (UnitEntry.TryParse(input.Text, field.Row.Family, dims, out var entry))
+                // One intent, one undo row: a dirty From root and value of the same point commit together.
+                double span = point.SpanMeters, value = point.Ordinate;
+                foreach (var field in PositionFields(target))
                 {
-                    if (UnitEntry.Echo(input.Text!, entry, field.Row.Unit ?? "") is { } echo) echoes[field.Row.Key] = echo;
-                    hint ??= UnitEntry.Hint(entry, field.Row.Family);
+                    if (field.Input is not { } input) continue;
+                    bool include = field == view || input.IsEnabled && Dirty(input);
+                    if (!include) continue;
+                    if (!Parse(field, input, dims, out double typed)) return false;
+                    (span, value) = field.Row.Axis == RowAxis.Span ? (typed / PropertiesView.FieldScale[UnitFamily.Length], value)
+                        : (span, typed / PropertiesView.FieldScale[field.Row.Family]);
+                    if (!committedKeys.Contains(field.Row.Key)) committedKeys.Add(field.Row.Key);
+                    if (UnitEntry.TryParse(input.Text, field.Row.Family, dims, out var entry))
+                    {
+                        if (UnitEntry.Echo(input.Text!, entry, field.Row.Unit ?? "") is { } echo) echoes[field.Row.Key] = echo;
+                        hint ??= UnitEntry.Hint(entry, field.Row.Family);
+                    }
                 }
+                destination = (span, value);
             }
-            destination = (span, value);
+            else
+            {
+                if (!Parse(view, box, dims, out double value)) return false;
+                destination = PropertiesView.Destination(view.Row, point, value, curves, controller.Planform);
+                if (UnitEntry.TryParse(box.Text, view.Row.Family, dims, out var entry) &&
+                    UnitEntry.Echo(box.Text!, entry, view.Row.Unit ?? "") is { } echo)
+                    echoes[view.Row.Key] = echo;
+            }
+            string typedText = box.Text ?? "";
+            var outcome = await RunTypedGestureAsync(controller, target, destination);
+            switch (outcome)
+            {
+                case GestureOutcome.Committed:
+                    foreach (var key in committedKeys) { errors.Remove(key); messages.Remove(key); }
+                    MarkShown(committedKeys);
+                    Bind(controller);
+                    // DR-STATUS-3: unit and expression echoes go to the strip, not under the field. MC-19: a value Core clamped
+                    // (twist or t/c past the domain) says so with Core's number, as a warning (COPY-168); MC-20: a t/c under
+                    // 1 % warns with the fraction hint (COPY-169).
+                    if (view.Row.Axis == RowAxis.Value && controller.LastGestureClamped &&
+                        PropertiesView.ReadValue(view.Row, curves) is { } reached &&
+                        UnitEntry.TryParse(typedText, view.Row.Family, dims, out var asked))
+                    {
+                        string copy = PropertyCopy.Clamped(typedText, Quantity.WithUnit(Quantity.Typed(reached), view.Row.Unit ?? ""), asked.Value > reached);
+                        messages[view.Row.Key] = new RowMessage(copy, MessageKind.Warning);
+                        RenderRow(view.Row, []);
+                        Reported?.Invoke(new StatusReport(copy, ReportKind.Warning));
+                    }
+                    else if (hint is not null)
+                    {
+                        messages[view.Row.Key] = hint;
+                        RenderRow(view.Row, []);
+                        Reported?.Invoke(new StatusReport(hint.Text, ReportKind.Warning));
+                    }
+                    else if (echoes.Count > 0) Reported?.Invoke(new StatusReport(string.Join(" ", echoes.Values)));
+                    return true;
+                case GestureOutcome.Refused refused:
+                    return Refuse(view, box, refused.Copy);
+                case null:
+                    return Refuse(view, box, controller.Status);
+                default:
+                    MarkShown([view.Row.Key]);
+                    Bind(controller);
+                    return true;
+            }
         }
-        else
-        {
-            if (!Parse(view, box, dims, out double value)) return false;
-            destination = PropertiesView.Destination(view.Row, point, value, curves, controller.Planform);
-            if (UnitEntry.TryParse(box.Text, view.Row.Family, dims, out var entry) &&
-                UnitEntry.Echo(box.Text!, entry, view.Row.Unit ?? "") is { } echo)
-                echoes[view.Row.Key] = echo;
-        }
-        string typedText = box.Text ?? "";
-        var outcome = RunTypedGesture(controller, target, destination);
-        switch (outcome)
-        {
-            case GestureOutcome.Committed:
-                foreach (var key in committedKeys) { errors.Remove(key); messages.Remove(key); }
-                MarkShown(committedKeys);
-                Bind(controller);
-                // DR-STATUS-3: unit and expression echoes go to the strip, not under the field. MC-19: a value Core clamped
-                // (twist or t/c past the domain) says so with Core's number, as a warning (COPY-168); MC-20: a t/c under
-                // 1 % warns with the fraction hint (COPY-169).
-                if (view.Row.Axis == RowAxis.Value && controller.LastGestureClamped &&
-                    PropertiesView.ReadValue(view.Row, curves) is { } reached &&
-                    UnitEntry.TryParse(typedText, view.Row.Family, dims, out var asked))
-                {
-                    string copy = PropertyCopy.Clamped(typedText, Quantity.WithUnit(Quantity.Typed(reached), view.Row.Unit ?? ""), asked.Value > reached);
-                    messages[view.Row.Key] = new RowMessage(copy, MessageKind.Warning);
-                    RenderRow(view.Row, []);
-                    Reported?.Invoke(new StatusReport(copy, ReportKind.Warning));
-                }
-                else if (hint is not null)
-                {
-                    messages[view.Row.Key] = hint;
-                    RenderRow(view.Row, []);
-                    Reported?.Invoke(new StatusReport(hint.Text, ReportKind.Warning));
-                }
-                else if (echoes.Count > 0) Reported?.Invoke(new StatusReport(string.Join(" ", echoes.Values)));
-                return true;
-            case GestureOutcome.Refused refused:
-                return Refuse(view, box, refused.Copy);
-            case null:
-                return Refuse(view, box, controller.Status);
-            default:
-                MarkShown([view.Row.Key]);
-                Bind(controller);
-                return true;
-        }
+        finally { pendingControls.Remove(box); }
     }
 
     /// <summary>The shown From root and value fields of one point (or handle), which commit as one gesture.</summary>
@@ -1696,11 +1753,12 @@ public partial class PropertiesPane : UserControl
         SetError(box, true);
         UpdateDirty(box);
         AutomationProperties.SetHelpText(box, HelpText(view));
+        if (view.Root.IsKeyboardFocusWithin) BringRowIntoView(view);
         return false;
     }
 
     /// <summary>A typed edit is one gesture and one undo row; a handle edited from its anchor keeps the anchor selected.</summary>
-    private GestureOutcome? RunTypedGesture(WorkbenchController controller, PointRef target, (double Span, double Aft) destination)
+    private async Task<GestureOutcome?> RunTypedGestureAsync(WorkbenchController controller, PointRef target, (double Span, double Aft) destination)
     {
         using (Hold())
         {
@@ -1709,10 +1767,12 @@ public partial class PropertiesPane : UserControl
             controller.Select(selection);
             controller.UpdateGesture(destination.Span, destination.Aft);
             controller.FlushGestureFrame();
-            var task = controller.EndGestureAsync(GestureEnd.Release);
-            PumpUi(task);
-            return task.IsCompletedSuccessfully ? task.Result : new GestureOutcome.Refused("DSL-NOT-ASSESSED",
-                "This change couldn't be checked, so it wasn't applied. Nothing changed.");
+            try { return await controller.EndGestureAsync(GestureEnd.Release); }
+            catch (Exception)
+            {
+                return new GestureOutcome.Refused("DSL-NOT-ASSESSED",
+                    "This change couldn't be checked, so it wasn't applied. Nothing changed.");
+            }
         }
     }
 
@@ -1767,19 +1827,19 @@ public partial class PropertiesPane : UserControl
     private static (double Span, double Aft) RunTarget(NudgeRun active, double value) =>
         PropertiesView.Destination(active.View.Row, PropertiesView.Find(active.Start, active.Target)!, value, active.Start, active.Plan);
 
-    private void EndRun(GestureEnd reason)
+    private async Task EndRunAsync(GestureEnd reason)
     {
         if (run is not { } active || boundController is not { } controller) return;
         run = null;
-        Task<GestureOutcome> task;
+        GestureOutcome? outcome = null;
         using (Hold())
         {
-            task = controller.EndGestureAsync(reason);
-            PumpUi(task);
+            try { outcome = await controller.EndGestureAsync(reason); }
+            catch (Exception) { outcome = null; }
         }
         var row = active.View.Row;
         string? report = null;
-        if (task.IsCompletedSuccessfully && task.Result is GestureOutcome.Committed)
+        if (outcome is GestureOutcome.Committed)
         {
             // PG-08: the new value is reported once, in the strip, on release.
             string value = Quantity.Typed(PropertiesView.ReadValue(row, controller.CurveFor) is { } now ? now : active.Value);
@@ -1869,7 +1929,8 @@ public partial class PropertiesPane : UserControl
     {
         if (EnumRowView(field) is not { } view) return;
         // CB-3: a pick that closes the list applies once; arrows then Esc closed it on the committed value (no row).
-        if ((field.Box.SelectedItem as ComboBoxItem)?.Tag is string value && value != view.Row.Value) CommitEnum(field, view, value);
+        if ((field.Box.SelectedItem as ComboBoxItem)?.Tag is string value && value != view.Row.Value)
+            TrackPending(CommitEnumAsync(field, view, value));
     }
 
     private void OnEnumKeyDown(EnumField field, KeyEventArgs e)
@@ -1878,7 +1939,7 @@ public partial class PropertiesPane : UserControl
         if (e.Key == Key.Enter)
         {
             e.Handled = true;
-            if (field.Pending is { } pending) CommitEnum(field, view, pending);
+            if (field.Pending is { } pending) TrackPending(CommitEnumAsync(field, view, pending));
         }
         else if (e.Key == Key.Escape && field.Pending is not null)
         {
@@ -1899,81 +1960,92 @@ public partial class PropertiesPane : UserControl
         Reported?.Invoke(new StatusReport($"{field.Noun} unchanged: {OptionText(view.Row, view.Row.Value)}."));
     }
 
-    private void CommitEnum(EnumField field, RowView view, string value)
+    private Task CommitEnumAsync(EnumField field, RowView view, string value)
     {
         field.Pending = null;
-        if (field == intentField) CommitIntent(value);
-        else if (view.Row.Target is { Curve: "upper" or "lower" } section)
-        {
-            if (field == kindField) CommitSectionKind(section, Enum.Parse<TangentKind>(value));
-            else CommitSectionType(section, value);
-        }
-        else if (field == kindField) CommitKind(Enum.Parse<TangentKind>(value));
-        else CommitType(view, value);
+        if (field == intentField) return CommitIntentAsync(field.Box, value);
+        if (view.Row.Target is { Curve: "upper" or "lower" } section)
+            return field == kindField
+                ? CommitSectionKindAsync(field.Box, section, Enum.Parse<TangentKind>(value))
+                : CommitSectionTypeAsync(field.Box, section, value);
+        if (field == kindField) return CommitKindAsync(field.Box, Enum.Parse<TangentKind>(value));
+        return CommitTypeAsync(field.Box, view, value);
     }
 
-    private void CommitType(RowView view, string value)
+    private async Task CommitTypeAsync(Control guard, RowView view, string value)
     {
-        if (boundController is not { } controller || view.Row.Target is not { } target) return;
-        var rail = controller.CurveFor(target.Curve);
-        var point = rail?.Points.FirstOrDefault(item => item.Id == target.VertexId);
-        if (rail is null || point is null) return;
-        PointCommand command = value == "anchor" ? new PointCommand.MakeAnchor(point.Curve, point.Id) : new PointCommand.MakeControl(point.Curve, point.Id);
-        var task = controller.ApplyPointCommandAsync(command);
-        using (Hold()) PumpUi(task);
-        if (task.IsCompletedSuccessfully && task.Result is CommitOutcome.Committed committed)
+        if (boundController is not { } controller || view.Row.Target is not { } target || !pendingControls.Add(guard)) return;
+        try
         {
-            int before = rail.Points.Count;
-            int after = controller.CurveFor(target.Curve)?.Points.Count ?? before;
-            var rows = PropertiesView.Curves[target.Curve];
-            string curve = rows.Name;
-            // The deviation is the operation's own number in the curve's unit (COPY-154 / COPY-165), read from its report.
-            string largest = Deviation().Match(committed.Report) is { Success: true } match
-                ? $" Largest change {match.Groups[1].Value}." : "";
-            string report = value == "anchor"
-                ? $"{curve} point {point.Index + 1} is now an anchor point with 2 handles. The {rows.Noun} gained {after - before} points ({before} → {after}).{largest}"
-                : $"{curve} point {point.Index + 1} is now a control point. Its handles are removed; the {rows.Noun} has {after} points (was {before}).{largest}";
-            messages.Remove("p:type");
-            Reported?.Invoke(new StatusReport(report));
+            var rail = controller.CurveFor(target.Curve);
+            var point = rail?.Points.FirstOrDefault(item => item.Id == target.VertexId);
+            if (rail is null || point is null) return;
+            PointCommand command = value == "anchor" ? new PointCommand.MakeAnchor(point.Curve, point.Id) : new PointCommand.MakeControl(point.Curve, point.Id);
+            CommitOutcome? outcome = null;
+            using (Hold())
+            {
+                try { outcome = await controller.ApplyPointCommandAsync(command); }
+                catch (Exception) { outcome = null; }
+            }
+            if (outcome is CommitOutcome.Committed committed)
+            {
+                int before = rail.Points.Count;
+                int after = controller.CurveFor(target.Curve)?.Points.Count ?? before;
+                var rows = PropertiesView.Curves[target.Curve];
+                string curve = rows.Name;
+                // F-42: read structured MaxDeviationText directly instead of regex-parsing English report copy.
+                string largest = committed.MaxDeviationText is { Length: > 0 } dev ? $" Largest change {dev}." : "";
+                string report = value == "anchor"
+                    ? $"{curve} point {point.Index + 1} is now an anchor point with 2 handles. The {rows.Noun} gained {after - before} points ({before} → {after}).{largest}"
+                    : $"{curve} point {point.Index + 1} is now a control point. Its handles are removed; the {rows.Noun} has {after} points (was {before}).{largest}";
+                messages.Remove("p:type");
+                Reported?.Invoke(new StatusReport(report));
+            }
+            else if (outcome is CommitOutcome.Refused refused)
+                messages["p:type"] = new RowMessage(refused.Copy, MessageKind.Error);
+            Bind(controller);
         }
-        else if (task.IsCompletedSuccessfully && task.Result is CommitOutcome.Refused refused)
-            messages["p:type"] = new RowMessage(refused.Copy, MessageKind.Error);
-        Bind(controller);
+        finally { pendingControls.Remove(guard); }
     }
 
-    [GeneratedRegex(@"Max deviation ([0-9.]+(?: mm|°| %))")]
-    private static partial Regex Deviation();
-
-    private void CommitKind(TangentKind kind)
+    private async Task CommitKindAsync(Control guard, TangentKind kind)
     {
         if (rendering || boundController is not { } controller ||
             !rows.TryGetValue(kindField.CacheKey, out var view) || view.Row.Target is not { } target ||
-            PropertiesView.Find(controller.CurveFor, target) is not { } anchor)
+            PropertiesView.Find(controller.CurveFor, target) is not { } anchor || !pendingControls.Add(guard))
             return;
-        Func<string, CurveView?> curves = controller.CurveFor;
-        if (anchor.Kind != kind)
+        try
         {
-            // On a handle the kind keeps the selected handle and moves the other one (COPY-162).
-            string? keep = controller.Selection is Selection.Points { Items.Count: 1 } points &&
-                           PropertiesView.Find(curves, points.Items[0]) is { AnchorId: { } owner } handle && owner == anchor.Id
-                ? handle.Id : null;
-            var task = controller.ApplyPointCommandAsync(new PointCommand.SetTangent(anchor.Curve, anchor.Id, kind, keep));
-            using (Hold()) PumpUi(task);
-            if (task.IsCompletedSuccessfully && task.Result is CommitOutcome.Refused refused)
-                messages["t:kind"] = new RowMessage(refused.Copy, MessageKind.Error);
-            else if (task.IsCompletedSuccessfully)
+            Func<string, CurveView?> curves = controller.CurveFor;
+            if (anchor.Kind != kind)
             {
-                // MC-11 / PG-33: the report comes from the operation — the kind, and on a handle which handle it kept.
-                string kept = keep is null ? ""
-                    : PropertiesView.Find(curves, new PointRef(anchor.Curve, keep)) is { } keptHandle && keptHandle.Index > anchor.Index
-                        ? " Kept the handle toward the tip; the other one moved." : " Kept the handle toward the root; the other one moved.";
-                string report = $"{PropertiesView.Curves[anchor.Curve].Name} point {anchor.Index + 1} is now {kind}.{kept}";
-                messages.Remove("t:kind");
-                Reported?.Invoke(new StatusReport(report));
+                // On a handle the kind keeps the selected handle and moves the other one (COPY-162).
+                string? keep = controller.Selection is Selection.Points { Items.Count: 1 } points &&
+                               PropertiesView.Find(curves, points.Items[0]) is { AnchorId: { } owner } handle && owner == anchor.Id
+                    ? handle.Id : null;
+                CommitOutcome? outcome = null;
+                using (Hold())
+                {
+                    try { outcome = await controller.ApplyPointCommandAsync(new PointCommand.SetTangent(anchor.Curve, anchor.Id, kind, keep)); }
+                    catch (Exception) { outcome = null; }
+                }
+                if (outcome is CommitOutcome.Refused refused)
+                    messages["t:kind"] = new RowMessage(refused.Copy, MessageKind.Error);
+                else if (outcome is not null)
+                {
+                    // MC-11 / PG-33: the report comes from the operation — the kind, and on a handle which handle it kept.
+                    string kept = keep is null ? ""
+                        : PropertiesView.Find(curves, new PointRef(anchor.Curve, keep)) is { } keptHandle && keptHandle.Index > anchor.Index
+                            ? " Kept the handle toward the tip; the other one moved." : " Kept the handle toward the root; the other one moved.";
+                    string report = $"{PropertiesView.Curves[anchor.Curve].Name} point {anchor.Index + 1} is now {kind}.{kept}";
+                    messages.Remove("t:kind");
+                    Reported?.Invoke(new StatusReport(report));
+                }
             }
+            // Tangent_KindChange_KeepsFocusOnKindBox: the box is persistent, so a re-render leaves focus on it.
+            Bind(controller);
         }
-        // Tangent_KindChange_KeepsFocusOnKindBox: the box is persistent, so a re-render leaves focus on it.
-        Bind(controller);
+        finally { pendingControls.Remove(guard); }
     }
 
     // ---------------- pane keys, crumb, recovery ----------------
@@ -1999,10 +2071,11 @@ public partial class PropertiesPane : UserControl
         }
         else if (e.Key == Key.Escape && IdentityCrumbLink.Tag is PointRef parent)
         {
-            // PG-12 / PG-28: Esc on a handle selection selects its anchor or end, and says so.
+            // PG-12 / PG-28 / F-45: Esc on a handle selection selects its anchor or end, deriving parent title from the model.
             e.Handled = true;
+            string parentTitle = ParentTitle(controller, parent);
             controller.Select(new Selection.Points([parent]));
-            Reported?.Invoke(new StatusReport($"Selected {IdentityTitle.Text}."));
+            Reported?.Invoke(new StatusReport($"Selected {parentTitle}."));
         }
         else if (e.Key == Key.C && (e.KeyModifiers.HasFlag(KeyModifiers.Meta) || e.KeyModifiers.HasFlag(KeyModifiers.Control)) &&
                  copyTarget is { } key && rows.TryGetValue(key, out var view))
@@ -2032,13 +2105,43 @@ public partial class PropertiesPane : UserControl
         finally { resumingRecovery = false; }
     }
 
-    private void ApplyRecovery()
+    private static string ParentTitle(WorkbenchController controller, PointRef parent)
     {
-        if (boundController is null) return;
-        if (boundController.Draft is null && boundController.HasRecovery)
-            boundController.ResumeRecovery();
-        PumpUi(boundController.PreviewAsync());
-        boundController.Apply();
+        if (parent.Curve is "upper" or "lower")
+        {
+            var curve = controller.SectionCurve(SectionPoints.Side(parent.Curve));
+            var point = curve?.Points.FirstOrDefault(item => item.Id == parent.VertexId);
+            if (curve is not null && point is not null)
+                return point.Role == PointRole.Nose
+                    ? "Nose"
+                    : $"{SectionPoints.Surface(parent.Curve)} surface · point {point.Index + 1} of {curve.Points.Count}";
+        }
+        else if (controller.CurveFor(parent.Curve) is { } rail &&
+                 rail.Points.FirstOrDefault(item => item.Id == parent.VertexId) is { } point &&
+                 PropertiesView.Curves.TryGetValue(parent.Curve, out var curve))
+        {
+            return point.Role switch
+            {
+                PointRole.RootEnd => $"{curve.Name} · root end",
+                PointRole.TipEnd => $"{curve.Name} · tip end",
+                _ => $"{curve.Name} · point {point.Index + 1} of {rail.Points.Count}"
+            };
+        }
+        return parent.Curve;
+    }
+
+    private Task ApplyRecoveryAsync()
+    {
+        if (boundController is not { } controller || !pendingControls.Add(RecoveryApplyButton)) return Task.CompletedTask;
+        try
+        {
+            if (controller.Draft is null && controller.HasRecovery)
+                controller.ResumeRecovery();
+            // Apply() certifies an unlatched resumed recovery draft via AssessDraftNow() synchronously before committing.
+            controller.Apply();
+        }
+        finally { pendingControls.Remove(RecoveryApplyButton); }
+        return Task.CompletedTask;
     }
 
     // ---------------- helpers ----------------
@@ -2173,14 +2276,6 @@ public partial class PropertiesPane : UserControl
             owner.bindPending = false;
             if (owner.boundController is { } controller) owner.Bind(controller);
         }
-    }
-
-    private static void PumpUi(Task task)
-    {
-        if (task.IsCompleted) return;
-        var start = DateTime.UtcNow;
-        while (!task.IsCompleted && DateTime.UtcNow - start < TimeSpan.FromSeconds(8))
-            Dispatcher.UIThread.RunJobs(DispatcherPriority.Background);
     }
 
     private sealed class RowView(Border outer, Border root, Grid grid, TextBlock label, TextBlock unit, TextBlock description,

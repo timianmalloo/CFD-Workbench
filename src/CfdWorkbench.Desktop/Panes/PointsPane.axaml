@@ -1,6 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="CfdWorkbench.Desktop.Panes.PointsPane" AutomationProperties.Name="Points"
+             x:Class="CfdWorkbench.Desktop.Panes.PointsPane"
+             AutomationProperties.Name="Points — tabular coordinate editor"
+             ToolTip.Tip="Tabular coordinate editor for direct numeric x/y editing of control net points."
              FontFamily="{StaticResource PropFontFamily}">
   <!-- The Points pane (design §11.4, OD-3 B): the control net in structure B's row look. PointsView.Build supplies the
        rows; the code-behind draws them. Rows are 24 px with tabular figures; a selected row and its partner carry a 2 px
@@ -36,6 +38,7 @@
       <TextBlock x:Name="PointsEmptyBody" Classes="caption" TextWrapping="Wrap" />
     </StackPanel>
     <StackPanel x:Name="PointsHead" DockPanel.Dock="Top" Margin="{StaticResource PropIdentityPadding}" Spacing="{StaticResource StackGap2}">
+      <TextBlock x:Name="PointsRoleHeader" Classes="pts-note" Text="Tabular coordinate editor" />
       <TextBlock x:Name="PointsHeading" Classes="pts-heading" />
       <TextBlock x:Name="PointsNote" Classes="pts-note" />
       <Grid x:Name="PointsColumns" />

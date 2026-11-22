@@ -1202,6 +1202,7 @@ public sealed class ShellHost : Grid
     private void ApplyTextScale(double step)
     {
         Properties.ApplyTextScale(step);
+        Points.ApplyTextScale(step);
         StatusStrip.ApplyTextScale(step);
         ModelView.ApplyTextScale(step);
         StatusStrip.ShowItems(SelectionItemText(), Controller.Inspection is not null, Controller.Estimates is not null, step, StripUnits());
@@ -2375,6 +2376,19 @@ public sealed class ShellHost : Grid
                     ToolTip.SetTip(tab, "Section analysis");
                 if (AutomationProperties.GetName(tab) != "Section analysis")
                     AutomationProperties.SetName(tab, "Section analysis");
+            }
+        }
+        foreach (var tab in DockHost.GetVisualDescendants().OfType<ToolTabStripItem>())
+        {
+            if (ReferenceEquals(tab.DataContext, LayoutFactory.BrowserTool))
+            {
+                const string tip = "Browser — foil, station, and curve navigation";
+                if (!Equals(ToolTip.GetTip(tab), tip)) ToolTip.SetTip(tab, tip);
+            }
+            else if (ReferenceEquals(tab.DataContext, LayoutFactory.PointsTool))
+            {
+                const string tip = "Points — tabular coordinate editor";
+                if (!Equals(ToolTip.GetTip(tab), tip)) ToolTip.SetTip(tab, tip);
             }
         }
         return foundSection;

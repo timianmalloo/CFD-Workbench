@@ -103,8 +103,11 @@ public sealed class PlanCanvas : Control
 
     public string? LastValueRequest { get; private set; }
     public string? TooltipText { get; private set; }
+    public Rect? TooltipBounds { get; private set; }
     public string? ProbeText { get; private set; }
     public string? RenderBanner { get; private set; }
+    public Rect? RenderBannerBounds { get; private set; }
+    public Rect? GestureLimitBounds { get; private set; }
     public Action? RenderGuard { get; set; }
     public event Action<Exception>? RenderFailed;
     public event Action? RenderRecovered;
@@ -307,7 +310,7 @@ public sealed class PlanCanvas : Control
         TooltipText = hoveredPoint is { } point
             ? $"{(point.Curve == "leading" ? "Leading" : "Trailing")} edge, point {point.Index + 1} of " +
               $"{(point.Curve == "leading" ? plan.Leading : plan.Trailing).Points.Count}, " +
-              $"{point.Role.ToString().ToLowerInvariant()} point, from root {point.SpanMeters * 1000:F2} mm, aft {point.Ordinate * 1000:F2} mm"
+              $"{PropertiesView.RoleText(point.Role).ToLowerInvariant()}, from root {point.SpanMeters * 1000:F2} mm, aft {point.Ordinate * 1000:F2} mm"
             : null;
         if (tooltipDismissed) TooltipText = null;
         var map = Layer(plan);
@@ -717,32 +720,7 @@ public sealed class PlanCanvas : Control
         if (this.FindAncestorOfType<Shell.ShellHost>() is not { } host) return;
         if (Controller?.IsGroupMember(reference) != true) SelectPoint(reference, extend: false, toggle: false);   // design §3.2 (4): a context click on a member keeps the group
         FocusPoint(reference);
-        MenuItem Row(string header, string id)
-        {
-            var item = new MenuItem { Header = header, IsEnabled = host.CanRun(id) };
-            item.Click += (_, _) => _ = host.RunCommand(id);
-            return item;
-        }
-        MenuItem[] tangents = [Row("Smooth", "point.tangent-smooth"), Row("Symmetric", "point.tangent-symmetric"), Row("Corner", "point.tangent-corner")];
-        var tangent = new MenuItem { Header = "Tangent", ItemsSource = tangents, IsEnabled = tangents.Any(item => item.IsEnabled) };
-        var menu = new ContextMenu
-        {
-            ItemsSource = new Control[]
-            {
-                Row("Make Anchor Point", "point.make-anchor"), Row("Make Control Point", "point.make-control"), tangent,
-                new Separator(), Row("Remove Point", "point.remove"),
-                Row($"Rebuild {PropertiesView.Curves[reference.Curve].MenuName}…", "point.rebuild"),
-                new Separator(), Row("Fit", "view.fit")
-            }
-        };
-        if (!host.CanRun("point.remove") && host.PointCommandReason("point.remove") is { } reason)
-            menu.ItemsSource = ((IEnumerable<Control>)menu.ItemsSource!).Take(5)
-                .Concat([new TextBlock { Text = reason, TextWrapping = TextWrapping.Wrap, MaxWidth = 220 }])
-                .Concat(((IEnumerable<Control>)menu.ItemsSource!).Skip(5)).ToArray();
-        // Attached only while shown, so a right-click on empty canvas never opens a stale point menu.
-        menu.Closed += (_, _) => { if (ReferenceEquals(ContextMenu, menu)) ContextMenu = null; };
-        ContextMenu = menu;
-        menu.Open(this);
+        PointContextMenu.Open(this, host, reference);
     }
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
@@ -994,7 +972,7 @@ public sealed class PlanCanvas : Control
         InvalidateVisual();
     }
 
-    // Ruling 111 (10): on a member of several selected points the value request goes to the group's value row, and the group stays selected.
+    // Ruling 111 (10) & F-24: double-click / Return on a group or single point focuses the Properties pane.
     private void RequestValue(PointView point)
     {
         if (Controller is { } controller && controller.IsGroupMember(new PointRef(point.Curve, point.Id)))
@@ -1004,11 +982,15 @@ public sealed class PlanCanvas : Control
             return;
         }
         LastValueRequest = $"{point.Curve}:{point.Id}";
+        TabOut?.Invoke();
     }
 
     public override void Render(DrawingContext context)
     {
         base.Render(context);
+        RenderBannerBounds = null;
+        TooltipBounds = null;
+        GestureLimitBounds = null;
         context.DrawRectangle(BackgroundBrush ?? Brushes.Transparent, null, new Rect(Bounds.Size));
         try
         {
@@ -1026,7 +1008,7 @@ public sealed class PlanCanvas : Control
                 renderFailureNotified = true;
                 RenderFailed?.Invoke(error);
             }
-            DrawLabel(context, RenderBanner, new Point(12, 12));
+            DrawBanner(context, RenderBanner, DangerBrush ?? WarningBrush ?? Brushes.White);
         }
     }
 
@@ -1051,7 +1033,7 @@ public sealed class PlanCanvas : Control
         {
             using (context.PushOpacity(.35))
                 DrawPlan(context, map, plan, Controller.Selection);
-            DrawLabel(context, RenderBanner!, new Point(12, 12));
+            DrawBanner(context, RenderBanner!, WarningBrush ?? DangerBrush ?? Brushes.White);
         }
         (Rect Plate, FormattedText Value)? changePlate = null;   // drawn last, above the station chips
         if (rebuildPreview is { } preview)
@@ -1087,7 +1069,7 @@ public sealed class PlanCanvas : Control
             context.DrawLine(tick, first, second);
             context.DrawLine(tick, second + new Vector(0, -10), second + new Vector(0, 10));
             var value = new FormattedText($"{preview.MaxChange * 1000:0.00} mm", CultureInfo.InvariantCulture,
-                FlowDirection.LeftToRight, new Typeface("Inter", FontStyle.Normal, FontWeight.SemiBold), 11, FoilBrush ?? Brushes.White);
+                FlowDirection.LeftToRight, CanvasTypography.ResolveTypeface(this, FontWeight.SemiBold), CanvasTypography.ResolveFontSize(this), FoilBrush ?? Brushes.White);
             changePlate = (new Rect(second + new Vector(10, -9), new Size(value.Width + 10, value.Height + 4)), value);
         }
         DrawGestureLimit(context);
@@ -1117,7 +1099,7 @@ public sealed class PlanCanvas : Control
                 selected ? new Pen(SelectionBrush ?? Brushes.White, 2) : new Pen(MuteBrush ?? Brushes.White, 1), chip.Bounds, 4, 4);
             if (focusedStationIndex == chip.Index)
                 context.DrawRectangle(null, new Pen(FocusBrush ?? Brushes.White, 3), chip.Bounds.Inflate(2), 5, 5);
-            DrawLabel(context, station.ProfileName, chip.Bounds.Position + new Vector(8, 5));
+            DrawLabel(context, station.ProfileName, chip.Bounds.Position + new Vector(8, 5), maxWidth: Math.Max(16, chip.Bounds.Width - 16));
         }
         if (SliceLayout() is { } slice)
         {
@@ -1165,11 +1147,17 @@ public sealed class PlanCanvas : Control
         // The probe readout is the Tracing strip beneath the Plan (CAD-08: a strip, never an overlay), fed by TracingChanged.
         if (TooltipText is { } tooltip && hoveredPoint is { } hoveredTarget)
         {
+            double maxTipWidth = Math.Max(120, Bounds.Width - 20);
+            var formatted = CreateLabelText(tooltip, InkBrush ?? MuteBrush ?? FoilBrush ?? Brushes.White, maxTipWidth);
+            double boxWidth = Math.Min(Math.Max(120, formatted.Width + 12), Bounds.Width - 8);
+            double boxHeight = Math.Max(24, formatted.Height + 8);
             var centre = ScreenPoint(hoveredTarget);
-            double left = Math.Clamp(centre.X + 14, 4, Math.Max(4, Bounds.Width - 320));
-            double top = Math.Clamp(centre.Y + 12, 60, Math.Max(60, Bounds.Height - 30));
-            context.DrawRectangle(SoftBrush ?? BackgroundBrush, null, new Rect(left, top, 312, 24));
-            DrawLabel(context, tooltip, new Point(left + 5, top + 3));
+            double left = Math.Clamp(centre.X + 14, 4, Math.Max(4, Bounds.Width - 4 - boxWidth));
+            double top = Math.Clamp(centre.Y + 12, 40, Math.Max(40, Bounds.Height - 4 - boxHeight));
+            var rect = new Rect(left, top, boxWidth, boxHeight);
+            TooltipBounds = rect;
+            context.DrawRectangle(SoftBrush ?? BackgroundBrush, new Pen(MuteBrush ?? Brushes.White, 1), rect, 3, 3);
+            context.DrawText(formatted, new Point(left + 6, top + 4));
         }
     }
 
@@ -1212,7 +1200,7 @@ public sealed class PlanCanvas : Control
         {
             bool selected = rail.Curve == hot;
             IBrush brush = selected ? InkBrush ?? Brushes.White : rail.Curve == "leading" ? MuteBrush ?? Brushes.White : FoilBrush ?? Brushes.White;
-            DrawTeeth(context, map, teeth, controller.CombPerMetre, brush, selected ? .9 : .75);
+            DrawTeeth(context, map, teeth, controller.CombPerMetre, brush, selected ? .9 : .75, selected);
             var tick = new Pen(SelectionBrush ?? Brushes.White, 2);
             string prefix = rail.Curve == "leading" ? "LE" : "TE";
             for (int i = 0; i < pieces.Boundaries.Count; i++)
@@ -1220,26 +1208,31 @@ public sealed class PlanCanvas : Control
                 var foot = map.ToScreen(pieces.Boundaries[i].SpanMeters, pieces.Boundaries[i].Aft);
                 context.DrawLine(tick, foot, foot + new Vector(0, wingSide * 12));
                 var label = new FormattedText(prefix + (i + 1), CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
-                    new Typeface("Inter", FontStyle.Normal, FontWeight.SemiBold), 11, SelectionBrush ?? Brushes.White);
+                    CanvasTypography.ResolveTypeface(this, FontWeight.SemiBold), CanvasTypography.ResolveFontSize(this), SelectionBrush ?? Brushes.White);
                 context.DrawText(label, foot + new Vector(-3, wingSide * 14 - (wingSide < 0 ? label.Height : 0)));
             }
         }
     }
 
     /// <summary>One rail's teeth, 1 px, each away from the centre of curvature; the envelope per continuous piece with a step at every jump.</summary>
-    private void DrawTeeth(DrawingContext context, CurvePointLayer map, IReadOnlyList<RailTooth> teeth, double perMetre, IBrush brush, double opacity)
+    private void DrawTeeth(DrawingContext context, CurvePointLayer map, IReadOnlyList<RailTooth> teeth, double perMetre, IBrush brush, double opacity, bool selected = true)
     {
         var marks = RailComb.Marks(teeth, perMetre, tooth =>
         {
             var at = map.ToScreen(tooth.SpanMeters, tooth.Ordinate);
             return (at.X, at.Y);
         });
+        bool highContrast = ActualThemeVariant == NativeReviewThemes.HighContrast;
         var ink = InkBrush ?? brush;
-        var pen = new Pen(brush, 1);
+        // F-41: in High Contrast draw at full opacity, differentiating rails by stroke weight & dash pattern.
+        var pen = highContrast
+            ? (selected ? new Pen(brush, 1.5) : new Pen(brush, 1, new DashStyle([3, 2], 0)))
+            : new Pen(brush, 1);
+        double toothOpacity = highContrast ? 1.0 : opacity;
         var pieces = new List<List<Point>> { new() };
         var steps = new List<(Point From, Point To)>();
         Point? last = null;
-        using (context.PushOpacity(opacity))
+        using (context.PushOpacity(toothOpacity))
             foreach (var mark in marks)
             {
                 var foot = map.ToScreen(mark.Tooth.SpanMeters, mark.Tooth.Ordinate);
@@ -1266,13 +1259,18 @@ public sealed class PlanCanvas : Control
                 if (mark.Tooth.Corner)
                     context.DrawLine(new Pen(SelectionBrush ?? brush, 2, new DashStyle([2, 2], 0)), foot + new Vector(0, -22), foot + new Vector(0, 22));
             }
-        using (context.PushOpacity(.5))
+        using (context.PushOpacity(highContrast ? 1.0 : .5))
+        {
+            var envPen = highContrast
+                ? new Pen(MuteBrush ?? brush, 1, new DashStyle([2, 2], 0))
+                : new Pen(MuteBrush ?? brush, 1);
             foreach (var piece in pieces)
                 for (int i = 1; i < piece.Count; i++)
-                    context.DrawLine(new Pen(MuteBrush ?? brush, 1), piece[i - 1], piece[i]);
-        using (context.PushOpacity(.8))
+                    context.DrawLine(envPen, piece[i - 1], piece[i]);
+        }
+        using (context.PushOpacity(highContrast ? 1.0 : .8))
             foreach (var (from, to) in steps)
-                context.DrawLine(new Pen(ink, 1), from, to);
+                context.DrawLine(new Pen(ink, highContrast ? 1.5 : 1), from, to);
     }
 
     /// <summary>Everything the comb plate must not cover, as screen points no further than 4 px apart: the outline of both halves, the
@@ -1371,7 +1369,7 @@ public sealed class PlanCanvas : Control
             {
                 var dashed = new Pen(WarningBrush ?? Brushes.White, 2, new DashStyle([5, 3], 0));
                 context.DrawLine(dashed, centre + new Vector(-40, 0), centre + new Vector(22, 0));
-                DrawLabel(context, limitText, centre + new Vector(-40, 14));
+                DrawGestureLimitPlate(context, limitText, centre + new Vector(-40, 14));
             }
             return;
         }
@@ -1381,7 +1379,7 @@ public sealed class PlanCanvas : Control
         var at = ScreenPoint(vertex);
         var limitPen = new Pen(WarningBrush ?? Brushes.White, 2, new DashStyle([5, 3], 0));
         context.DrawLine(limitPen, at + new Vector(-40, 0), at + new Vector(22, 0));
-        DrawLabel(context, text, at + new Vector(-40, 8));
+        DrawGestureLimitPlate(context, text, at + new Vector(-40, 8));
         if (gesturePointer is { } pointer && Point.Distance(pointer, at) > 4)
         {
             var tether = new Pen(MuteBrush ?? Brushes.White, 1.5, new DashStyle([1, 3], 0));
@@ -1390,11 +1388,44 @@ public sealed class PlanCanvas : Control
         }
     }
 
-    private void DrawLabel(DrawingContext context, string copy, Point position)
+    private void DrawBanner(DrawingContext context, string copy, IBrush borderBrush)
     {
-        var formatted = new FormattedText(copy, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
-            new Typeface("Inter"), 11, MuteBrush ?? FoilBrush ?? Brushes.White)
-        { MaxTextWidth = 408, MaxTextHeight = 20, Trimming = TextTrimming.CharacterEllipsis };
+        double maxW = Math.Max(120, Bounds.Width - 24);
+        var formatted = CreateLabelText(copy, InkBrush ?? FoilBrush ?? Brushes.White, maxW - 12);
+        double w = Math.Min(formatted.Width + 12, maxW);
+        double h = Math.Max(22, formatted.Height + 8);
+        var rect = new Rect(12, 38, w, h);
+        RenderBannerBounds = rect;
+        context.DrawRectangle(SoftBrush ?? BackgroundBrush, new Pen(borderBrush, 1), rect, 3, 3);
+        context.DrawText(formatted, new Point(rect.X + 6, rect.Y + 4));
+    }
+
+    private void DrawGestureLimitPlate(DrawingContext context, string copy, Point anchor)
+    {
+        double maxW = Math.Max(120, Bounds.Width - 16);
+        var formatted = CreateLabelText(copy, InkBrush ?? MuteBrush ?? FoilBrush ?? Brushes.White, maxW - 12);
+        double w = Math.Min(formatted.Width + 12, maxW);
+        double h = Math.Max(22, formatted.Height + 6);
+        double left = Math.Clamp(anchor.X, 4, Math.Max(4, Bounds.Width - 4 - w));
+        double top = Math.Clamp(anchor.Y, 38, Math.Max(38, Bounds.Height - 4 - h));
+        var rect = new Rect(left, top, w, h);
+        GestureLimitBounds = rect;
+        context.DrawRectangle(SoftBrush ?? BackgroundBrush, new Pen(WarningBrush ?? Brushes.White, 1), rect, 3, 3);
+        context.DrawText(formatted, new Point(rect.X + 6, rect.Y + 3));
+    }
+
+    private FormattedText CreateLabelText(string copy, IBrush brush, double maxWidth) =>
+        new(copy, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
+            CanvasTypography.ResolveTypeface(this), CanvasTypography.ResolveFontSize(this), brush)
+        {
+            MaxTextWidth = Math.Max(1, maxWidth),
+            MaxTextHeight = Math.Max(20, CanvasTypography.ResolveFontSize(this) * 1.8),
+            Trimming = TextTrimming.CharacterEllipsis
+        };
+
+    private void DrawLabel(DrawingContext context, string copy, Point position, double maxWidth = 408)
+    {
+        var formatted = CreateLabelText(copy, MuteBrush ?? FoilBrush ?? Brushes.White, maxWidth);
         context.DrawText(formatted, position);
     }
 
@@ -1477,7 +1508,7 @@ public sealed class PlanCanvas : Control
         var point = Live(captured);
         var plan = Controller?.Planform;
         var curve = point.Curve == "leading" ? plan?.Leading : plan?.Trailing;
-        string role = point.Role.ToString().ToLowerInvariant();
+        string role = PropertiesView.RoleText(point.Role).ToLowerInvariant();
         if (point.AnchorId is { } anchorId && curve?.Points.FirstOrDefault(item => item.Id == anchorId) is { } anchor)
         {
             double span = point.SpanMeters - anchor.SpanMeters;
