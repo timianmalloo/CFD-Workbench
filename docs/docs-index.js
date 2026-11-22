@@ -19960,6 +19960,43 @@ window.DOCS_INDEX = {
       "sourceSha256": "e4a37b5d1c8b40c748289034dab9dfde3fb4b3a2715160a873d4756bdd4678de"
     },
     {
+      "id": "proof-swp-old-build",
+      "path": "docs/proof/swp-old-build/README.md",
+      "title": "SWP old-build receipt: a cfdw-project-2 file carrying experiments opened by the pre-SWP build",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "implementation",
+      "reviewBy": "2027-02-22",
+      "reviewSuggested": [],
+      "summary": "A cfdw-project-2 sample carrying a 12-case queued local sweep under the additive top-level experiments member (zero analysis runs yet), opened by the pre-SWP build at 90b4af4f: refused fail-closed with DOC-UNSUPPORTED-FIELD (UnknownContent -> COPY-130) and the file's SHA-256 is unchanged.",
+      "tags": [
+        "sweeps",
+        "swp",
+        "analysis",
+        "native-format",
+        "rollback",
+        "old-build",
+        "copy-130"
+      ],
+      "links": [
+        {
+          "to": "design-local-sweeps",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "implements"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9316bbdd1cbeed172af3a81f81a695ed6f138917a4c9988bef45be8351a13a85"
+    },
+    {
       "id": "proof-tcv-governing",
       "path": "docs/proof/tcv/governing.md",
       "title": "TCV governing station on the example wing, before and after Ruling 142, and the wing-verdict surface list",
@@ -22963,6 +23000,56 @@ window.DOCS_INDEX = {
       "sourceSha256": "1ebbb7f2e0ba6243c97ee41db8e4416787407715c381bef63c99106087b77f31"
     },
     {
+      "id": "review-local-sweeps-native",
+      "path": "docs/reviews/local-sweeps-native.md",
+      "title": "Native implementation proof pack: Area 4 local-tier sweeps & performance curves (SWP-BUILD)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "implementation — Area 4 (Wave 6 SWP-BUILD, Ruling 271)",
+      "reviewBy": "2027-02-22",
+      "reviewSuggested": [],
+      "summary": "Implementation proof pack for Wave 6 Track SWP-BUILD (Nodes SWP-1..5) authorized by Ruling 271: additive cfdw-project-2 experiments store with active retention pinning & Archive unpinning, GoalStateSweepSnapshot seam for Wave C, dedicated sequential local SweepService (max 120 cases, idempotent runKey reuse, Cancel <= 250 ms, op.Load = requiredLoadN on Goal-state runs), frame-origin Cm and Ncrit 2-4 non-bridged curve projections, CLI sweep preview/run/inspect parity, and native Avalonia Sweeps workspace (Experiment setup, Run (local), Results) with T1..T18 red-first verification and zero LAB-01 / XAML-token / event-subscriber / PII findings.",
+      "tags": [
+        "sweeps",
+        "area-4",
+        "analysis",
+        "local-tier",
+        "performance-curves",
+        "native",
+        "proof-pack",
+        "wave6"
+      ],
+      "links": [
+        {
+          "to": "design-local-sweeps",
+          "rel": "implements"
+        },
+        {
+          "to": "proof-swp-old-build",
+          "rel": "tested-by"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "implements"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-wave6-and-area5-wsl",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "29d01606ec0b8995e78f1f86ca1fe6464f94e50b1740023a7a13331e0b18b231"
+    },
+    {
       "id": "review-m12b-native",
       "path": "docs/reviews/m12b-native.md",
       "title": "Native review — M1.2b CAD point editing on the Plan view",
@@ -25314,6 +25401,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-group-move-node-m"
     },
     {
+      "id": "surface-reviews-local-sweeps-native",
+      "path": "docs/reviews/local-sweeps-native.html",
+      "title": "Local Sweeps Native",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "review-local-sweeps-native"
+    },
+    {
       "id": "surface-mockups-m12b2-views",
       "path": "docs/mockups/m12b2-views.html",
       "title": "M1.2b2 views",
@@ -25482,5 +25577,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "889917e926649db45e0c80d6a3f50869a82de906c3674c74862793f17f864c69"
+  "graphSha256": "bd961aedaa247b1e14289b6475e24788f1dbc8bc708bf3d7f56fcdee69b4933d"
 };

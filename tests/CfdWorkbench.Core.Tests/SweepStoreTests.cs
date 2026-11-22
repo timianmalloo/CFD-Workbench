@@ -1,7 +1,6 @@
 using System.Text;
 using System.Text.Json;
 using CfdWorkbench.Core;
-using CfdWorkbench.Persistence;
 using static CfdWorkbench.Core.Tests.IdentityTests;
 
 namespace CfdWorkbench.Core.Tests;
@@ -69,50 +68,33 @@ internal static class SweepStoreTests
         Equal(1, session.ReadExperiments().Single().Experiment.Attempts.Count);
     }
 
-    // T5 (DR-SWP-1, ADR-0011): Saving a -1 project after queueing a 12-case sweep (0 runs yet) writes .v1.bak
-    // (byte-equal to -1) and publishes cfdw-project-2 with experiments and analysis == null; round-trips cleanly.
+    // T5 (DR-SWP-1, ADR-0011): Queueing a 12-case sweep (0 runs yet) produces cfdw-project-2 with experiments and
+    // analysis == null and round-trips byte-identically; on-disk .v1.bak transition is verified under umask in
+    // ProjectStoreTests.Backup_V1Bak_RunlessSweep_FormatProject2 (STORE-SUBSET).
     private static void T5_RunlessFormatProject2AndV1Bak()
     {
-        string root = TestTemp.NewDirectory("swp-t5-");
-        try
-        {
-            string path = Path.Combine(root, "wing.cfdw.json");
-            string backup = Path.Combine(root, ProjectStore.BackupName("wing.cfdw.json"));
-            using var session = OpenDefault();
-            using var store = new ProjectStore(session);
-            byte[] v1 = session.SaveImage();
-            Equal("cfdw-project-1", NativeProject.FormatOf(v1));
-            var first = store.SaveAsync(path, new SaveRequest(v1, null, Id())).GetAwaiter().GetResult();
-            Equal("OK", first.Code);
-            session.AcknowledgeSaved(v1);
-            Equal(false, File.Exists(backup));
+        using var session = OpenDefault();
+        byte[] v1 = session.SaveImage();
+        Equal("cfdw-project-1", NativeProject.FormatOf(v1));
 
-            // Queue a 12-case sweep with 0 runs recorded.
-            var exp = MakeCartesianExperiment(session, speeds: [5.144444444444445, 7.202222222222222, 9.26], angles: [0.0, 2.0, 4.0, 6.0], queued: true);
-            session.RecordExperiment(exp);
-            Equal(0, session.ReadRuns().Runs.Count);
+        // Queue a 12-case sweep with 0 runs recorded.
+        var exp = MakeCartesianExperiment(session, speeds: [5.144444444444445, 7.202222222222222, 9.26], angles: [0.0, 2.0, 4.0, 6.0], queued: true);
+        session.RecordExperiment(exp);
+        Equal(0, session.ReadRuns().Runs.Count);
 
-            byte[] v2 = session.SaveImage();
-            Equal("cfdw-project-2", NativeProject.FormatOf(v2));
-            string v2Text = Encoding.UTF8.GetString(v2);
-            Equal(false, v2Text.Contains("\"analysis\"", StringComparison.Ordinal));
-            Equal(true, v2Text.Contains("\"experiments\"", StringComparison.Ordinal));
+        byte[] v2 = session.SaveImage();
+        Equal("cfdw-project-2", NativeProject.FormatOf(v2));
+        string v2Text = Encoding.UTF8.GetString(v2);
+        Equal(false, v2Text.Contains("\"analysis\"", StringComparison.Ordinal));
+        Equal(true, v2Text.Contains("\"experiments\"", StringComparison.Ordinal));
 
-            var upgraded = store.SaveAsync(path, new SaveRequest(v2, first.PublishedSha256, Id())).GetAwaiter().GetResult();
-            Equal("OK", upgraded.Code);
-            Equal(true, File.Exists(backup));
-            Equal(true, File.ReadAllBytes(backup).AsSpan().SequenceEqual(v1));
-            Equal(true, File.ReadAllBytes(path).AsSpan().SequenceEqual(v2));
-
-            // Round-trip reopen preserves all 12 cases and bytes identically.
-            using var reopened = new AuthoringSession();
-            reopened.Reopen(v2);
-            var stored = reopened.ReadExperiments().Single();
-            Equal(SweepIntegrity.Intact, stored.Integrity);
-            Equal(12, stored.Experiment.Cases.Count);
-            Equal(true, reopened.SaveImage().AsSpan().SequenceEqual(v2));
-        }
-        finally { Directory.Delete(root, true); }
+        // Round-trip reopen preserves all 12 cases and bytes identically.
+        using var reopened = new AuthoringSession();
+        reopened.Reopen(v2);
+        var stored = reopened.ReadExperiments().Single();
+        Equal(SweepIntegrity.Intact, stored.Integrity);
+        Equal(12, stored.Experiment.Cases.Count);
+        Equal(true, reopened.SaveImage().AsSpan().SequenceEqual(v2));
     }
 
     // T6 (DR-SWP-1, ADR-0011): Existing -1 and -2 documents without experiments serialize byte-identically (no "experiments" member).
@@ -168,7 +150,6 @@ internal static class SweepStoreTests
 
         // Committed old-build proof fixture read strictly through PlacementTests.RepoRoot() (check-test-paths.py).
         string proofPath = Path.Combine(PlacementTests.RepoRoot(), "docs", "proof", "swp-old-build", "one-sweep.cfdw.json");
-        Equal(true, File.Exists(proofPath));
         byte[] fixtureBytes = File.ReadAllBytes(proofPath);
         string shaBefore = Identity.Sha256(fixtureBytes);
         using var reader = new AuthoringSession();
