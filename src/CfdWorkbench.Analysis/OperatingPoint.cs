@@ -58,7 +58,8 @@ public static class OperatingPoints
         Require(double.IsFinite(op.AlphaDeg), "ANA-INPUT-ALPHA", "α is not finite");
         Require(op.HRef is null || (double.IsFinite(op.HRef.Value) && op.HRef.Value > 0), "ANA-INPUT-DEPTH", "h_ref is not above zero");
         Require(double.IsFinite(op.PAtm) && op.PAtm > 0, "ANA-INPUT-PRESSURE", "atmospheric pressure is not above zero");
-        Require(op.Load is null, "ANA-INPUT-LOAD", "a design load is not an A3a input");
+        // Ruling 271 DR-SWP-4 (b) & DR-SET-2 (a): null on custom fixed-α runs; positive finite requiredLoadN on Goal-state load-solved runs.
+        Require(op.Load is null || (double.IsFinite(op.Load.Value) && op.Load.Value > 0), "ANA-INPUT-LOAD", "design load must be finite and above zero");
     }
 
     /// <summary>
