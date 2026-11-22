@@ -191,19 +191,20 @@ public static class SectionDisplay
                 R("Method", NeuralFoilPolarSource.Method.Id)
             };
             NeuralFoilEvaluation? first = null;
+            int firstNcrit = 4;
             foreach (int ncrit in new[] { 4, 2 })
             {
                 NeuralFoilEvaluation ev = src.Evaluate(section, station.AlphaEffDeg, station.Reynolds, ncrit, cancellation);
-                first ??= ev;
+                if (first is null) { first = ev; firstNcrit = ncrit; }
                 polar.Add(R("Ncrit " + ncrit, ev.Prediction is { } p
                     ? "cl " + N(p.Cl, "0.###") + " · cd " + N(p.Cd, "0.#####") + " · cm " + N(p.Cm, "0.###") +
                         " · x_tr " + N(p.XtrUpper, "0.###") + "/" + N(p.XtrLower, "0.###")
-                    : NotComputable(ev, station)));
+                    : NotComputable(ev, station, ncrit)));
             }
             polar.Add(R("Confidence", first!.Prediction is { } fp ? Labels.Confidence(fp.AnalysisConfidence) : Labels.ConfidenceNotRecorded));
             if (first.LowConfidence) polar.Add(R("Low confidence", Labels.LowConfidence(first.Prediction?.AnalysisConfidence)));
             polar.Add(R("Section fit", Labels.CstResidual(first.CstResidualMax, first.CstResidualRms)));
-            polar.Add(R(Labels.BracketLabel, first.Computable ? Bracket(first, station, section) : "Unavailable"));
+            polar.Add(R(Labels.BracketLabel, first.Computable ? Bracket(first, station, section, firstNcrit) : "Unavailable"));
             if (beside is { Length: > 0 }) polar.AddRange(beside);
             polar.Add(R("Polar Re range", Re(station.Reynolds)));
             polar.Add(R("Tripped", Labels.PolarNotComputed));
@@ -243,24 +244,24 @@ public static class SectionDisplay
             : Labels.ReOutside(re, NeuralFoilPolarSource.ReynoldsMin, NeuralFoilPolarSource.ReynoldsMax);
 
     /// <summary>The bracket row (DXM-2, DXM-8): the default inside text, or one flag per axis, computed and flagged.</summary>
-    public static string Bracket(NeuralFoilEvaluation ev, SectionStationResult station, NeuralFoilSection section)
+    public static string Bracket(NeuralFoilEvaluation ev, SectionStationResult station, NeuralFoilSection section, double ncrit = 4)
     {
         if (!ev.OutsideValidatedBracket) return Labels.BracketInside;
         var parts = new List<string>();
         foreach (string reason in ev.OutsideBracketReasons)
             parts.Add(reason.StartsWith("alpha", StringComparison.Ordinal) ? Labels.BracketOutsideAlpha(station.AlphaEffDeg)
                 : reason.StartsWith("Re ", StringComparison.Ordinal) ? Labels.BracketOutsideRe(station.Reynolds)
-                : reason.StartsWith("Ncrit", StringComparison.Ordinal) ? Labels.BracketOutsideNcrit(3)
+                : reason.StartsWith("Ncrit", StringComparison.Ordinal) ? Labels.BracketOutsideNcrit(ncrit)
                 : Labels.BracketOutsideFamily);
         return string.Join(" ", parts);
     }
 
     /// <summary>A non-computable point reads the approved Unavailable text with its own number (DXM-2, row 37).</summary>
-    private static string NotComputable(NeuralFoilEvaluation ev, SectionStationResult station) => ev.Reason switch
+    internal static string NotComputable(NeuralFoilEvaluation ev, SectionStationResult station, double ncrit) => ev.Reason switch
     {
         { } r when r.StartsWith("alpha", StringComparison.Ordinal) => Labels.TrainingAlpha(station.AlphaEffDeg),
         { } r when r.StartsWith("Re", StringComparison.Ordinal) => Labels.TrainingRe(station.Reynolds),
-        { } r when r.StartsWith("Ncrit", StringComparison.Ordinal) => Labels.TrainingNcrit(station.AlphaEffDeg),
+        { } r when r.StartsWith("Ncrit", StringComparison.Ordinal) => Labels.TrainingNcrit(ncrit),
         _ => Labels.CstOverLimit(ev.CstResidualMax)
     };
 

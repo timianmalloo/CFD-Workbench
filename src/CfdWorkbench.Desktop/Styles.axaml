@@ -239,6 +239,8 @@
     <x:Double x:Key="GlyphStroke">1.5</x:Double>
     <x:Double x:Key="StationListHeight">120</x:Double>
     <x:Double x:Key="NavigatorListHeight">180</x:Double>
+    <x:Double x:Key="CatalogListMinHeight">160</x:Double>
+    <x:Double x:Key="CatalogListMaxHeight">320</x:Double>
     <x:Double x:Key="SectionThumbnailWidth">200</x:Double>
     <x:Double x:Key="SectionThumbnailHeight">80</x:Double>
     <x:Double x:Key="SectionEditorMinHeight">160</x:Double>
@@ -314,10 +316,10 @@
   <Style Selector="Button"><Setter Property="MinHeight" Value="{StaticResource ControlHeight}" /><Setter Property="Padding" Value="{StaticResource Space3}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /></Style>
   <Style Selector="TabItem"><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /></Style>
   <Style Selector="TabItem:selected"><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /></Style>
-  <Style Selector="TabItem:pointerover /template/ Border#PART_LayoutRoot"><Setter Property="Background" Value="{DynamicResource InkBrush}" /><Setter Property="TextElement.Foreground" Value="{DynamicResource CanvasBrush}" /></Style>
-  <Style Selector="TabItem:selected:pointerover /template/ Border#PART_LayoutRoot"><Setter Property="Background" Value="{DynamicResource PrimaryBrush}" /><Setter Property="TextElement.Foreground" Value="{DynamicResource OnPrimaryBrush}" /></Style>
-  <Style Selector="TabItem:pressed /template/ Border#PART_LayoutRoot"><Setter Property="Background" Value="{DynamicResource PrimaryBrush}" /><Setter Property="TextElement.Foreground" Value="{DynamicResource OnPrimaryBrush}" /></Style>
-  <Style Selector="TabItem:selected:pressed /template/ Border#PART_LayoutRoot"><Setter Property="Background" Value="{DynamicResource InkBrush}" /><Setter Property="TextElement.Foreground" Value="{DynamicResource CanvasBrush}" /></Style>
+  <Style Selector="TabItem:pointerover /template/ Border#PART_LayoutRoot"><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /><Setter Property="TextElement.Foreground" Value="{DynamicResource InkBrush}" /></Style>
+  <Style Selector="TabItem:selected:pointerover /template/ Border#PART_LayoutRoot"><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /><Setter Property="TextElement.Foreground" Value="{DynamicResource InkBrush}" /></Style>
+  <Style Selector="TabItem:pressed /template/ Border#PART_LayoutRoot"><Setter Property="Background" Value="{DynamicResource SelectionBrush}" /><Setter Property="TextElement.Foreground" Value="{DynamicResource OnSelectionBrush}" /></Style>
+  <Style Selector="TabItem:selected:pressed /template/ Border#PART_LayoutRoot"><Setter Property="Background" Value="{DynamicResource SelectionBrush}" /><Setter Property="TextElement.Foreground" Value="{DynamicResource OnSelectionBrush}" /></Style>
   <!-- Dock's tool chrome repeats the active tool's title in its header (ToolChromeControl.axaml:169, PART_Title) above the
        tab row that already names it. The tab row is the one label; the header keeps only its pane-menu and close buttons. -->
   <Style Selector="dock|ToolChromeControl /template/ TextBlock#PART_Title"><Setter Property="IsVisible" Value="False" /></Style>
@@ -338,8 +340,11 @@
       </FocusAdornerTemplate>
     </Setter>
   </Style>
-  <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="{DynamicResource PrimaryBrush}" /><Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" /></Style>
-  <Style Selector="Button:pressed /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="{DynamicResource InkBrush}" /><Setter Property="Foreground" Value="{DynamicResource CanvasBrush}" /></Style>
+  <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" /></Style>
+  <Style Selector="Button:pressed /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="{DynamicResource SelectionBrush}" /><Setter Property="Foreground" Value="{DynamicResource OnSelectionBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" /></Style>
+  <Style Selector="Button.primary"><Setter Property="Background" Value="{DynamicResource PrimaryBrush}" /><Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" /></Style>
+  <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="{DynamicResource PrimaryBrush}" /><Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource InkBrush}" /></Style>
+  <Style Selector="Button.primary:pressed /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="{DynamicResource InkBrush}" /><Setter Property="Foreground" Value="{DynamicResource CanvasBrush}" /></Style>
   <Style Selector="TextBox"><Setter Property="MinHeight" Value="{StaticResource ControlHeight}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /><Setter Property="CaretBrush" Value="{DynamicResource InkBrush}" /><Setter Property="SelectionBrush" Value="{DynamicResource PrimaryBrush}" /><Setter Property="SelectionForegroundBrush" Value="{DynamicResource OnPrimaryBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" /></Style>
   <Style Selector="TextBox /template/ Border#PART_BorderElement"><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /></Style>
   <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement"><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /></Style>
@@ -352,10 +357,10 @@
   <Style Selector="ListBoxItem:selected"><Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" /><Setter Property="Background" Value="{DynamicResource PrimaryBrush}" /></Style>
   <Style Selector="ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" /><Setter Property="Background" Value="{DynamicResource PrimaryBrush}" /></Style>
   <Style Selector="ListBoxItem:selected:not(:focus) /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" /><Setter Property="Background" Value="{DynamicResource PrimaryBrush}" /></Style>
-  <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" /><Setter Property="Background" Value="{DynamicResource PrimaryBrush}" /></Style>
-  <Style Selector="ListBoxItem:pressed /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Foreground" Value="{DynamicResource CanvasBrush}" /><Setter Property="Background" Value="{DynamicResource InkBrush}" /></Style>
-  <Style Selector="ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /></Style>
-  <Style Selector="ListBoxItem:selected:pressed /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Foreground" Value="{DynamicResource CanvasBrush}" /><Setter Property="Background" Value="{DynamicResource InkBrush}" /></Style>
+  <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /></Style>
+  <Style Selector="ListBoxItem:pressed /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Foreground" Value="{DynamicResource OnSelectionBrush}" /><Setter Property="Background" Value="{DynamicResource SelectionBrush}" /></Style>
+  <Style Selector="ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" /><Setter Property="Background" Value="{DynamicResource PrimaryBrush}" /></Style>
+  <Style Selector="ListBoxItem:selected:pressed /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" /><Setter Property="Background" Value="{DynamicResource PrimaryBrush}" /></Style>
   <Style Selector="Button:focus-visible, TabItem:focus-visible, TextBox:focus-visible, ListBoxItem:focus-visible"><Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" /></Style>
   <Style Selector="TextBlock.heading"><Setter Property="FontSize" Value="{StaticResource HeadingSize}" /><Setter Property="FontWeight" Value="SemiBold" /></Style>
   <!-- The result-table text of the Analysis panel and of the Section document (moved here when the Section view left the panel, Ruling 124). -->
@@ -363,6 +368,10 @@
   <Style Selector="TextBlock.pnl-note"><Setter Property="FontSize" Value="{DynamicResource PropNoteSize}" /><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /><Setter Property="TextWrapping" Value="Wrap" /></Style>
   <Style Selector="TextBlock.pnl-cell"><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="TextWrapping" Value="Wrap" /><Setter Property="FontFeatures" Value="+tnum,+lnum" /></Style>
   <Style Selector="TextBlock.caption"><Setter Property="FontSize" Value="{StaticResource CaptionSize}" /><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /></Style>
+  <Style Selector="Button:pressed TextBlock.caption"><Setter Property="Foreground" Value="{DynamicResource OnSelectionBrush}" /></Style>
+  <Style Selector="Button.primary:pressed TextBlock.caption"><Setter Property="Foreground" Value="{DynamicResource CanvasBrush}" /></Style>
+  <Style Selector="ListBoxItem:selected TextBlock.caption, ListBoxItem:selected:pointerover TextBlock.caption, ListBoxItem:selected:pressed TextBlock.caption"><Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" /></Style>
+  <Style Selector="ListBoxItem:pressed TextBlock.caption"><Setter Property="Foreground" Value="{DynamicResource OnSelectionBrush}" /></Style>
   <!-- Property sheet, structure B (DR-CELL-1; docs/reviews/ui-property-grid-cells.md §5.2). Every brush is a theme resource
        defined in Light, Dark and High contrast, so each state below resolves in all three variants (PG-11). Every size
        reads a DynamicResource: the pane overrides the scaled copies for the Text size setting (DN-5). -->

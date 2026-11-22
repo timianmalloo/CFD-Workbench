@@ -45,11 +45,16 @@ public partial class ExportDialog : Window
         ScopeLegend.Text = ExportCopy.ScopeLabel;
         ScopeWhole.Content = ExportCopy.ScopeWhole;
         ScopeHalf.Content = ExportCopy.ScopeHalf;
+        AutomationProperties.SetLabeledBy(ScopeWhole, ScopeLegend);
+        AutomationProperties.SetLabeledBy(ScopeHalf, ScopeLegend);
         ScopeHelp.Text = ExportCopy.ScopeHalfHelp;
         ToleranceLegend.Text = ExportCopy.ToleranceLabel;
         ToleranceDraft.Content = ExportCopy.ToleranceDraft;
         TolerancePrint.Content = ExportCopy.TolerancePrint;
         ToleranceFine.Content = ExportCopy.ToleranceFine;
+        AutomationProperties.SetLabeledBy(ToleranceDraft, ToleranceLegend);
+        AutomationProperties.SetLabeledBy(TolerancePrint, ToleranceLegend);
+        AutomationProperties.SetLabeledBy(ToleranceFine, ToleranceLegend);
         UnitLegend.Text = ExportCopy.UnitLabel;
         UnitText.Text = "mm. " + ExportCopy.UnitFixed;
         ClosureText.Text = ExportCopy.MeshNotClosed;
@@ -59,12 +64,19 @@ public partial class ExportDialog : Window
         ShapeLegend.Text = ExportCopy.ShapeLabel;
         ShapeAtStation.Content = ExportCopy.ShapeAtStation;
         ShapeOwn.Content = ExportCopy.ShapeOwn;
+        AutomationProperties.SetLabeledBy(ShapeAtStation, ShapeLegend);
+        AutomationProperties.SetLabeledBy(ShapeOwn, ShapeLegend);
         StationLegend.Text = ExportCopy.StationLabel;
         AutomationProperties.SetName(StationBox, ExportCopy.StationLabel);
         OrderLegend.Text = ExportCopy.OrderLabel;
         OrderSelig.Content = ExportCopy.OrderSelig;
         OrderLednicer.Content = ExportCopy.OrderLednicer;
+        AutomationProperties.SetLabeledBy(OrderSelig, OrderLegend);
+        AutomationProperties.SetLabeledBy(OrderLednicer, OrderLegend);
         PointsLegend.Text = ExportCopy.PointsLabel;
+        AutomationProperties.SetLabeledBy(Points61, PointsLegend);
+        AutomationProperties.SetLabeledBy(Points101, PointsLegend);
+        AutomationProperties.SetLabeledBy(Points201, PointsLegend);
         SummaryHeading.Text = ExportCopy.SummaryHeading;
         LimitLine.Text = ExportCopy.Limit;
         SafetyLine.Text = ExportCopy.Safety;
@@ -112,7 +124,13 @@ public partial class ExportDialog : Window
             args.Handled = true;
             Close();
         }, RoutingStrategies.Tunnel);
-        Opened += (_, _) => (ExportButton.IsEnabled ? ExportButton : CancelButton).Focus();
+        if (OsAccessibility.IsReducedMotion())
+        {
+            WritingProgress.IsIndeterminate = false;
+            WritingProgress.Value = 50;
+            LayoutUpdated += (_, _) => MainWindow.SuppressTransitions(this);
+        }
+        Opened += (_, _) => ((FormatList.SelectedItem as Control) ?? FormatList).Focus();
         Closed += (_, _) => returnFocus?.Focus();
         Refresh();
     }

@@ -118,10 +118,15 @@ public partial class PointsPane : UserControl
         header.Classes.Add("pts-group");
         AutomationProperties.SetName(header, group.Title);
         AutomationProperties.SetHelpText(header, open ? "Expanded" : "Collapsed");
+        string headerName = "PointsGroup_" + group.Id;
         header.Click += (_, _) =>
         {
             if (!collapsed.Remove(group.Id)) collapsed.Add(group.Id);
-            if (shown is not null) Render(shown);
+            if (shown is not null)
+            {
+                Render(shown);
+                this.GetVisualDescendants().OfType<Button>().FirstOrDefault(b => b.Name == headerName)?.Focus();
+            }
         };
         var panel = new StackPanel { Children = { header } };
         if (open) foreach (var row in group.Rows) panel.Children.Add(Row(row));
@@ -193,7 +198,9 @@ public partial class PointsPane : UserControl
         };
         box.Classes.Add("prop-b");
         box.Classes.Set("error", errors.ContainsKey(key + axis));
-        string unit = shown?.Section == true ? "% chord" : isX ? "millimetres" : "the curve's unit";
+        string unit = shown?.Section == true ? "% chord"
+            : isX ? Speech.Unit("mm")
+            : PropertiesView.Curves.TryGetValue(row.Target.Curve, out var curveRows) ? Speech.Unit(curveRows.ValueUnit) : Speech.Unit("mm");
         AutomationProperties.SetName(box, $"{row.Name}, {(shown?.Section == true ? axis : isX ? "From root" : "value")} in {unit}");
         Grid.SetColumn(box, isX ? 2 : 3);
         box.AddHandler(KeyDownEvent, (_, e) =>

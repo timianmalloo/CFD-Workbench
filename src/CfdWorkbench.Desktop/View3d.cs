@@ -404,6 +404,10 @@ public sealed partial class View3d : Panel
     {
         base.OnPropertyChanged(change);
         if (change.Property == BoundsProperty) UpdateCube();
+        if (change.Property == SoftBrushProperty || change.Property == InkBrushProperty ||
+            change.Property == MuteBrushProperty || change.Property == StationBrushProperty ||
+            change.Property == FocusBrushProperty || change.Property == ViewportBrushProperty)
+            overlay.InvalidateVisual();
     }
 
     // ---------------- drawing ----------------

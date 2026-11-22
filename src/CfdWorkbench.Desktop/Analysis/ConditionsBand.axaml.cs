@@ -66,7 +66,11 @@ public partial class ConditionsBand : UserControl
             AlphaInput.Text = Labels.Number(alpha, "0.00");
             controller.ApplyFoundAlpha(alpha);   // the pending α only; Evaluate stays explicit
         });
-        if (TopLevel.GetTopLevel(this) is Window owner) FindDialog.Show(owner);
+        if (TopLevel.GetTopLevel(this) is Window owner)
+        {
+            FindDialog.RequestedThemeVariant = owner.ActualThemeVariant;
+            FindDialog.Show(owner);
+        }
         else FindDialog.Show();
     }
 

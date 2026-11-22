@@ -615,6 +615,7 @@ public static class ShellWindowTests
             if (rowFailures.Count > 0)
                 throw new InvalidOperationException($"{rowFailures.Count} theme rows failed: " + string.Join(" | ", rowFailures));
         });
+        UiP0HardeningTests.RunThemeMatrixExtension();
     }
 
     public static void Run()

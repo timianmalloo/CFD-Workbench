@@ -86,14 +86,18 @@ public sealed class ShellHost : Grid
     public event Action<IReadOnlyList<RecentEntry>>? RecentLoaded;
     public event Action<string>? PaletteCommand;
     public AutoCompleteBox PaletteSearch { get; }
-    public bool PaletteVisible => paletteOverlay.IsVisible;
+    public bool PaletteVisible => paletteBackdrop.IsVisible;
     public IReadOnlyList<PaletteEntry> PaletteMatches => CommandTable.PaletteEntries()
         .Where(entry => string.IsNullOrWhiteSpace(PaletteSearch.Text) ||
             entry.Title.Contains(PaletteSearch.Text, StringComparison.OrdinalIgnoreCase)).ToArray();
+    private readonly Grid paletteBackdrop;
     private readonly Border paletteOverlay;
     private Control? paletteOrigin;
     private CancellationTokenSource? opening;
     private readonly Func<Task<string?>>? pickOpenFile;
+
+    /// <summary>Dirty-document replacement guard (F-02): wired by MainWindow to MayReplaceAsync.</summary>
+    public Func<Task<bool>>? ConfirmReplaceAsync { get; set; }
 
     /// <summary>DLG shows the catalog. Null runs the command as a status count and draws no dialog.</summary>
     public Func<Task>? ShowCatalogDialog { get; set; }
@@ -134,7 +138,15 @@ public sealed class ShellHost : Grid
         MenuBar = new NativeMenuBar { [AutomationProperties.NameProperty] = "Menu bar" };
         SetRow(MenuBar, 0);
         Children.Add(MenuBar);
+        PositionPaletteBackdrop();
         return MenuBar;
+    }
+
+    private void PositionPaletteBackdrop()
+    {
+        int startRow = GetRow(DockHost);
+        SetRow(paletteBackdrop, startRow);
+        SetRowSpan(paletteBackdrop, Math.Max(1, RowDefinitions.Count - startRow));
     }
 
     public static void BindF6(Window window, ShellHost host)
@@ -154,19 +166,41 @@ public sealed class ShellHost : Grid
     public void OpenPalette()
     {
         paletteOrigin = TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() as Control;
+        PositionPaletteBackdrop();
+        PaletteSearch.SelectedItem = null;
         PaletteSearch.Text = "";
+        paletteBackdrop.IsVisible = true;
         paletteOverlay.IsVisible = true;
         PaletteSearch.Focus();
         PaletteSearch.IsDropDownOpen = true;
     }
 
+    private string? ResolvePaletteCommandId()
+    {
+        var entries = CommandTable.PaletteEntries();
+        if (PaletteSearch.SelectedItem is string selectedTitle)
+        {
+            var exact = entries.FirstOrDefault(entry => string.Equals(entry.Title, selectedTitle, StringComparison.OrdinalIgnoreCase));
+            if (exact is not null) return exact.Id;
+        }
+        if (!string.IsNullOrWhiteSpace(PaletteSearch.Text))
+        {
+            var exactText = entries.FirstOrDefault(entry => string.Equals(entry.Title, PaletteSearch.Text, StringComparison.OrdinalIgnoreCase));
+            if (exactText is not null) return exactText.Id;
+        }
+        return PaletteMatches.FirstOrDefault()?.Id;
+    }
+
     private void ClosePalette(bool runSelection)
     {
-        string? id = runSelection ? PaletteMatches.FirstOrDefault()?.Id : null;
+        if (!paletteBackdrop.IsVisible) return;
+        string? id = runSelection ? ResolvePaletteCommandId() : null;
+        paletteBackdrop.IsVisible = false;
         paletteOverlay.IsVisible = false;
+        PaletteSearch.IsDropDownOpen = false;
         paletteOrigin?.Focus();
         if (id is null) return;
-        if (IsShellCommand(id) || CommandTable.UnitsOf(id) is not null) _ = RunCommand(id);
+        if (IsPaneCommand(id)) _ = RunCommand(id);
         else PaletteCommand?.Invoke(id);
     }
 
@@ -185,8 +219,10 @@ public sealed class ShellHost : Grid
         LeftSidebarToggle = new Button
         {
             Content = "◧",
-            [AutomationProperties.NameProperty] = "Toggle left sidebar"
+            [AutomationProperties.NameProperty] = "Toggle left sidebar",
+            [AutomationProperties.HelpTextProperty] = "Expanded"
         };
+        ToolTip.SetTip(LeftSidebarToggle, "Toggle left side bar");
         LeftSidebarToggle.Click += (_, _) => ToggleLeftSidebar();
 
         // Initialize Dock
@@ -270,31 +306,66 @@ public sealed class ShellHost : Grid
         {
             [AutomationProperties.NameProperty] = "Command palette",
             ItemsSource = CommandTable.PaletteEntries().Select(entry => entry.Title).ToArray(),
+            FilterMode = AutoCompleteFilterMode.Contains,
             MinimumPrefixLength = 0,
             Width = 360
         };
-        PaletteSearch.KeyDown += (_, args) =>
+        PaletteSearch.AddHandler(InputElement.KeyDownEvent, (_, args) =>
         {
             if (args.Key is not (Key.Enter or Key.Escape)) return;
             ClosePalette(args.Key == Key.Enter);
             args.Handled = true;
+        }, Avalonia.Interactivity.RoutingStrategies.Tunnel);
+        PaletteSearch.TemplateApplied += (_, args) =>
+        {
+            if (args.NameScope.Find<Avalonia.Controls.Primitives.SelectingItemsControl>("PART_SelectingItemsControl") is { } list)
+            {
+                list.AddHandler(InputElement.PointerReleasedEvent, (_, _) =>
+                {
+                    if (PaletteVisible && PaletteSearch.SelectedItem is not null)
+                        Dispatcher.UIThread.Post(() => ClosePalette(true), DispatcherPriority.Input);
+                }, Avalonia.Interactivity.RoutingStrategies.Bubble, handledEventsToo: true);
+            }
+        };
+        PaletteSearch.LostFocus += (_, _) =>
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (PaletteVisible && !PaletteSearch.IsKeyboardFocusWithin && !PaletteSearch.IsDropDownOpen)
+                    ClosePalette(false);
+            }, DispatcherPriority.Input);
         };
         paletteOverlay = new Border
         {
             Child = PaletteSearch,
             Padding = new Thickness(16),
+            BorderThickness = new Thickness(1),
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(0, 64, 0, 0),
             IsVisible = false
         };
-        paletteOverlay.AttachedToVisualTree += (_, _) =>
+        paletteOverlay.Bind(Border.BackgroundProperty, paletteOverlay.GetResourceObservable("SurfaceBrush"));
+        paletteOverlay.Bind(Border.BorderBrushProperty, paletteOverlay.GetResourceObservable("LineBrush"));
+        paletteBackdrop = new Grid
         {
-            paletteOverlay.Background = this.FindResource("SurfaceBrush") as IBrush;
-            paletteOverlay.BorderBrush = this.FindResource("LineBrush") as IBrush;
-            paletteOverlay.BorderThickness = new Thickness(1);
+            Background = Brushes.Transparent,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            VerticalAlignment = VerticalAlignment.Stretch,
+            ZIndex = 100,
+            IsVisible = false,
+            Children = { paletteOverlay }
         };
-        Children.Add(paletteOverlay);
+        paletteBackdrop.PointerPressed += (_, args) =>
+        {
+            if (ReferenceEquals(args.Source, paletteBackdrop))
+            {
+                ClosePalette(false);
+                args.Handled = true;
+            }
+        };
+        PositionPaletteBackdrop();
+        Children.Add(paletteBackdrop);
 
         // Wire Controller updates
         Controller.Changed += OnControllerChanged;
@@ -454,6 +525,7 @@ public sealed class ShellHost : Grid
 
     public async Task OpenExampleAsync()
     {
+        if (Controller.IsDirty && ConfirmReplaceAsync is not null && !await ConfirmReplaceAsync()) return;
         ModelView.StartCardView.ShowOpening("example.foil", ModelView.StartCardView.StartExampleButton);
         try
         {
@@ -470,6 +542,7 @@ public sealed class ShellHost : Grid
     public async Task OpenNewFoilAsync()
     {
         if (opening is not null) return;
+        if (Controller.IsDirty && ConfirmReplaceAsync is not null && !await ConfirmReplaceAsync()) return;
         using var cancellation = new CancellationTokenSource();
         opening = cancellation;
         ModelView.StartCardView.ShowOpening("new foil", ModelView.StartCardView.StartNewButton);
@@ -481,9 +554,10 @@ public sealed class ShellHost : Grid
         finally { opening = null; }
     }
 
-    public async Task OpenFileAsync(string path, bool fromRecent = false, Control? origin = null)
+    public async Task OpenFileAsync(string path, bool fromRecent = false, Control? origin = null, bool replaceConfirmed = false)
     {
         if (opening is not null) return;
+        if (!replaceConfirmed && Controller.IsDirty && ConfirmReplaceAsync is not null && !await ConfirmReplaceAsync()) return;
         using var cancellation = new CancellationTokenSource();
         opening = cancellation;
         ModelView.StartCardView.ShowOpening(System.IO.Path.GetFileName(path), origin);
@@ -497,10 +571,11 @@ public sealed class ShellHost : Grid
 
     public async Task OpenFileInteractiveAsync()
     {
+        if (Controller.IsDirty && ConfirmReplaceAsync is not null && !await ConfirmReplaceAsync()) return;
         if (pickOpenFile is not null)
         {
             var selected = await pickOpenFile();
-            if (selected is not null) await OpenFileAsync(selected, origin: ModelView.StartCardView.StartOpenButton);
+            if (selected is not null) await OpenFileAsync(selected, origin: ModelView.StartCardView.StartOpenButton, replaceConfirmed: true);
             return;
         }
         var top = TopLevel.GetTopLevel(this);
@@ -512,7 +587,7 @@ public sealed class ShellHost : Grid
         });
         if (files.Count == 0) return;
         using var file = files[0];
-        await OpenFileAsync(file.Path.LocalPath, origin: ModelView.StartCardView.StartOpenButton);
+        await OpenFileAsync(file.Path.LocalPath, origin: ModelView.StartCardView.StartOpenButton, replaceConfirmed: true);
     }
 
     public void HandleOpenOutcome(OpenOutcome outcome, string path, bool recordRecent = true, bool fromRecent = false)
@@ -794,7 +869,6 @@ public sealed class ShellHost : Grid
         Points.Bind(Controller);
         Layers.Bind(Controller);
         BindAnalysisPanel();
-        ModelView.SectionEditor.Bind(Controller);
         ReportControllerStatus();
         // The toast closes when the next commit starts (DESIGN.md §4 Toast).
         if (lastGesture == GestureState.Idle && Controller.Gesture != GestureState.Idle) ModelView.CloseToast();
@@ -831,42 +905,108 @@ public sealed class ShellHost : Grid
             bool wasVisible = LayoutFactory.TopProportionalDock.VisibleDockables?.Contains(dock) ?? false;
             if (wasVisible)
             {
-                if (dock.IsActive || Properties.IsKeyboardFocusWithin || Browser.IsKeyboardFocusWithin)
+                if (dock.IsActive || Properties.IsKeyboardFocusWithin || Browser.IsKeyboardFocusWithin || Layers.IsKeyboardFocusWithin)
                 {
                     LeftSidebarToggle.Focus();
                 }
                 LayoutFactory.TopProportionalDock.VisibleDockables?.Remove(dock);
+                AutomationProperties.SetHelpText(LeftSidebarToggle, "Collapsed");
             }
             else
             {
                 LayoutFactory.TopProportionalDock.VisibleDockables?.Insert(0, dock);
-                (dock.ActiveDockable as Control)?.Focus();
+                AutomationProperties.SetHelpText(LeftSidebarToggle, "Expanded");
+                if (dock.ActiveDockable is not null) FocusDockableTab(dock.ActiveDockable);
             }
         }
     }
 
+    private static Control? FirstFocusable(Control? root) =>
+        root is { IsEffectivelyVisible: true, IsEffectivelyEnabled: true }
+            ? root.GetVisualDescendants().OfType<Control>()
+                .FirstOrDefault(c => c.Focusable && c.IsEffectivelyVisible && c.IsEffectivelyEnabled && c is not ScrollViewer)
+            : null;
+
     public bool MoveFocus(bool reverse)
     {
-        var browserRow = Browser.FindControl<ListBox>("StationList")?.Items
-            .OfType<ListBoxItem>().FirstOrDefault(item => item.IsVisible && item.IsEnabled);
+        // Left region: active left dock pane (Properties, Browser, Layers), falling back to LeftSidebarToggle when closed.
+        bool leftShown = LayoutFactory.TopProportionalDock.VisibleDockables?.Contains(LayoutFactory.LeftToolDock) == true;
+        Control? leftTarget = null;
+        if (leftShown)
+        {
+            var activeLeft = LayoutFactory.LeftToolDock.ActiveDockable;
+            if (ReferenceEquals(activeLeft, LayoutFactory.BrowserTool))
+                leftTarget = Browser.FindControl<ListBox>("StationList")?.Items
+                    .OfType<ListBoxItem>().FirstOrDefault(item => item.IsVisible && item.IsEnabled) ?? FirstFocusable(Browser);
+            else if (ReferenceEquals(activeLeft, LayoutFactory.LayersTool))
+                leftTarget = FirstFocusable(Layers);
+            else
+                leftTarget = Properties.FindControl<TextBox>("SpanInput") is { IsEffectivelyVisible: true, IsEffectivelyEnabled: true } span
+                    ? span : FirstFocusable(Properties);
+        }
+        leftTarget ??= LeftSidebarToggle;
+
         var documentTab = DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>()
             .FirstOrDefault(item => ReferenceEquals(item.DataContext, LayoutFactory.MainDocumentDock.ActiveDockable)
                 && item.IsVisible && item.IsEnabled);
-        var leftTarget = (Control?)browserRow ?? LeftSidebarToggle;
-        // While a warning toast is open it is one more stop, after the model area (DESIGN.md §4 Toast).
-        var toast = ModelView.ToastOpen ? ModelView.ToastDismissButton : null;
-        var targets = new[] { leftTarget, (Control?)documentTab, toast };
-        int current = leftTarget.IsKeyboardFocusWithin ? 0 : documentTab?.IsKeyboardFocusWithin == true ? 1
-            : ModelView.WarningToast.IsKeyboardFocusWithin ? 2 : -1;
-        var available = targets.Select(target => target is { IsVisible: true, IsEnabled: true }).ToArray();
-        var origin = TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement();
-        for (int attempt = 0; attempt < targets.Length; attempt++)
+        Control? modelTarget = (Control?)documentTab ?? (ModelView.PlanCanvas.IsEffectivelyVisible ? ModelView.PlanCanvas : FirstFocusable(ModelView));
+
+        Control? bottomTarget = AnalysisPanel.IsVisible
+            ? (AnalysisPanel.PanelTabs.SelectedItem as Control is { IsEffectivelyVisible: true, IsEffectivelyEnabled: true } tab
+                ? tab : FirstFocusable(AnalysisPanel))
+            : null;
+
+        Control? rightTarget = RightSidebarShown ? FirstFocusable(Points) : null;
+
+        // Floating tool windows / docks, if any exist outside the main TopProportionalDock.
+        Control? floatTarget = null;
+        if (TopLevel.GetTopLevel(this) is Window owner)
         {
-            int next = FocusRing.NextRegionIndex(current, reverse, available);
+            foreach (var owned in owner.OwnedWindows)
+            {
+                if (owned.IsVisible && owned.Content is Control content && FirstFocusable(content) is { } fl)
+                {
+                    floatTarget = fl;
+                    break;
+                }
+            }
+        }
+
+        // While a warning toast is open it is the final stop of the ring, after the model/docks (DESIGN.md §4 Toast).
+        Control? toastTarget = ModelView.ToastOpen ? ModelView.ToastDismissButton : null;
+
+        var stops = new (FocusRegion Region, Control? Target, Func<bool> HasFocus)[]
+        {
+            (new("left", FocusRegionKind.Left, leftTarget is { IsVisible: true, IsEnabled: true }),
+                leftTarget,
+                () => (leftShown && (Properties.IsKeyboardFocusWithin || Browser.IsKeyboardFocusWithin || Layers.IsKeyboardFocusWithin)) || LeftSidebarToggle.IsKeyboardFocusWithin),
+            (new("model", FocusRegionKind.ModelArea, modelTarget is { IsVisible: true, IsEnabled: true }),
+                modelTarget,
+                () => documentTab?.IsKeyboardFocusWithin == true || (ModelView.IsKeyboardFocusWithin && !ModelView.WarningToast.IsKeyboardFocusWithin)),
+            (new("bottom", FocusRegionKind.Bottom, bottomTarget is { IsVisible: true, IsEnabled: true }),
+                bottomTarget,
+                () => AnalysisPanel.IsVisible && AnalysisPanel.IsKeyboardFocusWithin),
+            (new("right", FocusRegionKind.Right, rightTarget is { IsVisible: true, IsEnabled: true }),
+                rightTarget,
+                () => RightSidebarShown && Points.IsKeyboardFocusWithin),
+            (new("float", FocusRegionKind.Float, floatTarget is { IsVisible: true, IsEnabled: true }),
+                floatTarget,
+                () => floatTarget?.IsKeyboardFocusWithin == true),
+            (new("toast", FocusRegionKind.Float, toastTarget is { IsVisible: true, IsEnabled: true }),
+                toastTarget,
+                () => ModelView.ToastOpen && ModelView.WarningToast.IsKeyboardFocusWithin),
+        };
+
+        int current = Array.FindIndex(stops, s => s.HasFocus());
+        var regions = stops.Select(s => s.Region).ToArray();
+        var origin = TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement();
+        for (int attempt = 0; attempt < stops.Length; attempt++)
+        {
+            int next = FocusRing.NextRegion(current, reverse, regions);
             if (next < 0) return false;
-            if (next == 2 && current != 2) ModelView.ToastReturnFocus = origin;
-            if (targets[next]?.Focus() == true) return true;
-            available[next] = false;
+            if (stops[next].Region.Id == "toast" && current != next) ModelView.ToastReturnFocus = origin;
+            if (stops[next].Target?.Focus() == true) return true;
+            regions[next] = regions[next] with { Available = false };
             current = next;
         }
         return false;
@@ -1119,7 +1259,7 @@ public sealed class ShellHost : Grid
     public string? PointCommandReason(string id)
     {
         if (Controller.Inspection is null || Controller.Section is not null)
-            return "Open a certified foil in the views to edit points.";
+            return "Open a valid foil in the views to edit points.";
         if (Controller.Gesture != GestureState.Idle)
             return "Finish the current change first.";
         if (Controller.Selection is not Selection.Points { Items: var items } || items.Count == 0)
@@ -1277,6 +1417,8 @@ public sealed class ShellHost : Grid
     /// <summary>The right side bar is in the layout.</summary>
     public bool RightSidebarShown => LayoutFactory.TopProportionalDock.VisibleDockables?.Contains(LayoutFactory.RightToolDock) == true;
 
+    public void ToggleRightSidebar() => SetRightShown(!RightSidebarShown);
+
     private void SetLeftShown(bool shown)
     {
         var docks = LayoutFactory.TopProportionalDock.VisibleDockables;
@@ -1314,6 +1456,17 @@ public sealed class ShellHost : Grid
     }
 
     // ---------------- section commands (§5.2) and the section strip ----------------
+
+    /// <summary>Every command routed through <see cref="RunCommand"/> from menus and the Command Palette (F-03, F-09).</summary>
+    public static bool IsPaneCommand(string id) =>
+        id.StartsWith("point.", StringComparison.Ordinal) ||
+        id.StartsWith("station.", StringComparison.Ordinal) ||
+        id.StartsWith("view.text-", StringComparison.Ordinal) ||
+        id.StartsWith("view.comb", StringComparison.Ordinal) ||
+        id is "analysis.compare" or "analysis.compare-tiers" ||
+        CommandTable.UnitsOf(id) is not null ||
+        ViewCommands.Handles(id) ||
+        IsShellCommand(id);
 
     /// <summary>The rows the shell runs itself: the section rows, Thickness ×2, the Points pane and the workspaces.</summary>
     public static bool IsShellCommand(string id) =>
@@ -1525,7 +1678,11 @@ public sealed class ShellHost : Grid
         if (ShowExportDialog is not null) outcome = await ShowExportDialog(session);
         else if (TopLevel.GetTopLevel(this) is Window owner)
         {
-            var dialog = new ExportDialog(session, PickExportFile, () => _ = ShowExportStationAsync(session), ModelView.SectionEditor.SectionButton);
+            var returnFocus = owner.FocusManager?.GetFocusedElement() as Control ?? ModelView.PlanCanvas;
+            var dialog = new ExportDialog(session, PickExportFile, () => _ = ShowExportStationAsync(session), returnFocus)
+            {
+                RequestedThemeVariant = owner.ActualThemeVariant
+            };
             outcome = await dialog.ShowDialog<ExportOutcome?>(owner);
         }
         else return;
@@ -1644,7 +1801,7 @@ public sealed class ShellHost : Grid
 
     private void OnCatalogPreview()
     {
-        ModelView.SectionEditor.RefreshPreview();
+        ModelView.SectionModeEditor.RefreshPreview();
         if (Controller.PreviewFault is { } error)
             Report(new StatusReport(RefusalCopy(error), ReportKind.Warning));
     }
@@ -1659,9 +1816,10 @@ public sealed class ShellHost : Grid
         }
         if (TopLevel.GetTopLevel(this) is Window owner)
         {
-            var dialog = new CatalogDialog(Controller, snapshot, ModelView.SectionEditor.SectionButton)
+            var dialog = new CatalogDialog(Controller, snapshot, ModelView.SectionModeEditor.SectionButton)
             {
-                WindowStartupLocation = WindowStartupLocation.Manual
+                WindowStartupLocation = WindowStartupLocation.Manual,
+                RequestedThemeVariant = owner.ActualThemeVariant
             };
             dialog.Position = new PixelPoint(owner.Position.X + (int)owner.Bounds.Width - (int)dialog.Width, owner.Position.Y);
             await dialog.ShowDialog(owner);
@@ -1683,7 +1841,10 @@ public sealed class ShellHost : Grid
             {
                 var owner = (Window)TopLevel.GetTopLevel(this)!;
                 var dialog = new SaveSectionDialog(Controller, name => Controller.SaveToMySectionsAsync(name),
-                    ModelView.SectionEditor.SectionButton);
+                    ModelView.SectionModeEditor.SectionButton)
+                {
+                    RequestedThemeVariant = owner.ActualThemeVariant
+                };
                 saved = await dialog.ShowDialog<string?>(owner);
             }
             if (saved is not null) Report(new StatusReport($"Saved “{saved}” to My sections"));
@@ -1934,17 +2095,24 @@ public sealed class ShellHost : Grid
     {
         foreach (var dock in DockHost.GetVisualDescendants().OfType<ToolDockControl>())
         {
+            string closeName = ReferenceEquals(dock.DataContext, LayoutFactory.LeftToolDock)
+                ? "Close left side bar"
+                : ReferenceEquals(dock.DataContext, LayoutFactory.RightToolDock)
+                    ? "Close right side bar"
+                    : "Close pane";
             foreach (var button in dock.GetVisualDescendants().OfType<Button>())
             {
                 switch (button.Name)
                 {
-                    case "PART_MenuButton" when button.Content is not string:
-                        button.Content = "⋯";
-                        AutomationProperties.SetName(button, "Pane menu");
+                    case "PART_MenuButton":
+                        if (button.Content is not string) button.Content = "⋯";
+                        if (AutomationProperties.GetName(button) != "Pane menu")
+                            AutomationProperties.SetName(button, "Pane menu");
                         break;
-                    case "PART_CloseButton" when button.Content is not string:
-                        button.Content = "×";
-                        AutomationProperties.SetName(button, "Close left side bar");
+                    case "PART_CloseButton":
+                        if (button.Content is not string) button.Content = "×";
+                        if (AutomationProperties.GetName(button) != closeName)
+                            AutomationProperties.SetName(button, closeName);
                         break;
                 }
             }

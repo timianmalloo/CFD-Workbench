@@ -145,8 +145,8 @@ public partial class StartView : UserControl
 
         AlertPanel.IsVisible = true;
         if (AlertLocateButton.IsVisible) AlertLocateButton.Focus();
-        else if (AlertOpenAnotherButton.IsVisible) AlertOpenAnotherButton.Focus();
         else if (AlertTryAgainButton.IsVisible) AlertTryAgainButton.Focus();
+        else if (AlertOpenAnotherButton.IsVisible) AlertOpenAnotherButton.Focus();
         else AlertDismissButton.Focus();
     }
 

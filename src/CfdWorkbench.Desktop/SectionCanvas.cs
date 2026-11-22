@@ -1139,7 +1139,48 @@ public class SectionCanvas : Control
 
         protected override List<AutomationPeer>? GetChildrenCore()
         {
-            return owner.SemanticControls.Select(CreatePeerForElement).OfType<AutomationPeer>().ToList();
+            if (owner.Profile is null) return [];
+            var peers = new List<AutomationPeer>();
+            if (owner.Controller?.Section is not null &&
+                owner.Controller.SectionCurve(SurfaceSide.Upper) is { } upper &&
+                owner.Controller.SectionCurve(SurfaceSide.Lower) is { } lower)
+            {
+                foreach (var point in upper.Points.Concat(lower.Points.Skip(1)))
+                {
+                    var captured = point;
+                    string type = Sections.PointType(captured);
+                    string name = $"{captured.Curve} surface · point {captured.Index + 1} · {type} · x {captured.SpanMeters * 100:F2} % c · y {captured.Ordinate * 100:F2} % c";
+                    peers.Add(CurvePointLayer.Peer(
+                        owner,
+                        () => name,
+                        () => owner.ModelToScreen(captured.SpanMeters, captured.Ordinate),
+                        () =>
+                        {
+                            owner.SelectedVertex = (captured.Curve, captured.Id);
+                            owner.Controller?.Select(new Selection.Points([new PointRef(captured.Curve, captured.Id, owner.Controller.Section?.Draft.Profile)]));
+                            owner.Focus();
+                            owner.InvalidateVisual();
+                        }));
+                }
+                return peers;
+            }
+            foreach (var v in owner.Profile.Upper.Concat(owner.Profile.Lower))
+            {
+                var captured = v;
+                string fixedStr = captured.Fixed ? "fixed" : "editable";
+                string text = $"{captured.Side} vertex {captured.Id}, x {captured.X.ToString("0.###", CultureInfo.InvariantCulture)}, y {captured.Y.ToString("0.###", CultureInfo.InvariantCulture)}, {fixedStr}";
+                peers.Add(CurvePointLayer.Peer(
+                    owner,
+                    () => text,
+                    () => owner.ModelToScreen(captured.X, captured.Y),
+                    () =>
+                    {
+                        owner.SelectedVertex = (captured.Side, captured.Id);
+                        owner.Focus();
+                        owner.InvalidateVisual();
+                    }));
+            }
+            return peers;
         }
     }
 }

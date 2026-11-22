@@ -48,7 +48,56 @@ public static class StartupFailure
 
 public static class NativeReviewThemes
 {
-    public static readonly ThemeVariant HighContrast = new("HighContrast", ThemeVariant.Light);
+    public static readonly ThemeVariant HighContrast = new("HighContrast", ThemeVariant.Dark);
+}
+
+/// <summary>
+/// OS-level accessibility preference probes (F-13): High Contrast via Avalonia PlatformSettings and Reduced Motion via
+/// Windows SystemParametersInfo (SPI_GETCLIENTAREAANIMATION) alongside review env selectors.
+/// </summary>
+public static class OsAccessibility
+{
+    private const uint SpiGetClientAreaAnimation = 0x1042;
+
+    internal static Func<bool?>? HighContrastOverride { get; set; }
+    internal static Func<bool?>? ReducedMotionOverride { get; set; }
+
+    public static bool IsHighContrast(Avalonia.Platform.IPlatformSettings? settings)
+    {
+        if (HighContrastOverride?.Invoke() is { } forced) return forced;
+        try
+        {
+            return settings?.GetColorValues().ContrastPreference == Avalonia.Platform.ColorContrastPreference.High;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    public static bool IsReducedMotion()
+    {
+        if (NativeReviewOptions.Current?.ReducedMotion == true) return true;
+        if (ReducedMotionOverride?.Invoke() is { } forced) return forced;
+        if (OperatingSystem.IsWindows())
+        {
+            try
+            {
+                if (SystemParametersInfoW(SpiGetClientAreaAnimation, 0, out bool animationsEnabled, 0))
+                    return !animationsEnabled;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
+    [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+    private static extern bool SystemParametersInfoW(uint uiAction, uint uiParam,
+        [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)] out bool pvParam, uint fWinIni);
 }
 
 /// <summary>Process-local, review-only selectors. They exercise real controller states and never invent geometry.</summary>

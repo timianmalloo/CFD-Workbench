@@ -20,11 +20,18 @@ public sealed class LoadingChart : UserControl
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
     private readonly LoadingPlot plot = new();
     private readonly StackPanel table = new() { Name = "loading-table" };
+    private readonly ScrollViewer tableScroller;
     private readonly ContentControl body = new();
     private IReadOnlyList<LoadingPoint> points = [];
 
     public LoadingChart()
     {
+        tableScroller = new ScrollViewer
+        {
+            Content = table,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled
+        };
         // The toggle is a 24 px target (SC 2.5.8), not the 32 px default button, so the chart keeps its height in the 190 and 150 px panels.
         TwinToggle = new ToggleButton { Name = "LoadingTwinToggle", Content = "Show table", MinHeight = 24, Padding = new Thickness(8, 0),
             VerticalContentAlignment = VerticalAlignment.Center };
@@ -74,7 +81,7 @@ public sealed class LoadingChart : UserControl
     private void ShowBody()
     {
         TwinToggle.Content = ShowingTable ? "Show chart notes" : "Show table";
-        body.Content = ShowingTable ? table : plot;
+        body.Content = ShowingTable ? tableScroller : plot;
     }
 
     private static string Num(double? value) => value.HasValue && double.IsFinite(value.Value) ? value.Value.ToString("0.###", Inv) : "Unavailable";
@@ -115,6 +122,7 @@ public sealed class LoadingChart : UserControl
         public LoadingPlot()
         {
             Focusable = false;
+            ActualThemeVariantChanged += (_, _) => InvalidateVisual();
         }
 
         public override void Render(DrawingContext context)

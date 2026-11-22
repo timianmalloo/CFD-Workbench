@@ -3,79 +3,6 @@
              xmlns:local="using:CfdWorkbench.Desktop"
              x:Class="CfdWorkbench.Desktop.SectionEditorView">
   <Grid>
-  <ScrollViewer x:Name="LegacyEditor" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-    <StackPanel Margin="{StaticResource Space4}" Spacing="8">
-      <TextBlock Classes="heading" Text="Section scope" />
-      <RadioButton x:Name="ScopeSharedRadio" GroupName="SectionScope" Content="Edit shared profile" IsChecked="True"
-                   AutomationProperties.Name="Edit shared profile" />
-      <RadioButton x:Name="ScopeIndependentRadio" GroupName="SectionScope" Content="Make independent at this station"
-                   AutomationProperties.Name="Make independent at this station" />
-      <TextBlock x:Name="ScopeImpactText" TextWrapping="Wrap" Text="Open a certified foil to see affected assignments."
-                 AutomationProperties.Name="Affected assignments and blend intervals" />
-
-      <TextBlock Classes="heading" Text="Thickness intent" />
-      <RadioButton x:Name="ThicknessKeepRadio" GroupName="ThicknessIntent" Content="Keep current thickness" IsChecked="True"
-                   AutomationProperties.Name="Keep current thickness" />
-      <RadioButton x:Name="ThicknessSourceRadio" GroupName="ThicknessIntent" Content="Use source thickness"
-                   ToolTip.Tip="Fit the foil thickness channel to this profile."
-                   AutomationProperties.HelpText="Fit the foil thickness channel to this profile."
-                   AutomationProperties.Name="Use source thickness" />
-
-      <TextBlock Classes="heading" Text="Section tools" />
-      <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
-        <Button Grid.Row="0" Grid.Column="0" Margin="{StaticResource Space2}" x:Name="SectionInsertButton" Content="Insert CV" AutomationProperties.Name="Insert control vertex" />
-        <TextBox Grid.Row="0" Grid.Column="1" Margin="{StaticResource Space2}" x:Name="SectionInsertXInput" Watermark="Chord X, or the midpoint to the right neighbour" AutomationProperties.Name="Insert chord X" />
-        <Button Grid.Row="1" Grid.Column="0" Margin="{StaticResource Space2}" x:Name="SectionDeleteButton" Content="Delete CV" AutomationProperties.Name="Delete control vertex" />
-        <TextBlock Grid.Row="1" Grid.Column="1" Margin="{StaticResource Space2}" VerticalAlignment="Center" Text="Deletes the selected paired vertex." AutomationProperties.Name="Delete removes the selected paired vertex" />
-        <Button Grid.Row="2" Grid.Column="0" Margin="{StaticResource Space2}" x:Name="SectionFairButton" Content="Fair" AutomationProperties.Name="Fair section" />
-        <Grid Grid.Row="2" Grid.Column="1" ColumnDefinitions="*,*">
-          <TextBox Grid.Column="0" Margin="{StaticResource Space2}" x:Name="SectionFairToleranceInput" Text="1e-4" AutomationProperties.Name="Fair tolerance" />
-          <ComboBox Grid.Column="1" Margin="{StaticResource Space2}" x:Name="SectionPreserveEnds" SelectedIndex="0" AutomationProperties.Name="Preserve ends">
-            <ComboBoxItem Content="Position" AutomationProperties.Name="Preserve end position" />
-            <ComboBoxItem Content="Tangency" AutomationProperties.Name="Preserve end tangency" />
-            <ComboBoxItem Content="Curvature" AutomationProperties.Name="Preserve end curvature" />
-          </ComboBox>
-        </Grid>
-        <Button Grid.Row="3" Grid.Column="0" Margin="{StaticResource Space2}" x:Name="SectionRebuildButton" Content="Rebuild" AutomationProperties.Name="Rebuild section" />
-        <TextBox Grid.Row="3" Grid.Column="1" Margin="{StaticResource Space2}" x:Name="SectionRebuildCountInput" Watermark="Vertex count" AutomationProperties.Name="Rebuild vertex count" />
-        <Button Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="{StaticResource Space2}" HorizontalAlignment="Left" x:Name="SectionImportButton" Content="Import .dat" AutomationProperties.Name="Import dat profile" />
-      </Grid>
-
-      <Grid MinHeight="{StaticResource SectionEditorMinHeight}">
-        <local:SectionCanvas x:Name="EditableSectionCanvas" HorizontalAlignment="Stretch"
-                             BackgroundBrush="{DynamicResource ViewportBrush}" FoilBrush="{DynamicResource FoilBrush}"
-                             StationBrush="{DynamicResource StationBrush}" FocusBrush="{DynamicResource PrimaryBrush}"
-                             AutomationProperties.Name="Editable section control vertices" />
-        <TextBlock x:Name="SectionEmptyText" Text="No station selected." IsVisible="True"
-                   Foreground="{DynamicResource ViewportInkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-      </Grid>
-
-      <TextBlock Text="Control vertices" />
-      <ListBox x:Name="SectionVertexList" MaxHeight="{StaticResource StationListHeight}"
-               AutomationProperties.Name="Section control vertices; side, id, x, y and fixed state" />
-
-      <Grid ColumnDefinitions="Auto,*,Auto,*">
-        <TextBlock Grid.Column="0" Text="X" VerticalAlignment="Center" Margin="{StaticResource Space2}" />
-        <TextBox Grid.Column="1" x:Name="SectionXInput" Watermark="Chord X" AutomationProperties.Name="Selected vertex chord X" />
-        <TextBlock Grid.Column="2" Text="Y" VerticalAlignment="Center" Margin="{StaticResource Space2}" />
-        <TextBox Grid.Column="3" x:Name="SectionYInput" Watermark="Chord Y" AutomationProperties.Name="Selected vertex chord Y" />
-      </Grid>
-
-      <Border x:Name="SectionReportPanel" Background="{DynamicResource SurfaceSoftBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" Padding="{StaticResource Space2}" AutomationProperties.Name="Section report">
-        <StackPanel Spacing="8">
-          <TextBlock Classes="heading" Text="Section report" AutomationProperties.Name="Section report heading" />
-          <TextBlock x:Name="SectionReportState" Text="No report yet." TextWrapping="Wrap" AutomationProperties.Name="Section report state" />
-          <ItemsControl x:Name="SectionReportList" AutomationProperties.Name="Section report rows" />
-        </StackPanel>
-      </Border>
-
-      <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
-        <Button Grid.Row="0" Grid.Column="0" Margin="{StaticResource Space2}" x:Name="SectionPreviewButton" Content="Preview" AutomationProperties.Name="Preview current section draft" />
-        <Button Grid.Row="0" Grid.Column="1" Margin="{StaticResource Space2}" x:Name="SectionApplyButton" Content="Apply" AutomationProperties.Name="Apply certified section draft" />
-        <Button Grid.Row="1" Grid.ColumnSpan="2" Margin="{StaticResource Space2}" x:Name="SectionCancelButton" Content="Cancel draft" AutomationProperties.Name="Cancel current section draft" />
-      </Grid>
-    </StackPanel>
-  </ScrollViewer>
   <!-- The mode surface as the approved mockup draws it (docs/mockups/m12c-section-editor.html .modebar, .chip, .plate,
        .why, .lb, .navbar.sec, .strip, .thumb; Rulings 60, 61): every size and colour is a Styles.axaml token. -->
   <Grid x:Name="ModeEditor" RowDefinitions="32,*,84" IsVisible="False">
@@ -100,21 +27,25 @@
     <Grid Grid.Row="1">
       <local:SectionCanvas x:Name="ModeCanvas" BackgroundBrush="{DynamicResource ViewportBrush}"
                            FoilBrush="{DynamicResource FoilBrush}" StationBrush="{DynamicResource StationBrush}"
-                           FocusBrush="{DynamicResource PrimaryBrush}" DangerBrush="{DynamicResource PlanDangerBrush}" />
-      <Border x:Name="ModeSourceChip" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="{StaticResource ViewPlateInset}"
-              Padding="{StaticResource Space2}" CornerRadius="{StaticResource ViewPlateRadius}"
-              Background="{DynamicResource PlanSoftBrush}" BorderBrush="{DynamicResource PlanMuteBrush}" BorderThickness="1"
-              IsHitTestVisible="False">
-        <TextBlock x:Name="ModeSourceChipText" Foreground="{DynamicResource ViewportInkBrush}" />
-      </Border>
-      <!-- One plate line: the view plate at the left, the reason (when there is one) and the probe at the right. -->
+                           FocusBrush="{DynamicResource PrimaryBrush}" DangerBrush="{DynamicResource PlanDangerBrush}"
+                           AutomationProperties.Name="Section profile editor" />
+      <!-- Top-left plates stacked cleanly so ModePlate never obscures ModeSourceChip (F-05); reason and probe at right. -->
       <Grid ColumnDefinitions="Auto,*" VerticalAlignment="Top" Margin="{StaticResource ViewPlateInset}">
-        <Border Classes="modeplate target" IsHitTestVisible="False">
-          <TextBlock x:Name="ModePlate" Classes="modeplate" FontWeight="SemiBold" />
-        </Border>
+        <StackPanel Grid.Column="0" Spacing="{StaticResource StackGap1}" HorizontalAlignment="Left" VerticalAlignment="Top">
+          <Border Classes="modeplate target" HorizontalAlignment="Left" IsHitTestVisible="False">
+            <TextBlock x:Name="ModePlate" Classes="modeplate" FontWeight="SemiBold" />
+          </Border>
+          <Border x:Name="ModeSourceChip" HorizontalAlignment="Left"
+                  Padding="{StaticResource Space2}" CornerRadius="{StaticResource ViewPlateRadius}"
+                  Background="{DynamicResource PlanSoftBrush}" BorderBrush="{DynamicResource PlanMuteBrush}" BorderThickness="1"
+                  IsHitTestVisible="False">
+            <TextBlock x:Name="ModeSourceChipText" Foreground="{DynamicResource ViewportInkBrush}" />
+          </Border>
+        </StackPanel>
         <StackPanel Grid.Column="1" HorizontalAlignment="Right" Spacing="{StaticResource NavbarGap}" Margin="{StaticResource ModePlateGap}">
           <Border x:Name="ModeReasonBox" Classes="modereason" IsVisible="False">
-            <TextBlock x:Name="ModeReason" TextWrapping="Wrap" Focusable="True" Foreground="{DynamicResource DangerBrush}" />
+            <TextBlock x:Name="ModeReason" TextWrapping="Wrap" Focusable="True" Foreground="{DynamicResource DangerBrush}"
+                       AutomationProperties.LiveSetting="Assertive" />
           </Border>
           <Border Classes="modeplate" HorizontalAlignment="Right" IsHitTestVisible="False">
             <TextBlock x:Name="ModeProbe" Classes="modeplate" Text="Pointer · display" TextTrimming="CharacterEllipsis" />

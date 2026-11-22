@@ -113,79 +113,71 @@ public partial class SectionEditorView : UserControl
         var mode = controller.Section;
         if (mode is null) focusedDraft = null;
         ModeEditor.IsVisible = mode is not null;
-        LegacyEditor.IsVisible = mode is null;
         ModeSourceChip.IsVisible = mode is not null;
         int? assignment = mode?.Draft.Assignment ?? (controller.Selection is Selection.Station station ? station.Index : null);
-        if (controller.Inspection is null || assignment is null)
+        if (controller.Inspection is null || assignment is null || mode is null)
         {
-            EditableSectionCanvas.Profile = null;
-            EditableSectionCanvas.RefitMarker = null;
-            SectionEmptyText.IsVisible = true;
+            ModeCanvas.Profile = null;
+            ModeCanvas.RefitMarker = null;
             return;
         }
 
         try
         {
-            EditableSectionCanvas.Profile = controller.SectionView(assignment.Value);
-            if (mode is not null)
+            var profile = controller.SectionView(assignment.Value);
+            ModeCanvas.Controller = controller;
+            ModeCanvas.Profile = profile;
+            ModeCanvas.SelectedVertex = controller.Selection is Selection.Points picked && picked.Items.Count > 0
+                ? (picked.Items[0].Curve, picked.Items[0].VertexId) : null;
+            var assignments = controller.Inspection.Authored.Assignments;
+            string name = ElevationView.StationName(assignment.Value, assignments[assignment.Value].Eta);
+            SetTitle(name);
+            SetScopeChip(mode, assignments, assignment.Value, name);
+            ModeSourceChipText.Text = ChipText(controller, mode);
+            AutomationProperties.SetName(ModeSourceChip, ModeSourceChipText.Text);
+            RefreshPreview();
+            ModePlate.Text = PlateText();
+            ModeFinishButton.IsEnabled = mode.CanFinish;
+            string? reason = mode.FinishReason;
+            AutomationProperties.SetHelpText(ModeFinishButton, reason);
+            // A state reason (a refused refit, or why Finish is off, "Checking…" included) shows while its state holds
+            // and goes when it ends, even within one draft generation. A gesture's refusal (⌫ on a named point, a refused
+            // step, a refused strip switch) has no state behind it: it stays until the draft changes.
+            string? stateReason = RefitCopy(controller) ?? (mode.IsDirty && !mode.CanFinish ? reason : null);
+            string key = $"{mode.Draft.DraftId}:{mode.Draft.Generation}";
+            if (stateReason is not null)
             {
-                ModeCanvas.Controller = controller;
-                ModeCanvas.Profile = EditableSectionCanvas.Profile;
-                ModeCanvas.SelectedVertex = controller.Selection is Selection.Points picked && picked.Items.Count > 0
-                    ? (picked.Items[0].Curve, picked.Items[0].VertexId) : null;
-                var assignments = controller.Inspection.Authored.Assignments;
-                string name = ElevationView.StationName(assignment.Value, assignments[assignment.Value].Eta);
-                SetTitle(name);
-                SetScopeChip(mode, assignments, assignment.Value, name);
-                ModeSourceChipText.Text = ChipText(controller, mode);
-                AutomationProperties.SetName(ModeSourceChip, ModeSourceChipText.Text);
-                RefreshPreview();
-                ModePlate.Text = PlateText();
-                ModeFinishButton.IsEnabled = mode.CanFinish;
-                string? reason = mode.FinishReason;
-                AutomationProperties.SetHelpText(ModeFinishButton, reason);
-                // A state reason (a refused refit, or why Finish is off, "Checking…" included) shows while its state holds
-                // and goes when it ends, even within one draft generation. A gesture's refusal (⌫ on a named point, a refused
-                // step, a refused strip switch) has no state behind it: it stays until the draft changes.
-                string? stateReason = RefitCopy(controller) ?? (mode.IsDirty && !mode.CanFinish ? reason : null);
-                string key = $"{mode.Draft.DraftId}:{mode.Draft.Generation}";
-                if (stateReason is not null)
-                {
-                    ModeReason.Text = stateReason;
-                    ModeReasonBox.IsVisible = true;
-                    shownStateReason = stateReason;
-                }
-                else if (reasonDraft != key || shownStateReason is not null && ModeReason.Text == shownStateReason)
-                {
-                    // The state ended: its text goes. A gesture refusal written over it since then stays.
-                    ModeReason.Text = null;
-                    ModeReasonBox.IsVisible = false;
-                    shownStateReason = null;
-                }
-                reasonDraft = key;
-                RefreshStationStrip(controller, assignment.Value);
-                if (focusedDraft != mode.Draft.DraftId)
-                {
-                    focusedDraft = mode.Draft.DraftId;
-                    ModeCanvas.Focus();
-                }
+                ModeReason.Text = stateReason;
+                ModeReasonBox.IsVisible = true;
+                shownStateReason = stateReason;
             }
-            EditableSectionCanvas.RefitMarker = mode is not null && controller.SectionRefitRefusal is { } refusal
+            else if (reasonDraft != key || shownStateReason is not null && ModeReason.Text == shownStateReason)
+            {
+                // The state ended: its text goes. A gesture refusal written over it since then stays.
+                ModeReason.Text = null;
+                ModeReasonBox.IsVisible = false;
+                shownStateReason = null;
+            }
+            reasonDraft = key;
+            RefreshStationStrip(controller, assignment.Value);
+            if (focusedDraft != mode.Draft.DraftId)
+            {
+                focusedDraft = mode.Draft.DraftId;
+                ModeCanvas.Focus();
+            }
+            ModeCanvas.RefitMarker = controller.SectionRefitRefusal is { } refusal
                 ? new Point(refusal.ChordX, refusal.Side == SurfaceSide.Upper
                     ? Sections.Probe(mode.Draft.Bytes, mode.Draft.Assignment, refusal.ChordX).UpperY
                     : Sections.Probe(mode.Draft.Bytes, mode.Draft.Assignment, refusal.ChordX).LowerY)
                 : null;
-            ModeCanvas.RefitMarker = EditableSectionCanvas.RefitMarker;
             ModeCanvas.RefitMarkerLabel = controller.SectionRefitRefusal is { } measured
                 ? $"{measured.Side.ToString().ToLowerInvariant()} would move {measured.DeviationMeters * 1000:F4} mm here (limit {measured.LimitMeters * 1000:F3} mm)"
                 : null;
-            SectionEmptyText.IsVisible = false;
         }
         catch (ContractError)
         {
-            EditableSectionCanvas.Profile = null;
-            EditableSectionCanvas.RefitMarker = null;
-            SectionEmptyText.IsVisible = true;
+            ModeCanvas.Profile = null;
+            ModeCanvas.RefitMarker = null;
         }
     }
 
@@ -237,7 +229,9 @@ public partial class SectionEditorView : UserControl
         string text = $"Editing {station} section";
         if (ModeTitle.Text == text) return;
         ModeTitle.Text = text;
-        ModeTitle.Inlines = [new Run("Editing "), new Run(station) { Foreground = Brush("PrimaryBrush") }, new Run(" section")];
+        var stationRun = new Run(station);
+        stationRun.Bind(TextElement.ForegroundProperty, this.GetResourceObservable("PrimaryBrush"));
+        ModeTitle.Inlines = [new Run("Editing "), stationRun, new Run(" section")];
     }
 
     // §0.1 steps 2 and 8 + COPY-686 (COPY-C1): "Shared with <stations> · Make unique to <station>",

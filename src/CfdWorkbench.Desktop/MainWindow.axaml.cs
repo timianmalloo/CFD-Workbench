@@ -89,11 +89,28 @@ public sealed partial class MainWindow : Window
                 "dark" => ThemeVariant.Dark,
                 "light" => ThemeVariant.Light,
                 "high-contrast" => NativeReviewThemes.HighContrast,
-                _ => ThemeVariant.Default
+                _ => OsAccessibility.IsHighContrast(PlatformSettings ?? Application.Current?.PlatformSettings)
+                    ? NativeReviewThemes.HighContrast : ThemeVariant.Default
             };
         }
+        else if (OsAccessibility.IsHighContrast(PlatformSettings ?? Application.Current?.PlatformSettings))
+        {
+            RequestedThemeVariant = NativeReviewThemes.HighContrast;
+        }
+        var platformSettings = PlatformSettings ?? Application.Current?.PlatformSettings;
+        void OnPlatformColorsChanged(object? sender, Avalonia.Platform.PlatformColorValues e)
+        {
+            if (closed || (review is not null && review.Theme != "system")) return;
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (closed) return;
+                RequestedThemeVariant = e.ContrastPreference == Avalonia.Platform.ColorContrastPreference.High
+                    ? NativeReviewThemes.HighContrast : ThemeVariant.Default;
+            });
+        }
+        if (platformSettings is not null) platformSettings.ColorValuesChanged += OnPlatformColorsChanged;
         baseTitle = Title ?? "";
-        shellHost = new ShellHost(workbench, preferences);
+        shellHost = new ShellHost(workbench, preferences) { ConfirmReplaceAsync = MayReplaceAsync };
         Content = shellHost;
         ShellHost.BindF6(this, shellHost);
         shellHost.PaletteCommand += id => _ = RunShellActionAsync(id);
@@ -117,6 +134,7 @@ public sealed partial class MainWindow : Window
         Closed += (_, _) =>
         {
             closed = true;
+            if (platformSettings is not null) platformSettings.ColorValuesChanged -= OnPlatformColorsChanged;
             workbench.Changed -= OnWorkbenchChanged;
             workbench.Dispose();
         };
@@ -141,9 +159,13 @@ public sealed partial class MainWindow : Window
                     else shellHost.ModelView.PlanCanvas.Focus();
                 }, DispatcherPriority.Input);
             }
-            else shellHost.FocusStartWhenReady();
+            else
+            {
+                ApplyReviewMotionPreference();
+                shellHost.FocusStartWhenReady();
+            }
         };
-        if (review?.ReducedMotion == true) LayoutUpdated += (_, _) => ApplyReviewMotionPreference();
+        if (OsAccessibility.IsReducedMotion()) LayoutUpdated += (_, _) => ApplyReviewMotionPreference();
     }
 
     private async Task RunShellActionAsync(string id)
@@ -154,18 +176,21 @@ public sealed partial class MainWindow : Window
             case "file.new-example": await shellHost.OpenExampleAsync(); break;
             case "file.open": await shellHost.OpenFileInteractiveAsync(); break;
             case "file.save": await Guarded(SaveWithPickerAsync); break;
-            case "file.save-as": await Guarded(SaveWithPickerAsync); break;
+            case "file.save-as": await Guarded(() => SaveWithPickerCoreAsync(forcePicker: true)); break;
             case "file.close": Close(); break;
             case "view.toggle-left": shellHost.ToggleLeftSidebar(); break;
             case "view.toggle-bottom": shellHost.ToggleBottomPanel(); break;
+            case "view.toggle-right": shellHost.ToggleRightSidebar(); break;
             case "view.analysis": workbench.ToggleAnalysis(); break;
             case "view.palette": shellHost.OpenPalette(); break;
             case "edit.undo": shellHost.RouteEditVerb("undo", FocusManager?.GetFocusedElement()); break;
             case "edit.redo": shellHost.RouteEditVerb("redo", FocusManager?.GetFocusedElement()); break;
+            case "edit.cut" or "edit.copy" or "edit.paste" or "edit.select-all":
+                EditVerbRouter.Execute(id["edit.".Length..], FocusManager?.GetFocusedElement());
+                break;
             case "window.minimize": WindowState = WindowState.Minimized; break;
             case "window.zoom": WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized; break;
-            // The palette reaches the M1.2b2 view rows (layouts, display, cameras, pan, Fit Selection) through the shell.
-            case not ("view.zoom-in" or "view.zoom-out" or "view.fit") when ViewCommands.Handles(id): await shellHost.RunCommand(id); break;
+            case var pane when ShellHost.IsPaneCommand(pane): await shellHost.RunCommand(pane); break;
         }
     }
 
@@ -200,9 +225,11 @@ public sealed partial class MainWindow : Window
             : id == "edit.undo" ? workbench.CanUndo : workbench.CanRedo;
     }
 
-    private async Task SaveWithPickerAsync()
+    private Task SaveWithPickerAsync() => SaveWithPickerCoreAsync(forcePicker: false);
+
+    private async Task SaveWithPickerCoreAsync(bool forcePicker)
     {
-        string? destination = workbench.NativePath;
+        string? destination = forcePicker ? null : workbench.NativePath;
         if (destination is not null && OperatingSystem.IsWindows())
         {
             // A project opened from a OneDrive folder is saved in place: the same refusal as after a pick (Security veto, repair cycle 2).
@@ -211,7 +238,7 @@ public sealed partial class MainWindow : Window
                 : CloudFolder.Classify(Path.GetDirectoryName(destination) ?? destination);
             if (location != FolderLocation.Local)
             {
-                var refusal = new FolderRefusalDialog(location);
+                var refusal = new FolderRefusalDialog(location) { RequestedThemeVariant = ActualThemeVariant };
                 await refusal.ShowDialog(this);
                 if (!refusal.ChooseAnotherFolder) return;
                 destination = null;
@@ -228,8 +255,15 @@ public sealed partial class MainWindow : Window
     /// write (Rulings 135, 160 (1) and (5)); "Choose another folder…" reopens the picker, Cancel ends the save. The check is
     /// <see cref="CloudFolder.Classify"/> in Persistence.
     /// </summary>
+    /// <summary>Test seam replacing the native save file picker (returns null when cancelled).</summary>
+    internal Func<Task<string?>>? PickSavePathOverride { get; set; }
+
+    /// <summary>Test seam replacing the unsaved-changes confirmation dialog ("Save", "Discard", or "Cancel").</summary>
+    internal Func<Task<string>>? ConfirmUnsavedOverride { get; set; }
+
     private async Task<string?> PickSavePathAsync()
     {
+        if (PickSavePathOverride is not null) return await PickSavePathOverride();
         while (true)
         {
             var options = new FilePickerSaveOptions { Title = "Save native CFD Workbench project", SuggestedFileName = "foil.cfdw.json" };
@@ -242,7 +276,7 @@ public sealed partial class MainWindow : Window
             if (!OperatingSystem.IsWindows()) return path;
             var location = CloudFolder.Classify(Path.GetDirectoryName(path) ?? path);
             if (location == FolderLocation.Local) return path;
-            var dialog = new FolderRefusalDialog(location);
+            var dialog = new FolderRefusalDialog(location) { RequestedThemeVariant = ActualThemeVariant };
             await dialog.ShowDialog(this);
             if (!dialog.ChooseAnotherFolder) return null;
         }
@@ -268,7 +302,7 @@ public sealed partial class MainWindow : Window
             if (offerBlockedDialog && OperatingSystem.IsWindows() && result.Code == "DOC-CONFLICT" && UnfinishedSave.BlocksFolder(destination))
             {
                 shellHost.Report(new StatusReport("")); // the dialog replaces the generic COPY-414 line the controller set (Ruling 253)
-                var blocked = new SaveBlockedDialog(() => workbench.ClearUnfinishedSaveAsync(destination));
+                var blocked = new SaveBlockedDialog(() => workbench.ClearUnfinishedSaveAsync(destination)) { RequestedThemeVariant = ActualThemeVariant };
                 await blocked.ShowDialog(this);
                 if (blocked.SaveAs && await PickSavePathAsync() is { } other) await SaveToAsync(other, offerBlockedDialog: true);
                 else if (blocked.Cleared)
@@ -310,6 +344,7 @@ public sealed partial class MainWindow : Window
 
     private async Task<string> UnsavedDialogAsync()
     {
+        if (ConfirmUnsavedOverride is not null) return await ConfirmUnsavedOverride();
         var dialog = new Window { Title = "Unsaved foil changes", Width = 420, Height = 190, WindowStartupLocation = WindowStartupLocation.CenterOwner,
             CanResize = false, RequestedThemeVariant = ActualThemeVariant };
         var result = "Cancel";
@@ -326,7 +361,7 @@ public sealed partial class MainWindow : Window
         dialog.Content = new StackPanel { Margin = new Thickness(20), Spacing = 18,
             Children = { new TextBlock { Text = "Save this foil before closing or opening another file?", TextWrapping = Avalonia.Media.TextWrapping.Wrap }, buttons } };
         dialog.Opened += (_, _) => cancelButton?.Focus();
-        if (review?.ReducedMotion == true)
+        if (OsAccessibility.IsReducedMotion())
             dialog.LayoutUpdated += (_, _) => SuppressTransitions(dialog);
         await dialog.ShowDialog(this);
         return result;
@@ -334,7 +369,7 @@ public sealed partial class MainWindow : Window
 
     private void ApplyReviewMotionPreference()
     {
-        if (review?.ReducedMotion == true) SuppressTransitions(this);
+        if (OsAccessibility.IsReducedMotion()) SuppressTransitions(this);
     }
 
     public static void SuppressTransitions(Visual root)

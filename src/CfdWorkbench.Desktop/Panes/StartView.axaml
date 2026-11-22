@@ -6,7 +6,7 @@
       <!-- Alert Panel for Open Failures / Warnings -->
       <Border x:Name="AlertPanel" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
               BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
-              Padding="{StaticResource Space4}">
+              Padding="{StaticResource Space4}" AutomationProperties.LiveSetting="Assertive">
         <StackPanel Spacing="8">
           <TextBlock x:Name="AlertTitle" Classes="heading" Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap" />
           <TextBlock x:Name="AlertMessage" TextWrapping="Wrap" />

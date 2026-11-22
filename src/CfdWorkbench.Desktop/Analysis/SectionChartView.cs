@@ -17,6 +17,11 @@ public sealed class SectionChartView : Control
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
     private ChartModel? model;
 
+    public SectionChartView()
+    {
+        ActualThemeVariantChanged += (_, _) => InvalidateVisual();
+    }
+
     public ChartModel? Model
     {
         get => model;
@@ -35,8 +40,8 @@ public sealed class SectionChartView : Control
         int plots = 0, series = 0, points = 0;
         if (model is { Unavailable: null } chart && chart.Plots.Count > 0 && Bounds.Width > 40 && Bounds.Height > 30)
         {
-            IBrush ink = Resource("InkBrush", Brushes.Black), mute = Resource("MutedBrush", Brushes.Gray), accent = Resource("AccentBrush", Brushes.Teal);
-            IBrush[] colours = [accent, Resource("WarnBrush", Brushes.DarkGoldenrod), Resource("DangerBrush", Brushes.Firebrick), mute];
+            IBrush ink = Resource("InkBrush", Brushes.Black), mute = Resource("MutedBrush", Brushes.Gray), accent = Resource("PrimaryBrush", Brushes.Teal);
+            IBrush[] colours = [accent, Resource("WarningBrush", Brushes.DarkGoldenrod), Resource("DangerBrush", Brushes.Firebrick), mute];
             double width = Bounds.Width / chart.Plots.Count;
             for (int i = 0; i < chart.Plots.Count; i++)
             {
@@ -63,8 +68,10 @@ public sealed class SectionChartView : Control
             plot.InvertY ? area.Top + (p.Y - y0) / (y1 - y0) * area.Height : area.Bottom - (p.Y - y0) / (y1 - y0) * area.Height);
         context.DrawText(Text(x0.ToString("0.##", Inv), mute), new Point(area.Left, area.Bottom + 2));
         context.DrawText(Text(plot.XTitle + " " + x1.ToString("0.##", Inv), mute), new Point(area.Right - 70, area.Bottom + 2));
-        context.DrawText(Text((plot.InvertY ? y1 : y0).ToString("0.##", Inv), mute), new Point(0, area.Bottom - 12));
-        context.DrawText(Text((plot.InvertY ? y0 : y1).ToString("0.##", Inv), mute), new Point(0, area.Top));
+        var yLow = Text((plot.InvertY ? y1 : y0).ToString("0.##", Inv), mute);
+        var yHigh = Text((plot.InvertY ? y0 : y1).ToString("0.##", Inv), mute);
+        context.DrawText(yLow, new Point(Math.Max(area.Left - 34, area.Left - 4 - yLow.Width), area.Bottom - 12));
+        context.DrawText(yHigh, new Point(Math.Max(area.Left - 34, area.Left - 4 - yHigh.Width), area.Top));
         if (plot.Band is { } band && plot.Series.FirstOrDefault(s => s.Name == band.Low) is { } low && plot.Series.FirstOrDefault(s => s.Name == band.High) is { } high &&
             low.Points.Count > 1 && low.Points.Count == high.Points.Count)
         {
@@ -76,7 +83,10 @@ public sealed class SectionChartView : Control
                 foreach (ChartPoint p in high.Points.AsEnumerable().Reverse()) g.LineTo(At(p));
                 g.EndFigure(true);
             }
-            context.DrawGeometry(new SolidColorBrush(((ISolidColorBrush)colours[0]).Color, 0.18), null, fill);
+            bool highContrast = ActualThemeVariant == NativeReviewThemes.HighContrast;
+            IBrush? bandFill = highContrast ? null : new SolidColorBrush(((ISolidColorBrush)colours[0]).Color, 0.18);
+            IPen? bandStroke = highContrast ? new Pen(colours[0], 1, new DashStyle([3, 3], 0)) : null;
+            context.DrawGeometry(bandFill, bandStroke, fill);
         }
         int lines = 0, drawn = 0;
         foreach (ChartSeries s in plot.Series)

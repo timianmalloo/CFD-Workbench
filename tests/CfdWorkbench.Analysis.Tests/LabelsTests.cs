@@ -29,6 +29,28 @@ internal static class LabelsTests
                 ? "CFD Workbench can't save to this location or over this file. Your changes are kept in this session. Use Save As to choose a local folder."
                 : "Saving isn't available on this system yet — your changes are kept in this session.", Labels.SaveRefusal("DOC-UNSUPPORTED-PERSISTENCE"));
         });
+        Check("SectionDisplay_F30_NcritCopy_UsesActualNcritNotAlphaOrHardcodedThree", () => {
+            var dummyStation = new SectionStationResult(0.5, 7.5, 1e6, null, null!, null!);
+            var dummySection = new CfdWorkbench.Analysis.NeuralFoil.NeuralFoilSection("h", "naca", [0, 1], [0, 0], [0, 0]);
+            var outsideBracket = new CfdWorkbench.Analysis.NeuralFoil.NeuralFoilEvaluation(
+                new CfdWorkbench.Analysis.NeuralFoil.NeuralFoilPrediction(0.5, 0.01, -0.05, 0.5, 0.5, 0.9),
+                0, 0, ["Ncrit 4 outside bracket"], null);
+            string bracketText = SectionDisplay.Bracket(outsideBracket, dummyStation, dummySection);
+            // Must not hardcode Ncrit 3 when evaluated at Ncrit 4 (first evaluated Ncrit in SectionDisplay.Build is 4).
+            Equal(false, bracketText.Contains("Ncrit 3", StringComparison.Ordinal), "Bracket must not hardcode Ncrit 3: " + bracketText);
+
+            var notCompMethod = typeof(SectionDisplay).GetMethod("NotComputable",
+                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public)
+                ?? throw new InvalidOperationException("SectionDisplay.NotComputable not found");
+            var nonCompEval = new CfdWorkbench.Analysis.NeuralFoil.NeuralFoilEvaluation(null, 0, 0, [], "Ncrit 20 outside training");
+            object?[] invokeArgs = notCompMethod.GetParameters().Length == 3
+                ? [nonCompEval, dummyStation, 20.0]
+                : [nonCompEval, dummyStation];
+            string notCompText = (string)notCompMethod.Invoke(null, invokeArgs)!;
+            // Must report Ncrit (20), NEVER station.AlphaEffDeg (7.5)!
+            Equal(false, notCompText.Contains("7.5", StringComparison.Ordinal), "NotComputable printed AlphaEffDeg as Ncrit: " + notCompText);
+            Equal(true, notCompText.Contains("Ncrit 20", StringComparison.Ordinal), "NotComputable missing actual Ncrit 20: " + notCompText);
+        });
         CauseCopyTests.Run();
         Check("Depth_Unset_NoDeepWaterLabel", () => {
             var run = ProjectionTests.Data().Run; run = ProjectionTests.Rehash(run with { Op = run.Op with { HRef = null } });
