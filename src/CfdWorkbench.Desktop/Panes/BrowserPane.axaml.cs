@@ -172,9 +172,9 @@ public partial class BrowserPane : UserControl
                 Name = "RoleGlyph",
                 Width = 8,
                 Height = 8,
-                VerticalAlignment = VerticalAlignment.Center,
-                Fill = this.FindResource("InkBrush") as IBrush
+                VerticalAlignment = VerticalAlignment.Center
             };
+            glyph.Bind(Shape.FillProperty, this.GetResourceObservable("InkBrush"));
             var text = new TextBlock
             {
                 Text = RowText(point),

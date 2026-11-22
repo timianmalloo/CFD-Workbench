@@ -964,8 +964,9 @@ public static partial class PlanCanvasTests
                 new AcceptedInspection(fixture.Controller.Inspection!.Authored, uncertified));
             fixture.Canvas.InvalidateVisual();
             fixture.Settle();
-            if (fixture.RgbAtPoint(point) == before || fixture.Canvas.RenderBanner?.Contains("not certified", StringComparison.OrdinalIgnoreCase) != true)
-                throw new Exception("Uncertified points were not dimmed with a banner");
+            if (fixture.RgbAtPoint(point) == before || fixture.Canvas.RenderBanner?.Contains("invalid", StringComparison.OrdinalIgnoreCase) != true ||
+                fixture.Canvas.RenderBanner.Contains("certified", StringComparison.OrdinalIgnoreCase))
+                throw new Exception("Uncertified points were not dimmed with a LAB-01 compliant banner: " + fixture.Canvas.RenderBanner);
             fixture.BeginDrag(point);
             fixture.MoveDrag(point, 0, 20);
             if (fixture.Controller.Gesture != GestureState.Idle || fixture.Controller.Draft is not null)

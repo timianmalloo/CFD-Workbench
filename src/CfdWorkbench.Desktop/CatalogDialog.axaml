@@ -7,6 +7,12 @@
     <Style Selector="ListBoxItem.disabled TextBlock">
       <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
     </Style>
+    <Style Selector="ListBoxItem.disabled:pressed TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource OnSelectionBrush}" />
+    </Style>
+    <Style Selector="ListBoxItem.disabled:selected TextBlock, ListBoxItem.disabled:selected:pointerover TextBlock, ListBoxItem.disabled:selected:pressed TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" />
+    </Style>
   </Window.Styles>
   <Border Padding="{StaticResource Space3}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource HairlineThickness}">
     <StackPanel Spacing="8">
@@ -14,7 +20,7 @@
       <TextBlock Text="Search" />
       <TextBox x:Name="SearchBox" AutomationProperties.Name="Search sections" />
       <TextBlock x:Name="MatchCount" AutomationProperties.Name="Sections match count" AutomationProperties.LiveSetting="Polite" />
-      <ListBox x:Name="SectionList" MinHeight="{StaticResource StationThumbWidth}" MaxHeight="{StaticResource WindowMinWidth}"
+      <ListBox x:Name="SectionList" MinHeight="{StaticResource CatalogListMinHeight}" MaxHeight="{StaticResource CatalogListMaxHeight}"
                AutomationProperties.Name="Catalog sections" />
       <Border Background="{DynamicResource CanvasBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource HairlineThickness}"
               Padding="{StaticResource Space2}">

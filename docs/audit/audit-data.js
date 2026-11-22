@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-22T03:00:46Z",
+  "generated": "2026-11-22T04:04:26Z",
   "audit": [
     {
       "actor": null,
@@ -44351,6 +44351,46 @@ window.AUDIT_DATA = {
       "fan_out": 1,
       "started_at": "2026-11-22T02:42:21Z",
       "duration_seconds": 1105.0
+    },
+    {
+      "id": "al-01M80PTFMFG7K4BNNYG6TM48NH",
+      "shortname": "wave6-ui-p0-hardening",
+      "datetime": "2026-11-22T04:04:26Z",
+      "session": "w6-ui-hardening",
+      "prompt": "Track UI-P0 (Wave 6 Desktop UI P0 Blocker Hardening): fix all 15 Blockers and coupled Majors (F-01..F-17, F-30, F-31) from docs/reviews/ui-as-built-workbench.md under red-first TDD.",
+      "summary": "Fixed all 15 Blockers and coupled Majors (P0-A F-01/F-02/F-03/F-09, P0-B F-04/F-06/F-15/F-16/F-17, P0-C F-05/F-07/F-08/F-10/F-11/F-31, P0-D+F-30 F-12/F-13/F-14/F-30) with 17 new Desktop tests + 1 new Analysis test observed red-first. Verified: run-tests.sh TESTS-GREEN (Core 953, Analysis 314, Desktop 931, Cli 35, Python 10), --theme-matrix PASS (302 frozen + 36 extended rows), xaml-token-lint clean, check-event-subscribers 0 findings, check-docs passed.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "src/CfdWorkbench.Desktop/Styles.axaml",
+        "src/CfdWorkbench.Desktop/MainWindow.axaml.cs",
+        "src/CfdWorkbench.Desktop/Shell/ShellHost.cs",
+        "src/CfdWorkbench.Analysis/SectionDisplay.cs",
+        "tests/CfdWorkbench.Desktop.Tests/UiP0HardeningTests.cs"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Fix all 15 Desktop UI P0 Blockers plus coupled Majors F-15/F-17/F-30/F-31 across P0-A..P0-D under red-first TDD within owned paths.",
+      "done_when": "run-tests.sh green across all 4 C# projects + Python, expanded --theme-matrix green, xaml-token-lint and check-event-subscribers 0 findings, clean commit on workspace branch.",
+      "tier": "T2",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-11-22T03:04:01Z",
+      "duration_seconds": 3625.0,
+      "git": {
+        "sha": "20d98143d7cf7432d970df49c499590e6b4b6d7c",
+        "short": "20d98143d",
+        "branch": "swarm-w6-ui-hardening-bf192dad",
+        "pushed": null
+      }
     }
   ],
   "changes": [

@@ -20,9 +20,9 @@ public sealed class FindAlphaDialog : Window
     public TextBox TargetInput { get; } = new() { Name = "FindTargetInput", Text = "0.40", Width = 70 };
     public TextBox LowerInput { get; } = new() { Name = "FindLowerInput", Text = "-2", Width = 70 };
     public TextBox UpperInput { get; } = new() { Name = "FindUpperInput", Text = "8", Width = 70 };
-    public Button FindButton { get; } = new() { Name = "FindRunButton", Content = "Find α", MinHeight = 24 };
+    public Button FindButton { get; } = new() { Name = "FindRunButton", Content = "Find α", MinHeight = 24, IsDefault = true };
     public Button ApplyButton { get; } = new() { Name = "FindApplyButton", Content = "Apply", MinHeight = 24, IsEnabled = false };
-    public Button CancelButton { get; } = new() { Name = "FindCancelButton", Content = "Cancel", MinHeight = 24 };
+    public Button CancelButton { get; } = new() { Name = "FindCancelButton", Content = "Cancel", MinHeight = 24, IsCancel = true };
     public TextBlock Sentence { get; } = new() { Name = "FindSentence", TextWrapping = Avalonia.Media.TextWrapping.Wrap, FontWeight = Avalonia.Media.FontWeight.SemiBold };
     public StackPanel ResultRows { get; } = new() { Name = "FindResultRows" };
     public FindAlphaOutcome? Outcome { get; private set; }
@@ -37,6 +37,8 @@ public sealed class FindAlphaDialog : Window
         AutomationProperties.SetName(TargetInput, "Target CL");
         AutomationProperties.SetName(LowerInput, "Bracket lower α in degrees");
         AutomationProperties.SetName(UpperInput, "Bracket upper α in degrees");
+        AutomationProperties.SetLiveSetting(Sentence, AutomationLiveSetting.Polite);
+        Opened += (_, _) => TargetInput.Focus();
         var fields = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
         fields.Children.Add(new TextBlock { Text = "Target CL", VerticalAlignment = VerticalAlignment.Center });
         fields.Children.Add(TargetInput);

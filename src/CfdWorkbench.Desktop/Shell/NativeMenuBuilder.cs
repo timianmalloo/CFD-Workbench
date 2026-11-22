@@ -146,9 +146,7 @@ public static class NativeMenuBuilder
         return new KeyGesture(key, modifiers);
     }
 
-    private static bool IsPaneCommand(string id) =>
-        id.StartsWith("point.", StringComparison.Ordinal) || id.StartsWith("station.", StringComparison.Ordinal) || id.StartsWith("view.text-", StringComparison.Ordinal) ||
-        id.StartsWith("view.comb", StringComparison.Ordinal) || CommandTable.UnitsOf(id) is not null || ViewCommands.Handles(id) || ShellHost.IsShellCommand(id);
+    private static bool IsPaneCommand(string id) => ShellHost.IsPaneCommand(id);
 
     /// <summary>The View submenus built from the table after Fit Selection (M1.2b2 §5.2), in this order.</summary>
     private static readonly string[] ViewSubmenus = [ViewCommands.ViewsMenu, ViewCommands.DisplayMenu, ViewCommands.CameraMenu, ViewCommands.PanMenu];

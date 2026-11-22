@@ -435,9 +435,14 @@ public sealed class PlanCanvas : Control
         InvalidateVisual();
     }
 
+    private int? focusedStationIndex;
+    public int? FocusedStationIndex => focusedStationIndex;
+
     public void SelectFocused(bool toggle)
     {
         if (focusedPoint is { } point) SelectPoint(point, extend: false, toggle);
+        else if (focusedStationIndex is { } st && Controller?.Planform is { } plan && st >= 0 && st < plan.Stations.Count)
+            Controller.Select(new Selection.Station(st, plan.Stations[st].Eta));
     }
 
     public bool FocusNext(bool reverse = false)
@@ -449,8 +454,18 @@ public sealed class PlanCanvas : Control
         int next = keyboardIndex + (reverse ? -1 : 1);
         if (next < 0 || next >= count) return false;
         keyboardIndex = next;
-        if (next < targets.Length) FocusPoint(new PointRef(targets[next].Curve, targets[next].Id));
-        else { focusedPoint = null; InvalidateVisual(); }
+        if (next < targets.Length)
+        {
+            focusedStationIndex = null;
+            FocusPoint(new PointRef(targets[next].Curve, targets[next].Id));
+        }
+        else
+        {
+            focusedPoint = null;
+            focusedStationIndex = next - targets.Length;
+            Focus();
+            InvalidateVisual();
+        }
         return true;
     }
 
@@ -870,6 +885,15 @@ public sealed class PlanCanvas : Control
             e.Handled = true;
             return;
         }
+        if (e.Key == Key.Return && focusedStationIndex is { } st && Controller.Planform is { } planForEnter && st >= 0 && st < planForEnter.Stations.Count)
+        {
+            if (Controller.IsAnalysis) { Controller.ReportPointWarning(WorkbenchController.AnalysisPointRefusal); e.Handled = true; return; }
+            Controller.Select(new Selection.Station(st, planForEnter.Stations[st].Eta));
+            if (this.FindAncestorOfType<Shell.ShellHost>() is { } host) _ = host.EnterSectionAsync(EntryOrigin.Plan);
+            else _ = Controller.EnterSectionAsync(st, EntryOrigin.Plan);
+            e.Handled = true;
+            return;
+        }
         if (e.Key is Key.Back or Key.Delete && !command && !option)
         {
             if (Controller.Selection is Selection.Points { Items: var items } && items.Count > 1)
@@ -1020,7 +1044,7 @@ public sealed class PlanCanvas : Control
         if (plan is null) return;
         var map = Layer(plan);
         bool certified = Controller!.Inspection?.Geometry.Status == GeometryStatus.Certified;
-        RenderBanner = certified ? null : "Foil not certified. Point editing unavailable.";
+        RenderBanner = certified ? null : "Foil geometry invalid. Point editing unavailable.";
         if (certified)
             DrawPlan(context, map, plan, Controller.Selection);
         else
@@ -1091,6 +1115,8 @@ public sealed class PlanCanvas : Control
                 map.ToScreen(station.SpanMeters, stationReading.LeadingAftMeters), new Point(chip.Bounds.Center.X, chip.Bounds.Top));
             context.DrawRectangle(SoftBrush ?? BackgroundBrush,
                 selected ? new Pen(SelectionBrush ?? Brushes.White, 2) : new Pen(MuteBrush ?? Brushes.White, 1), chip.Bounds, 4, 4);
+            if (focusedStationIndex == chip.Index)
+                context.DrawRectangle(null, new Pen(FocusBrush ?? Brushes.White, 3), chip.Bounds.Inflate(2), 5, 5);
             DrawLabel(context, station.ProfileName, chip.Bounds.Position + new Vector(8, 5));
         }
         if (SliceLayout() is { } slice)

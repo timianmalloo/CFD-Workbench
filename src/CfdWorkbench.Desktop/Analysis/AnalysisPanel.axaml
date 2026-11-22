@@ -16,7 +16,8 @@
       <StackPanel DockPanel.Dock="Top" Margin="{StaticResource Space1}" Spacing="{StaticResource StackGap2}">
         <!-- The banner and the skeleton share one line, so while Running the chart keeps the height its x tick row needs (Ruling 101 Q4). -->
         <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
-          <TextBlock x:Name="PanelBanner" Classes="pnl-note" IsVisible="False" VerticalAlignment="Center" />
+          <TextBlock x:Name="PanelBanner" Classes="pnl-note" IsVisible="False" VerticalAlignment="Center"
+                     AutomationProperties.LiveSetting="Polite" />
           <StackPanel x:Name="PanelSkeleton" Orientation="Horizontal" Spacing="{StaticResource StackGap2}" VerticalAlignment="Center"
                       IsVisible="False" AutomationProperties.Name="Evaluating">
             <Border x:Name="SkeletonLong" Classes="pnl-bar" HorizontalAlignment="Left" />

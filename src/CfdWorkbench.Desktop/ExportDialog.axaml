@@ -132,7 +132,7 @@
       </Border>
       <StackPanel x:Name="WritingBand" IsVisible="False" Spacing="4">
         <TextBlock x:Name="WritingText" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
-        <ProgressBar IsIndeterminate="True" AutomationProperties.Name="Writing" />
+        <ProgressBar x:Name="WritingProgress" IsIndeterminate="True" AutomationProperties.Name="Writing" />
       </StackPanel>
       <TextBlock x:Name="SafetyLine" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
       <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">

@@ -14,6 +14,8 @@ namespace CfdWorkbench.Desktop.Analysis;
 public partial class AnalysisPanel : UserControl
 {
     private readonly LoadingChart loading = new();
+    private WorkbenchController? boundController;
+    private bool binding;
 
     public AnalysisPanel()
     {
@@ -23,7 +25,12 @@ public partial class AnalysisPanel : UserControl
         AutomationProperties.SetName(OpenInMainAreaButton, Labels.OpenInMainArea);
         OpenInMainAreaButton.Click += (_, _) => OpenSectionRequested?.Invoke();
         CompareTab.Header = Labels.CompareTab;
-        PanelTabs.SelectionChanged += (_, _) => UpdateHeight();
+        PanelTabs.SelectionChanged += (_, _) =>
+        {
+            UpdateHeight();
+            if (!binding && ReferenceEquals(PanelTabs.SelectedItem, CompareTab) && boundController is not null)
+                ComparePaneHost.Bind(boundController);
+        };
         // The slot height is the Bottom region's preset size (LayoutCodec Chrome: 190), 150 in a short window (HeightFor);
         // the skeleton bars are static placeholders.
         Height = FullHeight;
@@ -97,6 +104,10 @@ public partial class AnalysisPanel : UserControl
     public void Bind(WorkbenchController controller)
     {
         ArgumentNullException.ThrowIfNull(controller);
+        boundController = controller;
+        binding = true;
+        try
+        {
         var view = controller.Inspection is null
             ? new AnalysisViewModel(RunState.NoResult, "Analysis: no result", null, null, [], [], null)
             : controller.AnalysisView;
@@ -126,6 +137,8 @@ public partial class AnalysisPanel : UserControl
             ComparePaneHost.FocusBase();
             controller.ConsumeCompareRequest();
         }
+        }
+        finally { binding = false; }
     }
 
     // One line: the shown station, cl (panel) and -Cp_min of the Section document's content, then the action that opens it.

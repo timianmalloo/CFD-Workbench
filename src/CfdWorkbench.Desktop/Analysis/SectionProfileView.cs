@@ -20,6 +20,11 @@ public sealed class SectionProfileView : Control
     private SectionProfile? model;
     private Color[] stops = StopFallback;
 
+    public SectionProfileView()
+    {
+        ActualThemeVariantChanged += (_, _) => InvalidateVisual();
+    }
+
     public SectionProfile? Model
     {
         get => model;

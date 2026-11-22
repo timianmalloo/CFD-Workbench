@@ -11,6 +11,7 @@
        Application.Styles, so this wins over DockFluentTheme, which ShellHost.InstallTheme adds after Styles.axaml. -->
   <Application.Resources>
     <ResourceDictionary>
+      <Color x:Key="HighContrastHoverColor">#1f1f1f</Color>
       <ResourceDictionary.ThemeDictionaries>
         <ResourceDictionary x:Key="Light">
           <SolidColorBrush x:Key="DockTabForegroundBrush" Color="{StaticResource InkColor}" />
@@ -72,17 +73,28 @@
           <SolidColorBrush x:Key="DockSurfaceEditorBrush" Color="{StaticResource HighContrastBackgroundColor}" />
           <SolidColorBrush x:Key="DockSurfaceHeaderActiveBrush" Color="{StaticResource HighContrastBackgroundColor}" />
           <SolidColorBrush x:Key="DockTabActiveBackgroundBrush" Color="{StaticResource HighContrastBackgroundColor}" />
-          <SolidColorBrush x:Key="DockChromeButtonHoverBackgroundBrush" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="DockChromeButtonHoverBackgroundBrush" Color="{StaticResource HighContrastHoverColor}" />
           <SolidColorBrush x:Key="DockSurfaceHeaderBrush" Color="{StaticResource HighContrastBackgroundColor}" />
-          <SolidColorBrush x:Key="DockTabHoverBackgroundBrush" Color="{StaticResource HighContrastBackgroundColor}" />
-          <SolidColorBrush x:Key="DockTabCloseHoverBackgroundBrush" Color="{StaticResource HighContrastBackgroundColor}" />
-          <SolidColorBrush x:Key="DockChromeButtonDangerHoverBrush" Color="{StaticResource HighContrastBackgroundColor}" />
-          <SolidColorBrush x:Key="DockChromeButtonPressedBackgroundBrush" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="DockTabHoverBackgroundBrush" Color="{StaticResource HighContrastHoverColor}" />
+          <SolidColorBrush x:Key="DockTabCloseHoverBackgroundBrush" Color="{StaticResource HighContrastHoverColor}" />
+          <SolidColorBrush x:Key="DockChromeButtonDangerHoverBrush" Color="{StaticResource HighContrastHoverColor}" />
+          <SolidColorBrush x:Key="DockChromeButtonPressedBackgroundBrush" Color="{StaticResource HighContrastHoverColor}" />
           <SolidColorBrush x:Key="DockBorderSubtleBrush" Color="{StaticResource HighContrastInkColor}" />
           <SolidColorBrush x:Key="DockSeparatorBrush" Color="{StaticResource HighContrastInkColor}" />
           <SolidColorBrush x:Key="DockDocumentContentBorderBrush" Color="{StaticResource HighContrastInkColor}" />
           <SolidColorBrush x:Key="DockSplitterIdleBrush" Color="{StaticResource HighContrastInkColor}" />
           <SolidColorBrush x:Key="DockTabActiveIndicatorBrush" Color="{StaticResource HighContrastAccentColor}" />
+          <SolidColorBrush x:Key="ButtonBorderBrush" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="ButtonForegroundDisabled" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="ButtonBackgroundDisabled" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="ButtonBorderBrushDisabled" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="ComboBoxBackground" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="ComboBoxBorderBrush" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="ComboBoxForeground" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="MenuFlyoutPresenterBackground" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="MenuFlyoutPresenterBorderBrush" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="ScrollBarThumbFill" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="RadioButtonOuterEllipseStroke" Color="{StaticResource HighContrastInkColor}" />
         </ResourceDictionary>
       </ResourceDictionary.ThemeDictionaries>
     </ResourceDictionary>

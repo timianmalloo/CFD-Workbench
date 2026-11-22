@@ -29,7 +29,7 @@
                  TextWrapping="Wrap" />
       <Grid x:Name="ReadoutGrid" ColumnDefinitions="Auto,*" ColumnSpacing="10" RowSpacing="3" />
       <TextBlock x:Name="ErrorText" IsVisible="False" TextWrapping="Wrap"
-                 Foreground="{DynamicResource DangerBrush}" />
+                 Foreground="{DynamicResource DangerBrush}" AutomationProperties.LiveSetting="Assertive" />
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6">
         <Button x:Name="CancelButton" Classes="modebar outline" Content="Cancel" />
         <Button x:Name="ApplyButton" Classes="modebar primary" Content="Rebuild" />

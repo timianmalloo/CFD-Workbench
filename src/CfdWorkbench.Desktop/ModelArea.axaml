@@ -116,7 +116,7 @@
                 <TextBlock Text="Add point · from root" />
                 <TextBox x:Name="AddPointTextBox" MinWidth="{StaticResource PropValueMinWidth}" Watermark="mm"
                          AutomationProperties.Name="From root in millimetres" />
-                <TextBlock x:Name="AddPointError" IsVisible="False" TextWrapping="Wrap" />
+                <TextBlock x:Name="AddPointError" IsVisible="False" TextWrapping="Wrap" AutomationProperties.LiveSetting="Assertive" />
                 <StackPanel Orientation="Horizontal" Spacing="4">
                   <Button x:Name="AddPointCancelButton" Content="Cancel" />
                   <Button x:Name="AddPointApplyButton" Content="Add point" />
@@ -293,8 +293,6 @@
             <TextBox Grid.Row="1" x:Name="SourceText" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap"
                      ScrollViewer.VerticalScrollBarVisibility="Auto" AutomationProperties.Name="Retained FoilDSL source text" />
           </Grid>
-
-          <local:SectionEditorView x:Name="SectionEditor" />
       </Grid>
 
       <!-- The warning toast (DESIGN.md §4 Toast): last child, so it draws over the views at the model area's bottom-right

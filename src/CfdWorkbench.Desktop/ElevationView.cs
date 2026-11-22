@@ -701,12 +701,29 @@ public sealed class ElevationView : Control
         Redraw();
     }
 
+    private int? focusedStationIndex;
+    public int? FocusedStationIndex => focusedStationIndex;
+
     public bool FocusNext(bool reverse = false)
     {
-        if (CurrentTargets.Count == 0) return false;
+        int stationCount = !IsFront ? (controller?.Inspection?.Authored.Assignments.Count ?? 0) : 0;
+        int total = CurrentTargets.Count + stationCount;
+        if (total == 0) return false;
         int next = keyboardIndex + (reverse ? -1 : 1);
-        if (next < 0 || next >= CurrentTargets.Count) return false;
-        FocusPoint(new PointRef(CurrentTargets[next].Curve, CurrentTargets[next].Id));
+        if (next < 0 || next >= total) return false;
+        if (next < CurrentTargets.Count)
+        {
+            focusedStationIndex = null;
+            FocusPoint(new PointRef(CurrentTargets[next].Curve, CurrentTargets[next].Id));
+        }
+        else
+        {
+            keyboardIndex = next;
+            focusedPoint = null;
+            focusedStationIndex = next - CurrentTargets.Count;
+            Focus();
+            Redraw();
+        }
         return true;
     }
 
@@ -726,6 +743,7 @@ public sealed class ElevationView : Control
         // The focus ring belongs to keyboard focus: once focus leaves the view, Tab back in starts from the selection.
         if (IsKeyboardFocusWithin) return;
         focusedPoint = null;
+        focusedStationIndex = null;
         keyboardIndex = -1;
         Redraw();
     }
@@ -737,6 +755,15 @@ public sealed class ElevationView : Control
         bool shift = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
         bool command = e.KeyModifiers.HasFlag(KeyModifiers.Meta) || e.KeyModifiers.HasFlag(KeyModifiers.Control);
         bool option = e.KeyModifiers.HasFlag(KeyModifiers.Alt);
+        if (e.Key == Key.Return && !IsFront && focusedStationIndex is { } focusedSt &&
+            controller.Inspection?.Authored.Assignments is { } assignsForEnter && focusedSt >= 0 && focusedSt < assignsForEnter.Count)
+        {
+            if (controller.IsAnalysis) { controller.ReportPointWarning(WorkbenchController.AnalysisPointRefusal); e.Handled = true; return; }
+            controller.Select(new Selection.Station(focusedSt, assignsForEnter[focusedSt].Eta));
+            _ = controller.EnterSectionAsync(focusedSt, EntryOrigin.Side);
+            e.Handled = true;
+            return;
+        }
         if (e.Key == Key.Return && controller.Selection is Selection.Station selectedStation)
         {
             if (controller.IsAnalysis) { controller.ReportPointWarning(WorkbenchController.AnalysisPointRefusal); e.Handled = true; return; }
@@ -755,6 +782,14 @@ public sealed class ElevationView : Control
         {
             SelectPoint(spaceTarget, extend: false, toggle: shift);
             e.Handled = true;
+            return;
+        }
+        if (e.Key == Key.Space && !IsFront && focusedStationIndex is { } spaceSt &&
+            controller.Inspection?.Authored.Assignments is { } assignsForSpace && spaceSt >= 0 && spaceSt < assignsForSpace.Count)
+        {
+            controller.Select(new Selection.Station(spaceSt, assignsForSpace[spaceSt].Eta));
+            e.Handled = true;
+            Redraw();
             return;
         }
         if ((e.Key == Key.Apps || e.Key == Key.F10 && shift) && focusedPoint is { } menuTarget)
@@ -1306,9 +1341,11 @@ public sealed class ElevationView : Control
     {
         var station = SelectionBrush ?? Brushes.White;
         using (context.PushClip(BandRect))
-            foreach (var (_, name, bounds) in Chips())
+            foreach (var (index, name, bounds) in Chips())
             {
                 context.DrawRectangle(SoftBrush ?? BackgroundBrush, new Pen(station, 1), bounds.Deflate(.5));
+                if (focusedStationIndex == index)
+                    context.DrawRectangle(null, new Pen(FocusBrush ?? Brushes.White, 3), bounds.Inflate(2), 4, 4);
                 DrawText(context, name, bounds.TopLeft + new Vector(6, 2), InkBrush ?? FoilBrush ?? Brushes.White, ChipFont, FontWeight.SemiBold);
             }
     }
