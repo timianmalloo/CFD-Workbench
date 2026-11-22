@@ -16,7 +16,7 @@ public sealed class SectionProfileView : Control
 {
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
     private static readonly string[] StopKeys = ["VikNeg2Color", "VikNeg1Color", "VikZeroColor", "VikPos1Color", "VikPos2Color"];
-    private static readonly Color[] StopFallback = [Color.Parse("#001261"), Color.Parse("#2d7ba5"), Color.Parse("#ebe6e2"), Color.Parse("#c37243"), Color.Parse("#590008")];
+    private static readonly Color[] StopFallback = [Colors.Navy, Colors.SteelBlue, Colors.WhiteSmoke, Colors.Peru, Colors.DarkRed];
     private SectionProfile? model;
     private Color[] stops = StopFallback;
 
@@ -99,7 +99,8 @@ public sealed class SectionProfileView : Control
             foreach (PanelCp p in profile.Outline.Skip(1)) g.LineTo(P(p.X, p.Z));
             g.EndFigure(true);
         }
-        context.DrawGeometry(new SolidColorBrush(((ISolidColorBrush)foil).Color, 0.35), null, fill);
+        IBrush foilFill = foil is ISolidColorBrush foilSolid ? new SolidColorBrush(foilSolid.Color, 0.35) : foil;
+        context.DrawGeometry(foilFill, null, fill);
 
         var segments = new List<(double Cp, Color Colour)>();
         for (int i = 0; i < profile.Outline.Count; i++)
@@ -212,7 +213,9 @@ public sealed class SectionProfileView : Control
         IBrush viewport, IBrush ink, IBrush mute, IBrush soft, string cpSide)
     {
         IBrush warn = Resource("PlanWarningBrush", Brushes.Goldenrod);
-        IBrush induced = new SolidColorBrush(Mix(((ISolidColorBrush)warn).Color, ((ISolidColorBrush)ink).Color, 0.45));
+        Color warnColor = warn is ISolidColorBrush ws ? ws.Color : Colors.Goldenrod;
+        Color inkColor = ink is ISolidColorBrush isb ? isb.Color : Colors.White;
+        IBrush induced = new SolidColorBrush(Mix(warnColor, inkColor, 0.45));
         (double dx, double dz) = f.FreeStream;
         (double lx, double lz) = f.LiftDirection;
         var drag = new Vector(dx, -dz);
@@ -375,6 +378,9 @@ public sealed class SectionProfileView : Control
     private void DrawKey(DrawingContext context, double top, double width)
     {
         IBrush ink = Resource("InkBrush", Brushes.Black), mute = Resource("MutedBrush", Brushes.Gray), warn = Resource("WarningBrush", Brushes.Goldenrod);
+        Color warnColor = warn is ISolidColorBrush ws ? ws.Color : Colors.Goldenrod;
+        Color inkColor = ink is ISolidColorBrush isb ? isb.Color : Colors.Black;
+        IBrush inducedKey = new SolidColorBrush(Mix(warnColor, inkColor, 0.45));
         const double row = 20;
         double x = 0, y = top + row / 2 + 2;
         for (int i = 0; i < Labels.VectorKey.Length; i++)
@@ -389,7 +395,7 @@ public sealed class SectionProfileView : Control
                 case 1: context.DrawLine(new Pen(mute, 1.5, new DashStyle([5, 4], 0)), a, b); break;
                 case 2: context.DrawLine(new Pen(ink, 3), a, b); break;
                 case 3: context.DrawLine(new Pen(warn, 4), a, b); break;
-                case 4: context.DrawLine(new Pen(warn, 4, new DashStyle([4, 2], 0)), a, b); break;
+                case 4: context.DrawLine(new Pen(inducedKey, 4, new DashStyle([4, 2], 0)), a, b); break;
                 default: Couple(context, new Point(x + 9, y + 1), 1, ink, 2, 0, 6); break;
             }
             context.DrawText(label, new Point(x + swatch + 6, y - 7));
@@ -412,6 +418,6 @@ public sealed class SectionProfileView : Control
         return rect;
     }
 
-    private static FormattedText Text(string text, IBrush brush) =>
-        new(text, Inv, FlowDirection.LeftToRight, Typeface.Default, 11, brush);
+    private FormattedText Text(string text, IBrush brush) =>
+        new(text, Inv, FlowDirection.LeftToRight, CanvasTypography.ResolveTypeface(this), CanvasTypography.ResolveFontSize(this), brush);
 }

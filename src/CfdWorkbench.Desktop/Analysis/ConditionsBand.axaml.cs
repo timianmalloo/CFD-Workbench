@@ -65,7 +65,7 @@ public partial class ConditionsBand : UserControl
         {
             AlphaInput.Text = Labels.Number(alpha, "0.00");
             controller.ApplyFoundAlpha(alpha);   // the pending α only; Evaluate stays explicit
-        });
+        }, units);
         if (TopLevel.GetTopLevel(this) is Window owner)
         {
             FindDialog.RequestedThemeVariant = owner.ActualThemeVariant;
@@ -136,7 +136,7 @@ public partial class ConditionsBand : UserControl
         DerivedRe.IsVisible = DerivedDepth.IsVisible = DerivedFroude.IsVisible = true;
         MoreButton.IsVisible = false;
         BandRow.Measure(Size.Infinity);
-        double room = width - (BandRow.Parent is Border border ? border.Padding.Left + border.Padding.Right : 0);
+        double room = width - (BandRow.FindAncestorOfType<Border>() is { } border ? border.Padding.Left + border.Padding.Right : 0);
         return BandRow.DesiredSize.Width <= room;
     }
 
@@ -164,16 +164,17 @@ public partial class ConditionsBand : UserControl
             Set(DerivedDepth, "h/c", derived.DepthOverChord);
             Set(DerivedFroude, "Fr_h", derived.FroudeDepth);
             Set(DerivedSigma, "σ", derived.Sigma);
-            MoreRe.Header = DerivedRe.Text;
-            MoreDepth.Header = DerivedDepth.Text;
-            MoreFroude.Header = DerivedFroude.Text;
+            MoreRe.Text = DerivedRe.Text;
+            MoreDepth.Text = DerivedDepth.Text;
+            MoreFroude.Text = DerivedFroude.Text;
             InputError.IsVisible = false;
             if (availableWidth > 0) SetAvailableWidth(availableWidth);   // the cells' text changed width
         }
         catch (ContractError error)
         {
-            InputError.Text = error.Code;
+            InputError.Text = Labels.InputErrorMessage(error.Code);
             InputError.IsVisible = true;
+            if (availableWidth > 0) SetAvailableWidth(availableWidth);
         }
     }
 
@@ -189,8 +190,9 @@ public partial class ConditionsBand : UserControl
         }
         catch (ContractError error)
         {
-            InputError.Text = error.Code;
+            InputError.Text = Labels.InputErrorMessage(error.Code);
             InputError.IsVisible = true;
+            if (availableWidth > 0) SetAvailableWidth(availableWidth);
         }
     }
 

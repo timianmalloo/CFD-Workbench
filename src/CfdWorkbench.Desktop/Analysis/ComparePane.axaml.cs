@@ -19,7 +19,8 @@ public partial class ComparePane : UserControl
     public ComparePane()
     {
         InitializeComponent();
-        BasePicker.MinWidth = ComparedPicker.MinWidth = 240;
+        BasePicker.MinWidth = ComparedPicker.MinWidth = 180;
+        BasePicker.MaxWidth = ComparedPicker.MaxWidth = 340;
         BaseLabel.Text = Labels.BaseRunLabel;
         ComparedLabel.Text = Labels.ComparedRunLabel;
         AutomationProperties.SetName(BasePicker, Labels.BaseRunLabel);
@@ -34,9 +35,18 @@ public partial class ComparePane : UserControl
 
     private IReadOnlyList<WorkbenchController.CompareOption> options = [];
 
-    /// <summary>The accessible names of the controls the Tab key visits, in order.</summary>
-    public IEnumerable<string> TabOrder => new Control[] { BasePicker, ComparedPicker, InputsTable, OutputsTable }
-        .Select(control => AutomationProperties.GetName(control) ?? "");
+    /// <summary>The accessible names of the focusable controls the Tab key visits, in order.</summary>
+    public IEnumerable<string> TabOrder
+    {
+        get
+        {
+            var stops = new List<Control> { BasePicker, ComparedPicker };
+            if (EstimatorButton.IsVisible) stops.Add(EstimatorButton);
+            stops.Add(InputsTable);
+            stops.Add(OutputsTable);
+            return stops.Where(control => control.Focusable).Select(control => AutomationProperties.GetName(control) ?? "");
+        }
+    }
 
     /// <summary>Focus lands on the Base picker when the tab opens; posted, because the tab content is realised by the same layout pass.</summary>
     public void FocusBase() => Avalonia.Threading.Dispatcher.UIThread.Post(() => BasePicker.Focus(), Avalonia.Threading.DispatcherPriority.Input);
@@ -81,12 +91,28 @@ public partial class ComparePane : UserControl
                 Text = $"{column.Title} · {column.Method} · {column.Freshness}", Classes = { "pnl-head" }, TextWrapping = TextWrapping.Wrap
             });
         InputsTable.Children.Clear();
+        if (view.Inputs.Count > 0)
+        {
+            string baseTitle = view.Base?.Title ?? Labels.BaseRunLabel;
+            string comparedTitle = view.Compared?.Title ?? Labels.ComparedRunLabel;
+            InputsTable.Children.Add(HeaderLine("160,*,*", ["Field", baseTitle, comparedTitle], rightColumns: []));
+        }
         foreach (var row in view.Inputs)
-            InputsTable.Children.Add(Line("160,*,*", [row.Field, Mark(row.Base, row.Differs), Mark(row.Compared, row.Differs)], bold: row.Differs));
+        {
+            bool numeric = AnalysisPanel.IsNumericValue(row.Base) && AnalysisPanel.IsNumericValue(row.Compared);
+            InputsTable.Children.Add(Line("160,*,*", [row.Field, Mark(row.Base, row.Differs), Mark(row.Compared, row.Differs)],
+                bold: row.Differs, rightColumns: numeric ? [1, 2] : []));
+        }
         OutputsTable.Children.Clear();
+        if (view.Outputs.Count > 0)
+        {
+            string baseTitle = view.Base?.Title ?? Labels.BaseRunLabel;
+            string comparedTitle = view.Compared?.Title ?? Labels.ComparedRunLabel;
+            OutputsTable.Children.Add(HeaderLine("160,120,120,*,*", ["Quantity", baseTitle, comparedTitle, "Delta", "Note"], rightColumns: [1, 2, 3]));
+        }
         foreach (var row in view.Outputs)
         {
-            var line = Line("160,120,120,*,*", [row.Quantity, row.Base, row.Compared, row.Delta, row.Note ?? ""], bold: false);
+            var line = Line("160,120,120,*,*", [row.Quantity, row.Base, row.Compared, row.Delta, row.Note ?? ""], bold: false, rightColumns: [1, 2, 3]);
             if (line.Children[3] is TextBlock delta) AutomationProperties.SetName(delta, row.AccessibleName);
             OutputsTable.Children.Add(line);
         }
@@ -116,12 +142,38 @@ public partial class ComparePane : UserControl
         controller.SetCompareRuns(baseId, comparedId);
     }
 
-    private static Grid Line(string columns, string[] cells, bool bold)
+    private static Grid HeaderLine(string columns, string[] cells, int[] rightColumns)
     {
         var grid = new Grid { ColumnDefinitions = new ColumnDefinitions(columns) };
         for (int i = 0; i < cells.Length; i++)
         {
-            var cell = new TextBlock { Text = cells[i], Classes = { "pnl-cell" }, Margin = new Thickness(4, 1), FontWeight = bold && i > 0 ? FontWeight.Bold : FontWeight.Normal };
+            var cell = new TextBlock
+            {
+                Text = cells[i],
+                Classes = { "pnl-cell" },
+                Margin = new Thickness(4, 2),
+                FontWeight = FontWeight.SemiBold,
+                TextAlignment = rightColumns.Contains(i) ? TextAlignment.Right : TextAlignment.Left
+            };
+            Grid.SetColumn(cell, i);
+            grid.Children.Add(cell);
+        }
+        return grid;
+    }
+
+    private static Grid Line(string columns, string[] cells, bool bold, int[] rightColumns)
+    {
+        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions(columns) };
+        for (int i = 0; i < cells.Length; i++)
+        {
+            var cell = new TextBlock
+            {
+                Text = cells[i],
+                Classes = { "pnl-cell" },
+                Margin = new Thickness(4, 1),
+                FontWeight = bold && i > 0 ? FontWeight.Bold : FontWeight.Normal,
+                TextAlignment = rightColumns.Contains(i) ? TextAlignment.Right : TextAlignment.Left
+            };
             Grid.SetColumn(cell, i);
             grid.Children.Add(cell);
         }

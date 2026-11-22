@@ -160,7 +160,13 @@ public sealed class SectionTabView : UserControl
             var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,*,*,2*") };
             for (int i = 0; i < cells.Length; i++)
             {
-                var cell = new TextBlock { Text = cells[i], Classes = { "pnl-cell" }, Margin = new Thickness(4, 1) };
+                var cell = new TextBlock
+                {
+                    Text = cells[i],
+                    Classes = { "pnl-cell" },
+                    Margin = new Thickness(4, 1),
+                    TextAlignment = i is 1 or 2 ? TextAlignment.Right : TextAlignment.Left
+                };
                 Grid.SetColumn(cell, i);
                 grid.Children.Add(cell);
             }
@@ -194,12 +200,55 @@ public sealed class SectionTabView : UserControl
         if (legend is not null)
             legend.Text =string.Join(" · ", new[] { model.Unavailable, model.Legend, model.Label }.Where(s => !string.IsNullOrEmpty(s)));
         twin.Children.Clear();
+        var twinRows = new StackPanel { Spacing = 4 };
         foreach (ChartPlot plot in model.Plots)
+        {
+            twinRows.Children.Add(new TextBlock { Text = plot.Title, Classes = { "pnl-head" }, Margin = new Thickness(4, 4, 4, 2) });
+            twinRows.Children.Add(TwinRow(head: true, "Series", plot.XTitle, plot.YTitle));
             foreach (ChartSeries series in plot.Series)
-                twin.Children.Add(new TextBlock { Classes = { "pnl-cell" }, FontSize = 10,
-                    Text = plot.Title + " · " + series.Name + ": " + string.Join("  ", series.Points.Select(p =>
-                        p.X.ToString("0.##", CultureInfo.InvariantCulture) + "→" + p.Y.ToString("0.###", CultureInfo.InvariantCulture))) });
+            {
+                foreach (ChartPoint p in series.Points)
+                {
+                    twinRows.Children.Add(TwinRow(head: false, series.Name,
+                        p.X.ToString("0.###", CultureInfo.InvariantCulture),
+                        p.Y.ToString("0.####", CultureInfo.InvariantCulture)));
+                }
+            }
+            foreach (ChartMarker m in plot.Markers)
+            {
+                twinRows.Children.Add(TwinRow(head: false, "Marker · " + m.Name,
+                    m.X.ToString("0.###", CultureInfo.InvariantCulture),
+                    m.Y is { } yVal ? yVal.ToString("0.####", CultureInfo.InvariantCulture) : "—"));
+            }
+        }
+        twin.Children.Add(new ScrollViewer
+        {
+            MaxHeight = ChartHeight,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+            Content = twinRows
+        });
         ShowTwin();
+    }
+
+    private static Grid TwinRow(bool head, string series, string xText, string yText)
+    {
+        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("2*,*,*") };
+        string[] values = [series, xText, yText];
+        for (int i = 0; i < values.Length; i++)
+        {
+            var cell = new TextBlock
+            {
+                Text = values[i],
+                Classes = { "pnl-cell" },
+                FontWeight = head ? FontWeight.SemiBold : FontWeight.Normal,
+                TextAlignment = i == 0 ? TextAlignment.Left : TextAlignment.Right,
+                Margin = new Thickness(4, 1)
+            };
+            Grid.SetColumn(cell, i);
+            grid.Children.Add(cell);
+        }
+        return grid;
     }
 
     private void ShowTwin()

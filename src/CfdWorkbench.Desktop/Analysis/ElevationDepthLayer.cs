@@ -12,6 +12,9 @@ public static class ElevationDepthLayer
 {
     public sealed record DepthMark(double Y, double Margin, double? Elevation);
 
+    public static string FormatTipDepth(double marginMeters, Units units = Units.Metric) =>
+        "tip depth " + Labels.Depth(marginMeters, units).ToString("0.###", CultureInfo.InvariantCulture) + " " + Labels.DepthUnit(units);
+
     public static IReadOnlyList<DepthMark> Build(LayerData? layer)
     {
         if (layer is not { Id: "depth-band", Visible: true }) return [];
@@ -20,7 +23,7 @@ public static class ElevationDepthLayer
     }
 
     public static void Draw(DrawingContext context, LayerData? layer, ViewCamera camera, SurfaceView surface,
-        Rect band, bool front, IBrush ink, IBrush mute, IBrush soft)
+        Rect band, bool front, IBrush ink, IBrush mute, IBrush soft, Units units = Units.Metric)
     {
         var marks = Build(layer);
         if (marks.Count == 0 || marks[0].Elevation is not { } elevation) return;
@@ -39,7 +42,7 @@ public static class ElevationDepthLayer
                 var bottom = ToScreen(x, y, tip.Elevation ?? 0);
                 var top = ToScreen(x, y, z);
                 context.DrawLine(new Pen(ink, 1, new DashStyle([2, 3], 0)), bottom, top);
-                Text(context, "tip depth " + tip.Margin.ToString("0.###", CultureInfo.InvariantCulture) + " m",
+                Text(context, FormatTipDepth(tip.Margin, units),
                     top + new Vector(6, 3), ink, soft);
             }
         }

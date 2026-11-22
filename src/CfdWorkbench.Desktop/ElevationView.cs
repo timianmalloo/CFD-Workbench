@@ -1252,7 +1252,8 @@ public sealed class ElevationView : Control
             DrawSlice(context);
             if (controller.IsAnalysis && controller.Surface is { } surface && Camera is { } camera)
                 ElevationDepthLayer.Draw(context, controller.LayerSet.FirstOrDefault(l => l.Id == "depth-band"),
-                    camera, surface, band, IsFront, InkBrush ?? foil, mute, SoftBrush ?? BackgroundBrush ?? Brushes.Black);
+                    camera, surface, band, IsFront, InkBrush ?? foil, mute, SoftBrush ?? BackgroundBrush ?? Brushes.Black,
+                    controller.AnalysisUnits);
             DrawLane(context, brushes, plan);
         }
         Plate(context, LaneCaption, new Point(PlateInset, band.Bottom + 6), InkBrush ?? foil, left: true);

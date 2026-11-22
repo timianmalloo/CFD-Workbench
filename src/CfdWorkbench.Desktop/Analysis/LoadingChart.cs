@@ -80,7 +80,7 @@ public sealed class LoadingChart : UserControl
 
     private void ShowBody()
     {
-        TwinToggle.Content = ShowingTable ? "Show chart notes" : "Show table";
+        TwinToggle.Content = ShowingTable ? "Show chart" : "Show table";
         body.Content = ShowingTable ? tableScroller : plot;
     }
 
@@ -93,7 +93,7 @@ public sealed class LoadingChart : UserControl
         {
             var cell = new TextBlock
             {
-                Text = cells[i], TextAlignment = i == 0 ? TextAlignment.Left : TextAlignment.Right,
+                Text = cells[i], Classes = { "pnl-cell" }, TextAlignment = i == 0 ? TextAlignment.Left : TextAlignment.Right,
                 FontWeight = head ? FontWeight.SemiBold : FontWeight.Normal, Margin = new Thickness(4, 1)
             };
             Grid.SetColumn(cell, i);
@@ -192,7 +192,7 @@ public sealed class LoadingChart : UserControl
 
         private IBrush Brush(string key) => this.TryFindResource(key, ActualThemeVariant, out var found) && found is IBrush brush ? brush : Brushes.Gray;
 
-        private static FormattedText Label(string text, IBrush brush) =>
-            new(text, Inv, FlowDirection.LeftToRight, Typeface.Default, 11, brush);
+        private FormattedText Label(string text, IBrush brush) =>
+            new(text, Inv, FlowDirection.LeftToRight, CanvasTypography.ResolveTypeface(this), CanvasTypography.ResolveFontSize(this), brush);
     }
 }

@@ -149,6 +149,20 @@ public static class Labels
         " % margin · V_crit " + Number(Speed(vcritMetersPerSecond, units), "0.0") + " " + SpeedUnit(units);
     public static double Speed(double metersPerSecond, Units units) => units == Units.Imperial ? metersPerSecond * KnotsPerMeterSecond : metersPerSecond;
     public static string SpeedUnit(Units units) => units == Units.Imperial ? "kn" : "m/s";
+    public static double Depth(double meters, Units units) => units == Units.Imperial ? meters / FeetPerMeter : meters;
+    public static string DepthUnit(Units units) => units == Units.Imperial ? "ft" : "m";
+
+    /// <summary>Plain-English validation messages for operating-point input contract codes (F-29).</summary>
+    public static string InputErrorMessage(string code) => code switch
+    {
+        "ANA-INPUT-SPEED" => "Enter a positive finite speed.",
+        "ANA-INPUT-ALPHA" => "Enter a finite angle of attack α.",
+        "ANA-INPUT-DEPTH" => "Enter a positive depth h_ref, or leave blank.",
+        "ANA-INPUT-PRESSURE" => "Atmospheric pressure must be positive.",
+        "ANA-INPUT-LOAD" => "Design load must be positive.",
+        "ANA-INPUT-WATER" => "Choose a valid water temperature and salinity.",
+        _ => "Check the operating-point inputs."
+    };
     public const string ClPanel = "cl (panel)"; // COPY-295
     public const string CmQuarter = "Cm c/4"; // COPY-296
     public const string AlphaL0Panel = "α_L0 (panel)"; // COPY-297

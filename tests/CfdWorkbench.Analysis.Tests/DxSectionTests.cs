@@ -597,8 +597,11 @@ internal static class DxSectionTests
         ChartSeries[] lines = tr.Plots.Single().Series.ToArray();
         Equal(4, lines.Length, "upper and lower at both Ncrit");
         Equal(4, lines.Select(s => (s.Dashed, s.Marker)).Distinct().Count(), "told apart by dash and marker as well as colour");
-        foreach (string part in new[] { "Transition x_tr/c, upper and lower", "Ncrit 2 and 4", "r1", "Re ", "Overlay a section ▾" })
+        foreach (string part in new[] { "Transition x_tr/c, upper and lower", "Ncrit 2 and 4", "r1", "Re " })
             Equal(true, tr.Legend.Contains(part), "legend names " + part);
+        // F-18: inert static OverlayMenu dropdown is omitted from rendered legend while Ruling 108 constant stays intact.
+        Equal(false, tr.Legend.Contains(Labels.OverlayMenu), "transition legend omits inert overlay dropdown");
+        Equal("Overlay a section ▾", Labels.OverlayMenu, "Ruling 108 COPY-327 constant preserved");
         ChartModel bucket = v.Charts.Single(c => c.Id == "bucket");
         Equal(2, bucket.Plots.Count, "σ required and V_crit");
         Equal(true, bucket.Plots.All(p => p.Series.Single().Points.Count > 3 && p.Markers.Count == 1), "curves and the operating dot");

@@ -1,56 +1,66 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="CfdWorkbench.Desktop.Analysis.ConditionsBand">
+             x:Class="CfdWorkbench.Desktop.Analysis.ConditionsBand"
+             FontFamily="{StaticResource PropFontFamily}"
+             FontSize="{DynamicResource PropFontSize}">
   <UserControl.Styles>
     <Style Selector="TextBlock.cond-derived"><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="FontFeatures" Value="+tnum,+lnum" /></Style>
+    <Style Selector="TextBox.cond-input"><Setter Property="FontFeatures" Value="+tnum,+lnum" /><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /></Style>
+    <Style Selector="TextBlock.cond-error"><Setter Property="Foreground" Value="{DynamicResource DangerBrush}" /><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="FontFeatures" Value="+tnum,+lnum" /><Setter Property="TextWrapping" Value="Wrap" /></Style>
   </UserControl.Styles>
   <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
           BorderThickness="0,0,0,1" Padding="{StaticResource Space1}">
-    <StackPanel x:Name="BandRow" Orientation="Horizontal" Spacing="{StaticResource NavbarGap}" VerticalAlignment="Center">
-      <TextBlock Text="Speed" VerticalAlignment="Center" />
-      <TextBox x:Name="SpeedInput" Text="5.14" Width="{StaticResource PropValueMinWidth}"
-               AutomationProperties.Name="Speed in metres per second" />
-      <TextBlock x:Name="SpeedUnit" Text="m/s" VerticalAlignment="Center" />
-      <ComboBox x:Name="WaterInput" SelectedIndex="0" MinWidth="{StaticResource PropValueMinWidth}"
-                AutomationProperties.Name="Water record">
-        <ComboBoxItem Content="Salt · 15 °C" />
-        <ComboBoxItem Content="Fresh · 15 °C" />
-      </ComboBox>
-      <TextBlock Text="Depth h_ref" VerticalAlignment="Center" />
-      <TextBox x:Name="DepthInput" Watermark="Not set" Width="{StaticResource PropValueMinWidth}"
-               AutomationProperties.Name="Reference depth in metres, not set when empty" />
-      <TextBlock Text="m" VerticalAlignment="Center" />
-      <TextBlock Text="α" VerticalAlignment="Center" />
-      <TextBox x:Name="AlphaInput" Text="2.00" Width="{StaticResource PropValueMinWidth}"
-               AutomationProperties.Name="Incidence alpha in degrees" />
-      <TextBlock Text="°" VerticalAlignment="Center" />
-      <Button x:Name="EvaluateButton" Classes="modebar primary" Content="Evaluate" AutomationProperties.Name="Evaluate" />
-      <!-- Find α (DR-DXM-6): the 24 px target with the navbar padding keeps the band at 41 px, as the More button does (Ruling 112). -->
-      <Button x:Name="FindAlphaButton" Content="Find α…" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
-              FontSize="{DynamicResource PropFontSize}" MinHeight="{StaticResource CompactTargetSize}"
-              Padding="{StaticResource NavbarButtonPadding}" AutomationProperties.Name="Find operating alpha" />
-      <Border Height="{StaticResource CompactTargetSize}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource HairlineLeft}" Margin="{StaticResource NavbarButtonPadding}" />
-      <TextBlock x:Name="DerivedQ" Classes="cond-derived" VerticalAlignment="Center" Text="q —" />
-      <StackPanel x:Name="WideDerived" Orientation="Horizontal" Spacing="{StaticResource NavbarGap}">
-        <TextBlock x:Name="DerivedRe" Classes="cond-derived" VerticalAlignment="Center" Text="Re_ref —" />
-        <TextBlock x:Name="DerivedDepth" Classes="cond-derived" VerticalAlignment="Center" Text="h/c —" />
-        <TextBlock x:Name="DerivedFroude" Classes="cond-derived" VerticalAlignment="Center" Text="Fr_h —" />
+    <StackPanel Spacing="0">
+      <StackPanel x:Name="BandRow" Orientation="Horizontal" Spacing="{StaticResource NavbarGap}" VerticalAlignment="Center">
+        <TextBlock Text="Speed" VerticalAlignment="Center" />
+        <TextBox x:Name="SpeedInput" Classes="cond-input" Text="5.14" Width="{StaticResource PropValueMinWidth}"
+                 AutomationProperties.Name="Speed in metres per second" />
+        <TextBlock x:Name="SpeedUnit" Text="m/s" VerticalAlignment="Center" />
+        <ComboBox x:Name="WaterInput" SelectedIndex="0" MinWidth="{StaticResource PropValueMinWidth}"
+                  FontSize="{DynamicResource PropFontSize}"
+                  AutomationProperties.Name="Water record">
+          <ComboBoxItem Content="Salt · 15 °C" />
+          <ComboBoxItem Content="Fresh · 15 °C" />
+        </ComboBox>
+        <TextBlock Text="Depth h_ref" VerticalAlignment="Center" />
+        <TextBox x:Name="DepthInput" Classes="cond-input" Watermark="Not set" Width="{StaticResource PropValueMinWidth}"
+                 AutomationProperties.Name="Reference depth in metres, not set when empty" />
+        <TextBlock Text="m" VerticalAlignment="Center" />
+        <TextBlock Text="α" VerticalAlignment="Center" />
+        <TextBox x:Name="AlphaInput" Classes="cond-input" Text="2.00" Width="{StaticResource PropValueMinWidth}"
+                 AutomationProperties.Name="Incidence alpha in degrees" />
+        <TextBlock Text="°" VerticalAlignment="Center" />
+        <Button x:Name="EvaluateButton" Classes="modebar primary" Content="Evaluate" AutomationProperties.Name="Evaluate" />
+        <!-- Find α (DR-DXM-6): the 24 px target with the navbar padding keeps the band at 41 px, as the More button does (Ruling 112). -->
+        <Button x:Name="FindAlphaButton" Content="Find α…" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
+                FontSize="{DynamicResource PropFontSize}" MinHeight="{StaticResource CompactTargetSize}"
+                Padding="{StaticResource NavbarButtonPadding}" AutomationProperties.Name="Find operating alpha" />
+        <Border Height="{StaticResource CompactTargetSize}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource HairlineLeft}" Margin="{StaticResource NavbarButtonPadding}" />
+        <TextBlock x:Name="DerivedQ" Classes="cond-derived" VerticalAlignment="Center" Text="q —" />
+        <StackPanel x:Name="WideDerived" Orientation="Horizontal" Spacing="{StaticResource NavbarGap}">
+          <TextBlock x:Name="DerivedRe" Classes="cond-derived" VerticalAlignment="Center" Text="Re_ref —" />
+          <TextBlock x:Name="DerivedDepth" Classes="cond-derived" VerticalAlignment="Center" Text="h/c —" />
+          <TextBlock x:Name="DerivedFroude" Classes="cond-derived" VerticalAlignment="Center" Text="Fr_h —" />
+        </StackPanel>
+        <TextBlock x:Name="DerivedSigma" Classes="cond-derived" VerticalAlignment="Center" Text="σ —" />
+        <!-- Ruling 101 3d (layout D): a default Button is 43 px tall here and stretched the band from 41 to 52 px; the 24 px target with
+             the navbar padding keeps the band as tall as its text boxes, and the label is never clipped (MinHeight, not Height).
+             F-41: read-only Flyout with TextBlocks rather than invokable MenuItems. -->
+        <Button x:Name="MoreButton" Content="More ▾" IsVisible="False" VerticalAlignment="Center"
+                MinHeight="{StaticResource CompactTargetSize}" Padding="{StaticResource NavbarButtonPadding}"
+                AutomationProperties.Name="More derived conditions">
+          <Button.Flyout>
+            <Flyout Placement="BottomEdgeAlignedLeft">
+              <StackPanel Spacing="{StaticResource StackGap1}" Margin="{StaticResource Space1}">
+                <TextBlock x:Name="MoreRe" Classes="cond-derived" Text="Re_ref —" />
+                <TextBlock x:Name="MoreDepth" Classes="cond-derived" Text="h/c —" />
+                <TextBlock x:Name="MoreFroude" Classes="cond-derived" Text="Fr_h —" />
+              </StackPanel>
+            </Flyout>
+          </Button.Flyout>
+        </Button>
       </StackPanel>
-      <TextBlock x:Name="DerivedSigma" Classes="cond-derived" VerticalAlignment="Center" Text="σ —" />
-      <!-- Ruling 101 3d (layout D): a default Button is 43 px tall here and stretched the band from 41 to 52 px; the 24 px target with
-           the navbar padding keeps the band as tall as its text boxes, and the label is never clipped (MinHeight, not Height). -->
-      <Button x:Name="MoreButton" Content="More ▾" IsVisible="False" VerticalAlignment="Center"
-              MinHeight="{StaticResource CompactTargetSize}" Padding="{StaticResource NavbarButtonPadding}"
-              AutomationProperties.Name="More derived conditions">
-        <Button.Flyout>
-          <MenuFlyout Placement="BottomEdgeAlignedLeft" FlyoutPresenterClasses="navbar-menu">
-            <MenuItem x:Name="MoreRe" Header="Re_ref —" />
-            <MenuItem x:Name="MoreDepth" Header="h/c —" />
-            <MenuItem x:Name="MoreFroude" Header="Fr_h —" />
-          </MenuFlyout>
-        </Button.Flyout>
-      </Button>
-      <TextBlock x:Name="InputError" IsVisible="False" VerticalAlignment="Center"
+      <TextBlock x:Name="InputError" Classes="cond-error" IsVisible="False" Margin="{StaticResource Space1}"
                  AutomationProperties.LiveSetting="Assertive" />
     </StackPanel>
   </Border>
