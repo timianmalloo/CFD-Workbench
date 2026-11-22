@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-22T04:25:02Z",
+  "generated": "2026-11-22T04:33:01Z",
   "audit": [
     {
       "actor": null,
@@ -44460,12 +44460,84 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M80R06YVE41TR35X9ZPMDRF6",
-      "shortname": "join-w6-krn-spk",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-11-22T04:25:02Z",
-      "session": "agy-w6-coord",
+      "done_when": "KRN-SPK merged via conductor-join.py with check-docs, TESTS-GREEN, and 10/10 verify gates green",
+      "duration_seconds": 421.0,
+      "fan_out": 0,
+      "goal": "Land Area 7 SPIKE-CAD-01 empirical bake-off and ABI probe onto main",
+      "id": "al-01M80R06YVE41TR35X9ZPMDRF6",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of swarm-w6-cad-spike-0fee4837 into main",
+      "session": "agy-w6-coord",
+      "shortname": "join-w6-krn-spk",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-11-22T04:18:01Z",
       "summary": "Joined KRN-SPK (c8379814): Rhino3dm 8.35.0 MIT win-arm64 native verified; pure-C# Option B STEP AP203 <= 1.6139 um max across 5 wings (6.2x below 10 um floor), 20/20 deterministic STEP exports, 3/3 red-first negative controls RED; Adversary PASS (#53). recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": "w6-wsl-build",
+      "artifacts": [
+        "tools/wsl-build-openfoam-cuda.sh",
+        "docs/proof/wsl-area5-build/README.md",
+        "docs/proof/wsl-area5-build/README.html",
+        "docs/proof/wsl-area5-build/preflight-receipt.json",
+        "docs/proof/wsl-area5-build/net-proxy-tls-receipt.json",
+        "docs/proof/wsl-area5-build/cuda-toolchain-receipt.json",
+        "docs/proof/wsl-area5-build/petsc-cuda-qualification.json"
+      ],
+      "compiled": false,
+      "datetime": "2026-11-22T03:52:55Z",
+      "done_when": "Host Ubuntu-24.04 verified Stopped pre/post; signed CUDA 13.2 + toolchain + PETSc-CUDA sm_121 make check & GPU KSP smoke PASS; petsc4Foam pinned commit staged; OpenFOAM v2512 net.proxy-tls blocker documented honestly without bypass; tools/wsl-build-openfoam-cuda.sh supports openfoam-resume; PII and docs gates green.",
+      "duration_seconds": 2933.0,
+      "fan_out": 1,
+      "git": {
+        "branch": "swarm-w6-wsl-build-6c7bb919",
+        "pushed": null,
+        "sha": "20d98143d7cf7432d970df49c499590e6b4b6d7c",
+        "short": "20d98143d"
+      },
+      "goal": "Provision dedicated arm64 WSL2 distro cfdw-openfoam2512-arm64 (host Ubuntu-24.04 untouched), qualify CUDA 13.2 + PETSc 3.26.0 --with-cuda=1 (Blackwell sm_121) + OpenFOAM v2512 + petsc4Foam, and commit reproducible script + scrubbed proof pack.",
+      "id": "al-01M80P5CQ2CQZHFQH4KWVZ94RH",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "Track A5-WSL (docs/coordination/wave6-and-area5-wsl.md) executed under Option B ruling (#50) after dl.openfoam.com -> sourceforge.net hit Cisco Umbrella net.proxy-tls.",
+      "session": "w6-wsl-build",
+      "shortname": "a5-wsl-cuda-petsc-qual",
+      "skill": "implement",
+      "started_at": "2026-11-22T03:04:02Z",
+      "summary": "Imported cfdw-openfoam2512-arm64 (SHA256SUMS + gpgv VALIDSIG D2EB4462...); host Ubuntu-24.04 Stopped pre/post. Captured verified net.proxy-tls blocker (dl.openfoam.com 302 -> sourceforge.net 146.112.61.104 Cisco Umbrella untrusted root). Installed signed CUDA 13.2.2-1 (nvcc 13.2.86, native compute_121) + GCC 13.3.0 / OpenMPI 4.1.6 / BLAS / LAPACK (184 pkgs, 0 removals, 0 Linux GPU driver). Built PETSc 3.26.0 --with-cuda=1 --with-cuda-arch=121 (zero --download-*, 78s config / 96s build), passed make check 4/4 (incl. ex19 CUDA with -use_gpu_aware_mpi 0), verified 100% GPU flops + identical norms on 160k-DOF and 1M-DOF CG+Jacobi solves (2.98s GPU vs 37.27s CPU wall on 1M-DOF ex2), staged petsc4Foam commit cb1badc4978306e7001a4654dcdf53f284a92365, committed tools/wsl-build-openfoam-cuda.sh + docs/proof/wsl-area5-build/{README.md,README.html,*.json}.",
+      "tags": [
+        "wave6",
+        "area5",
+        "wsl",
+        "arm64",
+        "cuda",
+        "sm121",
+        "petsc",
+        "net-proxy-tls"
+      ],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "id": "al-01M80RETF8DSDH65EH5029RG7Q",
+      "shortname": "join-w6-a5-wsl",
+      "datetime": "2026-11-22T04:33:01Z",
+      "session": "agy-w6-coord",
+      "prompt": "the join of swarm-w6-wsl-build-6c7bb919 into main",
+      "summary": "Joined A5-WSL (a2db74ba): dedicated cfdw-openfoam2512-arm64 distro (Ubuntu-24.04 untouched), CUDA 13.2 + PETSc 3.26.0 --with-cuda=1 --with-cuda-arch=121 4/4 make check PASS + 1M-DOF GPU solve 2.98s vs 37.27s CPU, petsc4Foam staged, verified net.proxy-tls receipt + --mode openfoam-resume script; Adversary PASS (#57). recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -44474,8 +44546,8 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "Land Area 7 SPIKE-CAD-01 empirical bake-off and ABI probe onto main",
-      "done_when": "KRN-SPK merged via conductor-join.py with check-docs, TESTS-GREEN, and 10/10 verify gates green",
+      "goal": "Land Area 5 WSL build script and qualification proof pack onto main",
+      "done_when": "A5-WSL merged via conductor-join.py with check-proof-pii, check-docs, TESTS-GREEN, and 10/10 verify gates green",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -44483,8 +44555,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-11-22T04:18:01Z",
-      "duration_seconds": 421.0
+      "started_at": "2026-11-22T04:25:56Z",
+      "duration_seconds": 425.0
     }
   ],
   "changes": [
