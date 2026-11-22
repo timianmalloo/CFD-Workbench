@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-22T15:54:17Z",
+  "generated": "2026-11-22T17:20:17Z",
   "audit": [
     {
       "actor": null,
@@ -44817,6 +44817,33 @@ window.AUDIT_DATA = {
         "branch": "main",
         "pushed": false
       }
+    },
+    {
+      "id": "al-01M824BQJ83PDQZPN5PZRACS3P",
+      "shortname": "join-w7-shell",
+      "datetime": "2026-11-22T17:20:17Z",
+      "session": "agy-w7-coord",
+      "prompt": "the join of swarm-w7-shell-hig-fab00693 into main",
+      "summary": "Joined W7-SHELL (a548bbad): F-18/F-19/F-20/F-22/F-23/F-32/F-34/F-35/F-36/F-40/F-42/F-43/F-44 + approved Seam #82 (WorkbenchController.CloseFoil, ControllerShellOneDriveTests F-22 title). 200% modal scaling (ExportDialog + MainWindow dialogs), Windows HIG mnemonics/Ctrl+Y/Ctrl+F fix, macOS About + branded 4-size app-icon.ico, Close foil, dirty dot in title/tab, Dock Size proportions, Styles.axaml token consolidation + legacy pruning, DESIGN.md §4/§5 reconciliation; 10/10 red-first UiW7ShellTests + 10/10 live mutants killed, Adversary PASS (#7). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land Wave 7A W7-SHELL onto main",
+      "done_when": "W7-SHELL merged via conductor-join.py with TESTS-GREEN, xaml-token-lint, check-event-subscribers, check-docs, and 10/10 verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-22T17:12:58Z",
+      "duration_seconds": 439.0
     }
   ],
   "changes": [
