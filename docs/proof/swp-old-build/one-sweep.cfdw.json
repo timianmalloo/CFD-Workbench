@@ -1,0 +1,239 @@
+{
+  "format": "cfdw-project-2",
+  "projectId": "29942d9d-5479-4c54-ba5b-c2dd823d2f32",
+  "sources": [
+    {
+      "id": "443198c54cbb863cf4a89004cc475e7e498aa9a34e6c72371ff834500d39a36d",
+      "utf8Base64Chunks": [
+        "Zm9pbGRzbCAiNC4wIgojIExhbmd1YWdlIGNvbmZvcm1hbmNlIGZpeHR1cmU6IGEgbWFudWZhY3R1cmVkIHNlY3Rpb24sIG5vdCBhIGNhdGFsb2cgTkFDQSBmb2lsLgpmb2lsICJCYXNpYyBmb2lsIiB7CiAgdW5pdHMgbW0KICBoYWxmX3NwYW4gNDUwIG1tCiAgZXZhbHVhdG9yICJjZmR3LWN2IiAiMiIKICBzeW1tZXRyeSBtaXJyb3JfeQogIHBsYW5mb3JtIHsKICAgIGxlYWRpbmcgY3YgeyBkZWdyZWUgMyBrbm90cyBbMCwgMCwgMCwgMCwgMC4yNSwgMC41LCAwLjc1LCAxLCAxLCAxLCAxXSBwb2ludHMgWygwLCAwKSwgKDAuMSwgMCksICgwLjMsIDApLCAoMC41LCAwKSwgKDAuNywgMCksICgwLjksIDApLCAoMSwgMCldICBpZHMgWyJjdi0wIiwiY3YtMSIsImN2LTIiLCJjdi0zIiwiY3YtNCIsImN2LTUiLCJjdi02Il0gfQogICAgdHJhaWxpbmcgY3YgeyBkZWdyZWUgMyBrbm90cyBbMCwgMCwgMCwgMCwgMC4yNSwgMC41LCAwLjc1LCAxLCAxLCAxLCAxXSBwb2ludHMgWygwLCAxMjApLCAoMC4xLCAxMjApLCAoMC4zLCAxMjApLCAoMC41LCAxMjApLCAoMC43LCAxMjApLCAoMC45LCAxMjApLCAoMSwgMTIwKV0gIGlkcyBbImN2LTAiLCJjdi0xIiwiY3YtMiIsImN2LTMiLCJjdi00IiwiY3YtNSIsImN2LTYiXSB9CiAgfQogIGRpaGVkcmFsIGN2IHsgZGVncmVlIDMga25vdHMgWzAsIDAsIDAsIDAsIDAuMjUsIDAuNSwgMC43NSwgMSwgMSwgMSwgMV0gcG9pbnRzIFsoMCwgMCksICgwLjEsIDApLCAoMC4zLCAwKSwgKDAuNSwgMCksICgwLjcsIDApLCAoMC45LCAwKSwgKDEsIDApXSAgaWRzIFsiY3YtMCIsImN2LTEiLCJjdi0yIiwiY3YtMyIsImN2LTQiLCJjdi01IiwiY3YtNiJdIH0KICB0d2lzdCBjdiB7IGRlZ3JlZSAzIGtub3RzIFswLCAwLCAwLCAwLCAwLjI1LCAwLjUsIDAuNzUsIDEsIDEsIDEsIDFdIHBvaW50cyBbKDAsIDApLCAoMC4xLCAwKSwgKDAuMywgLTAuMjUpLCAoMC41LCAtMC41KSwgKDAuNywgLTEpLCAoMC45LCAtMS41KSwgKDEsIC0yKV0gIGlkcyBbImN2LTAiLCJjdi0xIiwiY3YtMiIsImN2LTMiLCJjdi00IiwiY3YtNSIsImN2LTYiXSB9CiAgdGhpY2tuZXNzIGN2IHsgZGVncmVlIDMga25vdHMgWzAsIDAsIDAsIDAsIDAuMjUsIDAuNSwgMC43NSwgMSwgMSwgMSwgMV0gcG9pbnRzIFsoMCwgMC4xMiksICgwLjEsIDAuMTIpLCAoMC4zLCAwLjEyKSwgKDAuNSwgMC4xMiksICgwLjcsIDAuMTIpLCAoMC45LCAwLjEyKSwgKDEsIDAuMTIpXSAgaWRzIFsiY3YtMCIsImN2LTEiLCJjdi0yIiwiY3YtMyIsImN2LTQiLCJjdi01IiwiY3YtNiJdIH0KICBwcm9maWxlcyB7CiAgICBwcm9maWxlICJzZWN0aW9uLWEiIHsKICAgICAgdXBwZXIgY3YgeyBkZWdyZWUgNSBrbm90cyBbMCwgMCwgMCwgMCwgMCwgMCwgMC4zMzMzMzMzMzMzMzMzMzMzLCAwLjY2NjY2NjY2NjY2NjY2NjYsIDEsIDEsIDEsIDEsIDEsIDFdIHBvaW50cyBbKDAsIDApLCAoMCwgMC4wMjUpLCAoMC4xNSwgMC4wNTUpLCAoMC4zNSwgMC4wNjUpLCAoMC41NSwgMC4wNSksICgwLjc1LCAwLjAzKSwgKDAuOSwgMC4wMSksICgxLCAwKV0gIGlkcyBbImN2LTAiLCJjdi0xIiwiY3YtMiIsImN2LTMiLCJjdi00IiwiY3YtNSIsImN2LTYiLCJjdi03Il0gfQogICAgICBsb3dlciBjdiB7IGRlZ3JlZSA1IGtub3RzIFswLCAwLCAwLCAwLCAwLCAwLCAwLjMzMzMzMzMzMzMzMzMzMzMsIDAuNjY2NjY2NjY2NjY2NjY2NiwgMSwgMSwgMSwgMSwgMSwgMV0gcG9pbnRzIFsoMCwgMCksICgwLCAtMC4wMjUpLCAoMC4xNSwgLTAuMDU1KSwgKDAuMzUsIC0wLjA2NSksICgwLjU1LCAtMC4wNSksICgwLjc1LCAtMC4wMyksICgwLjksIC0wLjAxKSwgKDEsIDApXSAgaWRzIFsiY3YtMCIsImN2LTEiLCJjdi0yIiwiY3YtMyIsImN2LTQiLCJjdi01IiwiY3YtNiIsImN2LTciXSB9CiAgICB9CiAgfQogIHNlY3Rpb25zIHsgYXQgcm9vdCBwcm9maWxlICJzZWN0aW9uLWEiIGF0IHRpcCBwcm9maWxlICJzZWN0aW9uLWEiIH0KfQo="
+      ]
+    }
+  ],
+  "designs": [
+    {
+      "id": "cb6dcfc3-39a0-4f52-8aeb-d4ff11928076",
+      "parent": null,
+      "surfaceHash": "f4181fe578502e1ad24c4a6d7935adc7a46710535f761b112157dddb2aaaf9ae",
+      "evaluator": "cfdw-cv/2"
+    }
+  ],
+  "accepted": [
+    {
+      "id": "e62319a0-fea1-484f-b2f3-d5d23b21b07e",
+      "parent": null,
+      "sourceId": "443198c54cbb863cf4a89004cc475e7e498aa9a34e6c72371ff834500d39a36d",
+      "designId": "cb6dcfc3-39a0-4f52-8aeb-d4ff11928076",
+      "operationId": "11111111-1111-4111-8111-111111111111",
+      "edit": null
+    }
+  ],
+  "cursors": [
+    {
+      "sequence": 0,
+      "target": "e62319a0-fea1-484f-b2f3-d5d23b21b07e",
+      "reason": "open",
+      "operationId": "11111111-1111-4111-8111-111111111111"
+    }
+  ],
+  "recovery": null,
+  "experiments": [
+    {
+      "id": "22222222-2222-4222-8222-222222222222",
+      "seriesId": "33333333-3333-4333-8333-333333333333",
+      "version": 1,
+      "parentExperimentId": null,
+      "kind": "sweep",
+      "name": "Race-light baseline 3x4",
+      "definitionHash": "2ffff759fd04cdc5f79d4d15a13e3d875a53a00d0b68bc0bda41afb481caa650",
+      "definition": {
+        "sourceKind": "cartesian",
+        "tier": "vlm-strip",
+        "designRef": {
+          "acceptedId": "e62319a0-fea1-484f-b2f3-d5d23b21b07e",
+          "surfaceHash": "f4181fe578502e1ad24c4a6d7935adc7a46710535f761b112157dddb2aaaf9ae"
+        },
+        "goalStateRef": null,
+        "water": {
+          "temperatureC": 15,
+          "salinityGPerKg": 35.16504,
+          "rho": 1026.021,
+          "nu": 1.18831E-06,
+          "pv": 1705.1,
+          "source": "ITTC 7.5-02-01-03 Rev 03",
+          "tableHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "hRefMeters": 0.5,
+        "datum": "root LE",
+        "pAtm": 101325,
+        "speedsMetersPerSecond": [
+          5.144444444444445,
+          7.202222222222222,
+          9.26
+        ],
+        "anglesDeg": [
+          0,
+          2,
+          4,
+          6
+        ],
+        "method": {
+          "id": "cfdw.vlm-strip",
+          "version": "1.1.0",
+          "order": 1
+        },
+        "settingsHash": "cda4f4ecec9026851db10dde69cbd75bd3bd699d6139980cf96448949c9d31c8"
+      },
+      "backendPin": {
+        "id": "local",
+        "substrate": "in-process",
+        "tier": "vlm-strip",
+        "methodId": "cfdw.vlm-strip",
+        "methodVersion": "1.1.0",
+        "settingsHash": "cda4f4ecec9026851db10dde69cbd75bd3bd699d6139980cf96448949c9d31c8"
+      },
+      "cases": [
+        {
+          "caseIndex": 0,
+          "caseKey": "c7238632aa01088a6f93e475c7ea0a46da7bf2020d5152fb63136c700b134a69",
+          "label": null,
+          "speedMetersPerSecond": 5.144444444444445,
+          "hRefMeters": 0.5,
+          "datum": "root LE",
+          "pAtm": 101325,
+          "alphaDeg": 0,
+          "targetLoadN": null
+        },
+        {
+          "caseIndex": 1,
+          "caseKey": "393a8b05a29fee739fd8e2d628189c93075821c7f6f60911dfb591127d077515",
+          "label": null,
+          "speedMetersPerSecond": 5.144444444444445,
+          "hRefMeters": 0.5,
+          "datum": "root LE",
+          "pAtm": 101325,
+          "alphaDeg": 2,
+          "targetLoadN": null
+        },
+        {
+          "caseIndex": 2,
+          "caseKey": "3d2fc402513748d8dce5dfdcaabab72e30753290d90a69b8bc8328dfe63f48ba",
+          "label": null,
+          "speedMetersPerSecond": 5.144444444444445,
+          "hRefMeters": 0.5,
+          "datum": "root LE",
+          "pAtm": 101325,
+          "alphaDeg": 4,
+          "targetLoadN": null
+        },
+        {
+          "caseIndex": 3,
+          "caseKey": "73844aab437e987edf3f562b5e75a0f7cf4e3a65d6a1945da94b9584e501e148",
+          "label": null,
+          "speedMetersPerSecond": 5.144444444444445,
+          "hRefMeters": 0.5,
+          "datum": "root LE",
+          "pAtm": 101325,
+          "alphaDeg": 6,
+          "targetLoadN": null
+        },
+        {
+          "caseIndex": 4,
+          "caseKey": "6f2b150b76dc0e078e4e02bc4ce2262c91781cb2160809339cb887d8475f7871",
+          "label": null,
+          "speedMetersPerSecond": 7.202222222222222,
+          "hRefMeters": 0.5,
+          "datum": "root LE",
+          "pAtm": 101325,
+          "alphaDeg": 0,
+          "targetLoadN": null
+        },
+        {
+          "caseIndex": 5,
+          "caseKey": "a269bcb2a5839d8e0cbe7277ff6358662f10c88b457a94dd77e5f7416f264f1f",
+          "label": null,
+          "speedMetersPerSecond": 7.202222222222222,
+          "hRefMeters": 0.5,
+          "datum": "root LE",
+          "pAtm": 101325,
+          "alphaDeg": 2,
+          "targetLoadN": null
+        },
+        {
+          "caseIndex": 6,
+          "caseKey": "935e0b7139fab6e40232a22f0cf96b566e106985c93c2af7e968d2f27ab70e48",
+          "label": null,
+          "speedMetersPerSecond": 7.202222222222222,
+          "hRefMeters": 0.5,
+          "datum": "root LE",
+          "pAtm": 101325,
+          "alphaDeg": 4,
+          "targetLoadN": null
+        },
+        {
+          "caseIndex": 7,
+          "caseKey": "e38301e0459dd54eac3cd28d02ba762ae04460db624973e3008b4d8a4fb3054b",
+          "label": null,
+          "speedMetersPerSecond": 7.202222222222222,
+          "hRefMeters": 0.5,
+          "datum": "root LE",
+          "pAtm": 101325,
+          "alphaDeg": 6,
+          "targetLoadN": null
+        },
+        {
+          "caseIndex": 8,
+          "caseKey": "3839cbfb75fbf12b147af928194162596fcfdeefd13114ba3906666a28702ad5",
+          "label": null,
+          "speedMetersPerSecond": 9.26,
+          "hRefMeters": 0.5,
+          "datum": "root LE",
+          "pAtm": 101325,
+          "alphaDeg": 0,
+          "targetLoadN": null
+        },
+        {
+          "caseIndex": 9,
+          "caseKey": "78055647b0a81608a924dc4d971d78b13dc13cc81f066e06814a806a133d8c3a",
+          "label": null,
+          "speedMetersPerSecond": 9.26,
+          "hRefMeters": 0.5,
+          "datum": "root LE",
+          "pAtm": 101325,
+          "alphaDeg": 2,
+          "targetLoadN": null
+        },
+        {
+          "caseIndex": 10,
+          "caseKey": "9d4b1a7b59bff6921e68d4d9396fdb4a8d2d29a2dd3a220076624d312dac2355",
+          "label": null,
+          "speedMetersPerSecond": 9.26,
+          "hRefMeters": 0.5,
+          "datum": "root LE",
+          "pAtm": 101325,
+          "alphaDeg": 4,
+          "targetLoadN": null
+        },
+        {
+          "caseIndex": 11,
+          "caseKey": "7a7cc4c721c5624bc49590614d170b90ab2ff5e15e688fdb67b9fb873d18826c",
+          "label": null,
+          "speedMetersPerSecond": 9.26,
+          "hRefMeters": 0.5,
+          "datum": "root LE",
+          "pAtm": 101325,
+          "alphaDeg": 6,
+          "targetLoadN": null
+        }
+      ],
+      "events": [
+        {
+          "sequence": 0,
+          "kind": "queued",
+          "atUtc": "2026-11-22T04:00:00+00:00",
+          "reason": null
+        }
+      ],
+      "attempts": []
+    }
+  ]
+}

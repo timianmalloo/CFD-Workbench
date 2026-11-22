@@ -221,11 +221,11 @@ public static class RunRecord
     public static string ContentHash(AnalysisRun run) =>
         Blake3Jcs(Canonical(JsonSerializer.SerializeToElement(run, Options), drop: "contentHash"));
 
-    /// <summary><c>cfdw-project-1</c> with no run, <c>cfdw-project-2</c> with one or more (ADR-0011 §1).</summary>
-    public static string Format(int runCount)
+    /// <summary><c>cfdw-project-1</c> with no run, experiment, or setup; <c>cfdw-project-2</c> otherwise (ADR-0011 §1, Ruling 271 DR-SWP-1).</summary>
+    public static string Format(int runCount, int experimentCount = 0, bool hasSetup = false)
     {
-        Guard.Require(runCount >= 0, "DOC-SCHEMA");
-        return runCount == 0 ? "cfdw-project-1" : "cfdw-project-2";
+        Guard.Require(runCount >= 0 && experimentCount >= 0, "DOC-SCHEMA");
+        return runCount == 0 && experimentCount == 0 && !hasSetup ? "cfdw-project-1" : "cfdw-project-2";
     }
 
     /// <summary>The run key recomputed from the stored manifest (never the stored <c>runKey</c>).</summary>
@@ -315,6 +315,7 @@ public static class RunRecord
             run.Op.Speed, run.Op.PAtm, run.Op.AlphaDeg, run.Reference.SRef, run.Reference.BRef, run.Reference.CRef,
             run.Settings.SingularityCutoff, run.Settings.TeFloorMm);
         RequireFinite(run.Op.HRef, run.Op.Load);
+        Guard.Require(run.Op.Load is null || run.Op.Load.Value > 0, "DOC-SCHEMA");
         // Strips are spanwise lattice rows 0…n−1 in array order, n within the cap, and only a Completed run has them.
         Guard.Require(run.Strips.Count <= MaxStrips && (run.Outcome is RunOutcome.Completed || run.Strips.Count == 0), "DOC-RUN-STRIPS");
         for (int j = 0; j < run.Strips.Count; j++)

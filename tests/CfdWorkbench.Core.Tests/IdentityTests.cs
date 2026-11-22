@@ -143,6 +143,7 @@ internal static class IdentityTests
         SectionEditTests.RunMultiProfile();
         CompatibleTests.Run();
         OverlayTests.Run();
+        SweepStoreTests.Run();
         CorePartition.Run();
         bool emptyPart = part is not null && only is null && ran == 0;
         if (part is { } p)

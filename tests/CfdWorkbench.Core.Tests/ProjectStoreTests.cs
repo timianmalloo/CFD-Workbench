@@ -487,6 +487,7 @@ internal static class ProjectStoreTests
         ["m12c-old-build/fixtures/d2-section-recovery-row.cfdw.json"] = "OPEN cfdw-project-1",
         ["m12c-old-build/fixtures/e1-open-per-surface.cfdw.json"] = "DSL-NOT-ASSESSED",
         ["m12c-old-build/fixtures/e2-open-per-surface-row.cfdw.json"] = "DSL-NOT-ASSESSED",
+        ["swp-old-build/one-sweep.cfdw.json"] = "OPEN cfdw-project-2",
         ["xpa-old-build/mixed-spacing.cfdw.json"] = "OPEN cfdw-project-1",
     };
 

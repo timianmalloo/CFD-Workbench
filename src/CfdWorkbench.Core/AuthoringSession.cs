@@ -25,6 +25,9 @@ public sealed record Envelope(string Format, string ProjectId, SourceRow[] Sourc
     /// <c>cfdw-project-1</c> byte for byte; non-positional, so every existing construction compiles unchanged.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public AnalysisRecords? Analysis { get; init; }
+    /// <summary>Area 4 local-tier sweep experiments (Ruling 271 DR-SWP-1). Omitted when empty.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<SweepExperiment>? Experiments { get; init; }
 }
 public sealed record SessionDraft(string Id, string Base, long Generation, string Rail, string VertexId, byte[] Bytes, string? Profile = null, int Assignment = -1, ThicknessIntent Intent = ThicknessIntent.KeepCurrent, string? Rule = null, string? Curve = null);
 public sealed record SessionBinding(string SourceHash, string Base, string DraftId, long Generation, string Evaluator, string SurfaceHash, string Rail, string VertexId);
@@ -54,6 +57,8 @@ public sealed record SessionEvent(long Sequence, string Operation, string Outcom
     public CatalogTelemetry? Catalog { get; init; }
     /// <summary>Named fields of <c>export.write</c> and <c>export.validate</c> (docs/design/export.md section 7, H7); null otherwise.</summary>
     public ExportTelemetry? Export { get; init; }
+    /// <summary>Named fields of <c>sweep.*</c> events (docs/design/local-sweeps.md §6); null otherwise.</summary>
+    public SweepTelemetry? Sweep { get; init; }
 }
 /// <summary>
 /// One export telemetry row on the session ring. <c>Operation</c> is <c>export.write</c> (one per write attempt) or <c>export.validate</c>
@@ -268,6 +273,7 @@ public sealed class AuthoringSession : IDisposable
         {
             closed = true; events.Clear(); capturedSaveHashes.Clear(); retiredDraftIds.Clear(); stationMemo = null; removeMemo = null;
             sources.Clear(); designs.Clear(); accepted.Clear(); cursors.Clear(); redo.Clear(); operations.Clear();
+            experiments.Clear();
             draft = null; recovery = null; current = null; activeImportReport = null;
             section = null;
             InvalidateEnvelopeSize();
@@ -663,7 +669,7 @@ public sealed class AuthoringSession : IDisposable
         string id = Guid.NewGuid().ToString("D");
         var row = new AcceptedRow(id, parent, p.SourceHash, design, op, draft is null ? null : new(draft.Id, draft.Generation, draft.Rail, draft.VertexId, draft.Intent, draft.Rule, draft.Curve));
         var cursor = new CursorRow(cursors.Count, id, reason, op);
-        var prospective = new Envelope(RunRecord.Format(runs.Count), projectId, nextSources.ToArray(), nextDesigns.ToArray(), [.. accepted, row], [.. cursors, cursor], null) { Analysis = AnalysisCore() };
+        var prospective = new Envelope(RunRecord.Format(runs.Count, experiments.Count), projectId, nextSources.ToArray(), nextDesigns.ToArray(), [.. accepted, row], [.. cursors, cursor], null) { Analysis = AnalysisCore(), Experiments = ExperimentsOrNull() };
         NativeProject.Preflight(prospective, envelopeCap);
         designs.Clear(); designs.AddRange(nextDesigns); sources.Clear(); sources.AddRange(nextSources);
         accepted.Add(row); current = id; cursors.Add(cursor); redo.Clear(); InvalidateEnvelopeSize(); return id;
@@ -2202,8 +2208,8 @@ public sealed class AuthoringSession : IDisposable
         lock (sync)
         {
             Guard.Require(!closed, "DOC-CLOSED");
-            return new(RunRecord.Format(runs.Count), projectId, sources.Select(s => s with { Utf8Base64Chunks = s.Utf8Base64Chunks.ToArray() }).ToArray(), designs.ToArray(), accepted.ToArray(), cursors.ToArray(), CopyRecovery(recovery))
-            { Analysis = AnalysisCore() };
+            return new(RunRecord.Format(runs.Count, experiments.Count), projectId, sources.Select(s => s with { Utf8Base64Chunks = s.Utf8Base64Chunks.ToArray() }).ToArray(), designs.ToArray(), accepted.ToArray(), cursors.ToArray(), CopyRecovery(recovery))
+            { Analysis = AnalysisCore(), Experiments = ExperimentsOrNull() };
         }
     }
     private byte[] SaveImageCore()
@@ -2239,6 +2245,7 @@ public sealed class AuthoringSession : IDisposable
             projectId = env.ProjectId;
             sources.AddRange(env.Sources); designs.AddRange(env.Designs); accepted.AddRange(env.Accepted); cursors.AddRange(env.Cursors); recovery = env.Recovery;
             LoadRuns(env.Analysis);
+            LoadExperiments(env.Experiments);
             current = replay.Current;
             foreach (var row in accepted) if (row.Edit is not null) retiredDraftIds.Add(row.Edit.DraftId);
             if (recovery is not null) retiredDraftIds.Add(recovery.DraftId);
@@ -2341,7 +2348,7 @@ public sealed class AuthoringSession : IDisposable
             var prospective = new AnalysisRecords([.. runs, run], polarSamples.ToArray(), prunedRuns.ToArray(), DiscrepanciesOrNull());
             RunRecord.CheckStore(prospective, AcceptedExists, AcceptedOrdinal);
             Guard.Require(RunRecord.Verify(run) && SurfaceMatches(run), "DOC-INTEGRITY");
-            int bytes = PreflightWithPinReport("record-run", EnvelopeCore() with { Format = RunRecord.Format(runs.Count + 1), Analysis = prospective });
+            int bytes = PreflightWithPinReport("record-run", EnvelopeCore() with { Format = RunRecord.Format(runs.Count + 1, experiments.Count), Analysis = prospective });
             runs.Add(run);
             encodedEnvelopeBytes = bytes;
         }
@@ -2539,8 +2546,13 @@ public sealed class AuthoringSession : IDisposable
         var keys = runs.Select(RunRecord.RecomputedKey).ToArray();
         var keep = new bool[runs.Count];
         for (int i = 0; i < runs.Count; i++) keep[i] = reachable.Contains(runs[i].Inputs.SurfaceHash);
-        // Referenced runs are marked before the per-tier quota, so they never take a quota slot (Ruling 251: on top of it).
+        // Referenced runs are marked before the per-tier quota, so they never take a quota slot (Ruling 251, Ruling 271 DR-SWP-2).
         var referenced = discrepancies.SelectMany(record => new[] { record.BaseRunId, record.ComparedRunId }).ToHashSet(StringComparer.Ordinal);
+        foreach (var exp in experiments)
+        {
+            if (exp.IsArchived) continue;
+            foreach (string runId in exp.SelectedCompletedRunIds()) referenced.Add(runId);
+        }
         int pinned = 0;
         for (int i = 0; i < runs.Count; i++)
             if (!keep[i] && referenced.Contains(runs[i].RunId)) { keep[i] = true; pinned++; }
@@ -2558,6 +2570,158 @@ public sealed class AuthoringSession : IDisposable
         for (string? id = current; id is not null; id = accepted.Single(row => row.Id == id).Parent) revisions.Add(id);
         return accepted.Where(row => revisions.Contains(row.Id))
             .Select(row => designs.Single(design => design.Id == row.DesignId).SurfaceHash).ToHashSet(StringComparer.Ordinal);
+    }
+
+    // ---- Area 4 Local-tier sweeps (Ruling 271) ----
+    readonly List<SweepExperiment> experiments = [];
+
+    private IReadOnlyList<SweepExperiment>? ExperimentsOrNull() => experiments.Count == 0 ? null : experiments.ToArray();
+
+    private void LoadExperiments(IReadOnlyList<SweepExperiment>? loaded)
+    {
+        if (loaded is null) return;
+        experiments.AddRange(loaded);
+    }
+
+    private string? AcceptedSurfaceHash(string acceptedId)
+    {
+        var row = accepted.SingleOrDefault(item => item.Id == acceptedId);
+        return row is null ? null : designs.Single(design => design.Id == row.DesignId).SurfaceHash;
+    }
+
+    /// <summary>
+    /// Read-only snapshot of the active Goal state for Area 4 sweeps (Ruling 271). Returns null until Wave C (SET-BUILD)
+    /// wires live Goal states into Core without editing Desktop/Sweeps.
+    /// </summary>
+    public GoalStateSweepSnapshot? CurrentGoalSweepSnapshot() => Run("current-goal-sweep-snapshot", () =>
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            return (GoalStateSweepSnapshot?)null;
+        }
+    });
+
+    /// <summary>Measured serialized byte size of the current save image (for sweep storage headroom, IO1).</summary>
+    public int DocumentBytes()
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            if (encodedEnvelopeBytes is { } cached) return cached;
+            int bytes = NativeProject.Encode(EnvelopeCore()).Length;
+            encodedEnvelopeBytes = bytes;
+            return bytes;
+        }
+    }
+
+    /// <summary>Every stored sweep experiment in document order, with its hash integrity recomputed now.</summary>
+    public IReadOnlyList<StoredSweepExperiment> ReadExperiments() => Run("read-experiments", () =>
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            return (IReadOnlyList<StoredSweepExperiment>)experiments.Select(exp => new StoredSweepExperiment(exp,
+                SweepRecords.Verify(exp) && AcceptedSurfaceHash(exp.Definition.DesignRef.AcceptedId) == exp.Definition.DesignRef.SurfaceHash
+                    ? SweepIntegrity.Intact
+                    : SweepIntegrity.PayloadFailedCheck)).ToArray();
+        }
+    });
+
+    /// <summary>Appends a new sweep experiment (Draft or Queued) after validating all structural and integrity invariants.</summary>
+    public void RecordExperiment(SweepExperiment experiment) => Run("record-experiment", () =>
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(current is not null, "DOC-EMPTY");
+            Guard.Require(experiment is not null && SweepRecords.Verify(experiment), "DOC-INTEGRITY");
+            SweepExperiment[] prospective = [.. experiments, experiment!];
+            SweepRecords.Check(prospective, AnalysisCore(), AcceptedExists, AcceptedSurfaceHash);
+            int bytes = PreflightWithPinReport("record-experiment",
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length), Experiments = prospective });
+            experiments.Add(experiment!);
+            encodedEnvelopeBytes = bytes;
+            return true;
+        }
+    });
+
+    /// <summary>Updates a Draft sweep experiment before Queue. Refuses any Queued experiment (XS-03).</summary>
+    public void UpdateDraftExperiment(SweepExperiment updated) => Run("update-draft-experiment", () =>
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(current is not null, "DOC-EMPTY");
+            Guard.Require(updated is not null && SweepRecords.Verify(updated), "DOC-INTEGRITY");
+            int idx = experiments.FindIndex(item => item.Id == updated!.Id);
+            Guard.Require(idx >= 0, "DOC-REFERENCE");
+            // XS-03: once Queued, Definition, Cases, DesignRef, GoalStateRef, and BackendPin are immutable.
+            Guard.Require(!experiments[idx].IsQueued, "DOC-SCHEMA");
+            var prospective = experiments.ToArray();
+            prospective[idx] = updated!;
+            SweepRecords.Check(prospective, AnalysisCore(), AcceptedExists, AcceptedSurfaceHash);
+            int bytes = PreflightWithPinReport("update-draft-experiment",
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length), Experiments = prospective });
+            experiments[idx] = updated!;
+            encodedEnvelopeBytes = bytes;
+            return true;
+        }
+    });
+
+    /// <summary>Appends one lifecycle event (Queued, CancelRequested, Archived) to an existing sweep experiment.</summary>
+    public void AppendSweepEvent(string experimentId, ExperimentEvent ev, BackendPin? backendPin = null) => Run("append-sweep-event", () =>
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(current is not null, "DOC-EMPTY");
+            int idx = experiments.FindIndex(item => item.Id == experimentId);
+            Guard.Require(idx >= 0, "DOC-REFERENCE");
+            var existing = experiments[idx];
+            var nextPin = ev.Kind == SweepEventKind.Queued ? (backendPin ?? existing.BackendPin) : existing.BackendPin;
+            var updated = existing with { BackendPin = nextPin, Events = [.. existing.Events, ev] };
+            var prospective = experiments.ToArray();
+            prospective[idx] = updated;
+            SweepRecords.Check(prospective, AnalysisCore(), AcceptedExists, AcceptedSurfaceHash);
+            int bytes = PreflightWithPinReport("append-sweep-event",
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length), Experiments = prospective });
+            experiments[idx] = updated;
+            encodedEnvelopeBytes = bytes;
+            return true;
+        }
+    });
+
+    /// <summary>Appends one execution attempt to a Queued, non-archived sweep experiment (append-only, never overwrites).</summary>
+    public void RecordSweepAttempt(string experimentId, SweepAttempt attempt) => Run("record-sweep-attempt", () =>
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(current is not null, "DOC-EMPTY");
+            int idx = experiments.FindIndex(item => item.Id == experimentId);
+            Guard.Require(idx >= 0, "DOC-REFERENCE");
+            var existing = experiments[idx];
+            Guard.Require(existing.IsQueued && !existing.IsArchived, "DOC-SCHEMA");
+            var updated = existing with { Attempts = [.. existing.Attempts, attempt] };
+            var prospective = experiments.ToArray();
+            prospective[idx] = updated;
+            SweepRecords.Check(prospective, AnalysisCore(), AcceptedExists, AcceptedSurfaceHash);
+            int bytes = PreflightWithPinReport("record-sweep-attempt",
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length), Experiments = prospective });
+            experiments[idx] = updated;
+            encodedEnvelopeBytes = bytes;
+            return true;
+        }
+    });
+
+    /// <summary>Normal-path sweep telemetry entry (docs/design/local-sweeps.md §6, IO1–IO12). Closed session drops.</summary>
+    public void RecordSweepEvent(string operation, string outcome, double? durationMilliseconds, SweepTelemetry fields)
+    {
+        Guard.Require(operation.StartsWith("sweep.", StringComparison.Ordinal), "DSL-RANGE");
+        lock (sync)
+        {
+            if (closed) return;
+            if (events.Count == 256) events.Dequeue();
+            events.Enqueue(new SessionEvent(eventSequence++, operation, outcome, durationMilliseconds, null, null, trace.Value,
+                null, null, sources.Count, accepted.Count, operation) { Sweep = fields });
+        }
     }
     #endregion
 }
@@ -2668,19 +2832,27 @@ public static class NativeProject
         try
         {
             using var doc = JsonDocument.Parse(bytes, new JsonDocumentOptions { MaxDepth = 32 }); var root = doc.RootElement;
-            Exact(root, ["format", "projectId", "sources", "designs", "accepted", "cursors", "recovery"], ["analysis"]);
-            // Expand (ADR-0011 §5): -1 and -2 are read. The format is derived from the run count, so it must agree with
-            // the analysis member: -1 never carries one, -2 always carries at least one run.
+            // Staged fail-closed admission (Ruling 271 DR-SWP-1): Wave B admits ["analysis", "experiments"]; Wave C widens to include "setup".
+            Exact(root, ["format", "projectId", "sources", "designs", "accepted", "cursors", "recovery"], ["analysis", "experiments"]);
             string? format = root.GetProperty("format").GetString();
             Guard.Require(format is "cfdw-project-1" or "cfdw-project-2", "DOC-VERSION");
+            int runCount = 0;
             bool hasAnalysis = root.TryGetProperty("analysis", out var analysisElement);
             if (hasAnalysis)
             {
                 Exact(analysisElement, ["runs", "polarSamples", "pruned"], ["discrepancies"]);
                 Guard.Require(analysisElement.GetProperty("runs").ValueKind == JsonValueKind.Array, "DOC-SCHEMA");
-                Guard.Require(format == RunRecord.Format(analysisElement.GetProperty("runs").GetArrayLength()), "DOC-SCHEMA");
+                runCount = analysisElement.GetProperty("runs").GetArrayLength();
+                Guard.Require(runCount > 0, "DOC-SCHEMA");
             }
-            else Guard.Require(format == RunRecord.Format(0), "DOC-SCHEMA");
+            int experimentCount = 0;
+            if (root.TryGetProperty("experiments", out var experimentsElement))
+            {
+                Guard.Require(experimentsElement.ValueKind == JsonValueKind.Array, "DOC-SCHEMA");
+                experimentCount = experimentsElement.GetArrayLength();
+                Guard.Require(experimentCount > 0, "DOC-SCHEMA");
+            }
+            Guard.Require(format == RunRecord.Format(runCount, experimentCount), "DOC-SCHEMA");
             foreach (var s in root.GetProperty("sources").EnumerateArray()) Exact(s, "id", "utf8Base64Chunks");
             foreach (var d in root.GetProperty("designs").EnumerateArray()) Exact(d, "id", "parent", "surfaceHash", "evaluator");
             foreach (var a in root.GetProperty("accepted").EnumerateArray())
@@ -2794,6 +2966,10 @@ public static class NativeProject
         {
             var ordinals = e.Accepted.Select((row, index) => (row.Id, Ordinal: index + 1)).ToDictionary(item => item.Id, item => item.Ordinal, StringComparer.Ordinal);
             RunRecord.CheckStore(e.Analysis, accepted.ContainsKey, id => ordinals.TryGetValue(id, out int ordinal) ? ordinal : null);
+        }
+        if (e.Experiments is not null)
+        {
+            SweepRecords.Check(e.Experiments, e.Analysis, accepted.ContainsKey, id => accepted.TryGetValue(id, out var row) ? designs[row.DesignId].SurfaceHash : null);
         }
         if (e.Recovery is not null)
         {
