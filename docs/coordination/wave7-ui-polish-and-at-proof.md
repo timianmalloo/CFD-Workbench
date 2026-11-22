@@ -2,7 +2,7 @@
 id: coordination-wave7-ui-polish-and-at-proof
 title: "Coordination plan - wave 7: Desktop UI P1/P2 polish, Sweeps/Setup theme reactivity, and Windows UIA native proof"
 type: plan
-status: active
+status: complete
 owner: "@timianmalloo"
 tags: [coordination, worktrees, ui-polish, accessibility, uia, avalonia, wave7]
 links:
@@ -231,10 +231,59 @@ earns **context hygiene** (each track stays well under the 400k token ceiling wi
 |---|---|---|---|
 | Independent Adversary Plan Review | `Wave 7 Adversary Plan Reviewer` (`Test Architect` hard veto · `Simplifier` soft veto · `Tech Lead` casting vote) | **PASS-WITH-CONDITIONS → CLEARED** | Folded all 6 conditions (`C-1..C-6`) + `S-1/S-2`: (C-1/S-1) retained tested `FloatFrame.cs`/`FloatPlacement.cs` for `ShellModelTests.cs` while deleting dead `RailControlsTool`; (C-2) preserved Ruling 125 `COPY-404` (`"Section"`) verbatim with `"Section analysis"` tooltip/AT disambiguation, preserved Ruling 108 `Labels.OverlayMenu` constant while removing inert `▾` legend rendering, and added `SectionMainAreaTests.cs` (`W7-SHELL`) + `DxSectionTests.cs` (`W7-ANA-AT`); (C-3) added `Shell/ShellHost.cs` to `W7-CAD`, marked all 7 `(new)` files, noted co-located `MainWindow.axaml.cs` dialogs, added `ElevationView.cs` to `W7-ANA-AT`; (C-4) restored `F-40` Start `.cfdw.json`, `F-38` Imperial depth layers, `F-45` `"CDi (Trefftz)"` check, explicit `F-39`/`F-46` dispositions, and 27 unruled Wave 2 `COPY-*` rows noted as out-of-scope; (C-5) required `DesktopChecks.Spawn` + `ScaleModes` ring wiring, dedicated MTA thread for `IUIAutomation` (anti-deadlock), `THEME-EXT-ROW` frozen-row guard, and corrected GO14a allowlist + `UI-CS-TOKEN` wrapper/size scan; (C-6) exact DC-189 quotes & line numbers (`ADR-0010:81-83`, Rulings `271:2025`, `272:2031`, `273:2037`); (S-2) YAGNI escape hatch for `window.maximize-pane`. |
 
+## Planned vs actual (record by `agy-w7-coord`, 2026-11-22; final at W7-ANA-AT join `fe28f9bf`)
+
+**Outcome.** All three serial tracks (`W7-SHELL` → `W7-CAD` → `W7-ANA-AT`) completed, cleared independent Adversary review
+(`w7-verifier`: UX & Accessibility HARD VETO + Test Architect HARD VETO + Hydrodynamicist + Native Desktop + Simplifier)
+on **first pass with zero repair cycles**, and merged cleanly onto `main` via `conductor-join.py` (`--no-push`). Integrated
+suite on `main` at `fe28f9bf`: **`TESTS-GREEN 369 s`** (`CfdWorkbench.Core.Tests` 973 passed / 7 skipped / 0 failed;
+`CfdWorkbench.Analysis.Tests` 326 / 1 / 0; `CfdWorkbench.Desktop.Tests` 962 / 1 / 0; `CfdWorkbench.Cli.Tests` 38 / 1 / 0;
+Python unittest 10 / 0 = **2,309 passed, 10 skipped, 0 failed**), `xaml-token-lint.py` clean, `check-event-subscribers.py`
+0 findings (39 events, 4 allowed), `UI-CS-TOKEN` (`TokenDisciplineTests`) 0 findings across 68 Desktop `.cs` files / 274
+resource keys, real OS Windows `IUIAutomation` (`UIAutomationCore.dll` MTA COM) `--uia-probe` 9/9 surfaces PASS, expanded
+`--theme-matrix` 302 frozen `THEME-ROW` untouched + 87 `THEME-EXT-ROW` + 3 200% modals PASS, `tools/check-docs.py` exit 0,
+and **10/10 `run-verify-gates.py` PASS** (`verify-ruling-citations.py` 273/273 OK, `verify-no-machine-paths.py` 712 clean).
+Zero merge conflicts; zero Desktop harness timeouts; all share workspaces cleanly torn down (`git worktree list` = primary
+only).
+
+### 1. Per track
+
+| track | swarm worker & workspace | planned budget | wall span (UTC) | repair cycles (cap 2) | Adversary verdict & result | join commit |
+|---|---|---|---|---|---|---|
+| **W7-SHELL** (Wave 7A) | `w7-shell-hig` (`share`, resumed after CLI crash) | 150 calls · 320k · 2 h | 15:55Z–17:05Z (~64 min active; 6 min session-crash gap at 16:51Z–16:57Z) | 0 | `PASS` (`#7`, commit `a548bbad`, 24 files incl. approved Seam `#82`): `F-18/F-19/F-20/F-22/F-23/F-32/F-34/F-35/F-36/F-40/F-42/F-43/F-44`; 200% modal scaling (`ExportDialog` + `MainWindow` dialogs), Windows HIG mnemonics/`Ctrl+Y`/`Ctrl+F`, macOS About + 4-size `app-icon.ico`, `Close foil`, dirty dot in title/tab, Dock `Size` proportions, `Styles.axaml` consolidation + legacy pruning, `DESIGN.md` §4/§5 reconciliation; 10/10 red-first `UiW7ShellTests` + 10/10 live mutants killed; `TESTS-GREEN 374 s` | `1eb3ebd0` |
+| **W7-CAD** (Wave 7B) | `w7-cad-polish` (`share`) | 180 calls · 380k · 2.5 h | 17:21Z–18:25Z (64 min) | 0 | `PASS` (`#15`, commit `71eae2c8`, 26 owned files): `F-21/F-24/F-25/F-26/F-27/F-33/F-37/F-39/F-40/F-41/F-42/F-44/F-45/F-46`; removed synchronous `PumpUi`/`RunJobs` 8 s spin loops in `PropertiesPane`/`BrowserPane`, `SectionCanvas` zoom/pan/`Delete`/`C`-sync/hit-test, Front `port`/Four-View/`ScopeChip`/`PlanCanvas` clipping fixes, `BrowserPane` in-place rail diffing + single-parse `FoilSource`, `PointsPane` text scale + `CombPlate` stretch, shared `PointContextMenu.cs`, `PropFontFamily`/`PropFontSize` across CAD canvases (0 `Color.Parse` hexes, 0 `< 11 px` fonts), distinct Browser vs Points pane headers/AT; 7/7 red-first `UiW7CadTests` + 7/7 live mutants killed; `TESTS-GREEN 368 s` | `febb0bfc` |
+| **W7-ANA-AT** (Wave 7C) | `w7-analysis-uia` (`share`) | 180 calls · 380k · 2.5 h | 18:42Z–19:24Z (42 min) | 0 | `PASS` (`#21`, commit `fe415053`, 31 owned files): `F-18` Analysis (omit inert `Overlay` label while preserving Ruling 108 `Labels.OverlayMenu`), `F-28/F-29/F-36/F-37/F-38/F-40/F-41` Analysis polish + Imperial `kn`/`ft` units, Wave 6 live `ActualThemeVariantChanged` + `≥ 11 px` ticks on `PerformanceCurveChart` & `PlanformPreviewControl`, `UI-CS-TOKEN` static guard (`68` files / `274` keys / `0` findings), real OS Windows `UIAutomationCore.dll` MTA COM `--uia-probe` (`9/9` surfaces PASS), expanded `--theme-matrix` (`302` frozen + `87` `THEME-EXT-ROW` + `3` 200% modals), §13 Post-Wave-7 Addendum in `docs/reviews/ui-as-built-workbench.{md,html}`, 4 controlled defect classes (`UI-CS-TOKEN`, `UI-HOVER-INVERT`, `UI-ENV-ONLY-A11Y`, `UI-DETACHED-DUP`); 8 mutants killed; `TESTS-GREEN 369 s` | `fe28f9bf` |
+
+*(Per-worker tool-call and token counts are Not recorded because AGY swarm status does not expose worker counters; wall
+spans are Measured from board timestamps and session logs.)*
+
+### 2. Seams, crash recovery & findings
+
+- **Seam `#81` → `#82` (`W7-SHELL`):** Coordinator approved a strictly scoped 2-file seam granting
+  `src/CfdWorkbench.Desktop/WorkbenchController.cs` (`public void CloseFoil()` only) and
+  `tests/CfdWorkbench.Desktop.Tests/ControllerShellOneDriveTests.cs` (F-22 title assertion update) so `F-19` and `F-22`
+  landed without breaking existing tests. Zero overlap because Wave 7 ran serially at width 1.
+- **Session-crash recovery during Wave 7A:** The prior Antigravity CLI process exited (`-1073741510`) at `16:51:41Z` while
+  `w7-shell-hig` was running `bash tools/run-tests.sh` in `swarm-w7-shell-hig-fab00693`. Resuming in a fresh coordinator
+  session (`80549eef`), `w7-shell-hig` picked up all 24 uncommitted files in place, completed `run-tests.sh` (`TESTS-GREEN`),
+  committed `a548bbad`, cleared `w7-verifier` on first pass, joined cleanly at `1eb3ebd0`, and removed the old worktree —
+  zero lost work.
+- **Width-1 Simplifier / GO5 serialization paid cleanly:** Zero merge conflicts across `Styles.axaml`, `ShellHost.cs`,
+  `WorkbenchController.cs`, `WorkbenchTests.cs`, and `ElevationView.cs`; zero Desktop display-harness timeouts; fresh
+  context per track kept all three tracks comfortably inside budget; and `W7-ANA-AT`'s `UI-CS-TOKEN` guard found zero
+  violations outside its own paths because `W7-SHELL` and `W7-CAD` had already cleaned their C# styling before Wave 7C
+  branched.
+- **Honestly remaining open / `Flagged` items (recorded in `docs/reviews/ui-as-built-workbench.md` §13):**
+  1. 27 remaining Wave 2 proposed `COPY-*` rows (`COPY-611..633`, `COPY-591..594`) not included in Ruling 273 — awaiting
+     future operator ruling.
+  2. Live NVDA speech capture (`nvda.exe` not installed on host), live macOS VoiceOver capture (Windows ARM64 host), and
+     Authenticode/Gatekeeper signing (no signing cert in repo) — honestly `Flagged`, never faked.
+  3. `PropertiesFieldNudge` remains gated off on Windows (`B7/B8` Narrator gate enforced by `PropertiesViewTests`).
+
 ## Status
 
 | | |
 |---|---|
-| **Completed** | Pushed Wave 6 (`0b578678`), recorded Operator Ruling 273 (`6da064d4`), grounded layer state (`coord doctor` exit 0, `UIAutomationCore.dll` loaded, `nvda.exe` absent), drafted & Adversary-cleared `docs/coordination/wave7-ui-polish-and-at-proof.md` (`C-1..C-6`, `S-1..S-2` folded) |
-| **Remaining** | S0 commit → serial swarm execution (`W7-SHELL` → `W7-CAD` → `W7-ANA-AT`) → independent Adversary verification & `conductor-join.py` merges → Planned vs Actual closeout |
-| **Best next action** | Commit S0 (`wave7-ui-polish-and-at-proof.{md,html}` + graph + audit) and dispatch `w7-verifier` + Wave 7A `w7-shell-hig` (`W7-SHELL`) |
+| **Completed** | All 3 tracks (`W7-SHELL` `1eb3ebd0`, `W7-CAD` `febb0bfc`, `W7-ANA-AT` `fe28f9bf`) cleared independent Adversary review on first pass and merged onto `main` via `conductor-join.py --no-push`; integrated suite `TESTS-GREEN 369 s` (2,309 passed / 10 skipped / 0 failed), `UI-CS-TOKEN` 0 findings (68 files / 274 keys), real OS Windows `IUIAutomation` COM `--uia-probe` 9/9 surfaces PASS, expanded `--theme-matrix` (302 frozen + 87 extended + 3 200% modals PASS), `xaml-token-lint` clean, `check-event-subscribers` 0 findings, `check-docs.py` exit 0, `10/10` verify gates PASS; all swarm workers retired and share worktrees removed |
+| **Remaining** | (1) Operator decision on pushing `main` (`6da064d4`..`HEAD`, ahead of `origin/main`) to `origin`; (2) Future operator ruling on the 27 remaining Wave 2 proposed `COPY-*` rows (`COPY-611..633`, `COPY-591..594`); (3) Live NVDA / macOS VoiceOver / Authenticode-Gatekeeper signing when those environments/certs are available; (4) Unblocked next-wave work: Area 5 OpenFOAM `--mode openfoam-resume` off Umbrella-filtered network, Area 5 C# Guided Solver Setup (`T1/T5`), and Area 7 `SPIKE-CAD-02` commercial CAM runs |
+| **Best next action** | Review Wave 7 results on `main` (especially `docs/reviews/ui-as-built-workbench.md` §13) and decide whether to push `main` to `origin` |

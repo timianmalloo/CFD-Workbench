@@ -6369,7 +6369,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5106239acc62eb0ec788d2485ea6b7fbf85cb264c8ba3c0b4daaa5657178c709"
+      "sourceSha256": "67d0939a95576012aac0ec08ec19d20c19f2d95031ab1ebd9a0b6b16516b1d11"
     },
     {
       "id": "domain-experts",
@@ -9523,7 +9523,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e86dafb8cebc787cad208e4858c12cdfcd968bf9fd98d44f40a929ff496b8855"
+      "sourceSha256": "dd1d38a1b15b80d0854a8a197ec17c51b684b5aaa9694f71c27ebb3aa5d6c818"
     },
     {
       "id": "review-ui-m12c-paired",
@@ -12609,7 +12609,7 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/wave7-ui-polish-and-at-proof.md",
       "title": "Coordination plan - wave 7: Desktop UI P1/P2 polish, Sweeps/Setup theme reactivity, and Windows UIA native proof",
       "type": "plan",
-      "status": "active",
+      "status": "complete",
       "owner": "@timianmalloo",
       "phase": "",
       "reviewBy": "2027-02-22",
@@ -12647,7 +12647,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1f61f183c6778d494081730f96cd027646e28fe337b0e72d83a30d780f55b866"
+      "sourceSha256": "47eb7bec301a79f9e06bf47d5336b2ed74df8180c2e083f9d69aad52e84c9265"
     },
     {
       "id": "coordination-windows-gpu-f1-design",
@@ -25696,5 +25696,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "c362cac414ccd6b118e9b4479f3779a25d00dbf08f0bd45e6833318deeebf83c"
+  "graphSha256": "d3a9b50ae458248e84d3876f0799285588080dc2bfdefb3215093c00a00a8821"
 };

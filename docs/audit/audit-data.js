@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-22T19:36:42Z",
+  "generated": "2026-11-22T19:38:13Z",
   "audit": [
     {
       "actor": null,
@@ -44901,6 +44901,82 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-22T19:29:28Z",
       "duration_seconds": 434.0
+    },
+    {
+      "id": "al-01M82C896MC6WWG00XVJPM576W",
+      "shortname": "coordinate-wave7-ui-polish-and-at-proof",
+      "datetime": "2026-11-22T19:38:13Z",
+      "session": "agy-w7-coord",
+      "prompt": "execute Wave 7 Desktop UI P1/P2 polish, Sweeps/Setup theme reactivity, UI-CS-TOKEN guard, and real Windows UIA native proof across 3 serial swarm tracks (resumed after CLI crash)",
+      "summary": "Wave 7 complete on main (fe28f9bf): W7-SHELL (1eb3ebd0, F-18..F-44 shell/HIG/200% modals/DESIGN.md §5 + Seam #82), W7-CAD (febb0bfc, F-21 async PumpUi removal + F-24..F-46 viewports/inspector), W7-ANA-AT (fe28f9bf, F-18..F-41 Analysis/Imperial units + Sweeps/Setup theme reactivity + UI-CS-TOKEN 68 files/274 keys/0 findings + real OS Windows UIAutomationCore.dll MTA --uia-probe 9/9 surfaces PASS + expanded --theme-matrix 302 frozen/87 ext/3 200% modals + ui-as-built-workbench §13 + 4 defect classes). 3/3 first-pass Adversary PASS, TESTS-GREEN 369 s (2309 passed / 10 skipped / 0 failed), 10/10 verify gates PASS.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/wave7-ui-polish-and-at-proof.md",
+        "docs/reviews/ui-as-built-workbench.md",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Execute Wave 7 Desktop UI P1/P2 polish and real Windows UIA native proof across 3 serial tracks and converge onto main",
+      "done_when": "All 3 tracks verified in Adversary Mode, joined via conductor-join.py, worktrees cleaned, Planned vs Actual recorded, gates green",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "duration_source": "session-start-hook",
+      "started_at": "2026-11-22T19:37:16Z",
+      "duration_seconds": 57.0,
+      "agent_runs": [
+        {
+          "agent": "w7-shell-hig",
+          "started_at": "2026-11-22T15:55:26Z",
+          "ended_at": "2026-11-22T17:05:01Z",
+          "duration_seconds": 4175.0,
+          "calls": 0,
+          "budget_calls": 150,
+          "over_budget": false
+        },
+        {
+          "agent": "w7-cad-polish",
+          "started_at": "2026-11-22T17:21:02Z",
+          "ended_at": "2026-11-22T18:25:08Z",
+          "duration_seconds": 3846.0,
+          "calls": 0,
+          "budget_calls": 180,
+          "over_budget": false
+        },
+        {
+          "agent": "w7-analysis-uia",
+          "started_at": "2026-11-22T18:42:52Z",
+          "ended_at": "2026-11-22T19:24:29Z",
+          "duration_seconds": 2497.0,
+          "calls": 0,
+          "budget_calls": 180,
+          "over_budget": false
+        },
+        {
+          "agent": "w7-verifier",
+          "started_at": "2026-11-22T17:05:01Z",
+          "ended_at": "2026-11-22T19:28:43Z",
+          "duration_seconds": 8622.0,
+          "calls": 0,
+          "budget_calls": 120,
+          "over_budget": false
+        }
+      ],
+      "parallelism": {
+        "agent_seconds": 19140.0,
+        "span_seconds": 12797.0,
+        "speedup": 1.5,
+        "peak_concurrency": 2
+      }
     }
   ],
   "changes": [
