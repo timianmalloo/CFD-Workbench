@@ -10322,7 +10322,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7f6d9d970271aaa8eae7799f172da3acdcab12c47a38ee63e48c1a516e516e18"
+      "sourceSha256": "c7b663e9d123d8c02262e9b9030f635544701c27f1a4bfdc765c59ef08d74422"
     },
     {
       "id": "kb-hw-glossary",
@@ -12602,7 +12602,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1fc3486ea2d63df98be014bf62f8d3ec4b113a7b1e28a494b58d4d6405754160"
+      "sourceSha256": "d6566b9b053a9d11c6bea058c713ca72c7a75cab11d43d1067f1d369be3be1dc"
     },
     {
       "id": "coordination-windows-gpu-f1-design",
@@ -19746,6 +19746,62 @@ window.DOCS_INDEX = {
       "sourceSha256": "9eadaee45e837755d74b4a2b2444a7f426ab118b7d2c53526e615c858a17f992"
     },
     {
+      "id": "proof-spike-cad-01",
+      "path": "docs/proof/spike-cad-01/README.md",
+      "title": "SPIKE-CAD-01 Proof Pack: Windows ARM64 ABI Probe & Pure-C# Option B STEP AP203 5-Wing Bake-Off",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "spike — Area 7 (Wave 6 KRN-SPK)",
+      "reviewBy": "2027-05-22",
+      "reviewSuggested": [],
+      "summary": "Empirical execution of ADR-0013 SPIKE-CAD-01 (authorized by Ruling 270) on Windows ARM64 (.NET 10.0.13): (1) Rhino3dm 8.35.0 (MIT) ships verified native PE ARM64 (4.19 MB), PE x64 (4.27 MB), and Mach-O Universal x64+ARM64 (17.95 MB) binaries and loads/round-trips zero-PII millimeter .3dm natively on win-arm64; zero prebuilt win-arm64 or osx-arm64 OCCT NuGet packages exist; (2) Pure-C# Option B cubic (3x3) tensor-product NURBS skinner + direct ISO 10303-21 STEP AP203 writer passes all 5 benchmark wings (4 export.md §3.3 wings + ADR-0010 twisted/blended wing) at 0.010-1.614 um max A-vs-B closest-point deviation (6.2x-1030x below the 10 um floor), passes all 20 Whole/Half x Closed-Shell/Untrimmed STEP syntax/topology/zero-PII/determinism checks, and proves red-first negative controls (16,741.6 um on planted twist omission; RED on planted PII/timestamp). Recommends advancing Option B (+ MIT Rhino3dm 8.35.0) into SPIKE-CAD-02 while keeping OCCT BRepCheck_Analyzer and commercial Fusion/CAM read-back honestly Flagged/deferred to SPIKE-CAD-02.",
+      "tags": [
+        "proof",
+        "spike",
+        "cad",
+        "export",
+        "step",
+        "3dm",
+        "rhino3dm",
+        "occt",
+        "win-arm64",
+        "area-7"
+      ],
+      "links": [
+        {
+          "to": "adr-0013-cad-export-kernel",
+          "rel": "implements"
+        },
+        {
+          "to": "architecture-cad-export-kernel",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-0010-one-placement-rule",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-export",
+          "rel": "depends-on"
+        },
+        {
+          "to": "kernel-spike-occt-loft",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-wave6-and-area5-wsl",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "da983ecd598861a81ebb0bc410bb69d4dc4ae8c9b3206da40ce54473fa61d5f5"
+    },
+    {
       "id": "proof-srs-red-first",
       "path": "docs/proof/srs/red-first.md",
       "title": "SRS red-first receipt",
@@ -25266,6 +25322,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-rail-comb"
     },
     {
+      "id": "surface-proof-spike-cad-01-readme",
+      "path": "docs/proof/spike-cad-01/README.html",
+      "title": "Readme",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "proof-spike-cad-01"
+    },
+    {
       "id": "surface-mockups-section-force-vectors",
       "path": "docs/mockups/section-force-vectors.html",
       "title": "Section force vectors",
@@ -25362,5 +25426,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "45438d40cb5ac23db8c71c8b876e3180e0179c4cb14e63eb0d299045334692e2"
+  "graphSha256": "a19a4c0193e6f7cb3d1fee77291440deeb64fd00a9f0668785606cf5591e350d"
 };
