@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-22T07:04:41Z",
+  "generated": "2026-11-22T07:17:36Z",
   "audit": [
     {
       "actor": null,
@@ -44667,6 +44667,33 @@ window.AUDIT_DATA = {
         "branch": "swarm-w6-setup-build-d549728a",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M811W5T30C30GY2AMCN96RN9",
+      "shortname": "join-w6-set-build",
+      "datetime": "2026-11-22T07:17:36Z",
+      "session": "agy-w6-coord",
+      "prompt": "the join of swarm-w6-setup-build-d549728a into main",
+      "summary": "Joined SET-BUILD (1d18e8e8, SET-1..4): Core SetupRecords/DisciplinePresets/exact 2D RecipeSeeder/ClassRules/SanityBounds + live CurrentGoalSweepSnapshot seam, Analysis GoalFeasibility (GOAL-02 7-pt + 0.3m), CLI seed + inspect --json parity, Desktop Setup workspace (6 hard states + COPY-53 no-key AI-02 + Setup|CAD|Analysis|Sweeps navbar), DESIGN.md COPY-728..749; T1..T14 PASS, Adversary PASS (#77). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land Area 1 Setup and Goal State onto main",
+      "done_when": "SET-BUILD merged via conductor-join.py with TESTS-GREEN, xaml-token-lint, check-event-subscribers, check-docs, and 10/10 verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-22T07:10:16Z",
+      "duration_seconds": 440.0
     }
   ],
   "changes": [
