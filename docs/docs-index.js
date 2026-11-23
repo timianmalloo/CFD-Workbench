@@ -12707,7 +12707,7 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/wave8-remaining-w5-w6-w7-closure.md",
       "title": "Coordination plan - wave 8: autonomous closure of remaining Wave 5, 6, and 7 open items",
       "type": "plan",
-      "status": "active",
+      "status": "complete",
       "owner": "@timianmalloo",
       "phase": "",
       "reviewBy": "2027-02-23",
@@ -12771,7 +12771,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0e668646892ae4b7ccc506505d70323983696df74f90e2e30288ec9fe6fc11ac"
+      "sourceSha256": "f0de64a5b3a87700ae644c4a6b0c98e5fdbf716afceb4234699db0bd9d92d8cb"
     },
     {
       "id": "coordination-windows-gpu-f1-design",
@@ -25889,5 +25889,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "7e77641b4c3f63ecdf698beaad12fcd89f8a08e97b80c18dc53163767066fff8"
+  "graphSha256": "4c81ade15d553981b2501bd3b820f86f7ec6619cf155ff5a7f04a60c7112c29e"
 };

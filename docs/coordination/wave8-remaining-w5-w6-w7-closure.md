@@ -2,7 +2,7 @@
 id: coordination-wave8-remaining-w5-w6-w7-closure
 title: "Coordination plan - wave 8: autonomous closure of remaining Wave 5, 6, and 7 open items"
 type: plan
-status: active
+status: complete
 owner: "@timianmalloo"
 tags: [coordination, worktrees, area-7, area-5, step, 3dm, guided-solver-setup, agy-swarm, wave8]
 links:
@@ -318,10 +318,57 @@ join.
 |---|---|---|---|
 | Independent Adversary Plan Review | `Wave 8 Adversary Plan Reviewer` (`44312930`; `Test Architect` hard veto · `Simplifier` soft veto · `Tech Lead` casting vote) | **PASS-WITH-CONDITIONS → CLEARED** | Folded all 7 verified conditions (`C1–C7`): (C1) added console-harness runner files `IdentityTests.cs`, `AnalysisChecks.cs`, `CliTests.cs`, and `ShellModelTests.cs` to owned paths; (C2) added `src/CfdWorkbench.Desktop/packages.lock.json` and `THIRD-PARTY-NOTICES.md` to `W8-EXP`; (C3) split `W8-SLV-CORE` strictly along `STORE-SUBSET` (`src/CfdWorkbench.Core/SolverSetup/` strictly pure zero-I/O; all filesystem/process/HTTP/WSL/registry I/O and I/O tests in `CfdWorkbench.Analysis/SolverSetup/` and `CfdWorkbench.Analysis.Tests/`) and required `Rhino3dmExport` in Core to be pure in-memory `ToByteArray()`/`FromByteArray()` (else `Analysis/Export`); (C4) fixed oracle path to `cases/tools/foam-dict-lint.py` and replaced `generate-fixture.ps1` with cross-platform `generate-fixture.py`; (C5) corrected all GO14a scan guard roots/allowlists, added `tools/store_subset.py` (`STORE-SUBSET`), and locked `Styles.axaml` theme dictionaries (zero new theme `...Brush` keys per `verify-application-adapters.py`); (C6) specified Dock document hosting via `ShellHost.cs` + existing `"View"` menu (`Modal: false`) + `DesktopChecks.PrintScaleContext` for `--export-cad` and `--solver-setup`; (C7) added `…` ellipses on trimmed DC-189 Ruling 68/69/273 quotes. Tech Lead casting vote: APPROVE 3 serial width-1 `share` tracks + S1 branch prune. |
 
+## Planned vs actual (record by `agy-w8-coord`, 2026-11-23; final at W8-SLV-UI join `d593499a`)
+
+**Outcome.** Serial Spine `S1` pruned all 6 verified `ahead=0` merged remote branches on `origin` (leaving only
+`origin/main`), and all three serial tracks (`W8-EXP` → `W8-SLV-CORE` → `W8-SLV-UI`) completed, cleared independent
+Adversary review (`w8-verifier`: Computational Geometry + Security & Identity + Data & Persistence + Marine-CAD UX +
+Test Architect + Simplifier) on **first pass with zero repair cycles**, and merged cleanly onto `main` via
+`conductor-join.py` (`--no-push`). Integrated suite on `main` at `d593499a`: **`TESTS-GREEN 414 s`**
+(`CfdWorkbench.Core.Tests` 996 passed / 7 skipped / 0 failed; `CfdWorkbench.Analysis.Tests` 339 / 1 / 0;
+`CfdWorkbench.Desktop.Tests` 973 / 1 / 0; `CfdWorkbench.Cli.Tests` 41 / 1 / 0; Python unittest 10 / 0 = **2,359 passed,
+10 skipped, 0 failed**), `xaml-token-lint.py` clean, `check-event-subscribers.py` 0 findings (43 events, 4 allowed),
+`UI-CS-TOKEN` 0 findings, `STORE-SUBSET` ok, `SETUP-04` copy lint 0 findings across all 70 `SolverSetupCopy` constants
+& `COPY-766..805`, `tools/check-docs.py` exit 0, and **10/10 `run-verify-gates.py` PASS**
+(`verify-ruling-citations.py` 274/274 OK, `verify-no-machine-paths.py` 715 clean). Zero merge conflicts; zero Desktop
+harness timeouts; all share workspaces and merged local swarm branches cleanly removed (`git worktree list` = primary
+only).
+
+### 1. Per track
+
+| track | swarm worker & workspace | planned budget | wall span (UTC) | repair cycles (cap 2) | Adversary verdict & result | join commit |
+|---|---|---|---|---|---|---|
+| **S1** (Spine) | `agy-w8-coord` | 1 command (~5 s) | 16:07Z (< 1 min) | 0 | Pruned all 6 verified `ahead=0` merged remote branches on `origin`; only `origin/main` remains | `96de7152` (S0) |
+| **W8-EXP** (Wave 8A) | `w8-cad-export` (`share`) | 200 calls · 380k · 2.5 h | 16:08Z–16:43Z (35 min) | 0 | `PASS` (`#32`, commit `3a40f930`, 28 owned files + `docs-index.js`): Export Slice B design (`docs/design/export-step-3dm.{md,html}`), pure in-memory `STORE-SUBSET` Core (`CadExportExtractor` `t_i -> eta_i = x_channel(t_i)` ≤ 10 µm across all 5 wings; `ICadStepExporter` + `StepAp203Export` `Whole`/`Half` × `ClosedShell`/`Untrimmed` zero-PII AP203; `StepVerifier` separating `OPEN_SHELL` deg-1 boundary vs deg-2 interior edges; pure in-memory MIT `Rhino3dm 8.35.0` `Rhino3dmExport` live `win-arm64` `< 1e-6 mm` round-trip, `packages.lock.json` + `THIRD-PARTY-NOTICES.md`), `CadExportReleaseGate` keeping `COPY-481` intact in production `ExportDialog` while unlocking cleanly on injected verified Fusion/FreeCAD/Vectric/Rhino 8 receipts, CLI `export --format step\|3dm`, cross-platform Python `generate-fixture.py` + `verify-open-measure.py --self-test` (1 green + 8 red-first) + runbook; 4/4 mutants killed, 13/13 gates exit 0, `TESTS-GREEN 421 s` | `15e7c884` |
+| **W8-SLV-CORE** (Wave 8B) | `w8-solver-core` (`share`) | 220 calls · 380k · 2.5 h | 17:01Z–17:41Z (40 min) | 0 | `PASS` (`#39`, commit `1f0b14fc`, 27 owned files + `docs-index.js`): Pure zero-I/O `T1` Core (`RouteCatalogue` BLAKE3+SHA-256 manifest, `SolverSetupRecords`, `StepSelector` `R1–R5`/`SETUP-05/07/08`, `SolverLauncherPolicy` `M1/M2/M3/M6`, `SetupCopyLint` `SETUP-04`, zero-PII `SetupReportBuilder`, `T4` `AI-11` `SetupAssistantValidator`), Analysis I/O (`SetupFactStore` `FileShare.Read\|Delete`, `SolverLauncher` `M1–M8` executing real `cases/tools/foam-dict-lint.py` oracle exit 0 clean / exit 3 hostile, live read-only Windows 11 ARM64 build 28000 survey in `133 ms` UTF-16 `wsl.exe` parser without mutating `Ubuntu-24.04` or `cfdw-openfoam2512-arm64`, loopback `HttpListener` download+SHA-256 `.part` cleanup, `ROUTE-PARENT-MISSING` R133, injected `IRunOnceStore`, macOS fixtures, `SolverSetupService`/`Projection`, `Labels`), CLI `solver-setup survey\|status\|report --json`, `docs/design/guided-solver-setup.md` `status: approved (Ruling 69)` + §0 Verified row; 10/10 mutants killed, 10/10 gates exit 0, `TESTS-GREEN 397 s` | `57fbd4e1` |
+| **W8-SLV-UI** (Wave 8C) | `w8-solver-ui` (`share`) | 160 calls · 350k · 2 h | 18:10Z–18:43Z (33 min) | 0 | `PASS` (`#48`, commit `e450d2b4`, 16 owned files): non-blocking Dock `SolverSetupView` via `ShellHost.cs` (0 `ModelArea.axaml*` edits, 0 new theme `...Brush` keys in `Styles.axaml`, all 6 hard states, collapsed `DR-SETUP-5` `Technical details`, `DR-SETUP-1` `Other options` switcher, zero-PII `Copy a report`, key-free offline rails + `AI-11` validator), `StatusStrip` derived `Solver` item + click-to-open + `FitItems()`, `View > Set up a solver` (`Modal: false`, `ShellModelTests` parity), subtle `AnalysisPanel` entry, `DESIGN.md` proposed `COPY-766..805` (70 `SolverSetupCopy` constants + `COPY-766..805` 0 findings under `SETUP-04` `SetupCopyLint`), `--solver-setup` ring wired; 4/4 mutants killed, 11/11 gates exit 0, `TESTS-GREEN 414 s` | `d593499a` |
+
+*(Per-worker tool-call and token counts are Not recorded because AGY swarm status does not expose worker counters; wall
+spans are Measured from board timestamps.)*
+
+### 2. Seams, join observations & follow-ups
+
+- **Adversary plan review conditions (`C1–C7`) paid off immediately:** Pre-flight `STORE-SUBSET` separation (`Core` pure
+  in-memory vs `Analysis` I/O), `packages.lock.json` + `THIRD-PARTY-NOTICES.md` ownership, exact harness registration
+  files (`IdentityTests.cs`, `AnalysisChecks.cs`, `CliTests.cs`, `ShellModelTests.cs`), `cases/tools/foam-dict-lint.py`,
+  cross-platform `generate-fixture.py`, and `Styles.axaml` closed theme-brush lock resulted in **0 repair cycles and 0
+  seam requests** across all 3 tracks.
+- **Transient Desktop display hiccup on `W8-SLV-CORE` join (`task-263` → `task-277`):** First `join-ring.sh` run failed
+  2/966 Desktop tests on Windows display focus; direct Desktop re-run passed `966/966` (`0 failed`), and
+  `conductor-join.py --continue --no-push` passed full `TESTS-GREEN 397 s` + `10/10` verify gates cleanly.
+- **Non-blocking carry-forward notes:**
+  1. `W8-EXP` (`w8-verifier` `#32`): `tools/spikes/cad-export-measure/verify-open-measure.py:40` `_is_finite_number` can
+     add `math.isfinite` in a future pass (C# `CadExportReleaseGate.cs:160` already checks `double.IsFinite`).
+  2. Proposed copy rows added in Wave 8 (`COPY-750..757` for Export Slice B, `COPY-766..805` for Guided Solver Setup —
+     48 rows total) are ready for a future operator batch ruling (same pattern as Rulings 273 & 274).
+  3. Honestly external/host-blocked items remain unchanged: `A5-RESUME` (`openfoam2512` apt + `petsc4Foam` on an
+     unfiltered network off Cisco Umbrella), `SPIKE-CAD-02` manual open-and-measure in Fusion / FreeCAD CAM / Vectric
+     VCarve/Aspire / Rhino 8 (lifting `COPY-481` + accepting `ADR-0013`), `impeccable` on macOS/x64, and code signing.
+
 ## Status
 
 | | |
 |---|---|
-| **Completed** | Grounded layer state (`coord doctor` exit 0, 42/42 terminal requests, 3 merge drivers effective), verified Rulings 68/69/70 already cleared Guided Solver Setup (`M1–M8`, `DR-SEC-1 A`, `DR-F3-1 A`, `solver-setup.html`, `DR-SETUP-1..6`), verified live host probes, drafted & Adversary-cleared `docs/coordination/wave8-remaining-w5-w6-w7-closure.md` (`C1–C7` folded) |
-| **Remaining** | S0 commit + S1 remote branch prune → serial swarm execution (`W8-EXP` → `W8-SLV-CORE` → `W8-SLV-UI`) → independent Adversary verification & `conductor-join.py --no-push` merges → Planned vs Actual closeout |
-| **Best next action** | Render `.html`, run docs/PII/ruling/verify gates, commit S0 on `main`, prune the 6 merged remote branches (S1), and launch `monitor` + `w8-verifier` + Wave 8A `w8-cad-export` (`W8-EXP`) |
+| **Completed** | S1 pruned all 6 merged remote branches on `origin`; all 3 Wave 8 tracks (`W8-EXP` `15e7c884`, `W8-SLV-CORE` `57fbd4e1`, `W8-SLV-UI` `d593499a`) cleared independent Adversary review on first pass and merged onto `main` via `conductor-join.py --no-push`; integrated suite `TESTS-GREEN 414 s` (2,359 passed / 10 skipped / 0 failed), `xaml-token-lint` clean, `check-event-subscribers` 0 findings (43/4/0), `UI-CS-TOKEN` 0 findings, `STORE-SUBSET` ok, `SETUP-04` 0 findings, `check-docs.py` exit 0, `10/10` verify gates PASS; all swarm workers and share workspaces removed |
+| **Remaining** | (1) Operator decision on pushing `main` (`96de7152`..`HEAD`) to `origin`; (2) Optional batch operator ruling on the 48 new Wave 8 proposed copy rows (`COPY-750..757`, `COPY-766..805`); (3) External-host/network-gated items: run `tools/wsl-build-openfoam-cuda.sh --mode openfoam-resume` off Umbrella-filtered network (`A5-RESUME`), run `tools/spikes/cad-export-measure/generate-fixture.py` + open in Fusion/FreeCAD CAM/VCarve/Rhino 8 (`SPIKE-CAD-02` → `cad-open-measure.json` → accept `ADR-0013`), and Wave 10+ (CFD Run Pipeline, Area 6 Results, 7-Area Rail, Cross-Area AI) |
+| **Best next action** | Review Wave 8 results on `main`, decide whether to push `main` to `origin`, and either rule on `COPY-750..757` & `COPY-766..805` or proceed to external `SPIKE-CAD-02` / `A5-RESUME` / Wave 10 |

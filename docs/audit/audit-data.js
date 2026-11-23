@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-23T18:56:56Z",
+  "generated": "2026-11-23T18:58:32Z",
   "audit": [
     {
       "actor": null,
@@ -45095,6 +45095,82 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-23T18:48:41Z",
       "duration_seconds": 495.0
+    },
+    {
+      "id": "al-01M84WCBJ858VAJ2M7QQGJC648",
+      "shortname": "coordinate-wave8-remaining-w5-w6-w7-closure",
+      "datetime": "2026-11-23T18:58:32Z",
+      "session": "agy-w8-coord",
+      "prompt": "/prepare-for-coordination all Still open wave 5,6 and 7 items (ignore accessibility features like voice over) then /execute-with-coordination using swarm",
+      "summary": "Wave 8 complete on main (d593499a): S1 pruned all 6 verified ahead=0 merged remote branches on origin; W8-EXP (15e7c884, Area 7 STEP AP203 & MIT Rhino3dm 8.35.0 export, Slice B design, CadExportExtractor t_i->eta_i, StepVerifier OPEN_SHELL boundary/interior, CadExportReleaseGate preserving COPY-481, CLI export, cross-platform Python SPIKE-CAD-02 harness); W8-SLV-CORE (57fbd4e1, Area 5 Guided Solver Setup pure STORE-SUBSET T1 Core + Analysis M1-M8 Product Launcher w/ real cases/tools/foam-dict-lint.py oracle + live 133ms Windows 11 ARM64 read-only survey + loopback HttpListener + R133 ROUTE-PARENT-MISSING + T4 AI-11 validator + CLI); W8-SLV-UI (d593499a, Dock SolverSetupView 6 hard states + collapsed Technical details + Other options + zero-PII Copy a report + StatusStrip Solver item + View > Set up a solver + SETUP-04 copy lint 0 findings across 70 constants & COPY-766..805). 3/3 first-pass Adversary PASS, TESTS-GREEN 414 s (2359 passed / 10 skipped / 0 failed), 10/10 verify gates PASS.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/wave8-remaining-w5-w6-w7-closure.md",
+        "docs/design/export-step-3dm.md",
+        "docs/design/guided-solver-setup.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Autonomously close all executable remaining open items from Waves 5, 6, and 7 (excluding accessibility/VoiceOver) via AGY swarm and converge onto main",
+      "done_when": "S1 pruned, all 3 tracks verified in Adversary Mode, joined via conductor-join.py, worktrees cleaned, Planned vs Actual recorded, gates green",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "duration_source": "session-start-hook",
+      "started_at": "2026-11-23T18:58:09Z",
+      "duration_seconds": 23.0,
+      "agent_runs": [
+        {
+          "agent": "w8-cad-export",
+          "started_at": "2026-11-23T16:08:16Z",
+          "ended_at": "2026-11-23T16:43:06Z",
+          "duration_seconds": 2090.0,
+          "calls": 0,
+          "budget_calls": 200,
+          "over_budget": false
+        },
+        {
+          "agent": "w8-solver-core",
+          "started_at": "2026-11-23T17:01:51Z",
+          "ended_at": "2026-11-23T17:41:55Z",
+          "duration_seconds": 2404.0,
+          "calls": 0,
+          "budget_calls": 220,
+          "over_budget": false
+        },
+        {
+          "agent": "w8-solver-ui",
+          "started_at": "2026-11-23T18:10:39Z",
+          "ended_at": "2026-11-23T18:43:18Z",
+          "duration_seconds": 1959.0,
+          "calls": 0,
+          "budget_calls": 160,
+          "over_budget": false
+        },
+        {
+          "agent": "w8-verifier",
+          "started_at": "2026-11-23T16:43:06Z",
+          "ended_at": "2026-11-23T18:47:49Z",
+          "duration_seconds": 7483.0,
+          "calls": 0,
+          "budget_calls": 120,
+          "over_budget": false
+        }
+      ],
+      "parallelism": {
+        "agent_seconds": 13936.0,
+        "span_seconds": 9573.0,
+        "speedup": 1.46,
+        "peak_concurrency": 2
+      }
     }
   ],
   "changes": [
