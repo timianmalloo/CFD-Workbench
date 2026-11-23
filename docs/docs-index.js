@@ -3397,9 +3397,9 @@ window.DOCS_INDEX = {
       "path": "docs/design/guided-solver-setup.md",
       "title": "Design: guided solver setup — Backend environment model, step catalogue per OS and route, detection, smoke test, assistant, telemetry, tests and tracks",
       "type": "design",
-      "status": "proposed",
+      "status": "approved (Ruling 69)",
       "owner": "@timianmalloo",
-      "phase": "design — documents only (Ruling 67 (b)); no build until the operator approves the mockup",
+      "phase": "implementation — mockup and DR-SETUP-1..6 approved (Ruling 69); T1/T2/T4/T5 core, launcher, adapters and CLI implemented in W8-SLV-CORE",
       "reviewBy": "2026-11-04",
       "reviewSuggested": [
         {
@@ -3483,7 +3483,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7e3ba2a1af818a1729021030b78476acdc7158a0561abc323621321681c9b17e"
+      "sourceSha256": "62ebfbbc83e2c383ffe9be10c0774dd6a57c402216b7f0099bc1c0f6ca5ca4b0"
     },
     {
       "id": "design-local-sweeps",
@@ -25889,5 +25889,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "7969529f08e8cfd43bab71d21cbc981ad13c093fae966cefe00232f19e60b9de"
+  "graphSha256": "7e77641b4c3f63ecdf698beaad12fcd89f8a08e97b80c18dc53163767066fff8"
 };

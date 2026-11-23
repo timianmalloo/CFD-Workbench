@@ -597,4 +597,23 @@ public static class Labels
     public static string SetupTipClampNotice(string minFormatted) =>
         $"Tip chord is held at the minimum {minFormatted} (max of 5 mm and 2 % of root chord)."; // COPY-SET-21, COPY-748
     public const string SetupWeightsInvalid = "Weights must be finite and non-negative, with at least one weight above 0."; // COPY-SET-22, COPY-749
+
+    // ---- SLV: Area 5 Guided Solver Setup (Ruling 69, spec amendment §5, SETUP-04 copy-lint clean) ----
+    public const string SolverNotSetUp = "Solver: not set up";
+    public const string SolverReady = "Solver: Ready";
+    public const string SolverNotReady = "Solver: not ready";
+    public static string SolverSettingUp(int stepNumber, int totalSteps, int? percent) =>
+        percent is { } p
+            ? $"Solver: step {stepNumber} of {totalSteps} · {p} %"
+            : $"Solver: step {stepNumber} of {totalSteps}";
+    public static string SolverUnverifiedDisclosure(string solver) =>
+        $"This {solver} is not the build CFD Workbench was tested with. Results may differ from tested results. Runs will be marked \"unverified install\".";
+    public const string SolverUnsignedAppDisclosure =
+        "OpenFOAM.app is signed by its author but not notarised by Apple. CFD Workbench checks it against the tested file before use.";
+    public static string SolverReadySentence(string solver, string version, string duration, string time) =>
+        $"Ready — {solver} {version} passed its test run on this computer ({duration}, {time}). You can run CFD analyses.";
+    public static string SolverNotReadySentence(string cause, string nextStep) =>
+        $"Not ready — the test run failed: {cause}. Next step: {nextStep}.";
+    public static string SolverStepRefused(string reason) =>
+        $"Step refused: outside the allow-list — {reason}";
 }

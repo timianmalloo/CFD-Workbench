@@ -148,6 +148,8 @@ internal static class IdentityTests
         SweepStoreTests.Run();
         SetupSeedingTests.Run();
         SetupDrcTests.Run();
+        SolverSetupSelectorTests.Run();
+        SolverAssistantValidatorTests.Run();
         CorePartition.Run();
         bool emptyPart = part is not null && only is null && ran == 0;
         if (part is { } p)
