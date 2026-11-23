@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-23T20:48:26Z",
+  "generated": "2026-11-23T21:15:18Z",
   "audit": [
     {
       "actor": null,
@@ -45201,6 +45201,36 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-23T20:35:27Z",
       "duration_seconds": 779.0
+    },
+    {
+      "id": "al-01M8546RKA8KQ9TNESJ46SE2AG",
+      "shortname": "join-w10-design",
+      "datetime": "2026-11-23T21:15:17Z",
+      "session": "agy-w10-coord",
+      "prompt": "the join of swarm-w10-arch-design-e366a831 into main",
+      "summary": "Joined W10-DESIGN (394d8589): authored and rendered docs/design/cfd-run-pipeline.{md,html} and docs/design/results-and-candidates.{md,html} freezing additive cfdw-project-2 cfd:{runs,fieldEvidence,candidates} schema, recursive STORE-SUBSET, ArchitectureTests Core naming guard, exact 21-entry TYPES_ALLOWED OpenFOAM + SU2 emitters, DR-F3-1 A/DR-F2-3 MeshGate, 11-state machine + DR-F2-1 3-part residual + LAB-01 Converged label, tau_w separation VIZ rule, 9-field ProvenanceStrip, ReplaySequence, DifferenceFlood, CandidateLadder BuildGeometryDraft/Rebase, process-only ParaView handoff, and ShellHost Auto,* 3-row Dock-free 7-Area ActivityRail; Adversary PASS (#55). recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/cfd-run-pipeline.md",
+        "docs/design/results-and-candidates.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land Wave 10A W10-DESIGN slices onto main",
+      "done_when": "W10-DESIGN merged via conductor-join.py --docs-only with check-docs, xaml-token-lint, check-event-subscribers, and 10/10 verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-23T21:14:13Z",
+      "duration_seconds": 64.0
     }
   ],
   "changes": [
