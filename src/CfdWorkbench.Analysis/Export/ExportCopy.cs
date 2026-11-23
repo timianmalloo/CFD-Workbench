@@ -116,5 +116,22 @@ public static class ExportCopy
     public static string TrailingEdgeWholeSpan(double thicknessMm, double floorMm, string label) =>                                // COPY-518 (EX45a)
         $"{Fixed(thicknessMm, 2)} mm along the whole span. Floor {Fixed(floorMm, 2)} mm ({label}).";
 
+    // Export Slice B (W8-EXP, proposed COPY-750..757; COPY-481 stays verbatim until external SPIKE-CAD-02 receipts exist).
+    public const string FormatStep = "Wing (STEP)";                                                                                // COPY-750
+    public const string FormatThreeDm = "Wing (3DM)";                                                                              // COPY-751
+    public const string StepVariantLabel = "STEP geometry";                                                                        // COPY-752
+    public const string StepVariantClosed = "Closed shell";                                                                        // COPY-752a
+    public const string StepVariantUntrimmed = "Untrimmed surfaces";                                                               // COPY-752b
+    public const string PreparingCad = "Preparing the CAD surface…";                                                               // COPY-753
+    public const string CadGateVerifiedStep = "STEP verified by open-and-measure receipts (Fusion, FreeCAD CAM, Vectric).";       // COPY-754
+    public const string CadGateVerifiedThreeDm = "3DM verified by Rhino 8 open-and-measure receipt.";                              // COPY-755
+    public const string CadValidationFailed = "The CAD export failed self-verification, so nothing was written.";                  // COPY-756
+
+    public static string FidelityCad(double deviationMm) =>                                                                        // COPY-757
+        $"Largest A-vs-B skin deviation: {Fixed(deviationMm, 4)} mm ({Fixed(deviationMm * 1000.0, 2)} µm), sampled against Placement.Surface.";
+
+    public static string ExportedCad(string file, string formatDetail, string megabytes, double deviationMm) =>                    // COPY-757a
+        $"Exported {file} · {formatDetail} · {megabytes} MB · mm · largest measured deviation {Fixed(deviationMm, 4)} mm";
+
     public static string Fixed(double value, int decimals) => value.ToString("F" + decimals, CultureInfo.InvariantCulture);
 }

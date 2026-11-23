@@ -1008,6 +1008,14 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-747 | Exclude finding… / Exclusion reason is required. — approved — Ruling 273; SET-BUILD (wave 6, Ruling 272; COPY-SET-20; DRC exclusion dialog, A5.8; `Labels.SetupExcludeFinding`, `Labels.SetupExclusionReasonRequired`) |
 | COPY-748 | Tip chord is held at the minimum `<min>` (max of 5 mm and 2 % of root chord). — approved — Ruling 273; SET-BUILD (wave 6, Ruling 272; COPY-SET-21; Solver clamp notice, Ruling 93; `Labels.SetupTipClampNotice`) |
 | COPY-749 | Weights must be finite and non-negative, with at least one weight above 0. — approved — Ruling 273; SET-BUILD (wave 6, Ruling 272; COPY-SET-22; Inline validation error on soft-target weights; `Labels.SetupWeightsInvalid`) |
+| COPY-750 | Wing (STEP) — proposed — W8-EXP (Export Slice B format row when unlocked by `cad-open-measure.json`; `ExportCopy.FormatStep`; `COPY-481` stays active when gated) |
+| COPY-751 | Wing (3DM) — proposed — W8-EXP (Export Slice B format row when unlocked by Rhino 8 `cad-open-measure.json`; `ExportCopy.FormatThreeDm`) |
+| COPY-752 | STEP geometry / Closed shell / Untrimmed surfaces — proposed — W8-EXP (Export Slice B STEP variant legend and options; `ExportCopy.StepVariantLabel`, `ExportCopy.StepVariantClosed`, `ExportCopy.StepVariantUntrimmed`) |
+| COPY-753 | Preparing the CAD surface… — proposed — W8-EXP (Export Slice B async build progress line and disabled button label; `ExportCopy.PreparingCad`) |
+| COPY-754 | STEP verified by open-and-measure receipts (Fusion, FreeCAD CAM, Vectric). — proposed — W8-EXP (Gate status detail when all 3 STEP CAM receipts pass; `ExportCopy.CadGateVerifiedStep`) |
+| COPY-755 | 3DM verified by Rhino 8 open-and-measure receipt. — proposed — W8-EXP (Gate status detail when Rhino 8 receipt passes; `ExportCopy.CadGateVerifiedThreeDm`) |
+| COPY-756 | The CAD export failed self-verification, so nothing was written. — proposed — W8-EXP (In-dialog refusal when STEP/3DM self-verification fails; `ExportCopy.CadValidationFailed`) |
+| COPY-757 | Largest A-vs-B skin deviation: `<dev>` mm (`<um>` µm), sampled against Placement.Surface. / Exported `<file>` · `<formatDetail>` · `<size>` MB · mm · largest measured deviation `<dev>` mm — proposed — W8-EXP (`ExportCopy.FidelityCad`, `ExportCopy.ExportedCad`) |
 
 <!-- COPY-440 to COPY-457 are the ids Ruling 160 reserved for the Windows save-picker dialogs (`docs/mockups/w2-save-picker.md`). W-2 B2 built S2 (440, 442, 445), S3 (441, 443, 445; Ruling 253), the fail-closed dialog (454, 457) and the silent default folder `%USERPROFILE%\CFD Workbench`; 444, 446 to 449 and 455 stay reserved for the Clear unfinished save flow (Ruling 253); 450 to 453 and 456 are the picker-status lines, which are not built. Ruling 253 W2-Q2 adds a Windows save-refusal sentence later, on the next free id after the A3 build; COPY-31W is known to be false on Windows until then. -->
 

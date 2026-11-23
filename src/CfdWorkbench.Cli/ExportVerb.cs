@@ -21,19 +21,20 @@ internal static class ExportVerb
         ExitMeshNotClosed = 7, ExitWouldReplace = 8;
 
     internal const string Usage =
-        "Usage: cfd-workbench export <example|path.foil|path.cfdw.json> --format dat|stl|3mf --out <path>\n" +
+        "Usage: cfd-workbench export <example|path.foil|path.cfdw.json> --format dat|stl|3mf|step|3dm --out <path>\n" +
         "         [--shape at|own] [--station root|tip|N] [--order selig|lednicer] [--points 61|101|201]   (dat only)\n" +
         "         [--scope whole|half] [--tolerance draft|print|fine]                                      (stl and 3mf)\n" +
+        "         [--scope whole|half] [--step-variant closed|untrimmed]                                   (step; --scope only for 3dm)\n" +
         "  --station takes the app's own names: root, tip, or the number N of the label \"Station N\"; the default is root.\n" +
-        "  Defaults: --shape at, --order selig, --points 101, --scope whole, --tolerance print.\n" +
-        "  The extension of --out is forced to .dat, .stl or .3mf; an existing file of the exact --out name is replaced,\n" +
+        "  Defaults: --shape at, --order selig, --points 101, --scope whole, --tolerance print, --step-variant closed.\n" +
+        "  The extension of --out is forced to .dat, .stl, .3mf, .step or .3dm; an existing file of the exact --out name is replaced,\n" +
         "  a forced name that already exists is never replaced. An existing folder as --out takes the dialog's file name.\n" +
         "Exit codes: 0 written (a trailing edge below the floor is advised and still written); 2 usage, bad option or input;\n" +
         "  3 input unsupported; 4 geometry not accepted; 5 path not writable (a folder at the target name too);\n" +
-        "  6 target is a symlink; 7 mesh did not close, nothing written; 8 forced-extension name exists; 130 cancelled.";
+        "  6 target is a symlink; 7 mesh/CAD verification failed, nothing written; 8 forced-extension name exists; 130 cancelled.";
 
     private sealed record Options(string Input, ExportFormat Format, string Out, DatShape Shape, string? Station, DatOrder Order,
-        int Points, StlScope Scope, StlPreset Preset);
+        int Points, StlScope Scope, StlPreset Preset, StepVariant StepVariant);
 
     private sealed class UsageError(string message) : Exception(message);
 
@@ -73,7 +74,7 @@ internal static class ExportVerb
     {
         if (args.Length < 2 || args[1].StartsWith("--", StringComparison.Ordinal)) throw new UsageError("the input file is missing.");
         var values = new Dictionary<string, string>(StringComparer.Ordinal);
-        string[] known = ["--format", "--out", "--shape", "--station", "--order", "--points", "--scope", "--tolerance"];
+        string[] known = ["--format", "--out", "--shape", "--station", "--order", "--points", "--scope", "--tolerance", "--step-variant"];
         for (int index = 2; index < args.Length; index += 2)
         {
             string name = args[index];
@@ -85,12 +86,30 @@ internal static class ExportVerb
         if (!values.TryGetValue("--out", out string? path) || path.Length == 0) throw new UsageError("--out is required.");
         var format = formatText switch
         {
-            "dat" => ExportFormat.Dat, "stl" => ExportFormat.Stl, "3mf" => ExportFormat.ThreeMf,
-            _ => throw new UsageError($"--format {formatText} is not dat, stl or 3mf.")
+            "dat" => ExportFormat.Dat,
+            "stl" => ExportFormat.Stl,
+            "3mf" => ExportFormat.ThreeMf,
+            "step" => ExportFormat.Step,
+            "3dm" => ExportFormat.ThreeDm,
+            _ => throw new UsageError($"--format {formatText} is not dat, stl, 3mf, step or 3dm.")
         };
-        string[] datOnly = ["--shape", "--station", "--order", "--points"], stlOnly = ["--scope", "--tolerance"];
-        foreach (string name in format == ExportFormat.Dat ? stlOnly : datOnly)
-            if (values.ContainsKey(name)) throw new UsageError($"{name} does not apply to --format {formatText}.");
+        string[] datOnly = ["--shape", "--station", "--order", "--points"];
+        string[] meshOnly = ["--tolerance"];
+        string[] wingOnly = ["--scope"];
+        if (format == ExportFormat.Dat)
+        {
+            foreach (string name in wingOnly.Concat(meshOnly).Append("--step-variant"))
+                if (values.ContainsKey(name)) throw new UsageError($"{name} does not apply to --format {formatText}.");
+        }
+        else
+        {
+            foreach (string name in datOnly)
+                if (values.ContainsKey(name)) throw new UsageError($"{name} does not apply to --format {formatText}.");
+            if (format is ExportFormat.Step or ExportFormat.ThreeDm && values.ContainsKey("--tolerance"))
+                throw new UsageError($"--tolerance does not apply to --format {formatText}.");
+            if (format != ExportFormat.Step && values.ContainsKey("--step-variant"))
+                throw new UsageError($"--step-variant does not apply to --format {formatText}.");
+        }
         return new Options(args[1], format, path,
             Choice(values, "--shape", DatShape.AtStation, ("at", DatShape.AtStation), ("own", DatShape.Own)),
             values.GetValueOrDefault("--station"),
@@ -100,7 +119,8 @@ internal static class ExportVerb
                   DatExport.PointChoices.Contains(count) ? count : throw new UsageError("--points is not 61, 101 or 201.")
                 : 101,
             Choice(values, "--scope", StlScope.Whole, ("whole", StlScope.Whole), ("half", StlScope.Half)),
-            Choice(values, "--tolerance", StlPreset.Print, ("draft", StlPreset.Draft), ("print", StlPreset.Print), ("fine", StlPreset.Fine)));
+            Choice(values, "--tolerance", StlPreset.Print, ("draft", StlPreset.Draft), ("print", StlPreset.Print), ("fine", StlPreset.Fine)),
+            Choice(values, "--step-variant", StepVariant.ClosedShell, ("closed", StepVariant.ClosedShell), ("untrimmed", StepVariant.Untrimmed)));
     }
 
     private static T Choice<T>(Dictionary<string, string> values, string name, T fallback, params (string Word, T Value)[] words)
@@ -175,16 +195,19 @@ internal static class ExportVerb
             }
             station = found;
         }
-        session.Set(options.Shape, options.Order, options.Points, station, options.Format, options.Scope, options.Preset);
+        session.Set(options.Shape, options.Order, options.Points, station, options.Format, options.Scope, options.Preset, options.StepVariant);
         await session.PrepareAsync(cancellation);
         if (session.ClosureFailed)
         {
-            await output.WriteLineAsync("Error EXPORT-NOT-CLOSED: " + ExportCopy.MeshNotClosed);
+            string code = session.Format == ExportFormat.Step ? "EXPORT-STEP-INVALID"
+                : session.Format == ExportFormat.ThreeDm ? "EXPORT-3DM-INVALID"
+                : "EXPORT-NOT-CLOSED";
+            await output.WriteLineAsync($"Error {code}: {session.ClosureMessage ?? ExportCopy.MeshNotClosed}");
             return ExitMeshNotClosed;
         }
         // An existing folder as --out takes the dialog's suggested name (design 6.4), e.g. basic-foil-r1-half-mm.stl.
         string chosen = Directory.Exists(options.Out) ? Path.Combine(options.Out, session.FileName) : options.Out;
-        string path = ExportSession.ForceExtension(chosen, session.Format switch { ExportFormat.Dat => ".dat", ExportFormat.ThreeMf => ".3mf", _ => ".stl" });
+        string path = ExportSession.ForceExtension(chosen, session.Extension);
         if (path != chosen && (File.Exists(path) || Directory.Exists(path)))
         {
             session.Refused("EXPORT-WOULD-REPLACE");
