@@ -2,9 +2,9 @@
 id: design-guided-solver-setup
 title: "Design: guided solver setup — Backend environment model, step catalogue per OS and route, detection, smoke test, assistant, telemetry, tests and tracks"
 type: design
-status: proposed
+status: approved (Ruling 69)
 owner: "@timianmalloo"
-phase: design — documents only (Ruling 67 (b)); no build until the operator approves the mockup
+phase: implementation — mockup and DR-SETUP-1..6 approved (Ruling 69); T1/T2/T4/T5 core, launcher, adapters and CLI implemented in W8-SLV-CORE
 tags: [run, backend, install, setup, openfoam, su2, wsl, windows, macos, assistant, telemetry, data-model, ruling-67]
 links:
   - { to: spec-amendment-guided-solver-setup, rel: implements }
@@ -64,6 +64,7 @@ The UX and the AI boundaries are in the amendment proposal
 | OpenCFD repo signing key | fingerprint `DC93C096174122E256DA24063386DD74948D208F` (rsa4096, 2020-04-21) | **Verified** | `gpg --show-keys` on `dl.openfoam.com/pubkey.gpg` |
 | Docker alternative | `opencfd/openfoam-default:2512` index digest `sha256:33fb575a…622f319`; amd64 image 477,919,718 bytes compressed | **Verified** | Docker Hub tags API |
 | Observed Windows route behavior | Ubuntu 24.04.5 private WSL2 import and signed OpenCFD runtime/common 2512.0-2 hashes; Linux build `_bd2b6720-20260127`; manual M1 cavity to t = 0.5, Courant mean 0.222158; native SU2 v8.5.0, 2,048-cell incompressible smoke, CL −2.157833374e−16 and CD 2.885552317; surveyed Windows 11 Pro build 26300.9457 | **Verified** on this x64 PC; enable/restart, UAC, SmartScreen, managed-device/error paths and product launcher behavior remain **Inferred/Flagged** | `docs/proof/win-routes/receipt.md` and `r133/` command ledger, Ruling 133; manual route evidence only |
+| Live Windows ARM64 read-only survey (`WindowsHostSurveyProbe`) | Windows 11 Pro build 28000, `Arm64`, `rebootPending=false`, `hypervisorPresent=true`, `wslAvailable=true` (WSL 2); UTF-16 LE `wsl.exe --list --verbose` decoded read-only detecting `Ubuntu-24.04` (Stopped, v2, default) and `cfdw-openfoam2512-arm64` (Stopped, v2) with zero distro mutation; recommended `win-wsl-of2512` (other option `win-su2-850`); elapsed `133 ms` (< 5 s budget) | **Verified** 2026-11-23 (read-only survey; zero PII) | `cfd-workbench solver-setup survey --json` and `SolverSetup_WindowsLiveSurvey_ReadOnlyUnderFiveSeconds` (`W8-SLV-CORE`) |
 
 ## 1. Surface list (E7)
 

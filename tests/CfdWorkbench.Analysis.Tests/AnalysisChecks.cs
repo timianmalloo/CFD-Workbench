@@ -66,6 +66,9 @@ internal static class AnalysisChecks
             ("Compare", 400, CompareTests.Run),
             ("Sweeps", 800, SweepTests.Run),
             ("SetupFeasibility", 50, SetupFeasibilityTests.Run),
+            ("SolverLauncherSecurity", 150, SolverLauncherSecurityTests.Run),
+            ("SolverSetupAdapters", 200, SolverSetupAdapterTests.Run),
+            ("SolverSetupService", 80, SolverSetupServiceTests.Run),
         };
         int[] owner = Assign(groups.Select(group => group.CostHintMs).ToArray(), part?.Count ?? 1);
         for (int i = 0; i < groups.Length; i++)
