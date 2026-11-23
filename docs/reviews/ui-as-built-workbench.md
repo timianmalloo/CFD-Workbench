@@ -433,8 +433,8 @@ The following obligations are **not** claimed closed by Wave 7 and remain explic
 
 | Item | Status | Reason / What Closes It |
 |---|---|---|
-| **27 unruled Wave 2 proposed `COPY-*` rows** (`COPY-611..633`, `COPY-591..594`) | **Open (proposed)** | Outside Ruling 273 scope; require future operator ruling in `docs/notes/rulings.md` before promoting from `proposed` to `approved` in `DESIGN.md`. |
+| **Wave 2 `COPY-*` rows** (`COPY-611..617`, `COPY-621..633`, `COPY-591..594`, `COPY-447` — 25 rows; `COPY-618..620` unused) | **Closed (Ruling 274)** | Approved byte-for-byte by operator under **Ruling 274** and promoted to `approved` in `DESIGN.md` (0 unapproved `COPY-*` rows remain in `DESIGN.md`). |
 | **Live NVDA speech traces (Windows)** | **Flagged** | `nvda.exe` is not installed on this Windows host; `--uia-probe` proves the OS `IUIAutomation` COM tree only, not live NVDA speech announcements. |
 | **Live macOS display & VoiceOver traces** | **Flagged** | Authoring/verification host is Windows ARM64 and CI runs `--no-desktop`; requires live macOS display and VoiceOver verification pass. |
 | **Authenticode / SmartScreen & macOS codesign / Gatekeeper** | **Flagged** | No code-signing certificates or notarization pipeline exist in this repository; Release Engineering gate prior to external distribution. |
-| **Independent UX & Accessibility Adversary clearance** | **Pending (`w7-verifier`)** | Predicate 1–4 technical evidence is complete on Windows; final Adversary sign-off and Predicate 5 live screen-reader traces remain governed by independent review. |
+| **Independent UX & Accessibility Adversary clearance** | **Cleared for Windows Wave 7 (`w7-verifier` `#7`, `#15`, `#21`); live AT traces Flagged** | `w7-verifier` cleared all 3 Wave 7 tracks (`CLEARS-THE-VETO: yes`); live NVDA speech and live macOS VoiceOver traces remain honestly `Flagged`. |
