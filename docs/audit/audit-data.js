@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-23T18:58:32Z",
+  "generated": "2026-11-23T20:48:26Z",
   "audit": [
     {
       "actor": null,
@@ -45171,6 +45171,36 @@ window.AUDIT_DATA = {
         "speedup": 1.46,
         "peak_concurrency": 2
       }
+    },
+    {
+      "id": "al-01M852NJGBVN2H3ZM9Y148MVC7",
+      "shortname": "coordination-wave10-cfd-run-results-and-rail",
+      "datetime": "2026-11-23T20:48:26Z",
+      "session": "agy-w10-coord",
+      "prompt": "start wave 10 (Area 5 CFD Run Pipeline, Area 6 Results & Candidate Ladder, and 7-Area Left Activity Rail; excluding accessibility/VoiceOver)",
+      "summary": "Drafted and Adversary-cleared Wave 10 coordination plan (W10-DESIGN -> W10-RUN -> W10-RESULTS -> W10-RAIL-UI at width 1; C1-C5 folded: recursive STORE-SUBSET, foam-dict-lint 21-entry TYPES_ALLOWED + runTimeModifiable false + cfdw-manifest.json, ArchitectureTests Core naming guard, ShellHost Auto,* 3-row + 4-button Navbar + Dock-free ActivityRail, join-ring docs-only skip)",
+      "kind": "skill",
+      "skill": "prepare-for-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/wave10-cfd-run-results-and-rail.md",
+        "docs/coordination/wave10-cfd-run-results-and-rail.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Plan Wave 10 Area 5 CFD Run Pipeline, Area 6 Results & Candidate Ladder, and 7-Area Left Activity Rail across 4 serial isolated share-workspace tracks",
+      "done_when": "Adversary plan review PASS (C1-C5 folded), HTML rendered, docs/PII/ruling/verify gates exit 0, S0 committed on main",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-23T20:35:27Z",
+      "duration_seconds": 779.0
     }
   ],
   "changes": [
@@ -49093,6 +49123,24 @@ window.AUDIT_DATA = {
       "to": "agy-w7-coord",
       "kind": "ruling",
       "ref": "req-01M84GNQGQS7R80C6X9H0FYH1S",
+      "session": "operator"
+    },
+    {
+      "id": "mail-01M851VXJW7FBBAMWNM4FYVG4C",
+      "ts": "2026-11-23T20:34:25Z",
+      "from": "agy-w8-coord",
+      "to": "operator",
+      "kind": "decision-request",
+      "ref": "req-01M851VXJCNQJ2FHTG3ATRMDMZ",
+      "session": "agy-w8-coord"
+    },
+    {
+      "id": "mail-01M851VXW26JYSYGZC8YQBNS78",
+      "ts": "2026-11-23T20:34:25Z",
+      "from": "operator",
+      "to": "agy-w8-coord",
+      "kind": "ruling",
+      "ref": "req-01M851VXJCNQJ2FHTG3ATRMDMZ",
       "session": "operator"
     }
   ]

@@ -10375,7 +10375,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5c235998dcc3e97e0f5319b247a965c3c82b9a5cfb0ae1479c5dc796d984238e"
+      "sourceSha256": "d2336b857ee5ab8ff560216476f8a92e715c2fd546a0ae3c993d07645f3aa225"
     },
     {
       "id": "kb-hw-glossary",
@@ -12514,6 +12514,78 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "241b86e22920bd8f00185420beec185918146c673378f26e9cab495a6eed1b4c"
+    },
+    {
+      "id": "coordination-wave10-cfd-run-results-and-rail",
+      "path": "docs/coordination/wave10-cfd-run-results-and-rail.md",
+      "title": "Coordination plan - wave 10: Area 5 CFD Run Pipeline, Area 6 Results & Candidate Ladder, and 7-Area Left Activity Rail",
+      "type": "plan",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-02-23",
+      "reviewSuggested": [],
+      "summary": "Wave 10 completes the end-to-end 7-area product flow across Areas 5, 6, and shell navigation: W10-DESIGN produces Adversary-cleared design slices for Area 5 CFD Run Pipeline, Area 6 Results & Candidate Ladder, and the 7-Area Left Activity Rail; W10-RUN implements the pure STORE-SUBSET Area 5 typed case model, OpenFOAM/SU2 emitters (verified by cases/tools/foam-dict-lint.py), DR-F3-1 A mesh gate, 11-state pipeline, complete cfdw-project-2 additive cfd envelope, harvester, Cancel/Resume/orphan scan, recursive STORE-SUBSET widening, and CLI; W10-RESULTS implements Area 6 FieldEvidenceManifest (separation gated on tau_w), ProvenanceStrip, ReplaySequence, DifferenceFlood, CandidateLadder with Accept-as-draft CAD handoff, ParaView process-only handoff, and CLI; W10-RAIL-UI implements the 7-Area Left Activity Rail docking existing Setup/CAD/Analysis/Sweeps plus new RunWorkspaceView and ResultsWorkspaceView without view rewrites (Rulings 271/272).",
+      "tags": [
+        "coordination",
+        "worktrees",
+        "area-5",
+        "area-6",
+        "cfd-run",
+        "results",
+        "candidates",
+        "activity-rail",
+        "agy-swarm",
+        "wave10"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "decision-seven-areas",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-0010-one-placement-rule",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-0012-openfoam-backend-macos",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-guided-solver-setup",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-local-sweeps",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-setup-seeding",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-wave8-remaining-w5-w6-w7-closure",
+          "rel": "refines"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0ae07cc1c64cb8defb2faf287db987e621f341567f85a44694cd1385bbea2dae"
     },
     {
       "id": "coordination-wave3-next-steps",
@@ -25833,6 +25905,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-w2-recovery"
     },
     {
+      "id": "surface-coordination-wave10-cfd-run-results-and-rail",
+      "path": "docs/coordination/wave10-cfd-run-results-and-rail.html",
+      "title": "Wave10 Cfd Run Results And Rail",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "coordination-wave10-cfd-run-results-and-rail"
+    },
+    {
       "id": "surface-coordination-wave5-next-steps",
       "path": "docs/coordination/wave5-next-steps.html",
       "title": "Wave5 Next Steps",
@@ -25889,5 +25969,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "4c81ade15d553981b2501bd3b820f86f7ec6619cf155ff5a7f04a60c7112c29e"
+  "graphSha256": "70432c2a7c17c039ba5a6dd5470da172b9be90224240330e21e08a1021309900"
 };
