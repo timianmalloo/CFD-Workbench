@@ -31,6 +31,7 @@ internal static class ResultsServiceTests
     internal static void Run()
     {
         Check("ResultsService_UnifiesLocalVlmAndCfd_NoCrossTierAveraging", ResultsService_UnifiesLocalVlmAndCfd_NoCrossTierAveraging);
+        Check("ResultsService_TryReadSurfaceRaw_RejectsTraversalRootedAndSymlinkPaths", ResultsService_TryReadSurfaceRaw_RejectsTraversalRootedAndSymlinkPaths);
         Check("ParaViewHandoff_HonestAbsence_And_InjectedProcessOnlyLaunch", ParaViewHandoff_HonestAbsence_And_InjectedProcessOnlyLaunch);
     }
 
@@ -164,6 +165,95 @@ internal static class ResultsServiceTests
         var replay = ResultsService.BuildReplaySeries([cfdSample], water, "Cp", ReplayHeldAxis.HeldSpeed);
         Equal(1, replay.Frames.Count);
         Equal(true, replay.RangeLocked);
+    }
+
+    private static void ResultsService_TryReadSurfaceRaw_RejectsTraversalRootedAndSymlinkPaths()
+    {
+        string tempRoot = Path.Combine(Path.GetTempPath(), "cfdw-res-m5-" + Guid.NewGuid().ToString("N"));
+        string caseRoot = Path.Combine(tempRoot, "cases");
+        string outsideDir = Path.Combine(tempRoot, "outside");
+        string linkDir = Path.Combine(caseRoot, "linked");
+        try
+        {
+            Directory.CreateDirectory(caseRoot);
+            Directory.CreateDirectory(outsideDir);
+            string secretRaw = Path.Combine(outsideDir, "secret.raw");
+            File.WriteAllText(secretRaw, "# x y z Cp\n0.0 0.0 0.0 -99.5\n0.1 0.1 0.0 99.5\n");
+
+            string safeDir = Path.Combine(caseRoot, "safe");
+            Directory.CreateDirectory(safeDir);
+            string safeRaw = Path.Combine(safeDir, "wing.raw");
+            File.WriteAllText(safeRaw, "# x y z Cp\n0.0 0.0 0.0 -1.25\n0.1 0.1 0.0 0.75\n");
+
+            UnifiedResultSample ProjectWithRelativePath(string relPath)
+            {
+                using var session = new AuthoringSession();
+                session.Open(FoilSource.NewDefault(), Guid.NewGuid().ToString("D"), true);
+                var snap = session.Snapshot();
+                var parsed = FoilSource.Parse(snap.Source);
+                var profiles = parsed.Authored().Assignments.Select(a => a.ProfileIdentity).ToArray();
+                var inputs = new RunInputs(snap.AcceptedId, snap.SurfaceHash, profiles, Evaluator.IdFor(snap.Source), Placement.PlacementRuleVersion);
+                var water = WaterTable.At(15.0, 35.16504);
+                var op = OperatingPoints.Custom(7.0, 4.0, 0.5);
+                var pin = new CfdBackendPin("openfoam-esi", "v2512", "wsl2", "build-1", new string('a', 64), true);
+                string caseModelHash = new string('b', 64);
+                string meshHash = new string('c', 64);
+                string runKey = CfdRunRecords.ComputeRunKey(inputs, water, op, pin, caseModelHash);
+                string runId = Guid.NewGuid().ToString("D");
+                var now = DateTimeOffset.UtcNow;
+                IReadOnlyList<CfdRunStateEvent> events = [CfdRunStateMachine.CreatePending(runId, now)];
+                events = CfdRunStateMachine.AppendEvent(events, CfdRunState.Readiness, now);
+                events = CfdRunStateMachine.AppendEvent(events, CfdRunState.Meshing, now);
+                events = CfdRunStateMachine.AppendEvent(events, CfdRunState.MeshGate, now);
+                events = CfdRunStateMachine.AppendEvent(events, CfdRunState.Solving, now);
+                events = CfdRunStateMachine.AppendEvent(events, CfdRunState.Harvesting, now);
+                events = CfdRunStateMachine.AppendEvent(events, CfdRunState.Completed, now);
+
+                session.RecordCfdRun(CfdRunRecords.Seal(new CfdRunRecord(
+                    runId, null, null, 0, runKey, "", caseModelHash, meshHash, pin, inputs, water, op,
+                    new ProductWingMethod().Reference(snap.Source), null,
+                    new ResidualSummary(3e-4, 0.5, 0.018, -0.04, 1e-4, 3e-5, 1e-3, 2e-4, 25, 0, false, true),
+                    new CfdRunResources(500_000, 4, 1200, 45, 256_000_000), null, events)));
+
+                session.RecordFieldEvidence(CfdRunRecords.Seal(new FieldEvidenceRecord(
+                    Guid.NewGuid().ToString("D"), runId, "", "surface", relPath,
+                    new string('d', 64), meshHash, ["Cp"], "face",
+                    [new FieldRangeRecord("Cp", "dimensionless", -1.5, 1.0, "sample-range")],
+                    "crameri-8.0", "cfdw-harvester", "1.0.0", false, null, false, false, [])));
+
+                return ResultsService.ProjectWorkspace(session, caseRootDirectory: caseRoot, paraViewLocator: new FakeParaViewLocator(null))
+                    .Samples.Single();
+            }
+
+            // 1. Positive control: valid in-root relative path IS read from disk (-1.25, 0.75).
+            var safeSample = ProjectWithRelativePath("safe/wing.raw");
+            Equal(2, safeSample.SurfaceCpData!.Values.Count, "valid in-root .raw count");
+            Equal(-1.25, safeSample.SurfaceCpData.Values[0], "valid in-root .raw value[0]");
+            Equal(0.75, safeSample.SurfaceCpData.Values[1], "valid in-root .raw value[1]");
+
+            // 2. '..' traversal outside caseRootDirectory MUST NOT be read (falls back to recorded metadata range, never -99.5).
+            var traversalSample = ProjectWithRelativePath("../outside/secret.raw");
+            if (traversalSample.SurfaceCpData!.Values.Any(v => Math.Abs(v - (-99.5)) < 1e-6))
+                throw new InvalidOperationException("M5 violation: TryReadSurfaceRaw read a '..' traversal file outside caseRootDirectory.");
+
+            // 3. Rooted absolute path targeting outside file MUST NOT be read.
+            var rootedSample = ProjectWithRelativePath(secretRaw);
+            if (rootedSample.SurfaceCpData!.Values.Any(v => Math.Abs(v - (-99.5)) < 1e-6))
+                throw new InvalidOperationException("M5 violation: TryReadSurfaceRaw read a rooted path outside caseRootDirectory.");
+
+            // 4. Directory junction / symlink inside caseRootDirectory targeting outsideDir MUST NOT be read.
+            if (TestLinks.TryDirectoryLink(linkDir, outsideDir))
+            {
+                var symlinkSample = ProjectWithRelativePath("linked/secret.raw");
+                if (symlinkSample.SurfaceCpData!.Values.Any(v => Math.Abs(v - (-99.5)) < 1e-6))
+                    throw new InvalidOperationException("M5 violation: TryReadSurfaceRaw followed a symlink/junction outside caseRootDirectory.");
+            }
+        }
+        finally
+        {
+            if (Directory.Exists(linkDir)) Directory.Delete(linkDir, recursive: false);
+            if (Directory.Exists(tempRoot)) Directory.Delete(tempRoot, recursive: true);
+        }
     }
 
     private static void ParaViewHandoff_HonestAbsence_And_InjectedProcessOnlyLaunch()

@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using CfdWorkbench.Analysis.SolverSetup;
 using CfdWorkbench.Core;
 using CfdWorkbench.Core.CfdRun;
 using CfdWorkbench.Core.Results;
@@ -503,9 +504,45 @@ public static class ResultsService
         if (string.IsNullOrWhiteSpace(caseRootDirectory) || string.IsNullOrWhiteSpace(relativePath))
             return (null, null, null);
 
-        string candidateA = Path.Combine(caseRootDirectory, runKey, relativePath.Replace('/', Path.DirectorySeparatorChar));
-        string candidateB = Path.Combine(caseRootDirectory, relativePath.Replace('/', Path.DirectorySeparatorChar));
-        string? path = File.Exists(candidateA) ? candidateA : File.Exists(candidateB) ? candidateB : null;
+        // M5 fail-closed boundary: reject rooted paths, leading separators, or '..' traversal from untrusted .cfdw.json.
+        if (Path.IsPathRooted(relativePath) || relativePath.StartsWith('/') || relativePath.StartsWith('\\'))
+            return (null, null, null);
+        string[] relSegments = relativePath.Split(['/', '\\'], StringSplitOptions.RemoveEmptyEntries);
+        if (relSegments.Length == 0 || relSegments.Any(s => s == ".."))
+            return (null, null, null);
+
+        string fullRoot = Path.GetFullPath(caseRootDirectory);
+        if (!Directory.Exists(fullRoot) || SolverLauncher.IsReparseOrLink(fullRoot))
+            return (null, null, null);
+
+        string rootWithSep = fullRoot.EndsWith(Path.DirectorySeparatorChar)
+            ? fullRoot
+            : fullRoot + Path.DirectorySeparatorChar;
+        var pathCmp = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+
+        string normalizedRel = Path.Combine(relSegments);
+        var candidates = new List<string>(2);
+        if (!string.IsNullOrWhiteSpace(runKey) &&
+            !Path.IsPathRooted(runKey) &&
+            !runKey.Contains('/') && !runKey.Contains('\\') && runKey != "..")
+        {
+            candidates.Add(Path.Combine(fullRoot, runKey, normalizedRel));
+        }
+        candidates.Add(Path.Combine(fullRoot, normalizedRel));
+
+        string? path = null;
+        foreach (string candidate in candidates)
+        {
+            string full = Path.GetFullPath(candidate);
+            if (!full.StartsWith(rootWithSep, pathCmp))
+                continue;
+            if (!File.Exists(full))
+                continue;
+            if (HasReparseWithinRoot(full, fullRoot, pathCmp))
+                continue;
+            path = full;
+            break;
+        }
         if (path is null) return (null, null, null);
 
         string text;
@@ -554,5 +591,19 @@ public static class ResultsService
         }
 
         return (cp, cf, locs);
+    }
+
+    private static bool HasReparseWithinRoot(string fullPath, string fullRoot, StringComparison pathCmp)
+    {
+        string? current = fullPath;
+        while (!string.IsNullOrEmpty(current))
+        {
+            if (SolverLauncher.IsReparseOrLink(current))
+                return true;
+            if (string.Equals(current.TrimEnd(Path.DirectorySeparatorChar), fullRoot.TrimEnd(Path.DirectorySeparatorChar), pathCmp))
+                break;
+            current = Path.GetDirectoryName(current);
+        }
+        return false;
     }
 }
