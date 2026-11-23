@@ -616,4 +616,13 @@ public static class Labels
         $"Not ready — the test run failed: {cause}. Next step: {nextStep}.";
     public static string SolverStepRefused(string reason) =>
         $"Step refused: outside the allow-list — {reason}";
+
+    // ---- RUN: Area 5 CFD Run Pipeline fixed strings (Wave 10, LAB-01 compliant) ----
+    public const string CfdMeshScreenOnly = "mesh screen — not the y+ gate (awaiting stationary field)";
+    public const string CfdPayloadFailed = "Unavailable — run payload failed its check";
+    public const string CfdNoOutputs = "Solver exited 0 with no required outputs";
+    public const string CfdCheckpointInvalid = "Checkpoint could not be validated — use Retry sample for a clean run";
+    public const string CfdSu2UnsupportedMultiphase = "SU2 v8.5.0 does not support free-surface or cavitation physics";
+    public static string CfdOrphansRemaining(int count) =>
+        $"Cancel finished with {count} surviving child process(es) — inspect system processes before retrying.";
 }
