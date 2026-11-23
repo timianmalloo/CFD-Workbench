@@ -625,4 +625,17 @@ public static class Labels
     public const string CfdSu2UnsupportedMultiphase = "SU2 v8.5.0 does not support free-surface or cavitation physics";
     public static string CfdOrphansRemaining(int count) =>
         $"Cancel finished with {count} surviving child process(es) — inspect system processes before retrying.";
+
+    // ---- RES: Area 6 Results, Replay, Difference Flood, Candidate Ladder & ParaView (Wave 10, LAB-01 compliant) ----
+    public const string ParaViewNotFound =
+        "ParaView 5.12+ not found — surface floods and forces remain; slices, streamlines and isosurfaces need ParaView (BSD-3) · Open in ParaView disabled";
+    public const string ParaViewReady =
+        "ParaView 5.12+ available — opens case directory in an external process (no VTK library linked)";
+    public const string ResultsSeparationUnavailable = "No supported criterion in this sample";
+    public const string ResultsReplayBanner = "Parametric sweep — sequence over admitted samples";
+    public const string ResultsRangeUnlocked = "Range unlocked — per-sample scale";
+    public const string ResultsMeshDiffers = "Unavailable — mesh differs";
+    public const string ResultsStreamlinesSteadyRans = "instantaneous integral curves of the mean field (steady RANS)";
+    public const string ResultsStreamlinesMovingDash = "affordance, not fluid motion";
+    public const string ResultsTurbulentKineticEnergy = "modeled turbulent kinetic energy, m²/s², model, mean-flow basis";
 }
