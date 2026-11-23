@@ -2043,3 +2043,9 @@ Ruled interactively by the operator on 2026-11-22 after Wave 6 push (0b578678). 
 Ruled interactively by the operator on 2026-11-23 after Wave 7 push (c5b40631). All 25 remaining Wave 2 copy rows in DESIGN.md — Compare dimensional reference-only block COPY-611..617 (7 rows; COPY-618..620 were never assigned), Station Match the blend workflow COPY-621..633 (13 rows), and Windows OneDrive read-only and unfinished-save recovery COPY-591..594 (4 rows) plus Clear unfinished save confirm body COPY-447 (1 row refined under Ruling 190) — are approved byte for byte as written and promoted to approved in DESIGN.md citing this ruling; no text and no code constant changes. Zero unapproved COPY-* rows remain in DESIGN.md.
 
 - request: req-01M84GNQGQS7R80C6X9H0FYH1S · ruled by: operator · at: 2026-11-23T15:33:57Z
+
+### Ruling 275 — Operator Wave 8 copy confirmation: COPY-750..757 and COPY-766..805 approved byte-for-byte
+
+Ruled interactively by the operator on 2026-11-23 after Wave 8 push (254b0d51). All 48 Wave 8 proposed copy rows in DESIGN.md — Area 7 Export Slice B COPY-750..757 (8 rows) and Area 5 Guided Solver Setup UI COPY-766..805 (40 rows, SETUP-04 no-command lint clean) — are approved byte for byte as written and promoted from proposed to approved in DESIGN.md citing this ruling; no text and no code constant changes. Zero unapproved COPY-* rows remain in DESIGN.md.
+
+- request: req-01M851VXJCNQJ2FHTG3ATRMDMZ · ruled by: operator · at: 2026-11-23T20:34:25Z
