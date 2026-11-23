@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-23T21:15:18Z",
+  "generated": "2026-11-23T22:45:19Z",
   "audit": [
     {
       "actor": null,
@@ -45231,6 +45231,35 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-23T21:14:13Z",
       "duration_seconds": 64.0
+    },
+    {
+      "id": "al-01M859BKA6JZ3KGM20GT573TM3",
+      "shortname": "join-w10-run",
+      "datetime": "2026-11-23T22:45:19Z",
+      "session": "agy-w10-coord",
+      "prompt": "the join of swarm-w10-cfd-run-f30393b9 into main",
+      "summary": "Joined W10-RUN (c5e8ef77): Pure STORE-SUBSET Core CfdRun (TypedCaseModel, OpenFoamCaseEmitter strictly within cases/tools/foam-dict-lint.py 21-entry TYPES_ALLOWED + runTimeModifiable false + cfdw-manifest.json, Su2CaseEmitter, DR-F3-1 A/DR-F2-3 MeshGateEvaluator, 11-state CfdRunStateMachine + LAB-01 3-part Converged label, complete CfdEnvelope BLAKE3 tamper-checked), additive cfdw-project-2 cfd envelope in AuthoringSession/RunRecord preserving byte-identical -1 & pre-W10 -2 output, recursive tools/store_subset.py (.rglob), Analysis CfdCasePipelineService (M1-M8 SolverLauncher + real cases/tools/foam-dict-lint.py CI test + fail-closed MESH-GATE-FAIL + Cancel/Resume/orphan scan) & fail-closed CfdOutputHarvester (DR-F2-1 3-part residual), CLI cfd-run emit|status|harvest --json, plus #63 seam Ruling 275 splitter fix in SolverSetupViewTests.cs; 6/6 mutants killed, 11/11 gates exit 0, Adversary PASS (#70 after 1 repair cycle). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/cfd-run-pipeline.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land Wave 10B W10-RUN onto main",
+      "done_when": "W10-RUN merged via conductor-join.py with TESTS-GREEN, recursive STORE-SUBSET, xaml-token-lint, check-event-subscribers, check-docs, and 10/10 verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-23T22:37:16Z",
+      "duration_seconds": 483.0
     }
   ],
   "changes": [
