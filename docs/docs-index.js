@@ -12650,6 +12650,77 @@ window.DOCS_INDEX = {
       "sourceSha256": "47eb7bec301a79f9e06bf47d5336b2ed74df8180c2e083f9d69aad52e84c9265"
     },
     {
+      "id": "coordination-wave8-remaining-w5-w6-w7-closure",
+      "path": "docs/coordination/wave8-remaining-w5-w6-w7-closure.md",
+      "title": "Coordination plan - wave 8: autonomous closure of remaining Wave 5, 6, and 7 open items",
+      "type": "plan",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-02-23",
+      "reviewSuggested": [],
+      "summary": "Wave 8 autonomously closes every executable remaining open item from Waves 5, 6, and 7 on this Windows ARM64 host: pruning the 6 verified ahead=0 stale remote branches on origin (S1), delivering Area 7 STEP AP203 & Rhino 3DM export (W8-EXP: Export Slice B design, pure Core CadExportExtractor/StepAp203Export/StepVerifier + MIT Rhino3dm 8.35.0 export with KRN-SPK Phase 1 fixes, CLI export, Desktop ExportDialog gated cleanly on cad-open-measure.json / COPY-481, and cross-platform Python SPIKE-CAD-02 fixture harness), and delivering Area 5 Guided Solver Setup already approved by Rulings 68-70 (W8-SLV-CORE: pure Core T1 routes/records/selector/lint/validator + Analysis M1-M8 Product Launcher & T2/T5 Windows/WSL/SU2 & macOS I/O adapters obeying STORE-SUBSET + CLI; W8-SLV-UI: T3 Desktop Dock SolverSetupView + StatusStrip Solver item). Physically unavailable items (net.proxy-tls A5-RESUME, missing Fusion/FreeCAD/Vectric/ Rhino binaries, impeccable win-arm64 binary, signing certs) and operator-excluded accessibility/VoiceOver/NVDA items are honestly struck.",
+      "tags": [
+        "coordination",
+        "worktrees",
+        "area-7",
+        "area-5",
+        "step",
+        "3dm",
+        "guided-solver-setup",
+        "agy-swarm",
+        "wave8"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-0013-cad-export-kernel",
+          "rel": "implements"
+        },
+        {
+          "to": "design-guided-solver-setup",
+          "rel": "implements"
+        },
+        {
+          "to": "design-export",
+          "rel": "refines"
+        },
+        {
+          "to": "proof-spike-cad-01",
+          "rel": "implements"
+        },
+        {
+          "to": "proof-wsl-area5-build",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-wave5-next-steps",
+          "rel": "refines"
+        },
+        {
+          "to": "coordination-wave6-and-area5-wsl",
+          "rel": "refines"
+        },
+        {
+          "to": "coordination-wave7-ui-polish-and-at-proof",
+          "rel": "refines"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0d38a420d394718cc909e33bca4b366654896e7875dfcac0b50fd7396f91714e"
+    },
+    {
       "id": "coordination-windows-gpu-f1-design",
       "path": "docs/coordination/windows-gpu-f1-design.md",
       "title": "Coordination plan - Windows GPU F1 design",
@@ -25672,6 +25743,14 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-wave7-ui-polish-and-at-proof"
     },
     {
+      "id": "surface-coordination-wave8-remaining-w5-w6-w7-closure",
+      "path": "docs/coordination/wave8-remaining-w5-w6-w7-closure.html",
+      "title": "Wave8 Remaining W5 W6 W7 Closure",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "coordination-wave8-remaining-w5-w6-w7-closure"
+    },
+    {
       "id": "surface-coordination-windows-gpu-f1-preflight-r217",
       "path": "docs/coordination/windows-gpu-f1-preflight-r217.html",
       "title": "Windows GPU F1 dependency preflight coordination plan",
@@ -25696,5 +25775,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "080fb965c2482a462ca3b1777e3a9128eebf87552dcb9737b7592c775f7c5f6d"
+  "graphSha256": "51b33fa8db430b6906232792fff8fbb876eceba30209489ac3c9dff27ed08190"
 };

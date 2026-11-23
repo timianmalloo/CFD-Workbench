@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-22T19:38:13Z",
+  "generated": "2026-11-23T16:05:34Z",
   "audit": [
     {
       "actor": null,
@@ -44977,6 +44977,36 @@ window.AUDIT_DATA = {
         "speedup": 1.5,
         "peak_concurrency": 2
       }
+    },
+    {
+      "id": "al-01M84JFMBT2G00P8ZDDK9T29XY",
+      "shortname": "coordination-wave8-remaining-w5-w6-w7-closure",
+      "datetime": "2026-11-23T16:05:34Z",
+      "session": "agy-w8-coord",
+      "prompt": "/prepare-for-coordination all Still open wave 5,6 and 7 items (ignore accessibility features like voice over) then /execute-with-coordination using swarm",
+      "summary": "Drafted and Adversary-cleared Wave 8 coordination plan (S1 prune 6 merged remote branches + W8-EXP -> W8-SLV-CORE -> W8-SLV-UI at width 1; C1-C7 folded; A5-RESUME net.proxy-tls, external CAM/Rhino binaries, impeccable win-arm64, accessibility/VoiceOver/NVDA, and signing certs honestly struck)",
+      "kind": "skill",
+      "skill": "prepare-for-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/wave8-remaining-w5-w6-w7-closure.md",
+        "docs/coordination/wave8-remaining-w5-w6-w7-closure.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Plan autonomous closure of all executable remaining open items from Waves 5, 6, and 7 (excluding accessibility/VoiceOver)",
+      "done_when": "Adversary plan review PASS (C1-C7 folded), HTML rendered, docs/PII/ruling/verify gates exit 0, S0 committed on main",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-23T15:40:33Z",
+      "duration_seconds": 1501.0
     }
   ],
   "changes": [
@@ -48881,6 +48911,24 @@ window.AUDIT_DATA = {
       "to": "agy-w6-coord",
       "kind": "ruling",
       "ref": "req-01M81YE4JT7TFR5EF93DH103XN",
+      "session": "operator"
+    },
+    {
+      "id": "mail-01M84GNQH7YZHHBSM31QK8MD7T",
+      "ts": "2026-11-23T15:33:56Z",
+      "from": "agy-w7-coord",
+      "to": "operator",
+      "kind": "decision-request",
+      "ref": "req-01M84GNQGQS7R80C6X9H0FYH1S",
+      "session": "agy-w7-coord"
+    },
+    {
+      "id": "mail-01M84GNQTTBP7JTBZ4TY2F13JA",
+      "ts": "2026-11-23T15:33:57Z",
+      "from": "operator",
+      "to": "agy-w7-coord",
+      "kind": "ruling",
+      "ref": "req-01M84GNQGQS7R80C6X9H0FYH1S",
       "session": "operator"
     }
   ]
