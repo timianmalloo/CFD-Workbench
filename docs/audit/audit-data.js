@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-23T22:45:19Z",
+  "generated": "2026-11-23T23:52:14Z",
   "audit": [
     {
       "actor": null,
@@ -45260,6 +45260,35 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-23T22:37:16Z",
       "duration_seconds": 483.0
+    },
+    {
+      "id": "al-01M85D64BYVRRTQM42M7R3R8SG",
+      "shortname": "join-w10-results",
+      "datetime": "2026-11-23T23:52:14Z",
+      "session": "agy-w10-coord",
+      "prompt": "the join of swarm-w10-results-core-3b0921d8 into main",
+      "summary": "Joined verified W10-RESULTS (834721bc, CLEARS-THE-VETO: yes from w10-verifier #81): pure STORE-SUBSET Core/Results (FieldEvidenceManifest tau_w-gated Separation vs vortex-core, ProvenanceStrip + TableTwin, ReplaySequence pause/clear/zero-interp, DifferenceFlood zero-pinned & Unavailable-mesh-differs, CandidateLadder + BuildGeometryDraft/BuildRebasedDraft), Analysis/Results (ResultsService with M5 TryReadSurfaceRaw path-traversal/reparse hardening, ResultsProjection over Placement.Surface, process-only ParaViewHandoff with UX-06 honest absence & zero VTK), and CLI results inspect|candidates|paraview. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/results-and-candidates.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land Wave 10C W10-RESULTS onto main",
+      "done_when": "W10-RESULTS merged via conductor-join.py with TESTS-GREEN, recursive STORE-SUBSET, xaml-token-lint, check-event-subscribers, check-docs, and 10/10 verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-23T23:44:09Z",
+      "duration_seconds": 485.0
     }
   ],
   "changes": [
