@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-23T17:00:57Z",
+  "generated": "2026-11-23T18:09:48Z",
   "audit": [
     {
       "actor": null,
@@ -45037,6 +45037,35 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-23T16:52:49Z",
       "duration_seconds": 487.0
+    },
+    {
+      "id": "al-01M84SK40068BE1R4FMFVRRQFN",
+      "shortname": "join-w8-slv-core",
+      "datetime": "2026-11-23T18:09:48Z",
+      "session": "agy-w8-coord",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "Joined W8-SLV-CORE (1f0b14fc): Pure zero-I/O T1 Core (RouteCatalogue w/ BLAKE3+SHA256 manifest, SolverSetupRecords, StepSelector R1-R5/SETUP-05/07/08, SolverLauncherPolicy M1/M2/M3/M6, SetupCopyLint SETUP-04, zero-PII SetupReportBuilder, T4 AI-11 SetupAssistantValidator), Analysis I/O (SetupFactStore FileShare.Read|Delete, SolverLauncher M1-M8 w/ real cases/tools/foam-dict-lint.py oracle exit 0 clean / exit 3 hostile, live read-only Windows 11 ARM64 survey 133 ms UTF-16 wsl.exe parser without distro mutation, loopback HttpListener download+SHA256 .part cleanup, ROUTE-PARENT-MISSING R133, injected IRunOnceStore, macOS fixtures, SolverSetupService/Projection, Labels), CLI solver-setup survey|status|report --json, and guided-solver-setup.md status: approved (Ruling 69) + §0 Verified row; 10/10 mutants killed, 10/10 gates exit 0, Adversary PASS (#39). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/guided-solver-setup.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land Wave 8B W8-SLV-CORE onto main",
+      "done_when": "W8-SLV-CORE merged via conductor-join.py with TESTS-GREEN, xaml-token-lint, check-event-subscribers, check-docs, and 10/10 verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-23T18:02:05Z",
+      "duration_seconds": 463.0
     }
   ],
   "changes": [
