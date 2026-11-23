@@ -321,6 +321,24 @@
     <Thickness x:Key="PointsKindGap">4,0,0,0</Thickness>      <!-- the Points pane's .pts gap before Kind -->
     <Thickness x:Key="PointsRowPadding">9,0,8,0</Thickness>   <!-- + the 3 px rail: the mockup .pts .pr padding 0 8px 0 12px -->
     <Thickness x:Key="PointsEditPadding">3,0</Thickness>      <!-- the x / y box keeps prop-edit-pad horizontally inside its 50 px column -->
+    <!-- Guided Solver Setup non-theme layout tokens (W8-SLV-UI; ZERO new theme Brush keys). -->
+    <x:Double x:Key="SolverRailWidth">250</x:Double>
+    <x:Double x:Key="SolverAssistantWidth">290</x:Double>
+    <x:Double x:Key="SolverCardMaxWidth">660</x:Double>
+    <x:Double x:Key="SolverDotSize">8</x:Double>
+    <CornerRadius x:Key="SolverDotRadius">4</CornerRadius>
+    <x:Double x:Key="SolverStepBadgeSize">20</x:Double>
+    <CornerRadius x:Key="SolverStepBadgeRadius">10</CornerRadius>
+    <x:Double x:Key="SolverTermsMaxHeight">110</x:Double>
+    <x:Double x:Key="SolverExcerptMaxHeight">140</x:Double>
+    <CornerRadius x:Key="SolverCardRadius">6</CornerRadius>
+    <Thickness x:Key="SolverCardPadding">16</Thickness>
+    <Thickness x:Key="SolverBannerBorder">3,1,1,1</Thickness>
+    <Thickness x:Key="SolverSectionRuleRight">0,0,1,0</Thickness>
+    <Thickness x:Key="SolverSectionRuleLeft">1,0,0,0</Thickness>
+    <Thickness x:Key="SolverRailItemPadding">10,6</Thickness>
+    <Thickness x:Key="SolverChipMargin">0,0,6,6</Thickness>
+    <Thickness x:Key="SolverStepBadgeGap">0,0,8,0</Thickness>
     </ResourceDictionary>
   </Styles.Resources>
   <Style Selector="Window"><Setter Property="Background" Value="{DynamicResource CanvasBrush}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="FontSize" Value="{StaticResource BodySize}" /></Style>
@@ -546,4 +564,27 @@
   <Style Selector="Border.station-thumb-label"><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /><Setter Property="Padding" Value="{StaticResource StationThumbLabelPadding}" /></Style>
   <Style Selector="Border.station-thumb-label TextBlock"><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="FontFeatures" Value="+tnum,+lnum" /></Style>
   <Style Selector="Border.station-thumb-label TextBlock.muted"><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /></Style>
+
+  <!-- Guided Solver Setup styles (W8-SLV-UI; existing theme brushes only). -->
+  <Style Selector="Border.status-solver-dot"><Setter Property="Width" Value="{StaticResource SolverDotSize}" /><Setter Property="Height" Value="{StaticResource SolverDotSize}" /><Setter Property="CornerRadius" Value="{StaticResource SolverDotRadius}" /><Setter Property="Background" Value="{DynamicResource ControlLineBrush}" /></Style>
+  <Style Selector="Border.status-solver-dot.ready"><Setter Property="Background" Value="{DynamicResource PrimaryBrush}" /></Style>
+  <Style Selector="Border.status-solver-dot.warning"><Setter Property="Background" Value="{DynamicResource WarningBrush}" /></Style>
+  <Style Selector="Border.status-solver-dot.error"><Setter Property="Background" Value="{DynamicResource DangerBrush}" /></Style>
+  <Style Selector="Border.solver-badge"><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" /><Setter Property="BorderThickness" Value="{StaticResource HairlineThickness}" /><Setter Property="CornerRadius" Value="{StaticResource ScopeChipRadius}" /><Setter Property="Padding" Value="{StaticResource ScopeChipPadding}" /><Setter Property="MinHeight" Value="{StaticResource CompactTargetSize}" /><Setter Property="VerticalAlignment" Value="Center" /></Style>
+  <Style Selector="Border.solver-chip"><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" /><Setter Property="BorderThickness" Value="{StaticResource HairlineThickness}" /><Setter Property="CornerRadius" Value="{StaticResource ScopeChipRadius}" /><Setter Property="Padding" Value="{StaticResource ScopeChipPadding}" /><Setter Property="Margin" Value="{StaticResource SolverChipMargin}" /></Style>
+  <Style Selector="Border.solver-chip.warn"><Setter Property="BorderBrush" Value="{DynamicResource WarningBrush}" /></Style>
+  <Style Selector="Border.solver-chip.warn TextBlock"><Setter Property="Foreground" Value="{DynamicResource WarningBrush}" /></Style>
+  <Style Selector="Border.solver-rail-item"><Setter Property="Padding" Value="{StaticResource SolverRailItemPadding}" /><Setter Property="BorderThickness" Value="{StaticResource PropRailThickness}" /><Setter Property="BorderBrush" Value="Transparent" /><Setter Property="Background" Value="Transparent" /></Style>
+  <Style Selector="Border.solver-rail-item.active"><Setter Property="Background" Value="{DynamicResource SelectionBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" /></Style>
+  <Style Selector="Border.solver-rail-item.active TextBlock.solver-rail-title"><Setter Property="FontWeight" Value="SemiBold" /><Setter Property="Foreground" Value="{DynamicResource OnSelectionBrush}" /></Style>
+  <Style Selector="Border.solver-step-index"><Setter Property="Width" Value="{StaticResource SolverStepBadgeSize}" /><Setter Property="Height" Value="{StaticResource SolverStepBadgeSize}" /><Setter Property="CornerRadius" Value="{StaticResource SolverStepBadgeRadius}" /><Setter Property="BorderBrush" Value="{DynamicResource ControlLineBrush}" /><Setter Property="BorderThickness" Value="{StaticResource HairlineThickness}" /><Setter Property="Margin" Value="{StaticResource SolverStepBadgeGap}" /><Setter Property="VerticalAlignment" Value="Top" /></Style>
+  <Style Selector="Border.solver-step-index TextBlock"><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /></Style>
+  <Style Selector="Border.solver-step-index.done"><Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" /></Style>
+  <Style Selector="Border.solver-step-index.done TextBlock"><Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" /></Style>
+  <Style Selector="Border.solver-step-index.failed"><Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}" /></Style>
+  <Style Selector="Border.solver-step-index.failed TextBlock"><Setter Property="Foreground" Value="{DynamicResource DangerBrush}" /></Style>
+  <Style Selector="Border.solver-step-index.waiting"><Setter Property="BorderBrush" Value="{DynamicResource WarningBrush}" /></Style>
+  <Style Selector="Border.solver-step-index.waiting TextBlock"><Setter Property="Foreground" Value="{DynamicResource WarningBrush}" /></Style>
+  <Style Selector="Border.solver-other-route"><Setter Property="Background" Value="{DynamicResource CanvasBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" /><Setter Property="BorderThickness" Value="{StaticResource HairlineThickness}" /><Setter Property="CornerRadius" Value="{StaticResource RoundedSm}" /><Setter Property="Padding" Value="{StaticResource Space2}" /></Style>
+  <Style Selector="Border#AssistantResultCard.withheld"><Setter Property="BorderBrush" Value="{DynamicResource WarningBrush}" /></Style>
 </Styles>

@@ -1,4 +1,5 @@
 using CfdWorkbench.Analysis.Export;
+using CfdWorkbench.Analysis.SolverSetup;
 using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Automation;
@@ -13,6 +14,7 @@ using Avalonia.VisualTree;
 using CfdWorkbench.Core;
 using CfdWorkbench.Desktop.Analysis;
 using CfdWorkbench.Desktop.Panes;
+using CfdWorkbench.Desktop.SolverSetup;
 using CfdWorkbench.Persistence;
 using Dock.Avalonia.Controls;
 using Dock.Avalonia.Themes.Fluent;
@@ -75,6 +77,11 @@ public sealed class ShellHost : Grid
 
     /// <summary>The status strip under every pane and dock (DR-STATUS-1): the window's one polite status region.</summary>
     public StatusStrip StatusStrip { get; }
+
+    /// <summary>Guided Solver Setup non-blocking Dock document view and tab (Ruling 69, F7a).</summary>
+    public SolverSetupView SolverSetup { get; }
+    public IDocument SolverSetupDocument { get; }
+    private SolverSetupService? solverSetupService;
 
     // STATUS-CLOBBER at the strip: the controller status version the strip last reflected. A controller status is shown only
     // when its version moved past this one, and every report from outside the controller moves both (Report).
@@ -236,6 +243,21 @@ public sealed class ShellHost : Grid
         AnalysisPanel = new AnalysisPanel { Name = "AnalysisPanel", IsVisible = false };
         ModelView = new ModelArea();
         StatusStrip = new StatusStrip { Name = "StatusStrip" };
+        SolverSetup = new SolverSetupView { Name = "SolverSetupView" };
+        SolverSetupDocument = new Document
+        {
+            Id = "solver-setup",
+            Title = SolverSetupCopy.TabTitle,
+            CanClose = true,
+            CanFloat = false,
+            Context = SolverSetup
+        };
+        SolverSetup.Reported += Report;
+        SolverSetup.StatusChanged += StatusStrip.ShowSolverState;
+        SolverSetup.CloseRequested += CloseSolverSetup;
+        SolverSetup.BackToAnalysisRequested += OpenAnalysisFromSolverSetup;
+        StatusStrip.SolverSetupRequested += OpenSolverSetup;
+        AnalysisPanel.SolverSetupRequested += OpenSolverSetup;
         // The strip starts empty (DR-STATUS-4): the controller's opening prompt is the Start view's to show.
         shownStatusVersion = controller.StatusVersion;
         // PG-26 / DR-STATUS-1: the pane's reports (type, kind, nudge value, echoes, "Selected …", availability) go to the
@@ -919,6 +941,50 @@ public sealed class ShellHost : Grid
         }
     }
 
+    /// <summary>Binds a <see cref="SolverSetupService"/> to the shell's Guided Solver Setup tab and StatusStrip item.</summary>
+    public void BindSolverSetup(SolverSetupService service, string? selectedRouteId = null, string? sessionId = null, bool hasApiKey = false)
+    {
+        ArgumentNullException.ThrowIfNull(service);
+        solverSetupService = service;
+        SolverSetup.BindService(service, selectedRouteId, sessionId, hasApiKey);
+    }
+
+    /// <summary>Opens or focuses the non-blocking Guided Solver Setup Dock document tab (Ruling 69, F7a).</summary>
+    public void OpenSolverSetup()
+    {
+        if (solverSetupService is null)
+        {
+            solverSetupService = new SolverSetupService();
+            SolverSetup.BindService(solverSetupService);
+        }
+        var docs = LayoutFactory.MainDocumentDock.VisibleDockables;
+        if (docs is not null && !docs.Contains(SolverSetupDocument))
+        {
+            SolverSetupDocument.Owner = LayoutFactory.MainDocumentDock;
+            docs.Add(SolverSetupDocument);
+            MarkDockFixupNeeded();
+        }
+        LayoutFactory.MainDocumentDock.ActiveDockable = SolverSetupDocument;
+        FocusDockableTab(SolverSetupDocument);
+    }
+
+    /// <summary>Closes the Guided Solver Setup Dock document tab and returns focus to the model document.</summary>
+    public void CloseSolverSetup()
+    {
+        var docs = LayoutFactory.MainDocumentDock.VisibleDockables;
+        if (docs is not null && docs.Remove(SolverSetupDocument))
+            MarkDockFixupNeeded();
+        if (ReferenceEquals(LayoutFactory.MainDocumentDock.ActiveDockable, SolverSetupDocument))
+            LayoutFactory.MainDocumentDock.ActiveDockable = LayoutFactory.ModelDocument;
+    }
+
+    private void OpenAnalysisFromSolverSetup()
+    {
+        CloseSolverSetup();
+        if (!Controller.IsAnalysis)
+            Controller.ToggleAnalysis();
+    }
+
     /// <summary>F-19: hide Section and Foil source tabs while on Start; show them once a foil is open.</summary>
     private void SyncDocumentTabs(bool foilOpen)
     {
@@ -929,7 +995,8 @@ public sealed class ShellHost : Grid
         {
             if (docs.Remove(LayoutFactory.SectionDocument)) changed = true;
             if (docs.Remove(LayoutFactory.FoilSourceDocument)) changed = true;
-            if (!ReferenceEquals(LayoutFactory.MainDocumentDock.ActiveDockable, LayoutFactory.ModelDocument))
+            if (!ReferenceEquals(LayoutFactory.MainDocumentDock.ActiveDockable, LayoutFactory.ModelDocument) &&
+                !ReferenceEquals(LayoutFactory.MainDocumentDock.ActiveDockable, SolverSetupDocument))
                 LayoutFactory.MainDocumentDock.ActiveDockable = LayoutFactory.ModelDocument;
         }
         else
@@ -1413,6 +1480,9 @@ public sealed class ShellHost : Grid
             case "view.sweeps":
                 Controller.ToggleSweeps();
                 return;
+            case "solver.setup":
+                OpenSolverSetup();
+                return;
             case "view.comb-larger" or "view.comb-smaller" or "view.comb-auto" or "view.comb-denser" or "view.comb-sparser":
                 RunCombVerb(id);
                 return;
@@ -1571,7 +1641,7 @@ public sealed class ShellHost : Grid
         id.StartsWith("station.", StringComparison.Ordinal) ||
         id.StartsWith("view.text-", StringComparison.Ordinal) ||
         id.StartsWith("view.comb", StringComparison.Ordinal) ||
-        id is "analysis.compare" or "analysis.compare-tiers" or "view.sweeps" or "view.setup" ||
+        id is "analysis.compare" or "analysis.compare-tiers" or "view.sweeps" or "view.setup" or "solver.setup" ||
         CommandTable.UnitsOf(id) is not null ||
         ViewCommands.Handles(id) ||
         IsShellCommand(id);
