@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-23T18:09:48Z",
+  "generated": "2026-11-23T18:56:56Z",
   "audit": [
     {
       "actor": null,
@@ -45066,6 +45066,35 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-23T18:02:05Z",
       "duration_seconds": 463.0
+    },
+    {
+      "id": "al-01M84W9DAYKGKS4S487DX33BK9",
+      "shortname": "join-w8-slv-ui",
+      "datetime": "2026-11-23T18:56:56Z",
+      "session": "agy-w8-coord",
+      "prompt": "the join of swarm-w8-solver-ui-a7591d3b into main",
+      "summary": "Joined W8-SLV-UI (e450d2b4): Guided Solver Setup Desktop UI across 16 owned files (0 theme brush additions, 0 ModelArea edits). Non-blocking Dock SolverSetupView via ShellHost (all 6 hard states, collapsed DR-SETUP-5 Technical details, DR-SETUP-1 Other options route switcher, zero-PII Copy a report, DR-SETUP-4/AI-01/AI-11 key-free rails + validator), StatusStrip derived Solver item + click-to-open + FitItems, View > Set up a solver (Modal: false, ShellModelTests parity), AnalysisPanel entry, DESIGN.md COPY-766..805 proposed (all 70 SolverSetupCopy constants + COPY-766..805 clean under SETUP-04 SetupCopyLint), --solver-setup ring wired; 4/4 mutants killed, 11/11 gates exit 0, Adversary PASS (#48). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "DESIGN.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land Wave 8C W8-SLV-UI onto main",
+      "done_when": "W8-SLV-UI merged via conductor-join.py with TESTS-GREEN, xaml-token-lint, check-event-subscribers, check-docs, and 10/10 verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-23T18:48:41Z",
+      "duration_seconds": 495.0
     }
   ],
   "changes": [
