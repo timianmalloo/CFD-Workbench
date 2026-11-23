@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-23T16:05:34Z",
+  "generated": "2026-11-23T17:00:57Z",
   "audit": [
     {
       "actor": null,
@@ -45007,6 +45007,36 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-23T15:40:33Z",
       "duration_seconds": 1501.0
+    },
+    {
+      "id": "al-01M84NN18ACBNVD3H7NAVQJ6Z1",
+      "shortname": "join-w8-exp",
+      "datetime": "2026-11-23T17:00:56Z",
+      "session": "agy-w8-coord",
+      "prompt": "the join of swarm-w8-cad-export-dd991985 into main",
+      "summary": "Joined W8-EXP (3a40f930): Export Slice B design doc (docs/design/export-step-3dm.{md,html}), pure in-memory STORE-SUBSET Core CadExportExtractor (t_i -> eta_i = x_channel(t_i), <= 10 um on all 5 wings), ICadStepExporter + StepAp203Export (Whole/Half x ClosedShell/Untrimmed zero-PII AP203), StepVerifier (OPEN_SHELL deg-1 boundary vs deg-2 interior separation), MIT Rhino3dm 8.35.0 Rhino3dmExport (3 layers, live win-arm64 ToByteArray/FromByteArray round-trip < 1e-6 mm, packages.lock.json + THIRD-PARTY-NOTICES.md), CadExportReleaseGate preserving COPY-481 until real Fusion/FreeCAD/Vectric/Rhino8 receipts exist, CLI export --format step|3dm, cross-platform Python SPIKE-CAD-02 harness (generate-fixture.py, verify-open-measure.py --self-test); 4/4 mutants killed, 13/13 gates exit 0, Adversary PASS (#32). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/export-step-3dm.md",
+        "docs/proof/cad-export-measure/README.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land Wave 8A W8-EXP onto main",
+      "done_when": "W8-EXP merged via conductor-join.py with TESTS-GREEN, xaml-token-lint, check-event-subscribers, check-docs, and 10/10 verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-23T16:52:49Z",
+      "duration_seconds": 487.0
     }
   ],
   "changes": [
