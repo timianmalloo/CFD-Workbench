@@ -24,6 +24,9 @@ public partial class AnalysisPanel : UserControl
         OpenInMainAreaButton.Content = Labels.OpenInMainArea;
         AutomationProperties.SetName(OpenInMainAreaButton, Labels.OpenInMainArea);
         OpenInMainAreaButton.Click += (_, _) => OpenSectionRequested?.Invoke();
+        SolverSetupButtonText.Text = SolverSetup.SolverSetupCopy.VerbTitle;
+        AutomationProperties.SetName(SolverSetupButton, SolverSetup.SolverSetupCopy.VerbTitle);
+        SolverSetupButton.Click += (_, _) => SolverSetupRequested?.Invoke();
         CompareTab.Header = Labels.CompareTab;
         PanelTabs.SelectionChanged += (_, args) =>
         {
@@ -59,6 +62,9 @@ public partial class AnalysisPanel : UserControl
 
     /// <summary>Raised by the summary's "Open in main area" action; the shell opens and focuses the Section document.</summary>
     public event Action? OpenSectionRequested;
+
+    /// <summary>Raised by the subtle "Set up a solver" entry in the Analysis panel (Ruling 69, F7a).</summary>
+    public event Action? SolverSetupRequested;
 
     private double windowHeight;
 

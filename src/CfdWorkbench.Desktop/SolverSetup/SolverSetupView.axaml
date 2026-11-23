@@ -1,0 +1,324 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="CfdWorkbench.Desktop.SolverSetup.SolverSetupView"
+             Background="{DynamicResource CanvasBrush}"
+             Foreground="{DynamicResource InkBrush}">
+  <!-- Guided Solver Setup Dock document tab (Ruling 69, docs/mockups/solver-setup.html, docs/design/guided-solver-setup.md).
+       Non-blocking document; zero first-launch modal nagging (F7a); Technical details collapsed by default (DR-SETUP-5);
+       rails work 100% key-free offline (DR-SETUP-4, AI-01). -->
+  <Grid RowDefinitions="Auto,*">
+    <!-- Top header bar: derived status, active route, read-only check, Copy a report, Done -->
+    <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+            BorderThickness="{StaticResource PropRuleBottom}" Padding="{StaticResource Space3}">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="{StaticResource StackGap2}" VerticalAlignment="Center">
+          <Border x:Name="HeaderStatusBadge" Classes="solver-badge">
+            <TextBlock x:Name="HeaderStatusText" FontSize="{StaticResource CaptionSize}" FontWeight="SemiBold"
+                       Foreground="{DynamicResource InkBrush}" Text="Status: Not set up" />
+          </Border>
+          <Button x:Name="RefreshSurveyButton" Content="Run read-only check" MinHeight="{StaticResource ControlHeight}"
+                  AutomationProperties.Name="Run read-only check" />
+          <Button x:Name="CopyReportButton" Content="Copy a report" MinHeight="{StaticResource ControlHeight}"
+                  AutomationProperties.Name="Copy a report" />
+          <Button x:Name="CloseSetupButton" Content="Done" MinHeight="{StaticResource ControlHeight}"
+                  AutomationProperties.Name="Close Solver setup" />
+        </StackPanel>
+        <StackPanel Orientation="Vertical" Spacing="{StaticResource StackGap1}" VerticalAlignment="Center">
+          <TextBlock x:Name="HeaderTitleText" Classes="heading" Text="Set up a solver" Foreground="{DynamicResource InkBrush}" />
+          <TextBlock x:Name="HeaderRouteText" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" Text="" />
+        </StackPanel>
+      </DockPanel>
+    </Border>
+
+    <!-- Main 3-column workbench layout: Step rail | Active card | Optional assistant -->
+    <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto">
+      <!-- Left column: Step rail -->
+      <Border x:Name="StepRailHost" Grid.Column="0" Width="{StaticResource SolverRailWidth}"
+              Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+              BorderThickness="{StaticResource SolverSectionRuleRight}">
+        <Grid RowDefinitions="Auto,*">
+          <StackPanel Grid.Row="0" Margin="{StaticResource Space3}" Spacing="{StaticResource StackGap1}">
+            <TextBlock x:Name="RailRouteTitle" FontWeight="SemiBold" FontSize="{StaticResource PropTitleSize}"
+                       Foreground="{DynamicResource InkBrush}" TextWrapping="Wrap" />
+            <TextBlock x:Name="RailSurveySubtitle" FontSize="{StaticResource CaptionSize}"
+                       Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
+          </StackPanel>
+          <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel x:Name="StepRailList" Spacing="{StaticResource StackGap1}" />
+          </ScrollViewer>
+        </Grid>
+      </Border>
+
+      <!-- Center column: Survey summary, Route switcher, Active step / hard-state card -->
+      <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                    Padding="{StaticResource Space4}">
+        <StackPanel Spacing="{StaticResource StackGap3}" MaxWidth="{StaticResource SolverCardMaxWidth}" HorizontalAlignment="Left">
+          <!-- Resumed after interruption / restart banner (SETUP-05) -->
+          <Border x:Name="ResumedBanner" IsVisible="False" Background="{DynamicResource SurfaceBrush}"
+                  BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="{StaticResource SolverBannerBorder}"
+                  CornerRadius="{StaticResource RoundedSm}" Padding="{StaticResource Space2}">
+            <TextBlock x:Name="ResumedBannerText" TextWrapping="Wrap" Foreground="{DynamicResource InkBrush}" />
+          </Border>
+
+          <!-- Host survey summary card -->
+          <Border x:Name="SurveySummaryCard" Background="{DynamicResource SurfaceBrush}"
+                  BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource HairlineThickness}"
+                  CornerRadius="{StaticResource SolverCardRadius}" Padding="{StaticResource SolverCardPadding}">
+            <StackPanel Spacing="{StaticResource StackGap2}">
+              <TextBlock x:Name="SurveyHeadingText" Text="What CFD Workbench found on this computer"
+                         FontWeight="SemiBold" FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
+              <TextBlock x:Name="SurveyEmptyNote" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
+                         Foreground="{DynamicResource MutedBrush}" IsVisible="False" />
+              <StackPanel x:Name="SurveyRowsPanel" Spacing="{StaticResource StackGap1}" />
+            </StackPanel>
+          </Border>
+
+          <!-- Recommended route + collapsed Other options switcher (DR-SETUP-1) -->
+          <Border x:Name="RouteCard" Background="{DynamicResource SurfaceBrush}"
+                  BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="{StaticResource HairlineThickness}"
+                  CornerRadius="{StaticResource SolverCardRadius}" Padding="{StaticResource SolverCardPadding}">
+            <StackPanel Spacing="{StaticResource StackGap2}">
+              <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+                <TextBlock x:Name="RouteBadgeText" Text="Recommended" FontWeight="SemiBold"
+                           FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource PrimaryBrush}" />
+                <TextBlock x:Name="RouteNameText" FontWeight="SemiBold" FontSize="{StaticResource PropTitleSize}"
+                           Foreground="{DynamicResource InkBrush}" TextWrapping="Wrap" />
+              </StackPanel>
+              <TextBlock x:Name="RouteReasonText" TextWrapping="Wrap" Foreground="{DynamicResource InkBrush}" />
+              <Expander x:Name="OtherOptionsExpander" Header="Other options" IsExpanded="False" HorizontalAlignment="Stretch">
+                <StackPanel x:Name="OtherRoutesList" Spacing="{StaticResource StackGap2}" Margin="{StaticResource Space2}" />
+              </Expander>
+            </StackPanel>
+          </Border>
+
+          <!-- Main step / hard-state card -->
+          <Border x:Name="MainCard" Background="{DynamicResource SurfaceBrush}"
+                  BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource HairlineThickness}"
+                  CornerRadius="{StaticResource SolverCardRadius}" Padding="{StaticResource SolverCardPadding}">
+            <StackPanel Spacing="{StaticResource StackGap2}">
+              <TextBlock x:Name="CardKicker" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
+              <TextBlock x:Name="CardTitle" Classes="heading" TextWrapping="Wrap" Foreground="{DynamicResource InkBrush}" />
+              <TextBlock x:Name="CardLead" TextWrapping="Wrap" Foreground="{DynamicResource InkBrush}" />
+              <TextBlock x:Name="CardWhat" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" IsVisible="False" />
+
+              <!-- Step metadata badges (download size, estimate, admin, restart) -->
+              <WrapPanel x:Name="NeedsBadgesPanel" Orientation="Horizontal" IsVisible="False" />
+
+              <!-- Hard state 1: Route selection actions -->
+              <StackPanel x:Name="RouteSelectionActionsPanel" Orientation="Horizontal" Spacing="{StaticResource StackGap2}" IsVisible="False">
+                <Button x:Name="StartSetupButton" Classes="primary" Content="Start setup" MinHeight="{StaticResource ControlHeight}"
+                        AutomationProperties.Name="Start setup" />
+                <Button x:Name="RouteNotNowButton" Content="Not now" MinHeight="{StaticResource ControlHeight}"
+                        AutomationProperties.Name="Not now" />
+              </StackPanel>
+
+              <!-- Hard state 2: Step ready / WaitingForOs / Running -->
+              <StackPanel x:Name="StepReadyPanel" Spacing="{StaticResource StackGap2}" IsVisible="False">
+                <StackPanel x:Name="TermsPanel" Spacing="{StaticResource StackGap1}" IsVisible="False">
+                  <TextBlock x:Name="TermsHeadingText" FontSize="{StaticResource CaptionSize}" FontWeight="SemiBold"
+                             Foreground="{DynamicResource InkBrush}" Text="Licence (shown as written by its authors):" />
+                  <Border Background="{DynamicResource CanvasBrush}" BorderBrush="{DynamicResource LineBrush}"
+                          BorderThickness="{StaticResource HairlineThickness}" CornerRadius="{StaticResource RoundedSm}"
+                          Padding="{StaticResource Space2}">
+                    <ScrollViewer MaxHeight="{StaticResource SolverTermsMaxHeight}" VerticalScrollBarVisibility="Auto">
+                      <TextBlock x:Name="TermsText" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
+                                 Foreground="{DynamicResource MutedBrush}" />
+                    </ScrollViewer>
+                  </Border>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+                  <Button x:Name="PrimaryActionButton" Classes="primary" Content="Start this step" MinHeight="{StaticResource ControlHeight}"
+                          AutomationProperties.Name="Start this step" />
+                  <Button x:Name="StepNotNowButton" Content="Not now" MinHeight="{StaticResource ControlHeight}"
+                          AutomationProperties.Name="Not now" />
+                </StackPanel>
+              </StackPanel>
+
+              <!-- Hard state 3: Existing unverified install (DR-SEC-1 A) -->
+              <StackPanel x:Name="ExistingUnverifiedPanel" Spacing="{StaticResource StackGap2}" IsVisible="False">
+                <Border Background="{DynamicResource SurfaceSoftBrush}" BorderBrush="{DynamicResource WarningBrush}"
+                        BorderThickness="{StaticResource SolverBannerBorder}" CornerRadius="{StaticResource RoundedSm}"
+                        Padding="{StaticResource Space2}">
+                  <TextBlock x:Name="ExistingDisclosureText" TextWrapping="Wrap" Foreground="{DynamicResource InkBrush}" />
+                </Border>
+                <Border Background="{DynamicResource CanvasBrush}" BorderBrush="{DynamicResource PrimaryBrush}"
+                        BorderThickness="{StaticResource HairlineThickness}" CornerRadius="{StaticResource RoundedSm}"
+                        Padding="{StaticResource Space2}">
+                  <StackPanel Spacing="{StaticResource StackGap1}">
+                    <TextBlock Text="Recommended" FontSize="{StaticResource CaptionSize}" FontWeight="SemiBold"
+                               Foreground="{DynamicResource PrimaryBrush}" />
+                    <TextBlock Text="Install the tested build" FontWeight="SemiBold" Foreground="{DynamicResource InkBrush}" />
+                    <TextBlock x:Name="InstallTestedNoteText" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
+                               Foreground="{DynamicResource MutedBrush}" />
+                  </StackPanel>
+                </Border>
+                <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+                  <Button x:Name="InstallTestedButton" Classes="primary" Content="Install the tested build"
+                          MinHeight="{StaticResource ControlHeight}" AutomationProperties.Name="Install the tested build" />
+                  <Button x:Name="UseMineAnywayButton" Content="Use mine anyway"
+                          MinHeight="{StaticResource ControlHeight}" AutomationProperties.Name="Use mine anyway" />
+                </StackPanel>
+              </StackPanel>
+
+              <!-- Hard state 4: Failed with cause + next step + optional click path / output excerpt -->
+              <StackPanel x:Name="FailurePanel" Spacing="{StaticResource StackGap2}" IsVisible="False">
+                <Border Background="{DynamicResource SurfaceSoftBrush}" BorderBrush="{DynamicResource DangerBrush}"
+                        BorderThickness="{StaticResource SolverBannerBorder}" CornerRadius="{StaticResource RoundedSm}"
+                        Padding="{StaticResource Space2}">
+                  <StackPanel Spacing="{StaticResource StackGap1}">
+                    <TextBlock Text="What happened" FontWeight="SemiBold" FontSize="{StaticResource CaptionSize}"
+                               Foreground="{DynamicResource DangerBrush}" />
+                    <TextBlock x:Name="CauseSummaryText" TextWrapping="Wrap" Foreground="{DynamicResource InkBrush}" />
+                  </StackPanel>
+                </Border>
+                <StackPanel Spacing="{StaticResource StackGap1}">
+                  <TextBlock Text="Next step" FontWeight="SemiBold" FontSize="{StaticResource CaptionSize}"
+                             Foreground="{DynamicResource InkBrush}" />
+                  <TextBlock x:Name="NextStepText" TextWrapping="Wrap" Foreground="{DynamicResource InkBrush}" />
+                </StackPanel>
+                <StackPanel x:Name="ClickPathList" Spacing="{StaticResource StackGap1}" IsVisible="False" />
+                <Expander x:Name="OutputExcerptExpander" Header="Last lines of output" IsVisible="False"
+                          IsExpanded="True" HorizontalAlignment="Stretch">
+                  <Border Background="{DynamicResource CanvasBrush}" BorderBrush="{DynamicResource LineBrush}"
+                          BorderThickness="{StaticResource HairlineThickness}" CornerRadius="{StaticResource RoundedSm}"
+                          Padding="{StaticResource Space2}">
+                    <ScrollViewer MaxHeight="{StaticResource SolverExcerptMaxHeight}" VerticalScrollBarVisibility="Auto">
+                      <TextBlock x:Name="OutputExcerptText" FontFamily="{StaticResource MonoFontFamily}"
+                                 FontSize="{StaticResource CaptionSize}" TextWrapping="Wrap"
+                                 Foreground="{DynamicResource InkBrush}" />
+                    </ScrollViewer>
+                  </Border>
+                </Expander>
+                <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+                  <Button x:Name="RetryStepButton" Classes="primary" Content="Check again"
+                          MinHeight="{StaticResource ControlHeight}" AutomationProperties.Name="Check again" />
+                  <Button x:Name="FailureCopyReportButton" Content="Copy a report"
+                          MinHeight="{StaticResource ControlHeight}" AutomationProperties.Name="Copy a report" />
+                </StackPanel>
+              </StackPanel>
+
+              <!-- Hard state 5: Needs restart (DR-SETUP-6) -->
+              <StackPanel x:Name="NeedsRestartPanel" Spacing="{StaticResource StackGap2}" IsVisible="False">
+                <Border Background="{DynamicResource SurfaceSoftBrush}" BorderBrush="{DynamicResource WarningBrush}"
+                        BorderThickness="{StaticResource SolverBannerBorder}" CornerRadius="{StaticResource RoundedSm}"
+                        Padding="{StaticResource Space2}">
+                  <TextBlock x:Name="NeedsRestartBodyText" TextWrapping="Wrap" Foreground="{DynamicResource InkBrush}" />
+                </Border>
+                <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+                  <Button x:Name="RestartNowButton" Classes="primary" Content="Restart now"
+                          MinHeight="{StaticResource ControlHeight}" AutomationProperties.Name="Restart now" />
+                  <Button x:Name="RestartLaterButton" Content="I'll restart later"
+                          MinHeight="{StaticResource ControlHeight}" AutomationProperties.Name="I'll restart later" />
+                </StackPanel>
+              </StackPanel>
+
+              <!-- Hard state 6: Ready (SETUP-08) -->
+              <StackPanel x:Name="ReadyPanel" Spacing="{StaticResource StackGap2}" IsVisible="False">
+                <Border Background="{DynamicResource SurfaceSoftBrush}" BorderBrush="{DynamicResource PrimaryBrush}"
+                        BorderThickness="{StaticResource SolverBannerBorder}" CornerRadius="{StaticResource RoundedSm}"
+                        Padding="{StaticResource Space2}">
+                  <TextBlock x:Name="ReadySummaryText" FontWeight="SemiBold" TextWrapping="Wrap"
+                             Foreground="{DynamicResource InkBrush}" />
+                </Border>
+                <StackPanel x:Name="ReadyFactsPanel" Spacing="{StaticResource StackGap1}" />
+                <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+                  <Button x:Name="BackToAnalysisButton" Classes="primary" Content="Back to my analysis"
+                          MinHeight="{StaticResource ControlHeight}" AutomationProperties.Name="Back to my analysis" />
+                  <Button x:Name="ReadyDoneButton" Content="Done"
+                          MinHeight="{StaticResource ControlHeight}" AutomationProperties.Name="Done" />
+                  <Button x:Name="RemoveInstalledButton" Content="Remove what setup installed…" IsVisible="False"
+                          MinHeight="{StaticResource ControlHeight}" AutomationProperties.Name="Remove what setup installed" />
+                </StackPanel>
+              </StackPanel>
+
+              <!-- Collapsed Technical details disclosure (DR-SETUP-5: always collapsed by default, exact command + pin before consent) -->
+              <Expander x:Name="TechnicalDetailsExpander" Header="Technical details" IsExpanded="False"
+                        IsVisible="False" HorizontalAlignment="Stretch">
+                <StackPanel Spacing="{StaticResource StackGap1}" Margin="{StaticResource Space1}">
+                  <Border Background="{DynamicResource SurfaceSoftBrush}" BorderBrush="{DynamicResource LineBrush}"
+                          BorderThickness="{StaticResource HairlineThickness}" CornerRadius="{StaticResource RoundedSm}"
+                          Padding="{StaticResource Space2}">
+                    <StackPanel Spacing="{StaticResource StackGap1}">
+                      <TextBlock x:Name="TechnicalCommandText" FontFamily="{StaticResource MonoFontFamily}"
+                                 FontSize="{StaticResource CaptionSize}" TextWrapping="Wrap"
+                                 Foreground="{DynamicResource InkBrush}" />
+                      <TextBlock x:Name="TechnicalPinText" FontFamily="{StaticResource MonoFontFamily}"
+                                 FontSize="{StaticResource CaptionSize}" TextWrapping="Wrap"
+                                 Foreground="{DynamicResource MutedBrush}" />
+                    </StackPanel>
+                  </Border>
+                  <Button x:Name="CopyDetailsButton" Content="Copy details" HorizontalAlignment="Left"
+                          MinHeight="{StaticResource CompactTargetSize}" AutomationProperties.Name="Copy technical details" />
+                </StackPanel>
+              </Expander>
+
+              <TextBlock x:Name="ReportReceiptText" IsVisible="False" FontSize="{StaticResource CaptionSize}"
+                         Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </ScrollViewer>
+
+      <!-- Right column: Optional AI-11 assistant slot (works 100% key-free offline, AI-01 / DR-SETUP-4) -->
+      <Border x:Name="AssistantPane" Grid.Column="2" Width="{StaticResource SolverAssistantWidth}"
+              Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+              BorderThickness="{StaticResource SolverSectionRuleLeft}" Padding="{StaticResource Space3}">
+        <Grid RowDefinitions="Auto,*,Auto" RowSpacing="{StaticResource StackGap2}">
+          <StackPanel Grid.Row="0" Spacing="{StaticResource StackGap1}">
+            <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+              <TextBlock x:Name="AssistantHeadingText" Text="Ask about this step" FontWeight="SemiBold"
+                         FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" VerticalAlignment="Center" />
+              <Border Classes="solver-badge">
+                <TextBlock Text="Assistant" FontSize="{StaticResource CaptionSize}" FontWeight="SemiBold"
+                           Foreground="{DynamicResource PrimaryBrush}" />
+              </Border>
+            </StackPanel>
+            <TextBlock x:Name="AssistantDisclosureText" FontSize="{StaticResource CaptionSize}"
+                       Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
+          </StackPanel>
+
+          <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Spacing="{StaticResource StackGap2}">
+              <!-- Key-free offline notice (AI-01) -->
+              <Border x:Name="AssistantOfflineCard" Background="{DynamicResource SurfaceSoftBrush}"
+                      BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource HairlineThickness}"
+                      CornerRadius="{StaticResource RoundedSm}" Padding="{StaticResource Space2}">
+                <StackPanel Spacing="{StaticResource StackGap1}">
+                  <TextBlock x:Name="AssistantOfflineNoticeText" FontSize="{StaticResource CaptionSize}"
+                             FontWeight="SemiBold" TextWrapping="Wrap" Foreground="{DynamicResource InkBrush}" />
+                  <TextBlock x:Name="AssistantOfflineNoteText" FontSize="{StaticResource CaptionSize}"
+                             TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" />
+                </StackPanel>
+              </Border>
+
+              <!-- Validated AI-11 response / withheld / refused card -->
+              <Border x:Name="AssistantResultCard" IsVisible="False" Background="{DynamicResource CanvasBrush}"
+                      BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="{StaticResource SolverBannerBorder}"
+                      CornerRadius="{StaticResource RoundedSm}" Padding="{StaticResource Space2}">
+                <StackPanel Spacing="{StaticResource StackGap1}">
+                  <TextBlock x:Name="AssistantVerdictText" FontSize="{StaticResource CaptionSize}" FontWeight="SemiBold"
+                             TextWrapping="Wrap" Foreground="{DynamicResource InkBrush}" />
+                  <TextBlock x:Name="AssistantBodyText" FontSize="{StaticResource CaptionSize}" TextWrapping="Wrap"
+                             Foreground="{DynamicResource InkBrush}" />
+                  <TextBlock x:Name="AssistantCitationsText" FontSize="{StaticResource CaptionSize}" TextWrapping="Wrap"
+                             Foreground="{DynamicResource MutedBrush}" IsVisible="False" />
+                  <Button x:Name="AssistantUseSuggestionButton" Content="Use this suggestion" IsVisible="False"
+                          HorizontalAlignment="Left" MinHeight="{StaticResource CompactTargetSize}"
+                          AutomationProperties.Name="Use this suggestion" />
+                </StackPanel>
+              </Border>
+            </StackPanel>
+          </ScrollViewer>
+
+          <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource StackGap1}">
+            <TextBox x:Name="AssistantPromptBox" Grid.Column="0" IsEnabled="False"
+                     Watermark="Assistant off — setup works without it"
+                     AutomationProperties.Name="Ask about this step" />
+            <Button x:Name="AssistantAskButton" Grid.Column="1" Content="Ask" IsEnabled="False"
+                    MinHeight="{StaticResource ControlHeight}" AutomationProperties.Name="Ask assistant" />
+          </Grid>
+        </Grid>
+      </Border>
+    </Grid>
+  </Grid>
+</UserControl>

@@ -220,6 +220,36 @@ public static class StatusStripTests
                 throw new InvalidOperationException("replace report: " + text);
         });
 
+        Pane("StatusStrip_SolverItem_DerivesStatusAndClicksToOpen", (controller, host, window) =>
+        {
+            var strip = Strip(host);
+            var solverItem = Need<Border>(strip, "SolverItem");
+            var solverButton = Need<Button>(strip, "SolverButton");
+            var solverText = Need<TextBlock>(strip, "SolverItemText");
+            var solverDot = Need<Border>(strip, "SolverDot");
+            if (!solverItem.IsVisible || solverText.Text != "Solver: not set up")
+                throw new InvalidOperationException($"initial solver item visible={solverItem.IsVisible} text='{solverText.Text}'");
+
+            host.StatusStrip.ShowSolverState(new CfdWorkbench.Core.SolverSetup.SolverStatusSummary(
+                CfdWorkbench.Core.SolverSetup.SolverReadiness.SettingUp,
+                "Solver: step 2 of 9", "OpenFOAM", "v2512", null, false, 2, 9, null, null, null, null));
+            Settle(window);
+            if (solverText.Text != "Solver: step 2 of 9" || !solverDot.Classes.Contains("warning"))
+                throw new InvalidOperationException($"setting up state text='{solverText.Text}' classes='{string.Join(",", solverDot.Classes)}'");
+
+            host.StatusStrip.ShowSolverState(new CfdWorkbench.Core.SolverSetup.SolverStatusSummary(
+                CfdWorkbench.Core.SolverSetup.SolverReadiness.Ready,
+                "Solver: Ready", "OpenFOAM", "v2512", "_bd2b6720", true, null, null, 1.0, DateTimeOffset.UtcNow, 4000, null));
+            Settle(window);
+            if (solverText.Text != "Solver: Ready" || !solverDot.Classes.Contains("ready"))
+                throw new InvalidOperationException($"ready state text='{solverText.Text}' classes='{string.Join(",", solverDot.Classes)}'");
+
+            solverButton.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            Settle(window);
+            if (!ReferenceEquals(host.LayoutFactory.MainDocumentDock.ActiveDockable, host.SolverSetupDocument))
+                throw new InvalidOperationException("Clicking StatusStrip SolverButton did not activate SolverSetupDocument");
+        });
+
         Capture();
         // Track PNL's window checks (the section strip, Show, the Points pane, Properties' section rows, workspaces).
         PointsPaneTests.Run();

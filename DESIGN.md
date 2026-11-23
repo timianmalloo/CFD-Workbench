@@ -1016,6 +1016,46 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-755 | 3DM verified by Rhino 8 open-and-measure receipt. — proposed — W8-EXP (Gate status detail when Rhino 8 receipt passes; `ExportCopy.CadGateVerifiedThreeDm`) |
 | COPY-756 | The CAD export failed self-verification, so nothing was written. — proposed — W8-EXP (In-dialog refusal when STEP/3DM self-verification fails; `ExportCopy.CadValidationFailed`) |
 | COPY-757 | Largest A-vs-B skin deviation: `<dev>` mm (`<um>` µm), sampled against Placement.Surface. / Exported `<file>` · `<formatDetail>` · `<size>` MB · mm · largest measured deviation `<dev>` mm — proposed — W8-EXP (`ExportCopy.FidelityCad`, `ExportCopy.ExportedCad`) |
+| COPY-766 | Set up a solver — proposed — W8-SLV-UI (Ruling 69, DR-SETUP-4; View menu, AnalysisPanel link, and SolverSetupView header; `SolverSetupCopy.VerbTitle`) |
+| COPY-767 | Solver setup — proposed — W8-SLV-UI (Ruling 69; Dock document tab title; `SolverSetupCopy.TabTitle`) |
+| COPY-768 | Solver: not set up — proposed — W8-SLV-UI (Ruling 69; StatusStrip Solver item when not set up; `SolverSetupCopy.StripNotSetUp`) |
+| COPY-769 | Solver: Ready — proposed — W8-SLV-UI (Ruling 69; StatusStrip Solver item when Ready; `SolverSetupCopy.StripReady`) |
+| COPY-770 | Solver: not ready — proposed — W8-SLV-UI (Ruling 69; StatusStrip Solver item when a step or smoke check failed; `SolverSetupCopy.StripNotReady`) |
+| COPY-771 | Solver: restart needed — proposed — W8-SLV-UI (Ruling 69; StatusStrip Solver item when Windows restart is pending; `SolverSetupCopy.StripRestartNeeded`) |
+| COPY-772 | Solver: decide — proposed — W8-SLV-UI (Ruling 69, DR-SEC-1 A; StatusStrip Solver item when an existing unverified install awaits choice; `SolverSetupCopy.StripDecide`) |
+| COPY-773 | Solver: blocked — proposed — W8-SLV-UI (Ruling 69; StatusStrip Solver item when no supported route is available; `SolverSetupCopy.StripBlocked`) |
+| COPY-774 | No solver is set up on this computer yet — proposed — W8-SLV-UI (Ruling 69; Survey route-selection heading; `SolverSetupCopy.RouteHeading`) |
+| COPY-775 | Your designs and the quick analyses work without one. A solver is needed for full CFD runs. — proposed — W8-SLV-UI (Ruling 69; Survey route-selection lead; `SolverSetupCopy.RouteLead`) |
+| COPY-776 | Recommended — proposed — W8-SLV-UI (Ruling 69; Recommended route badge; `SolverSetupCopy.RecommendedBadge`) |
+| COPY-777 | Other options — proposed — W8-SLV-UI (Ruling 69, DR-SETUP-1; Collapsed alternate routes disclosure header; `SolverSetupCopy.OtherOptionsHeading`) |
+| COPY-778 | Use this route instead — proposed — W8-SLV-UI (Ruling 69, DR-SETUP-1; Alternate route switch button; `SolverSetupCopy.SwitchRouteButton`) |
+| COPY-779 | Start setup — proposed — W8-SLV-UI (Ruling 69; Route-selection primary button; `SolverSetupCopy.StartSetupButton`) |
+| COPY-780 | Not now — proposed — W8-SLV-UI (Ruling 69; Defer/close setup secondary button; `SolverSetupCopy.NotNowButton`) |
+| COPY-781 | Start this step — proposed — W8-SLV-UI (Ruling 69; Default step consent primary button; `SolverSetupCopy.StartStepButton`) |
+| COPY-782 | I accept — start this step — proposed — W8-SLV-UI (Ruling 69; Terms-consent primary button; `SolverSetupCopy.AcceptAndStartButton`) |
+| COPY-783 | Technical details — proposed — W8-SLV-UI (Ruling 69, DR-SETUP-5; Collapsed exact command and pin disclosure header; `SolverSetupCopy.TechnicalDetailsHeading`) |
+| COPY-784 | Copy details — proposed — W8-SLV-UI (Ruling 69; Copy technical details button; `SolverSetupCopy.CopyDetailsButton`) |
+| COPY-785 | Copy a report — proposed — W8-SLV-UI (Ruling 69, A8.5; Zero-PII support report copy button; `SolverSetupCopy.CopyReportButton`) |
+| COPY-786 | Report copied to clipboard without user names, paths, or keys. — proposed — W8-SLV-UI (Ruling 69, A8.5; Copy a report inline receipt; `SolverSetupCopy.ReportCopiedStatus`) |
+| COPY-787 | Administrator approval required — proposed — W8-SLV-UI (Ruling 69; Step elevation badge; `SolverSetupCopy.NeedsAdminBadge`) |
+| COPY-788 | No administrator approval — proposed — W8-SLV-UI (Ruling 69; Step non-elevated badge; `SolverSetupCopy.NoAdminBadge`) |
+| COPY-789 | Restart required afterwards — proposed — W8-SLV-UI (Ruling 69; Step restart badge; `SolverSetupCopy.NeedsRestartBadge`) |
+| COPY-790 | No restart — proposed — W8-SLV-UI (Ruling 69; Step no-restart badge; `SolverSetupCopy.NoRestartBadge`) |
+| COPY-791 | Existing solver found, but it is not the tested build — proposed — W8-SLV-UI (Ruling 69, DR-SEC-1 A; Existing unverified install heading; `SolverSetupCopy.ExistingUnverifiedHeading`) |
+| COPY-792 | Install the tested build — proposed — W8-SLV-UI (Ruling 69, DR-SEC-1 A; Recommended action on unverified install; `SolverSetupCopy.InstallTestedButton`) |
+| COPY-793 | Use mine anyway — proposed — W8-SLV-UI (Ruling 69, DR-SEC-1 A; User acceptance action on unverified install; `SolverSetupCopy.UseMineAnywayButton`) |
+| COPY-794 | Your own copy stays where it is. The tested copy is checked file by file. — proposed — W8-SLV-UI (Ruling 69, DR-SEC-1 A; Reassurance note on Install the tested build; `SolverSetupCopy.InstallTestedNote`) |
+| COPY-795 | Restart needed — proposed — W8-SLV-UI (Ruling 69, DR-SETUP-6; Needs-restart heading; `SolverSetupCopy.NeedsRestartHeading`) |
+| COPY-796 | Save your work first. After the restart, CFD Workbench opens again and continues from the next step. Nothing is lost if you restart later. — proposed — W8-SLV-UI (Ruling 69, DR-SETUP-6; Needs-restart body; `SolverSetupCopy.NeedsRestartBody`) |
+| COPY-797 | Restart now / I'll restart later — proposed — W8-SLV-UI (Ruling 69, DR-SETUP-6; Needs-restart action buttons; `SolverSetupCopy.RestartNowButton`, `SolverSetupCopy.RestartLaterButton`) |
+| COPY-798 | Check again / Try this step again — proposed — W8-SLV-UI (Ruling 69; Failure recovery buttons; `SolverSetupCopy.CheckAgainButton`, `SolverSetupCopy.TryStepAgainButton`) |
+| COPY-799 | What happened / Next step / Last lines of output — proposed — W8-SLV-UI (Ruling 69; Failure card section labels; `SolverSetupCopy.CauseHeading`, `SolverSetupCopy.NextStepHeading`, `SolverSetupCopy.OutputExcerptHeading`) |
+| COPY-800 | Ready / Back to my analysis / Done / Remove what setup installed… — proposed — W8-SLV-UI (Ruling 69, SETUP-08; Ready state heading and actions; `SolverSetupCopy.ReadyHeading`, `SolverSetupCopy.BackToAnalysisButton`, `SolverSetupCopy.DoneButton`, `SolverSetupCopy.RemoveInstalledButton`) |
+| COPY-801 | Ask about this step / Explain this failure — proposed — W8-SLV-UI (Ruling 69, DR-SETUP-4; Optional assistant panel headings; `SolverSetupCopy.AssistantAskHeading`, `SolverSetupCopy.AssistantExplainHeading`) |
+| COPY-802 | Explains steps and errors in plain words. It can be wrong. It cannot run anything or change your computer. — proposed — W8-SLV-UI (Ruling 69, AI-11; Assistant capability disclosure; `SolverSetupCopy.AssistantDisclosure`) |
+| COPY-803 | No API key configured — every setup step, known error, and Copy a report work without it. — proposed — W8-SLV-UI (Ruling 69, AI-01; Offline no-key notice; `SolverSetupCopy.AssistantNoKeyNotice`) |
+| COPY-804 | Setup works the same without the assistant: every step, every known error, and Copy a report. — proposed — W8-SLV-UI (Ruling 69, AI-01; Offline assistant reassurance; `SolverSetupCopy.AssistantOfflineNote`) |
+| COPY-805 | Run read-only check / Status: Not set up / Status: Setting up / Status: Ready — proposed — W8-SLV-UI (Ruling 69; Header read-only survey button and derived status labels; `SolverSetupCopy.RefreshSurveyButton`, `SolverSetupCopy.HeaderNotSetUp`, `SolverSetupCopy.HeaderSettingUp`, `SolverSetupCopy.HeaderReady`) |
 
 <!-- COPY-440 to COPY-457 are the ids Ruling 160 reserved for the Windows save-picker dialogs (`docs/mockups/w2-save-picker.md`). W-2 B2 built S2 (440, 442, 445), S3 (441, 443, 445; Ruling 253), the fail-closed dialog (454, 457) and the silent default folder `%USERPROFILE%\CFD Workbench`; 444, 446 to 449 and 455 stay reserved for the Clear unfinished save flow (Ruling 253); 450 to 453 and 456 are the picker-status lines, which are not built. Ruling 253 W2-Q2 adds a Windows save-refusal sentence later, on the next free id after the A3 build; COPY-31W is known to be false on Windows until then. -->
 

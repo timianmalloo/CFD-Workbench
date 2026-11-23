@@ -4,6 +4,7 @@ using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Media;
 using CfdWorkbench.Core;
+using CfdWorkbench.Core.SolverSetup;
 using CfdWorkbench.Analysis;
 
 namespace CfdWorkbench.Desktop.Shell;
@@ -33,9 +34,13 @@ public partial class StatusStrip : UserControl
         // The one action slot: whatever the shown report carries runs here (UI-DEAD-CONTROL: never a dead button).
         StatusTryAgainButton.Click += (_, _) => Action?.Run();
         SweepCancelButton.Click += (_, _) => sweepCancelAction?.Invoke();
+        SolverButton.Click += (_, _) => SolverSetupRequested?.Invoke();
     }
 
     private Action? sweepCancelAction;
+
+    /// <summary>Raised when the user clicks the Solver status item to open Guided Solver Setup (Ruling 69).</summary>
+    public event Action? SolverSetupRequested;
 
     /// <summary>What Try again runs (the shell sets it); a report that offers Try again carries it as its action.</summary>
     public Action? TryAgain { get; set; }
@@ -133,12 +138,25 @@ public partial class StatusStrip : UserControl
         FitItems();
     }
 
+    /// <summary>Area 5 derived solver readiness item in the status strip (Ruling 69, F7a).</summary>
+    public void ShowSolverState(SolverStatusSummary summary)
+    {
+        ArgumentNullException.ThrowIfNull(summary);
+        SolverItemText.Text = summary.StripLabel;
+        AutomationProperties.SetName(SolverButton, $"{summary.StripLabel}. Open Solver setup");
+        ToolTip.SetTip(SolverButton, summary.Reason ?? summary.StripLabel);
+        SolverDot.Classes.Set("ready", summary.Readiness == SolverReadiness.Ready);
+        SolverDot.Classes.Set("warning", summary.Readiness is SolverReadiness.SettingUp or SolverReadiness.NeedsRestart or SolverReadiness.ExistingUnverified);
+        SolverDot.Classes.Set("error", summary.Readiness is SolverReadiness.NotReady or SolverReadiness.Blocked);
+        FitItems();
+    }
+
     private (bool Selection, bool Units, bool Estimates, bool TextSize) wanted = (false, false, false, true);
     private bool analysisWanted;
 
     /// <summary>
     /// The strip is one line: when the items would crowd the message (large Text size, narrow window) they drop in the order
-    /// Text size, ≈ estimates, units, analysis state; the selection stays.
+    /// Text size, ≈ estimates, units, analysis state, solver state; the selection stays.
     /// </summary>
     private void FitItems()
     {
@@ -147,9 +165,10 @@ public partial class StatusStrip : UserControl
         EstimateItem.IsVisible = wanted.Estimates;
         TextSizeItem.IsVisible = wanted.TextSize;
         AnalysisItem.IsVisible = analysisWanted;
+        SolverItem.IsVisible = true;
         double width = Bounds.Width;
         if (width <= 0) return;
-        foreach (var item in new Control[] { TextSizeItem, EstimateItem, UnitsItem, AnalysisItem })
+        foreach (var item in new Control[] { TextSizeItem, EstimateItem, UnitsItem, AnalysisItem, SolverItem })
         {
             if (ItemsWidth() <= width / 2) break;
             item.IsVisible = false;

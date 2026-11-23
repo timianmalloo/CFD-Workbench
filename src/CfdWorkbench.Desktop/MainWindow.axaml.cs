@@ -201,6 +201,7 @@ public sealed partial class MainWindow : Window
             case "view.toggle-right": shellHost.ToggleRightSidebar(); break;
             case "window.reset-layout": shellHost.ResetLayout(); break;
             case "view.analysis": workbench.ToggleAnalysis(); break;
+            case "solver.setup": shellHost.OpenSolverSetup(); break;
             case "view.palette": shellHost.OpenPalette(); break;
             case "edit.undo": shellHost.RouteEditVerb("undo", FocusManager?.GetFocusedElement()); break;
             case "edit.redo": shellHost.RouteEditVerb("redo", FocusManager?.GetFocusedElement()); break;
