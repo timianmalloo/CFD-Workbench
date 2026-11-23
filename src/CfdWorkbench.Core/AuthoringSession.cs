@@ -682,7 +682,7 @@ public sealed class AuthoringSession : IDisposable
         string id = Guid.NewGuid().ToString("D");
         var row = new AcceptedRow(id, parent, p.SourceHash, design, op, draft is null ? null : new(draft.Id, draft.Generation, draft.Rail, draft.VertexId, draft.Intent, draft.Rule, draft.Curve));
         var cursor = new CursorRow(cursors.Count, id, reason, op);
-        var prospective = new Envelope(RunRecord.Format(runs.Count, experiments.Count, HasSetup), projectId, nextSources.ToArray(), nextDesigns.ToArray(), [.. accepted, row], [.. cursors, cursor], null) { Analysis = AnalysisCore(), Experiments = ExperimentsOrNull(), Setup = SetupOrNull() };
+        var prospective = new Envelope(RunRecord.Format(runs.Count, experiments.Count, HasSetup, HasCfd), projectId, nextSources.ToArray(), nextDesigns.ToArray(), [.. accepted, row], [.. cursors, cursor], null) { Analysis = AnalysisCore(), Experiments = ExperimentsOrNull(), Setup = SetupOrNull(), Cfd = CfdOrNull() };
         NativeProject.Preflight(prospective, envelopeCap);
         designs.Clear(); designs.AddRange(nextDesigns); sources.Clear(); sources.AddRange(nextSources);
         accepted.Add(row); current = id; cursors.Add(cursor); redo.Clear(); InvalidateEnvelopeSize(); return id;

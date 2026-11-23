@@ -19,6 +19,7 @@ internal static class CfdRunEnvelopeTests
     {
         Check("CfdEnvelope_RoundTrip_TamperDetection_And_ByteIdenticalLegacy", RoundTrip_Tamper_And_ByteIdentical);
         Check("CfdEnvelope_PersistenceInvariants_SeparationTauW_And_Cand01", PersistenceInvariants);
+        Check("CfdEnvelope_CadCommitPreflight_AccountsForCfdAndRetainsRecords", CadCommitPreflight_AccountsForCfd);
     }
 
     private static void RoundTrip_Tamper_And_ByteIdentical()
@@ -168,6 +169,46 @@ internal static class CfdRunEnvelopeTests
 
         // Duplicate runId refused with DOC-CFD-ID.
         Refuses("DOC-CFD-ID", () => session.RecordCfdRun(run));
+    }
+
+    private static void CadCommitPreflight_AccountsForCfd()
+    {
+        // Measure baseline size with 1 CFD run vs without CFD run, then verify CAD Commit preflight counts Cfd!
+        int bytesWithoutCfd;
+        int bytesWithCfd;
+        using (var probe = OpenDefault())
+        {
+            bytesWithoutCfd = probe.SaveImage().Length;
+            probe.RecordCfdRun(MakeCompletedCfdRun(probe));
+            bytesWithCfd = probe.SaveImage().Length;
+        }
+        Equal(true, bytesWithCfd > bytesWithoutCfd + 1000);
+
+        // Tight cap: admits open + RecordCfdRun, but NOT an additional CAD edit when Cfd is counted in Commit's Preflight.
+        // If Commit omitted Cfd from prospective, Preflight would under-count by (bytesWithCfd - bytesWithoutCfd) and wrongly pass!
+        int tightCap = bytesWithCfd + 50;
+        using (var tight = new AuthoringSession(tightCap))
+        {
+            tight.Open(FoilSource.NewDefault(), Id(), true);
+            tight.RecordCfdRun(MakeCompletedCfdRun(tight));
+            var point = Channels.View(tight.Snapshot().Source, "twist", "Accepted", 0).Points[0];
+            var draft = tight.BeginPointGesture(Id(), "twist", point.Id);
+            var frame = tight.UpdatePointGesture(draft.Id, draft.Generation, point.SpanMeters, point.Ordinate + 1.0);
+            var assessment = tight.Validate(frame.Draft.Id, frame.Draft.Generation);
+            Refuses("DOC-SIZE", () => tight.Apply(Id(), assessment));
+        }
+
+        // Normal cap: CAD Commit after RecordCfdRun succeeds, retains Cfd records intact, and keeps cfdw-project-2!
+        using var normal = OpenDefault();
+        normal.RecordCfdRun(MakeCompletedCfdRun(normal));
+        var pt = Channels.View(normal.Snapshot().Source, "twist", "Accepted", 0).Points[0];
+        var d = normal.BeginPointGesture(Id(), "twist", pt.Id);
+        var f = normal.UpdatePointGesture(d.Id, d.Generation, pt.SpanMeters, pt.Ordinate + 1.0);
+        normal.Apply(Id(), normal.Validate(f.Draft.Id, f.Draft.Generation));
+        byte[] saved = normal.SaveImage();
+        Equal("cfdw-project-2", NativeProject.FormatOf(saved));
+        Equal(1, normal.ReadCfdLedger().Runs.Count);
+        Equal(CfdRecordIntegrity.Intact, normal.ReadCfdLedger().Runs[0].Integrity);
     }
 
     private static string Id() => Guid.NewGuid().ToString("D");

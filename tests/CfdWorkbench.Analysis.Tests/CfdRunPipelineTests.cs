@@ -21,6 +21,7 @@ internal static class CfdRunPipelineTests
         Check("Pipeline_CancelEscalation_OrphanScan_And_ValidatedCheckpointResume", CancelEscalation_And_CheckpointResume);
         Check("Pipeline_ExitZeroMissingOutputs_FailedNoOutputs", ExitZeroMissingOutputs_FailedNoOutputs);
         Check("Pipeline_MeshGateFail_StopsBeforeSolving", MeshGateFail_StopsBeforeSolving);
+        Check("Pipeline_MissingMeshMetrics_FailsClosedBeforeSolving", MissingMeshMetrics_FailsClosedBeforeSolving);
         Check("Projection_ExplainFailure_And_CaseDiffImmutableGuard", Projection_ExplainAndCaseDiff);
     }
 
@@ -179,6 +180,28 @@ internal static class CfdRunPipelineTests
         }
     }
 
+    private static void MissingMeshMetrics_FailsClosedBeforeSolving()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "cfdw-cfd-mgnull-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            using var session = OpenDefault();
+            var model = BuildSampleModel(session);
+            var substrate = new FakeCfdRunSubstrate(root, cancelDuringSolve: false, writeValidOutputsOnSolve: true, omitMeshMetrics: true);
+            var pipeline = new CfdCasePipelineService(session, substrate);
+            var outcome = pipeline.ExecuteAsync(model, BackendCapability.OpenFoamEsiV2512, ct: CancellationToken.None).GetAwaiter().GetResult();
+
+            Equal(CfdRunState.Failed, outcome.Run.CurrentState);
+            Equal("MESH-GATE-FAIL", outcome.Run.Events[^1].Code);
+            Equal(false, substrate.SolveStepExecuted); // Strictly fail-closed before Solving!
+            Equal(true, session.ReadLocalEvents().Any(e => e.Operation == "mesh.generate" && e.Outcome == "failed"));
+        }
+        finally
+        {
+            if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        }
+    }
+
     private static void Projection_ExplainAndCaseDiff()
     {
         using var session = OpenDefault();
@@ -287,15 +310,15 @@ internal static class CfdRunPipelineTests
         private readonly LocalCfdRunSubstrate stager;
         private readonly bool cancelDuringSolve;
         private readonly bool writeValidOutputsOnSolve;
-        private readonly MeshMetrics meshMetrics;
+        private readonly MeshMetrics? meshMetrics;
 
-        public FakeCfdRunSubstrate(string rootDir, bool cancelDuringSolve, bool writeValidOutputsOnSolve, MeshMetrics? meshMetrics = null)
+        public FakeCfdRunSubstrate(string rootDir, bool cancelDuringSolve, bool writeValidOutputsOnSolve, MeshMetrics? meshMetrics = null, bool omitMeshMetrics = false)
         {
             RootDir = rootDir;
             stager = new LocalCfdRunSubstrate(rootDir);
             this.cancelDuringSolve = cancelDuringSolve;
             this.writeValidOutputsOnSolve = writeValidOutputsOnSolve;
-            this.meshMetrics = meshMetrics ?? GoodMeshMetrics();
+            this.meshMetrics = omitMeshMetrics ? null : (meshMetrics ?? GoodMeshMetrics());
         }
 
         public string RootDir { get; }

@@ -107,32 +107,47 @@ public sealed class CfdCasePipelineService
                 null, events, [], null);
         }
 
-        // 4. MeshGate (DR-F3-1 A / DR-F2-3 / DR-F2-6) — stops BEFORE Solving on failure!
+        // 4. MeshGate (DR-F3-1 A / DR-F2-3 / DR-F2-6) — strictly fail-closed before Solving!
         events = CfdRunStateMachine.AppendEvent(events, CfdRunState.MeshGate, clock.GetUtcNow());
-        MeshGateResult? meshGate = null;
-        if (meshStep.ObservedMeshMetrics is { } observedMetrics)
+        if (meshStep.ObservedMeshMetrics is not { } observedMetrics)
         {
-            var preSolveOpts = (meshGateOptions ?? new MeshGateOptions(model.WallTreatment)) with { FieldIsStationary = false };
-            meshGate = MeshGateEvaluator.EvaluateMeshGate(observedMetrics, preSolveOpts);
-
-            session.RecordCfdEvent("mesh.generate", meshGate.Passed ? "passed" : "failed", meshWatch.Elapsed.TotalMilliseconds, new CfdTelemetry
+            session.RecordCfdEvent("mesh.generate", "failed", meshWatch.Elapsed.TotalMilliseconds, new CfdTelemetry
             {
                 RunKey12 = runKey[..12],
                 Backend = model.BackendPin.Backend,
                 DurationMs = meshWatch.Elapsed.TotalMilliseconds,
-                GateOutcome = meshGate.Passed ? (meshGate.IsScreenOnly ? "screen-only" : "passed") : "failed",
-                MaxNonOrthoDeg = meshGate.MaxNonOrthogonalityDeg,
-                LayerCoverage20Pct = meshGate.LayerCoverage20PlusFraction * 100.0
+                GateOutcome = "failed"
             });
+            events = CfdRunStateMachine.TransitionToFailed(
+                events,
+                clock.GetUtcNow(),
+                "MESH-GATE-FAIL",
+                "Mesh quality metrics were not observed; cannot proceed to Solving.");
+            return PersistTerminal(runId, priorRunId, experimentId, caseIndex, runKey, caseModelHash, meshHash, model,
+                null, null, new CfdRunResources(0, meshStep.Ranks, meshWatch.Elapsed.TotalMilliseconds, meshStep.CpuSeconds, meshStep.PeakRssBytes),
+                null, events, [], null);
+        }
 
-            if (!meshGate.Passed)
-            {
-                string summaryMsg = string.Join("; ", meshGate.Failures.Select(f => f.Message));
-                events = CfdRunStateMachine.TransitionToFailed(events, clock.GetUtcNow(), "MESH-GATE-FAIL", summaryMsg);
-                return PersistTerminal(runId, priorRunId, experimentId, caseIndex, runKey, caseModelHash, meshHash, model,
-                    meshGate, null, new CfdRunResources(0, meshStep.Ranks, meshWatch.Elapsed.TotalMilliseconds, meshStep.CpuSeconds, meshStep.PeakRssBytes),
-                    null, events, [], null);
-            }
+        var preSolveOpts = (meshGateOptions ?? new MeshGateOptions(model.WallTreatment)) with { FieldIsStationary = false };
+        var meshGate = MeshGateEvaluator.EvaluateMeshGate(observedMetrics, preSolveOpts);
+
+        session.RecordCfdEvent("mesh.generate", meshGate.Passed ? "passed" : "failed", meshWatch.Elapsed.TotalMilliseconds, new CfdTelemetry
+        {
+            RunKey12 = runKey[..12],
+            Backend = model.BackendPin.Backend,
+            DurationMs = meshWatch.Elapsed.TotalMilliseconds,
+            GateOutcome = meshGate.Passed ? (meshGate.IsScreenOnly ? "screen-only" : "passed") : "failed",
+            MaxNonOrthoDeg = meshGate.MaxNonOrthogonalityDeg,
+            LayerCoverage20Pct = meshGate.LayerCoverage20PlusFraction * 100.0
+        });
+
+        if (!meshGate.Passed)
+        {
+            string summaryMsg = string.Join("; ", meshGate.Failures.Select(f => f.Message));
+            events = CfdRunStateMachine.TransitionToFailed(events, clock.GetUtcNow(), "MESH-GATE-FAIL", summaryMsg);
+            return PersistTerminal(runId, priorRunId, experimentId, caseIndex, runKey, caseModelHash, meshHash, model,
+                meshGate, null, new CfdRunResources(0, meshStep.Ranks, meshWatch.Elapsed.TotalMilliseconds, meshStep.CpuSeconds, meshStep.PeakRssBytes),
+                null, events, [], null);
         }
 
         // 5. Solving -> Harvesting -> Terminal
