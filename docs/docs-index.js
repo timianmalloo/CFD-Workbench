@@ -3013,6 +3013,63 @@ window.DOCS_INDEX = {
       "sourceSha256": "e8a4436a4e96122828f90787c0e14342ea630f7085d06136b47b364441896bca"
     },
     {
+      "id": "design-cfd-run-pipeline",
+      "path": "docs/design/cfd-run-pipeline.md",
+      "title": "Design: Area 5 — CFD Run Pipeline (TypedCaseModel, OpenFOAM/SU2 Emitters, DR-F3-1 A Mesh Gate, 11-State Machine, Additive cfdw-project-2 cfd Envelope, Fail-Closed Harvester, and Substrate Cancel/Resume)",
+      "type": "design",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "design — Wave 10A (W10-DESIGN; build basis for W10-RUN)",
+      "reviewBy": "2027-02-23",
+      "reviewSuggested": [],
+      "summary": "Build-ready /design-slice for Area 5 CFD Run Pipeline (spec A5.10, RUN-01..06, F7, LAB-01, DR-F2-1, DR-F2-3, DR-F2-6, DR-F3-1 A, M1-M8). Freezes the E7 surface list, the complete additive cfdw-project-2 `cfd` envelope (`runs`, `fieldEvidence`, `candidates`) preserving byte-identical `-1` and pre-W10 `-2` output with BLAKE3(JCS) integrity and fail-closed `DOC-UNSUPPORTED-FIELD` on older builds, the pure STORE-SUBSET Core vs Analysis I/O split with recursive `tools/store_subset.py` widening and `ArchitectureTests`-safe Core naming, TypedCaseModel and deterministic OpenFOAM ESI v2512 / SU2 v8.5.0 emitters strictly honoring `cases/tools/foam-dict-lint.py` 21-entry TYPES_ALLOWED and M1 HOME controlDict separation, DR-F3-1 A / DR-F2-3 MeshGateEvaluator, 11-state CfdRunStateMachine, DR-F2-1 three-part residual criterion, LAB-01 three-part Converged label, fail-closed CfdOutputHarvester column contract, ICfdRunSubstrate Cancel/Resume/orphan scan, and the red-first test and mutant matrix for W10-RUN.",
+      "tags": [
+        "area-5",
+        "cfd-run",
+        "openfoam",
+        "su2",
+        "mesh-gate",
+        "state-machine",
+        "harvester",
+        "cfdw-project-2",
+        "persistence",
+        "security",
+        "wave10"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-0012-openfoam-backend-macos",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-guided-solver-setup",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-wave10-cfd-run-results-and-rail",
+          "rel": "implements"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4f53ffd757a92f6baf89fd1f05b915407db784d6212126184fa330862dd290b9"
+    },
+    {
       "id": "design-compatible-fit",
       "path": "docs/design/compatible-fit.md",
       "title": "Design: the Ruling 73 compatible fit, sized for a build (mixed spacing, cfdw-cv/3, R3 promotion)",
@@ -4211,6 +4268,66 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "836dd9e9c4b91903a50da245d91c23aba980eeea108ad8e6d9e81d199b9e94e3"
+    },
+    {
+      "id": "design-results-and-candidates",
+      "path": "docs/design/results-and-candidates.md",
+      "title": "Design: Area 6 — Results, Replay, Difference Flood, Candidate Ladder, ParaView Handoff, and 7-Area Left Activity Rail",
+      "type": "design",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "design — Wave 10A (W10-DESIGN; build basis for W10-RESULTS and W10-RAIL-UI)",
+      "reviewBy": "2027-02-23",
+      "reviewSuggested": [],
+      "summary": "Build-ready /design-slice for Area 6 Results & Candidate Ladder (spec A5.11, RES-01..05, CAND-01, F8, AI-10) and the 7-Area Left Activity Rail Shell Architecture (spec B1, B7, Rulings 271 & 272, Adversary C4). Freezes the E7 surface list, FieldEvidenceManifest enforcing VIZ separation strictly gated on wall tau_w (never Q/lambda2 vortex-core candidates), the 9-field ProvenanceStrip + linked table twin, ReplaySequence (fixed range/camera with labelled unlock, failed-sample pause & clear, zero interpolation), DifferenceFlood (\"Unavailable — mesh differs\" on mesh-hash mismatch), CandidateLadder (cross-tier Pareto/feasibility, BuildGeometryDraft emitting typed CAD draft with Rebase deviation guard when base AcceptedId moved), process-only ParaView handoff (zero VTK, honest absence copy), and the ShellHost Auto,* 3-row / ColumnSpan=2 ActivityRail architecture docking all existing views with zero rewrites, zero Dock.* leakage, zero new theme Brush keys, synchronized 4-button ModelArea.Navbar, and COPY-806..865 reservation.",
+      "tags": [
+        "area-6",
+        "results",
+        "field-evidence",
+        "replay",
+        "difference-flood",
+        "candidate-ladder",
+        "paraview",
+        "activity-rail",
+        "shell",
+        "wave10"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "decision-seven-areas",
+          "rel": "implements"
+        },
+        {
+          "to": "design-cfd-run-pipeline",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-local-sweeps",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-setup-seeding",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-wave10-cfd-run-results-and-rail",
+          "rel": "implements"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a873c3193173c5b57d63d77c1c5e9ab3b4d61260b9648603f4a30bfa75765b3e"
     },
     {
       "id": "design-section-editor",
@@ -25451,6 +25568,14 @@ window.DOCS_INDEX = {
       "artifactId": "audit-log"
     },
     {
+      "id": "surface-design-cfd-run-pipeline",
+      "path": "docs/design/cfd-run-pipeline.html",
+      "title": "Cfd Run Pipeline",
+      "kind": "design-preview",
+      "description": "Inspect a rendered design or design-language preview.",
+      "artifactId": "design-cfd-run-pipeline"
+    },
+    {
       "id": "surface-design-export-step-3dm",
       "path": "docs/design/export-step-3dm.html",
       "title": "Export Step 3Dm",
@@ -25465,6 +25590,14 @@ window.DOCS_INDEX = {
       "kind": "design-preview",
       "description": "Inspect a rendered design or design-language preview.",
       "artifactId": "design-local-sweeps"
+    },
+    {
+      "id": "surface-design-results-and-candidates",
+      "path": "docs/design/results-and-candidates.html",
+      "title": "Results And Candidates",
+      "kind": "design-preview",
+      "description": "Inspect a rendered design or design-language preview.",
+      "artifactId": "design-results-and-candidates"
     },
     {
       "id": "surface-design-setup-seeding",
@@ -25969,5 +26102,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "70432c2a7c17c039ba5a6dd5470da172b9be90224240330e21e08a1021309900"
+  "graphSha256": "d9b107d3c8938eeec82a80693e7e355d4c03a70de8fd1f28e5e746d22de184fb"
 };
