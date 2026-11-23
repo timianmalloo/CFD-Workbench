@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
+using CfdWorkbench.Core.CfdRun;
 
 [assembly: InternalsVisibleTo("CfdWorkbench.Persistence")]
 [assembly: InternalsVisibleTo("CfdWorkbench.Analysis.Tests")]
@@ -31,6 +32,9 @@ public sealed record Envelope(string Format, string ProjectId, SourceRow[] Sourc
     /// <summary>Area 1 Setup &amp; Goal State records (Ruling 272 DR-SET-1). Omitted when empty.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public SetupRecords? Setup { get; init; }
+    /// <summary>Area 5/6 CFD run, field-evidence, and candidate records (Wave 10). Omitted when empty.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public CfdRecords? Cfd { get; init; }
 }
 public sealed record SessionDraft(string Id, string Base, long Generation, string Rail, string VertexId, byte[] Bytes, string? Profile = null, int Assignment = -1, ThicknessIntent Intent = ThicknessIntent.KeepCurrent, string? Rule = null, string? Curve = null);
 public sealed record SessionBinding(string SourceHash, string Base, string DraftId, long Generation, string Evaluator, string SurfaceHash, string Rail, string VertexId);
@@ -64,6 +68,8 @@ public sealed record SessionEvent(long Sequence, string Operation, string Outcom
     public SweepTelemetry? Sweep { get; init; }
     /// <summary>Named fields of <c>setup.*</c> and <c>cli.seed</c> events (docs/design/setup-seeding.md §6); null otherwise.</summary>
     public SetupTelemetry? Setup { get; init; }
+    /// <summary>Named fields of Area 5 CFD run telemetry events (docs/design/cfd-run-pipeline.md §8); null otherwise.</summary>
+    public CfdTelemetry? Cfd { get; init; }
 }
 /// <summary>
 /// One export telemetry row on the session ring. <c>Operation</c> is <c>export.write</c> (one per write attempt) or <c>export.validate</c>
@@ -280,6 +286,7 @@ public sealed class AuthoringSession : IDisposable
             sources.Clear(); designs.Clear(); accepted.Clear(); cursors.Clear(); redo.Clear(); operations.Clear();
             experiments.Clear();
             setupBriefs.Clear(); goalStates.Clear(); drcExclusions.Clear();
+            cfdRuns.Clear(); cfdFieldEvidence.Clear(); cfdCandidates.Clear();
             draft = null; recovery = null; current = null; activeImportReport = null;
             section = null;
             InvalidateEnvelopeSize();
@@ -2214,8 +2221,8 @@ public sealed class AuthoringSession : IDisposable
         lock (sync)
         {
             Guard.Require(!closed, "DOC-CLOSED");
-            return new(RunRecord.Format(runs.Count, experiments.Count, HasSetup), projectId, sources.Select(s => s with { Utf8Base64Chunks = s.Utf8Base64Chunks.ToArray() }).ToArray(), designs.ToArray(), accepted.ToArray(), cursors.ToArray(), CopyRecovery(recovery))
-            { Analysis = AnalysisCore(), Experiments = ExperimentsOrNull(), Setup = SetupOrNull() };
+            return new(RunRecord.Format(runs.Count, experiments.Count, HasSetup, HasCfd), projectId, sources.Select(s => s with { Utf8Base64Chunks = s.Utf8Base64Chunks.ToArray() }).ToArray(), designs.ToArray(), accepted.ToArray(), cursors.ToArray(), CopyRecovery(recovery))
+            { Analysis = AnalysisCore(), Experiments = ExperimentsOrNull(), Setup = SetupOrNull(), Cfd = CfdOrNull() };
         }
     }
     private byte[] SaveImageCore()
@@ -2253,6 +2260,7 @@ public sealed class AuthoringSession : IDisposable
             LoadRuns(env.Analysis);
             LoadExperiments(env.Experiments);
             LoadSetup(env.Setup);
+            LoadCfd(env.Cfd);
             current = replay.Current;
             foreach (var row in accepted) if (row.Edit is not null) retiredDraftIds.Add(row.Edit.DraftId);
             if (recovery is not null) retiredDraftIds.Add(recovery.DraftId);
@@ -2355,7 +2363,7 @@ public sealed class AuthoringSession : IDisposable
             var prospective = new AnalysisRecords([.. runs, run], polarSamples.ToArray(), prunedRuns.ToArray(), DiscrepanciesOrNull());
             RunRecord.CheckStore(prospective, AcceptedExists, AcceptedOrdinal);
             Guard.Require(RunRecord.Verify(run) && SurfaceMatches(run), "DOC-INTEGRITY");
-            int bytes = PreflightWithPinReport("record-run", EnvelopeCore() with { Format = RunRecord.Format(runs.Count + 1, experiments.Count, HasSetup), Analysis = prospective });
+            int bytes = PreflightWithPinReport("record-run", EnvelopeCore() with { Format = RunRecord.Format(runs.Count + 1, experiments.Count, HasSetup, HasCfd), Analysis = prospective });
             runs.Add(run);
             encodedEnvelopeBytes = bytes;
         }
@@ -2645,7 +2653,7 @@ public sealed class AuthoringSession : IDisposable
             SweepExperiment[] prospective = [.. experiments, experiment!];
             SweepRecords.Check(prospective, AnalysisCore(), AcceptedExists, AcceptedSurfaceHash);
             int bytes = PreflightWithPinReport("record-experiment",
-                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length, HasSetup), Experiments = prospective });
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length, HasSetup, HasCfd), Experiments = prospective });
             experiments.Add(experiment!);
             encodedEnvelopeBytes = bytes;
             return true;
@@ -2667,7 +2675,7 @@ public sealed class AuthoringSession : IDisposable
             prospective[idx] = updated!;
             SweepRecords.Check(prospective, AnalysisCore(), AcceptedExists, AcceptedSurfaceHash);
             int bytes = PreflightWithPinReport("update-draft-experiment",
-                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length, HasSetup), Experiments = prospective });
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length, HasSetup, HasCfd), Experiments = prospective });
             experiments[idx] = updated!;
             encodedEnvelopeBytes = bytes;
             return true;
@@ -2689,7 +2697,7 @@ public sealed class AuthoringSession : IDisposable
             prospective[idx] = updated;
             SweepRecords.Check(prospective, AnalysisCore(), AcceptedExists, AcceptedSurfaceHash);
             int bytes = PreflightWithPinReport("append-sweep-event",
-                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length, HasSetup), Experiments = prospective });
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length, HasSetup, HasCfd), Experiments = prospective });
             experiments[idx] = updated;
             encodedEnvelopeBytes = bytes;
             return true;
@@ -2711,7 +2719,7 @@ public sealed class AuthoringSession : IDisposable
             prospective[idx] = updated;
             SweepRecords.Check(prospective, AnalysisCore(), AcceptedExists, AcceptedSurfaceHash);
             int bytes = PreflightWithPinReport("record-sweep-attempt",
-                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length, HasSetup), Experiments = prospective });
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length, HasSetup, HasCfd), Experiments = prospective });
             experiments[idx] = updated;
             encodedEnvelopeBytes = bytes;
             return true;
@@ -2938,7 +2946,7 @@ public sealed class AuthoringSession : IDisposable
                 id => nextDesigns.Any(d => d.Id == id));
 
             var prospective = new Envelope(
-                RunRecord.Format(runs.Count, experiments.Count, hasSetup: true),
+                RunRecord.Format(runs.Count, experiments.Count, hasSetup: true, hasCfd: HasCfd),
                 projectId,
                 nextSources.ToArray(),
                 nextDesigns.ToArray(),
@@ -2948,7 +2956,8 @@ public sealed class AuthoringSession : IDisposable
             {
                 Analysis = AnalysisCore(),
                 Experiments = ExperimentsOrNull(),
-                Setup = nextSetup
+                Setup = nextSetup,
+                Cfd = CfdOrNull()
             };
             int bytes = PreflightWithPinReport(isReseed ? "setup.reseed" : "setup.seed", prospective);
 
@@ -3026,7 +3035,7 @@ public sealed class AuthoringSession : IDisposable
             SetupStore.Check(nextSetup, AcceptedExists, DesignExists);
 
             int bytes = PreflightWithPinReport("setup.goal.update",
-                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, experiments.Count, hasSetup: true), Setup = nextSetup });
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, experiments.Count, hasSetup: true, hasCfd: HasCfd), Setup = nextSetup });
 
             goalStates.Add(finalized);
             encodedEnvelopeBytes = bytes;
@@ -3083,7 +3092,7 @@ public sealed class AuthoringSession : IDisposable
             SetupStore.Check(nextSetup, AcceptedExists, DesignExists);
 
             int bytes = PreflightWithPinReport("setup.drc.exclude",
-                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, experiments.Count, hasSetup: true), Setup = nextSetup });
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, experiments.Count, hasSetup: true, hasCfd: HasCfd), Setup = nextSetup });
 
             drcExclusions.Add(exclusion);
             encodedEnvelopeBytes = bytes;
@@ -3120,6 +3129,134 @@ public sealed class AuthoringSession : IDisposable
         if (events.Count == 256) events.Dequeue();
         events.Enqueue(new SessionEvent(eventSequence++, operation, outcome, durationMilliseconds, null, null, trace.Value,
             null, null, sources.Count, accepted.Count, operation) { Setup = fields });
+    }
+    #endregion
+
+    #region Area 5 CFD Run Pipeline & Area 6 Field Evidence / Candidates
+    readonly List<CfdRunRecord> cfdRuns = [];
+    readonly List<FieldEvidenceRecord> cfdFieldEvidence = [];
+    readonly List<CandidateRecord> cfdCandidates = [];
+
+    private bool HasCfd => cfdRuns.Count > 0 || cfdFieldEvidence.Count > 0 || cfdCandidates.Count > 0;
+
+    private CfdRecords? CfdOrNull() => HasCfd
+        ? new CfdRecords(cfdRuns.ToArray(), cfdFieldEvidence.ToArray(), cfdCandidates.ToArray())
+        : null;
+
+    private void LoadCfd(CfdRecords? loaded)
+    {
+        cfdRuns.Clear();
+        cfdFieldEvidence.Clear();
+        cfdCandidates.Clear();
+        if (loaded is null) return;
+        cfdRuns.AddRange(loaded.Runs);
+        cfdFieldEvidence.AddRange(loaded.FieldEvidence);
+        cfdCandidates.AddRange(loaded.Candidates);
+    }
+
+    private bool CfdRunSurfaceMatches(CfdRunRecord run)
+    {
+        var row = accepted.SingleOrDefault(item => item.Id == run.Inputs.AcceptedId);
+        return row is not null && designs.Single(design => design.Id == row.DesignId).SurfaceHash == run.Inputs.SurfaceHash;
+    }
+
+    private bool CandidateBaseSurfaceMatches(CandidateRecord candidate)
+    {
+        var row = accepted.SingleOrDefault(item => item.Id == candidate.BaseAcceptedId);
+        return row is not null && designs.Single(design => design.Id == row.DesignId).SurfaceHash == candidate.BaseSurfaceHash;
+    }
+
+    /// <summary>Appends one immutable Area 5 CFD run record under the session lock with DOC-SIZE preflight.</summary>
+    public void RecordCfdRun(CfdRunRecord run) => Run("record-cfd-run", () =>
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            Guard.Require(current is not null, "DOC-EMPTY");
+            Guard.Require(run is not null && CfdRunRecords.VerifyRun(run) && CfdRunSurfaceMatches(run), "DOC-INTEGRITY");
+            var prospective = new CfdRecords([.. cfdRuns, run!], cfdFieldEvidence.ToArray(), cfdCandidates.ToArray());
+            CfdRunRecords.CheckStore(prospective, AcceptedExists);
+            int bytes = PreflightWithPinReport("record-cfd-run",
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, experiments.Count, HasSetup, hasCfd: true), Cfd = prospective });
+            cfdRuns.Add(run!);
+            encodedEnvelopeBytes = bytes;
+            return true;
+        }
+    });
+
+    /// <summary>Appends one immutable harvested field-evidence record under the session lock.</summary>
+    public void RecordFieldEvidence(FieldEvidenceRecord evidence) => Run("record-field-evidence", () =>
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            Guard.Require(current is not null, "DOC-EMPTY");
+            Guard.Require(evidence is not null && CfdRunRecords.VerifyEvidence(evidence), "DOC-INTEGRITY");
+            var prospective = new CfdRecords(cfdRuns.ToArray(), [.. cfdFieldEvidence, evidence!], cfdCandidates.ToArray());
+            CfdRunRecords.CheckStore(prospective, AcceptedExists);
+            int bytes = PreflightWithPinReport("record-field-evidence",
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, experiments.Count, HasSetup, hasCfd: true), Cfd = prospective });
+            cfdFieldEvidence.Add(evidence!);
+            encodedEnvelopeBytes = bytes;
+            return true;
+        }
+    });
+
+    /// <summary>Appends one immutable COMMIT-01 candidate snapshot under the session lock.</summary>
+    public void RecordCandidate(CandidateRecord candidate) => Run("record-candidate", () =>
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            Guard.Require(current is not null, "DOC-EMPTY");
+            Guard.Require(candidate is not null && CfdRunRecords.VerifyCandidate(candidate) && CandidateBaseSurfaceMatches(candidate), "DOC-INTEGRITY");
+            var prospective = new CfdRecords(cfdRuns.ToArray(), cfdFieldEvidence.ToArray(), [.. cfdCandidates, candidate!]);
+            CfdRunRecords.CheckStore(prospective, AcceptedExists);
+            int bytes = PreflightWithPinReport("record-candidate",
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, experiments.Count, HasSetup, hasCfd: true), Cfd = prospective });
+            cfdCandidates.Add(candidate!);
+            encodedEnvelopeBytes = bytes;
+            return true;
+        }
+    });
+
+    /// <summary>Reads all stored CFD runs, field evidence, and candidates, recomputing BLAKE3(JCS) hashes on every read.</summary>
+    public CfdLedger ReadCfdLedger() => Run("read-cfd-ledger", () =>
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            var storedRuns = cfdRuns.Select(r => new StoredCfdRun(r,
+                CfdRunRecords.VerifyRun(r) && CfdRunSurfaceMatches(r)
+                    ? CfdRecordIntegrity.Intact
+                    : CfdRecordIntegrity.PayloadFailedCheck)).ToArray();
+            var storedEvidence = cfdFieldEvidence.Select(e => new StoredFieldEvidence(e,
+                CfdRunRecords.VerifyEvidence(e)
+                    ? CfdRecordIntegrity.Intact
+                    : CfdRecordIntegrity.PayloadFailedCheck)).ToArray();
+            var storedCandidates = cfdCandidates.Select(c => new StoredCandidate(c,
+                CfdRunRecords.VerifyCandidate(c) && CandidateBaseSurfaceMatches(c)
+                    ? CfdRecordIntegrity.Intact
+                    : CfdRecordIntegrity.PayloadFailedCheck)).ToArray();
+            return new CfdLedger(storedRuns, storedEvidence, storedCandidates);
+        }
+    });
+
+    /// <summary>Normal-path Area 5 CFD run telemetry entry (docs/design/cfd-run-pipeline.md §8, IO1-IO12). Closed session drops.</summary>
+    public void RecordCfdEvent(string operation, string outcome, double? durationMilliseconds, CfdTelemetry fields)
+    {
+        Guard.Require(
+            operation.StartsWith("cfd.", StringComparison.Ordinal) ||
+            operation == "mesh.generate" ||
+            operation == "solver.process",
+            "DSL-RANGE");
+        lock (sync)
+        {
+            if (closed) return;
+            if (events.Count == 256) events.Dequeue();
+            events.Enqueue(new SessionEvent(eventSequence++, operation, outcome, durationMilliseconds, null, null, trace.Value,
+                null, null, sources.Count, accepted.Count, operation) { Cfd = fields });
+        }
     }
     #endregion
 }
@@ -3230,8 +3367,8 @@ public static class NativeProject
         try
         {
             using var doc = JsonDocument.Parse(bytes, new JsonDocumentOptions { MaxDepth = 32 }); var root = doc.RootElement;
-            // Complete cfdw-project-2 optional admission (Ruling 271 DR-SWP-1 & Ruling 272 DR-SET-1): ["analysis", "setup", "experiments"].
-            Exact(root, ["format", "projectId", "sources", "designs", "accepted", "cursors", "recovery"], ["analysis", "setup", "experiments"]);
+            // Complete cfdw-project-2 optional admission (Ruling 271, Ruling 272, Wave 10): ["analysis", "setup", "experiments", "cfd"].
+            Exact(root, ["format", "projectId", "sources", "designs", "accepted", "cursors", "recovery"], ["analysis", "setup", "experiments", "cfd"]);
             string? format = root.GetProperty("format").GetString();
             Guard.Require(format is "cfdw-project-1" or "cfdw-project-2", "DOC-VERSION");
             int runCount = 0;
@@ -3262,7 +3399,19 @@ public static class NativeProject
                 experimentCount = experimentsElement.GetArrayLength();
                 Guard.Require(experimentCount > 0, "DOC-SCHEMA");
             }
-            Guard.Require(format == RunRecord.Format(runCount, experimentCount, hasSetup), "DOC-SCHEMA");
+            bool hasCfd = root.TryGetProperty("cfd", out var cfdElement);
+            if (hasCfd)
+            {
+                Exact(cfdElement, "runs", "fieldEvidence", "candidates");
+                Guard.Require(cfdElement.GetProperty("runs").ValueKind == JsonValueKind.Array &&
+                              cfdElement.GetProperty("fieldEvidence").ValueKind == JsonValueKind.Array &&
+                              cfdElement.GetProperty("candidates").ValueKind == JsonValueKind.Array, "DOC-SCHEMA");
+                int cfdCount = cfdElement.GetProperty("runs").GetArrayLength()
+                    + cfdElement.GetProperty("fieldEvidence").GetArrayLength()
+                    + cfdElement.GetProperty("candidates").GetArrayLength();
+                Guard.Require(cfdCount > 0, "DOC-SCHEMA");
+            }
+            Guard.Require(format == RunRecord.Format(runCount, experimentCount, hasSetup, hasCfd), "DOC-SCHEMA");
             foreach (var s in root.GetProperty("sources").EnumerateArray()) Exact(s, "id", "utf8Base64Chunks");
             foreach (var d in root.GetProperty("designs").EnumerateArray()) Exact(d, "id", "parent", "surfaceHash", "evaluator");
             foreach (var a in root.GetProperty("accepted").EnumerateArray())
@@ -3387,6 +3536,10 @@ public static class NativeProject
         if (e.Setup is not null)
         {
             SetupStore.Check(e.Setup, accepted.ContainsKey, designs.ContainsKey);
+        }
+        if (e.Cfd is not null)
+        {
+            CfdRunRecords.CheckStore(e.Cfd, accepted.ContainsKey);
         }
         if (e.Recovery is not null)
         {

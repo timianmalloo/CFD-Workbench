@@ -221,11 +221,11 @@ public static class RunRecord
     public static string ContentHash(AnalysisRun run) =>
         Blake3Jcs(Canonical(JsonSerializer.SerializeToElement(run, Options), drop: "contentHash"));
 
-    /// <summary><c>cfdw-project-1</c> with no run, experiment, or setup; <c>cfdw-project-2</c> otherwise (ADR-0011 §1, Ruling 271 DR-SWP-1).</summary>
-    public static string Format(int runCount, int experimentCount = 0, bool hasSetup = false)
+    /// <summary><c>cfdw-project-1</c> with no run, experiment, setup, or cfd records; <c>cfdw-project-2</c> otherwise (ADR-0011 §1, Ruling 271 DR-SWP-1, Wave 10).</summary>
+    public static string Format(int runCount, int experimentCount = 0, bool hasSetup = false, bool hasCfd = false)
     {
         Guard.Require(runCount >= 0 && experimentCount >= 0, "DOC-SCHEMA");
-        return runCount == 0 && experimentCount == 0 && !hasSetup ? "cfdw-project-1" : "cfdw-project-2";
+        return runCount == 0 && experimentCount == 0 && !hasSetup && !hasCfd ? "cfdw-project-1" : "cfdw-project-2";
     }
 
     /// <summary>The run key recomputed from the stored manifest (never the stored <c>runKey</c>).</summary>

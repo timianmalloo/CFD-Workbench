@@ -3,6 +3,14 @@ from __future__ import annotations
 
 from pathlib import Path
 import re
+import sys
+
+for _stream in (sys.stdout, sys.stderr):  # cp1252 Windows consoles (verify-portable-text-io)
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (OSError, ValueError):
+            pass
 
 ROOT = Path(__file__).resolve().parents[1]
 # The umask- and native-sensitive checks: every check in the four store test files. They are the only Core
@@ -30,6 +38,13 @@ SENSITIVE = re.compile(r"\bFile\.(?!ReadAll(?:Bytes|Text)\b)|\bDirectory\.(?!(?:
 PARTITION_EXEMPT = {path.name for path in STORE_TEST_FILES} | {"IdentityTests.cs", "WindowsProjectStoreTests.cs"}
 
 
+def _non_build_cs(root: Path) -> list[Path]:
+    return sorted(
+        path for path in root.rglob("*.cs")
+        if not any(part in ("bin", "obj") for part in path.relative_to(root).parts)
+    )
+
+
 def partition_names() -> list[str]:
     """Return every store check name; fail if the umask partition no longer holds."""
     names: list[str] = []
@@ -42,11 +57,16 @@ def partition_names() -> list[str]:
                              f"starting with one of {STORE_PREFIXES}; found {len(file_names)}, stray {stray}")
         names.extend(file_names)
     # A file, environment or native dependency outside the store files would run at one umask only.
-    others = [path for path in sorted(STORE_TESTS.parent.glob("*.cs")) if path.name not in PARTITION_EXEMPT]
-    others += sorted((ROOT / "src/CfdWorkbench.Core").glob("*.cs"))
-    leaks = [f"{path.parent.name}/{path.name}:{number}" for path in others
+    others = [path for path in _non_build_cs(STORE_TESTS.parent) if path.name not in PARTITION_EXEMPT]
+    others += _non_build_cs(ROOT / "src/CfdWorkbench.Core")
+    leaks = [f"{path.relative_to(ROOT).as_posix()}:{number}" for path in others
              for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1) if SENSITIVE.search(line)]
     if leaks:
         raise SystemExit(f"STORE-SUBSET: umask/native-sensitive code outside {STORE_TEST_FILES} would run at one "
                          f"umask only; move it into the store checks or widen the subset: {leaks}")
     return names
+
+
+if __name__ == "__main__":
+    found = partition_names()
+    print(f"STORE-SUBSET ok: {len(found)} store check(s) partitioned")

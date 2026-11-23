@@ -68,9 +68,10 @@ public static class SolverSetupViewTests
             if (id is < 766 or > 805) continue;
             foundIds.Add(id);
             string body = m.Groups[2].Value;
-            if (!body.Contains("— proposed —", StringComparison.Ordinal))
-                failures.Add($"DESIGN.md COPY-{id} is not marked '— proposed —'.");
-            int split = body.IndexOf(" — proposed —", StringComparison.Ordinal);
+            int split = body.IndexOf(" — approved —", StringComparison.Ordinal);
+            if (split < 0) split = body.IndexOf(" — proposed —", StringComparison.Ordinal);
+            if (split < 0)
+                failures.Add($"DESIGN.md COPY-{id} is not marked '— approved —' or '— proposed —'.");
             string copyText = split > 0 ? body[..split] : body;
             var lint = SetupCopyLint.Lint(copyText);
             if (!lint.Passed)

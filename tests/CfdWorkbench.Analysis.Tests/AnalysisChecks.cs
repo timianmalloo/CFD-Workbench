@@ -69,6 +69,8 @@ internal static class AnalysisChecks
             ("SolverLauncherSecurity", 150, SolverLauncherSecurityTests.Run),
             ("SolverSetupAdapters", 200, SolverSetupAdapterTests.Run),
             ("SolverSetupService", 80, SolverSetupServiceTests.Run),
+            ("CfdRunPipeline", 180, CfdRunPipelineTests.Run),
+            ("CfdHarvester", 80, CfdHarvesterTests.Run),
         };
         int[] owner = Assign(groups.Select(group => group.CostHintMs).ToArray(), part?.Count ?? 1);
         for (int i = 0; i < groups.Length; i++)
