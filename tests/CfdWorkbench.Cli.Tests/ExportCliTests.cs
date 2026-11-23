@@ -25,6 +25,8 @@ internal static class ExportCliTests
             ("Export_LinkTargetHasOneCodeOnBothSurfaces", LinkTargetOneCode),
             ("Export_DirectoryTargetHasOneCodeOnBothSurfaces", DirectoryTargetOneCode),
             ("Cli_Export_3mfPassesPackageCheckAndHalfNamesFile", ThreeMfWrites),
+            ("Cli_Export_StepClosedAndUntrimmed_WholeAndHalf_PassVerifier", StepWrites),
+            ("Cli_Export_3dmWholeAndHalf_PassRoundTripAndTelemetry", ThreeDmWrites),
             ("Cli_Export_StationTakesTheAppsNames", StationNamesAgree),
             ("Cli_Export_InvalidOptionPrintsUsage", InvalidOptions),
             ("Cli_Export_TrailingEdgeBelowFloorAdvisesAndWrites", BelowFloorWrites),
@@ -240,9 +242,13 @@ internal static class ExportCliTests
             ("missing format", ["export", "example", "--out", file]),
             ("missing out", ["export", "example", "--format", "dat"]),
             ("missing input", ["export", "--format", "dat", "--out", file]),
-            ("unknown format", ["export", "example", "--format", "step", "--out", file]),
+            ("unknown format", ["export", "example", "--format", "iges", "--out", file]),
             ("stl option on dat", ["export", "example", "--format", "dat", "--scope", "half", "--out", file]),
             ("dat option on stl", ["export", "example", "--format", "stl", "--order", "selig", "--out", file]),
+            ("step-variant on stl", ["export", "example", "--format", "stl", "--step-variant", "closed", "--out", file]),
+            ("step-variant on 3dm", ["export", "example", "--format", "3dm", "--step-variant", "closed", "--out", file]),
+            ("tolerance on step", ["export", "example", "--format", "step", "--tolerance", "print", "--out", file]),
+            ("bad step-variant", ["export", "example", "--format", "step", "--step-variant", "bogus", "--out", file]),
             ("free numeric tolerance", ["export", "example", "--format", "stl", "--tolerance", "0.02", "--out", file]),
             ("points", ["export", "example", "--format", "dat", "--points", "50", "--out", file]),
             ("unknown station", ["export", "example", "--format", "dat", "--station", "99", "--out", file]),
@@ -339,5 +345,52 @@ internal static class ExportCliTests
         Exits(5, run);
         Require(run.Output.Contains("Can't write the file", StringComparison.Ordinal), run.Output);
         Require(!run.Output.Contains("earlier file", StringComparison.Ordinal), "a missing folder has no earlier file:\n" + run.Output);
+    });
+
+    private static async Task StepWrites() => await WithFolder(async folder =>
+    {
+        List<ExportTelemetry> seen = [];
+        var output = new StringWriter();
+        int exit = await ExportVerb.RunAsync(["export", "example", "--format", "step", "--step-variant", "closed", "--scope", "whole", "--out", folder],
+            output, CancellationToken.None, events => seen.AddRange(events.Where(e => e.Export is not null).Select(e => e.Export!)));
+        Require(exit == 0, $"step closed whole exit {exit}: {output}");
+        string closedFile = Path.Combine(folder, "basic-foil-r1.step");
+        Require(File.Exists(closedFile), "closed STEP file not written with suggested name");
+        var verClosed = StepVerifier.Verify(File.ReadAllText(closedFile, Encoding.UTF8), StepVariant.ClosedShell);
+        Require(verClosed.Passed && verClosed.EulerCharacteristic == 2 && verClosed.ZeroPiiHeaderValid,
+            "CLI closed STEP failed verifier: " + string.Join("; ", verClosed.Errors));
+        Require(seen.Count == 1 && seen[0] is { Operation: "export.write", Format: "step", Scope: "whole", Preset: "closed", Outcome: "written" },
+            "unexpected STEP telemetry: " + string.Join(";", seen));
+        string telText = seen[0].ToString();
+        Require(!telText.Contains(folder, StringComparison.Ordinal) && !telText.Contains(Environment.UserName, StringComparison.Ordinal),
+            "STEP telemetry leaked PII: " + telText);
+
+        var untrimmed = await Run("export", "example", "--format", "step", "--step-variant", "untrimmed", "--scope", "half", "--out", folder);
+        Exits(0, untrimmed);
+        string untrimmedFile = Path.Combine(folder, "basic-foil-r1-half-untrimmed.step");
+        Require(File.Exists(untrimmedFile), "untrimmed half STEP file not written");
+        var verOpen = StepVerifier.Verify(File.ReadAllText(untrimmedFile, Encoding.UTF8), StepVariant.Untrimmed);
+        Require(verOpen.Passed && verOpen.BoundaryEdgeCount > 0 && verOpen.InteriorEdgeCount > 0 && verOpen.NonManifoldEdgeCount == 0,
+            "CLI untrimmed STEP failed verifier: " + string.Join("; ", verOpen.Errors));
+        Require(untrimmed.Output.Contains("Trailing edge:", StringComparison.Ordinal) && untrimmed.Output.Contains("Safety:", StringComparison.Ordinal),
+            "CLI STEP output missing TE/Safety rows:\n" + untrimmed.Output);
+    });
+
+    private static async Task ThreeDmWrites() => await WithFolder(async folder =>
+    {
+        List<ExportTelemetry> seen = [];
+        var output = new StringWriter();
+        int exit = await ExportVerb.RunAsync(["export", "example", "--format", "3dm", "--scope", "half", "--out", folder],
+            output, CancellationToken.None, events => seen.AddRange(events.Where(e => e.Export is not null).Select(e => e.Export!)));
+        Require(exit == 0, $"3dm half exit {exit}: {output}");
+        string dmFile = Path.Combine(folder, "basic-foil-r1-half.3dm");
+        Require(File.Exists(dmFile), "half 3DM file not written with suggested name");
+        var ver = Rhino3dmExport.Verify(File.ReadAllBytes(dmFile), StlScope.Half);
+        Require(ver.Passed && ver.UnitSystem == "Millimeters" && ver.ZeroPiiVerified,
+            "CLI 3DM failed round-trip verification: " + string.Join("; ", ver.Errors));
+        Require(seen.Count == 1 && seen[0] is { Operation: "export.write", Format: "3dm", Scope: "half", Outcome: "written" },
+            "unexpected 3DM telemetry: " + string.Join(";", seen));
+        Require(output.ToString().Contains("Trailing edge:", StringComparison.Ordinal) && output.ToString().Contains("Wing Skin", StringComparison.Ordinal),
+            "CLI 3DM output missing TE/layer summary:\n" + output);
     });
 }

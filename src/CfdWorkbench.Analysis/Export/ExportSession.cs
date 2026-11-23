@@ -18,7 +18,7 @@ public sealed record ExportSource(byte[] Source, string FoilName, int Revision, 
 public enum ExportOutcomeKind { Written, Cancelled, Failed }
 
 /// <summary>The formats the dialog offers.</summary>
-public enum ExportFormat { Dat, Stl, ThreeMf }
+public enum ExportFormat { Dat, Stl, ThreeMf, Step, ThreeDm }
 
 /// <summary>The three tolerance presets of the wing STL (design 4.2).</summary>
 public enum StlPreset { Draft, Print, Fine }
@@ -41,30 +41,45 @@ public sealed class ExportSession
 
     private readonly Func<byte[], string, int, StlScope, double, CancellationToken, StlExportResult> buildStl;
     private readonly Func<byte[], string, int, StlScope, double, CancellationToken, StlExportResult> build3mf;
+    private readonly ICadStepExporter stepExporter;
+    private readonly Func<byte[], string, int, StlScope, CancellationToken, Rhino3dmExportResult> build3dm;
     private DatExportResult? result;
     private StlExportResult? stl;
+    private StepExportResult? stepResult;
+    private Rhino3dmExportResult? threeDmResult;
     private bool closureFailed;
+    private bool cadFailed;
     private long generation;
     private readonly Action<ExportTelemetry>? record;
 
     /// <param name="buildStl">The wing STL builder; a check replaces it to make the closure check refuse (H7).</param>
     /// <param name="build3mf">The wing 3MF builder; the same replacement for the 3MF.</param>
     /// <param name="record">Where <c>export.write</c> and <c>export.validate</c> go: the authoring session's ring, for the dialog and the CLI alike. Null records nothing.</param>
+    /// <param name="cadGate">Release-gate status for STEP and 3DM UI unlock; defaults to <see cref="CadExportReleaseGate.LoadDefault"/>.</param>
+    /// <param name="stepExporter">STEP AP203 exporter implementation behind <see cref="ICadStepExporter"/>.</param>
+    /// <param name="build3dm">Rhino 3DM exporter delegate.</param>
     public ExportSession(ExportSource source,
         Func<byte[], string, int, StlScope, double, CancellationToken, StlExportResult>? buildStl = null,
         Func<byte[], string, int, StlScope, double, CancellationToken, StlExportResult>? build3mf = null,
-        Action<ExportTelemetry>? record = null)
+        Action<ExportTelemetry>? record = null,
+        CadExportGateStatus? cadGate = null,
+        ICadStepExporter? stepExporter = null,
+        Func<byte[], string, int, StlScope, CancellationToken, Rhino3dmExportResult>? build3dm = null)
     {
         Source = source;
         this.record = record;
+        CadGate = cadGate ?? CadExportReleaseGate.LoadDefault();
         this.buildStl = buildStl ?? ((bytes, name, revision, scope, tolerance, cancel) => StlExport.Build(bytes, name, revision, scope, tolerance, cancel));
         this.build3mf = build3mf ?? ((bytes, name, revision, scope, tolerance, cancel) => ThreeMfExport.Build(bytes, name, revision, scope, tolerance, cancel));
+        this.stepExporter = stepExporter ?? new StepAp203Export();
+        this.build3dm = build3dm ?? ((bytes, name, revision, scope, cancel) => Rhino3dmExport.Build(bytes, name, revision, scope, cancel));
         StationIndex = Math.Clamp(source.DefaultStation, 0, Math.Max(0, source.Stations.Count - 1));
         Rebuild();
         if (BlockedReason is not null) Refused("EXPORT-GEOMETRY-NOT-ACCEPTED");
     }
 
     public ExportSource Source { get; }
+    public CadExportGateStatus CadGate { get; }
     public ExportFormat Format { get; private set; } = ExportFormat.Dat;
     public DatShape Shape { get; private set; } = DatShape.AtStation;
     public DatOrder Order { get; private set; } = DatOrder.Selig;
@@ -72,33 +87,50 @@ public sealed class ExportSession
     public int StationIndex { get; private set; }
     public StlScope Scope { get; private set; } = StlScope.Whole;
     public StlPreset Preset { get; private set; } = StlPreset.Print;
+    public StepVariant StepVariant { get; private set; } = StepVariant.ClosedShell;
 
     public ExportStation Station => Source.Stations[StationIndex];
 
     /// <summary>The refusal when the accepted geometry check has not passed (H2), or null. Export... stays disabled.</summary>
     public string? BlockedReason => Source.Geometry == GeometryStatus.Certified ? null : ExportCopy.Blocked;
 
-    /// <summary>True while the wing STL for the chosen options is not built yet: the summary shows its skeleton and Export... is disabled (H10).</summary>
+    /// <summary>True while the wing mesh or CAD surface for the chosen options is not built yet: the summary shows its skeleton and Export... is disabled (H10).</summary>
     public bool Preparing { get; private set; }
 
-    /// <summary>True when the closure check refused the mesh (H7). Nothing can be written; the dialog says so.</summary>
-    public bool ClosureFailed => closureFailed;
+    /// <summary>True when the closure check refused the mesh (H7) or CAD self-verification failed. Nothing can be written; the dialog says so.</summary>
+    public bool ClosureFailed => closureFailed || cadFailed;
 
-    public bool CanExport => BlockedReason is null && !Preparing && (Format == ExportFormat.Dat ? result is not null : stl is not null);
+    public bool CanExport => BlockedReason is null && !Preparing && Format switch
+    {
+        ExportFormat.Dat => result is not null,
+        ExportFormat.Stl or ExportFormat.ThreeMf => stl is not null,
+        ExportFormat.Step => stepResult is not null,
+        ExportFormat.ThreeDm => threeDmResult is not null,
+        _ => false
+    };
 
-    /// <summary>True for the two wing formats, STL and 3MF: one mesh, one scope, one set of presets, one summary.</summary>
-    public bool IsMesh => Format != ExportFormat.Dat;
+    /// <summary>True for the two wing mesh formats, STL and 3MF: one mesh, one scope, one set of presets, one summary.</summary>
+    public bool IsMesh => Format is ExportFormat.Stl or ExportFormat.ThreeMf;
+
+    /// <summary>True for the two CAD NURBS formats, STEP AP203 and Rhino 3DM.</summary>
+    public bool IsCad => Format is ExportFormat.Step or ExportFormat.ThreeDm;
 
     public DatExportResult? Result => result;
 
-    /// <summary>The built wing for the chosen format: its <c>Bytes</c> are the STL or the 3MF package. Null until <see cref="PrepareAsync"/> lands.</summary>
+    /// <summary>The built wing for the chosen mesh format: its <c>Bytes</c> are the STL or the 3MF package. Null until <see cref="PrepareAsync"/> lands.</summary>
     public StlExportResult? Stl => stl;
+
+    /// <summary>The built STEP AP203 export when <see cref="Format"/> is <see cref="ExportFormat.Step"/>.</summary>
+    public StepExportResult? Step => stepResult;
+
+    /// <summary>The built Rhino 3DM export when <see cref="Format"/> is <see cref="ExportFormat.ThreeDm"/>.</summary>
+    public Rhino3dmExportResult? ThreeDm => threeDmResult;
 
     /// <summary>The tolerance of the chosen preset in millimetres.</summary>
     public double ToleranceMm => Preset switch { StlPreset.Draft => StlExport.DraftMm, StlPreset.Fine => StlExport.FineMm, _ => StlExport.PrintMm };
 
     public void Set(DatShape? shape = null, DatOrder? order = null, int? points = null, int? station = null,
-        ExportFormat? format = null, StlScope? scope = null, StlPreset? preset = null)
+        ExportFormat? format = null, StlScope? scope = null, StlPreset? preset = null, StepVariant? stepVariant = null)
     {
         if (shape is { } s) Shape = s;
         if (order is { } o) Order = o;
@@ -115,6 +147,7 @@ public sealed class ExportSession
         if (format is { } f) Format = f;
         if (scope is { } c) Scope = c;
         if (preset is { } r) Preset = r;
+        if (stepVariant is { } sv) StepVariant = sv;
         Rebuild();
     }
 
@@ -127,53 +160,96 @@ public sealed class ExportSession
     {
         generation++;
         closureFailed = false;
-        if (BlockedReason is not null || IsMesh)
+        cadFailed = false;
+        if (BlockedReason is not null || IsMesh || IsCad)
         {
             result = null;
             stl = null;
+            stepResult = null;
+            threeDmResult = null;
             Preparing = BlockedReason is null;
             return;
         }
         Preparing = false;
         stl = null;
+        stepResult = null;
+        threeDmResult = null;
         result = DatExport.Build(Source.Source, Source.FoilName, StationIndex, Station.Name, Shape, Order, PointsPerSurface, Source.Revision);
     }
 
     /// <summary>
-    /// Builds the wing (STL or 3MF, as chosen) for the current options off the calling thread. An option changed while it runs makes this
+    /// Builds the wing (STL, 3MF, STEP, or 3DM, as chosen) for the current options off the calling thread. An option changed while it runs makes this
     /// build stale and it is dropped (the newer call lands its own). A mesh the closure check refuses sets <see cref="ClosureFailed"/> (H7).
     /// </summary>
     public async Task PrepareAsync(CancellationToken cancellation = default)
     {
-        if (!Preparing || !IsMesh) return;
+        if (!Preparing || (!IsMesh && !IsCad)) return;
         long mine = generation;
-        var (source, name, revision, scope, tolerance) = (Source.Source, Source.FoilName, Source.Revision, Scope, ToleranceMm);
-        var build = Format == ExportFormat.ThreeMf ? build3mf : buildStl;
-        StlExportResult? built = null;
-        bool refused = false;
-        try { built = await Task.Run(() => build(source, name, revision, scope, tolerance, cancellation), cancellation); }
-        catch (ContractError error) when (error.Code == "EXPORT-NOT-CLOSED") { refused = true; }
+        var (source, name, revision, scope, tolerance, format, variant) = (Source.Source, Source.FoilName, Source.Revision, Scope, ToleranceMm, Format, StepVariant);
+        if (IsMesh)
+        {
+            var build = format == ExportFormat.ThreeMf ? build3mf : buildStl;
+            StlExportResult? built = null;
+            bool refused = false;
+            try { built = await Task.Run(() => build(source, name, revision, scope, tolerance, cancellation), cancellation); }
+            catch (ContractError error) when (error.Code == "EXPORT-NOT-CLOSED") { refused = true; }
+            if (mine != generation) return;
+            if (refused) Refused("EXPORT-NOT-CLOSED");
+            stl = built;
+            closureFailed = refused;
+            Preparing = false;
+            return;
+        }
+
+        if (format == ExportFormat.Step)
+        {
+            StepExportResult? built = null;
+            bool refused = false;
+            try { built = await Task.Run(() => stepExporter.Export(source, name, revision, scope, variant, cancellation), cancellation); }
+            catch (ContractError error) when (error.Code == "EXPORT-STEP-INVALID") { refused = true; }
+            if (mine != generation) return;
+            if (refused) Refused("EXPORT-STEP-INVALID");
+            stepResult = built;
+            cadFailed = refused;
+            Preparing = false;
+            return;
+        }
+
+        Rhino3dmExportResult? builtDm = null;
+        bool dmRefused = false;
+        try { builtDm = await Task.Run(() => build3dm(source, name, revision, scope, cancellation), cancellation); }
+        catch (ContractError error) when (error.Code == "EXPORT-3DM-INVALID") { dmRefused = true; }
         if (mine != generation) return;
-        if (refused) Refused("EXPORT-NOT-CLOSED");
-        stl = built;
-        closureFailed = refused;
+        if (dmRefused) Refused("EXPORT-3DM-INVALID");
+        threeDmResult = builtDm;
+        cadFailed = dmRefused;
         Preparing = false;
     }
 
     public string ShapeHelp => ExportCopy.ShapeHelp(Station.TcPercent);
 
     /// <summary>
-    /// <c>&lt;foil-slug&gt;-&lt;station-slug&gt;-r&lt;n&gt;.dat</c>, <c>&lt;foil-slug&gt;-r&lt;n&gt;[-half]-mm.stl</c> or <c>&lt;foil-slug&gt;-r&lt;n&gt;[-half].3mf</c>
-    /// (design 6.4; the 3MF carries its unit in an attribute, so its name has no <c>-mm</c>).
+    /// <c>&lt;foil-slug&gt;-&lt;station-slug&gt;-r&lt;n&gt;.dat</c>, <c>&lt;foil-slug&gt;-r&lt;n&gt;[-half]-mm.stl</c>,
+    /// <c>&lt;foil-slug&gt;-r&lt;n&gt;[-half].3mf</c>, <c>&lt;foil-slug&gt;-r&lt;n&gt;[-half][-untrimmed].step</c>, or
+    /// <c>&lt;foil-slug&gt;-r&lt;n&gt;[-half].3dm</c>.
     /// </summary>
     public string FileName => Format switch
     {
         ExportFormat.Dat => $"{DatImport.Slug(Source.FoilName)}-{DatImport.Slug(Station.Name)}-r{Source.Revision}.dat",
         ExportFormat.ThreeMf => ThreeMfExport.FileName(Source.FoilName, Source.Revision, Scope),
+        ExportFormat.Step => StepAp203Export.FileName(Source.FoilName, Source.Revision, Scope, StepVariant),
+        ExportFormat.ThreeDm => Rhino3dmExport.FileName(Source.FoilName, Source.Revision, Scope),
         _ => $"{DatImport.Slug(Source.FoilName)}-r{Source.Revision}{(Scope == StlScope.Half ? "-half" : "")}-mm.stl"
     };
 
-    private string Extension => Format switch { ExportFormat.Dat => ".dat", ExportFormat.ThreeMf => ".3mf", _ => ".stl" };
+    public string Extension => Format switch
+    {
+        ExportFormat.Dat => ".dat",
+        ExportFormat.ThreeMf => ".3mf",
+        ExportFormat.Step => ".step",
+        ExportFormat.ThreeDm => ".3dm",
+        _ => ".stl"
+    };
 
     private static string Count(int value) => value.ToString("N0", CultureInfo.InvariantCulture);
 
@@ -194,6 +270,7 @@ public sealed class ExportSession
             };
             if (Source.Analysis) rows.Add(("Analysis", ExportCopy.AnalysisNote));
             if (IsMesh) return StlRows(rows);
+            if (IsCad) return CadRows(rows);
             if (result is null) return rows;
             rows.Add(("Units", "Fractions of chord (x/c, y/c). Twist not applied."));
             rows.Add(($"Chord at {Station.Name}", ExportCopy.Fixed(result.ChordMeters * 1000, 2) + " mm"));
@@ -230,13 +307,62 @@ public sealed class ExportSession
         return rows;
     }
 
+    private List<(string, string)> CadRows(List<(string, string)> rows)
+    {
+        if (Format == ExportFormat.Step)
+        {
+            if (stepResult is not { } step)
+            {
+                if (!Preparing) return rows;
+                rows.Add(("Unit", ExportCopy.UnitFixedInFile));
+                rows.Add(("STEP", "Preparing…"));
+                rows.Add(("File size", "0.00 MB"));
+                rows.Add(("Size of the part", "000.0 × 000.0 × 00.0 mm"));
+                rows.Add((ExportCopy.TrailingEdgeLabel, ExportCopy.TrailingEdge(0, "the tip", Settings.TrailingEdgeFloorMm, Settings.TrailingEdgeFloorLabel) + "\n" + ExportCopy.ManufacturingNotAssessed));
+                rows.Add(("Fidelity", ExportCopy.FidelityCad(0)));
+                return rows;
+            }
+            string variantText = StepVariant == StepVariant.ClosedShell ? "Closed shell (MANIFOLD_SOLID_BREP)" : "Untrimmed surfaces (OPEN_SHELL)";
+            string scopeText = Scope == StlScope.Half ? "starboard half" : "whole wing";
+            rows.Add(("Unit", ExportCopy.UnitFixedInFile));
+            rows.Add(("STEP", $"{variantText} · {scopeText} · {step.SectionCount} sections · deg ({step.DegreeU},{step.DegreeV})"));
+            rows.Add(("File size", ExportCopy.Fixed(step.Bytes.Length / 1e6, 2) + " MB"));
+            rows.Add(("Size of the part", $"{ExportCopy.Fixed(step.SizeXMm, 1)} × {ExportCopy.Fixed(step.SizeYMm, 1)} × {ExportCopy.Fixed(step.SizeZMm, 1)} mm"));
+            rows.Add((ExportCopy.TrailingEdgeLabel, TrailingEdgeLine + "\n" + ExportCopy.ManufacturingNotAssessed));
+            rows.Add(("Fidelity", ExportCopy.FidelityCad(step.DeviationMm)));
+            return rows;
+        }
+
+        if (threeDmResult is not { } dm)
+        {
+            if (!Preparing) return rows;
+            rows.Add(("Unit", ExportCopy.UnitFixedInFile));
+            rows.Add(("3DM", "Preparing…"));
+            rows.Add(("File size", "0.00 MB"));
+            rows.Add(("Size of the part", "000.0 × 000.0 × 00.0 mm"));
+            rows.Add((ExportCopy.TrailingEdgeLabel, ExportCopy.TrailingEdge(0, "the tip", Settings.TrailingEdgeFloorMm, Settings.TrailingEdgeFloorLabel) + "\n" + ExportCopy.ManufacturingNotAssessed));
+            rows.Add(("Fidelity", ExportCopy.FidelityCad(0)));
+            return rows;
+        }
+        string dmScope = Scope == StlScope.Half ? "starboard half" : "whole wing";
+        rows.Add(("Unit", ExportCopy.UnitFixedInFile));
+        rows.Add(("3DM", $"3 layers ({Rhino3dmExport.WingSkinLayer}, {Rhino3dmExport.MasterCurvesLayer}, {Rhino3dmExport.AuthoredStationsLayer}) · {dmScope} · {dm.SectionCount} sections · deg ({dm.DegreeU},{dm.DegreeV})"));
+        rows.Add(("File size", ExportCopy.Fixed(dm.Bytes.Length / 1e6, 2) + " MB"));
+        rows.Add(("Size of the part", $"{ExportCopy.Fixed(dm.SizeXMm, 1)} × {ExportCopy.Fixed(dm.SizeYMm, 1)} × {ExportCopy.Fixed(dm.SizeZMm, 1)} mm"));
+        rows.Add((ExportCopy.TrailingEdgeLabel, TrailingEdgeLine + "\n" + ExportCopy.ManufacturingNotAssessed));
+        rows.Add(("Fidelity", ExportCopy.FidelityCad(dm.DeviationMm)));
+        return rows;
+    }
+
     /// <summary>The tolerance-not-reached band (EX31) when even the finest rung missed the preset, or null.</summary>
     public string? ToleranceNotReachedBand => stl is { ToleranceMet: false } mesh ? ExportCopy.ToleranceNotReached(mesh.DeviationMm, mesh.ToleranceMm) : null;
 
     /// <summary>The limit lines under the rows: for the wing STL the closure check, the binary32 rounding, then the app's own computation.</summary>
-    public string LimitText => IsMesh ? $"{ExportCopy.ClosedCheck} {ExportCopy.Rounded} {ExportCopy.Limit}" : ExportCopy.Limit;
+    public string LimitText => IsMesh
+        ? $"{ExportCopy.ClosedCheck} {ExportCopy.Rounded} {ExportCopy.Limit}"
+        : ExportCopy.Limit;
 
-    /// <summary>Always shown (Ruling 195): least thickness from the written points or mesh, where, the floor and its label.</summary>
+    /// <summary>Always shown (Ruling 195): least thickness from the written points, mesh, or CAD surface, where, the floor and its label.</summary>
     public string TrailingEdgeLine
     {
         get
@@ -244,14 +370,22 @@ public sealed class ExportSession
             if (IsMesh)
                 return stl is not { } mesh ? "" : mesh.TrailingEdgeAlongSpan
                     ? ExportCopy.TrailingEdgeWholeSpan(mesh.TrailingEdgeMm, Settings.TrailingEdgeFloorMm, Settings.TrailingEdgeFloorLabel)
-                    : ExportCopy.TrailingEdge(mesh.TrailingEdgeMm, WhereStl(mesh), Settings.TrailingEdgeFloorMm, Settings.TrailingEdgeFloorLabel);
+                    : ExportCopy.TrailingEdge(mesh.TrailingEdgeMm, WhereWing(mesh.TrailingEdgeAtTip, mesh.TrailingEdgeYMm), Settings.TrailingEdgeFloorMm, Settings.TrailingEdgeFloorLabel);
+            if (Format == ExportFormat.Step)
+                return stepResult is not { } step ? "" : step.TrailingEdgeAlongSpan
+                    ? ExportCopy.TrailingEdgeWholeSpan(step.TrailingEdgeMm, Settings.TrailingEdgeFloorMm, Settings.TrailingEdgeFloorLabel)
+                    : ExportCopy.TrailingEdge(step.TrailingEdgeMm, WhereWing(step.TrailingEdgeAtTip, step.TrailingEdgeYMm), Settings.TrailingEdgeFloorMm, Settings.TrailingEdgeFloorLabel);
+            if (Format == ExportFormat.ThreeDm)
+                return threeDmResult is not { } dm ? "" : dm.TrailingEdgeAlongSpan
+                    ? ExportCopy.TrailingEdgeWholeSpan(dm.TrailingEdgeMm, Settings.TrailingEdgeFloorMm, Settings.TrailingEdgeFloorLabel)
+                    : ExportCopy.TrailingEdge(dm.TrailingEdgeMm, WhereWing(dm.TrailingEdgeAtTip, dm.TrailingEdgeYMm), Settings.TrailingEdgeFloorMm, Settings.TrailingEdgeFloorLabel);
             return result is null ? "" :
                 ExportCopy.TrailingEdge(result.TrailingEdgeMm, Station.Name, Settings.TrailingEdgeFloorMm, Settings.TrailingEdgeFloorLabel);
         }
     }
 
-    private static string WhereStl(StlExportResult mesh) =>
-        mesh.TrailingEdgeAtTip ? "the tip" : $"y = {ExportCopy.Fixed(mesh.TrailingEdgeYMm, 0)} mm";
+    private static string WhereWing(bool atTip, double yMm) =>
+        atTip ? "the tip" : $"y = {ExportCopy.Fixed(yMm, 0)} mm";
 
     /// <summary>The advisory band, only when the written trailing edge is below the floor; it never blocks (Ruling 194 (5)).</summary>
     public ExportFinding? Finding
@@ -261,7 +395,17 @@ public sealed class ExportSession
             if (IsMesh)
                 return stl is { } mesh && mesh.TrailingEdgeMm < Settings.TrailingEdgeFloorMm
                     ? new(ExportCopy.BelowFloor(mesh.TrailingEdgeMm, Settings.TrailingEdgeFloorMm, Settings.TrailingEdgeFloorLabel),
-                        mesh.TrailingEdgeAlongSpan ? ExportCopy.ShowTrailingEdgeGap : ExportCopy.ShowAt(WhereStl(mesh).Replace("the ", "", StringComparison.Ordinal)))
+                        mesh.TrailingEdgeAlongSpan ? ExportCopy.ShowTrailingEdgeGap : ExportCopy.ShowAt(WhereWing(mesh.TrailingEdgeAtTip, mesh.TrailingEdgeYMm).Replace("the ", "", StringComparison.Ordinal)))
+                    : null;
+            if (Format == ExportFormat.Step)
+                return stepResult is { } step && step.TrailingEdgeMm < Settings.TrailingEdgeFloorMm
+                    ? new(ExportCopy.BelowFloor(step.TrailingEdgeMm, Settings.TrailingEdgeFloorMm, Settings.TrailingEdgeFloorLabel),
+                        step.TrailingEdgeAlongSpan ? ExportCopy.ShowTrailingEdgeGap : ExportCopy.ShowAt(WhereWing(step.TrailingEdgeAtTip, step.TrailingEdgeYMm).Replace("the ", "", StringComparison.Ordinal)))
+                    : null;
+            if (Format == ExportFormat.ThreeDm)
+                return threeDmResult is { } dm && dm.TrailingEdgeMm < Settings.TrailingEdgeFloorMm
+                    ? new(ExportCopy.BelowFloor(dm.TrailingEdgeMm, Settings.TrailingEdgeFloorMm, Settings.TrailingEdgeFloorLabel),
+                        dm.TrailingEdgeAlongSpan ? ExportCopy.ShowTrailingEdgeGap : ExportCopy.ShowAt(WhereWing(dm.TrailingEdgeAtTip, dm.TrailingEdgeYMm).Replace("the ", "", StringComparison.Ordinal)))
                     : null;
             return result is { } written && written.TrailingEdgeMm < Settings.TrailingEdgeFloorMm
                 ? new(ExportCopy.BelowFloor(written.TrailingEdgeMm, Settings.TrailingEdgeFloorMm, Settings.TrailingEdgeFloorLabel), ExportCopy.ShowAt(Station.Name))
@@ -269,19 +413,25 @@ public sealed class ExportSession
         }
     }
 
-    /// <summary>The station the finding's jump opens: the chosen one for a .dat; for the wing STL the tip, or the station nearest a located value.</summary>
+    /// <summary>The station the finding's jump opens: the chosen one for a .dat; for wing formats the tip, or the station nearest a located value.</summary>
     public int JumpStationIndex
     {
         get
         {
             if (Format == ExportFormat.Dat) return StationIndex;
-            if (stl is not { } mesh || mesh.TrailingEdgeAlongSpan || mesh.TrailingEdgeAtTip) return Source.Stations.Count - 1;
+            bool alongSpan, atTip;
+            double teYMm;
+            if (IsMesh && stl is { } mesh) { alongSpan = mesh.TrailingEdgeAlongSpan; atTip = mesh.TrailingEdgeAtTip; teYMm = mesh.TrailingEdgeYMm; }
+            else if (Format == ExportFormat.Step && stepResult is { } step) { alongSpan = step.TrailingEdgeAlongSpan; atTip = step.TrailingEdgeAtTip; teYMm = step.TrailingEdgeYMm; }
+            else if (Format == ExportFormat.ThreeDm && threeDmResult is { } dm) { alongSpan = dm.TrailingEdgeAlongSpan; atTip = dm.TrailingEdgeAtTip; teYMm = dm.TrailingEdgeYMm; }
+            else return Source.Stations.Count - 1;
+            if (alongSpan || atTip) return Source.Stations.Count - 1;
             int nearest = 0;
             double best = double.PositiveInfinity;
             for (int index = 0; index < Source.Stations.Count; index++)
             {
                 double y = Placement.Frame(Source.Source, Placement.StationEta(Source.Source, index)).SpanMeters * 1000;
-                if (Math.Abs(y - mesh.TrailingEdgeYMm) < best) { best = Math.Abs(y - mesh.TrailingEdgeYMm); nearest = index; }
+                if (Math.Abs(y - teYMm) < best) { best = Math.Abs(y - teYMm); nearest = index; }
             }
             return nearest;
         }
@@ -301,11 +451,13 @@ public sealed class ExportSession
         }
     }
 
-    /// <summary>The export button's label: the title when blocked, Preparing while the mesh is built, Export anyway… for a large mesh.</summary>
-    public string ButtonLabel => BlockedReason is not null ? ExportCopy.Title : Preparing ? ExportCopy.Preparing : IsLarge ? ExportCopy.ExportAnyway : ExportCopy.ExportMenu;
+    /// <summary>The export button's label: the title when blocked, Preparing while built, Export anyway… for a large mesh.</summary>
+    public string ButtonLabel => BlockedReason is not null ? ExportCopy.Title
+        : Preparing ? (IsCad ? ExportCopy.PreparingCad : ExportCopy.Preparing)
+        : IsLarge ? ExportCopy.ExportAnyway : ExportCopy.ExportMenu;
 
-    /// <summary>The in-dialog message when the closure check refused the mesh (H7), or null.</summary>
-    public string? ClosureMessage => closureFailed ? ExportCopy.MeshNotClosed : null;
+    /// <summary>The in-dialog message when the closure check refused the mesh (H7) or CAD verification failed, or null.</summary>
+    public string? ClosureMessage => closureFailed ? ExportCopy.MeshNotClosed : cadFailed ? ExportCopy.CadValidationFailed : null;
 
     /// <summary>
     /// The lines the preview block draws, an ellipsis for the rest: the name and first two rows, then in Selig order the nose and
@@ -335,7 +487,14 @@ public sealed class ExportSession
     public async Task<ExportOutcome> RunAsync(Func<string, string?, Task<string?>> pick, Func<string, byte[], Task>? write = null,
         CancellationToken cancellation = default)
     {
-        byte[]? bytes = Format == ExportFormat.Dat ? result?.Bytes : stl?.Bytes;
+        byte[]? bytes = Format switch
+        {
+            ExportFormat.Dat => result?.Bytes,
+            ExportFormat.Stl or ExportFormat.ThreeMf => stl?.Bytes,
+            ExportFormat.Step => stepResult?.Bytes,
+            ExportFormat.ThreeDm => threeDmResult?.Bytes,
+            _ => null
+        };
         if (!CanExport || bytes is null) return new(ExportOutcomeKind.Failed, BlockedReason ?? ExportCopy.Blocked);
         string? chosen = await pick(FileName, StartFolder);
         if (chosen is null) return new(ExportOutcomeKind.Cancelled, ExportCopy.Cancelled);
@@ -379,17 +538,46 @@ public sealed class ExportSession
         }
         RecordWrite("written", clock, bytes.Length);
         string file = Path.GetFileName(path);
-        return new(ExportOutcomeKind.Written, Format == ExportFormat.Dat
-            ? ExportCopy.Exported(file, result!.PointCount, result.ChordMeters * 1000, result.DeviationMm)
-            : ExportCopy.ExportedMesh(file, Count(stl!.Triangles), FileMegabytes(stl), stl.DeviationMm), path);
+        string message = Format switch
+        {
+            ExportFormat.Dat => ExportCopy.Exported(file, result!.PointCount, result.ChordMeters * 1000, result.DeviationMm),
+            ExportFormat.Step => ExportCopy.ExportedCad(file, StepVariant == StepVariant.ClosedShell ? "STEP closed shell" : "STEP untrimmed",
+                ExportCopy.Fixed(stepResult!.Bytes.Length / 1e6, 2), stepResult.DeviationMm),
+            ExportFormat.ThreeDm => ExportCopy.ExportedCad(file, "Rhino 3DM (3 layers)",
+                ExportCopy.Fixed(threeDmResult!.Bytes.Length / 1e6, 2), threeDmResult.DeviationMm),
+            _ => ExportCopy.ExportedMesh(file, Count(stl!.Triangles), FileMegabytes(stl), stl.DeviationMm)
+        };
+        return new(ExportOutcomeKind.Written, message, path);
     }
 
-    private string FormatName => Format switch { ExportFormat.Dat => "dat", ExportFormat.ThreeMf => "3mf", _ => "stl" };
+    private string FormatName => Format switch
+    {
+        ExportFormat.Dat => "dat",
+        ExportFormat.ThreeMf => "3mf",
+        ExportFormat.Step => "step",
+        ExportFormat.ThreeDm => "3dm",
+        _ => "stl"
+    };
 
     private ExportTelemetry Row(string operation, string outcome, double? milliseconds = null, long? bytes = null) =>
-        new(operation, FormatName, IsMesh ? (Scope == StlScope.Half ? "half" : "whole") : null,
-            IsMesh ? Preset.ToString().ToLowerInvariant() : null, outcome, milliseconds, bytes,
-            IsMesh ? stl?.Triangles : null, IsMesh ? stl?.DeviationMm : null);
+        new(operation, FormatName,
+            Format != ExportFormat.Dat ? (Scope == StlScope.Half ? "half" : "whole") : null,
+            Format switch
+            {
+                ExportFormat.Stl or ExportFormat.ThreeMf => Preset.ToString().ToLowerInvariant(),
+                ExportFormat.Step => StepVariant == StepVariant.ClosedShell ? "closed" : "untrimmed",
+                ExportFormat.ThreeDm => "nurbs",
+                _ => null
+            },
+            outcome, milliseconds, bytes,
+            IsMesh ? stl?.Triangles : null,
+            Format switch
+            {
+                ExportFormat.Stl or ExportFormat.ThreeMf => stl?.DeviationMm,
+                ExportFormat.Step => stepResult?.DeviationMm,
+                ExportFormat.ThreeDm => threeDmResult?.DeviationMm,
+                _ => null
+            });
 
     private void RecordWrite(string outcome, Stopwatch clock, long bytes)
     {

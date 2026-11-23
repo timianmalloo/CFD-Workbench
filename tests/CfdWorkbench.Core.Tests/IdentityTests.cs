@@ -118,6 +118,8 @@ internal static class IdentityTests
         DatExportTests.Run();
         StlExportTests.Run();
         ThreeMfExportTests.Run();
+        StepExportTests.Run();
+        Rhino3dmExportTests.Run();
         SectionReplaceTests.Run();
         ReopenConstructionTests.Run();
         ThicknessIntentTests.Run();

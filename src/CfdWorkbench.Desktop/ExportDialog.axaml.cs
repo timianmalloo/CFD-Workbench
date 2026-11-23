@@ -19,6 +19,8 @@ namespace CfdWorkbench.Desktop;
 public partial class ExportDialog : Window
 {
     private readonly ExportSession session;
+    private ListBoxItem? stepFormatItem;
+    private ListBoxItem? threeDmFormatItem;
     private string? lastPath;
     private bool busy;
     private CancellationTokenSource? writing;
@@ -50,12 +52,47 @@ public partial class ExportDialog : Window
         ThreeMfFormatItem.IsSelected = session.Format == ExportFormat.ThreeMf;
         ThreeMfFormatItem.Content = ExportCopy.FormatThreeMf;
         AutomationProperties.SetName(ThreeMfFormatItem, ExportCopy.FormatThreeMf);
+        if (session.CadGate.StepUnlocked)
+        {
+            stepFormatItem = new ListBoxItem { Name = "StepFormatItem", Content = ExportCopy.FormatStep, IsSelected = session.Format == ExportFormat.Step };
+            AutomationProperties.SetName(stepFormatItem, ExportCopy.FormatStep);
+            FormatList.Items.Add(stepFormatItem);
+            StepButton.IsVisible = false;
+            StepWhy.IsVisible = false;
+        }
+        else
+        {
+            StepButton.IsVisible = true;
+            StepButton.IsEnabled = false;
+            StepWhy.IsVisible = true;
+            StepWhy.Text = session.CadGate.StepReason;
+            AutomationProperties.SetHelpText(StepButton, session.CadGate.StepReason);
+        }
+        if (session.CadGate.ThreeDmUnlocked)
+        {
+            threeDmFormatItem = new ListBoxItem { Name = "ThreeDmFormatItem", Content = ExportCopy.FormatThreeDm, IsSelected = session.Format == ExportFormat.ThreeDm };
+            AutomationProperties.SetName(threeDmFormatItem, ExportCopy.FormatThreeDm);
+            FormatList.Items.Add(threeDmFormatItem);
+        }
         ScopeLegend.Text = ExportCopy.ScopeLabel;
         ScopeWhole.Content = ExportCopy.ScopeWhole;
         ScopeHalf.Content = ExportCopy.ScopeHalf;
         AutomationProperties.SetLabeledBy(ScopeWhole, ScopeLegend);
         AutomationProperties.SetLabeledBy(ScopeHalf, ScopeLegend);
         ScopeHelp.Text = ExportCopy.ScopeHalfHelp;
+        CadScopeLegend.Text = ExportCopy.ScopeLabel;
+        CadScopeWhole.Content = ExportCopy.ScopeWhole;
+        CadScopeHalf.Content = ExportCopy.ScopeHalf;
+        AutomationProperties.SetLabeledBy(CadScopeWhole, CadScopeLegend);
+        AutomationProperties.SetLabeledBy(CadScopeHalf, CadScopeLegend);
+        CadUnitLegend.Text = ExportCopy.UnitLabel;
+        CadUnitText.Text = "mm. " + ExportCopy.UnitFixedInFile;
+        CadScopeHelp.Text = ExportCopy.ScopeHalfHelp;
+        StepVariantLegend.Text = ExportCopy.StepVariantLabel;
+        StepVariantClosed.Content = ExportCopy.StepVariantClosed;
+        StepVariantUntrimmed.Content = ExportCopy.StepVariantUntrimmed;
+        AutomationProperties.SetLabeledBy(StepVariantClosed, StepVariantLegend);
+        AutomationProperties.SetLabeledBy(StepVariantUntrimmed, StepVariantLegend);
         ToleranceLegend.Text = ExportCopy.ToleranceLabel;
         ToleranceDraft.Content = ExportCopy.ToleranceDraft;
         TolerancePrint.Content = ExportCopy.TolerancePrint;
@@ -67,8 +104,6 @@ public partial class ExportDialog : Window
         UnitText.Text = "mm. " + ExportCopy.UnitFixed;
         ClosureText.Text = ExportCopy.MeshNotClosed;
         ClosureDetails.Text = ExportCopy.MeshNotClosedDetails;
-        StepWhy.Text = ExportCopy.StepUnavailable;
-        AutomationProperties.SetHelpText(StepButton, ExportCopy.StepUnavailable);
         ShapeLegend.Text = ExportCopy.ShapeLabel;
         ShapeAtStation.Content = ExportCopy.ShapeAtStation;
         ShapeOwn.Content = ExportCopy.ShapeOwn;
@@ -107,11 +142,19 @@ public partial class ExportDialog : Window
             button.IsCheckedChanged += (_, _) => { if (button.IsChecked == true) Change(points: count); };
         FormatList.SelectionChanged += (_, _) =>
         {
-            var format = ThreeMfFormatItem.IsSelected ? ExportFormat.ThreeMf : StlFormatItem.IsSelected ? ExportFormat.Stl : ExportFormat.Dat;
+            var format = threeDmFormatItem?.IsSelected == true ? ExportFormat.ThreeDm
+                : stepFormatItem?.IsSelected == true ? ExportFormat.Step
+                : ThreeMfFormatItem.IsSelected ? ExportFormat.ThreeMf
+                : StlFormatItem.IsSelected ? ExportFormat.Stl
+                : ExportFormat.Dat;
             if (format != session.Format) Change(format: format);
         };
-        ScopeWhole.IsCheckedChanged += (_, _) => { if (ScopeWhole.IsChecked == true) Change(scope: StlScope.Whole); };
-        ScopeHalf.IsCheckedChanged += (_, _) => { if (ScopeHalf.IsChecked == true) Change(scope: StlScope.Half); };
+        ScopeWhole.IsCheckedChanged += (_, _) => { if (ScopeWhole.IsChecked == true && session.Scope != StlScope.Whole) Change(scope: StlScope.Whole); };
+        ScopeHalf.IsCheckedChanged += (_, _) => { if (ScopeHalf.IsChecked == true && session.Scope != StlScope.Half) Change(scope: StlScope.Half); };
+        CadScopeWhole.IsCheckedChanged += (_, _) => { if (CadScopeWhole.IsChecked == true && session.Scope != StlScope.Whole) Change(scope: StlScope.Whole); };
+        CadScopeHalf.IsCheckedChanged += (_, _) => { if (CadScopeHalf.IsChecked == true && session.Scope != StlScope.Half) Change(scope: StlScope.Half); };
+        StepVariantClosed.IsCheckedChanged += (_, _) => { if (StepVariantClosed.IsChecked == true && session.StepVariant != StepVariant.ClosedShell) Change(stepVariant: StepVariant.ClosedShell); };
+        StepVariantUntrimmed.IsCheckedChanged += (_, _) => { if (StepVariantUntrimmed.IsChecked == true && session.StepVariant != StepVariant.Untrimmed) Change(stepVariant: StepVariant.Untrimmed); };
         ToleranceDraft.IsCheckedChanged += (_, _) => { if (ToleranceDraft.IsChecked == true) Change(preset: StlPreset.Draft); };
         TolerancePrint.IsCheckedChanged += (_, _) => { if (TolerancePrint.IsChecked == true) Change(preset: StlPreset.Print); };
         ToleranceFine.IsCheckedChanged += (_, _) => { if (ToleranceFine.IsChecked == true) Change(preset: StlPreset.Fine); };
@@ -155,6 +198,8 @@ public partial class ExportDialog : Window
         {
             "stl" => ("Export wing STL", "Wing mesh (.stl)"),
             "3mf" => ("Export wing 3MF", "Wing mesh (.3mf)"),
+            "step" => ("Export wing STEP", "STEP AP203 (.step)"),
+            "3dm" => ("Export wing 3DM", "Rhino 3D (.3dm)"),
             _ => ("Export section .dat", "Airfoil coordinates (.dat)")
         };
         var options = new Avalonia.Platform.Storage.FilePickerSaveOptions
@@ -171,14 +216,14 @@ public partial class ExportDialog : Window
     }
 
     private void Change(DatShape? shape = null, DatOrder? order = null, int? points = null, int? station = null,
-        ExportFormat? format = null, StlScope? scope = null, StlPreset? preset = null)
+        ExportFormat? format = null, StlScope? scope = null, StlPreset? preset = null, StepVariant? stepVariant = null)
     {
-        session.Set(shape, order, points, station, format, scope, preset);
+        session.Set(shape, order, points, station, format, scope, preset, stepVariant);
         Refresh();
         if (session.Preparing) Preparation = PrepareAsync();
     }
 
-    // The mesh is built off the UI thread; the summary shows its skeleton meanwhile (H10). A newer option drops this build, and its own call redraws.
+    // The mesh or CAD surface is built off the UI thread; the summary shows its skeleton meanwhile (H10). A newer option drops this build, and its own call redraws.
     private async Task PrepareAsync()
     {
         await session.PrepareAsync();
@@ -196,12 +241,20 @@ public partial class ExportDialog : Window
         BlockedBand.IsVisible = blocked;
         BlockedText.Text = session.BlockedReason ?? "";
         bool stl = session.IsMesh;
-        DatOptions.IsVisible = !stl;
+        bool cad = session.IsCad;
+        DatOptions.IsVisible = !stl && !cad;
         StlOptions.IsVisible = stl;
+        CadOptions.IsVisible = cad;
+        StepVariantPanel.IsVisible = session.Format == ExportFormat.Step;
         ScopeHelp.IsVisible = stl && session.Scope == StlScope.Half;
+        CadScopeHelp.IsVisible = cad && session.Scope == StlScope.Half;
+        CadScopeWhole.IsChecked = session.Scope == StlScope.Whole;
+        CadScopeHalf.IsChecked = session.Scope == StlScope.Half;
+        StepVariantClosed.IsChecked = session.StepVariant == StepVariant.ClosedShell;
+        StepVariantUntrimmed.IsChecked = session.StepVariant == StepVariant.Untrimmed;
         ShapeHelp.Text = session.ShapeHelp;
         FillSummary();
-        LimitLine.Text = session.Preparing ? ExportCopy.Preparing : session.LimitText;
+        LimitLine.Text = session.Preparing ? (cad ? ExportCopy.PreparingCad : ExportCopy.Preparing) : session.LimitText;
         PreviewText.Text = string.Join("\n", session.PreviewLines);
         PreviewBorder.IsVisible = session.PreviewLines.Count > 0;
         var finding = session.Finding;
@@ -212,6 +265,7 @@ public partial class ExportDialog : Window
         LargeBand.IsVisible = LargeText.Text.Length > 0;
         ToleranceText.Text = session.ToleranceNotReachedBand ?? "";
         ToleranceBand.IsVisible = ToleranceText.Text.Length > 0;
+        ClosureText.Text = session.ClosureMessage ?? ExportCopy.MeshNotClosed;
         ClosureBand.IsVisible = session.ClosureFailed;
         ExportButton.IsEnabled = session.CanExport && !busy;
         ExportButton.Content = session.ButtonLabel;

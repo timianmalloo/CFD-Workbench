@@ -3238,6 +3238,59 @@ window.DOCS_INDEX = {
       "sourceSha256": "dc6992c1489a1e3a339a639d5fe251f16538d99de6961df297018f748b4a6363"
     },
     {
+      "id": "design-export-step-3dm",
+      "path": "docs/design/export-step-3dm.md",
+      "title": "Design: Export Slice B (Area 7) — STEP AP203 & Rhino 3DM",
+      "type": "design",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "design — Export Slice B (Wave 8A W8-EXP)",
+      "reviewBy": "2027-05-23",
+      "reviewSuggested": [],
+      "summary": "Detailed design of Export Slice B (Area 7): pure-C# Option B ISO 10303-21 STEP AP203 export behind ICadStepExporter and pure in-memory MIT Rhino3dm 8.35.0 .3dm export over Placement.Surface (ADR-0010), incorporating both KRN-SPK Phase 1 refinements (channel knot mapping t_i -> eta_i = x_channel(t_i) and OPEN_SHELL boundary vs interior edge separation), CLI parity, and honest Desktop ExportDialog gating via CadExportReleaseGate preserving COPY-481 until external SPIKE-CAD-02 receipts exist.",
+      "tags": [
+        "export",
+        "step",
+        "3dm",
+        "cad",
+        "rhino3dm",
+        "nurbs",
+        "area-7",
+        "exp-02",
+        "exp-04",
+        "exp-05",
+        "copy-481"
+      ],
+      "links": [
+        {
+          "to": "adr-0013-cad-export-kernel",
+          "rel": "implements"
+        },
+        {
+          "to": "design-export",
+          "rel": "refines"
+        },
+        {
+          "to": "proof-spike-cad-01",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-0010-one-placement-rule",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5a50dff048ce9b40fc3e1557e99026d4ed9e73d2e9c837f94da76dc8e524f757"
+    },
+    {
       "id": "design-foildsl-authoring",
       "path": "docs/design/foildsl-authoring-direction.md",
       "title": "FoilDSL authoring direction and transaction contract",
@@ -12718,7 +12771,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0d38a420d394718cc909e33bca4b366654896e7875dfcac0b50fd7396f91714e"
+      "sourceSha256": "0e668646892ae4b7ccc506505d70323983696df74f90e2e30288ec9fe6fc11ac"
     },
     {
       "id": "coordination-windows-gpu-f1-design",
@@ -15397,6 +15450,51 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "5d4ca477769a2466f3ae9863ae2a1c1a632002b7a8f6d0ed801c1f26ca8aeda1"
+    },
+    {
+      "id": "proof-cad-export-measure",
+      "path": "docs/proof/cad-export-measure/README.md",
+      "title": "SPIKE-CAD-02 Operator Runbook: External CAD/CAM Open-and-Measure Release Gate",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "proof — Area 7 SPIKE-CAD-02 (Wave 8A W8-EXP)",
+      "reviewBy": "2027-05-23",
+      "reviewSuggested": [],
+      "summary": "Operator runbook for executing ADR-0013 SPIKE-CAD-02 across Autodesk Fusion, FreeCAD CAM (Path), Vectric VCarve/Aspire, and Rhino 8 using generate-fixture.py and verify-open-measure.py. Explains why cad-open-measure.json is intentionally absent on the current build host (preserving COPY-481 honestly) and defines the exact schema required to unlock production STEP and 3DM export in ExportDialog.",
+      "tags": [
+        "proof",
+        "spike",
+        "cad",
+        "export",
+        "step",
+        "3dm",
+        "fusion",
+        "freecad",
+        "vectric",
+        "rhino",
+        "copy-481"
+      ],
+      "links": [
+        {
+          "to": "adr-0013-cad-export-kernel",
+          "rel": "implements"
+        },
+        {
+          "to": "design-export-step-3dm",
+          "rel": "implements"
+        },
+        {
+          "to": "proof-spike-cad-01",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d2483d9e173321e648a46ce00d667d235493add74daf1bbbe6271cf856f19a95"
     },
     {
       "id": "proof-cbl-measure",
@@ -25281,6 +25379,14 @@ window.DOCS_INDEX = {
       "artifactId": "audit-log"
     },
     {
+      "id": "surface-design-export-step-3dm",
+      "path": "docs/design/export-step-3dm.html",
+      "title": "Export Step 3Dm",
+      "kind": "design-preview",
+      "description": "Inspect a rendered design or design-language preview.",
+      "artifactId": "design-export-step-3dm"
+    },
+    {
       "id": "surface-design-local-sweeps",
       "path": "docs/design/local-sweeps.html",
       "title": "Local Sweeps",
@@ -25639,6 +25745,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-rail-comb"
     },
     {
+      "id": "surface-proof-cad-export-measure-readme",
+      "path": "docs/proof/cad-export-measure/README.html",
+      "title": "Readme",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "proof-cad-export-measure"
+    },
+    {
       "id": "surface-proof-spike-cad-01-readme",
       "path": "docs/proof/spike-cad-01/README.html",
       "title": "Readme",
@@ -25775,5 +25889,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "51b33fa8db430b6906232792fff8fbb876eceba30209489ac3c9dff27ed08190"
+  "graphSha256": "7969529f08e8cfd43bab71d21cbc981ad13c093fae966cefe00232f19e60b9de"
 };

@@ -63,7 +63,7 @@ public static class Cli
             await output.WriteLineAsync("       cfd-workbench seed --preset <id|purpose> [options] [--acknowledge-flagged] [--out <path.cfdw.json>]");
             await output.WriteLineAsync("       cfd-workbench analyse <example|path.foil|path.cfdw.json> --op <json>");
             await output.WriteLineAsync("       cfd-workbench sweep preview|run <example|path.foil|path.cfdw.json> --grid <json> [--out <path.cfdw.json>]");
-            await output.WriteLineAsync("       cfd-workbench export <example|path.foil|path.cfdw.json> --format dat|stl|3mf --out <path> [options]");
+            await output.WriteLineAsync("       cfd-workbench export <example|path.foil|path.cfdw.json> --format dat|stl|3mf|step|3dm --out <path> [options]");
             await output.WriteLineAsync("         (a wrong export command prints every option and exit code)");
             return 2;
         }

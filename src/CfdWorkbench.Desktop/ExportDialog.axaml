@@ -43,6 +43,29 @@
                 </StackPanel>
                 <TextBlock x:Name="ScopeHelp" IsVisible="False" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
               </StackPanel>
+              <StackPanel x:Name="CadOptions" Spacing="8" IsVisible="False">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                  <StackPanel Grid.Column="0" Spacing="4">
+                    <TextBlock x:Name="CadScopeLegend" FontWeight="SemiBold" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                      <RadioButton x:Name="CadScopeWhole" GroupName="cad-scope" IsChecked="True" />
+                      <RadioButton x:Name="CadScopeHalf" GroupName="cad-scope" />
+                    </StackPanel>
+                  </StackPanel>
+                  <StackPanel Grid.Column="1" Spacing="4">
+                    <TextBlock x:Name="CadUnitLegend" FontWeight="SemiBold" />
+                    <TextBlock x:Name="CadUnitText" TextWrapping="Wrap" />
+                  </StackPanel>
+                </Grid>
+                <StackPanel x:Name="StepVariantPanel" Spacing="4" IsVisible="False">
+                  <TextBlock x:Name="StepVariantLegend" FontWeight="SemiBold" />
+                  <StackPanel Orientation="Horizontal" Spacing="12">
+                    <RadioButton x:Name="StepVariantClosed" GroupName="step-variant" IsChecked="True" />
+                    <RadioButton x:Name="StepVariantUntrimmed" GroupName="step-variant" />
+                  </StackPanel>
+                </StackPanel>
+                <TextBlock x:Name="CadScopeHelp" IsVisible="False" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
+              </StackPanel>
               <StackPanel x:Name="DatOptions" Spacing="8">
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="16" RowDefinitions="Auto,Auto" RowSpacing="8">
                   <StackPanel Grid.Column="0" Spacing="4">
