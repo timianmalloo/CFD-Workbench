@@ -53,6 +53,7 @@ public static class Cli
         if (args.Length >= 1 && args[0] == "solver-setup") return await SolverSetupVerb.RunAsync(args, output, cancellation);
         if (args.Length >= 1 && args[0] == "cfd-run") return await CfdRunVerb.RunAsync(args, output, cancellation);
         if (args.Length >= 1 && args[0] == "results") return await ResultsVerb.RunAsync(args, output, cancellation);
+        if (args.Length >= 1 && args[0] == "assistant") return await AssistantVerb.RunAsync(args, output, cancellation);
         if (args.Length >= 1 && args[0] == "seed") return await SeedVerb.RunAsync(args, output, cancellation);
         if (args.Length >= 1 && args[0] == "sweep") return await SweepVerb.RunSweepAsync(args, output, analysis, cancellation);
         if (args.Length == 4 && args[0] == "analyse" && args[2] == "--op") return await AnalyseAsync(args[1], args[3], output, analysis, cancellation);
@@ -71,6 +72,7 @@ public static class Cli
             await output.WriteLineAsync("       cfd-workbench solver-setup survey|status|report [--store <dir>] [--route <id>] [--json]");
             await output.WriteLineAsync("       cfd-workbench cfd-run emit|status|harvest <input> [options] [--json]");
             await output.WriteLineAsync("       cfd-workbench results inspect|candidates|paraview <input> [options] [--json]");
+            await output.WriteLineAsync("       cfd-workbench assistant status|eval|preview|audit [options] [--store <dir>] [--json]");
             return 2;
         }
         string input = args[1];

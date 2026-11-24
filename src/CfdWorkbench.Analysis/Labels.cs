@@ -638,4 +638,18 @@ public static class Labels
     public const string ResultsStreamlinesSteadyRans = "instantaneous integral curves of the mean field (steady RANS)";
     public const string ResultsStreamlinesMovingDash = "affordance, not fluid motion";
     public const string ResultsTurbulentKineticEnergy = "modeled turbulent kinetic energy, m²/s², model, mean-flow basis";
+
+    // ---- AI: Cross-area BYOK Assistants (Wave 11, LAB-01 compliant) ----
+    public const string AssistantNoKey =
+        "No API key configured — every design, analysis, solver setup, run, results, and export tool works without it.";
+    public const string AssistantExportNoAction = "No assistant action here.";
+    public const string AssistantUnevaluated = "Unevaluated on this model";
+    public const string AssistantNotRecorded = "Not recorded";
+    public const string AssistantKnowledgeUnavailable = "Bundled knowledge corpus unavailable (integrity check failed).";
+    public const string AssistantRedirectRefused =
+        "Endpoint returned an HTTP redirect, which is refused to protect your API key.";
+    public static string AssistantDailyCapReached(int used, int cap) =>
+        $"Daily UTC request cap reached ({used} of {cap}). Raise the cap in Settings or wait for the next UTC day.";
+    public static string AssistantTransportFailed(string errorKind, string detail) =>
+        $"Assistant request failed ({errorKind}): {detail}. Manual workflow is unaffected.";
 }
