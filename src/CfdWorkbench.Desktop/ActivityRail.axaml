@@ -72,13 +72,23 @@
 
       <Border Grid.Row="1" BorderBrush="{DynamicResource LineBrush}"
               BorderThickness="{StaticResource HairlineTop}" Padding="{StaticResource ActivityRailFooterPadding}">
-        <Button x:Name="RailSolverSetupButton" Classes="rail-item" HorizontalAlignment="Stretch"
-                Padding="{StaticResource ActivityRailItemPadding}">
-          <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
-            <TextBlock Text="Solver" Classes="rail-title" />
-            <TextBlock x:Name="BadgeSolverSetupText" Text="Not set up" Classes="rail-badge" />
-          </StackPanel>
-        </Button>
+        <StackPanel Spacing="{StaticResource StackGap1}">
+          <Button x:Name="RailSolverSetupButton" Classes="rail-item" HorizontalAlignment="Stretch"
+                  Padding="{StaticResource ActivityRailItemPadding}">
+            <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+              <TextBlock Text="Solver" Classes="rail-title" />
+              <TextBlock x:Name="BadgeSolverSetupText" Text="Not set up" Classes="rail-badge" />
+            </StackPanel>
+          </Button>
+          <Button x:Name="RailSettingsButton" Classes="rail-item" HorizontalAlignment="Stretch"
+                  Padding="{StaticResource ActivityRailItemPadding}"
+                  AutomationProperties.Name="Settings">
+            <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+              <TextBlock Text="Settings" Classes="rail-title" />
+              <TextBlock x:Name="BadgeSettingsText" Text="No key" Classes="rail-badge" />
+            </StackPanel>
+          </Button>
+        </StackPanel>
       </Border>
     </Grid>
   </Border>

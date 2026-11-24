@@ -181,12 +181,17 @@
             </StackPanel>
           </Border>
 
-          <!-- Offline AI-10 Ask about this result -->
+          <!-- Offline & live BYOK AI-10 Ask about this result -->
           <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
                   BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
             <StackPanel Spacing="{StaticResource StackGap1}">
-              <TextBlock Text="Ask about this result (offline)" FontWeight="SemiBold"
-                         FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
+              <DockPanel>
+                <Button x:Name="AskResultConfigureKeyButton" DockPanel.Dock="Right" Content="Configure key"
+                        MinHeight="{StaticResource CompactTargetSize}" AutomationProperties.Name="Configure API key" />
+                <TextBlock Text="Ask about this result (offline)" FontWeight="SemiBold"
+                           FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" VerticalAlignment="Center" />
+              </DockPanel>
+              <TextBlock x:Name="AskResultStatusText" Classes="pnl-note" IsVisible="False" />
               <Grid ColumnDefinitions="*,Auto">
                 <TextBox x:Name="AskResultInput" Grid.Column="0" Watermark="Ask about separation or field evidence…" />
                 <Button x:Name="AskResultButton" Grid.Column="1" Content="Ask" Margin="{StaticResource UnitGap}" />

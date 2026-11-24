@@ -57,9 +57,31 @@ public partial class ModelArea : UserControl
         }
     }
 
+    public event Action? ConfigureKeyRequested;
+
+    public Assistant.AssistantPromptBar CadAssistantBarView => CadAssistantBar;
+
+    public void ToggleCadAssistantBar()
+    {
+        CadAssistantBar.IsVisible = !CadAssistantBar.IsVisible;
+        RefreshAssistantStatus();
+    }
+
+    public void RefreshAssistantStatus()
+    {
+        CadAssistantBar.RefreshStatus(controller?.Assistant);
+    }
+
     public ModelArea()
     {
         InitializeComponent();
+        CadAssistantBar.Configure(
+            Assistant.AssistantCopy.CadEntryTitle,
+            "Preview change",
+            "Describe a shape change (e.g., narrow tip chord by 2 mm)…",
+            "Preview CAD geometry change");
+        CadAssistantBar.ConfigureKeyRequested += () => ConfigureKeyRequested?.Invoke();
+        CadAssistantBar.PromptSubmitted += prompt => _ = HandleCadAssistantSubmitAsync(prompt);
         NavSetupButton.Click += (_, _) => controller?.EnterSetup();
         NavCadButton.Click += (_, _) => controller?.EnterCad();
         NavAnalysisButton.Click += (_, _) => { if (controller is not null && !controller.IsAnalysis) controller.ToggleAnalysis(); };
@@ -598,10 +620,15 @@ public partial class ModelArea : UserControl
         SetupWorkspace.IsVisible = controller.IsSetup;
         RunWorkspace.IsVisible = controller.IsRun;
         ResultsWorkspace.IsVisible = controller.IsResults;
-        if (foilOpen && controller.IsSweeps) SweepsWorkspace.Bind(controller.Sweeps);
-        if (controller.IsSetup) SetupWorkspace.Bind(controller.Setup, () => controller.EnterCad());
+        if (foilOpen && controller.IsSweeps)
+        {
+            SweepsWorkspace.Bind(controller.Sweeps);
+            SweepsWorkspace.ExperimentSetup.RefreshAssistantStatus(controller.Assistant);
+        }
+        if (controller.IsSetup) SetupWorkspace.Bind(controller.Setup, () => controller.EnterCad(), controller.Assistant);
         if (controller.IsRun) RunWorkspace.Bind(controller, showHost?.IsSolverReady == true);
         if (controller.IsResults) ResultsWorkspace.Bind(controller);
+        RefreshAssistantStatus();
         SectionModeEditor.IsVisible = foilOpen && Mode == ModelAreaMode.Section;
         SectionModeEditor.Bind(controller);
         if (Mode == ModelAreaMode.Section)
@@ -949,6 +976,48 @@ public partial class ModelArea : UserControl
 
     private static double Token(string key, double fallback) =>
         Application.Current?.TryFindResource(key, out var value) == true && value is double number ? number : fallback;
+
+    private async Task HandleCadAssistantSubmitAsync(string prompt)
+    {
+        if (controller is null || controller.Inspection is null) return;
+        string? baseAcceptedId = controller.Inspection.Authored.Binding.AcceptedId;
+        var preview = await controller.Assistant.PreparePreviewAsync(
+            new CfdWorkbench.Analysis.Assistant.AssistantPreviewRequest(
+                CfdWorkbench.Core.Assistant.AssistantArea.Cad,
+                CfdWorkbench.Core.Assistant.AssistantProposalKind.GeometryEdit,
+                "Return strict geometry-edit JSON referencing baseAcceptedId. Never emit raw coordinates or meshes.",
+                prompt));
+        if (!preview.Allowed || preview.Prepared is null)
+        {
+            CadAssistantBar.ShowFeedback(preview.Message ?? Assistant.AssistantCopy.NoKeyNotice);
+            return;
+        }
+
+        if (TopLevel.GetTopLevel(this) is Window owner)
+        {
+            var valInput = new CfdWorkbench.Core.Assistant.AssistantValidationInput(
+                CfdWorkbench.Core.Assistant.AssistantArea.Cad,
+                CfdWorkbench.Core.Assistant.AssistantProposalKind.GeometryEdit,
+                ProposalId: preview.Prepared.RequestId,
+                CurrentAcceptedId: baseAcceptedId);
+            var dlg = new Assistant.AssistantConsentPreviewDialog(
+                controller.Assistant,
+                preview.Prepared,
+                valInput,
+                currentAcceptedIdProvider: () => controller.Inspection?.Authored.Binding.AcceptedId)
+            {
+                RequestedThemeVariant = owner.ActualThemeVariant
+            };
+            await dlg.ShowDialog(owner);
+            if (dlg.Accepted && dlg.ExecutionResult?.Validation?.GeometryEdit is { } edit)
+            {
+                var commit = await controller.ApplyAssistantGeometryEditAsync(edit);
+                CadAssistantBar.ShowFeedback(commit is CommitOutcome.Committed c
+                    ? c.Report
+                    : (commit as CommitOutcome.Refused)?.Copy ?? "Geometry edit not applied.");
+            }
+        }
+    }
 
     public void HideAlertBand()
     {

@@ -19,6 +19,7 @@ public partial class SolverSetupView : UserControl
     private const string AppVersion = "0.1.0";
 
     private SolverSetupService? service;
+    private Assistant.AssistantRuntimeHub? assistantHub;
     private string? lastCardStepId;
     private string? suggestedStepId;
 
@@ -72,8 +73,10 @@ public partial class SolverSetupView : UserControl
         RetryStepButton.Click += (_, _) => _ = RunSurveyAsync();
         CopyDetailsButton.Click += (_, _) => CopyTechnicalDetails();
         RemoveInstalledButton.Click += (_, _) => OnRemoveInstalled();
-        AssistantAskButton.Click += (_, _) => OnAskAssistant();
+        AssistantAskButton.Click += async (_, _) => await OnAskAssistantAsync();
         AssistantUseSuggestionButton.Click += (_, _) => OnUseAssistantSuggestion();
+        AssistantConfigureKeyButton.Content = Assistant.AssistantCopy.ConfigureKeyButton;
+        AssistantConfigureKeyButton.Click += (_, _) => ConfigureKeyRequested?.Invoke();
 
         SessionId = "sess-" + Guid.NewGuid().ToString("N")[..8];
         ViewModel = SolverSetupProjection.Build(null, null, [], SessionId, hasApiKey: false);
@@ -91,6 +94,22 @@ public partial class SolverSetupView : UserControl
 
     /// <summary>Raised when the user clicks Back to my analysis in the Ready state.</summary>
     public event Action? BackToAnalysisRequested;
+
+    /// <summary>Raised when the user clicks Configure key inside the AI-11 assistant card.</summary>
+    public event Action? ConfigureKeyRequested;
+
+    public void BindAssistant(Assistant.AssistantRuntimeHub hub)
+    {
+        assistantHub = hub ?? throw new ArgumentNullException(nameof(hub));
+        SetApiKeyAvailable(hub.HasApiKey);
+    }
+
+    public void SetApiKeyAvailable(bool available)
+    {
+        if (HasApiKey == available) return;
+        HasApiKey = available;
+        RefreshProjection();
+    }
 
     public SolverSetupViewModel ViewModel { get; private set; }
     public string SessionId { get; private set; }
@@ -631,13 +650,52 @@ public partial class SolverSetupView : UserControl
         }
     }
 
-    private void OnAskAssistant()
+    private async Task OnAskAssistantAsync()
     {
         if (!HasApiKey)
         {
             ShowReceipt(SolverSetupCopy.AssistantNoKeyNotice);
             return;
         }
+        if (assistantHub is not null && assistantHub.IsReadyForProposals)
+        {
+            string prompt = (AssistantPromptBox.Text ?? "").Trim();
+            if (string.IsNullOrWhiteSpace(prompt)) prompt = "Explain the active solver setup step.";
+            var preview = await assistantHub.PreparePreviewAsync(
+                new CfdWorkbench.Analysis.Assistant.AssistantPreviewRequest(
+                    CfdWorkbench.Core.Assistant.AssistantArea.SolverSetup,
+                    CfdWorkbench.Core.Assistant.AssistantProposalKind.EnvironmentStep,
+                    "Return strict AI-11 explanation or allow-listed environment-step JSON. Never suggest shell commands.",
+                    prompt));
+            if (preview.Allowed && preview.Prepared is not null && TopLevel.GetTopLevel(this) is Window owner)
+            {
+                var ctx = new AssistantValidationContext(
+                    AllowedNextStepIds: BuildAllowedNextSet(),
+                    ExcerptLines: ParseExcerptLines(ViewModel.OutputExcerptRedacted),
+                    KnownKnowledgeIds: new HashSet<string>(StringComparer.Ordinal),
+                    SharedContextText: ViewModel.CurrentCard?.PlainWhy ?? SolverSetupCopy.RouteLead,
+                    CauseIsUnknown: ViewModel.Screen == SetupScreenKind.FailedUnknown,
+                    FallbackFixedExplanation: ViewModel.CurrentCard?.PlainWhy ?? SolverSetupCopy.RouteLead);
+                var dlg = new Assistant.AssistantConsentPreviewDialog(
+                    assistantHub,
+                    preview.Prepared,
+                    new CfdWorkbench.Core.Assistant.AssistantValidationInput(
+                        CfdWorkbench.Core.Assistant.AssistantArea.SolverSetup,
+                        CfdWorkbench.Core.Assistant.AssistantProposalKind.EnvironmentStep,
+                        SetupContext: ctx))
+                {
+                    RequestedThemeVariant = owner.ActualThemeVariant
+                };
+                await dlg.ShowDialog(owner);
+                if (dlg.ExecutionResult?.Validation is { } v)
+                {
+                    RenderAssistantResult(new AssistantValidationResult(
+                        v.Verdict, v.Reason, v.Message, v.DisplayText, v.SuggestedEnvironmentStepId, v.Citations));
+                }
+                return;
+            }
+        }
+
         // Offline deterministic fallback explanation when no external model transport is wired.
         string explanation = ViewModel.CurrentCard?.PlainWhy ?? SolverSetupCopy.RouteLead;
         RenderAssistantResult(new AssistantValidationResult(

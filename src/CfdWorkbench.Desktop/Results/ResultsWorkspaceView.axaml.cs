@@ -27,6 +27,7 @@ public partial class ResultsWorkspaceView : UserControl
 
     public event Action<StatusReport>? StatusReported;
     public event Action<string>? RetrySampleRequested;
+    public event Action? ConfigureKeyRequested;
 
     /// <summary>Optional injectable ParaView locator/starter seams for deterministic tests.</summary>
     public IParaViewLocator? ParaViewLocatorOverride { get; set; }
@@ -149,7 +150,30 @@ public partial class ResultsWorkspaceView : UserControl
         AcceptAsDraftButton.Click += (_, _) => HandleAcceptCandidateDraft(rebase: false);
         RebaseDraftButton.Click += (_, _) => HandleAcceptCandidateDraft(rebase: true);
         OpenParaViewButton.Click += (_, _) => HandleOpenParaView();
-        AskResultButton.Click += (_, _) => HandleAskAboutResult();
+        AskResultButton.Click += async (_, _) => await HandleAskAboutResultAsync();
+        AskResultConfigureKeyButton.Content = Assistant.AssistantCopy.ConfigureKeyButton;
+        AskResultConfigureKeyButton.Click += (_, _) => ConfigureKeyRequested?.Invoke();
+    }
+
+    public void RefreshAssistantStatus()
+    {
+        bool hasKey = controller?.Assistant.HasApiKey == true;
+        bool ready = controller?.Assistant.IsReadyForProposals == true;
+        AskResultConfigureKeyButton.IsVisible = !hasKey;
+        if (hasKey && !ready)
+        {
+            AskResultStatusText.Text = Assistant.AssistantCopy.UnevaluatedOnThisModel;
+            AskResultStatusText.IsVisible = true;
+        }
+        else if (ready)
+        {
+            AskResultStatusText.Text = $"BYOK ready ({controller!.Assistant.CurrentSettings.ModelId}) · tau_w separation gate active.";
+            AskResultStatusText.IsVisible = true;
+        }
+        else
+        {
+            AskResultStatusText.IsVisible = false;
+        }
     }
 
     public void Bind(WorkbenchController workbenchController)
@@ -225,6 +249,7 @@ public partial class ResultsWorkspaceView : UserControl
 
         RenderSelectedSample();
         RenderCandidateLadder();
+        RefreshAssistantStatus();
     }
 
     public void SelectSample(string sampleId)
@@ -659,11 +684,46 @@ public partial class ResultsWorkspaceView : UserControl
         }
     }
 
-    private void HandleAskAboutResult()
+    private async Task HandleAskAboutResultAsync()
     {
         var sample = SelectedSample();
         if (sample is null) return;
-        var answer = ResultsService.AskAboutResult(sample, AskResultInput.Text ?? "");
+        string question = AskResultInput.Text ?? "";
+
+        if (controller is not null && controller.Assistant.IsReadyForProposals && TopLevel.GetTopLevel(this) is Window owner)
+        {
+            bool sepAvailable = sample.Manifest.ResolveLayer(FieldLayerKind.Separation).Available;
+            var preview = await controller.Assistant.PreparePreviewAsync(
+                new CfdWorkbench.Analysis.Assistant.AssistantPreviewRequest(
+                    CfdWorkbench.Core.Assistant.AssistantArea.Results,
+                    CfdWorkbench.Core.Assistant.AssistantProposalKind.ResultsExplanation,
+                    "Explain the selected CFD result sample using only supported field evidence. Never diagnose separation without wall tau_w.",
+                    question));
+            if (preview.Allowed && preview.Prepared is not null)
+            {
+                var valInput = new CfdWorkbench.Core.Assistant.AssistantValidationInput(
+                    CfdWorkbench.Core.Assistant.AssistantArea.Results,
+                    CfdWorkbench.Core.Assistant.AssistantProposalKind.ResultsExplanation,
+                    UserPrompt: question,
+                    SampleRunId: sample.RunId,
+                    SeparationLayerAvailable: sepAvailable,
+                    AllowedRunIds: new HashSet<string>(StringComparer.Ordinal) { sample.RunId },
+                    SharedContextText: $"{sample.RunId} {sample.Tier} alpha={sample.AlphaDeg} speed={sample.SpeedMs}");
+                var dlg = new Assistant.AssistantConsentPreviewDialog(controller.Assistant, preview.Prepared, valInput)
+                {
+                    RequestedThemeVariant = owner.ActualThemeVariant
+                };
+                await dlg.ShowDialog(owner);
+                if (dlg.ExecutionResult?.Validation is { } val)
+                {
+                    AskResultAnswerText.Text = val.DisplayText;
+                    AskResultAnswerText.IsVisible = true;
+                }
+                return;
+            }
+        }
+
+        var answer = ResultsService.AskAboutResult(sample, question);
         AskResultAnswerText.Text = answer.Answer;
         AskResultAnswerText.IsVisible = true;
     }

@@ -91,7 +91,23 @@ public sealed partial class MainWindow : Window
     /// </summary>
     public MainWindow(PreferenceStore? preferences, bool? macOS = null, WorkbenchController? controller = null)
     {
-        workbench = controller ?? new WorkbenchController();
+        bool liveDesktopApp = Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime;
+        if (controller is not null)
+        {
+            workbench = controller;
+        }
+        else if (liveDesktopApp && preferences is not null)
+        {
+            string assistantRoot = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CFD Workbench");
+            workbench = new WorkbenchController(
+                credentialStore: new CfdWorkbench.Persistence.Assistant.OsCredentialStore(),
+                assistantSettingsStore: new CfdWorkbench.Persistence.Assistant.AssistantSettingsStore(assistantRoot));
+        }
+        else
+        {
+            workbench = new WorkbenchController();
+        }
         bool mac = macOS ?? OperatingSystem.IsMacOS();
         AvaloniaXamlLoader.Load(this);
         Icon = App.AppIcon;

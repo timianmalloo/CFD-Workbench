@@ -107,6 +107,7 @@ public static class CommandTable
         new("view.run", "Run", "View", null, false, NoOp, Modal: false),
         new("view.results", "Results", "View", null, false, NoOp, Modal: false),
         new("solver.setup", CfdWorkbench.Desktop.SolverSetup.SolverSetupCopy.VerbTitle, "View", null, false, NoOp, Modal: false),
+        new("view.settings", CfdWorkbench.Desktop.Assistant.AssistantCopy.SettingsCommandTitle, "View", null, false, NoOp, Modal: true),
         // A3d Compare (design a3d-compare.md 5.1): the palette reaches both; no keyboard gesture. Enabled in Analysis with a Completed VLM + strip run.
         new("analysis.compare", CfdWorkbench.Analysis.Labels.CompareRunsCommand, "View", null, false, NoOp),
         new("analysis.compare-tiers", CfdWorkbench.Analysis.Labels.CompareTiersCommand, "View", null, false, NoOp),

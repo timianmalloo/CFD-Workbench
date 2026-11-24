@@ -288,6 +288,8 @@
                              FontWeight="SemiBold" TextWrapping="Wrap" Foreground="{DynamicResource InkBrush}" />
                   <TextBlock x:Name="AssistantOfflineNoteText" FontSize="{StaticResource CaptionSize}"
                              TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" />
+                  <Button x:Name="AssistantConfigureKeyButton" Content="Configure key" HorizontalAlignment="Left"
+                          MinHeight="{StaticResource CompactTargetSize}" AutomationProperties.Name="Configure API key" />
                 </StackPanel>
               </Border>
 

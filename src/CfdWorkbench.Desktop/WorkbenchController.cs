@@ -262,6 +262,9 @@ public sealed class WorkbenchController : IDisposable
     private AnalysisService analysisService;
     public Sweeps.SweepController Sweeps { get; }
     public Setup.SetupController Setup { get; }
+    public Assistant.AssistantRuntimeHub Assistant { get; }
+    public CfdWorkbench.Core.Assistant.GeometryEditDraftSpec? LastAssistantGeometryEdit { get; private set; }
+    public IReadOnlyList<string> LastAssistantLockSources { get; private set; } = [];
     private CancellationTokenSource? analysisCancellation;
     private OperatingPoint analysisOp = OperatingPoints.Custom(5.14, 2, null);
     private bool pendingUnreadable;   // a band input is blank, malformed or refused: the pending point cannot match any run
@@ -1418,7 +1421,9 @@ public sealed class WorkbenchController : IDisposable
         SurfaceCompute? surfaceCompute = null, TimeProvider? time = null, Func<long, Task>? sectionAssessmentGate = null,
         Action<long>? sectionStepGate = null, SectionLibrary? sections = null, Action<int>? previewGate = null,
         Action? libraryGate = null, IWingMethod? analysisMethod = null, IEvaluationBarrier? analysisBarrier = null,
-        Func<string, bool>? fileExistsProbe = null)
+        Func<string, bool>? fileExistsProbe = null,
+        CfdWorkbench.Core.Assistant.ICredentialStore? credentialStore = null,
+        CfdWorkbench.Core.Assistant.IAssistantSettingsStore? assistantSettingsStore = null)
     {
         this.storeFactory = storeFactory ?? (active => new ProjectStore(active));
         this.fileExistsProbe = fileExistsProbe;
@@ -1433,11 +1438,99 @@ public sealed class WorkbenchController : IDisposable
         Sweeps.Changed += OnSweepsChanged;
         Setup = new Setup.SetupController(session, OnSetupSeeded);
         Setup.Changed += OnSetupChanged;
+        Assistant = new Assistant.AssistantRuntimeHub(credentialStore, assistantSettingsStore);
+        Assistant.StateChanged += OnAssistantStateChanged;
+        Setup.SetApiKeyAvailable(Assistant.HasApiKey);
         this.sectionAssessmentGate = sectionAssessmentGate;
         this.sectionStepGate = sectionStepGate;
         this.sections = sections ?? App.Sections;
         this.previewGate = previewGate;
         this.libraryGate = libraryGate;
+    }
+
+    private void OnAssistantStateChanged()
+    {
+        if (disposed) return;
+        Setup.SetApiKeyAvailable(Assistant.HasApiKey);
+    }
+
+    /// <summary>
+    /// Applies a deterministically validated <see cref="CfdWorkbench.Core.Assistant.GeometryEditDraftSpec"/> (AI-07)
+    /// as one single undo step after checking that <see cref="Inspection"/> still matches <c>BaseAcceptedId</c>.
+    /// </summary>
+    public async Task<CommitOutcome> ApplyAssistantGeometryEditAsync(CfdWorkbench.Core.Assistant.GeometryEditDraftSpec draftSpec)
+    {
+        ArgumentNullException.ThrowIfNull(draftSpec);
+        if (Inspection is null)
+            return new CommitOutcome.Refused("DOC-EMPTY", "Open a foil before applying an assistant geometry edit.");
+        string? currentAccepted = Inspection.Authored.Binding.AcceptedId;
+        if (draftSpec.BaseDriftDetected || !draftSpec.AcceptAllowed ||
+            !string.Equals(currentAccepted, draftSpec.BaseAcceptedId, StringComparison.Ordinal))
+        {
+            return new CommitOutcome.Refused("AI-BASE-DRIFT", CfdWorkbench.Desktop.Assistant.AssistantCopy.BaseRevisionDriftNotice);
+        }
+
+        var lockSources = new List<string>();
+        foreach (var op in draftSpec.Operations)
+        {
+            if (op.Kind == CfdWorkbench.Core.Assistant.GeometryEditOpKind.LockChange &&
+                !string.IsNullOrWhiteSpace(op.LockSource))
+            {
+                lockSources.Add(op.LockSource);
+            }
+        }
+
+        CommitOutcome outcome = new CommitOutcome.Refused("AI-NO-OP", "No actionable geometry edit operation in proposal.");
+        foreach (var op in draftSpec.Operations)
+        {
+            if (op.Kind == CfdWorkbench.Core.Assistant.GeometryEditOpKind.ChannelDelta &&
+                !string.IsNullOrWhiteSpace(op.Channel) &&
+                op.DeltaValue is { } deltaVal)
+            {
+                string curveName = string.Equals(op.Channel, "elevation", StringComparison.OrdinalIgnoreCase)
+                    ? "dihedral"
+                    : op.Channel.ToLowerInvariant();
+                var curve = CurveFor(curveName);
+                if (curve is null || curve.Points.Count == 0)
+                    return new CommitOutcome.Refused("DSL-TARGET", $"Curve '{curveName}' is unavailable.");
+
+                double targetEta = Math.Clamp(op.Eta ?? 0.5, 0.0, 1.0);
+                var candidates = curve.Points.Where(p => p.Freedom != PointFreedom.Fixed).ToArray();
+                if (candidates.Length == 0) candidates = curve.Points.ToArray();
+                var nearest = candidates.MinBy(p => Math.Abs(p.Eta - targetEta))!;
+
+                double coreDelta = string.Equals(op.Unit, "mm", StringComparison.OrdinalIgnoreCase)
+                    ? deltaVal / 1000.0
+                    : deltaVal;
+
+                outcome = await RunDirectCommandAsync(() =>
+                {
+                    var result = session.ApplyGroupValue(
+                        Guid.NewGuid().ToString("D"),
+                        new GroupValueCommand(curveName, [nearest.Id], GroupValueMode.MoveBy, GroupValueAxis.Value, coreDelta));
+                    return new CommitOutcome.Committed(result.AcceptedId, $"Applied assistant geometry edit ({draftSpec.ProposalId}).");
+                }, preserveStatusAfterCommit: true);
+                break;
+            }
+
+            if (op.Kind == CfdWorkbench.Core.Assistant.GeometryEditOpKind.AddStation && op.Eta is { } addEta)
+            {
+                outcome = await RunDirectCommandAsync(() =>
+                {
+                    var result = session.ApplyPointCommand(Guid.NewGuid().ToString("D"), new PointCommand.AddPoint("trailing", addEta));
+                    return new CommitOutcome.Committed(result.AcceptedId, $"Applied assistant station edit ({draftSpec.ProposalId}).");
+                }, preserveStatusAfterCommit: true);
+                break;
+            }
+        }
+
+        if (outcome is CommitOutcome.Committed)
+        {
+            LastAssistantGeometryEdit = draftSpec;
+            LastAssistantLockSources = lockSources;
+            Notify();
+        }
+        return outcome;
     }
     /// <summary>Document, selection, status, estimate and layout changes; the shell rebuilds its panes on each (≈ 25 ms).</summary>
     public event Action? Changed;
@@ -4665,6 +4758,8 @@ public sealed class WorkbenchController : IDisposable
         disposed = true;
         Sweeps.Changed -= OnSweepsChanged;
         Setup.Changed -= OnSetupChanged;
+        Assistant.StateChanged -= OnAssistantStateChanged;
+        Assistant.Dispose();
         Sweeps.CancelRun();
         sectionBeforeChecking = null;
         Gesture = GestureState.Idle;

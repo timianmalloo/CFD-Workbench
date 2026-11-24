@@ -8,7 +8,10 @@ namespace CfdWorkbench.Desktop.Sweeps;
 public partial class ExperimentSetupView : UserControl
 {
     private SweepController? controller;
+    private Assistant.AssistantRuntimeHub? assistantHub;
     private bool syncing;
+
+    public event Action? ConfigureKeyRequested;
 
     public ExperimentSetupView()
     {
@@ -16,6 +19,14 @@ public partial class ExperimentSetupView : UserControl
         EmptyStateText.Text = Labels.SweepEmpty;
         FooterNoteText.Text = Labels.SweepSetupFooterNote;
         GoalSourceNote.Text = Labels.SweepNoGoalState;
+
+        ExperimentAssistantBar.Configure(
+            Assistant.AssistantCopy.ExperimentEntryTitle,
+            "Draft sweep",
+            "Describe speeds, angles, water, and depth…",
+            "Draft experiment configuration");
+        ExperimentAssistantBar.ConfigureKeyRequested += () => ConfigureKeyRequested?.Invoke();
+        ExperimentAssistantBar.PromptSubmitted += prompt => _ = HandleExperimentAssistantSubmitAsync(prompt);
 
         NewSweepButton.Click += (_, _) => controller?.NewSweep();
         EmptyNewSweepButton.Click += (_, _) => controller?.NewSweep();
@@ -42,6 +53,84 @@ public partial class ExperimentSetupView : UserControl
     {
         controller = sweepController;
         Refresh();
+    }
+
+    public void RefreshAssistantStatus(Assistant.AssistantRuntimeHub? hub)
+    {
+        assistantHub = hub ?? assistantHub;
+        ExperimentAssistantBar.RefreshStatus(assistantHub);
+    }
+
+    /// <summary>
+    /// Populates the Experiment sweep draft from a deterministically checked
+    /// <see cref="CfdWorkbench.Core.Assistant.ExperimentConfigProposal"/> (AI-09). Strictly preview-only:
+    /// never sets Queued or triggers Run (XS-03 / UX-17).
+    /// </summary>
+    public void ApplyExperimentConfigProposal(CfdWorkbench.Core.Assistant.ExperimentConfigProposal proposal)
+    {
+        ArgumentNullException.ThrowIfNull(proposal);
+        if (controller is null) return;
+
+        if (!controller.HasDraft) controller.NewSweep();
+        if (proposal.Speeds is { Count: > 0 })
+            controller.SpeedsText = string.Join(", ", proposal.Speeds.Select(v => v.ToString("0.###", CultureInfo.InvariantCulture)));
+        if (proposal.SpeedUnit is not null)
+            controller.SpeedUnit = string.Equals(proposal.SpeedUnit, "m/s", StringComparison.OrdinalIgnoreCase)
+                ? SweepSpeedUnit.MetersPerSecond
+                : SweepSpeedUnit.Knots;
+        if (proposal.AnglesDeg is { Count: > 0 })
+            controller.AnglesText = string.Join(", ", proposal.AnglesDeg.Select(a => a.ToString("0.###", CultureInfo.InvariantCulture)));
+        if (proposal.WaterTemperatureC is { } temp)
+            controller.WaterTempText = temp.ToString("0.##", CultureInfo.InvariantCulture);
+        if (proposal.IsSaltWater is { } salt)
+            controller.SaltWater = salt;
+        if (proposal.HRefMeters is { } href)
+        {
+            controller.DepthSet = true;
+            controller.DepthText = href.ToString("0.###", CultureInfo.InvariantCulture);
+        }
+        if (string.Equals(proposal.Tier, SweepRecords.TierEstimator, StringComparison.OrdinalIgnoreCase))
+            controller.Tier = SweepRecords.TierEstimator;
+        else if (string.Equals(proposal.Tier, SweepRecords.TierVlmStrip, StringComparison.OrdinalIgnoreCase))
+            controller.Tier = SweepRecords.TierVlmStrip;
+
+        controller.RefreshPreview();
+        Refresh();
+    }
+
+    private async Task HandleExperimentAssistantSubmitAsync(string prompt)
+    {
+        if (assistantHub is null || controller is null) return;
+        var preview = await assistantHub.PreparePreviewAsync(
+            new CfdWorkbench.Analysis.Assistant.AssistantPreviewRequest(
+                CfdWorkbench.Core.Assistant.AssistantArea.Experiment,
+                CfdWorkbench.Core.Assistant.AssistantProposalKind.ExperimentConfig,
+                "Return strict experiment-config JSON (sweep or multipoint optimize). Preview only; never queue or execute.",
+                prompt));
+        if (!preview.Allowed || preview.Prepared is null)
+        {
+            ExperimentAssistantBar.ShowFeedback(preview.Message ?? Assistant.AssistantCopy.NoKeyNotice);
+            return;
+        }
+
+        if (TopLevel.GetTopLevel(this) is Window owner)
+        {
+            var dlg = new Assistant.AssistantConsentPreviewDialog(
+                assistantHub,
+                preview.Prepared,
+                new CfdWorkbench.Core.Assistant.AssistantValidationInput(
+                    CfdWorkbench.Core.Assistant.AssistantArea.Experiment,
+                    CfdWorkbench.Core.Assistant.AssistantProposalKind.ExperimentConfig))
+            {
+                RequestedThemeVariant = owner.ActualThemeVariant
+            };
+            await dlg.ShowDialog(owner);
+            if (dlg.Accepted && dlg.ExecutionResult?.Validation?.ExperimentConfig is { } cfg)
+            {
+                ApplyExperimentConfigProposal(cfg);
+                ExperimentAssistantBar.ShowFeedback("Draft preview updated. Review and Queue when ready.");
+            }
+        }
     }
 
     public void Refresh()

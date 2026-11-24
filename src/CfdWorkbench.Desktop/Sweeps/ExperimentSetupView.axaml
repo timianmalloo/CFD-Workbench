@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:assistant="using:CfdWorkbench.Desktop.Assistant"
              x:Class="CfdWorkbench.Desktop.Sweeps.ExperimentSetupView">
   <!-- XS-03 / UX-17: Experiment setup defines and previews cases only; ZERO Run button exists in this view. -->
   <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="{StaticResource Space3}">
@@ -51,6 +52,8 @@
                   BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space3}"
                   MinWidth="{StaticResource SweepInspectorWidth}" MaxWidth="{StaticResource SweepInspectorWidth}">
             <StackPanel Spacing="{StaticResource StackGap2}">
+              <assistant:AssistantPromptBar x:Name="ExperimentAssistantBar" />
+
               <TextBlock Text="Sweep name" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
               <TextBox x:Name="SweepNameBox" AutomationProperties.Name="Sweep name" />
 

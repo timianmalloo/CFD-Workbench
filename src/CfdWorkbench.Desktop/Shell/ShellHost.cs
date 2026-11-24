@@ -115,6 +115,9 @@ public sealed class ShellHost : Grid
     /// <summary>DLG shows the catalog. Null runs the command as a status count and draws no dialog.</summary>
     public Func<Task>? ShowCatalogDialog { get; set; }
 
+    /// <summary>Wave 11D (C4): test hook for <c>view.settings</c> (<c>Modal: true</c>). Null opens <see cref="Assistant.AssistantSettingsDialog"/>.</summary>
+    public Func<Task>? ShowSettingsDialog { get; set; }
+
     /// <summary>
     /// A check drives the Export dialog's session itself and returns the outcome (null: the dialog was closed). Null shows the real
     /// dialog. <see cref="PickExportFile"/> replaces the native save panel the same way.
@@ -272,8 +275,11 @@ public sealed class ShellHost : Grid
         };
         SolverSetup.CloseRequested += CloseSolverSetup;
         SolverSetup.BackToAnalysisRequested += OpenAnalysisFromSolverSetup;
+        SolverSetup.ConfigureKeyRequested += () => _ = RunCommand("view.settings");
+        SolverSetup.BindAssistant(Controller.Assistant);
         StatusStrip.SolverSetupRequested += OpenSolverSetup;
         AnalysisPanel.SolverSetupRequested += OpenSolverSetup;
+        AnalysisPanel.AskCalculationRequested += () => _ = OpenAnalysisAssistantAsync();
         ActivityRail.AreaSelected += area =>
         {
             if (!ReferenceEquals(LayoutFactory.MainDocumentDock.ActiveDockable, LayoutFactory.ModelDocument))
@@ -282,9 +288,23 @@ public sealed class ShellHost : Grid
         };
         ActivityRail.ExportRequested += () => _ = ExportAsync();
         ActivityRail.SolverSetupRequested += OpenSolverSetup;
+        ActivityRail.SettingsRequested += () => _ = RunCommand("view.settings");
+        ModelView.ConfigureKeyRequested += () => _ = RunCommand("view.settings");
+        ModelView.SetupView.ConfigureKeyRequested += () => _ = RunCommand("view.settings");
+        ModelView.SweepsView.ExperimentSetup.ConfigureKeyRequested += () => _ = RunCommand("view.settings");
         ModelView.RunView.SolverSetupRequested += OpenSolverSetup;
+        ModelView.RunView.ConfigureKeyRequested += () => _ = RunCommand("view.settings");
+        ModelView.RunView.OpenRepairedDraftRequested += () =>
+        {
+            if (!ReferenceEquals(LayoutFactory.MainDocumentDock.ActiveDockable, LayoutFactory.ModelDocument))
+                LayoutFactory.MainDocumentDock.ActiveDockable = LayoutFactory.ModelDocument;
+            Controller.EnterSweeps();
+            Controller.Sweeps.SetSubTab(Sweeps.SweepSubTab.ExperimentSetup);
+        };
         ModelView.RunView.StatusReported += Report;
+        ModelView.ResultsView.ConfigureKeyRequested += () => _ = RunCommand("view.settings");
         ModelView.ResultsView.StatusReported += Report;
+        Controller.Assistant.StateChanged += OnAssistantStateChanged;
         ModelView.ResultsView.RetrySampleRequested += runId =>
         {
             if (!ReferenceEquals(LayoutFactory.MainDocumentDock.ActiveDockable, LayoutFactory.ModelDocument))
@@ -1047,7 +1067,106 @@ public sealed class ShellHost : Grid
                 Run: runBadge,
                 Results: resultsBadge,
                 Export: "STL · 3MF",
-                SolverSetup: solverBadge));
+                SolverSetup: solverBadge,
+                Settings: Controller.Assistant.RailSettingsBadge));
+    }
+
+    private void OnAssistantStateChanged()
+    {
+        void RefreshAssistantSurfaces()
+        {
+            RefreshActivityRail();
+            SolverSetup.SetApiKeyAvailable(Controller.Assistant.HasApiKey);
+            ModelView.RefreshAssistantStatus();
+            ModelView.RunView.RefreshAssistantStatus();
+            ModelView.ResultsView.RefreshAssistantStatus();
+            ModelView.SweepsView.ExperimentSetup.RefreshAssistantStatus(Controller.Assistant);
+        }
+
+        if (Dispatcher.UIThread.CheckAccess()) RefreshAssistantSurfaces();
+        else Dispatcher.UIThread.Post(RefreshAssistantSurfaces, DispatcherPriority.Background);
+    }
+
+    private async Task OpenSettingsDialogAsync()
+    {
+        if (ShowSettingsDialog is not null)
+        {
+            await ShowSettingsDialog();
+            OnAssistantStateChanged();
+            return;
+        }
+        if (TopLevel.GetTopLevel(this) is Window owner)
+        {
+            var dialog = new Assistant.AssistantSettingsDialog(Controller.Assistant)
+            {
+                RequestedThemeVariant = owner.ActualThemeVariant
+            };
+            await dialog.ShowDialog(owner);
+            OnAssistantStateChanged();
+        }
+    }
+
+    private async Task OpenAnalysisAssistantAsync()
+    {
+        if (!Controller.Assistant.HasApiKey || !Controller.Assistant.Eligibility.ProposalsEnabled)
+        {
+            Report(new StatusReport(
+                !Controller.Assistant.HasApiKey
+                    ? Assistant.AssistantCopy.NoKeyNotice
+                    : Assistant.AssistantCopy.UnevaluatedOnThisModel,
+                ReportKind.Info));
+            await OpenSettingsDialogAsync();
+            return;
+        }
+
+        var view = Controller.AnalysisView;
+        string runId = view.RunKey ?? "no-run";
+        string contextText = $"{view.StatusText}. {view.Banner ?? ""}";
+        var req = new CfdWorkbench.Analysis.Assistant.AssistantPreviewRequest(
+            CfdWorkbench.Core.Assistant.AssistantArea.Analysis,
+            CfdWorkbench.Core.Assistant.AssistantProposalKind.AnalysisExplanation,
+            "Explain the selected CFD-Workbench hydrofoil calculation using only values present in context. Return strict JSON.",
+            $"Explain the current calculation ({runId}).");
+        var preview = await Controller.Assistant.PreparePreviewAsync(req);
+        if (!preview.Allowed || preview.Prepared is null)
+        {
+            Report(new StatusReport(preview.Message ?? Assistant.AssistantCopy.NoKeyNotice, ReportKind.Warning));
+            return;
+        }
+
+        if (TopLevel.GetTopLevel(this) is Window owner)
+        {
+            var valInput = new CfdWorkbench.Core.Assistant.AssistantValidationInput(
+                CfdWorkbench.Core.Assistant.AssistantArea.Analysis,
+                CfdWorkbench.Core.Assistant.AssistantProposalKind.AnalysisExplanation,
+                AllowedRunIds: new HashSet<string>(StringComparer.Ordinal) { runId },
+                SharedContextText: contextText);
+            var dlg = new Assistant.AssistantConsentPreviewDialog(
+                Controller.Assistant,
+                preview.Prepared,
+                valInput,
+                onWhatIfRecompute: async offer =>
+                {
+                    var op = CfdWorkbench.Analysis.OperatingPoints.Custom(
+                        offer.SpeedMps ?? Controller.AnalysisOperatingPoint.Speed,
+                        offer.AlphaDeg ?? Controller.AnalysisOperatingPoint.AlphaDeg,
+                        offer.HRefMeters ?? Controller.AnalysisOperatingPoint.HRef);
+                    var water = CfdWorkbench.Analysis.WaterTable.At(
+                        offer.WaterTemperatureC ?? Controller.AnalysisWater.TemperatureC,
+                        (offer.IsSaltWater ?? Controller.AnalysisWater.SalinityGPerKg > 1.0)
+                            ? CfdWorkbench.Analysis.OperatingPoints.SaltSalinityGPerKg
+                            : 0.0);
+                    await Controller.EvaluateAnalysisAsync(op, water);
+                })
+            {
+                RequestedThemeVariant = owner.ActualThemeVariant
+            };
+            await dlg.ShowDialog(owner);
+            if (dlg.Accepted && dlg.ExecutionResult?.Validation is { } val)
+            {
+                Report(new StatusReport(val.DisplayText));
+            }
+        }
     }
 
     /// <summary>Binds a <see cref="SolverSetupService"/> to the shell's Guided Solver Setup tab and StatusStrip item.</summary>
@@ -1598,6 +1717,9 @@ public sealed class ShellHost : Grid
             case "solver.setup":
                 OpenSolverSetup();
                 return;
+            case "view.settings":
+                await OpenSettingsDialogAsync();
+                return;
             case "view.comb-larger" or "view.comb-smaller" or "view.comb-auto" or "view.comb-denser" or "view.comb-sparser":
                 RunCombVerb(id);
                 return;
@@ -1756,7 +1878,7 @@ public sealed class ShellHost : Grid
         id.StartsWith("station.", StringComparison.Ordinal) ||
         id.StartsWith("view.text-", StringComparison.Ordinal) ||
         id.StartsWith("view.comb", StringComparison.Ordinal) ||
-        id is "analysis.compare" or "analysis.compare-tiers" or "view.sweeps" or "view.setup" or "view.run" or "view.results" or "solver.setup" ||
+        id is "analysis.compare" or "analysis.compare-tiers" or "view.sweeps" or "view.setup" or "view.run" or "view.results" or "solver.setup" or "view.settings" ||
         CommandTable.UnitsOf(id) is not null ||
         ViewCommands.Handles(id) ||
         IsShellCommand(id);
