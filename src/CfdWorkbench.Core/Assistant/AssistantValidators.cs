@@ -256,7 +256,7 @@ public static class AssistantValidators
     private static readonly Regex LinesRangeCitation = new(@"^lines:(\d+)-(\d+)$", RegexOptions.CultureInvariant);
 
     private static readonly Regex NumeralTokenRegex = new(
-        @"(?<![A-Za-z0-9_.-])\d+(?:\.\d+)?(?!(?:\.\d|[A-Za-z0-9_-]))",
+        @"(?<![A-Za-z0-9_.-])-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?(?!(?:\.\d|[A-Za-z0-9_-]))",
         RegexOptions.CultureInvariant);
 
     private static readonly Regex SeparationMentionRegex = new(
@@ -442,29 +442,45 @@ public static class AssistantValidators
         var resolution = DisciplinePresets.ResolvePurpose(proposal.Purpose);
         var preset = resolution.Preset;
 
-        string provenanceTag = proposal.Provenance.Count > 0 ? proposal.Provenance[0].Tag.ToString() : "Inferred";
-        const string source = "Assistant setup-seed proposal";
+        string presetDefaultSource = $"{preset.Name} preset ({preset.Version})";
 
         SoftTargetSet? softTargets = null;
         var st = proposal.SoftTargets;
         if (st is not null || proposal.Taper is not null)
         {
+            (string spanProv, string spanSrc) = ResolveFieldProvenance(proposal.Provenance, "maxSpanMeters", st?.MaxSpanMeters is not null, presetDefaultSource);
+            (string chordProv, string chordSrc) = ResolveFieldProvenance(proposal.Provenance, "maxChordMm", st?.MaxChordMm is not null, presetDefaultSource);
+            (string areaProv, string areaSrc) = ResolveFieldProvenance(proposal.Provenance, "targetAreaCm2", st?.TargetAreaCm2 is not null, presetDefaultSource);
+            (string arProv, string arSrc) = ResolveFieldProvenance(proposal.Provenance, "targetAspectRatio", st?.TargetAspectRatio is not null, presetDefaultSource);
+            (string taperProv, string taperSrc) = ResolveFieldProvenance(proposal.Provenance, "taper", proposal.Taper is not null, presetDefaultSource);
+
             double taperVal = proposal.Taper ?? preset.Taper;
             softTargets = new SoftTargetSet(
-                MaxSpanMeters: st?.MaxSpanMeters is { } b ? new SoftTargetScalar(b, st.MaxSpanWeight, provenanceTag, source) : new SoftTargetScalar(preset.MaxSpanMeters, 1.0, "Defaulted", source),
-                MaxChordMeters: st?.MaxChordMm is { } cMm ? new SoftTargetScalar(cMm / 1000.0, st.MaxChordWeight, provenanceTag, source) : new SoftTargetScalar(preset.MaxChordMeters, 1.0, "Defaulted", source),
-                TargetAreaSquareMeters: st?.TargetAreaCm2 is { } aCm2 ? new SoftTargetScalar(aCm2 / 10_000.0, st.TargetAreaWeight, provenanceTag, source) : new SoftTargetScalar(preset.TargetAreaSquareMeters, 1.0, "Defaulted", source),
-                TargetAspectRatio: st?.TargetAspectRatio is { } ar ? new SoftTargetScalar(ar, st.TargetAspectRatioWeight, provenanceTag, source) : new SoftTargetScalar(preset.TargetAspectRatio, 1.0, "Defaulted", source),
-                Taper: new SoftTargetTaper(taperVal, provenanceTag, source),
+                MaxSpanMeters: st?.MaxSpanMeters is { } b
+                    ? new SoftTargetScalar(b, st.MaxSpanWeight, spanProv, spanSrc)
+                    : new SoftTargetScalar(preset.MaxSpanMeters, 1.0, spanProv, spanSrc),
+                MaxChordMeters: st?.MaxChordMm is { } cMm
+                    ? new SoftTargetScalar(cMm / 1000.0, st.MaxChordWeight, chordProv, chordSrc)
+                    : new SoftTargetScalar(preset.MaxChordMeters, 1.0, chordProv, chordSrc),
+                TargetAreaSquareMeters: st?.TargetAreaCm2 is { } aCm2
+                    ? new SoftTargetScalar(aCm2 / 10_000.0, st.TargetAreaWeight, areaProv, areaSrc)
+                    : new SoftTargetScalar(preset.TargetAreaSquareMeters, 1.0, areaProv, areaSrc),
+                TargetAspectRatio: st?.TargetAspectRatio is { } ar
+                    ? new SoftTargetScalar(ar, st.TargetAspectRatioWeight, arProv, arSrc)
+                    : new SoftTargetScalar(preset.TargetAspectRatio, 1.0, arProv, arSrc),
+                Taper: new SoftTargetTaper(taperVal, taperProv, taperSrc),
                 WeightBasis: "equal-default");
         }
 
         WaterRecord? water = null;
+        FieldProvenance? waterProvenance = null;
         if (proposal.IsSaltWater is { } salt)
         {
             water = salt ? DisciplinePresets.DefaultSaltWater15C : DisciplinePresets.DefaultFreshWater15C;
             if (proposal.WaterTemperatureC is { } tC && Math.Abs(tC - 15.0) > 1e-9)
                 water = water with { TemperatureC = tC };
+            (string wProv, string wSrc) = ResolveFieldProvenance(proposal.Provenance, "isSaltWater", true, presetDefaultSource);
+            waterProvenance = new FieldProvenance(wProv, wProv == "Stated" ? "Verified" : "Inferred", wSrc);
         }
 
         return new SetupSeedRequest(
@@ -475,6 +491,7 @@ public static class AssistantValidators
             LanguageMeta: languageMeta,
             RiderMassKg: proposal.RiderMassKg,
             Water: water,
+            WaterProvenance: waterProvenance,
             HRefMeters: proposal.HRefMeters,
             MastLengthCm: proposal.MastLengthCm,
             RootThicknessRatio: proposal.RootThicknessPercent is { } tcPct ? tcPct / 100.0 : null,
@@ -482,6 +499,36 @@ public static class AssistantValidators
             WashoutDeg: proposal.WashoutDeg,
             ProfileId: proposal.ProfileId,
             AcknowledgeAllFlagged: acknowledgeAllFlagged);
+    }
+
+    private static (string Provenance, string Source) ResolveFieldProvenance(
+        IReadOnlyList<AssistantFieldProvenance> provenance,
+        string fieldName,
+        bool hasProposalValue,
+        string presetDefaultSource)
+    {
+        AssistantFieldProvenance? match = null;
+        string dotted = "softTargets." + fieldName;
+        foreach (var entry in provenance)
+        {
+            if (string.Equals(entry.FieldName, fieldName, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(entry.FieldName, dotted, StringComparison.OrdinalIgnoreCase))
+            {
+                match = entry;
+                break;
+            }
+        }
+
+        if (!hasProposalValue)
+        {
+            return match is { Tag: ProvenanceTag.Defaulted }
+                ? ("Defaulted", match.Reason)
+                : ("Defaulted", presetDefaultSource);
+        }
+
+        return match is not null
+            ? (match.Tag.ToString(), match.Reason)
+            : ("Inferred", "Assistant setup-seed proposal");
     }
 
     public static AssistantResponseValidation ValidateGeometryEdit(string rawJson, AssistantValidationInput input)
@@ -1090,14 +1137,15 @@ public static class AssistantValidators
         IReadOnlySet<int>? citedLines = null)
     {
         var allowed = new HashSet<string>(StringComparer.Ordinal);
-        foreach (Match m in NumeralTokenRegex.Matches(sharedContextText ?? ""))
+        string normContext = (sharedContextText ?? "").Replace('\u2212', '-');
+        foreach (Match m in NumeralTokenRegex.Matches(normContext))
             allowed.Add(m.Value);
         if (excerptLines is not null)
         {
             foreach (var kv in excerptLines)
             {
                 allowed.Add(kv.Key.ToString(CultureInfo.InvariantCulture));
-                foreach (Match m in NumeralTokenRegex.Matches(kv.Value ?? ""))
+                foreach (Match m in NumeralTokenRegex.Matches((kv.Value ?? "").Replace('\u2212', '-')))
                     allowed.Add(m.Value);
             }
         }
@@ -1107,7 +1155,8 @@ public static class AssistantValidators
                 allowed.Add(line.ToString(CultureInfo.InvariantCulture));
         }
 
-        foreach (Match m in NumeralTokenRegex.Matches(text ?? ""))
+        string normText = (text ?? "").Replace('\u2212', '-');
+        foreach (Match m in NumeralTokenRegex.Matches(normText))
         {
             if (!allowed.Contains(m.Value))
                 return m.Value;

@@ -96,7 +96,7 @@ public static class PromptRedactor
         RegexOptions.CultureInvariant);
 
     private static readonly Regex DelimiterTagRegex = new(
-        @"<<<END_CFDW_QUOTED_DATA>>>|<<<END_CFDW_QUOTED_DATA|<<<CFDW_QUOTED_DATA|```|<\||\|>",
+        @"(?i)<<<END_CFDW_QUOTED_DATA>>>|<<<END_CFDW_QUOTED_DATA|<<<CFDW_QUOTED_DATA|```|<\||\|>",
         RegexOptions.CultureInvariant);
 
     private static readonly Regex ControlByteRegex = new(
