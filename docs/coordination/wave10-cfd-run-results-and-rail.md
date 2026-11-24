@@ -2,7 +2,7 @@
 id: coordination-wave10-cfd-run-results-and-rail
 title: "Coordination plan - wave 10: Area 5 CFD Run Pipeline, Area 6 Results & Candidate Ladder, and 7-Area Left Activity Rail"
 type: plan
-status: active
+status: complete
 owner: "@timianmalloo"
 tags: [coordination, worktrees, area-5, area-6, cfd-run, results, candidates, activity-rail, agy-swarm, wave10]
 links:
@@ -285,10 +285,38 @@ independent Adversary verification (`Hydrodynamicist` + `Security` + `Data & Per
 |---|---|---|---|
 | Independent Adversary Plan Review | `Wave 10 Adversary Plan Reviewer` (`15951d23`; `Test Architect` hard veto · `Simplifier` soft veto · `Tech Lead` casting vote) | **PASS-WITH-CONDITIONS → CLEARED** | Folded all 5 verified conditions (`C1–C5`) + 2 Simplifier advisories: (C1) added `tools/store_subset.py` to `W10-RUN` to widen `.glob("*.cs")` → `.rglob("*.cs")` skipping `bin/`/`obj/`; (C2) aligned `OpenFoamCaseEmitter` with `cases/tools/foam-dict-lint.py` (`allowSystemOperations 0` stays in `SolverLauncher` HOME `controlDict` M1; case `system/controlDict` emits `runTimeModifiable false;` + `cfdw-manifest.json`; all `type <v>` strictly within 21-entry `TYPES_ALLOWED`); (C3) added `Architecture_AnalysisAssembly_NoEditVerbsNoProfileAt` guard forbidding Core method names `Cancel`/`Undo`/`Redo`/`ProfileAt`/`Begin*`/`Update*`/`Apply*` called from `Analysis`; (C4) specified `ShellHost` `Auto,*` 3-row / `ColumnSpan=2` docking, 4-button synchronized `ModelArea.Navbar`, `Dock`-free `ActivityRail.axaml.cs`, and `Modal: false` `view.run`/`view.results` commands; (C5) clarified `tools/join-ring.sh` `RING-SKIPPED docs-only` behavior and exact `docs/ai-forward-pack/scripts/verify-ruling-citations.py` path; folded Simplifier notes (`W10-RUN` lands complete `cfd` envelope; `StatusStrip` edited only if needed). Tech Lead casting vote: APPROVE 4 serial width-1 `share` tracks. |
 
+## Planned vs actual
+
+Executed 2026-11-23T20:49Z → 2026-11-24T00:53Z (~4 h 04 min total wall time across S0 plan, 4 serial `share` tracks,
+independent Adversary verification on every track, and 4 serial `conductor-join.py --no-push` joins onto `main`).
+
+| track | worker (`share`) | planned cap | actual wall span (UTC) | repair cycles | seams granted | verifier verdict | join SHA (`main`) |
+|---|---|---|---|---|---|---|---|
+| **S0** Plan | Coordinator (`agy-w10-coord`) | 1 commit | `20:36Z` → `20:48Z` (~12 min) | 0 (`C1–C5` folded) | — | Adversary Plan Reviewer (`15951d23`) CLEARED | `ee35bfb3` |
+| **W10-DESIGN** (Wave 10A) | `w10-arch-design` | 1 h · 80 calls | `20:49:50Z` → `21:10:28Z` (~21 min) | 0 | 0 | `w10-verifier` (`#55`) PASS (`CLEARS-THE-VETO: yes`) | `bc9a6c04` (`RING-SKIPPED docs-only`) |
+| **W10-RUN** (Wave 10B) | `w10-cfd-run` | 2 h 30 min · 220 calls | `21:16:11Z` → `22:28:21Z` (~72 min) | 1 (`#67` → `#69` `c5e8ef77`: `Commit` `Cfd` preflight + fail-closed null `MeshMetrics`) | 1 (`#63`: `SolverSetupViewTests.cs` after Ruling 275) | `w10-verifier` (`#70`) PASS (`CLEARS-THE-VETO: yes`) | `4cce3ded` (`TESTS-GREEN 416 s`) |
+| **W10-RESULTS** (Wave 10C) | `w10-results-core` | 2 h 15 min · 200 calls | `22:45:56Z` → `23:39:54Z` (~54 min) | 1 (`#78` → `#80` `834721bc`: M5 `TryReadSurfaceRaw` path-traversal & symlink hardening) | 0 | `w10-verifier` (`#81`) PASS (`CLEARS-THE-VETO: yes`) | `0171c8c4` (`TESTS-GREEN 418 s`) |
+| **W10-RAIL-UI** (Wave 10D) | `w10-rail-ui` | 2 h 30 min · 220 calls | `23:53:04Z` → `00:40:47Z` (~48 min) | 0 | 1 (`#86` → `#87`: +84 DIP rail width in `ElevationTests.cs` & `PlanCanvasTests.cs`) | `w10-verifier` (`#90`) PASS (`CLEARS-THE-VETO: yes`) | `ac4e6790` (`TESTS-GREEN 419 s`) |
+
+**Final verification on `main` (`ac4e6790`):**
+- **`tools/run-tests.sh` (`TESTS-GREEN 419 s`):** `CfdWorkbench.Core.Tests` **1011 passed, 7 skipped, 0 failed**; `CfdWorkbench.Analysis.Tests` **350 passed, 1 skipped, 0 failed**; `CfdWorkbench.Desktop.Tests` **977 passed, 1 skipped, 0 failed** (real display, including `--wave10-ui`); `CfdWorkbench.Cli.Tests` **43 passed, 1 skipped, 0 failed**; Python unittest **10 ran, 0 failed** (**2,391 passed, 10 skipped, 0 failed** total).
+- **Static, token, & architecture gates:** recursive `tools/store_subset.py` ok, `xaml-token-lint.py` clean, `tools/check-event-subscribers.py` 48 events / 4 allowed / 0 findings, `TokenDisciplineTests` (`UI-CS-TOKEN`) 0 findings, `Architecture_AnalysisAssembly_NoEditVerbsNoProfileAt` & `Architecture_DockConfinedToShell` green, `design-lint.py DESIGN.md --strict` 0 warnings (`COPY-806..865` — 60 new proposed rows; zero approved rows mutated), `tools/check-proof-pii.py` 0 hits, `tools/check-docs.py` exit 0, and `run-verify-gates.py` **10/10 PASS**.
+- **Worktree & swarm hygiene:** All 6 Wave 10 workers retired cleanly; `git worktree list` reports only the primary checkout on `main`; `git branch --list` reports only `* main`.
+- **Two Adversary HARD VETO catches prevented real defects before merge:**
+  1. `W10-RUN` (`#67`): `AuthoringSession.Commit` omitted `HasCfd`/`Cfd` in size preflight, and `CfdCasePipelineService` skipped `MeshGate` when `ObservedMeshMetrics` was null — both fixed (`c5e8ef77`) with regression tests.
+  2. `W10-RESULTS` (`#78`): `ResultsService.TryReadSurfaceRaw` accepted rooted or `..`-traversing `FieldEvidenceRecord.RelativePath` without reparse-point validation — hardened (`834721bc`) against rooted paths, `..`, unsafe `runKey`, and junctions/symlinks via `SolverLauncher.IsReparseOrLink`, with regression test.
+- **Honest remaining / deferred items (unchanged from Struck tracks):**
+  - `COPY-806..865` (60 new Wave 10 UI copy rows in `DESIGN.md`) await operator approval before a later polish/ruling commit.
+  - Live WSL `openfoam2512` solver execution (`A5-RESUME`) remains externally blocked on this host by Cisco Umbrella TLS inspection (`net.proxy-tls` on `sourceforge.net`).
+  - Live ParaView 5.12+ launch remains externally absent on this host (`PARAVIEW_FOUND=False`); process-only handoff + honest absence UX verified.
+  - Cross-area live BYOK LLM assistants remain scoped to **Wave 11** (Wave 10 provides deterministic offline key-free `AI-01`/`AI-11` slots).
+  - Screen-reader / accessibility tracks (NVDA / VoiceOver / Narrator) remain excluded per operator directive of 2026-11-23.
+  - New Wave 10 commits on `main` are **not pushed** to `origin` pending operator confirmation.
+
 ## Status
 
 | | |
 |---|---|
-| **Completed** | Pushed Wave 8 (`254b0d51`), recorded Operator Ruling 275 (`687ca479`, 0 unapproved `COPY-*` rows left in `DESIGN.md`), grounded Wave 10 layer state & ParaView host probe (`PARAVIEW_FOUND=False`), and drafted & Adversary-cleared `docs/coordination/wave10-cfd-run-results-and-rail.md` (`C1–C5` folded) |
-| **Remaining** | S0 commit → serial swarm execution (`W10-DESIGN` → `W10-RUN` → `W10-RESULTS` → `W10-RAIL-UI`) → independent Adversary verification & `conductor-join.py --no-push` merges → Planned vs Actual closeout |
-| **Best next action** | Render `.html`, run docs/PII/ruling/verify gates, commit S0 on `main`, and launch `w10-monitor` + `w10-verifier` + Wave 10A `w10-arch-design` (`W10-DESIGN`) |
+| **Completed** | All four Wave 10 tracks (`W10-DESIGN` `bc9a6c04` → `W10-RUN` `4cce3ded` → `W10-RESULTS` `0171c8c4` → `W10-RAIL-UI` `ac4e6790`) cleared independent Adversary verification and merged serially onto `main` via `conductor-join.py --no-push` (`TESTS-GREEN 419 s`, 2,391 passed / 0 failed, 10/10 verify gates PASS); swarm retired and Planned vs Actual recorded |
+| **Remaining** | Operator review of 60 proposed Wave 10 copy rows (`COPY-806..865` in `DESIGN.md`), push confirmation for `main` commits ahead of `origin/main`, and future Wave 11 (BYOK LLM assistants) / external host prerequisites (`openfoam2512` TLS unblocking, ParaView 5.12+ install) |
+| **Best next action** | Review Wave 10 results, confirm whether to push `main` to `origin` and approve `COPY-806..865`, or start Wave 11 |

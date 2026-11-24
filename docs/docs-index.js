@@ -12637,7 +12637,7 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/wave10-cfd-run-results-and-rail.md",
       "title": "Coordination plan - wave 10: Area 5 CFD Run Pipeline, Area 6 Results & Candidate Ladder, and 7-Area Left Activity Rail",
       "type": "plan",
-      "status": "active",
+      "status": "complete",
       "owner": "@timianmalloo",
       "phase": "",
       "reviewBy": "2027-02-23",
@@ -12702,7 +12702,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0ae07cc1c64cb8defb2faf287db987e621f341567f85a44694cd1385bbea2dae"
+      "sourceSha256": "3e54b6b97ae3f14a53bc811fcf88aab2b867606809a277fbe7b12664ddc783b8"
     },
     {
       "id": "coordination-wave3-next-steps",
@@ -26102,5 +26102,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d9b107d3c8938eeec82a80693e7e355d4c03a70de8fd1f28e5e746d22de184fb"
+  "graphSha256": "a912ec5087e80c537362a18cbb4f0e3ce2552e3654164709b2eca5d7d2db2644"
 };

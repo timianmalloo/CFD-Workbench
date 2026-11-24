@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-24T00:52:51Z",
+  "generated": "2026-11-24T00:54:21Z",
   "audit": [
     {
       "actor": null,
@@ -45318,6 +45318,39 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-24T00:44:45Z",
       "duration_seconds": 486.0
+    },
+    {
+      "id": "al-01M85GQV7J6HM6J4RN9N3WTN71",
+      "shortname": "close-wave10",
+      "datetime": "2026-11-24T00:54:20Z",
+      "session": "agy-w10-coord",
+      "prompt": "Execute Wave 10 coordination plan (Area 5 CFD Run Pipeline, Area 6 Results & Candidate Ladder, 7-Area Left Activity Rail)",
+      "summary": "Completed Wave 10 via AGY swarm (4 serial share tracks, independent Adversary verification on every track, 4 serial conductor-join.py --no-push merges onto main): W10-DESIGN (bc9a6c04), W10-RUN (4cce3ded), W10-RESULTS (0171c8c4), W10-RAIL-UI (ac4e6790). Final TESTS-GREEN 419 s (Core 1011/7/0, Analysis 350/1/0, Desktop 977/1/0, Cli 43/1/0, Python 10/0; 2,391 passed, 0 failed), xaml-token-lint clean, check-event-subscribers 0 findings, design-lint --strict 0 warnings, recursive store_subset ok, 10/10 verify gates PASS. Retired all swarm workers and recorded Planned vs Actual.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/wave10-cfd-run-results-and-rail.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Complete Wave 10 Area 5 CFD Run Pipeline, Area 6 Results & Candidate Ladder, and 7-Area Left Activity Rail on main",
+      "done_when": "All 4 tracks verified and merged via conductor-join.py --no-push with TESTS-GREEN, 10/10 verify gates PASS, swarm retired, and Planned vs Actual committed",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "duration_source": "session-start-hook",
+      "started_at": "2026-11-24T00:53:21Z",
+      "duration_seconds": 59.0,
+      "parallelism": {
+        "unparseable_runs": 6
+      }
     }
   ],
   "changes": [
