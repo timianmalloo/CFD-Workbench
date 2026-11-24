@@ -12776,7 +12776,7 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/wave11-byok-assistants-and-prior-carryforwards.md",
       "title": "Coordination plan - wave 11: Cross-Area Live BYOK LLM Assistants and Prior-Wave Non-Accessibility Carry-Forwards",
       "type": "plan",
-      "status": "active",
+      "status": "complete",
       "owner": "@timianmalloo",
       "phase": "",
       "reviewBy": "2027-02-24",
@@ -12828,7 +12828,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "54983c1982b42be722796fa756a73b8defca6adb85b9c729c48ace8a7f9a2412"
+      "sourceSha256": "441046b1a02c4c52c4efd5bb85086be795bdfadd6798c7511d40c3d84ccaab5c"
     },
     {
       "id": "coordination-wave3-next-steps",
@@ -26244,5 +26244,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "23ef6b830668a96fea15a063f3c6d15b71f2396ab34a87cb1d1c65f2009581e2"
+  "graphSha256": "03d7b03cca549985fa18e7bdd67a25fce83154697117844c68fd89b74274bdc7"
 };

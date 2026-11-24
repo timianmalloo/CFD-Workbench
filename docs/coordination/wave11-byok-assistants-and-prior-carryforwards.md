@@ -2,7 +2,7 @@
 id: coordination-wave11-byok-assistants-and-prior-carryforwards
 title: "Coordination plan - wave 11: Cross-Area Live BYOK LLM Assistants and Prior-Wave Non-Accessibility Carry-Forwards"
 type: plan
-status: active
+status: complete
 owner: "@timianmalloo"
 tags: [coordination, worktrees, ai, byok, assistant, security, evals, agy-swarm, wave11]
 links:
@@ -327,10 +327,38 @@ audit before join.
 |---|---|---|---|
 | Independent Adversary Plan Review | `Wave 11 Adversary Plan Reviewer` (`0a930c37`; `Test Architect` hard veto · `Security & Identity` hard veto · `Simplifier` soft veto · `Tech Lead` casting vote) | **PASS-WITH-CONDITIONS → CLEARED** | Folded all 7 verified conditions (`C1–C7`): (C1) macOS Keychain via `/usr/bin/security -i` stdin (never secret on `argv`) or `Security.framework`, Windows `advapi32.dll` `System32` search path / `CRED_PERSIST_LOCAL_MACHINE` / `<= 2560` B / `CredFree` + `ZeroMemory` in `finally`, zero env-var key reads; (C2) `ByokLlmTransport` `AllowAutoRedirect = false`, default TLS, strict loopback-only HTTP host validation (rejecting `userinfo@`, `0.0.0.0`, `localhost.evil.com`), `<= 1 MiB` response bound, error key scrubbing, and loopback 302/401 negative tests; (C3) `PromptRedactor` pure `RedactionContext` + UTF-8 byte-exact rune-safe 4,096 B / 32,768 B caps + delimiter neutralization, preview-to-wire `payloadSha256` binding, private DACL/`0700` + symlink-refusal + UTC daily cap accounting on `AssistantSettingsStore`, and `AI-06` trigger on model/provider/threshold change; (C4) added `ControllerSectionTests.cs` & `SetupController.cs` to `W11-DESKTOP-AI`, wired `ShellHost.ShowSettingsDialog` into both `ControllerSectionTests` loops and `"view.settings"` into `ShellModelTests.cs:414`; (C5) forewarned all live Desktop `x:Name`, 5-tab/82 px `AnalysisPanel`, `ModelArea` Tab-order/pixel, `UI_DEAD_CONTROL`, `SweepViewTests` zero-Run, `ActivityRail` 84 DIP width, `ExportDialog`/`DialogChrome` 200% `MaxHeight <= 700`, and default no-key test isolation invariants; (C6) `CF-W8-1` adds both `math.isfinite` and `json.loads(..., parse_constant=...)`; (C7) dropped unnecessary `CfdWorkbench.Core.csproj` edit (`CatalogData\**\*` already embedded), kept existing `x:Name` trees in place, fixed script path. Tech Lead casting vote: APPROVE 4 serial width-1 `share` tracks. |
 
+## Planned vs actual
+
+Executed 2026-11-24T19:03Z → 2026-11-24T22:41Z (~3 h 38 min total wall time across S0 plan, 4 serial `share` tracks,
+independent Adversary verification on every track, and 4 serial `conductor-join.py --no-push` joins onto `main`).
+
+| track | worker (`share`) | planned cap | actual wall span (UTC) | repair cycles | seams granted | verifier verdict | join SHA (`main`) |
+|---|---|---|---|---|---|---|---|
+| **S0** Plan | Coordinator (`agy-w11-coord`) | 1 commit | `18:42Z` → `19:02Z` (~20 min) | 0 (`C1–C7` folded) | — | Adversary Plan Reviewer (`0a930c37`) CLEARED | `055f9a47` |
+| **W11-DESIGN** (Wave 11A) | `w11-arch-design` | 1 h · 70 calls | `19:03:39Z` → `19:15:22Z` (~12 min) | 0 | 0 | `w11-verifier` (`#97`) PASS (`CLEARS-THE-VETO: yes`) | `3af8fd74` (`TESTS-GREEN 416 s`) |
+| **W11-CORE-AI** (Wave 11B) | `w11-core-ai` | 2 h · 200 calls | `19:30:01Z` → `20:14:04Z` (~44 min) | 1 (`#105` → `#106` `258748f5`: `AI-03` negative/scientific numerals, `SET-02` per-field provenance, `(?i)` delimiters) | 0 | `w11-verifier` (`#107`) PASS (`CLEARS-THE-VETO: yes`) | `0e864589` (`TESTS-GREEN 420 s`) |
+| **W11-RUNTIME-AI** (Wave 11C) | `w11-runtime-ai` | 2 h 15 min · 200 calls | `20:31:30Z` → `21:18:58Z` (~47 min) | 1 (`#115` → `#116` `2647ec50`: `SelfLaunchTests` `TestLinks.TryDirectoryLink` helper) | 0 | `w11-verifier` (`#117`) PASS (`CLEARS-THE-VETO: yes`) | `31c6bb31` (`TESTS-GREEN 421 s`) |
+| **W11-DESKTOP-AI** (Wave 11D) | `w11-desktop-ai` | 2 h 30 min · 220 calls | `21:31:04Z` → `22:16:53Z` (~46 min) | 0 (1 transient Desktop display focus flake retried cleanly via `--continue`) | 0 | `w11-verifier` (`#121`) PASS (`CLEARS-THE-VETO: yes`) | `0472e931` (`TESTS-GREEN 406 s`) |
+
+**Final verification on `main` (`0472e931`):**
+- **`tools/run-tests.sh` (`TESTS-GREEN 406 s`):** `CfdWorkbench.Core.Tests` **1018 passed, 7 skipped, 0 failed**; `CfdWorkbench.Analysis.Tests` **352 passed, 1 skipped, 0 failed**; `CfdWorkbench.Desktop.Tests` **981 passed, 1 skipped, 0 failed** (real display, including `--wave11-ai`, `CF-W7-1`, `UI-CS-TOKEN`, `SelfLaunchTests`); `CfdWorkbench.Cli.Tests` **46 passed, 1 skipped, 0 failed** (including real Windows Credential Manager DPAPI round-trip); Python unittest **11 ran, 0 failed** (including `CF-W8-1` `tests/test_cad_export_measure.py`) (**2,408 passed, 10 skipped, 0 failed** total).
+- **Static, token, & security gates:** recursive `tools/store_subset.py` ok (116 partitioned), `xaml-token-lint.py` clean, `tools/check-event-subscribers.py` 55 events / 4 allowed / 0 findings, `TokenDisciplineTests` (`UI-CS-TOKEN`) 0 findings, `Architecture_AnalysisAssembly_NoEditVerbsNoProfileAt` & `Architecture_DockConfinedToShell` green, `Styles.axaml` closed 30-brush `ThemeDictionaries` untouched, `design-lint.py DESIGN.md --strict` 0 warnings (`COPY-866..915` — 50 new proposed rows; `COPY-001..865` untouched), `tools/check-proof-pii.py` 0 hits, `tools/check-docs.py` exit 0, and `run-verify-gates.py` **10/10 PASS**.
+- **Worktree & swarm hygiene:** All 6 Wave 11 workers retired cleanly; `git worktree list` reports only the primary checkout on `main`; `git branch --list` reports only `* main`.
+- **Two Adversary / Join catches prevented real defects before merge:**
+  1. `W11-CORE-AI` (`#105` → `258748f5`): Caught `AI-03` negative/scientific numeral bypass (`Cp_min = -4.25`, `1.5e7`), `SET-02` per-field provenance flattening in `BuildSetupSeedRequest`, and case-sensitive delimiter breakout tags — all fixed with red-first tests before merge.
+  2. `W11-RUNTIME-AI` (`#115` → `2647ec50`): Join-ring `SelfLaunchTests` caught direct `Directory.CreateSymbolicLink` in `AssistantPersistenceAndCliTests.cs`; replaced cleanly with `TestLinks.TryDirectoryLink`.
+- **Honest remaining / externally blocked items (unchanged from Struck tracks):**
+  - `COPY-866..915` (50 new Wave 11 UI copy rows in `DESIGN.md`) await operator approval.
+  - Live third-party cloud LLM calls require an operator-supplied API key in Windows Credential Manager / macOS Keychain (every HTTP/header/redaction/302/401/429/timeout/consent path verified via real local loopback `HttpListener`).
+  - `A5-RESUME` (live WSL `openfoam2512` download & `petsc4Foam`) remains externally blocked by Cisco Umbrella TLS inspection (`net.proxy-tls` on `sourceforge.net`).
+  - `SPIKE-CAD-02` commercial/maker CAD open-and-measure receipts (`Fusion`, `FreeCAD CAM`, `Vectric VCarve/Aspire`, `Rhino 8`) to populate `docs/proof/cad-export-measure/cad-open-measure.json`, lift `COPY-481`, and accept `ADR-0013` remain external interactive CAD runs (`CF-W8-1` receipt validator hardened in this wave).
+  - Live ParaView 5.12+ binary launch (`PARAVIEW_FOUND=False`), Authenticode/macOS codesigning, and operator-excluded accessibility/screen-reader tracks remain out of scope.
+  - New Wave 11 commits on `main` are **not pushed** to `origin` pending operator confirmation.
+
 ## Status
 
 | | |
 |---|---|
-| **Completed** | Pushed Wave 10 (`d89d727f`) to `origin/main`, recorded Operator Ruling 276 (`8f147c46`, 0 unapproved `COPY-*` rows left in `DESIGN.md`), grounded Wave 11 layer state & project dependency DAG, and drafted & Adversary-cleared `docs/coordination/wave11-byok-assistants-and-prior-carryforwards.md` (`C1–C7` folded) |
-| **Remaining** | S0 commit → serial swarm execution (`W11-DESIGN` → `W11-CORE-AI` → `W11-RUNTIME-AI` → `W11-DESKTOP-AI`) → independent Adversary verification & `conductor-join.py --no-push` merges → Planned vs Actual closeout |
-| **Best next action** | Render `.html`, run docs/PII/ruling/verify gates, commit S0 on `main`, and launch `w11-monitor` + `w11-verifier` + Wave 11A `w11-arch-design` (`W11-DESIGN`) |
+| **Completed** | Pushed Wave 10 (`d89d727f`), recorded Ruling 276 (`8f147c46`), and landed all four Wave 11 tracks (`W11-DESIGN` `3af8fd74` → `W11-CORE-AI` `0e864589` → `W11-RUNTIME-AI` `31c6bb31` → `W11-DESKTOP-AI` `0472e931`) plus `CF-W8-1` and `CF-W7-1` on `main` (`TESTS-GREEN 406 s`, 2,408 passed / 0 failed, 10/10 verify gates PASS); swarm retired and Planned vs Actual recorded |
+| **Remaining** | Deferred `/also` addendum: full `/ui-design` review over the as-built Wave 11 workbench producing the next ranked round of fixes/improvements; plus operator confirmation to push `main` and approve `COPY-866..915` |
+| **Best next action** | Commit Wave 11 closeout on `main`, then execute the deferred `/also` full `/ui-design` review |

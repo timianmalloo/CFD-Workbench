@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-24T22:40:57Z",
+  "generated": "2026-11-24T22:42:54Z",
   "audit": [
     {
       "actor": null,
@@ -45511,6 +45511,80 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-24T22:33:02Z",
       "duration_seconds": 475.0
+    },
+    {
+      "id": "al-01M87VKX1DWJAHMA3W6E4CHFHY",
+      "shortname": "close-wave11",
+      "datetime": "2026-11-24T22:42:54Z",
+      "session": "agy-w11-coord",
+      "prompt": "Execute Wave 11 coordination plan (Cross-Area Live BYOK LLM Assistants + prior-wave non-accessibility carry-forwards)",
+      "summary": "Completed Wave 11 via AGY swarm (4 serial share tracks, independent Adversary verification on every track, 4 serial conductor-join.py --no-push merges onto main): W11-DESIGN (3af8fd74), W11-CORE-AI + CF-W8-1 (0e864589), W11-RUNTIME-AI (31c6bb31), W11-DESKTOP-AI + CF-W7-1 (0472e931). Final TESTS-GREEN 406 s (Core 1018/7/0, Analysis 352/1/0, Desktop 981/1/0, Cli 46/1/0, Python 11/0; 2,408 passed, 0 failed), xaml-token-lint clean, check-event-subscribers 55/4/0, design-lint --strict 0 warnings, recursive store_subset ok, 10/10 verify gates PASS. Retired all swarm workers and recorded Planned vs Actual.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/wave11-byok-assistants-and-prior-carryforwards.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Complete Wave 11 Cross-Area BYOK LLM Assistants and prior non-accessibility carry-forwards on main",
+      "done_when": "All 4 tracks verified and merged via conductor-join.py --no-push with TESTS-GREEN, 10/10 verify gates PASS, swarm retired, and Planned vs Actual committed",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "duration_source": "session-start-hook",
+      "started_at": "2026-11-24T22:41:30Z",
+      "duration_seconds": 84.0,
+      "agent_runs": [
+        {
+          "agent": "w11-arch-design",
+          "started_at": "2026-11-24T19:03:39Z",
+          "ended_at": "2026-11-24T19:15:22Z",
+          "duration_seconds": 703.0
+        },
+        {
+          "agent": "w11-core-ai",
+          "started_at": "2026-11-24T19:30:01Z",
+          "ended_at": "2026-11-24T20:14:04Z",
+          "duration_seconds": 2643.0
+        },
+        {
+          "agent": "w11-runtime-ai",
+          "started_at": "2026-11-24T20:31:30Z",
+          "ended_at": "2026-11-24T21:18:58Z",
+          "duration_seconds": 2848.0
+        },
+        {
+          "agent": "w11-desktop-ai",
+          "started_at": "2026-11-24T21:31:04Z",
+          "ended_at": "2026-11-24T22:16:53Z",
+          "duration_seconds": 2749.0
+        },
+        {
+          "agent": "w11-verifier",
+          "started_at": "2026-11-24T19:03:34Z",
+          "ended_at": "2026-11-24T22:21:38Z",
+          "duration_seconds": 11884.0
+        },
+        {
+          "agent": "w11-monitor",
+          "started_at": "2026-11-24T19:03:32Z",
+          "ended_at": "2026-11-24T22:41:27Z",
+          "duration_seconds": 13075.0
+        }
+      ],
+      "parallelism": {
+        "agent_seconds": 33902.0,
+        "span_seconds": 13075.0,
+        "speedup": 2.59,
+        "peak_concurrency": 3
+      }
     }
   ],
   "changes": [
