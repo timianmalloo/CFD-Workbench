@@ -3013,6 +3013,73 @@ window.DOCS_INDEX = {
       "sourceSha256": "e8a4436a4e96122828f90787c0e14342ea630f7085d06136b47b364441896bca"
     },
     {
+      "id": "design-byok-assistants",
+      "path": "docs/design/byok-assistants.md",
+      "title": "Design: Cross-Area Live BYOK LLM Assistants and Prior-Wave Non-Accessibility Carry-Forwards",
+      "type": "design",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "design — Wave 11A (W11-DESIGN; build basis for W11-CORE-AI, W11-RUNTIME-AI, and W11-DESKTOP-AI)",
+      "reviewBy": "2027-02-24",
+      "reviewSuggested": [],
+      "summary": "Build-ready /design-slice for Wave 11 Cross-Area Live BYOK LLM Assistants (spec A5.12, AI-01..AI-11, SET-02/03, LAB-01, A8.1, A8.5, A8.6, B6..B6c) plus verified non-accessibility carry-forwards CF-W8-1 and CF-W7-1. Freezes the E7 surface list respecting the verified project reference DAG (pure STORE-SUBSET Core/Assistant -> Persistence/Assistant OS credential store & closed-DTO settings/audit -> zero-new-NuGet BCL HttpClient Analysis/Assistant transport & orchestrator -> Cli -> Desktop), exact C# contracts, PromptRedactor UTF-8 byte-exact rune-safe 4 kB / 32 kB caps & delimiter neutralization, deterministic T0 validators across all 6 active areas composing with SetupAssistantValidator, hashed embedded BM25 KnowledgeCorpus.json fail-closed retrieval, 9-item A8.6 eval suite with versioned thresholds 1.0 and AI-06 lockout, C1-C5 security and Desktop test-invariant rules, COPY-866..915 inventory, and the red-first test and live-mutant matrix for Waves 11B, 11C, and 11D.",
+      "tags": [
+        "ai",
+        "byok",
+        "assistant",
+        "security",
+        "credentials",
+        "redaction",
+        "evals",
+        "bm25",
+        "settings",
+        "desktop",
+        "wave11"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "kb-hw-integration-and-ai-workflows",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-guided-solver-setup",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-cfd-run-pipeline",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-results-and-candidates",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-wave11-byok-assistants-and-prior-carryforwards",
+          "rel": "implements"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "1.1 E7 Surface List & Project Reference DAG",
+          "mermaid": "flowchart TD\n    subgraph Persist[\"CfdWorkbench.Persistence (refs Core · AllowUnsafeBlocks=true)\"]\n        Cred[\"OsCredentialStore (ICredentialStore)<br/>Win32 advapi32 DPAPI / macOS security -i stdin\"]\n        Store[\"AssistantSettingsStore (IAssistantSettingsStore)<br/>cfdw-assistant v1 JSON + append-only JSONL audit\"]\n    end\n\n    subgraph Core[\"CfdWorkbench.Core/Assistant (0 refs · pure zero-I/O · STORE-SUBSET)\"]\n        Contracts[\"AssistantContracts (ICredentialStore, IAssistantSettingsStore, DTOs)\"]\n        Redactor[\"PromptRedactor (pure RedactionContext · 4096 B / 32768 B UTF-8 · delimiter neutralization)\"]\n        Validators[\"AssistantValidators (6 active areas · composes SetupAssistantValidator + Lab01CopyLint)\"]\n        Knowledge[\"KnowledgeRetriever (hashed embedded CatalogData/KnowledgeCorpus.json · BM25)\"]\n        Evals[\"AssistantEvalSuite (9 active + 1 reserved · EvalThresholdsVersion 1.0 · AI-06 gate)\"]\n    end\n\n    subgraph Analysis[\"CfdWorkbench.Analysis/Assistant (refs Core ONLY · ArchitectureTests safe)\"]\n        Transport[\"ByokLlmTransport (.NET 10 BCL HttpClient · no redirects · 1 MiB cap · loopback/HTTPS)\"]\n        Service[\"AssistantService (key -> AI-06 -> caps -> redact+hash -> consent -> transport -> T0 validate -> audit)\"]\n        Labels[\"Labels.cs (fixed assistant strings)\"]\n    end\n\n    subgraph Cli[\"CfdWorkbench.Cli (refs Core, Persistence, Analysis)\"]\n        CliVerb[\"AssistantVerb.cs + Program.cs<br/>assistant status | eval | preview | audit --json\"]\n    end\n\n    subgraph Desktop[\"CfdWorkbench.Desktop (refs Cli, Analysis · RestorePackagesWithLockFile=true)\"]\n        SettingsDlg[\"AssistantSettingsDialog (DialogChrome · view.settings Modal:true)\"]\n        ConsentDlg[\"AssistantConsentPreviewDialog (DialogChrome · byte-exact payload & diff)\"]\n        PromptBar[\"AssistantPromptBar (reusable for CAD, Analysis, Experiment)\"]\n        Areas[\"7 Areas: Setup · CAD · Analysis · Experiment · Run/SolverSetup · Results · Export (none)\"]\n        Rail[\"ActivityRail (footer Settings button · 84 DIP · 0 Dock.*) + ShellHost\"]\n    end\n\n    Persist --> Core\n    Analysis --> Core\n    Cli --> Core\n    Cli --> Persist\n    Cli --> Analysis\n    Desktop --> Cli\n    Desktop --> Analysis"
+        }
+      ],
+      "sourceSha256": "8fc8d78b9382e371f57ee8bb008510de5ac5df1b50c20ec16d51f0182eb3f4f6"
+    },
+    {
       "id": "design-cfd-run-pipeline",
       "path": "docs/design/cfd-run-pipeline.md",
       "title": "Design: Area 5 — CFD Run Pipeline (TypedCaseModel, OpenFOAM/SU2 Emitters, DR-F3-1 A Mesh Gate, 11-State Machine, Additive cfdw-project-2 cfd Envelope, Fail-Closed Harvester, and Substrate Cancel/Resume)",
@@ -25627,6 +25694,14 @@ window.DOCS_INDEX = {
       "artifactId": "audit-log"
     },
     {
+      "id": "surface-design-byok-assistants",
+      "path": "docs/design/byok-assistants.html",
+      "title": "Byok Assistants",
+      "kind": "design-preview",
+      "description": "Inspect a rendered design or design-language preview.",
+      "artifactId": "design-byok-assistants"
+    },
+    {
       "id": "surface-design-cfd-run-pipeline",
       "path": "docs/design/cfd-run-pipeline.html",
       "title": "Cfd Run Pipeline",
@@ -26169,5 +26244,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "52b233f75970d7046876e174414f2b92ce2cd9c9c166286c9b8c432d40def44c"
+  "graphSha256": "23ef6b830668a96fea15a063f3c6d15b71f2396ab34a87cb1d1c65f2009581e2"
 };
