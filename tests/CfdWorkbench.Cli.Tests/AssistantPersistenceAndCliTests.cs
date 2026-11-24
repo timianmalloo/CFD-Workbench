@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using CfdWorkbench.Cli;
@@ -238,35 +237,21 @@ internal static class AssistantPersistenceAndCliTests
             try
             {
                 string linkPath = Path.Combine(symRoot, "assistant");
-                if (OperatingSystem.IsWindows())
+                if (TestLinks.TryDirectoryLink(linkPath, symTarget))
                 {
-                    using var p = Process.Start(new ProcessStartInfo("cmd.exe", ["/c", "mklink", "/J", linkPath, symTarget])
-                    {
-                        UseShellExecute = false,
-                        CreateNoWindow = true,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true
-                    })!;
-                    p.WaitForExit();
-                    if (p.ExitCode != 0) throw new Exception("mklink /J failed");
+                    var symStore = new AssistantSettingsStore(symRoot);
+                    var symLoad = await symStore.LoadSettingsAsync();
+                    if (symLoad.Outcome != "session-only" || !symLoad.SessionOnly || !symLoad.Codes.Contains("ASSISTANT-SYMLINK-REFUSED"))
+                        throw new Exception($"Symlinked assistant dir not refused on load: {symLoad.Outcome} [{string.Join(",", symLoad.Codes)}]");
+
+                    var symSave = await symStore.SaveSettingsAsync(AssistantSettings.CreateDefault());
+                    if (symSave.Succeeded || symSave.Outcome != "session-only")
+                        throw new Exception($"Symlinked assistant dir not refused on save: {symSave.Outcome}");
+
+                    bool auditOk = await symStore.AppendAuditEntryAsync(MakeAuditEntry(DateTimeOffset.UtcNow, "consented", "shown", null, null));
+                    if (auditOk)
+                        throw new Exception("Symlinked assistant dir allowed audit append!");
                 }
-                else
-                {
-                    Directory.CreateSymbolicLink(linkPath, symTarget);
-                }
-
-                var symStore = new AssistantSettingsStore(symRoot);
-                var symLoad = await symStore.LoadSettingsAsync();
-                if (symLoad.Outcome != "session-only" || !symLoad.SessionOnly || !symLoad.Codes.Contains("ASSISTANT-SYMLINK-REFUSED"))
-                    throw new Exception($"Symlinked assistant dir not refused on load: {symLoad.Outcome} [{string.Join(",", symLoad.Codes)}]");
-
-                var symSave = await symStore.SaveSettingsAsync(AssistantSettings.CreateDefault());
-                if (symSave.Succeeded || symSave.Outcome != "session-only")
-                    throw new Exception($"Symlinked assistant dir not refused on save: {symSave.Outcome}");
-
-                bool auditOk = await symStore.AppendAuditEntryAsync(MakeAuditEntry(DateTimeOffset.UtcNow, "consented", "shown", null, null));
-                if (auditOk)
-                    throw new Exception("Symlinked assistant dir allowed audit append!");
             }
             finally
             {
