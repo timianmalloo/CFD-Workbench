@@ -2049,3 +2049,9 @@ Ruled interactively by the operator on 2026-11-23 after Wave 7 push (c5b40631). 
 Ruled interactively by the operator on 2026-11-23 after Wave 8 push (254b0d51). All 48 Wave 8 proposed copy rows in DESIGN.md — Area 7 Export Slice B COPY-750..757 (8 rows) and Area 5 Guided Solver Setup UI COPY-766..805 (40 rows, SETUP-04 no-command lint clean) — are approved byte for byte as written and promoted from proposed to approved in DESIGN.md citing this ruling; no text and no code constant changes. Zero unapproved COPY-* rows remain in DESIGN.md.
 
 - request: req-01M851VXJCNQJ2FHTG3ATRMDMZ · ruled by: operator · at: 2026-11-23T20:34:25Z
+
+### Ruling 276 — Operator Wave 10 copy confirmation: COPY-806..865 approved byte-for-byte
+
+Ruled interactively by the operator on 2026-11-24 after Wave 10 push (d89d727f). All 60 Wave 10 proposed copy rows in DESIGN.md — 7-Area Left Activity Rail, Area 5 RunWorkspaceView, and Area 6 ResultsWorkspaceView COPY-806..865 (60 rows) — are approved byte for byte as written and promoted from proposed to approved in DESIGN.md citing this ruling; no copy text and no code constant changes (Wave10UiTests.cs updated to accept approved or proposed). Zero unapproved COPY-* rows remain in DESIGN.md.
+
+- request: req-01M87DZKVCPZFZHXAYRED6SCBQ · ruled by: operator · at: 2026-11-24T18:44:39Z

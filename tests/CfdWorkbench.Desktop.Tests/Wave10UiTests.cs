@@ -489,8 +489,9 @@ public static class Wave10UiTests
             if (id is < 806 or > 865) continue;
             foundIds.Add(id);
             string body = m.Groups[2].Value;
-            if (!body.Contains(" — proposed —", StringComparison.Ordinal))
-                errors.Add($"COPY-{id} must be marked '— proposed —'");
+            if (!body.Contains(" — approved —", StringComparison.Ordinal) &&
+                !body.Contains(" — proposed —", StringComparison.Ordinal))
+                errors.Add($"COPY-{id} must be marked '— approved —' or '— proposed —'");
             if (hexRegex.IsMatch(body))
                 errors.Add($"COPY-{id} contains a raw hex color");
         }

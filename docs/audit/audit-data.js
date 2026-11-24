@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-24T00:54:21Z",
+  "generated": "2026-11-24T18:45:56Z",
   "audit": [
     {
       "actor": null,
@@ -45351,6 +45351,21 @@ window.AUDIT_DATA = {
       "parallelism": {
         "unparseable_runs": 6
       }
+    },
+    {
+      "id": "al-01M87DTW66VGNJR99P7EGACDJT",
+      "shortname": "push main; approve all copy; then prepare and execute wave 11 plus any o…",
+      "datetime": "2026-11-24T18:42:03Z",
+      "session": "prompt-log",
+      "prompt": "push main; approve all copy; then prepare and execute wave 11 plus any outstanding tasks from prior waves (sans accessibility) with coordination",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
     }
   ],
   "changes": [
@@ -49291,6 +49306,24 @@ window.AUDIT_DATA = {
       "to": "agy-w8-coord",
       "kind": "ruling",
       "ref": "req-01M851VXJCNQJ2FHTG3ATRMDMZ",
+      "session": "operator"
+    },
+    {
+      "id": "mail-01M87DZMY55C4C2CKZDTM3YNGH",
+      "ts": "2026-11-24T18:44:39Z",
+      "from": "agy-w11-coord",
+      "to": "operator",
+      "kind": "decision-request",
+      "ref": "req-01M87DZKVCPZFZHXAYRED6SCBQ",
+      "session": "agy-w11-coord"
+    },
+    {
+      "id": "mail-01M87DZN7CWBY68NCE1K2TTC00",
+      "ts": "2026-11-24T18:44:39Z",
+      "from": "operator",
+      "to": "agy-w11-coord",
+      "kind": "ruling",
+      "ref": "req-01M87DZKVCPZFZHXAYRED6SCBQ",
       "session": "operator"
     }
   ]

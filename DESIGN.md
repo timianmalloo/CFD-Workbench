@@ -1056,66 +1056,66 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-803 | No API key configured — every setup step, known error, and Copy a report work without it. — approved — Ruling 275; W8-SLV-UI (Ruling 69, AI-01; Offline no-key notice; `SolverSetupCopy.AssistantNoKeyNotice`) |
 | COPY-804 | Setup works the same without the assistant: every step, every known error, and Copy a report. — approved — Ruling 275; W8-SLV-UI (Ruling 69, AI-01; Offline assistant reassurance; `SolverSetupCopy.AssistantOfflineNote`) |
 | COPY-805 | Run read-only check / Status: Not set up / Status: Setting up / Status: Ready — approved — Ruling 275; W8-SLV-UI (Ruling 69; Header read-only survey button and derived status labels; `SolverSetupCopy.RefreshSurveyButton`, `SolverSetupCopy.HeaderNotSetUp`, `SolverSetupCopy.HeaderSettingUp`, `SolverSetupCopy.HeaderReady`) |
-| COPY-806 | Setup — proposed — W10-RAIL-UI (7-Area Left Activity Rail slot 1 label; `ActivityRail.axaml`) |
-| COPY-807 | CAD — proposed — W10-RAIL-UI (7-Area Left Activity Rail slot 2 label; `ActivityRail.axaml`) |
-| COPY-808 | Analysis — proposed — W10-RAIL-UI (7-Area Left Activity Rail slot 3 label; `ActivityRail.axaml`) |
-| COPY-809 | Experiment — proposed — W10-RAIL-UI (7-Area Left Activity Rail slot 4 label; `ActivityRail.axaml`) |
-| COPY-810 | Run — proposed — W10-RAIL-UI (7-Area Left Activity Rail slot 5 label and View menu command; `ActivityRail.axaml`, `CommandTable.cs`) |
-| COPY-811 | Results — proposed — W10-RAIL-UI (7-Area Left Activity Rail slot 6 label and View menu command; `ActivityRail.axaml`, `CommandTable.cs`) |
-| COPY-812 | Export — proposed — W10-RAIL-UI (7-Area Left Activity Rail slot 7 action label; `ActivityRail.axaml`) |
-| COPY-813 | Solver / Not set up / Ready — proposed — W10-RAIL-UI (7-Area Left Activity Rail footer Solver setup button and derived status badge; `ActivityRail.axaml`, `ShellHost.cs`) |
-| COPY-814 | Seeded / No brief / Start / r`<n>` / None / Historical / Current — proposed — W10-RAIL-UI (7-Area Left Activity Rail live derived readiness badges for Setup, CAD, Analysis, and Experiment; `ShellHost.cs`) |
-| COPY-815 | `<admitted>` of `<total>` / `<n>` runs / Ready / Not ready — proposed — W10-RAIL-UI (7-Area Left Activity Rail live derived readiness badges for Run and Results; `ShellHost.cs`) |
-| COPY-816 | CFD Run Pipeline — proposed — W10-RAIL-UI (Area 5 RunWorkspaceView heading; `RunCopy.WorkspaceTitle`) |
-| COPY-817 | Run queue & history — proposed — W10-RAIL-UI (Area 5 RunWorkspaceView queue heading; `RunCopy.QueueHeading`) |
-| COPY-818 | No CFD runs recorded yet. Queue a case from Experiment or run a sample when a solver is ready. — proposed — W10-RAIL-UI (Area 5 RunWorkspaceView empty-queue notice; `RunCopy.EmptyQueueNote`) |
-| COPY-819 | 11-state pipeline status — proposed — W10-RAIL-UI (Area 5 RunWorkspaceView pipeline card heading; `RunCopy.PipelineHeading`) |
-| COPY-820 | Mesh gate (DR-F3-1 A / DR-F2-3) — proposed — W10-RAIL-UI (Area 5 RunWorkspaceView mesh-gate card heading; `RunCopy.MeshGateHeading`) |
-| COPY-821 | Residuals & force coefficients (DR-F2-1) — proposed — W10-RAIL-UI (Area 5 RunWorkspaceView residuals card heading; `RunCopy.ResidualsHeading`) |
-| COPY-822 | Failure diagnostics & case diff (offline) — proposed — W10-RAIL-UI (Area 5 RunWorkspaceView offline AI-01/AI-11 card heading; `RunCopy.OfflineAssistantHeading`) |
-| COPY-823 | No API key configured — deterministic offline diagnostics and typed case-diff validation work without network calls. — proposed — W10-RAIL-UI (Area 5 offline no-key reassurance; `RunCopy.OfflineNoKeyNotice`) |
-| COPY-824 | Run — proposed — W10-RAIL-UI (Area 5 Run action button; `RunCopy.RunButton`) |
-| COPY-825 | Cancel — proposed — W10-RAIL-UI (Area 5 Cancel action button; `RunCopy.CancelButton`) |
-| COPY-826 | Retry sample — proposed — W10-RAIL-UI (Area 5 Retry sample action button; `RunCopy.RetrySampleButton`) |
-| COPY-827 | Set up a solver — proposed — W10-RAIL-UI (Area 5 jump to Guided Solver Setup; `RunCopy.SetUpSolverButton`) |
-| COPY-828 | Explain this failure — proposed — W10-RAIL-UI (Area 5 offline deterministic failure explainer action; `RunCopy.ExplainFailureButton`) |
-| COPY-829 | Preview case diff — proposed — W10-RAIL-UI (Area 5 offline typed case-diff validator action; `RunCopy.PreviewCaseDiffButton`) |
-| COPY-830 | Solver: Ready / Solver: Not ready — proposed — W10-RAIL-UI (Area 5 header solver readiness badge; `RunCopy.SolverReadyBadge`, `RunCopy.SolverNotReadyBadge`) |
-| COPY-831 | Mesh screen only — not the y+ gate (awaiting stationary field). — proposed — W10-RAIL-UI (Area 5 DR-F2-3 pre-stationary screen-only notice; `RunCopy.ScreenOnlyNotice`) |
-| COPY-832 | Select a CFD run from the queue to inspect its state, mesh gate, and residuals. — proposed — W10-RAIL-UI (Area 5 unselected-run prompt; `RunCopy.NoRunSelectedNote`) |
-| COPY-833 | Results & Candidate Ladder — proposed — W10-RAIL-UI (Area 6 ResultsWorkspaceView heading; `ResultsCopy.WorkspaceTitle`) |
-| COPY-834 | Sample — proposed — W10-RAIL-UI (Area 6 sample picker label; `ResultsCopy.SamplePickerLabel`) |
-| COPY-835 | No completed or harvested samples yet. Evaluate in Analysis, Sweeps, or Run to inspect fields. — proposed — W10-RAIL-UI (Area 6 empty-samples notice; `ResultsCopy.EmptySamplesNote`) |
-| COPY-836 | Surface Cp — proposed — W10-RAIL-UI (Area 6 manifest layer toggle; `ResultsCopy.LayerSurfaceCp`) |
-| COPY-837 | Surface Cf — proposed — W10-RAIL-UI (Area 6 manifest layer toggle; `ResultsCopy.LayerSurfaceCf`) |
-| COPY-838 | Velocity slice — proposed — W10-RAIL-UI (Area 6 manifest layer toggle; `ResultsCopy.LayerSliceVelocity`) |
-| COPY-839 | 3D streamlines — proposed — W10-RAIL-UI (Area 6 manifest layer toggle; `ResultsCopy.LayerStreamlines`) |
-| COPY-840 | Turbulent kinetic energy — proposed — W10-RAIL-UI (Area 6 manifest layer toggle; `ResultsCopy.LayerTke`) |
-| COPY-841 | Force vectors — proposed — W10-RAIL-UI (Area 6 manifest layer toggle; `ResultsCopy.LayerForceVectors`) |
-| COPY-842 | Spanwise loading — proposed — W10-RAIL-UI (Area 6 manifest layer toggle; `ResultsCopy.LayerSpanwiseLoading`) |
-| COPY-843 | Vortex-core candidates — proposed — W10-RAIL-UI (Area 6 manifest layer toggle for Q/lambda2, never separation; `ResultsCopy.LayerVortexCore`) |
-| COPY-844 | Separation — proposed — W10-RAIL-UI (Area 6 manifest layer toggle strictly gated on wall tau_w; `ResultsCopy.LayerSeparation`) |
-| COPY-845 | Pathlines — proposed — W10-RAIL-UI (Area 6 transient-only manifest layer toggle; `ResultsCopy.LayerPathlines`) |
-| COPY-846 | Provenance strip (9 required fields) — proposed — W10-RAIL-UI (Area 6 ProvenanceStrip heading; `ResultsCopy.ProvenanceHeading`) |
-| COPY-847 | Linked table twin — proposed — W10-RAIL-UI (Area 6 linked table twin toggle and heading; `ResultsCopy.TableTwinToggle`) |
-| COPY-848 | instantaneous integral curves of the mean field (steady RANS) · affordance, not fluid motion — proposed — W10-RAIL-UI (Area 6 VIZ steady-RANS streamline basis disclosure; `FieldEvidenceManifest.StreamlinesSteadyRansLabel`) |
-| COPY-849 | modeled turbulent kinetic energy, m²/s², model, mean-flow basis — proposed — W10-RAIL-UI (Area 6 VIZ turbulent kinetic energy basis disclosure; `FieldEvidenceManifest.TurbulentKineticEnergyLabel`) |
-| COPY-850 | vortex-core candidates at threshold `<t>` — proposed — W10-RAIL-UI (Area 6 VIZ Q/lambda2 vortex-core candidate label, never separation; `FieldEvidenceManifest.FormatVortexCoreLabel`) |
-| COPY-851 | No supported criterion in this sample — proposed — W10-RAIL-UI (Area 6 VIZ wall tau_w separation refusal string and offline AI-10 answer; `FieldEvidenceManifest.SeparationUnavailableReason`) |
-| COPY-852 | Unavailable — steady RANS has no physical-time pathlines — proposed — W10-RAIL-UI (Area 6 VIZ steady-RANS pathlines unavailable string; `FieldEvidenceManifest.PathlinesSteadyUnavailable`) |
-| COPY-853 | Parametric sweep — sequence over admitted samples — proposed — W10-RAIL-UI (Area 6 Replay fixed series banner; `ReplaySequence.SeriesBanner`, `ResultsCopy.ReplayHeading`) |
-| COPY-854 | Play / Hold / Step back / Step forward / Hold speed / Hold angle — proposed — W10-RAIL-UI (Area 6 Replay discrete frame controls; `ResultsCopy.PlayButton`, `ResultsCopy.HoldButton`, `ResultsCopy.StepBackButton`, `ResultsCopy.StepForwardButton`) |
-| COPY-855 | Lock range / Range locked — series scale / Range unlocked — per-sample scale — proposed — W10-RAIL-UI (Area 6 Replay range lock toggle and explicit unlock label; `ResultsCopy.LockRangeToggle`, `ReplaySequence.RangeLockedLabel`, `ReplaySequence.RangeUnlockedLabel`) |
-| COPY-856 | Difference flood (zero-pinned vik) — proposed — W10-RAIL-UI (Area 6 DifferenceFlood panel heading; `ResultsCopy.DifferenceHeading`) |
-| COPY-857 | Compute difference / Unavailable — mesh differs — proposed — W10-RAIL-UI (Area 6 DifferenceFlood action and mesh-hash mismatch guard; `ResultsCopy.ComputeDifferenceButton`, `DifferenceFlood.MeshDiffersReason`) |
-| COPY-858 | Candidate ladder (COMMIT-01) — proposed — W10-RAIL-UI (Area 6 CandidateLadder section heading; `ResultsCopy.CandidateLadderHeading`) |
-| COPY-859 | Accept as draft — proposed — W10-RAIL-UI (Area 6 COMMIT-01 candidate handoff opening typed CAD draft without mutating accepted geometry; `ResultsCopy.AcceptAsDraftButton`) |
-| COPY-860 | Rebase — proposed — W10-RAIL-UI (Area 6 base-revision-moved rebase action; `ResultsCopy.RebaseDraftButton`) |
-| COPY-861 | Open in ParaView — proposed — W10-RAIL-UI (Area 6 process-only ParaView handoff action; `ResultsCopy.OpenParaViewButton`) |
-| COPY-862 | Ask about this result (offline) — proposed — W10-RAIL-UI (Area 6 offline AI-10 result query heading; `ResultsCopy.AskResultHeading`) |
-| COPY-863 | Ask — proposed — W10-RAIL-UI (Area 6 offline AI-10 submit action; `ResultsCopy.AskResultButton`) |
-| COPY-864 | ParaView 5.12+ not found — surface floods and forces remain; slices, streamlines and isosurfaces need ParaView (BSD-3) · Open in ParaView disabled — proposed — W10-RAIL-UI (Area 6 UX-06 honest ParaView absence string; `Labels.ParaViewNotFound`) |
-| COPY-865 | Accept disabled — base revision moved (`<hash12>`). Use Rebase to preview over the current revision. — proposed — W10-RAIL-UI (Area 6 RES-05 base-revision drift refusal copy; `CandidateLadder.FormatBaseMovedReason`) |
+| COPY-806 | Setup — approved — Ruling 276; W10-RAIL-UI (7-Area Left Activity Rail slot 1 label; `ActivityRail.axaml`) |
+| COPY-807 | CAD — approved — Ruling 276; W10-RAIL-UI (7-Area Left Activity Rail slot 2 label; `ActivityRail.axaml`) |
+| COPY-808 | Analysis — approved — Ruling 276; W10-RAIL-UI (7-Area Left Activity Rail slot 3 label; `ActivityRail.axaml`) |
+| COPY-809 | Experiment — approved — Ruling 276; W10-RAIL-UI (7-Area Left Activity Rail slot 4 label; `ActivityRail.axaml`) |
+| COPY-810 | Run — approved — Ruling 276; W10-RAIL-UI (7-Area Left Activity Rail slot 5 label and View menu command; `ActivityRail.axaml`, `CommandTable.cs`) |
+| COPY-811 | Results — approved — Ruling 276; W10-RAIL-UI (7-Area Left Activity Rail slot 6 label and View menu command; `ActivityRail.axaml`, `CommandTable.cs`) |
+| COPY-812 | Export — approved — Ruling 276; W10-RAIL-UI (7-Area Left Activity Rail slot 7 action label; `ActivityRail.axaml`) |
+| COPY-813 | Solver / Not set up / Ready — approved — Ruling 276; W10-RAIL-UI (7-Area Left Activity Rail footer Solver setup button and derived status badge; `ActivityRail.axaml`, `ShellHost.cs`) |
+| COPY-814 | Seeded / No brief / Start / r`<n>` / None / Historical / Current — approved — Ruling 276; W10-RAIL-UI (7-Area Left Activity Rail live derived readiness badges for Setup, CAD, Analysis, and Experiment; `ShellHost.cs`) |
+| COPY-815 | `<admitted>` of `<total>` / `<n>` runs / Ready / Not ready — approved — Ruling 276; W10-RAIL-UI (7-Area Left Activity Rail live derived readiness badges for Run and Results; `ShellHost.cs`) |
+| COPY-816 | CFD Run Pipeline — approved — Ruling 276; W10-RAIL-UI (Area 5 RunWorkspaceView heading; `RunCopy.WorkspaceTitle`) |
+| COPY-817 | Run queue & history — approved — Ruling 276; W10-RAIL-UI (Area 5 RunWorkspaceView queue heading; `RunCopy.QueueHeading`) |
+| COPY-818 | No CFD runs recorded yet. Queue a case from Experiment or run a sample when a solver is ready. — approved — Ruling 276; W10-RAIL-UI (Area 5 RunWorkspaceView empty-queue notice; `RunCopy.EmptyQueueNote`) |
+| COPY-819 | 11-state pipeline status — approved — Ruling 276; W10-RAIL-UI (Area 5 RunWorkspaceView pipeline card heading; `RunCopy.PipelineHeading`) |
+| COPY-820 | Mesh gate (DR-F3-1 A / DR-F2-3) — approved — Ruling 276; W10-RAIL-UI (Area 5 RunWorkspaceView mesh-gate card heading; `RunCopy.MeshGateHeading`) |
+| COPY-821 | Residuals & force coefficients (DR-F2-1) — approved — Ruling 276; W10-RAIL-UI (Area 5 RunWorkspaceView residuals card heading; `RunCopy.ResidualsHeading`) |
+| COPY-822 | Failure diagnostics & case diff (offline) — approved — Ruling 276; W10-RAIL-UI (Area 5 RunWorkspaceView offline AI-01/AI-11 card heading; `RunCopy.OfflineAssistantHeading`) |
+| COPY-823 | No API key configured — deterministic offline diagnostics and typed case-diff validation work without network calls. — approved — Ruling 276; W10-RAIL-UI (Area 5 offline no-key reassurance; `RunCopy.OfflineNoKeyNotice`) |
+| COPY-824 | Run — approved — Ruling 276; W10-RAIL-UI (Area 5 Run action button; `RunCopy.RunButton`) |
+| COPY-825 | Cancel — approved — Ruling 276; W10-RAIL-UI (Area 5 Cancel action button; `RunCopy.CancelButton`) |
+| COPY-826 | Retry sample — approved — Ruling 276; W10-RAIL-UI (Area 5 Retry sample action button; `RunCopy.RetrySampleButton`) |
+| COPY-827 | Set up a solver — approved — Ruling 276; W10-RAIL-UI (Area 5 jump to Guided Solver Setup; `RunCopy.SetUpSolverButton`) |
+| COPY-828 | Explain this failure — approved — Ruling 276; W10-RAIL-UI (Area 5 offline deterministic failure explainer action; `RunCopy.ExplainFailureButton`) |
+| COPY-829 | Preview case diff — approved — Ruling 276; W10-RAIL-UI (Area 5 offline typed case-diff validator action; `RunCopy.PreviewCaseDiffButton`) |
+| COPY-830 | Solver: Ready / Solver: Not ready — approved — Ruling 276; W10-RAIL-UI (Area 5 header solver readiness badge; `RunCopy.SolverReadyBadge`, `RunCopy.SolverNotReadyBadge`) |
+| COPY-831 | Mesh screen only — not the y+ gate (awaiting stationary field). — approved — Ruling 276; W10-RAIL-UI (Area 5 DR-F2-3 pre-stationary screen-only notice; `RunCopy.ScreenOnlyNotice`) |
+| COPY-832 | Select a CFD run from the queue to inspect its state, mesh gate, and residuals. — approved — Ruling 276; W10-RAIL-UI (Area 5 unselected-run prompt; `RunCopy.NoRunSelectedNote`) |
+| COPY-833 | Results & Candidate Ladder — approved — Ruling 276; W10-RAIL-UI (Area 6 ResultsWorkspaceView heading; `ResultsCopy.WorkspaceTitle`) |
+| COPY-834 | Sample — approved — Ruling 276; W10-RAIL-UI (Area 6 sample picker label; `ResultsCopy.SamplePickerLabel`) |
+| COPY-835 | No completed or harvested samples yet. Evaluate in Analysis, Sweeps, or Run to inspect fields. — approved — Ruling 276; W10-RAIL-UI (Area 6 empty-samples notice; `ResultsCopy.EmptySamplesNote`) |
+| COPY-836 | Surface Cp — approved — Ruling 276; W10-RAIL-UI (Area 6 manifest layer toggle; `ResultsCopy.LayerSurfaceCp`) |
+| COPY-837 | Surface Cf — approved — Ruling 276; W10-RAIL-UI (Area 6 manifest layer toggle; `ResultsCopy.LayerSurfaceCf`) |
+| COPY-838 | Velocity slice — approved — Ruling 276; W10-RAIL-UI (Area 6 manifest layer toggle; `ResultsCopy.LayerSliceVelocity`) |
+| COPY-839 | 3D streamlines — approved — Ruling 276; W10-RAIL-UI (Area 6 manifest layer toggle; `ResultsCopy.LayerStreamlines`) |
+| COPY-840 | Turbulent kinetic energy — approved — Ruling 276; W10-RAIL-UI (Area 6 manifest layer toggle; `ResultsCopy.LayerTke`) |
+| COPY-841 | Force vectors — approved — Ruling 276; W10-RAIL-UI (Area 6 manifest layer toggle; `ResultsCopy.LayerForceVectors`) |
+| COPY-842 | Spanwise loading — approved — Ruling 276; W10-RAIL-UI (Area 6 manifest layer toggle; `ResultsCopy.LayerSpanwiseLoading`) |
+| COPY-843 | Vortex-core candidates — approved — Ruling 276; W10-RAIL-UI (Area 6 manifest layer toggle for Q/lambda2, never separation; `ResultsCopy.LayerVortexCore`) |
+| COPY-844 | Separation — approved — Ruling 276; W10-RAIL-UI (Area 6 manifest layer toggle strictly gated on wall tau_w; `ResultsCopy.LayerSeparation`) |
+| COPY-845 | Pathlines — approved — Ruling 276; W10-RAIL-UI (Area 6 transient-only manifest layer toggle; `ResultsCopy.LayerPathlines`) |
+| COPY-846 | Provenance strip (9 required fields) — approved — Ruling 276; W10-RAIL-UI (Area 6 ProvenanceStrip heading; `ResultsCopy.ProvenanceHeading`) |
+| COPY-847 | Linked table twin — approved — Ruling 276; W10-RAIL-UI (Area 6 linked table twin toggle and heading; `ResultsCopy.TableTwinToggle`) |
+| COPY-848 | instantaneous integral curves of the mean field (steady RANS) · affordance, not fluid motion — approved — Ruling 276; W10-RAIL-UI (Area 6 VIZ steady-RANS streamline basis disclosure; `FieldEvidenceManifest.StreamlinesSteadyRansLabel`) |
+| COPY-849 | modeled turbulent kinetic energy, m²/s², model, mean-flow basis — approved — Ruling 276; W10-RAIL-UI (Area 6 VIZ turbulent kinetic energy basis disclosure; `FieldEvidenceManifest.TurbulentKineticEnergyLabel`) |
+| COPY-850 | vortex-core candidates at threshold `<t>` — approved — Ruling 276; W10-RAIL-UI (Area 6 VIZ Q/lambda2 vortex-core candidate label, never separation; `FieldEvidenceManifest.FormatVortexCoreLabel`) |
+| COPY-851 | No supported criterion in this sample — approved — Ruling 276; W10-RAIL-UI (Area 6 VIZ wall tau_w separation refusal string and offline AI-10 answer; `FieldEvidenceManifest.SeparationUnavailableReason`) |
+| COPY-852 | Unavailable — steady RANS has no physical-time pathlines — approved — Ruling 276; W10-RAIL-UI (Area 6 VIZ steady-RANS pathlines unavailable string; `FieldEvidenceManifest.PathlinesSteadyUnavailable`) |
+| COPY-853 | Parametric sweep — sequence over admitted samples — approved — Ruling 276; W10-RAIL-UI (Area 6 Replay fixed series banner; `ReplaySequence.SeriesBanner`, `ResultsCopy.ReplayHeading`) |
+| COPY-854 | Play / Hold / Step back / Step forward / Hold speed / Hold angle — approved — Ruling 276; W10-RAIL-UI (Area 6 Replay discrete frame controls; `ResultsCopy.PlayButton`, `ResultsCopy.HoldButton`, `ResultsCopy.StepBackButton`, `ResultsCopy.StepForwardButton`) |
+| COPY-855 | Lock range / Range locked — series scale / Range unlocked — per-sample scale — approved — Ruling 276; W10-RAIL-UI (Area 6 Replay range lock toggle and explicit unlock label; `ResultsCopy.LockRangeToggle`, `ReplaySequence.RangeLockedLabel`, `ReplaySequence.RangeUnlockedLabel`) |
+| COPY-856 | Difference flood (zero-pinned vik) — approved — Ruling 276; W10-RAIL-UI (Area 6 DifferenceFlood panel heading; `ResultsCopy.DifferenceHeading`) |
+| COPY-857 | Compute difference / Unavailable — mesh differs — approved — Ruling 276; W10-RAIL-UI (Area 6 DifferenceFlood action and mesh-hash mismatch guard; `ResultsCopy.ComputeDifferenceButton`, `DifferenceFlood.MeshDiffersReason`) |
+| COPY-858 | Candidate ladder (COMMIT-01) — approved — Ruling 276; W10-RAIL-UI (Area 6 CandidateLadder section heading; `ResultsCopy.CandidateLadderHeading`) |
+| COPY-859 | Accept as draft — approved — Ruling 276; W10-RAIL-UI (Area 6 COMMIT-01 candidate handoff opening typed CAD draft without mutating accepted geometry; `ResultsCopy.AcceptAsDraftButton`) |
+| COPY-860 | Rebase — approved — Ruling 276; W10-RAIL-UI (Area 6 base-revision-moved rebase action; `ResultsCopy.RebaseDraftButton`) |
+| COPY-861 | Open in ParaView — approved — Ruling 276; W10-RAIL-UI (Area 6 process-only ParaView handoff action; `ResultsCopy.OpenParaViewButton`) |
+| COPY-862 | Ask about this result (offline) — approved — Ruling 276; W10-RAIL-UI (Area 6 offline AI-10 result query heading; `ResultsCopy.AskResultHeading`) |
+| COPY-863 | Ask — approved — Ruling 276; W10-RAIL-UI (Area 6 offline AI-10 submit action; `ResultsCopy.AskResultButton`) |
+| COPY-864 | ParaView 5.12+ not found — surface floods and forces remain; slices, streamlines and isosurfaces need ParaView (BSD-3) · Open in ParaView disabled — approved — Ruling 276; W10-RAIL-UI (Area 6 UX-06 honest ParaView absence string; `Labels.ParaViewNotFound`) |
+| COPY-865 | Accept disabled — base revision moved (`<hash12>`). Use Rebase to preview over the current revision. — approved — Ruling 276; W10-RAIL-UI (Area 6 RES-05 base-revision drift refusal copy; `CandidateLadder.FormatBaseMovedReason`) |
 
 <!-- COPY-440 to COPY-457 are the ids Ruling 160 reserved for the Windows save-picker dialogs (`docs/mockups/w2-save-picker.md`). W-2 B2 built S2 (440, 442, 445), S3 (441, 443, 445; Ruling 253), the fail-closed dialog (454, 457) and the silent default folder `%USERPROFILE%\CFD Workbench`; 444, 446 to 449 and 455 stay reserved for the Clear unfinished save flow (Ruling 253); 450 to 453 and 456 are the picker-status lines, which are not built. Ruling 253 W2-Q2 adds a Windows save-refusal sentence later, on the next free id after the A3 build; COPY-31W is known to be false on Windows until then. -->
 

@@ -10492,7 +10492,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d2336b857ee5ab8ff560216476f8a92e715c2fd546a0ae3c993d07645f3aa225"
+      "sourceSha256": "e1d1206cdf55c541e249c56d862af63043bc7ab10fcc50a530adfe830b042fbd"
     },
     {
       "id": "kb-hw-glossary",
@@ -26102,5 +26102,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "a912ec5087e80c537362a18cbb4f0e3ce2552e3654164709b2eca5d7d2db2644"
+  "graphSha256": "ac993b54fc09d03cd024b5b8099916f19e349e46492a7e0ea452f63caacb2d92"
 };
