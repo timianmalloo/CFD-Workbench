@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-24T18:45:56Z",
+  "generated": "2026-11-24T19:02:03Z",
   "audit": [
     {
       "actor": null,
@@ -45366,6 +45366,35 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M87EZFX8JNZE4KF5N7K25FJ3",
+      "shortname": "coordination-wave11-byok-assistants",
+      "datetime": "2026-11-24T19:02:02Z",
+      "session": "agy-w11-coord",
+      "prompt": "Prepare Wave 11 coordination plan (Cross-Area Live BYOK LLM Assistants + prior-wave non-accessibility carry-forwards)",
+      "summary": "Drafted and Adversary-cleared (0a930c37, C1-C7 folded) Wave 11 coordination plan across 4 serial width-1 share tracks: W11-DESIGN, W11-CORE-AI (+ CF-W8-1), W11-RUNTIME-AI, W11-DESKTOP-AI (+ CF-W7-1). Struck: live third-party cloud LLM calls, accessibility/screen-reader tracks, A5-RESUME (Umbrella TLS), SPIKE-CAD-02 interactive CAD apps, ParaView 5.12+, codesigning.",
+      "kind": "skill",
+      "skill": "prepare-for-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/wave11-byok-assistants-and-prior-carryforwards.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Produce an Adversary-cleared Wave 11 coordination plan committed on main",
+      "done_when": "Plan .md/.html rendered, C1-C7 folded, docs-index.js updated, check-proof-pii/check-docs/10 verify gates green, S0 committed on main",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-24T18:42:43Z",
+      "duration_seconds": 1159.0
     }
   ],
   "changes": [

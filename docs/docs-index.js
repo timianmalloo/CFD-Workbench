@@ -12705,6 +12705,65 @@ window.DOCS_INDEX = {
       "sourceSha256": "3e54b6b97ae3f14a53bc811fcf88aab2b867606809a277fbe7b12664ddc783b8"
     },
     {
+      "id": "coordination-wave11-byok-assistants-and-prior-carryforwards",
+      "path": "docs/coordination/wave11-byok-assistants-and-prior-carryforwards.md",
+      "title": "Coordination plan - wave 11: Cross-Area Live BYOK LLM Assistants and Prior-Wave Non-Accessibility Carry-Forwards",
+      "type": "plan",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-02-24",
+      "reviewSuggested": [],
+      "summary": "Wave 11 delivers the complete cross-area BYOK LLM assistant stack (AI-01..AI-11, A5.12, A8.5, A8.6, SET-02/03) plus verified non-accessibility prior-wave carry-forwards across four serial AGY swarm tracks: W11-DESIGN freezes the architecture and contracts; W11-CORE-AI ships pure STORE-SUBSET Core contracts, PromptRedactor (4 kB/32 kB), deterministic T0 validators across all 6 active areas, hashed BM25 KnowledgeRetriever, 9-item A8.6 eval suite, and CF-W8-1 verify-open-measure.py math.isfinite hardening; W11-RUNTIME-AI ships OS credential store (Windows Credential Manager DPAPI / macOS Keychain), closed-DTO AssistantSettingsStore, BCL HttpClient ByokLlmTransport (Anthropic + OpenAI-compatible, loopback-tested), AssistantService, and CLI; W11-DESKTOP-AI wires Settings, consent preview, and assistant entry bars across all 7 areas plus Wave 10+11 Light/Dark/HC theme verification (CF-W7-1).",
+      "tags": [
+        "coordination",
+        "worktrees",
+        "ai",
+        "byok",
+        "assistant",
+        "security",
+        "evals",
+        "agy-swarm",
+        "wave11"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "kb-hw-integration-and-ai-workflows",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-guided-solver-setup",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-cfd-run-pipeline",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-results-and-candidates",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-wave10-cfd-run-results-and-rail",
+          "rel": "refines"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "54983c1982b42be722796fa756a73b8defca6adb85b9c729c48ace8a7f9a2412"
+    },
+    {
       "id": "coordination-wave3-next-steps",
       "path": "docs/coordination/wave3-next-steps.md",
       "title": "Coordination plan - wave 3: the next steps of 2026-10-23",
@@ -26046,6 +26105,14 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-wave10-cfd-run-results-and-rail"
     },
     {
+      "id": "surface-coordination-wave11-byok-assistants-and-prior-carryforwards",
+      "path": "docs/coordination/wave11-byok-assistants-and-prior-carryforwards.html",
+      "title": "Wave11 Byok Assistants And Prior Carryforwards",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "coordination-wave11-byok-assistants-and-prior-carryforwards"
+    },
+    {
       "id": "surface-coordination-wave5-next-steps",
       "path": "docs/coordination/wave5-next-steps.html",
       "title": "Wave5 Next Steps",
@@ -26102,5 +26169,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "ac993b54fc09d03cd024b5b8099916f19e349e46492a7e0ea452f63caacb2d92"
+  "graphSha256": "52b233f75970d7046876e174414f2b92ce2cd9c9c166286c9b8c432d40def44c"
 };
