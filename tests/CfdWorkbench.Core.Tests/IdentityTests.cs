@@ -154,6 +154,8 @@ internal static class IdentityTests
         CfdRunEnvelopeTests.Run();
         ResultsDomainTests.Run();
         CandidateLadderTests.Run();
+        AssistantDomainTests.Run();
+        AssistantEvalTests.Run();
         CorePartition.Run();
         bool emptyPart = part is not null && only is null && ran == 0;
         if (part is { } p)

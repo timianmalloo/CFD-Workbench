@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -38,7 +39,11 @@ DEFAULT_HOST_RX = re.compile(r"(?:DESKTOP|LAPTOP)-[A-Z0-9]{7}|WIN-[A-Z0-9]{11}")
 
 
 def _is_finite_number(val: Any) -> bool:
-    return isinstance(val, (int, float)) and not isinstance(val, bool)
+    return isinstance(val, (int, float)) and not isinstance(val, bool) and math.isfinite(val)
+
+
+def _reject_non_finite_constant(token: str) -> Any:
+    raise ValueError(f"Non-finite JSON constant not allowed: {token}")
 
 
 def validate_receipt_text(raw_text: str) -> tuple[bool, bool, list[str]]:
@@ -50,8 +55,8 @@ def validate_receipt_text(raw_text: str) -> tuple[bool, bool, list[str]]:
         errors.append("PII check failed: default Windows hostname token found in receipt JSON.")
 
     try:
-        data = json.loads(raw_text)
-    except json.JSONDecodeError as exc:
+        data = json.loads(raw_text, parse_constant=_reject_non_finite_constant)
+    except (json.JSONDecodeError, ValueError) as exc:
         return False, False, [f"Invalid JSON: {exc}"]
 
     if not isinstance(data, dict):
@@ -184,8 +189,29 @@ def self_test() -> int:
         expect_step=False,
         expect_dm=False,
     )
+    expect_red(
+        "non-finite-nan",
+        lambda d: json.dumps(d).replace('"chordErrorUm": 1.2', '"chordErrorUm": NaN', 1),
+        expect_step=False,
+        expect_dm=False,
+    )
+    expect_red(
+        "non-finite-pos-inf",
+        lambda d: json.dumps(d).replace('"spanErrorUm": 0.4', '"spanErrorUm": Infinity', 1),
+        expect_step=False,
+        expect_dm=False,
+    )
+    expect_red(
+        "non-finite-neg-inf",
+        lambda d: json.dumps(d).replace('"volumeErrorPercent": 0.02', '"volumeErrorPercent": -Infinity', 1),
+        expect_step=False,
+        expect_dm=False,
+    )
+    assert not _is_finite_number(float("nan"))
+    assert not _is_finite_number(float("inf"))
+    assert not _is_finite_number(float("-inf"))
 
-    print("verify-open-measure self-test OK: 1 green + 8 red-first planted defects verified", flush=True)
+    print("verify-open-measure self-test OK: 1 green + 11 red-first planted defects verified", flush=True)
     return 0
 
 
