@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-24T20:30:46Z",
+  "generated": "2026-11-24T21:30:11Z",
   "audit": [
     {
       "actor": null,
@@ -45453,6 +45453,35 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-24T20:22:39Z",
       "duration_seconds": 486.0
+    },
+    {
+      "id": "al-01M87QERJSJ65CS2D8196F1ES5",
+      "shortname": "join-w11-runtime-ai",
+      "datetime": "2026-11-24T21:30:11Z",
+      "session": "agy-w11-coord",
+      "prompt": "the join of swarm-w11-runtime-ai-d06d282a into main",
+      "summary": "Joined verified W11-RUNTIME-AI (2647ec50, CLEARS-THE-VETO: yes from w11-verifier #117): Persistence/Assistant (OsCredentialStore Windows System32 advapi32 DPAPI <=2560 B + CredFree/ZeroMemory + macOS /usr/bin/security -i stdin-only zero-argv + fail-closed unsupported OS + zero env fallback; closed-DTO cfdw-assistant v1 AssistantSettingsStore private DACL/0700 + symlink refusal + secret-field rejection + delete-sharing-safe UTC-cap assistant-audit.jsonl), Analysis/Assistant (zero-new-NuGet BCL ByokLlmTransport AllowAutoRedirect=false + DnsSafeHost HTTPS/loopback + <=1 MiB + key scrubbing + Anthropic/OpenAI wire; AssistantService recomputing wire SHA-256 before send + live ReadKey + AI-06/cap/BM25/T0 validators), CLI assistant status|eval|preview|audit --json, real loopback HttpListener & Windows Credential Manager DPAPI tests (TestLinks.TryDirectoryLink). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/byok-assistants.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land Wave 11C W11-RUNTIME-AI onto main",
+      "done_when": "W11-RUNTIME-AI merged via conductor-join.py with TESTS-GREEN, recursive STORE-SUBSET, xaml-token-lint, check-event-subscribers, check-docs, and 10/10 verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-24T21:22:03Z",
+      "duration_seconds": 488.0
     }
   ],
   "changes": [
