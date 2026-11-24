@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-24T19:29:16Z",
+  "generated": "2026-11-24T20:30:46Z",
   "audit": [
     {
       "actor": null,
@@ -45424,6 +45424,35 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-24T19:21:13Z",
       "duration_seconds": 483.0
+    },
+    {
+      "id": "al-01M87M1Y62TF6WDRRJ6D7GEB1J",
+      "shortname": "join-w11-core-ai",
+      "datetime": "2026-11-24T20:30:45Z",
+      "session": "agy-w11-coord",
+      "prompt": "the join of swarm-w11-core-ai-db4c1e4f into main",
+      "summary": "Joined verified W11-CORE-AI (258748f5, CLEARS-THE-VETO: yes from w11-verifier #107 after resolving #105 AI-03 negative/scientific numeral check, SET-02 per-field provenance preservation, and (?i) delimiter neutralization): pure STORE-SUBSET Core/Assistant (AssistantContracts, PromptRedactor UTF-8 rune-safe 4kB/32kB caps, 6-area AssistantValidators composing with SetupAssistantValidator + SET-03 hash parity + LAB-01 + tau_w AI-10, SHA-256-verified BM25 KnowledgeRetriever, 9-item A8.6 AssistantEvalSuite v1.0 with AI-06 CheckModelEligibility) plus CF-W8-1 verify-open-measure.py math.isfinite + parse_constant and test_cad_export_measure.py. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/byok-assistants.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land Wave 11B W11-CORE-AI and CF-W8-1 onto main",
+      "done_when": "W11-CORE-AI merged via conductor-join.py with TESTS-GREEN, recursive STORE-SUBSET, xaml-token-lint, check-event-subscribers, check-docs, and 10/10 verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-24T20:22:39Z",
+      "duration_seconds": 486.0
     }
   ],
   "changes": [
