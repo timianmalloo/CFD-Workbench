@@ -59,6 +59,7 @@ public sealed class SetupController
     public bool FlaggedAcknowledged { get; set; }
     public bool HasApiKey { get; set; }
     public string LanguagePromptText { get; set; } = "";
+    public IReadOnlyList<CfdWorkbench.Core.Assistant.AssistantFieldProvenance> LastProposalProvenance { get; private set; } = [];
 
     // ---- Live preview & derived state ----
     public PurposeResolution? ActiveResolution { get; private set; }
@@ -172,6 +173,42 @@ public sealed class SetupController
         if (HasApiKey == available) return;
         HasApiKey = available;
         Changed?.Invoke();
+    }
+
+    /// <summary>
+    /// Applies a deterministically checked <see cref="CfdWorkbench.Core.Assistant.SetupSeedProposal"/> (SET-02/SET-03)
+    /// into SetupController fields while preserving per-field Stated/Inferred/Defaulted provenance and recomputing preview.
+    /// </summary>
+    public void ApplySetupSeedProposal(CfdWorkbench.Core.Assistant.SetupSeedProposal proposal)
+    {
+        ArgumentNullException.ThrowIfNull(proposal);
+        ApplyPresetDefaults(proposal.Purpose, notify: false);
+
+        if (proposal.SoftTargets is { } st)
+        {
+            if (st.MaxSpanMeters is { } maxSpan) MaxSpanMeters = maxSpan;
+            WeightSpan = st.MaxSpanWeight;
+            if (st.MaxChordMm is { } maxChord) MaxChordMm = maxChord;
+            WeightChord = st.MaxChordWeight;
+            if (st.TargetAreaCm2 is { } area) TargetAreaCm2 = area;
+            WeightArea = st.TargetAreaWeight;
+            if (st.TargetAspectRatio is { } ar) TargetAspectRatio = ar;
+            WeightAspectRatio = st.TargetAspectRatioWeight;
+        }
+        if (proposal.Taper is { } taper) Taper = taper;
+        if (proposal.RootThicknessPercent is { } tc) RootThicknessPercent = tc;
+        if (proposal.AnhedralDeg is { } anhedral) AnhedralDeg = anhedral;
+        if (proposal.WashoutDeg is { } washout) WashoutDeg = washout;
+        if (proposal.RiderMassKg is { } mass) RiderMassKg = mass;
+        if (proposal.IsSaltWater is { } salt) IsSaltWater = salt;
+        if (proposal.WaterTemperatureC is { } temp) WaterTemperatureC = temp;
+        if (proposal.HRefMeters is { } href) HRefMeters = href;
+        if (proposal.MastLengthCm is { } mast) MastLengthCm = mast;
+        if (!string.IsNullOrWhiteSpace(proposal.ProfileId)) SelectedProfileId = proposal.ProfileId;
+
+        LastProposalProvenance = proposal.Provenance ?? [];
+        LastReceipt = $"Assistant brief applied ({LastProposalProvenance.Count} provenance field(s)). Review targets before seeding.";
+        RecomputePreview(notify: true);
     }
 
     public void RefreshFromSession(bool notify = true)

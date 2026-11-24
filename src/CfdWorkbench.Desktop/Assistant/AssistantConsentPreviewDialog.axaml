@@ -1,0 +1,182 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="CfdWorkbench.Desktop.Assistant.AssistantConsentPreviewDialog"
+        Title="Review redacted payload before sending"
+        Width="{StaticResource ConsentDialogWidth}"
+        SizeToContent="Height"
+        MaxHeight="{StaticResource DialogMaxHeight}"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource SurfaceBrush}"
+        Foreground="{DynamicResource InkBrush}">
+  <Border Padding="{StaticResource DialogPadding}"
+          BorderBrush="{DynamicResource LineBrush}"
+          BorderThickness="{StaticResource HairlineThickness}">
+    <Grid RowDefinitions="Auto,*,Auto" RowSpacing="{StaticResource DialogSpacing}">
+      <TextBlock x:Name="TitleText"
+                 Grid.Row="0"
+                 Classes="heading"
+                 Text="Review redacted payload before sending" />
+
+      <ScrollViewer x:Name="BodyScrollViewer"
+                    Grid.Row="1"
+                    VerticalScrollBarVisibility="Auto"
+                    HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="{StaticResource DialogSpacing}">
+          <!-- Step 1: Consent & Byte-Exact Redacted Payload Preview -->
+          <StackPanel x:Name="ConsentPanel" Spacing="{StaticResource StackGap2}">
+            <Border Background="{DynamicResource CanvasBrush}"
+                    BorderBrush="{DynamicResource LineBrush}"
+                    BorderThickness="{StaticResource HairlineThickness}"
+                    CornerRadius="{StaticResource RoundedSm}"
+                    Padding="{StaticResource Space2}">
+              <StackPanel Spacing="{StaticResource StackGap1}">
+                <TextBlock x:Name="WireIdentityText"
+                           FontSize="{StaticResource CaptionSize}"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource InkBrush}"
+                           TextWrapping="Wrap" />
+                <TextBlock x:Name="RedactionSummaryText"
+                           FontSize="{StaticResource CaptionSize}"
+                           Foreground="{DynamicResource MutedBrush}"
+                           TextWrapping="Wrap" />
+              </StackPanel>
+            </Border>
+
+            <Border x:Name="TruncationBanner"
+                    IsVisible="False"
+                    Background="{DynamicResource SurfaceSoftBrush}"
+                    BorderBrush="{DynamicResource WarningBrush}"
+                    BorderThickness="{StaticResource PropRailThickness}"
+                    Padding="{StaticResource Space2}">
+              <TextBlock x:Name="TruncationBannerText"
+                         FontSize="{StaticResource CaptionSize}"
+                         Foreground="{DynamicResource InkBrush}"
+                         TextWrapping="Wrap" />
+            </Border>
+
+            <Border x:Name="KnowledgeUnavailableBanner"
+                    IsVisible="False"
+                    Background="{DynamicResource SurfaceSoftBrush}"
+                    BorderBrush="{DynamicResource WarningBrush}"
+                    BorderThickness="{StaticResource PropRailThickness}"
+                    Padding="{StaticResource Space2}">
+              <TextBlock x:Name="KnowledgeUnavailableText"
+                         FontSize="{StaticResource CaptionSize}"
+                         Foreground="{DynamicResource InkBrush}"
+                         TextWrapping="Wrap" />
+            </Border>
+
+            <TextBox x:Name="PayloadPreviewBox"
+                     IsReadOnly="True"
+                     AcceptsReturn="True"
+                     TextWrapping="Wrap"
+                     MaxHeight="{StaticResource AssistantPreviewMaxHeight}"
+                     FontFamily="{StaticResource MonoFontFamily}"
+                     FontSize="{StaticResource CaptionSize}"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     AutomationProperties.Name="Byte-exact redacted wire payload preview" />
+          </StackPanel>
+
+          <!-- Step 2: Checked Proposal Review -->
+          <StackPanel x:Name="ProposalPanel" IsVisible="False" Spacing="{StaticResource StackGap2}">
+            <Border x:Name="VerdictBanner"
+                    IsVisible="False"
+                    Background="{DynamicResource SurfaceSoftBrush}"
+                    BorderBrush="{DynamicResource WarningBrush}"
+                    BorderThickness="{StaticResource PropRailThickness}"
+                    Padding="{StaticResource Space2}">
+              <TextBlock x:Name="VerdictBannerText"
+                         FontSize="{StaticResource CaptionSize}"
+                         Foreground="{DynamicResource InkBrush}"
+                         TextWrapping="Wrap"
+                         AutomationProperties.LiveSetting="Assertive" />
+            </Border>
+
+            <Border x:Name="BaseDriftBanner"
+                    IsVisible="False"
+                    Background="{DynamicResource SurfaceSoftBrush}"
+                    BorderBrush="{DynamicResource DangerBrush}"
+                    BorderThickness="{StaticResource PropRailThickness}"
+                    Padding="{StaticResource Space2}">
+              <StackPanel Spacing="{StaticResource StackGap1}">
+                <TextBlock x:Name="BaseDriftText"
+                           FontSize="{StaticResource CaptionSize}"
+                           Foreground="{DynamicResource DangerBrush}"
+                           TextWrapping="Wrap" />
+                <Button x:Name="RefreshBaseButton"
+                        Content="Refresh over current revision"
+                        HorizontalAlignment="Left"
+                        MinHeight="{StaticResource CompactTargetSize}"
+                        AutomationProperties.Name="Refresh proposal over current revision" />
+              </StackPanel>
+            </Border>
+
+            <Border Background="{DynamicResource CanvasBrush}"
+                    BorderBrush="{DynamicResource LineBrush}"
+                    BorderThickness="{StaticResource HairlineThickness}"
+                    CornerRadius="{StaticResource RoundedSm}"
+                    Padding="{StaticResource Space3}">
+              <StackPanel Spacing="{StaticResource StackGap2}">
+                <TextBlock x:Name="ProposalSummaryText"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource InkBrush}" />
+                <TextBlock x:Name="ProposalCitationsText"
+                           IsVisible="False"
+                           FontSize="{StaticResource CaptionSize}"
+                           Foreground="{DynamicResource MutedBrush}"
+                           TextWrapping="Wrap" />
+                <Button x:Name="WhatIfRecomputeButton"
+                        IsVisible="False"
+                        Content="Run deterministic recomputation"
+                        HorizontalAlignment="Left"
+                        MinHeight="{StaticResource ControlHeight}"
+                        AutomationProperties.Name="Run deterministic recomputation" />
+              </StackPanel>
+            </Border>
+
+            <Border x:Name="ProvenanceCard"
+                    IsVisible="False"
+                    Background="{DynamicResource CanvasBrush}"
+                    BorderBrush="{DynamicResource LineBrush}"
+                    BorderThickness="{StaticResource HairlineThickness}"
+                    CornerRadius="{StaticResource RoundedSm}"
+                    Padding="{StaticResource Space2}">
+              <StackPanel Spacing="{StaticResource StackGap1}">
+                <TextBlock Text="Stated · Inferred · Defaulted"
+                           FontWeight="SemiBold"
+                           FontSize="{StaticResource CaptionSize}"
+                           Foreground="{DynamicResource MutedBrush}" />
+                <ItemsControl x:Name="ProvenanceRowsList" />
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </StackPanel>
+      </ScrollViewer>
+
+      <StackPanel x:Name="FooterButtons"
+                  Grid.Row="2"
+                  Orientation="Horizontal"
+                  Spacing="{StaticResource StackGap2}"
+                  HorizontalAlignment="Right">
+        <Button x:Name="SendButton"
+                Classes="primary"
+                Content="Send to model"
+                MinHeight="{StaticResource ControlHeight}"
+                IsDefault="True"
+                AutomationProperties.Name="Send redacted payload to model" />
+        <Button x:Name="AcceptButton"
+                Classes="primary"
+                Content="Accept"
+                MinHeight="{StaticResource ControlHeight}"
+                IsVisible="False"
+                AutomationProperties.Name="Accept checked proposal" />
+        <Button x:Name="CancelButton"
+                Content="Cancel"
+                MinHeight="{StaticResource ControlHeight}"
+                IsCancel="True"
+                AutomationProperties.Name="Cancel assistant request" />
+      </StackPanel>
+    </Grid>
+  </Border>
+</Window>

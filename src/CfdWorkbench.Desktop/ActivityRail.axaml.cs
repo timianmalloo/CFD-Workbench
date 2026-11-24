@@ -22,17 +22,19 @@ public sealed record ActivityRailBadges(
     string Run,
     string Results,
     string Export,
-    string SolverSetup);
+    string SolverSetup,
+    string Settings = "No key");
 
 /// <summary>
 /// 7-Area Left Activity Rail (B1, Rulings 271 &amp; 272, C4). Pure Avalonia control with zero shell-layout coupling;
-/// ShellHost subscribes to its three navigation events and owns all tab and panel orchestration.
+/// ShellHost subscribes to its navigation events and owns all tab and panel orchestration.
 /// </summary>
 public partial class ActivityRail : UserControl
 {
     public event Action<WorkbenchArea>? AreaSelected;
     public event Action? ExportRequested;
     public event Action? SolverSetupRequested;
+    public event Action? SettingsRequested;
 
     public WorkbenchArea ActiveArea { get; private set; } = WorkbenchArea.Cad;
 
@@ -47,6 +49,7 @@ public partial class ActivityRail : UserControl
         RailResultsButton.Click += (_, _) => AreaSelected?.Invoke(WorkbenchArea.Results);
         RailExportButton.Click += (_, _) => ExportRequested?.Invoke();
         RailSolverSetupButton.Click += (_, _) => SolverSetupRequested?.Invoke();
+        RailSettingsButton.Click += (_, _) => SettingsRequested?.Invoke();
     }
 
     public void BindState(WorkbenchArea activeArea, ActivityRailBadges badges)
@@ -62,6 +65,7 @@ public partial class ActivityRail : UserControl
         BadgeResultsText.Text = badges.Results;
         BadgeExportText.Text = badges.Export;
         BadgeSolverSetupText.Text = badges.SolverSetup;
+        BadgeSettingsText.Text = badges.Settings;
 
         RailSetupButton.Classes.Set("active", activeArea == WorkbenchArea.Setup);
         RailCadButton.Classes.Set("active", activeArea == WorkbenchArea.Cad);

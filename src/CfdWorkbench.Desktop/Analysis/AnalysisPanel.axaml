@@ -57,10 +57,15 @@
             <local:ComparePane x:Name="ComparePaneHost" />
           </TabItem>
         </TabControl>
-        <Button x:Name="SolverSetupButton" Classes="modebar-link" HorizontalAlignment="Right" VerticalAlignment="Top"
-                Margin="{StaticResource Space1}" AutomationProperties.Name="Set up a solver">
-          <TextBlock x:Name="SolverSetupButtonText" Text="Set up a solver" FontSize="{DynamicResource PropFontSize}" />
-        </Button>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Margin="{StaticResource Space1}" Spacing="{StaticResource StackGap2}">
+          <Button x:Name="AskCalculationButton" Classes="modebar-link" AutomationProperties.Name="Ask about this calculation">
+            <TextBlock x:Name="AskCalculationButtonText" Text="Ask about this calculation" FontSize="{DynamicResource PropFontSize}" />
+          </Button>
+          <Button x:Name="SolverSetupButton" Classes="modebar-link" AutomationProperties.Name="Set up a solver">
+            <TextBlock x:Name="SolverSetupButtonText" Text="Set up a solver" FontSize="{DynamicResource PropFontSize}" />
+          </Button>
+        </StackPanel>
       </Grid>
     </DockPanel>
   </Border>

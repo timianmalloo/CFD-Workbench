@@ -155,6 +155,7 @@
             <ProgressBar x:Name="WritingProgress" IsIndeterminate="True" AutomationProperties.Name="Writing" />
           </StackPanel>
           <TextBlock x:Name="SafetyLine" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
+          <TextBlock x:Name="NoAssistantNoteText" Text="No assistant action here." TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
         </StackPanel>
       </ScrollViewer>
       <StackPanel x:Name="FooterButtons" Grid.Row="2" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">

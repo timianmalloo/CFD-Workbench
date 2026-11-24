@@ -24,6 +24,9 @@ public partial class AnalysisPanel : UserControl
         OpenInMainAreaButton.Content = Labels.OpenInMainArea;
         AutomationProperties.SetName(OpenInMainAreaButton, Labels.OpenInMainArea);
         OpenInMainAreaButton.Click += (_, _) => OpenSectionRequested?.Invoke();
+        AskCalculationButtonText.Text = Assistant.AssistantCopy.AnalysisEntryTitle;
+        AutomationProperties.SetName(AskCalculationButton, Assistant.AssistantCopy.AnalysisEntryTitle);
+        AskCalculationButton.Click += (_, _) => AskCalculationRequested?.Invoke();
         SolverSetupButtonText.Text = SolverSetup.SolverSetupCopy.VerbTitle;
         AutomationProperties.SetName(SolverSetupButton, SolverSetup.SolverSetupCopy.VerbTitle);
         SolverSetupButton.Click += (_, _) => SolverSetupRequested?.Invoke();
@@ -65,6 +68,9 @@ public partial class AnalysisPanel : UserControl
 
     /// <summary>Raised by the subtle "Set up a solver" entry in the Analysis panel (Ruling 69, F7a).</summary>
     public event Action? SolverSetupRequested;
+
+    /// <summary>Raised by the compact "Ask about this calculation" trigger beside SolverSetupButton (Area 3, AI-08).</summary>
+    public event Action? AskCalculationRequested;
 
     private double windowHeight;
 

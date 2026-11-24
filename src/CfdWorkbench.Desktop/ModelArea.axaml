@@ -7,6 +7,7 @@
              xmlns:setup="using:CfdWorkbench.Desktop.Setup"
              xmlns:run="using:CfdWorkbench.Desktop.CfdRun"
              xmlns:results="using:CfdWorkbench.Desktop.Results"
+             xmlns:assistant="using:CfdWorkbench.Desktop.Assistant"
              x:Class="CfdWorkbench.Desktop.ModelArea">
   <UserControl.Resources>
     <!-- The Rebuild popover's place: the toast inset (12) on three sides; 52 at the bottom clears the navbar.
@@ -85,6 +86,7 @@
             BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1" Padding="{StaticResource Space2}">
       <TextBlock Text="Preview hidden — Apply or Cancel in CAD" />
     </Border>
+    <assistant:AssistantPromptBar x:Name="CadAssistantBar" IsVisible="False" />
     </StackPanel>
 
     <!-- Main Content Area. Reports go to the shell's status strip (DR-STATUS-1); the model area has no status line. -->

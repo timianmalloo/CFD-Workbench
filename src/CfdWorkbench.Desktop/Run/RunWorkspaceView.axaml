@@ -131,6 +131,9 @@
               <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
                 <Button x:Name="ExplainFailureButton" Content="Explain this failure" MinHeight="{StaticResource ControlHeight}" />
                 <Button x:Name="PreviewCaseDiffButton" Content="Preview case diff" MinHeight="{StaticResource ControlHeight}" />
+                <Button x:Name="ExplainFailureLiveButton" Content="Explain with assistant (BYOK)" MinHeight="{StaticResource ControlHeight}" IsEnabled="False" />
+                <Button x:Name="ConfigureKeyButton" Content="Configure key" MinHeight="{StaticResource ControlHeight}" />
+                <Button x:Name="OpenRepairedDraftButton" Content="Open repaired draft" MinHeight="{StaticResource ControlHeight}" IsVisible="False" />
               </StackPanel>
               <TextBlock x:Name="FailureExplanationSummaryText" TextWrapping="Wrap" Classes="pnl-cell" IsVisible="False" />
               <TextBlock x:Name="FailureNextStepText" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"

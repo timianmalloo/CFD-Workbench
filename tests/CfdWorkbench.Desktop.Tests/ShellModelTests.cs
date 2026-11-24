@@ -411,7 +411,7 @@ public static class ShellModelTests
                 // M1.2c §5.2 names keys for section.edit (↩), section.finish (⌘↩) and section.delete-point (⌫) only; the
                 // other section rows, Thickness ×2 and Window ▸ Points are "—": reached from the menus and the palette.
                 choice |= row.Menu == CommandTable.SectionMenu && row.Id is not ("section.edit" or "section.finish" or "section.delete-point") ||
-                          row.Id is "view.thickness-x2" or "window.points" or "window.layers" or "analysis.compare" or "analysis.compare-tiers" or "view.sweeps" or "view.setup" or "view.run" or "view.results" or "solver.setup" or "station.add" or "station.remove" or "station.match-blend" ||     // A3d, SWP, SET, SLV & W10 (Rulings 69, 271 & 272): palette and menu only, no keyboard gesture
+                          row.Id is "view.thickness-x2" or "window.points" or "window.layers" or "analysis.compare" or "analysis.compare-tiers" or "view.sweeps" or "view.setup" or "view.run" or "view.results" or "solver.setup" or "view.settings" or "station.add" or "station.remove" or "station.match-blend" ||     // A3d, SWP, SET, SLV, W10 & W11 (Rulings 69, 271 & 272): palette and menu only, no keyboard gesture
 
                           // Rail comb verbs (COPY-469): palette and menu only, no new single-key shortcut (SC 2.1.4).
                           row.Id.StartsWith("view.comb-", StringComparison.Ordinal);

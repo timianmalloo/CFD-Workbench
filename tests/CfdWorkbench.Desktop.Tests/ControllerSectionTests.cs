@@ -755,6 +755,7 @@ public static class ControllerSectionTests
                 host.ShowExportDialog = _ => { opened.Add("export dialog"); return Task.FromResult<ExportOutcome?>(null); };
                 host.ShowCatalogDialog = () => { opened.Add("catalog dialog"); return Task.CompletedTask; };
                 host.ShowSaveDialog = () => { opened.Add("save dialog"); return Task.FromResult<string?>(null); };
+                host.ShowSettingsDialog = () => { opened.Add("settings dialog"); return Task.CompletedTask; };
                 Wait(controller.OpenExampleAsync());
                 var problems = new List<string>();
                 foreach (var row in CommandTable.Rows)
@@ -818,6 +819,11 @@ public static class ControllerSectionTests
                 {
                     Sweep("save dialog", new SaveSectionDialog(controller, _ => Task.CompletedTask));
                     return Task.FromResult<string?>(null);
+                };
+                host.ShowSettingsDialog = () =>
+                {
+                    Sweep("settings dialog", new CfdWorkbench.Desktop.Assistant.AssistantSettingsDialog(controller.Assistant));
+                    return Task.CompletedTask;
                 };
                 Wait(controller.OpenExampleAsync());
                 foreach (var row in CommandTable.Rows.Where(row => row.Modal))

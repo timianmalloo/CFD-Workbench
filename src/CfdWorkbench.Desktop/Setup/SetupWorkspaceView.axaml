@@ -43,8 +43,12 @@
           <Border x:Name="AiLanguageCard" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
                   BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
             <StackPanel Spacing="{StaticResource StackGap1}">
-              <TextBlock x:Name="LanguageCardTitle" Text="Describe a starting design" FontWeight="SemiBold"
-                         FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
+              <DockPanel>
+                <Button x:Name="LanguageConfigureKeyButton" DockPanel.Dock="Right" Content="Configure key"
+                        MinHeight="{StaticResource CompactTargetSize}" AutomationProperties.Name="Configure API key" />
+                <TextBlock x:Name="LanguageCardTitle" Text="Describe a starting design" FontWeight="SemiBold"
+                           FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" VerticalAlignment="Center" />
+              </DockPanel>
               <TextBlock x:Name="LanguageNoKeyText" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
                          Foreground="{DynamicResource MutedBrush}"
                          Text="No API key configured — every design and analysis tool works without it · Configure key" />
@@ -55,6 +59,8 @@
                 <Button x:Name="LanguageSubmitButton" Grid.Column="1" Content="Draft brief" IsEnabled="False"
                         Margin="{StaticResource UnitGap}" AutomationProperties.Name="Submit language brief" />
               </Grid>
+              <TextBlock x:Name="LanguageStatusText" IsVisible="False" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
+                         Foreground="{DynamicResource MutedBrush}" />
             </StackPanel>
           </Border>
 

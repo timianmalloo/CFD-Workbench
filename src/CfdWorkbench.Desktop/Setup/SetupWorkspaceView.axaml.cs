@@ -46,8 +46,11 @@ public partial class SetupWorkspaceView : UserControl
     ];
 
     private SetupController? bound;
+    private Assistant.AssistantRuntimeHub? assistantHub;
     private Action? onOpenInCad;
     private bool syncing;
+
+    public event Action? ConfigureKeyRequested;
 
     public SetupWorkspaceView()
     {
@@ -105,13 +108,16 @@ public partial class SetupWorkspaceView : UserControl
 
         SeedButton.Click += (_, _) => bound?.SeedDesign();
         ResetPresetButton.Click += (_, _) => { if (bound is not null) bound.SelectPurpose(bound.Purpose); };
+        LanguageConfigureKeyButton.Click += (_, _) => ConfigureKeyRequested?.Invoke();
+        LanguageSubmitButton.Click += async (_, _) => await HandleLanguageSubmitAsync();
 
         DetachedFromVisualTree += OnDetachedFromVisualTree;
     }
 
-    public void Bind(SetupController? controller, Action? openInCad = null)
+    public void Bind(SetupController? controller, Action? openInCad = null, Assistant.AssistantRuntimeHub? hub = null)
     {
         onOpenInCad = openInCad ?? onOpenInCad;
+        assistantHub = hub ?? assistantHub;
         if (ReferenceEquals(bound, controller))
         {
             Refresh();
@@ -121,6 +127,45 @@ public partial class SetupWorkspaceView : UserControl
         bound = controller;
         if (bound is not null) bound.Changed += OnControllerChanged;
         Refresh();
+    }
+
+    private async Task HandleLanguageSubmitAsync()
+    {
+        if (bound is null || assistantHub is null) return;
+        string prompt = (LanguagePromptBox.Text ?? "").Trim();
+        if (string.IsNullOrWhiteSpace(prompt)) return;
+
+        var preview = await assistantHub.PreparePreviewAsync(new CfdWorkbench.Analysis.Assistant.AssistantPreviewRequest(
+            CfdWorkbench.Core.Assistant.AssistantArea.Setup,
+            CfdWorkbench.Core.Assistant.AssistantProposalKind.SetupSeed,
+            "Return strict setup-seed JSON with Stated/Inferred/Defaulted provenance.",
+            prompt));
+        if (!preview.Allowed || preview.Prepared is null)
+        {
+            LanguageStatusText.Text = preview.Message ?? Assistant.AssistantCopy.NoKeyNotice;
+            LanguageStatusText.IsVisible = true;
+            return;
+        }
+
+        if (TopLevel.GetTopLevel(this) is Window owner)
+        {
+            var dlg = new Assistant.AssistantConsentPreviewDialog(
+                assistantHub,
+                preview.Prepared,
+                new CfdWorkbench.Core.Assistant.AssistantValidationInput(
+                    CfdWorkbench.Core.Assistant.AssistantArea.Setup,
+                    CfdWorkbench.Core.Assistant.AssistantProposalKind.SetupSeed))
+            {
+                RequestedThemeVariant = owner.ActualThemeVariant
+            };
+            await dlg.ShowDialog(owner);
+            if (dlg.Accepted && dlg.ExecutionResult?.Validation?.SetupSeed is { } seed)
+            {
+                bound.ApplySetupSeedProposal(seed);
+                LanguageStatusText.Text = bound.LastReceipt ?? "";
+                LanguageStatusText.IsVisible = !string.IsNullOrWhiteSpace(LanguageStatusText.Text);
+            }
+        }
     }
 
     private void OnDetachedFromVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
@@ -173,8 +218,24 @@ public partial class SetupWorkspaceView : UserControl
             LanguageCardTitle.Text = SetupController.Copy79LanguageTitle;
             LanguageNoKeyText.IsVisible = !bound.HasApiKey;
             LanguageNoKeyText.Text = SetupController.Copy53NoApiKey;
-            LanguagePromptBox.IsEnabled = bound.HasApiKey;
-            LanguageSubmitButton.IsEnabled = bound.HasApiKey;
+            LanguageConfigureKeyButton.IsVisible = !bound.HasApiKey || (assistantHub is not null && !assistantHub.Eligibility.ProposalsEnabled);
+            bool readyForBrief = bound.HasApiKey && (assistantHub is null || assistantHub.Eligibility.ProposalsEnabled);
+            LanguagePromptBox.IsEnabled = readyForBrief;
+            LanguageSubmitButton.IsEnabled = readyForBrief;
+            if (bound.HasApiKey && assistantHub is not null && !assistantHub.Eligibility.ProposalsEnabled)
+            {
+                LanguageStatusText.Text = Assistant.AssistantCopy.UnevaluatedOnThisModel;
+                LanguageStatusText.IsVisible = true;
+            }
+            else if (bound.LastProposalProvenance.Count > 0)
+            {
+                LanguageStatusText.Text = string.Join(" · ", bound.LastProposalProvenance.Take(3).Select(p => $"[{p.Tag}] {p.FieldName}={p.ValueDisplay}"));
+                LanguageStatusText.IsVisible = true;
+            }
+            else
+            {
+                LanguageStatusText.IsVisible = false;
+            }
 
             // Pickers
             PurposePicker.SelectedItem = PurposeOptions.FirstOrDefault(o => o.Id == bound.Purpose) ?? PurposeOptions[0];

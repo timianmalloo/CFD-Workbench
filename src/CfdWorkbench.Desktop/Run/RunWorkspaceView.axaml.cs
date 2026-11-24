@@ -41,6 +41,8 @@ public partial class RunWorkspaceView : UserControl
     private bool syncingSelection;
 
     public event Action? SolverSetupRequested;
+    public event Action? ConfigureKeyRequested;
+    public event Action? OpenRepairedDraftRequested;
     public event Action<StatusReport>? StatusReported;
 
     /// <summary>Optional injectable substrate for live Run/Retry execution in tests or host adapters.</summary>
@@ -70,6 +72,93 @@ public partial class RunWorkspaceView : UserControl
         CancelButton.Click += (_, _) => HandleCancelAction();
         ExplainFailureButton.Click += (_, _) => HandleExplainFailure();
         PreviewCaseDiffButton.Click += (_, _) => HandlePreviewCaseDiff();
+        ExplainFailureLiveButton.Click += async (_, _) => await HandleExplainFailureLiveAsync();
+        ConfigureKeyButton.Click += (_, _) => ConfigureKeyRequested?.Invoke();
+        OpenRepairedDraftButton.Click += (_, _) => OpenRepairedDraftRequested?.Invoke();
+        ExplainFailureLiveButton.Content = Assistant.AssistantCopy.RunExplainLiveButton;
+        ConfigureKeyButton.Content = Assistant.AssistantCopy.ConfigureKeyButton;
+        OpenRepairedDraftButton.Content = Assistant.AssistantCopy.OpenRepairedDraftChip;
+    }
+
+    public void RefreshAssistantStatus()
+    {
+        bool hasKey = controller?.Assistant.HasApiKey == true;
+        bool ready = controller?.Assistant.IsReadyForProposals == true;
+        ConfigureKeyButton.IsVisible = !hasKey;
+        ExplainFailureLiveButton.IsEnabled = ready && SelectedStoredRun() is not null;
+        if (!hasKey)
+        {
+            OfflineNoKeyNoticeText.Text = RunCopy.OfflineNoKeyNotice;
+        }
+        else if (!ready)
+        {
+            OfflineNoKeyNoticeText.Text = Assistant.AssistantCopy.UnevaluatedOnThisModel;
+        }
+        else
+        {
+            OfflineNoKeyNoticeText.Text = $"BYOK assistant ready ({controller!.Assistant.CurrentSettings.ModelId}). Offline diagnostics remain available.";
+        }
+    }
+
+    /// <summary>
+    /// Applies a checked <see cref="CfdWorkbench.Core.Assistant.CaseDiffProposal"/> (AI-05) by creating a new Draft
+    /// Experiment version (never mutating a Queued experiment) and exposing the "Open repaired draft" jump chip.
+    /// </summary>
+    public void ApplyCaseDiffProposal(CfdWorkbench.Core.Assistant.CaseDiffProposal proposal)
+    {
+        ArgumentNullException.ThrowIfNull(proposal);
+        if (controller is not null)
+        {
+            if (controller.Sweeps.SelectedExperiment is not null)
+                controller.Sweeps.NewVersionFromSelected();
+            else
+                controller.Sweeps.NewSweep();
+        }
+        string changeSummary = string.Join(", ", proposal.Changes.Select(c => $"{c.Field}={c.ValueDisplay}"));
+        CaseDiffResultText.Text = $"New Draft experiment version created for run {proposal.FailedRunId} ({changeSummary}). Queued experiments unchanged.";
+        CaseDiffResultText.IsVisible = true;
+        OpenRepairedDraftButton.IsVisible = true;
+    }
+
+    private async Task HandleExplainFailureLiveAsync()
+    {
+        var run = SelectedStoredRun()?.Run;
+        if (run is null || controller is null) return;
+        var excerpts = string.IsNullOrWhiteSpace(activeLogExcerpt)
+            ? Array.Empty<CfdWorkbench.Core.Assistant.UntrustedExcerpt>()
+            : [new CfdWorkbench.Core.Assistant.UntrustedExcerpt("solver-log", "lines:1-50", activeLogExcerpt)];
+        var preview = await controller.Assistant.PreparePreviewAsync(
+            new CfdWorkbench.Analysis.Assistant.AssistantPreviewRequest(
+                CfdWorkbench.Core.Assistant.AssistantArea.Run,
+                CfdWorkbench.Core.Assistant.AssistantProposalKind.CaseDiff,
+                "Analyze the failed CFD run and propose a typed case-diff JSON creating a Draft experiment version.",
+                $"Propose repair for failed run {run.RunId}.",
+                Excerpts: excerpts));
+        if (!preview.Allowed || preview.Prepared is null)
+        {
+            CaseDiffResultText.Text = preview.Message ?? Assistant.AssistantCopy.NoKeyNotice;
+            CaseDiffResultText.IsVisible = true;
+            return;
+        }
+
+        if (TopLevel.GetTopLevel(this) is Window owner)
+        {
+            var dlg = new Assistant.AssistantConsentPreviewDialog(
+                controller.Assistant,
+                preview.Prepared,
+                new CfdWorkbench.Core.Assistant.AssistantValidationInput(
+                    CfdWorkbench.Core.Assistant.AssistantArea.Run,
+                    CfdWorkbench.Core.Assistant.AssistantProposalKind.CaseDiff,
+                    TargetExperimentIsQueued: true))
+            {
+                RequestedThemeVariant = owner.ActualThemeVariant
+            };
+            await dlg.ShowDialog(owner);
+            if (dlg.Accepted && dlg.ExecutionResult?.Validation?.CaseDiff is { } diff)
+            {
+                ApplyCaseDiffProposal(diff);
+            }
+        }
     }
 
     public void Bind(WorkbenchController workbenchController, bool isSolverReady)
@@ -162,6 +251,7 @@ public partial class RunWorkspaceView : UserControl
             BuildElevenStatePills(active: null);
             RenderMeshGate(null, "Not evaluated");
             RenderResiduals(null, null);
+            RefreshAssistantStatus();
             return;
         }
 
@@ -187,6 +277,7 @@ public partial class RunWorkspaceView : UserControl
 
         RenderMeshGate(run.MeshGate, summary.MeshGateLabel);
         RenderResiduals(summary.ResidualSummary, run.Resources);
+        RefreshAssistantStatus();
     }
 
     private readonly Dictionary<CfdRunState, (Border Pill, TextBlock Label)> statePills = new();
