@@ -55,6 +55,8 @@ public sealed partial class MainWindow : Window
             if (e.Property == Grid.RowProperty) Grid.SetRow(notice, Grid.GetRow(shellHost.StatusStrip) - 1);
         };
         Grid.SetRow(shellHost.StatusStrip, row + 1);
+        Grid.SetColumn(notice, 0);
+        Grid.SetColumnSpan(notice, 2);
         shellHost.Children.Add(notice);
     }
 

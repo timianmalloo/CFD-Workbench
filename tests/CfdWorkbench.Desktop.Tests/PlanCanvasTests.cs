@@ -176,7 +176,7 @@ public static partial class PlanCanvasTests
 
         DesktopChecks.Check("PlanCanvas_DoubleClickOnPolygonLeg_NoAdd", () =>
         {
-            using var fixture = new PlanFixture(newFoil: true);
+            using var fixture = new PlanFixture(newFoil: true, width: 1364);
             var curve = fixture.Controller.Planform!.Trailing;
             var a = fixture.Canvas.ScreenPoint(curve.Points[1]);
             var b = fixture.Canvas.ScreenPoint(curve.Points[2]);

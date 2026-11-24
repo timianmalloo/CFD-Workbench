@@ -1,7 +1,10 @@
 using CfdWorkbench.Analysis.Export;
+using CfdWorkbench.Analysis.Results;
 using CfdWorkbench.Cli;
 using CfdWorkbench.Analysis;
 using CfdWorkbench.Core;
+using CfdWorkbench.Core.CfdRun;
+using CfdWorkbench.Core.Results;
 using CfdWorkbench.Persistence;
 using System.Diagnostics;
 using System.Globalization;
@@ -252,6 +255,8 @@ public sealed class WorkbenchController : IDisposable
     private ShellMode returnToCadMode = ShellMode.Workspace;
     private bool isSweeps;
     private bool isSetup;
+    private bool isRun;
+    private bool isResults;
     private readonly IWingMethod analysisMethod;
     private readonly IEvaluationBarrier? analysisBarrier;
     private AnalysisService analysisService;
@@ -270,11 +275,37 @@ public sealed class WorkbenchController : IDisposable
 
     /// <summary>The model area's CAD or Analysis state; a section draft remains open while hidden.</summary>
     public ShellMode AreaMode => areaMode == ShellMode.Analysis ? areaMode : Section is null ? ShellMode.Workspace : ShellMode.SectionEditor;
-    public bool IsAnalysis => !isSweeps && !isSetup && AreaMode == ShellMode.Analysis;
+    public bool IsAnalysis => !isSweeps && !isSetup && !isRun && !isResults && AreaMode == ShellMode.Analysis;
     /// <summary>True when the Sweeps navbar segment (Ruling 271 DR-SWP-6) is active.</summary>
-    public bool IsSweeps => isSweeps && !isSetup;
+    public bool IsSweeps => isSweeps && !isSetup && !isRun && !isResults;
     /// <summary>True when the Setup navbar segment (Ruling 272 DR-SET-5) is active.</summary>
     public bool IsSetup => isSetup;
+    /// <summary>True when Area 5 Run (rail slot 5) is active.</summary>
+    public bool IsRun => isRun;
+    /// <summary>True when Area 6 Results (rail slot 6) is active.</summary>
+    public bool IsResults => isResults;
+    /// <summary>Active 6-area document workspace aligned with the 7-Area Left Activity Rail.</summary>
+    public WorkbenchArea ActiveArea =>
+        isSetup ? WorkbenchArea.Setup
+        : isSweeps ? WorkbenchArea.Experiment
+        : isRun ? WorkbenchArea.Run
+        : isResults ? WorkbenchArea.Results
+        : AreaMode == ShellMode.Analysis ? WorkbenchArea.Analysis
+        : WorkbenchArea.Cad;
+    /// <summary>Current open session for read-only Area 5/6 projections and append-only CFD records.</summary>
+    public AuthoringSession ActiveSession => session;
+    /// <summary>Typed CAD draft opened from Area 6 Candidate Ladder Accept as draft / Rebase (COMMIT-01; never mutates accepted geometry directly).</summary>
+    public CandidateGeometryDraft? ActiveCandidateDraft { get; private set; }
+    /// <summary>Current accepted revision ordinal (1-based) when a foil is open, else 0.</summary>
+    public int CurrentRevisionOrdinal
+    {
+        get
+        {
+            if (disposed || Inspection?.Authored.Binding.AcceptedId is not { } acceptedId) return 0;
+            try { return session.RevisionOf(acceptedId).Ordinal; }
+            catch (ContractError err) when (err.Code is "DOC-CLOSED" or "DOC-EMPTY" or "DOC-REFERENCE") { return 0; }
+        }
+    }
     /// <summary>The selected run's visible layers, empty before the first result.</summary>
     public IReadOnlyList<LayerData> LayerSet { get; private set; } = [];
     /// <summary>Layers pane visibility (§18.5 row 30). The flag is controller state; the projection reads it, so it survives a re-projection.</summary>
@@ -1182,11 +1213,12 @@ public sealed class WorkbenchController : IDisposable
     {
         long started = time.GetTimestamp();
         ShellMode from = AreaMode;
-        bool wasSweeps = isSweeps;
-        bool wasSetup = isSetup;
+        bool wasOther = isSweeps || isSetup || isRun || isResults;
         isSweeps = false;
         isSetup = false;
-        if (wasSweeps || wasSetup)
+        isRun = false;
+        isResults = false;
+        if (wasOther)
         {
             areaMode = ShellMode.Analysis;
         }
@@ -1205,9 +1237,11 @@ public sealed class WorkbenchController : IDisposable
 
     public void EnterCad()
     {
-        if (!IsAnalysis && !isSweeps && !isSetup) return;
+        if (!IsAnalysis && !isSweeps && !isSetup && !isRun && !isResults) return;
         isSweeps = false;
         isSetup = false;
+        isRun = false;
+        isResults = false;
         if (areaMode == ShellMode.Analysis)
             areaMode = returnToCadMode == ShellMode.SectionEditor && Section is null ? ShellMode.Workspace : returnToCadMode;
         Notify();
@@ -1218,6 +1252,8 @@ public sealed class WorkbenchController : IDisposable
         if (isSetup) return;
         if (areaMode != ShellMode.Analysis) returnToCadMode = AreaMode;
         isSweeps = false;
+        isRun = false;
+        isResults = false;
         isSetup = true;
         Setup.RefreshFromSession(notify: false);
         Setup.RecomputePreview(notify: false);
@@ -1232,9 +1268,11 @@ public sealed class WorkbenchController : IDisposable
 
     public void EnterSweeps()
     {
-        if (isSweeps && !isSetup) return;
+        if (isSweeps && !isSetup && !isRun && !isResults) return;
         if (areaMode != ShellMode.Analysis) returnToCadMode = AreaMode;
         isSetup = false;
+        isRun = false;
+        isResults = false;
         isSweeps = true;
         Sweeps.SetDisplayUnits(analysisUnits);
         Sweeps.CheckPreviewFreshness();
@@ -1243,8 +1281,127 @@ public sealed class WorkbenchController : IDisposable
 
     public void ToggleSweeps()
     {
-        if (isSweeps && !isSetup) EnterCad();
+        if (isSweeps && !isSetup && !isRun && !isResults) EnterCad();
         else EnterSweeps();
+    }
+
+    public void EnterRun()
+    {
+        if (isRun) return;
+        if (areaMode != ShellMode.Analysis) returnToCadMode = AreaMode;
+        isSetup = false;
+        isSweeps = false;
+        isResults = false;
+        isRun = true;
+        Notify();
+    }
+
+    public void ToggleRun()
+    {
+        if (isRun) EnterCad();
+        else EnterRun();
+    }
+
+    public void EnterResults()
+    {
+        if (isResults) return;
+        if (areaMode != ShellMode.Analysis) returnToCadMode = AreaMode;
+        isSetup = false;
+        isSweeps = false;
+        isRun = false;
+        isResults = true;
+        Notify();
+    }
+
+    public void ToggleResults()
+    {
+        if (isResults) EnterCad();
+        else EnterResults();
+    }
+
+    public void EnterArea(WorkbenchArea area)
+    {
+        switch (area)
+        {
+            case WorkbenchArea.Setup: EnterSetup(); break;
+            case WorkbenchArea.Cad: EnterCad(); break;
+            case WorkbenchArea.Analysis:
+                if (!IsAnalysis) ToggleAnalysis();
+                break;
+            case WorkbenchArea.Experiment: EnterSweeps(); break;
+            case WorkbenchArea.Run: EnterRun(); break;
+            case WorkbenchArea.Results: EnterResults(); break;
+        }
+    }
+
+    public CfdLedger ReadCfdLedger()
+    {
+        if (disposed || Inspection is null) return new CfdLedger([], [], []);
+        try { return session.ReadCfdLedger(); }
+        catch (ContractError err) when (err.Code is "DOC-CLOSED" or "DOC-EMPTY") { return new CfdLedger([], [], []); }
+    }
+
+    public void RecordCfdRun(CfdRunRecord run)
+    {
+        session.RecordCfdRun(run);
+        Notify();
+    }
+
+    public void RecordFieldEvidence(FieldEvidenceRecord evidence)
+    {
+        session.RecordFieldEvidence(evidence);
+        Notify();
+    }
+
+    public void RecordCandidate(CandidateRecord candidate)
+    {
+        session.RecordCandidate(candidate);
+        Notify();
+    }
+
+    public ResultsWorkspaceModel ProjectResults(
+        string? caseRootDirectory = null,
+        IParaViewLocator? paraViewLocator = null,
+        string? paraViewOverridePath = null,
+        string? experimentTerminalReason = null) =>
+        ResultsService.ProjectWorkspace(session, caseRootDirectory, paraViewLocator, paraViewOverridePath, experimentTerminalReason);
+
+    public SurfaceFieldProjection ProjectSurfaceField(
+        UnifiedResultSample sample,
+        string variable,
+        CancellationToken cancellation = default) =>
+        ResultsService.ProjectSurfaceField(session, sample, variable, cancellation);
+
+    /// <summary>
+    /// Opens a typed CandidateGeometryDraft in CAD without mutating accepted geometry directly (COMMIT-01, spec B1:1440).
+    /// </summary>
+    public void AcceptCandidateAsDraft(CandidateGeometryDraft candidateDraft)
+    {
+        ArgumentNullException.ThrowIfNull(candidateDraft);
+        if (!candidateDraft.AcceptEnabled)
+            throw new ContractError("RES-DRAFT-REV", candidateDraft.RefusalReason ?? "Accept disabled — base revision moved.");
+
+        ActiveCandidateDraft = candidateDraft;
+        if (candidateDraft.ParameterDeltas.Count > 0)
+        {
+            var first = candidateDraft.ParameterDeltas[0];
+            var curve = CurveFor(first.Channel);
+            var matched = curve?.Points.FirstOrDefault(p => string.Equals(p.Id, first.VertexId, StringComparison.Ordinal));
+            if (matched is not null)
+                Select(new Selection.Points([new PointRef(first.Channel, matched.Id)]));
+        }
+
+        string shortId = candidateDraft.CandidateId[..Math.Min(8, candidateDraft.CandidateId.Length)];
+        Status = candidateDraft.IsRebased
+            ? $"Rebased candidate {shortId} opened as CAD draft. Accepted geometry unchanged."
+            : $"Candidate {shortId} opened as CAD draft. Accepted geometry unchanged.";
+        EnterCad();
+    }
+
+    public void ClearCandidateDraft()
+    {
+        ActiveCandidateDraft = null;
+        Notify();
     }
 
     /// <summary>Computes one display mesh off the UI thread; the default is <see cref="Placement.Surface"/>.</summary>
@@ -4141,6 +4298,9 @@ public sealed class WorkbenchController : IDisposable
         analysisService = new AnalysisService(session, analysisMethod, analysisBarrier, time);
         isSweeps = false;
         isSetup = false;
+        isRun = false;
+        isResults = false;
+        ActiveCandidateDraft = null;
         Inspection = null;
         try { Setup.BindSession(session); }
         catch (ContractError err) when (err.Code == "DOC-EMPTY") { }
@@ -4285,6 +4445,9 @@ public sealed class WorkbenchController : IDisposable
         analysisService = new AnalysisService(session, analysisMethod, analysisBarrier, time);
         isSweeps = false;
         isSetup = false;
+        isRun = false;
+        isResults = false;
+        ActiveCandidateDraft = null;
         Setup.BindSession(session);
         Sweeps.BindSession(session);
         Sweeps.SetDisplayUnits(analysisUnits);

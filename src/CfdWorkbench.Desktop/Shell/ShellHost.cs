@@ -75,6 +75,12 @@ public sealed class ShellHost : Grid
     public WorkspaceId Workspace { get; private set; } = WorkspaceId.Planform;
     public ModelArea ModelView { get; }
 
+    /// <summary>The 7-Area Left Activity Rail (B1, Rulings 271 &amp; 272, C4): Col=0, Row=GetRow(DockHost), RowSpan=1.</summary>
+    public ActivityRail ActivityRail { get; }
+
+    /// <summary>True when Guided Solver Setup reports the local solver is Ready.</summary>
+    public bool IsSolverReady => SolverSetup.ViewModel.StatusSummary.Readiness == CfdWorkbench.Core.SolverSetup.SolverReadiness.Ready;
+
     /// <summary>The status strip under every pane and dock (DR-STATUS-1): the window's one polite status region.</summary>
     public StatusStrip StatusStrip { get; }
 
@@ -141,9 +147,11 @@ public sealed class ShellHost : Grid
     {
         if (MenuBar is not null) return MenuBar;
         RowDefinitions.Insert(0, new RowDefinition(GridLength.Auto));
-        foreach (Control child in new Control[] { DockHost, AnalysisPanel, StatusStrip }) SetRow(child, GetRow(child) + 1);
+        foreach (Control child in new Control[] { ActivityRail, DockHost, AnalysisPanel, StatusStrip }) SetRow(child, GetRow(child) + 1);
         MenuBar = new NativeMenuBar { [AutomationProperties.NameProperty] = "Menu bar" };
         SetRow(MenuBar, 0);
+        SetColumn(MenuBar, 0);
+        SetColumnSpan(MenuBar, 2);
         Children.Add(MenuBar);
         PositionPaletteBackdrop();
         return MenuBar;
@@ -152,6 +160,8 @@ public sealed class ShellHost : Grid
     private void PositionPaletteBackdrop()
     {
         int startRow = GetRow(DockHost);
+        SetColumn(paletteBackdrop, 0);
+        SetColumnSpan(paletteBackdrop, 2);
         SetRow(paletteBackdrop, startRow);
         SetRowSpan(paletteBackdrop, Math.Max(1, RowDefinitions.Count - startRow));
     }
@@ -218,6 +228,7 @@ public sealed class ShellHost : Grid
         Preferences = preferences;
         this.pickOpenFile = pickOpenFile;
 
+        ColumnDefinitions = new ColumnDefinitions("Auto,*");
         RowDefinitions = new RowDefinitions("*,Auto,Auto");
         AttachedToVisualTree += (_, _) =>
         {
@@ -241,6 +252,7 @@ public sealed class ShellHost : Grid
         Points = new PointsPane { Name = "PointsPane" };
         Layers = new LayersPane { Name = "LayersPane" };
         AnalysisPanel = new AnalysisPanel { Name = "AnalysisPanel", IsVisible = false };
+        ActivityRail = new ActivityRail { Name = "ActivityRail" };
         ModelView = new ModelArea();
         StatusStrip = new StatusStrip { Name = "StatusStrip" };
         SolverSetup = new SolverSetupView { Name = "SolverSetupView" };
@@ -253,11 +265,33 @@ public sealed class ShellHost : Grid
             Context = SolverSetup
         };
         SolverSetup.Reported += Report;
-        SolverSetup.StatusChanged += StatusStrip.ShowSolverState;
+        SolverSetup.StatusChanged += summary =>
+        {
+            StatusStrip.ShowSolverState(summary);
+            RefreshActivityRail();
+        };
         SolverSetup.CloseRequested += CloseSolverSetup;
         SolverSetup.BackToAnalysisRequested += OpenAnalysisFromSolverSetup;
         StatusStrip.SolverSetupRequested += OpenSolverSetup;
         AnalysisPanel.SolverSetupRequested += OpenSolverSetup;
+        ActivityRail.AreaSelected += area =>
+        {
+            if (!ReferenceEquals(LayoutFactory.MainDocumentDock.ActiveDockable, LayoutFactory.ModelDocument))
+                LayoutFactory.MainDocumentDock.ActiveDockable = LayoutFactory.ModelDocument;
+            Controller.EnterArea(area);
+        };
+        ActivityRail.ExportRequested += () => _ = ExportAsync();
+        ActivityRail.SolverSetupRequested += OpenSolverSetup;
+        ModelView.RunView.SolverSetupRequested += OpenSolverSetup;
+        ModelView.RunView.StatusReported += Report;
+        ModelView.ResultsView.StatusReported += Report;
+        ModelView.ResultsView.RetrySampleRequested += runId =>
+        {
+            if (!ReferenceEquals(LayoutFactory.MainDocumentDock.ActiveDockable, LayoutFactory.ModelDocument))
+                LayoutFactory.MainDocumentDock.ActiveDockable = LayoutFactory.ModelDocument;
+            Controller.EnterRun();
+            ModelView.RunView.SelectRun(runId);
+        };
         // The strip starts empty (DR-STATUS-4): the controller's opening prompt is the Start view's to show.
         shownStatusVersion = controller.StatusVersion;
         // PG-26 / DR-STATUS-1: the pane's reports (type, kind, nudge value, echoes, "Selected …", availability) go to the
@@ -312,10 +346,18 @@ public sealed class ShellHost : Grid
         HookDockCollectionChanges();
         DockHost.AttachedToVisualTree += (_, _) => MarkDockFixupNeeded();
         DockHost.LayoutUpdated += (_, _) => RunGatedDockFixups();
+        SetColumn(ActivityRail, 0);
+        SetRow(ActivityRail, 0);
+        SetRowSpan(ActivityRail, 1);
+        Children.Add(ActivityRail);
+        SetColumn(DockHost, 1);
         SetRow(DockHost, 0);
         Children.Add(DockHost);
+        SetColumn(AnalysisPanel, 1);
         SetRow(AnalysisPanel, 1);
         Children.Add(AnalysisPanel);
+        SetColumn(StatusStrip, 0);
+        SetColumnSpan(StatusStrip, 2);
         SetRow(StatusStrip, 2);
         Children.Add(StatusStrip);
 
@@ -933,12 +975,79 @@ public sealed class ShellHost : Grid
         SyncDocumentTabs(foilOpen);
         UpdateDocumentTabTitle(foilOpen);
         StatusStrip.ShowItems(SelectionItemText(), foilOpen, Controller.Estimates is not null, Properties.TextScale, StripUnits());
+        RefreshActivityRail();
         ModelView.ShowFoilOpen(foilOpen);
         if (foilOpen)
         {
             // The accepted source changes only with the acceptance (Inspection), one of the inputs above.
             if (!propertiesCurrent) ModelView.SourceText.Text = Controller.AcceptedSource;
         }
+    }
+
+    private void RefreshActivityRail()
+    {
+        bool foilOpen = Controller.Inspection is not null;
+        string setupBadge = Controller.Setup.HasSetupOrActive ? "Seeded" : "No brief";
+        int revOrd = foilOpen ? Controller.CurrentRevisionOrdinal : 0;
+        string cadBadge = foilOpen && revOrd > 0 ? $"r{revOrd}" : foilOpen ? "Open" : "Start";
+
+        string analysisBadge = "None";
+        int localCount = 0;
+        int admittedLocal = 0;
+        if (foilOpen)
+        {
+            try
+            {
+                var av = Controller.AnalysisView;
+                analysisBadge = av.State switch
+                {
+                    CfdWorkbench.Analysis.RunState.Running => "Running",
+                    CfdWorkbench.Analysis.RunState.Current => av.RunKey is { Length: >= 4 } rk ? $"k-{rk[..4]}" : "Current",
+                    CfdWorkbench.Analysis.RunState.Historical => "Historical",
+                    CfdWorkbench.Analysis.RunState.Failed => "Failed",
+                    _ => "None"
+                };
+                var localRuns = Controller.CompareRuns.Runs;
+                localCount = localRuns.Count;
+                admittedLocal = localRuns.Count(r => r.Integrity == RunIntegrity.Intact && r.Run.Outcome is RunOutcome.Completed);
+            }
+            catch (ContractError err) when (err.Code is "DOC-CLOSED" or "DOC-EMPTY")
+            {
+                return;
+            }
+        }
+
+        int sweepCount = foilOpen ? Controller.Sweeps.Experiments.Count : 0;
+        string experimentBadge = !foilOpen
+            ? "None"
+            : sweepCount > 0
+                ? $"{sweepCount} {(sweepCount == 1 ? "sweep" : "sweeps")}"
+                : Controller.Sweeps.HasDraft ? "Draft" : "None";
+
+        var cfdLedger = foilOpen ? Controller.ReadCfdLedger() : new CfdWorkbench.Core.CfdRun.CfdLedger([], [], []);
+        string runBadge = cfdLedger.Runs.Count > 0
+            ? $"{cfdLedger.Runs.Count} {(cfdLedger.Runs.Count == 1 ? "run" : "runs")}"
+            : IsSolverReady ? "Ready" : "Not ready";
+
+        int totalSamples = localCount + cfdLedger.Runs.Count;
+        int admittedSamples = admittedLocal
+            + cfdLedger.Runs.Count(r => r.Integrity == CfdWorkbench.Core.CfdRun.CfdRecordIntegrity.Intact &&
+                r.Run.CurrentState is CfdWorkbench.Core.CfdRun.CfdRunState.Completed or CfdWorkbench.Core.CfdRun.CfdRunState.CompletedResidualNotMet);
+        string resultsBadge = totalSamples > 0 ? $"{admittedSamples} of {totalSamples}" : "None";
+
+        string solverBadge = IsSolverReady ? "Ready" : "Not set up";
+
+        ActivityRail.BindState(
+            Controller.ActiveArea,
+            new ActivityRailBadges(
+                Setup: setupBadge,
+                Cad: cadBadge,
+                Analysis: analysisBadge,
+                Experiment: experimentBadge,
+                Run: runBadge,
+                Results: resultsBadge,
+                Export: "STL · 3MF",
+                SolverSetup: solverBadge));
     }
 
     /// <summary>Binds a <see cref="SolverSetupService"/> to the shell's Guided Solver Setup tab and StatusStrip item.</summary>
@@ -1480,6 +1589,12 @@ public sealed class ShellHost : Grid
             case "view.sweeps":
                 Controller.ToggleSweeps();
                 return;
+            case "view.run":
+                Controller.ToggleRun();
+                return;
+            case "view.results":
+                Controller.ToggleResults();
+                return;
             case "solver.setup":
                 OpenSolverSetup();
                 return;
@@ -1641,7 +1756,7 @@ public sealed class ShellHost : Grid
         id.StartsWith("station.", StringComparison.Ordinal) ||
         id.StartsWith("view.text-", StringComparison.Ordinal) ||
         id.StartsWith("view.comb", StringComparison.Ordinal) ||
-        id is "analysis.compare" or "analysis.compare-tiers" or "view.sweeps" or "view.setup" or "solver.setup" ||
+        id is "analysis.compare" or "analysis.compare-tiers" or "view.sweeps" or "view.setup" or "view.run" or "view.results" or "solver.setup" ||
         CommandTable.UnitsOf(id) is not null ||
         ViewCommands.Handles(id) ||
         IsShellCommand(id);
