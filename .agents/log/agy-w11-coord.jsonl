@@ -1,0 +1,2 @@
+{"action": "add", "agent": "agy-w11-coord", "at": 1795545878.3794084, "deadline_at": 1795632278.3794084, "id": "req-01M87DZKVCPZFZHXAYRED6SCBQ", "kind": "request", "path": "-", "seq": 1, "session": "agy-w11-coord", "to": "operator", "type": "request", "wi": "WI-0"}
+{"at": 1795545879.4934888, "from": "agy-w11-coord", "kind": "decision-request", "mail_id": "mail-01M87DZMY55C4C2CKZDTM3YNGH", "ref": "req-01M87DZKVCPZFZHXAYRED6SCBQ", "session": "agy-w11-coord", "to": "operator", "type": "mail"}

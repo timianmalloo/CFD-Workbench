@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-24T19:02:03Z",
+  "generated": "2026-11-24T19:29:16Z",
   "audit": [
     {
       "actor": null,
@@ -45395,6 +45395,35 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-24T18:42:43Z",
       "duration_seconds": 1159.0
+    },
+    {
+      "id": "al-01M87GHB1ADHAYR22HZADWJZ26",
+      "shortname": "join-w11-design",
+      "datetime": "2026-11-24T19:29:16Z",
+      "session": "agy-w11-coord",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "Joined verified W11-DESIGN (1b2ae052, CLEARS-THE-VETO: yes from w11-verifier #97): docs/design/byok-assistants.{md,html} freezing E7 surface list, project-DAG layer split (Core pure zero-I/O, Persistence OS credentials & closed-DTO settings/audit, Analysis zero-new-NuGet BCL HttpClient transport & service, Cli, Desktop), C1-C7 security & Desktop invariants, 9-item A8.6 eval suite v1.0, COPY-866..915 inventory, and 15-mutant test matrix. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/byok-assistants.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land Wave 11A W11-DESIGN design slice onto main",
+      "done_when": "W11-DESIGN merged via conductor-join.py --docs-only with docs-index.js regenerated, check-docs exit 0, and 10/10 verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-24T19:21:13Z",
+      "duration_seconds": 483.0
     }
   ],
   "changes": [
