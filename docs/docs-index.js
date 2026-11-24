@@ -9763,6 +9763,61 @@ window.DOCS_INDEX = {
       "sourceSha256": "90de08d5fbc20cccf9c3f87c3dc8229d9d0845df1cae1fe5c494ab3caf110ad5"
     },
     {
+      "id": "review-ui-as-built-workbench-r2",
+      "path": "docs/reviews/ui-as-built-workbench-r2.md",
+      "title": "UI design review (Round 2): as-built CFD-Workbench desktop after Waves 8, 10, and 11",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2027-02-24",
+      "reviewSuggested": [],
+      "summary": "Full Round 2 /ui-design review of the as-built CFD-Workbench Avalonia desktop client at b5dc963e following Waves 8, 10, and 11 (excluding screen-reader/NVDA/VoiceOver/Narrator work per operator directive): records DX23 measurements across 111 Desktop files (31 .axaml, 300 controls), 31 rubric findings (7 Blockers, 14 Majors, 7 Minors, 3 Nits), the Simplifier delete-list, a 10-dimension scorecard (2.0/4.0 CONDITIONAL-BLOCK), and a ranked 4-track Wave 12 fix plan naming Shell Chrome & Workspace Geometry Unification (W12-A) as the single highest-leverage change.",
+      "tags": [
+        "ui-design",
+        "review",
+        "avalonia",
+        "desktop",
+        "wave10",
+        "wave11",
+        "byok",
+        "activity-rail",
+        "wave12"
+      ],
+      "links": [
+        {
+          "to": "review-ui-as-built-workbench",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-cfd-run-pipeline",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-results-and-candidates",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-byok-assistants",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-wave11-byok-assistants-and-prior-carryforwards",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f0367b7b9b771044ecb50c323c68e305810dca241965dce4e66bbc3514d181e4"
+    },
+    {
       "id": "review-ui-m12c-paired",
       "path": "docs/reviews/ui-m12c-paired.md",
       "title": "M1.2c section editor — paired point types, before/after against the approved mockup",
@@ -26156,6 +26211,14 @@ window.DOCS_INDEX = {
       "artifactId": "review-ui-as-built-workbench"
     },
     {
+      "id": "surface-reviews-ui-as-built-workbench-r2",
+      "path": "docs/reviews/ui-as-built-workbench-r2.html",
+      "title": "Ui As Built Workbench R2",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "review-ui-as-built-workbench-r2"
+    },
+    {
       "id": "surface-mockups-w2-save-picker",
       "path": "docs/mockups/w2-save-picker.html",
       "title": "W-2 Save Picker",
@@ -26244,5 +26307,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "03d7b03cca549985fa18e7bdd67a25fce83154697117844c68fd89b74274bdc7"
+  "graphSha256": "1fab7c7b69b2bcd8b063806d84db4a081c01d022bcec3420ac3e9198a9a7a090"
 };

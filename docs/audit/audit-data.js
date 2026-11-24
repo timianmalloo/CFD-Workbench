@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-24T22:42:54Z",
+  "generated": "2026-11-24T22:54:48Z",
   "audit": [
     {
       "actor": null,
@@ -45585,6 +45585,35 @@ window.AUDIT_DATA = {
         "speedup": 2.59,
         "peak_concurrency": 3
       }
+    },
+    {
+      "id": "al-01M87W9NTHRDHCHVK2W406AESE",
+      "shortname": "ui-design-as-built-workbench-r2",
+      "datetime": "2026-11-24T22:54:48Z",
+      "session": "agy-w11-ui-review",
+      "prompt": "/also after this /ui-design review a full review and provide the next round of fixes/improvements we need to do",
+      "summary": "Completed full Round 2 /ui-design review of as-built CFD-Workbench desktop (111 files, 31 .axaml, 300 controls) after Wave 11 (b5dc963e), excluding screen-reader AT per operator directive: DX23 measurements, deterministic floor (design-lint 0 warnings, xaml-token-lint 0 findings, ui-craft-gate CD9 web-only), 31 rubric findings (7 Blockers, 14 Majors, 7 Minors, 3 Nits), Simplifier delete-list, 10-dimension scorecard (2.0/4.0 CONDITIONAL-BLOCK), and ranked 4-track Wave 12 plan naming W12-A Shell Chrome & Dock Auto-Collapse as highest-leverage first move.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-as-built-workbench-r2.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Deliver an evidence-backed full Round 2 /ui-design review and ranked next-round improvement plan",
+      "done_when": "docs/reviews/ui-as-built-workbench-r2.{md,html} rendered, docs-index.js updated, audit entry appended, check-proof-pii/check-docs/10 verify gates green, committed on main",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-24T22:44:15Z",
+      "duration_seconds": 633.0
     }
   ],
   "changes": [
