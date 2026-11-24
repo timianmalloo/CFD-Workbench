@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-23T23:52:14Z",
+  "generated": "2026-11-24T00:52:51Z",
   "audit": [
     {
       "actor": null,
@@ -45289,6 +45289,35 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-23T23:44:09Z",
       "duration_seconds": 485.0
+    },
+    {
+      "id": "al-01M85GN457WHPXGK9CB3FRQXMR",
+      "shortname": "join-w10-rail-ui",
+      "datetime": "2026-11-24T00:52:51Z",
+      "session": "agy-w10-coord",
+      "prompt": "the join of swarm-w10-rail-ui-8d1269eb into main",
+      "summary": "Joined verified W10-RAIL-UI (14af0062, CLEARS-THE-VETO: yes from w10-verifier #90): 7-Area Left Activity Rail (ActivityRail.axaml/.cs with zero Dock.* refs, ShellHost Auto,* 3-row/ColumnSpan=2 C4 layout, synced 4-button ModelArea.Navbar, zero rewrites of SetupWorkspaceView/SweepsWorkspaceView per Rulings 271/272), Area 5 RunWorkspaceView (11-state queue, MeshGate, residuals/forces, deterministic offline AI-01/AI-11 slots), Area 6 ResultsWorkspaceView + ResultsFieldCanvas (tau_w-gated separation, 9-field ProvenanceStrip + table twin, Replay pause/clear, DifferenceFlood Unavailable-mesh-differs, CandidateLadder Accept-as-draft CAD handoff, ParaView honest absence), CommandTable view.run/view.results Modal:false, DESIGN.md COPY-806..865 proposed only, and --wave10-ui Desktop harness. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/results-and-candidates.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land Wave 10D W10-RAIL-UI onto main",
+      "done_when": "W10-RAIL-UI merged via conductor-join.py with TESTS-GREEN, xaml-token-lint, UI-CS-TOKEN, check-event-subscribers, design-lint --strict, check-docs, and 10/10 verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-24T00:44:45Z",
+      "duration_seconds": 486.0
     }
   ],
   "changes": [
