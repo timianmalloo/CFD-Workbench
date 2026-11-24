@@ -1,0 +1,147 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="CfdWorkbench.Desktop.CfdRun.RunWorkspaceView">
+  <Grid RowDefinitions="Auto,*" Background="{DynamicResource CanvasBrush}" Margin="{StaticResource SweepNavbarClearance}">
+    <!-- Header toolbar -->
+    <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+            BorderThickness="{StaticResource PropRuleBottom}" Padding="{StaticResource Space2}">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+          <Border Background="{DynamicResource SurfaceSoftBrush}" BorderBrush="{DynamicResource LineBrush}"
+                  BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource ChipPadding}">
+            <TextBlock x:Name="SolverReadinessText" VerticalAlignment="Center" FontSize="{StaticResource CaptionSize}"
+                       Foreground="{DynamicResource InkBrush}" Text="Solver: Not ready" />
+          </Border>
+          <Button x:Name="RunButton" Classes="primary" Content="Run" MinHeight="{StaticResource ControlHeight}" />
+          <Button x:Name="CancelButton" Content="Cancel" MinHeight="{StaticResource ControlHeight}" IsEnabled="False" />
+          <Button x:Name="RetrySampleButton" Content="Retry sample" MinHeight="{StaticResource ControlHeight}" IsEnabled="False" />
+          <Button x:Name="SetUpSolverButton" Content="Set up a solver" MinHeight="{StaticResource ControlHeight}" />
+        </StackPanel>
+        <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+          <TextBlock Text="CFD Run Pipeline" Classes="heading" Foreground="{DynamicResource InkBrush}" />
+          <TextBlock x:Name="QueueSummaryText" Text="0 runs recorded" FontSize="{StaticResource CaptionSize}"
+                     Foreground="{DynamicResource MutedBrush}" />
+        </StackPanel>
+      </DockPanel>
+    </Border>
+
+    <!-- Main two-column workspace -->
+    <Grid Grid.Row="1" ColumnDefinitions="Auto,*" Margin="{StaticResource Space2}">
+      <!-- Left: Run queue -->
+      <Border Grid.Column="0" Width="{StaticResource RunQueueWidth}" Background="{DynamicResource SurfaceBrush}"
+              BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource HairlineThickness}"
+              Padding="{StaticResource Space2}" Margin="{StaticResource RunPaneGap}">
+        <Grid RowDefinitions="Auto,Auto,*">
+          <TextBlock Grid.Row="0" Text="Run queue &amp; history" FontWeight="SemiBold"
+                     FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
+          <TextBlock Grid.Row="1" x:Name="EmptyQueueText" TextWrapping="Wrap" Margin="{StaticResource Space1}"
+                     FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}"
+                     Text="No CFD runs recorded yet. Queue a case from Experiment or run a sample when a solver is ready." />
+          <ListBox Grid.Row="2" x:Name="RunQueueList" />
+        </Grid>
+      </Border>
+
+      <!-- Right: Selected run detail -->
+      <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="{StaticResource StackGap2}">
+          <!-- 11-state pipeline status card -->
+          <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+                  BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
+            <StackPanel Spacing="{StaticResource StackGap1}">
+              <DockPanel>
+                <TextBlock DockPanel.Dock="Right" x:Name="BackendPinText" FontSize="{StaticResource CaptionSize}"
+                           Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" />
+                <TextBlock Text="11-state pipeline status" FontWeight="SemiBold"
+                           FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
+              </DockPanel>
+              <TextBlock x:Name="SelectedRunStateText" Text="No run selected" FontWeight="SemiBold"
+                         Foreground="{DynamicResource InkBrush}" TextWrapping="Wrap" />
+              <WrapPanel x:Name="ElevenStatePanel" Orientation="Horizontal" />
+              <Border x:Name="IntegrityWarningBanner" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
+                      BorderBrush="{DynamicResource DangerBrush}" BorderThickness="{StaticResource PropRailThickness}"
+                      Padding="{StaticResource Space1}">
+                <TextBlock x:Name="IntegrityWarningText" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
+                           Foreground="{DynamicResource DangerBrush}" />
+              </Border>
+              <Border x:Name="ConvergedBanner" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
+                      BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="{StaticResource PropRailThickness}"
+                      Padding="{StaticResource Space1}">
+                <TextBlock x:Name="ConvergedLabelText" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
+                           Foreground="{DynamicResource InkBrush}" />
+              </Border>
+            </StackPanel>
+          </Border>
+
+          <!-- MeshGate breakdown card -->
+          <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+                  BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
+            <StackPanel Spacing="{StaticResource StackGap1}">
+              <DockPanel>
+                <TextBlock DockPanel.Dock="Right" x:Name="MeshGateStatusText" FontSize="{StaticResource CaptionSize}"
+                           Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" />
+                <TextBlock Text="Mesh gate (DR-F3-1 A / DR-F2-3)" FontWeight="SemiBold"
+                           FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
+              </DockPanel>
+              <Border x:Name="MeshGateScreenOnlyBanner" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
+                      BorderBrush="{DynamicResource WarningBrush}" BorderThickness="{StaticResource PropRailThickness}"
+                      Padding="{StaticResource Space1}">
+                <TextBlock x:Name="MeshGateScreenOnlyText" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
+                           Foreground="{DynamicResource InkBrush}" />
+              </Border>
+              <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto">
+                <TextBlock Grid.Row="0" Grid.Column="0" x:Name="MeshGateNonOrthoText" Classes="pnl-cell" Text="Non-orthogonality: Not recorded" />
+                <TextBlock Grid.Row="0" Grid.Column="1" x:Name="MeshGateInternalSkewText" Classes="pnl-cell" Text="Internal skewness: Not recorded" />
+                <TextBlock Grid.Row="1" Grid.Column="0" x:Name="MeshGateBoundarySkewText" Classes="pnl-cell" Text="Boundary skewness: Not recorded" />
+                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="MeshGateDeterminantText" Classes="pnl-cell" Text="Cell determinant: Not recorded" />
+                <TextBlock Grid.Row="2" Grid.Column="0" x:Name="MeshGateLayerCoverageText" Classes="pnl-cell" Text="Layer coverage: Not recorded" />
+                <TextBlock Grid.Row="2" Grid.Column="1" x:Name="MeshGateYPlusText" Classes="pnl-cell" Text="y+ (p95 / max): Not recorded" />
+              </Grid>
+              <ListBox x:Name="MeshGateFailuresList" MaxHeight="{StaticResource RunListMaxHeight}" IsVisible="False" />
+            </StackPanel>
+          </Border>
+
+          <!-- Residuals & Forces card -->
+          <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+                  BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
+            <StackPanel Spacing="{StaticResource StackGap1}">
+              <TextBlock Text="Residuals &amp; force coefficients (DR-F2-1)" FontWeight="SemiBold"
+                         FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
+              <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto">
+                <TextBlock Grid.Row="0" Grid.Column="0" x:Name="ResidualsDropText" Classes="pnl-cell" Text="Residual drop: Not recorded" />
+                <TextBlock Grid.Row="0" Grid.Column="1" x:Name="ForcesClText" Classes="pnl-cell" Text="CL (window): Not recorded" />
+                <TextBlock Grid.Row="0" Grid.Column="2" x:Name="ForcesCdText" Classes="pnl-cell" Text="CD (window): Not recorded" />
+                <TextBlock Grid.Row="1" Grid.Column="0" x:Name="ForcesCmText" Classes="pnl-cell" Text="CM (window): Not recorded" />
+                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="WindowUiText" Classes="pnl-cell" Text="Half-bands U_I: Not recorded" />
+                <TextBlock Grid.Row="1" Grid.Column="2" x:Name="TurbulenceBoundingText" Classes="pnl-cell" Text="Turbulence bounding: Not recorded" />
+              </Grid>
+              <TextBlock x:Name="ResourcesText" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}"
+                         Text="Resources: Not recorded" />
+            </StackPanel>
+          </Border>
+
+          <!-- Offline key-free AI-01 / AI-11 slot -->
+          <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+                  BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
+            <StackPanel Spacing="{StaticResource StackGap1}">
+              <TextBlock Text="Failure diagnostics &amp; case diff (offline)" FontWeight="SemiBold"
+                         FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
+              <TextBlock x:Name="OfflineNoKeyNoticeText" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
+                         Foreground="{DynamicResource MutedBrush}"
+                         Text="No API key configured — deterministic offline diagnostics and typed case-diff validation work without network calls." />
+              <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+                <Button x:Name="ExplainFailureButton" Content="Explain this failure" MinHeight="{StaticResource ControlHeight}" />
+                <Button x:Name="PreviewCaseDiffButton" Content="Preview case diff" MinHeight="{StaticResource ControlHeight}" />
+              </StackPanel>
+              <TextBlock x:Name="FailureExplanationSummaryText" TextWrapping="Wrap" Classes="pnl-cell" IsVisible="False" />
+              <TextBlock x:Name="FailureNextStepText" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
+                         Foreground="{DynamicResource MutedBrush}" IsVisible="False" />
+              <TextBlock x:Name="FailureCitedLinesText" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
+                         Foreground="{DynamicResource MutedBrush}" IsVisible="False" />
+              <TextBlock x:Name="CaseDiffResultText" TextWrapping="Wrap" Classes="pnl-cell" IsVisible="False" />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </ScrollViewer>
+    </Grid>
+  </Grid>
+</UserControl>

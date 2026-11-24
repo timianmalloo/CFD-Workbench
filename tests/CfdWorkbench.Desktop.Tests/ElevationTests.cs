@@ -735,7 +735,7 @@ public static class ElevationTests
             }
             finally
             {
-                f.Window.Width = 1400;
+                f.Window.Width = 1484;
                 f.Window.Height = 1000;
                 f.Settle();
             }
@@ -841,7 +841,7 @@ public static class ElevationTests
         public ElevationView Front => Area.FindControl<ElevationView>("FrontElevation")!;
         public ElevationView Side => Area.FindControl<ElevationView>("SideElevation")!;
 
-        public Fixture(int width = 1400, int height = 1000, byte[]? bytes = null)
+        public Fixture(int width = 1484, int height = 1000, byte[]? bytes = null)
         {
             if (bytes is null) Await(Controller.OpenExampleAsync());
             else Await(Controller.OpenFoilAsync(bytes, "Dihedral fixture"));

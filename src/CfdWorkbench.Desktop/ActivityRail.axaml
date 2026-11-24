@@ -1,0 +1,85 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="CfdWorkbench.Desktop.ActivityRail">
+  <Border Width="{StaticResource ActivityRailWidth}"
+          Background="{DynamicResource SurfaceBrush}"
+          BorderBrush="{DynamicResource LineBrush}"
+          BorderThickness="{StaticResource SolverSectionRuleRight}">
+    <Grid RowDefinitions="*,Auto" Margin="{StaticResource Space1}">
+      <ScrollViewer Grid.Row="0"
+                    VerticalScrollBarVisibility="Auto"
+                    HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="{StaticResource StackGap1}">
+          <Button x:Name="RailSetupButton" Classes="rail-item" HorizontalAlignment="Stretch"
+                  Padding="{StaticResource ActivityRailItemPadding}">
+            <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+              <TextBlock Text="Setup" Classes="rail-title" />
+              <TextBlock x:Name="BadgeSetupText" Text="No brief" Classes="rail-badge" />
+            </StackPanel>
+          </Button>
+
+          <Button x:Name="RailCadButton" Classes="rail-item active" HorizontalAlignment="Stretch"
+                  Padding="{StaticResource ActivityRailItemPadding}">
+            <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+              <TextBlock Text="CAD" Classes="rail-title" />
+              <TextBlock x:Name="BadgeCadText" Text="Start" Classes="rail-badge" />
+            </StackPanel>
+          </Button>
+
+          <Button x:Name="RailAnalysisButton" Classes="rail-item" HorizontalAlignment="Stretch"
+                  Padding="{StaticResource ActivityRailItemPadding}">
+            <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+              <TextBlock Text="Analysis" Classes="rail-title" />
+              <TextBlock x:Name="BadgeAnalysisText" Text="None" Classes="rail-badge" />
+            </StackPanel>
+          </Button>
+
+          <Button x:Name="RailExperimentButton" Classes="rail-item" HorizontalAlignment="Stretch"
+                  Padding="{StaticResource ActivityRailItemPadding}">
+            <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+              <TextBlock Text="Experiment" Classes="rail-title" />
+              <TextBlock x:Name="BadgeExperimentText" Text="None" Classes="rail-badge" />
+            </StackPanel>
+          </Button>
+
+          <Button x:Name="RailRunButton" Classes="rail-item" HorizontalAlignment="Stretch"
+                  Padding="{StaticResource ActivityRailItemPadding}">
+            <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+              <TextBlock Text="Run" Classes="rail-title" />
+              <TextBlock x:Name="BadgeRunText" Text="Not ready" Classes="rail-badge" />
+            </StackPanel>
+          </Button>
+
+          <Button x:Name="RailResultsButton" Classes="rail-item" HorizontalAlignment="Stretch"
+                  Padding="{StaticResource ActivityRailItemPadding}">
+            <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+              <TextBlock Text="Results" Classes="rail-title" />
+              <TextBlock x:Name="BadgeResultsText" Text="None" Classes="rail-badge" />
+            </StackPanel>
+          </Button>
+
+          <Border Classes="prop-rule" Margin="{StaticResource Space1}" />
+
+          <Button x:Name="RailExportButton" Classes="rail-item" HorizontalAlignment="Stretch"
+                  Padding="{StaticResource ActivityRailItemPadding}">
+            <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+              <TextBlock Text="Export" Classes="rail-title" />
+              <TextBlock x:Name="BadgeExportText" Text="STL · 3MF" Classes="rail-badge" />
+            </StackPanel>
+          </Button>
+        </StackPanel>
+      </ScrollViewer>
+
+      <Border Grid.Row="1" BorderBrush="{DynamicResource LineBrush}"
+              BorderThickness="{StaticResource HairlineTop}" Padding="{StaticResource ActivityRailFooterPadding}">
+        <Button x:Name="RailSolverSetupButton" Classes="rail-item" HorizontalAlignment="Stretch"
+                Padding="{StaticResource ActivityRailItemPadding}">
+          <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+            <TextBlock Text="Solver" Classes="rail-title" />
+            <TextBlock x:Name="BadgeSolverSetupText" Text="Not set up" Classes="rail-badge" />
+          </StackPanel>
+        </Button>
+      </Border>
+    </Grid>
+  </Border>
+</UserControl>
