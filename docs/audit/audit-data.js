@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-24T21:30:11Z",
+  "generated": "2026-11-24T22:40:57Z",
   "audit": [
     {
       "actor": null,
@@ -45482,6 +45482,35 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-24T21:22:03Z",
       "duration_seconds": 488.0
+    },
+    {
+      "id": "al-01M87VGAQEGZJAYF9P8R3E03AB",
+      "shortname": "join-w11-desktop-ai",
+      "datetime": "2026-11-24T22:40:57Z",
+      "session": "agy-w11-coord",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "Joined verified W11-DESKTOP-AI (008f1e79, CLEARS-THE-VETO: yes from w11-verifier #121, 0 seams, 0 repair cycles): DialogChrome-conformant AssistantSettingsDialog (ActivityRail footer Settings button + CommandTable view.settings Modal:true + ShellHost.ShowSettingsDialog + password-masked OS key Save/Remove without restart + AI-06 9-item eval runner + audit ledger), AssistantConsentPreviewDialog (byte-exact redacted payload preview, per-field Stated/Inferred/Defaulted diff, Accept/Discard/Refresh-on-base-drift, withheld-numeral reason), AssistantPromptBar, all 7 areas wired preserving every C4/C5 invariant (Setup SET-02/03, CAD AI-07 1-undo Apply, Analysis AI-08 5-tab/82px lock, Experiment AI-09 0 Run buttons, Run AI-05 & Solver Setup AI-11, Results AI-10 tau_w separation, Export No assistant action here), DESIGN.md COPY-866..915 proposed only, and --wave11-ai + CF-W7-1 Light/Dark/HighContrast theme brush verification. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/byok-assistants.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land Wave 11D W11-DESKTOP-AI and CF-W7-1 onto main",
+      "done_when": "W11-DESKTOP-AI merged via conductor-join.py with TESTS-GREEN, xaml-token-lint, UI-CS-TOKEN, check-event-subscribers, design-lint --strict, check-docs, and 10/10 verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-24T22:33:02Z",
+      "duration_seconds": 475.0
     }
   ],
   "changes": [
