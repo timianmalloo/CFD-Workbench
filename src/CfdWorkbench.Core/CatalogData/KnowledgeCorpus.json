@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "entries": [
+    {
+      "id": "kb:setup-soft-targets",
+      "title": "Setup soft targets and planform fill factor",
+      "area": "setup",
+      "tags": ["setup", "soft-targets", "span", "chord", "area", "aspect-ratio", "taper", "kappa"],
+      "body": "Area 1 Setup maps weighted soft targets (maxSpanMeters, maxChordMm, targetAreaCm2, targetAspectRatio) and taper ratio onto a 4-CV cubic tapered planform with exact fill factor kappa(lambda) = (3 + lambda) / 4. Conflicting triples seed the nearest feasible wing and report deviations while keeping targets as preferences. Assistant setup-seed proposals must supply finite in-range values and are refused field-by-field without silent clamping."
+    },
+    {
+      "id": "kb:setup-discipline-presets",
+      "title": "Discipline presets, wakefoil mapping, and GEN section fallback",
+      "area": "setup",
+      "tags": ["setup", "presets", "wingfoil-race", "wakefoil", "surf", "flagged", "gen-fallback"],
+      "body": "CFD-Workbench ships nine discipline presets (wingfoil-race, wingfoil-freeride, surf, pump, downwind, parawing, windfoil, kitefoil, efoil). Wakefoil maps onto the surf preset with a mandatory Flagged wake-speed assumption. Sections pending UIUC admission or marked LINK cite-only fall back to admitted GEN sections (such as naca-4412, naca-0012, naca-0009) and require explicit Flagged acknowledgement before seeding."
+    },
+    {
+      "id": "kb:setup-water-and-depth",
+      "title": "ITTC water properties and submergence depth band",
+      "area": "setup",
+      "tags": ["setup", "water", "salinity", "temperature", "ittc", "depth", "h_ref"],
+      "body": "Water density rho, kinematic viscosity nu, and vapor pressure pv are drawn from pinned ITTC 7.5-02-01-03 Rev 03 seawater and freshwater tables over 0 to 50 deg C. Submergence reference depth h_ref is measured from the root leading edge datum and determines local hydrostatic pressure for cavitation screening."
+    },
+    {
+      "id": "kb:cad-foildsl-channels",
+      "title": "FoilDSL five distribution curves and psi-aligned thickness",
+      "area": "cad",
+      "tags": ["cad", "foildsl", "leading", "trailing", "elevation", "twist", "thickness", "channels"],
+      "body": "A Surface revision is governed by five independent clamped B-spline distribution curves along normalized span eta in [0, 1]: leading-edge x, trailing-edge x, elevation z (anhedral is negative tip z), twist (positive nose-up about the station leading edge), and effective thickness ratio t/c. Chord is derived as trailing minus leading rather than stored as a separate authored channel."
+    },
+    {
+      "id": "kb:cad-tip-chord-and-locks",
+      "title": "Minimum tip chord rule and assistant lock provenance",
+      "area": "cad",
+      "tags": ["cad", "tip-chord", "locks", "geometry-edit", "undo", "provenance"],
+      "body": "Every hydrofoil surface must satisfy minimum tip chord max(5 mm, 2 percent of root chord) and non-crossing leading/trailing edges. Assistant geometry-edit proposals emit typed channel, station, profile, or lock deltas into a reviewable draft where every added lock records source 'assistant-proposal <id>'. Accepting applies the draft as one undo step; if baseAcceptedId moved since preview, Accept stays blocked until refreshed."
+    },
+    {
+      "id": "kb:cad-profile-blending",
+      "title": "Spanwise section blending and admitted profile library",
+      "area": "cad",
+      "tags": ["cad", "profile", "blend", "station", "naca-4412", "naca-0012", "naca-0009"],
+      "body": "Normalized camber and unit-thickness shapes interpolate linearly in normalized span eta between assigned station profiles at equal normalized chord, renormalizing to unit maximum thickness before scaling by the single t/c channel. Station edits may only reference admitted GEN or user-imported sections and may never remove the root (eta=0) or tip (eta=1) stations."
+    },
+    {
+      "id": "kb:analysis-vlm-strip",
+      "title": "VLM plus strip local calculation and transition Ncrit band",
+      "area": "analysis",
+      "tags": ["analysis", "vlm", "strip", "ncrit", "reynolds", "cl", "cd", "polar"],
+      "body": "The local calculation couples a vortex-lattice lifting surface with 2D strip polars evaluated across the Ncrit transition band {2, 4} inside the polar Reynolds envelope (2e5 to 2e6). Outputs include spanwise Cl*c/c_bar loading, lift, drag, pitching moment, and envelope coverage flags. What-if parameter changes must be executed through deterministic recomputation rather than estimated in prose."
+    },
+    {
+      "id": "kb:analysis-cavitation-screen",
+      "title": "Cavitation screening by sigma versus -Cp_min",
+      "area": "analysis",
+      "tags": ["analysis", "cavitation", "sigma", "cp_min", "v_crit", "margin", "a_cav"],
+      "body": "Cavitation screening compares local cavitation number sigma(y) = (p_atm + rho * g * h_ref - p_v) / (0.5 * rho * V^2) against peak suction -Cp_min at the governing spanwise station, reporting critical onset speed V_crit and margin sigma / (-Cp_min). Screening indicates onset risk under single-phase assumptions and never certifies absence of cavitation."
+    },
+    {
+      "id": "kb:analysis-ventilation-screen",
+      "title": "Ventilation screening and submergence ratio h/c",
+      "area": "analysis",
+      "tags": ["analysis", "ventilation", "submergence", "depth", "h/c", "free-surface"],
+      "body": "Ventilation screening checks submergence ratio h/c against the CEHINAV deep-water asymptote (h/c >= 5) and flags shallow-depth runs where free-surface drawdown or tip-vortex air entrainment can alter loads. Single-phase local calculations and single-phase RANS runs do not model free-surface air ingestion."
+    },
+    {
+      "id": "kb:experiment-multipoint-opt",
+      "title": "Multipoint optimization and A_cav constraint",
+      "area": "experiment",
+      "tags": ["experiment", "optimize", "multipoint", "drela", "garg", "a_cav", "objective"],
+      "body": "Optimization requires at least two operating points using dimensionless per-point objectives (such as D_k/D_k(x0) or L/D) and includes the A_cav cavitation area constraint alongside -Cp_min. Single-point optimization is refused because it tailors the foil to one condition and degrades performance at other speeds (Drela 1998; Garg 2017)."
+    },
+    {
+      "id": "kb:experiment-structural-proxy",
+      "title": "Frozen thickness rule and Experiment preview boundary",
+      "area": "experiment",
+      "tags": ["experiment", "thickness", "structural-proxy", "sweep", "preview", "queue"],
+      "body": "Thickness controls stay frozen during optimization unless a structural proxy row (root bending moment, integrated bending moment, or tip twist limit) or the Beam tier is present, because unconstrained hydrodynamic optimization collapses thickness to the lower floor (Garg 2017). Area 4 Experiment setup defines and previews sweep or optimize configurations only and never launches a solver run."
+    },
+    {
+      "id": "kb:run-mesh-gate-dr-f3-1",
+      "title": "CFD mesh gate DR-F3-1 A and wall-function feasibility DR-F2-3",
+      "area": "run",
+      "tags": ["run", "mesh-gate", "y-plus", "wall-function", "wall-resolved", "expansion-ratio", "dr-f3-1", "dr-f2-3"],
+      "body": "Before solving, the CFD run pipeline enforces mesh quality gates (non-orthogonality, skewness, aspect ratio, negative volume) under DR-F3-1 A and checks boundary-layer layer expansion ratio (1.05 to 1.20) under DR-F2-6. Wall functions (y+ >= 30) are admitted under DR-F2-3 only when a 15-layer stack fits within the estimated turbulent boundary-layer thickness delta; otherwise wall-resolved meshing (y+ <= 1) is required."
+    },
+    {
+      "id": "kb:run-convergence-dr-f2-1",
+      "title": "Three-part convergence criterion DR-F2-1",
+      "area": "run",
+      "tags": ["run", "convergence", "residuals", "outputs", "grid-uncertainty", "half-band", "dr-f2-1"],
+      "body": "Under DR-F2-1, a CFD run is labelled Converged only when all three parts hold: normalized residuals meet the drop target, integral force outputs complete within the averaging-window Cl and Cd half-band caps, and grid uncertainty is evaluated. High residuals or oscillating Cl/Cd half-bands indicate an unfinished or mesh-limited run rather than convergence."
+    },
+    {
+      "id": "kb:run-case-diff-repair",
+      "title": "Typed case-diff repairs and immutable Queued experiments",
+      "area": "run",
+      "tags": ["run", "case-diff", "typed-case-model", "queued", "draft", "turbulence", "iterations"],
+      "body": "Case-diff proposals may edit only closed TypedCaseModel fields within deterministic bounds (maxIterations, averagingWindowIterations, turbulenceModel SpalartAllmaras or KOmegaSst, domain extents, layerExpansionRatio, clHalfBandCap, cdHalfBandCap). Free-form dictionary macros (#codeStream, #calc, systemCall) are refused, Queued experiment versions are immutable (repairs create a new Draft referencing failedRunId), and quoted solver logs never trigger execution."
+    },
+    {
+      "id": "kb:solver-setup-routes",
+      "title": "Guided Solver Setup routes and pinned smoke verification",
+      "area": "solver-setup",
+      "tags": ["solver-setup", "wsl", "openfoam", "su2", "smoke-test", "courant", "route"],
+      "body": "Guided Solver Setup detects platform capabilities and guides through allow-listed steps with pinned archive digests and explicit per-step consent. On Windows, OpenFOAM runs inside a private WSL2 Linux distribution; solver readiness requires both backend identification and passing the bundled cavity-lid smoke test within its Courant number tolerance."
+    },
+    {
+      "id": "kb:solver-setup-recovery",
+      "title": "Recoverable solver setup and OS security protections",
+      "area": "solver-setup",
+      "tags": ["solver-setup", "recovery", "gatekeeper", "smartscreen", "defender", "report"],
+      "body": "Every solver setup step is recoverable after cancellation, offline loss, or restart, and users can export a diagnostic report without an API key. Assistant explanations in Solver Setup never ask users to type shell commands, never claim setup succeeded without a verified check, and never advise weakening Gatekeeper, SmartScreen, Defender, or antivirus protections."
+    },
+    {
+      "id": "kb:results-separation-tau-w",
+      "title": "Wall shear stress tau_w separation criterion versus Q and lambda2",
+      "area": "results",
+      "tags": ["results", "separation", "tau_w", "wall-shear", "skin-friction", "q-criterion", "lambda2", "vortex"],
+      "body": "Area 6 Results enables the Separation layer and separation diagnosis ONLY when wall shear stress (tau_w) is present on a wall surface patch together with a supported named criterion (skin-friction-line convergence or C_f,x sign change on this cut). Isosurfaces of Q or lambda2 identify vortex-core candidates only and never establish boundary-layer separation; without wall tau_w, the answer must read 'No supported criterion in this sample'."
+    },
+    {
+      "id": "kb:results-candidate-ladder",
+      "title": "Candidate ladder, mesh-matched difference floods, and flow visual layers",
+      "area": "results",
+      "tags": ["results", "candidates", "difference-flood", "streamlines", "pathlines", "tke", "mesh-hash"],
+      "body": "Difference floods compare two runs only when their mesh hash matches; otherwise the view reads 'Unavailable — mesh differs'. Steady RANS streamlines represent instantaneous integral curves of the mean field (moving dashes are an affordance, not fluid motion), turbulent kinetic energy k is a modeled mean-flow quantity, and physical-time pathlines are available only for transient runs with multiple timesteps."
+    }
+  ]
+}
