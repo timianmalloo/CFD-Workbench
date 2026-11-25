@@ -10614,7 +10614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e1d1206cdf55c541e249c56d862af63043bc7ab10fcc50a530adfe830b042fbd"
+      "sourceSha256": "b97fa4deef4987ffed06b8fb16a37069a70649e496cfa27f7a9d89b44c4dc3cf"
     },
     {
       "id": "kb-hw-glossary",
@@ -12884,6 +12884,66 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "441046b1a02c4c52c4efd5bb85086be795bdfadd6798c7511d40c3d84ccaab5c"
+    },
+    {
+      "id": "coordination-wave12-ui-unification-and-polish",
+      "path": "docs/coordination/wave12-ui-unification-and-polish.md",
+      "title": "Coordination plan - wave 12: Round 2 /ui-design Unification, Broken-Flow Closure, Scientific Truth & Polish",
+      "type": "plan",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-02-24",
+      "reviewSuggested": [],
+      "summary": "Wave 12 closes all 31 Round 2 /ui-design findings (R2-01..R2-31: 7 Blockers, 14 Majors, 7 Minors, 3 Nits) from docs/reviews/ui-as-built-workbench-r2.md across four serial width-1 AGY swarm tracks under Ruling 277: W12-A unifies shell chrome (retiring duplicate Navbar area buttons, auto-collapsing CAD docks outside CAD/Analysis, ActivityRail RowSpan=2 + F6 + view.cad, global teal/HC control styles, DN-5 text scaling); W12-B unifies BYOK Assistant UX and fixes unreachable CAD Assistant, broken Base-Drift Refresh, Settings blowout, and busy/cancel states; W12-C fixes unreachable Replay, 6 dead Results layers, zero-pinned vik + viewport contrast, stuck Run action, live theme reactivity, and PerformanceCurveChart contrast; W12-D finishes responsive reflow, tabular Sweeps, Display Units, internal-ID/LAB-01 copy sanitization, DESIGN.md §5 sync, and P3 polish.",
+      "tags": [
+        "coordination",
+        "worktrees",
+        "ui-design",
+        "avalonia",
+        "desktop",
+        "shell",
+        "byok",
+        "results",
+        "agy-swarm",
+        "wave12"
+      ],
+      "links": [
+        {
+          "to": "review-ui-as-built-workbench-r2",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "design-byok-assistants",
+          "rel": "refines"
+        },
+        {
+          "to": "design-results-and-candidates",
+          "rel": "refines"
+        },
+        {
+          "to": "design-cfd-run-pipeline",
+          "rel": "refines"
+        },
+        {
+          "to": "coordination-wave11-byok-assistants-and-prior-carryforwards",
+          "rel": "refines"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "2548671abccbb39971f1448d8d07f78cbc7765dafaf4addd9cd9dad1bb0ad40d"
     },
     {
       "id": "coordination-wave3-next-steps",
@@ -26251,6 +26311,14 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-wave11-byok-assistants-and-prior-carryforwards"
     },
     {
+      "id": "surface-coordination-wave12-ui-unification-and-polish",
+      "path": "docs/coordination/wave12-ui-unification-and-polish.html",
+      "title": "Wave12 Ui Unification And Polish",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "coordination-wave12-ui-unification-and-polish"
+    },
+    {
       "id": "surface-coordination-wave5-next-steps",
       "path": "docs/coordination/wave5-next-steps.html",
       "title": "Wave5 Next Steps",
@@ -26307,5 +26375,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "1fab7c7b69b2bcd8b063806d84db4a081c01d022bcec3420ac3e9198a9a7a090"
+  "graphSha256": "6194cbc8ab0bea15e1c0d247bcd7ca5c828f84ccc211c7941f22988ee3e11111"
 };

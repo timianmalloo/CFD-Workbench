@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-24T22:54:48Z",
+  "generated": "2026-11-25T05:45:23Z",
   "audit": [
     {
       "actor": null,
@@ -45614,6 +45614,50 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-24T22:44:15Z",
       "duration_seconds": 633.0
+    },
+    {
+      "id": "al-01M88JY1D6YGVKZVAVJ678YD8C",
+      "shortname": "push main and kick off wave 12 per the Best next action",
+      "datetime": "2026-11-25T05:30:24Z",
+      "session": "prompt-log",
+      "prompt": "push main and kick off wave 12 per the Best next action",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M88KSFCQ13JW943JE0JZYPQ7",
+      "shortname": "coordination-wave12-ui-unification",
+      "datetime": "2026-11-25T05:45:23Z",
+      "session": "agy-w12-coord",
+      "prompt": "Prepare Wave 12 coordination plan closing all 31 Round 2 /ui-design findings (R2-01..R2-31) under Ruling 277",
+      "summary": "Recorded Ruling 277 (retiring Rulings 271/272 interim 4-button ModelArea.Navbar bridge & enabling CAD dock auto-collapse outside CAD/Analysis) and drafted & Adversary-cleared (758e0281, C1-C10 folded) Wave 12 coordination plan across 4 serial width-1 share tracks: W12-A (Shell Chrome, Dock Auto-Collapse & Global Tokens), W12-B (BYOK Assistant Unification & Broken Flows), W12-C (Results, Run & Chart Scientific Truth), W12-D (Responsive Reflow, Tabular Sweeps, Units, Copy Sanitization & Polish). Covers 31/31 Round 2 findings; screen-reader AT & external items struck.",
+      "kind": "skill",
+      "skill": "prepare-for-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/wave12-ui-unification-and-polish.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Produce an Adversary-cleared Wave 12 coordination plan committed on main with Ruling 277",
+      "done_when": "Plan .md/.html rendered, C1-C10 folded, Ruling 277 committed, docs-index.js updated, check-proof-pii/verify-ruling-citations/check-docs/10 verify gates green, S0 committed on main",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-25T05:30:25Z",
+      "duration_seconds": 898.0
     }
   ],
   "changes": [
@@ -49572,6 +49616,24 @@ window.AUDIT_DATA = {
       "to": "agy-w11-coord",
       "kind": "ruling",
       "ref": "req-01M87DZKVCPZFZHXAYRED6SCBQ",
+      "session": "operator"
+    },
+    {
+      "id": "mail-01M88JY35P17XJA2SBKG1CQV78",
+      "ts": "2026-11-25T05:30:25Z",
+      "from": "agy-w12-coord",
+      "to": "operator",
+      "kind": "decision-request",
+      "ref": "req-01M88JY35819RJF8PV4525P34M",
+      "session": "agy-w12-coord"
+    },
+    {
+      "id": "mail-01M88JY3FEYRV9BK8R35RW0VYC",
+      "ts": "2026-11-25T05:30:26Z",
+      "from": "operator",
+      "to": "agy-w12-coord",
+      "kind": "ruling",
+      "ref": "req-01M88JY35819RJF8PV4525P34M",
       "session": "operator"
     }
   ]
