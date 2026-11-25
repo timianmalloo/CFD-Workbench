@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-25T08:35:26Z",
+  "generated": "2026-11-25T09:44:54Z",
   "audit": [
     {
       "actor": null,
@@ -45745,6 +45745,35 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-25T08:27:21Z",
       "duration_seconds": 485.0
+    },
+    {
+      "id": "al-01M891G23JP7C7PVQ23W00DAT9",
+      "shortname": "join-w12-d",
+      "datetime": "2026-11-25T09:44:54Z",
+      "session": "agy-w12-coord",
+      "prompt": "the join of swarm-w12-polish-copy-3dece42d into main",
+      "summary": "Joined verified W12-D (835a1ba7, CLEARS-THE-VETO: yes from w12-verifier #147, 0 seams, 0 repair cycles): R2-05 reflow (WrapPanels + SolverSetup collapsible assistant <1100px), R2-12 (Area 4 sub-tabs 1. Sweep setup / 2. Local queue / 3. Polars keeping Sweep:), R2-13 Setup (real inline constraint bound editor -> UpdateConstraintBound), R2-15 (0 internal DR/spec IDs & 3 LAB-01 certified -> checked), R2-18 & R2-28 (aligned Grid+pnl-cell tabular Sweeps removing all 8 C# FontSize literals + TokenDisciplineTests C# FontSize literal ban), R2-19 (global Metric/Imperial units across Setup/Experiment/LocalRun/Run/Results), R2-22 (primary CTAs, 0 Run button in ExperimentSetup), R2-23 (dynamic Export badge), R2-25 (non-wheel-capturing MeshGateFailuresList/CandidateList/TermsText), R2-27 (DESIGN.md §5 reconciled keeping COPY-866..915 proposed), R2-29 (same-band non-overlapping AnalysisPanel PART_TabStripScroll keeping LoadingPlot >=82px), R2-31 (ExportDialog COPY-913 in sibling Grid Col 0 beside FooterButtons Col 1 + StartView RecentListBox 180px), and ui-as-built-workbench-r2.{md,html} §7 31/31 closure ledger. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-as-built-workbench-r2.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land Wave 12D W12-D onto main closing all 31 Round 2 findings",
+      "done_when": "W12-D merged via conductor-join.py with TESTS-GREEN, xaml-token-lint, UI-CS-TOKEN, check-event-subscribers, design-lint --strict, check-docs, and 10/10 verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-25T09:36:45Z",
+      "duration_seconds": 489.0
     }
   ],
   "changes": [
