@@ -39,7 +39,9 @@ public static class Wave10UiTests
         DesktopChecks.Check("ActivityRail_SevenAreas_LiveBadges_DockingZeroRewrite", CheckActivityRailAndDocking);
         DesktopChecks.Check("Wave12A_ShellChrome_CommandTable_ControlTokens_TextScale_StatusStripFit", CheckWave12AShellChromeAndTokens);
         DesktopChecks.Check("RunWorkspaceView_ElevenStates_MeshGate_And_OfflineFailureExplain", CheckRunWorkspaceView);
+        DesktopChecks.Check("Wave12C_RunWorkspaceView_LiveExecute_SplitStepper_And_ThemeReactivity", CheckWave12CRunWorkspace);
         DesktopChecks.Check("ResultsWorkspaceView_TauWSeparation_ReplayPauseClear_DifferenceFlood_CandidateDraft", CheckResultsWorkspaceView);
+        DesktopChecks.Check("Wave12C_Results_AutoReplay_ReadOnlyManifestLayers_ZeroPinnedVik_And_AdaptiveLegend", CheckWave12CResultsScientificTruth);
         DesktopChecks.Check("Wave10Ui_DesignCopy806To865_And_CommandTableRunResultsModalFalse", CheckCopyAndCommandTable);
     }
 
@@ -495,12 +497,14 @@ public static class Wave10UiTests
             var runView = host.ModelView.RunView;
             Require(runView.IsVisible, "RunWorkspaceView must be visible");
 
-            // Verify all 11 state pills exist in the status pipeline display.
-            Require(runView.DisplayedStateCount == 11, $"expected 11 state slots in pipeline display, got {runView.DisplayedStateCount}");
+            // R2-26 (C7): 7-step linear happy-path stepper + dedicated semantic terminal badge.
+            Require(runView.DisplayedStateCount == 7, $"expected 7 happy-path steps in pipeline stepper, got {runView.DisplayedStateCount}");
 
-            // Select converged run -> verify LAB-01 three-part Converged label and MeshGate pass metrics.
+            // Select converged run -> verify LAB-01 three-part Converged label, hidden terminal badge, and MeshGate pass metrics.
             runView.SelectRun(convergedRun.RunId);
             Settle(window);
+            var termBadge = Need<Border>(runView, "TerminalStatusBadge");
+            Require(!termBadge.IsVisible, "TerminalStatusBadge must be hidden on Completed happy-path run");
             string convergedText = NeedText(runView, "ConvergedLabelText");
             Require(convergedText.Contains("Converged:", StringComparison.Ordinal) &&
                     convergedText.Contains("outputs complete", StringComparison.Ordinal) &&
@@ -512,9 +516,13 @@ public static class Wave10UiTests
             string clText = NeedText(runView, "ForcesClText");
             Require(clText.Contains("0.412", StringComparison.Ordinal), $"Forces CL readout missing value: '{clText}'");
 
-            // Select failed MeshGate run -> verify failure breakdown + offline key-free Explain this failure & Preview case diff.
+            // Select failed MeshGate run -> verify semantic terminal badge + failure breakdown + offline key-free Explain this failure & Preview case diff.
             runView.SelectRun(failedMeshRun.RunId);
             Settle(window);
+            Require(termBadge.IsVisible && termBadge.Classes.Contains("danger"),
+                "R2-26: Failed run must show TerminalStatusBadge with .danger class");
+            Require(NeedText(runView, "TerminalStatusBadgeText") == "Failed",
+                $"R2-26: Failed run terminal badge text must be 'Failed', got '{NeedText(runView, "TerminalStatusBadgeText")}'");
             Require(NeedText(runView, "SelectedRunStateText").Contains("Failed", StringComparison.Ordinal),
                 "Failed run must display Failed state");
             Require(Need<ListBox>(runView, "MeshGateFailuresList").ItemCount >= 1,
@@ -757,6 +765,345 @@ public static class Wave10UiTests
         }
     }
 
+    private static void CheckWave12CRunWorkspace()
+    {
+        using var controller = new WorkbenchController();
+        var host = new ShellHost(controller);
+        var window = new Window { Content = host, Width = 1280, Height = 800 };
+        try
+        {
+            window.Show();
+            Settle(window);
+            Pump(controller.OpenExampleAsync());
+            controller.EnterRun();
+            Settle(window);
+
+            var runView = host.ModelView.RunView;
+            var runBtn = Need<Button>(runView, "RunButton");
+            var cancelBtn = Need<Button>(runView, "CancelButton");
+
+            // 1. R2-13 (Run): clicking Run with no substrate configured must report immediately and NEVER stick RunButton disabled!
+            StatusReport? lastReport = null;
+            runView.StatusReported += r => lastReport = r;
+            runView.SubstrateOverride = null;
+            Click(runBtn);
+            Settle(window);
+            Require(runBtn.IsEnabled && !cancelBtn.IsEnabled,
+                "R2-13: RunButton must remain enabled (never stuck disabled) when no substrate is configured");
+            Require(lastReport is not null && lastReport.Kind == ReportKind.Warning,
+                "R2-13: clicking Run without substrate must report warning status immediately");
+
+            // 2. R2-13 (Run): with SubstrateOverride configured, clicking Run actually executes pipeline, records run in queue, and resets buttons in finally!
+            var substrate = new RecordingCfdRunSubstrate();
+            runView.SubstrateOverride = substrate;
+            int beforeCount = controller.ReadCfdLedger().Runs.Count;
+            Click(runBtn);
+            var deadline = DateTime.UtcNow.AddSeconds(10);
+            while (DateTime.UtcNow < deadline && (!substrate.StageCalled || !runBtn.IsEnabled))
+            {
+                Settle(window);
+                Thread.Sleep(10);
+            }
+            Settle(window);
+            Require(substrate.StageCalled && substrate.MeshCalled,
+                "R2-13: HandleRunAction must execute CfdCasePipelineService against SubstrateOverride");
+            Require(runBtn.IsEnabled && !cancelBtn.IsEnabled,
+                "R2-13: RunButton must re-enable and CancelButton disable in finally after pipeline completes/fails");
+            Require(controller.ReadCfdLedger().Runs.Count == beforeCount + 1,
+                $"R2-13: pipeline execution must record new run in session ledger (expected {beforeCount + 1}, got {controller.ReadCfdLedger().Runs.Count})");
+
+            // 3. R2-26 (C7): Verify all 4 non-happy-path terminal/status states render dedicated semantic TerminalStatusBadge.
+            var snap = controller.ActiveSession.Snapshot();
+            string mh = new string('d', 64);
+            var resNotMet = BuildCfdRunRecord(snap, mh, 3.0, 7.2, true, false, converged: false, null, null);
+            var cancelled = BuildTerminalCfdRunRecord(snap, mh, 5.0, 7.2, CfdRunState.Cancelled, "CFD-CANCELLED", "Cancelled by user.");
+            var unsupported = BuildTerminalCfdRunRecord(snap, mh, 7.0, 7.2, CfdRunState.Unsupported, "CFD-UNSUPPORTED-PHYSICS", "SU2 does not support cavitation.");
+            controller.RecordCfdRun(resNotMet);
+            controller.RecordCfdRun(cancelled);
+            controller.RecordCfdRun(unsupported);
+            runView.RefreshFromController();
+            Settle(window);
+
+            var termBadge = Need<Border>(runView, "TerminalStatusBadge");
+            runView.SelectRun(resNotMet.RunId);
+            Settle(window);
+            Require(termBadge.IsVisible && termBadge.Classes.Contains("warning") && NeedText(runView, "TerminalStatusBadgeText") == "Residual not met",
+                $"R2-26: Residual not met badge mismatch: visible={termBadge.IsVisible}, text='{NeedText(runView, "TerminalStatusBadgeText")}'");
+
+            runView.SelectRun(cancelled.RunId);
+            Settle(window);
+            Require(termBadge.IsVisible && termBadge.Classes.Contains("warning") && NeedText(runView, "TerminalStatusBadgeText") == "Cancelled",
+                $"R2-26: Cancelled badge mismatch: visible={termBadge.IsVisible}, text='{NeedText(runView, "TerminalStatusBadgeText")}'");
+
+            runView.SelectRun(unsupported.RunId);
+            Settle(window);
+            Require(termBadge.IsVisible && termBadge.Classes.Contains("warning") && NeedText(runView, "TerminalStatusBadgeText") == "Unsupported",
+                $"R2-26: Unsupported badge mismatch: visible={termBadge.IsVisible}, text='{NeedText(runView, "TerminalStatusBadgeText")}'");
+
+            // 4. R2-17: Live Light -> Dark -> HighContrast switching updates Run stepper pill & terminal badge brushes WITHOUT re-selecting!
+            var stepPanel = Need<WrapPanel>(runView, "ElevenStatePanel");
+            Require(stepPanel.Children.Count == 7, $"Expected 7 stepper pills, got {stepPanel.Children.Count}");
+            var firstPill = (Border)stepPanel.Children[0];
+            var firstPillText = (TextBlock)firstPill.Child!;
+            var termText = Need<TextBlock>(runView, "TerminalStatusBadgeText");
+
+            foreach (var variant in new[] { Avalonia.Styling.ThemeVariant.Dark, NativeReviewThemes.HighContrast, Avalonia.Styling.ThemeVariant.Light })
+            {
+                window.RequestedThemeVariant = variant;
+                Settle(window);
+                runView.TryFindResource("WarningBrush", variant, out var warnRes);
+                var expectedWarn = (Avalonia.Media.ISolidColorBrush)warnRes!;
+                Require(termBadge.BorderBrush is Avalonia.Media.ISolidColorBrush tbBorder && tbBorder.Color == expectedWarn.Color,
+                    $"R2-17: TerminalStatusBadge BorderBrush froze on theme {variant.Key} (expected {expectedWarn.Color}, got {termBadge.BorderBrush})");
+                Require(termText.Foreground is Avalonia.Media.ISolidColorBrush tbFg && tbFg.Color == expectedWarn.Color,
+                    $"R2-17: TerminalStatusBadgeText Foreground froze on theme {variant.Key} (expected {expectedWarn.Color}, got {termText.Foreground})");
+
+                // Active or idle stepper pill background must match active theme's SurfaceSoftBrush/PrimaryBrush (not frozen Light brush).
+                runView.TryFindResource("SurfaceSoftBrush", variant, out var softRes);
+                runView.TryFindResource("PrimaryBrush", variant, out var primRes);
+                var expectedSoft = (Avalonia.Media.ISolidColorBrush)softRes!;
+                var expectedPrim = (Avalonia.Media.ISolidColorBrush)primRes!;
+                bool pillBgMatches = firstPill.Background is Avalonia.Media.ISolidColorBrush pbg &&
+                    (pbg.Color == expectedSoft.Color || pbg.Color == expectedPrim.Color);
+                Require(pillBgMatches,
+                    $"R2-17: Run stepper pill Background froze on theme {variant.Key} (got {firstPill.Background}, expected {expectedSoft.Color} or {expectedPrim.Color})");
+                Require(firstPillText.Foreground is Avalonia.Media.ISolidColorBrush,
+                    "R2-17: Run stepper pill text Foreground must resolve to solid theme brush");
+            }
+        }
+        finally
+        {
+            window.Close();
+        }
+    }
+
+    private static void CheckWave12CResultsScientificTruth()
+    {
+        using var controller = new WorkbenchController();
+        var host = new ShellHost(controller);
+        var window = new Window { Content = host, Width = 1280, Height = 800 };
+        try
+        {
+            window.Show();
+            Settle(window);
+            Pump(controller.OpenExampleAsync());
+
+            var snap = controller.ActiveSession.Snapshot();
+            string meshHashA = new string('a', 64);
+            string meshHashB = new string('b', 64);
+
+            var runA1 = BuildCfdRunRecord(snap, meshHashA, 2.0, 7.2, true, false, true, null, null);
+            var runA2 = BuildCfdRunRecord(snap, meshHashA, 4.0, 7.2, true, false, true, null, null);
+            var runB1 = BuildCfdRunRecord(snap, meshHashB, 6.0, 7.2, true, false, true, null, null);
+
+            controller.RecordCfdRun(runA1);
+            controller.RecordFieldEvidence(CfdRunRecords.Seal(new FieldEvidenceRecord(
+                Guid.NewGuid().ToString("D"), runA1.RunId, "", "surface", "postProcessing/wingSurface/500/wing.raw",
+                new string('1', 64), meshHashA, ["Cp", "Cf"], "face",
+                [new FieldRangeRecord("Cp", "dimensionless", -2.0, 0.5, "sample-range"),
+                 new FieldRangeRecord("Cf", "dimensionless", 0.001, 0.003, "sample-range")],
+                "crameri-8.0", "cfdw-harvester", "1.0.0", false, null, false, false, [])));
+            controller.RecordFieldEvidence(CfdRunRecords.Seal(new FieldEvidenceRecord(
+                Guid.NewGuid().ToString("D"), runA1.RunId, "", "slice", "postProcessing/slice/500/u.raw",
+                new string('2', 64), meshHashA, ["U"], "face",
+                [new FieldRangeRecord("U", "m/s", 0.0, 9.5, "sample-range")],
+                "crameri-8.0", "cfdw-harvester", "1.0.0", false, null, false, false, [])));
+
+            controller.RecordCfdRun(runA2);
+            controller.RecordFieldEvidence(CfdRunRecords.Seal(new FieldEvidenceRecord(
+                Guid.NewGuid().ToString("D"), runA2.RunId, "", "surface", "postProcessing/wingSurface/500/wing.raw",
+                new string('3', 64), meshHashA, ["Cp"], "face",
+                [new FieldRangeRecord("Cp", "dimensionless", -1.8, 0.4, "sample-range")],
+                "crameri-8.0", "cfdw-harvester", "1.0.0", false, null, false, false, [])));
+
+            controller.RecordCfdRun(runB1);
+            controller.RecordFieldEvidence(CfdRunRecords.Seal(new FieldEvidenceRecord(
+                Guid.NewGuid().ToString("D"), runB1.RunId, "", "surface", "postProcessing/wingSurface/500/wing.raw",
+                new string('4', 64), meshHashB, ["Cp"], "face",
+                [new FieldRangeRecord("Cp", "dimensionless", -1.5, 0.5, "sample-range")],
+                "crameri-8.0", "cfdw-harvester", "1.0.0", false, null, false, false, [])));
+
+            controller.EnterResults();
+            Settle(window);
+
+            var resultsView = host.ModelView.ResultsView;
+
+            // 1. R2-02: Selecting runA1 MUST auto-build ActiveReplay WITHOUT any manual BuildReplayForSample call!
+            resultsView.SelectSample(runA1.RunId);
+            Settle(window);
+            Require(resultsView.ActiveReplay is not null && resultsView.ActiveReplay.Frames.Count == 2,
+                $"R2-02: RenderSelectedSample must auto-build Replay when >= 2 compatible samples exist (got {resultsView.ActiveReplay?.Frames.Count})");
+            Require(Need<Button>(resultsView, "ReplayStepForwardButton").IsEnabled,
+                "R2-02: ReplayStepForwardButton must be enabled automatically on >= 2 compatible samples");
+            Require(Need<Slider>(resultsView, "ReplayScrubSlider").IsEnabled,
+                "R2-02: ReplayScrubSlider must be enabled automatically on >= 2 compatible samples");
+
+            // Switching ReplayHoldAxisPicker to "Hold angle" (only 1 sample at alpha=2.0) must trigger SelectionChanged and explain < 2 honestly!
+            var axisPicker = Need<ComboBox>(resultsView, "ReplayHoldAxisPicker");
+            axisPicker.SelectedIndex = 1;
+            Settle(window);
+            Require(resultsView.ActiveReplay is null,
+                "R2-02: ReplayHoldAxisPicker.SelectionChanged to Hold angle (1 sample) must clear ActiveReplay");
+            string statusHeldAngle = NeedText(resultsView, "ReplayFrameStatusText");
+            Require(statusHeldAngle.Contains("2", StringComparison.Ordinal) || statusHeldAngle.Contains("compatible", StringComparison.OrdinalIgnoreCase),
+                $"R2-02: < 2 compatible samples must explain honestly, got '{statusHeldAngle}'");
+
+            // Switch back to "Hold speed" -> live replay returns immediately!
+            axisPicker.SelectedIndex = 0;
+            Settle(window);
+            Require(resultsView.ActiveReplay is not null && resultsView.ActiveReplay.Frames.Count == 2,
+                "R2-02: Switching ReplayHoldAxisPicker back to Hold speed must rebuild 2-frame replay");
+
+            // Selecting runB1 (isolated meshHashB -> only 1 compatible sample) explains < 2 honestly.
+            resultsView.SelectSample(runB1.RunId);
+            Settle(window);
+            Require(resultsView.ActiveReplay is null,
+                "R2-02: Isolated meshHashB sample (< 2 compatible) must have ActiveReplay == null");
+            Require(!Need<Button>(resultsView, "ReplayPlayButton").IsEnabled &&
+                    !Need<Slider>(resultsView, "ReplayScrubSlider").IsEnabled,
+                "R2-02: Replay controls must disable when < 2 compatible samples exist");
+
+            // 2. R2-06: ZERO dead ToggleButtons for the 6 non-2D-preview manifest layers; only 4 interactive layer ToggleButtons remain;
+            //    available manifest layer (SliceVelocity on runA1) shows honest read-only "Inspect in ParaView" guidance!
+            resultsView.SelectSample(runA1.RunId);
+            Settle(window);
+            string[] retiredToggleNames =
+            [
+                "LayerSliceVelocityToggle", "LayerStreamlinesToggle", "LayerTkeToggle",
+                "LayerForceVectorsToggle", "LayerSpanwiseLoadingToggle", "LayerPathlinesToggle"
+            ];
+            foreach (string deadName in retiredToggleNames)
+            {
+                Require(resultsView.FindControl<ToggleButton>(deadName) is null,
+                    $"R2-06: Dead unwired ToggleButton '{deadName}' must be removed and replaced with a read-only manifest row");
+            }
+            string[] liveToggleNames = ["LayerSurfaceCpToggle", "LayerSurfaceCfToggle", "LayerVortexCoreToggle", "LayerSeparationToggle"];
+            foreach (string liveName in liveToggleNames)
+            {
+                Require(resultsView.FindControl<ToggleButton>(liveName) is not null,
+                    $"R2-06: Interactive layer ToggleButton '{liveName}' must remain wired");
+            }
+            string sliceStatus = NeedText(resultsView, "LayerSliceVelocityStatusText");
+            Require(sliceStatus.Contains("ParaView", StringComparison.OrdinalIgnoreCase),
+                $"R2-06: Available read-only manifest layer must guide user to ParaView, got '{sliceStatus}'");
+            string pathStatus = NeedText(resultsView, "LayerPathlinesStatusText");
+            Require(pathStatus.Contains("Unavailable", StringComparison.OrdinalIgnoreCase),
+                $"R2-06: Unavailable read-only manifest layer must display Unavailable, got '{pathStatus}'");
+
+            // 3. R2-07 & R2-30: ResultsFieldCanvas uses PlanDangerBrush/PlanWarningBrush on graphite (not chrome DangerBrush/WarningBrush),
+            //    pins diverging vik symmetrically around physical 0.0, draws explicit "0" tick, and uses adaptive legend precision for small Cf.
+            string fieldCanvasSrc = File.ReadAllText(FindRepoFile(Path.Combine("src", "CfdWorkbench.Desktop", "Results", "ResultsFieldCanvas.cs")));
+            Require(fieldCanvasSrc.Contains("PlanDangerBrush", StringComparison.Ordinal) &&
+                    fieldCanvasSrc.Contains("PlanWarningBrush", StringComparison.Ordinal),
+                "R2-07: ResultsFieldCanvas must use PlanDangerBrush and PlanWarningBrush on graphite viewport");
+            Require(!fieldCanvasSrc.Contains("\"DangerBrush\"", StringComparison.Ordinal) &&
+                    !fieldCanvasSrc.Contains("\"WarningBrush\"", StringComparison.Ordinal),
+                "R2-07: ResultsFieldCanvas must NOT paint low-contrast chrome DangerBrush/WarningBrush on graphite viewport");
+
+            var (tZero, binZero) = ResultsFieldCanvas.MapScalarToColormap(0.0, -2.0, 0.5, isDiverging: true);
+            Require(Math.Abs(tZero - 0.5) < 1e-9 && binZero == 2,
+                $"R2-07: Physical 0.0 on asymmetric Cp [-2.0, +0.5] MUST map to VikZeroBrush (t=0.5, bin=2), got t={tZero}, bin={binZero}");
+            var (tMin, binMin) = ResultsFieldCanvas.MapScalarToColormap(-2.0, -2.0, 0.5, isDiverging: true);
+            Require(Math.Abs(tMin - 0.0) < 1e-9 && binMin == 0,
+                $"R2-07: -2.0 on [-2.0, +0.5] must map to VikNeg2Brush (t=0, bin=0), got t={tMin}, bin={binMin}");
+            var (tPos, binPos) = ResultsFieldCanvas.MapScalarToColormap(0.5, -2.0, 0.5, isDiverging: true);
+            Require(Math.Abs(tPos - 0.625) < 1e-9 && binPos == 3,
+                $"R2-07: +0.5 on [-2.0, +0.5] must map to VikPos1Brush (t=0.625, bin=3), got t={tPos}, bin={binPos}");
+
+            string smallCf = ResultsFieldCanvas.FormatLegendValue(0.003, 0.003);
+            Require(smallCf != "0.00" && smallCf.Contains("3.00e-3", StringComparison.Ordinal),
+                $"R2-30: Small Cf 0.003 must use adaptive scientific notation (never '0.00'), got '{smallCf}'");
+
+            var canvas = Need<ResultsFieldCanvas>(resultsView, "FieldCanvas");
+            // Force a deterministic real render on Cp (diverging vik) and verify explicit "0" tick & symmetric legend.
+            RenderControl(canvas);
+            Require(canvas.ActiveVariable == "Cp", $"Expected Cp active variable, got '{canvas.ActiveVariable}'");
+            Require(canvas.LastRenderedZeroTick && canvas.LastLegendMidLabel == "0",
+                $"R2-30: Diverging vik colorbar must render explicit '0' tick (tick={canvas.LastRenderedZeroTick}, mid='{canvas.LastLegendMidLabel}')");
+            Require(canvas.LastLegendMaxLabel == "2" && canvas.LastLegendMinLabel == "-2",
+                $"R2-07: Asymmetric Cp [-2.0, +0.5] must render symmetric zero-pinned legend [-2, +2] (got [{canvas.LastLegendMinLabel}, {canvas.LastLegendMaxLabel}])");
+
+            // Switch to SurfaceCf on runA1 ([0.001, 0.003]) and verify adaptive precision on real rendered legend!
+            Click(Need<ToggleButton>(resultsView, "LayerSurfaceCfToggle"));
+            Settle(window);
+            RenderControl(canvas);
+            Require(canvas.ActiveVariable == "Cf", $"Expected Cf active variable after toggle click, got '{canvas.ActiveVariable}'");
+            Require(!canvas.LastRenderedZeroTick, "Sequential batlow Cf colorbar must not render diverging 0 tick");
+            Require(canvas.LastLegendMaxLabel is not null && canvas.LastLegendMaxLabel != "0.00" &&
+                    canvas.LastLegendMinLabel is not null && canvas.LastLegendMinLabel != "0.00",
+                $"R2-30: Small Cf legend must not collapse to '0.00' (got min='{canvas.LastLegendMinLabel}', max='{canvas.LastLegendMaxLabel}')");
+        }
+        finally
+        {
+            window.Close();
+        }
+    }
+
+    private static CfdRunRecord BuildTerminalCfdRunRecord(
+        SessionView snap,
+        string meshHash,
+        double alphaDeg,
+        double speedMs,
+        CfdRunState terminalState,
+        string code,
+        string reason)
+    {
+        string runId = Guid.NewGuid().ToString("D");
+        var now = DateTimeOffset.UtcNow;
+        var water = WaterTable.At(15.0, OperatingPoints.SaltSalinityGPerKg);
+        var op = OperatingPoints.Custom(speedMs, alphaDeg, 0.50);
+        var reference = new RunReference(0.10, 1.0, 0.12, "root-le", "x-aft,y-stbd,z-up");
+        var inputs = new RunInputs(snap.AcceptedId, snap.SurfaceHash, [new string('c', 64)], "cfdw-cv/2", "rule-a/1");
+        var pin = new CfdBackendPin("openfoam-esi", "v2512", "wsl2", "_bd2b6720-20260127", new string('e', 64), true);
+
+        IReadOnlyList<CfdRunStateEvent> events = [CfdRunStateMachine.CreatePending(runId, now)];
+        if (terminalState == CfdRunState.Unsupported)
+        {
+            events = CfdRunStateMachine.AppendEvent(events, CfdRunState.Unsupported, now.AddSeconds(1), code, reason);
+        }
+        else if (terminalState == CfdRunState.Cancelled)
+        {
+            events = CfdRunStateMachine.AppendEvent(events, CfdRunState.Readiness, now.AddSeconds(1));
+            events = CfdRunStateMachine.AppendEvent(events, CfdRunState.Meshing, now.AddSeconds(2));
+            events = CfdRunStateMachine.TransitionToCancelled(events, now.AddSeconds(3), reason);
+        }
+        else
+        {
+            events = CfdRunStateMachine.AppendEvent(events, CfdRunState.Readiness, now.AddSeconds(1));
+            events = CfdRunStateMachine.TransitionToFailed(events, now.AddSeconds(2), code, reason);
+        }
+
+        string caseModelHash = new string('e', 64);
+        string runKey = CfdRunRecords.ComputeRunKey(inputs, water, op, pin, caseModelHash);
+        return CfdRunRecords.Seal(new CfdRunRecord(
+            runId, null, null, 0, runKey, "", caseModelHash, meshHash, pin, inputs, water, op, reference,
+            null, null, new CfdRunResources(0, 1, 100, 0.1, 1024), null, events));
+    }
+
+    private sealed class RecordingCfdRunSubstrate : ICfdRunSubstrate
+    {
+        public bool StageCalled { get; private set; }
+        public bool MeshCalled { get; private set; }
+
+        public Task<SubstrateStageResult> StageCaseAsync(TypedCaseModel model, IReadOnlyDictionary<string, string> files, CancellationToken ct)
+        {
+            StageCalled = true;
+            return Task.FromResult(new SubstrateStageResult(true, TestTemp.Root, TestTemp.Root, "controlDict", new string('a', 64)));
+        }
+
+        public Task<SubstrateProcessResult> ExecuteStepAsync(SubstrateStepRequest request, CancellationToken ct)
+        {
+            if (request.Step == SubstrateStepKind.Mesh) MeshCalled = true;
+            return Task.FromResult(new SubstrateProcessResult(ExitCode: 1, "", "Simulated mesh failure", false, false, 15));
+        }
+
+        public Task<SubstrateCancelResult> CancelRunAsync(string runKey, TimeSpan boundedWait, CancellationToken ct) =>
+            Task.FromResult(new SubstrateCancelResult(true, false, 1, new OrphanScanResult(runKey, [])));
+
+        public Task<OrphanScanResult> ScanOrphansAsync(string runKey, CancellationToken ct) =>
+            Task.FromResult(new OrphanScanResult(runKey, []));
+    }
+
     private static void CheckCopyAndCommandTable()
     {
         // CommandTable view.run and view.results under "View" with Modal: false.
@@ -906,6 +1253,14 @@ public static class Wave10UiTests
 
     private static void Click(Button button) =>
         button.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+
+    private static void RenderControl(Control control)
+    {
+        int w = Math.Max(320, (int)Math.Ceiling(control.Bounds.Width));
+        int h = Math.Max(220, (int)Math.Ceiling(control.Bounds.Height));
+        using var rtb = new Avalonia.Media.Imaging.RenderTargetBitmap(new PixelSize(w, h), new Vector(96, 96));
+        rtb.Render(control);
+    }
 
     private static void Require(bool condition, string message)
     {

@@ -323,8 +323,7 @@ public partial class SetupWorkspaceView : UserControl
                     DeviationsList.Children.Add(new TextBlock
                     {
                         Text = label,
-                        TextWrapping = TextWrapping.Wrap,
-                        Foreground = ResolveBrush("WarningBrush")
+                        Classes = { "setup-deviation" }
                     });
                 }
             }
@@ -347,8 +346,7 @@ public partial class SetupWorkspaceView : UserControl
                 FlaggedItemsList.Children.Add(new TextBlock
                 {
                     Text = $"[Flagged] {item.Source}",
-                    TextWrapping = TextWrapping.Wrap,
-                    Foreground = ResolveBrush("InkBrush")
+                    Classes = { "pnl-cell" }
                 });
             }
             FlaggedAckCheckBox.Content = Labels.SetupAcknowledgeFlagged(bound.RequiredFlagged.Count);
@@ -409,8 +407,7 @@ public partial class SetupWorkspaceView : UserControl
             {
                 Text = string.Create(CultureInfo.InvariantCulture,
                     $"{pt.Point.Label} ({kn:0.#} kn, h_ref {pt.Point.HRefMeters:0.##} m): CL_req {clText} · σ {sigText} · h/c {hcText}{shallowTag} · Cavitation: {cavText}"),
-                TextWrapping = TextWrapping.Wrap,
-                Foreground = ResolveBrush("InkBrush")
+                Classes = { "pnl-cell" }
             });
         }
 
@@ -427,8 +424,7 @@ public partial class SetupWorkspaceView : UserControl
             {
                 Text = $"{row.Label}{boundStr}{editedTag}",
                 VerticalAlignment = VerticalAlignment.Center,
-                TextWrapping = TextWrapping.Wrap,
-                Foreground = ResolveBrush("InkBrush")
+                Classes = { "pnl-cell" }
             });
             ConstraintsList.Children.Add(panel);
         }
@@ -447,8 +443,7 @@ public partial class SetupWorkspaceView : UserControl
             box.Children.Add(new TextBlock
             {
                 Text = $"[{f.Severity}] {f.RuleId} · {f.RuleVersion} ({f.RuleDate}){statusTag}\n{f.Message}",
-                TextWrapping = TextWrapping.Wrap,
-                Foreground = ResolveBrush("InkBrush")
+                Classes = { "pnl-cell" }
             });
 
             if (!f.Excluded && f.Severity is DrcSeverity.Error or DrcSeverity.Warning or DrcSeverity.Advisory)
@@ -478,7 +473,4 @@ public partial class SetupWorkspaceView : UserControl
         "targetArea" => string.Create(CultureInfo.InvariantCulture, $"{value * 1e4:0.#} cm²"),
         _ => string.Create(CultureInfo.InvariantCulture, $"{value:0.##}")
     };
-
-    private IBrush ResolveBrush(string key) =>
-        this.TryFindResource(key, ActualThemeVariant, out object? res) && res is IBrush brush ? brush : Brushes.Gray;
 }

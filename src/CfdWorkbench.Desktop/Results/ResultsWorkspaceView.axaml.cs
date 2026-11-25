@@ -23,6 +23,7 @@ public partial class ResultsWorkspaceView : UserControl
     private string? selectedSampleId;
     private string? selectedCandidateId;
     private string activeVariable = "Cp";
+    private string? replayUnavailableReason;
     private bool syncing;
 
     public event Action<StatusReport>? StatusReported;
@@ -42,6 +43,13 @@ public partial class ResultsWorkspaceView : UserControl
         InitializeComponent();
         ReplayHoldAxisPicker.ItemsSource = new[] { "Hold speed", "Hold angle" };
         ReplayHoldAxisPicker.SelectedIndex = 0;
+        ReplayHoldAxisPicker.SelectionChanged += (_, _) =>
+        {
+            if (syncing) return;
+            var sample = SelectedSample();
+            if (sample is not null)
+                BuildReplayForSample(sample.SampleId, OsAccessibility.IsReducedMotion());
+        };
 
         SamplePicker.SelectionChanged += (_, _) =>
         {
@@ -60,21 +68,19 @@ public partial class ResultsWorkspaceView : UserControl
 
         LayerSurfaceCpToggle.Click += (_, _) =>
         {
-            if (LayerSurfaceCpToggle.IsChecked == true)
-            {
-                activeVariable = "Cp";
-                LayerSurfaceCfToggle.IsChecked = false;
-                RenderSelectedSample();
-            }
+            if (!LayerSurfaceCpToggle.IsEnabled) return;
+            LayerSurfaceCpToggle.IsChecked = true;
+            LayerSurfaceCfToggle.IsChecked = false;
+            activeVariable = "Cp";
+            RenderSelectedSample();
         };
         LayerSurfaceCfToggle.Click += (_, _) =>
         {
-            if (LayerSurfaceCfToggle.IsChecked == true)
-            {
-                activeVariable = "Cf";
-                LayerSurfaceCpToggle.IsChecked = false;
-                RenderSelectedSample();
-            }
+            if (!LayerSurfaceCfToggle.IsEnabled) return;
+            LayerSurfaceCfToggle.IsChecked = true;
+            LayerSurfaceCpToggle.IsChecked = false;
+            activeVariable = "Cf";
+            RenderSelectedSample();
         };
         LayerSeparationToggle.Click += (_, _) => RenderSelectedSample();
         LayerVortexCoreToggle.Click += (_, _) => RenderSelectedSample();
@@ -212,6 +218,7 @@ public partial class ResultsWorkspaceView : UserControl
             storedCandidates = [];
             ActiveReplay = null;
             ActiveDifference = null;
+            replayUnavailableReason = ResultsCopy.ReplayNoSampleNote;
             SamplePicker.ItemsSource = Array.Empty<string>();
             DiffBasePicker.ItemsSource = Array.Empty<string>();
             DiffTargetPicker.ItemsSource = Array.Empty<string>();
@@ -221,6 +228,7 @@ public partial class ResultsWorkspaceView : UserControl
             FieldCanvas.UpdateField(null, showSeparation: false, showVortexCore: false);
             RenderProvenance(null);
             TableTwinList.ItemsSource = Array.Empty<string>();
+            RenderReplayState();
             RenderCandidateLadder();
             return;
         }
@@ -310,9 +318,17 @@ public partial class ResultsWorkspaceView : UserControl
     {
         if (workspace is null || controller is null) return;
         var anchor = workspace.Samples.FirstOrDefault(s => string.Equals(s.SampleId, anchorSampleId, StringComparison.Ordinal));
-        if (anchor is null || string.IsNullOrWhiteSpace(anchor.MeshHash))
+        if (anchor is null)
         {
             ActiveReplay = null;
+            replayUnavailableReason = ResultsCopy.ReplayNoSampleNote;
+            RenderReplayState();
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(anchor.MeshHash))
+        {
+            ActiveReplay = null;
+            replayUnavailableReason = ResultsCopy.ReplayMissingMeshNote;
             RenderReplayState();
             return;
         }
@@ -330,9 +346,12 @@ public partial class ResultsWorkspaceView : UserControl
                 Math.Abs((axis == ReplayHeldAxis.HeldSpeed ? s.SpeedMs : s.AlphaDeg) - heldVal) <= 1e-9)
             .ToArray();
 
-        if (compatible.Length == 0)
+        if (compatible.Length < 2)
         {
             ActiveReplay = null;
+            replayUnavailableReason = ResultsCopy.ReplayNeedsTwoSamplesNote(
+                compatible.Length,
+                axis == ReplayHeldAxis.HeldSpeed ? "speed" : "angle");
             RenderReplayState();
             return;
         }
@@ -373,7 +392,21 @@ public partial class ResultsWorkspaceView : UserControl
                 Provenance: s.Provenance));
         }
 
-        ActiveReplay = ReplaySequence.CreateSeries(slots, axis, reducedMotion: reducedMotion);
+        var series = ReplaySequence.CreateSeries(slots, axis, reducedMotion: reducedMotion);
+        int anchorFrameIndex = -1;
+        for (int i = 0; i < series.Frames.Count; i++)
+        {
+            if (string.Equals(series.Frames[i].RunId, anchor.RunId, StringComparison.Ordinal))
+            {
+                anchorFrameIndex = i;
+                break;
+            }
+        }
+        if (anchorFrameIndex > 0)
+            series = ReplaySequence.SelectFrame(series, anchorFrameIndex);
+
+        ActiveReplay = series;
+        replayUnavailableReason = null;
         RenderReplayState();
     }
 
@@ -410,9 +443,12 @@ public partial class ResultsWorkspaceView : UserControl
         var sample = SelectedSample();
         if (sample is null || controller is null)
         {
+            ActiveReplay = null;
+            replayUnavailableReason = ResultsCopy.ReplayNoSampleNote;
             FieldCanvas.UpdateField(null, showSeparation: false, showVortexCore: false);
             RenderProvenance(null);
             TableTwinList.ItemsSource = Array.Empty<string>();
+            RenderReplayState();
             return;
         }
 
@@ -426,6 +462,7 @@ public partial class ResultsWorkspaceView : UserControl
             FieldCanvas.ClearForFailedSample(sample.StatusLabel);
             RenderProvenance(sample.Provenance);
             RenderTableTwin(sample.TableTwin);
+            BuildReplayForSample(sample.SampleId, OsAccessibility.IsReducedMotion());
             return;
         }
 
@@ -437,30 +474,42 @@ public partial class ResultsWorkspaceView : UserControl
             showVortexCore: vortexAllowed && LayerVortexCoreToggle.IsChecked == true);
         RenderProvenance(surfaceProj.Provenance);
         RenderTableTwin(surfaceProj.TableTwin);
+        BuildReplayForSample(sample.SampleId, OsAccessibility.IsReducedMotion());
     }
 
     private void ApplyManifestToLayerToggles(FieldEvidenceManifest manifest)
     {
-        void BindLayer(FieldLayerKind kind, Avalonia.Controls.Primitives.ToggleButton toggle, TextBlock basisText)
+        void BindInteractiveLayer(FieldLayerKind kind, Avalonia.Controls.Primitives.ToggleButton toggle, TextBlock basisText)
         {
             var desc = manifest.ResolveLayer(kind);
             toggle.IsEnabled = desc.Available;
             if (!desc.Available) toggle.IsChecked = false;
             basisText.Text = desc.Available
                 ? (desc.MovingDashLabel is not null ? $"{desc.BasisLabel} · {desc.MovingDashLabel}" : desc.BasisLabel)
-                : (desc.UnavailableReason ?? "Unavailable");
+                : (desc.UnavailableReason ?? ResultsCopy.ManifestUnavailable);
         }
 
-        BindLayer(FieldLayerKind.SurfaceCp, LayerSurfaceCpToggle, LayerSurfaceCpBasisText);
-        BindLayer(FieldLayerKind.SurfaceCf, LayerSurfaceCfToggle, LayerSurfaceCfBasisText);
-        BindLayer(FieldLayerKind.SliceVelocity, LayerSliceVelocityToggle, LayerSliceVelocityBasisText);
-        BindLayer(FieldLayerKind.Streamlines3D, LayerStreamlinesToggle, LayerStreamlinesBasisText);
-        BindLayer(FieldLayerKind.TurbulentKineticEnergy, LayerTkeToggle, LayerTkeBasisText);
-        BindLayer(FieldLayerKind.ForceVectors, LayerForceVectorsToggle, LayerForceVectorsBasisText);
-        BindLayer(FieldLayerKind.SpanwiseLoading, LayerSpanwiseLoadingToggle, LayerSpanwiseLoadingBasisText);
-        BindLayer(FieldLayerKind.VortexCoreCandidates, LayerVortexCoreToggle, LayerVortexCoreBasisText);
-        BindLayer(FieldLayerKind.Separation, LayerSeparationToggle, LayerSeparationBasisText);
-        BindLayer(FieldLayerKind.Pathlines, LayerPathlinesToggle, LayerPathlinesBasisText);
+        void BindManifestRow(FieldLayerKind kind, TextBlock statusText, TextBlock basisText)
+        {
+            var desc = manifest.ResolveLayer(kind);
+            statusText.Text = desc.Available ? ResultsCopy.ManifestAvailableParaView : ResultsCopy.ManifestUnavailable;
+            statusText.Classes.Set("available", desc.Available);
+            basisText.Text = desc.Available
+                ? (desc.MovingDashLabel is not null ? $"{desc.BasisLabel} · {desc.MovingDashLabel}" : desc.BasisLabel)
+                : (desc.UnavailableReason ?? ResultsCopy.ManifestUnavailable);
+        }
+
+        BindInteractiveLayer(FieldLayerKind.SurfaceCp, LayerSurfaceCpToggle, LayerSurfaceCpBasisText);
+        BindInteractiveLayer(FieldLayerKind.SurfaceCf, LayerSurfaceCfToggle, LayerSurfaceCfBasisText);
+        BindInteractiveLayer(FieldLayerKind.VortexCoreCandidates, LayerVortexCoreToggle, LayerVortexCoreBasisText);
+        BindInteractiveLayer(FieldLayerKind.Separation, LayerSeparationToggle, LayerSeparationBasisText);
+
+        BindManifestRow(FieldLayerKind.SliceVelocity, LayerSliceVelocityStatusText, LayerSliceVelocityBasisText);
+        BindManifestRow(FieldLayerKind.Streamlines3D, LayerStreamlinesStatusText, LayerStreamlinesBasisText);
+        BindManifestRow(FieldLayerKind.TurbulentKineticEnergy, LayerTkeStatusText, LayerTkeBasisText);
+        BindManifestRow(FieldLayerKind.ForceVectors, LayerForceVectorsStatusText, LayerForceVectorsBasisText);
+        BindManifestRow(FieldLayerKind.SpanwiseLoading, LayerSpanwiseLoadingStatusText, LayerSpanwiseLoadingBasisText);
+        BindManifestRow(FieldLayerKind.Pathlines, LayerPathlinesStatusText, LayerPathlinesBasisText);
     }
 
     private void RenderProvenance(ProvenanceStrip? strip)
@@ -506,18 +555,32 @@ public partial class ResultsWorkspaceView : UserControl
         {
             ReplayBannerText.Text = ReplaySequence.SeriesBanner;
             ReplayRangeLabelText.Text = ReplaySequence.RangeLockedLabel;
-            ReplayFrameStatusText.Text = "No compatible replay series built.";
+            ReplayFrameStatusText.Text = replayUnavailableReason ?? ResultsCopy.ReplayNoSampleNote;
             ReplayFailureBanner.IsVisible = false;
             ReplayPlayButton.IsEnabled = false;
             ReplayHoldButton.IsEnabled = false;
             ReplayStepBackButton.IsEnabled = false;
             ReplayStepForwardButton.IsEnabled = false;
+            ReplayLockRangeToggle.IsEnabled = false;
+            syncing = true;
+            try
+            {
+                ReplayScrubSlider.Minimum = 0;
+                ReplayScrubSlider.Maximum = 0;
+                ReplayScrubSlider.Value = 0;
+                ReplayScrubSlider.IsEnabled = false;
+            }
+            finally
+            {
+                syncing = false;
+            }
             return;
         }
 
         var series = ActiveReplay;
         ReplayBannerText.Text = series.Banner;
         ReplayRangeLabelText.Text = series.RangeScaleLabel;
+        ReplayLockRangeToggle.IsEnabled = true;
 
         syncing = true;
         try
@@ -526,6 +589,7 @@ public partial class ResultsWorkspaceView : UserControl
             ReplayScrubSlider.Minimum = 0;
             ReplayScrubSlider.Maximum = Math.Max(0, series.Frames.Count - 1);
             ReplayScrubSlider.Value = series.CurrentIndex;
+            ReplayScrubSlider.IsEnabled = series.Frames.Count > 1;
         }
         finally
         {

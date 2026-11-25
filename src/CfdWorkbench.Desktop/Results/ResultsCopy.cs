@@ -38,4 +38,12 @@ public static class ResultsCopy
     public const string OpenParaViewButton = "Open in ParaView";                                            // COPY-861
     public const string AskResultHeading = "Ask about this result (offline)";                               // COPY-862
     public const string AskResultButton = "Ask";                                                            // COPY-863
+
+    public const string ManifestAvailableParaView = "Available · Inspect in ParaView";
+    public const string ManifestUnavailable = "Unavailable";
+    public const string ReplayNoSampleNote = "Replay unavailable — select a completed CFD sample with ≥ 2 compatible samples on the held axis.";
+    public const string ReplayMissingMeshNote = "Replay unavailable — selected sample has no CFD mesh hash (requires ≥ 2 compatible samples sharing mesh, method, water, and held axis).";
+
+    public static string ReplayNeedsTwoSamplesNote(int compatibleCount, string heldAxisLabel) =>
+        $"Replay unavailable — only {compatibleCount} compatible sample at held {heldAxisLabel} (requires ≥ 2 samples sharing mesh, method, water, and held axis).";
 }

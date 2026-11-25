@@ -345,6 +345,8 @@
     <Thickness x:Key="ActivityRailFooterPadding">0,6,0,0</Thickness>
     <x:Double x:Key="RunQueueWidth">280</x:Double>
     <Thickness x:Key="RunPaneGap">0,0,8,0</Thickness>
+    <Thickness x:Key="RunStepPillPadding">6,2</Thickness>
+    <Thickness x:Key="RunStepPillMargin">0,0,4,4</Thickness>
     <x:Double x:Key="RunListMaxHeight">160</x:Double>
     <x:Double x:Key="ResultsFieldCanvasMinHeight">220</x:Double>
     <x:Double x:Key="ResultsSamplePickerWidth">260</x:Double>
@@ -500,6 +502,23 @@
   <Style Selector="Border.eval-banner"><Setter Property="BorderBrush" Value="{DynamicResource WarningBrush}" /></Style>
   <Style Selector="Border.eval-banner.eval-pass"><Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" /></Style>
   <Style Selector="Border.eval-banner.eval-fail"><Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}" /></Style>
+  <!-- Wave 12C Run 7-step happy-path stepper, semantic terminal badge, Setup deviations & Results manifest rows (R2-06, R2-17, R2-26; zero new theme brushes). -->
+  <Style Selector="Border.run-step-pill"><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" /><Setter Property="BorderThickness" Value="{StaticResource HairlineThickness}" /><Setter Property="CornerRadius" Value="{StaticResource RoundedSm}" /><Setter Property="Padding" Value="{StaticResource RunStepPillPadding}" /><Setter Property="Margin" Value="{StaticResource RunStepPillMargin}" /></Style>
+  <Style Selector="Border.run-step-pill TextBlock"><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /><Setter Property="FontWeight" Value="Normal" /></Style>
+  <Style Selector="Border.run-step-pill.reached"><Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" /></Style>
+  <Style Selector="Border.run-step-pill.reached TextBlock"><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /></Style>
+  <Style Selector="Border.run-step-pill.active"><Setter Property="Background" Value="{DynamicResource PrimaryBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" /></Style>
+  <Style Selector="Border.run-step-pill.active TextBlock"><Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" /><Setter Property="FontWeight" Value="SemiBold" /></Style>
+  <Style Selector="Border.run-terminal-badge"><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource WarningBrush}" /><Setter Property="BorderThickness" Value="{StaticResource PropRailThickness}" /><Setter Property="CornerRadius" Value="{StaticResource RoundedSm}" /><Setter Property="Padding" Value="{StaticResource RunStepPillPadding}" /></Style>
+  <Style Selector="Border.run-terminal-badge TextBlock"><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="FontWeight" Value="SemiBold" /><Setter Property="Foreground" Value="{DynamicResource WarningBrush}" /></Style>
+  <Style Selector="Border.run-terminal-badge.warning"><Setter Property="BorderBrush" Value="{DynamicResource WarningBrush}" /></Style>
+  <Style Selector="Border.run-terminal-badge.warning TextBlock"><Setter Property="Foreground" Value="{DynamicResource WarningBrush}" /></Style>
+  <Style Selector="Border.run-terminal-badge.danger"><Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}" /></Style>
+  <Style Selector="Border.run-terminal-badge.danger TextBlock"><Setter Property="Foreground" Value="{DynamicResource DangerBrush}" /></Style>
+  <Style Selector="TextBlock.setup-deviation"><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="Foreground" Value="{DynamicResource WarningBrush}" /><Setter Property="TextWrapping" Value="Wrap" /><Setter Property="FontFeatures" Value="+tnum,+lnum" /></Style>
+  <Style Selector="Border.manifest-layer-row"><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" /><Setter Property="BorderThickness" Value="{StaticResource HairlineThickness}" /><Setter Property="CornerRadius" Value="{StaticResource RoundedSm}" /><Setter Property="Padding" Value="{StaticResource Space1}" /></Style>
+  <Style Selector="TextBlock.manifest-layer-status"><Setter Property="FontSize" Value="{DynamicResource PropNoteSize}" /><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /><Setter Property="VerticalAlignment" Value="Center" /></Style>
+  <Style Selector="TextBlock.manifest-layer-status.available"><Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" /><Setter Property="FontWeight" Value="SemiBold" /></Style>
 
   <!-- The editable value (one element, DN-2): accent text with a dotted underline at rest (the pane draws the line in the
        template, CL-3 option A); a 20 px box with a 1 px accent boundary inside the 24 px band on focus, text in ink. -->

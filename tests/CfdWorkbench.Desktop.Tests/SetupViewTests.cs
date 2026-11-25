@@ -30,6 +30,7 @@ public static class SetupViewTests
     {
         DesktopChecks.Check("Desktop_SetupHardStates_NoKeyAndLab01Clean", T14_AllSixHardStatesAndLab01);
         DesktopChecks.Check("Desktop_SetupThemes_LightDarkHighContrast_AndCadSelectionPreserved", ThemesAndSelectionPreserved);
+        DesktopChecks.Check("Wave12C_SetupDynamicLists_LiveThemeReactivity_WithoutRefresh", CheckWave12CLiveThemeReactivity);
     }
 
     // T14 (AI-01, LAB-01, UX-19, DR-SET-5): Renders all 6 hard states; no-key state disables prompt box with COPY-53
@@ -215,6 +216,76 @@ public static class SetupViewTests
             Flush();
             Require(!controller.IsSetup, "EnterCad must leave Setup");
             Require(Equals(controller.Selection, sel), "Switching Setup <-> CAD must preserve CAD selection (UX-04)");
+        }
+        finally
+        {
+            window.Close();
+        }
+    }
+
+    private static void CheckWave12CLiveThemeReactivity()
+    {
+        using var controller = new WorkbenchController();
+        var host = new ShellHost(controller);
+        var window = new Window { Width = 1280, Height = 800, Content = host };
+        window.Show();
+        try
+        {
+            controller.EnterSetup();
+            // Trigger deviations (conflicting triple), flagged items (unacknowledged), goal operating points & constraints, and DRC findings.
+            controller.Setup.SelectPurpose("wingfoil-race");
+            controller.Setup.MaxSpanMeters = 0.80;
+            controller.Setup.MaxChordMm = 100.0;
+            controller.Setup.TargetAreaCm2 = 650.0;
+            controller.Setup.MastLengthCm = 120.0;
+            controller.Setup.WeightSpan = 1.0;
+            controller.Setup.WeightChord = 0.0;
+            controller.Setup.WeightArea = 0.0;
+            controller.Setup.WeightAspectRatio = 0.0;
+            controller.Setup.RecomputePreview();
+            Flush();
+
+            var setupView = host.ModelView.SetupView;
+            var deviations = setupView.FindControl<StackPanel>("DeviationsList")!;
+            var flagged = setupView.FindControl<StackPanel>("FlaggedItemsList")!;
+            var opPoints = setupView.FindControl<StackPanel>("OperatingPointsList")!;
+            var constraints = setupView.FindControl<StackPanel>("ConstraintsList")!;
+            var drcList = setupView.FindControl<StackPanel>("DrcFindingsList")!;
+
+            Require(deviations.Children.Count > 0, "Setup must populate DeviationsList for theme reactivity test");
+            Require(flagged.Children.Count > 0, "Setup must populate FlaggedItemsList for theme reactivity test");
+            Require(opPoints.Children.Count > 0, "Setup must populate OperatingPointsList for theme reactivity test");
+            Require(constraints.Children.Count > 0, "Setup must populate ConstraintsList for theme reactivity test");
+            Require(drcList.Children.Count > 0, "Setup must populate DrcFindingsList for theme reactivity test");
+
+            // Flip Light -> Dark -> HighContrast -> Light WITHOUT calling RecomputePreview() or Refresh()!
+            foreach (var variant in new[] { ThemeVariant.Dark, NativeReviewThemes.HighContrast, ThemeVariant.Light })
+            {
+                window.RequestedThemeVariant = variant;
+                Flush();
+
+                setupView.TryFindResource("WarningBrush", variant, out var warnRes);
+                setupView.TryFindResource("InkBrush", variant, out var inkRes);
+                var expectedWarn = ((Avalonia.Media.ISolidColorBrush)warnRes!).Color;
+                var expectedInk = ((Avalonia.Media.ISolidColorBrush)inkRes!).Color;
+
+                var devTb = (TextBlock)deviations.Children[0];
+                var flagTb = (TextBlock)flagged.Children[0];
+                var opTb = (TextBlock)opPoints.Children[0];
+                var conTb = ((StackPanel)constraints.Children[0]).Children.OfType<TextBlock>().First();
+                var drcTb = ((StackPanel)drcList.Children[0]).Children.OfType<TextBlock>().First();
+
+                Require(devTb.Foreground is Avalonia.Media.ISolidColorBrush db && db.Color == expectedWarn,
+                    $"R2-17: DeviationsList Foreground froze on {variant.Key} (expected {expectedWarn}, got {devTb.Foreground})");
+                Require(flagTb.Foreground is Avalonia.Media.ISolidColorBrush fb && fb.Color == expectedInk,
+                    $"R2-17: FlaggedItemsList Foreground froze on {variant.Key} (expected {expectedInk}, got {flagTb.Foreground})");
+                Require(opTb.Foreground is Avalonia.Media.ISolidColorBrush ob && ob.Color == expectedInk,
+                    $"R2-17: OperatingPointsList Foreground froze on {variant.Key} (expected {expectedInk}, got {opTb.Foreground})");
+                Require(conTb.Foreground is Avalonia.Media.ISolidColorBrush cb && cb.Color == expectedInk,
+                    $"R2-17: ConstraintsList Foreground froze on {variant.Key} (expected {expectedInk}, got {conTb.Foreground})");
+                Require(drcTb.Foreground is Avalonia.Media.ISolidColorBrush drcb && drcb.Color == expectedInk,
+                    $"R2-17: DrcFindingsList Foreground froze on {variant.Key} (expected {expectedInk}, got {drcTb.Foreground})");
+            }
         }
         finally
         {

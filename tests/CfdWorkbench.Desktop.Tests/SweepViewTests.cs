@@ -31,6 +31,7 @@ public static class SweepViewTests
         DesktopChecks.Check("Desktop_Sweeps_NoRunButtonInSetup_LinkedSelection_Lab01Clean", T18_FullDesktopContract);
         DesktopChecks.Check("Desktop_Sweeps_LiveCancelFromStatusStripAndConsole", CancelFromStatusStrip);
         DesktopChecks.Check("Desktop_Sweeps_ThemesLightDarkHighContrast_RenderCleanly", ThemesRenderCleanly);
+        DesktopChecks.Check("Wave12C_PerformanceCurveChart_LightThemeContrast_And_EndLabelSeparation", CheckWave12CChartContrastAndLabels);
     }
 
     private static void T18_FullDesktopContract()
@@ -253,6 +254,106 @@ public static class SweepViewTests
         {
             window.Close();
         }
+    }
+
+    private static void CheckWave12CChartContrastAndLabels()
+    {
+        // R2-16: PerformanceCurveChart must NOT map Light-theme series to low-contrast Batlow3Brush (2.15:1) or Batlow4Brush (1.32:1) on white SurfaceBrush.
+        string chartSrc = File.ReadAllText(FindRepoFile(Path.Combine("src", "CfdWorkbench.Desktop", "Sweeps", "PerformanceCurveChart.cs")));
+        Require(!chartSrc.Contains("Batlow3Brush", StringComparison.Ordinal) && !chartSrc.Contains("Batlow4Brush", StringComparison.Ordinal),
+            "R2-16: PerformanceCurveChart must not use Batlow3Brush/Batlow4Brush on Light white SurfaceBrush");
+        Require(!chartSrc.Contains("Typeface.Default", StringComparison.Ordinal) && !chartSrc.Contains("FontFamily.Default", StringComparison.Ordinal),
+            "C7: PerformanceCurveChart must keep zero Typeface.Default/FontFamily.Default");
+
+        // Pure greedy Y-collision separation test: 4 tightly bunched anchors separate cleanly by >= 14 px.
+        var separated = PerformanceCurveChart.SeparateEndLabelY([100.0, 101.0, 102.0, 103.0], minGap: 14.0, minY: 40.0, maxY: 220.0);
+        Require(separated.Count == 4, $"Expected 4 separated Y positions, got {separated.Count}");
+        for (int i = 1; i < separated.Count; i++)
+        {
+            Require(separated[i] - separated[i - 1] >= 13.99,
+                $"R2-16: End labels {i - 1} and {i} collided ({separated[i - 1]:0.##} vs {separated[i]:0.##})");
+        }
+
+        // Live rendered window check: Light, Dark, HC series contrast >= 4.5:1 against SurfaceBrush AND rendered end-label Y separation!
+        var chart = new PerformanceCurveChart { Width = 640, Height = 320 };
+        var window = new Window { Width = 680, Height = 360, Content = chart };
+        window.Show();
+        try
+        {
+            var closeSeries = new SweepCurveSeries[]
+            {
+                new("s0", "10 kn", 10, "kn", 0, [new([new(0, 0, 0.500, null, "c0"), new(1, 4, 0.500, null, "c1")])], [], [], []),
+                new("s1", "12 kn", 12, "kn", 1, [new([new(2, 0, 0.501, null, "c2"), new(3, 4, 0.501, null, "c3")])], [], [], []),
+                new("s2", "14 kn", 14, "kn", 2, [new([new(4, 0, 0.502, null, "c4"), new(5, 4, 0.502, null, "c5")])], [], [], []),
+                new("s3", "16 kn", 16, "kn", 3, [new([new(6, 0, 0.503, null, "c6"), new(7, 4, 0.503, null, "c7")])], [], [], []),
+                new("s4", "18 kn", 18, "kn", 4, [new([new(8, 0, 0.504, null, "c8"), new(9, 4, 0.504, null, "c9")])], [], [], []),
+                new("s5", "20 kn", 20, "kn", 5, [new([new(10, 0, 0.505, null, "c10"), new(11, 4, 0.505, null, "c11")])], [], [], [])
+            };
+            chart.Update(new SweepChartData(SweepCurveMetric.Cl, SweepXAxis.AlphaDeg, "CL vs alpha", "Close termination check", "alpha (deg)", "CL", null, closeSeries, [], null), -1);
+
+            foreach (var variant in new[] { ThemeVariant.Light, ThemeVariant.Dark, NativeReviewThemes.HighContrast })
+            {
+                window.RequestedThemeVariant = variant;
+                Flush();
+                chart.TryFindResource("SurfaceBrush", variant, out var surfRes);
+                var bg = ((Avalonia.Media.ISolidColorBrush)surfRes!).Color;
+                for (int idx = 0; idx < 6; idx++)
+                {
+                    string key = chart.ResolveSeriesBrushKey(idx);
+                    chart.TryFindResource(key, variant, out var fgRes);
+                    var fg = ((Avalonia.Media.ISolidColorBrush)fgRes!).Color;
+                    double ratio = ContrastRatio(fg, bg);
+                    Require(ratio >= 4.5,
+                        $"R2-16: Series {idx} ({key}={fg}) on {variant.Key} SurfaceBrush ({bg}) contrast {ratio:0.00}:1 < 4.5:1");
+                }
+            }
+
+            window.RequestedThemeVariant = ThemeVariant.Light;
+            Flush();
+            using (var rtb = new Avalonia.Media.Imaging.RenderTargetBitmap(new PixelSize(640, 320), new Vector(96, 96)))
+                rtb.Render(chart);
+            Require(chart.LastEndLabelPositions.Count == 6,
+                $"R2-16: Expected 6 rendered end labels, got {chart.LastEndLabelPositions.Count}");
+            var sortedYs = chart.LastEndLabelPositions.Select(p => p.Y).OrderBy(y => y).ToArray();
+            for (int i = 1; i < sortedYs.Length; i++)
+            {
+                Require(sortedYs[i] - sortedYs[i - 1] >= 13.9,
+                    $"R2-16: Rendered end labels overlapped ({sortedYs[i - 1]:0.##} vs {sortedYs[i]:0.##})");
+            }
+        }
+        finally
+        {
+            window.Close();
+        }
+    }
+
+    private static double ContrastRatio(Avalonia.Media.Color a, Avalonia.Media.Color b)
+    {
+        double la = RelativeLuminance(a);
+        double lb = RelativeLuminance(b);
+        return (Math.Max(la, lb) + 0.05) / (Math.Min(la, lb) + 0.05);
+    }
+
+    private static double RelativeLuminance(Avalonia.Media.Color c)
+    {
+        static double Lin(byte ch)
+        {
+            double s = ch / 255.0;
+            return s <= 0.04045 ? s / 12.92 : Math.Pow((s + 0.055) / 1.055, 2.4);
+        }
+        return 0.2126 * Lin(c.R) + 0.7152 * Lin(c.G) + 0.0722 * Lin(c.B);
+    }
+
+    private static string FindRepoFile(string relative)
+    {
+        string dir = AppContext.BaseDirectory;
+        while (dir is not null)
+        {
+            string candidate = Path.Combine(dir, relative);
+            if (File.Exists(candidate)) return candidate;
+            dir = Path.GetDirectoryName(dir)!;
+        }
+        throw new FileNotFoundException($"Could not find {relative} above {AppContext.BaseDirectory}");
     }
 
     private static void AssertNoRunButton(Control root)
