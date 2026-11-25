@@ -366,6 +366,30 @@ public static class SolverSetupViewTests
                 Settle(window);
                 Require(refused.Verdict == AssistantVerdict.Refused && refused.Reason == "step-not-allowed",
                     $"expected Refused(step-not-allowed), got {refused.Verdict}({refused.Reason})");
+
+                // R2-08 (C6): when AssistantRuntimeHub is bound, SolverSetupView must enforce IsReadyForProposals
+                // (key without passing 9-item eval stays locked with Unevaluated notice; passing eval enables prompt).
+                using var hub = new CfdWorkbench.Desktop.Assistant.AssistantRuntimeHub();
+                view.BindAssistant(hub);
+                Settle(window);
+                hub.SaveKey(CfdWorkbench.Core.Assistant.AssistantProviderKind.Anthropic, "sk-ant-solver-setup-test-12345");
+                view.BindAssistant(hub);
+                Settle(window);
+                Require(hub.HasApiKey && !hub.IsReadyForProposals, "Hub should have key but not yet be evaluated");
+                Require(!Need<TextBox>(view, "AssistantPromptBox").IsEnabled,
+                    "R2-08: SolverSetupView must keep AssistantPromptBox disabled until 9-item eval passes (IsReadyForProposals)");
+                Require(Need<Control>(view, "AssistantOfflineCard").IsVisible,
+                    "R2-08: SolverSetupView must keep AssistantOfflineCard visible when model is unevaluated");
+                var usageChip = view.FindControl<TextBlock>("AssistantUsageChipText");
+                Require(usageChip is not null && usageChip.Text!.Contains("Used ", StringComparison.Ordinal),
+                    $"R2-08: SolverSetupView must display metered daily cap chip, got '{usageChip?.Text}'");
+
+                Pump(hub.RunEvaluationAsync(liveWire: false));
+                view.BindAssistant(hub);
+                Settle(window);
+                Require(hub.IsReadyForProposals, "Hub should be ready after passing 9-item eval");
+                Require(Need<TextBox>(view, "AssistantPromptBox").IsEnabled && !Need<Control>(view, "AssistantOfflineCard").IsVisible,
+                    "R2-08: SolverSetupView must enable AssistantPromptBox once IsReadyForProposals is true");
             }
             finally { window.Close(); }
         }

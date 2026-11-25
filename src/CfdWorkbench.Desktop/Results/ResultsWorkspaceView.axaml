@@ -185,12 +185,17 @@
           <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
                   BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
             <StackPanel Spacing="{StaticResource StackGap1}">
-              <DockPanel>
-                <Button x:Name="AskResultConfigureKeyButton" DockPanel.Dock="Right" Content="Configure key"
+              <TextBlock x:Name="AskResultHeadingText" Text="Ask about this result (offline)" FontWeight="SemiBold"
+                         FontSize="{DynamicResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" TextWrapping="Wrap" />
+              <WrapPanel Orientation="Horizontal">
+                <Border x:Name="AskResultUsageChip" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
+                        BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource HairlineThickness}"
+                        Padding="{StaticResource ChipPadding}" Margin="{StaticResource UnitGap}">
+                  <TextBlock x:Name="AskResultUsageChipText" Classes="pnl-cell" Foreground="{DynamicResource MutedBrush}" Text="Used 0/50 today" />
+                </Border>
+                <Button x:Name="AskResultConfigureKeyButton" Content="Configure key" Margin="{StaticResource UnitGap}"
                         MinHeight="{StaticResource CompactTargetSize}" AutomationProperties.Name="Configure API key" />
-                <TextBlock Text="Ask about this result (offline)" FontWeight="SemiBold"
-                           FontSize="{DynamicResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" VerticalAlignment="Center" />
-              </DockPanel>
+              </WrapPanel>
               <TextBlock x:Name="AskResultStatusText" Classes="pnl-note" IsVisible="False" />
               <Grid ColumnDefinitions="*,Auto">
                 <TextBox x:Name="AskResultInput" Grid.Column="0" Watermark="Ask about separation or field evidence…" />

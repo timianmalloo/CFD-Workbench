@@ -64,6 +64,7 @@ public partial class ModelArea : UserControl
     public void ToggleCadAssistantBar()
     {
         CadAssistantBar.IsVisible = !CadAssistantBar.IsVisible;
+        NavCadAssistantButton.Classes.Set("active", CadAssistantBar.IsVisible);
         RefreshAssistantStatus();
     }
 
@@ -609,6 +610,12 @@ public partial class ModelArea : UserControl
         PlanContent.IsVisible = (foilOpen || controller.IsSetup || controller.IsRun || controller.IsResults) && Mode == ModelAreaMode.Views;
         ViewArrangementGrid.IsVisible = foilOpen && !controller.IsSweeps && !controller.IsSetup && !controller.IsRun && !controller.IsResults;
         Navbar.IsVisible = ViewArrangementGrid.IsVisible && Mode == ModelAreaMode.Views;
+        bool inCadViews = ViewArrangementGrid.IsVisible && !controller.IsAnalysis && Mode == ModelAreaMode.Views;
+        if (!inCadViews && CadAssistantBar.IsVisible)
+        {
+            CadAssistantBar.IsVisible = false;
+            NavCadAssistantButton.Classes.Set("active", false);
+        }
         SweepsWorkspace.IsVisible = foilOpen && controller.IsSweeps;
         SetupWorkspace.IsVisible = controller.IsSetup;
         RunWorkspace.IsVisible = controller.IsRun;
@@ -757,6 +764,7 @@ public partial class ModelArea : UserControl
         }
         NavFitButton.Click += (_, _) => RunViewCommand(FitId);
         NavFitSelectionButton.Click += (_, _) => RunViewCommand(FitSelectionId);
+        NavCadAssistantButton.Click += (_, _) => ToggleCadAssistantBar();
     }
 
     // The menu bar's call: the shell runs the row, or reports why it cannot in the strip.
@@ -783,6 +791,12 @@ public partial class ModelArea : UserControl
         }
         ShowReason(NavFitButton, ViewCommands.DisabledReason(FitId, controller));
         ShowReason(NavFitSelectionButton, ViewCommands.DisabledReason(FitSelectionId, controller));
+        bool showCadAssistant = foilOpen && !controller.IsAnalysis;
+        NavCadAssistantButton.IsVisible = showCadAssistant;
+        NavCadAssistantSeparator.IsVisible = showCadAssistant;
+        NavCadAssistantButton.IsEnabled = showCadAssistant;
+        NavCadAssistantButton.Classes.Set("active", CadAssistantBar.IsVisible);
+        ToolTip.SetTip(NavCadAssistantButton, Assistant.AssistantCopy.CadEntryTitle);
 
         // A control that cannot run is disabled and says why (UI-DEAD-CONTROL); the style shows the tip while disabled.
         static void ShowReason(Button button, string? reason)
@@ -973,14 +987,40 @@ public partial class ModelArea : UserControl
     private async Task HandleCadAssistantSubmitAsync(string prompt)
     {
         if (controller is null || controller.Inspection is null) return;
-        string? baseAcceptedId = controller.Inspection.Authored.Binding.AcceptedId;
-        var preview = await controller.Assistant.PreparePreviewAsync(
-            new CfdWorkbench.Analysis.Assistant.AssistantPreviewRequest(
+
+        async Task<(CfdWorkbench.Analysis.Assistant.AssistantPreviewResult Preview, CfdWorkbench.Core.Assistant.AssistantValidationInput? ValidationInput)> PrepareForCurrentRevisionAsync()
+        {
+            if (controller is null || controller.Inspection is null)
+            {
+                return (new CfdWorkbench.Analysis.Assistant.AssistantPreviewResult(
+                    Allowed: false,
+                    BlockKind: CfdWorkbench.Analysis.Assistant.AssistantGateBlockKind.SettingsError,
+                    BlockCode: "DOC-CLOSED",
+                    Message: "Open or seed a foil first.",
+                    Prepared: null,
+                    Eligibility: null,
+                    DailyUsedUtc: 0,
+                    DailyCap: 0), null);
+            }
+            string? currentAcceptedId = controller.Inspection.Authored.Binding.AcceptedId;
+            var prep = await controller.Assistant.PreparePreviewAsync(
+                new CfdWorkbench.Analysis.Assistant.AssistantPreviewRequest(
+                    CfdWorkbench.Core.Assistant.AssistantArea.Cad,
+                    CfdWorkbench.Core.Assistant.AssistantProposalKind.GeometryEdit,
+                    $"Return strict geometry-edit JSON referencing baseAcceptedId '{currentAcceptedId}'. Never emit raw coordinates or meshes.",
+                    prompt));
+            if (!prep.Allowed || prep.Prepared is null)
+                return (prep, null);
+            var input = new CfdWorkbench.Core.Assistant.AssistantValidationInput(
                 CfdWorkbench.Core.Assistant.AssistantArea.Cad,
                 CfdWorkbench.Core.Assistant.AssistantProposalKind.GeometryEdit,
-                "Return strict geometry-edit JSON referencing baseAcceptedId. Never emit raw coordinates or meshes.",
-                prompt));
-        if (!preview.Allowed || preview.Prepared is null)
+                ProposalId: prep.Prepared.RequestId,
+                CurrentAcceptedId: currentAcceptedId);
+            return (prep, input);
+        }
+
+        var (preview, valInput) = await PrepareForCurrentRevisionAsync();
+        if (!preview.Allowed || preview.Prepared is null || valInput is null)
         {
             CadAssistantBar.ShowFeedback(preview.Message ?? Assistant.AssistantCopy.NoKeyNotice);
             return;
@@ -988,20 +1028,30 @@ public partial class ModelArea : UserControl
 
         if (TopLevel.GetTopLevel(this) is Window owner)
         {
-            var valInput = new CfdWorkbench.Core.Assistant.AssistantValidationInput(
-                CfdWorkbench.Core.Assistant.AssistantArea.Cad,
-                CfdWorkbench.Core.Assistant.AssistantProposalKind.GeometryEdit,
-                ProposalId: preview.Prepared.RequestId,
-                CurrentAcceptedId: baseAcceptedId);
             var dlg = new Assistant.AssistantConsentPreviewDialog(
                 controller.Assistant,
                 preview.Prepared,
                 valInput,
-                currentAcceptedIdProvider: () => controller.Inspection?.Authored.Binding.AcceptedId)
+                currentAcceptedIdProvider: () => controller.Inspection?.Authored.Binding.AcceptedId,
+                onRefreshOverCurrentRevision: async () =>
+                {
+                    var (nextPreview, nextValInput) = await PrepareForCurrentRevisionAsync();
+                    if (!nextPreview.Allowed || nextPreview.Prepared is null || nextValInput is null)
+                    {
+                        CadAssistantBar.ShowFeedback(nextPreview.Message ?? Assistant.AssistantCopy.NoKeyNotice);
+                        return null;
+                    }
+                    return (nextPreview.Prepared, nextValInput);
+                })
             {
                 RequestedThemeVariant = owner.ActualThemeVariant
             };
             await dlg.ShowDialog(owner);
+            if (dlg.EditPromptRequested)
+            {
+                CadAssistantBar.FocusPrompt();
+                return;
+            }
             if (dlg.Accepted && dlg.ExecutionResult?.Validation?.GeometryEdit is { } edit)
             {
                 var commit = await controller.ApplyAssistantGeometryEditAsync(edit);

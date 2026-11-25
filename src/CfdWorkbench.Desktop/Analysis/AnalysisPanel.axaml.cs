@@ -26,7 +26,14 @@ public partial class AnalysisPanel : UserControl
         OpenInMainAreaButton.Click += (_, _) => OpenSectionRequested?.Invoke();
         AskCalculationButtonText.Text = Assistant.AssistantCopy.AnalysisEntryTitle;
         AutomationProperties.SetName(AskCalculationButton, Assistant.AssistantCopy.AnalysisEntryTitle);
-        AskCalculationButton.Click += (_, _) => AskCalculationRequested?.Invoke();
+        AskCalculationButton.Click += (_, _) => ToggleAssistantDrawer();
+        AnalysisAssistantBar.Configure(
+            Assistant.AssistantCopy.AnalysisEntryTitle,
+            "Ask",
+            "Ask about loads, drag, cavitation, or what-if conditions…",
+            "Ask about this calculation");
+        AnalysisAssistantBar.ConfigureKeyRequested += () => ConfigureKeyRequested?.Invoke();
+        AnalysisAssistantBar.PromptSubmitted += prompt => _ = HandleAnalysisPromptAsync(prompt);
         SolverSetupButtonText.Text = SolverSetup.SolverSetupCopy.VerbTitle;
         AutomationProperties.SetName(SolverSetupButton, SolverSetup.SolverSetupCopy.VerbTitle);
         SolverSetupButton.Click += (_, _) => SolverSetupRequested?.Invoke();
@@ -60,6 +67,9 @@ public partial class AnalysisPanel : UserControl
     /// <summary>The panel's height while the Section tab (one summary line) is the shown tab and nothing sits above the tabs (Ruling 125, state D).</summary>
     public const double CompactHeight = 68;
 
+    /// <summary>Expanded height while the inline Analysis assistant drawer is open (R2-08).</summary>
+    public const double ExpandedAssistantHeight = 320;
+
     /// <summary>The Section view, hosted by the model area's Section document (Ruling 124). The bottom tab shows only its summary.</summary>
     public SectionTabView SectionView { get; } = new();
 
@@ -69,13 +79,105 @@ public partial class AnalysisPanel : UserControl
     /// <summary>Raised by the subtle "Set up a solver" entry in the Analysis panel (Ruling 69, F7a).</summary>
     public event Action? SolverSetupRequested;
 
-    /// <summary>Raised by the compact "Ask about this calculation" trigger beside SolverSetupButton (Area 3, AI-08).</summary>
-    public event Action? AskCalculationRequested;
+    /// <summary>Raised by the inline Area 3 Analysis assistant bar when the user clicks Configure key / Open Settings.</summary>
+    public event Action? ConfigureKeyRequested;
+
+    public void ToggleAssistantDrawer()
+    {
+        AnalysisAssistantDrawer.IsVisible = !AnalysisAssistantDrawer.IsVisible;
+        if (AnalysisAssistantDrawer.IsVisible)
+            RefreshAssistantStatus(boundController?.Assistant);
+        UpdateHeight();
+    }
+
+    public void RefreshAssistantStatus(Assistant.AssistantRuntimeHub? hub)
+    {
+        AnalysisAssistantBar.RefreshStatus(hub);
+    }
+
+    public void ShowAssistantAnswer(string displayText, IReadOnlyList<string>? citations = null)
+    {
+        AnalysisAnswerText.Text = displayText;
+        if (citations is { Count: > 0 })
+        {
+            AnalysisAnswerCitationsText.Text = "Citations: " + string.Join(", ", citations);
+            AnalysisAnswerCitationsText.IsVisible = true;
+        }
+        else
+        {
+            AnalysisAnswerCitationsText.IsVisible = false;
+        }
+        AnalysisAnswerCard.IsVisible = !string.IsNullOrWhiteSpace(displayText);
+        UpdateHeight();
+    }
+
+    private async Task HandleAnalysisPromptAsync(string prompt)
+    {
+        if (boundController is null) return;
+        var view = boundController.AnalysisView;
+        string runId = view.RunKey ?? "no-run";
+        string contextText = $"{view.StatusText}. {view.Banner ?? ""}";
+        var req = new CfdWorkbench.Analysis.Assistant.AssistantPreviewRequest(
+            CfdWorkbench.Core.Assistant.AssistantArea.Analysis,
+            CfdWorkbench.Core.Assistant.AssistantProposalKind.AnalysisExplanation,
+            "Explain the selected CFD-Workbench hydrofoil calculation using only values present in context. Return strict JSON.",
+            prompt);
+        var preview = await boundController.Assistant.PreparePreviewAsync(req);
+        if (!preview.Allowed || preview.Prepared is null)
+        {
+            AnalysisAssistantBar.ShowFeedback(preview.Message ?? Assistant.AssistantCopy.NoKeyNotice);
+            return;
+        }
+
+        if (TopLevel.GetTopLevel(this) is Window owner)
+        {
+            var valInput = new CfdWorkbench.Core.Assistant.AssistantValidationInput(
+                CfdWorkbench.Core.Assistant.AssistantArea.Analysis,
+                CfdWorkbench.Core.Assistant.AssistantProposalKind.AnalysisExplanation,
+                AllowedRunIds: new HashSet<string>(StringComparer.Ordinal) { runId },
+                SharedContextText: contextText);
+            var dlg = new Assistant.AssistantConsentPreviewDialog(
+                boundController.Assistant,
+                preview.Prepared,
+                valInput,
+                onWhatIfRecompute: async offer =>
+                {
+                    var op = OperatingPoints.Custom(
+                        offer.SpeedMps ?? boundController.AnalysisOperatingPoint.Speed,
+                        offer.AlphaDeg ?? boundController.AnalysisOperatingPoint.AlphaDeg,
+                        offer.HRefMeters ?? boundController.AnalysisOperatingPoint.HRef);
+                    var water = WaterTable.At(
+                        offer.WaterTemperatureC ?? boundController.AnalysisWater.TemperatureC,
+                        (offer.IsSaltWater ?? boundController.AnalysisWater.SalinityGPerKg > 1.0)
+                            ? OperatingPoints.SaltSalinityGPerKg
+                            : 0.0);
+                    await boundController.EvaluateAnalysisAsync(op, water);
+                })
+            {
+                RequestedThemeVariant = owner.ActualThemeVariant
+            };
+            await dlg.ShowDialog(owner);
+            if (dlg.EditPromptRequested)
+            {
+                AnalysisAssistantBar.FocusPrompt();
+                return;
+            }
+            if (dlg.ExecutionResult?.Validation is { } val)
+            {
+                ShowAssistantAnswer(val.DisplayText, val.Citations);
+            }
+        }
+    }
 
     private double windowHeight;
 
     private void UpdateHeight()
     {
+        if (AnalysisAssistantDrawer.IsVisible)
+        {
+            Height = ExpandedAssistantHeight;
+            return;
+        }
         bool compact = PanelTabs.SelectedItem == SectionTab && !PanelBanner.IsVisible && !PanelErrorCard.IsVisible && !PanelSkeleton.IsVisible;
         Height = compact ? CompactHeight : HeightFor(windowHeight);
     }
@@ -138,6 +240,7 @@ public partial class AnalysisPanel : UserControl
         loading.Update(unavailable ? [] : view.Loading, controller.AnalysisUnits);
         SectionView.Bind(view, controller);
         ShowSummary();
+        RefreshAssistantStatus(controller.Assistant);
         UpdateHeight();
         Fill(LoadsBody, view, ("Loads", "loads-table"), ("Strips", "strips-table"));
         Fill(ProvenanceBody, view, ("Conditions", "conditions-table"), ("Labels", "labels-table"), ("Provenance", "provenance-table"));

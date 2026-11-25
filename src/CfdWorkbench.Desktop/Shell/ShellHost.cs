@@ -283,7 +283,7 @@ public sealed class ShellHost : Grid
         SolverSetup.BindAssistant(Controller.Assistant);
         StatusStrip.SolverSetupRequested += OpenSolverSetup;
         AnalysisPanel.SolverSetupRequested += OpenSolverSetup;
-        AnalysisPanel.AskCalculationRequested += () => _ = OpenAnalysisAssistantAsync();
+        AnalysisPanel.ConfigureKeyRequested += () => _ = RunCommand("view.settings");
         ActivityRail.AreaSelected += area =>
         {
             if (Controller.Inspection is null && area is WorkbenchArea.Analysis or WorkbenchArea.Experiment)
@@ -1090,8 +1090,10 @@ public sealed class ShellHost : Grid
         void RefreshAssistantSurfaces()
         {
             RefreshActivityRail();
-            SolverSetup.SetApiKeyAvailable(Controller.Assistant.HasApiKey);
+            SolverSetup.RefreshAssistantStatus();
             ModelView.RefreshAssistantStatus();
+            ModelView.SetupView.RefreshAssistantStatus(Controller.Assistant);
+            AnalysisPanel.RefreshAssistantStatus(Controller.Assistant);
             ModelView.RunView.RefreshAssistantStatus();
             ModelView.ResultsView.RefreshAssistantStatus();
             ModelView.SweepsView.ExperimentSetup.RefreshAssistantStatus(Controller.Assistant);
@@ -1117,69 +1119,6 @@ public sealed class ShellHost : Grid
             };
             await dialog.ShowDialog(owner);
             OnAssistantStateChanged();
-        }
-    }
-
-    private async Task OpenAnalysisAssistantAsync()
-    {
-        if (!Controller.Assistant.HasApiKey || !Controller.Assistant.Eligibility.ProposalsEnabled)
-        {
-            Report(new StatusReport(
-                !Controller.Assistant.HasApiKey
-                    ? Assistant.AssistantCopy.NoKeyNotice
-                    : Assistant.AssistantCopy.UnevaluatedOnThisModel,
-                ReportKind.Info));
-            await OpenSettingsDialogAsync();
-            return;
-        }
-
-        var view = Controller.AnalysisView;
-        string runId = view.RunKey ?? "no-run";
-        string contextText = $"{view.StatusText}. {view.Banner ?? ""}";
-        var req = new CfdWorkbench.Analysis.Assistant.AssistantPreviewRequest(
-            CfdWorkbench.Core.Assistant.AssistantArea.Analysis,
-            CfdWorkbench.Core.Assistant.AssistantProposalKind.AnalysisExplanation,
-            "Explain the selected CFD-Workbench hydrofoil calculation using only values present in context. Return strict JSON.",
-            $"Explain the current calculation ({runId}).");
-        var preview = await Controller.Assistant.PreparePreviewAsync(req);
-        if (!preview.Allowed || preview.Prepared is null)
-        {
-            Report(new StatusReport(preview.Message ?? Assistant.AssistantCopy.NoKeyNotice, ReportKind.Warning));
-            return;
-        }
-
-        if (TopLevel.GetTopLevel(this) is Window owner)
-        {
-            var valInput = new CfdWorkbench.Core.Assistant.AssistantValidationInput(
-                CfdWorkbench.Core.Assistant.AssistantArea.Analysis,
-                CfdWorkbench.Core.Assistant.AssistantProposalKind.AnalysisExplanation,
-                AllowedRunIds: new HashSet<string>(StringComparer.Ordinal) { runId },
-                SharedContextText: contextText);
-            var dlg = new Assistant.AssistantConsentPreviewDialog(
-                Controller.Assistant,
-                preview.Prepared,
-                valInput,
-                onWhatIfRecompute: async offer =>
-                {
-                    var op = CfdWorkbench.Analysis.OperatingPoints.Custom(
-                        offer.SpeedMps ?? Controller.AnalysisOperatingPoint.Speed,
-                        offer.AlphaDeg ?? Controller.AnalysisOperatingPoint.AlphaDeg,
-                        offer.HRefMeters ?? Controller.AnalysisOperatingPoint.HRef);
-                    var water = CfdWorkbench.Analysis.WaterTable.At(
-                        offer.WaterTemperatureC ?? Controller.AnalysisWater.TemperatureC,
-                        (offer.IsSaltWater ?? Controller.AnalysisWater.SalinityGPerKg > 1.0)
-                            ? CfdWorkbench.Analysis.OperatingPoints.SaltSalinityGPerKg
-                            : 0.0);
-                    await Controller.EvaluateAnalysisAsync(op, water);
-                })
-            {
-                RequestedThemeVariant = owner.ActualThemeVariant
-            };
-            await dlg.ShowDialog(owner);
-            if (dlg.Accepted && dlg.ExecutionResult?.Validation is { } val)
-            {
-                Report(new StatusReport(val.DisplayText));
-            }
         }
     }
 
@@ -1748,6 +1687,29 @@ public sealed class ShellHost : Grid
                 ActivateModelDocument();
                 Controller.EnterCad();
                 return;
+            case "assistant.cad":
+                if (Controller.Inspection is null)
+                {
+                    Report(new StatusReport("Open or seed a foil first."));
+                    return;
+                }
+                if (Controller.Section is not null)
+                {
+                    Report(new StatusReport("Finish or cancel the section edit to use the CAD assistant."));
+                    return;
+                }
+                ActivateModelDocument();
+                if (Controller.ActiveArea != WorkbenchArea.Cad)
+                {
+                    Controller.EnterCad();
+                    if (!ModelView.CadAssistantBar.IsVisible)
+                        ModelView.ToggleCadAssistantBar();
+                }
+                else
+                {
+                    ModelView.ToggleCadAssistantBar();
+                }
+                return;
             case "view.analysis":
             {
                 bool switched = ActivateModelDocument();
@@ -1992,7 +1954,7 @@ public sealed class ShellHost : Grid
         id.StartsWith("station.", StringComparison.Ordinal) ||
         id.StartsWith("view.text-", StringComparison.Ordinal) ||
         id.StartsWith("view.comb", StringComparison.Ordinal) ||
-        id is "analysis.compare" or "analysis.compare-tiers" or "view.cad" or "view.analysis" or "view.sweeps" or "view.setup" or "view.run" or "view.results" or "solver.setup" or "view.settings" ||
+        id is "analysis.compare" or "analysis.compare-tiers" or "view.cad" or "assistant.cad" or "view.analysis" or "view.sweeps" or "view.setup" or "view.run" or "view.results" or "solver.setup" or "view.settings" ||
         CommandTable.UnitsOf(id) is not null ||
         ViewCommands.Handles(id) ||
         IsShellCommand(id);

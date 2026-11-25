@@ -44,8 +44,15 @@
                   BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
             <StackPanel Spacing="{StaticResource StackGap1}">
               <DockPanel>
-                <Button x:Name="LanguageConfigureKeyButton" DockPanel.Dock="Right" Content="Configure key"
-                        MinHeight="{StaticResource CompactTargetSize}" AutomationProperties.Name="Configure API key" />
+                <WrapPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                  <Border x:Name="LanguageUsageChip" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
+                          BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource HairlineThickness}"
+                          Padding="{StaticResource ChipPadding}" Margin="{StaticResource UnitGap}">
+                    <TextBlock x:Name="LanguageUsageChipText" Classes="pnl-cell" Foreground="{DynamicResource MutedBrush}" Text="Used 0/50 today" />
+                  </Border>
+                  <Button x:Name="LanguageConfigureKeyButton" Content="Configure key" Margin="{StaticResource UnitGap}"
+                          MinHeight="{StaticResource CompactTargetSize}" AutomationProperties.Name="Configure API key" />
+                </WrapPanel>
                 <TextBlock x:Name="LanguageCardTitle" Text="Describe a starting design" FontWeight="SemiBold"
                            FontSize="{DynamicResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" VerticalAlignment="Center" />
               </DockPanel>

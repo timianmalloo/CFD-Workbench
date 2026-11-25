@@ -3,7 +3,7 @@
              xmlns:assistant="using:CfdWorkbench.Desktop.Assistant"
              x:Class="CfdWorkbench.Desktop.Sweeps.ExperimentSetupView">
   <!-- XS-03 / UX-17: Experiment setup defines and previews cases only; ZERO Run button exists in this view. -->
-  <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="{StaticResource Space3}">
+  <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Margin="{StaticResource Space3}">
     <!-- Header & actions (New sweep, New version, Refresh preview, Queue, Open in Run jump chip) -->
     <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
             BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
@@ -35,8 +35,11 @@
       </Border>
     </StackPanel>
 
+    <!-- AI-09 Experiment assistant bar above EmptyStatePanel/EditorGrid split (R2-08: works on empty state + avoids 280 px clip; ZERO Run buttons per XS-03) -->
+    <assistant:AssistantPromptBar Grid.Row="2" x:Name="ExperimentAssistantBar" Margin="{StaticResource PropLineBelow}" />
+
     <!-- Body: empty state OR configurator + bounded preview table -->
-    <Grid Grid.Row="2">
+    <Grid Grid.Row="3">
       <Border x:Name="EmptyStatePanel" IsVisible="True" Background="{DynamicResource SurfaceBrush}"
               BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space4}">
         <StackPanel Spacing="{StaticResource StackGap2}" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -52,8 +55,6 @@
                   BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space3}"
                   MinWidth="{StaticResource SweepInspectorWidth}" MaxWidth="{StaticResource SweepInspectorWidth}">
             <StackPanel Spacing="{StaticResource StackGap2}">
-              <assistant:AssistantPromptBar x:Name="ExperimentAssistantBar" />
-
               <TextBlock Text="Sweep name" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
               <TextBox x:Name="SweepNameBox" AutomationProperties.Name="Sweep name" />
 
@@ -117,7 +118,7 @@
     </Grid>
 
     <!-- Footer note (SWP-COPY-2) -->
-    <TextBlock Grid.Row="3" x:Name="FooterNoteText" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}"
+    <TextBlock Grid.Row="4" x:Name="FooterNoteText" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}"
                Margin="{StaticResource Space1}" TextWrapping="Wrap" />
   </Grid>
 </UserControl>

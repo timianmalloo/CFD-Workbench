@@ -123,8 +123,17 @@
           <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
                   BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
             <StackPanel Spacing="{StaticResource StackGap1}">
-              <TextBlock Text="Failure diagnostics &amp; case diff (offline)" FontWeight="SemiBold"
-                         FontSize="{DynamicResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
+              <DockPanel>
+                <Border x:Name="RunAssistantUsageChip" DockPanel.Dock="Right" IsVisible="False"
+                        Background="{DynamicResource SurfaceSoftBrush}" BorderBrush="{DynamicResource LineBrush}"
+                        BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource ChipPadding}"
+                        VerticalAlignment="Center">
+                  <TextBlock x:Name="RunAssistantUsageChipText" Classes="pnl-cell" Foreground="{DynamicResource MutedBrush}"
+                             Text="Used 0/50 today" />
+                </Border>
+                <TextBlock Text="Failure diagnostics &amp; case diff (offline)" FontWeight="SemiBold"
+                           FontSize="{DynamicResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" VerticalAlignment="Center" />
+              </DockPanel>
               <TextBlock x:Name="OfflineNoKeyNoticeText" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
                          Foreground="{DynamicResource MutedBrush}"
                          Text="No API key configured — deterministic offline diagnostics and typed case-diff validation work without network calls." />
