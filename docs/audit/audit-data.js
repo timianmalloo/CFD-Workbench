@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-25T05:45:23Z",
+  "generated": "2026-11-25T06:39:44Z",
   "audit": [
     {
       "actor": null,
@@ -45658,6 +45658,35 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-25T05:30:25Z",
       "duration_seconds": 898.0
+    },
+    {
+      "id": "al-01M88PX02KGS8JQKQ5MDNJF24W",
+      "shortname": "join-w12-a",
+      "datetime": "2026-11-25T06:39:44Z",
+      "session": "agy-w12-coord",
+      "prompt": "the join of swarm-w12-shell-tokens-900abb7c into main",
+      "summary": "Joined verified W12-A (881dc5dc, CLEARS-THE-VETO: yes from w12-verifier #131, 0 seams, 0 repair cycles): R2-04 (Ruling 277 retiring 4 duplicate Navbar area toggles, viewport-only Navbar, deleted 56px SweepNavbarClearance), R2-05 dock auto-collapse (auto-collapse CAD Left/Right docks outside CAD/Analysis while preserving 260 DIP CAD/Start default), R2-14/R2-20 (ActivityRail RowSpan=2, F6 stop 0, RailSolverSetupButton active sync, Start guard, view.cad + view.sweeps->Experiment, ModelDocument activation, C1 RailAnalysisButton contrast probe), R2-09 (global ToggleButton/Slider/ProgressBar/Expander teal/HC tokens with exact 30 theme brushes in Styles.axaml + HC keys in App.axaml, HC rail-item:pressed contrast fixed), R2-21 (DN-5 ApplyTextScale hoisted to ShellHost.Resources), and R2-24 (StatusStrip FitItems SetupItem/idle SweepItem). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-as-built-workbench-r2.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land Wave 12A W12-A onto main",
+      "done_when": "W12-A merged via conductor-join.py with TESTS-GREEN, xaml-token-lint, UI-CS-TOKEN, check-event-subscribers, check-docs, and 10/10 verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-25T06:31:35Z",
+      "duration_seconds": 489.0
     }
   ],
   "changes": [
