@@ -24,7 +24,24 @@ public sealed class PerformanceCurveChart : Control
         [8, 3, 2, 3]
     ];
 
-    private static readonly string[] BatlowKeys = ["Batlow0Brush", "Batlow1Brush", "Batlow2Brush", "Batlow3Brush", "Batlow4Brush"];
+    // R2-16: High-contrast Light-theme stops (all >= 4.5:1 on white SurfaceBrush #fbfcfb; never Batlow3/Batlow4 on white).
+    private static readonly string[] LightSeriesKeys =
+    [
+        "PrimaryBrush",
+        "Batlow0Brush",
+        "Batlow1Brush",
+        "WarningBrush",
+        "DangerBrush",
+        "InkBrush"
+    ];
+
+    private static readonly string[] DarkAndHcSeriesKeys =
+    [
+        "PrimaryBrush",
+        "WarningBrush",
+        "DangerBrush",
+        "InkBrush"
+    ];
 
     private readonly List<(Point Pos, int CaseIndex)> hitTargets = [];
 
@@ -43,6 +60,62 @@ public sealed class PerformanceCurveChart : Control
     /// <summary>Observable counts for headless/native tests (non-bridged segment and gap verification).</summary>
     public int RenderedSegmentCount { get; private set; }
     public int RenderedGapCount { get; private set; }
+    public IReadOnlyList<(string Label, double Y)> LastEndLabelPositions { get; private set; } = [];
+
+    public string ResolveSeriesBrushKey(int idx)
+    {
+        int safeIdx = Math.Abs(idx);
+        if (ActualThemeVariant == Avalonia.Styling.ThemeVariant.Dark || ActualThemeVariant == NativeReviewThemes.HighContrast)
+            return DarkAndHcSeriesKeys[safeIdx % DarkAndHcSeriesKeys.Length];
+        return LightSeriesKeys[safeIdx % LightSeriesKeys.Length];
+    }
+
+    /// <summary>
+    /// Greedy vertical Y-collision separation for direct curve end labels (R2-16): guarantees at least
+    /// <paramref name="minGap"/> pixels between consecutive labels while staying within [<paramref name="minY"/>, <paramref name="maxY"/>].
+    /// </summary>
+    public static IReadOnlyList<double> SeparateEndLabelY(IReadOnlyList<double> rawYs, double minGap, double minY, double maxY)
+    {
+        int n = rawYs.Count;
+        if (n == 0) return [];
+        if (n == 1) return [Math.Clamp(rawYs[0], minY, maxY)];
+
+        double effectiveGap = Math.Max(0.0, minGap);
+        double available = Math.Max(0.0, maxY - minY);
+        if (effectiveGap * (n - 1) > available && n > 1)
+            effectiveGap = available / (n - 1);
+
+        var order = Enumerable.Range(0, n)
+            .OrderBy(i => rawYs[i])
+            .ThenBy(i => i)
+            .ToArray();
+
+        var placed = new double[n];
+        for (int k = 0; k < n; k++)
+        {
+            double target = Math.Clamp(rawYs[order[k]], minY, maxY);
+            placed[k] = k == 0 ? target : Math.Max(target, placed[k - 1] + effectiveGap);
+        }
+
+        if (placed[n - 1] > maxY)
+        {
+            placed[n - 1] = maxY;
+            for (int k = n - 2; k >= 0; k--)
+                placed[k] = Math.Min(placed[k], placed[k + 1] - effectiveGap);
+        }
+
+        if (placed[0] < minY)
+        {
+            placed[0] = minY;
+            for (int k = 1; k < n; k++)
+                placed[k] = Math.Max(placed[k], placed[k - 1] + effectiveGap);
+        }
+
+        var result = new double[n];
+        for (int k = 0; k < n; k++)
+            result[order[k]] = placed[k];
+        return result;
+    }
 
     public void Update(SweepChartData? data, int selectedCaseIndex)
     {
@@ -189,6 +262,7 @@ public sealed class PerformanceCurveChart : Control
         DrawText(context, ChartData.XAxisLabel, tickSize, FontWeight.SemiBold, ink, new Point(plot.Left + plot.Width / 2 - 20, h - 18));
 
         // Plot each series: strictly intra-segment lines only (NEVER bridge across gaps!).
+        var pendingLabels = new List<(string Label, IBrush Brush, double AnchorY)>();
         foreach (var s in ChartData.Series)
         {
             var seriesBrush = SeriesBrush(s.StrokePatternIndex, ink);
@@ -229,9 +303,8 @@ public sealed class PerformanceCurveChart : Control
                         new Point(MapX(seg.Points[i].X), MapY(seg.Points[i].Y)));
             }
 
-            // Direct end label (never colour alone)
             if (lastPoint is { } lp)
-                DrawText(context, s.Label, tickSize, FontWeight.SemiBold, seriesBrush, new Point(Math.Min(plot.Right + 4, w - 82), lp.Y - 6));
+                pendingLabels.Add((s.Label, seriesBrush, lp.Y));
 
             // Explicit gap × markers on x-axis
             var gapPen = new Pen(danger, 2);
@@ -245,6 +318,26 @@ public sealed class PerformanceCurveChart : Control
                 hitTargets.Add((gp, gap.CaseIndex));
             }
         }
+
+        // Direct end labels with greedy vertical Y-collision separation (never colour alone; never overlapping text).
+        double minLabelGap = Math.Max(14.0, tickSize + 3.0);
+        var separatedYs = SeparateEndLabelY(
+            pendingLabels.Select(l => l.AnchorY).ToArray(),
+            minLabelGap,
+            plot.Top + 6.0,
+            plot.Bottom - 6.0);
+        var labelX = Math.Min(plot.Right + 5, w - 82);
+        var recordedPositions = new List<(string Label, double Y)>(pendingLabels.Count);
+        for (int i = 0; i < pendingLabels.Count; i++)
+        {
+            var (label, brush, anchorY) = pendingLabels[i];
+            double y = separatedYs[i];
+            if (Math.Abs(y - anchorY) > 2.0)
+                context.DrawLine(new Pen(brush, 1), new Point(plot.Right, anchorY), new Point(labelX - 2, y));
+            DrawText(context, label, tickSize, FontWeight.SemiBold, brush, new Point(labelX, y - tickSize * 0.55));
+            recordedPositions.Add((label, y));
+        }
+        LastEndLabelPositions = recordedPositions;
     }
 
     private static void DrawMarker(DrawingContext context, Point center, int patternIndex, IBrush fill, IBrush? selectionRing)
@@ -286,12 +379,8 @@ public sealed class PerformanceCurveChart : Control
             context.DrawEllipse(null, new Pen(selectionRing, 2), center, r + 3.5, r + 3.5);
     }
 
-    private IBrush SeriesBrush(int idx, IBrush fallback)
-    {
-        if (ActualThemeVariant == Avalonia.Styling.ThemeVariant.Dark || ActualThemeVariant == NativeReviewThemes.HighContrast)
-            return idx == 0 ? Brush("PrimaryBrush", fallback) : idx == 1 ? Brush("WarningBrush", fallback) : Brush("InkBrush", fallback);
-        return Brush(BatlowKeys[idx % BatlowKeys.Length], fallback);
-    }
+    private IBrush SeriesBrush(int idx, IBrush fallback) =>
+        Brush(ResolveSeriesBrushKey(idx), fallback);
 
     private IBrush Brush(string key, IBrush fallback) =>
         this.TryFindResource(key, ActualThemeVariant, out var val) && val is IBrush b ? b : fallback;

@@ -136,29 +136,75 @@
               <ToggleButton x:Name="LayerSurfaceCfToggle" Content="Surface Cf" HorizontalAlignment="Stretch" />
               <TextBlock x:Name="LayerSurfaceCfBasisText" Classes="pnl-note" />
 
-              <ToggleButton x:Name="LayerSliceVelocityToggle" Content="Velocity slice" HorizontalAlignment="Stretch" />
-              <TextBlock x:Name="LayerSliceVelocityBasisText" Classes="pnl-note" />
-
-              <ToggleButton x:Name="LayerStreamlinesToggle" Content="3D streamlines" HorizontalAlignment="Stretch" />
-              <TextBlock x:Name="LayerStreamlinesBasisText" Classes="pnl-note" />
-
-              <ToggleButton x:Name="LayerTkeToggle" Content="Turbulent kinetic energy" HorizontalAlignment="Stretch" />
-              <TextBlock x:Name="LayerTkeBasisText" Classes="pnl-note" />
-
-              <ToggleButton x:Name="LayerForceVectorsToggle" Content="Force vectors" HorizontalAlignment="Stretch" />
-              <TextBlock x:Name="LayerForceVectorsBasisText" Classes="pnl-note" />
-
-              <ToggleButton x:Name="LayerSpanwiseLoadingToggle" Content="Spanwise loading" HorizontalAlignment="Stretch" />
-              <TextBlock x:Name="LayerSpanwiseLoadingBasisText" Classes="pnl-note" />
-
               <ToggleButton x:Name="LayerVortexCoreToggle" Content="Vortex-core candidates" HorizontalAlignment="Stretch" />
               <TextBlock x:Name="LayerVortexCoreBasisText" Classes="pnl-note" />
 
               <ToggleButton x:Name="LayerSeparationToggle" Content="Separation" HorizontalAlignment="Stretch" />
               <TextBlock x:Name="LayerSeparationBasisText" Classes="pnl-note" />
 
-              <ToggleButton x:Name="LayerPathlinesToggle" Content="Pathlines" HorizontalAlignment="Stretch" />
-              <TextBlock x:Name="LayerPathlinesBasisText" Classes="pnl-note" />
+              <TextBlock Text="3D &amp; manifest layers (ParaView)" FontWeight="SemiBold"
+                         FontSize="{DynamicResource PropFontSize}" Foreground="{DynamicResource MutedBrush}"
+                         Margin="{StaticResource Space1}" />
+
+              <Border Classes="manifest-layer-row">
+                <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+                  <DockPanel>
+                    <TextBlock x:Name="LayerSliceVelocityStatusText" DockPanel.Dock="Right" Classes="manifest-layer-status" Text="Unavailable" />
+                    <TextBlock Text="Velocity slice" FontWeight="SemiBold" Classes="pnl-cell" />
+                  </DockPanel>
+                  <TextBlock x:Name="LayerSliceVelocityBasisText" Classes="pnl-note" />
+                </StackPanel>
+              </Border>
+
+              <Border Classes="manifest-layer-row">
+                <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+                  <DockPanel>
+                    <TextBlock x:Name="LayerStreamlinesStatusText" DockPanel.Dock="Right" Classes="manifest-layer-status" Text="Unavailable" />
+                    <TextBlock Text="3D streamlines" FontWeight="SemiBold" Classes="pnl-cell" />
+                  </DockPanel>
+                  <TextBlock x:Name="LayerStreamlinesBasisText" Classes="pnl-note" />
+                </StackPanel>
+              </Border>
+
+              <Border Classes="manifest-layer-row">
+                <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+                  <DockPanel>
+                    <TextBlock x:Name="LayerTkeStatusText" DockPanel.Dock="Right" Classes="manifest-layer-status" Text="Unavailable" />
+                    <TextBlock Text="Turbulent kinetic energy" FontWeight="SemiBold" Classes="pnl-cell" />
+                  </DockPanel>
+                  <TextBlock x:Name="LayerTkeBasisText" Classes="pnl-note" />
+                </StackPanel>
+              </Border>
+
+              <Border Classes="manifest-layer-row">
+                <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+                  <DockPanel>
+                    <TextBlock x:Name="LayerForceVectorsStatusText" DockPanel.Dock="Right" Classes="manifest-layer-status" Text="Unavailable" />
+                    <TextBlock Text="Force vectors" FontWeight="SemiBold" Classes="pnl-cell" />
+                  </DockPanel>
+                  <TextBlock x:Name="LayerForceVectorsBasisText" Classes="pnl-note" />
+                </StackPanel>
+              </Border>
+
+              <Border Classes="manifest-layer-row">
+                <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+                  <DockPanel>
+                    <TextBlock x:Name="LayerSpanwiseLoadingStatusText" DockPanel.Dock="Right" Classes="manifest-layer-status" Text="Unavailable" />
+                    <TextBlock Text="Spanwise loading" FontWeight="SemiBold" Classes="pnl-cell" />
+                  </DockPanel>
+                  <TextBlock x:Name="LayerSpanwiseLoadingBasisText" Classes="pnl-note" />
+                </StackPanel>
+              </Border>
+
+              <Border Classes="manifest-layer-row">
+                <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+                  <DockPanel>
+                    <TextBlock x:Name="LayerPathlinesStatusText" DockPanel.Dock="Right" Classes="manifest-layer-status" Text="Unavailable" />
+                    <TextBlock Text="Pathlines" FontWeight="SemiBold" Classes="pnl-cell" />
+                  </DockPanel>
+                  <TextBlock x:Name="LayerPathlinesBasisText" Classes="pnl-note" />
+                </StackPanel>
+              </Border>
             </StackPanel>
           </Border>
 

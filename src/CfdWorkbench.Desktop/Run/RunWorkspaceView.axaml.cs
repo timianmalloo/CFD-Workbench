@@ -16,19 +16,15 @@ namespace CfdWorkbench.Desktop.CfdRun;
 /// </summary>
 public partial class RunWorkspaceView : UserControl
 {
-    private static readonly CfdRunState[] AllElevenStates =
+    private static readonly CfdRunState[] HappyPathStates =
     [
         CfdRunState.Pending,
-        CfdRunState.Unsupported,
         CfdRunState.Readiness,
         CfdRunState.Meshing,
         CfdRunState.MeshGate,
         CfdRunState.Solving,
         CfdRunState.Harvesting,
-        CfdRunState.Completed,
-        CfdRunState.CompletedResidualNotMet,
-        CfdRunState.Failed,
-        CfdRunState.Cancelled
+        CfdRunState.Completed
     ];
 
     private WorkbenchController? controller;
@@ -54,7 +50,7 @@ public partial class RunWorkspaceView : UserControl
     public RunWorkspaceView()
     {
         InitializeComponent();
-        BuildElevenStatePills(active: null);
+        UpdatePipelineStepper(active: null, events: null);
 
         RunQueueList.SelectionChanged += (_, _) =>
         {
@@ -67,8 +63,8 @@ public partial class RunWorkspaceView : UserControl
         };
 
         SetUpSolverButton.Click += (_, _) => SolverSetupRequested?.Invoke();
-        RunButton.Click += (_, _) => HandleRunAction(isRetry: false);
-        RetrySampleButton.Click += (_, _) => HandleRunAction(isRetry: true);
+        RunButton.Click += async (_, _) => await HandleRunActionAsync(isRetry: false);
+        RetrySampleButton.Click += async (_, _) => await HandleRunActionAsync(isRetry: true);
         CancelButton.Click += (_, _) => HandleCancelAction();
         ExplainFailureButton.Click += (_, _) => HandleExplainFailure();
         PreviewCaseDiffButton.Click += (_, _) => HandlePreviewCaseDiff();
@@ -260,7 +256,7 @@ public partial class RunWorkspaceView : UserControl
             RetrySampleButton.IsEnabled = false;
             ExplainFailureButton.IsEnabled = false;
             PreviewCaseDiffButton.IsEnabled = false;
-            BuildElevenStatePills(active: null);
+            UpdatePipelineStepper(active: null, events: null);
             RenderMeshGate(null, "Not evaluated");
             RenderResiduals(null, null);
             RefreshAssistantStatus();
@@ -275,7 +271,7 @@ public partial class RunWorkspaceView : UserControl
             $"Run {summary.RunKey12} — {summary.StateDisplay}");
         BackendPinText.Text = summary.BackendLabel;
 
-        BuildElevenStatePills(summary.State);
+        UpdatePipelineStepper(summary.State, run.Events);
 
         IntegrityWarningBanner.IsVisible = summary.IntegrityWarning is not null;
         IntegrityWarningText.Text = summary.IntegrityWarning ?? "";
@@ -292,51 +288,71 @@ public partial class RunWorkspaceView : UserControl
         RefreshAssistantStatus();
     }
 
-    private readonly Dictionary<CfdRunState, (Border Pill, TextBlock Label)> statePills = new();
+    private readonly Dictionary<CfdRunState, Border> statePills = new();
 
-    private void BuildElevenStatePills(CfdRunState? active)
+    private void UpdatePipelineStepper(CfdRunState? active, IReadOnlyList<CfdRunStateEvent>? events)
     {
-        var activeBg = ResolveBrush("PrimaryBrush");
-        var activeFg = ResolveBrush("OnPrimaryBrush");
-        var idleBg = ResolveBrush("SurfaceSoftBrush");
-        var idleFg = ResolveBrush("MutedBrush");
-        var lineBrush = ResolveBrush("LineBrush");
-        double fontSize = Math.Max(CanvasTypography.MinimumFontSize, CanvasTypography.ResolveFontSize(this));
-
         if (statePills.Count == 0)
         {
-            foreach (var state in AllElevenStates)
+            foreach (var state in HappyPathStates)
             {
-                string label = state switch
-                {
-                    CfdRunState.MeshGate => "Mesh gate",
-                    CfdRunState.CompletedResidualNotMet => "Residual not met",
-                    _ => state.ToString()
-                };
-                var text = new TextBlock { Text = label, FontSize = fontSize };
+                string label = state == CfdRunState.MeshGate ? "Mesh gate" : state.ToString();
+                var text = new TextBlock { Text = label };
                 var pill = new Border
                 {
-                    BorderBrush = lineBrush,
-                    BorderThickness = new Thickness(1),
-                    CornerRadius = new CornerRadius(4),
-                    Padding = new Thickness(6, 2),
-                    Margin = new Thickness(0, 0, 4, 4),
+                    Classes = { "run-step-pill" },
                     Child = text
                 };
-                statePills[state] = (pill, text);
+                statePills[state] = pill;
                 ElevenStatePanel.Children.Add(pill);
             }
         }
 
-        foreach (var state in AllElevenStates)
+        HashSet<CfdRunState>? reached = events is null
+            ? null
+            : new HashSet<CfdRunState>(events.Select(e => e.State));
+
+        foreach (var state in HappyPathStates)
         {
             bool isCurrent = active == state;
-            var (pill, text) = statePills[state];
-            pill.Background = isCurrent ? activeBg : idleBg;
-            pill.BorderBrush = lineBrush;
-            text.FontSize = fontSize;
-            text.FontWeight = isCurrent ? FontWeight.SemiBold : FontWeight.Normal;
-            text.Foreground = isCurrent ? activeFg : idleFg;
+            bool isReached = !isCurrent && reached is not null && reached.Contains(state);
+            var pill = statePills[state];
+            pill.Classes.Set("active", isCurrent);
+            pill.Classes.Set("reached", isReached);
+        }
+
+        switch (active)
+        {
+            case CfdRunState.Failed:
+                TerminalStatusBadgeText.Text = "Failed";
+                TerminalStatusBadge.Classes.Set("danger", true);
+                TerminalStatusBadge.Classes.Set("warning", false);
+                TerminalStatusBadge.IsVisible = true;
+                break;
+            case CfdRunState.CompletedResidualNotMet:
+                TerminalStatusBadgeText.Text = "Residual not met";
+                TerminalStatusBadge.Classes.Set("danger", false);
+                TerminalStatusBadge.Classes.Set("warning", true);
+                TerminalStatusBadge.IsVisible = true;
+                break;
+            case CfdRunState.Cancelled:
+                TerminalStatusBadgeText.Text = "Cancelled";
+                TerminalStatusBadge.Classes.Set("danger", false);
+                TerminalStatusBadge.Classes.Set("warning", true);
+                TerminalStatusBadge.IsVisible = true;
+                break;
+            case CfdRunState.Unsupported:
+                TerminalStatusBadgeText.Text = "Unsupported";
+                TerminalStatusBadge.Classes.Set("danger", false);
+                TerminalStatusBadge.Classes.Set("warning", true);
+                TerminalStatusBadge.IsVisible = true;
+                break;
+            default:
+                TerminalStatusBadgeText.Text = "";
+                TerminalStatusBadge.Classes.Set("danger", false);
+                TerminalStatusBadge.Classes.Set("warning", false);
+                TerminalStatusBadge.IsVisible = false;
+                break;
         }
     }
 
@@ -418,41 +434,120 @@ public partial class RunWorkspaceView : UserControl
                 $"Resources: {resources.Cells:N0} cells · {resources.Ranks} rank(s) · {resources.WallMs / 1000.0:0.1} s wall · {resources.CpuSeconds:0.1} cpu-s");
     }
 
-    private void HandleRunAction(bool isRetry)
+    private async Task HandleRunActionAsync(bool isRetry)
     {
         if (controller is null || controller.Inspection is null)
         {
             StatusReported?.Invoke(new StatusReport("Open a foil before starting a CFD run.", ReportKind.Warning));
             return;
         }
-        if (!solverReady && SubstrateOverride is null)
+        if (activeRunCts is not null)
         {
-            StatusReported?.Invoke(new StatusReport("Solver is not ready. Open Solver setup to verify an installation.", ReportKind.Warning));
             return;
         }
         if (SubstrateOverride is null)
         {
-            StatusReported?.Invoke(new StatusReport(
-                isRetry ? "Retry sample requires a configured solver substrate." : "CFD run requires a configured solver substrate.",
-                ReportKind.Warning));
+            string msg = !solverReady
+                ? "Solver is not ready. Open Solver setup to verify an installation."
+                : isRetry
+                    ? "Retry sample requires a configured solver substrate."
+                    : "CFD run requires a configured solver substrate.";
+            StatusReported?.Invoke(new StatusReport(msg, ReportKind.Warning));
             return;
         }
 
-        activeRunCts?.Dispose();
-        activeRunCts = new CancellationTokenSource();
+        var priorRun = isRetry ? SelectedStoredRun()?.Run : null;
+        var (model, capability) = BuildTypedCaseModel(controller, priorRun, solverReady);
+
+        var cts = new CancellationTokenSource();
+        activeRunCts = cts;
         RunButton.IsEnabled = false;
+        RetrySampleButton.IsEnabled = false;
         CancelButton.IsEnabled = true;
         StatusReported?.Invoke(new StatusReport(isRetry ? "Retrying CFD sample…" : "Starting CFD run…"));
+
+        try
+        {
+            var pipeline = new CfdCasePipelineService(controller.ActiveSession, SubstrateOverride);
+            var outcome = await pipeline.ExecuteAsync(
+                model,
+                capability,
+                experimentId: priorRun?.ExperimentId,
+                caseIndex: priorRun?.CaseIndex ?? 0,
+                priorRunId: priorRun?.RunId,
+                ct: cts.Token);
+
+            selectedRunId = outcome.Run.RunId;
+            var lastEvent = outcome.Run.Events[^1];
+            string display = CfdRunStateMachine.DisplayString(outcome.Run.CurrentState, lastEvent.Reason);
+            ReportKind kind = outcome.Run.CurrentState switch
+            {
+                CfdRunState.Completed => ReportKind.Info,
+                CfdRunState.Failed => ReportKind.Error,
+                _ => ReportKind.Warning
+            };
+            StatusReported?.Invoke(new StatusReport($"CFD run {outcome.Run.RunKey[..12]} finished: {display}", kind));
+        }
+        catch (OperationCanceledException)
+        {
+            StatusReported?.Invoke(new StatusReport("CFD run cancelled.", ReportKind.Warning));
+        }
+        catch (Exception ex)
+        {
+            StatusReported?.Invoke(new StatusReport($"CFD run failed: {ex.Message}", ReportKind.Error));
+        }
+        finally
+        {
+            if (ReferenceEquals(activeRunCts, cts))
+                activeRunCts = null;
+            cts.Dispose();
+            CancelButton.IsEnabled = false;
+            RunButton.IsEnabled = controller?.Inspection is not null;
+            RefreshFromController();
+        }
+    }
+
+    private static (TypedCaseModel Model, BackendCapability Capability) BuildTypedCaseModel(
+        WorkbenchController wbController,
+        CfdRunRecord? priorRun,
+        bool isSolverReady)
+    {
+        var snap = wbController.ActiveSession.Snapshot();
+        var authored = FoilSource.Parse(snap.Source).Authored();
+        string[] profiles = authored.Assignments.Select(a => a.ProfileIdentity).ToArray();
+        if (profiles.Length == 0) profiles = [new string('0', 64)];
+
+        double halfSpan = wbController.Inspection?.Authored.HalfSpanMeters is { } hs && double.IsFinite(hs) && hs > 0.01 ? hs : 0.45;
+        double span = halfSpan * 2.0;
+        double chord = 0.12;
+        double area = Math.Max(0.01, span * chord);
+
+        var inputs = new RunInputs(snap.AcceptedId, snap.SurfaceHash, profiles, authored.Binding.Evaluator ?? Evaluator.IdFor(snap.Source), "rule-a/1");
+        var reference = priorRun?.Reference ?? new RunReference(area, span, chord, "frame origin", "body");
+        var bounds = new WingBounds(0.0, chord, 0.0, halfSpan, -0.02, 0.02);
+        var water = priorRun?.Water ?? wbController.AnalysisWater;
+        var op = priorRun?.Op ?? wbController.AnalysisOperatingPoint;
+        var pin = priorRun?.BackendPin ?? new CfdBackendPin(
+            "openfoam-esi",
+            "v2512",
+            OperatingSystem.IsWindows() ? "wsl2" : "local",
+            "local-substrate",
+            new string('0', 64),
+            isSolverReady);
+        var capability = string.Equals(pin.Backend, "su2", StringComparison.OrdinalIgnoreCase)
+            ? BackendCapability.Su2V850
+            : BackendCapability.OpenFoamEsiV2512;
+
+        return (new TypedCaseModel(inputs, reference, bounds, water, op, pin), capability);
     }
 
     private void HandleCancelAction()
     {
-        if (activeRunCts is null) return;
-        activeRunCts.Cancel();
-        activeRunCts.Dispose();
-        activeRunCts = null;
+        var cts = activeRunCts;
+        if (cts is null) return;
         CancelButton.IsEnabled = false;
-        RunButton.IsEnabled = controller?.Inspection is not null;
+        try { cts.Cancel(); }
+        catch (ObjectDisposedException) { }
         StatusReported?.Invoke(new StatusReport("CFD run cancellation requested."));
     }
 
@@ -506,9 +601,4 @@ public partial class RunWorkspaceView : UserControl
         }
         return null;
     }
-
-    private IBrush ResolveBrush(string key) =>
-        this.TryFindResource(key, ActualThemeVariant, out var val) && val is IBrush b
-            ? b
-            : Brushes.Transparent;
 }

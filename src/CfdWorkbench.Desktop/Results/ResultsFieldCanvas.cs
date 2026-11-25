@@ -54,6 +54,59 @@ public sealed class ResultsFieldCanvas : Control
     public bool IsClearedForFailedSample => clearedFailureReason is not null;
     public string ActiveVariable => differenceOverlay is { Available: true } ? differenceOverlay.Variable : projection?.Variable ?? "";
     public double LastRenderedFontSize { get; private set; } = CanvasTypography.MinimumFontSize;
+    public string? LastLegendMaxLabel { get; private set; }
+    public string? LastLegendMidLabel { get; private set; }
+    public string? LastLegendMinLabel { get; private set; }
+    public bool LastRenderedZeroTick { get; private set; }
+
+    /// <summary>
+    /// Maps a scalar value to normalized colormap position [0, 1] and discrete palette bin.
+    /// Diverging <c>vik</c> fields normalize symmetrically around physical 0.0 so 0.0 always lands on <c>VikZeroBrush</c> (t = 0.5).
+    /// </summary>
+    public static (double NormalizedT, int BinIndex) MapScalarToColormap(
+        double value,
+        double valMin,
+        double valMax,
+        bool isDiverging,
+        int paletteLength = 5)
+    {
+        int count = Math.Max(1, paletteLength);
+        double t;
+        if (!double.IsFinite(value))
+        {
+            t = 0.5;
+        }
+        else if (isDiverging)
+        {
+            double maxAbs = Math.Max(Math.Abs(valMin), Math.Abs(valMax));
+            t = double.IsFinite(maxAbs) && maxAbs > 0.0
+                ? Math.Clamp(0.5 + 0.5 * (value / maxAbs), 0.0, 1.0)
+                : 0.5;
+        }
+        else
+        {
+            double span = valMax - valMin;
+            t = double.IsFinite(span) && span > 1e-12
+                ? Math.Clamp((value - valMin) / span, 0.0, 1.0)
+                : 0.5;
+        }
+        int bin = Math.Clamp((int)(t * count), 0, count - 1);
+        return (t, bin);
+    }
+
+    /// <summary>
+    /// Adaptive legend label formatter (R2-30): switches to scientific notation (<c>0.00e+0</c>) when
+    /// <paramref name="scaleMagnitude"/> &lt; 0.05 so small <c>Cf</c> values (e.g., 0.003) never collapse to "0.00".
+    /// </summary>
+    public static string FormatLegendValue(double value, double scaleMagnitude)
+    {
+        if (!double.IsFinite(value)) return "—";
+        if (Math.Abs(value) < 1e-12) return "0";
+        double mag = double.IsFinite(scaleMagnitude) ? Math.Abs(scaleMagnitude) : Math.Abs(value);
+        if (mag < 0.05) return value.ToString("0.00e+0", CultureInfo.InvariantCulture);
+        if (mag < 1.0) return value.ToString("0.###", CultureInfo.InvariantCulture);
+        return value.ToString("G3", CultureInfo.InvariantCulture);
+    }
 
     public void UpdateField(
         SurfaceFieldProjection? surfaceProjection,
@@ -120,8 +173,8 @@ public sealed class ResultsFieldCanvas : Control
         var bg = ResolveBrush("ViewportBrush", Brushes.Black);
         var gridBrush = ResolveBrush("ViewportGridBrush", Brushes.Gray);
         var ink = ResolveBrush("ViewportInkBrush", Brushes.White);
-        var danger = ResolveBrush("DangerBrush", ink);
-        var warning = ResolveBrush("WarningBrush", ink);
+        var danger = ResolveBrush("PlanDangerBrush", ink);
+        var warning = ResolveBrush("PlanWarningBrush", ink);
         var line = ResolveBrush("LineBrush", gridBrush);
 
         double fontSize = Math.Max(CanvasTypography.MinimumFontSize, CanvasTypography.ResolveFontSize(this));
@@ -165,7 +218,7 @@ public sealed class ResultsFieldCanvas : Control
         }
 
         double padLeft = 18;
-        double padRight = 84;
+        double padRight = 92;
         double padTop = 30;
         double padBottom = 26;
         double plotW = Math.Max(20, w - padLeft - padRight);
@@ -192,6 +245,8 @@ public sealed class ResultsFieldCanvas : Control
         double valMin = lockedMin ?? projection.MinValue ?? -1.0;
         double valMax = lockedMax ?? projection.MaxValue ?? 1.0;
         if (Math.Abs(valMax - valMin) < 1e-9) { valMin -= 0.5; valMax += 0.5; }
+        double maxAbs = Math.Max(Math.Abs(valMin), Math.Abs(valMax));
+        if (!double.IsFinite(maxAbs) || maxAbs < 1e-12) maxAbs = 1.0;
 
         // Render surface scalar field over starboard & port halves + isoline markers.
         var isoPen = new Pen(ink, 1);
@@ -206,10 +261,9 @@ public sealed class ResultsFieldCanvas : Control
                 ? differenceOverlay.DeltaValues[i]
                 : node.Value;
 
-            double t = value is { } v && double.IsFinite(v)
-                ? Math.Clamp((v - valMin) / (valMax - valMin), 0.0, 1.0)
-                : 0.5;
-            int bin = Math.Clamp((int)(t * palette.Length), 0, palette.Length - 1);
+            var (t, bin) = value is { } v
+                ? MapScalarToColormap(v, valMin, valMax, isDiverging, palette.Length)
+                : (0.5, palette.Length / 2);
             var fill = palette[bin];
 
             var stbdPt = Project(new Point3(node.X, node.Y, node.Z));
@@ -253,8 +307,28 @@ public sealed class ResultsFieldCanvas : Control
         }
         context.DrawRectangle(null, new Pen(line, 1), new Rect(barX, padTop, barW, plotH));
 
-        DrawText(context, valMax.ToString("0.00", CultureInfo.InvariantCulture), typeface, fontSize, ink, new Point(barX + barW + 4, padTop));
-        DrawText(context, valMin.ToString("0.00", CultureInfo.InvariantCulture), typeface, fontSize, ink, new Point(barX + barW + 4, Math.Max(padTop + 14, padTop + plotH - fontSize - 2)));
+        double legendMax = isDiverging ? maxAbs : valMax;
+        double legendMin = isDiverging ? -maxAbs : valMin;
+        string maxLabel = FormatLegendValue(legendMax, maxAbs);
+        string minLabel = FormatLegendValue(legendMin, maxAbs);
+        LastLegendMaxLabel = maxLabel;
+        LastLegendMinLabel = minLabel;
+
+        DrawText(context, maxLabel, typeface, fontSize, ink, new Point(barX + barW + 4, padTop));
+        if (isDiverging)
+        {
+            double zeroY = padTop + plotH * 0.5;
+            context.DrawLine(new Pen(ink, 1.5), new Point(barX - 3, zeroY), new Point(barX + barW + 3, zeroY));
+            DrawText(context, "0", boldTypeface, fontSize, ink, new Point(barX + barW + 5, zeroY - fontSize * 0.6));
+            LastLegendMidLabel = "0";
+            LastRenderedZeroTick = true;
+        }
+        else
+        {
+            LastLegendMidLabel = null;
+            LastRenderedZeroTick = false;
+        }
+        DrawText(context, minLabel, typeface, fontSize, ink, new Point(barX + barW + 4, Math.Max(padTop + 14, padTop + plotH - fontSize - 2)));
         DrawText(context, "Port (-y) · Starboard (+y)", typeface, fontSize, ink, new Point(padLeft, h - fontSize - 6));
     }
 
