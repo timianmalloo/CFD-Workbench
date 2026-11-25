@@ -9815,7 +9815,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f0367b7b9b771044ecb50c323c68e305810dca241965dce4e66bbc3514d181e4"
+      "sourceSha256": "75c990470c950249d8ffd69240efe8a775b1654b9f9be7b74b9e11dde19e91ff"
     },
     {
       "id": "review-ui-m12c-paired",
@@ -12890,7 +12890,7 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/wave12-ui-unification-and-polish.md",
       "title": "Coordination plan - wave 12: Round 2 /ui-design Unification, Broken-Flow Closure, Scientific Truth & Polish",
       "type": "plan",
-      "status": "active",
+      "status": "complete",
       "owner": "@timianmalloo",
       "phase": "",
       "reviewBy": "2027-02-24",
@@ -12943,7 +12943,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2548671abccbb39971f1448d8d07f78cbc7765dafaf4addd9cd9dad1bb0ad40d"
+      "sourceSha256": "8e74f42e91183bccc07cb997b25f05e101043fccc97ea983abeb402812465522"
     },
     {
       "id": "coordination-wave3-next-steps",
@@ -26375,5 +26375,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "6194cbc8ab0bea15e1c0d247bcd7ca5c828f84ccc211c7941f22988ee3e11111"
+  "graphSha256": "120d3b3b0fb05e11c2a5c025688129af505caf424c6a02baed41d46cac332ee2"
 };

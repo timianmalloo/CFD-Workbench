@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-25T09:44:54Z",
+  "generated": "2026-11-25T09:46:14Z",
   "audit": [
     {
       "actor": null,
@@ -45774,6 +45774,80 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-25T09:36:45Z",
       "duration_seconds": 489.0
+    },
+    {
+      "id": "al-01M891JG0NAD5B25R8Y3RC0HJT",
+      "shortname": "close-wave12",
+      "datetime": "2026-11-25T09:46:14Z",
+      "session": "agy-w12-coord",
+      "prompt": "Execute Wave 12 coordination plan closing all 31 Round 2 /ui-design findings (R2-01..R2-31) under Ruling 277",
+      "summary": "Completed Wave 12 via AGY swarm (4 serial share tracks, 0 seams, 0 repair cycles, 4/4 first-pass Adversary clears, 4 serial conductor-join.py --no-push merges onto main): W12-A (5b56b15f), W12-B (e0e86a49), W12-C (2344ddcb), W12-D (7cb3d68e). Closed all 31/31 Round 2 /ui-design findings (R2-01..R2-31) and updated ui-as-built-workbench-r2.{md,html} §7 closure ledger. Final TESTS-GREEN 421 s (Core 1018/7/0, Analysis 352/1/0, Desktop 994/1/0 real-display, Cli 46/1/0, Python 11/0; 2,421 passed, 0 failed), xaml-token-lint clean, check-event-subscribers 54/4/0, TokenDisciplineTests 0 findings (incl. C# FontSize literal ban), design-lint --strict 0 warnings, recursive store_subset ok, 10/10 verify gates PASS. Retired all swarm workers and recorded Planned vs Actual.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/wave12-ui-unification-and-polish.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Close all 31 Round 2 /ui-design findings on main under Ruling 277",
+      "done_when": "All 4 tracks verified and merged via conductor-join.py --no-push with TESTS-GREEN, 10/10 verify gates PASS, swarm retired, and Planned vs Actual committed",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "duration_source": "session-start-hook",
+      "started_at": "2026-11-25T09:45:50Z",
+      "duration_seconds": 24.0,
+      "agent_runs": [
+        {
+          "agent": "w12-shell-tokens",
+          "started_at": "2026-11-25T05:47:04Z",
+          "ended_at": "2026-11-25T06:22:24Z",
+          "duration_seconds": 2120.0
+        },
+        {
+          "agent": "w12-byok-ui",
+          "started_at": "2026-11-25T06:40:37Z",
+          "ended_at": "2026-11-25T07:16:23Z",
+          "duration_seconds": 2146.0
+        },
+        {
+          "agent": "w12-results-run",
+          "started_at": "2026-11-25T07:35:06Z",
+          "ended_at": "2026-11-25T08:18:06Z",
+          "duration_seconds": 2580.0
+        },
+        {
+          "agent": "w12-polish-copy",
+          "started_at": "2026-11-25T08:36:23Z",
+          "ended_at": "2026-11-25T09:27:35Z",
+          "duration_seconds": 3072.0
+        },
+        {
+          "agent": "w12-verifier",
+          "started_at": "2026-11-25T05:46:59Z",
+          "ended_at": "2026-11-25T09:35:56Z",
+          "duration_seconds": 13737.0
+        },
+        {
+          "agent": "w12-monitor",
+          "started_at": "2026-11-25T05:46:56Z",
+          "ended_at": "2026-11-25T09:45:42Z",
+          "duration_seconds": 14326.0
+        }
+      ],
+      "parallelism": {
+        "agent_seconds": 37981.0,
+        "span_seconds": 14326.0,
+        "speedup": 2.65,
+        "peak_concurrency": 3
+      }
     }
   ],
   "changes": [

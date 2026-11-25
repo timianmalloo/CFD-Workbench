@@ -2,7 +2,7 @@
 id: coordination-wave12-ui-unification-and-polish
 title: "Coordination plan - wave 12: Round 2 /ui-design Unification, Broken-Flow Closure, Scientific Truth & Polish"
 type: plan
-status: active
+status: complete
 owner: "@timianmalloo"
 tags: [coordination, worktrees, ui-design, avalonia, desktop, shell, byok, results, agy-swarm, wave12]
 links:
@@ -310,10 +310,34 @@ before the next builds on it.
 |---|---|---|---|
 | Independent Adversary Plan Review | `Wave 12 Adversary Plan Reviewer` (`758e0281`; `Test Architect` hard veto · `Security & Identity` hard veto · `Marine-CAD UX` · `Simplifier` soft veto · `Tech Lead` casting vote) | **PASS-WITH-CONDITIONS → CLEARED** | Verified 31/31 Round 2 findings (`R2-01`–`R2-31`) covered; folded all 10 conditions (`C1`–`C10`): (C1) re-target `ShellWindowTests.cs:568-569` frozen `"analysis.nav.selected"` probe to `RailAnalysisButton`; (C2) update `StatusStripTests.cs:111` reverse-wrap `F6` for `ActivityRail` at index 0; (C3) add `view.cad`/`assistant.cad` to `ShellHost.IsPaneCommand` & `ShellModelTests.cs:414`, safe with `controller.Section != null`, keep `"Analysis"` palette search == 1 match, update `AnalysisToggleTests.cs:251` & `Wave10UiTests.cs`; (C4) scope global `ToggleButton` styles away from `ExpanderHeader`/`ToggleButton.navbar`/reduced-motion `ProgressBar` and auto-collapse docks ONLY on non-CAD workspaces (never initial `Cad`/Start); (C5) solve `R2-03` 100% in Desktop via `onRefreshOverCurrentRevision` callback returning to Step 1 Consent Preview over a fresh `AI-04` `payloadSha256` (never forging `BaseAcceptedId`); (C6) keep test-pinned `x:Name`s, preserve `ToString()` tokens on `DataTemplate` DTOs, keep Area 3 prompt/answer & `CadAssistantBar` collapsed by default; (C7) update `Wave10UiTests.cs:206` for 7-step stepper + terminal badge, self-contained `HandleRunAction` via `controller.ActiveSession` + `try/finally`, preserve `PerformanceCurveChart` `ActualThemeVariantChanged` & zero `Typeface.Default`; (C8) verified all 8 C# `FontSize =` literals live in `W12-D`'s `Sweeps/*.cs`; (C9) `ExportDialog` `NoAssistantNoteText` in sibling Grid Col 0 beside `FooterButtons`, update `Wave10UiTests.cs:227`/`Wave11AiUiTests.cs:464`, keep `"Sweep:"` label, same-band `AnalysisPanel` header (`>= 82 px`), keep `COPY-866..915` proposed; (C10) explicit `R2-05 [dock auto-collapse]` vs `R2-05 [reflow]` split. Tech Lead casting vote: APPROVE 4 serial width-1 `share` tracks. |
 
+## Planned vs actual
+
+Executed 2026-11-25T05:47Z → 2026-11-25T09:45Z (~3 h 58 min total wall time across Ruling 277 + S0 plan, 4 serial
+`share` tracks, independent Adversary verification on every track, and 4 serial `conductor-join.py --no-push` joins
+onto `main` — **0 seams, 0 repair cycles, 4/4 first-pass clears**).
+
+| track | worker (`share`) | planned cap | actual wall span (UTC) | repair cycles | seams granted | verifier verdict | join SHA (`main`) |
+|---|---|---|---|---|---|---|---|
+| **S0** Ruling 277 + Plan | Coordinator (`agy-w12-coord`) | 1 commit | `05:30Z` → `05:46Z` (~16 min) | 0 (`C1–C10` folded) | — | Adversary Plan Reviewer (`758e0281`) CLEARED | `c1d2deeb` |
+| **W12-A** (Wave 12A) | `w12-shell-tokens` | 2 h · 200 calls | `05:47:04Z` → `06:22:24Z` (~35 min) | 0 | 0 | `w12-verifier` (`#131`) PASS (`CLEARS-THE-VETO: yes`) | `5b56b15f` (`TESTS-GREEN 422 s`) |
+| **W12-B** (Wave 12B) | `w12-byok-ui` | 2 h 15 min · 200 calls | `06:40:37Z` → `07:16:23Z` (~36 min) | 0 | 0 | `w12-verifier` (`#137`) PASS (`CLEARS-THE-VETO: yes`) | `e0e86a49` (`TESTS-GREEN 433 s`) |
+| **W12-C** (Wave 12C) | `w12-results-run` | 2 h · 200 calls | `07:35:06Z` → `08:18:06Z` (~43 min) | 0 | 0 | `w12-verifier` (`#141`) PASS (`CLEARS-THE-VETO: yes`) | `2344ddcb` (`TESTS-GREEN 418 s`) |
+| **W12-D** (Wave 12D) | `w12-polish-copy` | 2 h 15 min · 220 calls | `08:36:23Z` → `09:27:35Z` (~51 min) | 0 | 0 | `w12-verifier` (`#147`) PASS (`CLEARS-THE-VETO: yes`) | `7cb3d68e` (`TESTS-GREEN 421 s`) |
+
+**Final verification on `main` (`7cb3d68e`):**
+- **All 31/31 Round 2 `/ui-design` findings (`R2-01`–`R2-31`: 7 Blockers, 14 Majors, 7 Minors, 3 Nits) closed** and recorded in `docs/reviews/ui-as-built-workbench-r2.{md,html}` §7 closure ledger.
+- **`tools/run-tests.sh` (`TESTS-GREEN 421 s`):** `CfdWorkbench.Core.Tests` **1018 passed, 7 skipped, 0 failed**; `CfdWorkbench.Analysis.Tests` **352 passed, 1 skipped, 0 failed**; `CfdWorkbench.Desktop.Tests` **994 passed, 1 skipped, 0 failed** (real display, +13 new Desktop checks since Wave 11, incl. `UI-CS-TOKEN` with new C# `FontSize = <n>` literal ban & `UIA-PROBE PASS`); `CfdWorkbench.Cli.Tests` **46 passed, 1 skipped, 0 failed**; Python unittest **11 ran, 0 failed** (**2,421 passed, 10 skipped, 0 failed** total).
+- **Static, token, & governance gates:** `xaml-token-lint.py` clean, `tools/check-event-subscribers.py` 54 events / 4 allowed / 0 findings, `Styles.axaml` exact 30×3 closed theme brushes untouched, `ActivityRail` 0 `Dock.*` refs, `TokenDisciplineTests` 0 findings (including 0 C# `FontSize = <n>` literals), recursive `tools/store_subset.py` ok (116 partitioned), `design-lint.py DESIGN.md --strict` 0 warnings (`DESIGN.md` §5 reconciled with Ruling 277; `COPY-866..915` sanitized & kept `— proposed —`), `verify-ruling-citations.py` 277/277 OK, `tools/check-proof-pii.py` 0 hits, `tools/check-docs.py` exit 0, and `run-verify-gates.py` **10/10 PASS**.
+- **Worktree & swarm hygiene:** All 6 Wave 12 workers retired cleanly; `git worktree list` reports only the primary checkout on `main`; `git branch --list` reports only `* main`.
+- **Honest remaining / deferred items:**
+  - `COPY-866..915` (50 Wave 11 BYOK copy rows, sanitized in `W12-D`) remain `— proposed —` pending operator batch approval.
+  - New Wave 12 commits on `main` are **not pushed** to `origin` pending operator confirmation.
+  - Host-external items (`A5-RESUME` Umbrella TLS, `SPIKE-CAD-02` interactive CAD apps, ParaView 5.12+, Authenticode / macOS codesigning) and operator-excluded screen-reader AT (NVDA / VoiceOver / Narrator) remain out of scope.
+
 ## Status
 
 | | |
 |---|---|
-| **Completed** | Pushed Wave 11 + R2 review (`86faf6f8`) to `origin/main`, recorded Operator Ruling 277, and drafted & Adversary-cleared `docs/coordination/wave12-ui-unification-and-polish.md` (`C1`–`C10` folded, 31/31 Round 2 findings covered) |
-| **Remaining** | Commit Ruling 277 + S0 → serial swarm execution (`W12-A` → `W12-B` → `W12-C` → `W12-D`) → Planned vs Actual closeout |
-| **Best next action** | Render `.html`, run docs/PII/ruling/verify gates, commit Ruling 277 + S0 on `main`, and dispatch `w12-monitor` + `w12-verifier` + Wave 12A `w12-shell-tokens` (`W12-A`) |
+| **Completed** | Pushed Wave 11 + R2 review (`86faf6f8`), recorded Operator Ruling 277, and landed all 4 Wave 12 tracks (`W12-A` `5b56b15f` → `W12-B` `e0e86a49` → `W12-C` `2344ddcb` → `W12-D` `7cb3d68e`) with **0 seams, 0 repair cycles, and 4/4 first-pass Adversary passes**, closing all 31/31 Round 2 `/ui-design` findings (`TESTS-GREEN 421 s`, 2,421 passed / 0 failed, 10/10 verify gates PASS) |
+| **Remaining** | Operator confirmation to push Wave 12 (`main`) to `origin` and optional batch approval of `COPY-866..915` (50 sanitized Wave 11 copy rows); host-external items (`A5-RESUME`, `SPIKE-CAD-02`, ParaView 5.12+, codesigning) remain external |
+| **Best next action** | Review Wave 12 results on `main`, confirm whether to push `main` and batch-approve `COPY-866..915` |
