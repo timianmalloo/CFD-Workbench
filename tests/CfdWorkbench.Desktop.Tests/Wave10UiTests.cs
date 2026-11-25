@@ -42,6 +42,7 @@ public static class Wave10UiTests
         DesktopChecks.Check("Wave12C_RunWorkspaceView_LiveExecute_SplitStepper_And_ThemeReactivity", CheckWave12CRunWorkspace);
         DesktopChecks.Check("ResultsWorkspaceView_TauWSeparation_ReplayPauseClear_DifferenceFlood_CandidateDraft", CheckResultsWorkspaceView);
         DesktopChecks.Check("Wave12C_Results_AutoReplay_ReadOnlyManifestLayers_ZeroPinnedVik_And_AdaptiveLegend", CheckWave12CResultsScientificTruth);
+        DesktopChecks.Check("Wave12D_Reflow_CopySanitization_Units_ExportBadge_AnalysisHeader_And_StartRecent", CheckWave12DPolishAndCopy);
         DesktopChecks.Check("Wave10Ui_DesignCopy806To865_And_CommandTableRunResultsModalFalse", CheckCopyAndCommandTable);
     }
 
@@ -525,7 +526,7 @@ public static class Wave10UiTests
                 $"R2-26: Failed run terminal badge text must be 'Failed', got '{NeedText(runView, "TerminalStatusBadgeText")}'");
             Require(NeedText(runView, "SelectedRunStateText").Contains("Failed", StringComparison.Ordinal),
                 "Failed run must display Failed state");
-            Require(Need<ListBox>(runView, "MeshGateFailuresList").ItemCount >= 1,
+            Require(Need<ItemsControl>(runView, "MeshGateFailuresList").ItemCount >= 1,
                 "Failed MeshGate must display failing checks");
 
             // Offline AI-01 Explain this failure (zero network calls, cites log line numbers).
@@ -1032,6 +1033,176 @@ public static class Wave10UiTests
             Require(canvas.LastLegendMaxLabel is not null && canvas.LastLegendMaxLabel != "0.00" &&
                     canvas.LastLegendMinLabel is not null && canvas.LastLegendMinLabel != "0.00",
                 $"R2-30: Small Cf legend must not collapse to '0.00' (got min='{canvas.LastLegendMinLabel}', max='{canvas.LastLegendMaxLabel}')");
+        }
+        finally
+        {
+            window.Close();
+        }
+    }
+
+    private static void CheckWave12DPolishAndCopy()
+    {
+        // 1. R2-15: Copy sanitization — zero internal spec/DR IDs & zero residual LAB-01 "certified" leaks.
+        string[] forbiddenIds = ["DR-F3-1", "DR-F2-3", "DR-F2-1", "COMMIT-01", "A8.6", "9 required fields"];
+        string[] sanitizedStrings =
+        [
+            RunCopy.MeshGateHeading,
+            RunCopy.ResidualsHeading,
+            ResultsCopy.ProvenanceHeading,
+            ResultsCopy.CandidateLadderHeading,
+            CfdWorkbench.Desktop.Assistant.AssistantCopy.EvalSectionHeading
+        ];
+        foreach (string s in sanitizedStrings)
+        {
+            foreach (string id in forbiddenIds)
+            {
+                Require(!s.Contains(id, StringComparison.OrdinalIgnoreCase),
+                    $"R2-15: Internal spec/DR ID '{id}' leaked into copy string '{s}'");
+            }
+        }
+        Require(!WorkbenchController.AddNeedsFoil.Contains("certified", StringComparison.OrdinalIgnoreCase) &&
+                !WorkbenchController.RemoveNeedsFoil.Contains("certified", StringComparison.OrdinalIgnoreCase) &&
+                !WorkbenchController.MatchNeedsFoil.Contains("certified", StringComparison.OrdinalIgnoreCase),
+            "R2-15 / LAB-01: WorkbenchController AddNeedsFoil/RemoveNeedsFoil/MatchNeedsFoil must not contain 'certified'");
+
+        using var controller = new WorkbenchController();
+        var host = new ShellHost(controller);
+        var window = new Window { Content = host, Width = 1024, Height = 700 };
+        try
+        {
+            window.Show();
+            Settle(window);
+
+            // 2. R2-31: StartView RecentListBox MaxHeight raised to 180 px.
+            var recentList = Need<ListBox>(host.ModelView.StartCardView, "RecentListBox");
+            Require(Math.Abs(recentList.MaxHeight - 180.0) < 0.1,
+                $"R2-31: StartView.RecentListBox MaxHeight must be 180, got {recentList.MaxHeight}");
+
+            // 3. R2-23: ActivityRail Export badge is dynamic ("Open foil" when !foilOpen, ".dat · STL · 3MF" when gated).
+            Require(NeedText(host.ActivityRail, "BadgeExportText") == "Open foil",
+                $"R2-23: Export badge on Start (!foilOpen) must be 'Open foil', got '{NeedText(host.ActivityRail, "BadgeExportText")}'");
+
+            Pump(controller.OpenExampleAsync());
+            Settle(window);
+            host.CadExportGateOverride = () => CfdWorkbench.Analysis.Export.CadExportReleaseGate.Gated;
+            host.RefreshPanes();
+            Settle(window);
+            Require(NeedText(host.ActivityRail, "BadgeExportText") == ".dat · STL · 3MF",
+                $"R2-23: Export badge when foil open & CAD gated must be '.dat · STL · 3MF', got '{NeedText(host.ActivityRail, "BadgeExportText")}'");
+            host.CadExportGateOverride = () => new CfdWorkbench.Analysis.Export.CadExportGateStatus(true, true, "ok", "ok", []);
+            host.RefreshPanes();
+            Settle(window);
+            Require(NeedText(host.ActivityRail, "BadgeExportText") == "+ STEP/3DM",
+                $"R2-23: Export badge when CAD unlocked must be '+ STEP/3DM', got '{NeedText(host.ActivityRail, "BadgeExportText")}'");
+            host.CadExportGateOverride = null;
+
+            // 4. R2-05, R2-15, R2-19, R2-25 on Run & Results.
+            var snap = controller.ActiveSession.Snapshot();
+            string mh = new string('a', 64);
+            var r1 = BuildCfdRunRecord(snap, mh, 2.0, 7.2, true, false, true, null, null);
+            var r2 = BuildCfdRunRecord(snap, mh, 4.0, 7.2, true, false, true, null, null);
+            controller.RecordCfdRun(r1);
+            controller.RecordFieldEvidence(CfdRunRecords.Seal(new FieldEvidenceRecord(
+                Guid.NewGuid().ToString("D"), r1.RunId, "", "surface", "postProcessing/wingSurface/500/wing.raw",
+                new string('1', 64), mh, ["Cp"], "face", [new FieldRangeRecord("Cp", "dimensionless", -1.5, 0.5, "sample-range")],
+                "crameri-8.0", "cfdw-harvester", "1.0.0", false, null, false, false, [])));
+            controller.RecordCfdRun(r2);
+            controller.RecordFieldEvidence(CfdRunRecords.Seal(new FieldEvidenceRecord(
+                Guid.NewGuid().ToString("D"), r2.RunId, "", "surface", "postProcessing/wingSurface/500/wing.raw",
+                new string('2', 64), mh, ["Cp"], "face", [new FieldRangeRecord("Cp", "dimensionless", -1.4, 0.4, "sample-range")],
+                "crameri-8.0", "cfdw-harvester", "1.0.0", false, null, false, false, [])));
+
+            controller.EnterRun();
+            Settle(window);
+            var runView = host.ModelView.RunView;
+            Require(Need<Button>(runView, "RunButton").Parent is WrapPanel, "R2-05: Run header actions must use WrapPanel");
+            Require(Need<Button>(runView, "ExplainFailureButton").Parent is WrapPanel, "R2-05: Run failure actions must use WrapPanel");
+            Require(runView.FindControl<ItemsControl>("MeshGateFailuresList") is not ListBox,
+                "R2-25: MeshGateFailuresList must be a non-wheel-capturing ItemsControl");
+            foreach (var tb in runView.GetVisualDescendants().OfType<TextBlock>())
+            {
+                foreach (string id in forbiddenIds)
+                    Require(!(tb.Text ?? "").Contains(id, StringComparison.OrdinalIgnoreCase),
+                        $"R2-15: RunWorkspaceView rendered forbidden ID '{id}' in '{tb.Text}'");
+            }
+
+            // R2-19: Run queue honors global AnalysisUnits (m/s <-> kn).
+            var runQueue = Need<ListBox>(runView, "RunQueueList");
+            controller.AnalysisUnits = Units.Metric;
+            Settle(window);
+            string runMetric = runQueue.Items[0]?.ToString() ?? "";
+            Require(runMetric.Contains("m/s", StringComparison.Ordinal), $"R2-19: Metric RunQueueList expected m/s, got '{runMetric}'");
+            controller.AnalysisUnits = Units.Imperial;
+            Settle(window);
+            string runImp = runQueue.Items[0]?.ToString() ?? "";
+            Require(runImp.Contains("kn", StringComparison.Ordinal), $"R2-19: Imperial RunQueueList expected kn, got '{runImp}'");
+
+            controller.EnterResults();
+            Settle(window);
+            var resultsView = host.ModelView.ResultsView;
+            Require(Need<Button>(resultsView, "ReplayPlayButton").Parent is WrapPanel, "R2-05: Results Replay controls must use WrapPanel");
+            Require(Need<Button>(resultsView, "ComputeDiffButton").Parent is WrapPanel, "R2-05: Results Diff controls must use WrapPanel");
+            var candList = Need<ListBox>(resultsView, "CandidateList");
+            Require(ScrollViewer.GetVerticalScrollBarVisibility(candList) == ScrollBarVisibility.Disabled,
+                "R2-25: CandidateList must disable nested vertical ScrollViewer wheel capture");
+            foreach (var tb in resultsView.GetVisualDescendants().OfType<TextBlock>())
+            {
+                foreach (string id in forbiddenIds)
+                    Require(!(tb.Text ?? "").Contains(id, StringComparison.OrdinalIgnoreCase),
+                        $"R2-15: ResultsWorkspaceView rendered forbidden ID '{id}' in '{tb.Text}'");
+            }
+
+            // R2-19: Results SamplePicker and ReplayFrameStatusText honor global AnalysisUnits.
+            var samplePicker = Need<ComboBox>(resultsView, "SamplePicker");
+            string sampleImp = samplePicker.Items[0]?.ToString() ?? "";
+            Require(sampleImp.Contains("kn", StringComparison.Ordinal), $"R2-19: Imperial Results SamplePicker expected kn, got '{sampleImp}'");
+            Require(NeedText(resultsView, "ReplayFrameStatusText").Contains("kn", StringComparison.Ordinal),
+                $"R2-19: Imperial ReplayFrameStatusText expected kn, got '{NeedText(resultsView, "ReplayFrameStatusText")}'");
+            controller.AnalysisUnits = Units.Metric;
+            Settle(window);
+            string sampleMet = samplePicker.Items[0]?.ToString() ?? "";
+            Require(sampleMet.Contains("m/s", StringComparison.Ordinal), $"R2-19: Metric Results SamplePicker expected m/s, got '{sampleMet}'");
+            Require(NeedText(resultsView, "ReplayFrameStatusText").Contains("m/s", StringComparison.Ordinal),
+                $"R2-19: Metric ReplayFrameStatusText expected m/s, got '{NeedText(resultsView, "ReplayFrameStatusText")}'");
+
+            // 5. R2-05 & R2-25 on SolverSetupView: assistant column auto-collapses below 1100 px and toggles explicitly; TermsText not in nested ScrollViewer.
+            host.OpenSolverSetup();
+            Settle(window);
+            var slv = host.SolverSetup;
+            var assistantPane = Need<Border>(slv, "AssistantPane");
+            var toggleAssistBtn = Need<ToggleButton>(slv, "ToggleAssistantButton");
+            Require(!assistantPane.IsVisible && toggleAssistBtn.IsChecked == false,
+                $"R2-05: SolverSetup AssistantPane must auto-collapse below 1100 px (view width={slv.Bounds.Width:0.#})");
+            Click(toggleAssistBtn);
+            Settle(window);
+            Require(assistantPane.IsVisible && toggleAssistBtn.IsChecked == true,
+                "R2-05: Clicking ToggleAssistantButton must explicitly open AssistantPane");
+            var termsText = Need<TextBlock>(slv, "TermsText");
+            var termsOuterScroll = termsText.GetVisualAncestors().OfType<ScrollViewer>().ToArray();
+            Require(termsOuterScroll.Length <= 1,
+                $"R2-25: TermsText must not sit inside a nested ScrollViewer (found {termsOuterScroll.Length} ancestor ScrollViewers)");
+            host.CloseSolverSetup();
+            Settle(window);
+
+            // 6. R2-29 (C9.4): AnalysisPanel tab strip and right-hand action buttons share one horizontal band with ZERO overlap at narrow width & 200% scale!
+            Pump(host.RunCommand("view.analysis"));
+            host.RefreshPanes();
+            Settle(window);
+            var panel = host.AnalysisPanel;
+            host.SetTextScale(2.0);
+            window.Width = 720;
+            Settle(window);
+            var tabStripScroll = panel.PanelTabs.GetVisualDescendants().OfType<ScrollViewer>()
+                .FirstOrDefault(sv => sv.Name == "PART_TabStripScroll")
+                ?? throw new InvalidOperationException("R2-29: AnalysisPanel.PanelTabs missing non-overlapping PART_TabStripScroll");
+            var askBtn = Need<Button>(panel, "AskCalculationButton");
+            var tabRight = tabStripScroll.TranslatePoint(new Point(tabStripScroll.Bounds.Width, 0), panel)?.X ?? double.MaxValue;
+            var askLeft = askBtn.TranslatePoint(new Point(0, 0), panel)?.X ?? 0.0;
+            Require(tabRight <= askLeft + 0.5,
+                $"R2-29: Tab strip right edge ({tabRight:0.#}) collided with AskCalculationButton left edge ({askLeft:0.#}) at narrow width / 200% scale");
+            host.SetTextScale(1.0);
+            window.Width = 1024;
+            Settle(window);
         }
         finally
         {

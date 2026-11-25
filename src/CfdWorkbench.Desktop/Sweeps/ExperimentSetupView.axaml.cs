@@ -224,24 +224,55 @@ public partial class ExperimentSetupView : UserControl
         EstimateStorageText.Text = Labels.SweepEstimatedStorage(FormatBytes(preview.EstimatedStorageBytes), FormatBytes(preview.DocumentBytes));
         BasisPreviewText.Text = $"Basis: {preview.BasisLabel} · {preview.NotModelledLabel}";
 
-        PreviewRowsHost.Children.Add(new TextBlock
-        {
-            Text = "#   | Speed (m/s) | α (°) / Load | q (Pa)   | Re_ref     | h/c   | Fr_h  | σ     | Cache",
-            FontWeight = Avalonia.Media.FontWeight.SemiBold,
-            FontSize = 11
-        });
+        var units = controller?.DisplayUnits ?? Units.Metric;
+        string speedUnit = Labels.SpeedUnit(units);
+        const string cols = "32,88,118,76,92,66,58,58,54";
+        PreviewRowsHost.Children.Add(BuildPreviewRow(
+            cols,
+            isHeader: true,
+            "#", $"Speed ({speedUnit})", "α (°) / Load", "q (Pa)", "Re_ref", "h/c", "Fr_h", "σ", "Cache"));
+
         foreach (var row in preview.Rows)
         {
             string alphaOrLoad = row.AlphaDeg is double a
                 ? string.Create(CultureInfo.InvariantCulture, $"{a:0.##}°")
                 : string.Create(CultureInfo.InvariantCulture, $"Solve ({row.TargetLoadN:0.#} N)");
-            string hc = row.Conditions.DepthOverChord.Value is double vHc ? vHc.ToString("0.00", CultureInfo.InvariantCulture) : "Unavail (depth unset)";
+            string hc = row.Conditions.DepthOverChord.Value is double vHc ? vHc.ToString("0.00", CultureInfo.InvariantCulture) : "Unavail";
             string fr = row.Conditions.FroudeDepth.Value is double vFr ? vFr.ToString("0.00", CultureInfo.InvariantCulture) : "—";
             string sig = row.Conditions.Sigma.Value is double vSig ? vSig.ToString("0.00", CultureInfo.InvariantCulture) : "—";
-            string line = string.Create(CultureInfo.InvariantCulture,
-                $"{row.CaseIndex + 1,2}  | {row.SpeedMetersPerSecond,11:0.###} | {alphaOrLoad,12} | {row.Conditions.Q.Value ?? 0,8:0.0} | {row.Conditions.ReRef.Value ?? 0,10:0.00E+0} | {hc,5} | {fr,5} | {sig,5} | {(row.CacheHit ? "Hit" : "New")}");
-            PreviewRowsHost.Children.Add(new TextBlock { Text = line, FontSize = 11 });
+            PreviewRowsHost.Children.Add(BuildPreviewRow(
+                cols,
+                isHeader: false,
+                (row.CaseIndex + 1).ToString(CultureInfo.InvariantCulture),
+                Labels.Speed(row.SpeedMetersPerSecond, units).ToString("0.###", CultureInfo.InvariantCulture),
+                alphaOrLoad,
+                (row.Conditions.Q.Value ?? 0).ToString("0.0", CultureInfo.InvariantCulture),
+                (row.Conditions.ReRef.Value ?? 0).ToString("0.00E+0", CultureInfo.InvariantCulture),
+                hc,
+                fr,
+                sig,
+                row.CacheHit ? "Hit" : "New"));
         }
+    }
+
+    private static Grid BuildPreviewRow(string colSpec, bool isHeader, params string[] values)
+    {
+        var grid = new Grid { ColumnDefinitions = ColumnDefinitions.Parse(colSpec), ColumnSpacing = 8 };
+        string cls = isHeader ? "pnl-head" : "pnl-cell";
+        for (int i = 0; i < values.Length; i++)
+        {
+            bool numeric = i is 0 or 1 or 3 or 4 or 5 or 6 or 7;
+            var cell = new TextBlock
+            {
+                Text = values[i],
+                Classes = { cls },
+                TextAlignment = numeric ? Avalonia.Media.TextAlignment.Right : Avalonia.Media.TextAlignment.Left,
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+            };
+            Grid.SetColumn(cell, i);
+            grid.Children.Add(cell);
+        }
+        return grid;
     }
 
     private static string FormatBytes(int bytes) =>

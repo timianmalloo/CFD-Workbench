@@ -28,8 +28,8 @@ public partial class LocalRunView : UserControl
         CaseRowsHost.Children.Clear();
         if (controller is null || controller.CurrentProjection() is not { } proj)
         {
-            RunTitleText.Text = "Run (local · in-process)";
-            PinSummaryText.Text = "Queue a sweep in Experiment setup to run it locally.";
+            RunTitleText.Text = "2. Local queue (in-process)";
+            PinSummaryText.Text = "Queue a sweep in 1. Sweep setup to run it locally.";
             RunStatusBanner.Text = Labels.SweepEmpty;
             RunProgressBar.Value = 0;
             RunLocalButton.IsEnabled = false;
@@ -59,18 +59,19 @@ public partial class LocalRunView : UserControl
         foreach (var c in proj.Cases)
         {
             int idx = c.CaseIndex;
-            var rowGrid = new Grid { ColumnDefinitions = ColumnDefinitions.Parse("Auto,*,Auto,Auto") };
+            var rowGrid = new Grid { ColumnDefinitions = ColumnDefinitions.Parse("Auto,*,Auto,Auto"), ColumnSpacing = 12 };
+            string unit = Labels.SpeedUnit(controller.DisplayUnits);
             string condText = c.AlphaDeg is double a
-                ? string.Create(CultureInfo.InvariantCulture, $"Case {idx + 1} · {Labels.Speed(c.SpeedMetersPerSecond, controller.DisplayUnits):0.##} {(controller.DisplayUnits == Units.Imperial ? "kn" : "m/s")} · α {a:0.##}°")
-                : string.Create(CultureInfo.InvariantCulture, $"Case {idx + 1} · {c.Label ?? "Goal"} · {Labels.Speed(c.SpeedMetersPerSecond, controller.DisplayUnits):0.##}");
+                ? string.Create(CultureInfo.InvariantCulture, $"Case {idx + 1} · {Labels.Speed(c.SpeedMetersPerSecond, controller.DisplayUnits):0.##} {unit} · α {a:0.##}°")
+                : string.Create(CultureInfo.InvariantCulture, $"Case {idx + 1} · {c.Label ?? "Goal"} · {Labels.Speed(c.SpeedMetersPerSecond, controller.DisplayUnits):0.##} {unit}");
             string detail = c.State == SweepAttemptState.Completed
                 ? $"Completed (att {c.AttemptCount}) · key {c.RunKey?[..Math.Min(12, c.RunKey.Length)]}"
                 : c.FailureCode is not null
                     ? $"{c.State} ({c.FailureCode}): {c.FailureReason}"
                     : c.State.ToString();
 
-            var label = new TextBlock { Text = condText, FontSize = 12, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center };
-            var stateText = new TextBlock { Text = detail, FontSize = 11, Margin = new Avalonia.Thickness(12, 0, 12, 0), VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center };
+            var label = new TextBlock { Text = condText, Classes = { "pnl-head" }, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center };
+            var stateText = new TextBlock { Text = detail, Classes = { "pnl-cell" }, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center };
             Grid.SetColumn(label, 0);
             Grid.SetColumn(stateText, 1);
             rowGrid.Children.Add(label);

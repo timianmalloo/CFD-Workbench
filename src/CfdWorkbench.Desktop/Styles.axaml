@@ -361,6 +361,11 @@
     <x:Double x:Key="AssistantTagMinWidth">68</x:Double>
     <x:Double x:Key="AssistantCapFieldWidth">100</x:Double>
     <x:Double x:Key="AssistantProviderWidth">260</x:Double>
+    <!-- Wave 12D Responsive Reflow & Polish non-theme layout tokens (ZERO new theme Brush keys). -->
+    <x:Double x:Key="RecentListMaxHeight">180</x:Double>
+    <Thickness x:Key="AnalysisTabStripMargin">0</Thickness>
+    <Thickness x:Key="ToolbarWrapGap">0,0,6,4</Thickness>
+    <Thickness x:Key="SweepTableRowPadding">4,2</Thickness>
     </ResourceDictionary>
   </Styles.Resources>
   <Style Selector="Window"><Setter Property="Background" Value="{DynamicResource CanvasBrush}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="FontSize" Value="{StaticResource BodySize}" /></Style>
@@ -519,6 +524,12 @@
   <Style Selector="Border.manifest-layer-row"><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" /><Setter Property="BorderThickness" Value="{StaticResource HairlineThickness}" /><Setter Property="CornerRadius" Value="{StaticResource RoundedSm}" /><Setter Property="Padding" Value="{StaticResource Space1}" /></Style>
   <Style Selector="TextBlock.manifest-layer-status"><Setter Property="FontSize" Value="{DynamicResource PropNoteSize}" /><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /><Setter Property="VerticalAlignment" Value="Center" /></Style>
   <Style Selector="TextBlock.manifest-layer-status.available"><Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" /><Setter Property="FontWeight" Value="SemiBold" /></Style>
+  <!-- Wave 12D responsive toolbar WrapPanel spacing & tabular Sweep row/chip styles (R2-05, R2-18; zero new theme brushes). -->
+  <Style Selector="WrapPanel.toolbar-wrap > Button, WrapPanel.toolbar-wrap > ToggleButton, WrapPanel.toolbar-wrap > Border, WrapPanel.toolbar-wrap > ComboBox, WrapPanel.toolbar-wrap > TextBlock"><Setter Property="Margin" Value="{StaticResource ToolbarWrapGap}" /></Style>
+  <Style Selector="ToggleButton.sweep-table-row"><Setter Property="Padding" Value="{StaticResource SweepTableRowPadding}" /><Setter Property="MinHeight" Value="{StaticResource CompactTargetSize}" /><Setter Property="HorizontalAlignment" Value="Stretch" /><Setter Property="HorizontalContentAlignment" Value="Stretch" /></Style>
+  <Style Selector="ToggleButton.sweep-table-row:checked TextBlock.pnl-cell, ToggleButton.sweep-chip:checked TextBlock.pnl-cell"><Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" /></Style>
+  <Style Selector="ToggleButton.sweep-table-row:pressed TextBlock.pnl-cell, ToggleButton.sweep-chip:pressed TextBlock.pnl-cell"><Setter Property="Foreground" Value="{DynamicResource OnSelectionBrush}" /></Style>
+  <Style Selector="ToggleButton.sweep-chip"><Setter Property="Padding" Value="{StaticResource ChipPadding}" /><Setter Property="MinHeight" Value="{StaticResource CompactTargetSize}" /></Style>
 
   <!-- The editable value (one element, DN-2): accent text with a dotted underline at rest (the pane draws the line in the
        template, CL-3 option A); a 20 px box with a 1 px accent boundary inside the 24 px band on focus, text in ink. -->

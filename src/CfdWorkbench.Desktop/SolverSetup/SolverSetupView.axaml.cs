@@ -17,11 +17,13 @@ namespace CfdWorkbench.Desktop.SolverSetup;
 public partial class SolverSetupView : UserControl
 {
     private const string AppVersion = "0.1.0";
+    public const double AssistantCollapseWidthBreakpoint = 1100.0;
 
     private SolverSetupService? service;
     private Assistant.AssistantRuntimeHub? assistantHub;
     private string? lastCardStepId;
     private string? suggestedStepId;
+    private bool? userAssistantOverride;
 
     public SolverSetupView()
     {
@@ -77,10 +79,25 @@ public partial class SolverSetupView : UserControl
         AssistantUseSuggestionButton.Click += (_, _) => OnUseAssistantSuggestion();
         AssistantConfigureKeyButton.Content = Assistant.AssistantCopy.ConfigureKeyButton;
         AssistantConfigureKeyButton.Click += (_, _) => ConfigureKeyRequested?.Invoke();
+        ToggleAssistantButton.Click += (_, _) =>
+        {
+            userAssistantOverride = !AssistantPane.IsVisible;
+            ApplyAssistantPaneVisibility();
+        };
+        SizeChanged += (_, e) => ApplyAssistantPaneVisibility(e.NewSize.Width);
 
         SessionId = "sess-" + Guid.NewGuid().ToString("N")[..8];
         ViewModel = SolverSetupProjection.Build(null, null, [], SessionId, hasApiKey: false);
         Render(ViewModel);
+        ApplyAssistantPaneVisibility();
+    }
+
+    private void ApplyAssistantPaneVisibility(double? measuredWidth = null)
+    {
+        double width = measuredWidth ?? Bounds.Width;
+        bool show = userAssistantOverride ?? (width <= 0 || width >= AssistantCollapseWidthBreakpoint);
+        AssistantPane.IsVisible = show;
+        ToggleAssistantButton.IsChecked = show;
     }
 
     /// <summary>Raised when an action inside Solver setup wants to report a status line to the shell strip.</summary>

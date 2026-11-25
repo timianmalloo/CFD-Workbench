@@ -7,31 +7,31 @@
     <Border Grid.Row="0" x:Name="FreshnessBanner" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
             BorderBrush="{DynamicResource WarningBrush}" BorderThickness="{StaticResource HairlineThickness}"
             Padding="{StaticResource Space2}" Margin="{StaticResource PropLineBelow}">
-      <DockPanel>
-        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource StackGap2}">
+        <TextBlock Grid.Column="0" x:Name="FreshnessBannerText" Foreground="{DynamicResource InkBrush}" VerticalAlignment="Center" TextWrapping="Wrap" />
+        <WrapPanel Grid.Column="1" Orientation="Horizontal" Classes="toolbar-wrap" HorizontalAlignment="Right" VerticalAlignment="Center">
           <Button x:Name="NewVersionFromResultsButton" Content="New version" />
           <Button x:Name="ArchiveSweepButton" Content="Archive sweep" />
-        </StackPanel>
-        <TextBlock x:Name="FreshnessBannerText" Foreground="{DynamicResource InkBrush}" VerticalAlignment="Center" TextWrapping="Wrap" />
-      </DockPanel>
+        </WrapPanel>
+      </Grid>
     </Border>
 
     <!-- Chart metric, X-axis, and Table twin toggle toolbar -->
     <Border Grid.Row="1" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
             BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}" Margin="{StaticResource PropLineBelow}">
-      <DockPanel>
-        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
-          <ToggleButton x:Name="AxisAlphaButton" Content="vs α (°)" IsChecked="True" />
-          <ToggleButton x:Name="AxisSpeedButton" Content="vs Speed" />
-          <ToggleButton x:Name="ShowTableTwinButton" Content="Show table" AutomationProperties.Name="Toggle table twin for plotted values" />
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap1}">
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource StackGap2}">
+        <WrapPanel Grid.Column="0" Orientation="Horizontal" Classes="toolbar-wrap" VerticalAlignment="Center">
           <ToggleButton x:Name="MetricClButton" Content="CL" IsChecked="True" />
           <ToggleButton x:Name="MetricCdButton" Content="CD (Wing only)" />
           <ToggleButton x:Name="MetricLdButton" Content="L/D (Wing only)" />
           <ToggleButton x:Name="MetricCmButton" Content="Cm" />
-        </StackPanel>
-      </DockPanel>
+        </WrapPanel>
+        <WrapPanel Grid.Column="1" Orientation="Horizontal" Classes="toolbar-wrap" HorizontalAlignment="Right" VerticalAlignment="Center">
+          <ToggleButton x:Name="AxisAlphaButton" Content="vs α (°)" IsChecked="True" />
+          <ToggleButton x:Name="AxisSpeedButton" Content="vs Speed" />
+          <ToggleButton x:Name="ShowTableTwinButton" Content="Show table" AutomationProperties.Name="Toggle table twin for plotted values" />
+        </WrapPanel>
+      </Grid>
     </Border>
 
     <!-- Main body: left (chart + table twin + small multiples strip) | right (synchronized Case Inspector) -->

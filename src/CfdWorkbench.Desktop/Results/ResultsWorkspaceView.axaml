@@ -6,18 +6,18 @@
     <!-- Header bar: Sample picker, ParaView handoff, Table twin toggle -->
     <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
             BorderThickness="{StaticResource PropRuleBottom}" Padding="{StaticResource Space2}">
-      <DockPanel>
-        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
-          <ToggleButton x:Name="TableTwinToggle" Content="Linked table twin" IsChecked="True" />
-          <Button x:Name="OpenParaViewButton" Content="Open in ParaView" MinHeight="{StaticResource ControlHeight}" IsEnabled="False" />
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
-          <TextBlock Text="Results &amp; Candidate Ladder" Classes="heading" VerticalAlignment="Center" Foreground="{DynamicResource InkBrush}" />
-          <ComboBox x:Name="SamplePicker" MinWidth="{StaticResource ResultsSamplePickerWidth}" VerticalAlignment="Center" />
-          <TextBlock x:Name="NoCrossTierNoteText" VerticalAlignment="Center" FontSize="{StaticResource CaptionSize}"
+      <StackPanel Spacing="{StaticResource StackGap2}">
+        <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+          <TextBlock Text="Field Results &amp; Candidate Ladder" Classes="heading" Foreground="{DynamicResource InkBrush}" />
+          <TextBlock x:Name="NoCrossTierNoteText" FontSize="{StaticResource CaptionSize}"
                      Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
         </StackPanel>
-      </DockPanel>
+        <WrapPanel Orientation="Horizontal" Classes="toolbar-wrap">
+          <ComboBox x:Name="SamplePicker" MinWidth="{StaticResource ResultsSamplePickerWidth}" VerticalAlignment="Center" />
+          <ToggleButton x:Name="TableTwinToggle" Content="Linked table twin" IsChecked="True" />
+          <Button x:Name="OpenParaViewButton" Content="Open in ParaView" MinHeight="{StaticResource ControlHeight}" IsEnabled="False" />
+        </WrapPanel>
+      </StackPanel>
     </Border>
 
     <!-- Main scrollable two-column body -->
@@ -43,7 +43,7 @@
           <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
                   BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource ProvenanceStripPadding}">
             <StackPanel Spacing="{StaticResource StackGap1}">
-              <TextBlock Text="Provenance strip (9 required fields)" FontWeight="SemiBold"
+              <TextBlock Text="Provenance" FontWeight="SemiBold"
                          FontSize="{DynamicResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
               <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto">
                 <TextBlock Grid.Row="0" Grid.Column="0" x:Name="ProvVariableText" Classes="pnl-cell" Text="Not recorded" />
@@ -79,24 +79,24 @@
                 <TextBlock x:Name="ReplayBannerText" Text="Parametric sweep — sequence over admitted samples"
                            FontWeight="SemiBold" FontSize="{DynamicResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
               </DockPanel>
-              <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap1}">
+              <WrapPanel Orientation="Horizontal" Classes="toolbar-wrap">
                 <Button x:Name="ReplayPlayButton" Content="Play" MinHeight="{StaticResource ControlHeight}" />
                 <Button x:Name="ReplayHoldButton" Content="Hold" MinHeight="{StaticResource ControlHeight}" />
                 <Button x:Name="ReplayStepBackButton" Content="Step back" MinHeight="{StaticResource ControlHeight}" />
                 <Button x:Name="ReplayStepForwardButton" Content="Step forward" MinHeight="{StaticResource ControlHeight}" />
                 <ToggleButton x:Name="ReplayLockRangeToggle" Content="Lock range" IsChecked="True" />
                 <ComboBox x:Name="ReplayHoldAxisPicker" MinWidth="{StaticResource SweepInputMinWidth}" />
-              </StackPanel>
+              </WrapPanel>
               <Slider x:Name="ReplayScrubSlider" Minimum="0" Maximum="0" TickFrequency="1" IsSnapToTickEnabled="True" />
-              <TextBlock x:Name="ReplayFrameStatusText" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
+              <TextBlock x:Name="ReplayFrameStatusText" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
               <Border x:Name="ReplayFailureBanner" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
                       BorderBrush="{DynamicResource DangerBrush}" BorderThickness="{StaticResource PropRailThickness}"
                       Padding="{StaticResource Space1}">
-                <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+                <DockPanel>
+                  <Button x:Name="ReplayRetrySampleButton" DockPanel.Dock="Right" Content="Retry sample" MinHeight="{StaticResource CompactTargetSize}" />
                   <TextBlock x:Name="ReplayFailureText" TextWrapping="Wrap" VerticalAlignment="Center"
                              FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource DangerBrush}" />
-                  <Button x:Name="ReplayRetrySampleButton" Content="Retry sample" MinHeight="{StaticResource CompactTargetSize}" />
-                </StackPanel>
+                </DockPanel>
               </Border>
             </StackPanel>
           </Border>
@@ -107,11 +107,11 @@
             <StackPanel Spacing="{StaticResource StackGap1}">
               <TextBlock Text="Difference flood (zero-pinned vik)" FontWeight="SemiBold"
                          FontSize="{DynamicResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
-              <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap1}">
+              <WrapPanel Orientation="Horizontal" Classes="toolbar-wrap">
                 <ComboBox x:Name="DiffBasePicker" MinWidth="{StaticResource SweepInputMinWidth}" />
                 <ComboBox x:Name="DiffTargetPicker" MinWidth="{StaticResource SweepInputMinWidth}" />
                 <Button x:Name="ComputeDiffButton" Content="Compute difference" MinHeight="{StaticResource ControlHeight}" />
-              </StackPanel>
+              </WrapPanel>
               <TextBlock x:Name="DiffStatusText" Classes="pnl-cell" TextWrapping="Wrap" />
               <TextBlock x:Name="DiffRangeText" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
             </StackPanel>
@@ -212,17 +212,23 @@
           <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
                   BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
             <StackPanel Spacing="{StaticResource StackGap1}">
-              <TextBlock Text="Candidate ladder (COMMIT-01)" FontWeight="SemiBold"
+              <TextBlock Text="Candidate ladder" FontWeight="SemiBold"
                          FontSize="{DynamicResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
               <TextBlock x:Name="CandidateParetoSummaryText" Classes="pnl-note" />
               <TextBlock x:Name="CandidateEmptyReasonText" Classes="pnl-note" IsVisible="False" />
-              <ListBox x:Name="CandidateList" MaxHeight="{StaticResource RunListMaxHeight}" />
-              <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap1}">
+              <ListBox x:Name="CandidateList" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                <ListBox.ItemTemplate>
+                  <DataTemplate x:DataType="x:String">
+                    <TextBlock Text="{Binding}" Classes="pnl-cell" TextWrapping="Wrap" />
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+              <WrapPanel Orientation="Horizontal" Classes="toolbar-wrap">
                 <Button x:Name="AcceptAsDraftButton" Classes="primary" Content="Accept as draft"
                         MinHeight="{StaticResource ControlHeight}" IsEnabled="False" />
                 <Button x:Name="RebaseDraftButton" Content="Rebase"
                         MinHeight="{StaticResource ControlHeight}" IsEnabled="False" />
-              </StackPanel>
+              </WrapPanel>
               <TextBlock x:Name="CandidateDraftStatusText" Classes="pnl-note" TextWrapping="Wrap" />
             </StackPanel>
           </Border>

@@ -466,7 +466,14 @@ public static class Wave11AiUiTests
                 Require(noAssistNote.IsEffectivelyVisible && noAssistNote.Text == AssistantCopy.ExportNoAssistantNote,
                     $"Area 7 ExportDialog must display '{AssistantCopy.ExportNoAssistantNote}', got '{noAssistNote.Text}'");
                 var bodyScroller = Need<ScrollViewer>(exportDlg, "BodyScrollViewer");
-                Require(bodyScroller.IsVisualAncestorOf(noAssistNote), "NoAssistantNoteText must sit inside BodyScrollViewer");
+                var footerButtons = Need<StackPanel>(exportDlg, "FooterButtons");
+                Require(!bodyScroller.IsVisualAncestorOf(noAssistNote),
+                    "R2-31 (C9.1): NoAssistantNoteText must sit in footer-left slot outside BodyScrollViewer");
+                Require(!footerButtons.IsVisualAncestorOf(noAssistNote),
+                    "C9.1: NoAssistantNoteText must be a sibling of FooterButtons (never inside FooterButtons, which clears children on macOS)");
+                Require(ReferenceEquals(noAssistNote.Parent, footerButtons.Parent) &&
+                        Grid.GetColumn(noAssistNote) == 0 && Grid.GetColumn(footerButtons) == 1,
+                    "C9.1: NoAssistantNoteText must sit in Grid Col 0 beside FooterButtons in Grid Col 1");
                 var formatList = Need<ListBox>(exportDlg, "FormatList");
                 Require(formatList.ItemCount >= 3, $"ExportDialog FormatList must keep 3+ ListBoxItems, got {formatList.ItemCount}");
             }
@@ -615,9 +622,10 @@ public static class Wave11AiUiTests
             if (id is < 866 or > 915) continue;
             foundIds.Add(id);
             string body = m.Groups[2].Value;
-            if (!body.Contains(" — approved —", StringComparison.Ordinal) &&
-                !body.Contains(" — proposed —", StringComparison.Ordinal))
-                errors.Add($"COPY-{id} must be marked '— approved —' or '— proposed —'");
+            if (!body.Contains(" — proposed —", StringComparison.Ordinal))
+                errors.Add($"C9.6: COPY-{id} must remain '— proposed —' (never self-approve)");
+            if (id == 886 && body.Contains("A8.6", StringComparison.OrdinalIgnoreCase))
+                errors.Add("R2-15: COPY-886 must not expose internal 'A8.6' spec ID");
             if (hexRegex.IsMatch(body))
                 errors.Add($"COPY-{id} contains a raw hex color");
             foreach (string forbidden in Lab01Forbidden)
@@ -626,6 +634,15 @@ public static class Wave11AiUiTests
                     errors.Add($"COPY-{id} contains LAB-01 forbidden word '{forbidden}'");
             }
         }
+        foreach (int id in new[] { 584, 585, 630 })
+        {
+            var m = Regex.Match(designText, $@"^\|\s*COPY-{id}\s*\|\s*(.+?)\s*\|\s*$", RegexOptions.Multiline | RegexOptions.CultureInvariant);
+            if (!m.Success) errors.Add($"DESIGN.md missing COPY-{id}");
+            else if (m.Groups[1].Value.Split(" — ", 2)[0].Contains("certified", StringComparison.OrdinalIgnoreCase))
+                errors.Add($"R2-15 / LAB-01: COPY-{id} still contains 'certified'");
+        }
+        if (!designText.Contains("Ruling 277", StringComparison.Ordinal) || !designText.Contains("ActivityRail", StringComparison.Ordinal))
+            errors.Add("R2-27: DESIGN.md §5 must be reconciled with unified ActivityRail shell (Ruling 277)");
         for (int id = 866; id <= 915; id++)
         {
             if (!foundIds.Contains(id))

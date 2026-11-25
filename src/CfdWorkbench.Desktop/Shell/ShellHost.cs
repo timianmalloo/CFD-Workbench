@@ -580,6 +580,9 @@ public sealed class ShellHost : Grid
     /// <summary>A units change from any control is kept per user. A save that cannot be kept is silent: no wording is approved for it.</summary>
     private void OnUnitsChanged()
     {
+        ModelView.SetupView.SetDisplayUnits(Controller.AnalysisUnits);
+        ModelView.RunView.RefreshFromController();
+        ModelView.ResultsView.RefreshFromController();
         RefreshPanes();
         if (applyingLoadedUnits) return;
         unitsChosen = true;
@@ -1007,6 +1010,7 @@ public sealed class ShellHost : Grid
         SyncDockAutoCollapse();
         UpdateDocumentTabTitle(foilOpen);
         StatusStrip.ShowItems(SelectionItemText(), foilOpen, Controller.Estimates is not null, Properties.TextScale, StripUnits());
+        ModelView.SetupView.SetDisplayUnits(Controller.AnalysisUnits);
         RefreshActivityRail();
         ModelView.ShowFoilOpen(foilOpen);
         if (foilOpen)
@@ -1015,6 +1019,12 @@ public sealed class ShellHost : Grid
             if (!propertiesCurrent) ModelView.SourceText.Text = Controller.AcceptedSource;
         }
     }
+
+    private readonly CfdWorkbench.Analysis.Export.CadExportGateStatus defaultCadExportGate =
+        CfdWorkbench.Analysis.Export.CadExportReleaseGate.LoadDefault();
+
+    /// <summary>Optional test override for CAD STEP/3DM export gate state surfaced in the ActivityRail Export badge (R2-23).</summary>
+    public Func<CfdWorkbench.Analysis.Export.CadExportGateStatus>? CadExportGateOverride { get; set; }
 
     private void RefreshActivityRail()
     {
@@ -1069,6 +1079,20 @@ public sealed class ShellHost : Grid
 
         string solverBadge = IsSolverReady ? "Ready" : "Not set up";
 
+        string exportBadge;
+        if (!foilOpen)
+        {
+            exportBadge = "Open foil";
+        }
+        else
+        {
+            var cadGate = CadExportGateOverride?.Invoke() ?? defaultCadExportGate;
+            exportBadge = cadGate.StepUnlocked && cadGate.ThreeDmUnlocked ? "+ STEP/3DM"
+                : cadGate.StepUnlocked ? "+ STEP"
+                : cadGate.ThreeDmUnlocked ? "+ 3DM"
+                : ".dat · STL · 3MF";
+        }
+
         bool solverSetupActive = ReferenceEquals(LayoutFactory.MainDocumentDock.ActiveDockable, SolverSetupDocument);
         ActivityRail.BindState(
             Controller.ActiveArea,
@@ -1079,7 +1103,7 @@ public sealed class ShellHost : Grid
                 Experiment: experimentBadge,
                 Run: runBadge,
                 Results: resultsBadge,
-                Export: "STL · 3MF",
+                Export: exportBadge,
                 SolverSetup: solverBadge,
                 Settings: Controller.Assistant.RailSettingsBadge),
             solverSetupActive);

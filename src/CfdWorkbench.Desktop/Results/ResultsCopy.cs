@@ -7,7 +7,7 @@ namespace CfdWorkbench.Desktop.Results;
 /// </summary>
 public static class ResultsCopy
 {
-    public const string WorkspaceTitle = "Results & Candidate Ladder";                                      // COPY-833
+    public const string WorkspaceTitle = "Field Results & Candidate Ladder";                                // COPY-833
     public const string SamplePickerLabel = "Sample";                                                       // COPY-834
     public const string EmptySamplesNote = "No completed or harvested samples yet. Evaluate in Analysis, Sweeps, or Run to inspect fields."; // COPY-835
 
@@ -22,7 +22,7 @@ public static class ResultsCopy
     public const string LayerSeparation = "Separation";                                                     // COPY-844
     public const string LayerPathlines = "Pathlines";                                                       // COPY-845
 
-    public const string ProvenanceHeading = "Provenance strip (9 required fields)";                         // COPY-846
+    public const string ProvenanceHeading = "Provenance";                                                   // COPY-846
     public const string TableTwinToggle = "Linked table twin";                                              // COPY-847
     public const string ReplayHeading = "Parametric replay";                                                // COPY-853
     public const string PlayButton = "Play";                                                                // COPY-854
@@ -32,7 +32,7 @@ public static class ResultsCopy
     public const string LockRangeToggle = "Lock range";                                                     // COPY-855
     public const string DifferenceHeading = "Difference flood (zero-pinned vik)";                           // COPY-856
     public const string ComputeDifferenceButton = "Compute difference";                                     // COPY-857
-    public const string CandidateLadderHeading = "Candidate ladder (COMMIT-01)";                            // COPY-858
+    public const string CandidateLadderHeading = "Candidate ladder";                                        // COPY-858
     public const string AcceptAsDraftButton = "Accept as draft";                                            // COPY-859
     public const string RebaseDraftButton = "Rebase";                                                       // COPY-860
     public const string OpenParaViewButton = "Open in ParaView";                                            // COPY-861

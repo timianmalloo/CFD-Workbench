@@ -50,6 +50,13 @@ public partial class AnalysisPanel : UserControl
         Height = FullHeight;
         SkeletonLong.Width = 320;
         SkeletonShort.Width = 240;
+        TabHeaderActions.SizeChanged += (_, e) => UpdateTabHeaderReserve(e.NewSize.Width);
+    }
+
+    private void UpdateTabHeaderReserve(double actionsWidth)
+    {
+        if (actionsWidth <= 0) return;
+        Resources["AnalysisTabStripMargin"] = new Thickness(0, 0, Math.Ceiling(actionsWidth) + 12, 0);
     }
 
     /// <summary>The panel's height, and its height in a window shorter than <see cref="ShortWindowClientHeight"/> (Ruling 101 3d, layout C).</summary>

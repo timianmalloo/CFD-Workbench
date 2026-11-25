@@ -155,13 +155,16 @@
             <ProgressBar x:Name="WritingProgress" IsIndeterminate="True" AutomationProperties.Name="Writing" />
           </StackPanel>
           <TextBlock x:Name="SafetyLine" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
-          <TextBlock x:Name="NoAssistantNoteText" Text="No assistant action here." TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
         </StackPanel>
       </ScrollViewer>
-      <StackPanel x:Name="FooterButtons" Grid.Row="2" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-        <Button x:Name="ExportButton" Classes="primary" IsDefault="True" />
-        <Button x:Name="CancelButton" IsCancel="True" />
-      </StackPanel>
+      <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource StackGap2}">
+        <TextBlock x:Name="NoAssistantNoteText" Grid.Column="0" Text="No assistant action here." TextWrapping="Wrap"
+                   VerticalAlignment="Center" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
+        <StackPanel x:Name="FooterButtons" Grid.Column="1" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+          <Button x:Name="ExportButton" Classes="primary" IsDefault="True" />
+          <Button x:Name="CancelButton" IsCancel="True" />
+        </StackPanel>
+      </Grid>
     </Grid>
   </Border>
 </Window>

@@ -5,8 +5,13 @@
     <!-- Header toolbar -->
     <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
             BorderThickness="{StaticResource PropRuleBottom}" Padding="{StaticResource Space2}">
-      <DockPanel>
-        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+      <StackPanel Spacing="{StaticResource StackGap2}">
+        <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+          <TextBlock Text="CFD Run Pipeline" Classes="heading" Foreground="{DynamicResource InkBrush}" />
+          <TextBlock x:Name="QueueSummaryText" Text="0 runs recorded" FontSize="{StaticResource CaptionSize}"
+                     Foreground="{DynamicResource MutedBrush}" />
+        </StackPanel>
+        <WrapPanel Orientation="Horizontal" Classes="toolbar-wrap">
           <Border Background="{DynamicResource SurfaceSoftBrush}" BorderBrush="{DynamicResource LineBrush}"
                   BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource ChipPadding}">
             <TextBlock x:Name="SolverReadinessText" VerticalAlignment="Center" FontSize="{StaticResource CaptionSize}"
@@ -16,13 +21,8 @@
           <Button x:Name="CancelButton" Content="Cancel" MinHeight="{StaticResource ControlHeight}" IsEnabled="False" />
           <Button x:Name="RetrySampleButton" Content="Retry sample" MinHeight="{StaticResource ControlHeight}" IsEnabled="False" />
           <Button x:Name="SetUpSolverButton" Content="Set up a solver" MinHeight="{StaticResource ControlHeight}" />
-        </StackPanel>
-        <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
-          <TextBlock Text="CFD Run Pipeline" Classes="heading" Foreground="{DynamicResource InkBrush}" />
-          <TextBlock x:Name="QueueSummaryText" Text="0 runs recorded" FontSize="{StaticResource CaptionSize}"
-                     Foreground="{DynamicResource MutedBrush}" />
-        </StackPanel>
-      </DockPanel>
+        </WrapPanel>
+      </StackPanel>
     </Border>
 
     <!-- Main two-column workspace -->
@@ -85,7 +85,7 @@
               <DockPanel>
                 <TextBlock DockPanel.Dock="Right" x:Name="MeshGateStatusText" FontSize="{StaticResource CaptionSize}"
                            Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" />
-                <TextBlock Text="Mesh gate (DR-F3-1 A / DR-F2-3)" FontWeight="SemiBold"
+                <TextBlock Text="Mesh quality gate" FontWeight="SemiBold"
                            FontSize="{DynamicResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
               </DockPanel>
               <Border x:Name="MeshGateScreenOnlyBanner" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
@@ -102,7 +102,17 @@
                 <TextBlock Grid.Row="2" Grid.Column="0" x:Name="MeshGateLayerCoverageText" Classes="pnl-cell" Text="Layer coverage: Not recorded" />
                 <TextBlock Grid.Row="2" Grid.Column="1" x:Name="MeshGateYPlusText" Classes="pnl-cell" Text="y+ (p95 / max): Not recorded" />
               </Grid>
-              <ListBox x:Name="MeshGateFailuresList" MaxHeight="{StaticResource RunListMaxHeight}" IsVisible="False" />
+              <ItemsControl x:Name="MeshGateFailuresList" IsVisible="False">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="x:String">
+                    <Border Background="{DynamicResource SurfaceSoftBrush}" BorderBrush="{DynamicResource DangerBrush}"
+                            BorderThickness="{StaticResource PropRailThickness}" Padding="{StaticResource Space1}"
+                            Margin="{StaticResource PropLineBelow}">
+                      <TextBlock Text="{Binding}" Classes="pnl-cell" Foreground="{DynamicResource DangerBrush}" />
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
             </StackPanel>
           </Border>
 
@@ -110,7 +120,7 @@
           <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
                   BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
             <StackPanel Spacing="{StaticResource StackGap1}">
-              <TextBlock Text="Residuals &amp; force coefficients (DR-F2-1)" FontWeight="SemiBold"
+              <TextBlock Text="Residuals &amp; force coefficients" FontWeight="SemiBold"
                          FontSize="{DynamicResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
               <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto">
                 <TextBlock Grid.Row="0" Grid.Column="0" x:Name="ResidualsDropText" Classes="pnl-cell" Text="Residual drop: Not recorded" />
@@ -143,13 +153,13 @@
               <TextBlock x:Name="OfflineNoKeyNoticeText" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
                          Foreground="{DynamicResource MutedBrush}"
                          Text="No API key configured — deterministic offline diagnostics and typed case-diff validation work without network calls." />
-              <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+              <WrapPanel Orientation="Horizontal" Classes="toolbar-wrap">
                 <Button x:Name="ExplainFailureButton" Content="Explain this failure" MinHeight="{StaticResource ControlHeight}" />
                 <Button x:Name="PreviewCaseDiffButton" Content="Preview case diff" MinHeight="{StaticResource ControlHeight}" />
                 <Button x:Name="ExplainFailureLiveButton" Content="Explain with assistant (BYOK)" MinHeight="{StaticResource ControlHeight}" IsEnabled="False" />
                 <Button x:Name="ConfigureKeyButton" Content="Configure key" MinHeight="{StaticResource ControlHeight}" />
                 <Button x:Name="OpenRepairedDraftButton" Content="Open repaired draft" MinHeight="{StaticResource ControlHeight}" IsVisible="False" />
-              </StackPanel>
+              </WrapPanel>
               <TextBlock x:Name="FailureExplanationSummaryText" TextWrapping="Wrap" Classes="pnl-cell" IsVisible="False" />
               <TextBlock x:Name="FailureNextStepText" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
                          Foreground="{DynamicResource MutedBrush}" IsVisible="False" />

@@ -10,8 +10,8 @@ namespace CfdWorkbench.Desktop.Tests;
 /// Enforces:
 /// 1. Every string resource key passed to TryFindResource / FindResource / ResolveBrush / Resource / Brush /
 ///    GetResourceObservable resolves in Styles.axaml or App.axaml.
-/// 2. Zero hardcoded FontSize = &lt;n&gt;, DrawText(..., &lt;n&gt;, ...), or FormattedText(..., &lt;n&gt;, ...) literals &lt; 11 px
-///    (DESIGN.md DR-DEN-3: nothing below 11 px).
+/// 2. Zero hardcoded C# FontSize = &lt;n&gt; literals (use Styles.axaml classes / DynamicResource so DN-5 scaling applies),
+///    and zero DrawText(..., &lt;n&gt;, ...) or FormattedText(..., &lt;n&gt;, ...) literals &lt; 11 px (DESIGN.md DR-DEN-3).
 /// 3. Zero raw Color.Parse(...) hex literals in Desktop C# (empty allowlist; theme tokens live in Styles.axaml).
 /// </summary>
 public static class TokenDisciplineTests
@@ -86,8 +86,7 @@ public static class TokenDisciplineTests
 
             foreach (Match m in FontSizeLiteralRegex.Matches(line))
             {
-                if (double.TryParse(m.Groups[1].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out double size) && size < 11.0)
-                    findings.Add($"{relativePath}:{lineNo} FontSize {size} < 11 px ({m.Value.Trim()})");
+                findings.Add($"{relativePath}:{lineNo} hardcoded C# FontSize literal not allowed (use Styles.axaml class or DynamicResource): {m.Value.Trim()}");
             }
 
             foreach (Match m in DrawTextSizeRegex.Matches(line))
@@ -171,8 +170,16 @@ public static class TokenDisciplineTests
             throw new InvalidOperationException("UI-CS-TOKEN mutant (bad key) escaped: " + string.Join(" | ", badKey));
 
         var smallFont = ScanSource("Mutant.cs", "var tb = new TextBlock { FontSize = 10 };", knownKeys);
-        if (smallFont.Count != 1 || !smallFont[0].Contains("< 11", StringComparison.Ordinal))
+        if (smallFont.Count != 1 || !smallFont[0].Contains("FontSize literal", StringComparison.Ordinal))
             throw new InvalidOperationException("UI-CS-TOKEN mutant (FontSize=10) escaped");
+
+        var hardcoded11 = ScanSource("Mutant.cs", "var tb = new TextBlock { FontSize = 11 };", knownKeys);
+        if (hardcoded11.Count != 1 || !hardcoded11[0].Contains("FontSize literal", StringComparison.Ordinal))
+            throw new InvalidOperationException("UI-CS-TOKEN mutant (FontSize=11) escaped");
+
+        var hardcoded12 = ScanSource("Mutant.cs", "var tb = new TextBlock { FontSize = 12 };", knownKeys);
+        if (hardcoded12.Count != 1 || !hardcoded12[0].Contains("FontSize literal", StringComparison.Ordinal))
+            throw new InvalidOperationException("UI-CS-TOKEN mutant (FontSize=12) escaped");
 
         var drawTextSmall = ScanSource("Mutant.cs", "DrawText(context, label, 10, FontWeight.Normal, muted, pt);", knownKeys);
         if (drawTextSmall.Count != 1 || !drawTextSmall[0].Contains("< 11", StringComparison.Ordinal))
