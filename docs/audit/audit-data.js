@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-25T06:39:44Z",
+  "generated": "2026-11-25T07:34:10Z",
   "audit": [
     {
       "actor": null,
@@ -45687,6 +45687,35 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-25T06:31:35Z",
       "duration_seconds": 489.0
+    },
+    {
+      "id": "al-01M88T0NPZ5VC4H7SG69T6B3G3",
+      "shortname": "join-w12-b",
+      "datetime": "2026-11-25T07:34:10Z",
+      "session": "agy-w12-coord",
+      "prompt": "the join of swarm-w12-byok-ui-cd03957b into main",
+      "summary": "Joined verified W12-B (15f8488c, CLEARS-THE-VETO: yes from w12-verifier #137, 0 seams, 0 repair cycles): R2-01 (NavCadAssistantButton + CommandTable assistant.cad Modal:false + auto-collapse), R2-03 C5 Security HARD VETO (RefreshOverCurrentRevisionAsync re-prepares over current AcceptedId and returns to Step 1 Consent Preview over fresh AI-04 payloadSha256 — never forging BaseAcceptedId), R2-11 (CancellationTokenSource + busy indicators + wrapped Before->After provenance + Edit prompt/Retry recovery), R2-10 (AssistantSettingsDialog short Endpoint URL label + wrapped helper + wrapped EvalItemsList/AuditEntriesList + verdict border classes), and R2-08 (SetupView live refresh on key change, ExperimentAssistantBar above empty/editor split with 0 Run buttons, collapsed-by-default AnalysisPanel prompt/inline answer card preserving 5 tabs & >=82 px plot height, dynamic Results BYOK heading, SolverSetupView IsReadyForProposals, metered Used X/Y today cap chips). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-as-built-workbench-r2.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land Wave 12B W12-B onto main",
+      "done_when": "W12-B merged via conductor-join.py with TESTS-GREEN, xaml-token-lint, UI-CS-TOKEN, check-event-subscribers, check-docs, and 10/10 verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-25T07:25:49Z",
+      "duration_seconds": 501.0
     }
   ],
   "changes": [
