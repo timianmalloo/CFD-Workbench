@@ -26,8 +26,8 @@ public sealed record ActivityRailBadges(
     string Settings = "No key");
 
 /// <summary>
-/// 7-Area Left Activity Rail (B1, Rulings 271 &amp; 272, C4). Pure Avalonia control with zero shell-layout coupling;
-/// ShellHost subscribes to its navigation events and owns all tab and panel orchestration.
+/// 7-Area Left Activity Rail (Ruling 277: single canonical area switcher). Pure Avalonia control with zero
+/// shell-layout coupling; ShellHost subscribes to its navigation events and owns all tab and panel orchestration.
 /// </summary>
 public partial class ActivityRail : UserControl
 {
@@ -37,6 +37,20 @@ public partial class ActivityRail : UserControl
     public event Action? SettingsRequested;
 
     public WorkbenchArea ActiveArea { get; private set; } = WorkbenchArea.Cad;
+
+    public bool IsSolverSetupActive { get; private set; }
+
+    public Button ActiveButton => IsSolverSetupActive
+        ? RailSolverSetupButton
+        : ActiveArea switch
+        {
+            WorkbenchArea.Setup => RailSetupButton,
+            WorkbenchArea.Analysis => RailAnalysisButton,
+            WorkbenchArea.Experiment => RailExperimentButton,
+            WorkbenchArea.Run => RailRunButton,
+            WorkbenchArea.Results => RailResultsButton,
+            _ => RailCadButton
+        };
 
     public ActivityRail()
     {
@@ -52,10 +66,11 @@ public partial class ActivityRail : UserControl
         RailSettingsButton.Click += (_, _) => SettingsRequested?.Invoke();
     }
 
-    public void BindState(WorkbenchArea activeArea, ActivityRailBadges badges)
+    public void BindState(WorkbenchArea activeArea, ActivityRailBadges badges, bool solverSetupActive = false)
     {
         ArgumentNullException.ThrowIfNull(badges);
         ActiveArea = activeArea;
+        IsSolverSetupActive = solverSetupActive;
 
         BadgeSetupText.Text = badges.Setup;
         BadgeCadText.Text = badges.Cad;
@@ -67,11 +82,12 @@ public partial class ActivityRail : UserControl
         BadgeSolverSetupText.Text = badges.SolverSetup;
         BadgeSettingsText.Text = badges.Settings;
 
-        RailSetupButton.Classes.Set("active", activeArea == WorkbenchArea.Setup);
-        RailCadButton.Classes.Set("active", activeArea == WorkbenchArea.Cad);
-        RailAnalysisButton.Classes.Set("active", activeArea == WorkbenchArea.Analysis);
-        RailExperimentButton.Classes.Set("active", activeArea == WorkbenchArea.Experiment);
-        RailRunButton.Classes.Set("active", activeArea == WorkbenchArea.Run);
-        RailResultsButton.Classes.Set("active", activeArea == WorkbenchArea.Results);
+        RailSetupButton.Classes.Set("active", !solverSetupActive && activeArea == WorkbenchArea.Setup);
+        RailCadButton.Classes.Set("active", !solverSetupActive && activeArea == WorkbenchArea.Cad);
+        RailAnalysisButton.Classes.Set("active", !solverSetupActive && activeArea == WorkbenchArea.Analysis);
+        RailExperimentButton.Classes.Set("active", !solverSetupActive && activeArea == WorkbenchArea.Experiment);
+        RailRunButton.Classes.Set("active", !solverSetupActive && activeArea == WorkbenchArea.Run);
+        RailResultsButton.Classes.Set("active", !solverSetupActive && activeArea == WorkbenchArea.Results);
+        RailSolverSetupButton.Classes.Set("active", solverSetupActive);
     }
 }

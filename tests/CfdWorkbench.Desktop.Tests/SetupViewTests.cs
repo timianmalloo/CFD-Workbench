@@ -43,13 +43,17 @@ public static class SetupViewTests
         window.Show();
         try
         {
-            // Enter Setup directly from the shell (non-modal first navbar segment, DR-SET-5 (a)).
+            // Enter Setup directly from the shell (Ruling 277: ActivityRail is canonical switcher; Navbar hidden on Setup).
             controller.EnterSetup();
             Flush();
             Require(controller.IsSetup, "Controller.IsSetup must be true");
-            var navSetup = host.ModelView.FindControl<ToggleButton>("NavSetupButton")
-                ?? throw new InvalidOperationException("NavSetupButton missing from ModelArea navbar");
-            Require(navSetup.IsChecked == true, "NavSetupButton must be checked");
+            Require(host.ModelView.FindControl<ToggleButton>("NavSetupButton") is null,
+                "NavSetupButton must be retired from ModelArea navbar (Ruling 277)");
+            var railSetup = host.ActivityRail.FindControl<Button>("RailSetupButton")
+                ?? throw new InvalidOperationException("RailSetupButton missing from ActivityRail");
+            Require(railSetup.Classes.Contains("active"), "RailSetupButton must carry .active in Setup");
+            Require(!host.ModelView.FindControl<Border>("Navbar")!.IsVisible,
+                "ModelArea.Navbar must be hidden in Setup");
             var setupView = host.ModelView.SetupView;
             Require(setupView.IsVisible, "SetupWorkspaceView must be visible");
 

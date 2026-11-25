@@ -37,6 +37,7 @@ public static class Wave10UiTests
     public static void Run()
     {
         DesktopChecks.Check("ActivityRail_SevenAreas_LiveBadges_DockingZeroRewrite", CheckActivityRailAndDocking);
+        DesktopChecks.Check("Wave12A_ShellChrome_CommandTable_ControlTokens_TextScale_StatusStripFit", CheckWave12AShellChromeAndTokens);
         DesktopChecks.Check("RunWorkspaceView_ElevenStates_MeshGate_And_OfflineFailureExplain", CheckRunWorkspaceView);
         DesktopChecks.Check("ResultsWorkspaceView_TauWSeparation_ReplayPauseClear_DifferenceFlood_CandidateDraft", CheckResultsWorkspaceView);
         DesktopChecks.Check("Wave10Ui_DesignCopy806To865_And_CommandTableRunResultsModalFalse", CheckCopyAndCommandTable);
@@ -59,33 +60,63 @@ public static class Wave10UiTests
             window.Show();
             Settle(window);
 
-            // C4 ShellHost layout invariants: Auto,* columns, exact 3 rows, ActivityRail in Col=0 Row=GetRow(DockHost) RowSpan=1.
+            // R2-14 ShellHost layout invariants: Auto,* columns, exact 3 rows, ActivityRail in Col=0 Row=GetRow(DockHost) RowSpan=2.
             Require(host.ColumnDefinitions.Count == 2, $"expected 2 ShellHost columns, got {host.ColumnDefinitions.Count}");
             Require(host.RowDefinitions.Count == 3, $"expected 3 ShellHost rows, got {host.RowDefinitions.Count}");
             Require(Grid.GetColumn(host.ActivityRail) == 0, "ActivityRail must sit in Col=0");
             Require(Grid.GetRow(host.ActivityRail) == Grid.GetRow(host.DockHost), "ActivityRail row must match DockHost row");
-            Require(Grid.GetRowSpan(host.ActivityRail) == 1, "ActivityRail RowSpan must be strictly 1");
+            Require(Grid.GetRowSpan(host.ActivityRail) == 2, "ActivityRail RowSpan must be 2 to span DockHost and AnalysisPanel");
             Require(Grid.GetColumn(host.DockHost) == 1, "DockHost must sit in Col=1");
             Require(Grid.GetColumn(host.AnalysisPanel) == 1, "AnalysisPanel must sit in Col=1");
             Require(Grid.GetColumn(host.StatusStrip) == 0 && Grid.GetColumnSpan(host.StatusStrip) == 2,
                 "StatusStrip must span both columns");
 
-            // ShowMenuBar shifts ActivityRail alongside DockHost, AnalysisPanel, StatusStrip.
+            // ShowMenuBar shifts ActivityRail alongside DockHost, AnalysisPanel, StatusStrip while keeping RowSpan=2.
             host.ShowMenuBar();
             Settle(window);
             Require(Grid.GetRow(host.MenuBar!) == 0 && Grid.GetColumnSpan(host.MenuBar!) == 2,
                 "MenuBar must sit at Row=0 ColumnSpan=2");
             Require(Grid.GetRow(host.ActivityRail) == Grid.GetRow(host.DockHost),
                 "ShowMenuBar must shift ActivityRail alongside DockHost");
-            Require(Grid.GetRowSpan(host.ActivityRail) == 1,
-                "ActivityRail RowSpan must remain 1 after ShowMenuBar");
+            Require(Grid.GetRowSpan(host.ActivityRail) == 2,
+                "ActivityRail RowSpan must remain 2 after ShowMenuBar");
+
+            var rail = host.ActivityRail;
+            Require(rail.IsEffectivelyVisible, "ActivityRail must be visible");
+
+            // R2-04 (Ruling 277): duplicate 4-area Navbar toggles retired; Navbar hidden on Start (!foilOpen).
+            Require(host.ModelView.FindControl<ToggleButton>("NavSetupButton") is null &&
+                    host.ModelView.FindControl<ToggleButton>("NavCadButton") is null &&
+                    host.ModelView.FindControl<ToggleButton>("NavAnalysisButton") is null &&
+                    host.ModelView.FindControl<ToggleButton>("NavSweepsButton") is null,
+                "Ruling 277 violated: duplicate area toggles must be removed from ModelArea.Navbar");
+            Require(!host.ModelView.FindControl<Border>("Navbar")!.IsVisible,
+                "ModelArea.Navbar must be hidden on Start when no foil is open");
+
+            // C4 trap guard: initial Start (ActiveArea == Cad, !foilOpen) must NEVER auto-collapse Left Tool Dock.
+            Require(host.LayoutFactory.TopProportionalDock.VisibleDockables?.Contains(host.LayoutFactory.LeftToolDock) == true,
+                "C4 violated: LeftToolDock must remain visible on initial Cad/Start");
+
+            // R2-14: clicking Analysis or Experiment on Start (!foilOpen) keeps CAD/Start active and reports status.
+            Click(Need<Button>(rail, "RailAnalysisButton"));
+            Settle(window);
+            Require(controller.ActiveArea == WorkbenchArea.Cad &&
+                    !Need<Button>(rail, "RailAnalysisButton").Classes.Contains("active") &&
+                    Need<Button>(rail, "RailCadButton").Classes.Contains("active") &&
+                    host.StatusStrip.Text == "Open or seed a foil first.",
+                $"Start Analysis click should guard with status, got area={controller.ActiveArea}, status='{host.StatusStrip.Text}'");
+
+            Click(Need<Button>(rail, "RailExperimentButton"));
+            Settle(window);
+            Require(controller.ActiveArea == WorkbenchArea.Cad &&
+                    !Need<Button>(rail, "RailExperimentButton").Classes.Contains("active") &&
+                    Need<Button>(rail, "RailCadButton").Classes.Contains("active") &&
+                    host.StatusStrip.Text == "Open or seed a foil first.",
+                $"Start Experiment click should guard with status, got area={controller.ActiveArea}, status='{host.StatusStrip.Text}'");
 
             // Open a real foil so all 6 document areas + Export are live.
             Pump(controller.OpenExampleAsync());
             Settle(window);
-
-            var rail = host.ActivityRail;
-            Require(rail.IsEffectivelyVisible, "ActivityRail must be visible");
 
             // Verify live derived readiness badges exist and reflect open foil state.
             Require(NeedText(rail, "BadgeCadText").StartsWith("r", StringComparison.Ordinal),
@@ -95,60 +126,322 @@ public static class Wave10UiTests
             Require(!string.IsNullOrWhiteSpace(NeedText(rail, "BadgeExperimentText")), "Experiment badge must be non-empty");
             Require(!string.IsNullOrWhiteSpace(NeedText(rail, "BadgeRunText")), "Run badge must be non-empty");
             Require(!string.IsNullOrWhiteSpace(NeedText(rail, "BadgeResultsText")), "Results badge must be non-empty");
+            Require(host.ModelView.FindControl<Border>("Navbar")!.IsVisible,
+                "ModelArea.Navbar must be visible in CAD when ViewArrangementGrid is visible");
 
-            // Slot 1: Setup docks existing SetupWorkspaceView (Ruling 272 zero rewrite) and syncs Navbar.
+            // Open Right Tool Dock in CAD to verify both Left & Right docks auto-collapse outside CAD/Analysis and restore on return.
+            host.ToggleRightSidebar();
+            Settle(window);
+            Require(host.LayoutFactory.TopProportionalDock.VisibleDockables?.Contains(host.LayoutFactory.LeftToolDock) == true &&
+                    host.RightSidebarShown,
+                "Both Left and Right docks should be visible in CAD before switching");
+
+            // Slot 1: Setup auto-collapses Left/Right docks, hides Navbar, removes SweepNavbarClearance.
             Click(Need<Button>(rail, "RailSetupButton"));
             Settle(window);
             Require(controller.ActiveArea == WorkbenchArea.Setup && controller.IsSetup, "Rail Setup click did not enter Setup");
             Require(host.ModelView.SetupView.IsVisible, "SetupWorkspaceView must be visible on rail slot 1");
-            Require(Need<ToggleButton>(host.ModelView, "NavSetupButton").IsChecked == true, "Navbar Setup must stay synced");
+            Require(Need<Button>(rail, "RailSetupButton").Classes.Contains("active"), "RailSetupButton must be active");
+            Require(!host.ModelView.FindControl<Border>("Navbar")!.IsVisible, "Navbar must hide in Setup");
+            Require(host.LayoutFactory.TopProportionalDock.VisibleDockables?.Contains(host.LayoutFactory.LeftToolDock) != true &&
+                    !host.RightSidebarShown,
+                "R2-05: Left and Right CAD docks must auto-collapse in Setup");
+            Require(((Grid)host.ModelView.SetupView.Content!).Margin == new Thickness(0),
+                "SetupWorkspaceView must have zero bottom SweepNavbarClearance margin");
 
-            // Slot 4: Experiment docks existing SweepsWorkspaceView (Ruling 271 zero rewrite) and syncs Navbar.
+            // Slot 4: Experiment keeps docks collapsed, hides Navbar, zero SweepNavbarClearance.
             Click(Need<Button>(rail, "RailExperimentButton"));
             Settle(window);
             Require(controller.ActiveArea == WorkbenchArea.Experiment && controller.IsSweeps, "Rail Experiment click did not enter Sweeps");
             Require(host.ModelView.SweepsView.IsVisible, "SweepsWorkspaceView must be visible on rail slot 4");
-            Require(Need<ToggleButton>(host.ModelView, "NavSweepsButton").IsChecked == true, "Navbar Sweeps must stay synced");
+            Require(Need<Button>(rail, "RailExperimentButton").Classes.Contains("active"), "RailExperimentButton must be active");
+            Require(!host.ModelView.FindControl<Border>("Navbar")!.IsVisible, "Navbar must hide in Experiment");
+            Require(host.LayoutFactory.TopProportionalDock.VisibleDockables?.Contains(host.LayoutFactory.LeftToolDock) != true &&
+                    !host.RightSidebarShown,
+                "R2-05: Left and Right CAD docks must remain collapsed in Experiment");
+            Require(((Grid)host.ModelView.SweepsView.Content!).Margin == new Thickness(0),
+                "SweepsWorkspaceView must have zero bottom SweepNavbarClearance margin");
 
-            // Slot 5: Run shows RunWorkspaceView while unchecking all 4 Navbar area toggles (Navbar stays 4 buttons).
+            // Slot 5: Run keeps docks collapsed, hides Navbar, zero SweepNavbarClearance.
             Click(Need<Button>(rail, "RailRunButton"));
             Settle(window);
             Require(controller.ActiveArea == WorkbenchArea.Run && controller.IsRun, "Rail Run click did not enter Run");
             Require(host.ModelView.RunView.IsVisible, "RunWorkspaceView must be visible on rail slot 5");
-            Require(Need<ToggleButton>(host.ModelView, "NavSetupButton").IsChecked != true &&
-                    Need<ToggleButton>(host.ModelView, "NavCadButton").IsChecked != true &&
-                    Need<ToggleButton>(host.ModelView, "NavAnalysisButton").IsChecked != true &&
-                    Need<ToggleButton>(host.ModelView, "NavSweepsButton").IsChecked != true,
-                "Navbar 4 area toggles must all be unchecked when Run is active");
+            Require(Need<Button>(rail, "RailRunButton").Classes.Contains("active"), "RailRunButton must be active");
+            Require(!host.ModelView.FindControl<Border>("Navbar")!.IsVisible, "Navbar must hide in Run");
+            Require(host.LayoutFactory.TopProportionalDock.VisibleDockables?.Contains(host.LayoutFactory.LeftToolDock) != true &&
+                    !host.RightSidebarShown,
+                "R2-05: Left and Right CAD docks must remain collapsed in Run");
+            Require(((Grid)host.ModelView.RunView.Content!).Margin == new Thickness(0),
+                "RunWorkspaceView must have zero bottom SweepNavbarClearance margin");
 
-            // Slot 6: Results shows ResultsWorkspaceView.
+            // Slot 6: Results keeps docks collapsed, hides Navbar, zero SweepNavbarClearance.
             Click(Need<Button>(rail, "RailResultsButton"));
             Settle(window);
             Require(controller.ActiveArea == WorkbenchArea.Results && controller.IsResults, "Rail Results click did not enter Results");
             Require(host.ModelView.ResultsView.IsVisible, "ResultsWorkspaceView must be visible on rail slot 6");
+            Require(Need<Button>(rail, "RailResultsButton").Classes.Contains("active"), "RailResultsButton must be active");
+            Require(!host.ModelView.FindControl<Border>("Navbar")!.IsVisible, "Navbar must hide in Results");
+            Require(host.LayoutFactory.TopProportionalDock.VisibleDockables?.Contains(host.LayoutFactory.LeftToolDock) != true &&
+                    !host.RightSidebarShown,
+                "R2-05: Left and Right CAD docks must remain collapsed in Results");
+            Require(((Grid)host.ModelView.ResultsView.Content!).Margin == new Thickness(0),
+                "ResultsWorkspaceView must have zero bottom SweepNavbarClearance margin");
 
-            // Slot 2: CAD returns to viewports and syncs Navbar CAD toggle.
+            // Slot 2: CAD restores prior Left & Right dock visibility and shows viewport Navbar.
             Click(Need<Button>(rail, "RailCadButton"));
             Settle(window);
             Require(controller.ActiveArea == WorkbenchArea.Cad, "Rail CAD click did not return to CAD");
-            Require(Need<ToggleButton>(host.ModelView, "NavCadButton").IsChecked == true, "Navbar CAD must be checked");
+            Require(Need<Button>(rail, "RailCadButton").Classes.Contains("active"), "RailCadButton must be active");
+            Require(host.ModelView.FindControl<Border>("Navbar")!.IsVisible, "Navbar must show again in CAD");
+            Require(host.LayoutFactory.TopProportionalDock.VisibleDockables?.Contains(host.LayoutFactory.LeftToolDock) == true &&
+                    host.RightSidebarShown,
+                "R2-05: returning to CAD must restore prior Left and Right dock visibility");
 
-            // Slot 3: Analysis activates Analysis and shows AnalysisPanel.
+            // Slot 3: Analysis activates Analysis, shows AnalysisPanel and viewport Navbar, keeps docks restored.
             Click(Need<Button>(rail, "RailAnalysisButton"));
             Settle(window);
             Require(controller.ActiveArea == WorkbenchArea.Analysis && controller.IsAnalysis, "Rail Analysis click did not enter Analysis");
-            Require(Need<ToggleButton>(host.ModelView, "NavAnalysisButton").IsChecked == true, "Navbar Analysis must be checked");
+            Require(Need<Button>(rail, "RailAnalysisButton").Classes.Contains("active"), "RailAnalysisButton must be active");
+            Require(host.ModelView.FindControl<Border>("Navbar")!.IsVisible, "Navbar must be visible in Analysis");
 
             // Slot 7: Export opens existing ExportDialog.
             Click(Need<Button>(rail, "RailExportButton"));
             Settle(window);
             Require(exportOpened, "Rail Export button must invoke ExportDialog");
 
-            // Footer: Solver setup jumps to existing non-blocking SolverSetupDocument.
+            // Footer: Solver setup jumps to existing non-blocking SolverSetupDocument, highlights RailSolverSetupButton .active,
+            // clears area .active flags, and auto-collapses CAD docks.
             Click(Need<Button>(rail, "RailSolverSetupButton"));
             Settle(window);
             Require(ReferenceEquals(host.LayoutFactory.MainDocumentDock.ActiveDockable, host.SolverSetupDocument),
                 "Rail Solver setup footer button must open SolverSetupDocument");
+            Require(Need<Button>(rail, "RailSolverSetupButton").Classes.Contains("active"),
+                "R2-14: RailSolverSetupButton must carry .active while SolverSetupDocument is active");
+            Require(!Need<Button>(rail, "RailAnalysisButton").Classes.Contains("active") &&
+                    !Need<Button>(rail, "RailCadButton").Classes.Contains("active"),
+                "R2-14: area buttons must clear .active while SolverSetupDocument is active");
+            Require(host.LayoutFactory.TopProportionalDock.VisibleDockables?.Contains(host.LayoutFactory.LeftToolDock) != true &&
+                    !host.RightSidebarShown,
+                "R2-05: SolverSetupDocument must auto-collapse CAD Left and Right docks");
+
+            // Closing SolverSetup returns to Analysis and restores prior docks + RailAnalysisButton .active.
+            host.CloseSolverSetup();
+            Settle(window);
+            Require(!Need<Button>(rail, "RailSolverSetupButton").Classes.Contains("active") &&
+                    Need<Button>(rail, "RailAnalysisButton").Classes.Contains("active"),
+                "Closing SolverSetup must restore active area highlight on ActivityRail");
+            Require(host.LayoutFactory.TopProportionalDock.VisibleDockables?.Contains(host.LayoutFactory.LeftToolDock) == true &&
+                    host.RightSidebarShown,
+                "Closing SolverSetup back to Analysis must restore prior CAD docks");
+        }
+        finally
+        {
+            window.Close();
+        }
+    }
+
+    private static void CheckWave12AShellChromeAndTokens()
+    {
+        // 1. C3 / R2-20 CommandTable parity: view.cad added, view.sweeps titled "Experiment", "Analysis" palette search == 1 match.
+        var cadRow = CommandTable.Rows.SingleOrDefault(r => r.Id == "view.cad")
+            ?? throw new InvalidOperationException("CommandTable missing view.cad");
+        Require(cadRow.Title == "CAD" && cadRow.Menu == "View" && !cadRow.Modal,
+            $"view.cad must be Title='CAD', Menu='View', Modal=false (got {cadRow})");
+        Require(ShellHost.IsPaneCommand("view.cad"), "view.cad must be routed via ShellHost.IsPaneCommand");
+        var expRow = CommandTable.Rows.Single(r => r.Id == "view.sweeps");
+        Require(expRow.Title == "Experiment", $"view.sweeps title must be 'Experiment', got '{expRow.Title}'");
+        Require(!ShellHost.BottomPanelInAnalysis.Contains("CAD | Analysis toggle", StringComparison.Ordinal),
+            $"BottomPanelInAnalysis still references retired toggle: '{ShellHost.BottomPanelInAnalysis}'");
+
+        using var controller = new WorkbenchController();
+        var host = new ShellHost(controller);
+        var window = new Window { Content = host, Width = 1280, Height = 800 };
+        try
+        {
+            window.Show();
+            Settle(window);
+            Pump(controller.OpenExampleAsync());
+            Settle(window);
+
+            // Palette search for "Analysis" must yield exactly 1 match (C3).
+            host.OpenPalette();
+            host.PaletteSearch.Text = "Analysis";
+            Require(host.PaletteMatches.Count == 1 && host.PaletteMatches[0].Id == "view.analysis",
+                $"Expected 1 'Analysis' palette match, got {host.PaletteMatches.Count}");
+            host.PaletteSearch.RaiseEvent(new Avalonia.Input.KeyEventArgs
+            {
+                RoutedEvent = Avalonia.Input.InputElement.KeyDownEvent,
+                Source = host.PaletteSearch,
+                Key = Avalonia.Input.Key.Escape
+            });
+            Settle(window);
+
+            // R2-20: view.<area> commands activate ModelDocument from SolverSetupDocument and enter target area (no accidental toggle-back).
+            host.OpenSolverSetup();
+            Settle(window);
+            Pump(host.RunCommand("view.setup"));
+            Settle(window);
+            Require(ReferenceEquals(host.LayoutFactory.MainDocumentDock.ActiveDockable, host.LayoutFactory.ModelDocument) &&
+                    controller.IsSetup, "view.setup from SolverSetup must activate ModelDocument and enter Setup");
+            Pump(host.RunCommand("view.setup"));
+            Settle(window);
+            Require(controller.IsSetup, "Repeating view.setup must stay in Setup (not toggle back to CAD)");
+
+            host.OpenSolverSetup();
+            Settle(window);
+            Pump(host.RunCommand("view.sweeps"));
+            Settle(window);
+            Require(ReferenceEquals(host.LayoutFactory.MainDocumentDock.ActiveDockable, host.LayoutFactory.ModelDocument) &&
+                    controller.IsSweeps, "view.sweeps from SolverSetup must activate ModelDocument and enter Experiment");
+            Pump(host.RunCommand("view.sweeps"));
+            Settle(window);
+            Require(controller.IsSweeps, "Repeating view.sweeps must stay in Experiment");
+
+            host.OpenSolverSetup();
+            Settle(window);
+            Pump(host.RunCommand("view.run"));
+            Settle(window);
+            Require(ReferenceEquals(host.LayoutFactory.MainDocumentDock.ActiveDockable, host.LayoutFactory.ModelDocument) &&
+                    controller.IsRun, "view.run from SolverSetup must activate ModelDocument and enter Run");
+            Pump(host.RunCommand("view.run"));
+            Settle(window);
+            Require(controller.IsRun, "Repeating view.run must stay in Run");
+
+            host.OpenSolverSetup();
+            Settle(window);
+            Pump(host.RunCommand("view.results"));
+            Settle(window);
+            Require(ReferenceEquals(host.LayoutFactory.MainDocumentDock.ActiveDockable, host.LayoutFactory.ModelDocument) &&
+                    controller.IsResults, "view.results from SolverSetup must activate ModelDocument and enter Results");
+            Pump(host.RunCommand("view.results"));
+            Settle(window);
+            Require(controller.IsResults, "Repeating view.results must stay in Results");
+
+            host.OpenSolverSetup();
+            Settle(window);
+            Pump(host.RunCommand("view.cad"));
+            Settle(window);
+            Require(ReferenceEquals(host.LayoutFactory.MainDocumentDock.ActiveDockable, host.LayoutFactory.ModelDocument) &&
+                    controller.ActiveArea == WorkbenchArea.Cad, "view.cad from SolverSetup must activate ModelDocument and enter CAD");
+
+            // R2-05 user-closed dock memory: closing Left dock manually in CAD, entering Setup, and returning keeps Left dock closed.
+            host.ToggleLeftSidebar();
+            Settle(window);
+            Require(host.LayoutFactory.TopProportionalDock.VisibleDockables?.Contains(host.LayoutFactory.LeftToolDock) != true,
+                "Manual ToggleLeftSidebar should hide LeftToolDock");
+            Pump(host.RunCommand("view.setup"));
+            Settle(window);
+            Pump(host.RunCommand("view.cad"));
+            Settle(window);
+            Require(host.LayoutFactory.TopProportionalDock.VisibleDockables?.Contains(host.LayoutFactory.LeftToolDock) != true,
+                "Returning to CAD must preserve user-closed LeftToolDock state");
+            host.ToggleLeftSidebar();
+            Settle(window);
+
+            // R2-21 DN-5 Text scaling hoisted onto ShellHost.Resources so ActivityRail and all workspace children scale uniformly.
+            double baseProp = (double)Application.Current!.FindResource("PropFontSize")!;
+            double baseNote = (double)Application.Current!.FindResource("PropNoteSize")!;
+            double baseTitle = (double)Application.Current!.FindResource("PropTitleSize")!;
+            host.SetTextScale(1.5);
+            Settle(window);
+            Require(host.Resources.TryGetValue("PropFontSize", out var hostedProp) && hostedProp is double hp && Math.Abs(hp - baseProp * 1.5) < 0.01,
+                $"ShellHost.Resources['PropFontSize'] should be {baseProp * 1.5}, got {hostedProp}");
+            Require(host.Resources.TryGetValue("PropNoteSize", out var hostedNote) && hostedNote is double hn && Math.Abs(hn - baseNote * 1.5) < 0.01,
+                $"ShellHost.Resources['PropNoteSize'] should be {baseNote * 1.5}, got {hostedNote}");
+            Require(host.Resources.TryGetValue("PropTitleSize", out var hostedTitle) && hostedTitle is double ht && Math.Abs(ht - baseTitle * 1.5) < 0.01,
+                $"ShellHost.Resources['PropTitleSize'] should be {baseTitle * 1.5}, got {hostedTitle}");
+            var badgeCad = Need<TextBlock>(host.ActivityRail, "BadgeCadText");
+            Require(Math.Abs(badgeCad.FontSize - baseNote * 1.5) < 0.01,
+                $"ActivityRail BadgeCadText did not inherit scaled PropNoteSize (expected {baseNote * 1.5}, got {badgeCad.FontSize})");
+            host.SetTextScale(1.0);
+            Settle(window);
+
+            // R2-09: Global ToggleButton / Slider / ProgressBar / Expander tokens and HC ActivityRail :pressed badge contrast.
+            var stylesText = File.ReadAllText(FindRepoFile(Path.Combine("src", "CfdWorkbench.Desktop", "Styles.axaml")));
+            Require(!stylesText.Contains("SweepNavbarClearance", StringComparison.Ordinal),
+                "Unused SweepNavbarClearance token must be removed from Styles.axaml");
+            foreach (var variant in new[] { Avalonia.Styling.ThemeVariant.Light, Avalonia.Styling.ThemeVariant.Dark, NativeReviewThemes.HighContrast })
+            {
+                window.RequestedThemeVariant = variant;
+                Pump(host.RunCommand("view.setup"));
+                Settle(window);
+                var subTab = Need<ToggleButton>(host.ModelView.SetupView, "SubTabBriefButton");
+                subTab.TryFindResource("PrimaryBrush", variant, out var primaryRes);
+                subTab.TryFindResource("OnPrimaryBrush", variant, out var onPrimaryRes);
+                var primaryBrush = (Avalonia.Media.ISolidColorBrush)primaryRes!;
+                var onPrimaryBrush = (Avalonia.Media.ISolidColorBrush)onPrimaryRes!;
+                var presenter = subTab.GetVisualDescendants().OfType<Avalonia.Controls.Presenters.ContentPresenter>()
+                    .First(p => p.Name == "PART_ContentPresenter");
+                Require(presenter.Background is Avalonia.Media.ISolidColorBrush bg && bg.Color == primaryBrush.Color,
+                    $"Checked ToggleButton in {variant.Key} must use PrimaryBrush ({primaryBrush.Color}), got {presenter.Background}");
+                Require(presenter.Foreground is Avalonia.Media.ISolidColorBrush fg && fg.Color == onPrimaryBrush.Color,
+                    $"Checked ToggleButton in {variant.Key} must use OnPrimaryBrush ({onPrimaryBrush.Color}), got {presenter.Foreground}");
+
+                // Slider (ResultsView.ReplayScrubSlider) & ProgressBar (SweepsView.LocalRun.RunProgressBar) resolve PrimaryBrush.
+                var slider = Need<Slider>(host.ModelView.ResultsView, "ReplayScrubSlider");
+                Require(slider.Foreground is Avalonia.Media.ISolidColorBrush sfg && sfg.Color == primaryBrush.Color,
+                    $"Slider in {variant.Key} must use PrimaryBrush ({primaryBrush.Color}), got {slider.Foreground}");
+                var progress = Need<ProgressBar>(host.ModelView.SweepsView.LocalRun, "RunProgressBar");
+                Require(progress.Foreground is Avalonia.Media.ISolidColorBrush pfg && pfg.Color == primaryBrush.Color,
+                    $"ProgressBar in {variant.Key} must use PrimaryBrush ({primaryBrush.Color}), got {progress.Foreground}");
+
+                // Expander (SolverSetup) uses theme SurfaceBrush while PropertiesPane Expander.prop-group stays transparent (C4).
+                subTab.TryFindResource("SurfaceBrush", variant, out var surfaceRes);
+                var surfaceBrush = (Avalonia.Media.ISolidColorBrush)surfaceRes!;
+                host.OpenSolverSetup();
+                Settle(window);
+                var slvExpander = Need<Expander>(host.SolverSetup, "OtherOptionsExpander");
+                Require(slvExpander.Background is Avalonia.Media.ISolidColorBrush ebg && ebg.Color == surfaceBrush.Color,
+                    $"Expander in {variant.Key} must use SurfaceBrush ({surfaceBrush.Color}), got {slvExpander.Background}");
+                host.CloseSolverSetup();
+                Settle(window);
+
+                // Check HC rail-item:pressed TextBlock.rail-badge contrast uses OnSelectionBrush (not MutedBrush).
+                if (variant == NativeReviewThemes.HighContrast)
+                {
+                    var cadBtn = Need<Button>(host.ActivityRail, "RailCadButton");
+                    var badge = Need<TextBlock>(host.ActivityRail, "BadgeCadText");
+                    var pseudoProp = typeof(StyledElement).GetProperty("PseudoClasses",
+                        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+                    var pseudos = (IPseudoClasses)pseudoProp.GetValue(cadBtn)!;
+                    pseudos.Add(":pressed");
+                    Settle(window);
+                    try
+                    {
+                        badge.TryFindResource("OnSelectionBrush", variant, out var onSelRes);
+                        var onSel = (Avalonia.Media.ISolidColorBrush)onSelRes!;
+                        Require(badge.Foreground is Avalonia.Media.ISolidColorBrush bfg && bfg.Color == onSel.Color,
+                            $"HC Button.rail-item:pressed TextBlock.rail-badge must use OnSelectionBrush ({onSel.Color}), got {badge.Foreground}");
+                    }
+                    finally
+                    {
+                        pseudos.Remove(":pressed");
+                        Settle(window);
+                    }
+                }
+            }
+            window.RequestedThemeVariant = Avalonia.Styling.ThemeVariant.Light;
+            Settle(window);
+
+            // R2-24: StatusStrip.FitItems() drops SetupItem and idle SweepItem before SolverItem at narrow widths,
+            // while protecting running SweepItem (canCancel: true).
+            window.Width = 520;
+            host.StatusStrip.ShowSetupState("Setup: Linked (r1)", visible: true);
+            host.StatusStrip.ShowSweepState("Sweep: 1 stored", visible: true, canCancel: false, onCancel: null);
+            Settle(window);
+            var setupItem = Need<Border>(host.StatusStrip, "SetupItem");
+            var sweepItem = Need<Border>(host.StatusStrip, "SweepItem");
+            var solverItem = Need<Border>(host.StatusStrip, "SolverItem");
+            Require(!setupItem.IsVisible || !sweepItem.IsVisible,
+                "R2-24: FitItems() must drop SetupItem / idle SweepItem at narrow width before crowding StatusMessage");
+            Require(solverItem.IsVisible, "SolverItem must remain visible ahead of dropped SetupItem / idle SweepItem");
+
+            // Active running sweep with Cancel must be protected even at narrow width (UX-21).
+            host.StatusStrip.ShowSweepState("Sweep: 1 / 4", visible: true, canCancel: true, onCancel: () => { });
+            Settle(window);
+            Require(sweepItem.IsVisible && Need<Button>(host.StatusStrip, "SweepCancelButton").IsVisible,
+                "R2-24 / UX-21: FitItems() must NEVER drop running SweepItem with Cancel button");
         }
         finally
         {

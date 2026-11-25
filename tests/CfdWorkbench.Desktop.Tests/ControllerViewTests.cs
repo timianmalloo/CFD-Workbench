@@ -1026,23 +1026,24 @@ public static class ControllerViewTests
 
         DesktopChecks.Check("ModelArea_Navbar_KeyboardPath_TabAfterTheViews", () =>
         {
-            // §11.3, Ruling 271 DR-SWP-6 & Ruling 272 DR-SET-5: every pointer verb has a keyboard path. The navbar follows the views in Tab order,
-            // Setup → CAD → Analysis → Sweeps → Views ▾ → Display ▾ → Fit → Fit Selection.
+            // §11.3 & Ruling 277: every pointer verb has a keyboard path. The viewport-only navbar follows the views in Tab order:
+            // Views ▾ → Display ▾ → Fit → Fit Selection (4 duplicate area toggles retired in favour of ActivityRail).
             using var fixture = new AreaFixture(width: 1400, height: 1000);
             var area = fixture.Area;
-            Button[] buttons = [area.FindControl<Avalonia.Controls.Primitives.ToggleButton>("NavSetupButton")!,
-                area.FindControl<Avalonia.Controls.Primitives.ToggleButton>("NavCadButton")!,
-                area.FindControl<Avalonia.Controls.Primitives.ToggleButton>("NavAnalysisButton")!,
-                area.FindControl<Avalonia.Controls.Primitives.ToggleButton>("NavSweepsButton")!, area.NavViewsButton,
-                area.NavDisplayButton, area.NavFitButton, area.NavFitSelectionButton];
+            if (area.FindControl<Avalonia.Controls.Primitives.ToggleButton>("NavSetupButton") is not null ||
+                area.FindControl<Avalonia.Controls.Primitives.ToggleButton>("NavCadButton") is not null ||
+                area.FindControl<Avalonia.Controls.Primitives.ToggleButton>("NavAnalysisButton") is not null ||
+                area.FindControl<Avalonia.Controls.Primitives.ToggleButton>("NavSweepsButton") is not null)
+                throw new Exception("Ruling 277 violated: duplicate area toggle still present in ModelArea.Navbar");
+            Button[] buttons = [area.NavViewsButton, area.NavDisplayButton, area.NavFitButton, area.NavFitSelectionButton];
             for (int k = 0; k + 1 < buttons.Length; k++)
                 if (!ReferenceEquals(KeyboardNavigationHandler.GetNext(buttons[k], NavigationDirection.Next), buttons[k + 1]))
                     throw new Exception($"Tab from {buttons[k].Content} does not reach {buttons[k + 1].Content}");
             if (KeyboardNavigationHandler.GetNext(buttons[0], NavigationDirection.Previous) is not { } before ||
                 before is not Visual visual || !Avalonia.VisualTree.VisualExtensions.IsVisualAncestorOf(area.ViewArrangementGrid, visual))
-                throw new Exception("Shift+Tab from Setup does not return into the views");
+                throw new Exception("Shift+Tab from Views ▾ does not return into the views");
             if (KeyboardNavigationHandler.GetNext(before, NavigationDirection.Next) != buttons[0])
-                throw new Exception("Tab from the last view stop does not reach Setup");
+                throw new Exception("Tab from the last view stop does not reach Views ▾");
             if (buttons.Any(button => !button.Focus(NavigationMethod.Tab))) throw new Exception("A navbar button takes no keyboard focus");
             area.NavViewsButton.Focus(NavigationMethod.Tab);
             area.NavViewsButton.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = Key.Space, Source = area.NavViewsButton });

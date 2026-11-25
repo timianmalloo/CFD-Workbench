@@ -248,8 +248,11 @@ public static class AnalysisToggleTests
         DesktopChecks.Check("Toggle_NavbarAndMenuReachable", () =>
         {
             var area = new ModelArea();
-            if (area.FindControl<Avalonia.Controls.Primitives.ToggleButton>("NavAnalysisButton") is null)
-                throw new Exception("The navbar has no Analysis segment.");
+            if (area.FindControl<Avalonia.Controls.Primitives.ToggleButton>("NavAnalysisButton") is not null)
+                throw new Exception("Ruling 277 violated: retired NavAnalysisButton is still present in ModelArea.");
+            var rail = new ActivityRail();
+            if (rail.FindControl<Button>("RailAnalysisButton") is null)
+                throw new Exception("ActivityRail has no Analysis slot.");
             var row = CommandTable.Rows.FirstOrDefault(item => item.Id == "view.analysis")
                 ?? throw new Exception("View ▸ Analysis has no command row.");
             if (row.Gesture != "⇧⌘A" || NativeMenuBuilder.ParseGesture(row.Gesture) is null)

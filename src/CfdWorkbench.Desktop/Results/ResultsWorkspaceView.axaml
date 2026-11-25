@@ -2,7 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:results="using:CfdWorkbench.Desktop.Results"
              x:Class="CfdWorkbench.Desktop.Results.ResultsWorkspaceView">
-  <Grid RowDefinitions="Auto,*" Background="{DynamicResource CanvasBrush}" Margin="{StaticResource SweepNavbarClearance}">
+  <Grid RowDefinitions="Auto,*" Background="{DynamicResource CanvasBrush}">
     <!-- Header bar: Sample picker, ParaView handoff, Table twin toggle -->
     <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
             BorderThickness="{StaticResource PropRuleBottom}" Padding="{StaticResource Space2}">
@@ -44,7 +44,7 @@
                   BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource ProvenanceStripPadding}">
             <StackPanel Spacing="{StaticResource StackGap1}">
               <TextBlock Text="Provenance strip (9 required fields)" FontWeight="SemiBold"
-                         FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
+                         FontSize="{DynamicResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
               <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto">
                 <TextBlock Grid.Row="0" Grid.Column="0" x:Name="ProvVariableText" Classes="pnl-cell" Text="Not recorded" />
                 <TextBlock Grid.Row="0" Grid.Column="1" x:Name="ProvUnitText" Classes="pnl-cell" Text="Not recorded" />
@@ -64,7 +64,7 @@
                   BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
             <StackPanel Spacing="{StaticResource StackGap1}">
               <TextBlock x:Name="TableTwinHeadingText" Text="Linked table twin" FontWeight="SemiBold"
-                         FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
+                         FontSize="{DynamicResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
               <ListBox x:Name="TableTwinList" MaxHeight="{StaticResource RunListMaxHeight}" />
             </StackPanel>
           </Border>
@@ -77,7 +77,7 @@
                 <TextBlock DockPanel.Dock="Right" x:Name="ReplayRangeLabelText" FontSize="{StaticResource CaptionSize}"
                            Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" />
                 <TextBlock x:Name="ReplayBannerText" Text="Parametric sweep — sequence over admitted samples"
-                           FontWeight="SemiBold" FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
+                           FontWeight="SemiBold" FontSize="{DynamicResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
               </DockPanel>
               <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap1}">
                 <Button x:Name="ReplayPlayButton" Content="Play" MinHeight="{StaticResource ControlHeight}" />
@@ -106,7 +106,7 @@
                   BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
             <StackPanel Spacing="{StaticResource StackGap1}">
               <TextBlock Text="Difference flood (zero-pinned vik)" FontWeight="SemiBold"
-                         FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
+                         FontSize="{DynamicResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
               <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap1}">
                 <ComboBox x:Name="DiffBasePicker" MinWidth="{StaticResource SweepInputMinWidth}" />
                 <ComboBox x:Name="DiffTargetPicker" MinWidth="{StaticResource SweepInputMinWidth}" />
@@ -128,7 +128,7 @@
                   BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
             <StackPanel Spacing="{StaticResource StackGap1}">
               <TextBlock Text="Field evidence layers" FontWeight="SemiBold"
-                         FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
+                         FontSize="{DynamicResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
 
               <ToggleButton x:Name="LayerSurfaceCpToggle" Content="Surface Cp" HorizontalAlignment="Stretch" IsChecked="True" />
               <TextBlock x:Name="LayerSurfaceCpBasisText" Classes="pnl-note" />
@@ -167,7 +167,7 @@
                   BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
             <StackPanel Spacing="{StaticResource StackGap1}">
               <TextBlock Text="Candidate ladder (COMMIT-01)" FontWeight="SemiBold"
-                         FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
+                         FontSize="{DynamicResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
               <TextBlock x:Name="CandidateParetoSummaryText" Classes="pnl-note" />
               <TextBlock x:Name="CandidateEmptyReasonText" Classes="pnl-note" IsVisible="False" />
               <ListBox x:Name="CandidateList" MaxHeight="{StaticResource RunListMaxHeight}" />
@@ -189,7 +189,7 @@
                 <Button x:Name="AskResultConfigureKeyButton" DockPanel.Dock="Right" Content="Configure key"
                         MinHeight="{StaticResource CompactTargetSize}" AutomationProperties.Name="Configure API key" />
                 <TextBlock Text="Ask about this result (offline)" FontWeight="SemiBold"
-                           FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" VerticalAlignment="Center" />
+                           FontSize="{DynamicResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" VerticalAlignment="Center" />
               </DockPanel>
               <TextBlock x:Name="AskResultStatusText" Classes="pnl-note" IsVisible="False" />
               <Grid ColumnDefinitions="*,Auto">

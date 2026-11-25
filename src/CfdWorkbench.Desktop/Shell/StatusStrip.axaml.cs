@@ -123,7 +123,7 @@ public partial class StatusStrip : UserControl
     {
         SetupItemText.Text = text;
         AutomationProperties.SetName(SetupItem, text);
-        SetupItem.IsVisible = visible;
+        setupWanted = visible;
         FitItems();
     }
 
@@ -133,8 +133,9 @@ public partial class StatusStrip : UserControl
         SweepItemText.Text = text;
         AutomationProperties.SetName(SweepItem, text);
         sweepCancelAction = canCancel ? onCancel : null;
-        SweepCancelButton.IsVisible = visible && canCancel;
-        SweepItem.IsVisible = visible;
+        sweepCanCancel = visible && canCancel;
+        SweepCancelButton.IsVisible = sweepCanCancel;
+        sweepWanted = visible;
         FitItems();
     }
 
@@ -153,10 +154,14 @@ public partial class StatusStrip : UserControl
 
     private (bool Selection, bool Units, bool Estimates, bool TextSize) wanted = (false, false, false, true);
     private bool analysisWanted;
+    private bool setupWanted;
+    private bool sweepWanted;
+    private bool sweepCanCancel;
 
     /// <summary>
     /// The strip is one line: when the items would crowd the message (large Text size, narrow window) they drop in the order
-    /// Text size, ≈ estimates, units, analysis state, solver state; the selection stays.
+    /// Text size, ≈ estimates, units, setup state, idle sweep state (protecting active sweep Cancel per UX-21), analysis state,
+    /// solver state; the selection stays.
     /// </summary>
     private void FitItems()
     {
@@ -164,13 +169,16 @@ public partial class StatusStrip : UserControl
         UnitsItem.IsVisible = wanted.Units;
         EstimateItem.IsVisible = wanted.Estimates;
         TextSizeItem.IsVisible = wanted.TextSize;
+        SetupItem.IsVisible = setupWanted;
+        SweepItem.IsVisible = sweepWanted;
         AnalysisItem.IsVisible = analysisWanted;
         SolverItem.IsVisible = true;
         double width = Bounds.Width;
         if (width <= 0) return;
-        foreach (var item in new Control[] { TextSizeItem, EstimateItem, UnitsItem, AnalysisItem, SolverItem })
+        foreach (var item in new Control[] { TextSizeItem, EstimateItem, UnitsItem, SetupItem, SweepItem, AnalysisItem, SolverItem })
         {
             if (ItemsWidth() <= width / 2) break;
+            if (ReferenceEquals(item, SweepItem) && sweepCanCancel) continue;
             item.IsVisible = false;
         }
     }

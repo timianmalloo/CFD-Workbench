@@ -107,16 +107,32 @@ public static class StatusStripTests
             CommitRootChord(controller, host, window, 10.1);
             var input = Need<TextBox>(host.Properties, "RootChordInput");
             var toast = NeedToast(host);
-            // Shift+F6 from the field: the toast is the last stop of the ring, after the model area.
+            // C2 (R2-14): ActivityRail sits at F6 stop 0 before Properties (stop 1); Shift+F6 from Properties reaches
+            // ActivityRail first, and a second Shift+F6 wraps to the toast at the end of the ring.
+            host.MoveFocus(reverse: true);
+            Settle(window);
+            if (!host.ActivityRail.IsKeyboardFocusWithin)
+                throw new InvalidOperationException("Shift+F6 from Properties did not reach ActivityRail (stop 0): " +
+                    (window.FocusManager!.GetFocusedElement() as Control)?.Name);
+            var railFocused = (Control)window.FocusManager!.GetFocusedElement()!;
             host.MoveFocus(reverse: true);
             Settle(window);
             if (!toast.IsKeyboardFocusWithin)
-                throw new InvalidOperationException("F6 did not reach the toast: " + (window.FocusManager!.GetFocusedElement() as Control)?.Name);
+                throw new InvalidOperationException("Second Shift+F6 from ActivityRail did not wrap to the toast: " +
+                    (window.FocusManager!.GetFocusedElement() as Control)?.Name);
             var focused = (Control)window.FocusManager!.GetFocusedElement()!;
             Key(focused, Avalonia.Input.Key.Escape);
             Settle(window);
-            if (toast.IsVisible || !input.IsFocused)
+            if (toast.IsVisible || !railFocused.IsFocused)
                 throw new InvalidOperationException($"toast visible {toast.IsVisible}; focus on {(window.FocusManager!.GetFocusedElement() as Control)?.Name}");
+            // Forward F6 from ActivityRail advances cleanly to Properties (stop 1).
+            host.MoveFocus(reverse: false);
+            Settle(window);
+            if (!host.Properties.IsKeyboardFocusWithin)
+                throw new InvalidOperationException("F6 from ActivityRail did not advance to Properties: " +
+                    (window.FocusManager!.GetFocusedElement() as Control)?.Name);
+            if (!input.IsEffectivelyVisible)
+                throw new InvalidOperationException("RootChordInput unexpectedly hidden");
         });
 
         Pane("Toast_OpensWithoutTakingFocus", (controller, host, window) =>

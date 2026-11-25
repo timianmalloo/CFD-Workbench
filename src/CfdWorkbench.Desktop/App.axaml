@@ -36,6 +36,29 @@
           <SolidColorBrush x:Key="DockDocumentContentBorderBrush" Color="{StaticResource LineColor}" />
           <SolidColorBrush x:Key="DockSplitterIdleBrush" Color="{StaticResource LineColor}" />
           <SolidColorBrush x:Key="DockTabActiveIndicatorBrush" Color="{StaticResource PrimaryColor}" />
+          <SolidColorBrush x:Key="ToggleButtonBackgroundChecked" Color="{StaticResource PrimaryColor}" />
+          <SolidColorBrush x:Key="ToggleButtonBackgroundCheckedPointerOver" Color="{StaticResource PrimaryColor}" />
+          <SolidColorBrush x:Key="ToggleButtonBackgroundCheckedPressed" Color="{StaticResource SelectionColor}" />
+          <SolidColorBrush x:Key="ToggleButtonForegroundChecked" Color="{StaticResource OnPrimaryColor}" />
+          <SolidColorBrush x:Key="ToggleButtonForegroundCheckedPointerOver" Color="{StaticResource OnPrimaryColor}" />
+          <SolidColorBrush x:Key="ToggleButtonForegroundCheckedPressed" Color="{StaticResource InkColor}" />
+          <SolidColorBrush x:Key="ToggleButtonBorderBrushChecked" Color="{StaticResource PrimaryColor}" />
+          <SolidColorBrush x:Key="SliderTrackFill" Color="{StaticResource LineColor}" />
+          <SolidColorBrush x:Key="SliderTrackValueFill" Color="{StaticResource PrimaryColor}" />
+          <SolidColorBrush x:Key="SliderTrackValueFillPointerOver" Color="{StaticResource PrimaryColor}" />
+          <SolidColorBrush x:Key="SliderTrackValueFillPressed" Color="{StaticResource PrimaryColor}" />
+          <SolidColorBrush x:Key="SliderThumbBackground" Color="{StaticResource PrimaryColor}" />
+          <SolidColorBrush x:Key="SliderThumbBackgroundPointerOver" Color="{StaticResource PrimaryColor}" />
+          <SolidColorBrush x:Key="SliderThumbBackgroundPressed" Color="{StaticResource SelectionColor}" />
+          <SolidColorBrush x:Key="ProgressBarForeground" Color="{StaticResource PrimaryColor}" />
+          <SolidColorBrush x:Key="ProgressBarBackground" Color="{StaticResource SurfaceSoftColor}" />
+          <SolidColorBrush x:Key="ExpanderHeaderBackground" Color="{StaticResource SurfaceSoftColor}" />
+          <SolidColorBrush x:Key="ExpanderHeaderBackgroundPointerOver" Color="{StaticResource SelectionColor}" />
+          <SolidColorBrush x:Key="ExpanderHeaderBackgroundPressed" Color="{StaticResource SelectionColor}" />
+          <SolidColorBrush x:Key="ExpanderHeaderForeground" Color="{StaticResource InkColor}" />
+          <SolidColorBrush x:Key="ExpanderHeaderBorderBrush" Color="{StaticResource LineColor}" />
+          <SolidColorBrush x:Key="ExpanderContentBackground" Color="{StaticResource SurfaceColor}" />
+          <SolidColorBrush x:Key="ExpanderContentBorderBrush" Color="{StaticResource LineColor}" />
         </ResourceDictionary>
         <ResourceDictionary x:Key="Dark">
           <SolidColorBrush x:Key="DockTabForegroundBrush" Color="{StaticResource DarkInkColor}" />
@@ -60,6 +83,29 @@
           <SolidColorBrush x:Key="DockDocumentContentBorderBrush" Color="{StaticResource DarkLineColor}" />
           <SolidColorBrush x:Key="DockSplitterIdleBrush" Color="{StaticResource DarkLineColor}" />
           <SolidColorBrush x:Key="DockTabActiveIndicatorBrush" Color="{StaticResource DarkPrimaryColor}" />
+          <SolidColorBrush x:Key="ToggleButtonBackgroundChecked" Color="{StaticResource DarkPrimaryColor}" />
+          <SolidColorBrush x:Key="ToggleButtonBackgroundCheckedPointerOver" Color="{StaticResource DarkPrimaryColor}" />
+          <SolidColorBrush x:Key="ToggleButtonBackgroundCheckedPressed" Color="{StaticResource DarkSelectionColor}" />
+          <SolidColorBrush x:Key="ToggleButtonForegroundChecked" Color="{StaticResource DarkOnPrimaryColor}" />
+          <SolidColorBrush x:Key="ToggleButtonForegroundCheckedPointerOver" Color="{StaticResource DarkOnPrimaryColor}" />
+          <SolidColorBrush x:Key="ToggleButtonForegroundCheckedPressed" Color="{StaticResource DarkInkColor}" />
+          <SolidColorBrush x:Key="ToggleButtonBorderBrushChecked" Color="{StaticResource DarkPrimaryColor}" />
+          <SolidColorBrush x:Key="SliderTrackFill" Color="{StaticResource DarkLineColor}" />
+          <SolidColorBrush x:Key="SliderTrackValueFill" Color="{StaticResource DarkPrimaryColor}" />
+          <SolidColorBrush x:Key="SliderTrackValueFillPointerOver" Color="{StaticResource DarkPrimaryColor}" />
+          <SolidColorBrush x:Key="SliderTrackValueFillPressed" Color="{StaticResource DarkPrimaryColor}" />
+          <SolidColorBrush x:Key="SliderThumbBackground" Color="{StaticResource DarkPrimaryColor}" />
+          <SolidColorBrush x:Key="SliderThumbBackgroundPointerOver" Color="{StaticResource DarkPrimaryColor}" />
+          <SolidColorBrush x:Key="SliderThumbBackgroundPressed" Color="{StaticResource DarkSelectionColor}" />
+          <SolidColorBrush x:Key="ProgressBarForeground" Color="{StaticResource DarkPrimaryColor}" />
+          <SolidColorBrush x:Key="ProgressBarBackground" Color="{StaticResource DarkSoftColor}" />
+          <SolidColorBrush x:Key="ExpanderHeaderBackground" Color="{StaticResource DarkSoftColor}" />
+          <SolidColorBrush x:Key="ExpanderHeaderBackgroundPointerOver" Color="{StaticResource DarkSelectionColor}" />
+          <SolidColorBrush x:Key="ExpanderHeaderBackgroundPressed" Color="{StaticResource DarkSelectionColor}" />
+          <SolidColorBrush x:Key="ExpanderHeaderForeground" Color="{StaticResource DarkInkColor}" />
+          <SolidColorBrush x:Key="ExpanderHeaderBorderBrush" Color="{StaticResource DarkLineColor}" />
+          <SolidColorBrush x:Key="ExpanderContentBackground" Color="{StaticResource DarkSurfaceColor}" />
+          <SolidColorBrush x:Key="ExpanderContentBorderBrush" Color="{StaticResource DarkLineColor}" />
         </ResourceDictionary>
         <ResourceDictionary x:Key="{x:Static local:NativeReviewThemes.HighContrast}">
           <SolidColorBrush x:Key="DockTabForegroundBrush" Color="{StaticResource HighContrastInkColor}" />
@@ -95,6 +141,46 @@
           <SolidColorBrush x:Key="MenuFlyoutPresenterBorderBrush" Color="{StaticResource HighContrastInkColor}" />
           <SolidColorBrush x:Key="ScrollBarThumbFill" Color="{StaticResource HighContrastInkColor}" />
           <SolidColorBrush x:Key="RadioButtonOuterEllipseStroke" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="ToggleButtonBackground" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="ToggleButtonBackgroundPointerOver" Color="{StaticResource HighContrastHoverColor}" />
+          <SolidColorBrush x:Key="ToggleButtonBackgroundPressed" Color="{StaticResource HighContrastAccentColor}" />
+          <SolidColorBrush x:Key="ToggleButtonBackgroundChecked" Color="{StaticResource HighContrastAccentColor}" />
+          <SolidColorBrush x:Key="ToggleButtonBackgroundCheckedPointerOver" Color="{StaticResource HighContrastAccentColor}" />
+          <SolidColorBrush x:Key="ToggleButtonBackgroundCheckedPressed" Color="{StaticResource HighContrastAccentColor}" />
+          <SolidColorBrush x:Key="ToggleButtonForeground" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="ToggleButtonForegroundPointerOver" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="ToggleButtonForegroundPressed" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="ToggleButtonForegroundChecked" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="ToggleButtonForegroundCheckedPointerOver" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="ToggleButtonForegroundCheckedPressed" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="ToggleButtonBorderBrush" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="ToggleButtonBorderBrushPointerOver" Color="{StaticResource HighContrastAccentColor}" />
+          <SolidColorBrush x:Key="ToggleButtonBorderBrushChecked" Color="{StaticResource HighContrastAccentColor}" />
+          <SolidColorBrush x:Key="ToggleButtonBorderBrushCheckedPointerOver" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="SliderTrackFill" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="SliderTrackFillPointerOver" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="SliderTrackFillPressed" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="SliderTrackFillDisabled" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="SliderTrackValueFill" Color="{StaticResource HighContrastAccentColor}" />
+          <SolidColorBrush x:Key="SliderTrackValueFillPointerOver" Color="{StaticResource HighContrastAccentColor}" />
+          <SolidColorBrush x:Key="SliderTrackValueFillPressed" Color="{StaticResource HighContrastAccentColor}" />
+          <SolidColorBrush x:Key="SliderTrackValueFillDisabled" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="SliderThumbBackground" Color="{StaticResource HighContrastAccentColor}" />
+          <SolidColorBrush x:Key="SliderThumbBackgroundPointerOver" Color="{StaticResource HighContrastAccentColor}" />
+          <SolidColorBrush x:Key="SliderThumbBackgroundPressed" Color="{StaticResource HighContrastAccentColor}" />
+          <SolidColorBrush x:Key="SliderThumbBackgroundDisabled" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="ProgressBarForeground" Color="{StaticResource HighContrastAccentColor}" />
+          <SolidColorBrush x:Key="ProgressBarBackground" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="ExpanderHeaderBackground" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="ExpanderHeaderBackgroundPointerOver" Color="{StaticResource HighContrastAccentColor}" />
+          <SolidColorBrush x:Key="ExpanderHeaderBackgroundPressed" Color="{StaticResource HighContrastAccentColor}" />
+          <SolidColorBrush x:Key="ExpanderHeaderForeground" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="ExpanderHeaderForegroundPointerOver" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="ExpanderHeaderBorderBrush" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="ExpanderContentBackground" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="ExpanderContentBorderBrush" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="ExpanderChevronForeground" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="ExpanderChevronForegroundPointerOver" Color="{StaticResource HighContrastBackgroundColor}" />
         </ResourceDictionary>
       </ResourceDictionary.ThemeDictionaries>
     </ResourceDictionary>
