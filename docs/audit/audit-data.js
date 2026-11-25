@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-25T07:34:10Z",
+  "generated": "2026-11-25T08:35:26Z",
   "audit": [
     {
       "actor": null,
@@ -45716,6 +45716,35 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-25T07:25:49Z",
       "duration_seconds": 501.0
+    },
+    {
+      "id": "al-01M88XGVT9ZP2MB2GHPTH8C57W",
+      "shortname": "join-w12-c",
+      "datetime": "2026-11-25T08:35:26Z",
+      "session": "agy-w12-coord",
+      "prompt": "the join of swarm-w12-results-run-c1a14ccc into main",
+      "summary": "Joined verified W12-C (d088deb3, CLEARS-THE-VETO: yes from w12-verifier #141, 0 seams, 0 repair cycles): R2-02 (auto-built Replay in RenderSelectedSample + ReplayHoldAxisPicker.SelectionChanged), R2-06 (6 dead layer ToggleButtons replaced with read-only manifest availability rows while keeping Cp/Cf/VortexCore/Separation interactive), R2-07 & R2-30 (zero-pinned symmetric vik colormap 0.0->VikZeroBrush, PlanDangerBrush/PlanWarningBrush on graphite, adaptive legend precision & 0 tick), R2-13 [Run] & R2-26 (self-contained async HandleRunActionAsync via ActiveSession + CfdCasePipelineService in try/finally never stuck, 7-step happy-path stepper + semantic TerminalStatusBadge), R2-17 (live Light/Dark/HC CSS classes on Run & Setup removing one-shot ResolveBrush), and R2-16 (Light-theme >=4.5:1 PerformanceCurveChart palette + greedy Y-collision end-label separation). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-as-built-workbench-r2.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land Wave 12C W12-C onto main",
+      "done_when": "W12-C merged via conductor-join.py with TESTS-GREEN, xaml-token-lint, UI-CS-TOKEN, check-event-subscribers, check-docs, and 10/10 verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-25T08:27:21Z",
+      "duration_seconds": 485.0
     }
   ],
   "changes": [
