@@ -49,13 +49,17 @@ public static class SweepViewTests
             OpenExample(controller);
             Flush();
 
-            // 1. Switch to Sweeps via third navbar segment (CAD | Analysis | Sweeps — DR-SWP-6 (a)).
-            var navSweeps = host.ModelView.FindControl<ToggleButton>("NavSweepsButton")
-                ?? throw new InvalidOperationException("NavSweepsButton missing from ModelArea navbar");
+            // 1. Switch to Experiment/Sweeps via ActivityRail (Ruling 277: Navbar retired area toggles & hidden outside CAD/Analysis).
+            Require(host.ModelView.FindControl<ToggleButton>("NavSweepsButton") is null,
+                "NavSweepsButton must be retired from ModelArea navbar (Ruling 277)");
+            var railExperiment = host.ActivityRail.FindControl<Button>("RailExperimentButton")
+                ?? throw new InvalidOperationException("RailExperimentButton missing from ActivityRail");
             controller.EnterSweeps();
             Flush();
             Require(controller.IsSweeps, "Controller.IsSweeps must be true");
-            Require(navSweeps.IsChecked == true, "NavSweepsButton must be checked");
+            Require(railExperiment.Classes.Contains("active"), "RailExperimentButton must carry .active in Experiment");
+            Require(!host.ModelView.FindControl<Border>("Navbar")!.IsVisible,
+                "ModelArea.Navbar must be hidden in Experiment");
             Require(host.ModelView.SweepsView.IsVisible, "SweepsWorkspaceView must be visible");
 
             var sweepsView = host.ModelView.SweepsView;

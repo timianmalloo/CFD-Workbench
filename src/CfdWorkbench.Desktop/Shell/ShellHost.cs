@@ -75,8 +75,12 @@ public sealed class ShellHost : Grid
     public WorkspaceId Workspace { get; private set; } = WorkspaceId.Planform;
     public ModelArea ModelView { get; }
 
-    /// <summary>The 7-Area Left Activity Rail (B1, Rulings 271 &amp; 272, C4): Col=0, Row=GetRow(DockHost), RowSpan=1.</summary>
+    /// <summary>The 7-Area Left Activity Rail (Ruling 277): Col=0, Row=GetRow(DockHost), RowSpan=2.</summary>
     public ActivityRail ActivityRail { get; }
+
+    private bool docksAutoCollapsed;
+    private bool savedLeftDockBeforeAutoCollapse = true;
+    private bool savedRightDockBeforeAutoCollapse;
 
     /// <summary>True when Guided Solver Setup reports the local solver is Ready.</summary>
     public bool IsSolverReady => SolverSetup.ViewModel.StatusSummary.Readiness == CfdWorkbench.Core.SolverSetup.SolverReadiness.Ready;
@@ -282,8 +286,13 @@ public sealed class ShellHost : Grid
         AnalysisPanel.AskCalculationRequested += () => _ = OpenAnalysisAssistantAsync();
         ActivityRail.AreaSelected += area =>
         {
-            if (!ReferenceEquals(LayoutFactory.MainDocumentDock.ActiveDockable, LayoutFactory.ModelDocument))
-                LayoutFactory.MainDocumentDock.ActiveDockable = LayoutFactory.ModelDocument;
+            if (Controller.Inspection is null && area is WorkbenchArea.Analysis or WorkbenchArea.Experiment)
+            {
+                Report(new StatusReport("Open or seed a foil first."));
+                RefreshActivityRail();
+                return;
+            }
+            ActivateModelDocument();
             Controller.EnterArea(area);
         };
         ActivityRail.ExportRequested += () => _ = ExportAsync();
@@ -350,6 +359,8 @@ public sealed class ShellHost : Grid
             bool section = ReferenceEquals(change.Dockable, LayoutFactory.SectionDocument);
             ModelView.PlaceBand(section);
             if (section) BindAnalysisPanel();
+            SyncDockAutoCollapse();
+            RefreshActivityRail();
         };
         ModelView.DetachedDocumentBodies.Children.Remove(sectionDocument);
         ModelView.DetachedDocumentBodies.Children.Remove(foilSource);
@@ -368,7 +379,7 @@ public sealed class ShellHost : Grid
         DockHost.LayoutUpdated += (_, _) => RunGatedDockFixups();
         SetColumn(ActivityRail, 0);
         SetRow(ActivityRail, 0);
-        SetRowSpan(ActivityRail, 1);
+        SetRowSpan(ActivityRail, 2);
         Children.Add(ActivityRail);
         SetColumn(DockHost, 1);
         SetRow(DockHost, 0);
@@ -956,8 +967,8 @@ public sealed class ShellHost : Grid
             view.InvalidateVisual();
     }
 
-    /// <summary>What ⌘J says outside Analysis (every row runs or names why, UI-DEAD-CONTROL). New copy: flagged to the operator.</summary>
-    public const string BottomPanelInAnalysis = "The bottom panel shows the analysis results. Switch with the CAD | Analysis toggle.";
+    /// <summary>What ⌘J says outside Analysis (every row runs or names why, UI-DEAD-CONTROL).</summary>
+    public const string BottomPanelInAnalysis = "The bottom panel shows the analysis results. Switch to Analysis in the activity rail or View menu.";
 
     /// <summary>The bottom panel's fold (⌘J, View ▸ Bottom panel): it appears in Analysis only, and folds there.</summary>
     public void ToggleBottomPanel()
@@ -993,6 +1004,7 @@ public sealed class ShellHost : Grid
 
         bool foilOpen = Controller.Inspection is not null;
         SyncDocumentTabs(foilOpen);
+        SyncDockAutoCollapse();
         UpdateDocumentTabTitle(foilOpen);
         StatusStrip.ShowItems(SelectionItemText(), foilOpen, Controller.Estimates is not null, Properties.TextScale, StripUnits());
         RefreshActivityRail();
@@ -1057,6 +1069,7 @@ public sealed class ShellHost : Grid
 
         string solverBadge = IsSolverReady ? "Ready" : "Not set up";
 
+        bool solverSetupActive = ReferenceEquals(LayoutFactory.MainDocumentDock.ActiveDockable, SolverSetupDocument);
         ActivityRail.BindState(
             Controller.ActiveArea,
             new ActivityRailBadges(
@@ -1068,7 +1081,8 @@ public sealed class ShellHost : Grid
                 Results: resultsBadge,
                 Export: "STL · 3MF",
                 SolverSetup: solverBadge,
-                Settings: Controller.Assistant.RailSettingsBadge));
+                Settings: Controller.Assistant.RailSettingsBadge),
+            solverSetupActive);
     }
 
     private void OnAssistantStateChanged()
@@ -1193,6 +1207,8 @@ public sealed class ShellHost : Grid
             MarkDockFixupNeeded();
         }
         LayoutFactory.MainDocumentDock.ActiveDockable = SolverSetupDocument;
+        SyncDockAutoCollapse();
+        RefreshActivityRail();
         FocusDockableTab(SolverSetupDocument);
     }
 
@@ -1204,6 +1220,8 @@ public sealed class ShellHost : Grid
             MarkDockFixupNeeded();
         if (ReferenceEquals(LayoutFactory.MainDocumentDock.ActiveDockable, SolverSetupDocument))
             LayoutFactory.MainDocumentDock.ActiveDockable = LayoutFactory.ModelDocument;
+        SyncDockAutoCollapse();
+        RefreshActivityRail();
     }
 
     private void OpenAnalysisFromSolverSetup()
@@ -1296,6 +1314,10 @@ public sealed class ShellHost : Grid
 
     public bool MoveFocus(bool reverse)
     {
+        // Stop 0 (R2-14): 7-Area Left Activity Rail.
+        Control? railTarget = ActivityRail.ActiveButton is { IsEffectivelyVisible: true, IsEffectivelyEnabled: true } activeRail
+            ? activeRail : FirstFocusable(ActivityRail);
+
         // Left region: active left dock pane (Properties, Browser, Layers), falling back to LeftSidebarToggle when closed.
         bool leftShown = LayoutFactory.TopProportionalDock.VisibleDockables?.Contains(LayoutFactory.LeftToolDock) == true;
         Control? leftTarget = null;
@@ -1344,6 +1366,9 @@ public sealed class ShellHost : Grid
 
         var stops = new (FocusRegion Region, Control? Target, Func<bool> HasFocus)[]
         {
+            (new("rail", FocusRegionKind.Left, railTarget is { IsVisible: true, IsEnabled: true }),
+                railTarget,
+                () => ActivityRail.IsKeyboardFocusWithin),
             (new("left", FocusRegionKind.Left, leftTarget is { IsVisible: true, IsEnabled: true }),
                 leftTarget,
                 () => (leftShown && (Properties.IsKeyboardFocusWithin || Browser.IsKeyboardFocusWithin || Layers.IsKeyboardFocusWithin)) || LeftSidebarToggle.IsKeyboardFocusWithin),
@@ -1493,9 +1518,22 @@ public sealed class ShellHost : Grid
         TextScaleChanged?.Invoke(step);
     }
 
-    // DN-5: the panes, the strip and the toast draw their 11 px type at the same Text size.
+    private static readonly string[] ShellScaledTokens =
+    [
+        "PropFontSize", "PropLineHeight",
+        "PropNoteSize", "PropNoteLineHeight",
+        "PropTitleSize", "PropTitleLineHeight"
+    ];
+
+    // DN-5 (R2-21): hoist scaled prop typography tokens onto ShellHost.Resources so every child surface
+    // (ActivityRail, Setup, Sweeps, Run, Results, SolverSetup, AnalysisPanel, ConditionsBand, ComparePane, BrowserPane)
+    // scales uniformly at 100–200 % alongside Properties, Points, StatusStrip, and ModelView.
     private void ApplyTextScale(double step)
     {
+        Resources["PropTextScale"] = step;
+        foreach (var key in ShellScaledTokens)
+            if (Application.Current?.TryFindResource(key, out var value) == true && value is double size)
+                Resources[key] = size * step;
         Properties.ApplyTextScale(step);
         Points.ApplyTextScale(step);
         StatusStrip.ApplyTextScale(step);
@@ -1703,16 +1741,31 @@ public sealed class ShellHost : Grid
                 if (Controller.CanCompare) await Controller.CompareWithEstimatorAsync();
                 return;
             case "view.setup":
-                Controller.ToggleSetup();
+                ActivateModelDocument();
+                Controller.EnterSetup();
                 return;
+            case "view.cad":
+                ActivateModelDocument();
+                Controller.EnterCad();
+                return;
+            case "view.analysis":
+            {
+                bool switched = ActivateModelDocument();
+                if (!switched || !Controller.IsAnalysis)
+                    Controller.ToggleAnalysis();
+                return;
+            }
             case "view.sweeps":
-                Controller.ToggleSweeps();
+                ActivateModelDocument();
+                Controller.EnterSweeps();
                 return;
             case "view.run":
-                Controller.ToggleRun();
+                ActivateModelDocument();
+                Controller.EnterRun();
                 return;
             case "view.results":
-                Controller.ToggleResults();
+                ActivateModelDocument();
+                Controller.EnterResults();
                 return;
             case "solver.setup":
                 OpenSolverSetup();
@@ -1800,8 +1853,62 @@ public sealed class ShellHost : Grid
         _ => "Planform"
     };
 
+    /// <summary>The left side bar is in the layout.</summary>
+    private bool LeftSidebarShown => LayoutFactory.TopProportionalDock.VisibleDockables?.Contains(LayoutFactory.LeftToolDock) == true;
+
     /// <summary>The right side bar is in the layout.</summary>
     public bool RightSidebarShown => LayoutFactory.TopProportionalDock.VisibleDockables?.Contains(LayoutFactory.RightToolDock) == true;
+
+    /// <summary>
+    /// R2-05 (Ruling 277, C4): auto-collapse CAD Left &amp; Right tool docks when entering Setup, Experiment, Run,
+    /// Results, or SolverSetup — remembering prior CAD dock visibility and restoring it on return to CAD/Analysis.
+    /// Never collapses on initial Cad/Start (preserving the 260 DIP default on CAD/Start).
+    /// </summary>
+    private void SyncDockAutoCollapse()
+    {
+        bool solverSetupActive = ReferenceEquals(LayoutFactory.MainDocumentDock.ActiveDockable, SolverSetupDocument);
+        bool nonCad = solverSetupActive ||
+            Controller.ActiveArea is WorkbenchArea.Setup or WorkbenchArea.Experiment or WorkbenchArea.Run or WorkbenchArea.Results;
+
+        if (nonCad)
+        {
+            if (!docksAutoCollapsed)
+            {
+                savedLeftDockBeforeAutoCollapse = LeftSidebarShown;
+                savedRightDockBeforeAutoCollapse = RightSidebarShown;
+                docksAutoCollapsed = true;
+                if (LeftSidebarShown) SetLeftShown(false);
+                if (RightSidebarShown) SetRightShown(false);
+                MarkDockFixupNeeded();
+            }
+        }
+        else if (docksAutoCollapsed)
+        {
+            docksAutoCollapsed = false;
+            SetLeftShown(savedLeftDockBeforeAutoCollapse);
+            SetRightShown(savedRightDockBeforeAutoCollapse);
+            if (savedLeftDockBeforeAutoCollapse)
+            {
+                leftPaneWidthApplied = false;
+                MarkDockFixupNeeded();
+                ApplyDefaultLeftPaneWidth();
+            }
+            else
+            {
+                MarkDockFixupNeeded();
+            }
+        }
+    }
+
+    private bool ActivateModelDocument()
+    {
+        if (ReferenceEquals(LayoutFactory.MainDocumentDock.ActiveDockable, LayoutFactory.ModelDocument))
+            return false;
+        LayoutFactory.MainDocumentDock.ActiveDockable = LayoutFactory.ModelDocument;
+        SyncDockAutoCollapse();
+        RefreshActivityRail();
+        return true;
+    }
 
     public void ToggleRightSidebar()
     {
@@ -1812,6 +1919,7 @@ public sealed class ShellHost : Grid
     /// <summary>F-18: restores default Planform dock layout (left sidebar open at default width, right closed, bottom unfolded, Plan tab active).</summary>
     public void ResetLayout()
     {
+        docksAutoCollapsed = false;
         Workspace = WorkspaceId.Planform;
         SetLeftShown(true);
         var leftDocs = LayoutFactory.LeftToolDock.VisibleDockables;
@@ -1838,11 +1946,17 @@ public sealed class ShellHost : Grid
     {
         var docks = LayoutFactory.TopProportionalDock.VisibleDockables;
         if (docks is null || docks.Contains(LayoutFactory.LeftToolDock) == shown) return;
-        if (shown) docks.Insert(0, LayoutFactory.LeftToolDock);
+        if (shown)
+        {
+            docks.Insert(0, LayoutFactory.LeftToolDock);
+            AutomationProperties.SetHelpText(LeftSidebarToggle, "Expanded");
+        }
         else
         {
-            if (Properties.IsKeyboardFocusWithin || Browser.IsKeyboardFocusWithin) LeftSidebarToggle.Focus();
+            if (Properties.IsKeyboardFocusWithin || Browser.IsKeyboardFocusWithin || Layers.IsKeyboardFocusWithin)
+                LeftSidebarToggle.Focus();
             docks.Remove(LayoutFactory.LeftToolDock);
+            AutomationProperties.SetHelpText(LeftSidebarToggle, "Collapsed");
         }
     }
 
@@ -1878,7 +1992,7 @@ public sealed class ShellHost : Grid
         id.StartsWith("station.", StringComparison.Ordinal) ||
         id.StartsWith("view.text-", StringComparison.Ordinal) ||
         id.StartsWith("view.comb", StringComparison.Ordinal) ||
-        id is "analysis.compare" or "analysis.compare-tiers" or "view.sweeps" or "view.setup" or "view.run" or "view.results" or "solver.setup" or "view.settings" ||
+        id is "analysis.compare" or "analysis.compare-tiers" or "view.cad" or "view.analysis" or "view.sweeps" or "view.setup" or "view.run" or "view.results" or "solver.setup" or "view.settings" ||
         CommandTable.UnitsOf(id) is not null ||
         ViewCommands.Handles(id) ||
         IsShellCommand(id);

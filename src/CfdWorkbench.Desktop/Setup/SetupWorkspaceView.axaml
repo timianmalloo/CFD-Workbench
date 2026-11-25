@@ -2,8 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:setup="using:CfdWorkbench.Desktop.Setup"
              x:Class="CfdWorkbench.Desktop.Setup.SetupWorkspaceView">
-  <!-- DR-SET-5 (a): Non-modal Area 1 Setup & Goal State surface inside ModelArea navbar (Setup | CAD | Analysis | Sweeps). -->
-  <Grid RowDefinitions="Auto,*" Background="{DynamicResource CanvasBrush}" Margin="{StaticResource SweepNavbarClearance}">
+  <!-- Area 1 Setup & Goal State surface (Ruling 277: switched from ActivityRail; no bottom navbar clearance). -->
+  <Grid RowDefinitions="Auto,*" Background="{DynamicResource CanvasBrush}">
     <!-- Header bar: sub-tabs, recipe status chip, brief/goal version, Open in CAD -->
     <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
             BorderThickness="{StaticResource PropRuleBottom}" Padding="{StaticResource Space2}">
@@ -47,7 +47,7 @@
                 <Button x:Name="LanguageConfigureKeyButton" DockPanel.Dock="Right" Content="Configure key"
                         MinHeight="{StaticResource CompactTargetSize}" AutomationProperties.Name="Configure API key" />
                 <TextBlock x:Name="LanguageCardTitle" Text="Describe a starting design" FontWeight="SemiBold"
-                           FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" VerticalAlignment="Center" />
+                           FontSize="{DynamicResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" VerticalAlignment="Center" />
               </DockPanel>
               <TextBlock x:Name="LanguageNoKeyText" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
                          Foreground="{DynamicResource MutedBrush}"
@@ -72,7 +72,7 @@
                 <DockPanel>
                   <TextBlock DockPanel.Dock="Right" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}"
                              Text="Stated · Inferred · Defaulted" VerticalAlignment="Center" />
-                  <TextBlock Text="Discipline &amp; class rule" FontWeight="SemiBold" FontSize="{StaticResource PropTitleSize}"
+                  <TextBlock Text="Discipline &amp; class rule" FontWeight="SemiBold" FontSize="{DynamicResource PropTitleSize}"
                              Foreground="{DynamicResource InkBrush}" />
                 </DockPanel>
                 <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
@@ -106,7 +106,7 @@
             <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
                     BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
               <StackPanel Spacing="{StaticResource StackGap1}">
-                <TextBlock Text="Soft targets &amp; weights" FontWeight="SemiBold" FontSize="{StaticResource PropTitleSize}"
+                <TextBlock Text="Soft targets &amp; weights" FontWeight="SemiBold" FontSize="{DynamicResource PropTitleSize}"
                            Foreground="{DynamicResource InkBrush}" />
                 <Grid ColumnDefinitions="*,Auto,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
                   <TextBlock Grid.Row="0" Grid.Column="0" Text="Target" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
@@ -168,7 +168,7 @@
                     BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
               <StackPanel Spacing="{StaticResource StackGap1}">
                 <TextBlock Text="Goal state operating points &amp; feasibility" FontWeight="SemiBold"
-                           FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
+                           FontSize="{DynamicResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
                 <TextBlock x:Name="GoalSummaryText" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
                 <StackPanel x:Name="OperatingPointsList" Spacing="{StaticResource StackGap1}" />
               </StackPanel>
@@ -177,7 +177,7 @@
                     BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
               <StackPanel Spacing="{StaticResource StackGap1}">
                 <TextBlock Text="Constraint set (editable — appends immutable Goal version)" FontWeight="SemiBold"
-                           FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
+                           FontSize="{DynamicResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
                 <StackPanel x:Name="ConstraintsList" Spacing="{StaticResource StackGap1}" />
               </StackPanel>
             </Border>
@@ -189,7 +189,7 @@
                     BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
               <StackPanel Spacing="{StaticResource StackGap1}">
                 <TextBlock Text="Class rules &amp; product-envelope checks (DRC)" FontWeight="SemiBold"
-                           FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
+                           FontSize="{DynamicResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" />
                 <TextBlock x:Name="ExclusionErrorText" IsVisible="False" FontSize="{StaticResource CaptionSize}"
                            Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap" />
                 <StackPanel x:Name="DrcFindingsList" Spacing="{StaticResource StackGap1}" />
@@ -206,7 +206,7 @@
           <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
                   BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
             <StackPanel Spacing="{StaticResource StackGap1}">
-              <TextBlock Text="Live planform preview" FontWeight="SemiBold" FontSize="{StaticResource PropTitleSize}"
+              <TextBlock Text="Live planform preview" FontWeight="SemiBold" FontSize="{DynamicResource PropTitleSize}"
                          Foreground="{DynamicResource InkBrush}" />
               <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource HairlineThickness}">
                 <setup:PlanformPreviewControl x:Name="PlanformPreview" Height="{StaticResource SetupPreviewHeight}" />

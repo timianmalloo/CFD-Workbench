@@ -82,10 +82,6 @@ public partial class ModelArea : UserControl
             "Preview CAD geometry change");
         CadAssistantBar.ConfigureKeyRequested += () => ConfigureKeyRequested?.Invoke();
         CadAssistantBar.PromptSubmitted += prompt => _ = HandleCadAssistantSubmitAsync(prompt);
-        NavSetupButton.Click += (_, _) => controller?.EnterSetup();
-        NavCadButton.Click += (_, _) => controller?.EnterCad();
-        NavAnalysisButton.Click += (_, _) => { if (controller is not null && !controller.IsAnalysis) controller.ToggleAnalysis(); };
-        NavSweepsButton.Click += (_, _) => controller?.EnterSweeps();
         AnalysisConditionsBand.EvaluateRequested += (op, water) =>
         {
             if (controller is not null) _ = controller.EvaluateAnalysisAsync(op, water);
@@ -590,10 +586,6 @@ public partial class ModelArea : UserControl
 
     private void RefreshViews(WorkbenchController controller)
     {
-        NavSetupButton.IsChecked = controller.IsSetup;
-        NavCadButton.IsChecked = !controller.IsSetup && !controller.IsAnalysis && !controller.IsSweeps && !controller.IsRun && !controller.IsResults;
-        NavAnalysisButton.IsChecked = controller.IsAnalysis;
-        NavSweepsButton.IsChecked = controller.IsSweeps;
         AnalysisConditionsBand.IsVisible = foilOpen && controller.IsAnalysis;
         AnalysisConditionsBand.ReferenceChordMeters = controller.Estimates?.MeanChordMeters;
         AnalysisConditionsBand.Units = controller.AnalysisUnits;
@@ -616,6 +608,7 @@ public partial class ModelArea : UserControl
         StartCardView.IsVisible = !foilOpen && !controller.IsSetup && !controller.IsRun && !controller.IsResults;
         PlanContent.IsVisible = (foilOpen || controller.IsSetup || controller.IsRun || controller.IsResults) && Mode == ModelAreaMode.Views;
         ViewArrangementGrid.IsVisible = foilOpen && !controller.IsSweeps && !controller.IsSetup && !controller.IsRun && !controller.IsResults;
+        Navbar.IsVisible = ViewArrangementGrid.IsVisible && Mode == ModelAreaMode.Views;
         SweepsWorkspace.IsVisible = foilOpen && controller.IsSweeps;
         SetupWorkspace.IsVisible = controller.IsSetup;
         RunWorkspace.IsVisible = controller.IsRun;

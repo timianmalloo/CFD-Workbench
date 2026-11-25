@@ -39,23 +39,6 @@
       <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
       <Setter Property="BorderThickness" Value="{StaticResource HairlineThickness}" />
     </Style>
-    <Style Selector="ToggleButton.navbar">
-      <Setter Property="MinHeight" Value="{StaticResource CompactTargetSize}" />
-      <Setter Property="Padding" Value="{StaticResource NavbarButtonPadding}" />
-      <Setter Property="Background" Value="Transparent" />
-      <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
-      <Setter Property="BorderThickness" Value="{StaticResource NoInset}" />
-    </Style>
-    <Style Selector="ToggleButton.navbar:checked">
-      <Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" />
-      <Setter Property="FontWeight" Value="SemiBold" />
-    </Style>
-    <Style Selector="ToggleButton.navbar:checked /template/ ContentPresenter#PART_ContentPresenter,
-                     ToggleButton.navbar:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter,
-                     ToggleButton.navbar:checked:pressed /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" />
-      <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
-    </Style>
   </UserControl.Styles>
   <Grid RowDefinitions="Auto,*">
     <StackPanel Grid.Row="0">
@@ -259,19 +242,10 @@
         <run:RunWorkspaceView x:Name="RunWorkspace" IsVisible="False" />
         <results:ResultsWorkspaceView x:Name="ResultsWorkspace" IsVisible="False" />
 
-        <!-- The navbar (§11.7: v10's Fit and Views ▾, plus Display ▾ and Fit Selection). Each control runs a CommandTable row
-             through the shell's view-command runner, the same action as its View-menu row; ModelArea fills the menus. -->
-        <Border x:Name="Navbar" Classes="navbar">
+        <!-- CAD/Analysis viewport toolbar (Ruling 277: pure viewport controls; ActivityRail is the single canonical area switcher).
+             Hidden whenever ViewArrangementGrid is not visible. Each control runs a CommandTable row through ShellHost.RunCommand. -->
+        <Border x:Name="Navbar" Classes="navbar" IsVisible="False">
           <StackPanel Orientation="Horizontal" Spacing="{StaticResource NavbarGap}">
-            <ToggleButton x:Name="NavSetupButton" Classes="navbar" Content="Setup"
-                          AutomationProperties.Name="Setup area" />
-            <ToggleButton x:Name="NavCadButton" Classes="navbar" Content="CAD" IsChecked="True"
-                          AutomationProperties.Name="CAD area" />
-            <ToggleButton x:Name="NavAnalysisButton" Classes="navbar" Content="Analysis"
-                          AutomationProperties.Name="Analysis area" />
-            <ToggleButton x:Name="NavSweepsButton" Classes="navbar" Content="Sweeps"
-                          AutomationProperties.Name="Sweeps area" />
-            <Border Classes="navbar-separator" />
             <Button x:Name="NavViewsButton" Classes="navbar" Content="Views ▾ Plan + 3D">
               <Button.Flyout>
                 <MenuFlyout Placement="TopEdgeAlignedLeft" FlyoutPresenterClasses="navbar-menu" />

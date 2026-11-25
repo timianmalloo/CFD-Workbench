@@ -2,8 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:sweeps="using:CfdWorkbench.Desktop.Sweeps"
              x:Class="CfdWorkbench.Desktop.Sweeps.SweepsWorkspaceView">
-  <!-- DR-SWP-6 (a): Sweeps workspace segment hosting three discrete sub-tabs (Experiment setup · Run (local) · Results). -->
-  <Grid RowDefinitions="Auto,*" Background="{DynamicResource CanvasBrush}" Margin="{StaticResource SweepNavbarClearance}">
+  <!-- Area 4 Experiment / Sweeps workspace segment hosting three discrete sub-tabs (Ruling 277: no bottom navbar clearance). -->
+  <Grid RowDefinitions="Auto,*" Background="{DynamicResource CanvasBrush}">
     <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
             BorderThickness="{StaticResource PropRuleBottom}" Padding="{StaticResource Space2}">
       <DockPanel>

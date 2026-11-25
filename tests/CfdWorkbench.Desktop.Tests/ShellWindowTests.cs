@@ -566,7 +566,7 @@ public static class ShellWindowTests
                     var band = host.ModelView.FindControl<CfdWorkbench.Desktop.Analysis.ConditionsBand>("AnalysisConditionsBand")
                         ?? throw new InvalidOperationException("Analysis conditions band is absent");
                     Probe(theme, "analysis.nav.selected", () => TextRow(theme, "analysis.nav.selected",
-                        host.ModelView.FindControl<Avalonia.Controls.Primitives.ToggleButton>("NavAnalysisButton")!));
+                        host.ActivityRail.FindControl<Button>("RailAnalysisButton")!));
                     Probe(theme, "analysis.band.speed", () => TextBoxRow(theme, "analysis.band.speed",
                         band.FindControl<TextBox>("SpeedInput")!));
                     Probe(theme, "analysis.band.evaluate", () => TextRow(theme, "analysis.band.evaluate",

@@ -102,8 +102,9 @@ public static class CommandTable
 
         // View
         new("view.setup", "Setup", "View", null, false, NoOp),
+        new("view.cad", "CAD", "View", null, false, NoOp, Modal: false),
         new("view.analysis", "Analysis", "View", "⇧⌘A", false, NoOp),
-        new("view.sweeps", "Sweeps", "View", null, false, NoOp),
+        new("view.sweeps", "Experiment", "View", null, false, NoOp),
         new("view.run", "Run", "View", null, false, NoOp, Modal: false),
         new("view.results", "Results", "View", null, false, NoOp, Modal: false),
         new("solver.setup", CfdWorkbench.Desktop.SolverSetup.SolverSetupCopy.VerbTitle, "View", null, false, NoOp, Modal: false),
