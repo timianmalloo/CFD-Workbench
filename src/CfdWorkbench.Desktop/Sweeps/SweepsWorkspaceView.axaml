@@ -6,20 +6,20 @@
   <Grid RowDefinitions="Auto,*" Background="{DynamicResource CanvasBrush}">
     <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
             BorderThickness="{StaticResource PropRuleBottom}" Padding="{StaticResource Space2}">
-      <DockPanel>
-        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource StackGap2}">
+        <WrapPanel Grid.Column="0" Orientation="Horizontal" Classes="toolbar-wrap" VerticalAlignment="Center">
+          <ToggleButton x:Name="SubTabSetupButton" Content="1. Sweep setup" IsChecked="True"
+                        AutomationProperties.Name="1. Sweep setup — Experiment setup sub-tab" />
+          <ToggleButton x:Name="SubTabRunButton" Content="2. Local queue"
+                        AutomationProperties.Name="2. Local queue — Local Run sub-tab" />
+          <ToggleButton x:Name="SubTabResultsButton" Content="3. Polars"
+                        AutomationProperties.Name="3. Polars — Sweep Results sub-tab" />
+        </WrapPanel>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="{StaticResource StackGap2}" VerticalAlignment="Center">
           <TextBlock Text="Sweep:" VerticalAlignment="Center" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
           <ComboBox x:Name="ExperimentPicker" MinWidth="{StaticResource SweepInputMinWidth}" AutomationProperties.Name="Select stored sweep experiment" />
         </StackPanel>
-        <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
-          <ToggleButton x:Name="SubTabSetupButton" Content="Experiment setup" IsChecked="True"
-                        AutomationProperties.Name="Experiment setup sub-tab" />
-          <ToggleButton x:Name="SubTabRunButton" Content="Run (local)"
-                        AutomationProperties.Name="Local Run sub-tab" />
-          <ToggleButton x:Name="SubTabResultsButton" Content="Results"
-                        AutomationProperties.Name="Sweep Results sub-tab" />
-        </StackPanel>
-      </DockPanel>
+      </Grid>
     </Border>
 
     <Panel Grid.Row="1">

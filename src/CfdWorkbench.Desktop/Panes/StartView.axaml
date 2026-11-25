@@ -75,7 +75,7 @@
             <Button DockPanel.Dock="Right" x:Name="ClearRecentButton" Content="Clear Recent"
                     Padding="{StaticResource Space2}" MinHeight="{StaticResource ControlHeight}" />
           </DockPanel>
-          <ListBox x:Name="RecentListBox" MaxHeight="{StaticResource StationListHeight}"
+          <ListBox x:Name="RecentListBox" MaxHeight="{StaticResource RecentListMaxHeight}"
                    AutomationProperties.Name="Recent files" />
         </StackPanel>
       </StackPanel>

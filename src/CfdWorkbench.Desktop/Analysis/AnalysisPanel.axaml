@@ -55,6 +55,35 @@
       </StackPanel>
       <Grid>
         <TabControl x:Name="PanelTabs" x:FieldModifier="public" AutomationProperties.Name="Analysis result tabs">
+          <TabControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Orientation="Horizontal" />
+            </ItemsPanelTemplate>
+          </TabControl.ItemsPanel>
+          <TabControl.Template>
+            <ControlTemplate>
+              <Border Background="{TemplateBinding Background}"
+                      BorderBrush="{TemplateBinding BorderBrush}"
+                      BorderThickness="{TemplateBinding BorderThickness}">
+                <DockPanel>
+                  <ScrollViewer x:Name="PART_TabStripScroll"
+                                DockPanel.Dock="{TemplateBinding TabStripPlacement}"
+                                Margin="{DynamicResource AnalysisTabStripMargin}"
+                                HorizontalScrollBarVisibility="Auto"
+                                VerticalScrollBarVisibility="Disabled">
+                    <ItemsPresenter Name="PART_ItemsPresenter"
+                                    ItemsPanel="{TemplateBinding ItemsPanel}" />
+                  </ScrollViewer>
+                  <ContentPresenter Name="PART_SelectedContentHost"
+                                    Margin="{TemplateBinding Padding}"
+                                    HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                    VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                    Content="{TemplateBinding SelectedContent}"
+                                    ContentTemplate="{TemplateBinding SelectedContentTemplate}" />
+                </DockPanel>
+              </Border>
+            </ControlTemplate>
+          </TabControl.Template>
           <TabItem x:Name="LoadingTab" Header="Spanwise loading" AutomationProperties.Name="Spanwise loading">
             <Grid>
               <TextBlock x:Name="LoadingEmpty" Classes="pnl-note" IsVisible="False" Margin="{StaticResource Space2}" />
@@ -82,7 +111,7 @@
             <local:ComparePane x:Name="ComparePaneHost" />
           </TabItem>
         </TabControl>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top"
+        <StackPanel x:Name="TabHeaderActions" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top"
                     Margin="{StaticResource Space1}" Spacing="{StaticResource StackGap2}">
           <Button x:Name="AskCalculationButton" Classes="modebar-link" AutomationProperties.Name="Ask about this calculation">
             <TextBlock x:Name="AskCalculationButtonText" Text="Ask about this calculation" FontSize="{DynamicResource PropFontSize}" />

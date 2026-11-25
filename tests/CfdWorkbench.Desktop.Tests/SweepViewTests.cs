@@ -32,6 +32,7 @@ public static class SweepViewTests
         DesktopChecks.Check("Desktop_Sweeps_LiveCancelFromStatusStripAndConsole", CancelFromStatusStrip);
         DesktopChecks.Check("Desktop_Sweeps_ThemesLightDarkHighContrast_RenderCleanly", ThemesRenderCleanly);
         DesktopChecks.Check("Wave12C_PerformanceCurveChart_LightThemeContrast_And_EndLabelSeparation", CheckWave12CChartContrastAndLabels);
+        DesktopChecks.Check("Wave12D_Sweeps_SubTabs_PrimaryCtas_TabularGrids_And_DisplayUnits", CheckWave12DSweepsPolish);
     }
 
     private static void T18_FullDesktopContract()
@@ -320,6 +321,95 @@ public static class SweepViewTests
                 Require(sortedYs[i] - sortedYs[i - 1] >= 13.9,
                     $"R2-16: Rendered end labels overlapped ({sortedYs[i - 1]:0.##} vs {sortedYs[i]:0.##})");
             }
+        }
+        finally
+        {
+            window.Close();
+        }
+    }
+
+    private static void CheckWave12DSweepsPolish()
+    {
+        var method = new FastSweepMethod(Settings.WithStations(Settings.Default with { NSpanPerHalf = 8, NChord = 2 }));
+        using var controller = new WorkbenchController(analysisMethod: method);
+        var host = new ShellHost(controller);
+        var window = new Window { Width = 1024, Height = 700, Content = host };
+        window.Show();
+        try
+        {
+            OpenExample(controller);
+            controller.EnterSweeps();
+            Flush();
+
+            var sweepsView = host.ModelView.SweepsView;
+            var setupView = sweepsView.ExperimentSetup;
+            var runView = sweepsView.LocalRun;
+            var resultsView = sweepsView.Results;
+
+            // R2-12 (C9.3): Disambiguated Area 4 local sub-tabs while preserving "Sweep:" selector label!
+            Require((string?)sweepsView.FindControl<ToggleButton>("SubTabSetupButton")!.Content == "1. Sweep setup",
+                "R2-12: Area 4 sub-tab 1 must be '1. Sweep setup'");
+            Require((string?)sweepsView.FindControl<ToggleButton>("SubTabRunButton")!.Content == "2. Local queue",
+                "R2-12: Area 4 sub-tab 2 must be '2. Local queue'");
+            Require((string?)sweepsView.FindControl<ToggleButton>("SubTabResultsButton")!.Content == "3. Polars",
+                "R2-12: Area 4 sub-tab 3 must be '3. Polars'");
+            Require(sweepsView.GetLogicalDescendants().OfType<TextBlock>().Any(t => t.Text == "Sweep:"),
+                "C9.3: SweepsWorkspaceView must preserve 'Sweep:' label");
+
+            // R2-22: Primary CTAs carry Classes="primary" (keeping ZERO Run buttons in ExperimentSetupView per XS-03).
+            Require(setupView.FindControl<Button>("EmptyNewSweepButton")!.Classes.Contains("primary"),
+                "R2-22: EmptyNewSweepButton must carry Classes='primary'");
+            Require(setupView.FindControl<Button>("QueueButton")!.Classes.Contains("primary"),
+                "R2-22: QueueButton must carry Classes='primary'");
+            Require(runView.FindControl<Button>("RunLocalButton")!.Classes.Contains("primary"),
+                "R2-22: RunLocalButton must carry Classes='primary'");
+            AssertNoRunButton(setupView);
+
+            // R2-05: Header toolbars use WrapPanels.
+            Require(setupView.FindControl<Button>("QueueButton")!.Parent is WrapPanel,
+                "R2-05: ExperimentSetupView action toolbar must be a WrapPanel");
+            Require(resultsView.FindControl<ToggleButton>("MetricClButton")!.Parent is WrapPanel,
+                "R2-05: SweepResultsView metric toolbar must be a WrapPanel");
+
+            // R2-18 & R2-19: PreviewRowsHost uses aligned Grid columns with pnl-cell/pnl-head (zero ASCII pipes) and honors global DisplayUnits!
+            controller.AnalysisUnits = Units.Metric;
+            controller.Sweeps.NewSweep();
+            controller.Sweeps.SpeedsText = "10, 14";
+            controller.Sweeps.SpeedUnit = SweepSpeedUnit.Knots;
+            controller.Sweeps.AnglesText = "0, 2";
+            controller.Sweeps.RefreshPreview();
+            Flush();
+
+            var previewHost = setupView.FindControl<StackPanel>("PreviewRowsHost")!;
+            Require(previewHost.Children.Count >= 5, $"Expected header + 4 preview rows, got {previewHost.Children.Count}");
+            Require(previewHost.Children[0] is Grid, "R2-18: Experiment preview header must be an aligned Grid, not ASCII pipe text");
+            Require(previewHost.Children[1] is Grid, "R2-18: Experiment preview rows must be aligned Grids, not ASCII pipe text");
+            var headerTextsMetric = ((Grid)previewHost.Children[0]).Children.OfType<TextBlock>().Select(t => t.Text ?? "").ToArray();
+            Require(headerTextsMetric.Any(t => t.Contains("m/s", StringComparison.Ordinal)),
+                "R2-19: Metric Experiment preview header must show Speed (m/s)");
+            Require(((Grid)previewHost.Children[1]).Children.OfType<TextBlock>().All(t => t.Classes.Contains("pnl-cell") && !(t.Text ?? "").Contains('|')),
+                "R2-18: Preview row cells must use pnl-cell and zero ASCII pipes");
+
+            controller.AnalysisUnits = Units.Imperial;
+            Flush();
+            var headerTextsImp = ((Grid)previewHost.Children[0]).Children.OfType<TextBlock>().Select(t => t.Text ?? "").ToArray();
+            Require(headerTextsImp.Any(t => t.Contains("kn", StringComparison.Ordinal)),
+                "R2-19: Switching AnalysisUnits to Imperial must update Experiment preview header to Speed (kn)");
+
+            // Queue, run locally, and verify Table Twin also renders aligned Grids (zero ASCII pipes).
+            _ = controller.Sweeps.Queue() ?? throw new InvalidOperationException("Queue failed");
+            _ = WaitTask(controller.Sweeps.RunSelectedAsync());
+            controller.Sweeps.SetSubTab(SweepSubTab.Results);
+            controller.Sweeps.SetShowTableTwin(true);
+            Flush();
+
+            var tableHost = resultsView.FindControl<StackPanel>("TableTwinRowsHost")!;
+            Require(tableHost.Children.Count >= 5, $"Expected table twin header + 4 rows, got {tableHost.Children.Count}");
+            Require(tableHost.Children[0] is Grid, "R2-18: SweepResults TableTwin header must be an aligned Grid");
+            var firstRowBtn = tableHost.Children[1] as ToggleButton
+                ?? throw new InvalidOperationException("TableTwin row must remain a selectable ToggleButton");
+            Require(firstRowBtn.Content is Grid rowGrid && rowGrid.Children.OfType<TextBlock>().All(t => t.Classes.Contains("pnl-cell") && !(t.Text ?? "").Contains('|')),
+                "R2-18: SweepResults TableTwin rows must host aligned Grid cells with pnl-cell and zero ASCII pipes");
         }
         finally
         {

@@ -10,8 +10,8 @@ public static class RunCopy
     public const string QueueHeading = "Run queue & history";                                               // COPY-817
     public const string EmptyQueueNote = "No CFD runs recorded yet. Queue a case from Experiment or run a sample when a solver is ready."; // COPY-818
     public const string PipelineHeading = "Pipeline status";                                                // COPY-819
-    public const string MeshGateHeading = "Mesh gate (DR-F3-1 A / DR-F2-3)";                                // COPY-820
-    public const string ResidualsHeading = "Residuals & force coefficients (DR-F2-1)";                      // COPY-821
+    public const string MeshGateHeading = "Mesh quality gate";                                              // COPY-820
+    public const string ResidualsHeading = "Residuals & force coefficients";                                // COPY-821
     public const string OfflineAssistantHeading = "Failure diagnostics & case diff (offline)";              // COPY-822
     public const string OfflineNoKeyNotice = "No API key configured — deterministic offline diagnostics and typed case-diff validation work without network calls."; // COPY-823
 

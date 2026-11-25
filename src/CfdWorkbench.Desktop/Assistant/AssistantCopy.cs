@@ -96,7 +96,7 @@ public static class AssistantCopy
 
     // COPY-886
     public const string EvalSectionHeading =
-        "Model evaluation (A8.6 — 9 active items, physical-fidelity reserved in v1)";
+        "Model evaluation (9 active items; physical-fidelity reserved in v1)";
 
     // COPY-887
     public const string UnevaluatedOnThisModel = AssistantEvalSuite.UnevaluatedStatusLabel;

@@ -7,8 +7,16 @@
     <!-- Header bar: sub-tabs, recipe status chip, brief/goal version, Open in CAD -->
     <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
             BorderThickness="{StaticResource PropRuleBottom}" Padding="{StaticResource Space2}">
-      <DockPanel>
-        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource StackGap2}">
+        <WrapPanel Grid.Column="0" Orientation="Horizontal" Classes="toolbar-wrap" VerticalAlignment="Center">
+          <ToggleButton x:Name="SubTabBriefButton" Content="Brief &amp; targets" IsChecked="True"
+                        AutomationProperties.Name="Setup brief and soft targets tab" />
+          <ToggleButton x:Name="SubTabGoalButton" Content="Goal state &amp; feasibility"
+                        AutomationProperties.Name="Goal state and feasibility tab" />
+          <ToggleButton x:Name="SubTabChecksButton" Content="Checks &amp; DRC"
+                        AutomationProperties.Name="Class rules and sanity checks tab" />
+        </WrapPanel>
+        <WrapPanel Grid.Column="1" Orientation="Horizontal" Classes="toolbar-wrap" HorizontalAlignment="Right" VerticalAlignment="Center">
           <Border Background="{DynamicResource SurfaceSoftBrush}" BorderBrush="{DynamicResource LineBrush}"
                   BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource ChipPadding}">
             <TextBlock x:Name="RecipeStatusChip" VerticalAlignment="Center" FontSize="{StaticResource CaptionSize}"
@@ -21,16 +29,8 @@
           </Border>
           <Button x:Name="OpenInCadButton" Content="Open in CAD" MinHeight="{StaticResource ControlHeight}"
                   AutomationProperties.Name="Switch to CAD workspace" />
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
-          <ToggleButton x:Name="SubTabBriefButton" Content="Brief &amp; targets" IsChecked="True"
-                        AutomationProperties.Name="Setup brief and soft targets tab" />
-          <ToggleButton x:Name="SubTabGoalButton" Content="Goal state &amp; feasibility"
-                        AutomationProperties.Name="Goal state and feasibility tab" />
-          <ToggleButton x:Name="SubTabChecksButton" Content="Checks &amp; DRC"
-                        AutomationProperties.Name="Class rules and sanity checks tab" />
-        </StackPanel>
-      </DockPanel>
+        </WrapPanel>
+      </Grid>
     </Border>
 
     <!-- Two-column workspace (window never scrolls; internal scroll per pane) -->
@@ -275,12 +275,12 @@
           <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
                   BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
             <StackPanel Spacing="{StaticResource StackGap1}">
-              <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+              <WrapPanel Orientation="Horizontal" Classes="toolbar-wrap">
                 <Button x:Name="SeedButton" Classes="primary" Content="Seed design" MinHeight="{StaticResource ControlHeight}"
                         AutomationProperties.Name="Seed design" />
                 <Button x:Name="ResetPresetButton" Content="Reset preset" MinHeight="{StaticResource ControlHeight}"
                         AutomationProperties.Name="Reset preset defaults" />
-              </StackPanel>
+              </WrapPanel>
               <TextBlock x:Name="ReceiptText" IsVisible="False" FontSize="{StaticResource CaptionSize}"
                          Foreground="{DynamicResource InkBrush}" TextWrapping="Wrap" />
             </StackPanel>

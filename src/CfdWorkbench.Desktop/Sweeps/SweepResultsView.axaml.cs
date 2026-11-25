@@ -75,29 +75,47 @@ public partial class SweepResultsView : UserControl
             : (proj.Cases.Count > 0 ? 0 : -1);
         CurveChart.Update(chartData, selectedIdx);
 
-        // Table Twin (UI-17): exact plotted values including both Ncrit 2 and Ncrit 4, CDi, Cm, freshness, and failed-case reasons.
-        string unit = controller.DisplayUnits == Units.Imperial ? "kn" : "m/s";
-        TableTwinRowsHost.Children.Add(new TextBlock
-        {
-            Text = $"#  | Speed ({unit}) | α (°) | CL     | CDi     | CD (N2) | CD (N4) | L/D (N2) | L/D (N4) | Cm      | Status / Freshness",
-            FontWeight = Avalonia.Media.FontWeight.SemiBold,
-            FontSize = 11
-        });
+        // Table Twin (UI-17, R2-18): aligned tabular Grid columns with pnl-head / pnl-cell (+tnum) and zero ASCII pipes.
+        string unit = Labels.SpeedUnit(controller.DisplayUnits);
+        const string tableCols = "28,76,54,60,68,68,68,72,72,66,*";
+        TableTwinRowsHost.Children.Add(BuildTableRow(
+            tableCols,
+            isHeader: true,
+            "#", $"Speed ({unit})", "α (°)", "CL", "CDi", "CD (N2)", "CD (N4)", "L/D (N2)", "L/D (N4)", "Cm", "Status / Freshness"));
+
         foreach (var row in chartData.TableRows)
         {
             int idx = row.CaseIndex;
-            string line = row.IsGap
-                ? string.Create(CultureInfo.InvariantCulture,
-                    $"{idx + 1,2} | {Labels.Speed(row.SpeedMetersPerSecond, controller.DisplayUnits),10:0.##} | {Fmt(row.AlphaDeg),5} | GAP    | GAP     | GAP     | GAP     | GAP      | GAP      | GAP     | {Labels.SweepGapAnnotation(row.FailureCode ?? row.State.ToString(), row.FailureReason ?? row.FreshnessText)}")
-                : string.Create(CultureInfo.InvariantCulture,
-                    $"{idx + 1,2} | {Labels.Speed(row.SpeedMetersPerSecond, controller.DisplayUnits),10:0.##} | {Fmt(row.AlphaDeg),5} | {Fmt(row.Cl, "0.###"),6} | {Fmt(row.Cdi, "0.####"),7} | {Fmt(row.CdWingNcrit2, "0.####"),7} | {Fmt(row.CdWingNcrit4, "0.####"),7} | {Fmt(row.LdWingNcrit2, "0.##"),8} | {Fmt(row.LdWingNcrit4, "0.##"),8} | {Fmt(row.Cm, "0.####"),7} | {row.FreshnessText}");
+            string speedText = Labels.Speed(row.SpeedMetersPerSecond, controller.DisplayUnits).ToString("0.##", CultureInfo.InvariantCulture);
+            Grid rowGrid = row.IsGap
+                ? BuildTableRow(
+                    tableCols,
+                    isHeader: false,
+                    (idx + 1).ToString(CultureInfo.InvariantCulture),
+                    speedText,
+                    Fmt(row.AlphaDeg),
+                    "GAP", "GAP", "GAP", "GAP", "GAP", "GAP", "GAP",
+                    Labels.SweepGapAnnotation(row.FailureCode ?? row.State.ToString(), row.FailureReason ?? row.FreshnessText))
+                : BuildTableRow(
+                    tableCols,
+                    isHeader: false,
+                    (idx + 1).ToString(CultureInfo.InvariantCulture),
+                    speedText,
+                    Fmt(row.AlphaDeg),
+                    Fmt(row.Cl, "0.###"),
+                    Fmt(row.Cdi, "0.####"),
+                    Fmt(row.CdWingNcrit2, "0.####"),
+                    Fmt(row.CdWingNcrit4, "0.####"),
+                    Fmt(row.LdWingNcrit2, "0.##"),
+                    Fmt(row.LdWingNcrit4, "0.##"),
+                    Fmt(row.Cm, "0.####"),
+                    row.FreshnessText);
+
             var rowBtn = new ToggleButton
             {
-                Content = line,
+                Content = rowGrid,
                 IsChecked = idx == selectedIdx,
-                FontSize = 11,
-                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
-                HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Left
+                Classes = { "sweep-table-row" }
             };
             rowBtn.Click += (_, _) => controller?.SelectCase(idx);
             TableTwinRowsHost.Children.Add(rowBtn);
@@ -110,7 +128,12 @@ public partial class SweepResultsView : UserControl
             string chipText = row.IsGap
                 ? $"#{idx + 1} × {row.State}"
                 : string.Create(CultureInfo.InvariantCulture, $"#{idx + 1} CL {Fmt(row.Cl, "0.##")}");
-            var chip = new ToggleButton { Content = chipText, IsChecked = idx == selectedIdx, FontSize = 11 };
+            var chip = new ToggleButton
+            {
+                Content = new TextBlock { Text = chipText, Classes = { "pnl-cell" } },
+                IsChecked = idx == selectedIdx,
+                Classes = { "sweep-chip" }
+            };
             chip.Click += (_, _) => controller?.SelectCase(idx);
             SmallMultiplesStrip.Children.Add(chip);
         }
@@ -156,13 +179,32 @@ public partial class SweepResultsView : UserControl
         }
     }
 
+    private static Grid BuildTableRow(string colSpec, bool isHeader, params string[] values)
+    {
+        var grid = new Grid { ColumnDefinitions = ColumnDefinitions.Parse(colSpec), ColumnSpacing = 6 };
+        string cls = isHeader ? "pnl-head" : "pnl-cell";
+        for (int i = 0; i < values.Length; i++)
+        {
+            bool numeric = i < values.Length - 1;
+            var cell = new TextBlock
+            {
+                Text = values[i],
+                Classes = { cls },
+                TextAlignment = numeric ? Avalonia.Media.TextAlignment.Right : Avalonia.Media.TextAlignment.Left,
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+            };
+            Grid.SetColumn(cell, i);
+            grid.Children.Add(cell);
+        }
+        return grid;
+    }
+
     private void AddScalar(string name, string value)
     {
         InspectorScalarsHost.Children.Add(new TextBlock
         {
             Text = $"{name}: {value}",
-            FontSize = 12,
-            TextWrapping = Avalonia.Media.TextWrapping.Wrap
+            Classes = { "pnl-cell" }
         });
     }
 

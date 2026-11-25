@@ -64,7 +64,7 @@
                   Padding="{StaticResource ActivityRailItemPadding}">
             <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
               <TextBlock Text="Export" Classes="rail-title" />
-              <TextBlock x:Name="BadgeExportText" Text="STL · 3MF" Classes="rail-badge" />
+              <TextBlock x:Name="BadgeExportText" Text="Open foil" Classes="rail-badge" />
             </StackPanel>
           </Button>
         </StackPanel>

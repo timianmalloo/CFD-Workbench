@@ -48,6 +48,7 @@ public partial class SetupWorkspaceView : UserControl
     private SetupController? bound;
     private Assistant.AssistantRuntimeHub? assistantHub;
     private Action? onOpenInCad;
+    private Units displayUnits = Units.Metric;
     private bool syncing;
 
     public event Action? ConfigureKeyRequested;
@@ -134,6 +135,13 @@ public partial class SetupWorkspaceView : UserControl
         assistantHub = hub ?? assistantHub;
         if (assistantHub is not null)
             bound?.SetApiKeyAvailable(assistantHub.HasApiKey);
+        Refresh();
+    }
+
+    public void SetDisplayUnits(Units units)
+    {
+        if (displayUnits == units) return;
+        displayUnits = units;
         Refresh();
     }
 
@@ -396,7 +404,8 @@ public partial class SetupWorkspaceView : UserControl
 
         foreach (var pt in report.Points)
         {
-            double kn = pt.Point.SpeedMetersPerSecond / DisciplinePresets.KnotsToMps;
+            double speed = Labels.Speed(pt.Point.SpeedMetersPerSecond, displayUnits);
+            string speedUnit = Labels.SpeedUnit(displayUnits);
             string clText = pt.ClRequired is { } cl ? cl.ToString("0.000", CultureInfo.InvariantCulture) : "—";
             string sigText = pt.Derived.Sigma.Value is { } s ? s.ToString("0.00", CultureInfo.InvariantCulture) : "Unavailable";
             string hcText = pt.Derived.DepthOverChord.Value is { } hc ? hc.ToString("0.00", CultureInfo.InvariantCulture) : "Unavailable";
@@ -406,7 +415,7 @@ public partial class SetupWorkspaceView : UserControl
             OperatingPointsList.Children.Add(new TextBlock
             {
                 Text = string.Create(CultureInfo.InvariantCulture,
-                    $"{pt.Point.Label} ({kn:0.#} kn, h_ref {pt.Point.HRefMeters:0.##} m): CL_req {clText} · σ {sigText} · h/c {hcText}{shallowTag} · Cavitation: {cavText}"),
+                    $"{pt.Point.Label} ({speed:0.##} {speedUnit}, h_ref {pt.Point.HRefMeters:0.##} m): CL_req {clText} · σ {sigText} · h/c {hcText}{shallowTag} · Cavitation: {cavText}"),
                 Classes = { "pnl-cell" }
             });
         }
@@ -419,13 +428,40 @@ public partial class SetupWorkspaceView : UserControl
                 : row.BoundMin is { } bMin && row.BoundMax is { } bMax
                     ? string.Create(CultureInfo.InvariantCulture, $" {bMin:0.0e0}–{bMax:0.0e0} {row.Unit}")
                     : "";
-            var panel = new StackPanel { Orientation = Orientation.Horizontal };
+            var panel = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 6 };
             panel.Children.Add(new TextBlock
             {
                 Text = $"{row.Label}{boundStr}{editedTag}",
                 VerticalAlignment = VerticalAlignment.Center,
                 Classes = { "pnl-cell" }
             });
+            if (row.Bound is { } editableBound)
+            {
+                string constraintId = row.Id;
+                var boundBox = new TextBox
+                {
+                    Text = editableBound.ToString("0.##", CultureInfo.InvariantCulture),
+                    Width = 72,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                AutomationProperties.SetName(boundBox, $"Bound for {row.Label}");
+                var applyBtn = new Button
+                {
+                    Content = "Apply",
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                AutomationProperties.SetName(applyBtn, $"Apply bound for {row.Label}");
+                applyBtn.Click += (_, _) =>
+                {
+                    if (bound is null) return;
+                    if (double.TryParse(boundBox.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed))
+                        bound.UpdateConstraintBound(constraintId, parsed);
+                    else
+                        bound.UpdateConstraintBound(constraintId, double.NaN);
+                };
+                panel.Children.Add(boundBox);
+                panel.Children.Add(applyBtn);
+            }
             ConstraintsList.Children.Add(panel);
         }
     }

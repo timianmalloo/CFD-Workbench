@@ -175,7 +175,7 @@
                           AutomationProperties.Name="Cancel model evaluation" />
                 </StackPanel>
                 <TextBlock x:Name="EvalSectionHeadingText"
-                           Text="Model evaluation (A8.6 — 9 active items, physical-fidelity reserved in v1)"
+                           Text="Model evaluation (9 active items; physical-fidelity reserved in v1)"
                            FontWeight="SemiBold"
                            FontSize="{StaticResource PropTitleSize}"
                            Foreground="{DynamicResource InkBrush}"

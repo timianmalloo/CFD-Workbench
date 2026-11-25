@@ -31,6 +31,7 @@ public static class SetupViewTests
         DesktopChecks.Check("Desktop_SetupHardStates_NoKeyAndLab01Clean", T14_AllSixHardStatesAndLab01);
         DesktopChecks.Check("Desktop_SetupThemes_LightDarkHighContrast_AndCadSelectionPreserved", ThemesAndSelectionPreserved);
         DesktopChecks.Check("Wave12C_SetupDynamicLists_LiveThemeReactivity_WithoutRefresh", CheckWave12CLiveThemeReactivity);
+        DesktopChecks.Check("Wave12D_Setup_WrapPanels_InlineConstraintEdit_And_DisplayUnits", CheckWave12DReflowConstraintsUnits);
     }
 
     // T14 (AI-01, LAB-01, UX-19, DR-SET-5): Renders all 6 hard states; no-key state disables prompt box with COPY-53
@@ -286,6 +287,69 @@ public static class SetupViewTests
                 Require(drcTb.Foreground is Avalonia.Media.ISolidColorBrush drcb && drcb.Color == expectedInk,
                     $"R2-17: DrcFindingsList Foreground froze on {variant.Key} (expected {expectedInk}, got {drcTb.Foreground})");
             }
+        }
+        finally
+        {
+            window.Close();
+        }
+    }
+
+    private static void CheckWave12DReflowConstraintsUnits()
+    {
+        using var controller = new WorkbenchController();
+        var host = new ShellHost(controller);
+        var window = new Window { Width = 1024, Height = 700, Content = host };
+        window.Show();
+        try
+        {
+            controller.EnterSetup();
+            controller.Setup.SelectPurpose("wingfoil-race");
+            controller.Setup.SetFlaggedAcknowledged(true);
+            controller.Setup.SeedDesign();
+            controller.Setup.SetSubTab("goal");
+            Flush();
+
+            var setupView = host.ModelView.SetupView;
+
+            // R2-05: Header sub-tabs and footer Seed/Reset buttons use WrapPanel so narrow windows wrap without clipping.
+            var subTabBrief = setupView.FindControl<ToggleButton>("SubTabBriefButton")!;
+            Require(subTabBrief.Parent is WrapPanel, "R2-05: Setup sub-tabs must sit inside a WrapPanel");
+            var seedBtn = setupView.FindControl<Button>("SeedButton")!;
+            Require(seedBtn.Parent is WrapPanel, "R2-05: Setup action buttons must sit inside a WrapPanel");
+
+            // R2-19: Setup Goal operating points honor global Metric / Imperial AnalysisUnits!
+            var opPoints = setupView.FindControl<StackPanel>("OperatingPointsList")!;
+            Require(opPoints.Children.Count > 0, "Goal operating points must populate");
+            controller.AnalysisUnits = Units.Metric;
+            Flush();
+            string metricText = ((TextBlock)opPoints.Children[0]).Text ?? "";
+            Require(metricText.Contains(" m/s, h_ref", StringComparison.Ordinal),
+                $"R2-19: Metric Setup Goal operating point must display m/s, got '{metricText}'");
+
+            controller.AnalysisUnits = Units.Imperial;
+            Flush();
+            string imperialText = ((TextBlock)opPoints.Children[0]).Text ?? "";
+            Require(imperialText.Contains(" kn, h_ref", StringComparison.Ordinal) && !imperialText.Contains(" m/s, h_ref", StringComparison.Ordinal),
+                $"R2-19: Imperial Setup Goal operating point must display kn, got '{imperialText}'");
+
+            // R2-13 (Setup): ConstraintsList provides live inline bound editing appending immutable Goal version without mutating geometry!
+            var constraints = setupView.FindControl<StackPanel>("ConstraintsList")!;
+            Require(constraints.Children.Count > 0, "ConstraintsList must populate");
+            int goalVersionBefore = controller.Setup.CurrentGoalVersion;
+            string hashBefore = controller.Inspection!.Authored.Binding.SurfaceHash!;
+            StackPanel? editableRow = constraints.Children.OfType<StackPanel>()
+                .FirstOrDefault(sp => sp.Children.OfType<TextBox>().Any() && sp.Children.OfType<Button>().Any());
+            Require(editableRow is not null, "R2-13: ConstraintsList promises editable bounds and must expose inline TextBox + Apply button");
+            var boundBox = editableRow!.Children.OfType<TextBox>().First();
+            var applyBtn = editableRow.Children.OfType<Button>().First();
+            boundBox.Text = "1.35";
+            applyBtn.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            Flush();
+            Require(controller.Setup.CurrentGoalVersion == goalVersionBefore + 1,
+                $"R2-13: Inline constraint Apply must append immutable Goal version (before={goalVersionBefore}, after={controller.Setup.CurrentGoalVersion})");
+            Require(controller.Inspection.Authored.Binding.SurfaceHash == hashBefore,
+                "GOAL-03: Inline constraint edit must never mutate geometry");
+            AssertLab01Clean(setupView, "w12d-goal-inline-edit");
         }
         finally
         {

@@ -5,17 +5,17 @@
     <!-- Header & Run/Cancel controls -->
     <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
             BorderThickness="{StaticResource HairlineThickness}" Padding="{StaticResource Space2}">
-      <DockPanel>
-        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
-          <Button x:Name="RunLocalButton" Content="Run locally" AutomationProperties.Name="Run queued sweep locally in process" />
-          <Button x:Name="CancelRunButton" Content="Cancel" IsEnabled="False" AutomationProperties.Name="Cancel active local sweep run" />
-          <Button x:Name="OpenResultsButton" Content="Open Results →" IsEnabled="False" AutomationProperties.Name="Open sweep results charts" />
-        </StackPanel>
+      <StackPanel Spacing="{StaticResource StackGap2}">
         <StackPanel Orientation="Vertical" Spacing="{StaticResource StackGap1}">
-          <TextBlock x:Name="RunTitleText" Text="Run (local · in-process)" FontSize="{StaticResource HeadingSize}" FontWeight="SemiBold" Foreground="{DynamicResource InkBrush}" />
-          <TextBlock x:Name="PinSummaryText" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />
+          <TextBlock x:Name="RunTitleText" Text="2. Local queue (in-process)" FontSize="{StaticResource HeadingSize}" FontWeight="SemiBold" Foreground="{DynamicResource InkBrush}" />
+          <TextBlock x:Name="PinSummaryText" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
         </StackPanel>
-      </DockPanel>
+        <WrapPanel Orientation="Horizontal" Classes="toolbar-wrap">
+          <Button x:Name="RunLocalButton" Classes="primary" Content="Run locally" AutomationProperties.Name="Run queued sweep locally in process" />
+          <Button x:Name="CancelRunButton" Content="Cancel" IsEnabled="False" AutomationProperties.Name="Cancel active local sweep run" />
+          <Button x:Name="OpenResultsButton" Content="Open Polars →" IsEnabled="False" AutomationProperties.Name="Open sweep polar charts" />
+        </WrapPanel>
+      </StackPanel>
     </Border>
 
     <!-- Status banner & static determinate progress bar (DESIGN.md §6 Motion:None) -->

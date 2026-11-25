@@ -197,9 +197,11 @@ public partial class RunWorkspaceView : UserControl
         syncingSelection = true;
         try
         {
+            var units = controller.AnalysisUnits;
+            string speedUnit = CfdWorkbench.Analysis.Labels.SpeedUnit(units);
             var items = summaries
                 .Select(s => string.Create(CultureInfo.InvariantCulture,
-                    $"{s.RunKey12} · α {s.AlphaDeg:0.#}° · V {s.SpeedMs:0.##} m/s · {s.StateDisplay}"))
+                    $"{s.RunKey12} · α {s.AlphaDeg:0.#}° · V {CfdWorkbench.Analysis.Labels.Speed(s.SpeedMs, units):0.##} {speedUnit} · {s.StateDisplay}"))
                 .ToArray();
             RunQueueList.ItemsSource = items;
 

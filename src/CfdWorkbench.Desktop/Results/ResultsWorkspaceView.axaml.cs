@@ -245,9 +245,11 @@ public partial class ResultsWorkspaceView : UserControl
         syncing = true;
         try
         {
+            var units = controller.AnalysisUnits;
+            string speedUnit = Labels.SpeedUnit(units);
             var sampleLabels = workspace.Samples
                 .Select(s => string.Create(CultureInfo.InvariantCulture,
-                    $"{s.Tier} · α {s.AlphaDeg:0.#}° · V {s.SpeedMs:0.##} m/s · {(s.Admitted ? "Admitted" : s.StatusLabel)}"))
+                    $"{s.Tier} · α {s.AlphaDeg:0.#}° · V {Labels.Speed(s.SpeedMs, units):0.##} {speedUnit} · {(s.Admitted ? "Admitted" : s.StatusLabel)}"))
                 .ToArray();
             SamplePicker.ItemsSource = sampleLabels;
             DiffBasePicker.ItemsSource = sampleLabels;
@@ -602,8 +604,9 @@ public partial class ResultsWorkspaceView : UserControl
         ReplayStepForwardButton.IsEnabled = series.CurrentIndex + 1 < series.Frames.Count;
 
         var frame = series.Frames[series.CurrentIndex];
+        var units = controller?.AnalysisUnits ?? Units.Metric;
         ReplayFrameStatusText.Text = string.Create(CultureInfo.InvariantCulture,
-            $"Frame {series.CurrentIndex + 1} of {series.Frames.Count} · α {frame.AlphaDeg:0.#}° · V {frame.SpeedMs:0.##} m/s · {(series.IsPlaying ? "Playing" : "Held")}");
+            $"Frame {series.CurrentIndex + 1} of {series.Frames.Count} · α {frame.AlphaDeg:0.#}° · V {Labels.Speed(frame.SpeedMs, units):0.##} {Labels.SpeedUnit(units)} · {(series.IsPlaying ? "Playing" : "Held")}");
 
         if (!frame.Admitted || series.ActiveFailureReason is not null)
         {

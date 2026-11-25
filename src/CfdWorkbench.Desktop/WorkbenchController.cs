@@ -336,6 +336,7 @@ public sealed class WorkbenchController : IDisposable
             if (analysisUnits == value) return;
             analysisUnits = value;
             analysisProjectionKey = null;
+            Sweeps.SetDisplayUnits(analysisUnits);
             LayersChanged?.Invoke();
             UnitsChanged?.Invoke();
         }
@@ -716,7 +717,7 @@ public sealed class WorkbenchController : IDisposable
         string? ApplyReason, int Index, bool MatchOffered = false, bool Measured = true);
 
     public const string MatchLabel = "Match the blend…";                                              // SF2-COPY-1 (COPY-621)
-    public const string MatchNeedsFoil = "Open a certified foil in the views to match a station.";    // COPY-630
+    public const string MatchNeedsFoil = "Open a checked foil in the views to match a station.";      // COPY-630
     public const string MeasuredLabel = "Measured";                                                   // COPY-632: the Match flyout's result row (Match has no limit to be within)
     private bool matchFromRemove;
 
@@ -738,8 +739,8 @@ public sealed class WorkbenchController : IDisposable
     public const string CheckLabel = "Check";                                                         // COPY-581
     public const string WithinLimit = "Within the limit";                                             // COPY-582
     public const string AboveLimit = "Above the limit";                                               // COPY-583
-    public const string AddNeedsFoil = "Open a certified foil in the views to add a station.";        // COPY-584
-    public const string RemoveNeedsFoil = "Open a certified foil in the views to remove a station.";  // COPY-585
+    public const string AddNeedsFoil = "Open a checked foil in the views to add a station.";          // COPY-584
+    public const string RemoveNeedsFoil = "Open a checked foil in the views to remove a station.";    // COPY-585
     public const string SelectStationFirst = "Select a station first.";                               // COPY-586
     public const string FinishChangeFirst = "Finish the current change first.";                       // COPY-587
     public static string ShiftedCopy(int number) => $"Station {number} is now Station {number + 1}";   // COPY-588

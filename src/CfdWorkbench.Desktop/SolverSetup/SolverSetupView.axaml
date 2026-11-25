@@ -10,24 +10,26 @@
     <!-- Top header bar: derived status, active route, read-only check, Copy a report, Done -->
     <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
             BorderThickness="{StaticResource PropRuleBottom}" Padding="{StaticResource Space3}">
-      <DockPanel>
-        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="{StaticResource StackGap2}" VerticalAlignment="Center">
+      <StackPanel Spacing="{StaticResource StackGap2}">
+        <StackPanel Orientation="Vertical" Spacing="{StaticResource StackGap1}" VerticalAlignment="Center">
+          <TextBlock x:Name="HeaderTitleText" Classes="heading" Text="Set up a solver" Foreground="{DynamicResource InkBrush}" />
+          <TextBlock x:Name="HeaderRouteText" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" Text="" TextWrapping="Wrap" />
+        </StackPanel>
+        <WrapPanel Orientation="Horizontal" Classes="toolbar-wrap" VerticalAlignment="Center">
           <Border x:Name="HeaderStatusBadge" Classes="solver-badge">
             <TextBlock x:Name="HeaderStatusText" FontSize="{StaticResource CaptionSize}" FontWeight="SemiBold"
                        Foreground="{DynamicResource InkBrush}" Text="Status: Not set up" />
           </Border>
+          <ToggleButton x:Name="ToggleAssistantButton" Content="Assistant" IsChecked="True" MinHeight="{StaticResource ControlHeight}"
+                        AutomationProperties.Name="Toggle solver setup assistant pane" />
           <Button x:Name="RefreshSurveyButton" Content="Run read-only check" MinHeight="{StaticResource ControlHeight}"
                   AutomationProperties.Name="Run read-only check" />
           <Button x:Name="CopyReportButton" Content="Copy a report" MinHeight="{StaticResource ControlHeight}"
                   AutomationProperties.Name="Copy a report" />
           <Button x:Name="CloseSetupButton" Content="Done" MinHeight="{StaticResource ControlHeight}"
                   AutomationProperties.Name="Close Solver setup" />
-        </StackPanel>
-        <StackPanel Orientation="Vertical" Spacing="{StaticResource StackGap1}" VerticalAlignment="Center">
-          <TextBlock x:Name="HeaderTitleText" Classes="heading" Text="Set up a solver" Foreground="{DynamicResource InkBrush}" />
-          <TextBlock x:Name="HeaderRouteText" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" Text="" />
-        </StackPanel>
-      </DockPanel>
+        </WrapPanel>
+      </StackPanel>
     </Border>
 
     <!-- Main 3-column workbench layout: Step rail | Active card | Optional assistant -->
@@ -105,12 +107,12 @@
               <WrapPanel x:Name="NeedsBadgesPanel" Orientation="Horizontal" IsVisible="False" />
 
               <!-- Hard state 1: Route selection actions -->
-              <StackPanel x:Name="RouteSelectionActionsPanel" Orientation="Horizontal" Spacing="{StaticResource StackGap2}" IsVisible="False">
+              <WrapPanel x:Name="RouteSelectionActionsPanel" Orientation="Horizontal" Classes="toolbar-wrap" IsVisible="False">
                 <Button x:Name="StartSetupButton" Classes="primary" Content="Start setup" MinHeight="{StaticResource ControlHeight}"
                         AutomationProperties.Name="Start setup" />
                 <Button x:Name="RouteNotNowButton" Content="Not now" MinHeight="{StaticResource ControlHeight}"
                         AutomationProperties.Name="Not now" />
-              </StackPanel>
+              </WrapPanel>
 
               <!-- Hard state 2: Step ready / WaitingForOs / Running -->
               <StackPanel x:Name="StepReadyPanel" Spacing="{StaticResource StackGap2}" IsVisible="False">
@@ -120,18 +122,16 @@
                   <Border Background="{DynamicResource CanvasBrush}" BorderBrush="{DynamicResource LineBrush}"
                           BorderThickness="{StaticResource HairlineThickness}" CornerRadius="{StaticResource RoundedSm}"
                           Padding="{StaticResource Space2}">
-                    <ScrollViewer MaxHeight="{StaticResource SolverTermsMaxHeight}" VerticalScrollBarVisibility="Auto">
-                      <TextBlock x:Name="TermsText" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
-                                 Foreground="{DynamicResource MutedBrush}" />
-                    </ScrollViewer>
+                    <TextBlock x:Name="TermsText" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}"
+                               Foreground="{DynamicResource MutedBrush}" />
                   </Border>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+                <WrapPanel Orientation="Horizontal" Classes="toolbar-wrap">
                   <Button x:Name="PrimaryActionButton" Classes="primary" Content="Start this step" MinHeight="{StaticResource ControlHeight}"
                           AutomationProperties.Name="Start this step" />
                   <Button x:Name="StepNotNowButton" Content="Not now" MinHeight="{StaticResource ControlHeight}"
                           AutomationProperties.Name="Not now" />
-                </StackPanel>
+                </WrapPanel>
               </StackPanel>
 
               <!-- Hard state 3: Existing unverified install (DR-SEC-1 A) -->
@@ -152,12 +152,12 @@
                                Foreground="{DynamicResource MutedBrush}" />
                   </StackPanel>
                 </Border>
-                <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+                <WrapPanel Orientation="Horizontal" Classes="toolbar-wrap">
                   <Button x:Name="InstallTestedButton" Classes="primary" Content="Install the tested build"
                           MinHeight="{StaticResource ControlHeight}" AutomationProperties.Name="Install the tested build" />
                   <Button x:Name="UseMineAnywayButton" Content="Use mine anyway"
                           MinHeight="{StaticResource ControlHeight}" AutomationProperties.Name="Use mine anyway" />
-                </StackPanel>
+                </WrapPanel>
               </StackPanel>
 
               <!-- Hard state 4: Failed with cause + next step + optional click path / output excerpt -->
@@ -189,12 +189,12 @@
                     </ScrollViewer>
                   </Border>
                 </Expander>
-                <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+                <WrapPanel Orientation="Horizontal" Classes="toolbar-wrap">
                   <Button x:Name="RetryStepButton" Classes="primary" Content="Check again"
                           MinHeight="{StaticResource ControlHeight}" AutomationProperties.Name="Check again" />
                   <Button x:Name="FailureCopyReportButton" Content="Copy a report"
                           MinHeight="{StaticResource ControlHeight}" AutomationProperties.Name="Copy a report" />
-                </StackPanel>
+                </WrapPanel>
               </StackPanel>
 
               <!-- Hard state 5: Needs restart (DR-SETUP-6) -->
@@ -204,12 +204,12 @@
                         Padding="{StaticResource Space2}">
                   <TextBlock x:Name="NeedsRestartBodyText" TextWrapping="Wrap" Foreground="{DynamicResource InkBrush}" />
                 </Border>
-                <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+                <WrapPanel Orientation="Horizontal" Classes="toolbar-wrap">
                   <Button x:Name="RestartNowButton" Classes="primary" Content="Restart now"
                           MinHeight="{StaticResource ControlHeight}" AutomationProperties.Name="Restart now" />
                   <Button x:Name="RestartLaterButton" Content="I'll restart later"
                           MinHeight="{StaticResource ControlHeight}" AutomationProperties.Name="I'll restart later" />
-                </StackPanel>
+                </WrapPanel>
               </StackPanel>
 
               <!-- Hard state 6: Ready (SETUP-08) -->
@@ -221,14 +221,14 @@
                              Foreground="{DynamicResource InkBrush}" />
                 </Border>
                 <StackPanel x:Name="ReadyFactsPanel" Spacing="{StaticResource StackGap1}" />
-                <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+                <WrapPanel Orientation="Horizontal" Classes="toolbar-wrap">
                   <Button x:Name="BackToAnalysisButton" Classes="primary" Content="Back to my analysis"
                           MinHeight="{StaticResource ControlHeight}" AutomationProperties.Name="Back to my analysis" />
                   <Button x:Name="ReadyDoneButton" Content="Done"
                           MinHeight="{StaticResource ControlHeight}" AutomationProperties.Name="Done" />
                   <Button x:Name="RemoveInstalledButton" Content="Remove what setup installed…" IsVisible="False"
                           MinHeight="{StaticResource ControlHeight}" AutomationProperties.Name="Remove what setup installed" />
-                </StackPanel>
+                </WrapPanel>
               </StackPanel>
 
               <!-- Collapsed Technical details disclosure (DR-SETUP-5: always collapsed by default, exact command + pin before consent) -->
