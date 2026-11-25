@@ -265,14 +265,18 @@
               BorderThickness="{StaticResource SolverSectionRuleLeft}" Padding="{StaticResource Space3}">
         <Grid RowDefinitions="Auto,*,Auto" RowSpacing="{StaticResource StackGap2}">
           <StackPanel Grid.Row="0" Spacing="{StaticResource StackGap1}">
-            <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+            <WrapPanel Orientation="Horizontal">
               <TextBlock x:Name="AssistantHeadingText" Text="Ask about this step" FontWeight="SemiBold"
                          FontSize="{StaticResource PropTitleSize}" Foreground="{DynamicResource InkBrush}" VerticalAlignment="Center" />
-              <Border Classes="solver-badge">
+              <Border Classes="solver-badge" Margin="{StaticResource UnitGap}">
                 <TextBlock Text="Assistant" FontSize="{StaticResource CaptionSize}" FontWeight="SemiBold"
                            Foreground="{DynamicResource PrimaryBrush}" />
               </Border>
-            </StackPanel>
+              <Border x:Name="AssistantUsageChip" IsVisible="False" Classes="solver-badge" Margin="{StaticResource UnitGap}">
+                <TextBlock x:Name="AssistantUsageChipText" Classes="pnl-cell" Foreground="{DynamicResource MutedBrush}"
+                           Text="Used 0/50 today" />
+              </Border>
+            </WrapPanel>
             <TextBlock x:Name="AssistantDisclosureText" FontSize="{StaticResource CaptionSize}"
                        Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
           </StackPanel>

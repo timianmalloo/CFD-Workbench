@@ -259,6 +259,9 @@
             <Border Classes="navbar-separator" />
             <Button x:Name="NavFitButton" Classes="navbar" Content="Fit" />
             <Button x:Name="NavFitSelectionButton" Classes="navbar" Content="Fit Selection" />
+            <Border x:Name="NavCadAssistantSeparator" Classes="navbar-separator" />
+            <Button x:Name="NavCadAssistantButton" Classes="navbar" Content="Assistant"
+                    AutomationProperties.Name="CAD assistant" />
           </StackPanel>
         </Border>
         </Panel>

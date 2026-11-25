@@ -82,10 +82,22 @@ public partial class RunWorkspaceView : UserControl
 
     public void RefreshAssistantStatus()
     {
-        bool hasKey = controller?.Assistant.HasApiKey == true;
-        bool ready = controller?.Assistant.IsReadyForProposals == true;
+        var hub = controller?.Assistant;
+        bool hasKey = hub?.HasApiKey == true;
+        bool ready = hub?.IsReadyForProposals == true;
         ConfigureKeyButton.IsVisible = !hasKey;
         ExplainFailureLiveButton.IsEnabled = ready && SelectedStoredRun() is not null;
+        if (hub is not null)
+        {
+            RunAssistantUsageChipText.Text = Assistant.AssistantCopy.DailyUsageChip(
+                hub.DailyRequestsUsedUtc,
+                hub.CurrentSettings.DailyRequestCap);
+            RunAssistantUsageChip.IsVisible = true;
+        }
+        else
+        {
+            RunAssistantUsageChip.IsVisible = false;
+        }
         if (!hasKey)
         {
             OfflineNoKeyNoticeText.Text = RunCopy.OfflineNoKeyNotice;
@@ -96,7 +108,7 @@ public partial class RunWorkspaceView : UserControl
         }
         else
         {
-            OfflineNoKeyNoticeText.Text = $"BYOK assistant ready ({controller!.Assistant.CurrentSettings.ModelId}). Offline diagnostics remain available.";
+            OfflineNoKeyNoticeText.Text = $"BYOK assistant ready ({hub!.CurrentSettings.ModelId}). Offline diagnostics remain available.";
         }
     }
 

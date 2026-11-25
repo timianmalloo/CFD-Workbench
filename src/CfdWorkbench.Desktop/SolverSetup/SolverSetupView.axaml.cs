@@ -101,12 +101,19 @@ public partial class SolverSetupView : UserControl
     public void BindAssistant(Assistant.AssistantRuntimeHub hub)
     {
         assistantHub = hub ?? throw new ArgumentNullException(nameof(hub));
-        SetApiKeyAvailable(hub.HasApiKey);
+        RefreshAssistantStatus();
+    }
+
+    public void RefreshAssistantStatus()
+    {
+        if (assistantHub is not null)
+            HasApiKey = assistantHub.HasApiKey;
+        RefreshProjection();
     }
 
     public void SetApiKeyAvailable(bool available)
     {
-        if (HasApiKey == available) return;
+        if (HasApiKey == available && assistantHub is null) return;
         HasApiKey = available;
         RefreshProjection();
     }
@@ -247,15 +254,44 @@ public partial class SolverSetupView : UserControl
         // Card header & body by screen
         RenderMainCardContent(vm);
 
-        // Assistant panel
+        // Assistant panel (R2-08 / C6: enforce IsReadyForProposals when assistantHub is bound; fall back cleanly to HasApiKey when null)
         AssistantHeadingText.Text = vm.Screen is SetupScreenKind.FailedKnown or SetupScreenKind.FailedUnknown
             ? SolverSetupCopy.AssistantExplainHeading
             : SolverSetupCopy.AssistantAskHeading;
-        AssistantOfflineCard.IsVisible = !vm.AssistantStatus.Available;
-        AssistantOfflineNoticeText.Text = vm.AssistantStatus.Notice;
-        AssistantPromptBox.IsEnabled = vm.AssistantStatus.Available;
-        AssistantAskButton.IsEnabled = vm.AssistantStatus.Available;
-        AssistantPromptBox.Watermark = vm.AssistantStatus.Available
+        bool effectiveAvailable = assistantHub is not null
+            ? assistantHub.IsReadyForProposals
+            : vm.AssistantStatus.Available;
+        bool hasKeyButUnevaluated = assistantHub is not null && assistantHub.HasApiKey && !assistantHub.Eligibility.ProposalsEnabled;
+
+        if (assistantHub is not null)
+        {
+            AssistantUsageChipText.Text = Assistant.AssistantCopy.DailyUsageChip(
+                assistantHub.DailyRequestsUsedUtc,
+                assistantHub.CurrentSettings.DailyRequestCap);
+            AssistantUsageChip.IsVisible = true;
+        }
+        else
+        {
+            AssistantUsageChip.IsVisible = false;
+        }
+
+        AssistantOfflineCard.IsVisible = !effectiveAvailable;
+        if (hasKeyButUnevaluated)
+        {
+            AssistantOfflineNoticeText.Text = Assistant.AssistantCopy.UnevaluatedOnThisModel;
+            AssistantOfflineNoteText.Text = Assistant.AssistantCopy.UnevaluatedDetail(
+                CfdWorkbench.Core.Assistant.AssistantEvalSuite.EvalThresholdsVersion);
+            AssistantConfigureKeyButton.Content = Assistant.AssistantCopy.OpenSettingsButton;
+        }
+        else
+        {
+            AssistantOfflineNoticeText.Text = vm.AssistantStatus.Notice;
+            AssistantOfflineNoteText.Text = SolverSetupCopy.AssistantOfflineNote;
+            AssistantConfigureKeyButton.Content = Assistant.AssistantCopy.ConfigureKeyButton;
+        }
+        AssistantPromptBox.IsEnabled = effectiveAvailable;
+        AssistantAskButton.IsEnabled = effectiveAvailable;
+        AssistantPromptBox.Watermark = effectiveAvailable
             ? SolverSetupCopy.AssistantAskPlaceholder
             : SolverSetupCopy.AssistantOffPlaceholder;
     }
@@ -652,6 +688,13 @@ public partial class SolverSetupView : UserControl
 
     private async Task OnAskAssistantAsync()
     {
+        if (assistantHub is not null && !assistantHub.IsReadyForProposals)
+        {
+            ShowReceipt(!assistantHub.HasApiKey
+                ? SolverSetupCopy.AssistantNoKeyNotice
+                : Assistant.AssistantCopy.UnevaluatedOnThisModel);
+            return;
+        }
         if (!HasApiKey)
         {
             ShowReceipt(SolverSetupCopy.AssistantNoKeyNotice);
@@ -687,6 +730,11 @@ public partial class SolverSetupView : UserControl
                     RequestedThemeVariant = owner.ActualThemeVariant
                 };
                 await dlg.ShowDialog(owner);
+                if (dlg.EditPromptRequested)
+                {
+                    AssistantPromptBox.Focus();
+                    return;
+                }
                 if (dlg.ExecutionResult?.Validation is { } v)
                 {
                     RenderAssistantResult(new AssistantValidationResult(

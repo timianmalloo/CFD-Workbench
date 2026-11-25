@@ -157,21 +157,41 @@ public partial class ResultsWorkspaceView : UserControl
 
     public void RefreshAssistantStatus()
     {
-        bool hasKey = controller?.Assistant.HasApiKey == true;
-        bool ready = controller?.Assistant.IsReadyForProposals == true;
-        AskResultConfigureKeyButton.IsVisible = !hasKey;
-        if (hasKey && !ready)
+        var hub = controller?.Assistant;
+        bool hasKey = hub?.HasApiKey == true;
+        bool ready = hub?.IsReadyForProposals == true;
+        AskResultConfigureKeyButton.IsVisible = !hasKey || !ready;
+        AskResultConfigureKeyButton.Content = !hasKey
+            ? Assistant.AssistantCopy.ConfigureKeyButton
+            : Assistant.AssistantCopy.OpenSettingsButton;
+
+        if (hub is not null)
         {
-            AskResultStatusText.Text = Assistant.AssistantCopy.UnevaluatedOnThisModel;
+            AskResultUsageChipText.Text = Assistant.AssistantCopy.DailyUsageChip(
+                hub.DailyRequestsUsedUtc,
+                hub.CurrentSettings.DailyRequestCap);
+            AskResultUsageChip.IsVisible = true;
+        }
+        else
+        {
+            AskResultUsageChip.IsVisible = false;
+        }
+
+        if (ready)
+        {
+            AskResultHeadingText.Text = "Ask about this result (BYOK)";
+            AskResultStatusText.Text = $"BYOK ready ({hub!.CurrentSettings.ModelId}) · tau_w separation gate active.";
             AskResultStatusText.IsVisible = true;
         }
-        else if (ready)
+        else if (hasKey)
         {
-            AskResultStatusText.Text = $"BYOK ready ({controller!.Assistant.CurrentSettings.ModelId}) · tau_w separation gate active.";
+            AskResultHeadingText.Text = "Ask about this result (offline · eval needed)";
+            AskResultStatusText.Text = Assistant.AssistantCopy.UnevaluatedOnThisModel;
             AskResultStatusText.IsVisible = true;
         }
         else
         {
+            AskResultHeadingText.Text = "Ask about this result (offline)";
             AskResultStatusText.IsVisible = false;
         }
     }
@@ -714,6 +734,11 @@ public partial class ResultsWorkspaceView : UserControl
                     RequestedThemeVariant = owner.ActualThemeVariant
                 };
                 await dlg.ShowDialog(owner);
+                if (dlg.EditPromptRequested)
+                {
+                    AskResultInput.Focus();
+                    return;
+                }
                 if (dlg.ExecutionResult?.Validation is { } val)
                 {
                     AskResultAnswerText.Text = val.DisplayText;

@@ -76,6 +76,12 @@ public static class SweepViewTests
             Require(stripText.Text == "Sweep: none", $"Expected 'Sweep: none' in status strip, got '{stripText.Text}'");
 
             // 3. XS-03 / UX-17: ZERO Run button in ExperimentSetupView (empty AND populated states)!
+            // R2-08: ExperimentAssistantBar must be visible in empty state (above EmptyStatePanel/EditorGrid split).
+            Require(setupView.ExperimentAssistantBar.IsEffectivelyVisible,
+                "R2-08: ExperimentAssistantBar must be visible in empty state so users can draft a first sweep");
+            var editorGrid = setupView.FindControl<Grid>("EditorGrid")!;
+            Require(!editorGrid.IsLogicalAncestorOf(setupView.ExperimentAssistantBar),
+                "R2-08: ExperimentAssistantBar must sit above the EmptyStatePanel/EditorGrid split, not inside the 280 px inspector");
             AssertNoRunButton(setupView);
 
             // 4. Invalid input blocked: duplicate speed disables Queue and shows ValidationBanner.

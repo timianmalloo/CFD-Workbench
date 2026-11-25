@@ -63,6 +63,9 @@ public static class AssistantCopy
     // COPY-879
     public const string EndpointUrlLabel =
         "Endpoint URL (single HTTPS endpoint; HTTP allowed for exact localhost / 127.0.0.1 / ::1 only)";
+    public const string EndpointUrlShortLabel = "Endpoint URL";
+    public const string EndpointUrlHelperText =
+        "Single HTTPS endpoint; HTTP allowed for exact localhost / 127.0.0.1 / ::1 only.";
 
     // COPY-880
     public const string EndpointInvalidError =
@@ -82,6 +85,9 @@ public static class AssistantCopy
     // COPY-884
     public static string DailyUsageSummary(int used, int cap) =>
         string.Create(CultureInfo.InvariantCulture, $"Used today (UTC): {used} of {cap} requests");
+
+    public static string DailyUsageChip(int used, int cap) =>
+        string.Create(CultureInfo.InvariantCulture, $"Used {used}/{cap} today");
 
     // COPY-885
     public static string DailyCapReached(int used, int cap) =>
@@ -201,6 +207,51 @@ public static class AssistantCopy
     // COPY-915
     public const string KnowledgeUnavailableNotice =
         "Bundled knowledge corpus unavailable (integrity check failed).";
+
+    // Wave 12B operational status & error-recovery copy (R2-03, R2-11; LAB-01 & SETUP-04 clean).
+    public const string SendingToModelStatus = "Sending to model…";
+    public const string RunningEvaluationStatus = "Running evaluation…";
+    public const string RequestCancelledNotice = "Request cancelled. You can retry or edit your prompt.";
+    public const string EvaluationCancelledNotice = "Evaluation cancelled.";
+    public const string RetryButton = "Retry";
+    public const string EditPromptButton = "Edit prompt";
+    public const string RefreshBaseFailedNotice =
+        "Could not prepare a refreshed preview over the current revision. Check your API key, model evaluation, and daily cap.";
+}
+
+/// <summary>Structured wrapped provenance row for <see cref="AssistantConsentPreviewDialog"/> (R2-11, C6).</summary>
+public sealed record ProvenanceRowItem(
+    string Tag,
+    string FieldName,
+    string ChangeDisplay,
+    string Reason)
+{
+    public override string ToString() => $"[{Tag}] {FieldName}: {ChangeDisplay} — {Reason}";
+}
+
+/// <summary>Structured wrapped evaluation item row for <see cref="AssistantSettingsDialog"/> (R2-10, C6).</summary>
+public sealed record EvalRowItem(
+    string ItemId,
+    string Title,
+    string ScoreText,
+    string StatusText,
+    bool IsReserved,
+    bool HasRun)
+{
+    public override string ToString() =>
+        IsReserved ? $"{ItemId} · {Title} · {StatusText}"
+        : HasRun ? $"{ItemId} · {ScoreText} · {StatusText}"
+        : $"{ItemId} · {Title} · {ScoreText} · {StatusText}";
+}
+
+/// <summary>Structured wrapped audit log entry row for <see cref="AssistantSettingsDialog"/> (R2-10).</summary>
+public sealed record AuditRowItem(
+    string HeaderLine,
+    string MetricsLine,
+    string OutcomeText,
+    string SummaryLine)
+{
+    public override string ToString() => SummaryLine;
 }
 
 /// <summary>

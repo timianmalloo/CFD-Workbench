@@ -1,5 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:assistant="using:CfdWorkbench.Desktop.Assistant"
         x:Class="CfdWorkbench.Desktop.Assistant.AssistantSettingsDialog"
         Title="Assistant settings (BYOK)"
         Width="{StaticResource SettingsDialogWidth}"
@@ -88,12 +89,18 @@
                            Grid.Row="1"
                            Grid.Column="0"
                            Text="Endpoint URL"
-                           VerticalAlignment="Center"
+                           VerticalAlignment="Top"
+                           Margin="{StaticResource Space1}"
                            Foreground="{DynamicResource MutedBrush}" />
-                <TextBox x:Name="EndpointUrlBox"
-                         Grid.Row="1"
-                         Grid.Column="1"
-                         AutomationProperties.Name="Endpoint URL" />
+                <StackPanel Grid.Row="1" Grid.Column="1" Spacing="{StaticResource StackGap1}">
+                  <TextBox x:Name="EndpointUrlBox"
+                           AutomationProperties.Name="Endpoint URL" />
+                  <TextBlock x:Name="EndpointHelperText"
+                             Text="Single HTTPS endpoint; HTTP allowed for exact localhost / 127.0.0.1 / ::1 only."
+                             TextWrapping="Wrap"
+                             FontSize="{StaticResource CaptionSize}"
+                             Foreground="{DynamicResource MutedBrush}" />
+                </StackPanel>
 
                 <TextBlock x:Name="ModelIdLabelText"
                            Grid.Row="2"
@@ -138,7 +145,7 @@
                 <TextBox x:Name="TimeoutSecondsBox" Grid.Row="2" Grid.Column="1" Width="{StaticResource AssistantCapFieldWidth}" AutomationProperties.Name="Request timeout in seconds" />
               </Grid>
               <TextBlock x:Name="DailyUsageText"
-                         FontSize="{StaticResource CaptionSize}"
+                         Classes="pnl-cell"
                          Foreground="{DynamicResource MutedBrush}" />
               <TextBlock x:Name="SettingsFeedbackText"
                          IsVisible="False"
@@ -156,11 +163,17 @@
                   Padding="{StaticResource Space3}">
             <StackPanel Spacing="{StaticResource StackGap2}">
               <DockPanel>
-                <Button x:Name="RunEvalButton"
-                        DockPanel.Dock="Right"
-                        Content="Run 9-item evaluation"
-                        MinHeight="{StaticResource ControlHeight}"
-                        AutomationProperties.Name="Run 9-item model evaluation" />
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="{StaticResource StackGap1}">
+                  <Button x:Name="RunEvalButton"
+                          Content="Run 9-item evaluation"
+                          MinHeight="{StaticResource ControlHeight}"
+                          AutomationProperties.Name="Run 9-item model evaluation" />
+                  <Button x:Name="CancelEvalButton"
+                          Content="Cancel"
+                          IsVisible="False"
+                          MinHeight="{StaticResource ControlHeight}"
+                          AutomationProperties.Name="Cancel model evaluation" />
+                </StackPanel>
                 <TextBlock x:Name="EvalSectionHeadingText"
                            Text="Model evaluation (A8.6 — 9 active items, physical-fidelity reserved in v1)"
                            FontWeight="SemiBold"
@@ -169,9 +182,23 @@
                            VerticalAlignment="Center"
                            TextWrapping="Wrap" />
               </DockPanel>
-              <Border x:Name="EvalStatusBanner"
+              <Border x:Name="EvalBusyBanner"
+                      IsVisible="False"
                       Background="{DynamicResource SurfaceSoftBrush}"
-                      BorderBrush="{DynamicResource WarningBrush}"
+                      BorderBrush="{DynamicResource PrimaryBrush}"
+                      BorderThickness="{StaticResource PropRailThickness}"
+                      Padding="{StaticResource Space2}">
+                <TextBlock x:Name="EvalBusyStatusText"
+                           Text="Running evaluation…"
+                           FontSize="{StaticResource CaptionSize}"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource InkBrush}"
+                           TextWrapping="Wrap"
+                           AutomationProperties.LiveSetting="Polite" />
+              </Border>
+              <Border x:Name="EvalStatusBanner"
+                      Classes="eval-banner"
+                      Background="{DynamicResource SurfaceSoftBrush}"
                       BorderThickness="{StaticResource PropRailThickness}"
                       Padding="{StaticResource Space2}">
                 <StackPanel Spacing="{StaticResource StackGap1}">
@@ -188,8 +215,44 @@
                       BorderBrush="{DynamicResource LineBrush}"
                       BorderThickness="{StaticResource HairlineThickness}"
                       Padding="{StaticResource Space2}">
-                <ScrollViewer MaxHeight="{StaticResource AssistantListMaxHeight}" VerticalScrollBarVisibility="Auto">
-                  <ItemsControl x:Name="EvalItemsList" />
+                <ScrollViewer MaxHeight="{StaticResource AssistantListMaxHeight}"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                  <ItemsControl x:Name="EvalItemsList">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="assistant:EvalRowItem">
+                        <Border BorderBrush="{DynamicResource LineBrush}"
+                                BorderThickness="{StaticResource PropRuleBottom}"
+                                Padding="{StaticResource Space1}">
+                          <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="{StaticResource StackGap2}">
+                            <TextBlock Grid.Column="0"
+                                       Text="{Binding ItemId}"
+                                       Classes="pnl-cell"
+                                       FontFamily="{StaticResource MonoFontFamily}"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Top" />
+                            <StackPanel Grid.Column="1" Spacing="{StaticResource ActivityRailBadgeGap}">
+                              <TextBlock Text="{Binding Title}"
+                                         FontSize="{StaticResource CaptionSize}"
+                                         Foreground="{DynamicResource InkBrush}"
+                                         TextWrapping="Wrap" />
+                              <TextBlock Text="{Binding ScoreText}"
+                                         Classes="pnl-cell"
+                                         FontFamily="{StaticResource MonoFontFamily}"
+                                         Foreground="{DynamicResource MutedBrush}"
+                                         TextWrapping="Wrap" />
+                            </StackPanel>
+                            <TextBlock Grid.Column="2"
+                                       Text="{Binding StatusText}"
+                                       Classes="pnl-cell"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Top"
+                                       Foreground="{DynamicResource InkBrush}" />
+                          </Grid>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
                 </ScrollViewer>
               </Border>
             </StackPanel>
@@ -211,8 +274,38 @@
                          FontSize="{StaticResource CaptionSize}"
                          Foreground="{DynamicResource MutedBrush}"
                          Text="No assistant requests recorded yet." />
-              <ScrollViewer MaxHeight="{StaticResource AssistantListMaxHeight}" VerticalScrollBarVisibility="Auto">
-                <ItemsControl x:Name="AuditEntriesList" />
+              <ScrollViewer MaxHeight="{StaticResource AssistantListMaxHeight}"
+                            VerticalScrollBarVisibility="Auto"
+                            HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl x:Name="AuditEntriesList">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="assistant:AuditRowItem">
+                      <Border BorderBrush="{DynamicResource LineBrush}"
+                              BorderThickness="{StaticResource PropRuleBottom}"
+                              Padding="{StaticResource Space1}">
+                        <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+                          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource StackGap2}">
+                            <TextBlock Grid.Column="0"
+                                       Text="{Binding HeaderLine}"
+                                       FontSize="{StaticResource CaptionSize}"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource InkBrush}"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding OutcomeText}"
+                                       Classes="pnl-cell"
+                                       Foreground="{DynamicResource MutedBrush}" />
+                          </Grid>
+                          <TextBlock Text="{Binding MetricsLine}"
+                                     Classes="pnl-cell"
+                                     FontFamily="{StaticResource MonoFontFamily}"
+                                     Foreground="{DynamicResource MutedBrush}"
+                                     TextWrapping="Wrap" />
+                        </StackPanel>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
               </ScrollViewer>
             </StackPanel>
           </Border>

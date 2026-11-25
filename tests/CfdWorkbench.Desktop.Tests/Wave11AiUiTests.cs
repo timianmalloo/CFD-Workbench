@@ -55,6 +55,11 @@ public static class Wave11AiUiTests
         DesktopChecks.Check("AllSevenAreas_LoopbackByokRoundTrip_ConsentPreview_ExportNoAction_ExperimentZeroRun", CheckAllSevenAreasLoopback);
         DesktopChecks.Check("ThemeBrushes_LightDarkHighContrast_Wave10AndWave11Surfaces", CheckThemeBrushesWave10AndWave11);
         DesktopChecks.Check("Wave11Ai_DesignCopy866To915_And_CommandTableSettingsModalTrue", CheckCopy866To915AndCommandTable);
+        DesktopChecks.Check("W12B_CadAssistantTrigger_CommandPalette_AndAutoCollapse", CheckW12BCadAssistantReachable);
+        DesktopChecks.Check("W12B_BaseRevisionDriftRefresh_RebasesViaStep1ConsentPreviewNeverForges", CheckW12BBaseDriftRefresh);
+        DesktopChecks.Check("W12B_BusyCancel_WrappedBeforeAfterProvenance_AndErrorRecovery", CheckW12BBusyCancelProvenanceRecovery);
+        DesktopChecks.Check("W12B_SettingsLayoutNoBlowout_WrappedTemplates_AndVerdictBorder", CheckW12BSettingsLayoutAndVerdict);
+        DesktopChecks.Check("W12B_UnifiedAreas_SetupLiveRefresh_ResultsLiveTitle_MeteredCapChip", CheckW12BUnifiedAreasAndCapChip);
     }
 
     private static void CheckSettingsDialogAndAi06()
@@ -630,6 +635,523 @@ public static class Wave11AiUiTests
             throw new InvalidOperationException("Wave 11D DESIGN.md copy check failed: " + string.Join("; ", errors));
     }
 
+    // ---- Wave 12B (W12-B) Red-First Tests (R2-01, R2-03, R2-08, R2-10, R2-11) ----
+
+    private static void CheckW12BCadAssistantReachable()
+    {
+        // R2-01 (C3, C6): CAD Assistant trigger button in ModelArea.Navbar + CommandTable assistant.cad (Modal: false).
+        var cadRow = CommandTable.Rows.SingleOrDefault(r => r.Id == "assistant.cad")
+            ?? throw new InvalidOperationException("R2-01: CommandTable missing 'assistant.cad'");
+        Require(cadRow.Menu == "View" && !cadRow.Modal,
+            $"R2-01: assistant.cad must be in View menu with Modal: false, got Menu='{cadRow.Menu}' Modal={cadRow.Modal}");
+        Require(!cadRow.Title.Contains("Analysis", StringComparison.OrdinalIgnoreCase),
+            $"C3 violated: assistant.cad title must not contain 'Analysis', got '{cadRow.Title}'");
+        Require(ShellHost.IsPaneCommand("assistant.cad"),
+            "C3 violated: assistant.cad must be routed via ShellHost.IsPaneCommand");
+
+        using var controller = new WorkbenchController();
+        var host = new ShellHost(controller);
+        var window = new Window { Content = host, Width = 1280, Height = 800 };
+        try
+        {
+            window.Show();
+            Settle(window);
+            Pump(controller.OpenExampleAsync());
+            Settle(window);
+
+            // Collapsed by default (C6).
+            Require(!host.ModelView.CadAssistantBar.IsVisible, "CadAssistantBar must default collapsed (IsVisible == false)");
+
+            // Discoverable toolbar button in ModelArea.Navbar wired to ToggleCadAssistantBar.
+            var navBtn = host.ModelView.FindControl<Button>("NavCadAssistantButton")
+                ?? throw new InvalidOperationException("R2-01: ModelArea.Navbar missing NavCadAssistantButton");
+            Require(navBtn.IsEffectivelyVisible && navBtn.IsEnabled,
+                "R2-01: NavCadAssistantButton must be visible and enabled in CAD views");
+            Click(navBtn);
+            Settle(window);
+            Require(host.ModelView.CadAssistantBar.IsVisible,
+                "R2-01: clicking NavCadAssistantButton must reveal CadAssistantBar");
+
+            // Auto-collapse when leaving CAD (e.g., entering Setup or Analysis).
+            controller.EnterSetup();
+            Settle(window);
+            Require(!host.ModelView.CadAssistantBar.IsVisible,
+                "R2-01: CadAssistantBar must auto-collapse when leaving CAD");
+
+            // CommandTable assistant.cad switches back to CAD and opens CadAssistantBar.
+            Pump(host.RunCommand("assistant.cad"));
+            Settle(window);
+            Require(controller.ActiveArea == WorkbenchArea.Cad && host.ModelView.CadAssistantBar.IsVisible,
+                "R2-01: RunCommand('assistant.cad') must switch to CAD and reveal CadAssistantBar");
+
+            // Toggle off via assistant.cad in CAD.
+            Pump(host.RunCommand("assistant.cad"));
+            Settle(window);
+            Require(!host.ModelView.CadAssistantBar.IsVisible,
+                "R2-01: second RunCommand('assistant.cad') in CAD must collapse CadAssistantBar");
+        }
+        finally
+        {
+            window.Close();
+        }
+    }
+
+    private static void CheckW12BBaseDriftRefresh()
+    {
+        // R2-03 (C5 — Security HARD VETO): Refresh over current revision re-prepares Step 1 Consent Preview
+        // over the new AcceptedId & fresh AI-04 payloadSha256 — NEVER forging BaseAcceptedId.
+        const string testKey = "sk-ant-w12b-drift-key-11223344";
+        using var server = new LoopbackAnthropicServer();
+        using var controller = new WorkbenchController();
+        var host = new ShellHost(controller);
+        var window = new Window { Content = host, Width = 1280, Height = 800 };
+        try
+        {
+            window.Show();
+            Settle(window);
+            Pump(controller.OpenExampleAsync());
+            Settle(window);
+
+            Pump(controller.Assistant.SaveSettingsAsync(AssistantSettings.CreateDefault() with
+            {
+                ProviderKind = AssistantProviderKind.Anthropic,
+                EndpointUrl = server.BaseUrl,
+                ModelId = "claude-w12b-drift"
+            }));
+            Require(controller.Assistant.SaveKey(AssistantProviderKind.Anthropic, testKey).Succeeded, "Save key failed");
+            Require(Pump(controller.Assistant.RunEvaluationAsync(liveWire: false)).Eligibility.ProposalsEnabled, "Eval failed");
+
+            string oldAcceptedId = controller.Inspection!.Authored.Binding.AcceptedId
+                ?? throw new InvalidOperationException("No initial AcceptedId");
+
+            async Task<(PreparedAssistantCall Prepared, AssistantValidationInput ValidationInput)?> PrepareCurrentAsync()
+            {
+                string? curId = controller.Inspection?.Authored.Binding.AcceptedId;
+                var prep = await controller.Assistant.PreparePreviewAsync(new AssistantPreviewRequest(
+                    AssistantArea.Cad,
+                    AssistantProposalKind.GeometryEdit,
+                    $"Return strict geometry-edit JSON referencing baseAcceptedId '{curId}'. Never emit raw coordinates or meshes.",
+                    "Narrow mid-span trailing edge by 2 mm"));
+                if (!prep.Allowed || prep.Prepared is null) return null;
+                return (prep.Prepared, new AssistantValidationInput(
+                    AssistantArea.Cad,
+                    AssistantProposalKind.GeometryEdit,
+                    ProposalId: prep.Prepared.RequestId,
+                    CurrentAcceptedId: curId));
+            }
+
+            var initial = Pump(PrepareCurrentAsync()) ?? throw new InvalidOperationException("Initial preview failed");
+            string initialSha = initial.Prepared.Payload.PayloadSha256;
+
+            // Drift the accepted revision BEFORE the model proposal is accepted!
+            Pump(controller.ApplySpanAsync("1040"));
+            Settle(window);
+            string newAcceptedId = controller.Inspection!.Authored.Binding.AcceptedId
+                ?? throw new InvalidOperationException("No post-edit AcceptedId");
+            Require(!string.Equals(oldAcceptedId, newAcceptedId, StringComparison.Ordinal),
+                "Expected span edit to advance AcceptedId");
+
+            // Model answers with the stale oldAcceptedId -> BaseDriftBanner must appear and Accept must be disabled.
+            server.EnqueueJson(
+                $$"""{"kind":"geometry-edit","baseAcceptedId":"{{oldAcceptedId}}","edits":[{"op":"ChannelDelta","channel":"trailing","eta":0.5,"deltaValue":-0.002,"unit":"m"}],"provenance":[{"fieldName":"trailing@0.5","tag":"Stated","valueDisplay":"-2 mm","reason":"User asked to narrow chord"}]}""",
+                inputTokens: 100, outputTokens: 60);
+
+            var dlg = new AssistantConsentPreviewDialog(
+                controller.Assistant,
+                initial.Prepared,
+                initial.ValidationInput,
+                currentAcceptedIdProvider: () => controller.Inspection?.Authored.Binding.AcceptedId,
+                onRefreshOverCurrentRevision: PrepareCurrentAsync);
+            try
+            {
+                dlg.Show(window);
+                Settle(dlg);
+
+                var driftedExec = Pump(dlg.SendAsync());
+                Settle(dlg);
+                Require(driftedExec.Succeeded, $"Expected validated proposal on old revision, got {driftedExec.ErrorMessage}");
+                Require(Need<Border>(dlg, "BaseDriftBanner").IsVisible,
+                    "R2-03: BaseDriftBanner must be visible when base revision drifted");
+                Require(!Need<Button>(dlg, "AcceptButton").IsEnabled,
+                    "R2-03: AcceptButton must be disabled on drifted base revision");
+                dlg.Accept();
+                Require(!dlg.Accepted, "R2-03: Accept() must refuse while base revision drifted");
+
+                // Click "Refresh over current revision" -> must return cleanly to Step 1 Consent Preview over newAcceptedId & fresh SHA-256!
+                Click(Need<Button>(dlg, "RefreshBaseButton"));
+                // Wait for async refresh callback to settle.
+                var deadline = DateTime.UtcNow.AddSeconds(5);
+                while (!Need<StackPanel>(dlg, "ConsentPanel").IsVisible && DateTime.UtcNow < deadline)
+                {
+                    Dispatcher.UIThread.RunJobs();
+                    Thread.Sleep(5);
+                }
+                Settle(dlg);
+
+                Require(Need<StackPanel>(dlg, "ConsentPanel").IsVisible && !Need<StackPanel>(dlg, "ProposalPanel").IsVisible,
+                    "R2-03 (C5): Refresh over current revision must return dialog to Step 1 Consent Preview");
+                string refreshedPreview = Need<TextBox>(dlg, "PayloadPreviewBox").Text ?? "";
+                Require(refreshedPreview.Contains(newAcceptedId, StringComparison.Ordinal),
+                    "R2-03 (C5): Refreshed Step 1 preview must carry the new AcceptedId");
+                string refreshedSha = PromptRedactor.ComputeUtf8Sha256Hex(refreshedPreview);
+                Require(!string.Equals(initialSha, refreshedSha, StringComparison.Ordinal),
+                    "R2-03 (C5): Refreshed Step 1 preview must bind a fresh AI-04 PayloadSha256");
+                Require(Need<Button>(dlg, "SendButton").IsVisible && Need<Button>(dlg, "SendButton").IsEnabled,
+                    "R2-03 (C5): SendButton must be visible and enabled for re-consent");
+
+                // Re-send over the fresh revision -> AcceptButton enables and commits cleanly!
+                server.EnqueueJson(
+                    $$"""{"kind":"geometry-edit","baseAcceptedId":"{{newAcceptedId}}","edits":[{"op":"ChannelDelta","channel":"trailing","eta":0.5,"deltaValue":-0.002,"unit":"m"}],"provenance":[{"fieldName":"trailing@0.5","tag":"Stated","valueDisplay":"-2 mm","reason":"User asked to narrow chord"}]}""",
+                    inputTokens: 105, outputTokens: 65);
+                var freshExec = Pump(dlg.SendAsync());
+                Settle(dlg);
+                Require(freshExec.Succeeded && freshExec.Validation?.GeometryEdit?.BaseAcceptedId == newAcceptedId,
+                    "R2-03: Fresh execution must carry the real newAcceptedId (never forged)");
+                Require(!Need<Border>(dlg, "BaseDriftBanner").IsVisible,
+                    "R2-03: BaseDriftBanner must clear after re-consenting over current revision");
+                Require(Need<Button>(dlg, "AcceptButton").IsEnabled,
+                    "R2-03: AcceptButton must re-enable after refreshing over current revision");
+                dlg.Accept();
+                Require(dlg.Accepted, "R2-03: Accept() must succeed after refreshing over current revision");
+                var commit = Pump(controller.ApplyAssistantGeometryEditAsync(freshExec.Validation!.GeometryEdit!));
+                Require(commit is CommitOutcome.Committed, $"R2-03: Applying refreshed edit failed: {commit}");
+            }
+            finally
+            {
+                dlg.Close();
+                Settle(window);
+            }
+        }
+        finally
+        {
+            window.Close();
+        }
+    }
+
+    private static void CheckW12BBusyCancelProvenanceRecovery()
+    {
+        // R2-11 (C6): Busy indicator + CancellationTokenSource wired to CancelButton during SendAsync,
+        // wrapped Before -> After provenance DataTemplate, and Retry / Edit prompt recovery on errors.
+        const string testKey = "sk-ant-w12b-busy-key-55667788";
+        using var server = new LoopbackAnthropicServer();
+        using var controller = new WorkbenchController();
+        var host = new ShellHost(controller);
+        var window = new Window { Content = host, Width = 1280, Height = 800 };
+        try
+        {
+            window.Show();
+            Settle(window);
+            Pump(controller.OpenExampleAsync());
+            Settle(window);
+
+            Pump(controller.Assistant.SaveSettingsAsync(AssistantSettings.CreateDefault() with
+            {
+                ProviderKind = AssistantProviderKind.Anthropic,
+                EndpointUrl = server.BaseUrl,
+                ModelId = "claude-w12b-busy"
+            }));
+            Require(controller.Assistant.SaveKey(AssistantProviderKind.Anthropic, testKey).Succeeded, "Save key failed");
+            Require(Pump(controller.Assistant.RunEvaluationAsync(liveWire: false)).Eligibility.ProposalsEnabled, "Eval failed");
+
+            var prep = Pump(controller.Assistant.PreparePreviewAsync(
+                new AssistantPreviewRequest(AssistantArea.Setup, AssistantProposalKind.SetupSeed, "Return setup-seed JSON.", "Surf foil 80 kg")));
+            Require(prep.Allowed && prep.Prepared is not null, "Preview failed");
+
+            // 1. Busy state + live cancellation via CancelButton on delayed response.
+            server.EnqueueJson("""{"kind":"setup-seed","purpose":"surf"}""", delayMs: 4000);
+            var cancelDlg = new AssistantConsentPreviewDialog(
+                controller.Assistant,
+                prep.Prepared!,
+                new AssistantValidationInput(AssistantArea.Setup, AssistantProposalKind.SetupSeed));
+            try
+            {
+                cancelDlg.Show(window);
+                Settle(cancelDlg);
+
+                var sendTask = cancelDlg.SendAsync();
+                var inFlightDeadline = DateTime.UtcNow.AddSeconds(5);
+                while (server.RequestsReceived < 1 && DateTime.UtcNow < inFlightDeadline)
+                {
+                    Dispatcher.UIThread.RunJobs();
+                    Thread.Sleep(5);
+                }
+                Require(server.RequestsReceived >= 1, "R2-11: Expected loopback server to receive in-flight request before cancellation");
+                var busyBanner = cancelDlg.FindControl<Border>("BusyBanner")
+                    ?? throw new InvalidOperationException("R2-11: AssistantConsentPreviewDialog missing BusyBanner");
+                var busyText = cancelDlg.FindControl<TextBlock>("BusyStatusText")
+                    ?? throw new InvalidOperationException("R2-11: AssistantConsentPreviewDialog missing BusyStatusText");
+                Require(busyBanner.IsVisible && busyText.Text!.Contains("Sending to model", StringComparison.Ordinal),
+                    $"R2-11: BusyBanner must show 'Sending to model…' while SendAsync is in flight, got visible={busyBanner.IsVisible} text='{busyText.Text}'");
+
+                // Click CancelButton to cancel the in-flight request!
+                Click(Need<Button>(cancelDlg, "CancelButton"));
+                var cancelled = Pump(sendTask);
+                Settle(cancelDlg);
+                Require(!cancelled.Succeeded && cancelled.ErrorCode == "ASSISTANT-CANCELLED",
+                    $"R2-11: Clicking CancelButton during SendAsync must cancel cleanly with ASSISTANT-CANCELLED, got {cancelled.ErrorCode}");
+                Require(!busyBanner.IsVisible, "R2-11: BusyBanner must hide once cancelled");
+
+                // Error recovery buttons (Retry & Edit prompt) must appear alongside Discard!
+                var retryBtn = cancelDlg.FindControl<Button>("RetryButton")
+                    ?? throw new InvalidOperationException("R2-11: AssistantConsentPreviewDialog missing RetryButton");
+                var editBtn = cancelDlg.FindControl<Button>("EditPromptButton")
+                    ?? throw new InvalidOperationException("R2-11: AssistantConsentPreviewDialog missing EditPromptButton");
+                Require(retryBtn.IsVisible && editBtn.IsVisible,
+                    "R2-11: RetryButton and EditPromptButton must be visible on cancelled/failed responses");
+
+                // 2. Retry succeeds with a valid proposal -> wrapped Before -> After provenance DataTemplate rendered!
+                server.EnqueueJson(
+                    """{"kind":"setup-seed","purpose":"surf","softTargets":{"maxSpanMeters":0.95,"maxSpanWeight":1.0,"maxChordMm":145,"maxChordWeight":1.0,"targetAreaCm2":1150,"targetAreaWeight":1.0,"targetAspectRatio":8.2,"targetAspectRatioWeight":1.0},"riderMassKg":80,"isSaltWater":true,"waterTemperatureC":15,"hRefMeters":0.45,"mastLengthCm":85,"provenance":[{"fieldName":"riderMassKg","tag":"Stated","valueDisplay":"80 kg","reason":"User stated rider mass"},{"fieldName":"waterTemperatureC","tag":"Defaulted","valueDisplay":"15 C","reason":"Preset default"}]}""",
+                    inputTokens: 80, outputTokens: 50);
+                Click(retryBtn);
+                var deadline = DateTime.UtcNow.AddSeconds(5);
+                while (cancelDlg.ExecutionResult?.Succeeded != true && DateTime.UtcNow < deadline)
+                {
+                    Dispatcher.UIThread.RunJobs();
+                    Thread.Sleep(5);
+                }
+                Settle(cancelDlg);
+                Require(cancelDlg.ExecutionResult?.Succeeded == true,
+                    $"R2-11: RetryButton must re-run SendAsync cleanly (err={cancelDlg.ExecutionResult?.ErrorCode}:{cancelDlg.ExecutionResult?.ErrorMessage})");
+                var provList = Need<ItemsControl>(cancelDlg, "ProvenanceRowsList");
+                Require(provList.ItemTemplate is not null, "R2-11: ProvenanceRowsList must use a wrapped structured DataTemplate");
+                var provStrings = provList.ItemsSource?.Cast<object>().Select(x => x.ToString() ?? "").ToArray() ?? [];
+                Require(provStrings.Any(s => s.Contains("Stated", StringComparison.Ordinal) && s.Contains("→", StringComparison.Ordinal)) &&
+                        provStrings.Any(s => s.Contains("Defaulted", StringComparison.Ordinal)),
+                    $"R2-11: Provenance rows must include Stated/Defaulted and Before → After arrow, got: {string.Join(" | ", provStrings)}");
+            }
+            finally
+            {
+                cancelDlg.Close();
+                Settle(window);
+            }
+
+            // 3. Edit prompt button sets EditPromptRequested on Withheld/Refused response.
+            server.EnqueueJson("""{"kind":"invalid-garbage"}""");
+            var recoverDlg = new AssistantConsentPreviewDialog(
+                controller.Assistant,
+                prep.Prepared!,
+                new AssistantValidationInput(AssistantArea.Setup, AssistantProposalKind.SetupSeed));
+            try
+            {
+                recoverDlg.Show(window);
+                Settle(recoverDlg);
+                var refused = Pump(recoverDlg.SendAsync());
+                Settle(recoverDlg);
+                Require(!refused.Succeeded, "Expected refused/withheld response");
+                var editBtn = Need<Button>(recoverDlg, "EditPromptButton");
+                Require(editBtn.IsVisible && Need<Button>(recoverDlg, "RetryButton").IsVisible,
+                    "R2-11: Refused/Withheld responses must show RetryButton and EditPromptButton");
+                Click(editBtn);
+                Settle(window);
+                Require(recoverDlg.EditPromptRequested && !recoverDlg.Accepted,
+                    "R2-11: Clicking EditPromptButton must set EditPromptRequested = true and leave Accepted = false");
+            }
+            finally
+            {
+                recoverDlg.Close();
+                Settle(window);
+            }
+        }
+        finally
+        {
+            window.Close();
+        }
+    }
+
+    private static void CheckW12BSettingsLayoutAndVerdict()
+    {
+        // R2-10 (C6): Short EndpointUrlLabel ("Endpoint URL") eliminating 520 px horizontal blowout,
+        // wrapped DataTemplates on EvalItemsList/AuditEntriesList, verdict-colored EvalStatusBanner border,
+        // and eval busy/cancel controls.
+        using var controller = new WorkbenchController();
+        var host = new ShellHost(controller);
+        var window = new Window { Content = host, Width = 1280, Height = 800 };
+        try
+        {
+            window.Show();
+            Settle(window);
+
+            var dlg = new AssistantSettingsDialog(controller.Assistant);
+            try
+            {
+                dlg.Show(window);
+                Settle(dlg);
+
+                var endpointLabel = Need<TextBlock>(dlg, "EndpointUrlLabelText");
+                Require(endpointLabel.Text == "Endpoint URL",
+                    $"R2-10: EndpointUrlLabelText must be short 'Endpoint URL' (not 92-char blowout), got '{endpointLabel.Text}'");
+                Require(endpointLabel.Bounds.Width < 200,
+                    $"R2-10: EndpointUrlLabelText column width must not blow out dialog (got {endpointLabel.Bounds.Width:F1} px)");
+                var helperText = dlg.FindControl<TextBlock>("EndpointHelperText")
+                    ?? throw new InvalidOperationException("R2-10: AssistantSettingsDialog missing wrapped EndpointHelperText caption");
+                Require(helperText.TextWrapping == TextWrapping.Wrap && helperText.Text!.Contains("HTTPS", StringComparison.Ordinal),
+                    $"R2-10: EndpointHelperText must wrap and carry HTTPS/loopback guidance, got '{helperText.Text}'");
+
+                var evalList = Need<ItemsControl>(dlg, "EvalItemsList");
+                var auditList = Need<ItemsControl>(dlg, "AuditEntriesList");
+                Require(evalList.ItemTemplate is not null && auditList.ItemTemplate is not null,
+                    "R2-10: EvalItemsList and AuditEntriesList must use wrapped structured DataTemplates");
+
+                // EvalStatusBanner verdict border classes: unevaluated (neither pass nor fail) -> pass (.eval-pass) -> fail (.eval-fail).
+                var banner = Need<Border>(dlg, "EvalStatusBanner");
+                Require(!banner.Classes.Contains("eval-pass") && !banner.Classes.Contains("eval-fail"),
+                    "R2-10: Unevaluated EvalStatusBanner must start in warning state (no eval-pass/eval-fail class)");
+
+                Require(dlg.FindControl<Border>("EvalBusyBanner") is not null &&
+                        dlg.FindControl<Button>("CancelEvalButton") is not null,
+                    "R2-11: AssistantSettingsDialog must provide EvalBusyBanner and CancelEvalButton");
+
+                controller.Assistant.SaveKey(AssistantProviderKind.Anthropic, "sk-ant-w12b-settings-123456");
+                Pump(dlg.RunEvaluationNowAsync());
+                Settle(dlg);
+                Require(banner.Classes.Contains("eval-pass") && !banner.Classes.Contains("eval-fail"),
+                    "R2-10: Passing evaluation must apply .eval-pass (PrimaryBrush border) to EvalStatusBanner");
+
+                // Inject a cryptographically valid failing evaluation receipt (all 10 suite items, item 0 failing)
+                // to verify .eval-fail (DangerBrush border).
+                var failingItems = AssistantEvalSuite.GetSuiteDefinition()
+                    .Select((def, idx) => def.Reserved
+                        ? new AssistantEvalItemResult(def.ItemId, def.Title, 0, 0, 0.0, def.Threshold, true, false)
+                        : idx == 0
+                            ? new AssistantEvalItemResult(def.ItemId, def.Title, 0, def.Cases.Count, 0.0, def.Threshold, false, false)
+                            : new AssistantEvalItemResult(def.ItemId, def.Title, def.Cases.Count, def.Cases.Count, 1.0, def.Threshold, false, true))
+                    .ToArray();
+                var failedReceipt = AssistantEvalSuite.BuildReceipt(
+                    controller.Assistant.CurrentSettings.ProviderKind,
+                    controller.Assistant.CurrentSettings.EndpointUrl,
+                    controller.Assistant.CurrentSettings.ModelId,
+                    DateTimeOffset.UtcNow.AddSeconds(5),
+                    failingItems);
+                Pump(controller.Assistant.SaveSettingsAsync(controller.Assistant.CurrentSettings with
+                {
+                    EvalReceipts = [failedReceipt]
+                }));
+                Pump(dlg.RefreshFromStoreAsync());
+                Settle(dlg);
+                Require(banner.Classes.Contains("eval-fail") && !banner.Classes.Contains("eval-pass"),
+                    $"R2-10: Failing evaluation must apply .eval-fail (DangerBrush border) to EvalStatusBanner (status='{NeedText(dlg, "EvalStatusBadgeText")}')");
+
+                // R2-11: Pre-cancelled CancellationToken cancels RunEvaluationNowAsync cleanly without throwing.
+                using var preCancelled = new CancellationTokenSource();
+                preCancelled.Cancel();
+                var cancelEvalRes = Pump(dlg.RunEvaluationNowAsync(preCancelled.Token));
+                Settle(dlg);
+                Require(cancelEvalRes is null && Need<Button>(dlg, "RunEvalButton").IsEnabled && !Need<Border>(dlg, "EvalBusyBanner").IsVisible,
+                    "R2-11: Cancelled RunEvaluationNowAsync must return null, hide EvalBusyBanner, and re-enable RunEvalButton");
+            }
+            finally
+            {
+                dlg.Close();
+                Settle(window);
+            }
+        }
+        finally
+        {
+            window.Close();
+        }
+    }
+
+    private static void CheckW12BUnifiedAreasAndCapChip()
+    {
+        // R2-08 (C6):
+        // 1. ShellHost.OnAssistantStateChanged refreshes SetupView immediately without leaving Setup.
+        // 2. AnalysisPanel AskCalculationButton toggles collapsed-by-default prompt + inline answer card (5 tabs & plot >= 82 px at rest).
+        // 3. ResultsWorkspaceView Ask heading dynamically reflects live BYOK vs offline + metered cap chip.
+        // 4. AssistantPromptBar & RunWorkspaceView surface metered daily cap chip ("Used X/Y today").
+        using var controller = new WorkbenchController();
+        var host = new ShellHost(controller);
+        var window = new Window { Content = host, Width = 1280, Height = 800 };
+        try
+        {
+            window.Show();
+            Settle(window);
+            Pump(controller.OpenExampleAsync());
+            Settle(window);
+
+            // 1. Stay in Setup while saving key & passing eval -> LanguagePromptBox must enable IMMEDIATELY without leaving Setup!
+            controller.EnterSetup();
+            Settle(window);
+            var setupView = host.ModelView.SetupView;
+            Require(!Need<TextBox>(setupView, "LanguagePromptBox").IsEnabled, "Setup prompt starts disabled without key");
+            controller.Assistant.SaveKey(AssistantProviderKind.Anthropic, "sk-ant-w12b-unified-112233");
+            Pump(controller.Assistant.RunEvaluationAsync(liveWire: false));
+            Settle(window);
+            Require(Need<TextBox>(setupView, "LanguagePromptBox").IsEnabled && Need<Button>(setupView, "LanguageSubmitButton").IsEnabled,
+                "R2-08: ShellHost.OnAssistantStateChanged must refresh SetupView immediately when key/eval changes without leaving Setup");
+
+            // Metered daily cap chip on AssistantPromptBar (CAD & Experiment) and Run.
+            controller.EnterCad();
+            host.ModelView.ToggleCadAssistantBar();
+            Settle(window);
+            var cadUsageChip = host.ModelView.CadAssistantBar.FindControl<TextBlock>("UsageChipText");
+            Require(cadUsageChip is not null && cadUsageChip.Text == "Used 0/50 today",
+                $"R2-08: AssistantPromptBar must show metered daily cap chip 'Used 0/50 today', got '{cadUsageChip?.Text}'");
+
+            controller.EnterRun();
+            Settle(window);
+            var runUsageChip = host.ModelView.RunView.FindControl<TextBlock>("RunAssistantUsageChipText");
+            Require(runUsageChip is not null && runUsageChip.Text == "Used 0/50 today",
+                $"R2-08: RunWorkspaceView must surface metered daily cap chip, got '{runUsageChip?.Text}'");
+
+            // 2. ResultsWorkspaceView Ask card title dynamically reflects live BYOK vs offline!
+            controller.EnterResults();
+            Settle(window);
+            var resultsHeading = host.ModelView.ResultsView.FindControl<TextBlock>("AskResultHeadingText")
+                ?? throw new InvalidOperationException("R2-08: ResultsWorkspaceView missing AskResultHeadingText");
+            Require(!resultsHeading.Text!.Contains("(offline)", StringComparison.OrdinalIgnoreCase) &&
+                    resultsHeading.Text.Contains("BYOK", StringComparison.OrdinalIgnoreCase),
+                $"R2-08: Results Ask heading must reflect live BYOK when ready (not stuck saying '(offline)'), got '{resultsHeading.Text}'");
+            var resultsUsage = host.ModelView.ResultsView.FindControl<TextBlock>("AskResultUsageChipText");
+            Require(resultsUsage is not null && resultsUsage.Text == "Used 0/50 today",
+                $"R2-08: ResultsWorkspaceView must surface metered daily cap chip, got '{resultsUsage?.Text}'");
+
+            // Removing key immediately flips Results heading back to "(offline)" and disables Setup prompt!
+            controller.Assistant.RemoveKey(AssistantProviderKind.Anthropic);
+            Settle(window);
+            Require(resultsHeading.Text!.Contains("(offline)", StringComparison.OrdinalIgnoreCase),
+                $"R2-08: Results Ask heading must return to '(offline)' after key removal, got '{resultsHeading.Text}'");
+            controller.EnterSetup();
+            Settle(window);
+            Require(!Need<TextBox>(setupView, "LanguagePromptBox").IsEnabled,
+                "R2-08: Removing key must immediately disable SetupView LanguagePromptBox");
+
+            // 3. AnalysisPanel: collapsed-by-default drawer, AskCalculationButton toggles prompt + inline answer card,
+            // preserving exact 5 tabs!
+            controller.EnterCad();
+            controller.ToggleAnalysis();
+            host.RefreshPanes();
+            Settle(window);
+            var panel = host.AnalysisPanel;
+            var drawer = panel.FindControl<Border>("AnalysisAssistantDrawer")
+                ?? throw new InvalidOperationException("R2-08: AnalysisPanel missing collapsed-by-default AnalysisAssistantDrawer");
+            Require(!drawer.IsVisible, "C6: AnalysisAssistantDrawer must be collapsed by default");
+            var tabs = panel.FindControl<TabControl>("PanelTabs")!;
+            Require(string.Join(",", tabs.Items.OfType<TabItem>().Select(t => t.Header)) == "Spanwise loading,Section,Loads,Provenance,Compare",
+                "C6: AnalysisPanel must preserve exact 5 TabItem headers");
+
+            Click(Need<Button>(panel, "AskCalculationButton"));
+            Settle(window);
+            Require(drawer.IsVisible, "R2-08: Clicking AskCalculationButton must open inline AnalysisAssistantDrawer");
+            var anaBar = panel.FindControl<AssistantPromptBar>("AnalysisAssistantBar")
+                ?? throw new InvalidOperationException("R2-08: AnalysisAssistantDrawer missing AnalysisAssistantBar");
+            Require(anaBar.IsEffectivelyVisible, "R2-08: AnalysisAssistantBar must be visible when drawer is open");
+            panel.ShowAssistantAnswer("CL is 0.42 at 5.14 m/s.", ["run-a1"]);
+            Settle(window);
+            var ansCard = Need<Border>(panel, "AnalysisAnswerCard");
+            Require(ansCard.IsVisible && NeedText(panel, "AnalysisAnswerText").Contains("CL is 0.42", StringComparison.Ordinal),
+                "R2-08: AnalysisPanel must render assistant answers in inline scrollable AnalysisAnswerCard");
+
+            Click(Need<Button>(panel, "AskCalculationButton"));
+            Settle(window);
+            Require(!drawer.IsVisible, "R2-08: Second AskCalculationButton click must collapse AnalysisAssistantDrawer");
+        }
+        finally
+        {
+            window.Close();
+        }
+    }
+
     private static void VerifyDialogChrome200Pct(string name, Window dlg, Window owner)
     {
         bool bounded = !double.IsInfinity(dlg.MaxHeight) && dlg.MaxHeight <= 700 && dlg.Bounds.Height <= 700.5;
@@ -743,9 +1265,10 @@ public static class Wave11AiUiTests
     private sealed class LoopbackAnthropicServer : IDisposable
     {
         private readonly HttpListener listener = new();
-        private readonly Queue<(string Text, int? InTok, int? OutTok)> responses = new();
+        private readonly Queue<(string Text, int? InTok, int? OutTok, int DelayMs)> responses = new();
         private readonly CancellationTokenSource cts = new();
         private readonly Task loopTask;
+        private int requestsReceived;
 
         public LoopbackAnthropicServer()
         {
@@ -757,10 +1280,11 @@ public static class Wave11AiUiTests
         }
 
         public string BaseUrl { get; }
+        public int RequestsReceived => Volatile.Read(ref requestsReceived);
 
-        public void EnqueueJson(string textJson, int? inputTokens = null, int? outputTokens = null)
+        public void EnqueueJson(string textJson, int? inputTokens = null, int? outputTokens = null, int delayMs = 0)
         {
-            lock (responses) responses.Enqueue((textJson, inputTokens, outputTokens));
+            lock (responses) responses.Enqueue((textJson, inputTokens, outputTokens, delayMs));
         }
 
         private async Task ServeLoopAsync()
@@ -772,39 +1296,59 @@ public static class Wave11AiUiTests
                 catch (ObjectDisposedException) { break; }
                 catch (HttpListenerException) { break; }
 
-                (string text, int? inTok, int? outTok) next;
+                Interlocked.Increment(ref requestsReceived);
+                (string text, int? inTok, int? outTok, int delayMs) next;
                 lock (responses)
                 {
-                    next = responses.Count > 0 ? responses.Dequeue() : ("{}", null, null);
+                    next = responses.Count > 0 ? responses.Dequeue() : ("{}", null, null, 0);
                 }
 
-                using var ms = new MemoryStream();
-                using (var writer = new Utf8JsonWriter(ms))
+                _ = Task.Run(() => HandleContextAsync(ctx, next));
+            }
+        }
+
+        private async Task HandleContextAsync(
+            HttpListenerContext ctx,
+            (string Text, int? InTok, int? OutTok, int DelayMs) next)
+        {
+            if (next.DelayMs > 0)
+            {
+                try { await Task.Delay(next.DelayMs, cts.Token).ConfigureAwait(false); }
+                catch (OperationCanceledException) { return; }
+            }
+
+            using var ms = new MemoryStream();
+            using (var writer = new Utf8JsonWriter(ms))
+            {
+                writer.WriteStartObject();
+                writer.WriteStartArray("content");
+                writer.WriteStartObject();
+                writer.WriteString("type", "text");
+                writer.WriteString("text", next.Text);
+                writer.WriteEndObject();
+                writer.WriteEndArray();
+                if (next.InTok is not null || next.OutTok is not null)
                 {
-                    writer.WriteStartObject();
-                    writer.WriteStartArray("content");
-                    writer.WriteStartObject();
-                    writer.WriteString("type", "text");
-                    writer.WriteString("text", next.text);
-                    writer.WriteEndObject();
-                    writer.WriteEndArray();
-                    if (next.inTok is not null || next.outTok is not null)
-                    {
-                        writer.WriteStartObject("usage");
-                        if (next.inTok is { } i) writer.WriteNumber("input_tokens", i);
-                        if (next.outTok is { } o) writer.WriteNumber("output_tokens", o);
-                        writer.WriteEndObject();
-                    }
+                    writer.WriteStartObject("usage");
+                    if (next.InTok is { } i) writer.WriteNumber("input_tokens", i);
+                    if (next.OutTok is { } o) writer.WriteNumber("output_tokens", o);
                     writer.WriteEndObject();
                 }
+                writer.WriteEndObject();
+            }
 
-                byte[] payload = ms.ToArray();
+            byte[] payload = ms.ToArray();
+            try
+            {
                 ctx.Response.StatusCode = 200;
                 ctx.Response.ContentType = "application/json; charset=utf-8";
                 ctx.Response.ContentLength64 = payload.Length;
                 await ctx.Response.OutputStream.WriteAsync(payload, cts.Token).ConfigureAwait(false);
                 ctx.Response.Close();
             }
+            catch (HttpListenerException) { }
+            catch (ObjectDisposedException) { }
+            catch (OperationCanceledException) { }
         }
 
         private static int PickFreeTcpPort()

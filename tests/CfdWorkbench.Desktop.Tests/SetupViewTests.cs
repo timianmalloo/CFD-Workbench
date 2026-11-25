@@ -74,6 +74,9 @@ public static class SetupViewTests
             Require(noKeyText.IsVisible && noKeyText.Text == SetupController.Copy53NoApiKey,
                 $"Expected COPY-53 text, got '{noKeyText.Text}'");
             Require(!promptBox.IsEnabled && !submitBtn.IsEnabled, "Language prompt & submit must be disabled without API key");
+            var usageChip = setupView.FindControl<TextBlock>("LanguageUsageChipText");
+            Require(usageChip is not null && usageChip.Text!.Contains("Used ", StringComparison.Ordinal) && usageChip.Text.Contains(" today", StringComparison.Ordinal),
+                $"R2-08: Setup language card must surface metered daily cap chip, got '{usageChip?.Text}'");
             AssertLab01Clean(setupView, "no-key-language");
 
             // ---- Hard State 1: clean-race + GEN fallback disclosure ----

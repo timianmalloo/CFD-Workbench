@@ -125,6 +125,11 @@ public partial class ExperimentSetupView : UserControl
                 RequestedThemeVariant = owner.ActualThemeVariant
             };
             await dlg.ShowDialog(owner);
+            if (dlg.EditPromptRequested)
+            {
+                ExperimentAssistantBar.FocusPrompt();
+                return;
+            }
             if (dlg.Accepted && dlg.ExecutionResult?.Validation?.ExperimentConfig is { } cfg)
             {
                 ApplyExperimentConfigProposal(cfg);

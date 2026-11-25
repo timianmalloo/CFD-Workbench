@@ -129,6 +129,14 @@ public partial class SetupWorkspaceView : UserControl
         Refresh();
     }
 
+    public void RefreshAssistantStatus(Assistant.AssistantRuntimeHub? hub)
+    {
+        assistantHub = hub ?? assistantHub;
+        if (assistantHub is not null)
+            bound?.SetApiKeyAvailable(assistantHub.HasApiKey);
+        Refresh();
+    }
+
     private async Task HandleLanguageSubmitAsync()
     {
         if (bound is null || assistantHub is null) return;
@@ -159,6 +167,11 @@ public partial class SetupWorkspaceView : UserControl
                 RequestedThemeVariant = owner.ActualThemeVariant
             };
             await dlg.ShowDialog(owner);
+            if (dlg.EditPromptRequested)
+            {
+                LanguagePromptBox.Focus();
+                return;
+            }
             if (dlg.Accepted && dlg.ExecutionResult?.Validation?.SetupSeed is { } seed)
             {
                 bound.ApplySetupSeedProposal(seed);
@@ -216,13 +229,28 @@ public partial class SetupWorkspaceView : UserControl
 
             // AI-02 language entry slot (COPY-79 / COPY-53, AI-01: never disables parameter form)
             LanguageCardTitle.Text = SetupController.Copy79LanguageTitle;
-            LanguageNoKeyText.IsVisible = !bound.HasApiKey;
+            bool hasKey = assistantHub is not null ? assistantHub.HasApiKey : bound.HasApiKey;
+            LanguageNoKeyText.IsVisible = !hasKey;
             LanguageNoKeyText.Text = SetupController.Copy53NoApiKey;
-            LanguageConfigureKeyButton.IsVisible = !bound.HasApiKey || (assistantHub is not null && !assistantHub.Eligibility.ProposalsEnabled);
-            bool readyForBrief = bound.HasApiKey && (assistantHub is null || assistantHub.Eligibility.ProposalsEnabled);
+            if (assistantHub is not null)
+            {
+                LanguageUsageChipText.Text = Assistant.AssistantCopy.DailyUsageChip(
+                    assistantHub.DailyRequestsUsedUtc,
+                    assistantHub.CurrentSettings.DailyRequestCap);
+                LanguageUsageChip.IsVisible = true;
+            }
+            else
+            {
+                LanguageUsageChip.IsVisible = false;
+            }
+            LanguageConfigureKeyButton.IsVisible = !hasKey || (assistantHub is not null && !assistantHub.Eligibility.ProposalsEnabled);
+            LanguageConfigureKeyButton.Content = !hasKey
+                ? Assistant.AssistantCopy.ConfigureKeyButton
+                : Assistant.AssistantCopy.OpenSettingsButton;
+            bool readyForBrief = hasKey && (assistantHub is null || assistantHub.Eligibility.ProposalsEnabled);
             LanguagePromptBox.IsEnabled = readyForBrief;
             LanguageSubmitButton.IsEnabled = readyForBrief;
-            if (bound.HasApiKey && assistantHub is not null && !assistantHub.Eligibility.ProposalsEnabled)
+            if (hasKey && assistantHub is not null && !assistantHub.Eligibility.ProposalsEnabled)
             {
                 LanguageStatusText.Text = Assistant.AssistantCopy.UnevaluatedOnThisModel;
                 LanguageStatusText.IsVisible = true;

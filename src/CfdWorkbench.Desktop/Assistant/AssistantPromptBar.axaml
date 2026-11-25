@@ -6,33 +6,55 @@
           BorderThickness="{StaticResource HairlineThickness}"
           Padding="{StaticResource Space2}">
     <StackPanel Spacing="{StaticResource StackGap1}">
-      <DockPanel>
-        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="{StaticResource StackGap1}" VerticalAlignment="Center">
+      <Grid x:Name="HeaderGrid" RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource StackGap2}" RowSpacing="{StaticResource StackGap1}">
+        <TextBlock x:Name="EntryTitleText"
+                   Grid.Row="0"
+                   Grid.Column="0"
+                   FontWeight="SemiBold"
+                   FontSize="{DynamicResource PropTitleSize}"
+                   Foreground="{DynamicResource InkBrush}"
+                   TextWrapping="Wrap"
+                   VerticalAlignment="Center" />
+        <WrapPanel x:Name="HeaderChipsPanel"
+                   Grid.Row="0"
+                   Grid.Column="1"
+                   Orientation="Horizontal"
+                   VerticalAlignment="Center">
           <Border Background="{DynamicResource SurfaceSoftBrush}"
                   BorderBrush="{DynamicResource LineBrush}"
                   BorderThickness="{StaticResource HairlineThickness}"
-                  Padding="{StaticResource ChipPadding}">
+                  Padding="{StaticResource ChipPadding}"
+                  Margin="{StaticResource UnitGap}">
             <TextBlock x:Name="StatusBadgeText"
                        FontSize="{StaticResource CaptionSize}"
                        Foreground="{DynamicResource MutedBrush}"
                        Text="No key" />
           </Border>
+          <Border x:Name="UsageChipBorder"
+                  IsVisible="False"
+                  Background="{DynamicResource SurfaceSoftBrush}"
+                  BorderBrush="{DynamicResource LineBrush}"
+                  BorderThickness="{StaticResource HairlineThickness}"
+                  Padding="{StaticResource ChipPadding}"
+                  Margin="{StaticResource UnitGap}">
+            <TextBlock x:Name="UsageChipText"
+                       Classes="pnl-cell"
+                       Foreground="{DynamicResource MutedBrush}"
+                       Text="Used 0/50 today" />
+          </Border>
           <Button x:Name="ConfigureKeyButton"
                   Content="Configure key"
                   MinHeight="{StaticResource CompactTargetSize}"
+                  Margin="{StaticResource UnitGap}"
                   AutomationProperties.Name="Configure API key" />
           <Button x:Name="OpenSettingsButton"
                   Content="Open Settings"
                   IsVisible="False"
                   MinHeight="{StaticResource CompactTargetSize}"
+                  Margin="{StaticResource UnitGap}"
                   AutomationProperties.Name="Open assistant settings" />
-        </StackPanel>
-        <TextBlock x:Name="EntryTitleText"
-                   FontWeight="SemiBold"
-                   FontSize="{StaticResource PropTitleSize}"
-                   Foreground="{DynamicResource InkBrush}"
-                   VerticalAlignment="Center" />
-      </DockPanel>
+        </WrapPanel>
+      </Grid>
 
       <Grid ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource StackGap1}">
         <TextBox x:Name="PromptBox"
