@@ -2061,3 +2061,9 @@ Ruled interactively by the operator on 2026-11-24 after Wave 10 push (d89d727f).
 Ruled interactively by the operator on 2026-11-24 approving Wave 12 per docs/reviews/ui-as-built-workbench-r2.md Best next action. (1) ActivityRail is now the single canonical 7-area switcher across the workbench; Rulings 271 (DR-SWP-6) and 272 (DR-SET-5) interim navbar bridge is cleanly retired by removing NavSetupButton, NavCadButton, NavAnalysisButton, and NavSweepsButton from ModelArea.Navbar, hiding ModelArea.Navbar whenever ViewArrangementGrid is not visible (pure CAD/Analysis viewport toolbar: Views, Display, Fit, Fit Selection, plus CAD Assistant trigger), and removing the 56 px SweepNavbarClearance dead bottom margin from SetupWorkspaceView, SweepsWorkspaceView, RunWorkspaceView, and ResultsWorkspaceView (R2-04). (2) CAD Left/Right tool docks auto-collapse when entering Setup, Experiment, Run, Results, or SolverSetup and restore the user's prior CAD dock visibility when returning to CAD or Analysis (R2-05). (3) Pre-rail Navbar keyboard/sync tests (ControllerViewTests, Wave10UiTests) are updated in W12-A to assert the unified ActivityRail + viewport-only Navbar contract.
 
 - request: req-01M88JY35819RJF8PV4525P34M · ruled by: operator · at: 2026-11-25T05:30:26Z
+
+### Ruling 278 — Operator Wave 11 copy confirmation: COPY-866..915 approved byte-for-byte
+
+Ruled interactively by the operator on 2026-11-26 after Wave 12 push (5f2c1a7a). All 50 remaining proposed copy rows in DESIGN.md — Cross-Area BYOK Assistant Settings, Consent Preview, Prompt Bar, Evaluation Gate, and Area 7 Export notice COPY-866..915 (sanitized in Wave 12 W12-D) — are approved byte for byte as written and promoted from proposed to approved in DESIGN.md citing this ruling; no copy text and no code constant changes. Zero unapproved COPY-* rows remain in DESIGN.md.
+
+- request: req-01M8CH6AAJXG70B0PB8V2MNBCW · ruled by: operator · at: 2026-11-26T18:16:56Z

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-25T09:46:14Z",
+  "generated": "2026-11-26T18:17:05Z",
   "audit": [
     {
       "actor": null,
@@ -45848,6 +45848,21 @@ window.AUDIT_DATA = {
         "speedup": 2.65,
         "peak_concurrency": 3
       }
+    },
+    {
+      "id": "al-01M8CH3XNGJ3860Q00H71AY131",
+      "shortname": "i have changed networks; i am on my hotspot it should address the source…",
+      "datetime": "2026-11-26T18:15:37Z",
+      "session": "prompt-log",
+      "prompt": "i have changed networks; i am on my hotspot it should address the sourceforge and connectivity issues; push, then batch approve all copy, then look for all outstanding items in the prior waves that can be done autonomously now (modulo accessibility items)",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
     }
   ],
   "changes": [
@@ -49824,6 +49839,24 @@ window.AUDIT_DATA = {
       "to": "agy-w12-coord",
       "kind": "ruling",
       "ref": "req-01M88JY35819RJF8PV4525P34M",
+      "session": "operator"
+    },
+    {
+      "id": "mail-01M8CH6AB2VNAY9Z9JXNPNVJ3Z",
+      "ts": "2026-11-26T18:16:55Z",
+      "from": "agy-w13-coord",
+      "to": "operator",
+      "kind": "decision-request",
+      "ref": "req-01M8CH6AAJXG70B0PB8V2MNBCW",
+      "session": "agy-w13-coord"
+    },
+    {
+      "id": "mail-01M8CH6AMC6B9XXGYH3047Y8BE",
+      "ts": "2026-11-26T18:16:56Z",
+      "from": "operator",
+      "to": "agy-w13-coord",
+      "kind": "ruling",
+      "ref": "req-01M8CH6AAJXG70B0PB8V2MNBCW",
       "session": "operator"
     }
   ]
