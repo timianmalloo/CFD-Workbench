@@ -1,0 +1,196 @@
+{
+  "schema": "cfdw-wsl-openfoam-petsc4foam-qual/1",
+  "captured_utc": "2026-11-26T18:31:44Z",
+  "distro_name": "cfdw-openfoam2512-arm64",
+  "distro_install_path": "D:\\wsl\\cfdw-openfoam2512-arm64",
+  "host_ubuntu_24_04_pre_state": "Stopped (WSL2, untouched)",
+  "host_ubuntu_24_04_post_state": "Stopped (WSL2, untouched)",
+  "distro_post_state": "Stopped (WSL2, cleanly terminated after qualification)",
+  "environment": {
+    "architecture": "arm64",
+    "wm_options": "linuxARM64GccDPInt32Opt",
+    "foam_api": "2512",
+    "wm_project_version": "v2512",
+    "build_id": "_bd2b6720-20260127",
+    "arch_flags": "LSB;label=32;scalar=64",
+    "gpu": "NVIDIA RTX Spark N1X (6144-core Blackwell RTX GPU), driver 617.42, compute_cap 12.1, 64000 MiB",
+    "df_root_post_openfoam": "/dev/sdd 1007G total, 14G used, 943G avail (2%)"
+  },
+  "openfoam_apt_install": {
+    "result": "PASS",
+    "keyring_sha256": "6d17d37b82fc840b8a5c767545703df7264cfa3e30f9cf74556ebb124bda1a93",
+    "inrelease_gpgv_validsig": "DC93C096174122E256DA24063386DD74948D208F",
+    "inrelease_gpgv_signer": "openfoam-com <admin@opencfd.co.uk>",
+    "apt_simulate_install_count": 53,
+    "apt_simulate_remove_count": 0,
+    "forbidden_linux_nvidia_driver_count": 0,
+    "deb_artifacts": {
+      "openfoam2512_2512.0-2_arm64.deb": {
+        "bytes": 61532936,
+        "sha256": "f01ec4093ac66ad6afcb61ed0144e5ee3df2425a16ffea52f45c93f7c1e588a5"
+      },
+      "openfoam2512-common_2512.0-2_all.deb": {
+        "bytes": 1311782,
+        "sha256": "f438ecbfaff0248b9273502f3b43a6cb1b4f81c07224dbda811f1b48d989026f"
+      },
+      "openfoam2512-dev_2512.0-2_arm64.deb": {
+        "bytes": 11228,
+        "sha256": "2b08ed95ff43064b57651df12baf9aa2d5eaf2cfeb7ed9ed543069a5a3bc7445"
+      },
+      "openfoam2512-source_2512.0-2_all.deb": {
+        "bytes": 7567038,
+        "sha256": "3fa3396a40b41c35e23d3544ac8e49d65e0d15ad46d12ddf480626c23c822b1b"
+      },
+      "openfoam2512-tools_2512.0-2_arm64.deb": {
+        "bytes": 53286,
+        "sha256": "a5bc1970f549f0c49d831708fd54d8f361aa269735fb4f142c5f9e94cbcf54f4"
+      }
+    },
+    "binary_sha256": {
+      "icoFoam": "0fe6574028b176c664517c48c1f1a53d584c43c250257506ead1b8034493f953",
+      "simpleFoam": "b54599a963bf418adf1738fd92969ed5ac99d3ac6c38ae80e246d1e120dbaab3",
+      "blockMesh": "76e970737b84fd00ab87005209b3abf58111bcc20250e34ff51d750c2de6c78c",
+      "checkMesh": "cedc52f93df43b7fc0254159e2143ea344f13f36bc18ffc5cacbd8a3a305c7af"
+    }
+  },
+  "m1_cavity_cpu_smoke": {
+    "result": "PASS",
+    "banner_status": "Disallowing",
+    "build_id": "_bd2b6720-20260127",
+    "cells": 400,
+    "checkmesh_ok": true,
+    "end_time": 0.5,
+    "courant_mean": 0.222158,
+    "courant_max": 0.852134,
+    "delta_vs_macos_and_win_x64_courant_mean": 0.0,
+    "wall_seconds": {
+      "blockMesh": 0.02,
+      "checkMesh": 0.01,
+      "icoFoam": 0.04
+    },
+    "max_rss_kib": {
+      "blockMesh": 36736,
+      "checkMesh": 37892,
+      "icoFoam": 35368
+    }
+  },
+  "petsc4foam_build": {
+    "result": "PASS",
+    "commit": "cb1badc4978306e7001a4654dcdf53f284a92365",
+    "tree_sha1": "74e5dbf216effe0768687dec8e66c56f79c9df85",
+    "library_path": "/opt/cfdw-f1/openfoam-module/lib/libpetscFoam.so",
+    "library_bytes": 169352,
+    "library_sha256": "30e0fd46c6bfe19033079facd0858207e8e4caccf8d210ee38071e7f96d78434",
+    "foamHasLibrary_output": "Can load \"petscFoam\"",
+    "resume_script_exit_code": 0,
+    "linked_cuda_and_petsc_libs": [
+      "libpetsc.so.3.26",
+      "libfiniteVolume.so",
+      "libOpenFOAM.so",
+      "libPstream.so",
+      "libmpi.so.40",
+      "libcudart.so.13",
+      "libcublas.so.13",
+      "libcusparse.so.12",
+      "libcusolver.so.12",
+      "libcurand.so.10",
+      "libcublasLt.so.13",
+      "libnvJitLink.so.13"
+    ]
+  },
+  "openfoam_cpu_vs_petsc_cuda_trials": {
+    "cavity_400_cells_icofoam_t0p5": {
+      "native_pcg_dic": {
+        "courant_mean": 0.222158,
+        "courant_max": 0.852134,
+        "wall_seconds": 0.03,
+        "max_rss_kib": 35368
+      },
+      "petsc_cpu_cg_jacobi_diag": {
+        "ksp_type": "cg",
+        "pc_type": "jacobi",
+        "mat_type": "seqaij",
+        "courant_mean": 0.222158,
+        "courant_max": 0.852134,
+        "wall_seconds": 1.39,
+        "max_rss_kib": 300144
+      },
+      "petsc_gpu_cg_jacobi_diag": {
+        "ksp_type": "cg",
+        "pc_type": "jacobi",
+        "mat_type": "seqaijcusparse",
+        "gpu_flop_percent_kspsolve": 100,
+        "gpu_flop_percent_matmult": 100,
+        "courant_mean": 0.222158,
+        "courant_max": 0.852134,
+        "wall_seconds": 7.49,
+        "max_rss_kib": 478228
+      }
+    },
+    "naca0012_l6_14336_cells_simplefoam_200_iters": {
+      "case_source": "docs/proof/win-naca/l6-inputs (NASA TMR NACA 0012 Family II L6, 14,336 cells, alpha=10 deg, Re=6e6)",
+      "native_gamg_clean": {
+        "wall_seconds": 5.18,
+        "solver_exec_seconds": 2.19,
+        "max_rss_kib": 102760,
+        "cd_iter200": 0.0186461474846,
+        "cl_iter200": 0.9758586221882
+      },
+      "petsc_cpu_cg_jacobi_clean": {
+        "mat_type": "seqaij",
+        "wall_seconds": 17.22,
+        "solver_exec_seconds": 5.93,
+        "max_rss_kib": 370576,
+        "cd_iter200": 0.01845323966119,
+        "cl_iter200": 0.9825616365107
+      },
+      "petsc_gpu_cg_jacobi_clean": {
+        "mat_type": "seqaijcusparse",
+        "wall_seconds": 27.77,
+        "solver_exec_seconds": 25.68,
+        "max_rss_kib": 548524,
+        "cd_iter200": 0.01845323966121,
+        "cl_iter200": 0.9825616365107,
+        "abs_delta_cd_vs_petsc_cpu": 2e-14,
+        "abs_delta_cl_vs_petsc_cpu": 0.0
+      },
+      "petsc_gpu_cg_jacobi_50iter_diag": {
+        "mat_type": "seqaijcusparse",
+        "kspsolve_calls": 50,
+        "kspsolve_flops": 6240000000.0,
+        "kspsolve_gpu_flop_percent": 100,
+        "matmult_calls": 20804,
+        "matmult_gpu_mflops": 3057,
+        "matmult_gpu_flop_percent": 100,
+        "wall_seconds": 21.66,
+        "max_rss_kib": 548308
+      },
+      "engineering_verdict": "Functional and numerical qualification PASS (100% GPU flops on seqaijcusparse, 2e-14 Cd parity vs PETSc CPU). At 14,336 cells, per-step CUDA kernel launch latency (~416 MatMult launches/SIMPLE iter) and H2D/D2H transfers make GPU slower than native CPU GAMG (27.77 s vs 5.18 s); GPU pressure offload is only beneficial for large 3D meshes (~10^5-10^6+ cells), consistent with the 1M-DOF 12.5x standalone PETSc ex2 result."
+    }
+  },
+  "csharp_product_launcher_live_m1_smoke": {
+    "result": "PASS",
+    "test_name": "SolverLauncher_WindowsWsl_CleanEnvSystemRootAndLinuxHome_M1M6",
+    "env_flag": "CFDW_LIVE_WSL_SMOKE=1",
+    "distro": "cfdw-openfoam2512-arm64",
+    "build_id": "_bd2b6720-20260127",
+    "banner_status": "Disallowing",
+    "courant_mean": 0.222158,
+    "duration_ms": 15984,
+    "defect_class_fixed": "WSL-CLEAN-ENV-M1"
+  },
+  "windows_arm64_su2_v850_live_smoke": {
+    "result": "PASS",
+    "artifact": "SU2-v8.5.0-win64-omp.zip",
+    "zip_bytes": 28043921,
+    "zip_sha256": "4466fe21aedb5e0bad57afd45f829acbdec6ec79fe8c3f8954ddea06a4b4bc11",
+    "exe_sha256": "3cb60646b31c08e468441be9f3497601960d4bb31349e6329982bcdeed599248",
+    "execution_mode": "Windows 11 ARM64 Prism x64 emulation",
+    "wall_seconds": 2.653,
+    "final_iter": 61,
+    "rms_p": -10.02477646,
+    "cd": 2.885552317,
+    "cl": -2.157833374e-16,
+    "matches_win_x64_printed_digits": true
+  }
+}

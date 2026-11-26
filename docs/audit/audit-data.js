@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-26T18:17:05Z",
+  "generated": "2026-11-26T18:58:20Z",
   "audit": [
     {
       "actor": null,
@@ -45863,6 +45863,67 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M8CKJ424ZKW328HJAK59STGF",
+      "shortname": "A5-RESUME + WSL-CLEAN-ENV-M1 + Ruling 278",
+      "datetime": "2026-11-26T18:58:19Z",
+      "session": "agy-w13-coord",
+      "prompt": "i have changed networks; i am on my hotspot it should address the sourceforge and connectivity issues; push, then batch approve all copy, then look for all outstanding items in the prior waves that can be done autonomously now (modulo accessibility items)",
+      "summary": "Pushed Wave 12 (5f2c1a7a), recorded Ruling 278 (d357fd81) approving COPY-866..915 (0 unapproved rows remain), and completed A5-RESUME on unfiltered hotspot: signed OpenFOAM v2512 arm64 + M1 cavity smoke + petsc4Foam Allwmake + Blackwell sm_121 CPU vs GPU trials + live Windows 11 ARM64 C# SolverLauncher fix (WSL-CLEAN-ENV-M1) + live ARM64 SU2 v8.5.0 smoke. Adversary PASS (4833f1bd), TESTS-GREEN 415 s (2,422 passed, 10 skipped, 0 failed).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/wsl-area5-build/openfoam-petsc4foam-qualification.json",
+        "docs/proof/wsl-area5-build/README.md",
+        "docs/lessons/defect-classes.md",
+        "docs/design/guided-solver-setup.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Push Wave 12, batch-approve COPY-866..915 via Ruling 278, audit all non-accessibility prior-wave open items on unfiltered hotspot, and execute autonomously feasible items (A5-RESUME OpenFOAM v2512 + petsc4Foam + live Windows ARM64 solver launcher & SU2 verification)",
+      "done_when": "Wave 12 pushed, Ruling 278 committed with 0 unapproved COPY rows, A5-RESUME + WSL-CLEAN-ENV-M1 + proof pack clear independent Adversary PASS (4833f1bd), TESTS-GREEN (2,422 passed / 0 failed), check-docs exit 0, pack verify gates PASS, committed on main without unrequested push",
+      "tier": "T2",
+      "fan_out": 4,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-11-26T18:15:00Z",
+      "duration_seconds": 2599.0,
+      "persona_yield": [
+        {
+          "persona": "Security-and-Identity",
+          "raised": 1,
+          "accepted": 1
+        },
+        {
+          "persona": "Test-Architect",
+          "raised": 2,
+          "accepted": 2
+        },
+        {
+          "persona": "Hydrodynamicist",
+          "raised": 2,
+          "accepted": 2
+        },
+        {
+          "persona": "Simplifier",
+          "raised": 1,
+          "accepted": 1
+        }
+      ],
+      "git": {
+        "sha": "d357fd81da4c4e553595c3c3fdbca467bc6f1c17",
+        "short": "d357fd81d",
+        "branch": "main",
+        "pushed": false
+      }
     }
   ],
   "changes": [

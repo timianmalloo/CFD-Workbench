@@ -20,6 +20,7 @@ internal static class SolverLauncherSecurityTests
         Check("SolverLauncher_M5_SymlinkInsideRunDir_RemovedAsLinkTargetUntouched", M5_SymlinkSafeCleanup);
         Check("SolverLauncher_M4_HostileForeignDesign_PassesRealFoamDictLintOracle", M4_RealFoamDictLintOracle);
         Check("SolverLauncher_M2M3M6M7_BannerEnforced_CleanEnv_StopEscalation", M2M3M6M7_LauncherRuntime);
+        Check("SolverLauncher_WindowsWsl_CleanEnvSystemRootAndLinuxHome_M1M6", WindowsWslCleanEnvAndSmoke);
         Check("SolverLauncher_M8_InstallIdentityHashCheck_DrSec1A", M8_InstallIdentityCheck);
     }
 
@@ -199,6 +200,172 @@ internal static class SolverLauncherSecurityTests
         {
             if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
         }
+    }
+
+    private static void WindowsWslCleanEnvAndSmoke()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "cfdw-slv-wsl-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            // 1. Deterministic RunOpenFoamSmokeAsync contract + ALL 4 failure branches (runs on Windows AND macOS CI!).
+            SetupOs hostOs = OperatingSystem.IsWindows() ? SetupOs.Windows : SetupOs.MacOs;
+            string activation = OperatingSystem.IsWindows()
+                ? "cfdw-openfoam2512-arm64"
+                : "/Applications/OpenFOAM-v2512.app/Contents/Resources/etc/openfoam";
+            const string buildId = "_bd2b6720-20260127";
+
+            var recorded = new List<ProcessRunRequest>();
+            var okRunner = new ScriptedRunner(req =>
+            {
+                recorded.Add(req);
+                string app = req.Arguments[^3]; // ... <app> -case <caseArg>
+                if (app == "blockMesh")
+                {
+                    return new ProcessRunResult(0,
+                        $"Build  : {buildId} OPENFOAM=2512 version=2512\n" +
+                        "allowSystemOperations : Disallowing user-supplied system call operations\n", "", false, false, 10);
+                }
+                if (app == "checkMesh")
+                {
+                    return new ProcessRunResult(0,
+                        $"Build  : {buildId} OPENFOAM=2512 version=2512\n" +
+                        "allowSystemOperations : Disallowing user-supplied system call operations\nMesh OK.\n", "", false, false, 10);
+                }
+                Directory.CreateDirectory(Path.Combine(req.WorkingDirectory, "0.5"));
+                return new ProcessRunResult(0,
+                    $"Build  : {buildId} OPENFOAM=2512 version=2512\n" +
+                    "allowSystemOperations : Disallowing user-supplied system call operations\n" +
+                    "Time = 0.5\nCourant Number mean: 0.222158 max: 0.852134\nEnd\n", "", false, false, 15);
+            });
+
+            var launcher = new SolverLauncher(root, okRunner);
+            var smoke = launcher.RunOpenFoamSmokeAsync(
+                hostOs, activation, "smoke-ok", buildId, cancellationToken: CancellationToken.None).GetAwaiter().GetResult();
+            Equal(true, smoke.Succeeded, smoke.Reason);
+            Equal("Disallowing", smoke.BannerStatus);
+            Equal(buildId, smoke.BuildId);
+            Equal(0.222158, smoke.CourantMean);
+            Equal(3, recorded.Count);
+
+            if (OperatingSystem.IsWindows())
+            {
+                foreach (var req in recorded)
+                {
+                    Equal("wsl.exe", req.Executable);
+                    Equal(false, req.Arguments.Contains("-c"));
+                    Equal(true, req.Arguments.Contains("/usr/bin/env"));
+                    Equal(true, req.Arguments.Contains("-i"));
+                    Equal(true, req.Arguments.Any(a => a.StartsWith("HOME=/mnt/", StringComparison.Ordinal)));
+                    Equal(true, req.Arguments.Contains("/usr/bin/openfoam2512"));
+                    Equal(true, req.Environment.TryGetValue("SystemRoot", out string? sr) && !string.IsNullOrWhiteSpace(sr));
+                    Equal(false, req.Environment.ContainsKey("FOAM_CONTROLDICT"));
+                    Equal(false, req.Environment.ContainsKey("WM_PROJECT_SITE"));
+                }
+            }
+
+            // Negative branch (a): blockMesh exits non-zero -> stops immediately at step 1.
+            int bmCalls = 0;
+            var bmFailLauncher = new SolverLauncher(root, new ScriptedRunner(_ =>
+            {
+                bmCalls++;
+                return new ProcessRunResult(1,
+                    $"Build  : {buildId}\nallowSystemOperations : Disallowing\n", "mesh error", false, false, 5);
+            }));
+            var bmFail = bmFailLauncher.RunOpenFoamSmokeAsync(hostOs, activation, "smoke-bm-fail", buildId).GetAwaiter().GetResult();
+            Equal(false, bmFail.Succeeded);
+            Equal(1, bmCalls);
+
+            // Negative branch (b): checkMesh exits 0 without "Mesh OK" -> smoke.no-outputs, never launches icoFoam.
+            int cmCalls = 0;
+            var cmFailLauncher = new SolverLauncher(root, new ScriptedRunner(req =>
+            {
+                cmCalls++;
+                return new ProcessRunResult(0,
+                    $"Build  : {buildId}\nallowSystemOperations : Disallowing\nFailed 4 checks.\n", "", false, false, 5);
+            }));
+            var cmFail = cmFailLauncher.RunOpenFoamSmokeAsync(hostOs, activation, "smoke-cm-fail", buildId).GetAwaiter().GetResult();
+            Equal(false, cmFail.Succeeded);
+            Equal("smoke.no-outputs", cmFail.CauseCode);
+            Equal(2, cmCalls);
+
+            // Negative branch (c): icoFoam prints Allowing banner -> smoke.banner.
+            var allowLauncher = new SolverLauncher(root, new ScriptedRunner(req =>
+            {
+                string app = req.Arguments[^3];
+                if (app == "icoFoam")
+                {
+                    return new ProcessRunResult(0,
+                        $"Build  : {buildId}\nallowSystemOperations : Allowing user-supplied system call operations\n", "", false, false, 5);
+                }
+                return new ProcessRunResult(0,
+                    $"Build  : {buildId}\nallowSystemOperations : Disallowing\nMesh OK.\n", "", false, false, 5);
+            }));
+            var allowFail = allowLauncher.RunOpenFoamSmokeAsync(hostOs, activation, "smoke-allow-fail", buildId).GetAwaiter().GetResult();
+            Equal(false, allowFail.Succeeded);
+            Equal("smoke.banner", allowFail.CauseCode);
+
+            // Negative branch (d): icoFoam exits 0 with Disallowing + Courant, but missing 0.5/ output dir -> smoke.no-outputs.
+            var missingDirLauncher = new SolverLauncher(root, new ScriptedRunner(req =>
+                new ProcessRunResult(0,
+                    $"Build  : {buildId}\nallowSystemOperations : Disallowing\nMesh OK.\nCourant Number mean: 0.222158\n", "", false, false, 5)));
+            var missingDirFail = missingDirLauncher.RunOpenFoamSmokeAsync(hostOs, activation, "smoke-no-05", buildId).GetAwaiter().GetResult();
+            Equal(false, missingDirFail.Succeeded);
+            Equal("smoke.no-outputs", missingDirFail.CauseCode);
+
+            // 2. Deterministic LocalCfdRunSubstrate.ExecuteStepAsync check for Windows WSL-CLEAN-ENV-M1 (runs on all OSes!).
+            ProcessRunRequest? capturedSubReq = null;
+            var subRunner = new ScriptedRunner(req =>
+            {
+                capturedSubReq = req;
+                return new ProcessRunResult(0, "", "", false, false, 5);
+            });
+            var substrate = new CfdWorkbench.Analysis.CfdRun.LocalCfdRunSubstrate(
+                root, subRunner, hostOs: SetupOs.Windows, activationPathOrDistro: "cfdw-openfoam2512-arm64");
+            substrate.ExecuteStepAsync(
+                new CfdWorkbench.Analysis.CfdRun.SubstrateStepRequest(
+                    "run-wsl-sub-01", @"D:\runs\k", @"D:\runs\k\.home",
+                    CfdWorkbench.Core.CfdRun.CfdBackendKind.OpenFoamEsi,
+                    CfdWorkbench.Analysis.CfdRun.SubstrateStepKind.Solve),
+                CancellationToken.None).GetAwaiter().GetResult();
+            Equal(true, capturedSubReq is not null);
+            Equal("wsl.exe", capturedSubReq!.Executable);
+            Equal(false, capturedSubReq.Arguments.Contains("-c"));
+            Equal(true, capturedSubReq.Arguments.Contains("/usr/bin/env"));
+            Equal(true, capturedSubReq.Arguments.Contains("-i"));
+            Equal(true, capturedSubReq.Arguments.Contains("HOME=/mnt/d/runs/k/.home"));
+            Equal(true, capturedSubReq.Arguments.Contains("/usr/bin/openfoam2512"));
+            Equal(true, capturedSubReq.Arguments.Contains("simpleFoam"));
+            Equal(true, capturedSubReq.Arguments.Contains("-case"));
+            Equal(true, capturedSubReq.Arguments.Contains("/mnt/d/runs/k"));
+            Equal(true, capturedSubReq.Environment.TryGetValue("SystemRoot", out string? subSysRoot) && !string.IsNullOrWhiteSpace(subSysRoot));
+            Equal(false, capturedSubReq.Environment.ContainsKey("FOAM_CONTROLDICT"));
+            Equal(false, capturedSubReq.Environment.ContainsKey("WM_PROJECT_SITE"));
+
+            // 3. Opt-in real host execution against installed cfdw-openfoam2512-arm64 (never starts WSL in default CI).
+            if (OperatingSystem.IsWindows() &&
+                string.Equals(Environment.GetEnvironmentVariable("CFDW_LIVE_WSL_SMOKE"), "1", StringComparison.Ordinal))
+            {
+                var liveLauncher = new SolverLauncher(root);
+                var live = liveLauncher.RunOpenFoamSmokeAsync(
+                    SetupOs.Windows, "cfdw-openfoam2512-arm64", "wsl-smoke-live", buildId,
+                    cancellationToken: CancellationToken.None).GetAwaiter().GetResult();
+                Equal(true, live.Succeeded, $"Live WSL smoke failed: {live.CauseCode} {live.Reason}\n{live.OutputExcerptRedacted}");
+                Equal("Disallowing", live.BannerStatus);
+                Equal(buildId, live.BuildId);
+                Equal(0.222158, live.CourantMean);
+                Console.WriteLine($"LIVE_WSL_SMOKE_PASS build={live.BuildId} banner={live.BannerStatus} courant={live.CourantMean} duration_ms={live.DurationMs}");
+            }
+        }
+        finally
+        {
+            if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        }
+    }
+
+    private sealed class ScriptedRunner(Func<ProcessRunRequest, ProcessRunResult> handler) : IProcessRunner
+    {
+        public Task<ProcessRunResult> RunAsync(ProcessRunRequest request, CancellationToken cancellationToken) =>
+            Task.FromResult(handler(request));
     }
 
     private static void M8_InstallIdentityCheck()

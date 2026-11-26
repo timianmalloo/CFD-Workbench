@@ -379,7 +379,7 @@ EOF
         cd "$p4f_dir"
         ./Allwmake -j"$make_np" -prefix="${opt_root}/openfoam-module"
     ) > "$receipt_dir/petsc4foam-build.log" 2>&1
-    export LD_LIBRARY_PATH="${opt_root}/openfoam-module/platforms/${WM_OPTIONS}/lib:${LD_LIBRARY_PATH}"
+    export LD_LIBRARY_PATH="${opt_root}/openfoam-module/lib:${opt_root}/openfoam-module/platforms/${WM_OPTIONS}/lib:${LD_LIBRARY_PATH}"
     foamHasLibrary -verbose petscFoam > "$receipt_dir/foamHasLibrary-petscFoam.txt" 2>&1
 }
 

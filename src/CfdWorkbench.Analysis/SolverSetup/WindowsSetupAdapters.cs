@@ -222,7 +222,8 @@ public static class WindowsSetupAdapters
             WorkingDirectory: Path.GetDirectoryName(Path.GetFullPath(destinationFolder))!,
             Environment: SolverLauncherPolicy.BuildCleanEnvironment(
                 Path.GetDirectoryName(Path.GetFullPath(destinationFolder))!,
-                @"C:\Windows\System32;C:\Windows"),
+                @"C:\Windows\System32;C:\Windows",
+                windowsSystemRoot: SolverLauncher.ResolveWindowsSystemRoot()),
             Timeout: TimeSpan.FromMinutes(10),
             KillGracePeriod: TimeSpan.FromSeconds(2));
 

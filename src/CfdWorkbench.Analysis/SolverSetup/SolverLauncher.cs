@@ -252,52 +252,140 @@ public sealed class SolverLauncher
             }
 
             var prepared = PrepareExclusiveRunDirectory(request.RunKey);
-            var command = SolverLauncherPolicy.BuildArgv(request.Os, request.ActivationPathOrDistro, request.App, request.TypedArgs);
-            string defaultPath = request.Os == SetupOs.Windows
-                ? @"C:\Windows\System32;C:\Windows"
-                : "/usr/bin:/bin:/usr/sbin:/sbin";
-            var cleanEnv = SolverLauncherPolicy.BuildCleanEnvironment(prepared.HomeDirectory, defaultPath);
-
-            var runReq = new ProcessRunRequest(
-                command.Executable,
-                command.Arguments,
-                prepared.RunDirectory,
-                cleanEnv,
-                request.Timeout ?? TimeSpan.FromSeconds(60),
-                TimeSpan.FromSeconds(2));
-
-            var result = await runner.RunAsync(runReq, cancellationToken);
-            string combined = string.IsNullOrEmpty(result.StandardError)
-                ? result.StandardOutput
-                : result.StandardOutput + "\n" + result.StandardError;
-            string excerpt = TrimAndRedactExcerpt(combined);
-
-            if (result.TimedOut)
-                return new SolverLaunchResult(false, result.ExitCode, null, null, null, "smoke.timeout", "The test run exceeded its 60 s limit.", excerpt, result.DurationMs);
-            if (result.Cancelled)
-                return new SolverLaunchResult(false, result.ExitCode, null, null, null, "cancelled", "Launch stopped by user request.", excerpt, result.DurationMs);
-
-            var banner = SolverLauncherPolicy.ParseMasterBanner(combined, request.ExpectedBuildId, request.AllowUnverifiedBuild);
-            if (!banner.Passed)
-            {
-                return new SolverLaunchResult(false, result.ExitCode, banner.BannerStatus, banner.BuildId, null,
-                    banner.CauseCode, banner.Reason, excerpt, result.DurationMs);
-            }
-
-            if (result.ExitCode != 0)
-            {
-                return new SolverLaunchResult(false, result.ExitCode, banner.BannerStatus, banner.BuildId, null,
-                    "unknown", $"Solver exited with code {result.ExitCode}.", excerpt, result.DurationMs);
-            }
-
-            double? courant = SolverLauncherPolicy.ParseFinalCourantMean(combined);
-            return new SolverLaunchResult(true, 0, banner.BannerStatus, banner.BuildId, courant, null,
-                "Disallowing banner and exit 0 verified.", excerpt, result.DurationMs);
+            return await ExecuteInPreparedDirectoryAsync(prepared, request, request.App, request.TypedArgs, cancellationToken);
         }
         finally
         {
             singleJobGate.Release();
         }
+    }
+
+    /// <summary>
+    /// Runs the bundled M1/M2/M4/M5/M6 OpenFOAM cavity smoke sequence (<c>blockMesh</c> → <c>checkMesh</c> → <c>icoFoam</c>)
+    /// inside a single exclusive run directory and verifies the master-rank <c>Disallowing</c> banner, build id,
+    /// <c>Mesh OK</c>, final <c>Time = 0.5</c>, and finite Courant mean.
+    /// </summary>
+    public async Task<SolverLaunchResult> RunOpenFoamSmokeAsync(
+        SetupOs os,
+        string activationPathOrDistro,
+        string runKey,
+        string? expectedBuildId,
+        bool allowUnverifiedBuild = false,
+        TimeSpan? perStepTimeout = null,
+        CancellationToken cancellationToken = default)
+    {
+        await singleJobGate.WaitAsync(cancellationToken);
+        try
+        {
+            if (HasInsufficientDisk(appDataRoot, 100_000_000L))
+            {
+                return new SolverLaunchResult(false, -1, null, null, null, "disk.low",
+                    "Insufficient free disk space before smoke run.", "", 0);
+            }
+
+            var prepared = PrepareExclusiveRunDirectory(runKey);
+            EmitSmokeCase(prepared.RunDirectory, runKey);
+
+            string caseArg = os == SetupOs.Windows
+                ? SolverLauncherPolicy.ToWslPath(prepared.RunDirectory)
+                : prepared.RunDirectory;
+            string[] caseArgs = ["-case", caseArg];
+            var baseReq = new SolverLaunchRequest(
+                runKey, os, activationPathOrDistro, OpenFoamApp.BlockMesh,
+                expectedBuildId, allowUnverifiedBuild, caseArgs, perStepTimeout ?? TimeSpan.FromSeconds(60));
+
+            long totalMs = 0;
+            var bm = await ExecuteInPreparedDirectoryAsync(prepared, baseReq, OpenFoamApp.BlockMesh, caseArgs, cancellationToken);
+            totalMs += bm.DurationMs;
+            if (!bm.Succeeded) return bm with { DurationMs = totalMs };
+
+            var cm = await ExecuteInPreparedDirectoryAsync(prepared, baseReq, OpenFoamApp.CheckMesh, caseArgs, cancellationToken);
+            totalMs += cm.DurationMs;
+            if (!cm.Succeeded) return cm with { DurationMs = totalMs };
+            if (!cm.OutputExcerptRedacted.Contains("Mesh OK", StringComparison.Ordinal))
+            {
+                return new SolverLaunchResult(false, cm.ExitCode, cm.BannerStatus, cm.BuildId, null,
+                    "smoke.no-outputs", "checkMesh did not report Mesh OK.", cm.OutputExcerptRedacted, totalMs);
+            }
+
+            var ico = await ExecuteInPreparedDirectoryAsync(prepared, baseReq, OpenFoamApp.IcoFoam, caseArgs, cancellationToken);
+            totalMs += ico.DurationMs;
+            if (!ico.Succeeded) return ico with { DurationMs = totalMs };
+
+            bool hasFinalTime = Directory.Exists(Path.Combine(prepared.RunDirectory, "0.5"));
+            if (!hasFinalTime || ico.CourantMean is null)
+            {
+                return new SolverLaunchResult(false, ico.ExitCode, ico.BannerStatus, ico.BuildId, ico.CourantMean,
+                    "smoke.no-outputs", "icoFoam did not produce expected time directory 0.5 and Courant mean.",
+                    ico.OutputExcerptRedacted, totalMs);
+            }
+
+            return ico with { DurationMs = totalMs };
+        }
+        finally
+        {
+            singleJobGate.Release();
+        }
+    }
+
+    internal static string ResolveWindowsSystemRoot()
+    {
+        string dir = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+        return string.IsNullOrWhiteSpace(dir) ? @"C:\Windows" : dir;
+    }
+
+    private async Task<SolverLaunchResult> ExecuteInPreparedDirectoryAsync(
+        PreparedRunDirectory prepared,
+        SolverLaunchRequest request,
+        OpenFoamApp app,
+        IReadOnlyList<string>? typedArgs,
+        CancellationToken cancellationToken)
+    {
+        string? wslHome = request.Os == SetupOs.Windows
+            ? SolverLauncherPolicy.ToWslPath(prepared.HomeDirectory)
+            : null;
+        var command = SolverLauncherPolicy.BuildArgv(request.Os, request.ActivationPathOrDistro, app, typedArgs, wslHome);
+        string defaultPath = request.Os == SetupOs.Windows
+            ? @"C:\Windows\System32;C:\Windows"
+            : "/usr/bin:/bin:/usr/sbin:/sbin";
+        string? winSystemRoot = request.Os == SetupOs.Windows ? ResolveWindowsSystemRoot() : null;
+        var cleanEnv = SolverLauncherPolicy.BuildCleanEnvironment(prepared.HomeDirectory, defaultPath, windowsSystemRoot: winSystemRoot);
+
+        var runReq = new ProcessRunRequest(
+            command.Executable,
+            command.Arguments,
+            prepared.RunDirectory,
+            cleanEnv,
+            request.Timeout ?? TimeSpan.FromSeconds(60),
+            TimeSpan.FromSeconds(2));
+
+        var result = await runner.RunAsync(runReq, cancellationToken);
+        string combined = string.IsNullOrEmpty(result.StandardError)
+            ? result.StandardOutput
+            : result.StandardOutput + "\n" + result.StandardError;
+        string excerpt = TrimAndRedactExcerpt(combined);
+
+        if (result.TimedOut)
+            return new SolverLaunchResult(false, result.ExitCode, null, null, null, "smoke.timeout", "The test run exceeded its 60 s limit.", excerpt, result.DurationMs);
+        if (result.Cancelled)
+            return new SolverLaunchResult(false, result.ExitCode, null, null, null, "cancelled", "Launch stopped by user request.", excerpt, result.DurationMs);
+
+        var banner = SolverLauncherPolicy.ParseMasterBanner(combined, request.ExpectedBuildId, request.AllowUnverifiedBuild);
+        if (!banner.Passed)
+        {
+            return new SolverLaunchResult(false, result.ExitCode, banner.BannerStatus, banner.BuildId, null,
+                banner.CauseCode, banner.Reason, excerpt, result.DurationMs);
+        }
+
+        if (result.ExitCode != 0)
+        {
+            return new SolverLaunchResult(false, result.ExitCode, banner.BannerStatus, banner.BuildId, null,
+                "unknown", $"Solver exited with code {result.ExitCode}.", excerpt, result.DurationMs);
+        }
+
+        double? courant = SolverLauncherPolicy.ParseFinalCourantMean(combined);
+        return new SolverLaunchResult(true, 0, banner.BannerStatus, banner.BuildId, courant, null,
+            "Disallowing banner and exit 0 verified.", excerpt, result.DurationMs);
     }
 
     /// <summary>M8 / DR-SEC-1 A: checks observed install file hashes against the route's pinned hashes.</summary>

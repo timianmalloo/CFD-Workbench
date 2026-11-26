@@ -3607,7 +3607,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "62ebfbbc83e2c383ffe9be10c0774dd6a57c402216b7f0099bc1c0f6ca5ca4b0"
+      "sourceSha256": "1b0e53f63d134ee04624d1cfe838edc307294ace8631ac51c8e90c2be19fc001"
     },
     {
       "id": "design-local-sweeps",
@@ -6606,7 +6606,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "67d0939a95576012aac0ec08ec19d20c19f2d95031ab1ebd9a0b6b16516b1d11"
+      "sourceSha256": "d8d1338d7da25e047d8c114b6f87563b219af94a6bf4d915bcde537debc92f09"
     },
     {
       "id": "domain-experts",
@@ -23080,14 +23080,14 @@ window.DOCS_INDEX = {
     {
       "id": "proof-wsl-area5-build",
       "path": "docs/proof/wsl-area5-build/README.md",
-      "title": "Area 5 WSL2 arm64 build & qualification: CUDA 13.2 + PETSc-CUDA sm_121 PASS; OpenFOAM 2512 BLOCKED (net.proxy-tls)",
+      "title": "Area 5 WSL2 arm64 build & qualification: CUDA 13.2 + PETSc-CUDA sm_121 + OpenFOAM v2512 + petsc4Foam + Live C# Launcher PASS",
       "type": "proof-pack",
       "status": "active",
       "owner": "@w6-wsl-build",
       "phase": "qualification",
       "reviewBy": "2027-02-20",
       "reviewSuggested": [],
-      "summary": "Dedicated arm64 WSL2 distro cfdw-openfoam2512-arm64 imported with host Ubuntu-24.04 untouched (Stopped pre/post). CUDA 13.2.2-1 (nvcc 13.2.86, native Blackwell compute_121) + GCC 13.3.0 / OpenMPI 4.1.6 / BLAS / LAPACK + PETSc 3.26.0 (--with-cuda=1 --with-cuda-arch=121, zero --download-*) PASS make check 4/4 and verify 100% GPU flops + identical error norms on 160k-DOF and 1M-DOF CG+Jacobi solves (12.5x clean wall reduction on 1M-DOF synthetic Laplacian). OpenFOAM v2512 apt install, M1 cavity smoke, and petsc4Foam Allwmake are honestly recorded as BLOCKED (net.proxy-tls) because dl.openfoam.com 302-redirects to sourceforge.net which Cisco Umbrella intercepts (146.112.61.104, untrusted root); petsc4Foam commit cb1badc4978306e7001a4654dcdf53f284a92365 is staged and tools/wsl-build-openfoam-cuda.sh --mode openfoam-resume completes the remaining stages on an unfiltered network.",
+      "summary": "Dedicated arm64 WSL2 distro cfdw-openfoam2512-arm64 imported with host Ubuntu-24.04 untouched (Stopped pre/post). CUDA 13.2.2-1 (nvcc 13.2.86, native Blackwell compute_121) + GCC 13.3.0 / OpenMPI 4.1.6 / BLAS / LAPACK + PETSc 3.26.0 (--with-cuda=1 --with-cuda-arch=121, zero --download-*) PASS make check 4/4 and verify 100% GPU flops + identical error norms on 160k-DOF and 1M-DOF CG+Jacobi solves (12.5x clean wall reduction on 1M-DOF synthetic Laplacian). Resumed 2026-11-26 on an unfiltered network (A5-RESUME): signed OpenFOAM v2512 arm64 (2512.0-2, build _bd2b6720-20260127) installed with 0 removals, M1 icoFoam/cavity PASS (Disallowing, Courant mean 0.222158), petsc4Foam (cb1badc4...) compiled & loaded (Can load \"petscFoam\"), OpenFOAM CPU vs Blackwell sm_121 GPU pressure-solve trials PASS with 100% GPU flops on seqaijcusparse and 2e-14 Cd parity on NASA TMR NACA 0012 L6 (14,336 cells; honest small-mesh wall finding: native GAMG 5.18 s vs PETSc GPU 27.77 s), and live Windows 11 ARM64 C# SolverLauncher M1/M2 smoke + native SU2 v8.5.0 smoke both PASS.",
       "tags": [
         "wsl",
         "arm64",
@@ -23118,12 +23118,16 @@ window.DOCS_INDEX = {
           "rel": "relates-to"
         },
         {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        },
+        {
           "to": "rulings",
           "rel": "depends-on"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a36849e2d1ce7aac1b90a0affb45a29928f634c95adbd542ab52c261ec999e87"
+      "sourceSha256": "496788a01f9645aa0d6e7059082b0b4934282c0e2886d6a537a9c4a40cf65602"
     },
     {
       "id": "proof-wsl-preflight",
@@ -26375,5 +26379,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "8a9a3ee98f311e90a793cb660a72f34728191eba266b1c4d8a9d49d64c391d49"
+  "graphSha256": "03621ab957c442172b3a7d168e23dcd7566437f0da48b74fb4f2703da4d53337"
 };

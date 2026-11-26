@@ -622,8 +622,9 @@ public static class Wave11AiUiTests
             if (id is < 866 or > 915) continue;
             foundIds.Add(id);
             string body = m.Groups[2].Value;
-            if (!body.Contains(" — proposed —", StringComparison.Ordinal))
-                errors.Add($"C9.6: COPY-{id} must remain '— proposed —' (never self-approve)");
+            if (!body.Contains(" — approved —", StringComparison.Ordinal) &&
+                !body.Contains(" — proposed —", StringComparison.Ordinal))
+                errors.Add($"COPY-{id} must be marked '— approved —' (Ruling 278) or '— proposed —'");
             if (id == 886 && body.Contains("A8.6", StringComparison.OrdinalIgnoreCase))
                 errors.Add("R2-15: COPY-886 must not expose internal 'A8.6' spec ID");
             if (hexRegex.IsMatch(body))

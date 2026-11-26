@@ -129,9 +129,22 @@ public sealed class LocalCfdRunSubstrate : ICfdRunSubstrate
                 SubstrateStepKind.CheckMesh => OpenFoamApp.CheckMesh,
                 _ => OpenFoamApp.SimpleFoam
             };
-            var cmd = SolverLauncherPolicy.BuildArgv(hostOs, activationPathOrDistro, app, request.TypedArgs);
+            string? wslHome = hostOs == SetupOs.Windows
+                ? SolverLauncherPolicy.ToWslPath(request.HomeDirectory)
+                : null;
+            IReadOnlyList<string>? stepArgs = request.TypedArgs;
+            if (hostOs == SetupOs.Windows &&
+                (stepArgs is null || !stepArgs.Contains("-case", StringComparer.Ordinal)))
+            {
+                var merged = new List<string>(stepArgs ?? []);
+                merged.Add("-case");
+                merged.Add(SolverLauncherPolicy.ToWslPath(request.CaseDirectory));
+                stepArgs = merged;
+            }
+            var cmd = SolverLauncherPolicy.BuildArgv(hostOs, activationPathOrDistro, app, stepArgs, wslHome);
             string defaultPath = hostOs == SetupOs.Windows ? @"C:\Windows\System32;C:\Windows" : "/usr/bin:/bin:/usr/sbin:/sbin";
-            var env = SolverLauncherPolicy.BuildCleanEnvironment(request.HomeDirectory, defaultPath);
+            string? winSystemRoot = hostOs == SetupOs.Windows ? SolverLauncher.ResolveWindowsSystemRoot() : null;
+            var env = SolverLauncherPolicy.BuildCleanEnvironment(request.HomeDirectory, defaultPath, windowsSystemRoot: winSystemRoot);
             var procReq = new ProcessRunRequest(
                 cmd.Executable,
                 cmd.Arguments,

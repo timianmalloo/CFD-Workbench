@@ -205,6 +205,8 @@ internal static class SolverSetupAdapterTests
             Equal(true, Directory.Exists(Path.GetDirectoryName(missingParentDest)!));
             Equal(1, fakeRunner.CallCount);
             Equal("wsl.exe", fakeRunner.LastRequest!.Executable);
+            Equal(true, fakeRunner.LastRequest!.Environment.TryGetValue("SystemRoot", out string? sysRoot) &&
+                !string.IsNullOrWhiteSpace(sysRoot));
 
             // 2. Parent cannot be created (a regular file blocks the parent directory path) -> refuses cleanly
             // with route.parent-missing and NEVER invokes wsl.exe (CallCount == 0)!

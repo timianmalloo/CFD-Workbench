@@ -281,19 +281,51 @@ internal static class SolverSetupSelectorTests
         Equal(false, macCmd.Arguments.Contains("-c"));
         Equal(true, macCmd.Arguments.Contains("blockMesh"));
 
-        var winCmd = SolverLauncherPolicy.BuildArgv(SetupOs.Windows, "cfdw-openfoam2512", OpenFoamApp.IcoFoam);
-        Equal("wsl.exe", winCmd.Executable);
-        Equal(false, winCmd.Arguments.Contains("-c"));
-        Equal(true, winCmd.Arguments.Contains("icoFoam"));
+        // WSL-CLEAN-ENV-M1: Windows WSL argv MUST include a clean absolute POSIX wslHomePath via /usr/bin/env -i (zero shell).
+        Equal("/mnt/d/runs/k/.home", SolverLauncherPolicy.ToWslPath(@"D:\runs\k\.home"));
+        Equal("/mnt/c/cfdw/runs/case", SolverLauncherPolicy.ToWslPath("C:/cfdw/runs/case"));
+        Refuses("SETUP-LAUNCHER-ARG", () => SolverLauncherPolicy.ToWslPath(""));
+        Refuses("SETUP-LAUNCHER-ARG", () => SolverLauncherPolicy.ToWslPath("   "));
+        Refuses("SETUP-LAUNCHER-ARG", () => SolverLauncherPolicy.ToWslPath("relative/path"));
+        Refuses("SETUP-LAUNCHER-ARG", () => SolverLauncherPolicy.ToWslPath(@"\\server\share\case"));
+        Refuses("SETUP-LAUNCHER-ARG", () => SolverLauncherPolicy.ToWslPath(@"C:relative\path"));
+        Refuses("SETUP-LAUNCHER-ARG", () => SolverLauncherPolicy.ToWslPath(@"C:\runs\..\escape"));
+        Refuses("SETUP-LAUNCHER-ARG", () => SolverLauncherPolicy.ToWslPath("C:\\runs\\bad\npath"));
+        Refuses("SETUP-LAUNCHER-ARG", () => SolverLauncherPolicy.ToWslPath("C:\\runs\\bad\0path"));
+        Refuses("SETUP-LAUNCHER-ARG", () => SolverLauncherPolicy.ToWslPath("C:\\runs\\bad\tpath"));
 
-        // M6 clean child env allowlist.
+        // Omitting or supplying unsafe wslHomePath on Windows must fail closed (S1).
+        Refuses("SETUP-LAUNCHER-ARG", () => SolverLauncherPolicy.BuildArgv(SetupOs.Windows, "cfdw-openfoam2512", OpenFoamApp.IcoFoam));
+        Refuses("SETUP-LAUNCHER-ARG", () => SolverLauncherPolicy.BuildArgv(SetupOs.Windows, "cfdw-openfoam2512", OpenFoamApp.IcoFoam, wslHomePath: "mnt/d/home"));
+        Refuses("SETUP-LAUNCHER-ARG", () => SolverLauncherPolicy.BuildArgv(SetupOs.Windows, "cfdw-openfoam2512", OpenFoamApp.IcoFoam, wslHomePath: "/mnt/d/bad\nhome"));
+        Refuses("SETUP-LAUNCHER-ARG", () => SolverLauncherPolicy.BuildArgv(SetupOs.Windows, "cfdw-openfoam2512", OpenFoamApp.IcoFoam, wslHomePath: "/mnt/d/bad\thome"));
+        Refuses("SETUP-LAUNCHER-ARG", () => SolverLauncherPolicy.BuildArgv(SetupOs.Windows, "cfdw-openfoam2512", OpenFoamApp.IcoFoam, wslHomePath: "/mnt/d/../root"));
+
+        var winIsolatedCmd = SolverLauncherPolicy.BuildArgv(
+            SetupOs.Windows, "cfdw-openfoam2512-arm64", OpenFoamApp.IcoFoam, ["-case", "/mnt/d/runs/k"], "/mnt/d/runs/k/.home");
+        Equal("wsl.exe", winIsolatedCmd.Executable);
+        Equal(false, winIsolatedCmd.Arguments.Contains("-c"));
+        Equal(true, winIsolatedCmd.Arguments.Contains("/usr/bin/env"));
+        Equal(true, winIsolatedCmd.Arguments.Contains("-i"));
+        Equal(true, winIsolatedCmd.Arguments.Contains("HOME=/mnt/d/runs/k/.home"));
+        Equal(true, winIsolatedCmd.Arguments.Contains("/usr/bin/openfoam2512"));
+        Equal(true, winIsolatedCmd.Arguments.Contains("icoFoam"));
+
+        // M6 clean child env allowlist (POSIX 5-key; Windows WSL adds SystemRoot for RPC without leaking solver vars).
         var cleanEnv = SolverLauncherPolicy.BuildCleanEnvironment("/app/home", "/usr/bin:/bin", "cfdw");
         Equal(5, cleanEnv.Count);
         Equal("C", cleanEnv["LANG"]);
         Equal("/app/home", cleanEnv["HOME"]);
+        Equal(false, cleanEnv.ContainsKey("SystemRoot"));
         Equal(false, cleanEnv.ContainsKey("FOAM_CONTROLDICT"));
         Equal(false, cleanEnv.ContainsKey("WM_PROJECT_SITE"));
         Equal(false, cleanEnv.ContainsKey("BASH_ENV"));
+
+        var winEnv = SolverLauncherPolicy.BuildCleanEnvironment(@"D:\runs\k\.home", @"C:\Windows\System32;C:\Windows", "cfdw", @"C:\Windows");
+        Equal(6, winEnv.Count);
+        Equal(@"C:\Windows", winEnv["SystemRoot"]);
+        Equal(false, winEnv.ContainsKey("FOAM_CONTROLDICT"));
+        Equal(false, winEnv.ContainsKey("WM_PROJECT_SITE"));
     }
 
     private static void CopyLintRules()

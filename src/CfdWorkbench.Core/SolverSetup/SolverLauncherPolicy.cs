@@ -221,12 +221,45 @@ public static class SolverLauncherPolicy
             : null;
     }
 
+    /// <summary>
+    /// Pure zero-I/O conversion from an absolute Windows drive path (<c>D:\runs\k\.home</c>)
+    /// to its WSL mount path (<c>/mnt/d/runs/k/.home</c>). Refuses relative paths, UNC paths, traversal, and control characters.
+    /// </summary>
+    public static string ToWslPath(string windowsPath)
+    {
+        if (string.IsNullOrWhiteSpace(windowsPath))
+            throw new ContractError("SETUP-LAUNCHER-ARG", "Windows path is required for WSL conversion.");
+        if (ContainsControlChar(windowsPath))
+            throw new ContractError("SETUP-LAUNCHER-ARG", "Control characters are forbidden in WSL paths.");
+        if (windowsPath.Length < 3 ||
+            !char.IsAsciiLetter(windowsPath[0]) ||
+            windowsPath[1] != ':' ||
+            (windowsPath[2] != '\\' && windowsPath[2] != '/'))
+        {
+            throw new ContractError("SETUP-LAUNCHER-ARG", $"Expected rooted Windows drive path, got '{windowsPath}'.");
+        }
+
+        string rest = windowsPath[2..].Replace('\\', '/');
+        string[] segments = rest.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        foreach (string seg in segments)
+        {
+            if (seg == "..")
+                throw new ContractError("SETUP-LAUNCHER-ARG", "Path traversal ('..') is forbidden in WSL paths.");
+        }
+
+        char drive = char.ToLowerInvariant(windowsPath[0]);
+        return segments.Length == 0
+            ? $"/mnt/{drive}"
+            : $"/mnt/{drive}/{string.Join('/', segments)}";
+    }
+
     /// <summary>M3: argv-only launcher command builder from typed enum (never -c or shell strings).</summary>
     public static LauncherCommand BuildArgv(
         SetupOs os,
         string activationPathOrDistro,
         OpenFoamApp app,
-        IReadOnlyList<string>? typedArgs = null)
+        IReadOnlyList<string>? typedArgs = null,
+        string? wslHomePath = null)
     {
         if (string.IsNullOrWhiteSpace(activationPathOrDistro))
             throw new ContractError("SETUP-LAUNCHER-ARG", "Activation path or WSL distro name is required.");
@@ -243,7 +276,31 @@ public static class SolverLauncherPolicy
 
         if (os == SetupOs.Windows)
         {
-            var args = new List<string> { "-d", activationPathOrDistro, "-e", "/usr/bin/openfoam2512", appName };
+            // WSL ignores Windows HOME and restores /etc/passwd HOME unless set inside Linux via /usr/bin/env -i (WSL-CLEAN-ENV-M1).
+            // Fail closed if wslHomePath is missing, relative, contains traversal, or contains control characters.
+            if (string.IsNullOrWhiteSpace(wslHomePath) ||
+                !wslHomePath.StartsWith('/') ||
+                ContainsControlChar(wslHomePath) ||
+                wslHomePath.Split('/', StringSplitOptions.RemoveEmptyEntries).Any(seg => seg == ".."))
+            {
+                throw new ContractError("SETUP-LAUNCHER-ARG",
+                    "Windows WSL launch requires a clean absolute POSIX HOME path without traversal or control characters.");
+            }
+
+            var args = new List<string>
+            {
+                "-d", activationPathOrDistro, "-e",
+                "/usr/bin/env", "-i",
+                "PATH=/usr/bin:/bin",
+                "HOME=" + wslHomePath,
+                "USER=cfdw",
+                "LOGNAME=cfdw",
+                "LANG=C",
+                "OMP_NUM_THREADS=1",
+                "OPENBLAS_NUM_THREADS=1",
+                "/usr/bin/openfoam2512",
+                appName
+            };
             args.AddRange(extra);
             return new LauncherCommand("wsl.exe", args);
         }
@@ -251,15 +308,25 @@ public static class SolverLauncherPolicy
         throw new ContractError("SETUP-OS-UNSUPPORTED", $"Unsupported launcher OS '{os}'.");
     }
 
+    private static bool ContainsControlChar(string value)
+    {
+        foreach (char c in value)
+        {
+            if (char.IsControl(c)) return true;
+        }
+        return false;
+    }
+
     /// <summary>M6: strictly allowlisted child environment stripping FOAM_CONTROLDICT, WM_*, and shell hooks.</summary>
     public static IReadOnlyDictionary<string, string> BuildCleanEnvironment(
         string appOwnedHome,
         string pathValue,
-        string userName = "cfdw")
+        string userName = "cfdw",
+        string? windowsSystemRoot = null)
     {
         if (string.IsNullOrWhiteSpace(appOwnedHome))
             throw new ContractError("SETUP-HOME-EMPTY", "App-owned HOME is required.");
-        return new Dictionary<string, string>(StringComparer.Ordinal)
+        var env = new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["PATH"] = pathValue,
             ["HOME"] = appOwnedHome,
@@ -267,6 +334,10 @@ public static class SolverLauncherPolicy
             ["LOGNAME"] = userName,
             ["LANG"] = "C"
         };
+        // wsl.exe RPC fails with RPC_S_SYSTEM_HANDLE_TYPE_MISMATCH if SystemRoot is omitted on Windows (WSL-CLEAN-ENV-M1).
+        if (!string.IsNullOrWhiteSpace(windowsSystemRoot))
+            env["SystemRoot"] = windowsSystemRoot;
+        return env;
     }
 
     /// <summary>M7: core-based rank default (clamped 1..6), which the user may lower.</summary>
