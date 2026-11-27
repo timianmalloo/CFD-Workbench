@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-27T18:22:22Z",
+  "generated": "2026-11-27T19:03:14Z",
   "audit": [
     {
       "actor": null,
@@ -45961,6 +45961,83 @@ window.AUDIT_DATA = {
       "duration_source": "session-start-hook",
       "started_at": "2026-11-27T18:22:08Z",
       "duration_seconds": 14.0
+    },
+    {
+      "id": "al-01M8F44NDPFQJRKBE0HSN5TS3A",
+      "shortname": "/specify an immersive, full AI design experience (new AI-guided design n…",
+      "datetime": "2026-11-27T18:26:33Z",
+      "session": "80549eef-c72e-4649-a6ab-8439d9935577",
+      "prompt": "/specify an immersive, full AI design experience (new AI-guided design notebook, FoilReq schema/DSL, Matt Pocock grill-me Q&A, local simulation & visual artifacts, multi-model notebook UX, CAD handoff) + /ui-design + interactive HTML mockup",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M8F67T0FWBC6ZB52C2FA1NR3",
+      "shortname": "specify-ai-guided-design-notebook",
+      "datetime": "2026-11-27T19:03:13Z",
+      "session": "80549eef-c72e-4649-a6ab-8439d9935577",
+      "prompt": "Specify an immersive full AI-guided hydrofoil design notebook with FoilReq 1.0 schema/DSL, Matt Pocock grill-me Q&A, local simulation & visual artifacts, iterative refinement, and non-destructive CAD handoff.",
+      "summary": "Authored docs/specs/ai-guided-design-notebook.md (Parts A/B/C, closed FoilReq 1.0 EBNF, DM4/DM5 Envelope.notebook? grain, single-endpoint AI-04, AI-06 Eval v2.0, exact ITTC 15 C seawater worked example, A5.1/A5.3/A5.4/ANA-05 honesty floors, GuidedDesignNotebook archetype) and cleared Adversary council (VERDICT: PASS, CLEARS-THE-VETO: yes).",
+      "kind": "skill",
+      "skill": "specify",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/specs/ai-guided-design-notebook.md",
+        "docs/specs/ai-guided-design-notebook.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Author three-layer specification (Functional, UX, UI) for the AI-Guided Hydrofoil Design Notebook.",
+      "done_when": "Spec passes mechanical EBNF/ITTC/LAB-01 checks, repo doc gates, and independent Adversary veto clearance (VERDICT: PASS).",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-27T18:26:35Z",
+      "duration_seconds": 2198.0
+    },
+    {
+      "id": "al-01M8F67V24F16G8CPRW5ZAGXV5",
+      "shortname": "ui-design-ai-guided-design-notebook",
+      "datetime": "2026-11-27T19:03:14Z",
+      "session": "80549eef-c72e-4649-a6ab-8439d9935577",
+      "prompt": "Run /ui-design for the AI-Guided Hydrofoil Design Notebook focusing on fit, finish, polish, and ergonomics, and build an interactive self-contained HTML mockup to explore and iterate before building into Avalonia.",
+      "summary": "Produced docs/reviews/ui-ai-guided-design-notebook.md and self-contained interactive HTML mockup docs/mockups/ai-guided-design-notebook.html (141,137 B, 0 external loads, 39/39 DESIGN.md vars, 0 LAB-01 hits, 19-pair WCAG AA pass across Light/Dark/High-Contrast, 7 states, live grill-me Q&A, live v3 synthesis, rotatable 3D wing, real CST contours, dynamic AI-04 payload preview & CAD handoff modal). Cleared Adversary council (VERDICT: PASS, CLEARS-THE-VETO: yes).",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-ai-guided-design-notebook.md",
+        "docs/reviews/ui-ai-guided-design-notebook.html",
+        "docs/mockups/ai-guided-design-notebook.md",
+        "docs/mockups/ai-guided-design-notebook.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Deliver direction brief, rubric critique, ranked plan, and interactive self-contained HTML review mockup.",
+      "done_when": "Interactive HTML mockup passes 19-pair WCAG AA across 3 themes, 0 off-token/unused vars, 0 LAB-01 hits, JS syntax & ITTC/EBNF execution, repo gates, and Adversary PASS.",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-27T18:26:35Z",
+      "duration_seconds": 2199.0
     }
   ],
   "changes": [

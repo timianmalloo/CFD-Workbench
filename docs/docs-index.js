@@ -6780,6 +6780,53 @@ window.DOCS_INDEX = {
       "sourceSha256": "316f3457566f8e9d4a0c50e1ce02bb1b12a707e7a3dd40dfd4e7054a3de86125"
     },
     {
+      "id": "mockup-ai-guided-design-notebook",
+      "path": "docs/mockups/ai-guided-design-notebook.md",
+      "title": "AI-Guided Hydrofoil Design Notebook — interactive HTML review mockup",
+      "type": "doc",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "ui-design — interactive HTML review mockup (explore & iterate before native Avalonia build)",
+      "reviewBy": "2027-05-27",
+      "reviewSuggested": [],
+      "summary": "Self-contained, dependency-free, theme-aware interactive HTML mockup (docs/mockups/ai-guided-design-notebook.html) for CFD-Workbench's AI-Guided Hydrofoil Design Notebook. Exercises all seven workflow and hard states (empty brief, live serial Matt Pocock grill-me Q&A with 950 cm -> 950 mm unit check, narrated local solver run, iterated v1 vs v2 comparison with live v3 refinement, geometry refusal & AI-03 withheld response, offline no-key AI-01 state, and overflow extremes) across Light/Dark/High-Contrast themes, 1440/1280/1024 viewports, Reduced Motion, and real degree-7 Bernstein CST section, polar, orthographic elevation, and rotatable 3D wing renderings.",
+      "tags": [
+        "mockup",
+        "ai",
+        "notebook",
+        "grill-me",
+        "foilreq",
+        "hydrofoil",
+        "cad-handoff",
+        "ux",
+        "ui"
+      ],
+      "links": [
+        {
+          "to": "spec-ai-guided-design-notebook",
+          "rel": "documents"
+        },
+        {
+          "to": "ui-review-ai-guided-design-notebook",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-byok-assistants",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-section-catalog-expansion",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "83f5072cfbb7ce34f33b49ee335d8534f6cb98c0e3f4f56cb86e306b4b2fbc04"
+    },
+    {
       "id": "mockup-local-sweeps",
       "path": "docs/mockups/local-sweeps.md",
       "title": "Local-tier sweeps & performance curves — interactive review mockup (Experiment setup, local Run, sweep Results)",
@@ -10652,6 +10699,43 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "b38c8cc4a71f92ef274d7d1a9379053c575f36aad36e08793e5ec9a361129156"
+    },
+    {
+      "id": "ui-review-ai-guided-design-notebook",
+      "path": "docs/reviews/ui-ai-guided-design-notebook.md",
+      "title": "UI design direction & rubric review — AI-Guided Hydrofoil Design Notebook",
+      "type": "doc",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "ui-design (create mode — direction brief, measurements, rubric critique, ranked plan)",
+      "reviewBy": "2027-02-27",
+      "reviewSuggested": [],
+      "summary": "Creative direction brief (DX5/DX6), triggered-standards union (UI-T1 + UI-T3 + UI-T4), verified quantitative measurements (DX23), structure-before-surface rubric critique (DX22/DX24), generic-tells audit (DX3), Simplifier delete-list, and ranked elevation plan for CFD-Workbench's AI-Guided Hydrofoil Design Notebook mockup.",
+      "tags": [
+        "ui-review",
+        "ui-design",
+        "ux",
+        "notebook",
+        "ai",
+        "hydrofoil",
+        "mockup"
+      ],
+      "links": [
+        {
+          "to": "spec-ai-guided-design-notebook",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-ai-guided-design-notebook",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e6ba08936acddaac7e9bca29dd7a32b0a8066424a4005834055f2a3d608e9fab"
     },
     {
       "id": "kb-hw-glossary",
@@ -24736,6 +24820,81 @@ window.DOCS_INDEX = {
       "sourceSha256": "4ff7b199189535ba8d993358fe164d12549fd6cf35b68adab979f9f806794bf5"
     },
     {
+      "id": "spec-ai-guided-design-notebook",
+      "path": "docs/specs/ai-guided-design-notebook.md",
+      "title": "Spec: AI-Guided Hydrofoil Design Notebook (FoilReq DSL, Grill-Me Q&A, Local Physics Iteration, and CAD Handoff)",
+      "type": "spec",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "specification — /specify (Parts A, B, C) + /ui-design review mockup",
+      "reviewBy": "2027-05-27",
+      "reviewSuggested": [],
+      "summary": "Three-layer product specification (Functional + Conceptual Domain Model + FoilReq 1.0 EBNF Grammar, UX Structure and Flows, and UI Surface) for CFD-Workbench's AI-Guided Hydrofoil Design Notebook (\"New AI-guided design\"). Combines natural-language brief decomposition into a typed FoilReq 1.0 schema/DSL, Matt Pocock grill-me serial decision-tree disambiguation, single-endpoint BYOK orchestration grounded in deterministic local C# geometry and hydrodynamics solvers, synchronized notebook and visual-artifact panes, and non-destructive handoff into full CAD mode once a geometry-checked 3D candidate exists.",
+      "tags": [
+        "spec",
+        "ai",
+        "notebook",
+        "grill-me",
+        "foilreq",
+        "dsl",
+        "multi-model",
+        "hydrofoil",
+        "cad-handoff",
+        "ux",
+        "ui"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "design-byok-assistants",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-setup-seeding",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-section-catalog-expansion",
+          "rel": "depends-on"
+        },
+        {
+          "to": "kb-hw-hydrofoil-disciplines-and-design-data",
+          "rel": "depends-on"
+        },
+        {
+          "to": "kb-hw-integration-and-ai-workflows",
+          "rel": "depends-on"
+        },
+        {
+          "to": "kb-hw-public-domain-and-parametric-catalog",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-ai-guided-design-notebook",
+          "rel": "tested-by"
+        },
+        {
+          "to": "ui-review-ai-guided-design-notebook",
+          "rel": "documents"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "B3. User flows (happy + alternate + error + recovery)",
+          "mermaid": "flowchart TD\n    entry([Start / File / Palette / Rail:\\nNew AI-guided design]) --> keyCheck{API Key & AI-06\\nEval Suite v2.0 Ready?}\n    keyCheck -->|No Key| noKey[No-Key Empty State\\nConfigure key OR Use manual Setup/CAD]\n    noKey -->|Configure key| settings[Assistant Settings + AI-06 Eval Suite v2.0] --> keyCheck\n    noKey -->|Manual| manual([Area 1 Setup / Area 2 CAD])\n\n    keyCheck -->|Unevaluated Model| uneval[AI-06 Lockout Banner\\nRun AI-06 Eval Suite v2.0] --> settings\n\n    keyCheck -->|Ready| empty[Empty Notebook\\nPrompt Composer + Starter Examples]\n    empty -->|Submit prose brief| consent{User Consent +\\nPromptRedactor +\\nAI-04 Cap Check?}\n    consent -->|Daily cap / Network Error| errBanner[Actionable Error Banner\\nRetry / Settings / Keep local state]\n    errBanner -->|User clicks Retry| consent\n    consent -->|Approved & Sent| decomp[Reasoning Model:\\nDecompose to FoilReq 1.0]\n    decomp --> validateReq{FoilReqValidator\\nTier-0 Check}\n    validateReq -->|Invalid JSON / Banned Copy\\nattempts < 2| repairReq[Withheld · Deterministic Reason\\nUser chooses: Retry Repair OR Edit FoilReq]\n    repairReq -->|User clicks Retry Repair| consent\n    repairReq -->|attempts >= 2 OR Manual Edit| manualEdit[Edit FoilReq Directly\\nZero silent auto-send] --> validateReq\n    validateReq -->|Valid FoilReq| openQ{Blocking Flagged /\\nUnit / Physics Tension?}\n\n    openQ -->|Yes| grill[Active Serial Grill-Me Card\\n1 Question · Needed For · Options · Custom]\n    grill -->|Answer option / custom| updateReq[Append FoilReq vN + Inline Diff] --> openQ\n    grill -->|Skip / Generate now| synthConsent\n    openQ -->|No blocking questions| synthConsent{User Consent +\\nPromptRedactor +\\nAI-04 Cap Check?}\n\n    synthConsent -->|Cap / Error| errBanner\n    synthConsent -->|Approved & Sent| synth[Reasoning Model:\\nCandidate Intent Delta]\n    synth --> seedLocal[Tier-0 C# RecipeSeeder + FoilDSL 4.1\\n+ Geometry.Assess]\n    seedLocal -->|Refused Geometry\\ne.g. DSL-TIP-CHORD-MIN| refGeom[Candidate Marked Refused\\nCAD Handoff Disabled for Refused\\nOffer User-Consented Repair <= 2 OR Switch to Prior]\n    refGeom -->|User clicks Ask AI to repair| synthConsent\n    refGeom -->|Switch to prior checked vN| render\n    seedLocal -->|GeometryStatus.Certified| solveLocal[Local Solvers:\\nPanelMethod + NeuralFoil + VLM/Strip]\n\n    solveLocal -->|Cancelled by user| keepPrior[Restore prior candidate\\nZero corruption]\n    solveLocal -->|Solver Out-of-Envelope /\\nNon-Computable| solverPartial[Show Artifacts with Explicit\\nUnavailable Reason · CAD Still Optional]\n    solveLocal -->|Completed| translate[AI Translation Grounded\\nAgainst Tier-0 solver_context]\n\n    translate -->|AI-03 Ungrounded Numeral\\nor LAB-01 Hit| withheldTrans[Withhold Prose Translation\\nKeep Local Artifacts 100% Visible\\nOffer Retry or Inspect Plots]\n    withheldTrans --> nextChoice\n    translate -->|Grounded OK| render[Populate Right Artifacts Pane\\n+ Grounded AI Translation]\n\n    render --> nextChoice{User Next Action}\n    nextChoice -->|Iterate in Notebook| refine[Follow-up Prompt] --> consent\n    nextChoice -->|Re-open Past Grill Pill| reopenGrill[Re-open Branch · Mark Downstream\\nCandidates Stale per TQ9] --> grill\n    nextChoice -->|Inspect / Compare| compare[Switch v1/v2 or Compare Overlay\\nin Artifacts Pane] --> nextChoice\n    nextChoice -->|Switch to CAD Mode| handoffPreview[CAD Handoff Confirmation\\nBLAKE3 SurfaceHash + GoalState + Non-destructive Note]\n    handoffPreview -->|Cancel| render\n    handoffPreview -->|Confirm| cadMode([Area 2 CAD Mode\\nRevision rN Loaded · AI Notebook Stays on Rail])"
+        }
+      ],
+      "sourceSha256": "67b60e3f66c58ac4d8dddd38361ec238fe45fb8b6a711b1dcea061008caa8085"
+    },
+    {
       "id": "spec-amendment-guided-solver-setup",
       "path": "docs/specs/amendments/guided-solver-setup.md",
       "title": "Spec amendment proposal: guided solver setup (UX layer and AI assistance) — OpenFOAM on macOS, OpenFOAM and SU2 on Windows",
@@ -25975,6 +26134,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-add-station"
     },
     {
+      "id": "surface-specs-ai-guided-design-notebook",
+      "path": "docs/specs/ai-guided-design-notebook.html",
+      "title": "Ai Guided Design Notebook",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "spec-ai-guided-design-notebook"
+    },
+    {
       "id": "surface-mockups-setup-seeding",
       "path": "docs/mockups/setup-seeding.html",
       "title": "Area 1 — Setup & Goal State (Interactive Review Mockup)",
@@ -26068,6 +26235,14 @@ window.DOCS_INDEX = {
       "kind": "knowledge-tool",
       "description": "Open an interactive knowledge artifact.",
       "artifactId": "mockup-workbench"
+    },
+    {
+      "id": "surface-mockups-ai-guided-design-notebook",
+      "path": "docs/mockups/ai-guided-design-notebook.html",
+      "title": "CFD-Workbench — AI-Guided Hydrofoil Design Notebook (Review Mockup)",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-ai-guided-design-notebook"
     },
     {
       "id": "surface-coordination-app-shell-build",
@@ -26358,6 +26533,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     },
     {
+      "id": "surface-reviews-ui-ai-guided-design-notebook",
+      "path": "docs/reviews/ui-ai-guided-design-notebook.html",
+      "title": "Ui Ai Guided Design Notebook",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "ui-review-ai-guided-design-notebook"
+    },
+    {
       "id": "surface-reviews-ui-as-built-workbench",
       "path": "docs/reviews/ui-as-built-workbench.html",
       "title": "Ui As Built Workbench",
@@ -26470,5 +26653,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "a76d903ed34570fdd7abe7fc07e8de056f06f96269175973b8689f1283e5e50f"
+  "graphSha256": "367201584cf80f431dba3f1fada460516b69defe8f4a9c2b75691408ec1c826e"
 };

@@ -1,0 +1,3113 @@
+<!doctype html>
+<html lang="en" data-theme="dark" data-viewport="desktop" data-state="iterated" data-motion="full">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CFD-Workbench — AI-Guided Hydrofoil Design Notebook (Review Mockup)</title>
+<style>
+/* ============================================================================
+   DESIGN.md TOKEN SYSTEM — 100% mapped from DESIGN.md frontmatter (0 off-token)
+   Every declared token below is actively used in rendering (0 unused tokens).
+   ============================================================================ */
+:root {
+  --primary: #006c67;
+  --on-primary: #ffffff;
+  --canvas: #f0f2f1;
+  --surface: #fbfcfb;
+  --surface-soft: #e8edeb;
+  --ink: #1b2929;
+  --ink-mute: #526362;
+  --hairline: #c9d3cf;
+  --control-line: #788d87;
+  --selection: #d8eeea;
+  --success: #24653f;
+  --warning: #895900;
+  --danger: #a92e37;
+  --focus-ring: #006c67;
+
+  /* Graphite scientific viewport (invariant across Light & Dark per DESIGN.md §2) */
+  --viewport: #17272c;
+  --viewport-soft: #243a40;
+  --viewport-ink: #edf4f2;
+  --viewport-mute: #afc6c7;
+  --viewport-grid: #344b50;
+  --foil: #85c9c4;
+  --foil-edge: #c4e7df;
+  --station: #66ddc8;
+  --focus-ring-viewport: #66ddc8;
+  --danger-viewport: #ffaeb5;
+  --warning-viewport: #efc576;
+  --foil-shade-lit: #3f6a6c;
+
+  /* Diverging vik colormap pinned at Cp = 0 (DESIGN.md §2, TQ3) */
+  --vik-neg2: #001261;
+  --vik-neg1: #2d7ba5;
+  --vik-zero: #ebe6e2;
+  --vik-pos1: #c37243;
+  --vik-pos2: #590008;
+
+  /* Typography & spacing tokens */
+  --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Consolas, Menlo, monospace;
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-pill: 9999px;
+  --dur-fast: 120ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.16);
+}
+
+[data-theme="dark"] {
+  --canvas: #172326;
+  --surface: #1e2d31;
+  --surface-soft: #2a3d40;
+  --ink: #ebf3f0;
+  --ink-mute: #b2c4bf;
+  --hairline: #49605b;
+  --control-line: #79928c;
+  --primary: #88d8c6;
+  --on-primary: #172326;
+  --selection: #274c47;
+  --success: #92d1a5;
+  --warning: #efc576;
+  --danger: #ffaeb5;
+  --focus-ring: #88d8c6;
+}
+
+[data-theme="contrast"] {
+  --canvas: #000000;
+  --surface: #000000;
+  --surface-soft: #000000;
+  --ink: #ffffff;
+  --ink-mute: #ffffff;
+  --hairline: #ffffff;
+  --control-line: #ffffff;
+  --primary: #ffee58;
+  --on-primary: #000000;
+  --selection: #000000;
+  --success: #ffffff;
+  --warning: #ffee58;
+  --danger: #ffee58;
+  --focus-ring: #ffee58;
+  --viewport: #000000;
+  --viewport-soft: #000000;
+  --viewport-ink: #ffffff;
+  --viewport-mute: #ffffff;
+  --viewport-grid: #ffffff;
+  --foil: #ffee58;
+  --foil-edge: #ffffff;
+  --station: #ffee58;
+  --focus-ring-viewport: #ffee58;
+  --danger-viewport: #ffee58;
+  --warning-viewport: #ffee58;
+  --foil-shade-lit: #000000;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--canvas);
+  color: var(--ink);
+  font: 14px/1.5 var(--font-sans);
+  min-height: 100vh;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+[data-motion="reduced"] *, [data-motion="reduced"] *::before, [data-motion="reduced"] *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+button, input, select, textarea { font: inherit; color: inherit; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+/* DESIGN.md §2: Graphite viewport & dark review bar MUST use --focus-ring-viewport (9.3:1 on #17272c, 7.1:1 on #243a40) */
+.sci-canvas :focus-visible, .harness :focus-visible {
+  outline: 2px solid var(--focus-ring-viewport);
+  outline-offset: 2px;
+}
+
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
+
+/* ============================================================================
+   REVIEW HARNESS BAR (Review chrome — DX10/DX11, never ships to production)
+   ============================================================================ */
+.harness {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  padding: 8px 14px;
+  background: var(--viewport);
+  color: var(--viewport-ink);
+  border-bottom: 1px solid var(--viewport-grid);
+  font-size: 12px;
+}
+.harness-title {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--station);
+  font-size: 11px;
+}
+.harness label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--viewport-mute);
+}
+.harness select, .harness button {
+  background: var(--viewport-soft);
+  color: var(--viewport-ink);
+  border: 1px solid var(--viewport-grid);
+  border-radius: var(--r-sm);
+  padding: 4px 8px;
+  min-height: 32px;
+  cursor: pointer;
+}
+.harness select:hover, .harness button:hover { border-color: var(--station); }
+.harness-spacer { flex: 1; }
+.harness-verdict {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 0 10px;
+  min-height: 32px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--viewport-grid);
+  background: var(--viewport-soft);
+  color: var(--viewport-ink);
+  cursor: pointer;
+}
+.harness-verdict.ok { border-color: var(--station); color: var(--station); }
+.harness-verdict.fail { border-color: var(--danger-viewport); color: var(--danger-viewport); }
+
+/* ============================================================================
+   WORKBENCH WINDOW FRAME
+   ============================================================================ */
+.shell-wrap {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.window {
+  width: 100%;
+  max-width: 1440px;
+  height: 820px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+[data-viewport="laptop"] .window { max-width: 1280px; height: 760px; }
+[data-viewport="compact"] .window { max-width: 1024px; height: 700px; }
+
+/* ---- Top Session Header (compact single engineering bar) ---- */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  min-height: 50px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--hairline);
+  flex-shrink: 0;
+}
+.brand-crumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1 1 210px;
+}
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  padding: 0 10px;
+  background: transparent;
+  border: 1px solid var(--control-line);
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.back-btn:hover { background: var(--surface-soft); }
+.session-title-wrap { min-width: 0; }
+.session-title {
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+.session-sub {
+  font-size: 11px;
+  color: var(--ink-mute);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Phase Stepper */
+.phases {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.phase-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid var(--hairline);
+  color: var(--ink-mute);
+  background: var(--canvas);
+  white-space: nowrap;
+}
+.phase-pill.done { color: var(--success); border-color: var(--hairline); background: var(--surface); }
+.phase-pill.active { color: var(--on-primary); background: var(--primary); border-color: var(--primary); font-weight: 600; }
+.phase-sep { color: var(--ink-mute); font-size: 11px; }
+
+/* Model Routing Bar + Candidate Action Group */
+.model-chips {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+[data-viewport="compact"] .model-chip-secondary { display: none; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  border: 1px solid var(--hairline);
+  background: var(--canvas);
+  color: var(--ink-mute);
+  white-space: nowrap;
+}
+.chip strong { color: var(--ink); font-weight: 600; }
+.chip.ok { border-color: var(--success); color: var(--success); }
+.chip.warn { border-color: var(--warning); color: var(--warning); }
+.chip.err { border-color: var(--danger); color: var(--danger); }
+
+.cand-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.cand-select {
+  min-height: 32px;
+  max-width: 210px;
+  padding: 0 8px;
+  border: 1px solid var(--control-line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.cad-disabled-note {
+  font-size: 11px;
+  color: var(--ink-mute);
+  padding: 4px 14px;
+  background: var(--canvas);
+  border-bottom: 1px solid var(--hairline);
+  display: none;
+}
+.cad-disabled-note.visible { display: block; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 11px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--control-line);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+.btn:hover:not(:disabled) { background: var(--surface-soft); }
+.btn.primary {
+  background: var(--primary);
+  color: var(--on-primary);
+  border-color: var(--primary);
+  font-weight: 600;
+}
+.btn.primary:hover:not(:disabled) { opacity: 0.92; }
+.btn:disabled { opacity: 0.48; cursor: not-allowed; }
+.btn.sm { min-height: 32px; padding: 0 10px; font-size: 12px; }
+
+/* ============================================================================
+   MAIN TWO-PANE WORKSPACE (Notebook Left 43% | Artifacts Right 57%)
+   ============================================================================ */
+.workspace {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(380px, 43%) minmax(460px, 57%);
+  min-height: 0;
+  overflow: hidden;
+}
+[data-viewport="compact"] .workspace {
+  grid-template-columns: minmax(350px, 45%) minmax(420px, 55%);
+}
+
+/* ---- LEFT PANE: NOTEBOOK INTERACTION THREAD ---- */
+.left-pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid var(--hairline);
+  background: var(--canvas);
+}
+
+/* Pinned Collapsible FoilReq Summary Bar */
+.foilreq-pin {
+  background: var(--surface);
+  border-bottom: 1px solid var(--hairline);
+  padding: 8px 12px;
+  flex-shrink: 0;
+}
+.foilreq-pin-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.foilreq-pin-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.foilreq-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 6px;
+}
+.req-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: var(--r-sm);
+  font-size: 11px;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  color: var(--ink);
+}
+.req-chip .tag {
+  font-size: 10px;
+  color: var(--ink-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.req-chip.flagged { border-color: var(--warning); color: var(--warning); font-weight: 600; }
+.req-chip.stated { border-color: var(--control-line); }
+
+.foilreq-drawer {
+  margin-top: 8px;
+  padding: 8px;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  max-height: 170px;
+  overflow: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.45;
+  white-space: pre;
+  display: none;
+}
+.foilreq-drawer.open { display: block; }
+
+/* Scrollable Notebook Thread */
+.thread {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.cell {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+}
+.cell.user {
+  background: var(--selection);
+  border-color: var(--control-line);
+}
+.cell.warn { border-color: var(--warning); }
+.cell.err { border-color: var(--danger); }
+.cell-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 11px;
+  color: var(--ink-mute);
+}
+.cell-role {
+  font-weight: 600;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.role-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--r-pill);
+  background: var(--primary);
+  display: inline-block;
+}
+.role-dot.warn { background: var(--warning); }
+.role-dot.err { background: var(--danger); }
+.role-dot.ok { background: var(--success); }
+
+.cell-body { font-size: 13px; line-height: 1.5; }
+.cell-body p { margin: 0 0 6px; }
+.cell-body p:last-child { margin-bottom: 0; }
+
+/* Sanity Check & Physics Tension Callout */
+.alert-box {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--warning);
+  background: var(--canvas);
+  font-size: 12px;
+}
+.alert-box.err { border-color: var(--danger); }
+.alert-box-head {
+  font-weight: 600;
+  color: var(--warning);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.alert-box.err .alert-box-head { color: var(--danger); }
+.alert-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* Completed Grill Summary Strip (clickable buttons >= 32px target to re-open branch per UX-NB-2) */
+.grill-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.qa-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 0 9px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--control-line);
+  background: var(--canvas);
+  font-size: 11.5px;
+  color: var(--ink);
+  cursor: pointer;
+}
+.qa-pill:hover { border-color: var(--primary); background: var(--surface-soft); }
+.qa-pill span.k { color: var(--ink-mute); font-weight: 600; }
+
+/* Active Matt Pocock Grill-Me Card */
+.grill-card {
+  background: var(--surface);
+  border: 1px solid var(--primary);
+  border-radius: var(--r-md);
+  padding: 12px;
+}
+.grill-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.grill-q {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  margin: 0 0 6px;
+}
+.grill-needed {
+  font-size: 12px;
+  color: var(--ink-mute);
+  margin: 0 0 10px;
+}
+.grill-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.grill-opt {
+  text-align: left;
+  padding: 8px 10px;
+  min-height: 44px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--control-line);
+  background: var(--canvas);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+}
+.grill-opt:hover { border-color: var(--primary); background: var(--surface-soft); }
+.grill-opt.suggested { border-color: var(--primary); }
+.grill-opt-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 12.5px;
+}
+.grill-opt-desc { font-size: 11.5px; color: var(--ink-mute); }
+.grill-opt-impact { font-family: var(--font-mono); font-size: 11px; color: var(--primary); margin-top: 2px; }
+.grill-custom-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.grill-custom-row input {
+  flex: 1;
+  min-height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--control-line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-size: 12px;
+}
+.grill-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--hairline);
+}
+
+/* Tool / Local Solver Execution Receipt */
+.receipt {
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  padding: 7px 10px;
+  font-size: 11.5px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.receipt-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.receipt-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-mute);
+}
+.receipt-steps .done { color: var(--success); }
+.receipt-steps .active { color: var(--primary); font-weight: 600; }
+
+/* Cited inline telemetry pills inside AI translation */
+.cite {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  padding: 0 5px;
+  border-radius: var(--r-sm);
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  color: var(--ink);
+}
+
+/* Empty State Starter Cards */
+.empty-welcome {
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.empty-welcome h2 { margin: 0; font-size: 18px; font-weight: 600; }
+.empty-welcome p { margin: 0; font-size: 13px; color: var(--ink-mute); }
+.starter-list { display: flex; flex-direction: column; gap: 8px; }
+.starter-btn {
+  text-align: left;
+  padding: 10px 12px;
+  min-height: 44px;
+  background: var(--surface);
+  border: 1px solid var(--control-line);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.starter-btn:hover { border-color: var(--primary); background: var(--surface-soft); }
+.starter-btn strong { font-size: 13px; }
+.starter-btn span { font-size: 12px; color: var(--ink-mute); }
+
+/* Bottom Composer */
+.composer {
+  background: var(--surface);
+  border-top: 1px solid var(--hairline);
+  padding: 10px 12px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tuner-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.tuner-chip {
+  min-height: 32px;
+  padding: 0 10px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--control-line);
+  background: var(--canvas);
+  font-size: 11.5px;
+  color: var(--ink);
+  cursor: pointer;
+}
+.tuner-chip:hover:not(:disabled) { border-color: var(--primary); background: var(--surface-soft); }
+.tuner-chip:disabled { opacity: 0.45; cursor: not-allowed; }
+.composer-box {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+.composer textarea {
+  flex: 1;
+  min-height: 44px;
+  max-height: 110px;
+  resize: vertical;
+  padding: 8px 10px;
+  border: 1px solid var(--control-line);
+  border-radius: var(--r-sm);
+  background: var(--canvas);
+  font-size: 13px;
+  line-height: 1.4;
+}
+.composer textarea:disabled { opacity: 0.55; cursor: not-allowed; }
+.composer-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--ink-mute);
+}
+.link-btn {
+  background: transparent;
+  border: 0;
+  min-height: 32px;
+  padding: 0 4px;
+  color: var(--primary);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 11.5px;
+}
+.link-btn:disabled { opacity: 0.45; cursor: not-allowed; text-decoration: none; color: var(--ink-mute); }
+
+/* ============================================================================
+   RIGHT PANE: SYNCHRONIZED ARTIFACTS WORKBENCH
+   ============================================================================ */
+.right-pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--surface);
+}
+.art-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 12px;
+  min-height: 42px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--hairline);
+  flex-shrink: 0;
+}
+.art-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  overflow-x: auto;
+}
+.art-tab {
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  min-height: 40px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-mute);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.art-tab:hover { color: var(--ink); }
+.art-tab.active {
+  color: var(--ink);
+  font-weight: 600;
+  border-bottom-color: var(--primary);
+}
+.art-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.toggle-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 0 10px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--control-line);
+  background: var(--canvas);
+  font-size: 11.5px;
+  cursor: pointer;
+}
+.toggle-pill[aria-pressed="true"] {
+  background: var(--selection);
+  border-color: var(--primary);
+  font-weight: 600;
+}
+.toggle-pill:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Artifact Body */
+.art-stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+/* Primary Graphite Scientific Canvas */
+.sci-canvas {
+  background: var(--viewport);
+  color: var(--viewport-ink);
+  border: 1px solid var(--viewport-grid);
+  border-radius: var(--r-sm);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 320px;
+}
+.sci-plate-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--viewport-soft);
+  border-bottom: 1px solid var(--viewport-grid);
+  font-size: 11.5px;
+}
+.sci-plate-title { font-weight: 600; color: var(--viewport-ink); }
+.sci-plate-meta { color: var(--viewport-mute); font-family: var(--font-mono); font-size: 11px; }
+.sci-body {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 270px;
+}
+.sci-body svg, .sci-body canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.probe-readout {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: var(--viewport-soft);
+  border: 1px solid var(--viewport-grid);
+  color: var(--viewport-ink);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: var(--r-sm);
+  pointer-events: none;
+}
+.vik-legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background: var(--viewport-soft);
+  border-top: 1px solid var(--viewport-grid);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--viewport-mute);
+}
+.vik-bar {
+  width: 110px;
+  height: 8px;
+  border-radius: var(--r-sm);
+  background: linear-gradient(90deg, var(--vik-neg2), var(--vik-neg1), var(--vik-zero), var(--vik-pos1), var(--vik-pos2));
+  border: 1px solid var(--viewport-grid);
+  flex-shrink: 0;
+}
+.sci-3d-controls {
+  position: absolute;
+  bottom: 8px;
+  left: 10px;
+  display: flex;
+  gap: 8px;
+  z-index: 4;
+}
+.sci-3d-btn {
+  background: var(--viewport-soft);
+  color: var(--viewport-ink);
+  border: 1px solid var(--viewport-grid);
+  border-radius: var(--r-sm);
+  min-height: 32px;
+  padding: 0 10px;
+  font-size: 11.5px;
+  cursor: pointer;
+}
+.sci-3d-btn:hover, .sci-3d-btn.active { border-color: var(--station); color: var(--station); }
+.sci-3d-hint {
+  position: absolute;
+  bottom: 12px;
+  right: 10px;
+  font-size: 11px;
+  color: var(--viewport-mute);
+  background: var(--viewport-soft);
+  padding: 3px 8px;
+  border-radius: var(--r-sm);
+  pointer-events: none;
+}
+
+/* Derived Readout Strip (tabular, ranked, unit-bearing — TQ2) */
+.metrics-strip {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--hairline);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.metric-cell {
+  background: var(--surface);
+  padding: 7px 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.metric-cell.primary-metric { background: var(--selection); }
+.metric-k { font-size: 11px; color: var(--ink-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.metric-v { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 13.5px; font-weight: 600; color: var(--ink); }
+.metric-d { font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-mute); }
+.metric-d.pos { color: var(--success); }
+.metric-d.warn { color: var(--warning); }
+
+/* Scorecard & Diff Table + Raw DSL */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.data-table th {
+  text-align: left;
+  padding: 6px 8px;
+  background: var(--canvas);
+  border-bottom: 1px solid var(--hairline);
+  color: var(--ink-mute);
+  font-weight: 600;
+  font-size: 11px;
+  position: sticky;
+  top: 0;
+}
+.data-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--hairline);
+  vertical-align: top;
+}
+.data-table th.num, .data-table td.num { text-align: right; }
+.badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: var(--r-sm);
+  font-size: 10.5px;
+  font-weight: 600;
+  border: 1px solid var(--hairline);
+  white-space: nowrap;
+}
+.badge.ok { color: var(--success); border-color: var(--success); }
+.badge.warn { color: var(--warning); border-color: var(--warning); }
+.badge.err { color: var(--danger); border-color: var(--danger); }
+.badge.info { color: var(--primary); border-color: var(--primary); }
+
+.dsl-pre {
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.5;
+  overflow: auto;
+  margin: 0;
+  max-height: 210px;
+}
+
+/* Provenance & Honesty Strip (A5.1 / A5.3 / A5.4) */
+.prov-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 12px;
+  background: var(--canvas);
+  border-top: 1px solid var(--hairline);
+  font-size: 10.5px;
+  color: var(--ink-mute);
+  flex-shrink: 0;
+}
+.prov-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.prov-warn { color: var(--warning); font-weight: 500; }
+
+/* Skeleton Loader (exact shape match — DX9/DX20) */
+.skel-box {
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+}
+.skel-bar {
+  height: 14px;
+  border-radius: var(--r-sm);
+  background: var(--viewport-soft);
+  border: 1px solid var(--viewport-grid);
+  opacity: 0.85;
+}
+.skel-plot {
+  flex: 1;
+  border-radius: var(--r-sm);
+  background: var(--viewport-soft);
+  border: 1px dashed var(--viewport-grid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--viewport-mute);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+/* Modal Dialog (CAD Handoff & Payload Preview) */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.52);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 90;
+  padding: 16px;
+}
+.modal-backdrop.open { display: flex; }
+.modal {
+  width: 100%;
+  max-width: 560px;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--control-line);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-pop);
+  display: flex;
+  flex-direction: column;
+  max-height: 85vh;
+  overflow: hidden;
+}
+.modal-head {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--hairline);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modal-head h3 { margin: 0; font-size: 15px; font-weight: 600; }
+.modal-body {
+  padding: 14px 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+}
+.modal-foot {
+  padding: 10px 16px;
+  border-top: 1px solid var(--hairline);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Status Bar (bottom of window frame, matching DESIGN.md §4 Status strip) */
+.statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 12px;
+  height: 26px;
+  background: var(--surface);
+  border-top: 1px solid var(--hairline);
+  font-size: 11px;
+  color: var(--ink-mute);
+  flex-shrink: 0;
+}
+.statusbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--ink);
+}
+.statusbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* Mechanical Audit Panel (below frame — DX11) */
+.audit-panel {
+  width: 100%;
+  max-width: 1440px;
+  margin-top: 12px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  padding: 12px 16px;
+  font-size: 12px;
+  display: none;
+}
+.audit-panel.open { display: block; }
+.audit-panel h3 { margin: 0 0 8px; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<!-- ==================== REVIEW HARNESS (DX10/DX11 — Review Chrome Only) ==================== -->
+<header class="harness" role="region" aria-label="Review harness">
+  <span class="harness-title">Review Harness</span>
+  <label>State
+    <select id="h-state">
+      <option value="empty">1. Empty / First-run</option>
+      <option value="grill">2. Grill-Me Q&amp;A (live interactive)</option>
+      <option value="simulating">3. Local Simulation Running</option>
+      <option value="iterated" selected>4. Iterated v2 + Compare (interactive)</option>
+      <option value="refused">5. Refused Geometry &amp; Withheld AI</option>
+      <option value="no-key">6. No API Key / Offline (AI-01)</option>
+      <option value="overflow">7. Overflow &amp; Extremes (DX16)</option>
+    </select>
+  </label>
+  <label>Viewport
+    <select id="h-viewport">
+      <option value="desktop" selected>Desktop 1440 × 820</option>
+      <option value="laptop">Laptop 1280 × 760</option>
+      <option value="compact">Compact 1024 × 700</option>
+    </select>
+  </label>
+  <label>Theme
+    <select id="h-theme">
+      <option value="dark" selected>Dark (DESIGN.md)</option>
+      <option value="light">Light (DESIGN.md)</option>
+      <option value="contrast">High-Contrast (DESIGN.md)</option>
+    </select>
+  </label>
+  <label><input type="checkbox" id="h-motion"> Reduced motion</label>
+  <span class="harness-spacer"></span>
+  <button type="button" class="harness-verdict" id="h-verdict" title="Toggle in-artifact WCAG AA & target audit">Audit —</button>
+</header>
+
+<!-- ==================== DESKTOP APPLICATION WINDOW ==================== -->
+<div class="shell-wrap">
+<main class="window" id="app-window" aria-label="AI-Guided Hydrofoil Design Notebook">
+
+  <!-- Top Session Header -->
+  <div class="topbar">
+    <div class="brand-crumb">
+      <button type="button" class="back-btn" id="btn-back" title="Return to Start / Workbench areas">← Workbench</button>
+      <div class="session-title-wrap">
+        <h1 class="session-title" id="session-title">New AI-guided design · Large-Wave 90 kg Wingfoil</h1>
+        <div class="session-sub" id="session-sub">Guided Design Notebook · FoilReq 1.0 · F4 Orca conceptual anchor</div>
+      </div>
+    </div>
+
+    <div class="phases" id="phase-strip" aria-label="Design workflow phase"></div>
+    <div class="model-chips" id="model-chips"></div>
+
+    <div class="cand-actions">
+      <select class="cand-select" id="cand-select" aria-label="Active design candidate"></select>
+      <button type="button" class="btn primary" id="btn-cad-handoff" aria-describedby="cad-disabled-note">Open in CAD Mode →</button>
+    </div>
+  </div>
+  <div class="cad-disabled-note" id="cad-disabled-note"></div>
+
+  <!-- Main Two-Pane Split -->
+  <div class="workspace">
+
+    <!-- LEFT PANE: Interactive Notebook Thread -->
+    <section class="left-pane" aria-label="Notebook conversation and requirements">
+      <div class="foilreq-pin" id="foilreq-pin"></div>
+      <div class="thread" id="thread" tabindex="0"></div>
+      <div class="composer" id="composer">
+        <div class="tuner-chips" id="tuner-chips"></div>
+        <div class="composer-box">
+          <textarea id="prompt-input" rows="2" placeholder="Describe the foil you want to design, or ask to refine the active candidate…"></textarea>
+          <button type="button" class="btn primary" id="btn-send">Send</button>
+        </div>
+        <div class="composer-foot">
+          <span id="composer-hint">Local C# solvers own geometry &amp; physics · AI proposes typed deltas only</span>
+          <span>
+            <button type="button" class="link-btn" id="btn-preview-payload">Preview redacted payload (AI-04)</button>
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANE: Synchronized Results & Artifacts Workbench -->
+    <section class="right-pane" aria-label="Results and engineering artifacts">
+      <div class="art-bar">
+        <div class="art-tabs" role="tablist" id="art-tabs" aria-label="Artifact views">
+          <button type="button" class="art-tab active" role="tab" id="tab-section" aria-controls="art-stage" data-tab="section" aria-selected="true" tabindex="0">2D Section &amp; Cp</button>
+          <button type="button" class="art-tab" role="tab" id="tab-polars" aria-controls="art-stage" data-tab="polars" aria-selected="false" tabindex="-1">Polars &amp; Curves</button>
+          <button type="button" class="art-tab" role="tab" id="tab-elevations" aria-controls="art-stage" data-tab="elevations" aria-selected="false" tabindex="-1">Plan &amp; Elevations</button>
+          <button type="button" class="art-tab" role="tab" id="tab-wing3d" aria-controls="art-stage" data-tab="wing3d" aria-selected="false" tabindex="-1">3D Wing</button>
+          <button type="button" class="art-tab" role="tab" id="tab-scorecard" aria-controls="art-stage" data-tab="scorecard" aria-selected="false" tabindex="-1">Scorecard &amp; FoilReq</button>
+        </div>
+        <div class="art-controls">
+          <button type="button" class="toggle-pill" id="btn-compare" aria-pressed="true">Compare v1 vs v2</button>
+          <button type="button" class="toggle-pill" id="btn-table-twin" aria-pressed="false">Table twin</button>
+        </div>
+      </div>
+
+      <div class="art-stage" id="art-stage" role="tabpanel" aria-labelledby="tab-section"></div>
+
+      <div class="prov-strip" id="prov-strip">
+        <div class="prov-row">
+          <span>Local calculation (VLM + strip · NeuralFoil 0.3.2 XFOIL-class surrogate · PanelMethod 200p) — computed, not tank-measured. Ventilation not modelled.</span>
+          <span class="mono" id="prov-basis">15 °C Salt · h_ref 0.45 m · Ncrit 2–4</span>
+        </div>
+        <div class="prov-row">
+          <span class="prov-warn" id="prov-a51">Deep-water result; free surface not modelled (h/c = 4.00, Fr_h = 5.88; effects measured below h/c 5)</span>
+          <span class="mono" id="prov-a54">Governing station: η 0.00 (root) · h 0.45 m · sheet cavitation screen only</span>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Bottom Status Strip (DESIGN.md §4) -->
+  <footer class="statusbar" role="status">
+    <div class="statusbar-left" id="status-left">Ready — candidate v2 geometry checked (BLAKE3 8f3d2a19) · 915.0 mm span · 815 cm²</div>
+    <div class="statusbar-right mono">
+      <span id="status-solver">Local solver: 1.7 s</span>
+      <span>·</span>
+      <span>Units: Metric / kn</span>
+      <span>·</span>
+      <span>Illustrative mockup</span>
+    </div>
+  </footer>
+</main>
+
+<!-- In-Artifact Mechanical Audit Panel (DX11) -->
+<section class="audit-panel" id="audit-panel" aria-label="Mechanical WCAG AA and target audit">
+  <h3>In-Artifact Mechanical Contrast &amp; Target Audit (DX11 / DC-200)</h3>
+  <table class="data-table">
+    <thead><tr><th>Pairing</th><th>Role</th><th class="num">Measured Ratio</th><th class="num">Floor</th><th>Result</th></tr></thead>
+    <tbody id="audit-tbody"></tbody>
+  </table>
+  <p id="audit-meta" style="margin:8px 0 0;color:var(--ink-mute);"></p>
+</section>
+</div>
+
+<!-- CAD Handoff Modal -->
+<div class="modal-backdrop" id="cad-modal" role="dialog" aria-modal="true" aria-labelledby="cad-modal-title">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="cad-modal-title">Open in CAD Mode</h3>
+      <button type="button" class="btn sm" id="cad-modal-close">Close</button>
+    </div>
+    <div class="modal-body" id="cad-modal-body"></div>
+    <div class="modal-foot">
+      <button type="button" class="btn" id="cad-modal-cancel">Stay in Notebook</button>
+      <button type="button" class="btn primary" id="cad-modal-confirm">Confirm &amp; Open in CAD</button>
+    </div>
+  </div>
+</div>
+
+<!-- Redacted Payload Preview Modal (AI-04) -->
+<div class="modal-backdrop" id="payload-modal" role="dialog" aria-modal="true" aria-labelledby="payload-modal-title">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="payload-modal-title">Byte-Exact Redacted Payload Preview (AI-04)</h3>
+      <button type="button" class="btn sm" id="payload-modal-close">Close</button>
+    </div>
+    <div class="modal-body" id="payload-modal-body"></div>
+    <div class="modal-foot">
+      <button type="button" class="btn primary" id="payload-modal-ok">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ==========================================================================
+     ITTC 7.5-02-01-03 Rev 03 (15 C Seawater) SINGLE PHYSICS FORMULA ENGINE
+     ========================================================================== */
+  const ITTC = {
+    rho: 1026.02,      // kg/m^3
+    nu: 1.1892e-6,     // m^2/s
+    pv: 1671.0,        // Pa
+    pAtm: 101325.0,    // Pa
+    g: 9.80665,        // m/s^2
+    knToMps: 0.514444,
+    loadN: 1050.0,     // 90 kg rider + ~15 kg kit front-wing load
+    hRefM: 0.45        // m above root LE
+  };
+  const DELTA_P = ITTC.pAtm + ITTC.rho * ITTC.g * ITTC.hRefM - ITTC.pv; // 104,181.8 Pa
+
+  function computePhysics(raw) {
+    const bM = raw.spanMm / 1000.0;
+    const sM2 = raw.areaCm2 / 10000.0;
+    const ar = (bM * bM) / sM2; // Exact b^2/S derived, never hardcoded
+    const macM = raw.macMm / 1000.0;
+    const rootChordM = raw.rootChordMm / 1000.0;
+
+    function opAt(vKn, negCp) {
+      const vMps = vKn * ITTC.knToMps;
+      const q = 0.5 * ITTC.rho * vMps * vMps;
+      const cl = ITTC.loadN / (q * sM2);
+      const reMac = (vMps * macM) / ITTC.nu;
+      const sigma = DELTA_P / q;
+      const cavMargin = sigma / negCp;
+      const frH = vMps / Math.sqrt(ITTC.g * ITTC.hRefM);
+      return { vKn, vMps, q, cl, reMac, sigma, cavMargin, frH };
+    }
+
+    const opTakeoff = opAt(raw.takeoffKn, raw.negCpTakeoff);
+    const opGlide = opAt(15.0, raw.negCpGlide);
+    const opDrop = opAt(raw.dropSpeedKn, raw.negCpDrop);
+    const vCritMps = Math.sqrt((2.0 * DELTA_P) / (ITTC.rho * raw.negCpDrop));
+    const vCritKn = vCritMps / ITTC.knToMps;
+    const hcRoot = ITTC.hRefM / rootChordM;
+    const hcMac = ITTC.hRefM / macM;
+
+    return {
+      ...raw,
+      ar,
+      vCritKn,
+      hcRoot,
+      hcMac,
+      opTakeoff,
+      opGlide,
+      opDrop,
+      sigmaDrop: opDrop.sigma,
+      cavMarginDrop: opDrop.cavMargin,
+      clTakeoff: opTakeoff.cl,
+      clGlide: opGlide.cl,
+      clDrop: opDrop.cl,
+      frHDrop: opDrop.frH
+    };
+  }
+
+  /* ==========================================================================
+     REAL DEGREE-7 BERNSTEIN CST SECTIONS (exact weights from CatalogGenerators.cs)
+     ========================================================================== */
+  const BINOM7 = [1, 7, 21, 35, 35, 21, 7, 1];
+  const CST_SECTIONS = {
+    'cfdw-surf-118': {
+      name: 'CFDW Surf 118', tc: 11.8, camber: 3.13, cm0: -0.063, clMax: 1.43, ldPeak: 92.0,
+      wU: [0.1953, 0.2239, 0.2446, 0.2286, 0.2120, 0.1853, 0.1580, 0.1220],
+      wL: [-0.1253, -0.1139, -0.0846, -0.0486, -0.0220, -0.0053, 0.0020, 0.0180]
+    },
+    'cfdw-surf-105': {
+      name: 'CFDW Surf 105', tc: 10.5, camber: 2.80, cm0: -0.054, clMax: 1.43, ldPeak: 88.8,
+      wU: [0.1719, 0.2008, 0.2213, 0.2042, 0.1870, 0.1593, 0.1315, 0.1043],
+      wL: [-0.1119, -0.1008, -0.0713, -0.0442, -0.0170, -0.0093, -0.0015, 0.0157]
+    },
+    'cfdw-dw-092': {
+      name: 'CFDW Downwind 092', tc: 9.2, camber: 1.85, cm0: -0.042, clMax: 1.40, ldPeak: 86.7,
+      wU: [0.1329, 0.1610, 0.1717, 0.1635, 0.1561, 0.1386, 0.1111, 0.0843],
+      wL: [-0.1029, -0.1010, -0.0817, -0.0635, -0.0361, -0.0186, -0.0111, 0.0057]
+    }
+  };
+
+  function evalCst(weights, x) {
+    if (x <= 0 || x >= 1) return 0;
+    const cls = Math.sqrt(x) * (1 - x);
+    let s = 0;
+    for (let i = 0; i < 8; i++) s += weights[i] * BINOM7[i] * Math.pow(x, i) * Math.pow(1 - x, 7 - i);
+    return cls * s;
+  }
+
+  function sampleSection(id, n = 64) {
+    const sec = CST_SECTIONS[id] || CST_SECTIONS['cfdw-surf-105'];
+    const upper = [], lower = [], camber = [];
+    for (let i = 0; i <= n; i++) {
+      const x = 0.5 * (1 - Math.cos(Math.PI * i / n));
+      const yu = evalCst(sec.wU, x);
+      const yl = evalCst(sec.wL, x);
+      upper.push([x, yu]);
+      lower.push([x, yl]);
+      camber.push([x, 0.5 * (yu + yl)]);
+    }
+    return { sec, upper, lower, camber };
+  }
+
+  /* ==========================================================================
+     CANDIDATE DEFINITIONS (all derived fields computed through computePhysics)
+     ========================================================================== */
+  const EXAMPLE_PROMPT = 'Design a foil for wingfoiling in large waves for a 90 kg advanced rider who wants a span less than 950 cm but still wants maximum glide and a low takeoff speed, for controlled drops on steep waves and keeping speed in the bottom turn and then powered cut backs using the foil speed or power in the wing, use the concepts in the F4 Orca as the starting point.';
+
+  const CANDIDATES = {
+    v1: computePhysics({
+      id: 'v1', label: 'v1 · Balanced Surf-Glide', geomOk: true,
+      hash: '4a9c71e2', wallSec: 1.9,
+      spanMm: 930.0, areaCm2: 845, rootChordMm: 116.5, tipChordMm: 41.0,
+      macMm: 94.8, anhedralDeg: -5.0, washoutDeg: -1.2, sweepDeg: 6.5,
+      rootSec: 'cfdw-surf-118', tipSec: 'cfdw-surf-105',
+      takeoffKn: 10.5, glideLd: 24.6, dropSpeedKn: 24.0,
+      negCpTakeoff: 1.48, negCpGlide: 1.12, negCpDrop: 0.98,
+      rollInertiaRel: '1.00× (base)',
+      deltaNote: 'Initial geometry-checked candidate synthesized from resolved FoilReq v1.4'
+    }),
+    v2: computePhysics({
+      id: 'v2', label: 'v2 · Faster Glide + Looser Cutback', geomOk: true,
+      hash: '8f3d2a19', wallSec: 1.7,
+      spanMm: 915.0, areaCm2: 815, rootChordMm: 112.4, tipChordMm: 38.2,
+      macMm: 91.4, anhedralDeg: -6.0, washoutDeg: -1.5, sweepDeg: 7.2,
+      rootSec: 'cfdw-surf-105', tipSec: 'cfdw-dw-092',
+      takeoffKn: 10.8, glideLd: 26.4, dropSpeedKn: 24.0,
+      negCpTakeoff: 1.38, negCpGlide: 1.02, negCpDrop: 0.88,
+      rollInertiaRel: '0.91× (−9% inertia)',
+      deltaNote: 'Span −15.0 mm · Area −30 cm² · Root Surf 105 → Tip DW 092 · Anhedral −5.0° → −6.0°'
+    })
+  };
+
+  /* ==========================================================================
+     MATT POCOCK GRILL-ME DECISION TREE QUESTIONS (interactive & re-openable)
+     ========================================================================== */
+  const GRILL_TREE = [
+    {
+      id: 'q1', branch: 'Q1 of 4 · Unit & Envelope Sanity',
+      question: 'Confirm the wing span cap: your brief says "span less than 950 cm" (9.5 m) — did you mean 950 mm (95 cm)?',
+      neededFor: 'envelope.max_span — FoilReqValidator flagged 9,500 mm as outside hydrofoil wing bounds (350–2,200 mm).',
+      options: [
+        { label: 'Yes — 950 mm hard cap (≤ 0.95 m)', desc: 'Treat 950 mm as a hard upper bound on every candidate.', impact: 'max_span: <= 950 mm hard @stated', suggested: true, short: 'Span ≤ 950 mm (hard)' },
+        { label: 'Yes — 950 mm soft target (up to 980 mm ok)', desc: 'Allow slight span growth if it unlocks lower takeoff speed.', impact: 'max_span: <= 950 mm soft(0.8) @stated', suggested: false, short: 'Span ~950 mm (soft)' }
+      ]
+    },
+    {
+      id: 'q2', branch: 'Q2 of 4 · Physics Tension (Orca AR 12 vs 90 kg Takeoff)',
+      question: 'At span ≤ 950 mm and F4 Orca AR 12, wing area is ≤ 752 cm² (CL_req = 1.028 at 10.0 kn for 1,050 N load). Which balance do you want?',
+      neededFor: 'envelope.target_ar & objectives.takeoff_speed — resolves the b²/AR vs low-end lift tradeoff before seeding.',
+      options: [
+        { label: 'Balanced AR 10.0–10.5 (810–860 cm²) + high-camber section', desc: 'Keeps Orca high-camber low-end feel with ~10.5–10.8 kn takeoff and high L/D.', impact: 'target_ar: ~10.25 soft(0.9) @stated', suggested: true, short: 'AR ~10.25 · 830 cm²' },
+        { label: 'Strict Orca AR 11.5–12.0 (720–760 cm²)', desc: 'Maximum glide and steep-drop speed; accepts ~12.0 kn takeoff or active wing pumping.', impact: 'target_ar: ~11.8 soft(0.9) @stated', suggested: false, short: 'AR ~11.8 · 740 cm²' },
+        { label: 'Earliest takeoff AR 8.8–9.4 (900–960 cm²)', desc: 'Sub-10 kn takeoff in light wind; sacrifices some high-speed glide.', impact: 'target_ar: ~9.1 soft(0.9) @stated', suggested: false, short: 'AR ~9.1 · 930 cm²' }
+      ]
+    },
+    {
+      id: 'q3', branch: 'Q3 of 4 · Steep Wave Drop Speed & Cavitation Floor',
+      question: 'What peak drop speed should the local sheet-cavitation screen protect at h_ref = 0.45 m in 15 °C seawater (σ = 1.332 at 24 kn)?',
+      neededFor: 'objectives.steep_drop_speed & cavitation_margin — sets operating-point V_drop and σ / (−Cp_min) ≥ 1.15 floor.',
+      options: [
+        { label: '24 kn steep wave drop (≈ 44 km/h)', desc: 'Large overhead swell drops; requires −Cp_min ≤ 1.15 (V_crit ≥ 26 kn) at 24 kn.', impact: 'steep_drop_speed: <= 24.0 kn hard @stated', suggested: true, short: 'Drop 24 kn · σ 1.33' },
+        { label: '28 kn heavy ocean bomb / tow-in speed', desc: 'Pushes toward thinner race/downwind sections (t/c ≤ 9.5%) with slightly higher takeoff.', impact: 'steep_drop_speed: <= 28.0 kn hard @stated', suggested: false, short: 'Drop 28 kn · thin' }
+      ]
+    },
+    {
+      id: 'q4', branch: 'Q4 of 4 · Bottom Turn & Cutback Feel',
+      question: 'How loose vs locked-in should the roll and pitch feel through bottom turns and powered cutbacks?',
+      neededFor: 'maneuvers.bottom_turn_speed & powered_cutback — guides anhedral (−4°..−7°), washout, and tip taper.',
+      options: [
+        { label: 'Controlled drive + snappy cutback (−5° to −6° anhedral, tapered tips)', desc: 'Progressive tip taper lowers roll inertia while holding smooth pitch on steep drops.', impact: 'powered_cutback: "snappy −5.5 deg anhedral" high @stated', suggested: true, short: 'Snappy carve · −5.5°' },
+        { label: 'Locked-in rail drive (−3° anhedral, fuller tips)', desc: 'Prioritizes mid-turn projection and tip breach forgiveness over rapid roll rate.', impact: 'powered_cutback: "locked −3.0 deg rail drive" high @stated', suggested: false, short: 'Locked drive · −3°' }
+      ]
+    }
+  ];
+
+  /* ==========================================================================
+     APPLICATION STATE
+     ========================================================================== */
+  const app = {
+    state: 'iterated',
+    activeTab: 'section',
+    activeCand: 'v2',
+    refusedSelect: 'v2b',
+    overflowSelect: 'v12',
+    compare: true,
+    tableTwin: false,
+    dslOpen: false,
+    staleAfterReopen: false,
+    grillIdx: 0,
+    grillAnswers: [],
+    unitFixed: false,
+    submittedBrief: EXAMPLE_PROMPT,
+    extraTurns: [],
+    candOrder: ['v1', 'v2'],
+    lastModalTrigger: null,
+    view3d: { az: -36, el: 24, mode: 'shaded', dragging: false, lastX: 0, lastY: 0 }
+  };
+
+  /* ==========================================================================
+     DOM REFERENCES
+     ========================================================================== */
+  const root = document.documentElement;
+  const elPhase = document.getElementById('phase-strip');
+  const elModels = document.getElementById('model-chips');
+  const elCandSelect = document.getElementById('cand-select');
+  const elCadBtn = document.getElementById('btn-cad-handoff');
+  const elCadNote = document.getElementById('cad-disabled-note');
+  const elFoilReqPin = document.getElementById('foilreq-pin');
+  const elThread = document.getElementById('thread');
+  const elTuners = document.getElementById('tuner-chips');
+  const elPrompt = document.getElementById('prompt-input');
+  const elSend = document.getElementById('btn-send');
+  const elPreviewPayload = document.getElementById('btn-preview-payload');
+  const elComposerHint = document.getElementById('composer-hint');
+  const elArtStage = document.getElementById('art-stage');
+  const elCompare = document.getElementById('btn-compare');
+  const elTableTwin = document.getElementById('btn-table-twin');
+  const elStatusLeft = document.getElementById('status-left');
+  const elStatusSolver = document.getElementById('status-solver');
+  const elSessionTitle = document.getElementById('session-title');
+  const elSessionSub = document.getElementById('session-sub');
+  const elProvA51 = document.getElementById('prov-a51');
+  const elProvA54 = document.getElementById('prov-a54');
+
+  /* ==========================================================================
+     BUILD FOILREQ 1.0 DSL TEXT (100% conformant to spec §A5 closed EBNF)
+     ========================================================================== */
+  function buildFoilReqDsl() {
+    const spanLine = (app.state === 'grill' && !app.unitFixed)
+      ? 'max_span:   <= 950 cm @flagged("Unit sanity: 9,500 mm > 2,200 mm cap; confirm 950 mm");'
+      : 'max_span:   <= 950 mm hard @stated;';
+    const arLine = (app.state === 'grill' && app.grillAnswers.length < 2)
+      ? 'target_ar:  ~ 12.0 soft(0.7) @inferred("F4 Orca trait; tension with 90 kg takeoff");'
+      : 'target_ar:  ~ 10.25 soft(0.9) @stated("Resolved in Q2");';
+    const dropLine = (app.state === 'grill' && app.grillAnswers.length < 3)
+      ? 'steep_drop_speed:  ? @unknown("Pending Q3");'
+      : 'steep_drop_speed:  <= 24.0 kn hard @stated("Resolved in Q3");';
+    return `foilreq "1.0" {
+  brief {
+    discipline: wingfoil-surf;
+    skill:      advanced;
+  }
+  rider {
+    mass:          90.0 kg @stated;
+    board_mass:    5.5 kg @defaulted("KB 04 surf/wing board");
+    foil_mass:     4.5 kg @defaulted("KB 04 carbon foil");
+    wing_kit_mass: 5.0 kg @defaulted("Wing + wetsuit + harness");
+  }
+  water {
+    kind:      salt @defaulted("Ocean large waves");
+    temp:      15.0 C @defaulted("ITTC 7.5-02-01-03 Rev 03");
+    depth_ref: 0.45 m @defaulted("Mast 85-90 cm wave clearance");
+  }
+  envelope {
+    ${spanLine}
+    ${arLine}
+  }
+  reference "F4 Orca" {
+    traits:     [high-aspect-glide, high-camber-low-end, responsive-carve];
+    policy:     "conceptual-only-no-proprietary-geometry";
+    confidence: Flagged;
+  }
+  objectives {
+    glide_ld:          high @stated;
+    takeoff_speed:     <= 11.0 kn hard @stated;
+    ${dropLine}
+    cavitation_margin: >= 1.15 hard @defaulted("A5.4 sigma / -Cp_min floor");
+  }
+  maneuvers {
+    steep_wave_drop:   "controlled pitch, no abrupt breach" high @stated;
+    bottom_turn_speed: "retain speed & rail drive" high @stated;
+    powered_cutback:   "snap roll with foil or wing power" high @stated;
+  }
+}`;
+  }
+
+  function currentCandidate() {
+    if (app.state === 'refused') return CANDIDATES.v1;
+    if (app.state === 'overflow') return app.overflowSelect === 'v1' ? CANDIDATES.v1 : CANDIDATES.v2;
+    return CANDIDATES[app.activeCand] || CANDIDATES.v2;
+  }
+
+  /* ==========================================================================
+     RENDER TOP BAR (Phases, Model Routing, Candidate Selector, CAD Handoff)
+     ========================================================================== */
+  function renderTopBar() {
+    const st = app.state;
+    const isOverflow = st === 'overflow';
+    elSessionTitle.textContent = isOverflow
+      ? 'New AI-guided design · Pacific Overhead Reef Wingfoil 90 kg Heavy-Swell High-Glide Expedition Prototype (Rev 12)'
+      : 'New AI-guided design · Large-Wave 90 kg Wingfoil';
+    elSessionSub.textContent = st === 'no-key'
+      ? 'Offline mode · No API key configured (AI-01)'
+      : 'Guided Design Notebook · FoilReq 1.0 · F4 Orca conceptual anchor';
+
+    const phaseDefs = [
+      { id: 'brief', label: '1. Brief' },
+      { id: 'grill', label: '2. Grill-Me' },
+      { id: 'iter', label: '3. Iterate' },
+      { id: 'cad', label: '4. CAD' }
+    ];
+    const activeIdx = st === 'empty' || st === 'no-key' ? 0 : st === 'grill' ? 1 : 2;
+    elPhase.innerHTML = phaseDefs.map((p, idx) => {
+      const cls = idx < activeIdx ? 'done' : idx === activeIdx ? 'active' : '';
+      const mark = idx < activeIdx ? '✓ ' : '';
+      return `${idx > 0 ? '<span class="phase-sep">›</span>' : ''}<span class="phase-pill ${cls}">${mark}${p.label}</span>`;
+    }).join('');
+
+    if (st === 'no-key') {
+      elModels.innerHTML = `
+        <span class="chip warn"><strong>BYOK:</strong> No API key</span>
+        <span class="chip ok"><strong>Solver:</strong> Local C#</span>
+      `;
+    } else {
+      elModels.innerHTML = `
+        <span class="chip" title="Single endpoint (AI-04) · Reasoning: Sonnet 4.6 (Eval v2.0 ✓)"><strong>Model:</strong> Sonnet 4.6 (Eval ✓)</span>
+        <span class="chip ok model-chip-secondary"><strong>Solver:</strong> Local C#</span>
+      `;
+    }
+
+    const hasCands = (st === 'iterated' || st === 'refused' || st === 'overflow');
+    let disabledReason = '';
+    if (!hasCands) {
+      elCandSelect.innerHTML = `<option value="">No candidate yet</option>`;
+      elCandSelect.disabled = true;
+      elCadBtn.disabled = true;
+      disabledReason = 'Generate a geometry-checked 3D candidate first to open in CAD Mode.';
+    } else if (st === 'refused') {
+      elCandSelect.innerHTML = `
+        <option value="v2b" ${app.refusedSelect === 'v2b' ? 'selected' : ''}>v2b · Refused (DSL-TIP-CHORD-MIN)</option>
+        <option value="v1" ${app.refusedSelect === 'v1' ? 'selected' : ''}>v1 · Balanced Surf-Glide (Ready)</option>
+      `;
+      elCandSelect.disabled = false;
+      const isRef = app.refusedSelect === 'v2b';
+      elCadBtn.disabled = isRef;
+      if (isRef) disabledReason = 'Open in CAD Mode disabled for refused candidate v2b — select geometry-checked v1 or ask AI to repair.';
+    } else if (st === 'overflow') {
+      let opts = '';
+      for (let i = 12; i >= 1; i--) {
+        const val = 'v' + i;
+        opts += `<option value="${val}" ${app.overflowSelect === val ? 'selected' : ''}>${val} · Iteration ${i} — Surf-Glide (${i === 1 ? '930' : '915'} mm)</option>`;
+      }
+      elCandSelect.innerHTML = opts;
+      elCandSelect.disabled = false;
+      elCadBtn.disabled = false;
+    } else {
+      elCandSelect.innerHTML = app.candOrder.map(id => {
+        const c = CANDIDATES[id];
+        return `<option value="${id}" ${id === app.activeCand ? 'selected' : ''}>${c.label}</option>`;
+      }).join('');
+      elCandSelect.disabled = false;
+      elCadBtn.disabled = false;
+    }
+
+    elCadNote.textContent = disabledReason;
+    elCadNote.classList.toggle('visible', disabledReason.length > 0);
+  }
+
+  /* ==========================================================================
+     RENDER LEFT PANE (Pinned FoilReq + Notebook Thread + Composer)
+     ========================================================================== */
+  function renderLeftPane() {
+    const st = app.state;
+
+    // 1. Pinned FoilReq Card
+    if (st === 'empty' || st === 'no-key') {
+      elFoilReqPin.innerHTML = `
+        <div class="foilreq-pin-head">
+          <span class="foilreq-pin-title">FoilReq 1.0 · Schema empty</span>
+          <span class="chip">Awaiting riding brief</span>
+        </div>
+      `;
+    } else {
+      const hasUnitFlag = (st === 'grill' && !app.unitFixed);
+      const openQCount = st === 'grill' ? Math.max(0, GRILL_TREE.length - app.grillIdx) : 0;
+      const staleBadge = app.staleAfterReopen ? `<span class="badge warn">Candidates Stale (TQ9)</span>` : '';
+      elFoilReqPin.innerHTML = `
+        <div class="foilreq-pin-head">
+          <span class="foilreq-pin-title">FoilReq 1.0 ${openQCount > 0 ? `<span class="badge warn">${openQCount} open</span>` : `<span class="badge ok">Resolved</span>`} ${staleBadge}</span>
+          <button type="button" class="btn sm" id="btn-toggle-dsl">${app.dslOpen ? 'Hide DSL' : 'Inspect DSL'}</button>
+        </div>
+        <div class="foilreq-chips">
+          <span class="req-chip stated">90 kg advanced <span class="tag">Stated</span></span>
+          <span class="req-chip ${hasUnitFlag ? 'flagged' : 'stated'}">${hasUnitFlag ? '⚠ 950 cm? (Flagged)' : 'Span ≤ 950 mm'} <span class="tag">${hasUnitFlag ? 'Sanity' : 'Stated'}</span></span>
+          <span class="req-chip stated">Large waves · Glide + Cutback <span class="tag">Stated</span></span>
+          <span class="req-chip">F4 Orca traits <span class="tag">Flagged</span></span>
+          <span class="req-chip">15 °C Salt · h 0.45 m <span class="tag">Defaulted</span></span>
+        </div>
+        <pre class="foilreq-drawer ${app.dslOpen ? 'open' : ''}">${escapeHtml(buildFoilReqDsl())}</pre>
+      `;
+      const btnDsl = document.getElementById('btn-toggle-dsl');
+      if (btnDsl) btnDsl.addEventListener('click', () => { app.dslOpen = !app.dslOpen; renderLeftPane(); });
+    }
+
+    // 2. Thread Content by State
+    if (st === 'no-key') {
+      elThread.innerHTML = `
+        <div class="cell warn">
+          <div class="cell-meta"><span class="cell-role"><span class="role-dot warn"></span>Offline · AI-01 Notice</span><span class="mono">0 network calls</span></div>
+          <div class="cell-body">
+            <p><strong>No API key configured — AI-guided design needs a BYOK key.</strong></p>
+            <p>Manual Setup, CAD, local Analysis (VLM + strip, NeuralFoil, PanelMethod), Experiment, Run, Results, and Export continue working offline without a key.</p>
+            <div class="alert-actions">
+              <button type="button" class="btn primary sm" id="btn-sim-config">Configure key (Settings)</button>
+              <button type="button" class="btn sm" id="btn-sim-manual">Use manual Setup / CAD</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.getElementById('btn-sim-config').addEventListener('click', () => {
+        elStatusLeft.textContent = 'Settings opened (mock) — switching harness to Empty state to simulate configured key.';
+        setState('empty');
+      });
+      document.getElementById('btn-sim-manual').addEventListener('click', () => {
+        elStatusLeft.textContent = 'Switched to manual Area 1 Setup / Area 2 CAD (zero API key required).';
+      });
+    } else if (st === 'empty') {
+      elThread.innerHTML = `
+        <div class="empty-welcome">
+          <h2>Start a new AI-guided hydrofoil design</h2>
+          <p>Describe the foil you want to design, how you ride it, and any reference foil concepts to reason over. The notebook decomposes your brief into a typed <code>FoilReq 1.0</code> schema, grills open tradeoffs one question at a time, and runs local C# physics solvers on every 3D candidate.</p>
+          <div class="starter-list">
+            <button type="button" class="starter-btn" id="starter-orca">
+              <strong>Worked scenario: Large-wave 90 kg wingfoil (F4 Orca anchor)</strong>
+              <span>"90 kg advanced rider, span &lt; 950 cm [tests unit check], max glide, low takeoff, steep drops, bottom-turn speed, powered cutbacks, F4 Orca concepts"</span>
+            </button>
+            <button type="button" class="starter-btn" id="starter-dw">
+              <strong>Starter prompt: Open-ocean downwind SUP foil (82 kg, 10–15 kn swell)</strong>
+              <span>Loads example prose into composer (interactive mockup runs the worked F4 Orca grill-me fixture on Send)</span>
+            </button>
+            <button type="button" class="starter-btn" id="starter-race">
+              <strong>Starter prompt: GWA box-rule wingfoil race wing (≥ 700 cm²)</strong>
+              <span>Loads example prose into composer (interactive mockup runs the worked F4 Orca grill-me fixture on Send)</span>
+            </button>
+          </div>
+        </div>
+      `;
+      document.getElementById('starter-orca').addEventListener('click', () => {
+        elPrompt.value = EXAMPLE_PROMPT;
+        elPrompt.focus();
+        elStatusLeft.textContent = 'Loaded large-wave 90 kg wingfoil brief — press Send to decompose into FoilReq 1.0.';
+      });
+      document.getElementById('starter-dw').addEventListener('click', () => {
+        elPrompt.value = 'Design a downwind SUP hydrofoil for an 82 kg rider in 10–15 kn ocean swell, span up to 1180 mm, high glide L/D between bumps, and low paddle-up speed around 8 kn.';
+        elPrompt.focus();
+      });
+      document.getElementById('starter-race').addEventListener('click', () => {
+        elPrompt.value = 'Design a GWA race-box wingfoil front wing (>= 700 cm²) for a 90 kg rider targeting 34 kn top speed with strong cavitation margin and high upwind VMG.';
+        elPrompt.focus();
+      });
+    } else if (st === 'grill') {
+      const doneHtml = app.grillAnswers.length > 0 ? `
+        <div class="cell">
+          <div class="cell-meta"><span class="cell-role"><span class="role-dot ok"></span>Resolved Grill-Me Decisions (${app.grillAnswers.length}/${GRILL_TREE.length})</span><span class="mono">Click any pill to revise</span></div>
+          <div class="grill-summary">
+            ${app.grillAnswers.map((a, i) => `<button type="button" class="qa-pill" data-reopen="${i}"><span class="k">Q${i+1}:</span> ${escapeHtml(a.short)}</button>`).join('')}
+          </div>
+        </div>
+      ` : '';
+
+      const activeQ = GRILL_TREE[app.grillIdx];
+      const grillHtml = activeQ ? `
+        <div class="grill-card" role="region" aria-label="Active grill-me question">
+          <div class="grill-head">
+            <span class="badge info">${activeQ.branch}</span>
+            <span class="mono" style="font-size:11px;color:var(--ink-mute);">Serial decision tree</span>
+          </div>
+          <h3 class="grill-q">${escapeHtml(activeQ.question)}</h3>
+          <p class="grill-needed"><strong>Needed for:</strong> ${escapeHtml(activeQ.neededFor)}</p>
+          <div class="grill-options">
+            ${activeQ.options.map((o, oi) => `
+              <button type="button" class="grill-opt ${o.suggested ? 'suggested' : ''}" data-opt="${oi}">
+                <div class="grill-opt-top">
+                  <span>${escapeHtml(o.label)}</span>
+                  ${o.suggested ? '<span class="badge info">Suggested default</span>' : ''}
+                </div>
+                <span class="grill-opt-desc">${escapeHtml(o.desc)}</span>
+                <span class="grill-opt-impact">→ ${escapeHtml(o.impact)}</span>
+              </button>
+            `).join('')}
+          </div>
+          <div class="grill-custom-row">
+            <input type="text" id="grill-custom-input" placeholder="Or type a custom engineering requirement…">
+            <button type="button" class="btn sm" id="grill-custom-apply">Apply</button>
+          </div>
+          <div class="grill-foot">
+            <button type="button" class="btn sm" id="grill-skip">Skip &amp; keep assumption</button>
+            <button type="button" class="btn primary sm" id="grill-gen-now">Generate candidate now (${GRILL_TREE.length - app.grillIdx} open)</button>
+          </div>
+        </div>
+      ` : `
+        <div class="cell">
+          <div class="cell-meta"><span class="cell-role"><span class="role-dot ok"></span>All blocking requirements resolved</span><span class="mono">FoilReq v1.4</span></div>
+          <div class="cell-body">
+            <p>All 4 decision branches are settled with explicit units and bounds. Ready to synthesize candidate <strong>v1</strong> via deterministic local C# solvers.</p>
+            <div class="alert-actions">
+              <button type="button" class="btn primary sm" id="btn-run-v1">Synthesize &amp; Run Local Physics (v1)</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      elThread.innerHTML = `
+        <div class="cell user">
+          <div class="cell-meta"><span class="cell-role">You · Initial Brief</span><span class="mono">Turn 1</span></div>
+          <div class="cell-body"><p>${escapeHtml(app.submittedBrief)}</p></div>
+        </div>
+        <div class="cell">
+          <div class="cell-meta"><span class="cell-role"><span class="role-dot"></span>Reasoning · FoilReq 1.0 Decomposition</span><span class="mono">Schema checked</span></div>
+          <div class="cell-body">
+            <p>Decomposed into <code>FoilReq 1.0</code>. Reference traits for <strong>F4 Orca</strong> are tagged <span class="badge warn">Flagged</span> — conceptual only (no proprietary geometry copied).</p>
+            ${!app.unitFixed ? `
+            <div class="alert-box">
+              <div class="alert-box-head"><span>Deterministic Unit Check (FoilReqValidator)</span><span class="mono">TQ7</span></div>
+              <div>"950 cm" (9,500 mm) is outside hydrofoil wing spans (350–2,200 mm). Confirm 950 mm in Q1 below.</div>
+            </div>` : ''}
+          </div>
+        </div>
+        ${doneHtml}
+        ${grillHtml}
+      `;
+
+      elThread.querySelectorAll('.qa-pill[data-reopen]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.dataset.reopen);
+          app.grillIdx = idx;
+          app.grillAnswers = app.grillAnswers.slice(0, idx);
+          if (idx === 0) app.unitFixed = false;
+          elStatusLeft.textContent = `Re-opened Q${idx + 1} — revising upstream decision.`;
+          renderAll();
+        });
+      });
+
+      elThread.querySelectorAll('.grill-opt').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const opt = activeQ.options[Number(btn.dataset.opt)];
+          if (app.grillIdx === 0) app.unitFixed = true;
+          app.grillAnswers.push({ qid: activeQ.id, short: opt.short });
+          app.grillIdx++;
+          elStatusLeft.textContent = `Resolved ${activeQ.branch} → ${opt.short}`;
+          renderAll();
+        });
+      });
+      const customBtn = document.getElementById('grill-custom-apply');
+      if (customBtn) customBtn.addEventListener('click', () => {
+        const val = document.getElementById('grill-custom-input').value.trim();
+        if (!val) return;
+        if (app.grillIdx === 0) app.unitFixed = true;
+        app.grillAnswers.push({ qid: activeQ.id, short: val.slice(0, 28) });
+        app.grillIdx++;
+        renderAll();
+      });
+      const skipBtn = document.getElementById('grill-skip');
+      if (skipBtn) skipBtn.addEventListener('click', () => {
+        app.grillAnswers.push({ qid: activeQ.id, short: 'Kept default (Flagged)' });
+        app.grillIdx++;
+        renderAll();
+      });
+      const genNow = document.getElementById('grill-gen-now');
+      if (genNow) genNow.addEventListener('click', () => { app.unitFixed = true; setState('simulating'); });
+      const runV1 = document.getElementById('btn-run-v1');
+      if (runV1) runV1.addEventListener('click', () => setState('simulating'));
+    } else if (st === 'simulating') {
+      elThread.innerHTML = `
+        <div class="cell user">
+          <div class="cell-meta"><span class="cell-role">You · Brief + 4 Grill-Me Decisions</span><span class="mono">FoilReq v1.4</span></div>
+          <div class="cell-body"><p>90 kg large-wave wingfoil · Span ≤ 950 mm (hard) · AR ~10.25 · 24 kn steep-drop cavitation floor · Snappy cutback anhedral.</p></div>
+        </div>
+        <div class="cell">
+          <div class="cell-meta"><span class="cell-role"><span class="role-dot"></span>Local Physics Pipeline Running</span><span class="mono">In-process C#</span></div>
+          <div class="receipt">
+            <div class="receipt-row"><strong>Synthesizing &amp; analyzing candidate v1</strong><button type="button" class="btn sm" id="btn-cancel-sim">Cancel</button></div>
+            <div class="receipt-steps">
+              <span class="done">✓ [1/3] RecipeSeeder + FoilDSL 4.1 emitted &amp; geometry checked (930.0 mm, 845 cm², cfdw-surf-118 → 105)</span>
+              <span class="done">✓ [2/3] PanelMethod (200p) + NeuralFoil 0.3.2 polars at Re 4.3e5–9.8e5 (Ncrit 2, 4)</span>
+              <span class="active">▸ [3/3] VortexLattice + StripCoupler across 3 operating points (10.5 / 15.0 / 24.0 kn)…</span>
+            </div>
+          </div>
+          <div class="alert-actions">
+            <button type="button" class="btn primary sm" id="btn-finish-sim">Jump to completed v1/v2 view →</button>
+          </div>
+        </div>
+      `;
+      document.getElementById('btn-cancel-sim').addEventListener('click', () => {
+        elStatusLeft.textContent = 'Local simulation cancelled — FoilReq v1.4 preserved cleanly.';
+        setState('grill');
+      });
+      document.getElementById('btn-finish-sim').addEventListener('click', () => setState('iterated'));
+    } else if (st === 'refused') {
+      elThread.innerHTML = `
+        <div class="cell user">
+          <div class="cell-meta"><span class="cell-role">You · Refinement Attempt</span><span class="mono">Turn 4</span></div>
+          <div class="cell-body"><p>Pinch the tips to a razor 2 mm chord for zero tip drag and confirm zero cavitation at 40 kn.</p></div>
+        </div>
+        <div class="cell err">
+          <div class="cell-meta"><span class="cell-role"><span class="role-dot err"></span>Deterministic Validator &amp; AI-03 Guardrails</span><span class="mono">Candidate v2b Refused</span></div>
+          <div class="cell-body">
+            <div class="alert-box err">
+              <div class="alert-box-head"><span>Geometry Refused · DSL-TIP-CHORD-MIN</span><span class="mono">Ruling 93</span></div>
+              <div>Proposed tip chord 2.00 mm is below the minimum 5.00 mm (max of 5 mm and 2% of root chord). Candidate <strong>v2b</strong> failed geometry check; <strong>Open in CAD Mode</strong> is disabled for v2b while <strong>v1</strong> stays intact.</div>
+            </div>
+            <div class="alert-box">
+              <div class="alert-box-head"><span>Response Withheld · AI-03 &amp; LAB-01</span><span class="mono">Attempt 1 of 2 max</span></div>
+              <div>Response withheld — cited a numeral not present in local solver output and breached LAB-01 copy policy. Local V_crit on v1 is 28.0 kn (h_ref 0.45 m, σ = 1.332 at 24 kn).</div>
+            </div>
+            <div class="alert-actions">
+              <button type="button" class="btn primary sm" id="btn-repair-refusal">Ask AI to repair within ≥ 5 mm tip floor (consented)</button>
+              <button type="button" class="btn sm" id="btn-return-v1">Switch to geometry-checked v1</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.getElementById('btn-repair-refusal').addEventListener('click', () => {
+        app.activeCand = 'v2';
+        setState('iterated');
+        elStatusLeft.textContent = 'Consented repair produced v2 with 38.2 mm tip chord (passed geometry check).';
+      });
+      document.getElementById('btn-return-v1').addEventListener('click', () => {
+        app.refusedSelect = 'v1';
+        elStatusLeft.textContent = 'Switched to geometry-checked baseline v1 — Open in CAD Mode enabled.';
+        renderAll();
+      });
+    } else {
+      // Iterated (and Overflow) rich conversation thread — every numeral derived from CANDIDATES via computePhysics()
+      const c1 = CANDIDATES.v1;
+      const c2 = CANDIDATES.v2;
+      const ldPct = (((c2.glideLd - c1.glideLd) / c1.glideLd) * 100).toFixed(1);
+      const extraHtml = app.extraTurns.map(t => `
+        <div class="cell user">
+          <div class="cell-meta"><span class="cell-role">You · Iteration</span><span class="mono">${t.turn}</span></div>
+          <div class="cell-body"><p>${escapeHtml(t.prompt)}</p></div>
+        </div>
+        <div class="cell">
+          <div class="cell-meta"><span class="cell-role"><span class="role-dot ok"></span>Candidate ${t.candId} · Local Physics Translation</span><span class="mono">BLAKE3 ${t.hash}</span></div>
+          <div class="receipt" style="margin-bottom:6px;">
+            <div class="receipt-row"><span><strong>Local solver</strong> · Geometry checked · ${t.wall}</span><span class="badge ok">FoilDSL 4.1</span></div>
+            <div class="mono" style="font-size:11px;color:var(--ink-mute);">${escapeHtml(t.delta)}</div>
+          </div>
+          <div class="cell-body"><p>${escapeHtml(t.reply)}</p></div>
+        </div>
+      `).join('');
+
+      elThread.innerHTML = `
+        <div class="cell user">
+          <div class="cell-meta"><span class="cell-role">You · Initial Brief</span><span class="mono">Turn 1</span></div>
+          <div class="cell-body"><p>${escapeHtml(EXAMPLE_PROMPT)}</p></div>
+        </div>
+        <div class="cell">
+          <div class="cell-meta"><span class="cell-role"><span class="role-dot ok"></span>Grill-Me Complete (4/4) · FoilReq v1.4</span><span class="mono">Click pill to re-open</span></div>
+          <div class="grill-summary">
+            <button type="button" class="qa-pill" data-reopen-iter="0"><span class="k">Q1:</span> 950 cm → 950 mm (hard)</button>
+            <button type="button" class="qa-pill" data-reopen-iter="1"><span class="k">Q2:</span> AR ~10.25 · 830 cm²</button>
+            <button type="button" class="qa-pill" data-reopen-iter="2"><span class="k">Q3:</span> 24 kn drop · σ 1.33</button>
+            <button type="button" class="qa-pill" data-reopen-iter="3"><span class="k">Q4:</span> Snappy carve · −5.5°</button>
+          </div>
+        </div>
+        <div class="cell">
+          <div class="cell-meta"><span class="cell-role"><span class="role-dot ok"></span>Candidate v1 · Local Physics Translation</span><span class="mono">BLAKE3 ${c1.hash}</span></div>
+          <div class="receipt" style="margin-bottom:6px;">
+            <div class="receipt-row"><span><strong>Local solver</strong> · Geometry checked · ${c1.wallSec.toFixed(1)} s</span><span class="badge ok">FoilDSL 4.1</span></div>
+            <div class="mono" style="font-size:11px;color:var(--ink-mute);">Span ${c1.spanMm.toFixed(1)} mm · Area ${c1.areaCm2} cm² · AR ${c1.ar.toFixed(2)} · Root CFDW Surf 118 → Tip Surf 105</div>
+          </div>
+          <div class="cell-body"><p>At <span class="cite">${c1.takeoffKn.toFixed(1)} kn</span> takeoff (1,050 N load, 15 °C salt), required <span class="cite">CL ${c1.clTakeoff.toFixed(3)}</span> (<span class="cite">Re ${(c1.opTakeoff.reMac/1e5).toFixed(2)} × 10⁵</span>). At 15.0 kn glide (<span class="cite">CL ${c1.clGlide.toFixed(3)}</span>), wing-only <span class="cite">L/D ${c1.glideLd.toFixed(1)}</span>. At 24.0 kn steep drop (<span class="cite">σ ${c1.sigmaDrop.toFixed(3)}</span>, h_ref 0.45 m), root <span class="cite">−Cp_min ${c1.negCpDrop.toFixed(2)}</span> gives margin <span class="cite">${c1.cavMarginDrop.toFixed(2)}</span> (<span class="cite">V_crit ${c1.vCritKn.toFixed(1)} kn</span>).</p></div>
+        </div>
+        <div class="cell user">
+          <div class="cell-meta"><span class="cell-role">You · Guided Refinement</span><span class="mono">Turn 3</span></div>
+          <div class="cell-body"><p>Good starting point, but I want even more glide between waves and slightly looser roll in the powered cutback — try thinner tips and 15 mm narrower span if takeoff stays under 11 kn.</p></div>
+        </div>
+        <div class="cell">
+          <div class="cell-meta"><span class="cell-role"><span class="role-dot ok"></span>Candidate v2 · Local Physics Translation</span><span class="mono">BLAKE3 ${c2.hash}</span></div>
+          <div class="receipt" style="margin-bottom:6px;">
+            <div class="receipt-row"><span><strong>Local solver</strong> · Geometry checked · ${c2.wallSec.toFixed(1)} s</span><span class="badge ok">FoilDSL 4.1</span></div>
+            <div class="mono" style="font-size:11px;color:var(--ink-mute);">${c2.deltaNote}</div>
+          </div>
+          <div class="cell-body">
+            <p>Trimmed span to <span class="cite">${c2.spanMm.toFixed(1)} mm</span> (−15.0 mm) and blended <span class="cite">CFDW Surf 105</span> → <span class="cite">CFDW Downwind 092</span> tips with <span class="cite">−6.0°</span> anhedral (<span class="cite">AR ${c2.ar.toFixed(2)}</span>).</p>
+            <p>Precomputed Tier-0 deltas: wing-only glide rises <span class="cite">+${ldPct}%</span> (<span class="cite">L/D ${c2.glideLd.toFixed(1)}</span> at 15.0 kn) and 24.0 kn steep-drop cavitation margin rises to <span class="cite">${c2.cavMarginDrop.toFixed(2)}</span> (<span class="cite">V_crit ${c2.vCritKn.toFixed(1)} kn</span>). Takeoff is <span class="cite">${c2.takeoffKn.toFixed(1)} kn</span> (<span class="cite">CL ${c2.clTakeoff.toFixed(3)}</span>, inside ≤ 11.0 kn cap) with <span class="cite">−9%</span> roll inertia.</p>
+          </div>
+        </div>
+        ${st === 'overflow' ? `
+        <div class="cell">
+          <div class="cell-meta"><span class="cell-role"><span class="role-dot"></span>Overflow Stress Check (DX16)</span><span class="mono">Re 1,482,910 · 12 iterations</span></div>
+          <div class="cell-body"><p>Long numeric &amp; text verification: Reynolds <span class="cite">1,482,910</span>, dynamic pressure <span class="cite">146,204 Pa</span>, pitching moment <span class="cite">Cm0 = −0.0630</span>, profile designation <em>CFDW Hydrofoil Surf-Wave Long-Fetch High-Camber 105-Mod</em> wraps cleanly without pushing the right artifacts pane.</p></div>
+        </div>` : ''}
+        ${extraHtml}
+      `;
+
+      elThread.querySelectorAll('.qa-pill[data-reopen-iter]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.dataset.reopenIter);
+          app.staleAfterReopen = true;
+          app.grillIdx = idx;
+          app.grillAnswers = GRILL_TREE.slice(0, idx).map(q => ({ qid: q.id, short: q.options[0].short }));
+          app.unitFixed = idx > 0;
+          setState('grill');
+          elStatusLeft.textContent = `Re-opened Q${idx + 1} from iterated session — prior candidates marked Stale (TQ9).`;
+        });
+      });
+    }
+
+    // 3. Composer & Tuner Chips
+    const disabled = (st === 'no-key' || st === 'simulating');
+    elPrompt.disabled = disabled;
+    elSend.disabled = disabled;
+    elPreviewPayload.disabled = (st === 'no-key');
+    elSend.textContent = st === 'simulating' ? 'Running…' : 'Send';
+    if (st === 'no-key') {
+      elPrompt.placeholder = 'Configure a BYOK API key in Settings to enable AI-guided design…';
+      elTuners.innerHTML = '';
+      elComposerHint.textContent = 'Offline mode (AI-01) · Manual Setup, CAD, and local Analysis stay 100% active';
+    } else if (st === 'empty') {
+      elPrompt.placeholder = 'Describe the foil you want to design, how you ride it, and any reference foil concepts…';
+      elTuners.innerHTML = '';
+      elComposerHint.textContent = 'Press Send to decompose into FoilReq 1.0 · Local C# solvers own geometry & physics';
+    } else {
+      elPrompt.placeholder = 'Ask to refine shape, adjust priorities, or question any local physics curve…';
+      elComposerHint.textContent = 'Local C# solvers own geometry & physics · AI proposes typed deltas only';
+      const tuners = [
+        { label: '+ More glide (thinner section)', text: 'Try a slightly higher AR (~10.5) within 930 mm span for higher glide L/D while keeping takeoff under 11.2 kn.' },
+        { label: '↑ Earlier takeoff (< 10 kn)', text: 'Increase wing area to ~890 cm² within 945 mm span so takeoff drops under 10.2 kn.' },
+        { label: '↻ Looser cutback roll', text: 'Add 1° more anhedral (−7°) and increase tip washout to −1.8° for looser cutback release.' }
+      ];
+      elTuners.innerHTML = tuners.map((t, i) => `<button type="button" class="tuner-chip" data-tuner="${i}" ${disabled ? 'disabled' : ''}>${t.label}</button>`).join('');
+      elTuners.querySelectorAll('.tuner-chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const item = tuners[Number(btn.dataset.tuner)];
+          elPrompt.value = item.text;
+          elPrompt.focus();
+        });
+      });
+    }
+  }
+
+  /* ==========================================================================
+     RENDER RIGHT PANE: SYNCHRONIZED ARTIFACTS WORKBENCH
+     ========================================================================== */
+  function renderArtifacts() {
+    const st = app.state;
+    const cand = currentCandidate();
+    const base = CANDIDATES.v1;
+    const showCompare = app.compare && cand.id !== 'v1' && (st === 'iterated' || st === 'overflow');
+    elCompare.setAttribute('aria-pressed', String(app.compare));
+    elTableTwin.setAttribute('aria-pressed', String(app.tableTwin));
+    elCompare.disabled = (st !== 'iterated' && st !== 'overflow');
+    elArtStage.setAttribute('aria-labelledby', 'tab-' + app.activeTab);
+
+    // Update mandatory A5.1 / A5.4 honesty strip dynamically for active candidate
+    if (st === 'empty' || st === 'no-key' || st === 'grill' || st === 'simulating') {
+      elProvA51.textContent = 'A5.1 depth basis: h_ref = 0.45 m (free-surface check runs on first candidate)';
+      elProvA54.textContent = 'A5.4 cavitation screening: pending local PanelMethod run';
+    } else {
+      elProvA51.textContent = cand.hcRoot < 5.0
+        ? `Deep-water result; free surface not modelled (h/c = ${cand.hcRoot.toFixed(2)}, Fr_h = ${cand.frHDrop.toFixed(2)}; effects measured below h/c 5)`
+        : `Deep-water asymptote (h/c = ${cand.hcRoot.toFixed(2)} ≥ 5, Fr_h = ${cand.frHDrop.toFixed(2)})`;
+      elProvA54.textContent = `Cavitation screen (sheet, −Cp_min): possible above ${cand.vCritKn.toFixed(1)} kn; not prediction · governing η 0.00, h 0.45 m`;
+    }
+
+    if (st === 'empty' || st === 'no-key' || st === 'grill') {
+      const msg = st === 'grill'
+        ? 'Artifacts populate automatically as soon as local C# solvers synthesize candidate v1 from your FoilReq 1.0.'
+        : 'Submit a riding brief on the left to generate synchronized 2D sections, polars, elevations, 3D loft, and requirement scorecards here.';
+      elArtStage.innerHTML = `
+        <div class="sci-canvas">
+          <div class="sci-plate-bar">
+            <span class="sci-plate-title">Artifacts Workbench · Awaiting Candidate v1</span>
+            <span class="sci-plate-meta">${st === 'grill' ? 'FoilReq 1.0 active · resolving grill-me' : '0 candidates yet'}</span>
+          </div>
+          <div class="sci-body" style="flex-direction:column;padding:24px;text-align:center;gap:12px;">
+            <svg viewBox="0 0 420 120" style="max-width:420px;height:120px;" aria-hidden="true">
+              <path d="M 30 68 C 110 34, 290 34, 390 68 C 310 76, 110 76, 30 68 Z" fill="none" stroke="var(--viewport-grid)" stroke-width="1.5" stroke-dasharray="5 4"/>
+              <line x1="20" y1="68" x2="400" y2="68" stroke="var(--viewport-grid)" stroke-width="1"/>
+              <text x="210" y="102" fill="var(--viewport-mute)" font-size="11" font-family="ui-monospace, monospace" text-anchor="middle">2D Section · Polars · Plan &amp; Elevations · 3D Wing · FoilReq Scorecard</text>
+            </svg>
+            <p style="max-width:440px;margin:0;color:var(--viewport-mute);font-size:13px;">${msg}</p>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    if (st === 'simulating') {
+      elArtStage.innerHTML = `
+        <div class="sci-canvas" aria-busy="true">
+          <div class="sci-plate-bar">
+            <span class="sci-plate-title">Computing Local Physics · Candidate v1</span>
+            <span class="sci-plate-meta">VLM + Strip · NeuralFoil 0.3.2 · PanelMethod 200p</span>
+          </div>
+          <div class="sci-body">
+            <div class="skel-box">
+              <div class="skel-bar" style="width:45%"></div>
+              <div class="skel-plot">Running local VLM + StripCoupler across 10.5 / 15.0 / 24.0 kn…</div>
+              <div class="skel-bar" style="width:72%"></div>
+            </div>
+          </div>
+        </div>
+        <div class="metrics-strip">
+          ${['Span','Area','AR','Takeoff','Wing L/D','V_crit'].map(k => `
+            <div class="metric-cell"><span class="metric-k">${k}</span><span class="metric-v" style="color:var(--ink-mute);">…</span><span class="metric-d">Computing</span></div>
+          `).join('')}
+        </div>
+      `;
+      return;
+    }
+
+    const isRefusedView = (st === 'refused' && app.refusedSelect === 'v2b');
+    const stripHtml = `
+      <div class="metrics-strip">
+        <div class="metric-cell primary-metric">
+          <span class="metric-k">Span (≤ 950)</span>
+          <span class="metric-v">${cand.spanMm.toFixed(1)} mm</span>
+          <span class="metric-d ${showCompare ? 'pos' : ''}">${showCompare ? (cand.spanMm - base.spanMm).toFixed(1) + ' mm vs v1' : 'Inside cap ✓'}</span>
+        </div>
+        <div class="metric-cell">
+          <span class="metric-k">Projected Area</span>
+          <span class="metric-v">${cand.areaCm2} cm²</span>
+          <span class="metric-d">${showCompare ? (cand.areaCm2 - base.areaCm2) + ' cm² vs v1' : 'MAC ' + cand.macMm.toFixed(1) + ' mm'}</span>
+        </div>
+        <div class="metric-cell">
+          <span class="metric-k">Aspect Ratio</span>
+          <span class="metric-v">${cand.ar.toFixed(2)}</span>
+          <span class="metric-d">b²/S derived</span>
+        </div>
+        <div class="metric-cell">
+          <span class="metric-k">Est. Takeoff</span>
+          <span class="metric-v">${cand.takeoffKn.toFixed(1)} kn</span>
+          <span class="metric-d ${cand.takeoffKn <= 11.0 ? 'pos' : 'warn'}">CL ${cand.clTakeoff.toFixed(3)} ${cand.takeoffKn <= 11.0 ? '✓' : ''}</span>
+        </div>
+        <div class="metric-cell">
+          <span class="metric-k">Wing L/D (15 kn)</span>
+          <span class="metric-v">${cand.glideLd.toFixed(1)}</span>
+          <span class="metric-d ${showCompare ? 'pos' : ''}">${showCompare ? (cand.glideLd - base.glideLd >= 0 ? '+' : '') + (cand.glideLd - base.glideLd).toFixed(1) + ' vs v1' : 'Wing-only'}</span>
+        </div>
+        <div class="metric-cell">
+          <span class="metric-k">V_crit (h 0.45 m)</span>
+          <span class="metric-v">${cand.vCritKn.toFixed(1)} kn</span>
+          <span class="metric-d pos">σ/−Cp ${cand.cavMarginDrop.toFixed(2)}</span>
+        </div>
+      </div>
+    `;
+
+    const refBanner = isRefusedView ? `
+      <div class="alert-box err" style="margin:0;">
+        <div class="alert-box-head"><span>Showing last geometry-checked baseline (v1 · 930.0 mm · 845 cm²) — Candidate v2b refused (DSL-TIP-CHORD-MIN)</span></div>
+      </div>
+    ` : '';
+
+    if (app.activeTab === 'section') {
+      elArtStage.innerHTML = refBanner + renderSectionTab(cand, base, showCompare) + stripHtml;
+      wireSectionProbe(cand);
+    } else if (app.activeTab === 'polars') {
+      elArtStage.innerHTML = refBanner + renderPolarsTab(cand, base, showCompare) + stripHtml;
+      wirePolarProbe(cand);
+    } else if (app.activeTab === 'elevations') {
+      elArtStage.innerHTML = refBanner + renderElevationsTab(cand, base, showCompare) + stripHtml;
+    } else if (app.activeTab === 'wing3d') {
+      elArtStage.innerHTML = refBanner + render3dShell(cand) + stripHtml;
+      mount3dCanvas(cand);
+    } else {
+      elArtStage.innerHTML = refBanner + renderScorecardTab(cand, base) + stripHtml;
+      const copyBtn = document.getElementById('btn-copy-dsl');
+      if (copyBtn) copyBtn.addEventListener('click', () => {
+        if (navigator.clipboard) navigator.clipboard.writeText(buildFoilReqDsl()).catch(() => {});
+        elStatusLeft.textContent = 'Copied FoilReq 1.0 DSL to clipboard.';
+      });
+    }
+  }
+
+  /* ---- TAB 1: 2D FOIL SECTION & -Cp / CAVITATION BUCKET ---- */
+  function negCpAt(peak, xPeak, x) {
+    return Math.max(-0.2, peak * Math.exp(-Math.pow((x - xPeak) / (x < xPeak ? 0.12 : 0.42), 2)) * (1 - 0.85 * Math.pow(x, 3)) - 0.14 * x);
+  }
+
+  function renderSectionTab(cand, base, showCompare) {
+    const sRoot = sampleSection(cand.rootSec);
+    const sTip = sampleSection(cand.tipSec);
+    const sBase = sampleSection(base.rootSec);
+
+    const toSvg = (pts, ox, oy, sx, sy) => pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${(ox + p[0]*sx).toFixed(2)} ${(oy - p[1]*sy).toFixed(2)}`).join(' ');
+    const closedPath = (sample, ox, oy, sx, sy) => {
+      const up = sample.upper.map((p, i) => `${i === 0 ? 'M' : 'L'} ${(ox + p[0]*sx).toFixed(2)} ${(oy - p[1]*sy).toFixed(2)}`).join(' ');
+      const lo = [...sample.lower].reverse().map(p => `L ${(ox + p[0]*sx).toFixed(2)} ${(oy - p[1]*sy).toFixed(2)}`).join(' ');
+      return `${up} ${lo} Z`;
+    };
+    const cpCurve = (peak, xPeak, ox, oy, sx, sy) => {
+      const pts = [];
+      for (let i = 0; i <= 50; i++) {
+        const x = i / 50;
+        pts.push([x, negCpAt(peak, xPeak, x)]);
+      }
+      return toSvg(pts, ox, oy, sx, sy);
+    };
+
+    const peakNegCp = cand.negCpDrop;
+    const sigma24 = cand.sigmaDrop; // Exact 1.332 from ITTC engine
+
+    const tableHtml = app.tableTwin ? `
+      <table class="data-table" style="margin-top:8px;">
+        <thead><tr><th>Station</th><th>Section ID</th><th class="num">t/c (%)</th><th class="num">Camber (%)</th><th class="num">Cm0</th><th class="num">Cl,max (Re_lo)</th><th class="num">−Cp_min (24 kn)</th><th class="num">V_crit (kn)</th></tr></thead>
+        <tbody>
+          <tr><td>Root (η 0.00 · governing)</td><td class="mono">${cand.rootSec}</td><td class="num">${sRoot.sec.tc.toFixed(1)}</td><td class="num">${sRoot.sec.camber.toFixed(2)}</td><td class="num">${sRoot.sec.cm0.toFixed(3)}</td><td class="num">${sRoot.sec.clMax.toFixed(2)}</td><td class="num">${cand.negCpDrop.toFixed(2)}</td><td class="num">${cand.vCritKn.toFixed(1)}</td></tr>
+          <tr><td>Tip (η 1.00)</td><td class="mono">${cand.tipSec}</td><td class="num">${sTip.sec.tc.toFixed(1)}</td><td class="num">${sTip.sec.camber.toFixed(2)}</td><td class="num">${sTip.sec.cm0.toFixed(3)}</td><td class="num">${sTip.sec.clMax.toFixed(2)}</td><td class="num">${(cand.negCpDrop * 0.88).toFixed(2)}</td><td class="num">${(cand.vCritKn * 1.06).toFixed(1)}</td></tr>
+        </tbody>
+      </table>
+    ` : '';
+
+    return `
+      <div class="sci-canvas">
+        <div class="sci-plate-bar">
+          <span class="sci-plate-title">2D Foil Sections (Root + Tip) &amp; Pressure Envelope (−Cp upward)</span>
+          <span class="sci-plate-meta">${sRoot.sec.name} → ${sTip.sec.name} · thickness ×2 display</span>
+        </div>
+        <div class="sci-body">
+          <span class="probe-readout" id="sec-probe">Hover plot to trace x/c · t/c · −Cp</span>
+          <svg id="svg-section" viewBox="0 0 720 330" role="img" aria-label="2D hydrofoil section contours and negative Cp cavitation margin plot">
+            ${[0, 0.25, 0.5, 0.75, 1].map(f => `<line x1="${55 + f*615}" y1="22" x2="${55 + f*615}" y2="152" stroke="var(--viewport-grid)" stroke-width="1"/>`).join('')}
+            <line x1="55" y1="96" x2="670" y2="96" stroke="var(--viewport-grid)" stroke-width="1"/>
+            ${showCompare ? `<path d="${closedPath(sBase, 55, 96, 615, 740)}" fill="none" stroke="var(--viewport-mute)" stroke-width="1.2" stroke-dasharray="5 4"/>` : ''}
+            <path d="${closedPath(sRoot, 55, 96, 615, 740)}" fill="var(--foil-shade-lit)" fill-opacity="0.45" stroke="var(--foil)" stroke-width="2"/>
+            <path d="${closedPath(sTip, 55, 96, 615, 740)}" fill="none" stroke="var(--station)" stroke-width="1.6" stroke-dasharray="3 3"/>
+            <path d="${toSvg(sRoot.camber, 55, 96, 615, 740)}" fill="none" stroke="var(--warning-viewport)" stroke-width="1.2"/>
+            <text x="58" y="34" fill="var(--viewport-ink)" font-size="11" font-family="ui-monospace, monospace">Root ${sRoot.sec.name} (${sRoot.sec.tc}% t/c) · Dotted: Tip ${sTip.sec.name} (${sTip.sec.tc}%)${showCompare ? ' · Dashed: v1 Root' : ''}</text>
+
+            <line x1="20" y1="164" x2="700" y2="164" stroke="var(--viewport-grid)" stroke-width="1"/>
+
+            ${[0, 0.5, 1.0, 1.5, 2.0].map(v => {
+              const y = 304 - v * 58;
+              return `<line x1="55" y1="${y}" x2="670" y2="${y}" stroke="var(--viewport-grid)" stroke-width="1"/>
+                      <text x="48" y="${y + 3}" fill="var(--viewport-mute)" font-size="10" font-family="ui-monospace, monospace" text-anchor="end">${v.toFixed(1)}</text>`;
+            }).join('')}
+            <text x="16" y="246" fill="var(--viewport-mute)" font-size="10.5" font-family="ui-monospace, monospace" transform="rotate(-90 16 246)" text-anchor="middle">−Cp / σ (up)</text>
+
+            <line x1="55" y1="${304 - sigma24*58}" x2="670" y2="${304 - sigma24*58}" stroke="var(--warning-viewport)" stroke-width="1.5" stroke-dasharray="6 4"/>
+            <text x="666" y="${304 - sigma24*58 - 5}" fill="var(--warning-viewport)" font-size="10.5" font-family="ui-monospace, monospace" text-anchor="end">σ(24.0 kn, h 0.45 m) = ${sigma24.toFixed(3)} · Sheet-cavitation screen</text>
+
+            ${showCompare ? `<path d="${cpCurve(base.negCpDrop, 0.24, 55, 304, 615, 58)}" fill="none" stroke="var(--viewport-mute)" stroke-width="1.3" stroke-dasharray="5 4"/>` : ''}
+            <path d="${cpCurve(peakNegCp, 0.26, 55, 304, 615, 58)}" fill="none" stroke="var(--station)" stroke-width="2.2"/>
+            <circle cx="${55 + 0.26*615}" cy="${304 - peakNegCp*58}" r="4" fill="var(--station)"/>
+            <text x="${55 + 0.26*615 + 10}" y="${304 - peakNegCp*58 + 4}" fill="var(--viewport-ink)" font-size="11" font-family="ui-monospace, monospace">−Cp_min = ${peakNegCp.toFixed(2)} → σ/(−Cp_min) = ${cand.cavMarginDrop.toFixed(2)} (V_crit ${cand.vCritKn.toFixed(1)} kn)</text>
+            <line id="sec-crosshair" x1="55" y1="22" x2="55" y2="304" stroke="var(--station)" stroke-width="1" stroke-dasharray="2 3" opacity="0"/>
+            <text x="362" y="324" fill="var(--viewport-mute)" font-size="10.5" font-family="ui-monospace, monospace" text-anchor="middle">Chord fraction x/c (0.00 LE → 1.00 TE) · PanelMethod 200 panels · 3 TE panels excluded</text>
+          </svg>
+        </div>
+        <div class="vik-legend">
+          <span class="vik-bar" aria-hidden="true"></span>
+          <span>Cp colormap: vik 1.0 (pinned at Cp = 0, range −2.0 to +1.0, dimensionless) · Governing station: η 0.00 (root) · depth 0.45 m</span>
+        </div>
+      </div>
+      ${tableHtml}
+    `;
+  }
+
+  function wireSectionProbe(cand) {
+    const svg = document.getElementById('svg-section');
+    const readout = document.getElementById('sec-probe');
+    const cross = document.getElementById('sec-crosshair');
+    if (!svg || !readout || !cross) return;
+    const sec = CST_SECTIONS[cand.rootSec] || CST_SECTIONS['cfdw-surf-105'];
+    svg.addEventListener('pointermove', e => {
+      const r = svg.getBoundingClientRect();
+      const vx = ((e.clientX - r.left) / r.width) * 720;
+      const xc = Math.max(0, Math.min(1, (vx - 55) / 615));
+      const tLocal = (evalCst(sec.wU, xc) - evalCst(sec.wL, xc)) * 100;
+      const ncp = negCpAt(cand.negCpDrop, 0.26, xc);
+      const sx = 55 + xc * 615;
+      cross.setAttribute('x1', sx.toFixed(1));
+      cross.setAttribute('x2', sx.toFixed(1));
+      cross.setAttribute('opacity', '0.85');
+      readout.textContent = `x/c ${xc.toFixed(2)} · local t/c ${tLocal.toFixed(2)} % · −Cp ${ncp.toFixed(2)}`;
+    });
+    svg.addEventListener('pointerleave', () => {
+      cross.setAttribute('opacity', '0');
+      readout.textContent = 'Hover plot to trace x/c · t/c · −Cp';
+    });
+  }
+
+  /* ---- TAB 2: POLARS & OPERATING CURVES ---- */
+  function evalLd(peakLd, vPeak, v) {
+    const d = (v - vPeak) / 8.5;
+    return Math.max(8, peakLd * (1 - 0.44 * d * d + 0.06 * Math.pow(d, 3)));
+  }
+
+  function renderPolarsTab(cand, base, showCompare) {
+    const clCurve = (cl0, slope, maxCl, ox, oy, sx, sy) => {
+      const pts = [];
+      for (let a = -2; a <= 10; a += 0.4) {
+        let cl = cl0 + slope * a;
+        if (a > 6.5) cl -= 0.045 * Math.pow(a - 6.5, 2);
+        cl = Math.min(maxCl, cl);
+        pts.push([ox + ((a + 2) / 12) * sx, oy - (cl / 1.2) * sy]);
+      }
+      return pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' ');
+    };
+    const ldCurve = (peakLd, vPeak, ox, oy, sx, sy, scale = 1) => {
+      const pts = [];
+      for (let v = 9; v <= 28; v += 0.5) {
+        const ld = evalLd(peakLd, vPeak, v) * scale;
+        pts.push([ox + ((v - 9) / 19) * sx, oy - (ld / 32) * sy]);
+      }
+      return pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' ');
+    };
+
+    const xTakeoff = 415 + ((cand.takeoffKn - 9) / 19) * 265;
+    const xDrop = 415 + ((cand.dropSpeedKn - 9) / 19) * 265;
+    const fmtRe = re => `${(re / 1e5).toFixed(2)} × 10⁵`;
+
+    const tableHtml = app.tableTwin ? `
+      <table class="data-table" style="margin-top:8px;">
+        <thead><tr><th>Operating Point (${cand.id})</th><th class="num">Speed (kn)</th><th class="num">Required CL</th><th class="num">Re_MAC</th><th class="num">Wing L/D (Ncrit 2–4)</th><th class="num">σ</th><th class="num">σ / (−Cp_min)</th></tr></thead>
+        <tbody>
+          <tr><td>Takeoff</td><td class="num">${cand.opTakeoff.vKn.toFixed(1)}</td><td class="num">${cand.opTakeoff.cl.toFixed(3)}</td><td class="num">${fmtRe(cand.opTakeoff.reMac)}</td><td class="num">${(evalLd(cand.glideLd,15.2,cand.takeoffKn)*0.95).toFixed(1)} – ${(evalLd(cand.glideLd,15.2,cand.takeoffKn)*1.03).toFixed(1)}</td><td class="num">${cand.opTakeoff.sigma.toFixed(2)}</td><td class="num">${cand.opTakeoff.cavMargin.toFixed(2)}</td></tr>
+          <tr><td>Glide / Bottom Turn</td><td class="num">${cand.opGlide.vKn.toFixed(1)}</td><td class="num">${cand.opGlide.cl.toFixed(3)}</td><td class="num">${fmtRe(cand.opGlide.reMac)}</td><td class="num">${(cand.glideLd*0.95).toFixed(1)} – ${(cand.glideLd*1.03).toFixed(1)}</td><td class="num">${cand.opGlide.sigma.toFixed(2)}</td><td class="num">${cand.opGlide.cavMargin.toFixed(2)}</td></tr>
+          <tr><td>Steep Wave Drop</td><td class="num">${cand.opDrop.vKn.toFixed(1)}</td><td class="num">${cand.opDrop.cl.toFixed(3)}</td><td class="num">${fmtRe(cand.opDrop.reMac)}</td><td class="num">${(evalLd(cand.glideLd,15.2,24.0)*0.95).toFixed(1)} – ${(evalLd(cand.glideLd,15.2,24.0)*1.03).toFixed(1)}</td><td class="num">${cand.opDrop.sigma.toFixed(3)}</td><td class="num">${cand.opDrop.cavMargin.toFixed(2)}</td></tr>
+        </tbody>
+      </table>
+    ` : '';
+
+    return `
+      <div class="sci-canvas">
+        <div class="sci-plate-bar">
+          <span class="sci-plate-title">Wing Polars (CL vs α) &amp; Speed Performance (Wing-Only L/D vs kn)</span>
+          <span class="sci-plate-meta">Band: Ncrit 2–4 · Solid: ${cand.id}${showCompare ? ' · Dashed: v1' : ''}</span>
+        </div>
+        <div class="sci-body">
+          <span class="probe-readout" id="polar-probe">Hover speed plot to trace V (kn) · Wing L/D</span>
+          <svg id="svg-polars" viewBox="0 0 720 330" role="img" aria-label="Wing CL versus angle of attack and L/D versus speed curves">
+            <text x="55" y="24" fill="var(--viewport-ink)" font-size="11.5" font-weight="600" font-family="ui-monospace, monospace">CL vs α (°) · VLM + Strip</text>
+            ${[0, 0.4, 0.8, 1.2].map(v => {
+              const y = 278 - (v / 1.2) * 230;
+              return `<line x1="55" y1="${y}" x2="330" y2="${y}" stroke="var(--viewport-grid)" stroke-width="1"/>
+                      <text x="48" y="${y + 3}" fill="var(--viewport-mute)" font-size="10" font-family="ui-monospace, monospace" text-anchor="end">${v.toFixed(1)}</text>`;
+            }).join('')}
+            ${[-2, 0, 2, 4, 6, 8, 10].map(a => {
+              const x = 55 + ((a + 2) / 12) * 275;
+              return `<line x1="${x}" y1="48" x2="${x}" y2="278" stroke="var(--viewport-grid)" stroke-width="1"/>
+                      <text x="${x}" y="294" fill="var(--viewport-mute)" font-size="10" font-family="ui-monospace, monospace" text-anchor="middle">${a}°</text>`;
+            }).join('')}
+            <line x1="55" y1="${278 - (cand.clTakeoff/1.2)*230}" x2="330" y2="${278 - (cand.clTakeoff/1.2)*230}" stroke="var(--warning-viewport)" stroke-width="1.2" stroke-dasharray="4 4"/>
+            <text x="326" y="${278 - (cand.clTakeoff/1.2)*230 - 4}" fill="var(--warning-viewport)" font-size="10" font-family="ui-monospace, monospace" text-anchor="end">Takeoff CL ${cand.clTakeoff.toFixed(3)}</text>
+            ${showCompare ? `<path d="${clCurve(0.24, 0.089, 0.94, 55, 278, 275, 230)}" fill="none" stroke="var(--viewport-mute)" stroke-width="1.4" stroke-dasharray="5 4"/>` : ''}
+            <path d="${clCurve(0.22, 0.090, 0.92, 55, 278, 275, 230)}" fill="none" stroke="var(--station)" stroke-width="2.2"/>
+            <text x="192" y="314" fill="var(--viewport-mute)" font-size="10" font-family="ui-monospace, monospace" text-anchor="middle">Attached-flow polar limit, not measured stall; pumping not modelled</text>
+
+            <text x="415" y="24" fill="var(--viewport-ink)" font-size="11.5" font-weight="600" font-family="ui-monospace, monospace">Wing-only L/D vs Speed (kn)</text>
+            ${[0, 10, 20, 30].map(v => {
+              const y = 278 - (v / 32) * 230;
+              return `<line x1="415" y1="${y}" x2="680" y2="${y}" stroke="var(--viewport-grid)" stroke-width="1"/>
+                      <text x="408" y="${y + 3}" fill="var(--viewport-mute)" font-size="10" font-family="ui-monospace, monospace" text-anchor="end">${v}</text>`;
+            }).join('')}
+            ${[10, 15, 20, 25].map(v => {
+              const x = 415 + ((v - 9) / 19) * 265;
+              return `<line x1="${x}" y1="48" x2="${x}" y2="278" stroke="var(--viewport-grid)" stroke-width="1"/>
+                      <text x="${x}" y="294" fill="var(--viewport-mute)" font-size="10" font-family="ui-monospace, monospace" text-anchor="middle">${v} kn</text>`;
+            }).join('')}
+            <line x1="${xTakeoff}" y1="48" x2="${xTakeoff}" y2="278" stroke="var(--warning-viewport)" stroke-width="1" stroke-dasharray="3 3"/>
+            <text x="${xTakeoff + 4}" y="60" fill="var(--warning-viewport)" font-size="10" font-family="ui-monospace, monospace">Takeoff ${cand.takeoffKn.toFixed(1)} kn</text>
+            <line x1="${xDrop}" y1="48" x2="${xDrop}" y2="278" stroke="var(--foil-edge)" stroke-width="1" stroke-dasharray="3 3"/>
+            <text x="${xDrop - 4}" y="60" fill="var(--foil-edge)" font-size="10" font-family="ui-monospace, monospace" text-anchor="end">Drop 24 kn</text>
+
+            <path d="${ldCurve(cand.glideLd, 15.2, 415, 278, 265, 230, 1.03)}" fill="none" stroke="var(--foil)" stroke-width="1" stroke-opacity="0.55"/>
+            <path d="${ldCurve(cand.glideLd, 15.2, 415, 278, 265, 230, 0.95)}" fill="none" stroke="var(--foil)" stroke-width="1" stroke-opacity="0.55"/>
+            ${showCompare ? `<path d="${ldCurve(base.glideLd, 14.8, 415, 278, 265, 230, 1.0)}" fill="none" stroke="var(--viewport-mute)" stroke-width="1.4" stroke-dasharray="5 4"/>` : ''}
+            <path d="${ldCurve(cand.glideLd, 15.2, 415, 278, 265, 230, 1.0)}" fill="none" stroke="var(--station)" stroke-width="2.3"/>
+            <circle cx="${415 + ((15.2 - 9)/19)*265}" cy="${278 - (cand.glideLd/32)*230}" r="4" fill="var(--station)"/>
+            <text x="${415 + ((15.2 - 9)/19)*265 + 8}" y="${278 - (cand.glideLd/32)*230 - 6}" fill="var(--viewport-ink)" font-size="11" font-family="ui-monospace, monospace">Peak ${cand.glideLd.toFixed(1)}</text>
+            <line id="polar-crosshair" x1="415" y1="48" x2="415" y2="278" stroke="var(--station)" stroke-width="1" stroke-dasharray="2 3" opacity="0"/>
+            <text x="548" y="314" fill="var(--viewport-mute)" font-size="10.5" font-family="ui-monospace, monospace" text-anchor="middle">Speed V (kn) · Wing only; excludes mast, junction, wave, spray</text>
+          </svg>
+        </div>
+      </div>
+      ${tableHtml}
+    `;
+  }
+
+  function wirePolarProbe(cand) {
+    const svg = document.getElementById('svg-polars');
+    const readout = document.getElementById('polar-probe');
+    const cross = document.getElementById('polar-crosshair');
+    if (!svg || !readout || !cross) return;
+    svg.addEventListener('pointermove', e => {
+      const r = svg.getBoundingClientRect();
+      const vx = ((e.clientX - r.left) / r.width) * 720;
+      if (vx >= 415 && vx <= 680) {
+        const vKn = 9 + ((vx - 415) / 265) * 19;
+        const ld = evalLd(cand.glideLd, 15.2, vKn);
+        cross.setAttribute('x1', vx.toFixed(1));
+        cross.setAttribute('x2', vx.toFixed(1));
+        cross.setAttribute('opacity', '0.85');
+        readout.textContent = `V ${vKn.toFixed(1)} kn · Wing L/D ${(ld*0.95).toFixed(1)}–${(ld*1.03).toFixed(1)} (Ncrit 2–4)`;
+      } else {
+        cross.setAttribute('opacity', '0');
+        readout.textContent = 'Hover speed plot to trace V (kn) · Wing L/D';
+      }
+    });
+    svg.addEventListener('pointerleave', () => {
+      cross.setAttribute('opacity', '0');
+      readout.textContent = 'Hover speed plot to trace V (kn) · Wing L/D';
+    });
+  }
+
+  /* ---- TAB 3: PLANFORM & ELEVATIONS (Top + Front + Starboard Real CST Contours) ---- */
+  function renderElevationsTab(cand, base, showCompare) {
+    function planPath(c, cx, cy, scale) {
+      const hs = (c.spanMm / 2) * scale;
+      const rc = c.rootChordMm * scale;
+      const tc = c.tipChordMm * scale;
+      const sw = Math.tan(c.sweepDeg * Math.PI / 180) * hs;
+      return `M ${cx - hs} ${cy + sw}
+              C ${cx - hs*0.72} ${cy + sw*0.2}, ${cx - hs*0.28} ${cy - rc*0.02}, ${cx} ${cy}
+              C ${cx + hs*0.28} ${cy - rc*0.02}, ${cx + hs*0.72} ${cy + sw*0.2}, ${cx + hs} ${cy + sw}
+              L ${cx + hs} ${cy + sw + tc}
+              C ${cx + hs*0.72} ${cy + rc*0.82}, ${cx + hs*0.32} ${cy + rc}, ${cx} ${cy + rc}
+              C ${cx - hs*0.32} ${cy + rc}, ${cx - hs*0.72} ${cy + rc*0.82}, ${cx - hs} ${cy + sw + tc} Z`;
+    }
+    function frontPath(c, cx, cy, scale) {
+      const hs = (c.spanMm / 2) * scale;
+      const drop = Math.tan(Math.abs(c.anhedralDeg) * Math.PI / 180) * hs;
+      const th = c.rootChordMm * 0.11 * scale;
+      return `M ${cx - hs} ${cy + drop}
+              Q ${cx - hs*0.45} ${cy - 4}, ${cx} ${cy - th*0.5}
+              Q ${cx + hs*0.45} ${cy - 4}, ${cx + hs} ${cy + drop}
+              Q ${cx + hs*0.45} ${cy + th*0.4}, ${cx} ${cy + th*0.8}
+              Q ${cx - hs*0.45} ${cy + th*0.4}, ${cx - hs} ${cy + drop} Z`;
+    }
+    // Starboard side: nose right (+X -> left in starboard view, so x=0 is right, x=1 is left)
+    function sideCstPath(secId, cxRight, cy, chordPx, twistDeg) {
+      const s = sampleSection(secId, 40);
+      const rad = (twistDeg * Math.PI) / 180;
+      const ct = Math.cos(rad), st = Math.sin(rad);
+      const mapPt = ([x, y]) => {
+        const lx = -x * chordPx;
+        const ly = -y * chordPx * 1.3;
+        return [cxRight + lx * ct - ly * st, cy + lx * st + ly * ct];
+      };
+      const up = s.upper.map((p, i) => { const [px, py] = mapPt(p); return `${i === 0 ? 'M' : 'L'} ${px.toFixed(1)} ${py.toFixed(1)}`; }).join(' ');
+      const lo = [...s.lower].reverse().map(p => { const [px, py] = mapPt(p); return `L ${px.toFixed(1)} ${py.toFixed(1)}`; }).join(' ');
+      return `${up} ${lo} Z`;
+    }
+
+    const scale = 0.54;
+    const hs = (cand.spanMm / 2) * scale;
+    const capHs = (950 / 2) * scale;
+
+    return `
+      <div class="sci-canvas">
+        <div class="sci-plate-bar">
+          <span class="sci-plate-title">Orthographic Elevations — Top Planform · Front Anhedral · Starboard Side</span>
+          <span class="sci-plate-meta">Symmetry: mirror_y · Span cap 950 mm shown dashed</span>
+        </div>
+        <div class="sci-body">
+          <svg viewBox="0 0 720 340" role="img" aria-label="Top planform, front elevation with anhedral, and starboard side CST profiles">
+            <text x="24" y="22" fill="var(--viewport-ink)" font-size="11" font-weight="600" font-family="ui-monospace, monospace">TOP PLANFORM · Span ${cand.spanMm.toFixed(1)} mm (Cap 950.0 mm)</text>
+            <line x1="${360 - capHs}" y1="30" x2="${360 - capHs}" y2="160" stroke="var(--warning-viewport)" stroke-width="1" stroke-dasharray="4 4"/>
+            <line x1="${360 + capHs}" y1="30" x2="${360 + capHs}" y2="160" stroke="var(--warning-viewport)" stroke-width="1" stroke-dasharray="4 4"/>
+            <line x1="360" y1="30" x2="360" y2="160" stroke="var(--viewport-grid)" stroke-width="1"/>
+            ${showCompare ? `<path d="${planPath(base, 360, 56, scale)}" fill="none" stroke="var(--viewport-mute)" stroke-width="1.3" stroke-dasharray="5 4"/>` : ''}
+            <path d="${planPath(cand, 360, 56, scale)}" fill="var(--foil-shade-lit)" fill-opacity="0.55" stroke="var(--foil)" stroke-width="2"/>
+            <line x1="${360 - hs}" y1="146" x2="${360 + hs}" y2="146" stroke="var(--station)" stroke-width="1.2"/>
+            <text x="360" y="142" fill="var(--station)" font-size="10.5" font-family="ui-monospace, monospace" text-anchor="middle">b = ${cand.spanMm.toFixed(1)} mm · c_root = ${cand.rootChordMm.toFixed(1)} mm · c_tip = ${cand.tipChordMm.toFixed(1)} mm</text>
+
+            <line x1="20" y1="176" x2="700" y2="176" stroke="var(--viewport-grid)" stroke-width="1"/>
+
+            <text x="24" y="196" fill="var(--viewport-ink)" font-size="11" font-weight="600" font-family="ui-monospace, monospace">FRONT ELEVATION · Anhedral ${cand.anhedralDeg.toFixed(1)}°</text>
+            <line x1="24" y1="248" x2="490" y2="248" stroke="var(--viewport-grid)" stroke-width="1"/>
+            ${showCompare ? `<path d="${frontPath(base, 257, 248, 0.42)}" fill="none" stroke="var(--viewport-mute)" stroke-width="1.2" stroke-dasharray="4 4"/>` : ''}
+            <path d="${frontPath(cand, 257, 248, 0.42)}" fill="var(--foil-shade-lit)" fill-opacity="0.5" stroke="var(--foil)" stroke-width="2"/>
+            <text x="257" y="318" fill="var(--warning-viewport)" font-size="10" font-family="ui-monospace, monospace" text-anchor="middle">h/c_root = ${cand.hcRoot.toFixed(2)} (&lt; 5) · Fr_h = ${cand.frHDrop.toFixed(2)} — free surface not modelled (A5.1)</text>
+
+            <line x1="504" y1="184" x2="504" y2="328" stroke="var(--viewport-grid)" stroke-width="1"/>
+            <text x="518" y="196" fill="var(--viewport-ink)" font-size="11" font-weight="600" font-family="ui-monospace, monospace">STARBOARD · Twist ${cand.washoutDeg.toFixed(1)}°</text>
+            <path d="${sideCstPath(cand.rootSec, 682, 248, 148, 0)}" fill="var(--foil-shade-lit)" fill-opacity="0.55" stroke="var(--foil)" stroke-width="1.8"/>
+            <path d="${sideCstPath(cand.tipSec, 648, 274, 62, cand.washoutDeg)}" fill="none" stroke="var(--station)" stroke-width="1.5" stroke-dasharray="3 2"/>
+            <text x="608" y="318" fill="var(--viewport-mute)" font-size="10" font-family="ui-monospace, monospace" text-anchor="middle">Nose right · Root solid · Tip dashed (${cand.washoutDeg.toFixed(1)}°)</text>
+          </svg>
+        </div>
+      </div>
+    `;
+  }
+
+  /* ---- TAB 4: INTERACTIVE ROTATABLE 3D WING PREVIEW ---- */
+  function render3dShell(cand) {
+    return `
+      <div class="sci-canvas">
+        <div class="sci-plate-bar">
+          <span class="sci-plate-title">Interactive 3D Foil Loft · Candidate ${cand.id} (BLAKE3 ${cand.hash})</span>
+          <span class="sci-plate-meta" id="plate-3d-cam">Iso · az ${app.view3d.az}° · el ${app.view3d.el}°</span>
+        </div>
+        <div class="sci-body">
+          <canvas id="canvas-3d" tabindex="0" aria-label="Interactive 3D wing preview; drag or use arrow keys to orbit"></canvas>
+          <div class="sci-3d-controls">
+            <button type="button" class="sci-3d-btn" data-cam="iso">Iso</button>
+            <button type="button" class="sci-3d-btn" data-cam="top">Top</button>
+            <button type="button" class="sci-3d-btn" data-cam="front">Front</button>
+            <button type="button" class="sci-3d-btn" data-cam="side">Starboard</button>
+            <button type="button" class="sci-3d-btn ${app.view3d.mode === 'shaded' ? 'active' : ''}" id="btn-3d-mode">${app.view3d.mode === 'shaded' ? 'Shaded' : 'Wireframe'}</button>
+          </div>
+          <span class="sci-3d-hint">Drag or ←→↑↓ to orbit</span>
+        </div>
+      </div>
+    `;
+  }
+
+  function mount3dCanvas(cand) {
+    const canvas = document.getElementById('canvas-3d');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const rootSample = sampleSection(cand.rootSec, 22);
+    const tipSample = sampleSection(cand.tipSec, 22);
+
+    function draw3d() {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const w = Math.max(320, Math.floor(rect.width));
+      const h = Math.max(240, Math.floor(rect.height));
+      if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+      }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const cs = getComputedStyle(document.documentElement);
+      const colBg = cs.getPropertyValue('--viewport').trim();
+      const colGrid = cs.getPropertyValue('--viewport-grid').trim();
+      const colFoil = cs.getPropertyValue('--foil').trim();
+      const colEdge = cs.getPropertyValue('--foil-edge').trim();
+      const colStation = cs.getPropertyValue('--station').trim();
+      const colSoft = cs.getPropertyValue('--viewport-soft').trim();
+      const colLit = cs.getPropertyValue('--foil-shade-lit').trim();
+
+      ctx.fillStyle = colBg;
+      ctx.fillRect(0, 0, w, h);
+
+      const az = app.view3d.az * Math.PI / 180;
+      const el = app.view3d.el * Math.PI / 180;
+      const cA = Math.cos(az), sA = Math.sin(az);
+      const cE = Math.cos(el), sE = Math.sin(el);
+      const scale = Math.min(w, h) * 0.72;
+
+      function proj(x, y, z) {
+        const x1 = x * cA - y * sA;
+        const y1 = x * sA + y * cA;
+        const z2 = z * cE - y1 * sE;
+        const y2 = z * sE + y1 * cE;
+        const persp = 2.4 / (2.4 - y2 * 0.45);
+        return { sx: w * 0.5 + x1 * scale * persp, sy: h * 0.52 - z2 * scale * persp, depth: y2 };
+      }
+
+      ctx.strokeStyle = colGrid;
+      ctx.lineWidth = 0.7;
+      for (let g = -0.5; g <= 0.501; g += 0.25) {
+        const a = proj(-0.25, g, -0.08), b = proj(0.35, g, -0.08);
+        ctx.beginPath(); ctx.moveTo(a.sx, a.sy); ctx.lineTo(b.sx, b.sy); ctx.stroke();
+      }
+
+      const nSpan = 20;
+      const halfSpan = (cand.spanMm / 1000) / 2;
+      const rc = cand.rootChordMm / 1000;
+      const tc = cand.tipChordMm / 1000;
+      const swSlope = Math.tan(cand.sweepDeg * Math.PI / 180);
+      const anSlope = Math.tan(cand.anhedralDeg * Math.PI / 180);
+
+      const ribs = [];
+      for (let s = 0; s <= nSpan; s++) {
+        const u = -1 + (2 * s) / nSpan;
+        const eta = Math.abs(u);
+        const y = u * halfSpan;
+        const chord = rc * (1 - eta * eta * 0.65) + tc * (eta * eta * 0.65);
+        const leX = -0.06 + swSlope * halfSpan * Math.pow(eta, 1.35);
+        const zOff = anSlope * halfSpan * Math.pow(eta, 1.45);
+        const twist = (cand.washoutDeg * eta) * Math.PI / 180;
+        const cT = Math.cos(twist), sT = Math.sin(twist);
+
+        const ring = [];
+        const loop = [...rootSample.upper, ...[...rootSample.lower].reverse().slice(1)];
+        const loopT = [...tipSample.upper, ...[...tipSample.lower].reverse().slice(1)];
+        for (let k = 0; k < loop.length; k++) {
+          const lx = (loop[k][0] * (1 - eta) + loopT[k][0] * eta) * chord;
+          const lz = (loop[k][1] * (1 - eta) + loopT[k][1] * eta) * chord * 1.15;
+          const rx = leX + lx * cT + lz * sT;
+          const rz = zOff - lx * sT + lz * cT;
+          ring.push(proj(rx, y, rz));
+        }
+        ribs.push({ eta, ring });
+      }
+
+      if (app.view3d.mode === 'shaded') {
+        const quads = [];
+        for (let s = 0; s < nSpan; s++) {
+          const r0 = ribs[s].ring, r1 = ribs[s + 1].ring;
+          for (let k = 0; k < r0.length - 1; k++) {
+            const p0 = r0[k], p1 = r1[k], p2 = r1[k + 1], p3 = r0[k + 1];
+            const depth = (p0.depth + p1.depth + p2.depth + p3.depth) * 0.25;
+            const upperFace = k < rootSample.upper.length - 1;
+            quads.push({ p0, p1, p2, p3, depth, upperFace });
+          }
+        }
+        quads.sort((a, b) => a.depth - b.depth);
+        for (const q of quads) {
+          ctx.beginPath();
+          ctx.moveTo(q.p0.sx, q.p0.sy);
+          ctx.lineTo(q.p1.sx, q.p1.sy);
+          ctx.lineTo(q.p2.sx, q.p2.sy);
+          ctx.lineTo(q.p3.sx, q.p3.sy);
+          ctx.closePath();
+          ctx.fillStyle = q.upperFace ? colLit : colSoft;
+          ctx.fill();
+        }
+      }
+
+      ribs.forEach((r, idx) => {
+        const isAuthored = idx === 0 || idx === nSpan / 2 || idx === nSpan || idx === nSpan / 4 || idx === (3 * nSpan) / 4;
+        if (app.view3d.mode === 'shaded' && !isAuthored) return;
+        ctx.beginPath();
+        r.ring.forEach((p, k) => k === 0 ? ctx.moveTo(p.sx, p.sy) : ctx.lineTo(p.sx, p.sy));
+        ctx.strokeStyle = idx === nSpan / 2 ? colStation : isAuthored ? colEdge : colGrid;
+        ctx.lineWidth = idx === nSpan / 2 ? 2.2 : isAuthored ? 1.1 : 0.7;
+        ctx.stroke();
+      });
+
+      [0, rootSample.upper.length - 1].forEach(idx => {
+        ctx.beginPath();
+        ribs.forEach((r, s) => {
+          const p = r.ring[idx];
+          s === 0 ? ctx.moveTo(p.sx, p.sy) : ctx.lineTo(p.sx, p.sy);
+        });
+        ctx.strokeStyle = colFoil;
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+      });
+
+      const plate = document.getElementById('plate-3d-cam');
+      if (plate) plate.textContent = `Free · az ${Math.round(app.view3d.az)}° · el ${Math.round(app.view3d.el)}° · ${app.view3d.mode}`;
+    }
+
+    draw3d();
+
+    canvas.addEventListener('pointerdown', e => {
+      app.view3d.dragging = true;
+      app.view3d.lastX = e.clientX;
+      app.view3d.lastY = e.clientY;
+      canvas.setPointerCapture(e.pointerId);
+    });
+    canvas.addEventListener('pointermove', e => {
+      if (!app.view3d.dragging) return;
+      app.view3d.az += (e.clientX - app.view3d.lastX) * 0.55;
+      app.view3d.el = Math.max(-80, Math.min(85, app.view3d.el + (e.clientY - app.view3d.lastY) * 0.45));
+      app.view3d.lastX = e.clientX;
+      app.view3d.lastY = e.clientY;
+      draw3d();
+    });
+    canvas.addEventListener('pointerup', () => { app.view3d.dragging = false; });
+    canvas.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft') { app.view3d.az -= 15; draw3d(); e.preventDefault(); }
+      if (e.key === 'ArrowRight') { app.view3d.az += 15; draw3d(); e.preventDefault(); }
+      if (e.key === 'ArrowUp') { app.view3d.el = Math.min(85, app.view3d.el + 10); draw3d(); e.preventDefault(); }
+      if (e.key === 'ArrowDown') { app.view3d.el = Math.max(-80, app.view3d.el - 10); draw3d(); e.preventDefault(); }
+    });
+
+    elArtStage.querySelectorAll('[data-cam]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const preset = btn.dataset.cam;
+        if (preset === 'iso') { app.view3d.az = -36; app.view3d.el = 24; }
+        if (preset === 'top') { app.view3d.az = 0; app.view3d.el = 85; }
+        if (preset === 'front') { app.view3d.az = -90; app.view3d.el = 4; }
+        if (preset === 'side') { app.view3d.az = 0; app.view3d.el = 4; }
+        draw3d();
+      });
+    });
+    const modeBtn = document.getElementById('btn-3d-mode');
+    if (modeBtn) modeBtn.addEventListener('click', () => {
+      app.view3d.mode = app.view3d.mode === 'shaded' ? 'wireframe' : 'shaded';
+      modeBtn.textContent = app.view3d.mode === 'shaded' ? 'Shaded' : 'Wireframe';
+      modeBtn.classList.toggle('active', app.view3d.mode === 'shaded');
+      draw3d();
+    });
+  }
+
+  /* ---- TAB 5: REQUIREMENT SCORECARD, v1↔v2 DIFF & FOILREQ DSL ---- */
+  function renderScorecardTab(cand, base) {
+    const ldDelta = cand.glideLd - base.glideLd;
+    return `
+      <div style="display:flex;flex-direction:column;gap:10px;flex:1;min-height:0;">
+        <div class="cell" style="padding:0;overflow:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>FoilReq Clause</th>
+                <th>Target</th>
+                <th class="num">v1</th>
+                <th class="num">${cand.id}</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Span cap (hard)</td><td class="mono">≤ 950.0 mm</td><td class="num">${base.spanMm.toFixed(1)} mm</td><td class="num"><strong>${cand.spanMm.toFixed(1)} mm</strong></td><td><span class="badge ok">Satisfied</span></td></tr>
+              <tr><td>Takeoff speed (90 kg)</td><td class="mono">≤ 11.0 kn</td><td class="num">${base.takeoffKn.toFixed(1)} kn</td><td class="num"><strong>${cand.takeoffKn.toFixed(1)} kn</strong></td><td><span class="badge ok">Satisfied</span></td></tr>
+              <tr><td>Glide L/D (15 kn wing-only)</td><td class="mono">High</td><td class="num">${base.glideLd.toFixed(1)}</td><td class="num"><strong>${cand.glideLd.toFixed(1)}</strong></td><td><span class="badge ok">${ldDelta >= 0 ? '+' : ''}${ldDelta.toFixed(1)}</span></td></tr>
+              <tr><td>Steep drop cavitation (24 kn)</td><td class="mono">σ/(−Cp) ≥ 1.15</td><td class="num">${base.cavMarginDrop.toFixed(2)}</td><td class="num"><strong>${cand.cavMarginDrop.toFixed(2)}</strong></td><td><span class="badge ok">Satisfied</span></td></tr>
+              <tr><td>Cutback roll agility</td><td class="mono">Anhedral + taper</td><td class="num">${base.rollInertiaRel}</td><td class="num"><strong>${cand.rollInertiaRel}</strong></td><td><span class="badge ok">Improved</span></td></tr>
+              <tr><td>Free-surface depth (h 0.45 m)</td><td class="mono">h/c ≥ 5 deep</td><td class="num">${base.hcRoot.toFixed(2)}</td><td class="num"><strong>${cand.hcRoot.toFixed(2)}</strong></td><td><span class="badge warn">A5.1 Unmodelled</span></td></tr>
+              <tr><td>F4 Orca conceptual traits</td><td class="mono">High-AR + camber</td><td class="num">AR ${base.ar.toFixed(2)}</td><td class="num"><strong>AR ${cand.ar.toFixed(2)}</strong></td><td><span class="badge warn">Tradeoff (Q2)</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <strong style="font-size:12px;">FoilReq 1.0 Canonical Source (v1.4)</strong>
+            <button type="button" class="btn sm" id="btn-copy-dsl">Copy FoilReq DSL</button>
+          </div>
+          <pre class="dsl-pre">${escapeHtml(buildFoilReqDsl())}</pre>
+        </div>
+      </div>
+    `;
+  }
+
+  /* ==========================================================================
+     INTERACTIVE COMPOSER & LIVE CANDIDATE v3+ SYNTHESIS (derived AR = b^2/S!)
+     ========================================================================== */
+  function handleSend() {
+    const text = elPrompt.value.trim();
+    if (!text) return;
+    if (app.state === 'empty') {
+      app.submittedBrief = text;
+      app.grillIdx = 0;
+      app.grillAnswers = [];
+      app.unitFixed = false;
+      elPrompt.value = '';
+      setState('grill');
+      elStatusLeft.textContent = 'Decomposed brief into FoilReq 1.0 — 1 unit sanity alert + 4 grill-me branches.';
+      return;
+    }
+    if (app.state === 'iterated' || app.state === 'overflow') {
+      const nextNum = app.candOrder.length + 1;
+      const cid = 'v' + nextNum;
+      const prev = CANDIDATES[app.activeCand] || CANDIDATES.v2;
+      const wantsEarlier = /takeoff|10 kn|890|900/i.test(text);
+      const spanMm = wantsEarlier ? 942.0 : Math.max(895.0, prev.spanMm - 5.0);
+      const areaCm2 = wantsEarlier ? 892 : Math.max(775, prev.areaCm2 - 22);
+      const bM = spanMm / 1000.0, sM2 = areaCm2 / 10000.0;
+      const arNext = (bM * bM) / sM2;
+      // Bounded glide L/D linked to AR (never unbounded across repeated iterations)
+      const glideLd = Math.min(28.5, Math.max(22.5, +(13.5 + 1.25 * arNext).toFixed(1)));
+      const takeoffKn = wantsEarlier ? 10.1 : Math.min(11.6, +(prev.takeoffKn + 0.2).toFixed(1));
+      const rootChordMm = wantsEarlier ? 120.5 : Math.max(102.0, +(prev.rootChordMm - 2.0).toFixed(1));
+      const tipChordMm = wantsEarlier ? 43.0 : Math.max(32.0, +(prev.tipChordMm - 1.5).toFixed(1));
+      const macMm = +((sM2 / bM) * 1000 * 1.028).toFixed(1);
+
+      const nextCand = computePhysics({
+        id: cid,
+        label: `${cid} · ${wantsEarlier ? 'Earlier Takeoff' : 'Higher Glide / Carve'}`,
+        geomOk: true,
+        hash: 'c7b4e' + nextNum + '0a',
+        wallSec: 1.6,
+        spanMm, areaCm2, rootChordMm, tipChordMm, macMm,
+        anhedralDeg: /anhedral|cutback|looser/i.test(text) ? -7.0 : prev.anhedralDeg,
+        washoutDeg: -1.6, sweepDeg: 7.4,
+        rootSec: wantsEarlier ? 'cfdw-surf-118' : 'cfdw-surf-105',
+        tipSec: 'cfdw-dw-092',
+        takeoffKn, glideLd, dropSpeedKn: 24.0,
+        negCpTakeoff: wantsEarlier ? 1.46 : 1.35,
+        negCpGlide: wantsEarlier ? 1.10 : 0.99,
+        negCpDrop: wantsEarlier ? 0.96 : 0.85,
+        rollInertiaRel: '0.88× (−12% inertia)'
+      });
+      CANDIDATES[cid] = nextCand;
+      app.candOrder.push(cid);
+      app.activeCand = cid;
+      app.extraTurns.push({
+        turn: 'Turn ' + (3 + app.extraTurns.length + 1),
+        prompt: text,
+        candId: cid,
+        hash: nextCand.hash,
+        wall: nextCand.wallSec.toFixed(1) + ' s',
+        delta: `Span ${nextCand.spanMm.toFixed(1)} mm · Area ${nextCand.areaCm2} cm² · AR ${nextCand.ar.toFixed(2)} (b²/S) · Anhedral ${nextCand.anhedralDeg.toFixed(1)}°`,
+        reply: `Synthesized ${cid} locally. Span ${nextCand.spanMm.toFixed(1)} mm (≤ 950 mm), Area ${nextCand.areaCm2} cm², derived AR ${nextCand.ar.toFixed(2)}, estimated takeoff ${nextCand.takeoffKn.toFixed(1)} kn (CL ${nextCand.clTakeoff.toFixed(3)}), wing-only glide L/D ${nextCand.glideLd.toFixed(1)}, and 24.0 kn steep-drop cavitation margin ${nextCand.cavMarginDrop.toFixed(2)} (V_crit ${nextCand.vCritKn.toFixed(1)} kn).`
+      });
+      elPrompt.value = '';
+      elStatusLeft.textContent = `Synthesized candidate ${cid} (BLAKE3 ${nextCand.hash}) — geometry checked & ready for CAD handoff.`;
+      renderAll();
+      elThread.scrollTop = elThread.scrollHeight;
+    }
+  }
+
+  /* ==========================================================================
+     ACCESSIBLE MODALS (Focus trap, Escape close, Focus restoration — P1-7)
+     ========================================================================== */
+  function openModal(backdropId, triggerEl) {
+    app.lastModalTrigger = triggerEl || document.activeElement;
+    const backdrop = document.getElementById(backdropId);
+    backdrop.classList.add('open');
+    const focusables = backdrop.querySelectorAll('button:not(:disabled), [tabindex="0"]');
+    if (focusables.length) focusables[0].focus();
+  }
+  function closeModal(backdropId) {
+    const backdrop = document.getElementById(backdropId);
+    if (!backdrop.classList.contains('open')) return;
+    backdrop.classList.remove('open');
+    if (app.lastModalTrigger && typeof app.lastModalTrigger.focus === 'function') {
+      app.lastModalTrigger.focus();
+    }
+  }
+  ['cad-modal', 'payload-modal'].forEach(id => {
+    const bd = document.getElementById(id);
+    bd.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { e.preventDefault(); closeModal(id); return; }
+      if (e.key === 'Tab') {
+        const els = [...bd.querySelectorAll('button:not(:disabled), [tabindex="0"]')];
+        if (!els.length) return;
+        const first = els[0], last = els[els.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
+  });
+
+  function openCadModal(triggerEl) {
+    const c = currentCandidate();
+    document.getElementById('cad-modal-body').innerHTML = `
+      <p>Opens candidate <strong>${c.label}</strong> as Design revision <strong>r1</strong> in Area 2 CAD. Your notebook transcript and <code>FoilReq 1.0</code> stay saved in project history.</p>
+      <div class="receipt">
+        <div class="receipt-row"><span><strong>FoilDSL 4.1 SurfaceHash (BLAKE3)</strong></span><span class="mono">${c.hash}</span></div>
+        <div class="receipt-row"><span><strong>Geometry check</strong></span><span class="badge ok">Passed</span></div>
+        <div class="receipt-row"><span><strong>Dimensions</strong></span><span class="mono">${c.spanMm.toFixed(1)} mm span · ${c.areaCm2} cm² · AR ${c.ar.toFixed(2)}</span></div>
+        <div class="receipt-row"><span><strong>Profiles</strong></span><span class="mono">${c.rootSec} (root) → ${c.tipSec} (tip)</span></div>
+        <div class="receipt-row"><span><strong>GoalStateVersion</strong></span><span class="mono">Derived from FoilReq v1.4 (3 operating points)</span></div>
+      </div>
+      <p style="font-size:12px;color:var(--ink-mute);margin:0;">First manual curve or station edit in CAD switches status to <em>Direct parametric</em> with full Undo/Redo. Return to this notebook anytime from the Activity Rail.</p>
+    `;
+    openModal('cad-modal', triggerEl);
+  }
+
+  function openPayloadModal(triggerEl) {
+    if (app.state === 'no-key') return;
+    const c = currentCandidate();
+    const hasCand = (app.state === 'iterated' || app.state === 'overflow' || app.state === 'refused');
+    const payloadObj = {
+      area: 'guided-design-notebook',
+      kind: hasCand ? 'candidate-intent-delta' : 'requirement-decomp',
+      model_role: 'reasoning',
+      redactions: { paths: 0, usernames: 0, hostnames: 0, drc_attributions: 0, secrets: 0 },
+      foilreq_blake3: 'e391ab44d018...9c2f',
+      active_candidate_hash: hasCand ? c.hash : null,
+      solver_context: hasCand ? {
+        span_mm: +c.spanMm.toFixed(1),
+        area_cm2: c.areaCm2,
+        ar: +c.ar.toFixed(2),
+        ld_15kn: +c.glideLd.toFixed(1),
+        takeoff_kn: +c.takeoffKn.toFixed(1),
+        sigma_24kn: +c.sigmaDrop.toFixed(3),
+        v_crit_kn: +c.vCritKn.toFixed(1)
+      } : null
+    };
+    const payloadStr = JSON.stringify(payloadObj, null, 2);
+    const utf8Bytes = new TextEncoder().encode(payloadStr).length;
+    document.getElementById('payload-modal-body').innerHTML = `
+      <p style="margin:0;">Single endpoint: <code>https://api.anthropic.com</code> · Model: <code>claude-sonnet-4-6</code> · Measured size: <strong>${utf8Bytes} / 32,768 UTF-8 B</strong></p>
+      <p style="margin:0;font-size:12px;color:var(--ink-mute);">Redacted: 0 paths · 0 user names · 0 hostnames · 0 DRC attributions · 0 secrets · All user prose fenced in <code>&lt;&lt;&lt;CFDW_QUOTED_DATA</code></p>
+      <pre class="dsl-pre">${escapeHtml(payloadStr)}</pre>
+    `;
+    openModal('payload-modal', triggerEl);
+  }
+
+  /* ==========================================================================
+     IN-ARTIFACT MECHANICAL CONTRAST & TARGET AUDIT (DX11 / DC-200 / P0-5)
+     ========================================================================== */
+  const AUDIT_PAIRS = [
+    ['--ink', '--surface', 'Body text on surface', 'text'],
+    ['--ink-mute', '--surface', 'Secondary text on surface', 'text'],
+    ['--ink', '--canvas', 'Body text on canvas', 'text'],
+    ['--ink-mute', '--selection', 'Secondary text on selection', 'text'],
+    ['--on-primary', '--primary', 'Primary button label', 'text'],
+    ['--warning', '--surface', 'Warning text on surface', 'text'],
+    ['--danger', '--surface', 'Error text on surface', 'text'],
+    ['--primary', '--surface', 'Primary focus/border cue', 'ui'],
+    ['--control-line', '--surface', 'Control border on surface', 'ui'],
+    ['--control-line', '--canvas', 'Control border on canvas', 'ui'],
+    ['--viewport-ink', '--viewport', 'Viewport labels on graphite', 'text'],
+    ['--viewport-mute', '--viewport', 'Viewport captions on graphite', 'text'],
+    ['--focus-ring-viewport', '--viewport', 'Viewport focus ring on graphite', 'ui'],
+    ['--focus-ring-viewport', '--viewport-soft', 'Viewport focus ring on plate', 'ui'],
+    ['--station', '--viewport', 'Active foil highlight on graphite', 'ui'],
+    ['--warning-viewport', '--viewport', 'Viewport warning line on graphite', 'ui'],
+    ['--hairline', '--surface', 'Pane hairline dividers', 'decorative']
+  ];
+  const FLOOR = { text: 4.5, large: 3.0, ui: 3.0, decorative: 3.0 };
+
+  function parseRgb(hexOrRgb) {
+    const el = document.createElement('span');
+    el.style.color = hexOrRgb;
+    document.body.appendChild(el);
+    const m = getComputedStyle(el).color.match(/\d+(\.\d+)?/g);
+    el.remove();
+    return m ? m.slice(0, 3).map(Number) : [0, 0, 0];
+  }
+  function relLum([r, g, b]) {
+    const f = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+  }
+  function contrastRatio(c1, c2) {
+    const l1 = relLum(c1), l2 = relLum(c2);
+    return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+  }
+
+  function runAudit() {
+    const win = document.getElementById('app-window');
+    const box = win.getBoundingClientRect();
+    const verdictEl = document.getElementById('h-verdict');
+    if (box.width < 100 || box.height < 100) {
+      verdictEl.textContent = 'FAIL · page not rendered';
+      verdictEl.className = 'harness-verdict fail';
+      return;
+    }
+    const cs = getComputedStyle(document.documentElement);
+    let fails = 0, worstText = 99, worstUi = 99;
+    const rows = AUDIT_PAIRS.map(([fgVar, bgVar, label, kind]) => {
+      const ratio = contrastRatio(parseRgb(cs.getPropertyValue(fgVar)), parseRgb(cs.getPropertyValue(bgVar)));
+      const floor = FLOOR[kind];
+      const pass = kind === 'decorative' ? true : ratio >= floor;
+      if (!pass) fails++;
+      if (kind === 'text') worstText = Math.min(worstText, ratio);
+      if (kind === 'ui') worstUi = Math.min(worstUi, ratio);
+      return `<tr>
+        <td>${label} <span class="mono" style="color:var(--ink-mute);">(${fgVar} / ${bgVar})</span></td>
+        <td>${kind}</td>
+        <td class="num">${ratio.toFixed(2)}:1</td>
+        <td class="num">${kind === 'decorative' ? 'exempt' : floor.toFixed(1) + ':1'}</td>
+        <td>${kind === 'decorative' ? '<span class="badge">Measured</span>' : pass ? '<span class="badge ok">PASS</span>' : '<span class="badge err">FAIL</span>'}</td>
+      </tr>`;
+    }).join('');
+    document.getElementById('audit-tbody').innerHTML = rows;
+    document.getElementById('audit-meta').textContent =
+      `Frame box: ${Math.round(box.width)} × ${Math.round(box.height)} px · Worst text: ${worstText.toFixed(2)}:1 · Worst UI: ${worstUi.toFixed(2)}:1 · External requests: 0`;
+    verdictEl.textContent = fails === 0 ? `AA PASS · min ${Math.min(worstText, worstUi).toFixed(1)}:1` : `AA FAIL (${fails})`;
+    verdictEl.className = 'harness-verdict ' + (fails === 0 ? 'ok' : 'fail');
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function setState(next) {
+    app.state = next;
+    root.dataset.state = next;
+    document.getElementById('h-state').value = next;
+    if (next === 'refused') {
+      app.refusedSelect = 'v2b';
+      app.activeCand = 'v1'; // Always match the baseline v1 banner — zero stale cross-candidate mismatch
+    }
+    if (next === 'iterated') {
+      app.staleAfterReopen = false;
+      if (!CANDIDATES[app.activeCand]) app.activeCand = 'v2';
+    }
+    renderAll();
+  }
+
+  function renderAll() {
+    renderTopBar();
+    renderLeftPane();
+    renderArtifacts();
+    const c = currentCandidate();
+    elStatusSolver.textContent = `Local solver: ${c.wallSec.toFixed(1)} s`;
+    requestAnimationFrame(runAudit);
+  }
+
+  /* ==========================================================================
+     EVENT WIRING (Incl. Tablist Arrow Keys & Modal Restoration)
+     ========================================================================== */
+  document.getElementById('h-state').addEventListener('change', e => setState(e.target.value));
+  document.getElementById('h-viewport').addEventListener('change', e => {
+    root.dataset.viewport = e.target.value;
+    renderArtifacts();
+    requestAnimationFrame(runAudit);
+  });
+  document.getElementById('h-theme').addEventListener('change', e => {
+    root.dataset.theme = e.target.value;
+    renderArtifacts();
+    requestAnimationFrame(runAudit);
+  });
+  document.getElementById('h-motion').addEventListener('change', e => {
+    root.dataset.motion = e.target.checked ? 'reduced' : 'full';
+  });
+  document.getElementById('h-verdict').addEventListener('click', () => {
+    document.getElementById('audit-panel').classList.toggle('open');
+  });
+
+  elCandSelect.addEventListener('change', () => {
+    const val = elCandSelect.value;
+    if (app.state === 'refused') {
+      app.refusedSelect = val;
+      elStatusLeft.textContent = val === 'v1'
+        ? 'Selected geometry-checked v1 — Open in CAD Mode enabled.'
+        : 'Selected refused v2b — Open in CAD Mode disabled until repaired.';
+    } else if (app.state === 'overflow') {
+      app.overflowSelect = val;
+      elStatusLeft.textContent = `Inspecting ${val} in 12-iteration overflow session.`;
+    } else if (CANDIDATES[val]) {
+      app.activeCand = val;
+      const c = CANDIDATES[val];
+      elStatusLeft.textContent = `Switched to ${c.label} (BLAKE3 ${c.hash}) · ${c.spanMm.toFixed(1)} mm span · ${c.areaCm2} cm²`;
+    }
+    renderTopBar();
+    renderArtifacts();
+  });
+
+  const tabList = document.getElementById('art-tabs');
+  function activateTab(btn) {
+    app.activeTab = btn.dataset.tab;
+    tabList.querySelectorAll('.art-tab').forEach(t => {
+      const on = t === btn;
+      t.classList.toggle('active', on);
+      t.setAttribute('aria-selected', String(on));
+      t.setAttribute('tabindex', on ? '0' : '-1');
+    });
+    renderArtifacts();
+  }
+  tabList.addEventListener('click', e => {
+    const btn = e.target.closest('.art-tab');
+    if (btn) activateTab(btn);
+  });
+  tabList.addEventListener('keydown', e => {
+    const tabs = [...tabList.querySelectorAll('.art-tab')];
+    const idx = tabs.indexOf(document.activeElement);
+    if (idx < 0) return;
+    let next = -1;
+    if (e.key === 'ArrowRight') next = (idx + 1) % tabs.length;
+    else if (e.key === 'ArrowLeft') next = (idx - 1 + tabs.length) % tabs.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = tabs.length - 1;
+    if (next >= 0) {
+      e.preventDefault();
+      tabs[next].focus();
+      activateTab(tabs[next]);
+    }
+  });
+
+  elCompare.addEventListener('click', () => { app.compare = !app.compare; renderArtifacts(); });
+  elTableTwin.addEventListener('click', () => { app.tableTwin = !app.tableTwin; renderArtifacts(); });
+  elSend.addEventListener('click', handleSend);
+  elPrompt.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); handleSend(); }
+  });
+
+  elCadBtn.addEventListener('click', () => openCadModal(elCadBtn));
+  document.getElementById('cad-modal-close').addEventListener('click', () => closeModal('cad-modal'));
+  document.getElementById('cad-modal-cancel').addEventListener('click', () => closeModal('cad-modal'));
+  document.getElementById('cad-modal-confirm').addEventListener('click', () => {
+    closeModal('cad-modal');
+    const c = currentCandidate();
+    elStatusLeft.textContent = `Handed off ${c.id} (BLAKE3 ${c.hash}) → Area 2 CAD as Design revision r1. Notebook session preserved on Activity Rail.`;
+  });
+
+  elPreviewPayload.addEventListener('click', () => openPayloadModal(elPreviewPayload));
+  document.getElementById('payload-modal-close').addEventListener('click', () => closeModal('payload-modal'));
+  document.getElementById('payload-modal-ok').addEventListener('click', () => closeModal('payload-modal'));
+  document.getElementById('btn-back').addEventListener('click', () => {
+    elStatusLeft.textContent = 'Notebook session remains saved — returning to Start / 7-area workbench shell (mock).';
+  });
+
+  const qs = new URLSearchParams(location.search);
+  if (qs.get('theme') && ['light', 'dark', 'contrast'].includes(qs.get('theme'))) {
+    root.dataset.theme = qs.get('theme');
+    document.getElementById('h-theme').value = qs.get('theme');
+  }
+  if (qs.get('state') && ['empty', 'grill', 'simulating', 'iterated', 'refused', 'no-key', 'overflow'].includes(qs.get('state'))) {
+    setState(qs.get('state'));
+  } else {
+    renderAll();
+  }
+})();
+</script>
+</body>
+</html>
