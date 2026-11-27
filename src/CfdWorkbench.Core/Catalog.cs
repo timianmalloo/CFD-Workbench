@@ -3,15 +3,16 @@ using System.Text;
 
 namespace CfdWorkbench.Core;
 
-// assume: CatalogFamily is the picker grouping from design §3.1 (Naca, Eppler, Speer, MySections).
+// assume: CatalogFamily is the picker grouping from design §3.1 (Naca, Eppler, Speer, MySections) plus Hydrofoil (cfdw-cst/1).
 // The §5.1 snippet repeats the admission classes, which cannot group the dialog (§14.1).
 // Confirm: a DLG build groups rows by Family. Breaks if a caller expected Family to be Gen/Vend/Link.
 public enum CatalogFamily
 {
-    Naca,
-    Eppler,
-    Speer,
-    MySections
+    Naca = 0,
+    Eppler = 1,
+    Speer = 2,
+    MySections = 3,
+    Hydrofoil = 4
 }
 
 public enum AdmissionClass
@@ -78,21 +79,38 @@ public static class Catalog
             if (field.Length != 10)
                 throw Refusal("field-count", $"row '{line[..Math.Min(line.Length, 40)]}': expected 10 fields, actual {field.Length}");
             string id = field[0];
+            CatalogFamily family = Enum.Parse<CatalogFamily>(field[1]);
+            if (!Enum.IsDefined(family))
+                throw Refusal("family", $"entry {id}: unknown family '{field[1]}'");
+            AdmissionClass admission = Enum.Parse<AdmissionClass>(field[3]);
+            if (!Enum.IsDefined(admission))
+                throw Refusal("admission-class", $"entry {id}: unknown admission class '{field[3]}'");
             string? reason = field[4].Length == 0 ? null : field[4];
             string hash = field[6];
             double le = double.Parse(field[7], CultureInfo.InvariantCulture);
             double rotation = double.Parse(field[8], CultureInfo.InvariantCulture);
             double scale = double.Parse(field[9], CultureInfo.InvariantCulture);
             byte[]? bytes = null;
-            if (reason is null)
+            if (admission == AdmissionClass.Link)
+            {
+                if (reason is null)
+                    throw Refusal("link-active", $"entry {id}: LINK entry must carry a disabled reason");
+                if (coordinates(id) is not null)
+                    throw Refusal("link-has-coordinates", $"entry {id}: LINK entry must not bundle coordinates");
+            }
+            else if (reason is not null)
+            {
+                if (coordinates(id) is not null)
+                    throw Refusal("disabled-has-coordinates", $"entry {id}: disabled entry must not bundle coordinates");
+            }
+            else if (admission == AdmissionClass.Gen)
             {
                 bytes = coordinates(id);
                 if (bytes is null) throw Refusal("coordinates-missing", $"entry {id}: no coordinate resource");
                 string actualHash = Identity.Sha256(bytes);
                 if (actualHash != hash) throw Refusal("coordinate-hash", $"entry {id}: {Differs("sha256", hash, actualHash)} ({bytes.Length} bytes)");
-                if (field[5] != CatalogGenerator.Id) throw Refusal("generator-id", $"entry {id}: {Differs("generator", CatalogGenerator.Id, field[5])}");
-                if (!id.StartsWith("naca-", StringComparison.Ordinal)) throw Refusal("generator-id", $"entry {id}: generated entry id is not naca-*");
-                CatalogGenerator.NacaShape shape = CatalogGenerator.Shape(id["naca-".Length..]);
+                if (!CatalogGenerators.TryGenerate(field[5], id, out CatalogGenerator.NacaShape shape))
+                    throw Refusal("generator-id", $"entry {id}: unknown generator '{field[5]}' or id shape");
                 if (!bytes.AsSpan().SequenceEqual(shape.Bytes))
                 {
                     int at = bytes.AsSpan().CommonPrefixLength(shape.Bytes);
@@ -105,11 +123,24 @@ public static class Catalog
                 if (Math.Abs(shape.RotationDegrees - rotation) > RotationRelativeTolerance * Math.Max(Math.Abs(shape.RotationDegrees), Math.Abs(rotation))) throw Refusal("frame-rotation", $"entry {id}: {Differs("rotation", r(shape.RotationDegrees), r(rotation))} (generated vs recorded)");
                 if (shape.Scale != scale) throw Refusal("frame-scale", $"entry {id}: {Differs("scale", r(shape.Scale), r(scale))} (generated vs recorded)");
             }
+            else if (admission == AdmissionClass.Vend)
+            {
+                bytes = coordinates(id);
+                if (bytes is null) throw Refusal("coordinates-missing", $"entry {id}: no coordinate resource");
+                string actualHash = Identity.Sha256(bytes);
+                if (actualHash != hash) throw Refusal("coordinate-hash", $"entry {id}: {Differs("sha256", hash, actualHash)} ({bytes.Length} bytes)");
+                try { _ = DatImport.Parse(bytes); }
+                catch (ContractError error) { throw Refusal("vend-parse", $"entry {id}: vendored coordinates failed parse ({error.Code})"); }
+            }
+            else
+            {
+                throw Refusal("admission-class", $"entry {id}: unhandled admission class '{admission}'");
+            }
             entries.Add(new CatalogEntry(
                 id,
-                Enum.Parse<CatalogFamily>(field[1]),
+                family,
                 field[2],
-                Enum.Parse<AdmissionClass>(field[3]),
+                admission,
                 reason,
                 bytes)
             {

@@ -67,6 +67,26 @@ public static class SectionReplace
             if (own.Residual <= limit) chosen = own;
         }
         if (chosen is null)
+        {
+            // Adaptive 16-point blossomed-sqrt fallback for sections with sharp aft curvature (NACA 16/6/6A/66).
+            double[][] baselines =
+            [
+                [0.16, 0.34, 0.52, 0.70, 0.86],
+                [0.25, 0.50, 0.75],
+                [0.20, 0.45, 0.70, 0.90, 0.95]
+            ];
+            foreach (double[] baseline in baselines)
+            {
+                if (chosen is not null) break;
+                if (DatImport.OwnAdaptiveSqrtBasis(shape.Samples, LargestOwnSpacing, baseline) is not var (knots, x))
+                    continue;
+                var adaptive = FitOn(shape, target, knots, x, keepIds: false, "own-" + LargestOwnSpacing.ToString(CultureInfo.InvariantCulture), source.DisplayName);
+                if (adaptive is null) continue;
+                if (adaptive.Residual < best) { best = adaptive.Residual; bestCandidate = adaptive; }
+                if (adaptive.Residual <= limit) chosen = adaptive;
+            }
+        }
+        if (chosen is null)
             return Refused("CAT-RESIDUAL", ResidualReason(source.DisplayName, best, acceptanceChord), stations, best,
                 acceptanceChord, bestCandidate.Upper.Length, null,
                 Write(draftBytes, target, bestCandidate, source.Provenance, before, stations));

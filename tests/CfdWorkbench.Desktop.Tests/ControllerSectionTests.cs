@@ -901,7 +901,7 @@ public static class ControllerSectionTests
             WaitFor(() => controller.CurrentPreview is not null);
             byte[] before = controller.Section!.Draft.Bytes.ToArray();
             int cursor = controller.Section.Draft.Cursor;
-            controller.PreviewReplace(Disabled("naca-16-012"));
+            controller.PreviewReplace(Disabled("e817"));
             WaitFor(() => !controller.PreviewPending);
             string copy = "This section has no coordinates in this build. Nothing changed.";
             if (controller.CurrentPreview is not null || controller.PreviewChoice is not null)
@@ -1095,7 +1095,7 @@ public static class ControllerSectionTests
             Wait(controller.OpenExampleAsync());
             Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
             controller.RecordCatalogSelect(Naca("naca-0012"));
-            controller.RecordCatalogSelect(Disabled("naca-16-012"));
+            controller.RecordCatalogSelect(Disabled("e817"));
             controller.RecordCatalogSelect(new CatalogChoice.Damaged("bad.foil", "“bad.foil” is damaged and was skipped."));
             controller.PreviewReplace(Naca("naca-0012"));
             WaitFor(() => controller.CurrentPreview is not null);
@@ -1146,7 +1146,7 @@ public static class ControllerSectionTests
             Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
             controller.RecordCatalogSelect(Naca("naca-0012"));
             controller.RecordCatalogSelect(Naca("naca-0012"));
-            controller.RecordCatalogSelect(Disabled("naca-16-012"));
+            controller.RecordCatalogSelect(Disabled("e817"));
             controller.RecordCatalogSelect(Naca("naca-0012"));
             var outcomes = SessionOf(controller).ReadLocalEvents()
                 .Where(item => item.Operation == "catalog.select").Select(item => item.Outcome);

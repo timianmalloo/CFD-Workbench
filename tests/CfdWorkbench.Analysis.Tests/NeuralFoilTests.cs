@@ -36,6 +36,7 @@ internal static class NeuralFoilTests
         AnalysisChecks.Check("NeuralFoil_Confidence_Low_ComputedFlaggedNeverRefused", LowConfidenceAdvisory);
         AnalysisChecks.Check("NeuralFoil_Telemetry_EmittedOnNormalPath", Telemetry);
         AnalysisChecks.Check("NeuralFoil_InferenceCost", InferenceCost);
+        AnalysisChecks.Check("NeuralFoil_All77CatalogGenSections_ComputableAndFinite", AllCatalogGenSectionsComputable);
     }
 
     private static void Fidelity()
@@ -274,5 +275,28 @@ internal static class NeuralFoilTests
         for (int i = 0; i < 10; i++) network.Predict(parameters, 0, 500000, 4);
         watch.Stop();
         Console.WriteLine("COST NeuralFoil_InferencePerCall " + (watch.Elapsed.TotalMilliseconds / 10).ToString("F3", CultureInfo.InvariantCulture));
+    }
+
+    private static void AllCatalogGenSectionsComputable()
+    {
+        byte[] foil = FoilSource.MaterializeIds(FoilSource.Parse(File.ReadAllBytes(
+            Path.Combine("docs", "examples", "foildsl", "foil-basic.foil"))));
+        var active = Catalog.Load().Where(e => e.Class == AdmissionClass.Gen && e.DisabledReason is null).ToArray();
+        if (active.Length != 77) throw new Exception($"Expected 77 active GEN catalog entries, got {active.Length}");
+        var source = new NeuralFoilPolarSource(_ => null);
+        foreach (var entry in active)
+        {
+            var preview = SectionReplace.Preview(foil, 0, SectionScope.Shared,
+                new ReplaceSource.Coordinates(entry.Designation, new Provenance("gen:" + entry.Id, false), entry.Coordinates!),
+                ReplaceScope.Draft);
+            if (preview.Bytes is null) throw new Exception($"{entry.Id} failed SectionReplace: {preview.RefusalCode}");
+            var nfSec = RunPolarResolver.SectionsAt(preview.Bytes, [0.0])[0.0];
+            var eval = source.Evaluate(nfSec, 2.0, 500_000, 3.0, CancellationToken.None);
+            if (!eval.Computable || eval.Prediction is null)
+                throw new Exception($"{entry.Id} not computable: {eval.Reason} (cstMax={eval.CstResidualMax:E2})");
+            var panel = PanelMethod.Solve(PanelMethod.SampleSection(preview.Bytes, 0.0, PanelMethod.DefaultPanelCount), 2.0);
+            if (!double.IsFinite(panel.CpMin) || !double.IsFinite(eval.Prediction.Cl) || !double.IsFinite(eval.Prediction.Cd))
+                throw new Exception($"{entry.Id} produced non-finite aerodynamic output");
+        }
     }
 }

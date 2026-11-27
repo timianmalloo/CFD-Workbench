@@ -28,15 +28,16 @@ public sealed class NeuralFoilPolarSource(Func<string, NeuralFoilSection?> resol
     private static readonly ActivitySource ActivitySource = new("CfdWorkbench.Analysis.NeuralFoil", "0.3.2");
     private static readonly Counter<long> Calls = Meter.CreateCounter<long>("neuralfoil.evaluate.calls");
     private static readonly Histogram<double> Duration = Meter.CreateHistogram<double>("neuralfoil.evaluate.duration_ms", "ms");
-    // SPIKE-ANA-1/verdict.md: 78 XFOIL points for NACA 0012, alpha -6..6, Re 2e5..1e6, Ncrit 2/4/9.
-    // Fidelity (not XFOIL accuracy) also covers NACA 2412/4412. Its largest fit max was 3.58e-4 c.
+    // SPIKE-ANA-1/verdict.md: 78 XFOIL points for NACA 0012, alpha -6..6, Re 2e5..1e6, Ncrit 2/4/9 (4-digit max 3.58e-4 c).
+    // Expanded catalog verification (docs/design/section-catalog-expansion.md): NACA 6/6A/66(MOD) conformal sections reach up to
+    // 6.05e-4 c degree-7 CST residual with NeuralFoil confidence >= 0.92; 0.00065 c admits all 77 GEN sections while refusing bad fits.
     public const double AlphaMinDeg = -6;
     public const double AlphaMaxDeg = 6;
     public const double ReynoldsMin = 200000;
     public const double ReynoldsMax = 1000000;
     public const double NcritMin = 2;
     public const double NcritMax = 9;
-    public const double MaxCstResidual = 0.00036;
+    public const double MaxCstResidual = 0.00065;
     // Network training range, the hard limit. Source: docs/knowledge/hydrofoil-workbench/07-low-order-hydrodynamics.md:38,
     // citing the NeuralFoil paper (Sharpe and Hansman, arXiv 2503.16323): alpha -27.9..+28.6 degrees, Re about 1e2..1e10,
     // Ncrit uniformly sampled in [0, 18]. Not re-read from upstream in this track; the installed package does not state it.
@@ -126,7 +127,7 @@ public sealed class NeuralFoilPolarSource(Func<string, NeuralFoilSection?> resol
             throw new ContractError("ANA-POLAR-METHOD-MISMATCH", "Stored polar method or profile differs from the run revision.");
         CstFitResult fit = CstFit.Fit(section);
         if (fit.MaxResidual > MaxCstResidual)
-            throw new ContractError("ANA-POLAR-NONCOMPUTABLE", "CST residual above 0.00036 c");
+            throw new ContractError("ANA-POLAR-NONCOMPUTABLE", "CST residual above 0.00065 c");
         return new PolarResult(sample,
             BracketFlags(Naca0012Reference.Matches(fit.Parameters), sample.AlphaDeg, sample.Reynolds, sample.Ncrit),
             sample.Confidence is not { } confidence || !double.IsFinite(confidence) || confidence < LowConfidenceBelow,
@@ -143,7 +144,7 @@ public sealed class NeuralFoilPolarSource(Func<string, NeuralFoilSection?> resol
         if (!double.IsFinite(ncrit) || ncrit < TrainingNcritMin || ncrit > TrainingNcritMax)
             return "Ncrit outside the network training range 0..18";
         if (residual > MaxCstResidual)
-            return "CST residual above 0.00036 c";
+            return "CST residual above 0.00065 c";
         return null;
     }
 

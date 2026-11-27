@@ -4397,6 +4397,43 @@ window.DOCS_INDEX = {
       "sourceSha256": "a873c3193173c5b57d63d77c1c5e9ab3b4d61260b9648603f4a30bfa75765b3e"
     },
     {
+      "id": "design-section-catalog-expansion",
+      "path": "docs/design/section-catalog-expansion.md",
+      "title": "Section catalog expansion: full public-domain NACA/DTMB generators, CFDW CST hydrofoil family, and 1-click user .dat import",
+      "type": "design",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-05-27",
+      "reviewSuggested": [],
+      "summary": "Expands the bundled section catalog from 3 to 77 active GEN entries (68 public-domain NACA 4/4M/5/16/6/6A/66(MOD) plus 9 project-owned Eppler-inspired degree-7 Bernstein CST hydrofoil sections), generalizes Catalog.Read across Gen/Vend/Link classes, adds an adaptive 16-point blossomed-sqrt B-spline fallback in SectionReplace so every admitted section fits within 10 µm, updates NeuralFoilPolarSource.MaxCstResidual to 0.00065 c for 6-series CST coverage, and adds 1-click \"Import .dat to My sections…\" on disabled VEND/LINK rows in CatalogDialog.",
+      "tags": [
+        "catalog",
+        "sections",
+        "naca",
+        "dtmb",
+        "cst",
+        "desktop",
+        "ux"
+      ],
+      "links": [
+        {
+          "to": "design-m12d-catalog",
+          "rel": "refines"
+        },
+        {
+          "to": "kb-hw-public-domain-and-parametric-catalog",
+          "rel": "depends-on"
+        },
+        {
+          "to": "decision-catalog-admission-classes",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "28129a3b3511be53553927b769b4ef26cacb0d947306d286fa1e5f04a8a55850"
+    },
+    {
       "id": "design-section-editor",
       "path": "docs/design/section-editor.md",
       "title": "M1.1 full section editor",
@@ -11455,6 +11492,44 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "91d52857aaccb17c35bfaa375292cda964239fbc9ea74e58ff77cba5703c69a2"
+    },
+    {
+      "id": "kb-hw-public-domain-and-parametric-catalog",
+      "path": "docs/knowledge/hydrofoil-workbench/06b-public-domain-and-parametric-hydrofoil-catalog.md",
+      "title": "Public-domain and project-owned parametric hydrofoil section catalog",
+      "type": "knowledge",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "knowledge",
+      "reviewBy": "2027-05-27",
+      "reviewSuggested": [],
+      "summary": "Documents every public-domain (unrestricted, US Government 17 U.S.C. § 105) hydrofoil-relevant section family (NACA 4-digit, 4-digit-modified/16-series, 5-digit, 6/6A-series via NASA TM 4741, DTMB Report 1780 NACA 66(MOD), and NASA NLF/LS(1) evaluation) plus nine project-owned Eppler-inspired degree-7 Bernstein CST hydrofoil sections (cfdw-cst/1) tuned and benchmarked in-process for wingfoil surf, downwind, race, stabilizer, and mast/strut roles.",
+      "tags": [
+        "hydrofoil",
+        "sections",
+        "catalog",
+        "public-domain",
+        "naca",
+        "dtmb",
+        "cst",
+        "wingfoil"
+      ],
+      "links": [
+        {
+          "to": "kb-hw-foil-section-catalog",
+          "rel": "refines"
+        },
+        {
+          "to": "decision-catalog-admission-classes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-section-catalog-expansion",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "cdbe85ac52efc1f60c2dfed789a71e5e3e2d18df8d6ef83173237d7eaac89725"
     },
     {
       "id": "kb-hw-references",
@@ -25853,12 +25928,28 @@ window.DOCS_INDEX = {
       "artifactId": "design-results-and-candidates"
     },
     {
+      "id": "surface-design-section-catalog-expansion",
+      "path": "docs/design/section-catalog-expansion.html",
+      "title": "Section Catalog Expansion",
+      "kind": "design-preview",
+      "description": "Inspect a rendered design or design-language preview.",
+      "artifactId": "design-section-catalog-expansion"
+    },
+    {
       "id": "surface-design-setup-seeding",
       "path": "docs/design/setup-seeding.html",
       "title": "Setup Seeding",
       "kind": "design-preview",
       "description": "Inspect a rendered design or design-language preview.",
       "artifactId": "design-setup-seeding"
+    },
+    {
+      "id": "surface-knowledge-hydrofoil-workbench-06b-public-domain-and-parametric-hydrofoil-catalog",
+      "path": "docs/knowledge/hydrofoil-workbench/06b-public-domain-and-parametric-hydrofoil-catalog.html",
+      "title": "06B Public Domain And Parametric Hydrofoil Catalog",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "kb-hw-public-domain-and-parametric-catalog"
     },
     {
       "id": "surface-proof-win-naca-sources-tmr-sa-withoutpv",
@@ -26379,5 +26470,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "03621ab957c442172b3a7d168e23dcd7566437f0da48b74fb4f2703da4d53337"
+  "graphSha256": "a76d903ed34570fdd7abe7fc07e8de056f06f96269175973b8689f1283e5e50f"
 };

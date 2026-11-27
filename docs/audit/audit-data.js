@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-26T18:58:20Z",
+  "generated": "2026-11-27T18:22:22Z",
   "audit": [
     {
       "actor": null,
@@ -45924,6 +45924,43 @@ window.AUDIT_DATA = {
         "branch": "main",
         "pushed": false
       }
+    },
+    {
+      "id": "al-01M8EZRAW3HPG2Y9MQREBRCTA9",
+      "shortname": "research public-domain hydrofoil sections (no restrictions), build full …",
+      "datetime": "2026-11-27T17:09:55Z",
+      "session": "prompt-log",
+      "prompt": "research public-domain hydrofoil sections (no restrictions), build full public-domain catalog including NACA 16/6/6A TM 4741 generator + VEND loader support, add project-owned parametric hydrofoil GEN sections inspired by Eppler optimized for wingfoil surf, race, and downwind, and add 1-click Import .dat to My sections on disabled VEND/LINK rows",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M8F3X0FQT4D564HM65MPE0NK",
+      "shortname": "section-catalog-expansion",
+      "datetime": "2026-11-27T18:22:22Z",
+      "session": "80549eef-c72e-4649-a6ab-8439d9935577",
+      "prompt": "Research public-domain hydrofoil sections, build complete public-domain GEN catalog, add Eppler-inspired project-owned CST hydrofoil family (surf/downwind/race/stab/mast), and add 1-click Import .dat to My sections on disabled VEND/LINK rows.",
+      "summary": "Expanded catalog from 3 to 77 active GEN entries (68 NACA/DTMB via pure managed IEEE-754 Ruling 156 generators + 9 cfdw-cst/1 hydrofoil sections), generalized Catalog.Read across Gen/Vend/Link with fail-closed enum guards, added bounded adaptive 16-point blossomed-sqrt fallback in SectionReplace, updated CST limit to 0.00065 c across analysis/copy/tests, and wired 1-click Import .dat to My sections in CatalogDialog. Cleared independent Adversary veto (PASS) with 2,433 tests green.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/section-catalog-expansion.md",
+        "docs/knowledge/hydrofoil-workbench/06b-public-domain-and-parametric-hydrofoil-catalog.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "duration_source": "session-start-hook",
+      "started_at": "2026-11-27T18:22:08Z",
+      "duration_seconds": 14.0
     }
   ],
   "changes": [

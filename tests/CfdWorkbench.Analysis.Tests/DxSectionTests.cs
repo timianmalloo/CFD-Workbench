@@ -542,7 +542,7 @@ internal static class DxSectionTests
         // a section the fit cannot represent: the point is Unavailable with the limit named, and no number is plotted
         SectionView thick = Build(source: SectionSeamTests.ThicknessSource(_ => 0.45));
         string row = Cell(thick, "Polar", "Ncrit 4").Value;
-        Equal(true, row.StartsWith("Unavailable — section fit residual") && row.EndsWith("exceeds the limit 3.6 × 10⁻⁴ c"), "over the limit: " + row);
+        Equal(true, row.StartsWith("Unavailable — section fit residual") && row.EndsWith("exceeds the limit 6.5 × 10⁻⁴ c"), "over the limit: " + row);
         Equal(true, thick.Charts.Single(c => c.Id == "polar").Plots.All(p => p.Series.All(s => s.Points.Count == 0)), "no polar number is drawn");
     }
 

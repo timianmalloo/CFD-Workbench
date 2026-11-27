@@ -10,3 +10,5 @@
 {"at": 1795545879.788133, "from": "operator", "kind": "ruling", "mail_id": "mail-01M87DZN7CWBY68NCE1K2TTC00", "ref": "req-01M87DZKVCPZFZHXAYRED6SCBQ", "session": "operator", "to": "agy-w11-coord", "type": "mail"}
 {"action": "resolve", "agent": "operator", "at": 1795584626.1446285, "id": "req-01M88JY35819RJF8PV4525P34M", "kind": "request", "outcome": "resolution", "path": "-", "seq": 11, "session": "operator", "type": "request", "wi": "WI-0"}
 {"at": 1795584626.158819, "from": "operator", "kind": "ruling", "mail_id": "mail-01M88JY3FEYRV9BK8R35RW0VYC", "ref": "req-01M88JY35819RJF8PV4525P34M", "session": "operator", "to": "agy-w12-coord", "type": "mail"}
+{"action": "resolve", "agent": "operator", "at": 1795717016.1905665, "id": "req-01M8CH6AAJXG70B0PB8V2MNBCW", "kind": "request", "outcome": "resolution", "path": "-", "seq": 13, "session": "operator", "type": "request", "wi": "WI-0"}
+{"at": 1795717016.2048547, "from": "operator", "kind": "ruling", "mail_id": "mail-01M8CH6AMC6B9XXGYH3047Y8BE", "ref": "req-01M8CH6AAJXG70B0PB8V2MNBCW", "session": "operator", "to": "agy-w13-coord", "type": "mail"}

@@ -6,6 +6,7 @@ using Avalonia.Automation;
 using Avalonia.Threading;
 using Avalonia;
 using Avalonia.Media;
+using CfdWorkbench.Analysis;
 using CfdWorkbench.Core;
 using CfdWorkbench.Persistence;
 
@@ -47,6 +48,9 @@ public static class CatalogDialogTests
         DesktopChecks.Check("SaveDialog_UnsupportedPersistence_ExplainsSafety", CheckUnsupportedSave);
         DesktopChecks.Check("SaveDialog_Error_RenderedThenClearedOnRetry", CheckSaveErrorRendered);
         DesktopChecks.Check("Properties_StationSource_UsesProfileProvenance", CheckStationSource);
+        DesktopChecks.Check("CatalogDialog_ImportDatButton_VisibleOnlyOnDisabledVendAndLink", CheckImportDatButtonVisibility);
+        DesktopChecks.Check("CatalogDialog_ImportDatButton_ImportsToMySectionsAndPreviews", CheckImportDatFlow);
+        DesktopChecks.Check("CatalogDialog_ImportDatButton_CancelAndUnreadableKeepStateUnchanged", CheckImportDatCancelAndError);
     }
 
     private static void CheckCatalog(string name)
@@ -85,7 +89,8 @@ public static class CatalogDialogTests
                 case "CatalogDialog_FamiliesGrouped_ListboxShape":
                     string[] headings = list.Items.OfType<ListBoxItem>().Where(item => item.Tag is null)
                         .Select(item => item.Content?.ToString() ?? "").ToArray();
-                    Require(headings.Contains("NACA") && headings.Contains("Eppler") && headings.Contains("Speer") &&
+                    Require(headings.Contains("NACA") && headings.Contains(Labels.CatalogFamilyHydrofoil) &&
+                        headings.Contains("Eppler") && headings.Contains("Speer") &&
                         headings.Contains("My sections"), "Catalog family headings are missing");
                     Require(list.Items.OfType<ListBoxItem>().Any(item => item.Tag is CatalogChoice.Catalog { Entry.DisabledReason: not null }),
                         "Disabled entries are missing from the listbox");
@@ -217,11 +222,26 @@ public static class CatalogDialogTests
                     Require(controller.CurrentPreview!.LargestChangeAtX is >= 0 and <= 1, "Largest-change x is not on chord");
                     break;
                 case "CatalogDialog_PendingGenRow_TagNamesState":
-                    string[] tags = new[] { "NACA 0012", "NACA 63-412", "Eppler E817", "Speer H105" }
+                {
+                    string[] tags = new[] { "NACA 0012", "CFDW Race 085", "Eppler E817", "Speer H105" }
                         .Select(designation => LeafText(CatalogRow(list, designation)).Text ?? "").ToArray();
-                    Require(tags.SequenceEqual(["NACA 0012 · GEN", "NACA 63-412 · not in this build", "Eppler E817 · pending", "Speer H105 · cite only"]),
+                    Require(tags.SequenceEqual(["NACA 0012 · GEN", "CFDW Race 085 · GEN", "Eppler E817 · pending", "Speer H105 · cite only"]),
                         "Row tags do not name the state: " + string.Join(" | ", tags));
+                    // Also verify the synthetic disabled GEN 'not in this build' tag path.
+                    var synthetic = new CatalogEntry("naca-future", CatalogFamily.Naca, "NACA Future", AdmissionClass.Gen,
+                        "Not generated in this build.", null);
+                    var synDialog = new CatalogDialog(controller, new CatalogSnapshot([synthetic], [], 0, 1, 0, "ok"));
+                    synDialog.Show();
+                    Dispatcher.UIThread.RunJobs();
+                    try
+                    {
+                        var synList = Need<ListBox>(synDialog, "SectionList");
+                        string synTag = LeafText(CatalogRow(synList, "NACA Future")).Text ?? "";
+                        Require(synTag == "NACA Future · not in this build", "Synthetic disabled GEN tag: " + synTag);
+                    }
+                    finally { synDialog.Close(); }
                     break;
+                }
             }
         }
         finally { dialog.Close(); }
@@ -325,7 +345,7 @@ public static class CatalogDialogTests
             {
                 var list = Need<ListBox>(dialog, "SectionList");
                 var choosable = CatalogRow(list, "NACA 0012");
-                var rows = new[] { ("pending", CatalogRow(list, "NACA 63-412")),
+                var rows = new[] { ("pending", CatalogRow(list, "Eppler E817")),
                     ("damaged", list.Items.OfType<ListBoxItem>().Single(item => item.Tag is CatalogChoice.Damaged)) };
                 string Ink(ListBoxItem item) =>
                     $"{(LeafText(item).Foreground as ISolidColorBrush)?.Color}@{LeafText(item).Opacity * item.Opacity}";
@@ -586,5 +606,147 @@ public static class CatalogDialogTests
                 if (before.At(x, y) != after.At(x, y)) changed++;
         window.Close();
         Require(changed > 20, "No dashed preview pixels over the current section: " + changed);
+    }
+
+    private static void CheckImportDatButtonVisibility()
+    {
+        string root = TestTemp.Combine("dlg-import-vis-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        try
+        {
+            File.WriteAllText(Path.Combine(root, "bad.foil"), "damaged");
+            using var controller = new WorkbenchController(sections: new SectionLibrary(root));
+            Wait(controller.OpenExampleAsync());
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Palette));
+            var dialog = new CatalogDialog(controller, controller.OpenCatalog());
+            dialog.Show();
+            Dispatcher.UIThread.RunJobs();
+            try
+            {
+                var list = Need<ListBox>(dialog, "SectionList");
+                var importBtn = Need<Button>(dialog, "ImportDatButton");
+
+                list.SelectedItem = CatalogRow(list, "NACA 0012");
+                Dispatcher.UIThread.RunJobs();
+                Require(!importBtn.IsVisible, "ImportDatButton visible on active NACA GEN row");
+
+                list.SelectedItem = CatalogRow(list, "CFDW Race 085");
+                Dispatcher.UIThread.RunJobs();
+                Require(!importBtn.IsVisible, "ImportDatButton visible on active CFDW Hydrofoil GEN row");
+
+                list.SelectedItem = CatalogRow(list, "Eppler E817");
+                Dispatcher.UIThread.RunJobs();
+                Require(importBtn.IsVisible, "ImportDatButton hidden on disabled VEND row");
+
+                list.SelectedItem = CatalogRow(list, "Speer H105");
+                Dispatcher.UIThread.RunJobs();
+                Require(importBtn.IsVisible, "ImportDatButton hidden on disabled LINK row");
+
+                list.SelectedItem = list.Items.OfType<ListBoxItem>().Single(item => item.Tag is CatalogChoice.Damaged);
+                Dispatcher.UIThread.RunJobs();
+                Require(!importBtn.IsVisible, "ImportDatButton visible on damaged My sections row");
+            }
+            finally { dialog.Close(); }
+        }
+        finally { Directory.Delete(root, recursive: true); }
+    }
+
+    private static void CheckImportDatFlow()
+    {
+        string root = TestTemp.Combine("dlg-import-flow-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        string datFile = Path.Combine(root, "user-e817.dat");
+        File.WriteAllBytes(datFile, CatalogGenerator.Naca4("2412"));
+        try
+        {
+            var library = new SectionLibrary(Path.Combine(root, "sections"));
+            using var controller = new WorkbenchController(sections: library);
+            Wait(controller.OpenExampleAsync());
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Palette));
+            var dialog = new CatalogDialog(controller, controller.OpenCatalog(), pickDatFile: () => Task.FromResult<string?>(datFile));
+            dialog.Show();
+            Dispatcher.UIThread.RunJobs();
+            try
+            {
+                var list = Need<ListBox>(dialog, "SectionList");
+                var importBtn = Need<Button>(dialog, "ImportDatButton");
+                var replaceBtn = Need<Button>(dialog, "ReplaceButton");
+                var detail = Need<TextBlock>(dialog, "DetailLine");
+
+                list.SelectedItem = CatalogRow(list, "Eppler E817");
+                Dispatcher.UIThread.RunJobs();
+                Require(importBtn.IsVisible, "ImportDatButton not visible on Eppler E817");
+                // Verify footer buttons fit horizontally inside dialog client width (no right/left clipping).
+                Require(importBtn.Bounds.Width > 0 && replaceBtn.Bounds.Width > 0, "Footer buttons did not lay out");
+                var importPos = importBtn.TranslatePoint(new Point(0, 0), dialog);
+                var replacePos = replaceBtn.TranslatePoint(new Point(replaceBtn.Bounds.Width, 0), dialog);
+                Require(importPos is { X: >= 0 } && replacePos is { X: var right } && right <= dialog.ClientSize.Width + 1.0,
+                    $"Footer buttons clipped horizontally: left={importPos?.X:F1}, right={replacePos?.X:F1}, width={dialog.ClientSize.Width:F1}");
+
+                importBtn.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+                WaitFor(() => list.SelectedItem is ListBoxItem { Tag: CatalogChoice.Mine } && controller.CurrentPreview is not null);
+                var selected = (CatalogChoice.Mine)((ListBoxItem)list.SelectedItem!).Tag!;
+                Require(selected.Entry.Name == "Eppler E817", "Imported name mismatch: " + selected.Entry.Name);
+                Require(selected.Entry.Provenance.Rights == RightsClass.YourFile, "Imported provenance is not YourFile");
+                Require(replaceBtn.IsEnabled, "Replace button not enabled after importing .dat to My sections");
+                Require(detail.Text?.Contains(Labels.CatalogImportSuccess("Eppler E817"), StringComparison.Ordinal) == true,
+                    "Import success copy missing from detail line: " + detail.Text);
+                Require(!importBtn.IsVisible, "ImportDatButton stayed visible after selecting imported My sections row");
+
+                // Second import from the same disabled catalog row deduplicates the name to "Eppler E817 (2)".
+                list.SelectedItem = CatalogRow(list, "Eppler E817");
+                Dispatcher.UIThread.RunJobs();
+                importBtn.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+                WaitFor(() => list.SelectedItem is ListBoxItem { Tag: CatalogChoice.Mine { Entry.Name: "Eppler E817 (2)" } }
+                    && controller.CurrentPreview is not null);
+                Require(library.Scan().Entries.Count == 2, "Expected 2 entries after deduplicated second import");
+            }
+            finally { dialog.Close(); }
+        }
+        finally { Directory.Delete(root, recursive: true); }
+    }
+
+    private static void CheckImportDatCancelAndError()
+    {
+        string root = TestTemp.Combine("dlg-import-err-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        string invalidDat = Path.Combine(root, "garbage.dat");
+        File.WriteAllText(invalidDat, "this is not an airfoil dat file\nhello world\n");
+        try
+        {
+            var library = new SectionLibrary(Path.Combine(root, "sections"));
+            using var controller = new WorkbenchController(sections: library);
+            Wait(controller.OpenExampleAsync());
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Palette));
+
+            string? nextPath = null;
+            var dialog = new CatalogDialog(controller, controller.OpenCatalog(), pickDatFile: () => Task.FromResult(nextPath));
+            dialog.Show();
+            Dispatcher.UIThread.RunJobs();
+            try
+            {
+                var list = Need<ListBox>(dialog, "SectionList");
+                var importBtn = Need<Button>(dialog, "ImportDatButton");
+                var detail = Need<TextBlock>(dialog, "DetailLine");
+
+                list.SelectedItem = CatalogRow(list, "Eppler E817");
+                Dispatcher.UIThread.RunJobs();
+                importBtn.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+                WaitFor(() => detail.Text == Labels.CatalogImportCancelled);
+                Require(library.Scan().Entries.Count == 0, "Cancelled import wrote to library");
+
+                nextPath = Path.Combine(root, "does-not-exist.dat");
+                importBtn.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+                WaitFor(() => detail.Text == Labels.CatalogImportReadError);
+                Require(library.Scan().Entries.Count == 0, "Unreadable import wrote to library");
+
+                nextPath = invalidDat;
+                importBtn.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+                WaitFor(() => detail.Text == Labels.CatalogImportInvalidDat);
+                Require(library.Scan().Entries.Count == 0, "Invalid .dat import wrote to library");
+            }
+            finally { dialog.Close(); }
+        }
+        finally { Directory.Delete(root, recursive: true); }
     }
 }

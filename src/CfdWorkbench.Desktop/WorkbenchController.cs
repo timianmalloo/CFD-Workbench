@@ -2629,6 +2629,102 @@ public sealed class WorkbenchController : IDisposable
         }, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default).Unwrap();
     }
 
+    private const int MaxDatImportBytes = 1024 * 1024; // 1 MiB safety cap on user .dat imports
+
+    /// <summary>
+    /// Imports a user-supplied .dat coordinate file directly into the local My sections library (dat:sha256 provenance),
+    /// fitting it through the standard 10 µm SectionReplace pipeline and deduplicating the display name if needed.
+    /// </summary>
+    public async Task<LibraryEntry> ImportDatToMySectionsAsync(string path, string? suggestedName = null,
+        CancellationToken cancellation = default)
+    {
+        if (RefuseAnalysisEdit()) throw new ContractError("ANA-EDIT-INERT", AnalysisPointRefusal);
+        if (sections is null)
+            throw new ContractError("LIB-IO", "Couldn't save to My sections: no library root. Nothing was saved.");
+        cancellation.ThrowIfCancellationRequested();
+        byte[] datBytes;
+        try
+        {
+            await using var stream = UserFile.OpenRead(path, FileOptions.Asynchronous | FileOptions.SequentialScan);
+            if (stream.CanSeek && stream.Length > MaxDatImportBytes)
+                throw new ContractError("DSL-IMPORT", Labels.CatalogImportInvalidDat);
+            using var memory = new MemoryStream();
+            byte[] chunk = new byte[16384];
+            int total = 0;
+            while (true)
+            {
+                int read = await stream.ReadAsync(chunk, cancellation);
+                if (read == 0) break;
+                total += read;
+                if (total > MaxDatImportBytes)
+                    throw new ContractError("DSL-IMPORT", Labels.CatalogImportInvalidDat);
+                memory.Write(chunk, 0, read);
+            }
+            datBytes = memory.ToArray();
+        }
+        catch (ContractError) { throw; }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+        {
+            throw new ContractError("LIB-IO", Labels.CatalogImportReadError);
+        }
+        var library = sections;
+        string rawName = !string.IsNullOrWhiteSpace(suggestedName)
+            ? suggestedName.Trim()
+            : Path.GetFileNameWithoutExtension(path).Trim();
+        if (rawName.Length == 0) rawName = "Imported section";
+        LibraryEntry entry = await Task.Run(() =>
+        {
+            cancellation.ThrowIfCancellationRequested();
+            var clock = Stopwatch.StartNew();
+            try
+            {
+                var provenance = new Provenance("dat:sha256:" + Identity.Sha256(datBytes), false);
+                byte[] seed = FoilSource.MaterializeIds(FoilSource.Parse(FoilSource.NewDefault()));
+                var preview = SectionReplace.Preview(seed, 0, SectionScope.Shared,
+                    new ReplaceSource.Coordinates(rawName, provenance, datBytes), ReplaceScope.Draft);
+                if (preview.RefusalCode is string refusalCode)
+                    throw new ContractError(refusalCode, preview.RefusalReason ?? refusalCode);
+                string profileName = FoilSource.Parse(preview.Bytes!).Authored().Assignments[0].ProfileName;
+                byte[] block = ProfileBlock(preview.Bytes!, profileName);
+                var existing = library.Scan().Entries
+                    .Select(item => item.Name.Normalize(NormalizationForm.FormC))
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                string chosen = rawName.Normalize(NormalizationForm.FormC);
+                if (existing.Contains(chosen))
+                {
+                    int suffix = 2;
+                    while (existing.Contains($"{chosen} ({suffix})")) suffix++;
+                    chosen = $"{chosen} ({suffix})";
+                }
+                LibraryEntry saved = library.Save(chosen, block, provenance);
+                clock.Stop();
+                session.RecordCatalog(new CatalogTelemetry("library.save", "saved", clock.Elapsed.TotalMilliseconds,
+                    null, null, null, null, null, null, null));
+                return saved;
+            }
+            catch (ContractError error)
+            {
+                clock.Stop();
+                session.RecordCatalog(new CatalogTelemetry("library.save", error.Code, clock.Elapsed.TotalMilliseconds,
+                    null, null, null, null, null, null, null));
+                throw;
+            }
+        }, cancellation);
+        var done = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        OnUiThread(() =>
+        {
+            try
+            {
+                Status = "Saved " + entry.Name + " to My sections.";
+                Notify();
+                done.TrySetResult();
+            }
+            catch (Exception error) { done.TrySetException(error); }
+        });
+        await done.Task;
+        return entry;
+    }
+
     private void StartPreview(int ticket, CatalogChoice choice, ReplaceScope scope)
     {
         previewRunningTicket = ticket;

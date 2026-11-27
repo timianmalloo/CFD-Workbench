@@ -28,6 +28,7 @@
       </Border>
       <CheckBox x:Name="UseSourceThickness" IsVisible="False" Content="Use source's t/c at these stations" />
       <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+        <Button x:Name="ImportDatButton" IsVisible="False" Content="Import .dat to My sections…" />
         <Button x:Name="ChainButton" IsVisible="False" Content="Replace at every station" />
         <Button x:Name="CancelButton" Content="Cancel" />
         <Button x:Name="ReplaceButton" Content="Replace" Classes="primary" />

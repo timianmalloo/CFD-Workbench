@@ -8,7 +8,6 @@ namespace CfdWorkbench.Core.Tests;
 
 internal static class CatalogTests
 {
-    private const string NotGenerated = "Not generated in this build. GEN sections above can be used.";
     private const string Pending = "Pending admission — terms requested from UIUC · GEN sections remain";
     private const string CiteOnly = "Cite only (LINK) — its coordinates may not be copied, so it cannot be edited here";
 
@@ -18,18 +17,30 @@ internal static class CatalogTests
         Check("Catalog_HashMismatch_CatUnavailable", HashMismatch);
         Check("Catalog_Refusal_NamesItsCheck", RefusalNamesItsCheck);
         Check("Catalog_VendAndLink_NoCoordinates", VendAndLink);
+        Check("Catalog_VendAndLink_AdmissionGuards", VendAndLinkAdmissionGuards);
+        Check("Catalog_InvalidEnumAndGenerator_Refused", InvalidEnumAndGeneratorRefused);
         Check("Catalog_Fairings_NeverListed", FairingsNeverListed);
         Check("CatalogGenerator_Naca0012_MatchesClosedFormAt81Stations", Naca0012ClosedForm);
         Check("CatalogGenerator_ClosedTe4412_ChordFrameLeAtMinimumX", ClosedTe4412Frame);
+        Check("CatalogGenerators_PhysicalGeometry_GoldenChecks", PhysicalGeometryGoldenChecks);
         Check("Catalog_GenNeverThroughDatParse", GenNeverThroughDatParse);
         Check("CatalogGenerator_Spacing_CosPiBitGoldenAndAccuracy", SpacingGoldenAndAccuracy);
+        Check("CatalogGenerator_PureMath_MatchesIeeeReference", PureMathAccuracy);
+        Check("DatImport_OwnAdaptiveSqrtBasis_BoundedAndMonotonic", AdaptiveSqrtBasisBounded);
+        Check("Catalog_All77ActiveGen_FitWithin10Microns", AllActiveGenFitWithin10Microns);
     }
 
     private static void GenEntriesRegenerate()
     {
         IReadOnlyList<CatalogEntry> entries = Catalog.Load();
-        string[] choosable = ["naca-0009", "naca-0012", "naca-4412"];
-        foreach (string id in choosable)
+        // Existing NACA 4-digit golden hashes remain 100% byte-identical.
+        (string Id, string Hash)[] preserved =
+        [
+            ("naca-0009", "dd2dcade3892cde15f24d017dd0e1f8ed7e3e25b66de4d848fae3935cccb3b1c"),
+            ("naca-0012", "9ef9fe41168f3407928962d21d337317be2e2b40daaae4d645f847bfbb297c9b"),
+            ("naca-4412", "bf9e75bfd12cbe534107be3811d65fb447b34d7113929ce2d5ec509ff7cdf16d")
+        ];
+        foreach (var (id, expectedHash) in preserved)
         {
             CatalogEntry entry = entries.Single(item => item.Id == id);
             Equal(CatalogFamily.Naca, entry.Family);
@@ -37,17 +48,31 @@ internal static class CatalogTests
             Equal(null, entry.DisabledReason);
             byte[] generated = CatalogGenerator.Naca4(id["naca-".Length..]);
             Equal(true, generated.AsSpan().SequenceEqual(entry.Coordinates));
-            Equal(Identity.Sha256(generated), entry.CoordinateHash);
+            Equal(expectedHash, entry.CoordinateHash);
             Equal(CatalogGenerator.Id, "naca4-closed/2");
         }
+        // Previously-disabled NACA 16/6/6A rows are now active GEN sections.
         foreach (string id in new[] { "naca-16-012", "naca-63-209", "naca-63-412", "naca-64a410", "naca-66-012", "naca-66-209", "naca-66-018" })
         {
             CatalogEntry entry = entries.Single(item => item.Id == id);
             Equal(CatalogFamily.Naca, entry.Family);
             Equal(AdmissionClass.Gen, entry.Class);
-            Equal(NotGenerated, entry.DisabledReason);
-            Equal(null, entry.Coordinates);
+            Equal(null, entry.DisabledReason);
+            Equal(true, entry.Coordinates is { Length: > 1000 });
         }
+        // All 9 project-owned CFDW Hydrofoil CST sections are active GEN entries.
+        var hydrofoils = entries.Where(item => item.Family == CatalogFamily.Hydrofoil).ToArray();
+        Equal(9, hydrofoils.Length);
+        foreach (CatalogEntry entry in hydrofoils)
+        {
+            Equal(AdmissionClass.Gen, entry.Class);
+            Equal(null, entry.DisabledReason);
+            var (generated, _, _, _) = CatalogGenerators.Generate(CatalogGenerators.CfdwCstId, entry.Id);
+            Equal(true, generated.AsSpan().SequenceEqual(entry.Coordinates));
+            Equal(Identity.Sha256(generated), entry.CoordinateHash);
+        }
+        // Total active GEN count = 77 (68 public-domain NACA/DTMB + 9 CFDW Hydrofoil CST).
+        Equal(77, entries.Count(item => item.Class == AdmissionClass.Gen && item.DisabledReason is null && item.Coordinates is not null));
     }
 
     private static void HashMismatch()
@@ -109,10 +134,170 @@ internal static class CatalogTests
         Equal(null, speer.Coordinates);
     }
 
+    private static void VendAndLinkAdmissionGuards()
+    {
+        byte[] validDat = CatalogGenerator.Naca4("0012");
+        string validHash = Identity.Sha256(validDat);
+        string vendOk = $"vend-sample\tEppler\tVend Sample\tVend\t\t\t{validHash}\t0\t0\t1\n";
+        var loaded = Catalog.Read(vendOk, id => id == "vend-sample" ? validDat : null);
+        Equal(1, loaded.Count);
+        Equal(AdmissionClass.Vend, loaded[0].Class);
+        Equal(true, loaded[0].Coordinates!.AsSpan().SequenceEqual(validDat));
+
+        // Tampered VEND hash refused
+        string vendBadHash = $"vend-sample\tEppler\tVend Sample\tVend\t\t\t{new string('0', 64)}\t0\t0\t1\n";
+        Equal("coordinate-hash", (string)Planted(vendBadHash, _ => validDat).Data["check"]!);
+
+        // Unparseable VEND coordinates refused
+        byte[] garbage = Encoding.UTF8.GetBytes("not a valid dat");
+        string vendGarbage = $"vend-sample\tEppler\tVend Sample\tVend\t\t\t{Identity.Sha256(garbage)}\t0\t0\t1\n";
+        Equal("vend-parse", (string)Planted(vendGarbage, _ => garbage).Data["check"]!);
+
+        // Disabled VEND carrying bundled bytes refused
+        string vendDisabled = $"e817\tEppler\tEppler E817\tVend\t{Pending}\t\t\t0\t0\t1\n";
+        Equal("disabled-has-coordinates", (string)Planted(vendDisabled, _ => validDat).Data["check"]!);
+
+        // Active LINK refused; LINK carrying bytes refused
+        string linkActive = $"speer-h105\tSpeer\tSpeer H105\tLink\t\t\t{validHash}\t0\t0\t1\n";
+        Equal("link-active", (string)Planted(linkActive, _ => validDat).Data["check"]!);
+        string linkWithBytes = $"speer-h105\tSpeer\tSpeer H105\tLink\t{CiteOnly}\t\t\t0\t0\t1\n";
+        Equal("link-has-coordinates", (string)Planted(linkWithBytes, _ => validDat).Data["check"]!);
+    }
+
+    private static void PureMathAccuracy()
+    {
+        double maxLn = 0, maxExpRel = 0, maxSin = 0, maxCos = 0;
+        for (int i = 1; i <= 1000; i++)
+        {
+            double x = i / 1000.0;
+            maxLn = Math.Max(maxLn, Math.Abs(PureMath.Ln(x) - Math.Log(x)));
+            double ex = (i - 500) / 100.0;
+            maxExpRel = Math.Max(maxExpRel, Math.Abs(PureMath.Exp(ex) - Math.Exp(ex)) / Math.Exp(ex));
+            double th = (i - 500) * 0.01;
+            var (s, c) = PureMath.SinCos(th);
+            maxSin = Math.Max(maxSin, Math.Abs(s - Math.Sin(th)));
+            maxCos = Math.Max(maxCos, Math.Abs(c - Math.Cos(th)));
+        }
+        Equal(true, maxLn < 5e-15);
+        Equal(true, maxExpRel < 5e-15);
+        Equal(true, maxSin < 5e-15);
+        Equal(true, maxCos < 5e-15);
+        Equal(true, double.IsPositiveInfinity(PureMath.Exp(800.0)));
+        Equal(0.0, PureMath.Exp(-800.0));
+        Equal(true, double.IsNaN(PureMath.Exp(double.NaN)));
+    }
+
+    private static void InvalidEnumAndGeneratorRefused()
+    {
+        byte[] validDat = CatalogGenerator.Naca4("0012");
+        string validHash = Identity.Sha256(validDat);
+        string badFamily = $"naca-0012\t99\tNACA 0012\tGen\t\tnaca4-closed/2\t{validHash}\t0\t0\t1\n";
+        Equal("family", (string)Planted(badFamily, _ => validDat).Data["check"]!);
+
+        string badAdmission = $"naca-0012\tNaca\tNACA 0012\t99\t\tnaca4-closed/2\t{validHash}\t0\t0\t1\n";
+        Equal("admission-class", (string)Planted(badAdmission, _ => validDat).Data["check"]!);
+
+        string badGen = $"naca-0012\tNaca\tNACA 0012\tGen\t\tunknown-gen/9\t{validHash}\t0\t0\t1\n";
+        Equal("generator-id", (string)Planted(badGen, _ => validDat).Data["check"]!);
+    }
+
+    private static void PhysicalGeometryGoldenChecks()
+    {
+        IReadOnlyList<CatalogEntry> entries = Catalog.Load();
+        static double Interp((double X, double Y)[] pts, double x)
+        {
+            for (int i = 0; i < pts.Length - 1; i++)
+                if (x >= pts[i].X && x <= pts[i + 1].X)
+                {
+                    double t = (x - pts[i].X) / Math.Max(1e-15, pts[i + 1].X - pts[i].X);
+                    return pts[i].Y + t * (pts[i + 1].Y - pts[i].Y);
+                }
+            return pts[^1].Y;
+        }
+        static (double MaxT, double XMaxT, double MaxC, double SymErr) Measure(CatalogEntry entry)
+        {
+            var u = Stations(entry.Coordinates!, upper: true);
+            var l = Stations(entry.Coordinates!, upper: false);
+            double maxT = 0, xMaxT = 0, maxC = 0, symErr = 0;
+            for (int i = 1; i <= 199; i++)
+            {
+                double x = i / 200.0;
+                double yu = Interp(u, x), yl = Interp(l, x);
+                double t = yu - yl, c = 0.5 * (yu + yl);
+                if (t > maxT) { maxT = t; xMaxT = x; }
+                if (Math.Abs(c) > Math.Abs(maxC)) maxC = c;
+                symErr = Math.Max(symErr, Math.Abs(yu + yl));
+            }
+            return (maxT, xMaxT, maxC, symErr);
+        }
+
+        // NACA 16-012: symmetrical, 12% max thickness at x = 0.50
+        var n16 = Measure(entries.Single(e => e.Id == "naca-16-012"));
+        Equal(true, n16.SymErr < 1e-10);
+        Equal(true, Math.Abs(n16.MaxT - 0.12) < 0.002 && Math.Abs(n16.XMaxT - 0.50) < 0.03);
+
+        // NACA 23012: 12% thickness near x = 0.30, chord-frame max camber ~1.47% (unrotated 1.84% shifted by LE-TE frame)
+        var n5 = Measure(entries.Single(e => e.Id == "naca-23012"));
+        Equal(true, Math.Abs(n5.MaxT - 0.12) < 0.002 && Math.Abs(n5.XMaxT - 0.30) < 0.03);
+        Equal(true, Math.Abs(n5.MaxC - 0.01465) < 0.001);
+
+        // NACA 64A410: matches NASA TM 4741 published half-thickness & a=0.8(mod) camber envelope (~10% thick at x=0.39, ~2.58% camber)
+        var n6a = Measure(entries.Single(e => e.Id == "naca-64a410"));
+        Equal(true, Math.Abs(n6a.MaxT - 0.10) < 0.002 && Math.Abs(n6a.XMaxT - 0.39) < 0.03);
+        Equal(true, Math.Abs(n6a.MaxC - 0.02582) < 0.001);
+
+        // NACA 66(MOD)-412 (DTMB 1780): ~12% thickness near x = 0.46, positive a=0.8 camber ~2.62%
+        var n66m = Measure(entries.Single(e => e.Id == "naca-66mod-412"));
+        Equal(true, Math.Abs(n66m.MaxT - 0.12) < 0.003 && Math.Abs(n66m.XMaxT - 0.46) < 0.04);
+        Equal(true, Math.Abs(n66m.MaxC - 0.02621) < 0.001);
+
+        // CFDW Surf 118 (~11.8% cambered) & CFDW Mast 125 (symmetric 12.5%)
+        var surf = Measure(entries.Single(e => e.Id == "cfdw-surf-118"));
+        Equal(true, Math.Abs(surf.MaxT - 0.118) < 0.004 && surf.MaxC > 0.025);
+        var mast = Measure(entries.Single(e => e.Id == "cfdw-mast-125"));
+        Equal(true, mast.SymErr < 1e-10 && Math.Abs(mast.MaxT - 0.125) < 0.004);
+    }
+
+    private static void AdaptiveSqrtBasisBounded()
+    {
+        // Dense baseline clustered around u = 0.5 would have oscillated in an unbounded search.
+        CatalogEntry entry = Catalog.Load().Single(e => e.Id == "naca-64a410");
+        DatProfile profile = DatImport.Parse(entry.Coordinates!);
+        double[] denseMid = [0.496, 0.499, 0.501, 0.504];
+        var result = DatImport.OwnAdaptiveSqrtBasis(profile, 16, denseMid);
+        Equal(true, result is not null);
+        var (knots, controlX) = result!.Value;
+        Equal(22, knots.Length);
+        Equal(16, controlX.Length);
+        for (int i = 1; i < knots.Length; i++)
+            Equal(true, knots[i] >= knots[i - 1]);
+        Equal(0.0, controlX[0]);
+        Equal(1.0, controlX[^1]);
+    }
+
+    private static void AllActiveGenFitWithin10Microns()
+    {
+        byte[] foil = FoilSource.MaterializeIds(FoilSource.Parse(File.ReadAllBytes(
+            Path.Combine(PlacementTests.RepoRoot(), "docs", "examples", "foildsl", "foil-basic.foil"))));
+        var active = Catalog.Load().Where(item => item.Class == AdmissionClass.Gen && item.DisabledReason is null).ToArray();
+        Equal(77, active.Length);
+        foreach (var entry in active)
+        {
+            var preview = SectionReplace.Preview(foil, 0, SectionScope.Shared,
+                new ReplaceSource.Coordinates(entry.Designation, new Provenance("gen:" + entry.Id, false), entry.Coordinates!),
+                ReplaceScope.Draft);
+            if (preview.RefusalCode is not null)
+                throw new InvalidOperationException($"Catalog entry {entry.Id} refused SectionReplace: {preview.RefusalCode} ({preview.RefusalReason})");
+            double residualMeters = preview.FitResidual * preview.AcceptanceChord;
+            if (residualMeters > 10e-6)
+                throw new InvalidOperationException($"Catalog entry {entry.Id} residual {residualMeters * 1e6:F2} um > 10 um");
+        }
+    }
+
     private static void FairingsNeverListed()
     {
         IReadOnlyList<CatalogEntry> entries = Catalog.Load();
-        Equal(19, entries.Count);
+        Equal(86, entries.Count);
         foreach (CatalogEntry entry in entries)
         {
             string text = entry.Id + " " + entry.Designation;

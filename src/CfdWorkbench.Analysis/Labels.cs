@@ -233,7 +233,9 @@ public static class Labels
     public static string TrainingAlpha(double alpha) => $"Unavailable — α {Number(alpha, "0.00")}° is outside the surrogate’s training range (−27.9° to 28.6°)"; // COPY-320
     public static string TrainingRe(double re) => $"Unavailable — Re {Sci(re)} is outside the surrogate’s training range (1 × 10² to 1 × 10¹⁰)"; // COPY-348
     public static string TrainingNcrit(double ncrit) => $"Unavailable — Ncrit {Number(ncrit, "0.##")} is outside the surrogate’s training range (0 to 18)"; // COPY-349
-    public static string CstOverLimit(double residual) => $"Unavailable — section fit residual {Sci(residual)} c exceeds the limit 3.6 × 10⁻⁴ c"; // COPY-321
+    // COPY-921 (proposed, supersedes COPY-321's 3.6 × 10⁻⁴ c limit to match NeuralFoilPolarSource.MaxCstResidual = 0.00065)
+    private const string CstLimitDisplay = "6.5 × 10⁻⁴";
+    public static string CstOverLimit(double residual) => $"Unavailable — section fit residual {Sci(residual)} c exceeds the limit {CstLimitDisplay} c"; // COPY-921
 
     /// <summary>The five Find α no-root reasons (COPY-373..377), keyed by the termination or source code that names them.</summary>
     public static string FindReason(string code, double? hOverC = null, int? iterations = null) => code switch
@@ -301,7 +303,7 @@ public static class Labels
         ["ANA-POLAR-NONFINITE"] = ProgramFault, ["ANA-POLAR-INPUT"] = ProgramFault, ["ANA-POLAR-CST-INPUT"] = ProgramFault, // COPY-352
         ["ANA-POLAR-CST-FIT"] = ProgramFault, ["ANA-POLAR-WEIGHTS-MISSING"] = ProgramFault, ["ANA-POLAR-WEIGHTS-HASH"] = ProgramFault,
         ["ANA-POLAR-WEIGHTS-FORMAT"] = ProgramFault,
-        ["ANA-POLAR-NONCOMPUTABLE"] = "Unavailable — section fit residual exceeds the limit 3.6 × 10⁻⁴ c", // COPY-321 without its fixture value
+        ["ANA-POLAR-NONCOMPUTABLE"] = $"Unavailable — section fit residual exceeds the limit {CstLimitDisplay} c", // COPY-921 without its fixture value
         ["ANA-POLAR-ALPHA-OUTSIDE"] = "Unavailable — α is outside the surrogate’s training range (−27.9° to 28.6°)", // COPY-320 without its fixture value
         ["ANA-POLAR-RE-OUTSIDE"] = "Unavailable — Re is outside the surrogate’s training range (1 × 10² to 1 × 10¹⁰)", // COPY-348 without its fixture value
         ["ANA-POLAR-NCRIT-OUTSIDE"] = "Unavailable — Ncrit is outside the surrogate’s training range (0 to 18)", // COPY-349 without its fixture value
@@ -652,4 +654,14 @@ public static class Labels
         $"Daily UTC request cap reached ({used} of {cap}). Raise the cap in Settings or wait for the next UTC day.";
     public static string AssistantTransportFailed(string errorKind, string detail) =>
         $"Assistant request failed ({errorKind}): {detail}. Manual workflow is unaffected.";
+
+    // ---- CAT-EXP: Expanded section catalog & 1-click user .dat import (COPY-916..923, proposed, LAB-01 clean) ----
+    public const string CatalogFamilyHydrofoil = "CFDW Hydrofoil"; // COPY-916
+    public const string CatalogImportDatButton = "Import .dat to My sections…"; // COPY-917
+    public static string CatalogImportSuccess(string name) =>
+        $"Imported “{name}” to My sections. Select Replace to apply it."; // COPY-918
+    public const string CatalogImportReadError = "The .dat file couldn't be read. Nothing was saved."; // COPY-919
+    public const string CatalogImportCancelled = "Import cancelled. Nothing was saved."; // COPY-920
+    public const string CatalogImportInvalidDat = "The file isn't a supported Selig or Lednicer .dat section (max 1 MiB). Nothing was saved."; // COPY-922
+    public const string CatalogImportSaveError = "Couldn't save the imported section to My sections. Nothing was saved."; // COPY-923
 }

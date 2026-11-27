@@ -292,7 +292,7 @@ public static class DatImport
         int count = controlX.Length;
         if (degree < 1 || count < 2 || knots.Length != count + degree + 1) return null;
         if (profile.Upper.Count == 0 || profile.Lower.Count == 0) return null;
-        bool sqrtParameter = degree == 5 && MatchesOwnSqrtBasis(knots, controlX);
+        bool sqrtParameter = degree == 5 && IsBlossomedSqrtBasis(knots, controlX);
         var smoothing = new double[count, count];
         var upperConstraints = Constraints(count, closed, controlX, upperRows ?? [], upperIds);
         var lowerConstraints = Constraints(count, closed, controlX, lowerRows ?? [], lowerIds);
@@ -552,7 +552,11 @@ public static class DatImport
         int interior = count - 6;
         for (int i = 1; i <= interior; i++) knots[5 + i] = (double)i / (interior + 1);
         for (int i = knots.Length - 6; i < knots.Length; i++) knots[i] = 1;
+        return (knots, BlossomedSqrtX(knots, count));
+    }
 
+    internal static double[] BlossomedSqrtX(double[] knots, int count)
+    {
         var controlX = new double[count];
         for (int i = 0; i < count; i++)
         {
@@ -565,22 +569,96 @@ public static class DatImport
         controlX[0] = 0;
         controlX[1] = 0;
         controlX[count - 1] = 1.0;
-        return (knots, controlX);
+        return controlX;
     }
 
-    private static bool MatchesOwnSqrtBasis(double[] knots, double[] controlX)
+    /// <summary>
+    /// Deterministic greedy knot-insertion degree-5 basis in u = sqrt(x) with exact blossomed x(u) = u^2.
+    /// Used as a 16-point fallback when uniform sqrt knots cannot resolve sharp aft curvature (NACA 16/6/6A/66).
+    /// Returns null if any intermediate least-squares fit is singular or no separated knot slot remains.
+    /// </summary>
+    internal static (double[] Knots, double[] ControlX)? OwnAdaptiveSqrtBasis(DatProfile profile, int count, double[] baselineInterior)
+    {
+        int targetInterior = count - 6;
+        var interior = new List<double>(baselineInterior);
+        interior.Sort();
+        while (interior.Count < targetInterior)
+        {
+            int n = 6 + interior.Count;
+            var knots = new double[n + 6];
+            for (int i = 0; i < interior.Count; i++) knots[6 + i] = interior[i];
+            for (int i = n; i < n + 6; i++) knots[i] = 1.0;
+            double[] x = BlossomedSqrtX(knots, n);
+            bool closed = IsClosed(profile);
+            var fit = FitToBasis(profile, knots, x, 5, closed);
+            if (fit is null) return null;
+            double worstU = 0.5, worstErr = -1.0;
+            void Scan(IReadOnlyList<ProfilePoint> side, double[] py)
+            {
+                for (int k = 1; k < side.Count - 1; k++)
+                {
+                    double u = Math.Sqrt(Math.Max(0.0, side[k].X));
+                    double[] basis = SplineBasis.Values(knots, 5, u);
+                    double yf = 0.0;
+                    for (int j = 0; j < n; j++) yf += py[j] * basis[j];
+                    double dx = side[k + 1].X - side[k - 1].X;
+                    double dy = side[k + 1].Y - side[k - 1].Y;
+                    double len = Math.Sqrt(dx * dx + dy * dy);
+                    double cosTheta = len > 1e-12 ? Math.Abs(dx) / len : 1.0;
+                    double err = Math.Abs(yf - side[k].Y) * cosTheta;
+                    if (err > worstErr) { worstErr = err; worstU = u; }
+                }
+            }
+            Scan(profile.Upper, fit.Upper);
+            Scan(profile.Lower, fit.Lower);
+            double? chosenU = SelectSeparatedKnot(interior, Math.Clamp(worstU, 0.02, 0.99));
+            if (chosenU is null) return null;
+            interior.Add(chosenU.Value);
+            interior.Sort();
+        }
+        var finalKnots = new double[count + 6];
+        for (int i = 0; i < interior.Count; i++) finalKnots[6 + i] = interior[i];
+        for (int i = count; i < count + 6; i++) finalKnots[i] = 1.0;
+        return (finalKnots, BlossomedSqrtX(finalKnots, count));
+    }
+
+    private static double? SelectSeparatedKnot(List<double> interior, double target)
+    {
+        const double minGap = 0.004;
+        const double stepSize = 0.005;
+        const double low = 0.015;
+        const double high = 0.992;
+        bool Clear(double candidate) =>
+            candidate >= low && candidate <= high && interior.All(k => Math.Abs(k - candidate) >= minGap);
+
+        if (Clear(target)) return target;
+        for (int step = 1; step <= 200; step++)
+        {
+            double delta = step * stepSize;
+            double first = target < 0.5 ? target + delta : target - delta;
+            if (Clear(first)) return first;
+            double second = target < 0.5 ? target - delta : target + delta;
+            if (Clear(second)) return second;
+        }
+        // Fallback: midpoint of the widest interval in [0, 1] across existing interior knots.
+        double prev = 0.0, bestMid = 0.0, bestGap = 0.0;
+        for (int i = 0; i <= interior.Count; i++)
+        {
+            double next = i < interior.Count ? interior[i] : 1.0;
+            double gap = next - prev;
+            if (gap > bestGap) { bestGap = gap; bestMid = 0.5 * (prev + next); }
+            prev = next;
+        }
+        return bestGap > 1e-6 ? Math.Clamp(bestMid, low, high) : null;
+    }
+
+    private static bool IsBlossomedSqrtBasis(double[] knots, double[] controlX)
     {
         int count = controlX.Length;
-        if (count is < 8 or > 16 || knots.Length != count + 6) return false;
-        var (ownKnots, ownX) = OwnSqrtBasis(count);
-        return SameNumbers(ownKnots, knots) && SameNumbers(ownX, controlX);
-    }
-
-    private static bool SameNumbers(double[] left, double[] right)
-    {
-        if (left.Length != right.Length) return false;
-        for (int index = 0; index < left.Length; index++)
-            if (DecimalSi.Parse(FormatNumber(left[index])) != right[index]) return false;
+        if (count is < 6 or > 16 || knots.Length != count + 6) return false;
+        double[] expected = BlossomedSqrtX(knots, count);
+        for (int i = 0; i < count; i++)
+            if (Math.Abs(expected[i] - controlX[i]) > 1e-8) return false;
         return true;
     }
 

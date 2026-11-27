@@ -2243,15 +2243,20 @@ public sealed class ShellHost : Grid
         }
     }
 
+    private async Task<string?> PickDatFileAsync(string title)
+    {
+        if (pickOpenFile is not null) return await pickOpenFile();
+        if (TopLevel.GetTopLevel(this) is { } top)
+        {
+            var files = await top.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions { Title = title, AllowMultiple = false });
+            if (files.Count > 0) { using var file = files[0]; return file.Path.LocalPath; }
+        }
+        return null;
+    }
+
     private async Task ImportDatAsync()
     {
-        string? path = null;
-        if (pickOpenFile is not null) path = await pickOpenFile();
-        else if (TopLevel.GetTopLevel(this) is { } top)
-        {
-            var files = await top.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions { Title = "Import .dat section", AllowMultiple = false });
-            if (files.Count > 0) { using var file = files[0]; path = file.Path.LocalPath; }
-        }
+        string? path = await PickDatFileAsync("Import .dat section");
         if (path is null)
         {
             Report(new StatusReport("Import cancelled. Nothing changed."));
@@ -2336,7 +2341,8 @@ public sealed class ShellHost : Grid
         }
         if (TopLevel.GetTopLevel(this) is Window owner)
         {
-            var dialog = new CatalogDialog(Controller, snapshot, ModelView.SectionModeEditor.SectionButton)
+            var dialog = new CatalogDialog(Controller, snapshot, ModelView.SectionModeEditor.SectionButton,
+                pickDatFile: () => PickDatFileAsync(CfdWorkbench.Analysis.Labels.CatalogImportDatButton))
             {
                 WindowStartupLocation = WindowStartupLocation.Manual,
                 RequestedThemeVariant = owner.ActualThemeVariant

@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CfdWorkbench.Analysis;
 using CfdWorkbench.Core;
@@ -16,33 +17,39 @@ namespace CfdWorkbench.Desktop;
 public partial class CatalogDialog : Window
 {
     private readonly WorkbenchController controller;
-    private readonly CatalogSnapshot snapshot;
+    private CatalogSnapshot snapshot;
     private readonly Control? returnFocus;
     private readonly Action<TimeSpan, Action> schedule;
+    private readonly Func<Task<string?>>? pickDatFile;
     private readonly List<ListBoxItem> options = [];
     private int countTicket;
     private bool replacing;
+    private bool importing;
+    private (string Hash, string Note)? pendingImportNote;
     // The row whose Enter arrived during its fit; the apply runs when that row's preview lands.
     private ListBoxItem? armedApply;
     private ListBoxItem? activeItem;
 
     public CatalogDialog(WorkbenchController controller, CatalogSnapshot snapshot, Control? returnFocus = null,
-        Action<TimeSpan, Action>? schedule = null)
+        Action<TimeSpan, Action>? schedule = null, Func<Task<string?>>? pickDatFile = null)
     {
         this.controller = controller;
         this.snapshot = snapshot;
         this.returnFocus = returnFocus;
+        this.pickDatFile = pickDatFile;
         this.schedule = schedule ?? ((delay, action) =>
         {
             _ = Task.Delay(delay).ContinueWith(_ => Dispatcher.UIThread.Post(action), TaskScheduler.Default);
         });
         InitializeComponent();
+        ImportDatButton.Content = Labels.CatalogImportDatButton;
         AutomationProperties.SetControlTypeOverride(SearchBox, AutomationControlType.ComboBox);
         AutomationProperties.SetControlTypeOverride(SectionList, AutomationControlType.List);
         SearchBox.TextChanged += (_, _) => Filter();
         SearchBox.KeyDown += OnSearchKeyDown;
         SectionList.KeyDown += OnListKeyDown;
         SectionList.SelectionChanged += (_, _) => SelectRow();
+        ImportDatButton.Click += async (_, _) => await ImportDatAsync();
         ReplaceButton.Click += async (_, _) => await ApplyAsync(ReplaceScope.Draft);
         ChainButton.Click += async (_, _) => await ApplyChainAsync();
         CancelButton.Click += (_, _) => Close();
@@ -78,8 +85,9 @@ public partial class CatalogDialog : Window
             throw new InvalidOperationException("CompactTargetSize token is missing");
         foreach (var (family, title) in new[]
         {
-            (CatalogFamily.Naca, "NACA"), (CatalogFamily.Eppler, "Eppler"),
-            (CatalogFamily.Speer, "Speer"), (CatalogFamily.MySections, "My sections")
+            (CatalogFamily.Naca, "NACA"), (CatalogFamily.Hydrofoil, Labels.CatalogFamilyHydrofoil),
+            (CatalogFamily.Eppler, "Eppler"), (CatalogFamily.Speer, "Speer"),
+            (CatalogFamily.MySections, "My sections")
         })
         {
             var rows = family == CatalogFamily.MySections
@@ -131,6 +139,7 @@ public partial class CatalogDialog : Window
                 : $"No sections match “{query}”. Try NACA, Eppler or a name.";
             ReplaceButton.IsEnabled = false;
             ChainButton.IsVisible = false;
+            ImportDatButton.IsVisible = false;
         }
         else SectionList.SelectedItem = options[0];
     }
@@ -188,6 +197,8 @@ public partial class CatalogDialog : Window
     {
         ClearActiveStatus();
         if (SectionList.SelectedItem is not ListBoxItem { Tag: CatalogChoice choice } item || !options.Contains(item)) return;
+        if (pendingImportNote is { } pending && (choice is not CatalogChoice.Mine mineChoice || mineChoice.Entry.Hash != pending.Hash))
+            pendingImportNote = null;
         if (!ReferenceEquals(armedApply, item)) DropArmedApply();
         controller.RecordCatalogSelect(choice);
         string? reason = choice switch
@@ -202,10 +213,12 @@ public partial class CatalogDialog : Window
             DetailLine.Text = reason;
             ReplaceButton.IsEnabled = false;
             ChainButton.IsVisible = false;
+            ImportDatButton.IsVisible = choice is CatalogChoice.Catalog { Entry.Class: AdmissionClass.Vend or AdmissionClass.Link };
             return;
         }
         ReplaceButton.IsEnabled = false;
         ChainButton.IsVisible = false;
+        ImportDatButton.IsVisible = false;
         DetailLine.Text = "Fitting…";
         controller.PreviewReplace(choice);
         AutomationProperties.SetItemStatus(item, "active");
@@ -217,7 +230,13 @@ public partial class CatalogDialog : Window
         if (SectionList.SelectedItem is not ListBoxItem { Tag: CatalogChoice choice } item) return;
         if (controller.CurrentPreview is { } preview && Equals(controller.PreviewChoice, choice))
         {
-            DetailLine.Text = Detail(preview, choice);
+            string detail = Detail(preview, choice);
+            if (pendingImportNote is { } note && choice is CatalogChoice.Mine mine && mine.Entry.Hash == note.Hash)
+            {
+                pendingImportNote = null;
+                detail = note.Note + " " + detail;
+            }
+            DetailLine.Text = detail;
             ReplaceButton.IsEnabled = true;
             ChainButton.IsVisible = false;
             UseSourceThickness.IsVisible = ShouldOfferThickness(preview);
@@ -229,6 +248,7 @@ public partial class CatalogDialog : Window
         }
         else if (controller.RefusedPreview is { } refused)
         {
+            pendingImportNote = null;
             DetailLine.Text = refused.RefusalReason;
             ReplaceButton.IsEnabled = false;
             ChainButton.IsVisible = refused.RefusalCode == "CAT-SPACING" && refused.BlendChain is { Count: > 0 };
@@ -237,6 +257,7 @@ public partial class CatalogDialog : Window
         }
         else if (controller.PreviewFault is { } error)
         {
+            pendingImportNote = null;
             DetailLine.Text = error.Reason is { Length: > 0 } reason ? reason : Labels.CatalogPreviewFault;
             ReplaceButton.IsEnabled = false;
             DropArmedApply();
@@ -293,6 +314,82 @@ public partial class CatalogDialog : Window
         1 => names[0],
         2 => names[0] + " and " + names[1],
         _ => string.Join(", ", names.Take(names.Count - 1)) + ", and " + names[^1]
+    };
+
+    private async Task ImportDatAsync()
+    {
+        if (importing || replacing) return;
+        string? suggestedName = SectionList.SelectedItem is ListBoxItem { Tag: CatalogChoice.Catalog selected }
+            ? selected.Entry.Designation
+            : null;
+        importing = true;
+        ImportDatButton.IsEnabled = false;
+        try
+        {
+            string? path = null;
+            if (pickDatFile is not null)
+            {
+                path = await pickDatFile();
+            }
+            else if (TopLevel.GetTopLevel(this) is { } top)
+            {
+                var files = await top.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+                {
+                    Title = Labels.CatalogImportDatButton,
+                    AllowMultiple = false
+                });
+                if (files.Count > 0)
+                {
+                    using var file = files[0];
+                    path = file.Path.LocalPath;
+                }
+            }
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                DetailLine.Text = Labels.CatalogImportCancelled;
+                return;
+            }
+            var entry = await controller.ImportDatToMySectionsAsync(path, suggestedName);
+            snapshot = controller.OpenCatalog();
+            string query = SearchBox.Text?.Trim() ?? "";
+            if (query.Length > 0 && !entry.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
+                SearchBox.Text = "";
+            else
+                Filter();
+            var importedItem = options.FirstOrDefault(item => item.Tag is CatalogChoice.Mine mine && mine.Entry.Hash == entry.Hash);
+            if (importedItem is not null)
+            {
+                pendingImportNote = (entry.Hash, Labels.CatalogImportSuccess(entry.Name));
+                SectionList.SelectedItem = importedItem;
+                SectionList.ScrollIntoView(importedItem);
+            }
+            else
+            {
+                pendingImportNote = null;
+                DetailLine.Text = Labels.CatalogImportSuccess(entry.Name);
+            }
+        }
+        catch (ContractError error)
+        {
+            pendingImportNote = null;
+            DetailLine.Text = ImportErrorCopy(error);
+        }
+        finally
+        {
+            importing = false;
+            ImportDatButton.IsEnabled = true;
+        }
+    }
+
+    private static string ImportErrorCopy(ContractError error) => error.Code switch
+    {
+        "DSL-IMPORT" => Labels.CatalogImportInvalidDat,
+        "DOC-UNSUPPORTED-PERSISTENCE" or "DOC-UNSUPPORTED-PLATFORM" =>
+            Labels.SectionSaveUnavailableFor(CfdWorkbench.Persistence.ProjectStore.PlatformAdmitted()),
+        "LIB-SECTION-INVALID" => "Fix the crossing before saving this section.",
+        "LIB-CLAIM-HELD" => "Another save is in progress. Try again in a moment.",
+        "LIB-IO" => error.Reason is { Length: > 0 } ioReason ? ioReason : Labels.CatalogImportSaveError,
+        _ => error.Reason is { Length: > 0 } reason ? reason : Labels.CatalogImportSaveError
     };
 
     private async Task ApplyChainAsync()
