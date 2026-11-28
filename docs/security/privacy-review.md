@@ -15,6 +15,8 @@ links:
   - {to: design-m12b2-3d-elevations, rel: documents}
   - {to: design-m12c-section-editor, rel: documents}
   - {to: design-planform-point-verbs, rel: documents}
+  - {to: design-rounded-wing-tips, rel: documents}
+  - {to: design-ai-guided-design-notebook, rel: documents}
 review-by: 2027-03-23
 summary: >-
   Captures identifying source comments, names, local paths and retained recovery/history for the offline slice.
@@ -53,6 +55,9 @@ retains that distinction.
 
 | source | Data flow / category | LINDDUN finding | Disposition | Control / rationale | Retention & rights path |
 |---|---|---|---|---|---|
+| [design-ai-guided-design-notebook](../design/ai-guided-design-notebook.md) | Rider mass, skill level, and riding brief text sent to user-configured BYOK LLM | **D / I / U:** User's personal riding profile & prose cross device boundary to user-chosen LLM provider | **mitigate** | Explicit **byte-exact redacted payload preview** (`AssistantConsentPreviewDialog`, `COPY-896..900`, showing `EffectiveModelId`) before every send; zero silent sends; `PromptRedactor` strips OS paths, usernames, hostnames, and secrets; zero CFD-Workbench server or telemetry | User-chosen BYOK provider retention applies once user clicks **Send to model**; local copy lives only in user's `.cfdw.json` (user can delete file at any time) |
+| [design-ai-guided-design-notebook](../design/ai-guided-design-notebook.md) | Local `.cfdw.json` `Envelope.notebook` transcript | **L / U:** Retained prompts and grill answers remain in saved project file | **mitigate** | Explicit disclosure in `COPY-932` (*"Your notebook transcript and FoilReq stay saved in project history"*) + inspectable in UI | Local file under OS-user ACL; deleted when user deletes `.cfdw.json` |
+| [design-ai-guided-design-notebook](../design/ai-guided-design-notebook.md) | Local telemetry ring & `assistant-audit.jsonl` | **D:** Prompts or rider mass leaking into telemetry/audit logs | **mitigate** | Telemetry & audit entries store only `payloadSha256`, byte count, token counts, duration, `EffectiveModelId`, disposition, and error code — **zero prompt text, zero rider mass, zero paths/names** | Audit JSONL under user's private `0700`/DACL app data dir; telemetry ring in-memory only (cleared on exit) |
 | [design-app-shell](../design/app-shell.md) | Recent files: absolute paths (can carry the account name, client or project names) | I / L | mitigate | only in `recent/recent.json` (0600, directory 0700); never in the layout file, telemetry or stderr | ≤ 10 entries, oldest dropped; **File ▸ Open Recent ▸ Clear Menu** empties it (failure reported); deleting the file removes it |
 | [design-app-shell](../design/app-shell.md) | Recent files | U: unaware that recents are kept | mitigate | the standard Open Recent menu shows exactly what is kept, with Clear Menu | as above; **residual:** no age limit (count only); uninstall leaves the file; a Windows rights path is a condition before Windows ships |
 | [design-app-shell](../design/app-shell.md) | Telemetry, stderr | D: disclosure through events or crash output | mitigate | closed ids and counts only; crash handlers write type + code; marker-injection test across all rings and stderr | rings in memory, cleared on quit |
@@ -72,8 +77,10 @@ retains that distinction.
 | [design-m12b2-3d-elevations](../design/m12b2-3d-elevations.md) | view and gesture events (local ring) | D: disclosure through logs | mitigate | no ids, names or positions | in-memory ring of 256; gone at exit |
 | [design-m12c-section-editor](../design/m12c-section-editor.md) | section events (local ring) | D: disclosure through logs | mitigate | no profile names, ids or positions | in-memory ring of 256; gone at exit |
 | [design-planform-point-verbs](../design/planform-point-verbs.md) | point-verb events (local ring) | D: disclosure through logs | mitigate | no ids, names or positions | in-memory ring of 256; gone at exit |
+| [design-rounded-wing-tips](../design/rounded-wing-tips.md) | Local tip-edit telemetry events (`tip.edit`, `export.tipcap`) | **D:** Disclosure of foil/user names or paths through logs | **mitigate** | Local 256-event in-memory ring carries only event name, `kind`/`tipKind`, `code`, `splits`, `durationMs` — zero foil names, paths, or vertex IDs | In-memory ring cleared on exit; zero network transmission |
+| [design-rounded-wing-tips](../design/rounded-wing-tips.md) | `.foil` / `.cfdw.json` geometry source | **L / I / U / N:** No new personal data introduced beyond existing local geometry files | **transfer** | Governed identically by `docs/security/privacy-review.md` (local OS-user ACL, user-controlled file deletion, zero egress) | Local file under user control |
 
-<!-- rolled up from 7 artifact(s) by docs-graph.py rollup on 2026-10-03 -->
+<!-- rolled up from 9 artifact(s) by docs-graph.py rollup on 2026-11-27 -->
 
 
 ## Rights, telemetry and transfers

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-28T01:41:34Z",
+  "generated": "2026-11-28T03:08:27Z",
   "audit": [
     {
       "actor": null,
@@ -46083,6 +46083,83 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-28T01:20:12Z",
       "duration_seconds": 1282.0
+    },
+    {
+      "id": "al-01M8G0ABYH90DR0A0KJ1G4BEFK",
+      "shortname": "Approve all copy then run /design-slice in parallel for Rounded Wing Tip…",
+      "datetime": "2026-11-28T02:39:00Z",
+      "session": "80549eef-c72e-4649-a6ab-8439d9935577",
+      "prompt": "Approve all copy then run /design-slice in parallel for Rounded Wing Tips (FoilDSL 4.2) and AI-Guided Hydrofoil Design Notebook.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M8G207Y9XCAXBG9EP07KBNB9",
+      "shortname": "design-slice-rounded-wing-tips",
+      "datetime": "2026-11-28T03:08:25Z",
+      "session": "80549eef-c72e-4649-a6ab-8439d9935577",
+      "prompt": "Approve all copy then run /design-slice in parallel for Rounded Wing Tips (FoilDSL 4.2) and AI-Guided Hydrofoil Design Notebook.",
+      "summary": "Approved COPY-916..942 in DESIGN.md and authored docs/design/rounded-wing-tips.md (+ HTML) freezing FoilDSL 4.2 parser/identity, Bernstein.CertifyPositiveChord BFS (verified 4 splits / 0.0042% budget), exact N>=4 R_tip & ChannelEdits/PointModel/ChordDimension contracts, s^2 MAC quadrature, nested double.SinPi sampling, chordal-v CadExportExtractor (verified 2.82 um vs 302 um), watertight STL/3MF/STEP AP203/Rhino3dm tip-cap topology, Structure B PropertiesPane Tip group, and T-RT-01..09 mutants. Cleared Adversary council (VERDICT: PASS, CLEARS-THE-VETO: yes).",
+      "kind": "skill",
+      "skill": "design-slice",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/rounded-wing-tips.md",
+        "docs/design/rounded-wing-tips.html",
+        "DESIGN.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Produce build-ready /design-slice blueprint for Rounded & Radiused Wing Tips (FoilDSL 4.2) with executed spikes and Adversary clearance.",
+      "done_when": "docs/design/rounded-wing-tips.md (+ HTML) clears independent Adversary review (VERDICT: PASS), updates security/privacy rollups, passes doc/pack gates, and commits cleanly.",
+      "tier": "T2",
+      "fan_out": 4,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-28T02:39:00Z",
+      "duration_seconds": 1765.0
+    },
+    {
+      "id": "al-01M8G208AE4BN7EC8YRP7RHRY2",
+      "shortname": "design-slice-ai-guided-design-notebook",
+      "datetime": "2026-11-28T03:08:26Z",
+      "session": "80549eef-c72e-4649-a6ab-8439d9935577",
+      "prompt": "Approve all copy then run /design-slice in parallel for Rounded Wing Tips (FoilDSL 4.2) and AI-Guided Hydrofoil Design Notebook.",
+      "summary": "Authored docs/design/ai-guided-design-notebook.md (+ HTML) freezing Envelope.Notebook expand-migrate (<=1,024 B line chunks honoring 4,096 B/line limit + in-memory pre-handoff Start lifecycle), FoilReq 1.0 parser/validator, GrillTreeEngine, two-profile RecipeSeeder.EmitFoilDsl + My sections snapshot determinism, direct ProductWingMethod/PanelMethod/NeuralFoilPolarSource candidate runner with self-contained operating-point summaries, UntrustedExcerpt fencing, EffectiveModelId & value-level secret screening, AI-06 Eval Suite v2.0 (11 active items), AnalysisExplanation translation grounding, native Avalonia NotebookWorkspaceView reuse map (COPY-924..934), and T-NB-01..08 mutants. Cleared Adversary council (VERDICT: PASS, CLEARS-THE-VETO: yes).",
+      "kind": "skill",
+      "skill": "design-slice",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/ai-guided-design-notebook.md",
+        "docs/design/ai-guided-design-notebook.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Produce build-ready /design-slice blueprint for AI-Guided Hydrofoil Design Notebook with Adversary clearance.",
+      "done_when": "docs/design/ai-guided-design-notebook.md (+ HTML) clears independent Adversary review (VERDICT: PASS), updates security/privacy rollups, passes doc/pack gates, and commits cleanly.",
+      "tier": "T2",
+      "fan_out": 4,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "duration_source": "session-start-hook",
+      "started_at": "2026-11-28T03:07:12Z",
+      "duration_seconds": 74.0
     }
   ],
   "changes": [
@@ -46987,6 +47064,51 @@ window.AUDIT_DATA = {
         "after": "df566d56cedb076a22f5d92b6431d05606e6a23b",
         "branch": "swarm-w5-kernel-arch-9e84b687",
         "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M8G208SXHX1CAY4TR2BQ0ZJT",
+      "datetime": "2026-11-28T03:08:26Z",
+      "session": null,
+      "kind": "design",
+      "skill": "design-slice",
+      "title": "Freeze FoilDSL 4.2 Rounded Wing Tips design slice and approve COPY-916..942",
+      "prompt": "Approve all copy then run /design-slice in parallel for Rounded Wing Tips (FoilDSL 4.2) and AI-Guided Hydrofoil Design Notebook.",
+      "summary": "Approved COPY-916..942 in DESIGN.md and froze docs/design/rounded-wing-tips.md (FoilDSL 4.2 vertical tip rails, Bernstein.CertifyPositiveChord BFS, chordal-v STEP/3DM & zero-T-junction STL/3MF rounded tip caps, Structure B Tip UI).",
+      "rationale": "Enables curvature-controlled LE/TE wing-tip radii on finite Ruling 93 tip chords without collapsing to a zero-chord point, while preserving byte-identical 4.0/4.1 SurfaceHash and watertight exports.",
+      "artifacts": [
+        "docs/design/rounded-wing-tips.md",
+        "DESIGN.md"
+      ],
+      "tags": [],
+      "git": {
+        "before": "89a340b8",
+        "after": "89a340b8efcc66a6d452019227093a68657a562b",
+        "branch": "main",
+        "pushed": true,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M8G209A693J9ATYYX77XKEZ5",
+      "datetime": "2026-11-28T03:08:27Z",
+      "session": null,
+      "kind": "design",
+      "skill": "design-slice",
+      "title": "Freeze AI-Guided Hydrofoil Design Notebook design slice (Wave 13B)",
+      "prompt": "Approve all copy then run /design-slice in parallel for Rounded Wing Tips (FoilDSL 4.2) and AI-Guided Hydrofoil Design Notebook.",
+      "summary": "Froze docs/design/ai-guided-design-notebook.md (Envelope.Notebook, FoilReq 1.0, GrillTreeEngine, direct local solver runner, UntrustedExcerpt fencing, OptionalFastModelId + AI-06 Eval v2.0, Avalonia NotebookWorkspaceView).",
+      "rationale": "Establishes a deterministic-authority, security-hardened, zero-new-NuGet blueprint matching the approved HTML mockup and all Core/Analysis/Desktop architecture invariants before Wave 13B implementation.",
+      "artifacts": [
+        "docs/design/ai-guided-design-notebook.md"
+      ],
+      "tags": [],
+      "git": {
+        "before": "89a340b8",
+        "after": "89a340b8efcc66a6d452019227093a68657a562b",
+        "branch": "main",
+        "pushed": true,
         "commits": []
       }
     }

@@ -2587,6 +2587,74 @@ window.DOCS_INDEX = {
       "sourceSha256": "5cdd825ff61934edc1136f41f7bdc2789cbdcf3005ce5249616448ec113b93b5"
     },
     {
+      "id": "design-ai-guided-design-notebook",
+      "path": "docs/design/ai-guided-design-notebook.md",
+      "title": "Design: AI-Guided Hydrofoil Design Notebook (FoilReq 1.0, Grill-Me Engine, Local Physics Loop & Native Avalonia Workspace)",
+      "type": "design",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "design — Wave 13B (build basis for Core FoilReq/Grill/Eval v2.0, Analysis NotebookOrchestrator, Persistence Envelope.notebook, CLI, and Avalonia NotebookWorkspaceView)",
+      "reviewBy": "2027-02-27",
+      "reviewSuggested": [],
+      "summary": "Build-ready /design-slice for CFD-Workbench's AI-Guided Hydrofoil Design Notebook, implementing spec-ai-guided-design-notebook and the operator-approved interactive HTML mockup baseline. Freezes the Envelope.notebook? expand-migrate schema (respecting NativeProject's 32 MB and <=4,096 UTF-8 B per-line limits via <=1,024 B line-chunked arrays, plus in-memory pre-handoff lifecycle from Start), pure STORE-SUBSET CfdWorkbench.Core FoilReq 1.0 parser/EBNF/validator, GrillTreeEngine, two-profile RecipeSeeder.EmitFoilDsl, CandidateIntentValidator, RequirementScorecard with self-contained candidate operating-point summaries & Tier-0 solver_context formatting aligned to NumeralTokenRegex, AssistantEvalSuite v2.0 (11 active items, AI-06 lockout), single-endpoint OptionalFastModelId propagated end-to-end with value-level secret screening, UntrustedExcerpt-fenced multi-turn PromptRedactor, ArchitectureTests-safe NotebookOrchestrator over direct ProductWingMethod/PanelMethod/NeuralFoilPolarSource, non-destructive CAD handoff, and native Avalonia NotebookWorkspaceView with approved COPY-924..934.",
+      "tags": [
+        "ai",
+        "notebook",
+        "foilreq",
+        "grill-me",
+        "byok",
+        "hydrofoil",
+        "cad-handoff",
+        "avalonia",
+        "security",
+        "design"
+      ],
+      "links": [
+        {
+          "to": "spec-ai-guided-design-notebook",
+          "rel": "implements"
+        },
+        {
+          "to": "ui-review-ai-guided-design-notebook",
+          "rel": "implements"
+        },
+        {
+          "to": "mockup-ai-guided-design-notebook",
+          "rel": "implements"
+        },
+        {
+          "to": "design-byok-assistants",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-setup-seeding",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-section-catalog-expansion",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-rounded-wing-tips",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "threat-model",
+          "rel": "relates-to"
+        },
+        {
+          "to": "privacy-review",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "89f0434110fcf8c44494aaadf51dd6df9e26271effa422e113afc8ea40c2dad7"
+    },
+    {
       "id": "design-app-shell",
       "path": "docs/design/app-shell.md",
       "title": "Design: the CAD-first app shell — Start, workspaces, docks and floats, selection and Properties, menus and commands",
@@ -4395,6 +4463,72 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "a873c3193173c5b57d63d77c1c5e9ab3b4d61260b9648603f4a30bfa75765b3e"
+    },
+    {
+      "id": "design-rounded-wing-tips",
+      "path": "docs/design/rounded-wing-tips.md",
+      "title": "Design: Rounded & Radiused Wing Tips (FoilDSL 4.2, Geometry Proof, Export B-Rep & Area 2 CAD UI)",
+      "type": "design",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "design — Wave 13A (build basis for FoilDSL 4.2 core, export, analysis, and Area 2 CAD UI)",
+      "reviewBy": "2027-02-27",
+      "reviewSuggested": [],
+      "summary": "Build-ready /design-slice for Rounded & Radiused Wing Tips (spec-rounded-wing-tips). Freezes the expand-only FoilDSL 4.2 parser/serializer/canonical-identity contract, exact spanwise-local rational Bernstein positive-chord certification (Bernstein.CertifyPositiveChord, verified 4 splits / 0.0042% ProofBudget on 25 deg swept vertical-tangent tips), exact N>=4 tip radius math & ChannelEdits/PointModel/ ChordDimension editing contracts, analytic O(1) OverallSpanMeters & s^2 terminal MAC quadrature, nested sin(pi*k/(2*(M-1))) tip-clustered sampling, chordal-v CadExportExtractor skinning (2.8 um error vs 302 um under v=eta), exact watertight STL/3MF (zero T-junctions) + STEP AP203 (verified port/starboard closed-TE and open-TE B-Rep orientation) + Rhino 3DM tip-cap contracts, Structure B PropertiesPane Tip group + PlanCanvas vertical handle (COPY-935..942), telemetry, STRIDE/LINDDUN, and red-first test matrix.",
+      "tags": [
+        "foildsl",
+        "geometry",
+        "wingtip",
+        "planform",
+        "curvature",
+        "radius",
+        "export",
+        "step",
+        "stl",
+        "3dm",
+        "cad",
+        "design"
+      ],
+      "links": [
+        {
+          "to": "spec-rounded-wing-tips",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "refines"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-m12b-points",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-planform-point-verbs",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-application-contracts",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "threat-model",
+          "rel": "relates-to"
+        },
+        {
+          "to": "privacy-review",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "2e5178994db0137112aba7058762449fb12bbdba386097c2d6b433e888fbc802"
     },
     {
       "id": "design-section-catalog-expansion",
@@ -13777,10 +13911,18 @@ window.DOCS_INDEX = {
         {
           "to": "design-planform-point-verbs",
           "rel": "documents"
+        },
+        {
+          "to": "design-rounded-wing-tips",
+          "rel": "documents"
+        },
+        {
+          "to": "design-ai-guided-design-notebook",
+          "rel": "documents"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c89007c3e991f6f152f1351f58df542875488e16b29c7ca435688379bca840ae"
+      "sourceSha256": "fd46476c52dec1aee014145a3ff2a62aebea36ad22db4aa776858d8d20e5fd32"
     },
     {
       "id": "a3a-vlm3-red-first",
@@ -26089,10 +26231,18 @@ window.DOCS_INDEX = {
         {
           "to": "design-planform-point-verbs",
           "rel": "documents"
+        },
+        {
+          "to": "design-rounded-wing-tips",
+          "rel": "documents"
+        },
+        {
+          "to": "design-ai-guided-design-notebook",
+          "rel": "documents"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f89e1dab447746685bf5f8750910c83900049ba327bdac8e00718aa1bcd8ffe4"
+      "sourceSha256": "7200c6eaae9fd4f9b667af2d1489d287c458203b089226a084f0cb56546d0997"
     }
   ],
   "surfaces": [
@@ -26103,6 +26253,14 @@ window.DOCS_INDEX = {
       "kind": "audit",
       "description": "Browse the committed audit and change timeline.",
       "artifactId": "audit-log"
+    },
+    {
+      "id": "surface-design-ai-guided-design-notebook",
+      "path": "docs/design/ai-guided-design-notebook.html",
+      "title": "Ai Guided Design Notebook",
+      "kind": "design-preview",
+      "description": "Inspect a rendered design or design-language preview.",
+      "artifactId": "design-ai-guided-design-notebook"
     },
     {
       "id": "surface-design-byok-assistants",
@@ -26143,6 +26301,14 @@ window.DOCS_INDEX = {
       "kind": "design-preview",
       "description": "Inspect a rendered design or design-language preview.",
       "artifactId": "design-results-and-candidates"
+    },
+    {
+      "id": "surface-design-rounded-wing-tips",
+      "path": "docs/design/rounded-wing-tips.html",
+      "title": "Rounded Wing Tips",
+      "kind": "design-preview",
+      "description": "Inspect a rendered design or design-language preview.",
+      "artifactId": "design-rounded-wing-tips"
     },
     {
       "id": "surface-design-section-catalog-expansion",
@@ -26511,6 +26677,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-planform-point-verbs"
     },
     {
+      "id": "surface-security-privacy-review",
+      "path": "docs/security/privacy-review.html",
+      "title": "Privacy Review",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "privacy-review"
+    },
+    {
       "id": "surface-mockups-property-grid-cells",
       "path": "docs/mockups/property-grid-cells.html",
       "title": "Property sheet — three cell layouts",
@@ -26597,6 +26771,14 @@ window.DOCS_INDEX = {
       "kind": "knowledge-tool",
       "description": "Open an interactive knowledge artifact.",
       "artifactId": "mockup-status-bar"
+    },
+    {
+      "id": "surface-security-threat-model",
+      "path": "docs/security/threat-model.html",
+      "title": "Threat Model",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "threat-model"
     },
     {
       "id": "surface-reviews-ui-ai-guided-design-notebook",
@@ -26719,5 +26901,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "dd9c39e124449f8415099bcd78dfa9681621408024717f008f716297fa6fb5e7"
+  "graphSha256": "29ce9de87510ec535bceae10d6c6398fd093c6b7dc82b042be61466c8bb8809c"
 };
