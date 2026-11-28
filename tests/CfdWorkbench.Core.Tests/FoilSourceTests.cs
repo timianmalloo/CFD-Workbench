@@ -195,9 +195,16 @@ internal static class FoilSourceTests
             Equal(true, leading.Tangents.All(row => row.Kind == "smooth"));
         });
         Check("Parse_SeventeenChannelPointsUnder41_DslCurve", () => CodeOf(Fx("foil-41-seventeen-points.foil"), "DSL-CURVE"));
-        Check("Parse_Foil42UnknownBlock_DslVersion", () =>
+        Check("Parse_Foil42UnknownBlock_DslSyntax", () =>
         {
             byte[] source = File.ReadAllBytes(Fx("foil-42-unknown-block.foil"));
+            var parsed = FoilSource.Parse(source);
+            Equal("DSL-SYNTAX", parsed.Diagnostics[0].Code);
+            Equal(true, source.AsSpan().SequenceEqual(parsed.Source));
+        });
+        Check("Parse_Foil43UnknownBlock_DslVersion", () =>
+        {
+            byte[] source = Encoding.UTF8.GetBytes(Encoding.UTF8.GetString(File.ReadAllBytes(Fx("foil-42-unknown-block.foil"))).Replace("\"4.2\"", "\"4.3\"", StringComparison.Ordinal));
             var parsed = FoilSource.Parse(source);
             Equal("DSL-VERSION", parsed.Diagnostics[0].Code);
             Equal(true, source.AsSpan().SequenceEqual(parsed.Source));

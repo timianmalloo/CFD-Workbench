@@ -172,12 +172,15 @@ internal static class TipChordTests
             Equal("Tip chord can't go below 5 mm (the larger of 5 mm and 2 % of the root chord). Enter 5 mm or more.",
                 Throws(() => t.ApplyChord(Id(), new("tip-chord", "3"))).Reason!);
         });
-        Check("TipChord_TypedThreeOnSixMmTip_IsTheCrossingRefusalNotTheTipMinimum", () =>
+        Check("TipChord_TypedThreeOnSixMmTip_IsTipMinimumUnderLocalChordProof", () =>
         {
-            // The fixture's linear taper to 3 mm makes the edges cross first; that refusal has a code and no Core reason
-            // (the Desktop maps the code to its own copy), which is why a typed 3 once showed no tip-minimum text.
+            // Under spanwise-local Bernstein.CertifyPositiveChord, the 6 mm -> 3 mm taper stays strictly positive
+            // at every eta (previously only the global hull overlap falsely rejected it as DSL-EDGES-CROSS),
+            // so DSL-TIP-CHORD-MIN now fires with the tip-minimum Core reason.
             using var s = Open(tipMm: 6);
-            Equal("DSL-EDGES-CROSS", Throws(() => s.ApplyChord(Id(), new("tip-chord", "3"))).Code);
+            var err = Throws(() => s.ApplyChord(Id(), new("tip-chord", "3")));
+            Equal(Code, err.Code);
+            Equal("Tip chord can't go below 5 mm (the larger of 5 mm and 2 % of the root chord). Enter 5 mm or more.", err.Reason!);
         });
         Check("TipChord_PointTipDocument_IsNeverOpenedSoNoSessionHoldsOne", () =>
         {

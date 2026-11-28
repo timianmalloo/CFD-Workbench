@@ -184,11 +184,35 @@ public sealed class StepAp203Export : ICadStepExporter
 
         if (variant == StepVariant.ClosedShell)
         {
-            int plnStbdTip = b.AddPlane("pln_stbd_tip", new CadVec3(0, skin.HalfSpanMm, 0), new CadVec3(0, 1, 0), new CadVec3(0, 0, 1));
-            var stbdTipLoop = skin.IsOpenTrailingEdge
-                ? new[] { (eStbdTipU, true), (eStbdTipTe, true), (eStbdTipL, false) }
-                : new[] { (eStbdTipU, true), (eStbdTipL, false) };
-            faces.Add(b.AddFace("f_stbd_tip", plnStbdTip, true, stbdTipLoop));
+            if (skin.TipMode == "rounded" && skin.StarboardTipCap is { } stbdCap)
+            {
+                int srfStbdTipCap = b.AddBSplineSurface("srf_stbd_tip_cap", stbdCap);
+                if (!skin.IsOpenTrailingEdge)
+                {
+                    faces.Add(b.AddFace("f_stbd_tip_cap", srfStbdTipCap, true,
+                        [(eStbdTipU, true), (eStbdTipL, false)]));
+                }
+                else
+                {
+                    var stbdCapTeCurve = stbdCap.IsoU(stbdCap.CountU - 1);
+                    int eStbdTipCapTe = b.AddBSplineEdge("e_stbd_tip_cap_te", stbdCapTeCurve, vStbdTipTeU, vStbdTipTeL);
+                    faces.Add(b.AddFace("f_stbd_tip_cap", srfStbdTipCap, true,
+                        [(eStbdTipU, true), (eStbdTipCapTe, true), (eStbdTipL, false)]));
+                    var midStbd = 0.5 * (stbdTipCurveU.Poles[^1] + stbdTipCurveL.Poles[^1]);
+                    var normalStbd = CadVec3.Cross(stbdTipCurveL.Poles[^1] - stbdTipCurveU.Poles[^1], new CadVec3(0, 1, 0));
+                    int plnStbdTipTeEnd = b.AddPlane("pln_stbd_tip_te_end", midStbd, normalStbd, new CadVec3(0, 1, 0));
+                    faces.Add(b.AddFace("f_stbd_tip_te_end", plnStbdTipTeEnd, true,
+                        [(eStbdTipTe, true), (eStbdTipCapTe, false)]));
+                }
+            }
+            else
+            {
+                int plnStbdTip = b.AddPlane("pln_stbd_tip", new CadVec3(0, skin.HalfSpanMm, 0), new CadVec3(0, 1, 0), new CadVec3(0, 0, 1));
+                var stbdTipLoop = skin.IsOpenTrailingEdge
+                    ? new[] { (eStbdTipU, true), (eStbdTipTe, true), (eStbdTipL, false) }
+                    : new[] { (eStbdTipU, true), (eStbdTipL, false) };
+                faces.Add(b.AddFace("f_stbd_tip", plnStbdTip, true, stbdTipLoop));
+            }
         }
 
         if (scope == StlScope.Half)
@@ -251,11 +275,36 @@ public sealed class StepAp203Export : ICadStepExporter
 
             if (variant == StepVariant.ClosedShell)
             {
-                int plnPortTip = b.AddPlane("pln_port_tip", new CadVec3(0, -skin.HalfSpanMm, 0), new CadVec3(0, -1, 0), new CadVec3(0, 0, 1));
-                var portTipLoop = skin.IsOpenTrailingEdge
-                    ? new[] { (ePortTipL, true), (ePortTipTe, false), (ePortTipU, false) }
-                    : new[] { (ePortTipL, true), (ePortTipU, false) };
-                faces.Add(b.AddFace("f_port_tip", plnPortTip, true, portTipLoop));
+                if (skin.TipMode == "rounded" && skin.StarboardTipCap is { } stbdCapPort)
+                {
+                    var portCap = stbdCapPort.MirrorY();
+                    int srfPortTipCap = b.AddBSplineSurface("srf_port_tip_cap", portCap);
+                    if (!skin.IsOpenTrailingEdge)
+                    {
+                        faces.Add(b.AddFace("f_port_tip_cap", srfPortTipCap, false,
+                            [(ePortTipL, true), (ePortTipU, false)]));
+                    }
+                    else
+                    {
+                        var portCapTeCurve = portCap.IsoU(portCap.CountU - 1);
+                        int ePortTipCapTe = b.AddBSplineEdge("e_port_tip_cap_te", portCapTeCurve, vPortTipTeU, vPortTipTeL);
+                        faces.Add(b.AddFace("f_port_tip_cap", srfPortTipCap, false,
+                            [(ePortTipL, true), (ePortTipCapTe, false), (ePortTipU, false)]));
+                        var midPort = 0.5 * (portTipCurveU.Poles[^1] + portTipCurveL.Poles[^1]);
+                        var normalPort = CadVec3.Cross(portTipCurveU.Poles[^1] - portTipCurveL.Poles[^1], new CadVec3(0, -1, 0));
+                        int plnPortTipTeEnd = b.AddPlane("pln_port_tip_te_end", midPort, normalPort, new CadVec3(0, -1, 0));
+                        faces.Add(b.AddFace("f_port_tip_te_end", plnPortTipTeEnd, true,
+                            [(ePortTipCapTe, true), (ePortTipTe, false)]));
+                    }
+                }
+                else
+                {
+                    int plnPortTip = b.AddPlane("pln_port_tip", new CadVec3(0, -skin.HalfSpanMm, 0), new CadVec3(0, -1, 0), new CadVec3(0, 0, 1));
+                    var portTipLoop = skin.IsOpenTrailingEdge
+                        ? new[] { (ePortTipL, true), (ePortTipTe, false), (ePortTipU, false) }
+                        : new[] { (ePortTipL, true), (ePortTipU, false) };
+                    faces.Add(b.AddFace("f_port_tip", plnPortTip, true, portTipLoop));
+                }
             }
         }
 

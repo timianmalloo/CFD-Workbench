@@ -70,6 +70,12 @@ public sealed record SessionEvent(long Sequence, string Operation, string Outcom
     public SetupTelemetry? Setup { get; init; }
     /// <summary>Named fields of Area 5 CFD run telemetry events (docs/design/cfd-run-pipeline.md §8); null otherwise.</summary>
     public CfdTelemetry? Cfd { get; init; }
+    /// <summary>Zero-PII telemetry fields for <c>tip.edit</c> events (docs/design/rounded-wing-tips.md §7); null otherwise.</summary>
+    public TipEditTelemetry? TipEdit { get; init; }
+    /// <summary>Zero-PII telemetry fields for <c>geometry.positive_chord</c> events (docs/design/rounded-wing-tips.md §7); null otherwise.</summary>
+    public PositiveChordTelemetry? PositiveChord { get; init; }
+    /// <summary>Zero-PII telemetry fields for <c>export.tipcap</c> events (docs/design/rounded-wing-tips.md §7); null otherwise.</summary>
+    public TipCapExportTelemetry? TipCapExport { get; init; }
 }
 /// <summary>
 /// One export telemetry row on the session ring. <c>Operation</c> is <c>export.write</c> (one per write attempt) or <c>export.validate</c>
@@ -264,6 +270,26 @@ public sealed class AuthoringSession : IDisposable
         }
     }
 
+    /// <summary>Appends one zero-PII <c>export.tipcap</c> event to the 256-event ring.</summary>
+    public void RecordTipCapExport(TipCapExportTelemetry entry)
+    {
+        lock (sync)
+        {
+            if (closed) return;
+            if (events.Count == 256) events.Dequeue();
+            events.Enqueue(new(eventSequence++, "export.tipcap", "OK", entry.DurationMs,
+                null, null, null, null, null, sources.Count, accepted.Count, "export.tipcap") { TipCapExport = entry });
+        }
+    }
+
+    private void RecordTipEdit(TipEditTelemetry entry)
+    {
+        if (closed) return;
+        if (events.Count == 256) events.Dequeue();
+        events.Enqueue(new(eventSequence++, "tip.edit", entry.Outcome, entry.DurationMs,
+            null, null, null, null, null, sources.Count, accepted.Count, "tip.edit") { TipEdit = entry });
+    }
+
     /// <summary>
     /// Records <c>catalog.preview</c> when the fault was measured nowhere (m12d §10).
     /// Duration and Replace fields are null, never a catalog-count row and never a zero.
@@ -365,7 +391,20 @@ public sealed class AuthoringSession : IDisposable
     }
     private GeometryAssessment AssessOwned(SourceParse parsed, long? generation = null)
     {
+        Bernstein.LastPositiveChord = null;
         var timer = System.Diagnostics.Stopwatch.StartNew(); var result = Geometry.Assess(parsed, new ProofBudget(proofWorkLimit));
+        if (Bernstein.LastPositiveChord is { } pc)
+        {
+            lock (sync)
+            {
+                if (!closed)
+                {
+                    if (events.Count == 256) events.Dequeue();
+                    events.Enqueue(new(eventSequence++, "geometry.positive_chord", pc.Outcome, timer.Elapsed.TotalMilliseconds,
+                        null, null, trace.Value, generation, Evaluator.IdFor(parsed), sources.Count, accepted.Count, "geometry.positive_chord") { PositiveChord = pc });
+                }
+            }
+        }
         Record("geometry.validate", result.Code, timer.Elapsed.TotalMilliseconds, parsed.Source.Length, null, generation, Evaluator.IdFor(parsed));
         return result;
     }
@@ -385,6 +424,19 @@ public sealed class AuthoringSession : IDisposable
         Run("apply", () => ApplyGroupValueCore(operationId, command), editKind: command?.Mode == GroupValueMode.SetTo ? "group-set" : "group-move");
     public PointOutcome ApplyPointCommand(string operationId, PointCommand command) =>
         Run("apply", () => ApplyPointCommandCore(operationId, command), editKind: PointEditKind(command));
+
+    /// <summary>Enables or disables a FoilDSL 4.2 G1 vertical tip tangent on <paramref name="rail"/> (<c>leading</c> or <c>trailing</c>).</summary>
+    public TipEditOutcome SetTipTangent(string operationId, string rail, bool vertical) =>
+        SetTipTangentCore(operationId, rail, vertical);
+
+    /// <summary>Sets the exact derived planform tip radius on <paramref name="rail"/> (<c>leading</c> or <c>trailing</c>) when its tip tangent is vertical.
+    /// Returns a structured refusal carrying <see cref="TipEditOutcome.LimitMeters"/> on <c>DSL-TIP-RADIUS-BOUNDS</c>.</summary>
+    public TipEditOutcome SetTipRadius(string operationId, string rail, double targetRadiusMeters) =>
+        SetTipRadiusCore(operationId, rail, targetRadiusMeters);
+
+    /// <summary>Sets the FoilDSL 4.2 3D tip closure mode (<c>open</c> or <c>rounded</c>) and optional cap ratio in [0.25, 2.0].</summary>
+    public TipEditOutcome SetTipCap(string operationId, string tipMode, double? capRatio = null) =>
+        SetTipCapCore(operationId, tipMode, capRatio);
     /// <summary>
     /// What promoting the inspection slice at <paramref name="eta"/> (written <paramref name="etaText"/>, for example <c>35 %</c>) would do.
     /// Adds no row. A domain refusal is in the result (<see cref="PromotionPreview.RefusalCode"/>); an eta outside [0, 1] or a draft in the
@@ -740,15 +792,16 @@ public sealed class AuthoringSession : IDisposable
     /// <summary>The spacing rule of the gesture: the shift of the whole moved set that keeps every unselected neighbour one gap away.</summary>
     private static (double Min, double Max) SpacingShift(CurveView rail, IReadOnlyDictionary<int, (double Eta, double Aft)> moved, double halfSpan)
     {
+        bool verticalTip = rail.Points.Count >= 4 && rail.Points[^1].Kind == TangentKind.Vertical && rail.Points[^2].Eta == 1.0;
         double shiftMin = double.NegativeInfinity, shiftMax = double.PositiveInfinity;
         foreach (var (index, target) in moved)
         {
-            if (index > 0 && !moved.ContainsKey(index - 1))
+            if (index > 0 && !moved.ContainsKey(index - 1) && !(verticalTip && index == rail.Points.Count - 1))
             {
                 double gap = Math.Min(0.001 / halfSpan, rail.Points[index].Eta - rail.Points[index - 1].Eta);
                 shiftMin = Math.Max(shiftMin, rail.Points[index - 1].Eta + gap - target.Eta);
             }
-            if (index + 1 < rail.Points.Count && !moved.ContainsKey(index + 1))
+            if (index + 1 < rail.Points.Count && !moved.ContainsKey(index + 1) && !(verticalTip && index == rail.Points.Count - 2))
             {
                 double gap = Math.Min(0.001 / halfSpan, rail.Points[index + 1].Eta - rail.Points[index].Eta);
                 shiftMax = Math.Min(shiftMax, rail.Points[index + 1].Eta - gap - target.Eta);
@@ -799,8 +852,11 @@ public sealed class AuthoringSession : IDisposable
             }
             if (!double.IsFinite(spanMeters) || !double.IsFinite(ordinate))
                 return LastFrame();
-            // DR-GM-5 A: one member's locked axis holds the whole group on that axis. The root's mirror partner rides with the root.
-            bool Rides(int index) => group && index == 1 && rail.Points[1].Locks.Contains("root_mirror") && members.Contains(0);
+            // DR-GM-5 A: one member's locked axis holds the whole group on that axis. The root's mirror partner rides with the root; vertical TipHandle rides with TipEnd.
+            bool verticalTip = rail.Points.Count >= 4 && rail.Points[^1].Kind == TangentKind.Vertical;
+            bool Rides(int index) =>
+                (group && index == 1 && rail.Points[1].Locks.Contains("root_mirror") && members.Contains(0))
+                || (group && verticalTip && index == rail.Points.Count - 2 && members.Contains(rail.Points.Count - 1));
             foreach (int member in members)
             {
                 if (Rides(member)) continue;
@@ -833,6 +889,8 @@ public sealed class AuthoringSession : IDisposable
                 }
                 else if (point.Role == PointRole.RootEnd && point.Locks.Contains("root_mirror"))
                     Add(1, rail.Points[1].Eta, rail.Points[1].Ordinate + deltaOrdinate);
+                else if (point.Role == PointRole.TipEnd && verticalTip)
+                    Add(rail.Points.Count - 2, rail.Points[^2].Eta, rail.Points[^2].Ordinate + deltaOrdinate);
             }
             if (handleAlone)
             {
@@ -890,6 +948,21 @@ public sealed class AuthoringSession : IDisposable
                 if (shift != 0) clamped = true;
                 foreach (int index in moved.Keys.ToArray()) moved[index] = (moved[index].Eta + shift, moved[index].Aft);
             }
+            if (!group && verticalTip && selected.Role == PointRole.TipHandle && moved.ContainsKey(grabbed))
+            {
+                double tipOrd = rail.Points[^1].Ordinate;
+                double aft = moved[grabbed].Aft;
+                if (draft.Rail == "leading" && aft > tipOrd - 1e-4)
+                {
+                    moved[grabbed] = (1.0, tipOrd - 1e-4);
+                    clamped = true;
+                }
+                else if (draft.Rail == "trailing" && aft < tipOrd + 1e-4)
+                {
+                    moved[grabbed] = (1.0, tipOrd + 1e-4);
+                    clamped = true;
+                }
+            }
             var unit = Channels.Unit(draft.Rail);
             if (unit.DomainLower is double lower && unit.DomainUpper is double upper)
             {
@@ -937,7 +1010,7 @@ public sealed class AuthoringSession : IDisposable
     {
         // A closing tip is never held by a session (Open refuses it: Geometry_TipPoint_UnsupportedAndNeverAdmitted), so
         // neither end is limited for a non-open tip; the release check stays the backstop with its existing text.
-        if (railName is not ("leading" or "trailing") || baseParsed.Definition is not { Kind: "foil", Tip: "open" }) return null;
+        if (railName is not ("leading" or "trailing") || baseParsed.Definition is not { Kind: "foil", Tip: "open" or "rounded" }) return null;
         double fromRoot = rail.Points[0].Ordinate, fromTip = rail.Points[^1].Ordinate;
         var other = Channels.View(baseParsed.Source, railName == "leading" ? "trailing" : "leading", "Accepted", 0).Points;
         var leading = railName == "leading" ? rail.Points : other;
@@ -1265,8 +1338,11 @@ public sealed class AuthoringSession : IDisposable
                 if (group && point.Role == PointRole.AnchorHandle && !members.Contains(pointList.FindIndex(p => p.Id == point.AnchorId)))
                     throw new ContractError("DSL-GROUP-HANDLE", $"{point.Id} is a handle without its anchor.");
             }
+            bool verticalTip = rail.Points.Count >= 4 && rail.Points[^1].Kind == TangentKind.Vertical;
             if (group && members.Contains(1) && !members.Contains(0) && rail.Points[1].Locks.Contains("root_mirror")) members.Insert(0, 0);
-            bool Rides(int index) => group && index == 1 && rail.Points[1].Locks.Contains("root_mirror") && members.Contains(0);
+            bool Rides(int index) =>
+                (group && index == 1 && rail.Points[1].Locks.Contains("root_mirror") && members.Contains(0))
+                || (group && verticalTip && index == rail.Points.Count - 2 && members.Contains(rail.Points.Count - 1));
             bool span = command.Axis == GroupValueAxis.Span;
             foreach (int member in members)
             {
@@ -1295,6 +1371,8 @@ public sealed class AuthoringSession : IDisposable
                 }
                 else if (point.Role == PointRole.RootEnd && point.Locks.Contains("root_mirror"))
                     Add(1, rail.Points[1].Eta, rail.Points[1].Ordinate + dOrd);
+                else if (point.Role == PointRole.TipEnd && verticalTip)
+                    Add(rail.Points.Count - 2, rail.Points[^2].Eta, rail.Points[^2].Ordinate + dOrd);
             }
             // An amount carries its unit at the typed precision (Ruling 116 (3), finding 11): a span amount is a length whatever the
             // curve; a value amount is in the channel's own unit (mm, ° or %).
@@ -1681,12 +1759,312 @@ public sealed class AuthoringSession : IDisposable
     private static byte[] PrintCurve(Definition definition, string curve, Curve changed)
     {
         var curves = new Dictionary<string, Curve>(definition.Curves, StringComparer.Ordinal) { [curve] = changed };
-        byte[] printed = FoilSource.Print(definition with { Curves = curves });
-        if (changed.Tangents.Length > 0 || changed.Points.Length > 10 || changed.Points.Length < 6)
+        var updatedDef = definition with { Curves = curves };
+        byte[] printed = FoilSource.Print(updatedDef);
+        bool needs42 = updatedDef.Tip == "rounded"
+            || TipCapMath.HasVerticalTip(updatedDef)
+            || curves.Values.Any(c => c.Path is "leading" or "trailing" && c.Tangents.Any(t => t.Kind == "vertical"));
+        if (needs42)
+            printed = FoilSource.EnsureHeader42(printed);
+        else if (changed.Tangents.Length > 0 || changed.Points.Length > 10 || changed.Points.Length < 6)
             printed = FoilSource.EnsureHeader41(printed);
         var check = FoilSource.Parse(printed);
         Guard.Require(check.IsParsed, check.Diagnostics.Count == 0 ? "DSL-PATCH" : check.Diagnostics[0].Code);
         return printed;
+    }
+
+    private TipEditOutcome SetTipTangentCore(string operationId, string rail, bool vertical)
+    {
+        var timer = System.Diagnostics.Stopwatch.StartNew();
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            NativeProject.Uuid(operationId);
+            if (rail is not ("leading" or "trailing"))
+            {
+                var r = new TipEditOutcome(false, null, "DSL-TARGET", "Tip tangent applies only to leading or trailing rails.");
+                RecordTipEdit(new("tangent", rail, "refused", "DSL-TARGET", timer.Elapsed.TotalMilliseconds));
+                return r;
+            }
+            bool replay = operations.ContainsKey(operationId);
+            var prior = replay ? accepted.SingleOrDefault(row => row.OperationId == operationId && row.Edit?.Rail == "tip-tangent") : null;
+            if (replay && prior is null) throw new ContractError("DOC-OPERATION-CONFLICT");
+            Guard.Require(replay || current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
+            string? parent = replay ? prior!.Parent : current;
+            byte[] basis = replay ? BaseBytes(parent!) : CurrentBytes;
+            var parsed = ParseOwned(basis);
+            var definition = parsed.Definition!;
+            var original = definition.Curves[rail];
+            double oldRoot = WingEstimates.Chord(definition, 0), oldTip = WingEstimates.Chord(definition, 1);
+
+            bool CandidateAdmitted(Curve cand)
+            {
+                try
+                {
+                    byte[] bytes = PrintCurve(definition, rail, cand);
+                    var next = FoilSource.Parse(bytes);
+                    if (!next.IsParsed || next.Definition is null) return false;
+                    if (!TipChord.Admits(oldTip, oldRoot, WingEstimates.Chord(next.Definition, 1), WingEstimates.Chord(next.Definition, 0))) return false;
+                    return Geometry.Assess(next, new ProofBudget(proofWorkLimit)).Status == GeometryStatus.Certified;
+                }
+                catch (ContractError) { return false; }
+            }
+
+            Curve updated;
+            byte[] candidateBytes;
+            try
+            {
+                updated = ChannelEdits.SetTipVertical(original, vertical, definition.HalfSpan, CandidateAdmitted);
+                candidateBytes = PrintCurve(definition, rail, updated);
+            }
+            catch (ContractError error)
+            {
+                RecordTipEdit(new("tangent", rail, "refused", error.Code, timer.Elapsed.TotalMilliseconds));
+                return new(false, null, error.Code, error.Reason ?? error.Code);
+            }
+
+            var nextParsed = FoilSource.Parse(candidateBytes);
+            if (!nextParsed.IsParsed || nextParsed.Definition is null)
+            {
+                string code = nextParsed.Diagnostics.Count > 0 ? nextParsed.Diagnostics[0].Code : "DSL-PATCH";
+                RecordTipEdit(new("tangent", rail, "refused", code, timer.Elapsed.TotalMilliseconds));
+                return new(false, null, code, nextParsed.Diagnostics.FirstOrDefault()?.Reason ?? code);
+            }
+            string rule = vertical ? "vertical" : "free";
+            string tipId = nextParsed.Definition.Curves[rail].Ids[^1];
+            var receipt = new EditReceipt(operationId, 0, "tip-tangent", tipId, Rule: rule, Curve: rail);
+            string payload = Fingerprint(receipt, parent, nextParsed.SourceHash, rail);
+            if (Retry(operationId, payload, out string existing))
+                return new(true, existing, "OK", null, null, Planform.TipRadiusMeters(nextParsed.Definition.Curves[rail], nextParsed.Definition.HalfSpan));
+
+            Guard.Require(!retiredDraftIds.Contains(operationId), "DSL-DRAFT-REUSED");
+            retiredDraftIds.Add(operationId);
+            draft = new(operationId, current!, 0, "tip-tangent", tipId, candidateBytes, Rule: rule, Curve: rail);
+            try
+            {
+                var assessment = AssessOwned(nextParsed);
+                if (assessment.Status != GeometryStatus.Certified || assessment.Certificate is null)
+                {
+                    draft = null; retiredDraftIds.Remove(operationId);
+                    string code = assessment.Code;
+                    RecordTipEdit(new("tangent", rail, "refused", code, timer.Elapsed.TotalMilliseconds));
+                    return new(false, null, code, assessment.Reason);
+                }
+                string id = Commit(nextParsed, operationId, "apply");
+                operations.Add(operationId, (payload, id));
+                draft = null; recovery = null; InvalidateEnvelopeSize();
+                RecordTipEdit(new("tangent", rail, "ok", "OK", timer.Elapsed.TotalMilliseconds));
+                return new(true, id, "OK", null, null, Planform.TipRadiusMeters(nextParsed.Definition.Curves[rail], nextParsed.Definition.HalfSpan));
+            }
+            catch (ContractError error)
+            {
+                draft = null; retiredDraftIds.Remove(operationId);
+                RecordTipEdit(new("tangent", rail, "refused", error.Code, timer.Elapsed.TotalMilliseconds));
+                return new(false, null, error.Code, error.Reason ?? error.Code);
+            }
+            catch
+            {
+                draft = null; retiredDraftIds.Remove(operationId); throw;
+            }
+        }
+    }
+
+    private TipEditOutcome SetTipRadiusCore(string operationId, string rail, double targetRadiusMeters)
+    {
+        var timer = System.Diagnostics.Stopwatch.StartNew();
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            NativeProject.Uuid(operationId);
+            if (rail is not ("leading" or "trailing"))
+            {
+                RecordTipEdit(new("radius", rail, "refused", "DSL-TARGET", timer.Elapsed.TotalMilliseconds));
+                return new(false, null, "DSL-TARGET", "Tip radius applies only to leading or trailing rails.");
+            }
+            if (!double.IsFinite(targetRadiusMeters) || targetRadiusMeters <= 0.0)
+            {
+                RecordTipEdit(new("radius", rail, "refused", "DSL-UNIT", timer.Elapsed.TotalMilliseconds));
+                return new(false, null, "DSL-UNIT", "Enter a positive finite tip radius.");
+            }
+            bool replay = operations.ContainsKey(operationId);
+            var prior = replay ? accepted.SingleOrDefault(row => row.OperationId == operationId && row.Edit?.Rail == "tip-radius") : null;
+            if (replay && prior is null) throw new ContractError("DOC-OPERATION-CONFLICT");
+            Guard.Require(replay || current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
+            string? parent = replay ? prior!.Parent : current;
+            byte[] basis = replay ? BaseBytes(parent!) : CurrentBytes;
+            var parsed = ParseOwned(basis);
+            var definition = parsed.Definition!;
+            var original = definition.Curves[rail];
+            if (!TipCapMath.IsVerticalTip(original) || !original.Tangents.Any(t => t.Id == original.Ids[^1] && t.Kind == "vertical"))
+            {
+                RecordTipEdit(new("radius", rail, "refused", "DSL-LOCK", timer.Elapsed.TotalMilliseconds));
+                return new(false, null, "DSL-LOCK", "Vertical tip tangent requires a nonzero handle length along the tip edge.");
+            }
+            double oldRoot = WingEstimates.Chord(definition, 0), oldTip = WingEstimates.Chord(definition, 1);
+
+            bool CandidateAdmitted(Curve cand)
+            {
+                try
+                {
+                    double rCand = Planform.TipRadiusMeters(cand, definition.HalfSpan);
+                    if (!ChannelEdits.WithinTipRadiusEnvelope(cand, rCand, definition.HalfSpan, oldRoot)) return false;
+                    byte[] bytes = PrintCurve(definition, rail, cand);
+                    var next = FoilSource.Parse(bytes);
+                    if (!next.IsParsed || next.Definition is null) return false;
+                    if (!TipChord.Admits(oldTip, oldRoot, WingEstimates.Chord(next.Definition, 1), WingEstimates.Chord(next.Definition, 0))) return false;
+                    return Geometry.Assess(next, new ProofBudget(proofWorkLimit)).Status == GeometryStatus.Certified;
+                }
+                catch (ContractError) { return false; }
+            }
+
+            TipEditOutcome OutOfBounds()
+            {
+                double maxFeasible = ChannelEdits.MaxFeasibleTipRadiusMeters(original, definition.HalfSpan, targetRadiusMeters, CandidateAdmitted);
+                double reqMm = targetRadiusMeters * 1000.0;
+                double maxMm = maxFeasible * 1000.0;
+                string reason = string.Create(CultureInfo.InvariantCulture,
+                    $"Tip radius {reqMm:0.0} mm exceeds feasible envelope (max {maxMm:0.00} mm at current tip chord and span). Use {maxMm:0.00} mm");
+                RecordTipEdit(new("radius", rail, "refused", "DSL-TIP-RADIUS-BOUNDS", timer.Elapsed.TotalMilliseconds));
+                return new(false, null, "DSL-TIP-RADIUS-BOUNDS", reason, LimitMeters: maxFeasible > 0.0 ? maxFeasible : null);
+            }
+
+            Curve updated;
+            byte[] candidateBytes;
+            try
+            {
+                updated = ChannelEdits.WithTipRadius(original, targetRadiusMeters, definition.HalfSpan);
+                if (!ChannelEdits.WithinTipRadiusEnvelope(updated, targetRadiusMeters, definition.HalfSpan, oldRoot))
+                    return OutOfBounds();
+                candidateBytes = PrintCurve(definition, rail, updated);
+            }
+            catch (ContractError error) when (error.Code == "DSL-LOCK")
+            {
+                RecordTipEdit(new("radius", rail, "refused", "DSL-LOCK", timer.Elapsed.TotalMilliseconds));
+                return new(false, null, "DSL-LOCK", "Vertical tip tangent requires a nonzero handle length along the tip edge.");
+            }
+            catch (ContractError)
+            {
+                return OutOfBounds();
+            }
+
+            var nextParsed = FoilSource.Parse(candidateBytes);
+            if (!nextParsed.IsParsed || nextParsed.Definition is null)
+                return OutOfBounds();
+            if (!TipChord.Admits(oldTip, oldRoot, WingEstimates.Chord(nextParsed.Definition, 1), WingEstimates.Chord(nextParsed.Definition, 0)))
+                return OutOfBounds();
+
+            string tipId = nextParsed.Definition.Curves[rail].Ids[^1];
+            var receipt = new EditReceipt(operationId, 0, "tip-radius", tipId, Curve: rail);
+            string payload = Fingerprint(receipt, parent, nextParsed.SourceHash, rail);
+            if (Retry(operationId, payload, out string existing))
+                return new(true, existing, "OK", null, null, Planform.TipRadiusMeters(nextParsed.Definition.Curves[rail], nextParsed.Definition.HalfSpan));
+
+            Guard.Require(!retiredDraftIds.Contains(operationId), "DSL-DRAFT-REUSED");
+            retiredDraftIds.Add(operationId);
+            draft = new(operationId, current!, 0, "tip-radius", tipId, candidateBytes, Curve: rail);
+            try
+            {
+                var assessment = AssessOwned(nextParsed);
+                if (assessment.Status != GeometryStatus.Certified || assessment.Certificate is null)
+                {
+                    draft = null; retiredDraftIds.Remove(operationId);
+                    return OutOfBounds();
+                }
+                string id = Commit(nextParsed, operationId, "apply");
+                operations.Add(operationId, (payload, id));
+                draft = null; recovery = null; InvalidateEnvelopeSize();
+                RecordTipEdit(new("radius", rail, "ok", "OK", timer.Elapsed.TotalMilliseconds));
+                return new(true, id, "OK", null, null, Planform.TipRadiusMeters(nextParsed.Definition.Curves[rail], nextParsed.Definition.HalfSpan));
+            }
+            catch (ContractError error)
+            {
+                draft = null; retiredDraftIds.Remove(operationId);
+                RecordTipEdit(new("radius", rail, "refused", error.Code, timer.Elapsed.TotalMilliseconds));
+                return new(false, null, error.Code, error.Reason ?? error.Code);
+            }
+            catch
+            {
+                draft = null; retiredDraftIds.Remove(operationId); throw;
+            }
+        }
+    }
+
+    private TipEditOutcome SetTipCapCore(string operationId, string tipMode, double? capRatio)
+    {
+        var timer = System.Diagnostics.Stopwatch.StartNew();
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            NativeProject.Uuid(operationId);
+            if (tipMode is not ("open" or "rounded"))
+            {
+                RecordTipEdit(new("cap", null, "refused", "DSL-TARGET", timer.Elapsed.TotalMilliseconds));
+                return new(false, null, "DSL-TARGET", "Tip cap mode must be open or rounded.");
+            }
+            if (tipMode == "rounded")
+            {
+                double r = capRatio ?? TipCapMath.DefaultCapRatio;
+                if (!double.IsFinite(r) || r < TipCapMath.MinCapRatio || r > TipCapMath.MaxCapRatio)
+                {
+                    RecordTipEdit(new("cap", null, "refused", "DSL-UNIT", timer.Elapsed.TotalMilliseconds));
+                    return new(false, null, "DSL-UNIT", "Cap ratio must be between 0.25 and 2.00.");
+                }
+            }
+            bool replay = operations.ContainsKey(operationId);
+            var prior = replay ? accepted.SingleOrDefault(row => row.OperationId == operationId && row.Edit?.Rail == "tip-cap") : null;
+            if (replay && prior is null) throw new ContractError("DOC-OPERATION-CONFLICT");
+            Guard.Require(replay || current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
+            string? parent = replay ? prior!.Parent : current;
+            byte[] basis = replay ? BaseBytes(parent!) : CurrentBytes;
+
+            byte[] candidateBytes;
+            try { candidateBytes = FoilSource.PatchTipCap(basis, tipMode, capRatio); }
+            catch (ContractError error)
+            {
+                RecordTipEdit(new("cap", null, "refused", error.Code, timer.Elapsed.TotalMilliseconds));
+                return new(false, null, error.Code, error.Reason ?? error.Code);
+            }
+            var nextParsed = FoilSource.Parse(candidateBytes);
+            if (!nextParsed.IsParsed || nextParsed.Definition is null)
+            {
+                string code = nextParsed.Diagnostics.Count > 0 ? nextParsed.Diagnostics[0].Code : "DSL-PATCH";
+                RecordTipEdit(new("cap", null, "refused", code, timer.Elapsed.TotalMilliseconds));
+                return new(false, null, code, nextParsed.Diagnostics.FirstOrDefault()?.Reason ?? code);
+            }
+            var receipt = new EditReceipt(operationId, 0, "tip-cap", tipMode);
+            string payload = Fingerprint(receipt, parent, nextParsed.SourceHash);
+            if (Retry(operationId, payload, out string existing))
+                return new(true, existing, "OK");
+
+            Guard.Require(!retiredDraftIds.Contains(operationId), "DSL-DRAFT-REUSED");
+            retiredDraftIds.Add(operationId);
+            draft = new(operationId, current!, 0, "tip-cap", tipMode, candidateBytes);
+            try
+            {
+                var assessment = AssessOwned(nextParsed);
+                if (assessment.Status != GeometryStatus.Certified || assessment.Certificate is null)
+                {
+                    draft = null; retiredDraftIds.Remove(operationId);
+                    RecordTipEdit(new("cap", null, "refused", assessment.Code, timer.Elapsed.TotalMilliseconds));
+                    return new(false, null, assessment.Code, assessment.Reason);
+                }
+                string id = Commit(nextParsed, operationId, "apply");
+                operations.Add(operationId, (payload, id));
+                draft = null; recovery = null; InvalidateEnvelopeSize();
+                RecordTipEdit(new("cap", null, "ok", "OK", timer.Elapsed.TotalMilliseconds));
+                return new(true, id, "OK");
+            }
+            catch (ContractError error)
+            {
+                draft = null; retiredDraftIds.Remove(operationId);
+                RecordTipEdit(new("cap", null, "refused", error.Code, timer.Elapsed.TotalMilliseconds));
+                return new(false, null, error.Code, error.Reason ?? error.Code);
+            }
+            catch
+            {
+                draft = null; retiredDraftIds.Remove(operationId); throw;
+            }
+        }
     }
 
     private static string? RailCrossing(Definition definition, string curve, Curve changed)
@@ -1742,8 +2120,12 @@ public sealed class AuthoringSession : IDisposable
         for (int i = 0; i < points.Length; i++) aft += sample.N[i] * points[i][1];
         double shift = point.Ordinate - aft;
         for (int i = anchor - 1; i <= anchor + 1; i++) points[i][1] += shift;
+        bool verticalTip = TipCapMath.IsVerticalTip(curve);
         for (int i = 1; i < points.Length; i++)
+        {
+            if (verticalTip && i == points.Length - 1 && points[^2][0] == 1.0 && points[^1][0] == 1.0) continue;
             Guard.Require((points[i][0] - points[i - 1][0]) * 1 >= 1e-7 - 1e-12, "DSL-CURVE");
+        }
         return curve with { Knots = knots, Points = points, Ids = ids,
             Tangents = [.. curve.Tangents, new TangentRow(point.Id, "smooth", null)] };
     }
@@ -2276,7 +2658,7 @@ public sealed class AuthoringSession : IDisposable
                         ? "open:" + a.SourceId
                         : a.Edit?.Rail is "dimension" or "station-add" or "station-remove" or "station-match"
                             ? Fingerprint(a.Edit, a.Parent, a.SourceId)
-                            : a.Edit?.Rail is "point-type" or "tangent-kind"
+                            : a.Edit?.Rail is "point-type" or "tangent-kind" or "tip-tangent" or "tip-radius" or "tip-cap"
                                 ? Fingerprint(a.Edit, a.Parent, a.SourceId, a.Edit.Curve ?? "")
                             : "apply:" + JsonSerializer.Serialize(new SessionBinding(a.SourceId, a.Parent!, a.Edit!.DraftId, a.Edit.Generation, d.Evaluator, d.SurfaceHash!, a.Edit.Rail, a.Edit.VertexId));
                     operations[c.OperationId] = (payload, c.Target);
@@ -3477,6 +3859,10 @@ public static class NativeProject
             (ProfileNamed(parent, edit.VertexId) || child.Assignments.Any(item => child.Profiles[item.Profile].Name == edit.VertexId)),
         // Area 1 Setup re-seed receipt (SET-03, Ruling 272): vertexId names the immutable SetupBriefVersion that seeded the revision.
         "seed" => edit.Curve is null && edit.Rule is null && setupBriefExists is not null && setupBriefExists(edit.VertexId),
+        // Wave 13A FoilDSL 4.2 rounded & radiused wing tip receipts (docs/design/rounded-wing-tips.md §3.2).
+        "tip-cap" => edit.Curve is null && edit.Rule is null && edit.VertexId is "open" or "rounded",
+        "tip-tangent" => edit.Curve is "leading" or "trailing" && edit.Rule is "free" or "vertical" && edit.VertexId == child.Curves[edit.Curve].Ids[^1],
+        "tip-radius" => edit.Curve is "leading" or "trailing" && edit.Rule is null && edit.VertexId == child.Curves[edit.Curve].Ids[^1],
         _ => false
     };
     static bool ProfileNamed(Definition definition, string name) => definition.Profiles.Any(profile => profile.Name == name);

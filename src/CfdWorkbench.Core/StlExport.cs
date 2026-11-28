@@ -52,7 +52,7 @@ public static class StlExport
         IReadOnlyList<(int Stations, int ChordPoints)> ladder, CancellationToken cancellation = default)
     {
         var stage = Stage(source, toleranceMm, ladder, cancellation);
-        byte[] bytes = Write(Close(stage.Surface, scope), Header(foilName, revision));
+        byte[] bytes = Write(Close(stage.Surface, scope, toleranceMm), Header(foilName, revision));
         return Summarize(bytes, Check(bytes), stage, scope, toleranceMm);
     }
 
@@ -147,7 +147,7 @@ public static class StlExport
     /// The closed mesh of <paramref name="surface"/>: vertices welded by their binary32 millimetre bits, so the table is the table the bytes carry;
     /// an open trailing edge gets a strip, each tip a cap, and a half a root cap in the plane y = 0 with the opposite winding. Adds no geometry.
     /// </summary>
-    internal static StlMesh Close(SurfaceView surface, StlScope scope)
+    internal static StlMesh Close(SurfaceView surface, StlScope scope, double toleranceMm = PrintMm)
     {
         var index = new Dictionary<(uint, uint, uint), int>();
         var vertices = new List<float>();
@@ -168,6 +168,7 @@ public static class StlExport
         }
         var sections = surface.Sections;
         int n = sections[0].Upper.Count;
+        bool roundedTip = surface.TipMode == "rounded";
         foreach (bool port in scope == StlScope.Half ? new[] { false } : new[] { false, true })
         {
             Point3 P(Point3 p) => port ? p.Port() : p;
@@ -186,10 +187,59 @@ public static class StlExport
                 if (!port) { T(u0, l0, l1); T(u0, l1, u1); } else { T(u0, l1, l0); T(u0, u1, l1); }
             }
             var tip = sections[^1];
-            for (int j = 0; j < n - 1; j++)
+            if (!roundedTip)
             {
-                int a = V(P(tip.Upper[j])), b = V(P(tip.Upper[j + 1])), c = V(P(tip.Lower[j + 1])), d = V(P(tip.Lower[j]));
-                if (port) { T(a, d, c); T(a, c, b); } else { T(a, c, d); T(a, b, c); }
+                for (int j = 0; j < n - 1; j++)
+                {
+                    int a = V(P(tip.Upper[j])), b = V(P(tip.Upper[j + 1])), c = V(P(tip.Lower[j + 1])), d = V(P(tip.Lower[j]));
+                    if (port) { T(a, d, c); T(a, c, b); } else { T(a, c, d); T(a, b, c); }
+                }
+            }
+            else
+            {
+                double maxHalfThickMm = TipCapMath.MaxHalfThicknessMeters(tip) * 1000.0;
+                int nTheta = TipCapMath.CapThetaSteps(maxHalfThickMm, surface.TipCapRatio, toleranceMm);
+                var ring = new int[n, nTheta + 1];
+                for (int j = 0; j < n; j++)
+                {
+                    var u = P(tip.Upper[j]);
+                    var l = P(tip.Lower[j]);
+                    int vu = V(u);
+                    int vl = V(l);
+                    var mid = TipCapMath.EvaluateCapPoint(u, l, 0.5, surface.TipCapRatio, port);
+                    if (vu == vl || (V(mid) == vu && V(mid) == vl))
+                    {
+                        for (int k = 0; k <= nTheta; k++) ring[j, k] = vu;
+                    }
+                    else
+                    {
+                        ring[j, 0] = vu;
+                        ring[j, nTheta] = vl;
+                        for (int k = 1; k < nTheta; k++)
+                            ring[j, k] = V(TipCapMath.EvaluateCapPoint(u, l, k / (double)nTheta, surface.TipCapRatio, port));
+                    }
+                }
+                for (int j = 0; j < n - 1; j++)
+                {
+                    for (int k = 0; k < nTheta; k++)
+                    {
+                        int a = ring[j, k], b = ring[j + 1, k], c = ring[j + 1, k + 1], d = ring[j, k + 1];
+                        if (!port) { T(a, b, c); T(a, c, d); }
+                        else { T(a, c, b); T(a, d, c); }
+                    }
+                }
+                // Open trailing edge: strictly convex semi-elliptical fan rooted at V(U(1)) — zero T-junctions and zero collinear tris.
+                if (ring[n - 1, 0] != ring[n - 1, nTheta])
+                {
+                    int teU = ring[n - 1, 0];
+                    for (int k = 1; k < nTheta; k++)
+                    {
+                        int p1 = ring[n - 1, k];
+                        int p2 = ring[n - 1, k + 1];
+                        if (!port) T(teU, p2, p1);
+                        else T(teU, p1, p2);
+                    }
+                }
             }
         }
         if (scope == StlScope.Half)

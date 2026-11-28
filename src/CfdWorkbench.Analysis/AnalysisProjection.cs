@@ -10,7 +10,8 @@ public sealed record ProjectionContext(IReadOnlyList<StripVerdict>? Verdicts = n
     RunIntegrity Integrity = RunIntegrity.Intact, AnalysisRun? PreviousCompleted = null,
     IReadOnlySet<string>? HiddenLayers = null, IReadOnlyList<Loads.Vec>? StripNormals = null, string? FeedUnavailable = null,
     byte[]? Source = null, SectionTierResult? SectionTier = null,
-    RevisionLabel? Revision = null, string? HistoricalText = null, string? SectionFailureCode = null);
+    RevisionLabel? Revision = null, string? HistoricalText = null, string? SectionFailureCode = null,
+    bool RoundedTipCap = false);
 
 /// <summary>What the Compare projection reads besides the two runs: freshness, units, the coefficient source, the outcome of recording.</summary>
 public sealed record CompareContext(CurrentInputs Current, Units Units, Func<AnalysisRun, Coefficients> Values, Func<string, int?> Ordinal)
@@ -338,6 +339,8 @@ public static class AnalysisProjection
                 note: Labels.DefaultLattice(run.Settings) ? Labels.VerifiedLattice : Labels.NearFieldFlag),
             Row("Basis", Labels.FixedVlm(depth && !shallow)), Row("Not modelled", Labels.NotModelled(depth && !shallow))
         };
+        bool roundedTipCap = context.RoundedTipCap || (context.Source is { } tipSrc && FoilSource.Parse(tipSrc).Authored().Tip == "rounded");
+        if (roundedTipCap) basis.Add(Row("Tip cap", Labels.RoundedTipCapNotice));
         if (depth)
         {
             double h = run.Op.HRef!.Value;

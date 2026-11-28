@@ -546,6 +546,11 @@ public sealed record WingCadSkin(
     double SizeZMm,
     CadDeviationReport Deviation)
 {
+    public double[] StationVParams { get; init; } = StationEtas;
+    public string TipMode { get; init; } = "open";
+    public double TipCapRatio { get; init; } = TipCapMath.DefaultCapRatio;
+    public CadNurbsSurface? StarboardTipCap { get; init; }
+    public CadNurbsSurface? StarboardTipCapTeEnd { get; init; }
     public double SizeYMm(StlScope scope) => scope == StlScope.Half ? HalfSizeYMm : 2.0 * HalfSizeYMm;
 }
 
@@ -611,6 +616,7 @@ public static class CadExportExtractor
 
         CadNurbsSurface upperSrf = null!;
         CadNurbsSurface lowerSrf = null!;
+        double[] vParams = [];
         double minTeMm = double.PositiveInfinity;
         double maxTeMm = 0.0;
         double minTeYMm = 0.0;
@@ -634,8 +640,9 @@ public static class CadExportExtractor
             minZ = bzMin;
             maxZ = bzMax;
 
-            upperSrf = CadNurbsMath.SkinSections(uParams, [.. etas], upperGrid, degreeU: 3, degreeV: 3);
-            lowerSrf = CadNurbsMath.SkinSections(uParams, [.. etas], lowerGrid, degreeU: 3, degreeV: 3);
+            vParams = ComputeChordalVParams(upperGrid, lowerGrid, DefaultChordPoints, etas.Count, etas);
+            upperSrf = CadNurbsMath.SkinSections(uParams, vParams, upperGrid, degreeU: 3, degreeV: 3);
+            lowerSrf = CadNurbsMath.SkinSections(uParams, vParams, lowerGrid, degreeU: 3, degreeV: 3);
 
             if (round == MaxRefinementRounds || etas.Count >= MaxSections)
                 break;
@@ -648,17 +655,26 @@ public static class CadExportExtractor
             var toInsert = new List<double>();
             for (int k = 0; k < midEtas.Count; k++)
             {
-                double v = midEtas[k];
+                double dLeft = StationSpanStep(upperGrid, lowerGrid, k, midU, midL, k, DefaultChordPoints);
+                double dRight = StationSpanStep(midU, midL, k, upperGrid, lowerGrid, k + 1, DefaultChordPoints);
+                double vMidChord = (dLeft + dRight) > 1e-12
+                    ? vParams[k] + (vParams[k + 1] - vParams[k]) * (dLeft / (dLeft + dRight))
+                    : 0.5 * (vParams[k] + vParams[k + 1]);
                 double intervalMaxMm = 0.0;
                 for (int j = 0; j < DefaultChordPoints; j += 2)
                 {
                     double u = uParams[j];
-                    double du = (upperSrf.Evaluate(u, v) - midU[j, k]).Length();
-                    double dl = (lowerSrf.Evaluate(u, v) - midL[j, k]).Length();
+                    double du = (upperSrf.Evaluate(u, vMidChord) - midU[j, k]).Length();
+                    if (du > TargetSkinMm)
+                        du = upperSrf.ClosestPoint(midU[j, k], u, vMidChord).DistanceMm;
+                    double dl = (lowerSrf.Evaluate(u, vMidChord) - midL[j, k]).Length();
+                    if (dl > TargetSkinMm)
+                        dl = lowerSrf.ClosestPoint(midL[j, k], u, vMidChord).DistanceMm;
                     intervalMaxMm = Math.Max(intervalMaxMm, Math.Max(du, dl));
+                    if (intervalMaxMm > TargetSkinMm) break;
                 }
                 if (intervalMaxMm > TargetSkinMm)
-                    toInsert.Add(v);
+                    toInsert.Add(midEtas[k]);
             }
 
             if (toInsert.Count == 0)
@@ -676,6 +692,24 @@ public static class CadExportExtractor
         bool alongSpan = maxTeMm - minTeMm <= 1e-6;
         bool atTip = Math.Abs(minTeYMm - halfSpanMm) <= 1e-6;
 
+        var def = parsed.Definition!;
+        bool roundedTip = def.Tip == "rounded";
+        double tipCapRatio = def.TipCapRatio;
+        CadNurbsSurface? stbdTipCap = null;
+        CadNurbsSurface? stbdTipCapTeEnd = null;
+        double maxCapProtrusionMm = 0.0;
+        if (roundedTip)
+        {
+            var stbdTipU = upperSrf.IsoV(upperSrf.CountV - 1);
+            var stbdTipL = lowerSrf.IsoV(lowerSrf.CountV - 1);
+            stbdTipCap = TipCapMath.BuildStarboardTipCap(stbdTipU, stbdTipL, tipCapRatio);
+            double tipChordM = WingEstimates.Chord(def, 1.0);
+            double tipTc = ChannelEvaluator.Value(def.Curves["thickness"].Knots, def.Curves["thickness"].Degree, def.Curves["thickness"].Points, 1.0);
+            maxCapProtrusionMm = TipCapMath.MaxCapProtrusionMeters(tipChordM, tipTc, tipCapRatio) * 1000.0;
+            if (isOpenTe)
+                stbdTipCapTeEnd = TipCapMath.BuildStarboardTipCapTeEnd(stbdTipCap.IsoU(stbdTipCap.CountU - 1), stbdTipU.Poles[^1], stbdTipL.Poles[^1]);
+        }
+
         var provisional = new WingCadSkin(
             upperSrf,
             lowerSrf,
@@ -692,9 +726,16 @@ public static class CadExportExtractor
             [.. etas],
             mappedKnots,
             maxX - minX,
-            halfSpanMm,
+            halfSpanMm + maxCapProtrusionMm,
             maxZ - minZ,
-            new CadDeviationReport(0, 0, 0, 0, 0, "upper", 0, 0));
+            new CadDeviationReport(0, 0, 0, 0, 0, "upper", 0, 0))
+        {
+            StationVParams = vParams,
+            TipMode = def.Tip,
+            TipCapRatio = tipCapRatio,
+            StarboardTipCap = stbdTipCap,
+            StarboardTipCapTeEnd = stbdTipCapTeEnd
+        };
 
         var deviation = MeasureDeviationAgainstPlacementSurface(source, provisional, verifyStations, verifyChordSamples, cancellation);
         return provisional with { Deviation = deviation };
@@ -721,7 +762,7 @@ public static class CadExportExtractor
         for (int k = 0; k < surf.Sections.Count; k++)
         {
             var sec = surf.Sections[k];
-            double v0 = sec.Eta;
+            double v0 = LookupChordalV(skin.StationEtas, skin.StationVParams, sec.Eta);
             for (int j = 0; j < chordSamples; j++)
             {
                 double u0 = j / (double)(chordSamples - 1);
@@ -798,13 +839,14 @@ public static class CadExportExtractor
             crest[k] = new((midCrest.X + halfT * sin) * 1000.0, midCrest.Y * 1000.0, (midCrest.Z + halfT * cos) * 1000.0);
         }
 
+        var vParams = skin.StationVParams.Length == etas.Length ? skin.StationVParams : etas;
         var stbd = new NamedCadCurve[]
         {
-            new("Leading Edge (Starboard)", CadNurbsMath.InterpolateCurve(etas, le)),
-            new("Trailing Edge (Starboard)", CadNurbsMath.InterpolateCurve(etas, te)),
-            new("Dihedral Spine (Starboard)", CadNurbsMath.InterpolateCurve(etas, spine)),
-            new("Twist Reference (Starboard)", CadNurbsMath.InterpolateCurve(etas, twistRef)),
-            new("Thickness Crest (Starboard)", CadNurbsMath.InterpolateCurve(etas, crest)),
+            new("Leading Edge (Starboard)", CadNurbsMath.InterpolateCurve(vParams, le)),
+            new("Trailing Edge (Starboard)", CadNurbsMath.InterpolateCurve(vParams, te)),
+            new("Dihedral Spine (Starboard)", CadNurbsMath.InterpolateCurve(vParams, spine)),
+            new("Twist Reference (Starboard)", CadNurbsMath.InterpolateCurve(vParams, twistRef)),
+            new("Thickness Crest (Starboard)", CadNurbsMath.InterpolateCurve(vParams, crest)),
         };
 
         var result = new List<NamedCadCurve>(scope == StlScope.Whole ? stbd.Length * 2 : stbd.Length);
@@ -864,8 +906,16 @@ public static class CadExportExtractor
             set.Add(assignment.Eta);
         foreach (double eta in mappedChannelKnots)
             set.Add(eta);
-        for (int i = 0; i <= 16; i++)
-            set.Add(i / 16.0);
+        if (parsed.Definition is not null && TipCapMath.HasVerticalTip(parsed.Definition))
+        {
+            for (int i = 0; i <= 32; i++)
+                set.Add(i == 0 ? 0.0 : i == 32 ? 1.0 : double.SinPi(i / 64.0));
+        }
+        else
+        {
+            for (int i = 0; i <= 16; i++)
+                set.Add(i / 16.0);
+        }
 
         var result = new List<double>();
         foreach (double v in set)
@@ -875,6 +925,55 @@ public static class CadExportExtractor
         }
         if (result[^1] < 1.0) result[^1] = 1.0;
         return result;
+    }
+
+    private static double StationSpanStep(CadVec3[,] uA, CadVec3[,] lA, int kA, CadVec3[,] uB, CadVec3[,] lB, int kB, int nu)
+    {
+        int mid = nu / 2;
+        var leA = uA[0, kA];
+        var midA = 0.5 * (uA[mid, kA] + lA[mid, kA]);
+        var teA = 0.5 * (uA[nu - 1, kA] + lA[nu - 1, kA]);
+        var leB = uB[0, kB];
+        var midB = 0.5 * (uB[mid, kB] + lB[mid, kB]);
+        var teB = 0.5 * (uB[nu - 1, kB] + lB[nu - 1, kB]);
+        return ((leB - leA).Length() + (midB - midA).Length() + (teB - teA).Length()) / 3.0;
+    }
+
+    private static double[] ComputeChordalVParams(CadVec3[,] upperGrid, CadVec3[,] lowerGrid, int nu, int nv, IReadOnlyList<double> etas)
+    {
+        if (nv <= 2) return [.. etas];
+        var cum = new double[nv];
+        cum[0] = 0.0;
+        for (int k = 1; k < nv; k++)
+        {
+            double step = StationSpanStep(upperGrid, lowerGrid, k - 1, upperGrid, lowerGrid, k, nu);
+            cum[k] = cum[k - 1] + Math.Max(step, 1e-9);
+        }
+        double total = cum[nv - 1];
+        if (total <= 1e-12) return [.. etas];
+        var v = new double[nv];
+        v[0] = 0.0;
+        v[nv - 1] = 1.0;
+        for (int k = 1; k < nv - 1; k++)
+            v[k] = cum[k] / total;
+        return v;
+    }
+
+    private static double LookupChordalV(double[] stationEtas, double[] stationV, double eta)
+    {
+        if (stationEtas.Length < 2 || stationV.Length != stationEtas.Length) return Math.Clamp(eta, 0.0, 1.0);
+        if (eta <= stationEtas[0]) return 0.0;
+        if (eta >= stationEtas[^1]) return 1.0;
+        int lo = 0, hi = stationEtas.Length - 1;
+        while (hi - lo > 1)
+        {
+            int mid = (lo + hi) >> 1;
+            if (stationEtas[mid] <= eta) lo = mid;
+            else hi = mid;
+        }
+        double span = stationEtas[hi] - stationEtas[lo];
+        double frac = span > 1e-15 ? (eta - stationEtas[lo]) / span : 0.0;
+        return stationV[lo] + frac * (stationV[hi] - stationV[lo]);
     }
 
     private static (CadVec3[,] Upper, CadVec3[,] Lower, double MinTeMm, double MaxTeMm, double MinTeYMm, double HalfSpanMm,

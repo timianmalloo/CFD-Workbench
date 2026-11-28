@@ -65,7 +65,8 @@ public sealed class SourceParse
         return new(new(SourceHash, candidate ? "IdCandidate" : "Parsed", null, null, SurfaceHash, Evaluator.IdFor(definition), null, null, null),
             definition.Name, definition.Kind == "foil" ? unit : null, definition.Kind == "foil" ? definition.HalfSpan : null, rails, assignments, constraints, Diagnostics,
             definition.Assertions.Select(item => new AuthoredAssertion(item.Metric.Text, item.Comparison, QuantitySi(item.Value), item.Value.Unit?.Text,
-                item.Tolerance is null ? null : QuantitySi(item.Tolerance))));
+                item.Tolerance is null ? null : QuantitySi(item.Tolerance))),
+            definition.Tip, definition.Tip == "rounded" ? definition.TipCapRatio : null);
     }
     private static double QuantitySi(QuantitySource quantity) => DecimalSi.Parse(quantity.Number.Text,
         quantity.Unit?.Text switch { "mm" => -3, "cm" => -2, "mm2" => -6, "cm2" => -4, null or "m" or "m2" => 0, _ => throw new ContractError("DSL-UNIT") });
@@ -143,6 +144,7 @@ internal sealed record Definition(string Kind, int UnitScale, double HalfSpan, D
     AssertionSource[] Assertions, object Semantic, string Name, SourceToken[] AssignmentProfiles)
 {
     internal string Version { get; init; } = "4.0";
+    internal double TipCapRatio { get; init; } = TipCapMath.DefaultCapRatio;
 }
 internal sealed class SourceFailure(string code, string phase, SourceToken token, string? entity = null, string? reason = null) : Exception(code)
 {
@@ -210,13 +212,59 @@ public static class FoilSource
         SourceToken version;
         try { version = grammar.VersionToken(); }
         catch (SourceFailure) { throw new ContractError("DSL-VERSION"); }
-        if (version.String == "4.1") return source;
+        if (version.String is "4.1" or "4.2") return source;
         if (version.String != "4.0") throw new ContractError("DSL-VERSION");
         int zero = Utf8.GetByteCount(text.AsSpan(0, version.Start + 3));
         if ((uint)zero >= (uint)source.Length || source[zero] != (byte)'0') throw new ContractError("DSL-VERSION");
         byte[] bytes = source.ToArray();
         bytes[zero] = (byte)'1';
         return bytes;
+    }
+
+    public static byte[] EnsureHeader42(byte[] source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        string text;
+        try { text = Utf8.GetString(source); }
+        catch (DecoderFallbackException) { throw new ContractError("DSL-LEX"); }
+        Grammar grammar;
+        try { grammar = new Grammar(text); }
+        catch (SourceFailure failure) { throw new ContractError(failure.Code); }
+        SourceToken version;
+        try { version = grammar.VersionToken(); }
+        catch (SourceFailure) { throw new ContractError("DSL-VERSION"); }
+        if (version.String == "4.2") return source;
+        if (version.String is not ("4.0" or "4.1")) throw new ContractError("DSL-VERSION");
+        int minor = Utf8.GetByteCount(text.AsSpan(0, version.Start + 3));
+        if ((uint)minor >= (uint)source.Length || source[minor] is not ((byte)'0' or (byte)'1')) throw new ContractError("DSL-VERSION");
+        byte[] bytes = source.ToArray();
+        bytes[minor] = (byte)'2';
+        return bytes;
+    }
+
+    internal static byte[] PatchTipCap(byte[] source, string tipMode, double? capRatio = null)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        Guard.Require(tipMode is "open" or "rounded", "DSL-TARGET");
+        double ratio = capRatio ?? TipCapMath.DefaultCapRatio;
+        if (tipMode == "rounded")
+            Guard.Require(double.IsFinite(ratio) && ratio >= TipCapMath.MinCapRatio && ratio <= TipCapMath.MaxCapRatio, "DSL-UNIT");
+        byte[] prepared = tipMode == "rounded" ? EnsureHeader42(source) : source;
+        var parsed = Parse(prepared);
+        if (!parsed.IsParsed || parsed.Definition is not { Kind: "foil" })
+            throw new ContractError(parsed.Diagnostics.Count > 0 ? parsed.Diagnostics[0].Code : "DSL-PATCH");
+        string text = Utf8.GetString(parsed.Source);
+        var grammar = new Grammar(text);
+        grammar.ReadDocument();
+        var (start, end, insertAt) = grammar.TipSpan;
+        string clause = tipMode == "rounded" ? "tip rounded " + ExactDecimal(ratio) : "tip open";
+        string updated = start >= 0
+            ? string.Concat(text.AsSpan(0, start), clause, text.AsSpan(end))
+            : string.Concat(text.AsSpan(0, insertAt), "\n  ", clause, text.AsSpan(insertAt));
+        byte[] candidate = Utf8.GetBytes(updated);
+        var verify = Parse(candidate);
+        Guard.Require(verify.IsParsed && verify.Definition is { Kind: "foil" }, verify.Diagnostics.Count > 0 ? verify.Diagnostics[0].Code : "DSL-PATCH");
+        return candidate;
     }
 
     public static byte[] ProfileBlock(ProfileDefinition profile)
@@ -266,7 +314,10 @@ public static class FoilSource
             text.Append(" at ").Append(station).Append(" profile ").Append(Jcs.Quote(definition.Profiles[assignment.Profile].Name));
         }
         text.Append(" }\n");
-        text.Append("  tip ").Append(definition.Tip).Append('\n');
+        if (definition.Tip == "rounded")
+            text.Append("  tip rounded ").Append(ExactDecimal(definition.TipCapRatio)).Append('\n');
+        else
+            text.Append("  tip ").Append(definition.Tip).Append('\n');
         if (definition.Locks.Length > 0)
         {
             text.Append("  locks {\n");
@@ -1317,9 +1368,12 @@ public static class FoilSource
         private readonly List<AssertionSource> assertions = [];
         private int position;
         private string kind = "", tip = "open";
+        private SourceToken? tipRatioToken;
+        private int tipStart = -1, tipEnd = -1, tipInsertAt = -1;
         private SourceToken version = new("", 0, 0), evaluator = new("", 0, 0), evaluatorVersion = new("", 0, 0);
         private SourceToken units = new("m", 0, 0), halfSpan = new("1", 0, 0), halfSpanUnit = new("m", 0, 0);
         private string documentName = "";
+        internal (int Start, int End, int InsertAt) TipSpan => (tipStart, tipEnd, tipInsertAt);
 
         internal Grammar(string text)
         {
@@ -1403,7 +1457,7 @@ public static class FoilSource
             if (Current.Text == "tangents")
             {
                 var keyword = Current;
-                if (version.String != "4.1") throw Failure("DSL-SYNTAX", "Syntactic", keyword);
+                if (version.String is not ("4.1" or "4.2")) throw Failure("DSL-SYNTAX", "Syntactic", keyword);
                 Take();
                 Expect("{");
                 while (Current.Text != "}")
@@ -1462,7 +1516,7 @@ public static class FoilSource
         {
             if (Current.Text != "foildsl") throw Failure("DSL-VERSION", "Version", Current);
             Expect("foildsl"); version = Name();
-            if (version.String is not ("4.0" or "4.1")) throw Failure("DSL-VERSION", "Version", version);
+            if (version.String is not ("4.0" or "4.1" or "4.2")) throw Failure("DSL-VERSION", "Version", version);
             kind = Choice("foil", "section"); var name = Name(); Expect("{");
             documentName = name.String;
             if (kind == "section")
@@ -1484,7 +1538,31 @@ public static class FoilSource
             Expect("}"); Expect("sections"); Expect("{");
             do { Expect("at"); var station = ReadStation(); Expect("profile"); assignments.Add(new(station, Name())); } while (Current.Text == "at");
             Need(assignments.Count >= 2, "DSL-SYNTAX", "Syntactic", Current);
-            Expect("}"); if (Optional("tip")) tip = Choice("open", "point");
+            var sectionsClose = Expect("}");
+            tipInsertAt = sectionsClose.End;
+            if (Current.Text == "tip")
+            {
+                var tipKw = Take();
+                tipStart = tipKw.Start;
+                if (Current.Text == "rounded")
+                {
+                    var roundedTok = Take();
+                    if (version.String != "4.2") throw Failure("DSL-SYNTAX", "Syntactic", roundedTok);
+                    tip = "rounded";
+                    tipEnd = roundedTok.End;
+                    if (NumberToken(Current))
+                    {
+                        tipRatioToken = Number();
+                        tipEnd = tipRatioToken.End;
+                    }
+                }
+                else
+                {
+                    var modeTok = Current;
+                    tip = Choice("open", "point");
+                    tipEnd = modeTok.End;
+                }
+            }
             if (Optional("locks")) { Expect("{"); while (Current.Text != "}") ReadLock(); Expect("}"); }
             else foreach (string channel in new[] { "leading", "trailing", "dihedral", "twist", "thickness" }) locks.Add(new("root_mirror", new(channel, 0, 0), null, null, []));
             if (Optional("constrain")) { Expect("{"); while (Current.Text != "}") ReadAssertion(); Expect("}"); }
@@ -1535,7 +1613,7 @@ public static class FoilSource
             catch (SourceFailure failure) when (failure.Code == "DSL-CURVE")
             {
                 int degree = raw.Profile ? 5 : 3;
-                string range = raw.Profile ? "6–32" : version.String == "4.1" ? "4–16" : "6–10";
+                string range = raw.Profile ? "6–32" : version.String is "4.1" or "4.2" ? "4–16" : "6–10";
                 throw new SourceFailure(failure.Code, failure.Phase, failure.Token, raw.Path,
                     $"Curve {raw.Path} requires degree {degree}, {range} points and {raw.Points.Length + degree + 1} knots for its {raw.Points.Length} points; knots must be ordered and clamped, with ordered abscissae from 0 to 1.");
             }
@@ -1552,6 +1630,18 @@ public static class FoilSource
                     throw new SourceFailure("DSL-SYNTAX", "Syntactic", row.Kind);
                 if (kindName == "angle" && row.Angle is null) throw new SourceFailure("DSL-SYNTAX", "Syntactic", row.Kind);
                 if (!seen.Add(row.Id.String)) throw new SourceFailure("DSL-SYNTAX", "Syntactic", row.Id);
+                if (!raw.Profile && kindName == "vertical")
+                {
+                    if (version.String != "4.2")
+                        throw new SourceFailure("DSL-SYNTAX", "Syntactic", row.Kind, raw.Path, "Vertical tip tangent rows require foildsl 4.2.");
+                    if (raw.Path is not ("leading" or "trailing"))
+                        throw new SourceFailure("DSL-LOCK", "Structural", row.Kind, raw.Path, "A vertical channel tangent row is only legal on leading or trailing rails.");
+                    int tipIndex = Array.IndexOf(curve.Ids, row.Id.String);
+                    if (tipIndex < 0) throw new SourceFailure("DSL-REFERENCE", "References", row.Id, row.Id.String, "Tangent row does not name a point.");
+                    if (tipIndex != curve.Points.Length - 1)
+                        throw new SourceFailure("DSL-LOCK", "Structural", row.Id, raw.Path, "A vertical rail tangent row must name the tip point.");
+                    continue;
+                }
                 if (!raw.Profile && kindName is not ("smooth" or "symmetric"))
                     throw new SourceFailure("DSL-LOCK", "Structural", row.Kind, raw.Path, "A channel tangent row is smooth or symmetric.");
                 int index = Array.IndexOf(curve.Ids, row.Id.String);
@@ -1563,9 +1653,9 @@ public static class FoilSource
         private Curve ConvertCurveValues(RawCurve raw, int scale)
         {
             Need(int.TryParse(raw.Degree.Text, CultureInfo.InvariantCulture, out int degree) && degree == (raw.Profile ? ProfileDegree : 3), "DSL-CURVE", "Structural", raw.Degree);
-            int max = raw.Profile ? ProfilePointLimit : version.String == "4.1" ? 16 : 10;
-            int min = raw.Profile || version.String != "4.1" ? 6 : 4;
-        Need(raw.Points.Length >= min && raw.Points.Length <= max, "DSL-CURVE", "Structural", raw.Degree);
+            int max = raw.Profile ? ProfilePointLimit : version.String is "4.1" or "4.2" ? 16 : 10;
+            int min = raw.Profile || version.String is not ("4.1" or "4.2") ? 6 : 4;
+            Need(raw.Points.Length >= min && raw.Points.Length <= max, "DSL-CURVE", "Structural", raw.Degree);
             var knots = raw.Knots.Select(token => ConvertNumber(token)).ToArray();
             var points = raw.Points.Select(point => new[] { ConvertNumber(point.X), ConvertNumber(point.Y, scale) }).ToArray();
             Need(knots.Length == points.Length + degree + 1, "DSL-CURVE", "Structural", raw.Degree);
@@ -1573,7 +1663,28 @@ public static class FoilSource
             Need(knots.Zip(knots.Skip(1)).All(pair => pair.First <= pair.Second), "DSL-CURVE", "Structural", raw.Degree);
             var interior = knots.Skip(degree + 1).Take(knots.Length - 2 * (degree + 1)).ToArray();
             Need(interior.All(x => x > 0 && x < 1) && interior.GroupBy(x => x).All(group => group.Count() <= degree), "DSL-CURVE", "Structural", raw.Degree);
-            Need(points[0][0] == 0 && points[^1][0] == 1 && points.Zip(points.Skip(1)).All(pair => raw.Profile ? pair.First[0] <= pair.Second[0] : pair.First[0] < pair.Second[0]), "DSL-CURVE", "Structural", raw.Degree);
+            if (raw.Profile)
+            {
+                Need(points[0][0] == 0 && points[^1][0] == 1 && points.Zip(points.Skip(1)).All(pair => pair.First[0] <= pair.Second[0]), "DSL-CURVE", "Structural", raw.Degree);
+            }
+            else if (raw.Path is "leading" or "trailing")
+            {
+                if (version.String != "4.2" && points.Length >= 3 && points[^3][0] < 1.0 && points[^2][0] == 1.0 && points[^1][0] == 1.0)
+                    throw Failure("DSL-SYNTAX", "Syntactic", raw.Points[^2].X);
+                bool ordered = points[0][0] == 0 && points[^1][0] == 1;
+                for (int i = 0; ordered && i < points.Length - 1; i++)
+                {
+                    if (i == points.Length - 2 && version.String == "4.2")
+                        ordered = points[i][0] <= points[i + 1][0];
+                    else
+                        ordered = points[i][0] < points[i + 1][0];
+                }
+                Need(ordered, "DSL-CURVE", "Structural", raw.Degree);
+            }
+            else
+            {
+                Need(points[0][0] == 0 && points[^1][0] == 1 && points.Zip(points.Skip(1)).All(pair => pair.First[0] < pair.Second[0]), "DSL-CURVE", "Structural", raw.Degree);
+            }
             string[] ids = raw.Ids?.Select(token => token.String).ToArray() ?? Enumerable.Range(0, points.Length).Select(index => $"cv-{index}").ToArray();
             return new(raw.Path, degree, knots, points, ids, raw.Points.Select(point => point.Y).ToArray(), raw.InsertAt, raw.Ids is null,
                 raw.Points.Select(point => point.X).ToArray(), raw.Ids, raw.Knots[0].Start, raw.Knots[^1].End, raw.PointsStart, raw.PointsEnd);
@@ -1610,10 +1721,16 @@ public static class FoilSource
         }
         internal Definition Validate()
         {
-            Need(version.String is "4.0" or "4.1", "DSL-VERSION", "Version", version);
+            Need(version.String is "4.0" or "4.1" or "4.2", "DSL-VERSION", "Version", version);
             Need(evaluator.String == "cfdw-cv" && evaluatorVersion.String == "2", "DSL-VERSION", "Version", evaluator);
             CheckNumericRange();
             Need(profiles.Count <= 4096 && assignments.Count <= 4096 && locks.Count + assertions.Count <= 4096, "DSL-LIMIT", "Resource", version);
+            double tipCapRatio = TipCapMath.DefaultCapRatio;
+            if (tip == "rounded" && tipRatioToken is not null)
+            {
+                tipCapRatio = ConvertNumber(tipRatioToken, 0);
+                Need(tipCapRatio >= TipCapMath.MinCapRatio && tipCapRatio <= TipCapMath.MaxCapRatio, "DSL-UNIT", "Structural", tipRatioToken);
+            }
             int scale = kind == "foil" ? Scale(units) : 0;
             double h = kind == "foil" ? ConvertNumber(halfSpan, Scale(halfSpanUnit)) : 1;
             Need(h > 0, "DSL-UNIT", "Structural", halfSpan);
@@ -1653,12 +1770,13 @@ public static class FoilSource
                     ["frame"] = "aft-starboard-up-root-le", ["symmetry"] = "mirror_y", ["half_span_m"] = h,
                     ["channels"] = curves.Where(pair => !pair.Key.StartsWith("profile:", StringComparison.Ordinal)).ToDictionary(pair => pair.Key, pair => (object?)pair.Value.Semantic()),
                     ["profiles"] = ordering.Select(index => definitions[index].Semantic).ToArray(),
-                    ["assignments"] = resolved.Select(item => new object[] { item.Eta, Array.IndexOf(ordering, item.Profile) }).ToArray(), ["tip"] = tip
+                    ["assignments"] = resolved.Select(item => new object[] { item.Eta, Array.IndexOf(ordering, item.Profile) }).ToArray(),
+                    ["tip"] = tip == "rounded" ? (object?)new Dictionary<string, object?> { ["kind"] = "rounded", ["ratio"] = tipCapRatio } : tip
                 };
             }
             return new(kind, scale, h, curves, definitions, resolved.ToArray(), tip, locks.ToArray(), assertions.ToArray(), semantic, documentName,
                 assignments.Select(item => item.Profile).ToArray())
-            { Version = version.String };
+            { Version = version.String, TipCapRatio = tipCapRatio };
         }
         private static int? BoundLengthScale(SourceToken? unit) => unit?.Text switch
         { "m" => 0, "cm" => -2, "mm" => -3, _ => null };
@@ -1676,7 +1794,11 @@ public static class FoilSource
                     quantity.Unit?.Text switch { "m2" => 0, "cm2" => -4, "mm2" => -6, _ => null } : BoundLengthScale(quantity.Unit);
                 Bind(quantity.Number, scale);
             }
-            if (kind == "foil") Bind(halfSpan, BoundLengthScale(halfSpanUnit));
+            if (kind == "foil")
+            {
+                Bind(halfSpan, BoundLengthScale(halfSpanUnit));
+                if (tipRatioToken is not null) Bind(tipRatioToken, 0);
+            }
             foreach (var raw in rawCurves)
             {
                 int? scale = raw.Path is "leading" or "trailing" or "dihedral" ? BoundLengthScale(units) : 0;

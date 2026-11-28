@@ -41,6 +41,60 @@ public static partial class Planform
         return rail.Reading(t, rail.SpanFor(t, side));
     }
 
+    /// <summary>
+    /// Exact derived planform tip radius at <c>t = 1</c> in metres (never stored, DM7).
+    /// When the penultimate control point lies on <c>η = 1</c> (vertical G1 tip tangent), uses the exact
+    /// general-<c>N</c> clamped-cubic formula <c>R_tip = (3/2) · (Δu₂ / Δu₁) · (x_{N-1} − x_{N-2})² / ((b/2) · (1 − η_{N-3}))</c>;
+    /// otherwise evaluates the one-sided planar curvature at <c>t = 1</c>.
+    /// </summary>
+    public static double TipRadiusMeters(CurveView curve)
+    {
+        ArgumentNullException.ThrowIfNull(curve);
+        if (curve.Points.Count >= 4 && curve.Points[^2].Eta == 1.0)
+        {
+            int n = curve.Points.Count;
+            var knots = Knots(curve);
+            double halfSpan = curve.Points[0].Eta == 0 && curve.Points[0].SpanMeters == 0
+                ? curve.Points[^1].SpanMeters : curve.Points[^1].SpanMeters / curve.Points[^1].Eta;
+            double du1 = 1.0 - knots[n - 1];
+            double du2 = 1.0 - knots[n - 2];
+            double dx = curve.Points[n - 1].Ordinate - curve.Points[n - 2].Ordinate;
+            double dy = halfSpan * (1.0 - curve.Points[n - 3].Eta);
+            return 1.5 * (du2 / du1) * (dx * dx) / dy;
+        }
+        var r = CurvatureAt(curve, 1.0, CurveSide.Before);
+        return r.Straight ? double.PositiveInfinity : r.RadiusMeters;
+    }
+
+    internal static double TipRadiusMeters(Curve curve, double halfSpanMeters)
+    {
+        ArgumentNullException.ThrowIfNull(curve);
+        int n = curve.Points.Length;
+        if (n >= 4 && curve.Points[^2][0] == 1.0)
+        {
+            double du1 = 1.0 - curve.Knots[n - 1];
+            double du2 = 1.0 - curve.Knots[n - 2];
+            double dx = curve.Points[n - 1][1] - curve.Points[n - 2][1];
+            double dy = halfSpanMeters * (1.0 - curve.Points[n - 3][0]);
+            return 1.5 * (du2 / du1) * (dx * dx) / dy;
+        }
+        int lastSpan = n - 1;
+        while (lastSpan >= curve.Degree && !(curve.Knots[lastSpan] < curve.Knots[lastSpan + 1])) lastSpan--;
+        var jet = SplineBasis.Evaluate(curve.Knots, curve.Degree, 1.0, lastSpan);
+        double d1x = 0, d1y = 0, d2x = 0, d2y = 0;
+        for (int i = 0; i < n; i++)
+        {
+            d1x += jet.D1[i] * curve.Points[i][0] * halfSpanMeters;
+            d1y += jet.D1[i] * curve.Points[i][1];
+            d2x += jet.D2[i] * curve.Points[i][0] * halfSpanMeters;
+            d2y += jet.D2[i] * curve.Points[i][1];
+        }
+        double speed2 = d1x * d1x + d1y * d1y;
+        if (speed2 == 0) return 0.0;
+        double kappa = Math.Abs(d1x * d2y - d1y * d2x) / (speed2 * Math.Sqrt(speed2));
+        return kappa < 1e-12 ? double.PositiveInfinity : 1.0 / kappa;
+    }
+
     public static StationReading ReadAt(CurveView curve, double t) => new RailGeometry(curve).Station(t);
 
     /// <summary>The Greville abscissa of control point <paramref name="index"/>: the mean of its three interior knots.</summary>

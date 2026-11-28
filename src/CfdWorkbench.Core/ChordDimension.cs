@@ -19,7 +19,7 @@ public static class ChordDimension
         Guard.Require(parsed.IsParsed && parsed.Definition is { Kind: "foil" }, parsed.IsParsed ? "DSL-TARGET" : parsed.Diagnostics[0].Code);
         var definition = parsed.Definition!;
         Guard.Require(command.Name is "root-chord" or "tip-chord", "DSL-TARGET");
-        if (command.Name == "tip-chord") Guard.Require(definition.Tip == "open", "DSL-TARGET");
+        if (command.Name == "tip-chord") Guard.Require(definition.Tip is "open" or "rounded", "DSL-TARGET");
         var leading = definition.Curves["leading"];
         var trailing = definition.Curves["trailing"];
         double root = Chord(leading, trailing, 0);
@@ -41,8 +41,14 @@ public static class ChordDimension
         string rule = rootFlat ? RootFlat : Linear;
         if (!TargetsStayPositive(leading, trailing, factor, rootEdit, rootFlat))
             throw new ContractError("DSL-EDGES-CROSS");
-        double[] lead = FitOrdinates(leading, eta => LeadingTarget(leading, trailing, eta, factor, rootEdit, rootFlat), leadingMirror);
-        double[] trail = FitOrdinates(trailing, eta => TrailingTarget(leading, trailing, eta, factor, rootEdit, rootFlat), trailingMirror);
+        bool leadingVerticalTip = TipCapMath.IsVerticalTip(leading);
+        bool trailingVerticalTip = TipCapMath.IsVerticalTip(trailing);
+        double leadTipDx = leading.Points[^1][1] - leading.Points[^2][1];
+        double trailTipDx = trailing.Points[^1][1] - trailing.Points[^2][1];
+        var leadExtra = leadingVerticalTip ? VerticalTipConstraint(leading.Points.Length, leadTipDx) : null;
+        var trailExtra = trailingVerticalTip ? VerticalTipConstraint(trailing.Points.Length, trailTipDx) : null;
+        double[] lead = FitOrdinates(leading, eta => LeadingTarget(leading, trailing, eta, factor, rootEdit, rootFlat), leadingMirror, leadExtra);
+        double[] trail = FitOrdinates(trailing, eta => TrailingTarget(leading, trailing, eta, factor, rootEdit, rootFlat), trailingMirror, trailExtra);
         double delta = rootEdit ? lead[0] : 0;
         Shift(lead, delta);
         Shift(trail, delta);
@@ -53,7 +59,12 @@ public static class ChordDimension
             trail[0] = typed;
             if (trailingMirror) trail[1] = trail[0];
         }
-        else trail[^1] = lead[^1] + typed;
+        else
+        {
+            trail[^1] = lead[^1] + typed;
+            if (leadingVerticalTip) lead[^2] = lead[^1] - leadTipDx;
+            if (trailingVerticalTip) trail[^2] = trail[^1] - trailTipDx;
+        }
         byte[] patched = WriteOrdinates(source, "leading", lead);
         patched = WriteOrdinates(patched, "trailing", trail);
         var again = FoilSource.Parse(patched);
@@ -182,6 +193,14 @@ public static class ChordDimension
         if (rootFlat)
             return rootEdit ? factor + (1 - factor) * eta * eta : 1 + (factor - 1) * eta * eta;
         return rootEdit ? factor + (1 - factor) * eta : 1 + (factor - 1) * eta;
+    }
+
+    private static IReadOnlyList<(double[] Coefficients, double Bound)> VerticalTipConstraint(int count, double tipDx)
+    {
+        var row = new double[count];
+        row[count - 1] = 1.0;
+        row[count - 2] = -1.0;
+        return [(row, tipDx)];
     }
 
     private static bool Mirrored(Definition definition, string channel) =>

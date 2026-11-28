@@ -19,7 +19,8 @@ public sealed class GeometryCertificate
 {
     internal GeometryCertificate(string sourceHash, string surfaceHash, Rational lower, Rational upper,
         IEnumerable<GeometryWitness> witnesses, int nodes, Dictionary<string, PolynomialSpan[]> spans, double halfSpan,
-        Rational placementWidth, QueryFeasibilityWitness feasibility, CertifiedProfile[] profiles, BlendStation[] stations, int blendNodeBudget)
+        Rational placementWidth, QueryFeasibilityWitness feasibility, CertifiedProfile[] profiles, BlendStation[] stations, int blendNodeBudget,
+        bool roundedTip = false)
     {
         SourceHash = sourceHash; SurfaceHash = surfaceHash;
         ThicknessMaximumLower = lower.Down(); ThicknessMaximumUpper = upper.Up();
@@ -31,9 +32,12 @@ public sealed class GeometryCertificate
         ExactPlacementWidthUpper = placementWidth.Exact; PlacementWidthUpper = placementWidth.Up();
         QueryFeasibility = feasibility;
         Profiles = profiles; Stations = stations; BlendNodeBudget = blendNodeBudget;
+        ProofScope = roundedTip
+            ? "Continuous Rule A loft proof on η ∈ [0, 1] with pointwise interval evaluation; derived 3D tip-cap fairing and tessellation/export are verified by export checks, not by the rational loft certificate."
+            : "Continuous source-shape proof with pointwise interval evaluation; no tessellation/export certificate";
     }
     public string AlgorithmVersion => "cfdw-rational-bernstein-subset-1";
-    public string ProofScope => "Continuous source-shape proof with pointwise interval evaluation; no tessellation/export certificate";
+    public string ProofScope { get; }
     public string SourceHash { get; }
     public string SurfaceHash { get; }
     public double ThicknessMaximumLower { get; }
@@ -334,9 +338,9 @@ public static class Geometry
         try
         {
             watch.Check();
-            Require(definition.Kind == "foil" && definition.Tip == "open" && definition.Profiles.Length >= 1 &&
+            Require(definition.Kind == "foil" && definition.Tip is "open" or "rounded" && definition.Profiles.Length >= 1 &&
                 definition.Assertions.Length == 0,
-                "Only an open tip and no assertions are currently certified.", GeometryStatus.Unsupported);
+                "Only an open or rounded tip and no assertions are currently certified.", GeometryStatus.Unsupported);
             Require(definition.Curves.Values.All(curve => !curve.MissingIds), "Accept an explicit ID candidate first.", GeometryStatus.Unsupported);
             Require(definition.Locks.All(item => item.Kind == "root_mirror"), "Other lock types are not assessed.", GeometryStatus.Unsupported, "DSL-LOCK");
             foreach (var item in definition.Locks)
@@ -368,11 +372,7 @@ public static class Geometry
                     var derivative = span.X.Zip(span.X.Skip(1), (a, b) => b - a).ToArray();
                     Require(derivative.All(x => x >= 0) && derivative.Any(x => x > 0), "Abscissa monotonicity is not certified.");
                 }
-            var leadingUpper = spans["leading"].SelectMany(s => s.Y).Max();
-            var trailingLower = spans["trailing"].SelectMany(s => s.Y).Min();
-            Require(spans["trailing"].SelectMany(s => s.Y).Max() > spans["leading"].SelectMany(s => s.Y).Min(),
-                "Continuous chord is nonpositive.", GeometryStatus.Invalid);
-            Require(trailingLower > leadingUpper, "Rail hulls do not certify strictly positive chord.");
+            Bernstein.CertifyPositiveChord(spans["leading"], spans["trailing"], watch);
             Require(spans["thickness"].SelectMany(s => s.Y).All(x => x > 0 && x < 1), "Thickness hull is not inside (0,1).");
             var certified = new CertifiedProfile[definition.Profiles.Length];
             for (int profileIndex = 0; profileIndex < definition.Profiles.Length; profileIndex++)
@@ -438,7 +438,7 @@ public static class Geometry
                 witnesses.AddRange(profile.Difference.Select(span => Witness("profile-separation", span)));
             var result = new GeometryAssessment(new(source.SourceHash, source.SurfaceHash!, root.Maximum.Lower, root.Maximum.Upper, witnesses,
                 certified.Sum(item => item.Nodes), spans, definition.HalfSpan, placementWidth, feasibility,
-                certified, stations, distinct ? blendNodes : 0), "Continuous conservative subset certified.");
+                certified, stations, distinct ? blendNodes : 0, roundedTip: definition.Tip == "rounded"), "Continuous conservative subset certified.");
             watch.Check();
             return result;
         }
@@ -452,6 +452,15 @@ public static class Geometry
             foreach (var row in curve.Tangents)
             {
                 int index = Array.IndexOf(curve.Ids, row.Id);
+                if (curve.Path is "leading" or "trailing" && row.Kind == "vertical")
+                {
+                    Require(index == curve.Points.Length - 1, "A vertical rail tangent row must name the tip point.", GeometryStatus.Invalid, "DSL-LOCK");
+                    double[] tip = curve.Points[^1], handle = curve.Points[^2];
+                    double signedDx = curve.Path == "leading" ? tip[1] - handle[1] : handle[1] - tip[1];
+                    Require(handle[0] == 1.0 && signedDx >= 1e-6,
+                        "Vertical tip tangent requires a nonzero handle length along the tip edge.", GeometryStatus.Invalid, "DSL-LOCK");
+                    continue;
+                }
                 Require(index > 0 && index < curve.Points.Length - 1, "A tangent row names an interior anchor.", GeometryStatus.Invalid, "DSL-LOCK");
                 double[] anchor = curve.Points[index], left = curve.Points[index - 1], right = curve.Points[index + 1];
                 if (curve.Path.StartsWith("profile:", StringComparison.Ordinal))
@@ -1076,6 +1085,124 @@ internal static class Bernstein
             left[level] = working[0]; right[^(level + 1)] = working[working.Length - level - 1];
         }
         return (left, right);
+    }
+
+    [ThreadStatic] internal static PositiveChordTelemetry? LastPositiveChord;
+
+    private readonly record struct ChordPiece(Rational[] X, Rational[] Y);
+
+    /// <summary>
+    /// Exact spanwise-local rational Bernstein certification proving <c>trailing(η) &gt; leading(η)</c>
+    /// across all <c>η ∈ [0, 1]</c>, even under high sweep and vertical tip tangents where global hulls overlap.
+    /// </summary>
+    internal static void CertifyPositiveChord(PolynomialSpan[] leading, PolynomialSpan[] trailing, ProofBudget watch)
+    {
+        // simplify: Bernstein.CertifyPositiveChord BFS cap maxNodes=2048, maxDepth=32; ceiling: realistic <=16-CV rails; upgrade trigger: if valid high-sweep/tight-clearance wings hit NotAssessed below DefaultWorkLimit.
+        const int maxNodes = 2048;
+        const int maxDepth = 32;
+
+        if (trailing[0].Y[0] <= leading[0].Y[0] || trailing[^1].Y[^1] <= leading[^1].Y[^1])
+        {
+            LastPositiveChord = new(false, 0, 0, "invalid");
+            throw new ProofRefusal("Continuous chord is nonpositive.", GeometryStatus.Invalid);
+        }
+
+        Rational leadingUpper = MinMax(leading[0].Y).Max;
+        for (int i = 1; i < leading.Length; i++)
+        {
+            Rational hi = MinMax(leading[i].Y).Max;
+            if (hi > leadingUpper) leadingUpper = hi;
+        }
+        Rational trailingLower = MinMax(trailing[0].Y).Min;
+        for (int i = 1; i < trailing.Length; i++)
+        {
+            Rational lo = MinMax(trailing[i].Y).Min;
+            if (lo < trailingLower) trailingLower = lo;
+        }
+        if (trailingLower > leadingUpper)
+        {
+            LastPositiveChord = new(true, 0, 0, "certified");
+            return;
+        }
+
+        var queue = new Queue<(ChordPiece L, ChordPiece T, int Depth)>();
+        foreach (var lSpan in leading)
+        {
+            var lPiece = new ChordPiece(lSpan.X, lSpan.Y);
+            foreach (var tSpan in trailing)
+            {
+                var tPiece = new ChordPiece(tSpan.X, tSpan.Y);
+                if (Overlaps(lPiece, tPiece))
+                    queue.Enqueue((lPiece, tPiece, 0));
+            }
+        }
+
+        int splits = 0;
+        int observedMaxDepth = 0;
+        while (queue.Count > 0)
+        {
+            watch.Check();
+            var (l, t, depth) = queue.Dequeue();
+            if (depth > observedMaxDepth) observedMaxDepth = depth;
+            var (lMin, lMax) = MinMax(l.Y);
+            var (tMin, tMax) = MinMax(t.Y);
+            if (tMin > lMax) continue;
+
+            if (tMax <= lMin
+                || (l.X[0].CompareTo(t.X[0]) == 0 && t.Y[0] <= l.Y[0])
+                || (l.X[^1].CompareTo(t.X[^1]) == 0 && t.Y[^1] <= l.Y[^1]))
+            {
+                LastPositiveChord = new(false, splits, observedMaxDepth, "invalid");
+                throw new ProofRefusal("Continuous chord is nonpositive.", GeometryStatus.Invalid);
+            }
+
+            if (splits >= maxNodes || depth >= maxDepth)
+            {
+                LastPositiveChord = new(false, splits, observedMaxDepth, "not-assessed");
+                throw new ProofRefusal("Positive-chord subdivision budget exceeded.", GeometryStatus.NotAssessed);
+            }
+
+            splits++;
+            int nextDepth = depth + 1;
+            if (l.X[^1] - l.X[0] >= t.X[^1] - t.X[0])
+            {
+                var (lxL, lxR) = Split(l.X);
+                var (lyL, lyR) = Split(l.Y);
+                var left = new ChordPiece(lxL, lyL);
+                var right = new ChordPiece(lxR, lyR);
+                if (Overlaps(left, t)) queue.Enqueue((left, t, nextDepth));
+                if (Overlaps(right, t)) queue.Enqueue((right, t, nextDepth));
+            }
+            else
+            {
+                var (txL, txR) = Split(t.X);
+                var (tyL, tyR) = Split(t.Y);
+                var left = new ChordPiece(txL, tyL);
+                var right = new ChordPiece(txR, tyR);
+                if (Overlaps(l, left)) queue.Enqueue((l, left, nextDepth));
+                if (Overlaps(l, right)) queue.Enqueue((l, right, nextDepth));
+            }
+        }
+
+        LastPositiveChord = new(false, splits, observedMaxDepth, "certified");
+    }
+
+    private static bool Overlaps(ChordPiece a, ChordPiece b)
+    {
+        Rational start = a.X[0] > b.X[0] ? a.X[0] : b.X[0];
+        Rational end = a.X[^1] < b.X[^1] ? a.X[^1] : b.X[^1];
+        return start < end;
+    }
+
+    private static (Rational Min, Rational Max) MinMax(Rational[] values)
+    {
+        Rational min = values[0], max = values[0];
+        for (int i = 1; i < values.Length; i++)
+        {
+            if (values[i] < min) min = values[i];
+            if (values[i] > max) max = values[i];
+        }
+        return (min, max);
     }
 
     internal static (Rational Lower, Rational Upper, int Nodes) Maximum(Rational[][] spans, ProofBudget watch, int nodeBudget = 4096)

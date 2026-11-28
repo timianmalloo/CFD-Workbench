@@ -205,6 +205,12 @@ public static class Rhino3dmExport
             var teS = CadNurbsMath.RuledStrip(skin.UpperStarboard.IsoU(skin.UpperStarboard.CountU - 1), skin.LowerStarboard.IsoU(skin.LowerStarboard.CountU - 1));
             AddSurface(file, skinLayer, "Trailing Edge Strip (Starboard)", teS);
         }
+        if (skin.TipMode == "rounded" && skin.StarboardTipCap is { } stbdCap)
+        {
+            AddSurface(file, skinLayer, "Tip Cap (Starboard)", stbdCap);
+            if (skin.IsOpenTrailingEdge && skin.StarboardTipCapTeEnd is { } stbdTeEnd)
+                AddSurface(file, skinLayer, "Tip Cap TE End (Starboard)", stbdTeEnd);
+        }
 
         if (scope == StlScope.Whole)
         {
@@ -216,6 +222,12 @@ public static class Rhino3dmExport
             {
                 var teP = CadNurbsMath.RuledStrip(upperP.IsoU(upperP.CountU - 1), lowerP.IsoU(lowerP.CountU - 1));
                 AddSurface(file, skinLayer, "Trailing Edge Strip (Port)", teP);
+            }
+            if (skin.TipMode == "rounded" && skin.StarboardTipCap is { } stbdCapPort)
+            {
+                AddSurface(file, skinLayer, "Tip Cap (Port)", stbdCapPort.MirrorY());
+                if (skin.IsOpenTrailingEdge && skin.StarboardTipCapTeEnd is { } stbdTeEndPort)
+                    AddSurface(file, skinLayer, "Tip Cap TE End (Port)", stbdTeEndPort.MirrorY());
             }
         }
 
