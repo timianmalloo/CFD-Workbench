@@ -9,7 +9,8 @@ public enum AssistantArea
     Run,
     SolverSetup,
     Results,
-    Export
+    Export,
+    Notebook
 }
 
 public enum AssistantProposalKind
@@ -22,7 +23,9 @@ public enum AssistantProposalKind
     EnvironmentStep,
     RunFailureExplanation,
     CaseDiff,
-    ResultsExplanation
+    ResultsExplanation,
+    RequirementDecomp,
+    CandidateIntentDelta
 }
 
 public enum AssistantProviderKind
@@ -66,7 +69,8 @@ public sealed record AssistantSettings(
     int PerRequestMaxTokens,
     int DailyRequestCap,
     int TimeoutSeconds,
-    IReadOnlyList<AssistantModelEvalReceipt> EvalReceipts)
+    IReadOnlyList<AssistantModelEvalReceipt> EvalReceipts,
+    string? OptionalFastModelId = null)
 {
     public const string FormatId = "cfdw-assistant";
     public const int CurrentVersion = 1;

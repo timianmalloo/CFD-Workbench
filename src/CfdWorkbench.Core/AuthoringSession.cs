@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
 using CfdWorkbench.Core.CfdRun;
+using CfdWorkbench.Core.Notebook;
 
 [assembly: InternalsVisibleTo("CfdWorkbench.Persistence")]
 [assembly: InternalsVisibleTo("CfdWorkbench.Analysis.Tests")]
@@ -35,6 +36,9 @@ public sealed record Envelope(string Format, string ProjectId, SourceRow[] Sourc
     /// <summary>Area 5/6 CFD run, field-evidence, and candidate records (Wave 10). Omitted when empty.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public CfdRecords? Cfd { get; init; }
+    /// <summary>Wave 13B AI-Guided Design Notebook session record (0..1 per project in v1). Omitted when absent.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public NotebookSessionRecord? Notebook { get; init; }
 }
 public sealed record SessionDraft(string Id, string Base, long Generation, string Rail, string VertexId, byte[] Bytes, string? Profile = null, int Assignment = -1, ThicknessIntent Intent = ThicknessIntent.KeepCurrent, string? Rule = null, string? Curve = null);
 public sealed record SessionBinding(string SourceHash, string Base, string DraftId, long Generation, string Evaluator, string SurfaceHash, string Rail, string VertexId);
@@ -76,6 +80,8 @@ public sealed record SessionEvent(long Sequence, string Operation, string Outcom
     public PositiveChordTelemetry? PositiveChord { get; init; }
     /// <summary>Zero-PII telemetry fields for <c>export.tipcap</c> events (docs/design/rounded-wing-tips.md §7); null otherwise.</summary>
     public TipCapExportTelemetry? TipCapExport { get; init; }
+    /// <summary>Zero-PII telemetry fields for <c>notebook.*</c> events (docs/design/ai-guided-design-notebook.md §7); null otherwise.</summary>
+    public NotebookTelemetry? Notebook { get; init; }
 }
 /// <summary>
 /// One export telemetry row on the session ring. <c>Operation</c> is <c>export.write</c> (one per write attempt) or <c>export.validate</c>
@@ -313,6 +319,7 @@ public sealed class AuthoringSession : IDisposable
             experiments.Clear();
             setupBriefs.Clear(); goalStates.Clear(); drcExclusions.Clear();
             cfdRuns.Clear(); cfdFieldEvidence.Clear(); cfdCandidates.Clear();
+            notebookSession = null;
             draft = null; recovery = null; current = null; activeImportReport = null;
             section = null;
             InvalidateEnvelopeSize();
@@ -2603,8 +2610,8 @@ public sealed class AuthoringSession : IDisposable
         lock (sync)
         {
             Guard.Require(!closed, "DOC-CLOSED");
-            return new(RunRecord.Format(runs.Count, experiments.Count, HasSetup, HasCfd), projectId, sources.Select(s => s with { Utf8Base64Chunks = s.Utf8Base64Chunks.ToArray() }).ToArray(), designs.ToArray(), accepted.ToArray(), cursors.ToArray(), CopyRecovery(recovery))
-            { Analysis = AnalysisCore(), Experiments = ExperimentsOrNull(), Setup = SetupOrNull(), Cfd = CfdOrNull() };
+            return new(RunRecord.Format(runs.Count, experiments.Count, HasSetup, HasCfd, HasNotebook), projectId, sources.Select(s => s with { Utf8Base64Chunks = s.Utf8Base64Chunks.ToArray() }).ToArray(), designs.ToArray(), accepted.ToArray(), cursors.ToArray(), CopyRecovery(recovery))
+            { Analysis = AnalysisCore(), Experiments = ExperimentsOrNull(), Setup = SetupOrNull(), Cfd = CfdOrNull(), Notebook = NotebookOrNull() };
         }
     }
     private byte[] SaveImageCore()
@@ -2643,6 +2650,7 @@ public sealed class AuthoringSession : IDisposable
             LoadExperiments(env.Experiments);
             LoadSetup(env.Setup);
             LoadCfd(env.Cfd);
+            LoadNotebook(env.Notebook);
             current = replay.Current;
             foreach (var row in accepted) if (row.Edit is not null) retiredDraftIds.Add(row.Edit.DraftId);
             if (recovery is not null) retiredDraftIds.Add(recovery.DraftId);
@@ -2745,7 +2753,7 @@ public sealed class AuthoringSession : IDisposable
             var prospective = new AnalysisRecords([.. runs, run], polarSamples.ToArray(), prunedRuns.ToArray(), DiscrepanciesOrNull());
             RunRecord.CheckStore(prospective, AcceptedExists, AcceptedOrdinal);
             Guard.Require(RunRecord.Verify(run) && SurfaceMatches(run), "DOC-INTEGRITY");
-            int bytes = PreflightWithPinReport("record-run", EnvelopeCore() with { Format = RunRecord.Format(runs.Count + 1, experiments.Count, HasSetup, HasCfd), Analysis = prospective });
+            int bytes = PreflightWithPinReport("record-run", EnvelopeCore() with { Format = RunRecord.Format(runs.Count + 1, experiments.Count, HasSetup, HasCfd, HasNotebook), Analysis = prospective });
             runs.Add(run);
             encodedEnvelopeBytes = bytes;
         }
@@ -3035,7 +3043,7 @@ public sealed class AuthoringSession : IDisposable
             SweepExperiment[] prospective = [.. experiments, experiment!];
             SweepRecords.Check(prospective, AnalysisCore(), AcceptedExists, AcceptedSurfaceHash);
             int bytes = PreflightWithPinReport("record-experiment",
-                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length, HasSetup, HasCfd), Experiments = prospective });
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length, HasSetup, HasCfd, HasNotebook), Experiments = prospective });
             experiments.Add(experiment!);
             encodedEnvelopeBytes = bytes;
             return true;
@@ -3057,7 +3065,7 @@ public sealed class AuthoringSession : IDisposable
             prospective[idx] = updated!;
             SweepRecords.Check(prospective, AnalysisCore(), AcceptedExists, AcceptedSurfaceHash);
             int bytes = PreflightWithPinReport("update-draft-experiment",
-                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length, HasSetup, HasCfd), Experiments = prospective });
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length, HasSetup, HasCfd, HasNotebook), Experiments = prospective });
             experiments[idx] = updated!;
             encodedEnvelopeBytes = bytes;
             return true;
@@ -3079,7 +3087,7 @@ public sealed class AuthoringSession : IDisposable
             prospective[idx] = updated;
             SweepRecords.Check(prospective, AnalysisCore(), AcceptedExists, AcceptedSurfaceHash);
             int bytes = PreflightWithPinReport("append-sweep-event",
-                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length, HasSetup, HasCfd), Experiments = prospective });
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length, HasSetup, HasCfd, HasNotebook), Experiments = prospective });
             experiments[idx] = updated;
             encodedEnvelopeBytes = bytes;
             return true;
@@ -3101,7 +3109,7 @@ public sealed class AuthoringSession : IDisposable
             prospective[idx] = updated;
             SweepRecords.Check(prospective, AnalysisCore(), AcceptedExists, AcceptedSurfaceHash);
             int bytes = PreflightWithPinReport("record-sweep-attempt",
-                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length, HasSetup, HasCfd), Experiments = prospective });
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, prospective.Length, HasSetup, HasCfd, HasNotebook), Experiments = prospective });
             experiments[idx] = updated;
             encodedEnvelopeBytes = bytes;
             return true;
@@ -3328,7 +3336,7 @@ public sealed class AuthoringSession : IDisposable
                 id => nextDesigns.Any(d => d.Id == id));
 
             var prospective = new Envelope(
-                RunRecord.Format(runs.Count, experiments.Count, hasSetup: true, hasCfd: HasCfd),
+                RunRecord.Format(runs.Count, experiments.Count, hasSetup: true, hasCfd: HasCfd, hasNotebook: HasNotebook),
                 projectId,
                 nextSources.ToArray(),
                 nextDesigns.ToArray(),
@@ -3339,7 +3347,8 @@ public sealed class AuthoringSession : IDisposable
                 Analysis = AnalysisCore(),
                 Experiments = ExperimentsOrNull(),
                 Setup = nextSetup,
-                Cfd = CfdOrNull()
+                Cfd = CfdOrNull(),
+                Notebook = NotebookOrNull()
             };
             int bytes = PreflightWithPinReport(isReseed ? "setup.reseed" : "setup.seed", prospective);
 
@@ -3417,7 +3426,7 @@ public sealed class AuthoringSession : IDisposable
             SetupStore.Check(nextSetup, AcceptedExists, DesignExists);
 
             int bytes = PreflightWithPinReport("setup.goal.update",
-                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, experiments.Count, hasSetup: true, hasCfd: HasCfd), Setup = nextSetup });
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, experiments.Count, hasSetup: true, hasCfd: HasCfd, hasNotebook: HasNotebook), Setup = nextSetup });
 
             goalStates.Add(finalized);
             encodedEnvelopeBytes = bytes;
@@ -3474,7 +3483,7 @@ public sealed class AuthoringSession : IDisposable
             SetupStore.Check(nextSetup, AcceptedExists, DesignExists);
 
             int bytes = PreflightWithPinReport("setup.drc.exclude",
-                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, experiments.Count, hasSetup: true, hasCfd: HasCfd), Setup = nextSetup });
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, experiments.Count, hasSetup: true, hasCfd: HasCfd, hasNotebook: HasNotebook), Setup = nextSetup });
 
             drcExclusions.Add(exclusion);
             encodedEnvelopeBytes = bytes;
@@ -3559,7 +3568,7 @@ public sealed class AuthoringSession : IDisposable
             var prospective = new CfdRecords([.. cfdRuns, run!], cfdFieldEvidence.ToArray(), cfdCandidates.ToArray());
             CfdRunRecords.CheckStore(prospective, AcceptedExists);
             int bytes = PreflightWithPinReport("record-cfd-run",
-                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, experiments.Count, HasSetup, hasCfd: true), Cfd = prospective });
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, experiments.Count, HasSetup, hasCfd: true, hasNotebook: HasNotebook), Cfd = prospective });
             cfdRuns.Add(run!);
             encodedEnvelopeBytes = bytes;
             return true;
@@ -3577,7 +3586,7 @@ public sealed class AuthoringSession : IDisposable
             var prospective = new CfdRecords(cfdRuns.ToArray(), [.. cfdFieldEvidence, evidence!], cfdCandidates.ToArray());
             CfdRunRecords.CheckStore(prospective, AcceptedExists);
             int bytes = PreflightWithPinReport("record-field-evidence",
-                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, experiments.Count, HasSetup, hasCfd: true), Cfd = prospective });
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, experiments.Count, HasSetup, hasCfd: true, hasNotebook: HasNotebook), Cfd = prospective });
             cfdFieldEvidence.Add(evidence!);
             encodedEnvelopeBytes = bytes;
             return true;
@@ -3595,7 +3604,7 @@ public sealed class AuthoringSession : IDisposable
             var prospective = new CfdRecords(cfdRuns.ToArray(), cfdFieldEvidence.ToArray(), [.. cfdCandidates, candidate!]);
             CfdRunRecords.CheckStore(prospective, AcceptedExists);
             int bytes = PreflightWithPinReport("record-candidate",
-                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, experiments.Count, HasSetup, hasCfd: true), Cfd = prospective });
+                EnvelopeCore() with { Format = RunRecord.Format(runs.Count, experiments.Count, HasSetup, hasCfd: true, hasNotebook: HasNotebook), Cfd = prospective });
             cfdCandidates.Add(candidate!);
             encodedEnvelopeBytes = bytes;
             return true;
@@ -3640,6 +3649,304 @@ public sealed class AuthoringSession : IDisposable
                 null, null, sources.Count, accepted.Count, operation) { Cfd = fields });
         }
     }
+    #endregion
+
+    #region Wave 13B AI-Guided Design Notebook
+    NotebookSessionRecord? notebookSession;
+
+    private bool HasNotebook => notebookSession is not null;
+
+    private NotebookSessionRecord? NotebookOrNull() => notebookSession;
+
+    private void LoadNotebook(NotebookSessionRecord? loaded)
+    {
+        notebookSession = loaded;
+    }
+
+    private bool BriefExists(string briefId) => setupBriefs.Any(b => b.BriefId == briefId);
+    private bool GoalExists(string goalId) => goalStates.Any(g => g.GoalStateId == goalId);
+
+    /// <summary>Returns the current Wave 13B notebook session (in-memory pre-handoff or persisted), or null.</summary>
+    public NotebookSessionRecord? ReadNotebookSession() => Run("read-notebook-session", () =>
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            return notebookSession;
+        }
+    });
+
+    /// <summary>
+    /// Validates and records a <see cref="NotebookSessionRecord"/>.
+    /// Pre-handoff (<c>current == null</c>, launched from Start): lives in session memory until <see cref="HandoffNotebookCandidate"/> seeds r1.
+    /// Open project (<c>current != null</c>): validates against existing accepted revisions and runs atomic <c>DOC-SIZE</c> preflight.
+    /// </summary>
+    public NotebookSessionRecord RecordNotebookSession(NotebookSessionRecord sessionRecord) => Run("record-notebook-session", () =>
+    {
+        ArgumentNullException.ThrowIfNull(sessionRecord);
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            NotebookRecords.CheckStore(sessionRecord, AcceptedExists, AcceptedSurfaceHash, BriefExists, GoalExists);
+            if (current is not null)
+            {
+                int bytes = PreflightWithPinReport("record-notebook-session",
+                    EnvelopeCore() with { Format = RunRecord.Format(runs.Count, experiments.Count, HasSetup, HasCfd, hasNotebook: true), Notebook = sessionRecord });
+                notebookSession = sessionRecord;
+                encodedEnvelopeBytes = bytes;
+            }
+            else
+            {
+                // Pre-handoff in-memory lifecycle (docs/design/ai-guided-design-notebook.md §1.1).
+                notebookSession = sessionRecord;
+                InvalidateEnvelopeSize();
+            }
+            return notebookSession;
+        }
+    });
+
+    /// <summary>Normal-path zero-PII telemetry entry for <c>notebook.*</c> events. Closed session drops.</summary>
+    public void RecordNotebookEvent(string operation, string outcome, double? durationMilliseconds, NotebookTelemetry fields)
+    {
+        Guard.Require(operation.StartsWith("notebook.", StringComparison.Ordinal), "DSL-RANGE");
+        lock (sync)
+        {
+            if (closed) return;
+            if (events.Count == 256) events.Dequeue();
+            events.Enqueue(new SessionEvent(eventSequence++, operation, outcome, durationMilliseconds, null, null, trace.Value,
+                null, null, sources.Count, accepted.Count, operation) { Notebook = fields });
+        }
+    }
+
+    /// <summary>
+    /// Non-destructive CAD handoff of a <see cref="GeometryStatus.Certified"/> notebook candidate into Area 2 CAD
+    /// (<c>docs/design/ai-guided-design-notebook.md §1.1</c>).
+    /// When <c>current == null</c> (launched from Start), seeds r1 with <c>Edit = null</c> and cursor <c>"open"</c>.
+    /// When <c>current != null</c> (open project), appends rN with <c>Edit = new EditReceipt(operationId, 0, "seed", briefId)</c>
+    /// and cursor <c>"apply"</c> (1-step Undo), preserving all prior revisions and appending a <see cref="CadHandoffRecord"/>.
+    /// </summary>
+    public CadHandoffOutcome HandoffNotebookCandidate(
+        string candidateId,
+        string operationId,
+        string? purposeOverride = null,
+        bool acknowledgeAllFlagged = true) => Run("notebook.handoff", () =>
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(candidateId);
+        NativeProject.Uuid(operationId);
+        var totalTimer = System.Diagnostics.Stopwatch.StartNew();
+
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            Guard.Require(draft is null && recovery is null, "DSL-DRAFT-OWNED");
+            Guard.Require(!retiredDraftIds.Contains(operationId), "DSL-DRAFT-REUSED");
+            Guard.Require(notebookSession is not null, "DOC-EMPTY");
+
+            var candidate = notebookSession!.Candidates.FirstOrDefault(c => string.Equals(c.CandidateId, candidateId, StringComparison.Ordinal))
+                ?? throw new ContractError("DOC-REFERENCE", $"Notebook candidate '{candidateId}' was not found.");
+            if (!string.Equals(candidate.GeometryStatus, nameof(GeometryStatus.Certified), StringComparison.Ordinal))
+                throw new ContractError("NB-CANDIDATE-NOT-CERTIFIED", $"Candidate '{candidateId}' has status '{candidate.GeometryStatus}'; only Certified candidates may hand off to CAD.");
+
+            var reqVer = notebookSession.Requirements.FirstOrDefault(r => string.Equals(r.ReqVersionId, candidate.ReqVersionId, StringComparison.Ordinal))
+                ?? throw new ContractError("DOC-REFERENCE", $"Requirement version '{candidate.ReqVersionId}' was not found.");
+            var parsedReq = FoilReqParser.Parse(NotebookRecords.JoinChunks(reqVer.DslLines));
+            Guard.Require(parsedReq.IsValid && parsedReq.Document is not null, "DOC-SCHEMA");
+            var reqDoc = parsedReq.Document!;
+
+            string purpose = string.IsNullOrWhiteSpace(purposeOverride) ? reqDoc.Brief.Discipline : purposeOverride.Trim();
+            var resolution = DisciplinePresets.ResolvePurpose(purpose);
+            var preset = resolution.Preset;
+            var requiredFlags = DisciplinePresets.FlaggedFor(resolution);
+            IReadOnlyList<FlaggedAcknowledgement> acks = acknowledgeAllFlagged
+                ? requiredFlags.Select(f => new FlaggedAcknowledgement(f.FieldPath, f.Label, f.Source)).ToArray()
+                : [];
+            if (!acknowledgeAllFlagged && requiredFlags.Count > 0)
+                throw new ContractError("SETUP-FLAGGED-UNACK", $"Flagged — {requiredFlags[0].Source} · Acknowledge to continue");
+
+            // Deterministically materialize FoilDSL and verify rebuild hash equality.
+            byte[] candidateBytes = NotebookRecords.MaterializeCandidateDsl(candidate.Delta, $"Notebook {candidate.CandidateId}");
+            var parsed = ParseOwned(candidateBytes);
+            Guard.Require(parsed.SurfaceHash == candidate.SurfaceHash, "DOC-INTEGRITY");
+
+            var def = parsed.Definition!;
+            double emittedRoot = WingEstimates.Chord(def, 0);
+            double emittedTip = WingEstimates.Chord(def, 1);
+            if (!TipChord.Meets(emittedTip, emittedRoot))
+                throw new ContractError(TipChord.RefusalCode, TipChord.TypedRefusalReason(emittedRoot));
+
+            bool isReseed = current is not null;
+            string briefId = Guid.NewGuid().ToString("D");
+            string goalId = Guid.NewGuid().ToString("D");
+            string acceptedId = Guid.NewGuid().ToString("D");
+            string handoffId = Guid.NewGuid().ToString("D");
+
+            var assessTimer = System.Diagnostics.Stopwatch.StartNew();
+            var bindingKey = isReseed
+                ? new SessionBinding(parsed.SourceHash, current!, operationId, 0, Evaluator.IdFor(parsed), parsed.SurfaceHash!, "seed", briefId)
+                : new SessionBinding(parsed.SourceHash, "", "", 0, Evaluator.IdFor(parsed), parsed.SurfaceHash!, "", "");
+            var assessment = AssessOwned(parsed);
+            assessTimer.Stop();
+            RequireCertified(bindingKey, assessment);
+
+            string? parentAccepted = current;
+            string? priorDesign = current is null ? null : Current.DesignId;
+            string designId = priorDesign is not null && designs.Single(d => d.Id == priorDesign).SurfaceHash! == parsed.SurfaceHash!
+                ? priorDesign
+                : Guid.NewGuid().ToString("D");
+
+            var nextDesigns = designs.ToList();
+            var nextSources = sources.ToList();
+            if (!nextDesigns.Any(d => d.Id == designId))
+                nextDesigns.Add(new(designId, priorDesign, parsed.SurfaceHash!, Evaluator.IdFor(parsed)));
+            if (!nextSources.Any(s => s.Id == parsed.SourceHash))
+                nextSources.Add(new(parsed.SourceHash, Chunks(parsed.Source)));
+
+            EditReceipt? receipt = isReseed ? new EditReceipt(operationId, 0, "seed", briefId) : null;
+            var acceptedRow = new AcceptedRow(acceptedId, parentAccepted, parsed.SourceHash, designId, operationId, receipt);
+            var cursorRow = new CursorRow(cursors.Count, acceptedId, isReseed ? "apply" : "open", operationId);
+
+            var d = candidate.Delta;
+            var softTargets = new SoftTargetSet(
+                new SoftTargetScalar(d.SpanMeters, 1.0, "Stated", "AI-Guided Design Notebook"),
+                new SoftTargetScalar(d.RootChordMeters, 1.0, "Inferred", "AI-Guided Design Notebook"),
+                new SoftTargetScalar(d.AreaSquareMeters, 1.0, "Stated", "AI-Guided Design Notebook"),
+                new SoftTargetScalar(d.AspectRatio, 1.0, "Stated", "AI-Guided Design Notebook"),
+                new SoftTargetTaper(d.Taper, "Stated", "AI-Guided Design Notebook"),
+                "notebook-handoff");
+
+            double? riderMassKg = reqDoc.Rider.Find("mass") is { } mf && mf.Quantity.TryToKg(out double rkg) ? rkg : null;
+            double? hRefM = !reqDoc.Water.IsDepthUnset && reqDoc.Water.DepthRef is { } dq && dq.TryToMeters(out double dm) ? dm : null;
+            WaterRecord waterRec = string.Equals(reqDoc.Water.Kind, "fresh", StringComparison.OrdinalIgnoreCase)
+                ? DisciplinePresets.DefaultFreshWater15C
+                : DisciplinePresets.DefaultSaltWater15C;
+
+            string? parentGoalId = goalStates.Count > 0 ? goalStates[^1].GoalStateId : null;
+            var goalState = DisciplinePresets.BuildGoalState(
+                goalStateId: goalId,
+                parentGoalStateId: parentGoalId,
+                briefId: briefId,
+                resolution: resolution,
+                softTargets: softTargets,
+                riderMassKg: riderMassKg,
+                water: waterRec,
+                hRefMeters: hRefM);
+
+            var recipe = new RecipeRecord(
+                SolverVersion: RecipeSeeder.SolverVersion,
+                PlanformFamily: RecipeSeeder.PlanformFamily,
+                SpanMeters: d.SpanMeters,
+                RootChordMeters: d.RootChordMeters,
+                TipChordMeters: d.TipChordMeters,
+                Taper: d.Taper,
+                SweepQuarterChordDeg: d.SweepQuarterChordDeg,
+                AnhedralDeg: d.AnhedralDeg,
+                WashoutDeg: d.WashoutDeg,
+                RootThicknessRatio: d.RootThicknessRatio,
+                ProfileId: d.RootProfileId,
+                ProfileOrigin: d.CustomRootProfileSnapshotLines is { Count: > 0 } ? "my:" + d.RootProfileId : "gen:" + d.RootProfileId,
+                PreferredProfileId: d.RootProfileId,
+                FallbackReason: null,
+                ConflictNotice: null,
+                Deviations: []);
+
+            string? parentBriefId = setupBriefs.Count > 0 ? setupBriefs[^1].BriefId : null;
+            var briefDraft = new SetupBriefVersion(
+                BriefId: briefId,
+                Parent: parentBriefId,
+                ContentHash: "",
+                EntryKind: "language",
+                Purpose: resolution.NormalizedPurpose,
+                DisciplinePresetId: preset.Id,
+                DisciplinePresetVersion: preset.Version,
+                Text: $"Notebook handoff of {candidate.CandidateId} ({reqVer.OrdinalLabel})",
+                LanguageMeta: "en",
+                SoftTargets: softTargets,
+                FlaggedAcknowledgements: acks,
+                Recipe: recipe,
+                SeededGoalStateId: goalId,
+                SeededAcceptedId: acceptedId);
+            var brief = briefDraft with { ContentHash = SetupStore.BriefContentHash(briefDraft) };
+
+            var handoff = new CadHandoffRecord(
+                HandoffId: handoffId,
+                CandidateId: candidate.CandidateId,
+                SurfaceHash: parsed.SurfaceHash!,
+                SeededBriefId: briefId,
+                SeededGoalStateId: goalId,
+                SeededAcceptedId: acceptedId,
+                HandedOffUtc: DateTimeOffset.UtcNow);
+
+            var nextNotebook = NotebookRecords.FinalizeSession(notebookSession with
+            {
+                Handoffs = [.. notebookSession.Handoffs, handoff]
+            });
+
+            var nextSetup = new SetupRecords([.. setupBriefs, brief], [.. goalStates, goalState], drcExclusions.ToArray());
+            var nextAccepted = accepted.Append(acceptedRow).ToArray();
+
+            SetupStore.Check(nextSetup, id => nextAccepted.Any(a => a.Id == id), id => nextDesigns.Any(dn => dn.Id == id));
+            NotebookRecords.CheckStore(
+                nextNotebook,
+                id => nextAccepted.Any(a => a.Id == id),
+                id =>
+                {
+                    var row = nextAccepted.FirstOrDefault(a => a.Id == id);
+                    return row is null ? null : nextDesigns.Single(dn => dn.Id == row.DesignId).SurfaceHash;
+                },
+                id => nextSetup.Briefs.Any(b => b.BriefId == id),
+                id => nextSetup.GoalStates.Any(g => g.GoalStateId == id));
+
+            var prospective = new Envelope(
+                RunRecord.Format(runs.Count, experiments.Count, hasSetup: true, hasCfd: HasCfd, hasNotebook: true),
+                projectId,
+                nextSources.ToArray(),
+                nextDesigns.ToArray(),
+                nextAccepted,
+                [.. cursors, cursorRow],
+                null)
+            {
+                Analysis = AnalysisCore(),
+                Experiments = ExperimentsOrNull(),
+                Setup = nextSetup,
+                Cfd = CfdOrNull(),
+                Notebook = nextNotebook
+            };
+            int bytes = PreflightWithPinReport("notebook.handoff", prospective);
+
+            // Commit atomically.
+            designs.Clear(); designs.AddRange(nextDesigns);
+            sources.Clear(); sources.AddRange(nextSources);
+            accepted.Add(acceptedRow);
+            cursors.Add(cursorRow);
+            current = acceptedId;
+            redo.Clear();
+            setupBriefs.Add(brief);
+            goalStates.Add(goalState);
+            notebookSession = nextNotebook;
+            if (isReseed) retiredDraftIds.Add(operationId);
+            string opPayload = isReseed
+                ? "apply:" + JsonSerializer.Serialize(bindingKey)
+                : "open:" + parsed.SourceHash;
+            operations.Add(operationId, (opPayload, acceptedId));
+            encodedEnvelopeBytes = bytes;
+
+            totalTimer.Stop();
+            int ordinal = accepted.Count;
+            if (events.Count == 256) events.Dequeue();
+            events.Enqueue(new SessionEvent(eventSequence++, "notebook.handoff", "ok", totalTimer.Elapsed.TotalMilliseconds, null, bytes, trace.Value,
+                null, Evaluator.IdFor(parsed), sources.Count, accepted.Count, "notebook.handoff")
+            {
+                Notebook = new NotebookTelemetry(
+                    EventKind: "notebook.handoff",
+                    CandidateOrdinal: candidate.Ordinal,
+                    RevisionOrdinal: ordinal,
+                    Code: "ok")
+            });
+
+            var seedOutcome = new SetupSeedOutcome(acceptedId, parsed.SurfaceHash!, brief, goalState, isReseed, ordinal);
+            return new CadHandoffOutcome(handoff, seedOutcome);
+        }
+    });
     #endregion
 }
 
@@ -3749,8 +4056,8 @@ public static class NativeProject
         try
         {
             using var doc = JsonDocument.Parse(bytes, new JsonDocumentOptions { MaxDepth = 32 }); var root = doc.RootElement;
-            // Complete cfdw-project-2 optional admission (Ruling 271, Ruling 272, Wave 10): ["analysis", "setup", "experiments", "cfd"].
-            Exact(root, ["format", "projectId", "sources", "designs", "accepted", "cursors", "recovery"], ["analysis", "setup", "experiments", "cfd"]);
+            // Complete cfdw-project-2 optional admission (Ruling 271, Ruling 272, Wave 10, Wave 13B): ["analysis", "setup", "experiments", "cfd", "notebook"].
+            Exact(root, ["format", "projectId", "sources", "designs", "accepted", "cursors", "recovery"], ["analysis", "setup", "experiments", "cfd", "notebook"]);
             string? format = root.GetProperty("format").GetString();
             Guard.Require(format is "cfdw-project-1" or "cfdw-project-2", "DOC-VERSION");
             int runCount = 0;
@@ -3793,7 +4100,21 @@ public static class NativeProject
                     + cfdElement.GetProperty("candidates").GetArrayLength();
                 Guard.Require(cfdCount > 0, "DOC-SCHEMA");
             }
-            Guard.Require(format == RunRecord.Format(runCount, experimentCount, hasSetup, hasCfd), "DOC-SCHEMA");
+            bool hasNotebook = root.TryGetProperty("notebook", out var notebookElement);
+            if (hasNotebook)
+            {
+                Exact(notebookElement, "sessionId", "title", "createdUtc", "requirements", "turns", "candidates", "handoffs", "contentHash");
+                Guard.Require(notebookElement.GetProperty("requirements").ValueKind == JsonValueKind.Array &&
+                              notebookElement.GetProperty("turns").ValueKind == JsonValueKind.Array &&
+                              notebookElement.GetProperty("candidates").ValueKind == JsonValueKind.Array &&
+                              notebookElement.GetProperty("handoffs").ValueKind == JsonValueKind.Array, "DOC-SCHEMA");
+                int nbCount = notebookElement.GetProperty("requirements").GetArrayLength()
+                    + notebookElement.GetProperty("turns").GetArrayLength()
+                    + notebookElement.GetProperty("candidates").GetArrayLength()
+                    + notebookElement.GetProperty("handoffs").GetArrayLength();
+                Guard.Require(nbCount > 0, "DOC-SCHEMA");
+            }
+            Guard.Require(format == RunRecord.Format(runCount, experimentCount, hasSetup, hasCfd, hasNotebook), "DOC-SCHEMA");
             foreach (var s in root.GetProperty("sources").EnumerateArray()) Exact(s, "id", "utf8Base64Chunks");
             foreach (var d in root.GetProperty("designs").EnumerateArray()) Exact(d, "id", "parent", "surfaceHash", "evaluator");
             foreach (var a in root.GetProperty("accepted").EnumerateArray())
@@ -3926,6 +4247,15 @@ public static class NativeProject
         if (e.Cfd is not null)
         {
             CfdRunRecords.CheckStore(e.Cfd, accepted.ContainsKey);
+        }
+        if (e.Notebook is not null)
+        {
+            NotebookRecords.CheckStore(
+                e.Notebook,
+                accepted.ContainsKey,
+                id => accepted.TryGetValue(id, out var row) ? designs[row.DesignId].SurfaceHash : null,
+                id => e.Setup?.Briefs.Any(b => b.BriefId == id) == true,
+                id => e.Setup?.GoalStates.Any(g => g.GoalStateId == id) == true);
         }
         if (e.Recovery is not null)
         {

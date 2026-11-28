@@ -237,6 +237,7 @@ public sealed class KnowledgeRetriever
         AssistantArea.Run => "run",
         AssistantArea.SolverSetup => "solver-setup",
         AssistantArea.Results => "results",
+        AssistantArea.Notebook => "setup",
         _ => null
     };
 

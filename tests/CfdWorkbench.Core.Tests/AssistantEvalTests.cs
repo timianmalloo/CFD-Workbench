@@ -20,16 +20,16 @@ internal static class AssistantEvalTests
 
     private static void EvalSuiteAndAi06Lockout()
     {
-        Equal("1.0", AssistantEvalSuite.EvalThresholdsVersion);
+        Equal("2.0", AssistantEvalSuite.EvalThresholdsVersion);
 
         var suite = AssistantEvalSuite.GetSuiteDefinition();
-        Equal(10, suite.Count);
+        Equal(12, suite.Count);
 
         var active = suite.Where(i => !i.Reserved).ToArray();
         var reserved = suite.Where(i => i.Reserved).ToArray();
-        Equal(9, active.Length);
+        Equal(11, active.Length);
         Equal(1, reserved.Length);
-        Equal("eval-10-physical-fidelity", reserved[0].ItemId);
+        Equal("eval-12-physical-fidelity", reserved[0].ItemId);
         Equal(0, reserved[0].Cases.Count);
 
         // Verify all 9 active items have non-empty deterministic fixtures and design-time thresholds.
@@ -94,17 +94,36 @@ internal static class AssistantEvalTests
         Equal(false, changedEndpoint.ProposalsEnabled);
         Equal(AssistantEvalSuite.UnevaluatedStatusLabel, changedEndpoint.StatusLabel);
 
-        // M-CORE-5: Receipt from an older EvalThresholdsVersion ("0.9") disables proposals with "Unevaluated on this model".
+        // M-CORE-5 / T-NB-06: Receipt from older EvalThresholdsVersion ("1.0") disables proposals with "Unevaluated on this model".
         var oldThresholdReceipt = AssistantEvalSuite.BuildReceipt(
             providerKind: AssistantProviderKind.Anthropic,
             endpointOrigin: "https://api.anthropic.com",
             modelId: "claude-sonnet-4-5",
             evaluatedAtUtc: new DateTimeOffset(2026, 11, 24, 12, 5, 0, TimeSpan.Zero),
             items: passingItems,
-            thresholdsVersion: "0.9");
+            thresholdsVersion: "1.0");
         var changedThreshold = AssistantEvalSuite.CheckModelEligibility(settings with { EvalReceipts = [oldThresholdReceipt] });
         Equal(false, changedThreshold.ProposalsEnabled);
         Equal(AssistantEvalSuite.UnevaluatedStatusLabel, changedThreshold.StatusLabel);
+
+        // T-NB-06: OptionalFastModelId requires its own v2.0 eval receipt via modelIdOverride.
+        var withFastModel = evaluatedSettings with { OptionalFastModelId = "claude-haiku-4-5" };
+        Equal(true, AssistantEvalSuite.CheckModelEligibility(withFastModel).ProposalsEnabled);
+        var fastUneval = AssistantEvalSuite.CheckModelEligibility(withFastModel, modelIdOverride: withFastModel.OptionalFastModelId);
+        Equal(false, fastUneval.ProposalsEnabled);
+        Equal(AssistantEvalSuite.UnevaluatedStatusLabel, fastUneval.StatusLabel);
+
+        var fastReceipt = AssistantEvalSuite.BuildReceipt(
+            providerKind: AssistantProviderKind.Anthropic,
+            endpointOrigin: "https://api.anthropic.com",
+            modelId: "claude-haiku-4-5",
+            evaluatedAtUtc: new DateTimeOffset(2026, 11, 24, 12, 6, 0, TimeSpan.Zero),
+            items: passingItems);
+        var fastEvaluated = AssistantEvalSuite.CheckModelEligibility(
+            withFastModel with { EvalReceipts = [validReceipt, fastReceipt] },
+            modelIdOverride: withFastModel.OptionalFastModelId);
+        Equal(true, fastEvaluated.ProposalsEnabled);
+        Equal(AssistantEvalSuite.EvaluatedStatusLabel, fastEvaluated.StatusLabel);
 
         // Any single active item below threshold disables proposals with "Evaluation failed — below threshold".
         var oneFailingItems = passingItems

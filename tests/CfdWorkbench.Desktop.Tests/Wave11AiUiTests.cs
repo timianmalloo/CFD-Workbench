@@ -142,7 +142,7 @@ public static class Wave11AiUiTests
                     $"Expected Settings badge '{AssistantCopy.BadgeKeySet}' after eval passes, got '{NeedText(rail, "BadgeSettingsText")}'");
 
                 var evalItems = Need<ItemsControl>(settingsDlg, "EvalItemsList").ItemsSource?.Cast<object>().Select(x => x.ToString() ?? "").ToArray() ?? [];
-                Require(evalItems.Length == 10, $"Expected 10 eval rows (9 active + 1 reserved), got {evalItems.Length}");
+                Require(evalItems.Length == AssistantEvalSuite.GetSuiteDefinition().Count, $"Expected {AssistantEvalSuite.GetSuiteDefinition().Count} eval rows, got {evalItems.Length}");
                 Require(evalItems[^1].Contains(AssistantCopy.EvalItemReserved, StringComparison.Ordinal),
                     $"Item 10 must be marked '{AssistantCopy.EvalItemReserved}', got '{evalItems[^1]}'");
 

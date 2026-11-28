@@ -341,8 +341,8 @@ internal static class AssistantPersistenceAndCliTests
                 var root = doc.RootElement;
                 if (!root.GetProperty("eligibility").GetProperty("proposalsEnabled").GetBoolean())
                     throw new Exception("eval did not enable proposals");
-                if (root.GetProperty("receipt").GetProperty("items").GetArrayLength() != 10)
-                    throw new Exception("eval receipt did not contain 10 items");
+                if (root.GetProperty("receipt").GetProperty("items").GetArrayLength() != AssistantEvalSuite.GetSuiteDefinition().Count)
+                    throw new Exception($"eval receipt did not contain {AssistantEvalSuite.GetSuiteDefinition().Count} items");
             }
 
             // 3. assistant preview --area setup --prompt ... --input <file> --json -> byte-exact SHA-256 & redacted.

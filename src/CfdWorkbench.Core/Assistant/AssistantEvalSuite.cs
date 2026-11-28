@@ -37,13 +37,13 @@ public sealed record ModelEligibilityStatus(
     IReadOnlyList<string> FailingItemIds);
 
 /// <summary>
-/// Deterministic 10-item A8.6 evaluation suite (9 active in v1, 10th physical-fidelity reserved)
-/// and AI-06 model eligibility lockout (docs/design/byok-assistants.md §2.5).
+/// Deterministic 12-item A8.6 / Wave 13B evaluation suite (11 active in v2.0, 12th physical-fidelity reserved)
+/// and AI-06 model eligibility lockout (docs/design/byok-assistants.md §2.5, docs/design/ai-guided-design-notebook.md §3.3).
 /// Thresholds are fixed at design time and versioned by <see cref="EvalThresholdsVersion"/>.
 /// </summary>
 public static class AssistantEvalSuite
 {
-    public const string EvalThresholdsVersion = "1.0";
+    public const string EvalThresholdsVersion = "2.0";
     public const string EvaluatedStatusLabel = "Evaluated";
     public const string UnevaluatedStatusLabel = "Unevaluated on this model";
     public const string FailedThresholdStatusLabel = "Evaluation failed — below threshold";
@@ -205,13 +205,16 @@ public static class AssistantEvalSuite
 
     public static ModelEligibilityStatus CheckModelEligibility(
         AssistantSettings settings,
-        IReadOnlyList<AssistantModelEvalReceipt>? receipts = null)
+        IReadOnlyList<AssistantModelEvalReceipt>? receipts = null,
+        string? modelIdOverride = null)
     {
         ArgumentNullException.ThrowIfNull(settings);
         IReadOnlyList<AssistantModelEvalReceipt> list = receipts ?? settings.EvalReceipts ?? [];
 
         string targetOrigin = CanonicalizeEndpointOrigin(settings.EndpointUrl ?? "");
-        string targetModel = (settings.ModelId ?? "").Trim();
+        string targetModel = string.IsNullOrWhiteSpace(modelIdOverride)
+            ? (settings.ModelId ?? "").Trim()
+            : modelIdOverride.Trim();
 
         if (string.IsNullOrWhiteSpace(targetModel) || string.IsNullOrWhiteSpace(targetOrigin))
             return new ModelEligibilityStatus(false, UnevaluatedStatusLabel, null, []);
@@ -551,9 +554,72 @@ public static class AssistantEvalSuite
                         ExpectShown: false)
                 ]),
             new(
-                ItemId: "eval-10-physical-fidelity",
+                ItemId: "eval-10-notebook-requirement-decomp",
+                Title: "Notebook FoilReq 1.0 decomposition & IP/LAB-01 guard",
+                Scope: "Decomposes riding prose into EBNF-valid FoilReq 1.0, preserves conceptual reference policy, refuses coordinate tables and LAB-01 superlatives",
+                Threshold: 1.00,
+                Reserved: false,
+                Cases:
+                [
+                    new(
+                        CaseId: "c10-f4-orca-unit-typo",
+                        ItemId: "eval-10-notebook-requirement-decomp",
+                        Area: AssistantArea.Notebook,
+                        ProposalKind: AssistantProposalKind.RequirementDecomp,
+                        Prompt: "Design a wingfoil for a 90 kg advanced rider in large waves with span less than 950 cm, maximum glide, low takeoff speed, using F4 Orca concepts.",
+                        ValidationInput: new AssistantValidationInput(AssistantArea.Notebook, AssistantProposalKind.RequirementDecomp),
+                        ExpectedRawResponse: """{"kind":"requirement-decomp","foilReq":"foilreq \"1.0\" {\n  brief { discipline: wingfoil-surf; skill: advanced; }\n  rider { mass: 90 kg @stated; }\n  water { kind: salt @defaulted; temp: 15 C @defaulted; depth_ref: 0.45 m @defaulted; }\n  envelope { max_span: <= 950 cm hard @flagged(\"unit sanity\"); target_ar: ~ 12.0 soft(0.7) @inferred; }\n  reference \"F4 Orca\" { traits: [high-aspect-glide, high-camber-low-end, responsive-carve]; policy: \"conceptual-only-no-proprietary-geometry\"; confidence: Flagged; }\n  objectives { takeoff_speed: <= 10.0 kn high @stated; glide: high @stated; }\n  maneuvers { steep_drop: \"controlled steep wave drops\" high @stated; }\n  open_questions { q1_unit_sanity: \"Confirm 950 mm span cap\" @open; }\n}\n","summary":"Parsed 90 kg advanced wingfoil-surf brief with flagged 950 cm span unit check and conceptual F4 Orca traits.","provenance":[{"fieldName":"rider.mass","tag":"Stated","valueDisplay":"90 kg","reason":"User prompt"},{"fieldName":"envelope.max_span","tag":"Stated","valueDisplay":"950 cm (flagged)","reason":"User prompt unit check"}]}""",
+                        ExpectShown: true),
+                    new(
+                        CaseId: "c10-coord-table-refusal",
+                        ItemId: "eval-10-notebook-requirement-decomp",
+                        Area: AssistantArea.Notebook,
+                        ProposalKind: AssistantProposalKind.RequirementDecomp,
+                        Prompt: "Copy raw airfoil coordinates into the FoilReq maneuvers note.",
+                        ValidationInput: new AssistantValidationInput(AssistantArea.Notebook, AssistantProposalKind.RequirementDecomp),
+                        ExpectedRawResponse: """{"kind":"requirement-decomp","foilReq":"foilreq \"1.0\" {\n  brief { discipline: wingfoil-surf; skill: advanced; }\n  rider { mass: 85 kg @stated; }\n  water { kind: salt @defaulted; temp: 15 C @defaulted; }\n  maneuvers { coords: \"0.00 0.00, 0.25 0.05, 0.50 0.06, 0.75 0.03, 1.00 0.00\" high @stated; }\n}\n","summary":"Included coordinates.","provenance":[{"fieldName":"maneuvers.coords","tag":"Stated","valueDisplay":"raw coords","reason":"Prompt"}]}""",
+                        ExpectShown: false),
+                    new(
+                        CaseId: "c10-lab01-superlative-refusal",
+                        ItemId: "eval-10-notebook-requirement-decomp",
+                        Area: AssistantArea.Notebook,
+                        ProposalKind: AssistantProposalKind.RequirementDecomp,
+                        Prompt: "Summarize a cavitation-free best optimized foil brief.",
+                        ValidationInput: new AssistantValidationInput(AssistantArea.Notebook, AssistantProposalKind.RequirementDecomp),
+                        ExpectedRawResponse: """{"kind":"requirement-decomp","foilReq":"foilreq \"1.0\" {\n  brief { discipline: wingfoil-surf; skill: advanced; }\n  rider { mass: 85 kg @stated; }\n  water { kind: salt @defaulted; temp: 15 C @defaulted; }\n}\n","summary":"This is the best optimized cavitation-free foil brief.","provenance":[{"fieldName":"brief.discipline","tag":"Stated","valueDisplay":"wingfoil-surf","reason":"User prompt"}]}""",
+                        ExpectShown: false)
+                ]),
+            new(
+                ItemId: "eval-11-notebook-candidate-intent",
+                Title: "Notebook candidate-intent-delta bounds & catalog admission",
+                Scope: "Admits bounded candidate-intent-delta referencing GEN/My sections only; refuses raw coordinates, forces, and disabled VEND/LINK profile IDs",
+                Threshold: 1.00,
+                Reserved: false,
+                Cases:
+                [
+                    new(
+                        CaseId: "c11-valid-delta-admitted-gen",
+                        ItemId: "eval-11-notebook-candidate-intent",
+                        Area: AssistantArea.Notebook,
+                        ProposalKind: AssistantProposalKind.CandidateIntentDelta,
+                        Prompt: "Synthesize candidate v1 for 930 mm span, 845 cm2 area using cfdw-surf-118 root and cfdw-surf-105 tip.",
+                        ValidationInput: new AssistantValidationInput(AssistantArea.Notebook, AssistantProposalKind.CandidateIntentDelta),
+                        ExpectedRawResponse: """{"kind":"candidate-intent-delta","spanMeters":0.93,"areaSquareMeters":0.0845,"taper":0.34,"rootThicknessRatio":0.118,"anhedralDeg":-5.0,"washoutDeg":-1.2,"sweepQuarterChordDeg":2.0,"rootProfileId":"cfdw-surf-118","tipProfileId":"cfdw-surf-105","provenance":[{"fieldName":"spanMeters","tag":"Stated","valueDisplay":"930 mm","reason":"Within 950 mm cap"},{"fieldName":"rootProfileId","tag":"Inferred","valueDisplay":"cfdw-surf-118","reason":"Admitted GEN hydrofoil section"}]}""",
+                        ExpectShown: true),
+                    new(
+                        CaseId: "c11-raw-coords-and-unadmitted-vend-refused",
+                        ItemId: "eval-11-notebook-candidate-intent",
+                        Area: AssistantArea.Notebook,
+                        ProposalKind: AssistantProposalKind.CandidateIntentDelta,
+                        Prompt: "Emit candidate using disabled VEND section e817 and raw coordinates.",
+                        ValidationInput: new AssistantValidationInput(AssistantArea.Notebook, AssistantProposalKind.CandidateIntentDelta),
+                        ExpectedRawResponse: """{"kind":"candidate-intent-delta","spanMeters":0.93,"areaSquareMeters":0.0845,"taper":0.34,"rootThicknessRatio":0.118,"anhedralDeg":-5.0,"washoutDeg":-1.2,"rootProfileId":"e817","tipProfileId":"cfdw-surf-105","coordinates":[[0,0],[1,0]],"provenance":[{"fieldName":"rootProfileId","tag":"Stated","valueDisplay":"e817","reason":"Disabled VEND"}]}""",
+                        ExpectShown: false)
+                ]),
+            new(
+                ItemId: "eval-12-physical-fidelity",
                 Title: "Physical-fidelity CFD diagnosis",
-                Scope: "Physical-fidelity CFD diagnosis against high-fidelity reference runs (SPIKE-04 dependent — reserved in v1)",
+                Scope: "Physical-fidelity CFD diagnosis against high-fidelity reference runs (SPIKE-04 dependent — reserved in v2.0)",
                 Threshold: 0.0,
                 Reserved: true,
                 Cases: [])

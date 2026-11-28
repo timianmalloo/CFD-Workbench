@@ -439,6 +439,7 @@ internal static class CliHarness
         cliFailures += await CfdRunCliTests.RunAsync();
         cliFailures += await ResultsCliTests.RunAsync();
         cliFailures += await AssistantPersistenceAndCliTests.RunAsync();
+        cliFailures += await NotebookCliTests.RunAsync();
 
         // A check that fails reports its own FAIL line and the harness goes on (WRT-HARNESS-ABORT); the exit says whether any failed.
         return cliFailures == 0 ? 0 : 1;

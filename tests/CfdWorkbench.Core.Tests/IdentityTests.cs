@@ -156,6 +156,7 @@ internal static class IdentityTests
         CandidateLadderTests.Run();
         AssistantDomainTests.Run();
         AssistantEvalTests.Run();
+        NotebookTests.Run();
         RoundedTipTests.Run();
         CorePartition.Run();
         bool emptyPart = part is not null && only is null && ran == 0;

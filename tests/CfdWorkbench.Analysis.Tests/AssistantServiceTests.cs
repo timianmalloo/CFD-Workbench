@@ -366,11 +366,11 @@ internal static class AssistantServiceTests
         Equal(AssistantEvalSuite.UnevaluatedStatusLabel, lockedPreview.Message, "Exact AI-06 message");
         Equal(0, Volatile.Read(ref wireRequests), "Unevaluated model made 0 HTTP requests");
 
-        // 3. Run offline 9-item evaluation -> unlocks proposals for current model/endpoint/provider.
+        // 3. Run offline evaluation (11 active + 1 reserved = 12) -> unlocks proposals for current model/endpoint/provider.
         var evalRun = await service.RunEvaluationAsync(liveWire: false);
         Equal(true, evalRun.Eligibility.ProposalsEnabled, "Eval should unlock proposals");
         Equal(true, evalRun.SaveResult.Succeeded, "Eval receipt save succeeded");
-        Equal(10, evalRun.Receipt.Items.Count, "9 active + 1 reserved eval items");
+        Equal(AssistantEvalSuite.GetSuiteDefinition().Count, evalRun.Receipt.Items.Count, "11 active + 1 reserved eval items");
 
         // 4. Prepare preview with sensitive PII/paths/DRC/key and verify redaction + consent hash binding (M-RUN-4).
         var redaction = new RedactionContext(

@@ -73,6 +73,7 @@ internal static class AnalysisChecks
             ("CfdHarvester", 80, CfdHarvesterTests.Run),
             ("ResultsService", 120, ResultsServiceTests.Run),
             ("AssistantService", 250, AssistantServiceTests.Run),
+            ("NotebookOrchestrator", 400, NotebookOrchestratorTests.Run),
             ("RoundedTipAnalysis", 200, RoundedTipAnalysisTests.Run),
         };
         int[] owner = Assign(groups.Select(group => group.CostHintMs).ToArray(), part?.Count ?? 1);
