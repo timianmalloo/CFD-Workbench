@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using CfdWorkbench.Core.Notebook;
 using CfdWorkbench.Core.Results;
 using CfdWorkbench.Core.SolverSetup;
 
@@ -183,6 +184,12 @@ public sealed record ResultsExplanationProposal(
     bool SeparationLayerAvailable,
     string? SeparationCriterion);
 
+public sealed record RequirementDecompProposal(
+    FoilReqDocument Document,
+    FoilReqValidationResult Validation,
+    string Summary,
+    IReadOnlyList<AssistantFieldProvenance> Provenance);
+
 public sealed record AssistantValidationInput(
     AssistantArea Area,
     AssistantProposalKind ProposalKind,
@@ -202,7 +209,9 @@ public sealed record AssistantValidationInput(
     IReadOnlySet<string>? AvailableLayerIds = null,
     bool TargetExperimentIsQueued = false,
     AssistantValidationContext? SetupContext = null,
-    string? FallbackText = null);
+    string? FallbackText = null,
+    IReadOnlyDictionary<string, string>? MySectionDatSnapshots = null,
+    double? HardMaxSpanMeters = null);
 
 public sealed record AssistantResponseValidation(
     AssistantVerdict Verdict,
@@ -219,7 +228,9 @@ public sealed record AssistantResponseValidation(
     CaseDiffProposal? CaseDiff = null,
     ResultsExplanationProposal? ResultsExplanation = null,
     string? SuggestedEnvironmentStepId = null,
-    bool TriggersRun = false);
+    bool TriggersRun = false,
+    RequirementDecompProposal? RequirementDecomp = null,
+    CandidateIntentDelta? CandidateIntent = null);
 
 /// <summary>
 /// Deterministic T0 validation authority across all seven workbench areas (docs/design/byok-assistants.md §2.3).
@@ -247,7 +258,7 @@ public static class AssistantValidators
         "leading", "trailing", "elevation", "twist", "thickness"
     };
 
-    private static readonly HashSet<string> ForbiddenGeometryOrPhysicsFields = new(StringComparer.OrdinalIgnoreCase)
+    internal static readonly HashSet<string> ForbiddenGeometryOrPhysicsFields = new(StringComparer.OrdinalIgnoreCase)
     {
         "coordinates", "points", "controlVertices", "mesh", "forces", "cl", "cd", "lift", "drag", "score", "scores"
     };
@@ -292,6 +303,8 @@ public static class AssistantValidators
             AssistantProposalKind.RunFailureExplanation => ValidateRunFailureExplanation(rawJson, input),
             AssistantProposalKind.CaseDiff => ValidateCaseDiff(rawJson, input),
             AssistantProposalKind.ResultsExplanation => ValidateResultsExplanation(rawJson, input),
+            AssistantProposalKind.RequirementDecomp => ValidateRequirementDecomp(rawJson, input),
+            AssistantProposalKind.CandidateIntentDelta => ValidateCandidateIntentDelta(rawJson, input),
             _ => Refused("unsupported-proposal-kind", $"Unsupported proposal kind '{input.ProposalKind}'.", input.FallbackText)
         };
     }
@@ -1615,7 +1628,99 @@ public static class AssistantValidators
         return true;
     }
 
-    private static bool TryParseProvenance(JsonElement root, out List<AssistantFieldProvenance> list, out string error)
+    public static AssistantResponseValidation ValidateRequirementDecomp(string rawJson, AssistantValidationInput input)
+    {
+        ArgumentNullException.ThrowIfNull(input);
+        if (!TryParseStrictObject(rawJson, out var doc, out var err))
+            return err!;
+
+        using (doc!)
+        {
+            var root = doc.RootElement;
+            HashSet<string> allowedRoot = ["kind", "foilReq", "summary", "provenance"];
+            foreach (var prop in root.EnumerateObject())
+            {
+                if (ForbiddenGeometryOrPhysicsFields.Contains(prop.Name))
+                    return Refused("NB-COORD-FORBIDDEN", $"Proposal refused: field '{prop.Name}' is forbidden in requirement-decomp.", input.FallbackText);
+                if (!allowedRoot.Contains(prop.Name))
+                    return Refused("extra-field:" + prop.Name, $"Proposal refused: unknown field '{prop.Name}' is not allowed in requirement-decomp.", input.FallbackText);
+            }
+
+            if (!TryGetRequiredString(root, "kind", out string kind) || kind != "requirement-decomp")
+                return Refused("invalid-kind", "Proposal refused: kind must be 'requirement-decomp'.", input.FallbackText);
+            if (!TryGetRequiredString(root, "foilReq", out string foilReqText))
+                return Refused(FoilReqParser.SyntaxErrorCode, "Proposal refused: foilReq DSL text is required.", input.FallbackText);
+            if (!TryGetRequiredString(root, "summary", out string summary))
+                return Refused("missing-summary", "Proposal refused: summary is required.", input.FallbackText);
+
+            var labSummary = Lab01CopyLint.CheckText(summary);
+            if (!labSummary.Passed)
+            {
+                return Withheld(
+                    "lab01-forbidden-claim",
+                    $"Response withheld: forbidden LAB-01 claim '{labSummary.Violations[0].Snippet}'.",
+                    input.FallbackText);
+            }
+            var labDsl = Lab01CopyLint.CheckText(foilReqText);
+            if (!labDsl.Passed)
+            {
+                return Withheld(
+                    "lab01-forbidden-claim",
+                    $"Response withheld: forbidden LAB-01 claim '{labDsl.Violations[0].Snippet}' inside FoilReq.",
+                    input.FallbackText);
+            }
+
+            if (!TryParseProvenance(root, out var provenance, out string provErr))
+                return Refused("invalid-provenance", provErr, input.FallbackText);
+
+            var parsed = FoilReqParser.Parse(foilReqText);
+            if (!parsed.IsValid || parsed.Document is null)
+                return Refused(parsed.ErrorCode ?? FoilReqParser.SyntaxErrorCode, parsed.ErrorMessage ?? "Invalid FoilReq 1.0 syntax.", input.FallbackText);
+
+            var val = FoilReqValidator.Validate(parsed.Document);
+            if (val.HasBlockingError)
+            {
+                var firstErr = val.Findings.First(f => f.Severity == "error");
+                return Refused(firstErr.Code, firstErr.Message, input.FallbackText);
+            }
+
+            var proposal = new RequirementDecompProposal(parsed.Document, val, summary, provenance);
+            return new AssistantResponseValidation(
+                Verdict: AssistantVerdict.Shown,
+                Disposition: ProposalDisposition.Pending,
+                Reason: "ok",
+                Message: "FoilReq 1.0 requirement decomposition validated.",
+                DisplayText: summary,
+                Citations: [],
+                TriggersRun: false,
+                RequirementDecomp: proposal);
+        }
+    }
+
+    public static AssistantResponseValidation ValidateCandidateIntentDelta(string rawJson, AssistantValidationInput input)
+    {
+        ArgumentNullException.ThrowIfNull(input);
+        var ctx = new CandidateValidationContext(
+            AdmittedMySectionIds: input.AdmittedMySectionIds,
+            MySectionDatSnapshots: input.MySectionDatSnapshots,
+            HardMaxSpanMeters: input.HardMaxSpanMeters);
+        var res = CandidateIntentValidator.Validate(rawJson, ctx);
+        if (!res.IsValid || res.Delta is null)
+            return Refused(res.Reason, res.Message, input.FallbackText);
+
+        return new AssistantResponseValidation(
+            Verdict: AssistantVerdict.Shown,
+            Disposition: ProposalDisposition.Pending,
+            Reason: "ok",
+            Message: res.Message,
+            DisplayText: string.Create(CultureInfo.InvariantCulture,
+                $"Validated candidate delta: span {res.Delta.SpanMeters * 1000.0:0.0} mm, area {res.Delta.AreaSquareMeters * 1e4:0} cm2, AR {res.Delta.AspectRatio:0.00} ({res.Delta.RootProfileId} -> {res.Delta.TipProfileId})."),
+            Citations: [],
+            TriggersRun: false,
+            CandidateIntent: res.Delta);
+    }
+
+    internal static bool TryParseProvenance(JsonElement root, out List<AssistantFieldProvenance> list, out string error)
     {
         list = [];
         error = "";
@@ -1661,7 +1766,7 @@ public static class AssistantValidators
         return true;
     }
 
-    private static bool IsAdmittedProfileId(string profileId, IReadOnlySet<string>? admittedMySectionIds)
+    internal static bool IsAdmittedProfileId(string profileId, IReadOnlySet<string>? admittedMySectionIds)
     {
         if (admittedMySectionIds is not null && admittedMySectionIds.Contains(profileId))
             return true;
@@ -1679,7 +1784,7 @@ public static class AssistantValidators
         return false;
     }
 
-    private static bool TryParseStrictObject(
+    internal static bool TryParseStrictObject(
         string? rawJson,
         [NotNullWhen(true)] out JsonDocument? doc,
         [NotNullWhen(false)] out AssistantResponseValidation? error)
@@ -1766,7 +1871,7 @@ public static class AssistantValidators
         }
     }
 
-    private static bool TryGetRequiredString(JsonElement obj, string name, out string value)
+    internal static bool TryGetRequiredString(JsonElement obj, string name, out string value)
     {
         value = "";
         if (!obj.TryGetProperty(name, out var el) || el.ValueKind != JsonValueKind.String)
@@ -1792,7 +1897,7 @@ public static class AssistantValidators
         return values.Count > 0;
     }
 
-    private static bool TryReadOptionalBoundedDouble(
+    internal static bool TryReadOptionalBoundedDouble(
         JsonElement obj,
         string name,
         double min,
@@ -1820,7 +1925,7 @@ public static class AssistantValidators
         return true;
     }
 
-    private static bool TryReadRequiredBoundedDouble(
+    internal static bool TryReadRequiredBoundedDouble(
         JsonElement obj,
         string name,
         double min,

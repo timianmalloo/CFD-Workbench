@@ -368,6 +368,45 @@ public static class RecipeSeeder
         if (genProfile.Coordinates is null || genProfile.DisabledReason is not null)
             throw new ContractError("CAT-UNAVAILABLE", $"Profile '{genProfile.Id}' is not available in this build.");
 
+        string prov = "gen:" + genProfile.Id;
+        string datText = FoilSource.Utf8.GetString(genProfile.Coordinates);
+        return EmitFoilDsl(
+            recipe: recipe,
+            rootId: genProfile.Id,
+            rootDatText: datText,
+            tipId: genProfile.Id,
+            tipDatText: datText,
+            foilName: foilName,
+            rootProvenance: prov,
+            tipProvenance: prov);
+    }
+
+    /// <summary>
+    /// Two-profile pure zero-I/O <see cref="RecipeRecord"/> emitter supporting distinct root and tip sections
+    /// (admitted GEN or embedded <c>My sections</c> coordinate snapshots) and optional <c>foildsl "4.2"</c>
+    /// rounded 3D tip closure (<c>docs/design/ai-guided-design-notebook.md §3.2</c>).
+    /// </summary>
+    public static byte[] EmitFoilDsl(
+        RecipeRecord recipe,
+        string rootId,
+        string rootDatText,
+        string tipId,
+        string tipDatText,
+        string foilName = "Seeded Wing",
+        string? rootProvenance = null,
+        string? tipProvenance = null,
+        string? tipStyle = null,
+        double? tipCapRatio = null)
+    {
+        ArgumentNullException.ThrowIfNull(recipe);
+        if (string.IsNullOrWhiteSpace(rootId) || string.IsNullOrWhiteSpace(rootDatText))
+            throw new ContractError("CAT-UNAVAILABLE", "Root profile id and .dat coordinates are required.");
+        if (string.IsNullOrWhiteSpace(tipId) || string.IsNullOrWhiteSpace(tipDatText))
+            throw new ContractError("CAT-UNAVAILABLE", "Tip profile id and .dat coordinates are required.");
+
+        string cleanRootId = rootId.Trim();
+        string cleanTipId = tipId.Trim();
+
         // 4-CV degree-3 planform rails on TipClusteredChannel(4, 3): knots [0,0,0,0,1,1,1,1], x [0, 1/3, 2/3, 1].
         double[] railKnots = [0, 0, 0, 0, 1, 1, 1, 1];
         double[] railX = [0, 1.0 / 3.0, 2.0 / 3.0, 1.0];
@@ -379,7 +418,9 @@ public static class RecipeSeeder
         for (int i = 0; i < 4; i++)
         {
             double chord = recipe.RootChordMeters * g[i];
-            double le = recipe.RootChordMeters * (1.0 - g[i]) * 0.25 + halfSpan * railX[i] * tanSweep;
+            // Keep P1.aft == P0.aft on both rails so root_mirror G1 symmetry holds for nonzero quarter-chord sweep.
+            double sweepFraction = i <= 1 ? 0.0 : (railX[i] - railX[1]) / (1.0 - railX[1]);
+            double le = recipe.RootChordMeters * (1.0 - g[i]) * 0.25 + halfSpan * sweepFraction * tanSweep;
             lead[i] = le;
             trail[i] = le + chord;
         }
@@ -391,20 +432,32 @@ public static class RecipeSeeder
         var twist = SmoothRootChannel(channelX, recipe.WashoutDeg);
         var thickness = Enumerable.Repeat(Math.Clamp(recipe.RootThicknessRatio, 0.04, 0.25), 10).ToArray();
 
-        // Degree-5 10-CV profile fitted from admitted GEN catalog entry with provenance "gen:<id>".
-        var parsedDat = DatImport.Parse(genProfile.Coordinates);
-        var fitted = DatImport.Fit(parsedDat, genProfile.Id);
-        string profileBlock = fitted.ProfileBlock.Replace(
-            "provenance " + Jcs.Quote(fitted.Provenance),
-            "provenance " + Jcs.Quote("gen:" + genProfile.Id),
-            StringComparison.Ordinal);
-        string indentedProfile = string.Join("\n", profileBlock.Split('\n').Select(line => "    " + line));
+        string rootBlock = BuildIndentedProfileBlock(cleanRootId, rootDatText, rootProvenance ?? ("gen:" + cleanRootId));
+        bool sameProfile = string.Equals(cleanRootId, cleanTipId, StringComparison.Ordinal);
+        string profilesBody = sameProfile
+            ? rootBlock
+            : rootBlock + "\n" + BuildIndentedProfileBlock(cleanTipId, tipDatText, tipProvenance ?? ("gen:" + cleanTipId));
 
         string safeName = foilName.Replace("\"", "", StringComparison.Ordinal).Trim();
         if (safeName.Length == 0) safeName = "Seeded Wing";
 
+        bool roundedTip = string.Equals(tipStyle, "rounded", StringComparison.OrdinalIgnoreCase);
+        string dslVersion = roundedTip ? "4.2" : "4.1";
+        string tipClause;
+        if (roundedTip)
+        {
+            double ratio = tipCapRatio ?? TipCapMath.DefaultCapRatio;
+            if (!double.IsFinite(ratio) || ratio < TipCapMath.MinCapRatio || ratio > TipCapMath.MaxCapRatio)
+                throw new ContractError("DSL-RANGE", $"Tip cap ratio must be in [{TipCapMath.MinCapRatio}, {TipCapMath.MaxCapRatio}].");
+            tipClause = "  tip rounded " + FoilSource.ExactDecimal(ratio) + "\n";
+        }
+        else
+        {
+            tipClause = "  tip open\n";
+        }
+
         string text =
-            "foildsl \"4.1\"\n" +
+            $"foildsl \"{dslVersion}\"\n" +
             $"foil {Jcs.Quote(safeName)} {{\n" +
             "  units m\n" +
             "  half_span " + FoilSource.ExactDecimal(halfSpan) + " m\n" +
@@ -418,12 +471,23 @@ public static class RecipeSeeder
             "  twist cv { " + ChannelText(3, channelKnots, channelX, twist) + " }\n" +
             "  thickness cv { " + ChannelText(3, channelKnots, channelX, thickness) + " }\n" +
             "  profiles {\n" +
-            indentedProfile + "\n" +
+            profilesBody + "\n" +
             "  }\n" +
-            $"  sections {{ at root profile {Jcs.Quote(genProfile.Id)} at tip profile {Jcs.Quote(genProfile.Id)} }}\n" +
-            "  tip open\n" +
+            $"  sections {{ at root profile {Jcs.Quote(cleanRootId)} at tip profile {Jcs.Quote(cleanTipId)} }}\n" +
+            tipClause +
             "}\n";
         return FoilSource.Utf8.GetBytes(text);
+    }
+
+    private static string BuildIndentedProfileBlock(string profileId, string datText, string provenance)
+    {
+        var parsedDat = DatImport.Parse(FoilSource.Utf8.GetBytes(datText));
+        var fitted = DatImport.Fit(parsedDat, profileId);
+        string profileBlock = fitted.ProfileBlock.Replace(
+            "provenance " + Jcs.Quote(fitted.Provenance),
+            "provenance " + Jcs.Quote(provenance),
+            StringComparison.Ordinal);
+        return string.Join("\n", profileBlock.Split('\n').Select(line => "    " + line));
     }
 
     private static (double[] Knots, double[] X) TipClusteredChannel10()

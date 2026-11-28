@@ -48,6 +48,7 @@ public static class AssistantVerb
         string? storeDir = null;
         bool json = false;
         bool live = false;
+        string? modelArg = null;
         string? areaArg = null;
         string? promptArg = null;
         string? inputPath = null;
@@ -58,6 +59,7 @@ public static class AssistantVerb
             string arg = args[i];
             if (arg == "--json") { json = true; continue; }
             if (arg == "--live" && sub == "eval") { live = true; continue; }
+            if (arg == "--model" && sub == "eval" && i + 1 < args.Length) { modelArg = args[++i]; continue; }
             if (arg == "--store" && i + 1 < args.Length) { storeDir = args[++i]; continue; }
             if (arg == "--area" && sub == "preview" && i + 1 < args.Length) { areaArg = args[++i]; continue; }
             if (arg == "--prompt" && sub == "preview" && i + 1 < args.Length) { promptArg = args[++i]; continue; }
@@ -104,6 +106,7 @@ public static class AssistantVerb
                     providerKind = status.Settings.ProviderKind.ToString(),
                     endpointOrigin = AssistantEvalSuite.CanonicalizeEndpointOrigin(status.Settings.EndpointUrl),
                     modelId = status.Settings.ModelId,
+                    optionalFastModelId = status.Settings.OptionalFastModelId,
                     perRequestMaxTokens = status.Settings.PerRequestMaxTokens,
                     dailyRequestCap = status.Settings.DailyRequestCap,
                     dailyRequestsUsedUtc = status.DailyRequestsUsedUtc,
@@ -141,7 +144,7 @@ public static class AssistantVerb
                     return 3;
                 }
 
-                var evalRes = await service.RunEvaluationAsync(liveWire: live, ct: cancellation).ConfigureAwait(false);
+                var evalRes = await service.RunEvaluationAsync(liveWire: live, targetModelId: modelArg, ct: cancellation).ConfigureAwait(false);
                 var payload = new
                 {
                     schemaVersion = 1,
@@ -178,8 +181,10 @@ public static class AssistantVerb
                     }
                 };
 
+                int activeCount = evalRes.Receipt.Items.Count(i => !i.Reserved);
+                int activeMet = evalRes.Receipt.Items.Count(i => !i.Reserved && i.MetThreshold);
                 if (json) await Cli.WriteAsync(output, payload).ConfigureAwait(false);
-                else await output.WriteLineAsync($"Eval ({evalRes.Receipt.ModelId}, v{evalRes.Receipt.EvalThresholdsVersion}): {evalRes.Eligibility.StatusLabel} ({evalRes.Receipt.Items.Count(i => !i.Reserved && i.MetThreshold)}/9 active met)").ConfigureAwait(false);
+                else await output.WriteLineAsync($"Eval ({evalRes.Receipt.ModelId}, v{evalRes.Receipt.EvalThresholdsVersion}): {evalRes.Eligibility.StatusLabel} ({activeMet}/{activeCount} active met)").ConfigureAwait(false);
                 return evalRes.SaveResult.Succeeded ? 0 : 3;
             }
 
@@ -187,7 +192,7 @@ public static class AssistantVerb
             {
                 if (string.IsNullOrWhiteSpace(areaArg) || !TryParseArea(areaArg, out var area, out var defaultKind))
                 {
-                    await output.WriteLineAsync("Error ASSISTANT-USAGE: --area must be one of setup|cad|analysis|experiment|run|solver-setup|results|export.").ConfigureAwait(false);
+                    await output.WriteLineAsync("Error ASSISTANT-USAGE: --area must be one of setup|cad|analysis|experiment|run|solver-setup|results|export|notebook.").ConfigureAwait(false);
                     return 2;
                 }
 
@@ -384,6 +389,10 @@ public static class AssistantVerb
             case "export":
                 area = AssistantArea.Export;
                 defaultKind = AssistantProposalKind.None;
+                return true;
+            case "notebook":
+                area = AssistantArea.Notebook;
+                defaultKind = AssistantProposalKind.RequirementDecomp;
                 return true;
             default:
                 area = default;

@@ -33,7 +33,8 @@ public sealed record AssistantPreviewRequest(
     string SystemPrompt,
     string UserPrompt,
     IReadOnlyList<UntrustedExcerpt>? Excerpts = null,
-    string? KnowledgeQuery = null);
+    string? KnowledgeQuery = null,
+    string? ModelIdOverride = null);
 
 public sealed record PreparedAssistantCall(
     string RequestId,
@@ -44,7 +45,12 @@ public sealed record PreparedAssistantCall(
     RedactedPromptPayload Payload,
     IReadOnlyList<string> KnowledgeIds,
     bool KnowledgeAvailable,
-    string? KnowledgeUnavailableReason);
+    string? KnowledgeUnavailableReason,
+    string? EffectiveModelId = null)
+{
+    public string ResolvedModelId =>
+        string.IsNullOrWhiteSpace(EffectiveModelId) ? SettingsSnapshot.ModelId : EffectiveModelId.Trim();
+}
 
 public sealed record AssistantPreviewResult(
     bool Allowed,
@@ -167,9 +173,12 @@ public sealed class AssistantService
 
         var loaded = await settingsStore.LoadSettingsAsync(ct).ConfigureAwait(false);
         var settings = loaded.Settings;
+        string effectiveModelId = string.IsNullOrWhiteSpace(request.ModelIdOverride)
+            ? settings.ModelId
+            : request.ModelIdOverride.Trim();
         DateOnly todayUtc = DateOnly.FromDateTime(clock().UtcDateTime);
         int dailyUsed = await settingsStore.CountDailyRequestsUtcAsync(todayUtc, ct).ConfigureAwait(false);
-        var eligibility = AssistantEvalSuite.CheckModelEligibility(settings, settings.EvalReceipts);
+        var eligibility = AssistantEvalSuite.CheckModelEligibility(settings, settings.EvalReceipts, effectiveModelId);
 
         var endpointCheck = ByokLlmTransport.ValidateEndpointUri(settings.EndpointUrl);
         if (!endpointCheck.IsValid)
@@ -274,6 +283,9 @@ public sealed class AssistantService
             redaction ?? RedactionContext.Empty);
 
         string origin = AssistantEvalSuite.CanonicalizeEndpointOrigin(settings.EndpointUrl);
+        string effectiveModelId = string.IsNullOrWhiteSpace(request.ModelIdOverride)
+            ? settings.ModelId
+            : request.ModelIdOverride.Trim();
 
         return new PreparedAssistantCall(
             RequestId: Guid.NewGuid().ToString("D"),
@@ -284,7 +296,8 @@ public sealed class AssistantService
             Payload: payload,
             KnowledgeIds: knowledgeIds,
             KnowledgeAvailable: knowledge.Available,
-            KnowledgeUnavailableReason: knowledge.UnavailableReason);
+            KnowledgeUnavailableReason: knowledge.UnavailableReason,
+            EffectiveModelId: effectiveModelId);
     }
 
     public async Task<AssistantExecutionResult> ExecuteConsentedAsync(
@@ -340,8 +353,9 @@ public sealed class AssistantService
                 ct: ct).ConfigureAwait(false);
         }
 
-        // AI-06 defense in depth: verify model eligibility on settings snapshot.
-        var eligibility = AssistantEvalSuite.CheckModelEligibility(prepared.SettingsSnapshot, prepared.SettingsSnapshot.EvalReceipts);
+        // AI-06 defense in depth: verify model eligibility for EffectiveModelId on settings snapshot.
+        string effectiveModelId = prepared.ResolvedModelId;
+        var eligibility = AssistantEvalSuite.CheckModelEligibility(prepared.SettingsSnapshot, prepared.SettingsSnapshot.EvalReceipts, effectiveModelId);
         if (!eligibility.ProposalsEnabled)
         {
             return await RecordBlockedAsync(
@@ -371,7 +385,7 @@ public sealed class AssistantService
             new LlmTransportRequest(
                 ProviderKind: prepared.SettingsSnapshot.ProviderKind,
                 EndpointUrl: prepared.SettingsSnapshot.EndpointUrl,
-                ModelId: prepared.SettingsSnapshot.ModelId,
+                ModelId: effectiveModelId,
                 ApiKey: keyResult.Secret,
                 Payload: prepared.Payload,
                 PerRequestMaxTokens: prepared.SettingsSnapshot.PerRequestMaxTokens,
@@ -464,12 +478,21 @@ public sealed class AssistantService
         return entry;
     }
 
-    public async Task<AssistantEvalRunResult> RunEvaluationAsync(
+    public Task<AssistantEvalRunResult> RunEvaluationAsync(
         bool liveWire = false,
+        CancellationToken ct = default) =>
+        RunEvaluationAsync(liveWire, targetModelId: null, ct: ct);
+
+    public async Task<AssistantEvalRunResult> RunEvaluationAsync(
+        bool liveWire,
+        string? targetModelId,
         CancellationToken ct = default)
     {
         var loaded = await settingsStore.LoadSettingsAsync(ct).ConfigureAwait(false);
         var settings = loaded.Settings;
+        string effectiveModelId = string.IsNullOrWhiteSpace(targetModelId)
+            ? settings.ModelId
+            : targetModelId.Trim();
 
         string? liveApiKey = null;
         if (liveWire)
@@ -520,7 +543,7 @@ public sealed class AssistantService
                         new LlmTransportRequest(
                             ProviderKind: settings.ProviderKind,
                             EndpointUrl: settings.EndpointUrl,
-                            ModelId: settings.ModelId,
+                            ModelId: effectiveModelId,
                             ApiKey: liveApiKey!,
                             Payload: evalPayload,
                             PerRequestMaxTokens: settings.PerRequestMaxTokens,
@@ -553,14 +576,14 @@ public sealed class AssistantService
         var receipt = AssistantEvalSuite.BuildReceipt(
             providerKind: settings.ProviderKind,
             endpointOrigin: settings.EndpointUrl,
-            modelId: settings.ModelId,
+            modelId: effectiveModelId,
             evaluatedAtUtc: clock(),
             items: itemResults);
 
         var updatedReceipts = new List<AssistantModelEvalReceipt>(settings.EvalReceipts ?? []) { receipt };
         var updatedSettings = settings with { EvalReceipts = updatedReceipts };
         var saveResult = await settingsStore.SaveSettingsAsync(updatedSettings, ct).ConfigureAwait(false);
-        var eligibility = AssistantEvalSuite.CheckModelEligibility(updatedSettings, updatedSettings.EvalReceipts);
+        var eligibility = AssistantEvalSuite.CheckModelEligibility(updatedSettings, updatedSettings.EvalReceipts, effectiveModelId);
 
         return new AssistantEvalRunResult(receipt, eligibility, saveResult, liveWire);
     }
@@ -625,7 +648,7 @@ public sealed class AssistantService
             ProposalKind: prepared.ProposalKind,
             ProviderKind: prepared.SettingsSnapshot.ProviderKind,
             EndpointOrigin: prepared.EndpointOrigin,
-            ModelId: prepared.SettingsSnapshot.ModelId,
+            ModelId: prepared.ResolvedModelId,
             PayloadSha256: wireHash,
             PromptUtf8Bytes: prepared.Payload.PromptUtf8Bytes,
             ConsentAction: consentAction,

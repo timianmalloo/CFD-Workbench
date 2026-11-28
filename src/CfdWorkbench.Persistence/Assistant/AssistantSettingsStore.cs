@@ -51,6 +51,7 @@ public sealed class AssistantSettingsStore : IAssistantSettingsStore
         "providerKind",
         "endpointUrl",
         "modelId",
+        "optionalFastModelId",
         "perRequestMaxTokens",
         "dailyRequestCap",
         "timeoutSeconds",
@@ -437,8 +438,26 @@ public sealed class AssistantSettingsStore : IAssistantSettingsStore
                 return Rejected("ASSISTANT-SCHEMA");
             if (!TryGetString(root, "endpointUrl", out string endpointUrl) || string.IsNullOrWhiteSpace(endpointUrl))
                 return Rejected("ASSISTANT-SCHEMA");
-            if (!TryGetString(root, "modelId", out string modelId) || string.IsNullOrWhiteSpace(modelId) || modelId.Length > 256)
+            if (ContainsSecretLikeValue(endpointUrl))
+                return Rejected("ASSISTANT-SECRET-FORBIDDEN");
+            if (!TryGetString(root, "modelId", out string modelId) || string.IsNullOrWhiteSpace(modelId) || modelId.Length > 256 ||
+                modelId.Any(c => c < 0x20 || c == 0x7F))
                 return Rejected("ASSISTANT-SCHEMA");
+            if (ContainsSecretLikeValue(modelId))
+                return Rejected("ASSISTANT-SECRET-FORBIDDEN");
+
+            string? optionalFastModelId = null;
+            if (root.TryGetProperty("optionalFastModelId", out var fastEl) && fastEl.ValueKind != JsonValueKind.Null)
+            {
+                if (fastEl.ValueKind != JsonValueKind.String)
+                    return Rejected("ASSISTANT-SCHEMA");
+                string rawFast = (fastEl.GetString() ?? "").Trim();
+                if (rawFast.Length == 0 || rawFast.Length > 256 || rawFast.Any(c => c < 0x20 || c == 0x7F))
+                    return Rejected("ASSISTANT-SCHEMA");
+                if (ContainsSecretLikeValue(rawFast))
+                    return Rejected("ASSISTANT-SECRET-FORBIDDEN");
+                optionalFastModelId = rawFast;
+            }
             if (!TryGetInt(root, "perRequestMaxTokens", out int maxTokens) ||
                 maxTokens < AssistantSettings.MinPerRequestMaxTokens || maxTokens > AssistantSettings.MaxPerRequestMaxTokens)
                 return Rejected("ASSISTANT-SCHEMA");
@@ -469,7 +488,8 @@ public sealed class AssistantSettingsStore : IAssistantSettingsStore
                 PerRequestMaxTokens: maxTokens,
                 DailyRequestCap: dailyCap,
                 TimeoutSeconds: timeoutSeconds,
-                EvalReceipts: receipts);
+                EvalReceipts: receipts,
+                OptionalFastModelId: optionalFastModelId);
 
             return new AssistantSettingsLoadResult(settings, "restored", [], NeverWrite: false, SessionOnly: false);
         }
@@ -500,12 +520,43 @@ public sealed class AssistantSettingsStore : IAssistantSettingsStore
             message = "Endpoint URL is required.";
             return false;
         }
+        if (ContainsSecretLikeValue(settings.EndpointUrl))
+        {
+            code = "ASSISTANT-SECRET-FORBIDDEN";
+            message = "Endpoint URL must not contain an API key or secret token.";
+            return false;
+        }
         if (string.IsNullOrWhiteSpace(settings.ModelId) || settings.ModelId.Length > 256 ||
             settings.ModelId.Any(c => c < 0x20 || c == 0x7F))
         {
             code = "ASSISTANT-MODEL";
             message = "Model identifier must be non-empty and free of control characters.";
             return false;
+        }
+        if (ContainsSecretLikeValue(settings.ModelId))
+        {
+            code = "ASSISTANT-SECRET-FORBIDDEN";
+            message = "Model identifier must not contain an API key or secret token.";
+            return false;
+        }
+        if (settings.OptionalFastModelId is not null)
+        {
+            string trimmedFast = settings.OptionalFastModelId.Trim();
+            if (trimmedFast.Length > 0)
+            {
+                if (trimmedFast.Length > 256 || trimmedFast.Any(c => c < 0x20 || c == 0x7F))
+                {
+                    code = "ASSISTANT-MODEL";
+                    message = "Optional fast model identifier must be <= 256 characters and free of control characters.";
+                    return false;
+                }
+                if (ContainsSecretLikeValue(trimmedFast))
+                {
+                    code = "ASSISTANT-SECRET-FORBIDDEN";
+                    message = "Optional fast model identifier must not contain an API key or secret token.";
+                    return false;
+                }
+            }
         }
         if (settings.PerRequestMaxTokens < AssistantSettings.MinPerRequestMaxTokens ||
             settings.PerRequestMaxTokens > AssistantSettings.MaxPerRequestMaxTokens)
@@ -545,6 +596,8 @@ public sealed class AssistantSettingsStore : IAssistantSettingsStore
             writer.WriteString("providerKind", settings.ProviderKind.ToString());
             writer.WriteString("endpointUrl", settings.EndpointUrl.Trim());
             writer.WriteString("modelId", settings.ModelId.Trim());
+            if (!string.IsNullOrWhiteSpace(settings.OptionalFastModelId))
+                writer.WriteString("optionalFastModelId", settings.OptionalFastModelId.Trim());
             writer.WriteNumber("perRequestMaxTokens", settings.PerRequestMaxTokens);
             writer.WriteNumber("dailyRequestCap", settings.DailyRequestCap);
             writer.WriteNumber("timeoutSeconds", settings.TimeoutSeconds);
@@ -591,6 +644,9 @@ public sealed class AssistantSettingsStore : IAssistantSettingsStore
         using var doc = JsonDocument.Parse(serialized, StrictJsonOptions);
         return !ContainsForbiddenSecretProperty(doc.RootElement);
     }
+
+    private static bool ContainsSecretLikeValue(string? value) =>
+        !string.IsNullOrEmpty(value) && PromptRedactor.ScrubSecrets(value, RedactionContext.Empty).SecretsRedacted > 0;
 
     private static byte[] SerializeAuditLine(AssistantAuditEntry entry)
     {
