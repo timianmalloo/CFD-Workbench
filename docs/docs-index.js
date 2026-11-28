@@ -13239,6 +13239,61 @@ window.DOCS_INDEX = {
       "sourceSha256": "8e74f42e91183bccc07cb997b25f05e101043fccc97ea983abeb402812465522"
     },
     {
+      "id": "coordination-wave13-rounded-tips-and-ai-notebook",
+      "path": "docs/coordination/wave13-rounded-tips-and-ai-notebook.md",
+      "title": "Coordination plan - wave 13: Rounded Wing Tips (FoilDSL 4.2) and AI-Guided Hydrofoil Design Notebook",
+      "type": "plan",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "coordination — Wave 13 (execution plan for Wave 13A Rounded Wing Tips + Wave 13B AI-Guided Design Notebook)",
+      "reviewBy": "2027-02-27",
+      "reviewSuggested": [],
+      "summary": "Three-stage, four-track AGY swarm coordination plan for Wave 13 delivering Wave 13A (Rounded & Radiused Wing Tips / FoilDSL 4.2) and Wave 13B (AI-Guided Hydrofoil Design Notebook) with zero overlapping authored files per stage. Stage 1 (w13a-core, width 1) lands FoilDSL 4.2 Core, Geometry positive-chord BFS, TipCapMath, STL/3MF/STEP/3DM exports, Analysis COPY-941, and foildsl.md sync. Stage 2 (true parallel width 2, 100% file-disjoint) runs w13a-ui (Area 2 CAD Structure B Tip UI & PlanCanvas vertical handle) alongside w13b-core (AI Notebook Core/Persistence/Analysis Runtime/CLI + Eval Suite v2.0). Stage 3 (w13b-ui, width 1) delivers native Avalonia NotebookWorkspaceView matching the approved HTML mockup across all 7 states.",
+      "tags": [
+        "coordination",
+        "worktrees",
+        "parallelism",
+        "agy-swarm",
+        "foildsl",
+        "wingtip",
+        "ai",
+        "notebook",
+        "wave13"
+      ],
+      "links": [
+        {
+          "to": "design-rounded-wing-tips",
+          "rel": "implements"
+        },
+        {
+          "to": "design-ai-guided-design-notebook",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-rounded-wing-tips",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-ai-guided-design-notebook",
+          "rel": "implements"
+        },
+        {
+          "to": "coordination-wave11-byok-assistants-and-prior-carryforwards",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b247b1a4fa57740a9d268ca8415130b04a7b2d12dca2e342c41286c804bc8357"
+    },
+    {
       "id": "coordination-wave3-next-steps",
       "path": "docs/coordination/wave3-next-steps.md",
       "title": "Coordination plan - wave 3: the next steps of 2026-10-23",
@@ -26845,6 +26900,14 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-wave12-ui-unification-and-polish"
     },
     {
+      "id": "surface-coordination-wave13-rounded-tips-and-ai-notebook",
+      "path": "docs/coordination/wave13-rounded-tips-and-ai-notebook.html",
+      "title": "Wave13 Rounded Tips And Ai Notebook",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "coordination-wave13-rounded-tips-and-ai-notebook"
+    },
+    {
       "id": "surface-coordination-wave5-next-steps",
       "path": "docs/coordination/wave5-next-steps.html",
       "title": "Wave5 Next Steps",
@@ -26901,5 +26964,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "29ce9de87510ec535bceae10d6c6398fd093c6b7dc82b042be61466c8bb8809c"
+  "graphSha256": "69b2ba2fcf73592e79ff164ad057ffba56dfcc5cec5b366329e5559b9cd4f2a1"
 };

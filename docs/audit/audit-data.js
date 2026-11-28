@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-28T03:08:27Z",
+  "generated": "2026-11-28T04:09:28Z",
   "audit": [
     {
       "actor": null,
@@ -46160,6 +46160,45 @@ window.AUDIT_DATA = {
       "duration_source": "session-start-hook",
       "started_at": "2026-11-28T03:07:12Z",
       "duration_seconds": 74.0
+    },
+    {
+      "id": "al-01M8G4QD2TTQ88XFC8ZNV9HB8N",
+      "shortname": "Push main, then plan and execute Wave 13 using /prepare-for-coordination…",
+      "datetime": "2026-11-28T03:56:02Z",
+      "session": "80549eef-c72e-4649-a6ab-8439d9935577",
+      "prompt": "Push main, then plan and execute Wave 13 using /prepare-for-coordination + /execute-with-coordination (Wave 13A Rounded Wing Tips FoilDSL 4.2 + Wave 13B AI-Guided Hydrofoil Design Notebook).",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M8G5G079RX21FZNBVZ5M3699",
+      "shortname": "coordination-wave13-rounded-tips-and-ai-notebook",
+      "datetime": "2026-11-28T04:09:28Z",
+      "session": "80549eef-c72e-4649-a6ab-8439d9935577",
+      "prompt": "Push main, then plan and execute Wave 13 using /prepare-for-coordination + /execute-with-coordination (so Wave 13A and Wave 13B Core/Analysis/Desktop tracks run cleanly in isolated worktrees with explicit seam ownership)",
+      "summary": "4 tracks across 3 stages (w13a-core -> w13a-ui + w13b-core -> w13b-ui); 3 struck tracks; Adversary PASS (6b5961b2)",
+      "kind": "skill",
+      "skill": "prepare-for-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/wave13-rounded-tips-and-ai-notebook.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Produce zero-overlap AGY swarm coordination plan for Wave 13 (Rounded Wing Tips FoilDSL 4.2 + AI-Guided Design Notebook)",
+      "done_when": "Adversary PASS, check-docs & verify-ruling-citations green, plan committed cleanly on main",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-11-28T03:56:02Z",
+      "duration_seconds": 806.0
     }
   ],
   "changes": [
