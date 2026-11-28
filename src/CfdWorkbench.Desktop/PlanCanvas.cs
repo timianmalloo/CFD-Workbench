@@ -378,8 +378,11 @@ public sealed class PlanCanvas : Control
                 {
                     var station = Planform.ReadAtPoint(rail, point.Index);
                     bool onCurve = point.Role is PointRole.Anchor or PointRole.RootEnd or PointRole.TipEnd;
+                    string verticalTipRadius = point.Role is PointRole.TipHandle or PointRole.TipEnd &&
+                        rail.Points.Count >= 4 && rail.Points[^1].Kind == TangentKind.Vertical && rail.Points[^2].Eta == 1.0
+                        ? $" · R = {Quantity.DerivedLength(Planform.TipRadiusMeters(rail))} mm" : "";
                     SelectedReading = $"Point {point.Index + 1}: {RailComb.Reading(rail.Curve, station)}" +
-                        (onCurve ? "" : $" at point {point.Index + 1}'s station on the curve");
+                        (onCurve ? "" : $" at point {point.Index + 1}'s station on the curve") + verticalTipRadius;
                     if (ProbeText is null) rings = [(station.Root.SpanMeters, station.Root.Aft)];
                 }
                 catch (InvalidOperationException)
@@ -674,14 +677,21 @@ public sealed class PlanCanvas : Control
         if (plan is null) return;
         var map = Layer(plan);
         var target = map.FromScreen(position);
-        if (e.KeyModifiers.HasFlag(KeyModifiers.Shift) && focusedPoint is { } reference)
+        if (focusedPoint is { } reference)
         {
             var origin = targets.FirstOrDefault(item => item.Curve == reference.Curve && item.Id == reference.VertexId);
             if (origin is not null)
             {
-                if (Math.Abs(target.Span - origin.SpanMeters) > Math.Abs(target.Ordinate - origin.Ordinate))
+                if (origin.Freedom == PointFreedom.ValueOnly)
+                    target.Span = origin.SpanMeters;
+                else if (origin.Freedom == PointFreedom.SpanOnly)
                     target.Ordinate = origin.Ordinate;
-                else target.Span = origin.SpanMeters;
+                else if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+                {
+                    if (Math.Abs(target.Span - origin.SpanMeters) > Math.Abs(target.Ordinate - origin.Ordinate))
+                        target.Ordinate = origin.Ordinate;
+                    else target.Span = origin.SpanMeters;
+                }
             }
         }
         Controller.UpdateGesture(target.Span, target.Ordinate);
@@ -707,8 +717,17 @@ public sealed class PlanCanvas : Control
             controller.Gesture is not (GestureState.Pressed or GestureState.Dragging) || controller.GestureOrigin is not { } origin) return;
         var (shownSpan, shownAft) = controller.GestureGroup is not null && controller.GestureApplied is { } applied
             ? (applied.SpanMeters, applied.Ordinate) : target;
+        string tipRadiusReadout = "";
+        if (focusedPoint is { } focusedRef && controller.Planform is { } livePlan &&
+            (focusedRef.Curve == "leading" ? livePlan.Leading : livePlan.Trailing) is { Points.Count: >= 4 } liveRail &&
+            liveRail.Points[^2].Id == focusedRef.VertexId &&
+            liveRail.Points[^2].Freedom == PointFreedom.ValueOnly &&
+            liveRail.Points[^2].Eta == 1.0)
+        {
+            tipRadiusReadout = $" · R = {Quantity.DerivedLength(Planform.TipRadiusMeters(liveRail))} mm";
+        }
         ProbeText = $"Δ from root {Quantity.Delta((shownSpan - origin.SpanMeters) * 1000)} mm" +
-            $" · Δ aft {Quantity.Delta((shownAft - origin.Ordinate) * 1000)} mm · " + probeBase;
+            $" · Δ aft {Quantity.Delta((shownAft - origin.Ordinate) * 1000)} mm{tipRadiusReadout} · " + probeBase;
     }
 
     /// <summary>
@@ -1591,8 +1610,48 @@ public sealed class PlanCanvas : Control
             foreach (double side in new[] { -1d, 1d })
                 map.DrawCurve(context, rail.Samples, railPen, side);
         DrawRings(context, map);
+        DrawVerticalTipGuides(context, map, plan);
         foreach (var rail in new[] { plan.Leading, plan.Trailing })
             map.DrawPoints(context, rail, brushes, selection, Controller?.IsAnalysis == true);
+    }
+
+    /// <summary>Screen-space vertical guide segments along <c>y = half_span</c> for active G1 vertical tip handles.</summary>
+    public IReadOnlyList<(Point Start, Point End)> VerticalTipGuides
+    {
+        get
+        {
+            if (Controller?.Planform is not { } plan || Bounds.Width <= 0 || Bounds.Height <= 0) return [];
+            var map = Layer(plan);
+            var list = new List<(Point, Point)>();
+            foreach (var rail in new[] { plan.Leading, plan.Trailing })
+            {
+                if (rail.Points.Count < 4 || rail.Points[^1].Kind != TangentKind.Vertical || rail.Points[^2].Eta != 1.0) continue;
+                var end = map.ToScreen(rail.Points[^1]);
+                var handle = map.ToScreen(rail.Points[^2]);
+                double yTop = Math.Min(end.Y, handle.Y) - 10;
+                double yBot = Math.Max(end.Y, handle.Y) + 10;
+                list.Add((new Point(end.X, yTop), new Point(end.X, yBot)));
+            }
+            return list;
+        }
+    }
+
+    private void DrawVerticalTipGuides(DrawingContext context, CurvePointLayer map, PlanformView plan)
+    {
+        var guideBrush = FocusBrush ?? MuteBrush ?? Brushes.White;
+        var guidePen = new Pen(guideBrush, 1, new DashStyle([3, 3], 0));
+        var tickPen = new Pen(guideBrush, 1);
+        foreach (var rail in new[] { plan.Leading, plan.Trailing })
+        {
+            if (rail.Points.Count < 4 || rail.Points[^1].Kind != TangentKind.Vertical || rail.Points[^2].Eta != 1.0) continue;
+            var end = map.ToScreen(rail.Points[^1]);
+            var handle = map.ToScreen(rail.Points[^2]);
+            double yTop = Math.Min(end.Y, handle.Y) - 10;
+            double yBot = Math.Max(end.Y, handle.Y) + 10;
+            context.DrawLine(guidePen, new Point(end.X, yTop), new Point(end.X, yBot));
+            context.DrawLine(tickPen, new Point(end.X - 4, yTop), new Point(end.X + 4, yTop));
+            context.DrawLine(tickPen, new Point(end.X - 4, yBot), new Point(end.X + 4, yBot));
+        }
     }
 }
 

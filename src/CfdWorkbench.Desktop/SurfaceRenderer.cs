@@ -264,7 +264,7 @@ internal static class SurfaceMesh
 
         var rows = Enumerable.Range(0, mesh.Sections);
         if (display == DisplayMode.Wireframe)
-            Layer(palette.Mute, 1, mesh.SectionEdges(rows.Where(row => IsTenth(surface.Sections[row].Eta) && surface.Sections[row].Assignment is null)));
+            Layer(palette.Mute, 1, mesh.SectionEdges(WireframeRibRows(surface)));
         Layer(palette.FoilEdge, 1, mesh.SectionEdges(rows.Where(row => surface.Sections[row].Assignment is not null)));
         Layer(palette.Foil, (float)SurfaceRenderer.OutlineWidth,
             edges.Where(edge => edge.Value.Front > 0 && edge.Value.Back > 0 || edge.Value.Front + edge.Value.Back == 1)
@@ -337,6 +337,28 @@ internal static class SurfaceMesh
     private static bool IsTenth(double eta) => Math.Abs(eta * 10 - Math.Round(eta * 10)) < 1e-9;
 
     /// <summary>
+    /// Interior wireframe rib station indices. Uses <see cref="IsTenth"/> on uniform grids and falls back to evenly
+    /// spaced station indices (e.g. <c>k % 4 == 0</c> on 41-station <c>SinPi</c> grids) when fewer than 5 interior
+    /// rows land on exact tenths (Wave 13A rounded wing tips).
+    /// </summary>
+    internal static IReadOnlyList<int> WireframeRibRows(SurfaceView surface)
+    {
+        int sections = surface.Sections.Count;
+        var rows = Enumerable.Range(0, sections);
+        var tenth = rows.Where(row => IsTenth(surface.Sections[row].Eta) && surface.Sections[row].Assignment is null).ToList();
+        if (tenth.Count >= 5 || sections <= 2) return tenth;
+        int stride = Math.Max(1, (sections - 1) / 10);
+        return rows.Where(row => row > 0 && row < sections - 1 && row % stride == 0 && surface.Sections[row].Assignment is null).ToList();
+    }
+
+    /// <summary>Diagnostic mesh vertex and triangle counts for one <see cref="SurfaceView"/> (Wave 13A T-RT-09 verification).</summary>
+    internal static (int Positions, int Triangles) MeshCounts(SurfaceView surface)
+    {
+        var mesh = Topology.Of(surface);
+        return (mesh.Positions.Count, mesh.Triangles.Count);
+    }
+
+    /// <summary>
     /// Per edge: how many front and back faces border it, and the depth of the nearest front face. The silhouette is the
     /// edges with one of each, plus boundary edges (one face).
     /// </summary>
@@ -381,6 +403,7 @@ internal static class SurfaceMesh
         public int Sections { get; private init; }
         private int samples;
         private int[,,,] index = new int[0, 0, 0, 0];   // [half, surface, section, sample]
+        private readonly List<(int A, int B)> capCrestEdges = [];
 
         private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<SurfaceView, Topology> Cache = new();
 
@@ -424,6 +447,55 @@ internal static class SurfaceMesh
                             mesh.Add(b, d, c, reverse);
                         }
                 }
+            if (string.Equals(surface.TipMode, "rounded", StringComparison.Ordinal) && sections > 0)
+            {
+                var tip = surface.Sections[sections - 1];
+                double maxHalfThickMm = TipCapMath.MaxHalfThicknessMeters(tip) * 1000.0;
+                int nTheta = TipCapMath.CapThetaSteps(maxHalfThickMm, surface.TipCapRatio, 0.05);
+                int crestK = nTheta / 2;
+                for (int half = 0; half < 2; half++)
+                {
+                    bool port = half == 1;
+                    var ring = new int[samples, nTheta + 1];
+                    for (int j = 0; j < samples; j++)
+                    {
+                        int vu = mesh.index[half, 0, sections - 1, j];
+                        int vl = mesh.index[half, 1, sections - 1, j];
+                        if (vu == vl)
+                        {
+                            for (int k = 0; k <= nTheta; k++) ring[j, k] = vu;
+                            continue;
+                        }
+                        ring[j, 0] = vu;
+                        ring[j, nTheta] = vl;
+                        var u = port ? tip.Upper[j].Port() : tip.Upper[j];
+                        var l = port ? tip.Lower[j].Port() : tip.Lower[j];
+                        for (int k = 1; k < nTheta; k++)
+                        {
+                            ring[j, k] = mesh.Positions.Count;
+                            mesh.Positions.Add(TipCapMath.EvaluateCapPoint(u, l, k / (double)nTheta, surface.TipCapRatio, port));
+                        }
+                    }
+                    for (int j = 0; j < samples - 1; j++)
+                    {
+                        for (int k = 0; k < nTheta; k++)
+                        {
+                            int a = ring[j, k], b = ring[j + 1, k], c = ring[j + 1, k + 1], d = ring[j, k + 1];
+                            mesh.Add(a, b, c, port);
+                            mesh.Add(a, c, d, port);
+                        }
+                        if (ring[j, crestK] != ring[j + 1, crestK])
+                            mesh.capCrestEdges.Add((ring[j, crestK], ring[j + 1, crestK]));
+                    }
+                    // Open trailing edge: strictly convex semi-elliptical fan rooted at upper TE vertex.
+                    if (ring[samples - 1, 0] != ring[samples - 1, nTheta])
+                    {
+                        int teU = ring[samples - 1, 0];
+                        for (int k = 1; k < nTheta; k++)
+                            mesh.Add(teU, ring[samples - 1, k + 1], ring[samples - 1, k], port);
+                    }
+                }
+            }
             return mesh;
         }
 
@@ -443,7 +515,7 @@ internal static class SurfaceMesh
                             yield return (index[half, side, row, sample], index[half, side, row, sample + 1]);
         }
 
-        /// <summary>The leading edge, both trailing-edge lines and the tip section, on both halves.</summary>
+        /// <summary>The leading edge, both trailing-edge lines and the tip section (plus rounded cap crest when active), on both halves.</summary>
         public IEnumerable<(int, int)> Outline()
         {
             for (int half = 0; half < 2; half++)
@@ -456,6 +528,7 @@ internal static class SurfaceMesh
                 }
             }
             foreach (var edge in SectionEdges([Sections - 1])) yield return edge;
+            foreach (var edge in capCrestEdges) yield return edge;
         }
     }
 }

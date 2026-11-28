@@ -77,9 +77,10 @@ public partial class PropertiesPane : UserControl
     private GroupValueMode groupMode = GroupValueMode.SetTo;
     private readonly EnumField typeField;
     private readonly EnumField kindField;
-    // The section mode's third enum (Station t/c, §11.4), pooled like Type and Kind so focus survives a re-render.
+    // The section mode's third enum (Station t/c, §11.4) and Wave 13A Tip pickers, pooled by row key so focus survives a re-render.
     private readonly ComboBox intentControl = new() { Name = "StationTcControl" };
     private readonly EnumField intentField;
+    private readonly Dictionary<string, EnumField> enumFields;
 
     private WorkbenchController? boundController;
     private string selectionKey = "";
@@ -104,6 +105,14 @@ public partial class PropertiesPane : UserControl
     public PropertiesPane()
     {
         InitializeComponent();
+        var tipLeRadiusInput = new TextBox { Name = "TipLeRadiusInput" };
+        var tipTeRadiusInput = new TextBox { Name = "TipTeRadiusInput" };
+        var tipCapRatioInput = new TextBox { Name = "TipCapRatioInput" };
+        foreach (var extraBox in new[] { tipLeRadiusInput, tipTeRadiusInput, tipCapRatioInput })
+        {
+            extraBox.Classes.Add("prop-b");
+            FieldPool.Children.Add(extraBox);
+        }
         pooledInputs = new Dictionary<string, TextBox>(StringComparer.Ordinal)
         {
             ["w:span"] = SpanInput,
@@ -112,7 +121,10 @@ public partial class PropertiesPane : UserControl
             ["p:from"] = PointSpanInput,
             ["p:aft"] = PointAftInput,
             ["h:angle"] = HandleAngleInput,
-            ["h:length"] = HandleLengthInput
+            ["h:length"] = HandleLengthInput,
+            ["tip:le-radius"] = tipLeRadiusInput,
+            ["tip:te-radius"] = tipTeRadiusInput,
+            ["tip:cap-ratio"] = tipCapRatioInput
         };
         foreach (var box in pooledInputs.Values)
         {
@@ -124,6 +136,24 @@ public partial class PropertiesPane : UserControl
         intentField = new EnumField(intentControl, "sec:intent|Choice", "Station t/c");
         intentControl.Classes.Add("prop-b");
         FieldPool.Children.Add(intentControl);
+
+        var tipLeTangentControl = new ComboBox { Name = "TipLeTangentControl" };
+        var tipTeTangentControl = new ComboBox { Name = "TipTeTangentControl" };
+        var tipCapControl = new ComboBox { Name = "TipCapControl" };
+        foreach (var extraCombo in new[] { tipLeTangentControl, tipTeTangentControl, tipCapControl })
+        {
+            extraCombo.Classes.Add("prop-b");
+            FieldPool.Children.Add(extraCombo);
+        }
+        enumFields = new Dictionary<string, EnumField>(StringComparer.Ordinal)
+        {
+            ["p:type"] = typeField,
+            ["t:kind"] = kindField,
+            ["sec:intent"] = intentField,
+            ["tip:le-tangent"] = new EnumField(tipLeTangentControl, "tip:le-tangent|Choice", TipCopy.LeTangentLabel),
+            ["tip:te-tangent"] = new EnumField(tipTeTangentControl, "tip:te-tangent|Choice", TipCopy.TeTangentLabel),
+            ["tip:cap"] = new EnumField(tipCapControl, "tip:cap|Choice", TipCopy.CapLabel)
+        };
 
         TryAgainButton.Click += (_, _) =>
         {
@@ -141,7 +171,7 @@ public partial class PropertiesPane : UserControl
         RecoveryDiscardButton.Click += (_, _) => boundController?.DiscardRecovery();
         IdentityCrumbLink.Click += (_, _) => GoToCrumb();
 
-        foreach (var field in new[] { typeField, kindField, intentField })
+        foreach (var field in enumFields.Values)
         {
             var box = field.Box;
             box.SelectionChanged += (_, _) => OnEnumSelectionChanged(field);
@@ -314,9 +344,8 @@ public partial class PropertiesPane : UserControl
                 useValues.Clear();
                 messages.Clear();
                 errors.Clear();
-                typeField.Pending = null;
-                kindField.Pending = null;
                 intentField.Pending = null;
+                foreach (var field in enumFields.Values) field.Pending = null;
             }
             var model = PropertiesView.Build(controller.Selection, authored, estimates,
                 controller.IsAnalysis ? ShellMode.Analysis : ShellMode.Workspace, context);
@@ -405,7 +434,7 @@ public partial class PropertiesPane : UserControl
             Sync(BlocksPanel, groupControls);
             if (model.Wing is { } wing) RenderWing(wing, used);
             // A pooled editor this selection does not show is neither enabled nor visible, wherever it was last placed.
-            foreach (var control in pooledInputs.Values.Cast<Control>().Append(TypeControl).Append(KindControl).Append(intentControl).Where(control => !used.Contains(control)))
+            foreach (var control in pooledInputs.Values.Cast<Control>().Append(TypeControl).Append(KindControl).Append(intentControl).Concat(enumFields.Values.Select(field => (Control)field.Box)).Distinct().Where(control => !used.Contains(control)))
             {
                 control.IsEnabled = false;
                 control.IsVisible = false;
@@ -622,13 +651,12 @@ public partial class PropertiesPane : UserControl
             case RowKind.Input:
                 RenderInput(view, row, hasError ? error.Text : null, used);
                 break;
-            case RowKind.Choice when row.Key == "sec:intent":
-                used.Add(intentControl);
-                RenderEnum(intentField, view, row);
-                break;
             case RowKind.Choice:
-                used.Add(TypeControl);
-                RenderEnum(typeField, view, row);
+            case RowKind.KindList:
+                var enumField = enumFields.TryGetValue(row.Key, out var pooledEnum)
+                    ? pooledEnum : row.Kind == RowKind.KindList ? kindField : typeField;
+                used.Add(enumField.Box);
+                RenderEnum(enumField, view, row);
                 break;
             case RowKind.Action:
                 view.Link!.Content = row.Value;
@@ -636,10 +664,6 @@ public partial class PropertiesPane : UserControl
                 // S1: a station verb that cannot run is disabled and carries its reason as the accessible description.
                 view.Link.IsEnabled = row.State != RowState.Unavailable;
                 AutomationProperties.SetHelpText(view.Link, row.Description);
-                break;
-            case RowKind.KindList:
-                used.Add(KindControl);
-                RenderEnum(kindField, view, row);
                 break;
             default:
                 string text = row.Kind == RowKind.Estimate && row.State == RowState.Normal ? "≈ " + row.Value : row.Value;
@@ -820,7 +844,7 @@ public partial class PropertiesPane : UserControl
         Grid.SetColumn(messageText, 1);
         var messageGrid = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto"), Children = { messageIcon, messageText } };
         HyperlinkButton? useLink = null;
-        if (row.Key is "w:root" or "w:tip" or "p:aft" or "p:from" && row.Kind == RowKind.Input)
+        if (row.Key is "w:root" or "w:tip" or "p:aft" or "p:from" or "tip:le-radius" or "tip:te-radius" && row.Kind == RowKind.Input)
         {
             useLink = new HyperlinkButton { Name = Part("UseLimit", row.Key), IsVisible = false };
             useLink.Classes.Add("prop-crumb");
@@ -850,11 +874,6 @@ public partial class PropertiesPane : UserControl
                 AutomationProperties.SetAccessibilityView(label, AccessibilityView.Raw);
                 AutomationProperties.SetAccessibilityView(unit, AccessibilityView.Raw);   // the name carries the unit (PG-01)
                 break;
-            case RowKind.Choice when row.Key == "sec:intent":
-                value = Detach(intentControl);
-                view.Enum = intentControl;
-                AutomationProperties.SetAccessibilityView(label, AccessibilityView.Raw);
-                break;
             case RowKind.Action:
                 // CAD-20: the Station group's last row is a link, not a value (DR-CELL-5 solid underline).
                 var link = new HyperlinkButton { Name = Part("Link", row.Key), HorizontalAlignment = HorizontalAlignment.Left };
@@ -880,10 +899,11 @@ public partial class PropertiesPane : UserControl
                 Grid.SetColumnSpan(link, 3);
                 break;
             case RowKind.Choice:
-                value = Detach(TypeControl);
-                view.Enum = TypeControl;
+                var choiceBox = enumFields.TryGetValue(row.Key, out var choiceField) ? choiceField.Box : TypeControl;
+                value = Detach(choiceBox);
+                view.Enum = choiceBox;
                 AutomationProperties.SetAccessibilityView(label, AccessibilityView.Raw);
-                description.Name = row.Key == "p:type" ? "PointHelper" : description.Name;
+                if (row.Key == "p:type") description.Name = "PointHelper";
                 break;
             case RowKind.KindList:
                 value = Detach(KindControl);
@@ -1380,8 +1400,51 @@ public partial class PropertiesPane : UserControl
     private Task<bool> CommitAsync(RowView view, TextBox box)
     {
         if (view.Row.Key.StartsWith("w:", StringComparison.Ordinal)) return CommitWingAsync(view, box);
+        if (view.Row.Key.StartsWith("tip:", StringComparison.Ordinal)) return CommitTipInputAsync(view, box);
         if (view.Row.Group) return CommitGroupAsync(view, box);
         return CommitPointAsync(view, box);
+    }
+
+    private async Task<bool> CommitTipInputAsync(RowView view, TextBox box)
+    {
+        if (boundController is not { } controller || !pendingControls.Add(box)) return false;
+        try
+        {
+            var row = view.Row;
+            string typedText = box.Text ?? "";
+            if (!Parse(view, box, Dimensions(), out double typed)) return false;
+            CommitOutcome outcome;
+            using (Hold())
+            {
+                try
+                {
+                    outcome = row.Key switch
+                    {
+                        "tip:le-radius" => await controller.ApplyTipRadiusAsync("leading", typed / 1000.0),
+                        "tip:te-radius" => await controller.ApplyTipRadiusAsync("trailing", typed / 1000.0),
+                        "tip:cap-ratio" => await controller.ApplyTipCapAsync("rounded", typed),
+                        _ => new CommitOutcome.Refused("DSL-TARGET", "Unsupported tip field.")
+                    };
+                }
+                catch (Exception) { outcome = new CommitOutcome.Refused("DSL-NOT-ASSESSED", controller.Status); }
+            }
+            if (outcome is CommitOutcome.Committed committed)
+            {
+                errors.Remove(row.Key);
+                messages.Remove(row.Key);
+                useValues.Remove(row.Key);
+                shown[box] = box.Text ?? "";
+                Bind(controller);
+                Reported?.Invoke(new StatusReport(committed.Report));
+                return true;
+            }
+            var refused = (CommitOutcome.Refused)outcome;
+            if (box.Text != typedText) box.Text = typedText;
+            string? use = refused.Code == "DSL-TIP-RADIUS-BOUNDS" && refused.LimitMeters is { } limit && limit > 0
+                ? $"{Quantity.TypedLength(limit)} mm" : null;
+            return Refuse(view, box, refused.Copy, use);
+        }
+        finally { pendingControls.Remove(box); }
     }
 
     private void ChooseGroupMode(GroupValueMode mode)
@@ -1963,6 +2026,10 @@ public partial class PropertiesPane : UserControl
     private Task CommitEnumAsync(EnumField field, RowView view, string value)
     {
         field.Pending = null;
+        if (view.Row.Key is "tip:le-tangent" or "tip:te-tangent")
+            return CommitTipTangentAsync(field.Box, view.Row.Key, value == "vertical");
+        if (view.Row.Key == "tip:cap")
+            return CommitTipCapAsync(field.Box, value);
         if (field == intentField) return CommitIntentAsync(field.Box, value);
         if (view.Row.Target is { Curve: "upper" or "lower" } section)
             return field == kindField
@@ -1970,6 +2037,58 @@ public partial class PropertiesPane : UserControl
                 : CommitSectionTypeAsync(field.Box, section, value);
         if (field == kindField) return CommitKindAsync(field.Box, Enum.Parse<TangentKind>(value));
         return CommitTypeAsync(field.Box, view, value);
+    }
+
+    private async Task CommitTipTangentAsync(Control guard, string key, bool vertical)
+    {
+        if (boundController is not { } controller || !pendingControls.Add(guard)) return;
+        try
+        {
+            string rail = key == "tip:le-tangent" ? "leading" : "trailing";
+            string radiusKey = key == "tip:le-tangent" ? "tip:le-radius" : "tip:te-radius";
+            CommitOutcome outcome;
+            using (Hold())
+            {
+                try { outcome = await controller.ApplyTipTangentAsync(rail, vertical); }
+                catch (Exception) { outcome = new CommitOutcome.Refused("DSL-NOT-ASSESSED", controller.Status); }
+            }
+            if (outcome is CommitOutcome.Committed committed)
+            {
+                messages.Remove(key);
+                errors.Remove(radiusKey);
+                useValues.Remove(radiusKey);
+                Reported?.Invoke(new StatusReport(committed.Report));
+            }
+            else if (outcome is CommitOutcome.Refused refused)
+                messages[key] = new RowMessage(refused.Copy, MessageKind.Error);
+            Bind(controller);
+        }
+        finally { pendingControls.Remove(guard); }
+    }
+
+    private async Task CommitTipCapAsync(Control guard, string tipMode)
+    {
+        if (boundController is not { } controller || !pendingControls.Add(guard)) return;
+        try
+        {
+            double? ratio = tipMode == "rounded" ? controller.CurrentProjection?.TipCapRatio ?? TipCapMath.DefaultCapRatio : null;
+            CommitOutcome outcome;
+            using (Hold())
+            {
+                try { outcome = await controller.ApplyTipCapAsync(tipMode, ratio); }
+                catch (Exception) { outcome = new CommitOutcome.Refused("DSL-NOT-ASSESSED", controller.Status); }
+            }
+            if (outcome is CommitOutcome.Committed committed)
+            {
+                messages.Remove("tip:cap");
+                errors.Remove("tip:cap-ratio");
+                Reported?.Invoke(new StatusReport(committed.Report));
+            }
+            else if (outcome is CommitOutcome.Refused refused)
+                messages["tip:cap"] = new RowMessage(refused.Copy, MessageKind.Error);
+            Bind(controller);
+        }
+        finally { pendingControls.Remove(guard); }
     }
 
     private async Task CommitTypeAsync(Control guard, RowView view, string value)

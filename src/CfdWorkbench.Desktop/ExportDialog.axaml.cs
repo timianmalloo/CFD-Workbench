@@ -271,6 +271,9 @@ public partial class ExportDialog : Window
         ExportButton.Content = session.ButtonLabel;
     }
 
+    /// <summary>The tip-closure summary text shown for wing mesh/CAD exports, or null for .dat.</summary>
+    public string? TipClosureSummary => session.SummaryRows.FirstOrDefault(r => r.Label == ExportCopy.TipClosureLabel).Value;
+
     private void FillSummary()
     {
         SummaryGrid.Children.Clear();
@@ -282,6 +285,12 @@ public partial class ExportDialog : Window
             var name = new TextBlock { Text = label, VerticalAlignment = VerticalAlignment.Top };
             name.Bind(TextBlock.ForegroundProperty, this.GetResourceObservable("MutedBrush"));
             var text = new TextBlock { Text = value, TextWrapping = Avalonia.Media.TextWrapping.Wrap };
+            if (label == ExportCopy.TipClosureLabel)
+            {
+                name.Name = "TipClosureLabel";
+                text.Name = "TipClosureValue";
+                AutomationProperties.SetName(text, $"{label}: {value}");
+            }
             Grid.SetRow(name, row); Grid.SetColumn(name, 0);
             Grid.SetRow(text, row); Grid.SetColumn(text, 1);
             SummaryGrid.Children.Add(name);
