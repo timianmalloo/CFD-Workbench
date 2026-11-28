@@ -201,11 +201,14 @@ public static class NotebookDesktopTests
             view.ApplyPreviewState(NotebookWorkspaceState.Iterated);
             Settle(window);
 
-            // Tab 1: 2D Section & Cp
+            // Tab 1: 2D Section & Cp — must come from real PanelMethod (200 panels, not synthetic 65-pt outline)
             Require(view.ActiveTabIndex == NotebookWorkspaceView.TabSection, "Default tab must be 2D Section & Cp");
             var secProfile = Need<CfdWorkbench.Desktop.Analysis.SectionProfileView>(view, "NotebookSectionProfileView");
             var cpChart = Need<CfdWorkbench.Desktop.Analysis.SectionChartView>(view, "NotebookCpChartView");
-            Require(secProfile.Model is not null && secProfile.Segments.Count > 10, "SectionProfileView must render Cp-coloured segments");
+            Require(secProfile.Model is not null && secProfile.Model.Outline.Count == PanelMethod.DefaultPanelCount,
+                $"SectionProfileView MUST carry real PanelMethod {PanelMethod.DefaultPanelCount}-panel outline, got {secProfile.Model?.Outline.Count ?? 0}");
+            Require(secProfile.Segments.Count >= PanelMethod.DefaultPanelCount - 2,
+                $"SectionProfileView must render Cp-coloured segments across real 200 panels, got {secProfile.Segments.Count}");
             Require(cpChart.Model is not null && cpChart.Model.Plots[0].InvertY && cpChart.Drawn.Plots == 1, "SectionChartView must draw inverted -Cp plot");
 
             // Keyboard arrow-key navigation across all 5 tabs: Right -> Tab 2 (Polars & Curves)
@@ -217,7 +220,11 @@ public static class NotebookDesktopTests
             var loadChart = Need<CfdWorkbench.Desktop.Analysis.LoadingChart>(view, "NotebookLoadingChart");
             Require(perfChart.ChartData?.Title == NotebookCopy.WingOnlyLdLabel && perfChart.RenderedSegmentCount >= 1,
                 "PerformanceCurveChart must render Wing-only L/D series");
-            Require(loadChart.Points.Count > 0, "LoadingChart must populate spanwise loading points");
+            int expectedVlmStrips = new ProductWingMethod().Settings.NSpanPerHalf;
+            Require(loadChart.Points.Count == expectedVlmStrips &&
+                    loadChart.Points.All(p => p.ClChordOverMeanChord is { } clc && p.EllipticReference is { } ell && p.LiftPerSpan is { } lift &&
+                                              double.IsFinite(clc) && double.IsFinite(ell) && double.IsFinite(p.AlphaEffDeg) && double.IsFinite(lift)),
+                $"LoadingChart must carry {expectedVlmStrips} real ProductWingMethod VLM strip points with finite lift/span, got {loadChart.Points.Count}");
             Require(Need<TextBlock>(view, "PolarsNoticeText").Text!.Contains("XFOIL-class surrogate", StringComparison.Ordinal) &&
                     Need<TextBlock>(view, "PolarsNoticeText").Text!.Contains("Attached-flow polar limit", StringComparison.Ordinal),
                 "Polars tab must display A5.3 and ANA-05 notices");
@@ -231,14 +238,15 @@ public static class NotebookDesktopTests
             twinToggle.IsChecked = false;
             Settle(window);
 
-            // Right arrow -> Tab 3 (Plan & Elevations)
+            // Right arrow -> Tab 3 (Plan & Elevations) — must project real placed SurfaceView (ADR-0010 §Decision 4)
             Need<ToggleButton>(view, "TabPolarsButton").RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = Key.Right });
             Settle(window);
             Require(view.ActiveTabIndex == NotebookWorkspaceView.TabElevations, "Right arrow from Tab 2 must move to Tab 3 Elevations");
             var elev = Need<NotebookElevationCanvas>(view, "NotebookElevationView");
             using (var rtb = new Avalonia.Media.Imaging.RenderTargetBitmap(new PixelSize(640, 260), new Vector(96, 96)))
                 rtb.Render(elev);
-            Require(elev.DrawnElevations == 2, $"NotebookElevationCanvas must draw Front & Starboard elevations, got {elev.DrawnElevations}");
+            Require(elev.DrawnElevations == 2 && elev.RenderedFromPlacedSurface && elev.ProjectedSectionCount >= 2,
+                $"NotebookElevationCanvas must project real placed SurfaceView into Front & Starboard elevations (drawn={elev.DrawnElevations}, placed={elev.RenderedFromPlacedSurface}, sections={elev.ProjectedSectionCount})");
             Require(Need<Border>(view, "ElevationsA51Banner").IsVisible &&
                     Need<TextBlock>(view, "ElevationsA51BannerText").Text!.Contains("h/c_root", StringComparison.Ordinal) &&
                     Need<TextBlock>(view, "ElevationsA51BannerText").Text!.Contains("Fr_h", StringComparison.Ordinal),

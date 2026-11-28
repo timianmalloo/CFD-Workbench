@@ -46,6 +46,9 @@ public partial class NotebookWorkspaceView : UserControl
     private readonly ToggleButton[] tabButtons;
     private readonly List<GrillResolution> grillHistory = [];
     private readonly Dictionary<string, SurfaceView> surfaceCache = new(StringComparer.Ordinal);
+    private readonly Dictionary<(string SurfaceHash, string OpId, double Eta), PanelResult> panelCache = new();
+    private readonly Dictionary<(string SurfaceHash, string OpId), IReadOnlyList<LoadingPoint>> loadingCache = new();
+    private readonly ProductWingMethod wingMethod = new();
 
     private WorkbenchController? controller;
     private NotebookOrchestrator? orchestrator;
@@ -1341,7 +1344,7 @@ public partial class NotebookWorkspaceView : UserControl
         BindSectionTab(displayCandidate, baselineForCompare, currentDoc);
 
         // Tab 2: Polars & Curves
-        BindPolarsTab(displayCandidate, baselineForCompare);
+        BindPolarsTab(displayCandidate, baselineForCompare, currentDoc);
 
         // Tab 3: Plan & Elevations
         BindElevationsTab(displayCandidate, baselineForCompare, currentDoc);
@@ -1438,42 +1441,61 @@ public partial class NotebookWorkspaceView : UserControl
     private void BindSectionTab(CandidateIterationRecord cand, CandidateIterationRecord? baseline, FoilReqDocument doc)
     {
         var drOp = cand.OperatingPoints.FirstOrDefault(o => o.OpId == "steep_drop") ?? cand.OperatingPoints.LastOrDefault();
-        double negCpPeak = drOp?.CpMin is { } cp ? Math.Max(0.4, -cp) : 0.95;
-        double sigma = drOp?.Sigma ?? 1.332;
-        bool depthUnset = doc.Water.IsDepthUnset || (drOp?.DepthUnset == true);
+        double eta = Math.Clamp(drOp?.GoverningEta ?? 0.0, 0.0, 0.99);
+        double sigma = drOp?.Sigma ?? 0.0;
+        bool depthUnset = doc.Water.IsDepthUnset || (drOp?.DepthUnset == true) || drOp?.Sigma is null;
 
         SectionPlateTitleText.Text = $"{cand.CandidateId} · {cand.Delta.RootProfileId} → {cand.Delta.TipProfileId} (−Cp upward)";
         SectionGoverningText.Text = depthUnset
-            ? "Governing station η = 0.00 · Depth unset (ANA-19)"
-            : string.Create(Inv, $"Governing η = {drOp?.GoverningEta ?? 0.0:0.00} · depth {doc.Water.DepthRef?.Format() ?? "0.45 m"} · σ = {sigma:0.000}");
+            ? string.Create(Inv, $"Governing station η = {eta:0.00} · Depth unset (ANA-19)")
+            : string.Create(Inv, $"Governing η = {eta:0.00} · depth {doc.Water.DepthRef?.Format() ?? "unset"} · σ = {sigma:0.000}");
 
-        // Build deterministic SectionProfile outline + PanelCp samples for SectionProfileView.
-        var outline = BuildSectionCpOutline(cand.Delta.RootThicknessRatio, negCpPeak);
-        var cpMinPanel = outline.MinBy(p => p.Cp);
+        // Real PanelMethod 200p solve on the candidate's materialized FoilDSL at the governing station (cached per surface/op/eta).
+        PanelResult? panel = GetOrSolvePanel(cand, drOp, eta);
+        if (panel is null)
+        {
+            NotebookSectionProfileView.Model = null;
+            NotebookCpChartView.Model = new ChartModel(
+                Id: "notebook-cp",
+                Title: "Section Cp & Cavitation",
+                Plots: [],
+                Legend: "",
+                Label: "Unavailable — geometry not certified",
+                Unavailable: "Section pressure distribution is unavailable for an uncertified candidate.");
+            SectionTableTwinPanel.IsVisible = false;
+            return;
+        }
+
+        PanelCp[] outline = panel.Upper.Concat(panel.Lower).ToArray();
+        (PanelCp cpMinPanel, string cpMinSide) = FindCpMinPanel(panel);
         double cpLow = outline.Min(p => p.Cp);
         double cpHigh = outline.Max(p => p.Cp);
+        double reportedCpMin = drOp?.CpMin ?? panel.CpMin;
+        double? reportedMargin = drOp?.CavMargin ?? (!depthUnset && reportedCpMin < 0.0 ? sigma / -reportedCpMin : null);
         string cavLine = depthUnset
             ? "Cavitation screen: Unavailable — depth not set (ANA-19)"
-            : string.Create(Inv, $"σ = {sigma:0.000} · −Cp_min = {-cpMinPanel.Cp:0.00} · margin {sigma / Math.Max(1e-6, -cpMinPanel.Cp):0.00} · V_crit {drOp?.VCritKn ?? 28.0:0.0} kn");
+            : drOp?.VCritKn is { } vc && reportedMargin is { } margin
+                ? string.Create(Inv, $"σ = {sigma:0.000} · −Cp_min = {-reportedCpMin:0.00} · margin {margin:0.00} · V_crit {vc:0.0} kn")
+                : string.Create(Inv, $"σ = {sigma:0.000} · −Cp_min = {-reportedCpMin:0.00}");
 
         NotebookSectionProfileView.Model = new SectionProfile(
             Outline: outline,
             CpMinPanel: cpMinPanel,
-            Side: "upper",
+            Side: cpMinSide,
             CpLow: cpLow,
             CpHigh: cpHigh,
-            Caption: $"{cand.CandidateId} root {cand.Delta.RootProfileId}",
-            Tier: "PanelMethod 200p",
+            Caption: string.Create(Inv, $"{cand.CandidateId} η={eta:0.00} · {cand.Delta.RootProfileId} → {cand.Delta.TipProfileId}"),
+            Tier: $"PanelMethod {panel.StationCount}p · {PanelMethod.ModelLabel}",
             Cavitation: cavLine);
 
-        // Build -Cp vs x/c chart (InvertY = true so -Cp points upward) with sigma cavitation threshold series.
-        var upperSeriesPts = outline.Take(outline.Count / 2 + 1)
-            .OrderBy(p => p.X)
+        // Real -Cp vs x/c chart (InvertY = true so -Cp points upward) with sigma cavitation threshold series.
+        var upperSeriesPts = panel.Upper
             .Select(p => new ChartPoint(p.X, p.Cp))
+            .OrderBy(p => p.X)
             .ToArray();
-        var lowerSeriesPts = outline.Skip(outline.Count / 2)
-            .OrderBy(p => p.X)
+        var lowerSeriesPts = panel.Lower
             .Select(p => new ChartPoint(p.X, p.Cp))
+            .OrderBy(p => p.X)
             .ToArray();
 
         var series = new List<ChartSeries>
@@ -1495,15 +1517,18 @@ public partial class NotebookWorkspaceView : UserControl
         if (baseline is not null)
         {
             var baseDrop = baseline.OperatingPoints.FirstOrDefault(o => o.OpId == "steep_drop") ?? baseline.OperatingPoints.LastOrDefault();
-            double basePeak = baseDrop?.CpMin is { } bcp ? Math.Max(0.4, -bcp) : 1.05;
-            var baseOutline = BuildSectionCpOutline(baseline.Delta.RootThicknessRatio, basePeak);
-            var basePts = baseOutline.Take(baseOutline.Count / 2 + 1).OrderBy(p => p.X).Select(p => new ChartPoint(p.X, p.Cp)).ToArray();
-            series.Add(new ChartSeries($"{baseline.CandidateId} upper Cp", basePts, Dashed: true, Marker: "none", Colour: 1));
+            double baseEta = Math.Clamp(baseDrop?.GoverningEta ?? eta, 0.0, 0.99);
+            PanelResult? basePanel = GetOrSolvePanel(baseline, baseDrop, baseEta);
+            if (basePanel is not null)
+            {
+                var basePts = basePanel.Upper.Select(p => new ChartPoint(p.X, p.Cp)).OrderBy(p => p.X).ToArray();
+                series.Add(new ChartSeries($"{baseline.CandidateId} upper Cp", basePts, Dashed: true, Marker: "none", Colour: 1));
+            }
         }
 
         var markers = new List<ChartMarker>
         {
-            new(string.Create(Inv, $"Cp_min {cpMinPanel.Cp:0.00}"), cpMinPanel.X, cpMinPanel.Cp)
+            new(string.Create(Inv, $"Cp_min {panel.CpMin:0.00}"), cpMinPanel.X, panel.CpMin)
         };
 
         var plot = new ChartPlot(
@@ -1526,7 +1551,8 @@ public partial class NotebookWorkspaceView : UserControl
         {
             var sb = new StringBuilder();
             sb.AppendLine("x/c     Upper Cp   Lower Cp");
-            for (int i = 0; i < upperSeriesPts.Length; i += Math.Max(1, upperSeriesPts.Length / 8))
+            int step = Math.Max(1, upperSeriesPts.Length / 10);
+            for (int i = 0; i < upperSeriesPts.Length; i += step)
             {
                 double x = upperSeriesPts[i].X;
                 double cu = upperSeriesPts[i].Y;
@@ -1537,7 +1563,7 @@ public partial class NotebookWorkspaceView : UserControl
         }
     }
 
-    private void BindPolarsTab(CandidateIterationRecord cand, CandidateIterationRecord? baseline)
+    private void BindPolarsTab(CandidateIterationRecord cand, CandidateIterationRecord? baseline, FoilReqDocument? doc)
     {
         var seriesList = new List<SweepCurveSeries>();
         var tableRows = new List<SweepCaseRow>();
@@ -1560,10 +1586,9 @@ public partial class NotebookWorkspaceView : UserControl
 
         NotebookPerformanceChart.Update(chartData, selectedCaseIndex: 0);
 
-        // Populate reused LoadingChart with spanwise distribution for the glide operating point.
+        // Populate reused LoadingChart from real ProductWingMethod (VLM Solve + Couple) spanwise strips.
         var glOp = cand.OperatingPoints.FirstOrDefault(o => o.OpId == "glide") ?? cand.OperatingPoints.FirstOrDefault();
-        double clGlide = glOp?.Cl ?? 0.41;
-        var loadingPts = BuildSpanwiseLoading(cand.Delta.Taper, clGlide);
+        var loadingPts = GetOrSolveSpanwiseLoading(cand, glOp, doc);
         NotebookLoadingChart.Update(loadingPts, Units.Metric);
         NotebookLoadingChart.TwinToggle.IsChecked = TableTwinEnabled;
 
@@ -1626,7 +1651,9 @@ public partial class NotebookWorkspaceView : UserControl
 
         var drOp = cand.OperatingPoints.FirstOrDefault(o => o.OpId == "steep_drop") ?? cand.OperatingPoints.LastOrDefault();
         bool depthUnset = doc.Water.IsDepthUnset || (drOp?.DepthUnset == true);
-        NotebookElevationView.Update(d, baseline?.Delta, drOp?.HOverCRoot, drOp?.FrH, depthUnset);
+        SurfaceView? activeSurf = GetOrBuildSurface(cand);
+        SurfaceView? baselineSurf = baseline is not null ? GetOrBuildSurface(baseline) : null;
+        NotebookElevationView.Update(activeSurf, baselineSurf, d, drOp?.HOverCRoot, drOp?.FrH, depthUnset);
 
         if (depthUnset)
         {
@@ -1647,21 +1674,145 @@ public partial class NotebookWorkspaceView : UserControl
 
     private void BindWing3dTab(CandidateIterationRecord cand)
     {
-        if (!surfaceCache.TryGetValue(cand.SurfaceHash, out var surf))
+        SurfaceView? surf = GetOrBuildSurface(cand);
+        Wing3dTabPanel.SetSurface(surf, surf is not null ? cand.CandidateId : null);
+    }
+
+    private SurfaceView? GetOrBuildSurface(CandidateIterationRecord cand)
+    {
+        if (surfaceCache.TryGetValue(cand.SurfaceHash, out var cached))
+            return cached;
+        try
         {
-            try
+            byte[] bytes = NotebookRecords.MaterializeCandidateDsl(cand.Delta, $"Notebook {cand.CandidateId}");
+            var surf = Placement.Surface(bytes, cand.SurfaceHash, cand.Ordinal, CancellationToken.None);
+            surfaceCache[cand.SurfaceHash] = surf;
+            return surf;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private PanelResult? GetOrSolvePanel(CandidateIterationRecord cand, CandidateOperatingPointSummary? op, double eta)
+    {
+        string opId = op?.OpId ?? "default";
+        double roundedEta = Math.Round(eta, 4);
+        var key = (cand.SurfaceHash, opId, roundedEta);
+        if (panelCache.TryGetValue(key, out var cached))
+            return cached;
+
+        try
+        {
+            byte[] dsl = NotebookRecords.MaterializeCandidateDsl(cand.Delta, $"Notebook {cand.CandidateId}");
+            var samples = PanelMethod.SampleSections(dsl, [eta], PanelMethod.DefaultPanelCount, CancellationToken.None);
+            double alphaDeg = op?.AlphaDeg ?? 2.0;
+            PanelResult result = PanelMethod.Solve(samples[0], alphaDeg, CancellationToken.None);
+            panelCache[key] = result;
+            return result;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static (PanelCp At, string Side) FindCpMinPanel(PanelResult panel)
+    {
+        PanelCp best = panel.Upper.Count > 0 ? panel.Upper[0] : default;
+        double lowest = double.PositiveInfinity;
+        string side = "upper";
+        int skip = PanelMethod.CpMinTrailingEdgePanelsPerSide;
+        for (int i = skip; i < panel.Upper.Count; i++)
+        {
+            if (panel.Upper[i].Cp < lowest)
             {
-                byte[] bytes = NotebookRecords.MaterializeCandidateDsl(cand.Delta, $"Notebook {cand.CandidateId}");
-                surf = Placement.Surface(bytes, cand.SurfaceHash, cand.Ordinal, CancellationToken.None);
-                surfaceCache[cand.SurfaceHash] = surf;
-            }
-            catch
-            {
-                Wing3dTabPanel.SetSurface(null);
-                return;
+                lowest = panel.Upper[i].Cp;
+                best = panel.Upper[i];
+                side = "upper";
             }
         }
-        Wing3dTabPanel.SetSurface(surf, cand.CandidateId);
+        for (int i = 0; i < panel.Lower.Count - skip; i++)
+        {
+            if (panel.Lower[i].Cp < lowest)
+            {
+                lowest = panel.Lower[i].Cp;
+                best = panel.Lower[i];
+                side = "lower";
+            }
+        }
+        return (best, side);
+    }
+
+    private IReadOnlyList<LoadingPoint> GetOrSolveSpanwiseLoading(
+        CandidateIterationRecord cand,
+        CandidateOperatingPointSummary? glOp,
+        FoilReqDocument? doc)
+    {
+        string opId = glOp?.OpId ?? "glide";
+        var key = (cand.SurfaceHash, opId);
+        if (loadingCache.TryGetValue(key, out var cached))
+            return cached;
+
+        try
+        {
+            byte[] dsl = NotebookRecords.MaterializeCandidateDsl(cand.Delta, $"Notebook {cand.CandidateId}");
+            var settings = wingMethod.Settings;
+            var etas = settings.SectionEtas;
+            var xs = settings.SectionXs;
+            if (etas is null || xs is null) return [];
+
+            var sections = Placement.Sections(dsl, etas, xs, CancellationToken.None);
+            var reference = wingMethod.Reference(dsl);
+
+            double tempC = doc?.Water.Temp.TryToCelsius(out double tc) == true ? Math.Clamp(tc, 0.0, 50.0) : 15.0;
+            double salinity = doc is not null && string.Equals(doc.Water.Kind, "fresh", StringComparison.OrdinalIgnoreCase)
+                ? 0.0
+                : OperatingPoints.SaltSalinityGPerKg;
+            WaterRecord water = WaterTable.At(tempC, salinity);
+
+            double pAtm = doc?.Water.PAtm is { } pQty && pQty.TryToPa(out double pa) ? pa : DisciplinePresets.StandardAtmospherePa;
+            double? hRef = doc is not null && !doc.Water.IsDepthUnset && doc.Water.DepthRef is { } dQty && dQty.TryToMeters(out double dm) && dm > 0.0
+                ? dm
+                : null;
+            double speedMps = (glOp?.SpeedKn ?? 16.0) * DisciplinePresets.KnotsToMps;
+            double alphaDeg = glOp?.AlphaDeg ?? 2.0;
+            double targetLoadN = doc is not null ? FoilReqValidator.Validate(doc).ImpliedLoadNewtons ?? 1050.0 : 1050.0;
+
+            var op = new OperatingPoint(speedMps, pAtm, hRef, DisciplinePresets.RootLeadingEdgeDatum, alphaDeg, targetLoadN);
+            var solution = wingMethod.Solve(sections, op, water, CancellationToken.None);
+            var strips = wingMethod.Couple(dsl, sections, solution, op, water, CancellationToken.None);
+
+            double qDyn = 0.5 * water.Rho * speedMps * speedMps;
+            double totalLift = strips.Sum(s => s.Fz);
+            double cl = reference.SRef > 1e-9 && qDyn > 1e-9 ? totalLift / (qDyn * reference.SRef) : (glOp?.Cl ?? 0.0);
+            (double sinA, double cosA) = double.SinCosPi(alphaDeg / 180.0);
+
+            var points = strips
+                .Where(s => s.Y >= 0.0)
+                .OrderBy(s => s.Eta)
+                .Select(s =>
+                {
+                    double? clOverCRef = reference.CRef > 0.0 ? s.ClLocal * s.Chord / reference.CRef : null;
+                    double elliptic = cl * (4.0 / Math.PI) * Math.Sqrt(Math.Max(0.0, 1.0 - s.Eta * s.Eta));
+                    double? width = s.YLow.HasValue && s.YHigh.HasValue && s.YHigh.Value > s.YLow.Value
+                        ? s.YHigh.Value - s.YLow.Value
+                        : null;
+                    double? liftPerSpan = width is { } w && w > 0.0
+                        ? (-s.Fx * sinA + s.Fz * cosA) / w
+                        : null;
+                    return new LoadingPoint(s.Eta, clOverCRef, elliptic, s.AlphaEff, liftPerSpan);
+                })
+                .ToArray();
+
+            loadingCache[key] = points;
+            return points;
+        }
+        catch
+        {
+            return [];
+        }
     }
 
     private void NotebookScorecardViewBindEmpty()
@@ -1745,49 +1896,6 @@ public partial class NotebookWorkspaceView : UserControl
                 SecondarySegments: [],
                 Gaps: []));
         }
-    }
-
-    private static IReadOnlyList<PanelCp> BuildSectionCpOutline(double tc, double negCpPeak)
-    {
-        const int n = 32;
-        var list = new List<PanelCp>(2 * n + 1);
-        double HalfT(double x) => 5.0 * tc * (0.2969 * Math.Sqrt(Math.Max(0, x)) - 0.1260 * x - 0.3516 * x * x + 0.2843 * x * x * x - 0.1015 * x * x * x * x);
-        double Camber(double x) => 4.0 * 0.026 * x * (1.0 - x);
-
-        // Upper TE (1.0) -> LE (0.0)
-        for (int i = n; i >= 0; i--)
-        {
-            double x = 0.5 * (1.0 - Math.Cos(Math.PI * i / n));
-            double z = Camber(x) + HalfT(x);
-            double suction = -negCpPeak * Math.Exp(-Math.Pow((x - 0.14) / 0.22, 2)) + 0.25 * x * x;
-            double cp = x < 0.005 ? 0.95 : suction;
-            list.Add(new PanelCp(x, z, cp));
-        }
-
-        // Lower LE (0.0) -> TE (1.0)
-        for (int i = 1; i <= n; i++)
-        {
-            double x = 0.5 * (1.0 - Math.Cos(Math.PI * i / n));
-            double z = Camber(x) - HalfT(x);
-            double cp = 0.35 * (1.0 - x) - 0.15 * Math.Sin(Math.PI * x);
-            list.Add(new PanelCp(x, z, cp));
-        }
-        return list;
-    }
-
-    private static IReadOnlyList<LoadingPoint> BuildSpanwiseLoading(double taper, double clAvg)
-    {
-        const int count = 13;
-        var pts = new List<LoadingPoint>(count);
-        for (int i = 0; i < count; i++)
-        {
-            double eta = i / (double)(count - 1);
-            double elliptic = Math.Sqrt(Math.Max(0.0, 1.0 - eta * eta)) * (4.0 / Math.PI) * clAvg;
-            double g = 1.0 - (1.0 - taper) * eta * eta * eta;
-            double actual = elliptic * (0.94 + 0.12 * g);
-            pts.Add(new LoadingPoint(eta, actual, elliptic, 3.2 - 1.2 * eta, actual * 950.0));
-        }
-        return pts;
     }
 
     private static bool IsCertified(CandidateIterationRecord c) =>
