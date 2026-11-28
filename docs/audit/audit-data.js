@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-28T05:20:02Z",
+  "generated": "2026-11-28T06:10:21Z",
   "audit": [
     {
       "actor": null,
@@ -46229,6 +46229,35 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-28T05:11:45Z",
       "duration_seconds": 497.0
+    },
+    {
+      "id": "al-01M8GCDBH96BDEG4BHK8CH23DC",
+      "shortname": "join-w13a-ui",
+      "datetime": "2026-11-28T06:10:21Z",
+      "session": "80549eef-c72e-4649-a6ab-8439d9935577",
+      "prompt": "the join of swarm-w13a-ui-b9987aef into main",
+      "summary": "Joined w13a-ui (03ba39bf): Structure B Tip group (COPY-935..942), locked h:angle, DR-CELL-3 repair link, PlanCanvas ValueOnly vertical handle, SurfaceRenderer rounded cap + SinPi wireframe ribs, EdgeHullCrossing, COPY-941 in AnalysisPanel+PropertiesPane, ExportDialog tip-closure row; 9/9 T-RT-09 + 3/3 mutants killed; w13-verifier PASS recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/wave13-rounded-tips-and-ai-notebook.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Converge Stage 2 w13a-ui onto local main with all join-ring and verify gates green",
+      "done_when": "conductor-join.py exits 0 on local main with clean tree and full test ring green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-28T06:01:55Z",
+      "duration_seconds": 506.0
     }
   ],
   "changes": [
