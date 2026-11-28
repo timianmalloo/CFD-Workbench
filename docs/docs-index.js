@@ -13243,7 +13243,7 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/wave13-rounded-tips-and-ai-notebook.md",
       "title": "Coordination plan - wave 13: Rounded Wing Tips (FoilDSL 4.2) and AI-Guided Hydrofoil Design Notebook",
       "type": "plan",
-      "status": "proposed",
+      "status": "completed",
       "owner": "@timianmalloo",
       "phase": "coordination — Wave 13 (execution plan for Wave 13A Rounded Wing Tips + Wave 13B AI-Guided Design Notebook)",
       "reviewBy": "2027-02-27",
@@ -13291,7 +13291,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b247b1a4fa57740a9d268ca8415130b04a7b2d12dca2e342c41286c804bc8357"
+      "sourceSha256": "09f46f1ce08fe3f9ffef459c4aff1cf064b844b766da6e9f5bcabac5ed677b67"
     },
     {
       "id": "coordination-wave3-next-steps",
@@ -26162,7 +26162,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\n  A[Accepted source and shape] --> B[Visual edit or source draft bound to base]\n  B --> C[Validate]\n  C -->|Invalid or incomplete| D[Locate error; accepted view labelled; Apply disabled]\n  D --> B\n  C -->|Valid supported definition| E[Preview shape and source diff]\n  C -->|Valid unsupported feature| U[Keep source; explicit unsupported message]\n  E -->|Cancel| A\n  B -->|Cancel| A\n  E -->|Apply at unchanged base| F[Atomic source revision and geometric identity]\n  E -->|Base changed| G[Conflict; rebase or discard]\n  G --> B\n  F --> H[Recompute result freshness from run key]\n  H -->|Undo| A\n  A -->|Redo accepted edit| F"
         }
       ],
-      "sourceSha256": "25f071b72c9676cd418be3606adf4a79a0e36315b529ce03a3b414e357649955"
+      "sourceSha256": "d23a4a68ea9cd5b73e77ecea091b44048b5013a76ff38a06b4bedb575a4f82d3"
     },
     {
       "id": "spec-rounded-wing-tips",
@@ -26964,5 +26964,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "69b2ba2fcf73592e79ff164ad057ffba56dfcc5cec5b366329e5559b9cd4f2a1"
+  "graphSha256": "845041ef51325797c5d010687ad61b08a516212592bc0e53a4d1beae11a1a5b9"
 };

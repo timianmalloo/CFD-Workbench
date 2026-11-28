@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-28T07:31:52Z",
+  "generated": "2026-11-28T07:32:47Z",
   "audit": [
     {
       "actor": null,
@@ -46316,6 +46316,39 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-28T07:23:26Z",
       "duration_seconds": 506.0
+    },
+    {
+      "id": "al-01M8GH49KWA3NVA39NHMGWE03K",
+      "shortname": "execute-wave13-rounded-tips-and-ai-notebook",
+      "datetime": "2026-11-28T07:32:47Z",
+      "session": "80549eef-c72e-4649-a6ab-8439d9935577",
+      "prompt": "Push main, then plan and execute Wave 13 using /prepare-for-coordination + /execute-with-coordination (so Wave 13A and Wave 13B Core/Analysis/Desktop tracks run cleanly in isolated worktrees with explicit seam ownership)",
+      "summary": "Completed Wave 13 across 3 stages / 4 tracks (w13a-core, w13a-ui || w13b-core, w13b-ui) with 0 merge conflicts, 18/18 live mutants killed, 4/4 independent w13-verifier PASS verdicts, 2,471 tests green, and 10/10 verify gates PASS on local main",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/wave13-rounded-tips-and-ai-notebook.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Execute and converge Wave 13A (Rounded Wing Tips / FoilDSL 4.2) and Wave 13B (AI-Guided Design Notebook) onto local main via conductor-join.py --no-push",
+      "done_when": "All 4 tracks verified, joined onto clean local main, swarm retired, and Planned vs Actual recorded",
+      "tier": "T2",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "duration_source": "session-start-hook",
+      "started_at": "2026-11-28T07:32:28Z",
+      "duration_seconds": 19.0,
+      "parallelism": {
+        "unparseable_runs": 4
+      }
     }
   ],
   "changes": [

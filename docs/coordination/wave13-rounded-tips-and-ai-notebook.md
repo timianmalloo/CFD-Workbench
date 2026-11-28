@@ -2,7 +2,7 @@
 id: coordination-wave13-rounded-tips-and-ai-notebook
 title: "Coordination plan - wave 13: Rounded Wing Tips (FoilDSL 4.2) and AI-Guided Hydrofoil Design Notebook"
 type: plan
-status: proposed
+status: completed
 owner: "@timianmalloo"
 phase: "coordination — Wave 13 (execution plan for Wave 13A Rounded Wing Tips + Wave 13B AI-Guided Design Notebook)"
 tags: [coordination, worktrees, parallelism, agy-swarm, foildsl, wingtip, ai, notebook, wave13]
@@ -166,12 +166,26 @@ The production orchestrator-worker topology carries roughly a **~15× token mult
 | 7 | `w13-verifier` audits `w13b-ui` (`VERDICT: PASS`) → Coordinator joins `w13b-ui` via `conductor-join.py --no-push` → kill `w13b-ui` & `w13-verifier`, post `[done]` to quiet `w13-monitor`, kill `w13-monitor`. | T1 | Complete integrated Wave 13 landed cleanly on `main`. |
 | 8 | Append **Planned vs Actual** to this plan, render HTML, run `docs-graph.py derive` + `check-docs.py`, append closing audit entry, and commit on local `main`. | T1 | Closes `/execute-with-coordination` DoD. |
 
+## Planned vs Actual
+
+| track | planned stage / width | actual outcome | verified HEAD → join commit on `main` | files changed | tests & live mutants | verifier & join gates |
+|---|---|---|---|---|---|---|
+| `w13a-core` | Stage 1 / width 1 (`45 m` cap) | Completed (~49 m incl. 1-min `PROOF-PII` test-string fix caught by `conductor-join.py` step 4) | `aafcba72` → `99ba06e7` | 27 (+2,252 / -109) | `T-RT-01..08` + live `Rhino3dm 8.35.0` `IsValid == true` + 8/8 mutants killed; full ring 2,446 PASS | `w13-verifier` PASS · `conductor-join.py` exit 0 · 10/10 verify gates |
+| `w13a-ui` | Stage 2 / width 2 parallel (`35 m` cap) | Completed (~38 m, 100% file-disjoint from `w13b-core`, zero merge conflicts) | `03ba39bf` → `ef254d7a` | 9 (+1,180 / -54) | 9/9 `T-RT-09` (Light/Dark/HighContrast) + 3/3 mutants killed; full ring 2,455 PASS | `w13-verifier` PASS · `conductor-join.py` exit 0 · 10/10 verify gates |
+| `w13b-core` | Stage 2 / width 2 parallel (`45 m` cap) | Completed (~38 m, finished 13 s after `w13a-ui`, 0 merge conflicts, backward-compatible seams compiled cleanly with untouched Desktop) | `204f3c5e` → `b911c987` | 32 (+5,779 / -80) | `T-NB-01..07` (real loopback `HttpListener` + local physics) + 4/4 mutants killed; full ring 2,463 PASS | `w13-verifier` PASS · `conductor-join.py` exit 0 · 10/10 verify gates |
+| `w13b-ui` | Stage 3 / width 1 (`45 m` cap) | Completed (~61 m incl. 14 m remediation of 3 genuine `w13-verifier` P1 findings replacing synthetic curves/elevations with real 200p `PanelMethod`, real `ProductWingMethod` VLM loading, and real placed `SurfaceView` elevations) | `e4da15be` → `99f94510` | 24 (+5,295 / -56) | 8/8 `T-NB-08` (7 states × 3 themes + loopback `HttpListener`) + 3/3 mutants killed; full ring 2,471 PASS | `w13-verifier` PASS · `conductor-join.py` exit 0 · 10/10 verify gates |
+
+**Execution takeaways (for next coordination plan):**
+- **Stage 2 width-2 parallelism paid off cleanly:** `w13a-ui` and `w13b-core` finished within 13 seconds of each other with zero merge conflicts, zero OS display contention, and zero compile breaks because P0-1 backward-compatibility seams (`RunEvaluationAsync(bool, CancellationToken)`, optional ctor/record params, zero new unsubscribed C# `event`s) were enforced upfront in the plan and worker briefs.
+- **Independent Adversary verification earned its cost twice:** `w13-verifier` caught 3 genuine scientific/ADR-0010 violations in `w13b-ui` (synthetic Cp/loading/elevation silhouettes) that green unit tests alone missed, resulting in 100% real `PanelMethod` / `ProductWingMethod` / `Placement.Surface` rendering across all 5 Notebook tabs.
+- **Pre-join gate hygiene:** Remind Core/Desktop authors in every brief to run `py -3 tools/check-docs.py` (which enforces `PROOF-PII` on test fixtures) before posting final handback so `conductor-join.py` never has to stop at step 4.
+
 ---
 
 ## Status
 
 | | |
 |---|---|
-| **Completed** | Measured coordination layer (`coord doctor`, `pack-doctor.py --json`), classified artifacts (`.agents/artifacts.yml`), authored and revised zero-overlap 3-stage / 4-track Wave 13 coordination plan addressing all Adversary P0/P1 findings. |
-| **Remaining** | Execute Stage 1 (`w13a-core`), Stage 2 (`w13a-ui` and `w13b-core`), and Stage 3 (`w13b-ui`) via AGY swarm and converge via `conductor-join.py --no-push`. |
-| **Best next action** | Commit the coordination plan cleanly on `main` and launch Stage 1 (`w13a-core`) + `w13-verifier` + `w13-monitor` on the AGY swarm. |
+| **Completed** | All 4 Wave 13 tracks (`w13a-core`, `w13a-ui`, `w13b-core`, `w13b-ui`) implemented, independently verified by `w13-verifier` (18/18 live mutants killed), and converged onto local `main` (`99f94510`) via `conductor-join.py --no-push` with **2,471 tests passing** (`Core` 1,041 · `Analysis` 357 · `Desktop` 1,014 · `Cli` 48 · `Python` 11), `xaml-token-lint.py` clean, `check-event-subscribers.py` clean (`57` events, `4` allowed, `0` findings), and `10/10` verify gates green. Swarm retired cleanly. |
+| **Remaining** | Push local `main` to `origin/main` once operator confirms; run manual smoke exploration of Rounded Wing Tips + AI-Guided Design Notebook in the Avalonia desktop app (and external CAM `SPIKE-CAD-02` open-and-measure when ready). |
+| **Best next action** | Review the Wave 13 summary on local `main`, then push `main` to `origin` when ready. |
