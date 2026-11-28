@@ -25968,6 +25968,64 @@ window.DOCS_INDEX = {
       "sourceSha256": "25f071b72c9676cd418be3606adf4a79a0e36315b529ce03a3b414e357649955"
     },
     {
+      "id": "spec-rounded-wing-tips",
+      "path": "docs/specs/rounded-wing-tips.md",
+      "title": "Rounded & Radiused Wing Tips — Planform Tip Curvature & Optional 3D Tip Fairing",
+      "type": "spec",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "specification (FoilDSL 4.2 expand-only amendment + CAD / Analysis / Export contract)",
+      "reviewBy": "2027-05-27",
+      "reviewSuggested": [],
+      "summary": "Three-layer specification (Functional, UX, UI) for rounded and radiused wing tips in CFD-Workbench. Extends FoilDSL with an expand-only 4.2 amendment enabling G1 vertical planform tangents and exact finite leading-edge and trailing-edge tip radii on a nonzero finite tip chord (preserving Ruling 93 TipChord floor without collapsing to a zero-chord point), plus an optional smooth G0-watertight 3D rounded tip cap for viewport, STL, 3MF, STEP AP203, and Rhino 3DM outputs with honest span and hydrodynamic disclosures.",
+      "tags": [
+        "foildsl",
+        "geometry",
+        "wingtip",
+        "planform",
+        "curvature",
+        "radius",
+        "cad",
+        "export",
+        "analysis",
+        "spec"
+      ],
+      "links": [
+        {
+          "to": "spec-foildsl",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-ai-guided-design-notebook",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "kb-hw-parametric-curves-lofts-and-surfaces",
+          "rel": "depends-on"
+        },
+        {
+          "to": "kb-hw-marine-and-board-cad-tooling",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "B2. User flow (happy, alternate, error, and recovery paths)",
+          "mermaid": "flowchart TD\n  start[\"Area 2 CAD: Planform View<br/>(foildsl 4.1 wing, tip open)\"] --> entry{\"How does user<br/>round the tip?\"}\n\n  entry -- \"Pick Vertical (G1) or edit<br/>LE/TE radius (Return/blur)\" --> solve[\"Core: Solve vertical TipHandle P_{N-2}<br/>(insert local tip span if N=4;<br/>upgrade header to foildsl 4.2)\"]\n  entry -- \"Drag constrained TipHandle P_{N-2}<br/>along y = half_span\" --> solve\n  entry -- \"Pick 3D tip cap: Rounded ▾<br/>or edit Cap ratio\" --> capCheck{\"Ratio in [0.25, 2.0] AND<br/>TipChord.Admits holds?\"}\n\n  solve --> valid{\"Feasible?<br/>(positive chord, no cusp,<br/>TipChord.Admits, Assess OK)\"}\n  valid -- \"No: DSL-TIP-RADIUS-BOUNDS,<br/>DSL-LOCK, or DSL-TIP-CHORD-MIN\" --> refuse[\"DR-CELL-3 inline error rail on row<br/>naming exact bound + 'Use <max> mm'<br/>repair link; accepted rN untouched\"]\n  refuse --> recover{\"User recovery\"}\n  recover -- \"Click 'Use <max> mm'<br/>or enter valid value\" --> solve\n  recover -- \"Press Escape\" --> revert[\"Revert row text to<br/>accepted rN value\"]\n\n  valid -- \"Yes\" --> commit[\"Commit Accepted r(N+1) (1 undo step)<br/>(foildsl 4.2, live Planform/Comb/3D)\"]\n  capCheck -- \"No\" --> refuse\n  capCheck -- \"Yes\" --> commit\n\n  commit --> undo{\"Undo or Continue?\"}\n  undo -- \"Ctrl/Cmd+Z\" --> prior[\"Restore byte-identical<br/>prior revision (incl. 4.1 header)\"]\n  undo -- \"Proceed to Analysis / Export\" --> downstream[\"Area 3 Analysis (RTIP-COPY-07) &<br/>Watertight STL / 3MF / STEP / 3DM\"]"
+        }
+      ],
+      "sourceSha256": "4dab80c1e08ab37d4d4fedb4797f05cb8cb7d884d0848c3053a0c7372c7cae45"
+    },
+    {
       "id": "threat-model",
       "path": "docs/security/threat-model.md",
       "title": "Application security boundary review",
@@ -26493,6 +26551,14 @@ window.DOCS_INDEX = {
       "artifactId": "proof-wsl-area5-build"
     },
     {
+      "id": "surface-specs-rounded-wing-tips",
+      "path": "docs/specs/rounded-wing-tips.html",
+      "title": "Rounded Wing Tips",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "spec-rounded-wing-tips"
+    },
+    {
       "id": "surface-mockups-section-force-vectors",
       "path": "docs/mockups/section-force-vectors.html",
       "title": "Section force vectors",
@@ -26653,5 +26719,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "367201584cf80f431dba3f1fada460516b69defe8f4a9c2b75691408ec1c826e"
+  "graphSha256": "dd9c39e124449f8415099bcd78dfa9681621408024717f008f716297fa6fb5e7"
 };

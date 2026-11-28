@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-27T19:03:14Z",
+  "generated": "2026-11-28T01:41:34Z",
   "audit": [
     {
       "actor": null,
@@ -46038,6 +46038,51 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-27T18:26:35Z",
       "duration_seconds": 2199.0
+    },
+    {
+      "id": "al-01M8FVT1TNTTMQYQYG1B9XDG29",
+      "shortname": "Approve AI notebook mockup as design/impl baseline; /specify rounded/rad…",
+      "datetime": "2026-11-28T01:20:11Z",
+      "session": "80549eef-c72e-4649-a6ab-8439d9935577",
+      "prompt": "Approve AI notebook mockup as design/impl baseline; /specify rounded/radiused wing tips (LE & TE tip curvature without zero-chord point); commit & push; provide design and implement next steps for AI experience and rounded wing tips.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M8FX165P6M2T0EDQZFEVCRX6",
+      "shortname": "specify-rounded-wing-tips",
+      "datetime": "2026-11-28T01:41:34Z",
+      "session": "80549eef-c72e-4649-a6ab-8439d9935577",
+      "prompt": "Approve AI notebook mockup as design/impl baseline; /specify rounded/radiused wing tips (LE & TE tip curvature without zero-chord point); commit & push; provide design and implement next steps for AI experience and rounded wing tips.",
+      "summary": "Authored docs/specs/rounded-wing-tips.md (+ HTML): expand-only FoilDSL 4.2 (repeated terminal rail abscissa + vertical tip tangent + exact analytic R_le/R_te on finite TipChord >= Ruling 93 floor + optional G0-watertight tip rounded [ratio] with planar open-TE closure face), chordal v CadExportExtractor skinning, nested sin(pi k / (2(M-1))) tip clustering, spanwise-local positive-chord Geometry.Assess, Structure B Property Grid UX/UI. Cleared 7-lens Adversary council (VERDICT: PASS, CLEARS-THE-VETO: yes).",
+      "kind": "skill",
+      "skill": "specify",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/specs/rounded-wing-tips.md",
+        "docs/specs/rounded-wing-tips.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Author three-layer specification (Functional, UX, UI) for Rounded & Radiused Wing Tips (FoilDSL 4.2 + CAD/Analysis/Export), commit, and push main.",
+      "done_when": "Spec clears independent 7-lens Adversary council (VERDICT: PASS), passes check-docs.py & run-verify-gates.py, is committed cleanly, and main is pushed to origin.",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-28T01:20:12Z",
+      "duration_seconds": 1282.0
     }
   ],
   "changes": [
