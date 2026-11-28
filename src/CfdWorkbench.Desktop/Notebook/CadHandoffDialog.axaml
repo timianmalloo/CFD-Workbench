@@ -1,0 +1,101 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="CfdWorkbench.Desktop.Notebook.CadHandoffDialog"
+        Title="Open in CAD Mode"
+        Width="{StaticResource ConsentDialogWidth}"
+        SizeToContent="Height"
+        MaxHeight="{StaticResource DialogMaxHeight}"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource SurfaceBrush}"
+        Foreground="{DynamicResource InkBrush}">
+  <Border Padding="{StaticResource DialogPadding}"
+          BorderBrush="{DynamicResource LineBrush}"
+          BorderThickness="{StaticResource HairlineThickness}">
+    <Grid RowDefinitions="Auto,*,Auto" RowSpacing="{StaticResource DialogSpacing}">
+      <TextBlock x:Name="TitleText"
+                 Grid.Row="0"
+                 Classes="heading"
+                 Text="Open in CAD Mode" />
+
+      <ScrollViewer Grid.Row="1"
+                    VerticalScrollBarVisibility="Auto"
+                    HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="{StaticResource DialogSpacing}">
+          <TextBlock x:Name="ConfirmBodyText"
+                     TextWrapping="Wrap"
+                     Foreground="{DynamicResource InkBrush}" />
+
+          <Border x:Name="RefusedWarningBanner"
+                  IsVisible="False"
+                  Background="{DynamicResource SurfaceSoftBrush}"
+                  BorderBrush="{DynamicResource DangerBrush}"
+                  BorderThickness="{StaticResource PropRailThickness}"
+                  Padding="{StaticResource Space2}">
+            <TextBlock x:Name="RefusedWarningText"
+                       Classes="pnl-cell"
+                       Foreground="{DynamicResource DangerBrush}"
+                       TextWrapping="Wrap" />
+          </Border>
+
+          <Border Background="{DynamicResource CanvasBrush}"
+                  BorderBrush="{DynamicResource LineBrush}"
+                  BorderThickness="{StaticResource HairlineThickness}"
+                  CornerRadius="{StaticResource RoundedSm}"
+                  Padding="{StaticResource Space3}">
+            <StackPanel Spacing="{StaticResource StackGap2}">
+              <TextBlock Text="Candidate geometry &amp; handoff summary"
+                         Classes="pnl-head" />
+              <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+                    ColumnSpacing="{StaticResource StackGap3}" RowSpacing="{StaticResource StackGap1}">
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Candidate" Classes="pnl-note" />
+                <TextBlock x:Name="CandidateSummaryText" Grid.Row="0" Grid.Column="1" Classes="pnl-cell" FontWeight="SemiBold" />
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="SurfaceHash (BLAKE3)" Classes="pnl-note" />
+                <TextBlock x:Name="SurfaceHashText" Grid.Row="1" Grid.Column="1" Classes="pnl-cell" FontFamily="{StaticResource MonoFontFamily}" />
+
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Planform &amp; twist" Classes="pnl-note" />
+                <TextBlock x:Name="PlanformSummaryText" Grid.Row="2" Grid.Column="1" Classes="pnl-cell" FontFamily="{StaticResource MonoFontFamily}" />
+
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="Sections (root → tip)" Classes="pnl-note" />
+                <TextBlock x:Name="SectionsSummaryText" Grid.Row="3" Grid.Column="1" Classes="pnl-cell" FontFamily="{StaticResource MonoFontFamily}" />
+
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="Derived GoalState" Classes="pnl-note" />
+                <TextBlock x:Name="GoalStateSummaryText" Grid.Row="4" Grid.Column="1" Classes="pnl-cell" />
+              </Grid>
+            </StackPanel>
+          </Border>
+
+          <Border Background="{DynamicResource SurfaceSoftBrush}"
+                  BorderBrush="{DynamicResource LineBrush}"
+                  BorderThickness="{StaticResource HairlineThickness}"
+                  CornerRadius="{StaticResource RoundedSm}"
+                  Padding="{StaticResource Space2}">
+            <TextBlock x:Name="NonDestructiveNoteText"
+                       Classes="pnl-note"
+                       Text="Non-destructive handoff: appends the next accepted Design revision with 1-step Undo and keeps the AI Notebook reachable from the Activity Rail."
+                       TextWrapping="Wrap" />
+          </Border>
+        </StackPanel>
+      </ScrollViewer>
+
+      <StackPanel x:Name="FooterButtons"
+                  Grid.Row="2"
+                  Orientation="Horizontal"
+                  Spacing="{StaticResource StackGap2}"
+                  HorizontalAlignment="Right">
+        <Button x:Name="ConfirmButton"
+                Classes="primary"
+                Content="Confirm &amp; Open in CAD"
+                MinHeight="{StaticResource ControlHeight}"
+                IsDefault="True"
+                AutomationProperties.Name="Confirm and open candidate in CAD mode" />
+        <Button x:Name="StayButton"
+                Content="Stay in Notebook"
+                MinHeight="{StaticResource ControlHeight}"
+                IsCancel="True"
+                AutomationProperties.Name="Stay in notebook" />
+      </StackPanel>
+    </Grid>
+  </Border>
+</Window>

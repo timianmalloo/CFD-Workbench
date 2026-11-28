@@ -259,6 +259,7 @@ public sealed class WorkbenchController : IDisposable
     private bool isSetup;
     private bool isRun;
     private bool isResults;
+    private bool isNotebook;
     private readonly IWingMethod analysisMethod;
     private readonly IEvaluationBarrier? analysisBarrier;
     private AnalysisService analysisService;
@@ -280,18 +281,23 @@ public sealed class WorkbenchController : IDisposable
 
     /// <summary>The model area's CAD or Analysis state; a section draft remains open while hidden.</summary>
     public ShellMode AreaMode => areaMode == ShellMode.Analysis ? areaMode : Section is null ? ShellMode.Workspace : ShellMode.SectionEditor;
-    public bool IsAnalysis => !isSweeps && !isSetup && !isRun && !isResults && AreaMode == ShellMode.Analysis;
+    public bool IsAnalysis => !isSweeps && !isSetup && !isRun && !isResults && !isNotebook && AreaMode == ShellMode.Analysis;
     /// <summary>True when the Sweeps navbar segment (Ruling 271 DR-SWP-6) is active.</summary>
-    public bool IsSweeps => isSweeps && !isSetup && !isRun && !isResults;
+    public bool IsSweeps => isSweeps && !isSetup && !isRun && !isResults && !isNotebook;
     /// <summary>True when the Setup navbar segment (Ruling 272 DR-SET-5) is active.</summary>
     public bool IsSetup => isSetup;
     /// <summary>True when Area 5 Run (rail slot 5) is active.</summary>
     public bool IsRun => isRun;
     /// <summary>True when Area 6 Results (rail slot 6) is active.</summary>
     public bool IsResults => isResults;
-    /// <summary>Active 6-area document workspace aligned with the 7-Area Left Activity Rail.</summary>
+    /// <summary>True when the Wave 13B AI-Guided Hydrofoil Design Notebook is active.</summary>
+    public bool IsNotebook => isNotebook;
+    /// <summary>True when a notebook session is currently active or attached to the open project.</summary>
+    public bool HasNotebookSession => !disposed && (isNotebook || session.ReadNotebookSession() is not null);
+    /// <summary>Active document workspace aligned with the Left Activity Rail.</summary>
     public WorkbenchArea ActiveArea =>
-        isSetup ? WorkbenchArea.Setup
+        isNotebook ? WorkbenchArea.Notebook
+        : isSetup ? WorkbenchArea.Setup
         : isSweeps ? WorkbenchArea.Experiment
         : isRun ? WorkbenchArea.Run
         : isResults ? WorkbenchArea.Results
@@ -1224,11 +1230,12 @@ public sealed class WorkbenchController : IDisposable
     {
         long started = time.GetTimestamp();
         ShellMode from = AreaMode;
-        bool wasOther = isSweeps || isSetup || isRun || isResults;
+        bool wasOther = isSweeps || isSetup || isRun || isResults || isNotebook;
         isSweeps = false;
         isSetup = false;
         isRun = false;
         isResults = false;
+        isNotebook = false;
         if (wasOther)
         {
             areaMode = ShellMode.Analysis;
@@ -1248,13 +1255,26 @@ public sealed class WorkbenchController : IDisposable
 
     public void EnterCad()
     {
-        if (!IsAnalysis && !isSweeps && !isSetup && !isRun && !isResults) return;
+        if (!IsAnalysis && !isSweeps && !isSetup && !isRun && !isResults && !isNotebook) return;
         isSweeps = false;
         isSetup = false;
         isRun = false;
         isResults = false;
+        isNotebook = false;
         if (areaMode == ShellMode.Analysis)
             areaMode = returnToCadMode == ShellMode.SectionEditor && Section is null ? ShellMode.Workspace : returnToCadMode;
+        Notify();
+    }
+
+    public void EnterNotebook()
+    {
+        if (isNotebook) return;
+        if (areaMode != ShellMode.Analysis) returnToCadMode = AreaMode;
+        isSweeps = false;
+        isSetup = false;
+        isRun = false;
+        isResults = false;
+        isNotebook = true;
         Notify();
     }
 
@@ -1265,6 +1285,7 @@ public sealed class WorkbenchController : IDisposable
         isSweeps = false;
         isRun = false;
         isResults = false;
+        isNotebook = false;
         isSetup = true;
         Setup.RefreshFromSession(notify: false);
         Setup.RecomputePreview(notify: false);
@@ -1279,11 +1300,12 @@ public sealed class WorkbenchController : IDisposable
 
     public void EnterSweeps()
     {
-        if (isSweeps && !isSetup && !isRun && !isResults) return;
+        if (isSweeps && !isSetup && !isRun && !isResults && !isNotebook) return;
         if (areaMode != ShellMode.Analysis) returnToCadMode = AreaMode;
         isSetup = false;
         isRun = false;
         isResults = false;
+        isNotebook = false;
         isSweeps = true;
         Sweeps.SetDisplayUnits(analysisUnits);
         Sweeps.CheckPreviewFreshness();
@@ -1292,7 +1314,7 @@ public sealed class WorkbenchController : IDisposable
 
     public void ToggleSweeps()
     {
-        if (isSweeps && !isSetup && !isRun && !isResults) EnterCad();
+        if (isSweeps && !isSetup && !isRun && !isResults && !isNotebook) EnterCad();
         else EnterSweeps();
     }
 
@@ -1303,6 +1325,7 @@ public sealed class WorkbenchController : IDisposable
         isSetup = false;
         isSweeps = false;
         isResults = false;
+        isNotebook = false;
         isRun = true;
         Notify();
     }
@@ -1320,6 +1343,7 @@ public sealed class WorkbenchController : IDisposable
         isSetup = false;
         isSweeps = false;
         isRun = false;
+        isNotebook = false;
         isResults = true;
         Notify();
     }
@@ -1334,6 +1358,7 @@ public sealed class WorkbenchController : IDisposable
     {
         switch (area)
         {
+            case WorkbenchArea.Notebook: EnterNotebook(); break;
             case WorkbenchArea.Setup: EnterSetup(); break;
             case WorkbenchArea.Cad: EnterCad(); break;
             case WorkbenchArea.Analysis:
@@ -1343,6 +1368,27 @@ public sealed class WorkbenchController : IDisposable
             case WorkbenchArea.Run: EnterRun(); break;
             case WorkbenchArea.Results: EnterResults(); break;
         }
+    }
+
+    /// <summary>
+    /// Non-destructively hands a <see cref="GeometryStatus.Certified"/> notebook candidate into Area 2 CAD,
+    /// appending <c>rN</c> via <see cref="AuthoringSession.HandoffNotebookCandidate"/> and switching cleanly to CAD.
+    /// </summary>
+    public CfdWorkbench.Core.Notebook.CadHandoffOutcome HandoffNotebookCandidate(string candidateId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(candidateId);
+        var outcome = session.HandoffNotebookCandidate(candidateId, Guid.NewGuid().ToString("D"));
+        OnSetupSeeded(outcome.SeedOutcome);
+        isNotebook = false;
+        isSetup = false;
+        isSweeps = false;
+        isRun = false;
+        isResults = false;
+        areaMode = ShellMode.Workspace;
+        returnToCadMode = ShellMode.Workspace;
+        Status = $"Opened notebook candidate {candidateId} as Design revision r{outcome.SeedOutcome.RevisionOrdinal} in Area 2 CAD.";
+        Notify();
+        return outcome;
     }
 
     public CfdLedger ReadCfdLedger()
@@ -4672,6 +4718,7 @@ public sealed class WorkbenchController : IDisposable
         isSetup = false;
         isRun = false;
         isResults = false;
+        isNotebook = false;
         ActiveCandidateDraft = null;
         Inspection = null;
         try { Setup.BindSession(session); }
@@ -4819,6 +4866,7 @@ public sealed class WorkbenchController : IDisposable
         isSetup = false;
         isRun = false;
         isResults = false;
+        isNotebook = false;
         ActiveCandidateDraft = null;
         Setup.BindSession(session);
         Sweeps.BindSession(session);

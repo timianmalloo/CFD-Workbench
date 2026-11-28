@@ -1,0 +1,762 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:analysis="using:CfdWorkbench.Desktop.Analysis"
+             xmlns:sweeps="using:CfdWorkbench.Desktop.Sweeps"
+             xmlns:setup="using:CfdWorkbench.Desktop.Setup"
+             xmlns:notebook="using:CfdWorkbench.Desktop.Notebook"
+             x:Class="CfdWorkbench.Desktop.Notebook.NotebookWorkspaceView">
+  <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource CanvasBrush}">
+    <!-- Top Session Header -->
+    <Border Grid.Row="0"
+            Background="{DynamicResource SurfaceBrush}"
+            BorderBrush="{DynamicResource LineBrush}"
+            BorderThickness="{StaticResource PropRuleBottom}"
+            Padding="{StaticResource Space2}">
+      <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="{StaticResource StackGap2}">
+        <!-- Left: Back button + Session title -->
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="{StaticResource StackGap2}" VerticalAlignment="Center">
+          <Button x:Name="BackToWorkbenchButton"
+                  Content="← Workbench"
+                  MinHeight="{StaticResource ControlHeight}"
+                  AutomationProperties.Name="Return to Workbench" />
+          <StackPanel VerticalAlignment="Center" Spacing="{StaticResource ActivityRailBadgeGap}">
+            <TextBlock x:Name="SessionTitleText"
+                       Text="New AI-guided design"
+                       FontWeight="SemiBold"
+                       FontSize="{StaticResource PropTitleSize}"
+                       Foreground="{DynamicResource InkBrush}"
+                       TextTrimming="CharacterEllipsis" />
+            <TextBlock x:Name="SessionSubtitleText"
+                       Text="Guided Design Notebook · FoilReq 1.0"
+                       Classes="caption"
+                       TextTrimming="CharacterEllipsis" />
+          </StackPanel>
+        </StackPanel>
+
+        <!-- Center: Phase stepper + Model/Solver chips -->
+        <WrapPanel Grid.Column="1" Classes="toolbar-wrap" Orientation="Horizontal" VerticalAlignment="Center">
+          <Border x:Name="PhaseBriefPill" Classes="run-step-pill active">
+            <TextBlock x:Name="PhaseBriefText" Text="1. Brief" />
+          </Border>
+          <Border x:Name="PhaseGrillPill" Classes="run-step-pill">
+            <TextBlock x:Name="PhaseGrillText" Text="2. Grill-Me" />
+          </Border>
+          <Border x:Name="PhaseIteratePill" Classes="run-step-pill">
+            <TextBlock x:Name="PhaseIterateText" Text="3. Iterate" />
+          </Border>
+          <Border x:Name="PhaseCadPill" Classes="run-step-pill">
+            <TextBlock x:Name="PhaseCadText" Text="4. CAD" />
+          </Border>
+          <Border x:Name="ModelStatusChip" Classes="prop-chip" CornerRadius="{StaticResource RoundedSm}" Padding="{StaticResource RunStepPillPadding}">
+            <TextBlock x:Name="ModelStatusChipText" Text="BYOK: Checking…" />
+          </Border>
+          <Border x:Name="SolverStatusChip" Classes="prop-chip" CornerRadius="{StaticResource RoundedSm}" Padding="{StaticResource RunStepPillPadding}">
+            <TextBlock x:Name="SolverStatusChipText" Text="Solver: Local C#" />
+          </Border>
+        </WrapPanel>
+
+        <!-- Right: Candidate selector + sticky Open in CAD Mode -->
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="{StaticResource StackGap2}" VerticalAlignment="Center">
+          <ComboBox x:Name="CandidateSelectorCombo"
+                    MinHeight="{StaticResource ControlHeight}"
+                    MinWidth="{StaticResource SweepInputMinWidth}"
+                    AutomationProperties.Name="Active design candidate" />
+          <Button x:Name="OpenInCadButton"
+                  Classes="primary"
+                  Content="Open in CAD Mode →"
+                  IsEnabled="False"
+                  MinHeight="{StaticResource ControlHeight}"
+                  AutomationProperties.Name="Open active candidate in CAD Mode" />
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- Accessible inline disabled explanation bar (COPY-931) -->
+    <Border x:Name="CadDisabledNoteBar"
+            Grid.Row="1"
+            IsVisible="True"
+            Background="{DynamicResource CanvasBrush}"
+            BorderBrush="{DynamicResource LineBrush}"
+            BorderThickness="{StaticResource PropRuleBottom}"
+            Padding="{StaticResource Space2}">
+      <TextBlock x:Name="CadDisabledNoteText"
+                 Classes="caption"
+                 Text="Generate a geometry-checked 3D candidate first to open in CAD Mode."
+                 TextWrapping="Wrap" />
+    </Border>
+
+    <!-- Main Two-Pane Split: Left 43% Notebook Thread | Right 57% Graphite Artifacts Workbench -->
+    <Grid Grid.Row="2" ColumnDefinitions="43*,57*">
+      <!-- ==================== LEFT PANE: INTERACTIVE NOTEBOOK THREAD ==================== -->
+      <Border Grid.Column="0"
+              Background="{DynamicResource CanvasBrush}"
+              BorderBrush="{DynamicResource LineBrush}"
+              BorderThickness="{StaticResource SolverSectionRuleRight}">
+        <Grid RowDefinitions="Auto,*,Auto">
+          <!-- Pinned Collapsible FoilReq 1.0 Card -->
+          <Border x:Name="FoilReqPinCard"
+                  Grid.Row="0"
+                  IsVisible="False"
+                  Background="{DynamicResource SurfaceBrush}"
+                  BorderBrush="{DynamicResource LineBrush}"
+                  BorderThickness="{StaticResource PropRuleBottom}"
+                  Padding="{StaticResource Space2}">
+            <StackPanel Spacing="{StaticResource StackGap1}">
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource StackGap2}">
+                <TextBlock x:Name="FoilReqPinTitleText"
+                           Grid.Column="0"
+                           Text="FoilReq 1.0"
+                           Classes="pnl-head"
+                           VerticalAlignment="Center" />
+                <Button x:Name="InspectDslButton"
+                        Grid.Column="1"
+                        Content="Inspect DSL"
+                        MinHeight="{StaticResource CompactTargetSize}"
+                        Padding="{StaticResource ChipPadding}"
+                        AutomationProperties.Name="Toggle FoilReq 1.0 DSL drawer" />
+              </Grid>
+              <WrapPanel x:Name="FoilReqChipsPanel" Classes="toolbar-wrap" Orientation="Horizontal" />
+              <TextBox x:Name="FoilReqDrawerBox"
+                       IsVisible="False"
+                       IsReadOnly="True"
+                       AcceptsReturn="True"
+                       TextWrapping="NoWrap"
+                       MaxHeight="{StaticResource AssistantListMaxHeight}"
+                       FontFamily="{StaticResource MonoFontFamily}"
+                       FontSize="{StaticResource CaptionSize}"
+                       ScrollViewer.VerticalScrollBarVisibility="Auto"
+                       ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                       AutomationProperties.Name="Pinned FoilReq 1.0 DSL" />
+            </StackPanel>
+          </Border>
+
+          <!-- Scrollable Notebook Thread -->
+          <ScrollViewer x:Name="NotebookThreadScroller"
+                        Grid.Row="1"
+                        VerticalScrollBarVisibility="Auto"
+                        HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="{StaticResource Space3}" Spacing="{StaticResource StackGap2}">
+              <!-- State 6: No-Key Banner (COPY-933, AI-01) -->
+              <Border x:Name="NoKeyBannerCard"
+                      IsVisible="False"
+                      Background="{DynamicResource SurfaceBrush}"
+                      BorderBrush="{DynamicResource WarningBrush}"
+                      BorderThickness="{StaticResource WarningBandBorder}"
+                      CornerRadius="{StaticResource RoundedSm}"
+                      Padding="{StaticResource Space3}">
+                <StackPanel Spacing="{StaticResource StackGap2}">
+                  <TextBlock Text="BYOK API key needed" Classes="pnl-head" Foreground="{DynamicResource WarningBrush}" />
+                  <TextBlock x:Name="NoKeyBannerText" TextWrapping="Wrap" Foreground="{DynamicResource InkBrush}" />
+                  <WrapPanel Classes="alert-actions" Orientation="Horizontal">
+                    <Button x:Name="ConfigureKeyButton"
+                            Classes="primary"
+                            Content="Configure key"
+                            MinHeight="{StaticResource ControlHeight}"
+                            AutomationProperties.Name="Configure BYOK API key" />
+                    <Button x:Name="UseManualSetupButton"
+                            Content="Use manual Setup / CAD"
+                            MinHeight="{StaticResource ControlHeight}"
+                            AutomationProperties.Name="Use manual Setup and CAD offline" />
+                  </WrapPanel>
+                </StackPanel>
+              </Border>
+
+              <!-- AI-06 Unevaluated Model Banner -->
+              <Border x:Name="UnevaluatedBannerCard"
+                      IsVisible="False"
+                      Background="{DynamicResource SurfaceBrush}"
+                      BorderBrush="{DynamicResource WarningBrush}"
+                      BorderThickness="{StaticResource WarningBandBorder}"
+                      CornerRadius="{StaticResource RoundedSm}"
+                      Padding="{StaticResource Space3}">
+                <StackPanel Spacing="{StaticResource StackGap2}">
+                  <TextBlock x:Name="UnevaluatedBannerTitle" Text="Unevaluated on this model" Classes="pnl-head" Foreground="{DynamicResource WarningBrush}" />
+                  <TextBlock x:Name="UnevaluatedBannerText" Classes="caption" TextWrapping="Wrap" />
+                  <Button x:Name="OpenSettingsUnevalButton"
+                          Content="Open Settings"
+                          HorizontalAlignment="Left"
+                          MinHeight="{StaticResource ControlHeight}"
+                          AutomationProperties.Name="Open assistant settings to run model evaluation" />
+                </StackPanel>
+              </Border>
+
+              <!-- State 1: Empty / First-Run Welcome & Starter Briefs -->
+              <Border x:Name="EmptyWelcomeCard"
+                      IsVisible="True"
+                      Background="{DynamicResource SurfaceBrush}"
+                      BorderBrush="{DynamicResource LineBrush}"
+                      BorderThickness="{StaticResource HairlineThickness}"
+                      CornerRadius="{StaticResource RoundedSm}"
+                      Padding="{StaticResource Space3}">
+                <StackPanel Spacing="{StaticResource StackGap2}">
+                  <TextBlock Text="New AI-guided design" Classes="heading" />
+                  <TextBlock x:Name="EmptyPromptGuideText"
+                             Classes="caption"
+                             TextWrapping="Wrap" />
+                  <StackPanel Spacing="{StaticResource StackGap1}">
+                    <Button x:Name="StarterWaveBriefButton"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left"
+                            MinHeight="{StaticResource ControlHeight}"
+                            AutomationProperties.Name="Starter brief: 90 kg large-wave wingfoil">
+                      <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+                        <TextBlock Text="90 kg Large-Wave Wingfoil (F4 Orca concepts)" FontWeight="SemiBold" />
+                        <TextBlock Text="Span &lt; 950 cm typo check · AR 12 takeoff tension · steep drops &amp; cutbacks" Classes="caption" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Button>
+                    <Button x:Name="StarterDownwindBriefButton"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left"
+                            MinHeight="{StaticResource ControlHeight}"
+                            AutomationProperties.Name="Starter brief: 80 kg downwind SUP foil">
+                      <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+                        <TextBlock Text="80 kg Downwind SUP Glide" FontWeight="SemiBold" />
+                        <TextBlock Text="Span &lt;= 1,050 mm · 11–16 kn bump-to-bump glide" Classes="caption" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Button>
+                    <Button x:Name="StarterFreerideBriefButton"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left"
+                            MinHeight="{StaticResource ControlHeight}"
+                            AutomationProperties.Name="Starter brief: 75 kg freeride wingfoil">
+                      <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+                        <TextBlock Text="75 kg Early-Takeoff Freeride Wingfoil" FontWeight="SemiBold" />
+                        <TextBlock Text="Span ~850 mm · forgiving pitch · early takeoff under 10 kn" Classes="caption" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Button>
+                  </StackPanel>
+                </StackPanel>
+              </Border>
+
+              <!-- Dynamic Chronological Turn Stream (User briefs, Decomposition, Solver receipts, Translations, Refusals) -->
+              <StackPanel x:Name="TurnsListPanel" Spacing="{StaticResource StackGap2}" />
+
+              <!-- Clickable Completed/Skipped Grill Summary Pills (re-open branch -> marks downstream Stale per TQ9) -->
+              <Border x:Name="GrillSummaryCard"
+                      IsVisible="False"
+                      Background="{DynamicResource SurfaceBrush}"
+                      BorderBrush="{DynamicResource LineBrush}"
+                      BorderThickness="{StaticResource HairlineThickness}"
+                      CornerRadius="{StaticResource RoundedSm}"
+                      Padding="{StaticResource Space2}">
+                <StackPanel Spacing="{StaticResource StackGap1}">
+                  <TextBlock Text="Resolved grill branches (click any pill to re-open)" Classes="pnl-note" FontWeight="SemiBold" />
+                  <WrapPanel x:Name="GrillSummaryPanel" Classes="toolbar-wrap" Orientation="Horizontal" />
+                </StackPanel>
+              </Border>
+
+              <!-- State 2: Active Serial Matt Pocock Grill-Me Card (strictly 1 active blocking question) -->
+              <Border x:Name="ActiveGrillCard"
+                      IsVisible="False"
+                      Background="{DynamicResource SurfaceBrush}"
+                      BorderBrush="{DynamicResource PrimaryBrush}"
+                      BorderThickness="{StaticResource HairlineThickness}"
+                      CornerRadius="{StaticResource RoundedSm}"
+                      Padding="{StaticResource Space3}">
+                <StackPanel Spacing="{StaticResource StackGap2}">
+                  <Grid ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource StackGap2}">
+                    <TextBlock x:Name="GrillBranchBadgeText"
+                               Grid.Column="0"
+                               Classes="pnl-head"
+                               Foreground="{DynamicResource PrimaryBrush}" />
+                    <TextBlock x:Name="GrillCategoryText"
+                               Grid.Column="1"
+                               Classes="pnl-note" />
+                  </Grid>
+                  <TextBlock x:Name="GrillQuestionPromptText"
+                             FontWeight="SemiBold"
+                             TextWrapping="Wrap"
+                             Foreground="{DynamicResource InkBrush}" />
+                  <TextBlock x:Name="GrillNeededForText"
+                             Classes="caption"
+                             TextWrapping="Wrap" />
+                  <StackPanel x:Name="GrillOptionsPanel" Spacing="{StaticResource StackGap1}" />
+                  <Grid ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource StackGap1}">
+                    <TextBox x:Name="GrillCustomAnswerBox"
+                             Grid.Column="0"
+                             Watermark="Or type a custom engineering answer…"
+                             AutomationProperties.Name="Custom grill answer" />
+                    <Button x:Name="GrillCustomApplyButton"
+                            Grid.Column="1"
+                            Content="Apply"
+                            MinHeight="{StaticResource ControlHeight}"
+                            AutomationProperties.Name="Apply custom grill answer" />
+                  </Grid>
+                  <TextBlock x:Name="GrillErrorText"
+                             IsVisible="False"
+                             Classes="pnl-cell"
+                             Foreground="{DynamicResource DangerBrush}"
+                             TextWrapping="Wrap" />
+                  <WrapPanel Classes="toolbar-wrap" Orientation="Horizontal">
+                    <Button x:Name="GrillSkipButton"
+                            Content="Skip &amp; keep assumption"
+                            MinHeight="{StaticResource ControlHeight}"
+                            AutomationProperties.Name="Skip grill question and keep assumption" />
+                    <Button x:Name="GrillGenerateNowButton"
+                            Classes="primary"
+                            Content="Generate candidate now"
+                            MinHeight="{StaticResource ControlHeight}"
+                            AutomationProperties.Name="Generate candidate now with remaining open questions flagged" />
+                  </WrapPanel>
+                </StackPanel>
+              </Border>
+
+              <!-- State 3: Simulating Choreographed Progress Card -->
+              <Border x:Name="SimulatingCard"
+                      IsVisible="False"
+                      Background="{DynamicResource SurfaceBrush}"
+                      BorderBrush="{DynamicResource PrimaryBrush}"
+                      BorderThickness="{StaticResource PropRailThickness}"
+                      CornerRadius="{StaticResource RoundedSm}"
+                      Padding="{StaticResource Space3}">
+                <StackPanel Spacing="{StaticResource StackGap2}">
+                  <Grid ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource StackGap2}">
+                    <TextBlock x:Name="SimulatingTitleText"
+                               Grid.Column="0"
+                               Text="Computing local physics…"
+                               Classes="pnl-head"
+                               VerticalAlignment="Center" />
+                    <Button x:Name="CancelRunButton"
+                            Grid.Column="1"
+                            Content="Cancel"
+                            MinHeight="{StaticResource ControlHeight}"
+                            AutomationProperties.Name="Cancel local physics calculation" />
+                  </Grid>
+                  <TextBlock x:Name="SimulatingStepsText"
+                             Classes="pnl-cell"
+                             FontFamily="{StaticResource MonoFontFamily}"
+                             TextWrapping="Wrap" />
+                  <ProgressBar x:Name="SimulatingProgressBar"
+                               Minimum="0"
+                               Maximum="100"
+                               Value="45" />
+                </StackPanel>
+              </Border>
+
+              <!-- State 5: Refused Geometry / Withheld AI Recovery Card -->
+              <Border x:Name="RefusedCard"
+                      IsVisible="False"
+                      Background="{DynamicResource SurfaceBrush}"
+                      BorderBrush="{DynamicResource DangerBrush}"
+                      BorderThickness="{StaticResource WarningBandBorder}"
+                      CornerRadius="{StaticResource RoundedSm}"
+                      Padding="{StaticResource Space3}">
+                <StackPanel Spacing="{StaticResource StackGap2}">
+                  <TextBlock x:Name="RefusedCardTitleText"
+                             Text="Candidate refused"
+                             Classes="pnl-head"
+                             Foreground="{DynamicResource DangerBrush}" />
+                  <TextBlock x:Name="RefusedCardBodyText"
+                             Classes="pnl-cell"
+                             TextWrapping="Wrap" />
+                  <Border x:Name="WithheldBannerBox"
+                          IsVisible="False"
+                          Background="{DynamicResource CanvasBrush}"
+                          BorderBrush="{DynamicResource WarningBrush}"
+                          BorderThickness="{StaticResource PropRailThickness}"
+                          Padding="{StaticResource Space2}">
+                    <TextBlock x:Name="WithheldBannerText"
+                               Classes="pnl-cell"
+                               Foreground="{DynamicResource WarningBrush}"
+                               TextWrapping="Wrap" />
+                  </Border>
+                  <WrapPanel Classes="alert-actions" Orientation="Horizontal">
+                    <Button x:Name="AskAiToRepairButton"
+                            Classes="primary"
+                            Content="Ask AI to repair"
+                            MinHeight="{StaticResource ControlHeight}"
+                            AutomationProperties.Name="Ask AI to repair refused candidate through consent preview" />
+                    <Button x:Name="SwitchToCheckedBaselineButton"
+                            Content="Inspect checked v1"
+                            MinHeight="{StaticResource ControlHeight}"
+                            AutomationProperties.Name="Switch to last geometry-checked candidate" />
+                  </WrapPanel>
+                </StackPanel>
+              </Border>
+            </StackPanel>
+          </ScrollViewer>
+
+          <!-- Bottom Anchored Composer -->
+          <Border x:Name="ComposerBorder"
+                  Grid.Row="2"
+                  Background="{DynamicResource SurfaceBrush}"
+                  BorderBrush="{DynamicResource LineBrush}"
+                  BorderThickness="{StaticResource HairlineTop}"
+                  Padding="{StaticResource Space2}">
+            <StackPanel Spacing="{StaticResource StackGap2}">
+              <WrapPanel x:Name="TunerChipsPanel" Classes="toolbar-wrap" Orientation="Horizontal" />
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource StackGap2}">
+                <TextBox x:Name="PromptInputBox"
+                         Grid.Column="0"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         MaxHeight="{StaticResource AssistantAnswerMaxHeight}"
+                         Watermark="Describe the foil you want to design, or ask to refine the active candidate…"
+                         AutomationProperties.Name="Design brief or refinement prompt" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="{StaticResource StackGap1}" VerticalAlignment="Bottom">
+                  <Button x:Name="SendPromptButton"
+                          Classes="primary"
+                          Content="Send"
+                          MinHeight="{StaticResource ControlHeight}"
+                          AutomationProperties.Name="Send prompt to assistant after consent preview" />
+                  <Button x:Name="StopRunButton"
+                          Content="Stop"
+                          IsVisible="False"
+                          MinHeight="{StaticResource ControlHeight}"
+                          AutomationProperties.Name="Stop active request" />
+                </StackPanel>
+              </Grid>
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource StackGap2}">
+                <TextBlock x:Name="ComposerHintText"
+                           Grid.Column="0"
+                           Classes="caption"
+                           VerticalAlignment="Center"
+                           TextWrapping="Wrap" />
+                <Button x:Name="PreviewPayloadButton"
+                        Grid.Column="1"
+                        Content="Preview redacted payload (AI-04)"
+                        MinHeight="{StaticResource ControlHeight}"
+                        AutomationProperties.Name="Preview byte-exact redacted payload" />
+              </Grid>
+            </StackPanel>
+          </Border>
+        </Grid>
+      </Border>
+
+      <!-- ==================== RIGHT PANE: SYNCHRONIZED ARTIFACTS WORKBENCH ==================== -->
+      <Border Grid.Column="1" Background="{DynamicResource SurfaceBrush}">
+        <Grid RowDefinitions="Auto,*,Auto,Auto">
+          <!-- Artifact Tab Strip + Compare & Table Twin Toggles -->
+          <Border Grid.Row="0"
+                  Background="{DynamicResource SurfaceBrush}"
+                  BorderBrush="{DynamicResource LineBrush}"
+                  BorderThickness="{StaticResource PropRuleBottom}"
+                  Padding="{StaticResource Space2}">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource StackGap2}">
+              <WrapPanel x:Name="ArtifactTabStrip"
+                         Grid.Column="0"
+                         Classes="toolbar-wrap"
+                         Orientation="Horizontal"
+                         AutomationProperties.Name="Artifact views tab list">
+                <ToggleButton x:Name="TabSectionButton"
+                              Content="2D Section &amp; Cp"
+                              IsChecked="True"
+                              MinHeight="{StaticResource ControlHeight}"
+                              AutomationProperties.Name="2D Section and Cp tab" />
+                <ToggleButton x:Name="TabPolarsButton"
+                              Content="Polars &amp; Curves"
+                              MinHeight="{StaticResource ControlHeight}"
+                              AutomationProperties.Name="Polars and Curves tab" />
+                <ToggleButton x:Name="TabElevationsButton"
+                              Content="Plan &amp; Elevations"
+                              MinHeight="{StaticResource ControlHeight}"
+                              AutomationProperties.Name="Plan and Elevations tab" />
+                <ToggleButton x:Name="TabWing3dButton"
+                              Content="3D Wing"
+                              MinHeight="{StaticResource ControlHeight}"
+                              AutomationProperties.Name="3D Wing tab" />
+                <ToggleButton x:Name="TabScorecardButton"
+                              Content="Scorecard &amp; FoilReq"
+                              MinHeight="{StaticResource ControlHeight}"
+                              AutomationProperties.Name="Scorecard and FoilReq tab" />
+              </WrapPanel>
+              <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="{StaticResource StackGap1}" VerticalAlignment="Center">
+                <ToggleButton x:Name="CompareToggleButton"
+                              Content="Compare"
+                              IsChecked="False"
+                              MinHeight="{StaticResource ControlHeight}"
+                              AutomationProperties.Name="Toggle candidate comparison overlay" />
+                <ToggleButton x:Name="TableTwinToggleButton"
+                              Content="Table twin"
+                              IsChecked="False"
+                              MinHeight="{StaticResource ControlHeight}"
+                              AutomationProperties.Name="Toggle accessible table twin" />
+              </StackPanel>
+            </Grid>
+          </Border>
+
+          <!-- Main Artifact Stage -->
+          <Grid Grid.Row="1" Margin="{StaticResource Space2}" RowDefinitions="Auto,*">
+            <!-- Refused Artifact Overlay Banner -->
+            <Border x:Name="RefusedArtifactBanner"
+                    Grid.Row="0"
+                    IsVisible="False"
+                    Margin="{StaticResource Space1}"
+                    Background="{DynamicResource SurfaceSoftBrush}"
+                    BorderBrush="{DynamicResource DangerBrush}"
+                    BorderThickness="{StaticResource WarningBandBorder}"
+                    Padding="{StaticResource Space2}">
+              <TextBlock x:Name="RefusedArtifactBannerText"
+                         Classes="pnl-cell"
+                         Foreground="{DynamicResource DangerBrush}"
+                         TextWrapping="Wrap" />
+            </Border>
+
+            <!-- Stage Content Host -->
+            <Panel Grid.Row="1">
+              <!-- Empty / No-Key / Grill Placeholder -->
+              <Border x:Name="ArtifactEmptyPlaceholder"
+                      IsVisible="True"
+                      Background="{DynamicResource ViewportBrush}"
+                      BorderBrush="{DynamicResource ViewportGridBrush}"
+                      BorderThickness="{StaticResource HairlineThickness}"
+                      CornerRadius="{StaticResource RoundedSm}"
+                      Padding="{StaticResource Space4}">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="{StaticResource StackGap2}">
+                  <TextBlock x:Name="ArtifactEmptyHeadingText"
+                             Text="Synchronized scientific artifacts"
+                             Classes="heading"
+                             Foreground="{DynamicResource ViewportInkBrush}"
+                             HorizontalAlignment="Center" />
+                  <TextBlock x:Name="ArtifactEmptyBodyText"
+                             Text="Submit a riding brief and resolve the grill-me questions to synthesize a local geometry-checked 3D candidate."
+                             Foreground="{DynamicResource PlanMuteBrush}"
+                             TextWrapping="Wrap"
+                             HorizontalAlignment="Center" />
+                </StackPanel>
+              </Border>
+
+              <!-- Simulating Shape-Matched Skeleton (CLS = 0) -->
+              <Border x:Name="SimulatingSkeletonPanel"
+                      IsVisible="False"
+                      Background="{DynamicResource ViewportBrush}"
+                      BorderBrush="{DynamicResource ViewportGridBrush}"
+                      BorderThickness="{StaticResource HairlineThickness}"
+                      CornerRadius="{StaticResource RoundedSm}"
+                      Padding="{StaticResource Space4}">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="{StaticResource StackGap2}">
+                  <TextBlock Text="Computing local physics…"
+                             Classes="heading"
+                             Foreground="{DynamicResource ViewportInkBrush}"
+                             HorizontalAlignment="Center" />
+                  <TextBlock x:Name="SkeletonStatusText"
+                             Text="Materializing FoilDSL → PanelMethod 200p + NeuralFoil → VLM + Strip"
+                             FontFamily="{StaticResource MonoFontFamily}"
+                             Foreground="{DynamicResource PlanMuteBrush}"
+                             TextWrapping="Wrap"
+                             HorizontalAlignment="Center" />
+                </StackPanel>
+              </Border>
+
+              <!-- Tab 1: 2D Section & Cp (reuses SectionProfileView + SectionChartView + Vik*Brush legend) -->
+              <ScrollViewer x:Name="SectionTabPanel"
+                            IsVisible="False"
+                            VerticalScrollBarVisibility="Auto"
+                            HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Spacing="{StaticResource StackGap2}">
+                  <Border Background="{DynamicResource ViewportBrush}"
+                          BorderBrush="{DynamicResource ViewportGridBrush}"
+                          BorderThickness="{StaticResource HairlineThickness}"
+                          CornerRadius="{StaticResource RoundedSm}"
+                          Padding="{StaticResource Space2}">
+                    <StackPanel Spacing="{StaticResource StackGap1}">
+                      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource StackGap2}">
+                        <TextBlock x:Name="SectionPlateTitleText"
+                                   Grid.Column="0"
+                                   Text="2D Section &amp; Cp (−Cp upward)"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource ViewportInkBrush}" />
+                        <TextBlock x:Name="SectionGoverningText"
+                                   Grid.Column="1"
+                                   Classes="pnl-cell"
+                                   FontFamily="{StaticResource MonoFontFamily}"
+                                   Foreground="{DynamicResource PlanMuteBrush}" />
+                      </Grid>
+                      <analysis:SectionProfileView x:Name="NotebookSectionProfileView" />
+                      <!-- Diverging vik Cp colormap legend reusing Styles.axaml Vik*Brush (ZERO new brushes) -->
+                      <Grid ColumnDefinitions="Auto,*,*,*,*,*,Auto" ColumnSpacing="{StaticResource StackGap1}">
+                        <TextBlock Grid.Column="0" Text="Cp vik (−2" Classes="pnl-cell" Foreground="{DynamicResource PlanMuteBrush}" FontFamily="{StaticResource MonoFontFamily}" />
+                        <Border Grid.Column="1" Height="{StaticResource SolverDotSize}" Background="{StaticResource VikNeg2Brush}" />
+                        <Border Grid.Column="2" Height="{StaticResource SolverDotSize}" Background="{StaticResource VikNeg1Brush}" />
+                        <Border Grid.Column="3" Height="{StaticResource SolverDotSize}" Background="{StaticResource VikZeroBrush}" />
+                        <Border Grid.Column="4" Height="{StaticResource SolverDotSize}" Background="{StaticResource VikPos1Brush}" />
+                        <Border Grid.Column="5" Height="{StaticResource SolverDotSize}" Background="{StaticResource VikPos2Brush}" />
+                        <TextBlock Grid.Column="6" Text="+2 · pinned 0)" Classes="pnl-cell" Foreground="{DynamicResource PlanMuteBrush}" FontFamily="{StaticResource MonoFontFamily}" />
+                      </Grid>
+                    </StackPanel>
+                  </Border>
+                  <Border Background="{DynamicResource SurfaceBrush}"
+                          BorderBrush="{DynamicResource LineBrush}"
+                          BorderThickness="{StaticResource HairlineThickness}"
+                          CornerRadius="{StaticResource RoundedSm}"
+                          Padding="{StaticResource Space2}">
+                    <analysis:SectionChartView x:Name="NotebookCpChartView" MinHeight="{StaticResource ResultsFieldCanvasMinHeight}" />
+                  </Border>
+                  <Border x:Name="SectionTableTwinPanel"
+                          IsVisible="False"
+                          Background="{DynamicResource CanvasBrush}"
+                          BorderBrush="{DynamicResource LineBrush}"
+                          BorderThickness="{StaticResource HairlineThickness}"
+                          CornerRadius="{StaticResource RoundedSm}"
+                          Padding="{StaticResource Space2}">
+                    <StackPanel Spacing="{StaticResource StackGap1}">
+                      <TextBlock Text="Section &amp; cavitation table twin" Classes="pnl-head" />
+                      <TextBlock x:Name="SectionTableTwinText"
+                                 Classes="pnl-cell"
+                                 FontFamily="{StaticResource MonoFontFamily}"
+                                 TextWrapping="Wrap" />
+                    </StackPanel>
+                  </Border>
+                </StackPanel>
+              </ScrollViewer>
+
+              <!-- Tab 2: Polars & Curves (reuses PerformanceCurveChart + LoadingChart + live Table twin + Wing-only L/D) -->
+              <ScrollViewer x:Name="PolarsTabPanel"
+                            IsVisible="False"
+                            VerticalScrollBarVisibility="Auto"
+                            HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Spacing="{StaticResource StackGap2}">
+                  <Border Background="{DynamicResource SurfaceBrush}"
+                          BorderBrush="{DynamicResource LineBrush}"
+                          BorderThickness="{StaticResource HairlineThickness}"
+                          CornerRadius="{StaticResource RoundedSm}"
+                          Padding="{StaticResource Space2}">
+                    <StackPanel Spacing="{StaticResource StackGap1}">
+                      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource StackGap2}">
+                        <TextBlock x:Name="PolarsWingOnlyHeadingText"
+                                   Grid.Column="0"
+                                   Text="Wing-only L/D vs Speed (kn · Ncrit 2–4 band)"
+                                   Classes="pnl-head" />
+                        <TextBlock x:Name="PolarsHonestyBadgeText"
+                                   Grid.Column="1"
+                                   Text="Wing-only L/D"
+                                   Classes="pnl-note"
+                                   FontWeight="SemiBold" />
+                      </Grid>
+                      <sweeps:PerformanceCurveChart x:Name="NotebookPerformanceChart" MinHeight="{StaticResource ResultsFieldCanvasMinHeight}" />
+                      <TextBlock x:Name="PolarsNoticeText"
+                                 Classes="pnl-note"
+                                 TextWrapping="Wrap" />
+                    </StackPanel>
+                  </Border>
+                  <Border Background="{DynamicResource SurfaceBrush}"
+                          BorderBrush="{DynamicResource LineBrush}"
+                          BorderThickness="{StaticResource HairlineThickness}"
+                          CornerRadius="{StaticResource RoundedSm}"
+                          Padding="{StaticResource Space2}">
+                    <analysis:LoadingChart x:Name="NotebookLoadingChart" MinHeight="{StaticResource SetupPreviewHeight}" />
+                  </Border>
+                  <Border x:Name="PolarsTableTwinPanel"
+                          IsVisible="False"
+                          Background="{DynamicResource CanvasBrush}"
+                          BorderBrush="{DynamicResource LineBrush}"
+                          BorderThickness="{StaticResource HairlineThickness}"
+                          CornerRadius="{StaticResource RoundedSm}"
+                          Padding="{StaticResource Space2}">
+                    <StackPanel Spacing="{StaticResource StackGap1}">
+                      <TextBlock Text="Operating points table twin (Wing-only L/D)" Classes="pnl-head" />
+                      <TextBlock x:Name="PolarsTableTwinText"
+                                 Classes="pnl-cell"
+                                 FontFamily="{StaticResource MonoFontFamily}"
+                                 TextWrapping="Wrap" />
+                    </StackPanel>
+                  </Border>
+                </StackPanel>
+              </ScrollViewer>
+
+              <!-- Tab 3: Plan & Elevations (reuses PlanformPreviewControl + NotebookElevationCanvas + A5.1 notice) -->
+              <ScrollViewer x:Name="ElevationsTabPanel"
+                            IsVisible="False"
+                            VerticalScrollBarVisibility="Auto"
+                            HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Spacing="{StaticResource StackGap2}">
+                  <Border Background="{DynamicResource ViewportBrush}"
+                          BorderBrush="{DynamicResource ViewportGridBrush}"
+                          BorderThickness="{StaticResource HairlineThickness}"
+                          CornerRadius="{StaticResource RoundedSm}"
+                          Padding="{StaticResource Space2}">
+                    <StackPanel Spacing="{StaticResource StackGap1}">
+                      <TextBlock x:Name="PlanformPlateTitleText"
+                                 Text="Top planform (4-CV cubic Bézier rails)"
+                                 FontWeight="SemiBold"
+                                 Foreground="{DynamicResource ViewportInkBrush}" />
+                      <setup:PlanformPreviewControl x:Name="NotebookPlanformPreview" MinHeight="{StaticResource SetupPreviewHeight}" />
+                    </StackPanel>
+                  </Border>
+                  <notebook:NotebookElevationCanvas x:Name="NotebookElevationView" MinHeight="{StaticResource ResultsFieldCanvasMinHeight}" />
+                  <Border x:Name="ElevationsA51Banner"
+                          IsVisible="False"
+                          Background="{DynamicResource SurfaceSoftBrush}"
+                          BorderBrush="{DynamicResource WarningBrush}"
+                          BorderThickness="{StaticResource PropRailThickness}"
+                          Padding="{StaticResource Space2}">
+                    <TextBlock x:Name="ElevationsA51BannerText"
+                               Classes="pnl-cell"
+                               Foreground="{DynamicResource WarningBrush}"
+                               TextWrapping="Wrap" />
+                  </Border>
+                </StackPanel>
+              </ScrollViewer>
+
+              <!-- Tab 4: 3D Wing (reuses SurfaceRenderer + ViewCamera inside NotebookWing3dControl) -->
+              <notebook:NotebookWing3dControl x:Name="Wing3dTabPanel" IsVisible="False" />
+
+              <!-- Tab 5: Scorecard & FoilReq -->
+              <notebook:NotebookScorecardView x:Name="ScorecardTabPanel" IsVisible="False" />
+            </Panel>
+          </Grid>
+
+          <!-- Derived Key Readout Strip (6 tabular unit-bearing readouts) -->
+          <Border Grid.Row="2"
+                  Margin="{StaticResource Space2}"
+                  Background="{DynamicResource CanvasBrush}"
+                  BorderBrush="{DynamicResource LineBrush}"
+                  BorderThickness="{StaticResource HairlineThickness}"
+                  CornerRadius="{StaticResource RoundedSm}"
+                  Padding="{StaticResource Space2}">
+            <Grid ColumnDefinitions="*,*,*,*,*,*" ColumnSpacing="{StaticResource StackGap2}">
+              <StackPanel Grid.Column="0">
+                <TextBlock Text="Span" Classes="pnl-note" />
+                <TextBlock x:Name="MetricSpanText" Text="—" Classes="pnl-cell" FontWeight="SemiBold" FontFamily="{StaticResource MonoFontFamily}" />
+              </StackPanel>
+              <StackPanel Grid.Column="1">
+                <TextBlock Text="Area" Classes="pnl-note" />
+                <TextBlock x:Name="MetricAreaText" Text="—" Classes="pnl-cell" FontWeight="SemiBold" FontFamily="{StaticResource MonoFontFamily}" />
+              </StackPanel>
+              <StackPanel Grid.Column="2">
+                <TextBlock Text="AR (b²/S)" Classes="pnl-note" />
+                <TextBlock x:Name="MetricArText" Text="—" Classes="pnl-cell" FontWeight="SemiBold" FontFamily="{StaticResource MonoFontFamily}" />
+              </StackPanel>
+              <StackPanel Grid.Column="3">
+                <TextBlock Text="Takeoff" Classes="pnl-note" />
+                <TextBlock x:Name="MetricTakeoffText" Text="—" Classes="pnl-cell" FontWeight="SemiBold" FontFamily="{StaticResource MonoFontFamily}" />
+              </StackPanel>
+              <StackPanel Grid.Column="4">
+                <TextBlock Text="Wing-only L/D" Classes="pnl-note" />
+                <TextBlock x:Name="MetricLdText" Text="—" Classes="pnl-cell" FontWeight="SemiBold" FontFamily="{StaticResource MonoFontFamily}" />
+              </StackPanel>
+              <StackPanel Grid.Column="5">
+                <TextBlock Text="V_crit (cav)" Classes="pnl-note" />
+                <TextBlock x:Name="MetricVCritText" Text="—" Classes="pnl-cell" FontWeight="SemiBold" FontFamily="{StaticResource MonoFontFamily}" />
+              </StackPanel>
+            </Grid>
+          </Border>
+
+          <!-- Provenance & Honesty Strip (COPY-929 + A5.1 / A5.4) -->
+          <Border Grid.Row="3"
+                  Background="{DynamicResource CanvasBrush}"
+                  BorderBrush="{DynamicResource LineBrush}"
+                  BorderThickness="{StaticResource HairlineTop}"
+                  Padding="{StaticResource ProvenanceStripPadding}">
+            <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+              <TextBlock x:Name="ProvenanceStripText"
+                         Classes="pnl-note"
+                         TextWrapping="Wrap" />
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource StackGap2}">
+                <TextBlock x:Name="ProvenanceA51Text"
+                           Grid.Column="0"
+                           Classes="pnl-note"
+                           Foreground="{DynamicResource WarningBrush}"
+                           TextWrapping="Wrap" />
+                <TextBlock x:Name="ProvenanceBasisText"
+                           Grid.Column="1"
+                           Classes="pnl-note"
+                           FontFamily="{StaticResource MonoFontFamily}" />
+              </Grid>
+            </StackPanel>
+          </Border>
+        </Grid>
+      </Border>
+    </Grid>
+  </Grid>
+</UserControl>

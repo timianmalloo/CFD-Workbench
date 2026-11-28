@@ -71,6 +71,8 @@ public partial class ModelArea : UserControl
     public void RefreshAssistantStatus()
     {
         CadAssistantBar.RefreshStatus(controller?.Assistant);
+        if (controller?.IsNotebook == true)
+            NotebookWorkspace.RefreshAssistantStatus();
     }
 
     public ModelArea()
@@ -584,6 +586,7 @@ public partial class ModelArea : UserControl
     public Setup.SetupWorkspaceView SetupView => SetupWorkspace;
     public CfdRun.RunWorkspaceView RunView => RunWorkspace;
     public Results.ResultsWorkspaceView ResultsView => ResultsWorkspace;
+    public Notebook.NotebookWorkspaceView NotebookView => NotebookWorkspace;
 
     private void RefreshViews(WorkbenchController controller)
     {
@@ -595,7 +598,7 @@ public partial class ModelArea : UserControl
         var analysis = controller.AnalysisView;
         RefreshLayerNames();
         HistoricalBannerText.Text = analysis.Banner;
-        HistoricalBanner.IsVisible = foilOpen && !controller.IsSweeps && !controller.IsSetup && !controller.IsRun && !controller.IsResults && analysis.Banner is not null;
+        HistoricalBanner.IsVisible = foilOpen && !controller.IsSweeps && !controller.IsSetup && !controller.IsRun && !controller.IsResults && !controller.IsNotebook && analysis.Banner is not null;
         PreviewHiddenBanner.IsVisible = foilOpen && controller.IsAnalysis && controller.Draft is not null;
         showHost?.StatusStrip.ShowAnalysisState(controller.AnalysisState);
         controller.Sweeps.SetDisplayUnits(controller.AnalysisUnits);
@@ -605,10 +608,10 @@ public partial class ModelArea : UserControl
         controller.Setup.RefreshFromSession(notify: false);
         bool showSetupItem = controller.IsSetup || controller.Setup.HasSetupOrActive;
         showHost?.StatusStrip.ShowSetupState(controller.Setup.StatusStripText, showSetupItem);
-        Mode = controller.IsSetup || controller.IsAnalysis || controller.IsSweeps || controller.IsRun || controller.IsResults || controller.Section is null ? ModelAreaMode.Views : ModelAreaMode.Section;
-        StartCardView.IsVisible = !foilOpen && !controller.IsSetup && !controller.IsRun && !controller.IsResults;
-        PlanContent.IsVisible = (foilOpen || controller.IsSetup || controller.IsRun || controller.IsResults) && Mode == ModelAreaMode.Views;
-        ViewArrangementGrid.IsVisible = foilOpen && !controller.IsSweeps && !controller.IsSetup && !controller.IsRun && !controller.IsResults;
+        Mode = controller.IsSetup || controller.IsAnalysis || controller.IsSweeps || controller.IsRun || controller.IsResults || controller.IsNotebook || controller.Section is null ? ModelAreaMode.Views : ModelAreaMode.Section;
+        StartCardView.IsVisible = !foilOpen && !controller.IsSetup && !controller.IsRun && !controller.IsResults && !controller.IsNotebook;
+        PlanContent.IsVisible = (foilOpen || controller.IsSetup || controller.IsRun || controller.IsResults || controller.IsNotebook) && Mode == ModelAreaMode.Views;
+        ViewArrangementGrid.IsVisible = foilOpen && !controller.IsSweeps && !controller.IsSetup && !controller.IsRun && !controller.IsResults && !controller.IsNotebook;
         Navbar.IsVisible = ViewArrangementGrid.IsVisible && Mode == ModelAreaMode.Views;
         bool inCadViews = ViewArrangementGrid.IsVisible && !controller.IsAnalysis && Mode == ModelAreaMode.Views;
         if (!inCadViews && CadAssistantBar.IsVisible)
@@ -620,6 +623,7 @@ public partial class ModelArea : UserControl
         SetupWorkspace.IsVisible = controller.IsSetup;
         RunWorkspace.IsVisible = controller.IsRun;
         ResultsWorkspace.IsVisible = controller.IsResults;
+        NotebookWorkspace.IsVisible = controller.IsNotebook;
         if (foilOpen && controller.IsSweeps)
         {
             SweepsWorkspace.Bind(controller.Sweeps);
@@ -628,6 +632,7 @@ public partial class ModelArea : UserControl
         if (controller.IsSetup) SetupWorkspace.Bind(controller.Setup, () => controller.EnterCad(), controller.Assistant);
         if (controller.IsRun) RunWorkspace.Bind(controller, showHost?.IsSolverReady == true);
         if (controller.IsResults) ResultsWorkspace.Bind(controller);
+        if (controller.IsNotebook) NotebookWorkspace.Bind(controller);
         RefreshAssistantStatus();
         SectionModeEditor.IsVisible = foilOpen && Mode == ModelAreaMode.Section;
         SectionModeEditor.Bind(controller);

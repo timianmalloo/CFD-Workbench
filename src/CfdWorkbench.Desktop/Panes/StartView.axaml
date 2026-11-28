@@ -39,30 +39,39 @@
           <TextBlock Text="Start with a foil, then make it yours." Classes="caption" />
         </StackPanel>
 
-        <Grid ColumnDefinitions="*,*,*">
-          <Button Grid.Column="0" x:Name="StartNewButton" Margin="{StaticResource Space2}"
+        <Grid x:Name="StartCardsGrid" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
+          <Button Grid.Row="0" Grid.Column="0" x:Name="StartNewButton" Margin="{StaticResource Space2}"
                   HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
                   AutomationProperties.Name="New foil">
-            <StackPanel Spacing="4" Margin="{StaticResource Space2}">
-              <TextBlock Text="New foil" FontWeight="SemiBold" />
+            <StackPanel Spacing="{StaticResource StackGap1}" Margin="{StaticResource Space2}">
+              <TextBlock Text="New foil" FontWeight="SemiBold" TextWrapping="Wrap" />
               <TextBlock Text="A near-elliptic wing to shape." Classes="caption" TextWrapping="Wrap" />
             </StackPanel>
           </Button>
 
-          <Button Grid.Column="1" x:Name="StartExampleButton" Margin="{StaticResource Space2}"
+          <Button Grid.Row="0" Grid.Column="1" x:Name="StartAiNotebookButton" Margin="{StaticResource Space2}"
+                  HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                  AutomationProperties.Name="New AI-guided design">
+            <StackPanel Spacing="{StaticResource StackGap1}" Margin="{StaticResource Space2}">
+              <TextBlock Text="New AI-guided design" FontWeight="SemiBold" TextWrapping="Wrap" />
+              <TextBlock Text="Describe your foil, resolve tradeoffs via grill-me, and iterate with local physics." Classes="caption" TextWrapping="Wrap" />
+            </StackPanel>
+          </Button>
+
+          <Button Grid.Row="1" Grid.Column="0" x:Name="StartExampleButton" Margin="{StaticResource Space2}"
                   HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
                   AutomationProperties.Name="New from example">
-            <StackPanel Spacing="4" Margin="{StaticResource Space2}">
-              <TextBlock Text="New from example" FontWeight="SemiBold" />
+            <StackPanel Spacing="{StaticResource StackGap1}" Margin="{StaticResource Space2}">
+              <TextBlock Text="New from example" FontWeight="SemiBold" TextWrapping="Wrap" />
               <TextBlock Text="An 850 mm kite front wing." Classes="caption" TextWrapping="Wrap" />
             </StackPanel>
           </Button>
 
-          <Button Grid.Column="2" x:Name="StartOpenButton" Margin="{StaticResource Space2}"
+          <Button Grid.Row="1" Grid.Column="1" x:Name="StartOpenButton" Margin="{StaticResource Space2}"
                   HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
                   AutomationProperties.Name="Open…">
-            <StackPanel Spacing="4" Margin="{StaticResource Space2}">
-              <TextBlock Text="Open…" FontWeight="SemiBold" />
+            <StackPanel Spacing="{StaticResource StackGap1}" Margin="{StaticResource Space2}">
+              <TextBlock Text="Open…" FontWeight="SemiBold" TextWrapping="Wrap" />
               <TextBlock Text="A .foil or .cfdw.json file on this computer." Classes="caption" TextWrapping="Wrap" />
             </StackPanel>
           </Button>

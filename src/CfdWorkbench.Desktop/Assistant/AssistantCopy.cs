@@ -73,6 +73,11 @@ public static class AssistantCopy
 
     // COPY-881
     public const string ModelIdLabel = "Model identifier";
+    public const string OptionalFastModelIdLabel = "Fast model";
+    public const string OptionalFastModelHelperText =
+        "Optional same-endpoint fast model pin for translation/condensation; requires its own AI-06 evaluation receipt. Leave blank to use primary model.";
+    public const string FastModelSecretError =
+        "Model identifier appears to contain an API key or secret. Store API keys only in the OS credential store above.";
 
     // COPY-882
     public const string CapsSectionHeading = "Caps & timeout";
@@ -94,16 +99,24 @@ public static class AssistantCopy
         string.Create(CultureInfo.InvariantCulture,
             $"Daily UTC request cap reached ({used} of {cap}). Raise the cap in Settings or wait for the next UTC day.");
 
-    // COPY-886
-    public const string EvalSectionHeading =
-        "Model evaluation (9 active items; physical-fidelity reserved in v1)";
+    /// <summary>Dynamic count of active (non-reserved) evaluation items from <see cref="AssistantEvalSuite.GetSuiteDefinition"/>.</summary>
+    public static int ActiveEvalItemCount => AssistantEvalSuite.GetSuiteDefinition().Count(i => !i.Reserved);
+
+    /// <summary>Dynamic total count of evaluation items (active + reserved) from <see cref="AssistantEvalSuite.GetSuiteDefinition"/>.</summary>
+    public static int TotalEvalItemCount => AssistantEvalSuite.GetSuiteDefinition().Count;
+
+    // COPY-886 (dynamic count synced with AssistantEvalSuite.GetSuiteDefinition())
+    public static string EvalSectionHeading =>
+        string.Create(CultureInfo.InvariantCulture,
+            $"Model evaluation ({ActiveEvalItemCount} active items; physical-fidelity reserved in v1)");
 
     // COPY-887
     public const string UnevaluatedOnThisModel = AssistantEvalSuite.UnevaluatedStatusLabel;
 
     // COPY-888
     public static string UnevaluatedDetail(string thresholdsVersion) =>
-        $"Proposals are disabled until the 9-item evaluation suite passes on this provider, endpoint, model, and threshold version ({thresholdsVersion}). Saved geometry identities are unchanged.";
+        string.Create(CultureInfo.InvariantCulture,
+            $"Proposals are disabled until the {ActiveEvalItemCount}-item evaluation suite passes on this provider, endpoint, model, and threshold version ({thresholdsVersion}). Saved geometry identities are unchanged.");
 
     // COPY-889
     public static string EvalPassedStatus(string modelId, DateTimeOffset evaluatedAtUtc, string thresholdsVersion) =>
@@ -114,8 +127,11 @@ public static class AssistantCopy
     public static string EvalFailedStatus(IReadOnlyList<string> failingItemIds) =>
         $"Evaluation failed — below threshold on: {string.Join(", ", failingItemIds)}. Proposals remain disabled.";
 
-    // COPY-891
-    public const string RunEvalButton = "Run 9-item evaluation";
+    // COPY-891 (dynamic count synced with AssistantEvalSuite.GetSuiteDefinition())
+    public static string RunEvalButton =>
+        string.Create(CultureInfo.InvariantCulture, $"Run {ActiveEvalItemCount}-item evaluation");
+    public static string RunFastEvalButton =>
+        string.Create(CultureInfo.InvariantCulture, $"Evaluate fast model ({ActiveEvalItemCount} items)");
     public const string OpenSettingsButton = "Open Settings";
 
     // COPY-892
@@ -381,6 +397,7 @@ public sealed class AssistantRuntimeHub : IDisposable
 
         CurrentSettings = AssistantSettings.CreateDefault();
         Eligibility = AssistantEvalSuite.CheckModelEligibility(CurrentSettings, CurrentSettings.EvalReceipts);
+        FastModelEligibility = ComputeFastModelEligibility(CurrentSettings);
     }
 
     public ICredentialStore Credentials { get; }
@@ -389,13 +406,14 @@ public sealed class AssistantRuntimeHub : IDisposable
 
     public AssistantSettings CurrentSettings { get; private set; }
     public ModelEligibilityStatus Eligibility { get; private set; }
+    public ModelEligibilityStatus? FastModelEligibility { get; private set; }
     public int DailyRequestsUsedUtc { get; private set; }
     public AssistantTelemetryEvent? LastTelemetry { get; private set; }
 
     /// <summary>Derived live from OS credential store on every read (DM7, AI-01).</summary>
     public bool HasApiKey => Credentials.HasKey(CurrentSettings.ProviderKind);
 
-    /// <summary>True only when a live key is present AND the current provider/endpoint/model/thresholds passed the 9-item eval.</summary>
+    /// <summary>True only when a live key is present AND the current provider/endpoint/model/thresholds passed the active eval suite.</summary>
     public bool IsReadyForProposals => HasApiKey && Eligibility.ProposalsEnabled;
 
     public string RailSettingsBadge =>
@@ -410,6 +428,7 @@ public sealed class AssistantRuntimeHub : IDisposable
         var snapshot = await Service.GetStatusAsync(ct).ConfigureAwait(false);
         CurrentSettings = snapshot.Settings;
         Eligibility = snapshot.Eligibility;
+        FastModelEligibility = ComputeFastModelEligibility(CurrentSettings);
         DailyRequestsUsedUtc = snapshot.DailyRequestsUsedUtc;
         StateChanged?.Invoke();
         return snapshot;
@@ -438,25 +457,45 @@ public sealed class AssistantRuntimeHub : IDisposable
         if (!endpoint.IsValid)
             return new AssistantSettingsSaveResult(false, "rejected", endpoint.ErrorCode, endpoint.Message);
 
+        if (ContainsSecret(updated.ModelId) || ContainsSecret(updated.OptionalFastModelId))
+            return new AssistantSettingsSaveResult(false, "rejected", "ASSISTANT-SECRET-FORBIDDEN", AssistantCopy.FastModelSecretError);
+
         var res = await SettingsStore.SaveSettingsAsync(updated, ct).ConfigureAwait(false);
         if (res.Succeeded)
         {
             CurrentSettings = updated;
             Eligibility = AssistantEvalSuite.CheckModelEligibility(CurrentSettings, CurrentSettings.EvalReceipts);
+            FastModelEligibility = ComputeFastModelEligibility(CurrentSettings);
             StateChanged?.Invoke();
         }
         return res;
     }
 
-    public async Task<AssistantEvalRunResult> RunEvaluationAsync(bool liveWire = false, CancellationToken ct = default)
+    public Task<AssistantEvalRunResult> RunEvaluationAsync(bool liveWire = false, CancellationToken ct = default) =>
+        RunEvaluationAsync(liveWire, targetModelId: null, ct: ct);
+
+    public async Task<AssistantEvalRunResult> RunEvaluationAsync(
+        bool liveWire,
+        string? targetModelId,
+        CancellationToken ct = default)
     {
-        var res = await Service.RunEvaluationAsync(liveWire, ct).ConfigureAwait(false);
+        var res = await Service.RunEvaluationAsync(liveWire, targetModelId, ct).ConfigureAwait(false);
         var loaded = await SettingsStore.LoadSettingsAsync(ct).ConfigureAwait(false);
         CurrentSettings = loaded.Settings;
-        Eligibility = res.Eligibility;
+        Eligibility = AssistantEvalSuite.CheckModelEligibility(CurrentSettings, CurrentSettings.EvalReceipts);
+        FastModelEligibility = ComputeFastModelEligibility(CurrentSettings);
         StateChanged?.Invoke();
         return res;
     }
+
+    private static ModelEligibilityStatus? ComputeFastModelEligibility(AssistantSettings settings) =>
+        string.IsNullOrWhiteSpace(settings.OptionalFastModelId)
+            ? null
+            : AssistantEvalSuite.CheckModelEligibility(settings, settings.EvalReceipts, settings.OptionalFastModelId);
+
+    private static bool ContainsSecret(string? value) =>
+        !string.IsNullOrWhiteSpace(value) &&
+        PromptRedactor.ScrubSecrets(value, RedactionContext.Empty).SecretsRedacted > 0;
 
     public Task<IReadOnlyList<AssistantAuditEntry>> ReadAuditEntriesAsync(int maxEntries = 200, CancellationToken ct = default) =>
         SettingsStore.ReadAuditEntriesAsync(maxEntries, ct);
