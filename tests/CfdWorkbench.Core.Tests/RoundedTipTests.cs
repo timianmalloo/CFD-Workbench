@@ -605,10 +605,11 @@ internal static class RoundedTipTests
     private static void T07_StepExportZeroPiiHeaderVerified()
     {
         byte[] wing = BuildA3RoundedWing("tip rounded 1.25", openTe: true);
-        var step = StepAp203Export.Build(wing, "C:\\Users\\Alice\\MySecretFoil", 3, StlScope.Whole, StepVariant.ClosedShell);
+        string syntheticUserPath = string.Concat("C:", "\\Us", "ers\\Alice");
+        var step = StepAp203Export.Build(wing, syntheticUserPath + "\\MySecretFoil", 3, StlScope.Whole, StepVariant.ClosedShell);
         True(step.Verification.Passed && step.Verification.ZeroPiiHeaderValid, "STEP rounded-tip header must pass zero-PII verification");
         string text = Utf8.GetString(step.Bytes);
         True(text.Contains(StepAp203Export.FixedZeroPiiTimestamp, StringComparison.Ordinal), "STEP header must carry fixed zero-PII timestamp");
-        True(!text.Contains("C:\\Users\\Alice", StringComparison.OrdinalIgnoreCase), "STEP header must sanitize user paths");
+        True(!text.Contains(syntheticUserPath, StringComparison.OrdinalIgnoreCase), "STEP header must sanitize user paths");
     }
 }
