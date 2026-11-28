@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-28T06:10:21Z",
+  "generated": "2026-11-28T06:19:20Z",
   "audit": [
     {
       "actor": null,
@@ -46258,6 +46258,35 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-11-28T06:01:55Z",
       "duration_seconds": 506.0
+    },
+    {
+      "id": "al-01M8GCXSQHARY00456VT9EJBVX",
+      "shortname": "join-w13b-core",
+      "datetime": "2026-11-28T06:19:20Z",
+      "session": "80549eef-c72e-4649-a6ab-8439d9935577",
+      "prompt": "the join of swarm-w13b-core-6b8fb128 into main",
+      "summary": "Joined w13b-core (204f3c5e): STORE-SUBSET Core/Notebook (FoilReq 1.0, GrillTreeEngine, CandidateIntentValidator, RequirementScorecard, <=1024B chunks), two-profile+4.2 RecipeSeeder, Envelope.Notebook, AssistantEvalSuite v2.0 (11 active+1 reserved), OptionalFastModelId secret-screened, EffectiveModelId, UntrustedExcerpt NotebookOrchestrator + direct local physics NotebookCandidateRunner, CLI NotebookVerb; T-NB-01..07 + 4/4 mutants killed; w13-verifier PASS recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/wave13-rounded-tips-and-ai-notebook.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Converge Stage 2 w13b-core onto local main with all join-ring and verify gates green",
+      "done_when": "conductor-join.py exits 0 on local main with clean tree and full test ring green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-28T06:10:50Z",
+      "duration_seconds": 510.0
     }
   ],
   "changes": [
