@@ -51,6 +51,7 @@ public sealed class ExportSession
     private bool cadFailed;
     private long generation;
     private readonly Action<ExportTelemetry>? record;
+    private readonly string tipClosureSummary;
 
     /// <param name="buildStl">The wing STL builder; a check replaces it to make the closure check refuse (H7).</param>
     /// <param name="build3mf">The wing 3MF builder; the same replacement for the 3MF.</param>
@@ -74,8 +75,21 @@ public sealed class ExportSession
         this.stepExporter = stepExporter ?? new StepAp203Export();
         this.build3dm = build3dm ?? ((bytes, name, revision, scope, cancel) => Rhino3dmExport.Build(bytes, name, revision, scope, cancel));
         StationIndex = Math.Clamp(source.DefaultStation, 0, Math.Max(0, source.Stations.Count - 1));
+        tipClosureSummary = ComputeTipClosureSummary(source.Source);
         Rebuild();
         if (BlockedReason is not null) Refused("EXPORT-GEOMETRY-NOT-ACCEPTED");
+    }
+
+    private static string ComputeTipClosureSummary(byte[] sourceBytes)
+    {
+        if (sourceBytes is null || sourceBytes.Length == 0) return ExportCopy.TipClosureFlat;
+        var parsed = FoilSource.Parse(sourceBytes);
+        if (!parsed.IsParsed) return ExportCopy.TipClosureFlat;
+        var authored = parsed.Authored();
+        if (authored.Tip != "rounded") return ExportCopy.TipClosureFlat;
+        double ratio = authored.TipCapRatio ?? TipCapMath.DefaultCapRatio;
+        double overallSpanMm = WingEstimates.From(sourceBytes, "accepted", 0).OverallSpanMeters * 1000.0;
+        return ExportCopy.TipClosureRounded(ratio, overallSpanMm);
     }
 
     public ExportSource Source { get; }
@@ -294,6 +308,7 @@ public sealed class ExportSession
             rows.Add(("Mesh", "000,000 triangles (000 × 000 grid)"));
             rows.Add(("File size", "0.00 MB"));
             rows.Add(("Size of the part", "000.0 × 000.0 × 00.0 mm"));
+            rows.Add((ExportCopy.TipClosureLabel, tipClosureSummary));
             rows.Add((ExportCopy.TrailingEdgeLabel, ExportCopy.TrailingEdge(0, "the tip", Settings.TrailingEdgeFloorMm, Settings.TrailingEdgeFloorLabel) + "\n" + ExportCopy.ManufacturingNotAssessed));
             rows.Add(("Fidelity", ExportCopy.FidelityMesh(0)));
             return rows;
@@ -302,6 +317,7 @@ public sealed class ExportSession
         rows.Add(("Mesh", $"{Count(mesh.Triangles)} triangles ({mesh.Stations} × {mesh.ChordPoints} grid){(Scope == StlScope.Half ? ", with a flat root face" : "")}"));
         rows.Add(("File size", FileMegabytes(mesh) + " MB"));
         rows.Add(("Size of the part", $"{ExportCopy.Fixed(mesh.SizeXMm, 1)} × {ExportCopy.Fixed(mesh.SizeYMm, 1)} × {ExportCopy.Fixed(mesh.SizeZMm, 1)} mm"));
+        rows.Add((ExportCopy.TipClosureLabel, tipClosureSummary));
         rows.Add((ExportCopy.TrailingEdgeLabel, TrailingEdgeLine + "\n" + ExportCopy.ManufacturingNotAssessed));
         rows.Add(("Fidelity", ExportCopy.FidelityMesh(mesh.DeviationMm)));
         return rows;
@@ -318,6 +334,7 @@ public sealed class ExportSession
                 rows.Add(("STEP", "Preparing…"));
                 rows.Add(("File size", "0.00 MB"));
                 rows.Add(("Size of the part", "000.0 × 000.0 × 00.0 mm"));
+                rows.Add((ExportCopy.TipClosureLabel, tipClosureSummary));
                 rows.Add((ExportCopy.TrailingEdgeLabel, ExportCopy.TrailingEdge(0, "the tip", Settings.TrailingEdgeFloorMm, Settings.TrailingEdgeFloorLabel) + "\n" + ExportCopy.ManufacturingNotAssessed));
                 rows.Add(("Fidelity", ExportCopy.FidelityCad(0)));
                 return rows;
@@ -328,6 +345,7 @@ public sealed class ExportSession
             rows.Add(("STEP", $"{variantText} · {scopeText} · {step.SectionCount} sections · deg ({step.DegreeU},{step.DegreeV})"));
             rows.Add(("File size", ExportCopy.Fixed(step.Bytes.Length / 1e6, 2) + " MB"));
             rows.Add(("Size of the part", $"{ExportCopy.Fixed(step.SizeXMm, 1)} × {ExportCopy.Fixed(step.SizeYMm, 1)} × {ExportCopy.Fixed(step.SizeZMm, 1)} mm"));
+            rows.Add((ExportCopy.TipClosureLabel, tipClosureSummary));
             rows.Add((ExportCopy.TrailingEdgeLabel, TrailingEdgeLine + "\n" + ExportCopy.ManufacturingNotAssessed));
             rows.Add(("Fidelity", ExportCopy.FidelityCad(step.DeviationMm)));
             return rows;
@@ -340,6 +358,7 @@ public sealed class ExportSession
             rows.Add(("3DM", "Preparing…"));
             rows.Add(("File size", "0.00 MB"));
             rows.Add(("Size of the part", "000.0 × 000.0 × 00.0 mm"));
+            rows.Add((ExportCopy.TipClosureLabel, tipClosureSummary));
             rows.Add((ExportCopy.TrailingEdgeLabel, ExportCopy.TrailingEdge(0, "the tip", Settings.TrailingEdgeFloorMm, Settings.TrailingEdgeFloorLabel) + "\n" + ExportCopy.ManufacturingNotAssessed));
             rows.Add(("Fidelity", ExportCopy.FidelityCad(0)));
             return rows;
@@ -349,6 +368,7 @@ public sealed class ExportSession
         rows.Add(("3DM", $"3 layers ({Rhino3dmExport.WingSkinLayer}, {Rhino3dmExport.MasterCurvesLayer}, {Rhino3dmExport.AuthoredStationsLayer}) · {dmScope} · {dm.SectionCount} sections · deg ({dm.DegreeU},{dm.DegreeV})"));
         rows.Add(("File size", ExportCopy.Fixed(dm.Bytes.Length / 1e6, 2) + " MB"));
         rows.Add(("Size of the part", $"{ExportCopy.Fixed(dm.SizeXMm, 1)} × {ExportCopy.Fixed(dm.SizeYMm, 1)} × {ExportCopy.Fixed(dm.SizeZMm, 1)} mm"));
+        rows.Add((ExportCopy.TipClosureLabel, tipClosureSummary));
         rows.Add((ExportCopy.TrailingEdgeLabel, TrailingEdgeLine + "\n" + ExportCopy.ManufacturingNotAssessed));
         rows.Add(("Fidelity", ExportCopy.FidelityCad(dm.DeviationMm)));
         return rows;

@@ -32,7 +32,7 @@ public static partial class Planform
         var parsed = FoilSource.Parse(source);
         if (!parsed.IsParsed || parsed.Definition is not { Kind: "foil" } definition)
             throw new ContractError(parsed.Diagnostics.FirstOrDefault()?.Code ?? "DSL-PATCH");
-        int ceiling = definition.Version == "4.1" ? 16 : 10;
+        int ceiling = definition.Version is "4.1" or "4.2" ? 16 : 10;
         return new(parsed.SourceHash, basis, generation, definition.Version, definition.HalfSpan,
             Project(definition, "leading", ceiling), Project(definition, "trailing", ceiling), parsed.Authored().Assignments);
     }
@@ -72,6 +72,8 @@ public static partial class Planform
     {
         var curve = definition.Curves[name];
         bool mirror = definition.Locks.Any(item => item.Kind == "root_mirror" && item.Channel.Text == name);
+        bool verticalTip = name is "leading" or "trailing" &&
+            curve.Tangents.Any(item => item.Id == curve.Ids[^1] && item.Kind == "vertical");
         var anchors = new bool[curve.Points.Length];
         for (int index = 0; index < anchors.Length; index++)
             anchors[index] = FoilSource.IsAnchor(curve.Knots, curve.Points.Length, curve.Degree, index);
@@ -92,7 +94,8 @@ public static partial class Planform
             TangentKind? kind = null;
             int row = anchor ? Array.FindIndex(curve.Tangents, item => item.Id == curve.Ids[index]) : -1;
             if (anchor) kind = row < 0 ? TangentKind.Corner : MapKind(curve.Tangents[row].Kind);
-            var freedom = Freedom(name, index, points.Length, mirror);
+            else if (index == points.Length - 1 && verticalTip) kind = TangentKind.Vertical;
+            var freedom = Freedom(name, index, points.Length, mirror, verticalTip);
             string[] locks = definition.Locks.Where(item => item.Channel.Text == name &&
                 (item.Kind == "root_mirror" ? index < 2 : item.Id is null || item.Id.String == curve.Ids[index]))
                 .Select(item => item.Kind).Distinct().ToArray();
@@ -135,10 +138,11 @@ public static partial class Planform
         return PointRole.Control;
     }
 
-    private static PointFreedom Freedom(string curve, int index, int count, bool mirror)
+    private static PointFreedom Freedom(string curve, int index, int count, bool mirror, bool verticalTip)
     {
         if (index == 0 && curve is "leading" or "dihedral") return PointFreedom.Fixed;
         if (index == count - 1 || index == 0) return PointFreedom.ValueOnly;
+        if (index == count - 2 && verticalTip) return PointFreedom.ValueOnly;
         if (index == 1 && mirror) return PointFreedom.SpanOnly;
         return PointFreedom.Free;
     }
@@ -206,7 +210,7 @@ public static class Channels
         var parsed = FoilSource.Parse(source);
         if (!parsed.IsParsed || parsed.Definition is not { Kind: "foil" } definition)
             throw new ContractError(parsed.Diagnostics.FirstOrDefault()?.Code ?? "DSL-PATCH");
-        return (definition, definition.Version == "4.1" ? 16 : 10);
+        return (definition, definition.Version is "4.1" or "4.2" ? 16 : 10);
     }
 
     private static ChannelUnit Length(string curve, double? rowTolerance, double? lower, double? upper) =>

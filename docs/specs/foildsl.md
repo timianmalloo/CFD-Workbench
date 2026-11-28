@@ -129,14 +129,14 @@ Every mandatory field occurs once. Repetition is legal only where braces say so.
 are errors, replacing v3's last-writer-wins semantics.
 
 ```ebnf
-document = "foildsl", ('"4.0"' | '"4.1"'), (foil | standalone-profile), EOF ;
+document = "foildsl", ('"4.0"' | '"4.1"' | '"4.2"'), (foil | standalone-profile), EOF ;
 foil = "foil", string, "{", "units", length-unit,
        "half_span", length, evaluator, "symmetry", "mirror_y",
        "planform", "{", "leading", curve, "trailing", curve, "}",
        "dihedral", curve, "twist", curve, "thickness", curve,
        "profiles", "{", profile, {profile}, "}",
        "sections", "{", assignment, assignment, {assignment}, "}",
-       ["tip", ("open" | "point")], ["locks", "{", {lock}, "}"],
+       ["tip", ("open" | "point" | "rounded", [number])], ["locks", "{", {lock}, "}"],
        ["constrain", "{", {assertion}, "}"], "}" ;
 standalone-profile = "section", string, "{", evaluator, profile-body, "}" ;
 evaluator = "evaluator", string, string ;
@@ -188,13 +188,14 @@ Units are mandatory for dimensional assertions. `~` is not supported: users stat
 3. For N points and degree p, `knots` has **N+p+1** entries (N is count, not highest index).
    End values are 0 and 1, each repeated p+1 times; interior knots are in (0,1), nondecreasing,
    with multiplicity at most p. All rational weights are exactly one by language definition.
-   Channels have p=3 and N in [6,10] in 4.0 and N in [4,16] in 4.1; profile sides have p=5 and N in [6,32].
-   A 4.1 channel may have 4 or 5 points. Add may take a 4.1 channel to 16. Rebuild stays in 4–10.
+   Channels have p=3 and N in [6,10] in 4.0 and N in [4,16] in 4.1 and 4.2; profile sides have p=5 and N in [6,32].
+   A 4.1 or 4.2 channel may have 4 or 5 points. Add may take a 4.1 or 4.2 channel to 16. Rebuild stays in 4–10.
    New foil writes `foildsl "4.1"` and ships 4 points on the leading and trailing rails; dihedral, twist and thickness stay at 10.
-   A `tangents` block is legal only in 4.1, after `ids`. On a channel only `smooth` and `symmetric` are legal, and the row names an interior anchor. Corner is the absence of a row. Under 4.0 the block is `DSL-SYNTAX`. A version other than 4.0 or 4.1 is `DSL-VERSION` when the version token is read.
+   A `tangents` block is legal only in 4.1 and 4.2, after `ids`. On non-rail channels (`dihedral`, `twist`, `thickness`) only `smooth` and `symmetric` are legal on interior anchors; in 4.2, `leading` and `trailing` rails additionally admit `"<tip-id>" vertical` on the final tip control point (`index == N - 1`) with `η_{N-2} = η_{N-1} = 1` and a nonzero handle length (`x_{N-1} - x_{N-2} >= 1e-6 m` on `leading`, `x_{N-2} - x_{N-1} >= 1e-6 m` on `trailing`). Corner is the absence of a row. Under 4.0 a `tangents` block is `DSL-SYNTAX`; under 4.0 or 4.1, `tip rounded`, rail `vertical` tangent rows, or `η_{N-2} = 1` on a rail are `DSL-SYNTAX`. A version other than 4.0, 4.1, or 4.2 is `DSL-VERSION` when the version token is read.
    This profile capacity includes the existing 8–16 fitting policy without making that construction an authority.
 4. Channel points are `(eta-coordinate, ordinate)`. The first abscissa is 0, last 1, and all abscissae strictly
-   increase. The evaluated parametric B-spline is inverted at a requested eta, then its ordinate is read.
+   increase — except on `leading` and `trailing` rails in 4.2, where at most the terminal pair may coincide
+   (`0 = η_0 < η_1 < … < η_{N-3} < η_{N-2} ≤ η_{N-1} = 1`) to form a vertical planform tip tangent. The evaluated parametric B-spline is inverted at a requested eta, then its ordinate is read.
    A CV abscissa is not a through-station and is not generally the spline parameter. Identical endpoint
    ordinates on the first two CVs implement a root tangent lock; interior CVs can lie on a straight curve,
    so “never lies on the curve” is not a universal geometric claim.
@@ -216,7 +217,8 @@ Units are mandatory for dimensional assertions. `~` is not supported: users stat
    No assignment or inspection slice duplicates a channel value. Promotion inserts the evaluated blended
    shape as a profile revision with a measured deviation; it must satisfy the exact-operation gate before Apply.
 8. Default tip is `open`, meaning nonzero terminal chord and a boundary section, not a manufacturability claim.
-   Derived chord `trailing(eta)-leading(eta)` is strictly positive everywhere for an open tip. A declared `point` tip has chord zero only at eta=1
+   In 4.2, `tip rounded [ratio]` (`ratio` in `[0.25, 2.0]`, default `1.0`, scale `0` in Ruling 15 range checks: overflow/`NaN` → `DSL-LEX`, finite out-of-range → `DSL-UNIT`) declares a derived G0-watertight semi-elliptical 3D tip cap over the finite terminal section without altering Rule A stations on `η ∈ [0, 1]`.
+   Derived chord `trailing(eta)-leading(eta)` is strictly positive everywhere for an `open` or `rounded` tip (certified spanwise-locally). A declared `point` tip has chord zero only at eta=1
    and positive chord on [0,1); normals use the limiting surface. Thickness is in (0,1) throughout.
    Negative/crossing chord, crossing profiles or a folded/self-intersecting surface block acceptance.
    These are geometric obligations over intervals, not proof from 91 samples. An unresolved numerical test
@@ -362,7 +364,7 @@ Canonical semantic input is a labelled object containing format `foildsl-geometr
 SI half-span, fixed frame/symmetry, five ordered curves (degree, complete knots, ordered point pairs), resolved
 ordered profile definitions and eta assignments, closure and tip mode. Resolve profile names to their numeric
 definitions; sort profiles by first assignment occurrence and replace references by their resulting index.
-Strip unused metadata, source names, comments, IDs, locks, tangent rows, provenance and assertions. Document version 4.0 versus 4.1 is not part of the geometry identity; the canonical format string stays `foildsl-geometry-4.0`. Under `cfdw-cv/2`,
+Strip unused metadata, source names, comments, IDs, locks, tangent rows, provenance and assertions. Document version 4.0 versus 4.1 versus 4.2 is not part of the geometry identity; the canonical format string stays `foildsl-geometry-4.0`. Under `cfdw-cv/2`,
 retain the parsed binary64 degree ordinates of twist controls; do not convert them to radians for hashing.
 The canonical record must retain the defining inputs used by §6. Normalize negative zero to zero.
 Serialize this object with RFC 8785 canonical JSON and shortest-round-trip numbers; BLAKE3 hashes UTF-8 bytes.
@@ -391,7 +393,7 @@ Section = {
 }
 ```
 
-`tip` is `"point"` only when declared; default `"open"` and default `"closed"` closure always materialize.
+`tip` is `"point"` when declared, `{"kind": "rounded", "ratio": r}` when `tip rounded [r]` is declared (with omitted `r` materializing `1`), and default `"open"` and default `"closed"` closure always materialize. Existing `"open"` and `"point"` documents retain byte-identical canonical JSON and unchanged `SurfaceHash`.
 Channels' first coordinates remain eta; dimensional ordinates use metres, twist ordinates degrees and thickness
 fractions. Profile coordinates remain dimensionless. Assignment indexes are zero-based integers. Arrays preserve
 order; profile ordering is first assignment occurrence as above, and inline/asset spellings with identical

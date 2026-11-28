@@ -17,6 +17,7 @@ public static class Labels
     public const string VerifiedLattice = "Verified fixture family: rectangular and elliptic planforms; ±20° dihedral at 32 × 4 cosine span, uniform chord (F-8); 45° sweep, AR 5, at 4 × 1 uniform (F-16); 4% camber at 32/64/128 × 4 cosine/cosine (F-18); 1° washin at 32/64/128 × 4 cosine/cosine (F-19); F-6 order at 32/64/128 × 4 cosine span, uniform chord; F-21 at 16 × 4 cosine/cosine per half"; // COPY-217, operator proposal
     // COPY-218 and COPY-219 are retired (Ruling 92); their rows stay in DESIGN.md and no string survives here.
     public const string TipNotJudged = "Not judged — tip strip"; // COPY-220, approved Ruling 92 (the state of Rulings 78 and 88 D13)
+    public const string RoundedTipCapNotice = "3D rounded tip cap is geometric fairing only; tip-vortex roll-up and cap drag are not modelled in VLM/strip."; // COPY-941 (RTIP-COPY-07), approved operator 2026-11-27
     public const string TipChordUnderMinimumTemplate = "Unavailable — tip chord under the minimum (<min>). The tip is not certified for analysis."; // COPY-241, Ruling 94
     public static string TipChordUnderMinimum(double rootChordMeters) =>
         TipChordUnderMinimumTemplate.Replace("<min>", TipChord.Format(rootChordMeters));

@@ -133,5 +133,10 @@ public static class ExportCopy
     public static string ExportedCad(string file, string formatDetail, string megabytes, double deviationMm) =>                    // COPY-757a
         $"Exported {file} · {formatDetail} · {megabytes} MB · mm · largest measured deviation {Fixed(deviationMm, 4)} mm";
 
+    public const string TipClosureLabel = "Tip closure";
+    public const string TipClosureFlat = "Flat (open)";
+    public static string TipClosureRounded(double ratio, double overallSpanMm) =>
+        $"Rounded 3D cap (ratio {Fixed(ratio, 2)}) · Overall span {Fixed(overallSpanMm, 1)} mm";
+
     public static string Fixed(double value, int decimals) => value.ToString("F" + decimals, CultureInfo.InvariantCulture);
 }

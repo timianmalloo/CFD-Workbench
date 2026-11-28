@@ -32,7 +32,7 @@ public static class ThreeMfExport
         CancellationToken cancellation = default)
     {
         var stage = StlExport.Stage(source, toleranceMm, StlExport.Ladder, cancellation);
-        byte[] bytes = Write(StlExport.Close(stage.Surface, scope), foilName, revision, toleranceMm, stage.DeviationMm);
+        byte[] bytes = Write(StlExport.Close(stage.Surface, scope, toleranceMm), foilName, revision, toleranceMm, stage.DeviationMm);
         return StlExport.Summarize(bytes, Check(bytes), stage, scope, toleranceMm);
     }
 

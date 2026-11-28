@@ -14,7 +14,11 @@ public sealed record PlacedSection(double Eta, int? Assignment, IReadOnlyList<Po
 
 public sealed record SurfaceView(string SourceHash, string Basis, long Generation,
     double MinimumX, double MinimumY, double MinimumZ, double MaximumX, double MaximumY, double MaximumZ,
-    IReadOnlyList<PlacedSection> Sections);
+    IReadOnlyList<PlacedSection> Sections)
+{
+    public string TipMode { get; init; } = "open";
+    public double TipCapRatio { get; init; } = TipCapMath.DefaultCapRatio;
+}
 
 /// <summary>
 /// The Rule A section at one η, for Analysis (design area3-analysis.md §4 item 3; ADR-0010: one placement authority).
@@ -318,7 +322,7 @@ public static class Placement
             prepared[profile] = Prepare(definition.Profiles[profile], xs);
         double[] stationEtas = definition.Assignments.Select(item => item.Eta).ToArray();
         int[] stationProfiles = definition.Assignments.Select(item => item.Profile).ToArray();
-        var etas = MeshEtas(stationEtas, stations);
+        var etas = MeshEtas(stationEtas, stations, TipCapMath.HasVerticalTip(definition));
         var sections = new List<PlacedSection>(etas.Count);
         double minX = double.PositiveInfinity, minY = double.PositiveInfinity, minZ = double.PositiveInfinity;
         double maxX = double.NegativeInfinity, maxY = double.NegativeInfinity, maxZ = double.NegativeInfinity;
@@ -330,7 +334,16 @@ public static class Placement
             Bound(section, ref minX, ref minY, ref minZ, ref maxX, ref maxY, ref maxZ);
             AfterStation?.Invoke();
         }
-        return new(parsed.SourceHash, basis, generation, minX, minY, minZ, maxX, maxY, maxZ, sections);
+        if (definition.Tip == "rounded" && sections.Count > 0)
+        {
+            double capProtrusion = TipCapMath.MaxHalfThicknessMeters(sections[^1]) * definition.TipCapRatio;
+            maxY = Math.Max(maxY, definition.HalfSpan + capProtrusion);
+        }
+        return new(parsed.SourceHash, basis, generation, minX, minY, minZ, maxX, maxY, maxZ, sections)
+        {
+            TipMode = definition.Tip,
+            TipCapRatio = definition.TipCapRatio
+        };
     }
 
     /// <summary>
@@ -813,11 +826,22 @@ public static class Placement
         return true;
     }
 
-    private static List<double> MeshEtas(double[] authored, int stations)
+    private static List<double> MeshEtas(double[] authored, int stations, bool verticalTip = false)
     {
         var etas = new List<double>(stations + authored.Length);
         double step = stations - 1;
-        for (int index = 0; index < stations; index++) etas.Add(index / step);
+        if (verticalTip)
+        {
+            for (int index = 0; index < stations; index++)
+            {
+                double eta = index == 0 ? 0.0 : index == stations - 1 ? 1.0 : double.SinPi(index / (2.0 * step));
+                etas.Add(eta);
+            }
+        }
+        else
+        {
+            for (int index = 0; index < stations; index++) etas.Add(index / step);
+        }
         etas.AddRange(authored);
         etas.Sort();
         var unique = new List<double>(etas.Count);

@@ -23,6 +23,9 @@ public sealed record WingEstimates(
     bool Converged,
     EstimateCompute Compute)
 {
+    /// <summary>Full overall span including 3D rounded tip caps when <c>tip rounded</c> is active; equals <see cref="SpanMeters"/> for <c>tip open</c>.</summary>
+    public double OverallSpanMeters { get; init; } = SpanMeters;
+
     public static WingEstimates From(byte[] source, string basis, long generation)
     {
         var timer = Stopwatch.StartNew();
@@ -41,10 +44,18 @@ public sealed record WingEstimates(
         double aspect = hasArea ? span * span / area : double.NaN;
         double mac = hasArea && squared.Converged ? span * squared.Integral / area : double.NaN;
         double tipEta = definition.Assignments.Length == 0 ? 1 : definition.Assignments[^1].Eta;
+        double tipChordAtOne = Chord(definition, 1);
+        double tipThicknessAtOne = OrdinateAt(definition.Curves["thickness"], 1);
+        double overallSpan = definition.Tip == "rounded"
+            ? span + 2.0 * TipCapMath.MaxCapProtrusionMeters(tipChordAtOne, tipThicknessAtOne, definition.TipCapRatio)
+            : span;
         timer.Stop();
         string outcome = hasArea && squared.Converged ? "ok" : "not-converged";
         return new(span, Chord(definition, 0), Chord(definition, tipEta), mean, mac, MaxOrdinate(definition.Curves["thickness"]),
-            aspect, area, basis, generation, squared.Converged, new("estimates.compute", timer.Elapsed.TotalMilliseconds, intervals, squared.Iterations, outcome));
+            aspect, area, basis, generation, squared.Converged, new("estimates.compute", timer.Elapsed.TotalMilliseconds, intervals, squared.Iterations, outcome))
+        {
+            OverallSpanMeters = overallSpan
+        };
     }
 
     public static double ChordMeters(byte[] source, double eta) => Chord(RequireFoil(source), eta);
@@ -100,16 +111,32 @@ public sealed record WingEstimates(
         double total = 0;
         int iterations = 1;
         bool converged = true;
+        bool verticalTip = TipCapMath.IsVerticalTip(leading) || TipCapMath.IsVerticalTip(trailing);
         double previous = breaks[0];
         for (int index = 1; index < breaks.Count; index++)
         {
             double end = breaks[index];
             if (end - previous <= 1e-15) continue;
-            var piece = Adaptive(previous, end, eta =>
+            (double Value, int Iterations, bool Converged) piece;
+            if (verticalTip && end == 1.0)
             {
-                double chord = OrdinateAt(trailing, eta) - OrdinateAt(leading, eta);
-                return chord * chord;
-            });
+                // Exact substitution η = 1 - (1 - η_last) s² removes the (1 - η)^{-1/2} vertical-tip singularity analytically.
+                double spanLen = 1.0 - previous;
+                piece = Adaptive(0.0, 1.0, s =>
+                {
+                    double eta = 1.0 - spanLen * s * s;
+                    double chord = OrdinateAt(trailing, eta) - OrdinateAt(leading, eta);
+                    return chord * chord * 2.0 * spanLen * s;
+                });
+            }
+            else
+            {
+                piece = Adaptive(previous, end, eta =>
+                {
+                    double chord = OrdinateAt(trailing, eta) - OrdinateAt(leading, eta);
+                    return chord * chord;
+                });
+            }
             total += piece.Value;
             iterations = Math.Max(iterations, piece.Iterations);
             converged &= piece.Converged;

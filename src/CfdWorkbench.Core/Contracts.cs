@@ -40,7 +40,7 @@ public sealed class AuthoredProjection
 {
     internal AuthoredProjection(AuthoredBinding binding, string? name, string? unit, double? halfSpan,
         IEnumerable<AuthoredRail> rails, IEnumerable<AuthoredAssignment> assignments, IEnumerable<AuthoredConstraint> constraints, IEnumerable<Diagnostic> diagnostics,
-        IEnumerable<AuthoredAssertion>? assertions = null)
+        IEnumerable<AuthoredAssertion>? assertions = null, string tip = "open", double? tipCapRatio = null)
     {
         Binding = binding; Name = name; SourceUnit = unit; HalfSpanMeters = halfSpan;
         Rails = Array.AsReadOnly(rails.Select(rail => rail with { Controls = Array.AsReadOnly(rail.Controls.Select(control => control with
@@ -49,19 +49,37 @@ public sealed class AuthoredProjection
         Constraints = Array.AsReadOnly(constraints.Select(item => item with { Values = Array.AsReadOnly(item.Values.ToArray()) }).ToArray());
         Diagnostics = Array.AsReadOnly(diagnostics.ToArray());
         Assertions = Array.AsReadOnly((assertions ?? []).ToArray());
+        Tip = tip;
+        TipCapRatio = tipCapRatio;
     }
     public AuthoredBinding Binding { get; }
     public string? Name { get; }
     public string? SourceUnit { get; }
     public string? DisplayUnit => SourceUnit;
     public double? HalfSpanMeters { get; }
+    public string Tip { get; }
+    public double? TipCapRatio { get; }
     public IReadOnlyList<AuthoredRail> Rails { get; }
     public IReadOnlyList<AuthoredAssignment> Assignments { get; }
     public IReadOnlyList<AuthoredConstraint> Constraints { get; }
     public IReadOnlyList<Diagnostic> Diagnostics { get; }
     public IReadOnlyList<AuthoredAssertion> Assertions { get; }
-    internal AuthoredProjection Rebind(AuthoredBinding binding) => new(binding, Name, SourceUnit, HalfSpanMeters, Rails, Assignments, Constraints, Diagnostics, Assertions);
+    internal AuthoredProjection Rebind(AuthoredBinding binding) => new(binding, Name, SourceUnit, HalfSpanMeters, Rails, Assignments, Constraints, Diagnostics, Assertions, Tip, TipCapRatio);
 }
+
+/// <summary>Structured outcome of a FoilDSL 4.2 tip edit (<c>SetTipTangent</c>, <c>SetTipRadius</c>, <c>SetTipCap</c>).
+/// Refusals carry <see cref="Code"/>, <see cref="Reason"/>, and optional <see cref="LimitMeters"/> so callers map directly onto UI repair links.</summary>
+public sealed record TipEditOutcome(bool Committed, string? AcceptedId, string? Code = null, string? Reason = null,
+    double? LimitMeters = null, double? RadiusMeters = null);
+
+/// <summary>Zero-PII telemetry payload for <c>tip.edit</c> events (docs/design/rounded-wing-tips.md §7).</summary>
+public sealed record TipEditTelemetry(string Kind, string? Rail, string Outcome, string Code, double DurationMs);
+
+/// <summary>Zero-PII telemetry payload for <c>geometry.positive_chord</c> events (docs/design/rounded-wing-tips.md §7).</summary>
+public sealed record PositiveChordTelemetry(bool FastPath, int Splits, int MaxDepth, string Outcome);
+
+/// <summary>Zero-PII telemetry payload for <c>export.tipcap</c> events (docs/design/rounded-wing-tips.md §7).</summary>
+public sealed record TipCapExportTelemetry(string Format, string TipKind, bool OpenTe, int ThetaSteps, double DeviationMm, double DurationMs);
 public sealed record AcceptedInspection(AuthoredProjection Authored, GeometryAssessment Geometry)
 {
     /// <summary>Derived compatible-fit blend matches for the accepted revision (session memory only; never stored).</summary>

@@ -35,9 +35,14 @@ internal static class ChannelEdits
             if (Math.Abs(knot - t) <= 1e-9)
                 throw new ContractError("DSL-CURVE", TooClose(Nearest(curve, eta)));
         var (knots, points, inserted) = FoilSource.InsertOnce(curve.Knots, curve.Points, curve.Degree, t);
+        bool verticalTip = TipCapMath.IsVerticalTip(curve);
         for (int index = 1; index < points.Length; index++)
+        {
+            if (verticalTip && index == points.Length - 1 && points[^2][0] == 1.0 && points[^1][0] == 1.0)
+                continue;
             if (points[index][0] - points[index - 1][0] < 1e-7)
                 throw new ContractError("DSL-CURVE", TooClose(Nearest(curve, eta)));
+        }
         var ids = new List<string>(curve.Ids);
         ids.Insert(inserted, FreshOne(curve.Ids));
         var tangents = curve.Tangents.ToArray();
@@ -90,11 +95,15 @@ internal static class ChannelEdits
             points[slot] = (double[])curve.Points[source].Clone();
             ids[slot] = curve.Ids[source];
         }
+        bool verticalTip = TipCapMath.IsVerticalTip(curve);
         int left = index - 1;
         int right = index;
         points[left][0] = Abscissa(curve, Greville(knots, curve.Degree, left));
-        points[right][0] = Abscissa(curve, Greville(knots, curve.Degree, right));
-        if (!Strict(points)) throw new ContractError("DSL-CURVE", Fold(index));
+        if (verticalTip && right == nextCount - 2)
+            points[right][0] = 1.0;
+        else
+            points[right][0] = Abscissa(curve, Greville(knots, curve.Degree, right));
+        if (!Strict(points, verticalTip)) throw new ContractError("DSL-CURVE", Fold(index));
         var pinned = new bool[nextCount];
         var values = new double[nextCount];
         for (int slot = 0; slot < nextCount; slot++)
@@ -107,7 +116,7 @@ internal static class ChannelEdits
         var fitted = Fit(Shape(curve, knots, points, ids, curve.Tangents), curve, pinned, values);
         for (int slot = 0; slot < nextCount; slot++)
             points[slot][1] = pinned[slot] ? values[slot] : fitted[slot];
-        if (!Strict(points)) throw new ContractError("DSL-CURVE", Fold(index));
+        if (!Strict(points, verticalTip)) throw new ContractError("DSL-CURVE", Fold(index));
         var tangents = curve.Tangents.Where(row => ids.Contains(row.Id)).ToArray();
         string? broken = RewriteSymmetric(points, ids, ref tangents);
         double removedEta = curve.Points[index][0];
@@ -129,6 +138,8 @@ internal static class ChannelEdits
     {
         if (count < Floor || count > 10)
             throw new ContractError("DSL-CURVE", "Enter a whole number from 4 to 10.");
+        bool verticalTip = TipCapMath.IsVerticalTip(curve) &&
+            curve.Tangents.Any(row => row.Id == curve.Ids[^1] && row.Kind == "vertical");
         double[] knots = KnotsFor(curve, count);
         var points = new double[count][];
         for (int index = 0; index < count; index++) points[index] = new double[2];
@@ -136,9 +147,11 @@ internal static class ChannelEdits
         points[^1][0] = 1;
         points[0][1] = curve.Points[0][1];
         points[^1][1] = curve.Points[^1][1];
-        for (int index = 1; index < count - 1; index++)
+        int lastInterior = verticalTip ? count - 2 : count - 1;
+        for (int index = 1; index < lastInterior; index++)
             points[index][0] = Abscissa(curve, Greville(knots, curve.Degree, index));
-        if (!Strict(points)) throw new ContractError("DSL-CURVE", TooCloseToRefit);
+        if (verticalTip) points[count - 2][0] = 1.0;
+        if (!Strict(points, verticalTip)) throw new ContractError("DSL-CURVE", TooCloseToRefit);
         bool square = rootMirror || curve.Points[0][1] == curve.Points[1][1];
         var pinned = new bool[count];
         var values = new double[count];
@@ -150,15 +163,153 @@ internal static class ChannelEdits
             pinned[1] = true;
             values[1] = curve.Points[0][1];
         }
+        if (verticalTip)
+        {
+            int nOld = curve.Points.Length;
+            double du1Old = 1.0 - curve.Knots[nOld - 1];
+            double du2Old = 1.0 - curve.Knots[nOld - 2];
+            double dxOld = curve.Points[^1][1] - curve.Points[^2][1];
+            double dyOld = 1.0 - curve.Points[^3][0];
+            double rOverHalfSpan = 1.5 * (du2Old / du1Old) * (dxOld * dxOld) / dyOld;
+            double du1New = 1.0 - knots[count - 1];
+            double du2New = 1.0 - knots[count - 2];
+            double dyNew = 1.0 - points[count - 3][0];
+            double dxNew = Math.Sqrt((2.0 / 3.0) * (du1New / du2New) * rOverHalfSpan * dyNew);
+            if (!double.IsFinite(dxNew) || dxNew < 1e-6)
+                throw new ContractError("DSL-LOCK", "Vertical tip tangent requires a nonzero handle length along the tip edge.");
+            pinned[count - 2] = true;
+            values[count - 2] = curve.Path == "leading" ? points[^1][1] - dxNew : points[^1][1] + dxNew;
+        }
         var draft = Shape(curve, knots, points, curve.Ids, []);
         double[] fitted = Fit(draft, curve, pinned, values);
         for (int index = 0; index < count; index++)
             points[index][1] = pinned[index] ? values[index] : fitted[index];
         bool sameKnots = count == curve.Points.Length && KnotsEqual(knots, curve.Knots);
-        var candidate = Shape(curve, knots, points, FreshKeepingEnds(curve, count), []);
+        string[] nextIds = FreshKeepingEnds(curve, count);
+        TangentRow[] nextTangents = verticalTip ? [new TangentRow(nextIds[^1], "vertical", null)] : [];
+        var candidate = Shape(curve, knots, points, nextIds, nextTangents);
         if (sameKnots && WithinIdentity(MaxChange(curve, candidate).Max, curve))
             return new(curve, true, null);
         return new(candidate, false, null);
+    }
+
+    internal static Curve SetTipVertical(Curve curve, bool enable, double halfSpanMeters, Func<Curve, bool>? isAdmitted = null)
+    {
+        Guard.Require(curve.Path is "leading" or "trailing", "DSL-TARGET");
+        bool isLeading = curve.Path == "leading";
+        var knots = (double[])curve.Knots.Clone();
+        var points = curve.Points.Select(p => (double[])p.Clone()).ToArray();
+        var ids = (string[])curve.Ids.Clone();
+        var tangents = curve.Tangents.Where(row => !(row.Id == ids[^1] && row.Kind == "vertical")).ToList();
+
+        if (!enable)
+        {
+            if (points[^2][0] == 1.0)
+                points[^2][0] = 0.5 * (points[^3][0] + 1.0);
+            return Shape(curve, knots, points, ids, tangents.ToArray());
+        }
+
+        if (points.Length == 4)
+        {
+            var (nextKnots, nextPoints, inserted) = FoilSource.InsertOnce(knots, points, curve.Degree, 0.70);
+            var idList = ids.ToList();
+            idList.Insert(inserted, FreshOne(ids));
+            knots = nextKnots;
+            points = nextPoints;
+            ids = idList.ToArray();
+        }
+
+        points[^2][0] = 1.0;
+        double signedDx = isLeading ? (points[^1][1] - points[^2][1]) : (points[^2][1] - points[^1][1]);
+        if (signedDx < 1e-4)
+        {
+            int n = points.Length;
+            double du1 = 1.0 - knots[n - 1];
+            double du2 = 1.0 - knots[n - 2];
+            double dy = halfSpanMeters * (1.0 - points[n - 3][0]);
+            double rDefault = 0.015;
+            if (isAdmitted is not null)
+            {
+                var probeCurve = Shape(curve, knots, points, ids, [.. tangents, new TangentRow(ids[^1], "vertical", null)]);
+                double maxFeasible = MaxFeasibleTipRadiusMeters(probeCurve, halfSpanMeters, 0.05, isAdmitted);
+                if (maxFeasible > 0.0)
+                    rDefault = Math.Min(rDefault, 0.4 * maxFeasible);
+            }
+            double dx = Math.Sqrt((2.0 / 3.0) * (du1 / du2) * Math.Max(rDefault, 1e-6) * dy);
+            if (dx < 1e-4) dx = 1e-4;
+            points[^2][1] = isLeading ? points[^1][1] - dx : points[^1][1] + dx;
+        }
+
+        tangents.Add(new TangentRow(ids[^1], "vertical", null));
+        return Shape(curve, knots, points, ids, tangents.ToArray());
+    }
+
+    internal static Curve WithTipRadius(Curve curve, double targetRadiusMeters, double halfSpanMeters)
+    {
+        Guard.Require(curve.Path is "leading" or "trailing", "DSL-TARGET");
+        Guard.Require(double.IsFinite(targetRadiusMeters) && targetRadiusMeters > 0.0, "DSL-UNIT");
+        Guard.Require(curve.Points.Length >= 4 && curve.Points[^2][0] == 1.0, "DSL-LOCK");
+        int n = curve.Points.Length;
+        double du1 = 1.0 - curve.Knots[n - 1];
+        double du2 = 1.0 - curve.Knots[n - 2];
+        double dy = halfSpanMeters * (1.0 - curve.Points[n - 3][0]);
+        double dx = Math.Sqrt((2.0 / 3.0) * (du1 / du2) * targetRadiusMeters * dy);
+        if (!double.IsFinite(dx) || dx < 1e-6)
+            throw new ContractError("DSL-LOCK", "Vertical tip tangent requires a nonzero handle length along the tip edge.");
+        var points = curve.Points.Select(p => (double[])p.Clone()).ToArray();
+        points[^2][0] = 1.0;
+        points[^2][1] = curve.Path == "leading" ? points[^1][1] - dx : points[^1][1] + dx;
+        var tangents = curve.Tangents.Any(row => row.Id == curve.Ids[^1] && row.Kind == "vertical")
+            ? curve.Tangents
+            : [.. curve.Tangents, new TangentRow(curve.Ids[^1], "vertical", null)];
+        return Shape(curve, curve.Knots, points, curve.Ids, tangents);
+    }
+
+    /// <summary>Physical &amp; B-spline handle envelope for <c>SetTipRadius</c>: radius stays within <c>min(half_span, 2 * c_root)</c>
+    /// and vertical handle offset <c>|x_{N-1} - x_{N-2}|</c> stays within <c>min(half_span, c_root)</c>.</summary>
+    internal static bool WithinTipRadiusEnvelope(Curve verticalCurve, double targetRadiusMeters, double halfSpanMeters, double rootChordMeters)
+    {
+        if (!double.IsFinite(targetRadiusMeters) || targetRadiusMeters <= 0.0) return false;
+        double maxR = Math.Min(halfSpanMeters, 2.0 * rootChordMeters);
+        if (targetRadiusMeters > maxR + 1e-12) return false;
+        double dx = Math.Abs(verticalCurve.Points[^1][1] - verticalCurve.Points[^2][1]);
+        double maxDx = Math.Min(halfSpanMeters, rootChordMeters);
+        return dx <= maxDx + 1e-12;
+    }
+
+    internal static double MaxFeasibleTipRadiusMeters(Curve verticalCurve, double halfSpanMeters, double upperBoundMeters, Func<Curve, bool> isAdmitted)
+    {
+        double lo = 0.0;
+        double hi = Math.Max(0.0, upperBoundMeters);
+        for (int iter = 0; iter < 24; iter++)
+        {
+            double mid = 0.5 * (lo + hi);
+            bool ok = false;
+            if (mid > 0.0)
+            {
+                try
+                {
+                    var candidate = WithTipRadius(verticalCurve, mid, halfSpanMeters);
+                    ok = isAdmitted(candidate);
+                }
+                catch (ContractError) { ok = false; }
+            }
+            if (ok) lo = mid;
+            else hi = mid;
+        }
+        double maxMm = Math.Floor(lo * 1000.0 * 100.0) / 100.0;
+        for (int step = 0; step < 3 && maxMm > 0.0; step++)
+        {
+            double meters = maxMm / 1000.0;
+            try
+            {
+                if (isAdmitted(WithTipRadius(verticalCurve, meters, halfSpanMeters)))
+                    return meters;
+            }
+            catch (ContractError) { }
+            maxMm = Math.Round((maxMm - 0.01) * 100.0) / 100.0;
+        }
+        return 0.0;
     }
 
     internal static Change MaxChange(Curve before, Curve after)
@@ -281,6 +432,11 @@ internal static class ChannelEdits
     {
         pinned[slot] = true;
         if (square) { values[slot] = curve.Points[end][1]; return; }
+        if (curve.Points[end][0] == 1.0 && curve.Points[handle][0] == 1.0)
+        {
+            values[slot] = curve.Points[end][1];
+            return;
+        }
         double dx = curve.Points[handle][0] - curve.Points[end][0];
         double slope = dx == 0 ? 0 : (curve.Points[handle][1] - curve.Points[end][1]) / dx;
         values[slot] = curve.Points[end][1] + slope * (abscissa - curve.Points[end][0]);
@@ -470,9 +626,12 @@ internal static class ChannelEdits
         return true;
     }
 
-    private static bool Strict(double[][] points)
+    private static bool Strict(double[][] points, bool allowVerticalTip = false)
     {
-        for (int index = 1; index < points.Length; index++)
+        int limit = allowVerticalTip && points.Length >= 2 && points[^2][0] == 1.0 && points[^1][0] == 1.0
+            ? points.Length - 1
+            : points.Length;
+        for (int index = 1; index < limit; index++)
             if (points[index][0] - points[index - 1][0] < 1e-7) return false;
         return true;
     }
