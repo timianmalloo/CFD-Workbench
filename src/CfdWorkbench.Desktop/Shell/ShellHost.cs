@@ -313,6 +313,23 @@ public sealed class ShellHost : Grid
         ModelView.RunView.StatusReported += Report;
         ModelView.ResultsView.ConfigureKeyRequested += () => _ = RunCommand("view.settings");
         ModelView.ResultsView.StatusReported += Report;
+        ModelView.NotebookView.ConfigureKeyRequested += () => _ = RunCommand("view.settings");
+        ModelView.NotebookView.BackToWorkbenchRequested += () =>
+        {
+            ActivateModelDocument();
+            Controller.EnterCad();
+        };
+        ModelView.NotebookView.UseManualSetupRequested += () =>
+        {
+            ActivateModelDocument();
+            Controller.EnterSetup();
+        };
+        ModelView.NotebookView.StatusReported += Report;
+        ModelView.NotebookView.CadHandoffCompleted += _ =>
+        {
+            SyncDockAutoCollapse();
+            RefreshActivityRail();
+        };
         Controller.Assistant.StateChanged += OnAssistantStateChanged;
         ModelView.ResultsView.RetrySampleRequested += runId =>
         {
@@ -464,6 +481,7 @@ public sealed class ShellHost : Grid
 
         // Wire StartView actions in ModelView.
         ModelView.StartCardView.StartNewButton.Click += async (_, _) => await OpenNewFoilAsync();
+        ModelView.StartCardView.StartAiNotebookButton.Click += async (_, _) => await RunCommand("view.notebook");
         ModelView.StartCardView.AlertNewFoilButton.Click += async (_, _) => await OpenNewFoilAsync();
         ModelView.StartCardView.StartExampleButton.Click += async (_, _) => await OpenExampleAsync();
         ModelView.StartCardView.StartOpenButton.Click += async (_, _) => await OpenFileInteractiveAsync();
@@ -1094,6 +1112,10 @@ public sealed class ShellHost : Grid
         }
 
         bool solverSetupActive = ReferenceEquals(LayoutFactory.MainDocumentDock.ActiveDockable, SolverSetupDocument);
+        var nbSession = Controller.ActiveSession.ReadNotebookSession();
+        string notebookBadge = nbSession is { Candidates.Count: > 0 }
+            ? nbSession.Candidates[^1].CandidateId
+            : Controller.IsNotebook ? "Active" : "Saved";
         ActivityRail.BindState(
             Controller.ActiveArea,
             new ActivityRailBadges(
@@ -1105,7 +1127,9 @@ public sealed class ShellHost : Grid
                 Results: resultsBadge,
                 Export: exportBadge,
                 SolverSetup: solverBadge,
-                Settings: Controller.Assistant.RailSettingsBadge),
+                Settings: Controller.Assistant.RailSettingsBadge,
+                Notebook: notebookBadge,
+                ShowNotebook: Controller.HasNotebookSession),
             solverSetupActive);
     }
 
@@ -1121,6 +1145,7 @@ public sealed class ShellHost : Grid
             ModelView.RunView.RefreshAssistantStatus();
             ModelView.ResultsView.RefreshAssistantStatus();
             ModelView.SweepsView.ExperimentSetup.RefreshAssistantStatus(Controller.Assistant);
+            ModelView.NotebookView.RefreshAssistantStatus();
         }
 
         if (Dispatcher.UIThread.CheckAccess()) RefreshAssistantSurfaces();
@@ -1707,6 +1732,10 @@ public sealed class ShellHost : Grid
                 ActivateModelDocument();
                 Controller.EnterSetup();
                 return;
+            case "view.notebook":
+                ActivateModelDocument();
+                Controller.EnterNotebook();
+                return;
             case "view.cad":
                 ActivateModelDocument();
                 Controller.EnterCad();
@@ -1854,7 +1883,7 @@ public sealed class ShellHost : Grid
     {
         bool solverSetupActive = ReferenceEquals(LayoutFactory.MainDocumentDock.ActiveDockable, SolverSetupDocument);
         bool nonCad = solverSetupActive ||
-            Controller.ActiveArea is WorkbenchArea.Setup or WorkbenchArea.Experiment or WorkbenchArea.Run or WorkbenchArea.Results;
+            Controller.ActiveArea is WorkbenchArea.Setup or WorkbenchArea.Experiment or WorkbenchArea.Run or WorkbenchArea.Results or WorkbenchArea.Notebook;
 
         if (nonCad)
         {
@@ -1978,7 +2007,7 @@ public sealed class ShellHost : Grid
         id.StartsWith("station.", StringComparison.Ordinal) ||
         id.StartsWith("view.text-", StringComparison.Ordinal) ||
         id.StartsWith("view.comb", StringComparison.Ordinal) ||
-        id is "analysis.compare" or "analysis.compare-tiers" or "view.cad" or "assistant.cad" or "view.analysis" or "view.sweeps" or "view.setup" or "view.run" or "view.results" or "solver.setup" or "view.settings" ||
+        id is "analysis.compare" or "analysis.compare-tiers" or "view.cad" or "assistant.cad" or "view.analysis" or "view.sweeps" or "view.setup" or "view.notebook" or "view.run" or "view.results" or "solver.setup" or "view.settings" ||
         CommandTable.UnitsOf(id) is not null ||
         ViewCommands.Handles(id) ||
         IsShellCommand(id);

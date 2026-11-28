@@ -146,7 +146,7 @@ public partial class AssistantConsentPreviewDialog : Window
                 ProposalKind: prepared.ProposalKind,
                 ProviderKind: prepared.SettingsSnapshot.ProviderKind,
                 EndpointOrigin: prepared.EndpointOrigin,
-                ModelId: prepared.SettingsSnapshot.ModelId,
+                ModelId: prepared.ResolvedModelId,
                 PayloadSha256: prepared.Payload.PayloadSha256,
                 PromptUtf8Bytes: prepared.Payload.PromptUtf8Bytes,
                 ConsentAction: "cancelled",
@@ -277,7 +277,7 @@ public partial class AssistantConsentPreviewDialog : Window
 
         WireIdentityText.Text = AssistantCopy.ConsentWireSummary(
             call.EndpointOrigin,
-            call.SettingsSnapshot.ModelId,
+            call.ResolvedModelId,
             call.Payload.PromptUtf8Bytes,
             call.Payload.PayloadSha256);
         RedactionSummaryText.Text = AssistantCopy.RedactionSummaryLine(call.Payload.Summary);
@@ -460,6 +460,8 @@ public partial class AssistantConsentPreviewDialog : Window
         if (val.GeometryEdit is { Provenance.Count: > 0 } g) return g.Provenance;
         if (val.ExperimentConfig is { Provenance.Count: > 0 } e) return e.Provenance;
         if (val.CaseDiff is { Provenance.Count: > 0 } c) return c.Provenance;
+        if (val.RequirementDecomp is { Provenance.Count: > 0 } r) return r.Provenance;
+        if (val.CandidateIntent is { Provenance.Count: > 0 } d) return d.Provenance;
         return [];
     }
 

@@ -38,12 +38,15 @@ public partial class AssistantSettingsDialog : Window
         EndpointUrlLabelText.Text = AssistantCopy.EndpointUrlShortLabel;
         EndpointHelperText.Text = AssistantCopy.EndpointUrlHelperText;
         ModelIdLabelText.Text = AssistantCopy.ModelIdLabel;
+        OptionalFastModelIdLabelText.Text = AssistantCopy.OptionalFastModelIdLabel;
+        OptionalFastModelHelperText.Text = AssistantCopy.OptionalFastModelHelperText;
         CapsSectionHeadingText.Text = AssistantCopy.CapsSectionHeading;
         PerRequestCapLabelText.Text = AssistantCopy.PerRequestCapLabel;
         DailyCapLabelText.Text = AssistantCopy.DailyCapLabel;
         TimeoutLabelText.Text = AssistantCopy.TimeoutLabel;
         EvalSectionHeadingText.Text = AssistantCopy.EvalSectionHeading;
         RunEvalButton.Content = AssistantCopy.RunEvalButton;
+        RunFastEvalButton.Content = AssistantCopy.RunFastEvalButton;
         CancelEvalButton.Content = AssistantCopy.CancelConsentButton;
         EvalBusyStatusText.Text = AssistantCopy.RunningEvaluationStatus;
         AuditSectionHeadingText.Text = AssistantCopy.AuditSectionHeading;
@@ -66,6 +69,7 @@ public partial class AssistantSettingsDialog : Window
         RemoveKeyButton.Click += (_, _) => HandleRemoveKey();
         SaveSettingsButton.Click += async (_, _) => await SaveSettingsNowAsync();
         RunEvalButton.Click += async (_, _) => await RunEvaluationNowAsync();
+        RunFastEvalButton.Click += async (_, _) => await RunFastEvaluationNowAsync();
         CancelEvalButton.Click += (_, _) => CancelEvaluation();
         CloseButton.Click += (_, _) =>
         {
@@ -76,6 +80,7 @@ public partial class AssistantSettingsDialog : Window
         ProviderPicker.SelectionChanged += (_, _) => OnProviderChanged();
         EndpointUrlBox.TextChanged += (_, _) => OnModelOrEndpointEdited();
         ModelIdBox.TextChanged += (_, _) => OnModelOrEndpointEdited();
+        OptionalFastModelIdBox.TextChanged += (_, _) => OnModelOrEndpointEdited();
 
         Opened += (_, _) =>
         {
@@ -130,7 +135,21 @@ public partial class AssistantSettingsDialog : Window
         return result;
     }
 
-    public async Task<AssistantEvalRunResult?> RunEvaluationNowAsync(CancellationToken ct = default)
+    public Task<AssistantEvalRunResult?> RunEvaluationNowAsync(CancellationToken ct = default) =>
+        RunEvaluationForTargetAsync(targetModelId: null, ct: ct);
+
+    public Task<AssistantEvalRunResult?> RunFastEvaluationNowAsync(CancellationToken ct = default)
+    {
+        string fastId = (OptionalFastModelIdBox.Text ?? "").Trim();
+        if (string.IsNullOrWhiteSpace(fastId))
+        {
+            ShowEndpointOrSettingsError("Enter an optional fast model identifier before running fast-model evaluation.");
+            return Task.FromResult<AssistantEvalRunResult?>(null);
+        }
+        return RunEvaluationForTargetAsync(targetModelId: fastId, ct: ct);
+    }
+
+    private async Task<AssistantEvalRunResult?> RunEvaluationForTargetAsync(string? targetModelId, CancellationToken ct)
     {
         if (activeEvalCts is not null)
             return null;
@@ -138,10 +157,13 @@ public partial class AssistantSettingsDialog : Window
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
         activeEvalCts = linkedCts;
         RunEvalButton.IsEnabled = false;
+        RunFastEvalButton.IsEnabled = false;
         CancelEvalButton.IsVisible = true;
         CancelEvalButton.IsEnabled = true;
         EvalBusyBanner.IsVisible = true;
-        EvalBusyStatusText.Text = AssistantCopy.RunningEvaluationStatus;
+        EvalBusyStatusText.Text = string.IsNullOrWhiteSpace(targetModelId)
+            ? AssistantCopy.RunningEvaluationStatus
+            : $"Running evaluation on {targetModelId}…";
         try
         {
             if (TryBuildCandidateSettings(out var candidate, out _))
@@ -149,9 +171,9 @@ public partial class AssistantSettingsDialog : Window
                 await hub.SaveSettingsAsync(candidate!, linkedCts.Token);
             }
 
-            var res = await hub.RunEvaluationAsync(liveWire: UseLiveWireEval, ct: linkedCts.Token);
+            var res = await hub.RunEvaluationAsync(liveWire: UseLiveWireEval, targetModelId: targetModelId, ct: linkedCts.Token);
             var audit = await hub.ReadAuditEntriesAsync(50, linkedCts.Token);
-            BindSettings(hub.CurrentSettings, res.Eligibility, hub.DailyRequestsUsedUtc);
+            BindSettings(hub.CurrentSettings, hub.Eligibility, hub.DailyRequestsUsedUtc);
             RenderAudit(audit);
             return res;
         }
@@ -167,6 +189,7 @@ public partial class AssistantSettingsDialog : Window
             EvalBusyBanner.IsVisible = false;
             CancelEvalButton.IsVisible = false;
             RunEvalButton.IsEnabled = true;
+            RunFastEvalButton.IsEnabled = !string.IsNullOrWhiteSpace(OptionalFastModelIdBox.Text);
         }
     }
 
@@ -237,11 +260,13 @@ public partial class AssistantSettingsDialog : Window
 
         // AI-06: immediately evaluate eligibility for the edited provider/endpoint/model so any model change
         // immediately shows "Unevaluated on this model" before even closing Settings.
+        string? fastModelId = NormalizeOptionalModelId(OptionalFastModelIdBox.Text);
         var candidate = hub.CurrentSettings with
         {
             ProviderKind = SelectedProvider(),
             EndpointUrl = endpoint,
-            ModelId = (ModelIdBox.Text ?? "").Trim()
+            ModelId = (ModelIdBox.Text ?? "").Trim(),
+            OptionalFastModelId = fastModelId
         };
         var eligibility = AssistantEvalSuite.CheckModelEligibility(candidate, hub.CurrentSettings.EvalReceipts);
         RenderEligibility(candidate, eligibility);
@@ -255,6 +280,7 @@ public partial class AssistantSettingsDialog : Window
             ProviderPicker.SelectedIndex = settings.ProviderKind == AssistantProviderKind.OpenAiCompatible ? 1 : 0;
             EndpointUrlBox.Text = settings.EndpointUrl;
             ModelIdBox.Text = settings.ModelId;
+            OptionalFastModelIdBox.Text = settings.OptionalFastModelId ?? "";
             PerRequestMaxTokensBox.Text = settings.PerRequestMaxTokens.ToString(CultureInfo.InvariantCulture);
             DailyCapBox.Text = settings.DailyRequestCap.ToString(CultureInfo.InvariantCulture);
             TimeoutSecondsBox.Text = settings.TimeoutSeconds.ToString(CultureInfo.InvariantCulture);
@@ -332,6 +358,18 @@ public partial class AssistantSettingsDialog : Window
             }
         }
         EvalItemsList.ItemsSource = rows;
+
+        bool hasFast = !string.IsNullOrWhiteSpace(settings.OptionalFastModelId);
+        RunFastEvalButton.IsVisible = hasFast;
+        RunFastEvalButton.IsEnabled = hasFast && activeEvalCts is null;
+        FastEvalStatusText.IsVisible = hasFast;
+        if (hasFast)
+        {
+            var fastElig = AssistantEvalSuite.CheckModelEligibility(settings, settings.EvalReceipts, settings.OptionalFastModelId);
+            FastEvalStatusText.Text = fastElig.ProposalsEnabled && fastElig.MatchingReceipt is { } fr
+                ? $"Fast model ({fr.ModelId}): evaluation passed (thresholds v{fr.EvalThresholdsVersion})."
+                : $"Fast model ({settings.OptionalFastModelId}): {fastElig.StatusLabel} (run fast-model evaluation to enable).";
+        }
     }
 
     private void RenderAudit(IReadOnlyList<AssistantAuditEntry> entries)
@@ -374,6 +412,26 @@ public partial class AssistantSettingsDialog : Window
             error = "Model identifier is required.";
             return false;
         }
+        if (ContainsSecretValue(modelId))
+        {
+            error = AssistantCopy.FastModelSecretError;
+            return false;
+        }
+
+        string? fastModelId = NormalizeOptionalModelId(OptionalFastModelIdBox.Text);
+        if (fastModelId is not null)
+        {
+            if (fastModelId.Length > 256 || fastModelId.Any(char.IsControl))
+            {
+                error = "Optional fast model identifier must be <= 256 characters with no control characters.";
+                return false;
+            }
+            if (ContainsSecretValue(fastModelId))
+            {
+                error = AssistantCopy.FastModelSecretError;
+                return false;
+            }
+        }
 
         if (!int.TryParse(PerRequestMaxTokensBox.Text, NumberStyles.Integer, CultureInfo.InvariantCulture, out int maxTokens) ||
             maxTokens < AssistantSettings.MinPerRequestMaxTokens || maxTokens > AssistantSettings.MaxPerRequestMaxTokens)
@@ -401,6 +459,7 @@ public partial class AssistantSettingsDialog : Window
             ProviderKind = SelectedProvider(),
             EndpointUrl = endpoint,
             ModelId = modelId,
+            OptionalFastModelId = fastModelId,
             PerRequestMaxTokens = maxTokens,
             DailyRequestCap = dailyCap,
             TimeoutSeconds = timeoutSec
@@ -408,6 +467,16 @@ public partial class AssistantSettingsDialog : Window
         error = null;
         return true;
     }
+
+    private static string? NormalizeOptionalModelId(string? raw)
+    {
+        string trimmed = (raw ?? "").Trim();
+        return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed;
+    }
+
+    private static bool ContainsSecretValue(string value) =>
+        !string.IsNullOrWhiteSpace(value) &&
+        PromptRedactor.ScrubSecrets(value, RedactionContext.Empty).SecretsRedacted > 0;
 
     private AssistantProviderKind SelectedProvider() =>
         ProviderPicker.SelectedIndex == 1 ? AssistantProviderKind.OpenAiCompatible : AssistantProviderKind.Anthropic;

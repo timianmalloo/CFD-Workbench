@@ -10,6 +10,16 @@
                     VerticalScrollBarVisibility="Auto"
                     HorizontalScrollBarVisibility="Disabled">
         <StackPanel Spacing="{StaticResource StackGap1}">
+          <Button x:Name="RailNotebookButton" Classes="rail-item" HorizontalAlignment="Stretch"
+                  IsVisible="False"
+                  Padding="{StaticResource ActivityRailItemPadding}"
+                  AutomationProperties.Name="AI Notebook">
+            <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+              <TextBlock Text="AI Notebook" Classes="rail-title" />
+              <TextBlock x:Name="BadgeNotebookText" Text="Active" Classes="rail-badge" />
+            </StackPanel>
+          </Button>
+
           <Button x:Name="RailSetupButton" Classes="rail-item" HorizontalAlignment="Stretch"
                   Padding="{StaticResource ActivityRailItemPadding}">
             <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">

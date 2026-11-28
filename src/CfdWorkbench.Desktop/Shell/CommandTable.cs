@@ -78,6 +78,7 @@ public static class CommandTable
     [
         // File
         new("file.new", "New foil", "File", "⌘N", false, NoOp),
+        new("view.notebook", CfdWorkbench.Desktop.Notebook.NotebookCopy.EntryTitle, "File", null, false, NoOp, Modal: false),
         new("file.new-example", "New from example", "File", "⇧⌘N", false, NoOp),
         new("file.open", "Open…", "File", "⌘O", false, NoOp),
         new("file.save", "Save", "File", "⌘S", false, NoOp),

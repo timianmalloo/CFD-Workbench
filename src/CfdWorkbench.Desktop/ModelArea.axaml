@@ -8,6 +8,7 @@
              xmlns:run="using:CfdWorkbench.Desktop.CfdRun"
              xmlns:results="using:CfdWorkbench.Desktop.Results"
              xmlns:assistant="using:CfdWorkbench.Desktop.Assistant"
+             xmlns:notebook="using:CfdWorkbench.Desktop.Notebook"
              x:Class="CfdWorkbench.Desktop.ModelArea">
   <UserControl.Resources>
     <!-- The Rebuild popover's place: the toast inset (12) on three sides; 52 at the bottom clears the navbar.
@@ -241,6 +242,7 @@
         <setup:SetupWorkspaceView x:Name="SetupWorkspace" IsVisible="False" />
         <run:RunWorkspaceView x:Name="RunWorkspace" IsVisible="False" />
         <results:ResultsWorkspaceView x:Name="ResultsWorkspace" IsVisible="False" />
+        <notebook:NotebookWorkspaceView x:Name="NotebookWorkspace" IsVisible="False" />
 
         <!-- CAD/Analysis viewport toolbar (Ruling 277: pure viewport controls; ActivityRail is the single canonical area switcher).
              Hidden whenever ViewArrangementGrid is not visible. Each control runs a CommandTable row through ShellHost.RunCommand. -->

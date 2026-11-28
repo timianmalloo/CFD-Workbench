@@ -76,7 +76,7 @@
                          FontWeight="SemiBold"
                          FontSize="{StaticResource PropTitleSize}"
                          Foreground="{DynamicResource InkBrush}" />
-              <Grid ColumnDefinitions="Auto,*" ColumnSpacing="{StaticResource StackGap2}" RowDefinitions="Auto,Auto,Auto" RowSpacing="{StaticResource StackGap2}">
+              <Grid ColumnDefinitions="Auto,*" ColumnSpacing="{StaticResource StackGap2}" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="{StaticResource StackGap2}">
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Provider" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}" />
                 <ComboBox x:Name="ProviderPicker"
                           Grid.Row="0"
@@ -112,6 +112,24 @@
                          Grid.Row="2"
                          Grid.Column="1"
                          AutomationProperties.Name="Model identifier" />
+
+                <TextBlock x:Name="OptionalFastModelIdLabelText"
+                           Grid.Row="3"
+                           Grid.Column="0"
+                           Text="Fast model"
+                           VerticalAlignment="Top"
+                           Margin="{StaticResource Space1}"
+                           Foreground="{DynamicResource MutedBrush}" />
+                <StackPanel Grid.Row="3" Grid.Column="1" Spacing="{StaticResource StackGap1}">
+                  <TextBox x:Name="OptionalFastModelIdBox"
+                           Watermark="Leave blank to use primary model"
+                           AutomationProperties.Name="Optional fast model identifier" />
+                  <TextBlock x:Name="OptionalFastModelHelperText"
+                             Text="Optional same-endpoint fast model pin; requires its own AI-06 evaluation receipt."
+                             TextWrapping="Wrap"
+                             FontSize="{StaticResource CaptionSize}"
+                             Foreground="{DynamicResource MutedBrush}" />
+                </StackPanel>
               </Grid>
               <TextBlock x:Name="EndpointErrorText"
                          IsVisible="False"
@@ -163,25 +181,35 @@
                   Padding="{StaticResource Space3}">
             <StackPanel Spacing="{StaticResource StackGap2}">
               <DockPanel>
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="{StaticResource StackGap1}">
+                <WrapPanel DockPanel.Dock="Right" Classes="toolbar-wrap" Orientation="Horizontal">
                   <Button x:Name="RunEvalButton"
-                          Content="Run 9-item evaluation"
+                          Content="Run 11-item evaluation"
                           MinHeight="{StaticResource ControlHeight}"
-                          AutomationProperties.Name="Run 9-item model evaluation" />
+                          AutomationProperties.Name="Run primary model evaluation" />
+                  <Button x:Name="RunFastEvalButton"
+                          Content="Evaluate fast model"
+                          IsVisible="False"
+                          MinHeight="{StaticResource ControlHeight}"
+                          AutomationProperties.Name="Run fast model evaluation" />
                   <Button x:Name="CancelEvalButton"
                           Content="Cancel"
                           IsVisible="False"
                           MinHeight="{StaticResource ControlHeight}"
                           AutomationProperties.Name="Cancel model evaluation" />
-                </StackPanel>
+                </WrapPanel>
                 <TextBlock x:Name="EvalSectionHeadingText"
-                           Text="Model evaluation (9 active items; physical-fidelity reserved in v1)"
+                           Text="Model evaluation (11 active items; physical-fidelity reserved in v1)"
                            FontWeight="SemiBold"
                            FontSize="{StaticResource PropTitleSize}"
                            Foreground="{DynamicResource InkBrush}"
                            VerticalAlignment="Center"
                            TextWrapping="Wrap" />
               </DockPanel>
+              <TextBlock x:Name="FastEvalStatusText"
+                         IsVisible="False"
+                         FontSize="{StaticResource CaptionSize}"
+                         Foreground="{DynamicResource MutedBrush}"
+                         TextWrapping="Wrap" />
               <Border x:Name="EvalBusyBanner"
                       IsVisible="False"
                       Background="{DynamicResource SurfaceSoftBrush}"

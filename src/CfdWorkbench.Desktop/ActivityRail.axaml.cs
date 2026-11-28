@@ -2,7 +2,7 @@ using Avalonia.Controls;
 
 namespace CfdWorkbench.Desktop;
 
-/// <summary>The 6 document areas in flow order hosted inside the ModelArea workspace.</summary>
+/// <summary>The document areas in flow order hosted inside the ModelArea workspace.</summary>
 public enum WorkbenchArea
 {
     Setup,
@@ -10,10 +10,11 @@ public enum WorkbenchArea
     Analysis,
     Experiment,
     Run,
-    Results
+    Results,
+    Notebook
 }
 
-/// <summary>Live derived readiness badges rendered on the 7-Area Left Activity Rail.</summary>
+/// <summary>Live derived readiness badges rendered on the Left Activity Rail.</summary>
 public sealed record ActivityRailBadges(
     string Setup,
     string Cad,
@@ -23,7 +24,9 @@ public sealed record ActivityRailBadges(
     string Results,
     string Export,
     string SolverSetup,
-    string Settings = "No key");
+    string Settings = "No key",
+    string Notebook = "Active",
+    bool ShowNotebook = false);
 
 /// <summary>
 /// 7-Area Left Activity Rail (Ruling 277: single canonical area switcher). Pure Avalonia control with zero
@@ -44,6 +47,7 @@ public partial class ActivityRail : UserControl
         ? RailSolverSetupButton
         : ActiveArea switch
         {
+            WorkbenchArea.Notebook => RailNotebookButton,
             WorkbenchArea.Setup => RailSetupButton,
             WorkbenchArea.Analysis => RailAnalysisButton,
             WorkbenchArea.Experiment => RailExperimentButton,
@@ -55,6 +59,7 @@ public partial class ActivityRail : UserControl
     public ActivityRail()
     {
         InitializeComponent();
+        RailNotebookButton.Click += (_, _) => AreaSelected?.Invoke(WorkbenchArea.Notebook);
         RailSetupButton.Click += (_, _) => AreaSelected?.Invoke(WorkbenchArea.Setup);
         RailCadButton.Click += (_, _) => AreaSelected?.Invoke(WorkbenchArea.Cad);
         RailAnalysisButton.Click += (_, _) => AreaSelected?.Invoke(WorkbenchArea.Analysis);
@@ -72,6 +77,8 @@ public partial class ActivityRail : UserControl
         ActiveArea = activeArea;
         IsSolverSetupActive = solverSetupActive;
 
+        BadgeNotebookText.Text = badges.Notebook;
+        RailNotebookButton.IsVisible = badges.ShowNotebook || activeArea == WorkbenchArea.Notebook;
         BadgeSetupText.Text = badges.Setup;
         BadgeCadText.Text = badges.Cad;
         BadgeAnalysisText.Text = badges.Analysis;
@@ -82,6 +89,7 @@ public partial class ActivityRail : UserControl
         BadgeSolverSetupText.Text = badges.SolverSetup;
         BadgeSettingsText.Text = badges.Settings;
 
+        RailNotebookButton.Classes.Set("active", !solverSetupActive && activeArea == WorkbenchArea.Notebook);
         RailSetupButton.Classes.Set("active", !solverSetupActive && activeArea == WorkbenchArea.Setup);
         RailCadButton.Classes.Set("active", !solverSetupActive && activeArea == WorkbenchArea.Cad);
         RailAnalysisButton.Classes.Set("active", !solverSetupActive && activeArea == WorkbenchArea.Analysis);

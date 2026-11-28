@@ -1,0 +1,142 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:notebook="using:CfdWorkbench.Desktop.Notebook"
+             x:Class="CfdWorkbench.Desktop.Notebook.NotebookScorecardView">
+  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+    <StackPanel Spacing="{StaticResource StackGap2}">
+      <!-- TQ9 Stale Banner -->
+      <Border x:Name="StaleBanner"
+              IsVisible="False"
+              Background="{DynamicResource SurfaceSoftBrush}"
+              BorderBrush="{DynamicResource WarningBrush}"
+              BorderThickness="{StaticResource PropRailThickness}"
+              Padding="{StaticResource Space2}">
+        <TextBlock x:Name="StaleBannerText"
+                   Classes="pnl-cell"
+                   Foreground="{DynamicResource WarningBrush}"
+                   FontWeight="SemiBold"
+                   TextWrapping="Wrap" />
+      </Border>
+
+      <!-- Comparison Delta Summary (when Compare active & baseline exists) -->
+      <Border x:Name="ComparisonCard"
+              IsVisible="False"
+              Background="{DynamicResource SelectionBrush}"
+              BorderBrush="{DynamicResource PrimaryBrush}"
+              BorderThickness="{StaticResource HairlineThickness}"
+              CornerRadius="{StaticResource RoundedSm}"
+              Padding="{StaticResource Space2}">
+        <StackPanel Spacing="{StaticResource StackGap1}">
+          <TextBlock x:Name="ComparisonTitleText"
+                     Classes="pnl-head"
+                     Foreground="{DynamicResource OnSelectionBrush}" />
+          <TextBlock x:Name="ComparisonSummaryText"
+                     Classes="pnl-cell"
+                     FontFamily="{StaticResource MonoFontFamily}"
+                     Foreground="{DynamicResource OnSelectionBrush}"
+                     TextWrapping="Wrap" />
+        </StackPanel>
+      </Border>
+
+      <!-- Requirement Clauses Table -->
+      <Border Background="{DynamicResource SurfaceBrush}"
+              BorderBrush="{DynamicResource LineBrush}"
+              BorderThickness="{StaticResource HairlineThickness}"
+              CornerRadius="{StaticResource RoundedSm}"
+              Padding="{StaticResource Space2}">
+        <StackPanel Spacing="{StaticResource StackGap1}">
+          <TextBlock Text="Requirement scorecard"
+                     Classes="pnl-head" />
+          <Grid ColumnDefinitions="1.3*,1.1*,1.5*,Auto,Auto" ColumnSpacing="{StaticResource StackGap2}">
+            <TextBlock Grid.Column="0" Text="Clause" Classes="pnl-note" FontWeight="SemiBold" />
+            <TextBlock Grid.Column="1" Text="Target" Classes="pnl-note" FontWeight="SemiBold" />
+            <TextBlock Grid.Column="2" Text="Actual" Classes="pnl-note" FontWeight="SemiBold" />
+            <TextBlock Grid.Column="3" Text="Status" Classes="pnl-note" FontWeight="SemiBold" />
+            <TextBlock Grid.Column="4" Text="Tier" Classes="pnl-note" FontWeight="SemiBold" />
+          </Grid>
+          <Border Classes="prop-rule" />
+          <TextBlock x:Name="EmptyClausesText"
+                     Text="Generate a candidate to populate the requirement scorecard."
+                     Classes="pnl-note"
+                     IsVisible="True" />
+          <ItemsControl x:Name="ClausesList">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="notebook:ScorecardRowItem">
+                <Border BorderBrush="{DynamicResource LineBrush}"
+                        BorderThickness="{StaticResource PropRuleBottom}"
+                        Padding="{StaticResource Space1}">
+                  <StackPanel Spacing="{StaticResource ActivityRailBadgeGap}">
+                    <Grid ColumnDefinitions="1.3*,1.1*,1.5*,Auto,Auto" ColumnSpacing="{StaticResource StackGap2}">
+                      <TextBlock Grid.Column="0" Text="{Binding Label}" Classes="pnl-cell" FontWeight="SemiBold" />
+                      <TextBlock Grid.Column="1" Text="{Binding Target}" Classes="pnl-cell" FontFamily="{StaticResource MonoFontFamily}" />
+                      <TextBlock Grid.Column="2" Text="{Binding Actual}" Classes="pnl-cell" FontFamily="{StaticResource MonoFontFamily}" />
+                      <Border Grid.Column="3" Classes="prop-chip">
+                        <TextBlock Text="{Binding Status}" FontWeight="SemiBold" />
+                      </Border>
+                      <TextBlock Grid.Column="4" Text="{Binding MethodTier}" Classes="pnl-note" />
+                    </Grid>
+                    <TextBlock Text="{Binding Notice}"
+                               IsVisible="{Binding HasNotice}"
+                               Classes="pnl-note"
+                               TextWrapping="Wrap" />
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+
+      <!-- Mandatory Hydrodynamic Notices -->
+      <Border x:Name="NoticesCard"
+              IsVisible="False"
+              Background="{DynamicResource CanvasBrush}"
+              BorderBrush="{DynamicResource LineBrush}"
+              BorderThickness="{StaticResource HairlineThickness}"
+              CornerRadius="{StaticResource RoundedSm}"
+              Padding="{StaticResource Space2}">
+        <StackPanel Spacing="{StaticResource StackGap1}">
+          <TextBlock Text="Method &amp; hydrodynamic notices" Classes="pnl-head" />
+          <TextBlock x:Name="NoticesText" Classes="pnl-note" TextWrapping="Wrap" />
+        </StackPanel>
+      </Border>
+
+      <!-- FoilReq 1.0 Monospace DSL Viewer + Copy Button -->
+      <Border Background="{DynamicResource SurfaceBrush}"
+              BorderBrush="{DynamicResource LineBrush}"
+              BorderThickness="{StaticResource HairlineThickness}"
+              CornerRadius="{StaticResource RoundedSm}"
+              Padding="{StaticResource Space2}">
+        <StackPanel Spacing="{StaticResource StackGap2}">
+          <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="{StaticResource StackGap2}">
+            <TextBlock x:Name="FoilReqHeadingText"
+                       Grid.Column="0"
+                       Text="FoilReq 1.0 DSL"
+                       Classes="pnl-head"
+                       VerticalAlignment="Center" />
+            <TextBlock x:Name="CopyReceiptText"
+                       Grid.Column="1"
+                       Classes="pnl-note"
+                       VerticalAlignment="Center"
+                       IsVisible="False" />
+            <Button x:Name="CopyFoilReqButton"
+                    Grid.Column="2"
+                    Content="Copy FoilReq"
+                    MinHeight="{StaticResource ControlHeight}"
+                    AutomationProperties.Name="Copy FoilReq 1.0 DSL to clipboard" />
+          </Grid>
+          <TextBox x:Name="FoilReqDslBox"
+                   IsReadOnly="True"
+                   AcceptsReturn="True"
+                   TextWrapping="NoWrap"
+                   MaxHeight="{StaticResource AssistantPreviewMaxHeight}"
+                   FontFamily="{StaticResource MonoFontFamily}"
+                   FontSize="{StaticResource CaptionSize}"
+                   ScrollViewer.VerticalScrollBarVisibility="Auto"
+                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                   AutomationProperties.Name="FoilReq 1.0 DSL specification" />
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

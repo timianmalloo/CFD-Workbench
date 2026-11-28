@@ -257,6 +257,14 @@ internal static class DesktopHarness
             Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
         }
 
+        if (args.Contains("--notebook", StringComparer.Ordinal))
+        {
+            AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+            CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("notebook");
+            CfdWorkbench.Desktop.Tests.NotebookDesktopTests.Run();
+            Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+        }
+
         // Area 3 Analysis (docs/design/area3-analysis.md §18.2, seam S-A8): one child of the Desktop harness. PRE registers the mode
         // with three empty suites; TGL, LAY and PNA fill their own suite files only.
         if (args.Contains("--analysis", StringComparer.Ordinal))
@@ -631,7 +639,7 @@ internal static class DesktopHarness
             "--section-editor --part=2/2", "--properties-view --part=2/2", "--shell-window --part=1/2",
             "--plan-canvas --part=2/2", "--plan-canvas --part=1/2", "--controller-shell",
             "--views --part=1/2", "--analysis", "--views --part=2/2",
-            "--properties-cells --part=2/2", "--properties-cells --part=1/2", "--ui-p0", "--ui-w7-shell", "--ui-w7-cad", "--ui-w7-analysis", "--uia-probe", "--sweeps", "--setup", "--export-cad", "--solver-setup", "--wave10-ui", "--wave11-ai", "--rounded-tips", "--status-strip --part=1/3",
+            "--properties-cells --part=2/2", "--properties-cells --part=1/2", "--ui-p0", "--ui-w7-shell", "--ui-w7-cad", "--ui-w7-analysis", "--uia-probe", "--sweeps", "--setup", "--export-cad", "--solver-setup", "--wave10-ui", "--wave11-ai", "--rounded-tips", "--notebook", "--status-strip --part=1/3",
             "--status-strip --part=2/3", "--status-strip --part=3/3", "--shell-model");
         // The in-process checks above fail the run too, not only the child suites.
         return spawnedExit != 0 ? spawnedExit : CfdWorkbench.Desktop.Tests.DesktopChecks.FailureCount > 0 ? 1 : 0;
@@ -768,7 +776,7 @@ namespace CfdWorkbench.Desktop.Tests
 
         /// <summary>Spawned modes that open Avalonia windows, so each must print the scale line (controller-shell and shell-model open none).</summary>
         private static readonly string[] ScaleModes =
-            ["--section-editor", "--properties-view", "--shell-window", "--plan-canvas", "--views", "--analysis", "--properties-cells", "--status-strip", "--ui-w7-shell", "--ui-w7-cad", "--ui-w7-analysis", "--uia-probe", "--export-cad", "--solver-setup", "--wave10-ui", "--wave11-ai"];
+            ["--section-editor", "--properties-view", "--shell-window", "--plan-canvas", "--views", "--analysis", "--properties-cells", "--status-strip", "--ui-w7-shell", "--ui-w7-cad", "--ui-w7-analysis", "--uia-probe", "--export-cad", "--solver-setup", "--wave10-ui", "--wave11-ai", "--notebook"];
 
         /// <summary>Pure verdict: over the limit is Fail at a recorded load at or below the gate, else Miss; at or under it, Pass.</summary>
         public static FrameVerdict FrameBudgetVerdict(double valueMs, double limitMs, double? load) =>
