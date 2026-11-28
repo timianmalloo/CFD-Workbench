@@ -527,9 +527,12 @@ public static partial class UnitEntry
             return 1;
         }
 
-        private (string Unit, double Factor)[] Units() => family == UnitFamily.Angle
-            ? [("°", 1), ("deg", 1), ("rad", 180 / Math.PI)]
-            : [("%", 1)];
+        private (string Unit, double Factor)[] Units() => family switch
+        {
+            UnitFamily.Angle => [("°", 1), ("deg", 1), ("rad", 180 / Math.PI)],
+            UnitFamily.Percent => [("%", 1)],
+            _ => []
+        };
 
         private void Skip() { while (index < text.Length && char.IsWhiteSpace(text[index])) index++; }
         private char Peek => index < text.Length ? text[index] : '\0';
@@ -615,6 +618,11 @@ public static class PropertiesView
                 PointRows(point, curves(point.Curve)!, context.NotChecked, groups),
             _ => FoilRows(projection, groups)
         };
+        bool showTipGroup = selection is Selection.Foil
+            || selection is Selection.Station tipStation && tipStation.Index >= 0 && tipStation.Index < projection.Assignments.Count && tipStation.Eta == 1.0
+            || selection is Selection.Points { Items.Count: 1 } tipPt && curves is not null && Find(curves, tipPt.Items[0]) is { Curve: "leading" or "trailing", Role: PointRole.TipEnd or PointRole.TipHandle };
+        if (showTipGroup)
+            groups.Add(TipGroup(projection, estimates, plan, curves, context.NotChecked));
         var banner = context.NotChecked && selection is Selection.Points
             ? new RowMessage(PropertyCopy.NotChecked, MessageKind.Warning) : null;
         var (wing, availability) = Wing(projection, estimates, mode, context);
@@ -737,6 +745,101 @@ public static class PropertiesView
         ], [new RowMessage(PropertyCopy.FoilNote, MessageKind.Info)]));
         return new SelectionIdentity(IdentityGlyph.Foil, name, "Foil · nothing selected");
     }
+
+    private static PropertyGroup TipGroup(AuthoredProjection projection, WingEstimates? estimates, PlanformView? plan,
+        Func<string, CurveView?>? curves, bool readOnly)
+    {
+        var leading = plan?.Leading ?? curves?.Invoke("leading");
+        var trailing = plan?.Trailing ?? curves?.Invoke("trailing");
+        bool leVertical = IsVerticalTipRail(leading);
+        bool teVertical = IsVerticalTipRail(trailing);
+        double leRadiusMeters = SafeTipRadiusMeters(leading);
+        double teRadiusMeters = SafeTipRadiusMeters(trailing);
+        bool rounded = string.Equals(projection.Tip, "rounded", StringComparison.Ordinal);
+        double capRatio = projection.TipCapRatio ?? TipCapMath.DefaultCapRatio;
+
+        var rows = new List<PropertyRow>
+        {
+            TipTangentRow("tip:le-tangent", TipCopy.LeTangentLabel, leVertical, readOnly),
+            TipRadiusRow("tip:le-radius", TipCopy.LeRadiusLabel, leRadiusMeters, leVertical, readOnly),
+            TipTangentRow("tip:te-tangent", TipCopy.TeTangentLabel, teVertical, readOnly),
+            TipRadiusRow("tip:te-radius", TipCopy.TeRadiusLabel, teRadiusMeters, teVertical, readOnly),
+            TipCapRow(rounded, readOnly)
+        };
+        if (rounded)
+        {
+            rows.Add(readOnly
+                ? Count("tip:cap-ratio", TipCopy.CapRatioLabel, Quantity.Typed(capRatio)) with { State = RowState.Locked }
+                : new PropertyRow
+                {
+                    Key = "tip:cap-ratio",
+                    Label = TipCopy.CapRatioLabel,
+                    Kind = RowKind.Input,
+                    Unit = null,
+                    Family = UnitFamily.None,
+                    Dimensionless = true,
+                    Value = Quantity.Typed(capRatio),
+                    Description = TipCopy.CapRatioHelp,
+                    DescriptionAlwaysVisible = true,
+                    AutomationName = $"{TipCopy.CapRatioLabel}, 0.25 to 2.00",
+                    MustBePositive = true
+                });
+            double projSpanMeters = estimates?.SpanMeters ?? (projection.HalfSpanMeters ?? 0) * 2.0;
+            double overallSpanMeters = estimates?.OverallSpanMeters ?? projSpanMeters;
+            rows.Add(Length("tip:overall-span", TipCopy.OverallSpanLabel, overallSpanMeters) with
+            {
+                Description = TipCopy.DualSpanDisclosure(projSpanMeters * 1000.0, overallSpanMeters * 1000.0),
+                DescriptionAlwaysVisible = true
+            });
+        }
+        string summary = rounded
+            ? $"{TipCopy.CapRounded} ({Quantity.Typed(capRatio)})"
+            : leVertical || teVertical ? TipCopy.TangentVertical : TipCopy.CapFlat;
+        return new PropertyGroup("tip", TipCopy.GroupHeading, summary, true, rows, []);
+    }
+
+    private static bool IsVerticalTipRail(CurveView? rail) =>
+        rail is { Points.Count: >= 4 } && rail.Points[^1].Kind == TangentKind.Vertical && rail.Points[^2].Eta == 1.0;
+
+    private static double SafeTipRadiusMeters(CurveView? rail)
+    {
+        if (rail is null) return double.PositiveInfinity;
+        try { return CfdWorkbench.Core.Planform.TipRadiusMeters(rail); }
+        catch (InvalidOperationException) { return double.NaN; }
+    }
+
+    private static PropertyRow TipTangentRow(string key, string label, bool vertical, bool readOnly) => readOnly
+        ? Prose(key, label, vertical ? TipCopy.TangentVertical : TipCopy.TangentFree) with { State = RowState.Locked }
+        : new PropertyRow
+        {
+            Key = key,
+            Label = label,
+            Kind = RowKind.Choice,
+            Value = vertical ? "vertical" : "free",
+            Options = [new RowOption("free", TipCopy.TangentFree), new RowOption("vertical", TipCopy.TangentVertical)],
+            AutomationName = label
+        };
+
+    private static PropertyRow TipRadiusRow(string key, string label, double radiusMeters, bool vertical, bool readOnly)
+    {
+        if (vertical && !readOnly)
+            return LengthInput(key, label, radiusMeters, $"{label} in millimetres", null, nudge: false) with { MustBePositive = true };
+        if (double.IsPositiveInfinity(radiusMeters))
+            return Prose(key, label, TipCopy.StraightRadius) with { State = readOnly ? RowState.Locked : RowState.Normal };
+        return Length(key, label, radiusMeters, locked: readOnly);
+    }
+
+    private static PropertyRow TipCapRow(bool rounded, bool readOnly) => readOnly
+        ? Prose("tip:cap", TipCopy.CapLabel, rounded ? TipCopy.CapRounded : TipCopy.CapFlat) with { State = RowState.Locked }
+        : new PropertyRow
+        {
+            Key = "tip:cap",
+            Label = TipCopy.CapLabel,
+            Kind = RowKind.Choice,
+            Value = rounded ? "rounded" : "open",
+            Options = [new RowOption("open", TipCopy.CapFlat), new RowOption("rounded", TipCopy.CapRounded)],
+            AutomationName = TipCopy.CapLabel
+        };
 
     public const string PromoteLabel = "Promote";                       // the slice's verb
     public const string RemoveLabel = "Remove station";                 // S1-COPY-18
@@ -999,6 +1102,20 @@ public static class PropertiesView
             return new PropertyGroup("tan", "Tangent", "root mirror", true, mirrored,
                 [new RowMessage(PropertyCopy.RootMirrorHandle, MessageKind.Reason)], Continues: true);
         }
+        if (point.Role == PointRole.TipEnd && point.Kind == TangentKind.Vertical)
+        {
+            var tipNotes = new List<RowMessage> { new(TipCopy.VerticalTipHandleNote, MessageKind.Reason) };
+            var tipRows = new List<PropertyRow>
+            {
+                AngleFact("h:angle", curve.AngleLabel, angle) with { State = RowState.Locked },
+                !readOnly && handle.Freedom != PointFreedom.Fixed
+                    ? LengthInput("h:length", "Length", length, "Length of the tip handle, in millimetres", target, nudge: true)
+                        with { MustBePositive = true, Axis = RowAxis.Length }
+                    : Length("h:length", "Length", length, locked: true)
+            };
+            return new PropertyGroup("tan", title, $"{Quantity.PlacedAngle(angle)}°, {Quantity.TypedLength(length)} mm", true,
+                Lock(tipRows, tipNotes), tipNotes, Continues: true);
+        }
         string which = point.Role == PointRole.TipEnd ? "the tip handle" : "the root handle";
         var angleRows = readOnly
             ? new List<PropertyRow> { AngleFact("h:angle", curve.AngleLabel, angle), Length("h:length", "Length", length) }
@@ -1066,17 +1183,20 @@ public static class PropertiesView
         var (angle, length) = HandleGeometry(handle, anchor);
         var target = new PointRef(handle.Curve, handle.Id);
         bool mirror = handle.Role == PointRole.RootHandle && handle.Freedom == PointFreedom.SpanOnly;
+        bool verticalTip = handle.Role == PointRole.TipHandle && anchor.Kind == TangentKind.Vertical;
         var notes = new List<RowMessage>();
         if (mirror)
         {
             notes.Add(new RowMessage(PropertyCopy.RootHandleMoves, MessageKind.Reason));
             if (curve.HandlesByAngle) notes.Add(new RowMessage(PropertyCopy.RootMirrorHandle, MessageKind.Reason));
         }
+        if (verticalTip)
+            notes.Add(new RowMessage(TipCopy.VerticalTipHandleNote, MessageKind.Reason));
         List<PropertyRow> rows;
         string summary;
         if (curve.HandlesByAngle)
         {
-            bool angleFree = !readOnly && handle.Freedom is PointFreedom.Free or PointFreedom.ValueOnly;
+            bool angleFree = !readOnly && !verticalTip && handle.Freedom is PointFreedom.Free or PointFreedom.ValueOnly;
             bool lengthFree = !readOnly && handle.Freedom != PointFreedom.Fixed;
             rows =
             [
@@ -1100,7 +1220,7 @@ public static class PropertiesView
             summary = $"{Quantity.TypedLength(handle.SpanMeters)} mm, {Quantity.WithUnit(Value(handle.Ordinate, curve), curve.ValueUnit)}";
         }
         groups.Add(new PropertyGroup("hdl", "Handle", summary, true, Lock(rows, notes), notes,
-            Lead: mirror || !curve.HandlesByAngle ? null : new RowMessage(AngleReference(curve), MessageKind.Info)));
+            Lead: mirror || verticalTip || !curve.HandlesByAngle ? null : new RowMessage(AngleReference(curve), MessageKind.Info)));
 
         string title;
         string crumb;

@@ -91,6 +91,8 @@ public abstract record CommitOutcome
     {
         /// <summary>Structured maximum legal move magnitude in the field's display unit (F-42: avoids regex parsing in PropertiesPane).</summary>
         public double? MaxMoveAmount { get; init; }
+        /// <summary>Structured limiting bound in metres (e.g. max feasible tip radius on <c>DSL-TIP-RADIUS-BOUNDS</c>).</summary>
+        public double? LimitMeters { get; init; }
     }
 }
 
@@ -388,7 +390,8 @@ public sealed class WorkbenchController : IDisposable
                     Revision: feedRun is null ? null : session.RevisionOf(feedRun.Inputs.AcceptedId),
                     HistoricalText: selected is { Integrity: RunIntegrity.Intact } &&
                         selected.Run.Outcome is RunOutcome.Completed && RunRecord.RecomputedKey(selected.Run) != Freshness.CurrentKey(current)
-                        ? HistoricalBanner(selected.Run, current) : null));
+                        ? HistoricalBanner(selected.Run, current) : null,
+                    RoundedTipCap: projectionFeed.RoundedTipCap));
             if (AnalysisRunning)
                 view = view with { State = RunState.Running, StatusText = "Analysis: Running", ErrorCard = null };   // a failed attempt's card is not shown while the next one runs
             LayerSet = view.Layers;
@@ -407,7 +410,8 @@ public sealed class WorkbenchController : IDisposable
     /// <paramref name="Unavailable"/> carries the reason when the run's revision is not held (never another revision's data).
     /// </summary>
     public sealed record RunFeed(IReadOnlyList<StripVerdict>? Verdicts, IReadOnlyList<StationFrame>? Stations, double? RootThicknessRatio,
-        IReadOnlyList<Loads.Vec>? StripNormals, string? Unavailable, SectionTierResult? SectionTier, string? SectionFailureCode = null);
+        IReadOnlyList<Loads.Vec>? StripNormals, string? Unavailable, SectionTierResult? SectionTier, string? SectionFailureCode = null,
+        bool RoundedTipCap = false);
 
     private static readonly RunFeed NoFeed = new(null, null, null, null, null, null);
 
@@ -421,17 +425,20 @@ public sealed class WorkbenchController : IDisposable
         if (run.Outcome is not RunOutcome.Completed) return NoFeed;
         byte[]? source = run.Inputs.AcceptedId == current.AcceptedId ? current.Source : sourceOf(run.Inputs.AcceptedId);
         if (source is null) return NoFeed with { Unavailable = Labels.FeedRevisionNotHeld };
+        bool roundedTipCap = false;
         try
         {
+            var parsed = FoilSource.Parse(source);
+            roundedTipCap = parsed.IsParsed && parsed.Authored().Tip == "rounded";
             var verdicts = MethodRecord.DeriveVerdicts(run, source);
             var normals = MethodRecord.DeriveNormals(run, source);
             SectionTierResult sectionTier = SectionTier.Derive(run, source);
-            if (run.Settings.SectionEtas is not { Count: > 0 } etas) return new(verdicts, null, null, normals, null, sectionTier);
+            if (run.Settings.SectionEtas is not { Count: > 0 } etas) return new(verdicts, null, null, normals, null, sectionTier, RoundedTipCap: roundedTipCap);
             double[] all = etas.Append(0).Distinct().Order().ToArray();
             var frames = Placement.Sections(source, all, [0d, 1d], CancellationToken.None).Select(section => section.Frame).ToArray();
-            return new(verdicts, frames.Where((_, i) => etas.Contains(all[i])).ToArray(), frames[0].ThicknessRatio, normals, null, sectionTier);
+            return new(verdicts, frames.Where((_, i) => etas.Contains(all[i])).ToArray(), frames[0].ThicknessRatio, normals, null, sectionTier, RoundedTipCap: roundedTipCap);
         }
-        catch (ContractError error) { return NoFeed with { SectionFailureCode = error.Code }; }   // Row 10: the projection tells a failed solve (COPY-358) from no profile (COPY-357)   // Row 10: the projection tells a failed solve (COPY-358) from no profile (COPY-357)
+        catch (ContractError error) { return NoFeed with { SectionFailureCode = error.Code, RoundedTipCap = roundedTipCap }; }   // Row 10: the projection tells a failed solve (COPY-358) from no profile (COPY-357)
     }
 
     private string HistoricalBanner(AnalysisRun run, CurrentInputs current)
@@ -3315,26 +3322,133 @@ public sealed class WorkbenchController : IDisposable
     }
 
     /// <summary>
-    /// Null when every trailing-rail Bernstein ordinate is strictly aft of every leading-rail one (the certificate's
-    /// positive-chord rule); otherwise the dragged rail's offending Bernstein coefficient, in plan metres.
+    /// Spanwise-local positive-chord advisory check (Wave 13A: mirrors <c>Bernstein.CertifyPositiveChord</c> over
+    /// overlapping <c>η</c>-spans so swept vertical-tangent rounded tips never trigger false alarms). Returns null
+    /// when <c>trailing(η) &gt; leading(η)</c> everywhere, else an offending point in plan metres.
     /// </summary>
     public static (double SpanMeters, double Ordinate)? EdgeHullCrossing(PlanformView plan, string draggedCurve)
     {
         ArgumentNullException.ThrowIfNull(plan);
-        var leading = BernsteinCoefficients(plan.Leading);
-        var trailing = BernsteinCoefficients(plan.Trailing);
-        if (trailing.Min(item => item.Aft) > leading.Max(item => item.Aft)) return null;
-        var at = draggedCurve == "leading" ? leading.MaxBy(item => item.Aft) : trailing.MinBy(item => item.Aft);
-        return (at.Eta * plan.HalfSpanMeters, at.Aft);
+        var leadingSpans = BernsteinSpans(plan.Leading);
+        var trailingSpans = BernsteinSpans(plan.Trailing);
+        if (leadingSpans.Count == 0 || trailingSpans.Count == 0) return null;
+
+        // Fast path 1: endpoint crossing witness.
+        if (trailingSpans[0].Aft[0] <= leadingSpans[0].Aft[0])
+        {
+            double aft = draggedCurve == "leading" ? leadingSpans[0].Aft[0] : trailingSpans[0].Aft[0];
+            return (0.0, aft);
+        }
+        if (trailingSpans[^1].Aft[^1] <= leadingSpans[^1].Aft[^1])
+        {
+            double aft = draggedCurve == "leading" ? leadingSpans[^1].Aft[^1] : trailingSpans[^1].Aft[^1];
+            return (plan.HalfSpanMeters, aft);
+        }
+
+        // Fast path 2: global hull separation (unswept wings certified in O(N)).
+        double minTrailing = trailingSpans.Min(s => s.MinAft);
+        double maxLeading = leadingSpans.Max(s => s.MaxAft);
+        if (minTrailing > maxLeading) return null;
+
+        // BFS subdivision over overlapping eta-spans.
+        const int maxNodes = 512;
+        const int maxDepth = 16;
+        var queue = new Queue<(BezierSpan L, BezierSpan T, int Depth)>();
+        foreach (var l in leadingSpans)
+            foreach (var t in trailingSpans)
+                if (Math.Max(l.Eta[0], t.Eta[0]) < Math.Min(l.Eta[^1], t.Eta[^1]))
+                    queue.Enqueue((l, t, 0));
+
+        int splits = 0;
+        while (queue.Count > 0)
+        {
+            var (l, t, depth) = queue.Dequeue();
+            if (t.MinAft > l.MaxAft) continue;
+            bool crossing = t.MaxAft <= l.MinAft
+                || (Math.Abs(l.Eta[0] - t.Eta[0]) <= 1e-12 && t.Aft[0] <= l.Aft[0])
+                || (Math.Abs(l.Eta[^1] - t.Eta[^1]) <= 1e-12 && t.Aft[^1] <= l.Aft[^1]);
+            if (crossing)
+            {
+                double midEta = 0.5 * (Math.Max(l.Eta[0], t.Eta[0]) + Math.Min(l.Eta[^1], t.Eta[^1]));
+                double aft = draggedCurve == "leading" ? l.MaxAft : t.MinAft;
+                return (midEta * plan.HalfSpanMeters, aft);
+            }
+            if (splits >= maxNodes || depth >= maxDepth)
+            {
+                double midEta = 0.5 * (Math.Max(l.Eta[0], t.Eta[0]) + Math.Min(l.Eta[^1], t.Eta[^1]));
+                var probe = CfdWorkbench.Core.Planform.Probe(plan, Math.Clamp(midEta, 0.0, 1.0));
+                if (probe.ChordMeters <= 0.0)
+                    return (probe.SpanMeters, draggedCurve == "leading" ? probe.LeadingAftMeters : probe.TrailingAftMeters);
+                continue;
+            }
+            splits++;
+            double lWidth = l.Eta[^1] - l.Eta[0];
+            double tWidth = t.Eta[^1] - t.Eta[0];
+            if (lWidth >= tWidth)
+            {
+                var (l0, l1) = SplitBezier(l);
+                if (Math.Max(l0.Eta[0], t.Eta[0]) < Math.Min(l0.Eta[^1], t.Eta[^1])) queue.Enqueue((l0, t, depth + 1));
+                if (Math.Max(l1.Eta[0], t.Eta[0]) < Math.Min(l1.Eta[^1], t.Eta[^1])) queue.Enqueue((l1, t, depth + 1));
+            }
+            else
+            {
+                var (t0, t1) = SplitBezier(t);
+                if (Math.Max(l.Eta[0], t0.Eta[0]) < Math.Min(l.Eta[^1], t0.Eta[^1])) queue.Enqueue((l, t0, depth + 1));
+                if (Math.Max(l.Eta[0], t1.Eta[0]) < Math.Min(l.Eta[^1], t1.Eta[^1])) queue.Enqueue((l, t1, depth + 1));
+            }
+        }
+        return null;
     }
 
-    // Boehm knot insertion to multiplicity p at every interior knot: the control points become the Bernstein
-    // coefficients of every span (the same hull Geometry.Assess builds by exact interpolation).
-    private static List<(double Eta, double Aft)> BernsteinCoefficients(CurveView curve)
+    private sealed record BezierSpan(double[] Eta, double[] Aft, double MinAft, double MaxAft)
+    {
+        public static BezierSpan Create(double[] eta, double[] aft)
+        {
+            double min = aft[0], max = aft[0];
+            for (int i = 1; i < aft.Length; i++)
+            {
+                if (aft[i] < min) min = aft[i];
+                if (aft[i] > max) max = aft[i];
+            }
+            return new(eta, aft, min, max);
+        }
+    }
+
+    private static (BezierSpan Left, BezierSpan Right) SplitBezier(BezierSpan span)
+    {
+        int n = span.Eta.Length;
+        var etaWork = (double[])span.Eta.Clone();
+        var aftWork = (double[])span.Aft.Clone();
+        var leftEta = new double[n];
+        var leftAft = new double[n];
+        var rightEta = new double[n];
+        var rightAft = new double[n];
+        leftEta[0] = etaWork[0];
+        leftAft[0] = aftWork[0];
+        rightEta[n - 1] = etaWork[n - 1];
+        rightAft[n - 1] = aftWork[n - 1];
+        for (int r = 1; r < n; r++)
+        {
+            for (int i = 0; i < n - r; i++)
+            {
+                etaWork[i] = 0.5 * (etaWork[i] + etaWork[i + 1]);
+                aftWork[i] = 0.5 * (aftWork[i] + aftWork[i + 1]);
+            }
+            leftEta[r] = etaWork[0];
+            leftAft[r] = aftWork[0];
+            rightEta[n - 1 - r] = etaWork[n - 1 - r];
+            rightAft[n - 1 - r] = aftWork[n - 1 - r];
+        }
+        return (BezierSpan.Create(leftEta, leftAft), BezierSpan.Create(rightEta, rightAft));
+    }
+
+    // Boehm knot insertion to multiplicity p at every interior knot, returning one BezierSpan per non-empty knot span.
+    private static List<BezierSpan> BernsteinSpans(CurveView curve)
     {
         var knots = curve.Knots.ToList();
         var points = curve.Points.Select(point => (point.Eta, Aft: point.Ordinate)).ToList();
         int degree = knots.Count - points.Count - 1;
+        if (degree <= 0 || points.Count < degree + 1) return [];
         foreach (double knot in curve.Knots.Where(value => value > knots[0] && value < knots[^1]).Distinct().ToArray())
         {
             while (knots.Count(value => value == knot) < degree)
@@ -3356,7 +3470,21 @@ public sealed class WorkbenchController : IDisposable
                 knots.Insert(span + 1, knot);
             }
         }
-        return points;
+        var spans = new List<BezierSpan>();
+        int start = 0;
+        while (start + degree < points.Count)
+        {
+            var eta = new double[degree + 1];
+            var aft = new double[degree + 1];
+            for (int i = 0; i <= degree; i++)
+            {
+                eta[i] = points[start + i].Eta;
+                aft[i] = points[start + i].Aft;
+            }
+            if (eta[^1] > eta[0]) spans.Add(BezierSpan.Create(eta, aft));
+            start += degree;
+        }
+        return spans;
     }
 
     public Task<GestureOutcome> EndGestureAsync(GestureEnd reason, CancellationToken cancellation = default)
@@ -3653,6 +3781,54 @@ public sealed class WorkbenchController : IDisposable
             $"Planform moved {report.PlanformShiftMeters * 1e3:F2} mm.");
     });
 
+    /// <summary>Sets the FoilDSL 4.2 tip tangent mode (<c>Free</c> or <c>Vertical (G1)</c>) on <paramref name="rail"/>.</summary>
+    public Task<CommitOutcome> ApplyTipTangentAsync(string rail, bool vertical) => RunDirectCommandImmediate(() =>
+    {
+        var result = session.SetTipTangent(Guid.NewGuid().ToString("D"), rail, vertical);
+        if (!result.Committed)
+        {
+            string code = result.Code ?? "DSL-LOCK";
+            string copy = code == "DSL-LOCK" ? TipCopy.VerticalHandleRequired : (result.Reason ?? Labels.Refusal(code));
+            return new CommitOutcome.Refused(code, copy) { LimitMeters = result.LimitMeters };
+        }
+        string railLabel = rail == "leading" ? "Leading edge" : "Trailing edge";
+        string modeLabel = vertical ? TipCopy.TangentVertical : TipCopy.TangentFree;
+        return new CommitOutcome.Committed(result.AcceptedId!, $"{railLabel} tip tangent set to {modeLabel}.");
+    });
+
+    /// <summary>Sets the exact planform tip radius on <paramref name="rail"/> and maps Core <see cref="TipEditOutcome.LimitMeters"/> onto <see cref="CommitOutcome.Refused"/>.</summary>
+    public Task<CommitOutcome> ApplyTipRadiusAsync(string rail, double targetRadiusMeters) => RunDirectCommandImmediate(() =>
+    {
+        var result = session.SetTipRadius(Guid.NewGuid().ToString("D"), rail, targetRadiusMeters);
+        if (!result.Committed)
+        {
+            string code = result.Code ?? "DSL-TIP-RADIUS-BOUNDS";
+            string copy = code == "DSL-TIP-RADIUS-BOUNDS" && result.LimitMeters is { } limit
+                ? TipCopy.RadiusOutOfBounds(targetRadiusMeters * 1000.0, limit * 1000.0)
+                : code == "DSL-LOCK" ? TipCopy.VerticalHandleRequired
+                : (result.Reason ?? Labels.Refusal(code));
+            return new CommitOutcome.Refused(code, copy) { LimitMeters = result.LimitMeters };
+        }
+        string railLabel = rail == "leading" ? "Leading edge" : "Trailing edge";
+        string radiusText = Quantity.TypedLength(result.RadiusMeters ?? targetRadiusMeters);
+        return new CommitOutcome.Committed(result.AcceptedId!, $"{railLabel} tip radius {radiusText} mm.");
+    });
+
+    /// <summary>Sets the FoilDSL 4.2 3D tip closure mode (<c>open</c> or <c>rounded</c>) and optional cap ratio.</summary>
+    public Task<CommitOutcome> ApplyTipCapAsync(string tipMode, double? capRatio = null) => RunDirectCommandImmediate(() =>
+    {
+        var result = session.SetTipCap(Guid.NewGuid().ToString("D"), tipMode, capRatio);
+        if (!result.Committed)
+        {
+            string code = result.Code ?? "DSL-UNIT";
+            return new CommitOutcome.Refused(code, result.Reason ?? Labels.Refusal(code)) { LimitMeters = result.LimitMeters };
+        }
+        string report = string.Equals(tipMode, "rounded", StringComparison.Ordinal)
+            ? string.Create(CultureInfo.InvariantCulture, $"{TipCopy.CapLabel} set to {TipCopy.CapRounded} (ratio {(capRatio ?? TipCapMath.DefaultCapRatio):0.00}).")
+            : $"{TipCopy.CapLabel} set to {TipCopy.CapFlat}.";
+        return new CommitOutcome.Committed(result.AcceptedId!, report);
+    });
+
     /// <summary>
     /// Fast in-memory wing-dimension commit: applies the B-spline algebra directly and dispatches the slow
     /// geometry refresh asynchronously via <see cref="RefreshAcceptedAsync"/>, avoiding UI-thread spin loops (F-21).
@@ -3669,6 +3845,12 @@ public sealed class WorkbenchController : IDisposable
         try
         {
             var outcome = action();
+            if (outcome is CommitOutcome.Refused refused)
+            {
+                SetStatus(refused.Copy, warningOnRefusal ? ReportKind.Warning : ReportKind.Error);
+                Notify();
+                return Task.FromResult(outcome);
+            }
             Inspection = session.InspectAccepted();
             UpdateEstimates();
             var committed = (CommitOutcome.Committed)outcome;
