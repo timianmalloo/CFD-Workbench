@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-11-28T04:09:28Z",
+  "generated": "2026-11-28T05:20:02Z",
   "audit": [
     {
       "actor": null,
@@ -46199,6 +46199,36 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-11-28T03:56:02Z",
       "duration_seconds": 806.0
+    },
+    {
+      "id": "al-01M8G9H72ATW1DHGXYFB2BHW57",
+      "shortname": "join-w13a-core",
+      "datetime": "2026-11-28T05:20:02Z",
+      "session": "80549eef-c72e-4649-a6ab-8439d9935577",
+      "prompt": "the join of swarm-w13a-core-ca1a6a44 into main",
+      "summary": "Joined w13a-core (aafcba72): FoilDSL 4.2, Bernstein.CertifyPositiveChord BFS, TipCapMath, STL/3MF/STEP/3DM rounded tip caps (live Rhino3dm IsValid=true), COPY-941 Analysis, foildsl.md sync; 8/8 mutants killed; w13-verifier PASS recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/wave13-rounded-tips-and-ai-notebook.md",
+        "docs/specs/foildsl.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Converge Stage 1 w13a-core onto local main with all join-ring and verify gates green",
+      "done_when": "conductor-join.py exits 0 on local main with clean tree and full test ring green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-11-28T05:11:45Z",
+      "duration_seconds": 497.0
     }
   ],
   "changes": [
